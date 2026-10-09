@@ -134,7 +134,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
             {this.presetService && <PresetSelector presetService={this.presetService}
                 batchExporter={presets => this.exportPresetFigures(presets)} presetProvider={() => this.exportPreset()}/>}</div>
-            <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage saveAsSVG={name => this.saveAsSVG(name)}
+            <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} saveAsSVG={name => this.saveAsSVG(name)}
                 saveAsPNG={name => this.saveAsPNG2(name)}/></div></>;
     }
 

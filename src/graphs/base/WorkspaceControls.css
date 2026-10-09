@@ -116,6 +116,7 @@
 .workspace-inspector .tools .form-check-input:checked { background-color: var(--workspace-green); border-color: var(--workspace-green); }
 .workspace-inspector .tools .btn { min-height: 34px; border-color: var(--workspace-rule); border-radius: 4px !important; background: var(--workspace-panel); }
 .workspace-inspector .tools .btn:hover { background: var(--workspace-canvas-deep); }
+.figure-export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .workspace-inspector .tools .btn-group { gap: 4px; }
 .workspace-inspector .tools .btn-group > .btn { border-radius: 4px !important; }
 .workspace-inspector .tools .list-group-item:has(.form-range) { padding-top: 11px; padding-bottom: 12px; }
