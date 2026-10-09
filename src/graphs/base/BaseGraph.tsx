@@ -1,8 +1,8 @@
-import {t, useLanguage, beginFigureExport, reportFigureExportFailure} from "../../localization";
+import {t, useLanguage} from "../../localization";
 import React, {Component, useRef, useState} from 'react';
 
 
-import {Board, JSXGraph} from "jsxgraph";
+import {Board} from "jsxgraph";
 import {JGBox} from "../../JGBox";
 import {Col, Container, Overlay, Popover, Row} from "react-bootstrap";
 import {SizeContext} from "../context/SizeContext";
@@ -10,7 +10,6 @@ import {Commands} from "./Commands";
 import {Tools} from "./Tools";
 import {AxisStyles} from "../styles/AxisStyles";
 import Slider from "../../inputs/Slider";
-import html2canvas from "html2canvas";
 import {geometryCache} from "../../bezeg/cache/GeometryCache";
 import {Preset, PresetService} from "./presets/Presets";
 import {SiteContext} from "../context/react/SiteContext";
@@ -19,9 +18,11 @@ import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
 import {AxisContext} from "../context/AxisContext";
 import ToolTippedButton from "../../inputs/ToolTippedButton";
-import {ImageStore} from "./ImageStore";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
+import {GraphSession} from "./GraphSession";
+import {downloadPNG, downloadSVG} from "./export/FigureCapture";
+import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 
 
 function Help() {
@@ -93,6 +94,11 @@ export interface BoardState {
     boundingBox: [number, number, number, number]
 }
 
+interface FigureBatchScene {
+    preset: Preset;
+    runtimeState: unknown;
+}
+
 /**
  * Abstract class for creating graphs.
  */
@@ -103,13 +109,18 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     presetService: PresetService | undefined;
     protected board!: Board;
-    private resizeObserver?: ResizeObserver;
+    protected graphSession?: GraphSession;
+    protected graphInteractionLocked = false;
+    private initialFigureGraphState?: S;
+    private figureSceneGeneration = 0;
+    private figureBatchActive = false;
+    private activeSingleFigureExports = 0;
     private readonly lessonCapabilityAdapter: LessonGraphCapabilities = {
         captureState: () => this.captureLessonState(),
         restoreState: checkpoint => this.restoreLessonState(checkpoint),
         apply: action => this.applyLessonAction(action),
         stopAnimations: () => this.stopLessonAnimations(),
-        isAvailable: () => Boolean(this.board),
+        isAvailable: () => this.graphSession?.isReady === true,
     };
 
     protected workspaceTitle(): React.ReactNode | undefined { return (this.context as React.ContextType<typeof SiteContext>).workspace?.title; }
@@ -122,7 +133,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     protected workspaceSave(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
             {this.presetService && <PresetSelector presetService={this.presetService}
-                exporter={(name: string) => this.saveAsPNG(name)} presetProvider={() => this.exportPreset()}/>}</div>
+                batchExporter={presets => this.exportPresetFigures(presets)} presetProvider={() => this.exportPreset()}/>}</div>
             <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage saveAsSVG={name => this.saveAsSVG(name)}
                 saveAsPNG={name => this.saveAsPNG2(name)}/></div></>;
     }
@@ -130,6 +141,11 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     /** Exposes graph-owned behavior without leaking boards, controls, or Preset DTOs. */
     public getLessonCapabilities(): LessonGraphCapabilities {
         return this.lessonCapabilityAdapter;
+    }
+
+    /** Exposes the active lifetime owner to graph-owned runtime integrations. */
+    protected getActiveGraphSession(): GraphSession | undefined {
+        return this.graphSession?.isAlive ? this.graphSession : undefined;
     }
 
     protected applyLessonAction(action: LessonAction): void {
@@ -142,7 +158,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     /** Restores a static lesson scene through the graph's own preset importer. */
     protected prepareLessonDefaultScene(): void {
-        if (!this.board) throw new Error('The graph is still preparing. Try again in a moment.');
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
         this.importPresetData(cloneLessonValue(this.defaultPreset()));
         this.setState(this.lessonDefaultState());
         this.boardUpdate();
@@ -156,8 +172,37 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     protected stopLessonAnimations(): void {
     }
 
+    /** Releases scene objects whose lifetime is owned by a graph subclass. */
+    protected disposeFigureScene(): void {
+    }
+
+    /** Imports preset data without replacing the board or its lifetime resources. */
+    protected importFigurePresetData(preset: Preset): void {
+        this.importPresetData(preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(preset.data));
+    }
+
+    protected figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): S {
+        return {
+            ...(this.initialFigureGraphState ?? this.state),
+            ...(graphState ? cloneLessonValue(graphState) : {}),
+            initialized: true,
+        } as S;
+    }
+
+    protected captureFigureRuntimeState(): unknown {
+        return undefined;
+    }
+
+    /** Captures the in-memory entry scene for reversible figure batches. */
+    protected captureFigureEntryPreset(): Preset {
+        return this.exportPreset();
+    }
+
+    protected restoreFigureRuntimeState(runtimeState: unknown): void {
+    }
+
     protected captureLessonState(): LessonSceneCheckpoint {
-        if (!this.board) throw new Error('The graph is still preparing. Try again in a moment.');
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
         return {
             version: 1,
             value: cloneLessonValue({
@@ -169,7 +214,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     }
 
     private restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        if (!this.board) return;
+        if (!this.graphSession?.isReady) return;
         if (checkpoint.version !== 1 || !isLessonState(checkpoint.value)) {
             throw new Error('This lesson scene is no longer compatible with the graph.');
         }
@@ -198,9 +243,12 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     abstract initialize(): void;
 
     override componentDidMount() {
-        if (this.board == null) {
+        if (!this.graphSession?.isAlive) {
+            const session = new GraphSession();
+            this.graphSession = session;
+            this.initialFigureGraphState = cloneLessonValue(this.state);
             // JXG.Options.text.display = 'internal';
-            this.board = JSXGraph.initBoard("jgbox", {
+            this.board = session.createBoard("jgbox", {
                 showFullscreen: false,
                 boundingBox: [-5, 5, 5, -5],
                 // @ts-ignore
@@ -237,38 +285,30 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
             }
             // TODO We should remove this...
             this.initialize();
-            if (this.workspaceTitle() && typeof ResizeObserver !== "undefined") {
-                this.resizeObserver = new ResizeObserver(entries => {
-                    const {width, height} = entries[0].contentRect;
-                    if (width > 0 && height > 0) { this.board.resizeContainer(width, height, true); }
-                });
-                this.resizeObserver.observe(document.getElementById("jgbox")!);
+            const container = document.getElementById("jgbox");
+            if (this.workspaceTitle() && container) {
+                session.observeResize(container);
             }
+            session.markReady();
         }
     }
 
     override componentWillUnmount() {
-        this.resizeObserver?.disconnect();
-        if (this.workspaceTitle() && this.board) {
-            JSXGraph.freeBoard(this.board);
-            this.board = undefined as unknown as Board;
-        }
+        this.figureSceneGeneration++;
+        this.figureBatchActive = false;
+        this.graphInteractionLocked = false;
+        const session = this.graphSession;
+        this.graphSession = undefined;
+        this.board = undefined as unknown as Board;
+        session?.dispose();
     }
 
     saveAsSVG(fileName: string) {
-        const finish = beginFigureExport();
-        try {
-        // @ts-ignore
-        var svg = new XMLSerializer().serializeToString(this.board.renderer.svgRoot);
-        const file = new File([svg], fileName, {type: "image/svg+xml"});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(file);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-        } catch { reportFigureExportFailure(); } finally { finish(); }
+        const session = this.getActiveGraphSession();
+        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        this.activeSingleFigureExports++;
+        return downloadSVG(this.getFigureCaptureTarget(session), fileName)
+            .finally(() => { this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1); });
     }
 
 
@@ -284,7 +324,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
             return <DemonstrationWorkspace title={title} description={this.workspaceDescription()}
                 edit={this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>}
                 display={this.state.initialized ? this.workspaceDisplay() : null}
-                save={this.workspaceSave()} navigate={action => this.navigateBoard(action)}
+                save={this.workspaceSave()} navigate={action => this.navigateBoard(action)} graphBusy={this.figureBatchActive}
                 // A deep link can request a lesson before JSXGraph has created
                 // its board. Do not mount the session until the graph-owned
                 // capability is ready; otherwise captureState() fails once
@@ -313,6 +353,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     }
 
     unsuspendBoardUpdate() {
+        if (!this.graphSession?.isAlive) return;
         this.boardUpdate();
         this.board.unsuspendUpdate();
     }
@@ -328,13 +369,14 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         ];
         if (this.presetService) {
             tools.push(<PresetSelector presetService={this.presetService}
-                                       exporter={(fileName: string) => this.saveAsPNG(fileName)}
+                                       batchExporter={presets => this.exportPresetFigures(presets)}
                                        presetProvider={() => this.exportPreset()}/>);
         }
         return tools;
     }
 
     boardUpdate() {
+        if (!this.graphSession?.isAlive) return;
         geometryCache.invalidate();
         this.board.update();
     }
@@ -383,41 +425,168 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     abstract defaultPreset(): string
 
-    private async saveAsPNG(fileName: string) {
-        const finish = beginFigureExport();
-        const mmls = document.querySelectorAll<HTMLElement>("mjx-assistive-mml");
-        mmls.forEach(el =>
-            el.style.setProperty("display", "none", "important"));
-        try {
-            const canvas = await html2canvas(document.getElementById('jgbox') as HTMLElement);
-            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve));
-            if (!blob) throw new Error('PNG capture failed');
-            ImageStore.addImage(blob, fileName);
-        } finally {
-        mmls.forEach(el =>
-            el.style.removeProperty("display"));
-            finish();
-        }
+    private saveAsPNG2(fileName: string): Promise<void> {
+        const session = this.getActiveGraphSession();
+        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        this.activeSingleFigureExports++;
+        return downloadPNG(this.getFigureCaptureTarget(session), fileName)
+            .finally(() => { this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1); });
     }
 
-    private async saveAsPNG2(fileName: string) {
-        const finish = beginFigureExport();
-        const mmls = document.querySelectorAll<HTMLElement>("mjx-assistive-mml");
-        mmls.forEach(el =>
-            el.style.setProperty("display", "none", "important"));
+    private getFigureCaptureTarget(session: GraphSession) {
+        const board = this.board;
+        return {
+            container: board.containerObj as HTMLElement,
+            rendererRoot: (board.renderer as any).svgRoot as SVGSVGElement,
+            isAlive: () => this.graphSession === session && session.isAlive,
+            signal: session.signal,
+            waitUntilReady: () => session.waitUntilReady(),
+        };
+    }
+
+    private exportPresetFigures(presets: Preset[]): Promise<void> {
+        const session = this.getActiveGraphSession();
+        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+
+        const boardContainer = this.board.containerObj as HTMLElement;
+        const previousPointerEvents = boardContainer.style.pointerEvents;
+        this.figureBatchActive = true;
+        this.graphInteractionLocked = true;
+        boardContainer.style.pointerEvents = "none";
+        const releaseLockTransition = session.beginTransition();
+
+        return new Promise<void>(resolve => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                session.signal.removeEventListener("abort", abort);
+                resolve();
+            };
+            const abort = () => {
+                releaseLockTransition();
+                finish();
+            };
+            session.signal.addEventListener("abort", abort, {once: true});
+            this.forceUpdate(() => {
+                releaseLockTransition();
+                if (this.graphSession !== session || !session.isAlive) {
+                    finish();
+                    return;
+                }
+                const owner: FigureBatchOwner<Preset, FigureBatchScene> = {
+                    isAlive: () => this.graphSession === session && session.isAlive,
+                    signal: session.signal,
+                    waitUntilReady: () => session.waitUntilReady(),
+                    getCaptureTarget: () => this.getFigureCaptureTarget(session),
+                    captureEntryState: () => ({
+                        preset: cloneLessonValue(this.captureFigureEntryPreset()),
+                        runtimeState: cloneLessonValue(this.captureFigureRuntimeState()),
+                    }),
+                    applyPreset: (preset, operationSignal) => this.applyFigurePreset(session, preset, operationSignal),
+                    restoreEntryState: (scene, operationSignal) => this.applyFigurePreset(session, scene.preset, operationSignal, scene.runtimeState),
+                };
+                void downloadPresetFigures(owner, presets).finally(() => {
+                    if (this.graphSession !== session || !session.isAlive) {
+                        finish();
+                        return;
+                    }
+                    boardContainer.style.pointerEvents = previousPointerEvents;
+                    this.graphInteractionLocked = false;
+                    this.figureBatchActive = false;
+                    this.forceUpdate(finish);
+                });
+            });
+        });
+    }
+
+    private async applyFigurePreset(
+        session: GraphSession,
+        preset: Preset,
+        operationSignal: AbortSignal,
+        runtimeState?: unknown,
+    ): Promise<void> {
+        const generation = ++this.figureSceneGeneration;
+        const isCurrent = () => this.graphSession === session && session.isAlive &&
+            !operationSignal.aborted && generation === this.figureSceneGeneration;
+        if (!isCurrent()) return;
+        const releaseTransition = session.beginTransition();
         try {
-            const canvas = await html2canvas(document.getElementById('jgbox') as HTMLElement);
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch { reportFigureExportFailure(); } finally {
-        mmls.forEach(el =>
-            el.style.removeProperty("display"));
-            finish();
+            this.stopLessonAnimations();
+            this.board.suspendUpdate();
+            try {
+                this.disposeFigureScene();
+                const preservedBoardObjects = this.boardInfrastructureObjectClosure();
+                const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
+                if (remainingObjects.length) this.board.removeObject(remainingObjects);
+                this.importFigurePresetData(preset);
+            } finally {
+                if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
+            }
+
+            const nextState = this.figurePresetGraphState(preset.graphState, runtimeState);
+            await new Promise<void>((resolve, reject) => {
+                let finished = false;
+                const finish = (callback: () => void) => {
+                    if (finished) return;
+                    finished = true;
+                    operationSignal.removeEventListener("abort", cancel);
+                    callback();
+                };
+                const cancel = () => {
+                    if (generation === this.figureSceneGeneration) this.figureSceneGeneration++;
+                    finish(resolve);
+                };
+                operationSignal.addEventListener("abort", cancel, {once: true});
+                try {
+                    this.setState(() => isCurrent() ? nextState : null, () => {
+                        if (!isCurrent()) {
+                            finish(resolve);
+                            return;
+                        }
+                        try {
+                            this.initialize();
+                            this.restoreFigureRuntimeState(runtimeState);
+                            if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, true);
+                            this.boardUpdate();
+                            session.requestFullUpdate();
+                            finish(resolve);
+                        } catch (error) {
+                            finish(() => reject(error));
+                        }
+                    });
+                } catch (error) {
+                    finish(() => reject(error));
+                }
+            });
+        } finally {
+            releaseTransition();
         }
+        if (!operationSignal.aborted && session.isAlive) await session.waitUntilReady();
+    }
+
+    private boardInfrastructureObjectClosure(): Set<object> {
+        const preserved = new Set<object>();
+        const visit = (object: any) => {
+            if (!object || preserved.has(object)) return;
+            preserved.add(object);
+            Object.values(object.childElements ?? {}).forEach(visit);
+            Object.values(object.ticks ?? {}).forEach(visit);
+            Object.values(object.labels ?? {}).forEach(visit);
+            visit(object.defaultTicks);
+        };
+        const defaultAxes = (this.board as any).defaultAxes;
+        // JSXGraph creates one board-owned infobox even when it is hidden. It
+        // remains part of its pointer/drag infrastructure for the board's
+        // entire lifetime, so scene replacement must leave it in place.
+        visit((this.board as any).infobox);
+        for (const axis of [defaultAxes?.x, defaultAxes?.y]) {
+            visit(axis);
+            Object.values(axis?.ancestors ?? {}).forEach(visit);
+            visit(axis?.point1);
+            visit(axis?.point2);
+        }
+        return preserved;
     }
 
     private importBoardState(boardState: BoardState) {

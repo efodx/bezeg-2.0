@@ -12,6 +12,16 @@ import {BaseGraphStates} from "../../base/BaseCurveGraph";
 class Graph extends BaseRationalCurveGraph<any, BaseGraphStates> {
     private stepsDone: number = 0;
 
+    protected override captureFigureRuntimeState(): unknown {
+        return {...(super.captureFigureRuntimeState() as object), stepsDone: this.stepsDone};
+    }
+
+    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
+        super.restoreFigureRuntimeState(runtimeState);
+        const stepsDone = (runtimeState as {stepsDone?: number} | undefined)?.stepsDone;
+        if (typeof stepsDone === "number" && Number.isFinite(stepsDone)) this.stepsDone = stepsDone;
+    }
+
     subdivide() {
         if (this.stepsDone > 4) {
             return;

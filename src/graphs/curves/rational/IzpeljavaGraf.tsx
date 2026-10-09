@@ -20,6 +20,10 @@ function withRadius(r: number) {
 }
 
 export class IzpeljavaGraf extends BaseGraph<any, any> {
+    private unsubscribeMoveListener?: () => void;
+    private sourcePoint?: JXG.Point;
+    private derivedPoint?: JXG.Point;
+    private sourceAngle?: JXG.Angle;
 
 
     defaultPreset(): string {
@@ -27,6 +31,8 @@ export class IzpeljavaGraf extends BaseGraph<any, any> {
     }
 
     initialize(): void {
+        this.unsubscribeMoveListener?.();
+        this.unsubscribeMoveListener = undefined;
         const r = 1;
         const x = 0.4;
         const s = -0.75;
@@ -49,16 +55,54 @@ export class IzpeljavaGraf extends BaseGraph<any, any> {
         const segment5 = this.board.create('segment', [p0, p1], withColor(Color.LIGHT_GREEN));
         const segment6 = this.board.create('segment', [p2, p0], withColor(Color.LIGHT_GREEN));
 
-        const angle1 = this.board.create('angle', [O, p0, S], withRadius(0.4));
+        const angle1 = this.board.create('angle', [O, p0, S], withRadius(0.4)) as JXG.Angle;
         const angle2 = this.board.create('angle', [O, p1, p0], withRadius(0.4));
 
-        this.board.on('move', () => {
-            S.moveTo([0, S.Y()]);
-            // @ts-ignore
-            const alpha = angle1.Value('radian');
-            p1.moveTo([0, r * (1 - Math.pow(Math.sin(alpha), 2)) / Math.sin(alpha)]);
-        });
+        this.sourcePoint = S;
+        this.derivedPoint = p1;
+        this.sourceAngle = angle1;
+        this.subscribeConstructionUpdate();
 
+    }
+
+    protected override captureFigureRuntimeState(): unknown {
+        return {sourceY: this.sourcePoint?.Y() ?? -0.75};
+    }
+
+    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
+        const sourceY = (runtimeState as {sourceY?: number} | undefined)?.sourceY;
+        if (typeof sourceY !== "number" || !Number.isFinite(sourceY) || !this.sourcePoint || !this.derivedPoint || !this.sourceAngle) return;
+        this.unsubscribeMoveListener?.();
+        this.unsubscribeMoveListener = undefined;
+        this.sourcePoint.moveTo([0, sourceY]);
+        this.board.update();
+        this.updateConstruction(this.sourcePoint, this.derivedPoint, this.sourceAngle);
+        this.subscribeConstructionUpdate();
+    }
+
+    protected override disposeFigureScene(): void {
+        this.unsubscribeMoveListener?.();
+        this.unsubscribeMoveListener = undefined;
+        this.sourcePoint = undefined;
+        this.derivedPoint = undefined;
+        this.sourceAngle = undefined;
+    }
+
+    private subscribeConstructionUpdate(): void {
+        if (!this.sourcePoint || !this.derivedPoint || !this.sourceAngle) return;
+        const sourcePoint = this.sourcePoint;
+        const derivedPoint = this.derivedPoint;
+        const sourceAngle = this.sourceAngle;
+        this.unsubscribeMoveListener = this.getActiveGraphSession()?.on('move', () => {
+            this.updateConstruction(sourcePoint, derivedPoint, sourceAngle);
+        });
+    }
+
+    private updateConstruction(sourcePoint: JXG.Point, derivedPoint: JXG.Point, sourceAngle: JXG.Angle): void {
+        sourcePoint.moveTo([0, sourcePoint.Y()]);
+        // @ts-ignore
+        const alpha = sourceAngle.Value('radian');
+        derivedPoint.moveTo([0, 1 * (1 - Math.pow(Math.sin(alpha), 2)) / Math.sin(alpha)]);
     }
 
     override presets(): string | undefined {

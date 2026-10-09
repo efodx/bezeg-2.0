@@ -3,6 +3,7 @@ import React from 'react';
 
 import {Colors} from "./utilities/Colors";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseGraphState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {CurveStyles} from "../../styles/CurveStyles";
@@ -127,6 +128,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
 
     protected override stopLessonAnimations(): void {
         this.lessonAnimation.stop();
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
+        const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
+        return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
     public setLessonAnimation(action: Extract<LessonAction, {kind: 'animation'}>['command']) {

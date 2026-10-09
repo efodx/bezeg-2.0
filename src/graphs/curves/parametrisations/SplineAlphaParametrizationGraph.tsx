@@ -37,15 +37,22 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
     override importPreset(preset: Preset) {
         super.importPreset(preset);
-        const presetState = preset.graphState as SplineAlphaParamGraphStates;
-        if (presetState.numberOfPoints) {
+        const presetState = preset.graphState as SplineAlphaParamGraphStates | undefined;
+        if (presetState && typeof presetState.numberOfPoints === "number") {
             this.board.suspendUpdate();
-            this.getFirstCurve().setAlpha(presetState.alpha);
-            this.setState({alpha: presetState.alpha, numberOfPoints: presetState.numberOfPoints});
+            const alpha = typeof presetState.alpha === "number" ? presetState.alpha : this.state.alpha;
+            this.getFirstCurve().setAlpha(alpha);
+            this.setState({alpha, numberOfPoints: presetState.numberOfPoints});
             this.clearPoints();
             this.generateParamPoints(presetState.numberOfPoints);
             this.unsuspendBoardUpdate();
         }
+    }
+
+    protected override importFigurePresetData(preset: Preset): void {
+        super.importFigurePresetData(preset);
+        const alpha = (preset.graphState as Partial<SplineAlphaParamGraphStates> | undefined)?.alpha;
+        if (typeof alpha === "number" && Number.isFinite(alpha)) this.getFirstCurve().setAlpha(alpha);
     }
 
 

@@ -45,8 +45,12 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
-    private workspaceRevision = 0;
-    protected refreshWorkspace() { this.workspaceRevision++; this.forceUpdate(); }
+    protected workspaceRevision = 0;
+    protected refreshWorkspace() {
+        if (!this.graphSession?.isAlive) return;
+        this.workspaceRevision++;
+        this.forceUpdate();
+    }
 
     protected override applyLessonAction(action: LessonAction): void {
         const curve = this.getFirstJxgCurve();
@@ -175,9 +179,85 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     override componentDidMount() {
         super.componentDidMount();
-        this.board.on('down', (e) => this.handleDown(e));
-        this.board.on('up', (e) => this.handleUp(e));
-        this.board.on('move', (e) => this.handleMove(e));
+        const session = this.getActiveGraphSession();
+        if (!session) return;
+        session.on('down', (e) => this.handleDown(e));
+        session.on('up', (e) => this.handleUp(e));
+        session.on('move', (e) => this.handleMove(e));
+    }
+
+    override componentWillUnmount() {
+        const board = this.board;
+        try {
+            this.jxgCurves.filter(curve => curve.board === board).forEach(curve => curve.dispose());
+        } finally {
+            super.componentWillUnmount();
+        }
+    }
+
+    protected override disposeFigureScene(): void {
+        this.disposeFigureSceneResources();
+        this.workspaceRevision++;
+        const board = this.board;
+        if (!this.graphSession?.isAlive) return;
+        this.jxgCurves.filter(curve => curve.board === board).forEach(curve => curve.dispose());
+        const remainingPoints = this.graphJXGPoints
+            .filter(point => point.board === board && board.objectsList.includes(point))
+            .reverse();
+        if (remainingPoints.length) board.removeObject(remainingPoints);
+        this.jxgCurves = [];
+        this.graphJXGPoints = [];
+    }
+
+    /** Hook for child boards or other curve-owned resources that outlive adapter disposal. */
+    protected disposeFigureSceneResources(): void {
+    }
+
+    protected override captureFigureRuntimeState(): unknown {
+        return {
+            selectedCurveIndex: this.jxgCurves.findIndex(curve => curve.isSelected()),
+            selectedCurveOption: this.state.selectedCurveOption,
+            rationalStandardForms: this.jxgCurves.map(curve => curve instanceof JXGRationalBezierCurve
+                ? curve.inStandardForm()
+                : undefined),
+        };
+    }
+
+    protected override captureFigureEntryPreset(): Preset {
+        const preset = super.captureFigureEntryPreset();
+        const data = preset.data === undefined ? undefined : JSON.parse(JSON.stringify(preset.data));
+        this.jxgCurves.forEach((curve, index) => {
+            if (curve instanceof JXGRationalBezierCurve && data?.[index]?.[1]) {
+                // Existing preset DTOs use display-normalized weights in
+                // standard form. The batch entry snapshot must retain the
+                // effective weights so restoring the live scene is lossless.
+                data[index][1].weights = curve.getCurve().getEffectiveWeights().slice();
+            }
+        });
+        return {...preset, data};
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): S {
+        const state = super.figurePresetGraphState(graphState, runtimeState);
+        const rationalStandardForms = (runtimeState as {rationalStandardForms?: Array<boolean | undefined>} | undefined)?.rationalStandardForms;
+        if (rationalStandardForms) {
+            this.jxgCurves.forEach((curve, index) => {
+                const standardForm = rationalStandardForms[index];
+                if (curve instanceof JXGRationalBezierCurve && typeof standardForm === "boolean") {
+                    // Restore before React renders controls that read this flag.
+                    curve.setStandardForm(standardForm);
+                }
+            });
+        }
+        const selectedCurveIndex = (runtimeState as {selectedCurveIndex?: number} | undefined)?.selectedCurveIndex;
+        const selectedCurve = typeof selectedCurveIndex === "number" ? this.jxgCurves[selectedCurveIndex] : undefined;
+        selectedCurve?.select();
+        const selectedCurveOption = (runtimeState as {selectedCurveOption?: SelectedCurveOption} | undefined)?.selectedCurveOption;
+        return {
+            ...state,
+            curveSelected: Boolean(selectedCurve),
+            selectedCurveOption: selectedCurve ? selectedCurveOption ?? SelectedCurveOption.MOVE_CURVE : SelectedCurveOption.MOVE_CURVE,
+        } as S;
     }
 
     createRationalJSXBezierCurve(points: number[][], weights: number[]): JXGRationalBezierCurve {
@@ -236,7 +316,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     }
 
     handleDown(e: PointerEvent) {
-        if (this.inputsDisabled) {
+        if (this.inputsDisabled || this.graphInteractionLocked) {
             return;
         }
         this.board.suspendUpdate();
@@ -328,21 +408,20 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     override importPresetData(str: string) {
         this.board.suspendUpdate();
-        this.jxgCurves.filter(curve => curve.board === this.board).forEach(curve => curve.dispose());
-        this.board.removeObject(this.graphJXGPoints.filter(point => point.board === this.board).reverse());
-        this.board.unsuspendUpdate();
-        this.jxgCurves = [];
-        this.graphJXGPoints = [];
-
-        // @ts-ignore
-        str.forEach(p => {
-            const [id, object] = [p[0], p[1]];
-            let curve = ClassMapper.getFromDto(id)(object, this.board);
-            if (curve instanceof AbstractJXGBezierCurve) {
-                this.registerSubdivisionResultConsumer(curve);
-            }
-            return this.jxgCurves.push(curve);
-        });
+        try {
+            this.disposeFigureScene();
+            // @ts-ignore
+            str.forEach(p => {
+                const [id, object] = [p[0], p[1]];
+                let curve = ClassMapper.getFromDto(id)(object, this.board);
+                if (curve instanceof AbstractJXGBezierCurve) {
+                    this.registerSubdivisionResultConsumer(curve);
+                }
+                return this.jxgCurves.push(curve);
+            });
+        } finally {
+            this.board.unsuspendUpdate();
+        }
 
     }
 
@@ -358,6 +437,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     }
 
     private handleUp(e: PointerEvent) {
+        if (this.graphInteractionLocked) return;
         if (this.state.selectedCurveOption !== SelectedCurveOption.MOVE_CURVE) {
             // only handle when we're just moving curve
             return;
@@ -371,6 +451,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     }
 
     private handleMove(e: PointerEvent) {
+        if (this.graphInteractionLocked) return;
         if (this.state.selectedCurveOption !== SelectedCurveOption.MOVE_CURVE) {
             return;
         }

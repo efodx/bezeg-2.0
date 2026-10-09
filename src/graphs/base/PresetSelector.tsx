@@ -1,13 +1,11 @@
-import {t, useLanguage, beginFigureExport, reportFigureExportFailure} from "../../localization";
-import {Preset, Presets, PresetService} from "./presets/Presets";
-import React, {useContext, useState} from "react";
+import {t, useLanguage} from "../../localization";
+import {Preset, PresetService} from "./presets/Presets";
+import React, {useContext, useRef, useState} from "react";
 import {SiteContext} from "../context/react/SiteContext";
 import {Button, ButtonGroup, Form, Modal} from "react-bootstrap";
-import {wait} from "@testing-library/user-event/dist/utils";
 import {RefreshContext} from "../context/react/RefreshContext";
 import {ResetButton} from "./ResetButton";
 import ToolTippedButton from "../../inputs/ToolTippedButton";
-import {ImageStore} from "./ImageStore";
 import {PresetImportDialog} from "./PresetImportDialog";
 
 
@@ -24,25 +22,53 @@ function exportToFile(data: string) {
     document.body.removeChild(element);
 }
 
-function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => void, presetService: PresetService }) {
+function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => void | Promise<void>, presetService: PresetService }) {
     const {exporting} = useLanguage();
     const [show, setShow] = useState(false);
     const allPresets = props.presetService.loadPresets();
     const [selectedPresets, setSelectedPresets] = useState<string[]>(() => allPresets.data.map(preset => preset.id));
+    const trigger = useRef<HTMLSpanElement>(null);
+    const returnFocusAfterExport = useRef(false);
+    const exportFinished = useRef(false);
+    const modalExited = useRef(false);
+
+    const restoreTriggerFocus = () => {
+        if (!returnFocusAfterExport.current || !exportFinished.current || !modalExited.current) return;
+        returnFocusAfterExport.current = false;
+        window.requestAnimationFrame(() => trigger.current?.querySelector<HTMLButtonElement>("button")?.focus());
+    };
 
     const handleClose = () => setShow(false);
     const handleConfirm = () => {
         if (exporting) return;
-        props.onConfirm(selectedPresets);
+        returnFocusAfterExport.current = true;
+        exportFinished.current = false;
+        modalExited.current = false;
+        let result: void | Promise<void>;
+        try {
+            result = props.onConfirm(selectedPresets);
+        } catch {
+            result = undefined;
+        }
         setShow(false);
+        void Promise.resolve(result).then(() => {
+            exportFinished.current = true;
+            restoreTriggerFocus();
+        }, () => {
+            exportFinished.current = true;
+            restoreTriggerFocus();
+        });
     };
     const handleShow = () => setShow(true);
 
     return (
         <>
-            <ToolTippedButton disabled={exporting} tooltip={t("generate_preset_figures")} onClick={handleShow}>{t("generate_preset_figures")}</ToolTippedButton>
+            <span ref={trigger}><ToolTippedButton disabled={exporting} tooltip={t("generate_preset_figures")} onClick={handleShow}>{t("generate_preset_figures")}</ToolTippedButton></span>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose} onExited={() => {
+                modalExited.current = true;
+                restoreTriggerFocus();
+            }}>
                 <Modal.Header closeButton closeLabel={t("close")}>
                     <Modal.Title>{t("generate_figures")}</Modal.Title>
                 </Modal.Header>
@@ -155,7 +181,7 @@ function TrashModal(props: { trash: () => void, disabled?: boolean }) {
 export function PresetSelector(props: {
     presetService: PresetService,
     presetProvider: () => Preset,
-    exporter?: any
+    batchExporter: (presets: Preset[]) => void | Promise<void>
 }) {
     useLanguage();
     const siteContext = useContext(SiteContext);
@@ -166,21 +192,6 @@ export function PresetSelector(props: {
         presets: props.presetService.loadPresets(),
         selectedPreset: props.presetService.getPreset(presetContext.selected)
     });
-
-    async function exportPresets(allPresets: Presets) {
-        const finish = beginFigureExport();
-        ImageStore.clear();
-        try {
-            for (const preset of allPresets.data) {
-                presetContext.setSelected(preset.id);
-                // Allow the existing preset-remount path to settle before capturing the DOM.
-                await wait(100);
-                await props.exporter(preset.id);
-            }
-            await ImageStore.createZip();
-        } catch { reportFigureExportFailure(); }
-        finally { ImageStore.clear(); finish(); }
-    }
 
     return <Form.Group>
         <p className="inspector-help">{t("stored_in_this_browser_export_a_file_to_back_up_your_presets_or_transfer_them_to_another_browser")}</p>
@@ -242,7 +253,8 @@ export function PresetSelector(props: {
                     <PresetImportDialog onImported={refreshContext}/>
                     <ImageGenerationModal onConfirm={presets => {
                         const allPresets = props.presetService.loadPresets();
-                        exportPresets({data: allPresets.data.filter(preset => presets.includes(preset.id))});
+                        const selected = allPresets.data.filter(preset => presets.includes(preset.id));
+                        return props.batchExporter(selected);
                     }} presetService={props.presetService}/>
 
                 </ButtonGroup></ButtonGroup></Form.Group>

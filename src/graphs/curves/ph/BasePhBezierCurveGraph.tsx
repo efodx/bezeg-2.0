@@ -1,6 +1,5 @@
 import {t} from "../../../localization";
 import {HodographInputbox} from "./HodographInputBox";
-import {JXGPointWrapper} from "../object/JXGPointWrapper";
 import React from "react";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
@@ -14,6 +13,8 @@ import {SizeContext} from "../../context/SizeContext";
 import {PointAttributes} from "jsxgraph";
 import {PhBezierCurveCommands} from "../object/inputs/PhBezierCurveCommands";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
+import {Point} from "../../../bezeg/api/point/point";
+import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonAction} from '../../../learning/model';
 
@@ -25,6 +26,10 @@ export interface BasePhBezierCurveGraphStates extends BaseGraphStates {
 abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates> extends BaseBezierCurveGraph<P, S> {
 
     private hodographBoard!: JXG.Board;
+    private hodographInitializedBoard?: JXG.Board;
+    private pendingHodographBoundingBox?: [number, number, number, number];
+    private hodographBindings: ModelPointBinding[] = [];
+    private disposeHodographSessionResources?: () => void;
 
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
@@ -33,15 +38,11 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
         const parentBoard = this.board;
         return <>{super.workspaceEdit()}{this.getSelectedCurve() && <div className="inspector-group">
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
-            <HodographInputbox setRef={board => {
-                this.setHodographBoard(board);
-                this.initializeHodographs(this.getFirstCurveAsPHBezierCurve().w.map(p => [p.X(), p.Y()]));
-            }} onDispose={() => {
-                const curve = this.getFirstCurveAsPHBezierCurve();
-                curve.w = curve.w.map(point => new PointImpl(point.X(), point.Y()));
-                if (this.hodographBoard) { parentBoard.removeChild(this.hodographBoard); }
-                this.hodographBoard = undefined as unknown as JXG.Board;
-            }}/><PointCoordinateEditor prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
+            <HodographInputbox key={`hodograph-${this.workspaceRevision}`}
+                setRef={board => this.setHodographBoard(board)}
+                onResize={board => this.handleHodographBoardResize(board)} onDispose={() => {
+                this.disposeHodographBoard(parentBoard);
+            }}/><PointCoordinateEditor key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
                 board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}</>;
     }
     protected override workspaceDisplay(): React.ReactNode {
@@ -55,6 +56,28 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             showOffsetCurve: false,
             showOffsetCurveControlPoints: false
         };
+    }
+
+    protected override captureFigureRuntimeState(): unknown {
+        return {
+            ...(super.captureFigureRuntimeState() as Record<string, unknown>),
+            hodographBoundingBox: this.pendingHodographBoundingBox ?? this.validHodographBoundingBox(),
+        };
+    }
+
+    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
+        super.restoreFigureRuntimeState(runtimeState);
+        const boundingBox = (runtimeState as {hodographBoundingBox?: [number, number, number, number]} | undefined)?.hodographBoundingBox;
+        if (boundingBox?.every(Number.isFinite)) {
+            if (this.hodographBoard && this.hasUsableHodographSize(this.hodographBoard)) {
+                this.hodographBoard.setBoundingBox(boundingBox, true);
+                this.pendingHodographBoundingBox = undefined;
+            } else {
+                this.pendingHodographBoundingBox = [...boundingBox];
+            }
+        } else {
+            this.pendingHodographBoundingBox = undefined;
+        }
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -99,15 +122,10 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
 
     override getSelectedCurveCommands(): JSX.Element[] {
         const parentBoard = this.board;
-        return super.getSelectedCurveCommands().concat(<HodographInputbox
-            setRef={board => {
-                this.setHodographBoard(board);
-                this.initializeHodographs(this.getFirstCurveAsPHBezierCurve().w.map(p => [p.X(), p.Y()]));
-            }} onDispose={() => {
-                const curve = this.getFirstCurveAsPHBezierCurve();
-                curve.w = curve.w.map(point => new PointImpl(point.X(), point.Y()));
-                if (this.hodographBoard) {parentBoard.removeChild(this.hodographBoard);}
-                this.hodographBoard = undefined as unknown as JXG.Board;
+        return super.getSelectedCurveCommands().concat(<HodographInputbox key={`hodograph-${this.workspaceRevision}`}
+            setRef={board => this.setHodographBoard(board)}
+            onResize={board => this.handleHodographBoardResize(board)} onDispose={() => {
+                this.disposeHodographBoard(parentBoard);
             }}/>);
     }
 
@@ -128,8 +146,15 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
         return <div></div>;
     }
 
-    private initializeHodographs(hodographs: number[][]) {
-        const jxgGraphPoints = hodographs.map(((w, i) => this.hodographBoard.create('point', [w[0], w[1]], {
+    private initializeHodographs(hodographs: Point[]) {
+        if (!this.hodographBoard || !this.hasUsableHodographSize(this.hodographBoard)) return;
+        const modelPoints = hodographs.map(point => point instanceof PointImpl && !point.isXFunction() && !point.isYFunction()
+            ? point
+            : new PointImpl(point.X(), point.Y()));
+        if (modelPoints.some((point, i) => point !== hodographs[i])) {
+            this.getFirstCurveAsPHBezierCurve().w = modelPoints;
+        }
+        const jxgGraphPoints = modelPoints.map(((w, i) => this.hodographBoard.create('point', [w.X(), w.Y()], {
             label: {
                 fontSize: () => Math.max(20, 0.5 * SizeContext.fontSize),
                 useMathJax: true,
@@ -138,13 +163,11 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             size: () => Math.max(4, 0.5 * SizeContext.pointSize),
             name: "$$w_{" + i + "}$$"
         } as unknown as PointAttributes)));
-        const hodographPoints = jxgGraphPoints.map(point => new JXGPointWrapper(point));
-
+        this.hodographBindings = jxgGraphPoints.map((point, i) => new ModelPointBinding(modelPoints[i], point));
         jxgGraphPoints.forEach(point => point.on("drag", () => {
             this.boardUpdate();
         }));
         this.board.addChild(this.hodographBoard);
-        this.getFirstCurveAsPHBezierCurve().w = hodographPoints;
     }
 
     private setOffsetCurveDistance(e: number) {
@@ -171,10 +194,73 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     }
 
     private setHodographBoard(board: JXG.Board) {
-        if (this.hodographBoard) {
-            this.board.removeChild(this.hodographBoard);
+        if (this.hodographBoard && this.hodographBoard !== board) {
+            this.disposeHodographSessionResources?.();
         }
         this.hodographBoard = board;
+        this.hodographInitializedBoard = undefined;
+        const parentBoard = this.board;
+        this.disposeHodographSessionResources = this.getActiveGraphSession()?.registerCleanup(() => {
+            this.disposeHodographBindings();
+            if (parentBoard.renderer) parentBoard.removeChild(board);
+            if (this.hodographBoard === board) {
+                this.hodographBoard = undefined as unknown as JXG.Board;
+            }
+            this.hodographInitializedBoard = undefined;
+            this.disposeHodographSessionResources = undefined;
+        });
+    }
+
+    protected override disposeFigureSceneResources(): void {
+        this.disposeHodographBoard(this.board);
+    }
+
+    private disposeHodographBoard(parentBoard: JXG.Board) {
+        const disposeResources = this.disposeHodographSessionResources;
+        this.disposeHodographSessionResources = undefined;
+        if (disposeResources) {
+            disposeResources();
+        } else {
+            this.disposeHodographBindings();
+            if (this.hodographBoard && parentBoard.renderer && this.getActiveGraphSession()?.isAlive) {
+                parentBoard.removeChild(this.hodographBoard);
+            }
+        }
+        this.hodographInitializedBoard = undefined;
+        this.hodographBoard = undefined as unknown as JXG.Board;
+    }
+
+    private handleHodographBoardResize(board: JXG.Board) {
+        if (this.hodographBoard !== board || !this.hasUsableHodographSize(board)) return;
+        if (this.pendingHodographBoundingBox) {
+            board.setBoundingBox(this.pendingHodographBoundingBox, true);
+            this.pendingHodographBoundingBox = undefined;
+        } else if (!this.validHodographBoundingBox()) {
+            board.setBoundingBox([-5, 5, 5, -5], true);
+        }
+        if (this.hodographInitializedBoard === board) return;
+        this.initializeHodographs(this.getFirstCurveAsPHBezierCurve().w);
+        this.hodographInitializedBoard = board;
+        // PointCoordinateEditor subscribes to the auxiliary board on mount.
+        // Re-render without changing workspaceRevision so it binds this board.
+        if (this.getActiveGraphSession()?.isAlive) this.forceUpdate();
+    }
+
+    private hasUsableHodographSize(board: JXG.Board): boolean {
+        return Boolean(board.renderer && board.canvasWidth > 0 && board.canvasHeight > 0);
+    }
+
+    private validHodographBoundingBox(): [number, number, number, number] | undefined {
+        if (!this.hodographBoard) return undefined;
+        const box = this.hodographBoard.getBoundingBox();
+        return box.length === 4 && box.every(Number.isFinite)
+            ? [box[0], box[1], box[2], box[3]]
+            : undefined;
+    }
+
+    private disposeHodographBindings() {
+        this.hodographBindings.forEach(binding => binding.dispose());
+        this.hodographBindings = [];
     }
 
     private scale(number: number) {

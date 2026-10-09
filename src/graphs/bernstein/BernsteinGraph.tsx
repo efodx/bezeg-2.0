@@ -45,6 +45,14 @@ export class BernsteinGraph extends BaseGraph<any, any> {
         return "bernstein-graph";
     }
 
+    protected override disposeFigureScene(): void {
+        const existingObjects = [...new Set(this.jxgObjects)]
+            .filter((object: any) => object?.board === this.board && this.board.objectsList.includes(object))
+            .reverse() as any[];
+        if (existingObjects.length && this.graphSession?.isAlive) this.board.removeObject(existingObjects);
+        this.jxgObjects = [];
+    }
+
     initialize(): void {
         this.generateBernsteinPolynomials(this.board, this.state.n, this.state.isSumGraph);
         this.board.setBoundingBox([-this.padding, 1 + this.padding * 2, 1 + this.padding, -this.padding], true);

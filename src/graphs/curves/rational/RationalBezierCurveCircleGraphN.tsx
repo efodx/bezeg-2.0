@@ -10,8 +10,9 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStat
     }
 
     override initialize() {
-        const n = 3;
-        this.generateCurves(n);
+        if (this.jxgCurves.length === 0) {
+            this.generateCurves(3);
+        }
         this.boardUpdate();
     }
 

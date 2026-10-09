@@ -2,6 +2,7 @@ import React from 'react';
 
 import {Color, Colors} from "./utilities/Colors";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseGraphState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from "../../../learning/runtime/animation";
@@ -69,6 +70,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
     override componentWillUnmount() {
         this.animation.dispose();
         super.componentWillUnmount();
+    }
+
+    protected override stopLessonAnimations(): void {
+        this.animation.pause();
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
+        const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
+        return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
     override getGraphCommands(): JSX.Element[] {

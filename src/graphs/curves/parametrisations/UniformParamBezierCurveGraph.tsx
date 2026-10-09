@@ -16,7 +16,12 @@ interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphState
 }
 
 class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformParamBezierCurveGraphStates> {
-    private ts!: any[];
+    private ts?: number[];
+
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        this.ts = undefined;
+    }
 
     protected override workspaceDescription() {
         return t("compare_weighted_and_uniform_parametrization_of_the_ph_curve");
@@ -137,8 +142,9 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
 
     generateParamPoints() {
         console.log(this.ts);
+        const ts = this.ts ?? [];
         for (let i = 1; i <= this.state.numberOfPoints; i++) {
-            let point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(this.ts[i - 1]).X(), () => this.getFirstCurve()!.eval(this.ts[i - 1]).Y(), {
+            let point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(ts[i - 1]).X(), () => this.getFirstCurve()!.eval(ts[i - 1]).Y(), {
                 ...PointStyles.fixed,
                 size: () => SizeContext.pointSize * 0.5,
                 color: Colors[3],

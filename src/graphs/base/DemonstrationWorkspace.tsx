@@ -1,5 +1,5 @@
 import {t, useLanguage} from "../../localization";
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {NavLink, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {JGBox} from "../../JGBox";
@@ -17,7 +17,8 @@ type LessonMode = "content" | "explore" | "complete" | "closed";
 
 export function DemonstrationWorkspace(props: {
     title: React.ReactNode, description: string, edit: React.ReactNode, display: React.ReactNode,
-    save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities
+    save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
+    graphBusy?: boolean,
 }) {
     useLanguage();
     const {pathname, search, hash} = useLocation();
@@ -40,6 +41,7 @@ export function DemonstrationWorkspace(props: {
     const [lessonOpen, setLessonOpen] = useState(() => new URLSearchParams(search).get('learn') === '1');
     const [lessonMode, setLessonMode] = useState<LessonMode>(() => new URLSearchParams(search).get('learn') === '1' ? 'content' : 'closed');
     const inspector = useRef<HTMLElement>(null);
+    const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
     const fullScreen = presentation.fullScreen;
     const inspectorVisible = !fullScreen || presentationControls;
@@ -56,7 +58,12 @@ export function DemonstrationWorkspace(props: {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
     }, [lessonActive, lessonMode]);
-    return <main className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
+    useLayoutEffect(() => {
+        const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
+        if (element) element.inert = Boolean(props.graphBusy);
+    }, [props.graphBusy]);
+    return <main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+        className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
             <div><span className="workspace-eyebrow">{t("bezeg_explore_curves")}</span>
                 <h1>{props.title}</h1><p>{props.description}</p></div>
