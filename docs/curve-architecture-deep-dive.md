@@ -2,6 +2,8 @@
 
 Source assessment: 2026-10-09. This examines the current working tree, including existing uncommitted workspace edits; it is not a frozen release audit. Recommendations below are proposals, not accepted migrations. No application code, dependency, route, or preset format is changed by this assessment.
 
+Implementation follow-up: the owner authorized the first [curve ownership foundation](specs/curve-ownership-refactor.md). The diagnosis below records the pre-refactor data flow; use [current architecture](current-architecture.md) for the implemented numeric input bindings, graph-session lifecycle and figure-export boundaries. The wider scene/command/codec decomposition and renderer comparison remain future work.
+
 ## Recommendation
 
 Keep the mathematical implementations and JSXGraph initially. First give geometry, scene state, rendering, controls, persistence, and export separate ownership. The largest maintainability problem is their coupling, rather than a demonstrated inability of JSXGraph to draw the required curves. Replacing JSXGraph today would require rebuilding substantial educational interaction behavior while carrying that coupling forward.
@@ -95,7 +97,7 @@ Uniform sampling in [UniformParamBezierCurveGraph](../src/graphs/curves/parametr
 | PH adapter inherits the polynomial adapter and casts its underlying curve | Inheritance exposes operations the PH demonstration must disable | Compose capabilities for evaluable curves, operations and PH constructions |
 | Cleanup has improved, but main cleanup is workspace-conditional and pending drag timeouts have no explicit cancellation | Disposal still depends on layout and late callbacks can outlive their owner | Unconditional idempotent session disposal, owned subscriptions/timers and child boards |
 | [PresetSelector](../src/graphs/base/PresetSelector.tsx) changes the selected preset and waits a fixed 100 ms before capture | A timer does not prove scene, formulas and drawing are ready | Explicit `ready`/capture lifecycle, batch cancellation and restoration of the original scene |
-| SVG serializes the renderer tree while PNG captures DOM; [ImageStore](../src/graphs/base/ImageStore.ts) is global | Output contents/readiness and batch ownership vary by path | Owned export job using a settled scene and explicit formula/export policy |
+| SVG serializes the renderer tree while PNG captures DOM; the former `ImageStore` was global | Output contents/readiness and batch ownership vary by path | Owned export job using a settled scene and explicit formula/export policy |
 
 This is a source diagnosis, not a measured severity ranking. Existing improvements worth retaining include metadata independent of the router, validated preset imports, separated localization, base/specialized adapter disposal, PH child-board cleanup, mathematical regression fixtures, and the narrow lesson capability interface.
 

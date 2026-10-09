@@ -5,6 +5,10 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Future plan](future-plan.md): confirmed direction, intended outputs, and unresolved decisions.
 - [Guided lessons spec](specs/guided-lessons.md): bounded content-first learning flow, architecture seams, pilot scope, and acceptance evidence.
 - [Current architecture](current-architecture.md): the implementation observed in the repository, including hosting and rendering constraints.
+- [Curve architecture assessment](curve-architecture-deep-dive.md): drawing data flow, functionality preservation and decomposition recommendations.
+- [Curve ownership spec](specs/curve-ownership-refactor.md): the first bounded implementation of numeric inputs, runtime ownership and figure capture.
+- [Curve ownership verification](reviews/curve-ownership-refactor.md): implementation boundaries, review repairs and verification evidence.
+- [ADR 0006](adr/0006-model-input-ownership-before-renderer-migration.md): numeric model ownership and a staged renderer decision.
 - [Capability map](capabilities.md): active demonstrations and shared user workflows.
 - [UI functionality](ui-functionality.md): current workspace, selection, controls, presets, and figure export, described in English with Slovenian UI labels.
 - [Product direction](product-direction.md): audience, devices, languages, tool usability, and visual direction.

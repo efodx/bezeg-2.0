@@ -69,6 +69,8 @@ Import checks known preset keys, collection/curve structure, finite numerical da
 
 SVG exports the board renderer's SVG tree; PNG captures the board element. Downloads use the selected preset name or `izvoz`. An image is a figure, not an editable preset. Formula text rendered outside the SVG tree may differ between formats; exported formulas and batch captures still require visual verification.
 
+Figure capture waits for the current scene, fonts and formulas. Batch PNG generation temporarily disables graph controls, then restores the entry scene and selection without saving intermediate scenes to browser storage. A running De Casteljau animation returns paused at its entry parameter. Navigating away cancels the old graph's capture and suppresses its download; capture errors release the controls and show the existing export error.
+
 Routes that support curve selection provide named curve buttons, so selected-curve commands can be opened without clicking the graph. The general polynomial Bézier workflow adds visible editing modes and numeric point forms; PH generating points can be edited through the hodograph board and numeric fields. Other route point dragging and add/delete gestures still use the existing graph interaction. Preview and construction controls remain specific to each route and curve type. Shared selects and icon buttons have descriptive accessible names. Some route-specific previews still appear on hover. Physical-device touch use, classroom projection, and export fidelity require further review; the implementation report distinguishes browser verification from these outstanding checks.
 ## Language selection
 

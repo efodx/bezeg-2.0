@@ -1,0 +1,35 @@
+# Curve ownership foundation verification
+
+Source: [bounded spec](../specs/curve-ownership-refactor.md), [architecture assessment](../curve-architecture-deep-dive.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md). Implemented on 2026-10-09 from clean baseline `f79b4ed`; the separately requested CRA starter-test replacement is committed as `01b80ea`.
+
+Implementation commits: `7877469` owns numeric model bindings and the reusable graph-session module; `475bb72` integrates scene lifetime, PH auxiliary ownership and restorable figure export.
+
+## Implemented boundaries
+
+Editable polynomial, rational and spline inputs are numeric model points; adapters own bidirectional bindings and remove them by identity. PH generating inputs remain numeric and the auxiliary editor owns its bindings. Function-backed dependent geometry remains. Rational deletion now removes the corresponding weight, and standard-form display/Farin editing preserve effective evaluator weights during point changes.
+
+GraphSession owns the main board, subscriptions, resize observation, deferred drag refreshes, readiness and cancellation. Disposal is unconditional. FigureCapture owns target-scoped formula/font/image readiness, assistive styles, PNG/SVG encoding and downloads. PresetFigureBatch keeps blobs local and restores scenes through the existing graph owner rather than preset-context remounts. Graph hooks reconstruct extra objects, retain axes and the board infobox, preserve selection/editing mode and viewports, and restore private subdivision budgets. Batch entry snapshots retain rational effective weights and the standard-form display flag; saved preset DTOs remain unchanged. PH editor initialization waits for positive dimensions; hidden viewport restoration is queued until it becomes usable. Running De Casteljau playback returns paused at its entry parameter.
+
+Routes, preset interchange, storage namespace and dependencies are retained. The old ImageStore singleton is removed. This does not complete the broader scene/command/codec migration or select a replacement renderer. Existing global cache invalidation, JSXGraph sampling, solver behavior and rational singularity behavior remain; no performance improvement is claimed.
+
+## Review and repairs
+
+Bounded code work used GPT-6 Luna Max workers, with independent mathematical and engineering/UI reviews and handler review. Mathematical review found standardized display weights being committed during point edits; real-model and live-Farin regressions now cover the fix. Engineering review prompted operation cancellation/mutex protection, consistent animation controls, PH viewport restoration and keyboard-focus return. The animation pause policy is explicitly recorded in the spec.
+
+The first production browser run passed all 29 existing checks but failed the three new export regressions. Complete-scene checks exposed removal of JSXGraph's hidden native infobox and a PH auxiliary board initialized at zero dimensions while its inspector tab was hidden. The infrastructure object is now preserved; auxiliary initialization, viewport restoration and disposal are covered by the follow-up checks. Snapshot assertions remain meaningful rather than accepting changed object counts or nonfinite bounds.
+
+The added rational/Farin case exposed a separate entry-snapshot issue: display-normalized preset weights and an omitted display flag were insufficient to restore the current live editor. The snapshot now retains effective weights and the flag, and Farin initialization avoids duplicate sliders. A subsequent SVG string comparison differed only by floating-point roundoff (maximum coordinate difference about 2.85×10⁻¹³ pixels); the rational regression compares path commands and coordinates with a tight numerical tolerance while retaining exact scene metadata and explicit slider/display checks.
+
+The owner requested pausing during a game because visible testing windows interrupted it. Work was paused and resumed on request; subsequent browser checks run headless. No deployment or push was performed.
+
+## Verification
+
+The final source passes `npx tsc --noEmit --pretty false`, `npm run build` and `CI=true npm test -- --watchAll=false --runInBand`: 34 suites and 151 tests. The production bundle is `main.1ed82941.js`. The build retains existing ESLint, Browserslist and CRA/Babel warnings; this slice changes no dependencies. `git diff --check` passes.
+
+All 34 production browser checks pass against the unchanged final bundle on an isolated local preview at port 4182 with headless Chromium. `SMOKE_PORT=4182 npm run test:smoke:built` passed 33 checks; the rational case failed on the roundoff comparison described above. After the test-only correction, a focused `playwright test --grep 'batch restore preserves live Farin'` passed the remaining check (14.2 seconds total). This is combined full-suite and focused-rerun evidence, not a second full-suite run. The checks cover the catalog and all 26 routes, language changes retaining edited geometry/selection, saved-preset reopening, different batch PNGs with valid signatures, retained axes/infobox/selection/viewports/focus, De Casteljau/Bernstein auxiliaries, active rational Farin/standard-form restoration, PH child-board restoration followed by actual dragging, and two same-page polynomial→PH→polynomial cycles with expected board counts. Preview servers owned by the completed runs are stopped.
+
+The delegated bounded smoke check used headless Chrome at 1440×1000 and 390×844. Earlier integrated builds passed representative polynomial dragging, De Casteljau parameter/playback, rational weight editing, PH generating-point dragging and a guided lesson whose exit restored the entry curve path. At narrow width, the document had no horizontal overflow and the hint button had visible keyboard focus and responded to Enter. On production bundle `main.e932d8c8.js`, keyboard language switching and single SVG/PNG export passed without console/page errors in that run. The SVG contained three paths; the PNG had a valid signature and dimensions 794×660, and visual inspection showed the blue curve, orange labeled inputs and grid. These manual results are bounded evidence from before the final rational-entry change, rather than a claim of a fresh exhaustive UI audit.
+
+Retained smoke artifacts: [SVG](../../../../.codex/visualizations/2026/10/09/01a1211f-4dca-7d33-a853-75b5246bdadd/ownership-smoke-export.svg) and [PNG](../../../../.codex/visualizations/2026/10/09/01a1211f-4dca-7d33-a853-75b5246bdadd/ownership-smoke-export.png). They are local evidence outside the repository, not portable project assets.
+
+Actual constrained-spline pointer dragging, physical touch devices, projection/classroom use, comprehensive formula-export fidelity and renderer performance measurements remain unverified here. Model/adapter regressions cover constrained point semantics; browser route loading alone does not prove every gesture. The delegated preview was stopped after testing. No renderer replacement or performance claim follows from these checks.

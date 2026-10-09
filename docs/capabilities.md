@@ -53,6 +53,8 @@ The repeated `/param/param/` segment is present in the source. Treat any route c
 
 All 26 active graph routes use the shared demonstration workspace. Commands depend on the demonstration and curve attributes. Rational curves add weight controls and standard-form display; PH curves add hodograph editing and offsets; spline demonstrations expose their continuity-specific controls and keep derived points constrained. Do not infer that every command is available on every route.
 
+The [curve ownership foundation](specs/curve-ownership-refactor.md) retains these capabilities and JSXGraph. Rational point deletion now removes the matching weight; adding/deleting while standard-form display or Farin editing is active preserves every remaining effective weight. Batch figure capture waits for each scene and restores the entry geometry, selection and view without saving intermediate presets. Controls are temporarily unavailable during capture; running De Casteljau playback returns paused at the entry parameter. Evaluation/sampling and physical-device performance are unchanged by this foundation.
+
 ## Demonstration controls and effects
 
 Bounds below describe the UI rather than validated mathematical input domains. See [UI functionality](ui-functionality.md) for shared controls and selection.
