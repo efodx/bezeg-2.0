@@ -2,7 +2,7 @@
 
 This playbook applies to static client-only apps. Bezeg supplies a concrete example, but its geometry, controls, and language choices are not requirements for another SPA. A browser app can keep local state and exchange files without a backend.
 
-Guidance checked against official documentation on 2026-10-08. Tool versions and remote repository settings must be checked when a new project is created.
+Guidance checked against official documentation on 2026-10-08. Tool versions and remote repository settings must be checked when a new project is created. This release copy targets `https://efodx.github.io/bezeg-2.0/`; the original Bezeg site remains at `/bezeg/` in its separate repository.
 
 ## 1. Record the deployment contract
 
@@ -10,12 +10,12 @@ Before scaffolding, fill in this small project record:
 
 | Input | What to record | Bezeg today |
 | --- | --- | --- |
-| Hosting location | Project site, user/organization site, or custom domain | README points to a project site at `/bezeg/` |
-| Public base path | `/<repository>/` for a project site; normally `/` for a root site/domain | `/bezeg/` |
+| Hosting location | Project site, user/organization site, or custom domain | New project site at `/bezeg-2.0/`; original site remains at `/bezeg/` |
+| Public base path | `/<repository>/` for a project site; normally `/` for a root site/domain | `/bezeg-2.0/` |
 | Routing | Hash routes, history routes with a documented fallback, or generated static route files | History routes plus a 404 redirect pair |
 | Persistence | Memory, local browser storage, file exchange | Local presets and files |
 | Build and output | Tool, runtime, lockfile, build command, artifact directory | CRA, npm lockfile, `npm run build`, `build/` |
-| Publishing source | Actions workflow or publishing branch | Local `gh-pages` script exists; remote settings unverified |
+| Publishing source | Actions workflow or publishing branch | `gh-pages` script targets `efodx/bezeg-2.0`; Pages settings unverified |
 | External runtime assets | CDN resources and their failure behavior | MathJax loaded from jsDelivr |
 
 GitHub Pages serves static content rather than an application backend. [GitHub Pages creation guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
@@ -48,7 +48,7 @@ For a Vite project site, set `base` to `'/<repository>/'`; root sites normally u
 
 Choose a router base/basename consistent with that hosting path. Prefer route definitions relative to that base instead of repeating a repository name in each route. Configure any history fallback for the same base. Resolve images, CSS, fonts, manifests, and lazy chunks through the build tool's base-aware asset handling.
 
-Bezeg currently uses CRA's `homepage: "/bezeg"`, hard-coded `/bezeg` routes, `%PUBLIC_URL%` in its HTML template, and the redirect pair. Migrating to Vite must replace CRA-specific HTML substitutions and review script, style, and public-file handling. Merely changing `homepage` does not complete a migration.
+Bezeg currently uses CRA's `homepage: "/bezeg-2.0"`, hard-coded `/bezeg-2.0` routes, `%PUBLIC_URL%` in its HTML template, and the redirect pair. Migrating to Vite must replace CRA-specific HTML substitutions and review script, style, and public-file handling. Merely changing `homepage` does not complete a migration.
 
 ## 5. Build and verify the production artifact
 
@@ -66,7 +66,7 @@ Take action versions and permissions from official documentation when implementi
 
 If publishing built files from a branch, ensure that the publishing source has the appropriate `.nojekyll` handling when Jekyll processing is unwanted. A `.nojekyll` file only in the source repository is not proof it reaches the deployed artifact. See [GitHub's publishing guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
 
-Bezeg's declared local `npm run deploy` command runs its `predeploy` build and publishes `build/` through `gh-pages`. Building alone does not publish. Changing this pipeline is future implementation work; no deployment was performed while writing these docs.
+This release copy's `npm run deploy` command runs its `predeploy` build and publishes `build/` through `gh-pages` with the explicit remote `https://github.com/efodx/bezeg-2.0.git`. The command cannot select the original repository through local Git remotes. Building alone does not publish; no deployment was performed while preparing this release copy, and the destination repository's Pages settings still need verification.
 
 ## 7. Close the setup with a reusable checklist
 

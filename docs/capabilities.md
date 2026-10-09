@@ -4,7 +4,7 @@ Source inventory as of 2026-10-08. Routes below come from the ordered [`Demonstr
 
 The 2026-10-09 [curve architecture deep dive](curve-architecture-deep-dive.md) adds the drawing/update path, dependency findings, and preservation requirements for future refactoring. The route inventory remains here; proposed library changes are compared in [renderer options](research/curve-renderer-options.md).
 
-All route suffixes below follow `/bezeg`. The home route is `/bezeg`; its Explore action and the header Demonstrations link open the catalog at `/bezeg/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped by family. Existing graph URLs and browser-local presets are unchanged.
+All routes in this release use the `/bezeg-2.0` base. The home route is `/bezeg-2.0`; its Explore action and the header Demonstrations link open the catalog at `/bezeg-2.0/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped by family. Route suffixes and preset interchange files are retained. The separate original site remains at `/bezeg`; its browser presets are isolated and must be exported there and imported explicitly into this release.
 
 Static graph previews illustrate the three starting cards and each of the six mathematical families. All 26 catalog links remain visible; the catalog adds no live graphs or animation.
 

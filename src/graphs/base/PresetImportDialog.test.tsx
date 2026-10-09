@@ -22,7 +22,7 @@ test("invalid file reports an actionable error and cannot write", async () => {
 });
 
 test("replacement lists the affected collection and cancellation preserves it", async () => {
-    localStorage.setItem("preset-bezier-curve", "original");
+    localStorage.setItem("bezeg-2.0:preset-bezier-curve", "original");
     const imported = jest.fn();
     render(<PresetImportDialog onImported={imported}/>);
     fireEvent.click(screen.getByRole("button", {name: "Uvozi prednastavitve"}));
@@ -30,12 +30,12 @@ test("replacement lists the affected collection and cancellation preserves it", 
     expect(await screen.findByText("bezier-curve")).toBeVisible();
     expect(screen.getByRole("button", {name: "Zamenjaj zbirke in uvozi"})).toBeEnabled();
     fireEvent.click(screen.getByRole("button", {name: "Prekliči"}));
-    expect(localStorage.getItem("preset-bezier-curve")).toBe("original");
+    expect(localStorage.getItem("bezeg-2.0:preset-bezier-curve")).toBe("original");
     expect(imported).not.toHaveBeenCalled();
 });
 
 test("explicit replacement commits the validated file", async () => {
-    localStorage.setItem("preset-bezier-curve", "original");
+    localStorage.setItem("bezeg-2.0:preset-bezier-curve", "original");
     const imported = jest.fn();
     render(<PresetImportDialog onImported={imported}/>);
     fireEvent.click(screen.getByRole("button", {name: "Uvozi prednastavitve"}));
@@ -43,5 +43,6 @@ test("explicit replacement commits the validated file", async () => {
     const confirm = await screen.findByRole("button", {name: "Zamenjaj zbirke in uvozi"});
     fireEvent.click(confirm);
     await waitFor(() => expect(imported).toHaveBeenCalledTimes(1));
-    expect(JSON.parse(localStorage.getItem("preset-bezier-curve")!).data[0].id).toBe("Primer");
+    expect(localStorage.getItem("preset-bezier-curve")).toBeNull();
+    expect(JSON.parse(localStorage.getItem("bezeg-2.0:preset-bezier-curve")!).data[0].id).toBe("Primer");
 });

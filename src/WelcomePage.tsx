@@ -11,7 +11,7 @@ export function WelcomePage() {
     return <main className="welcome-page">
         <header><span className="welcome-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('home_headline')}</h1><p>{t('home_introduction')}</p>
-            <Link className="welcome-primary" to="/bezeg/demonstrations">{t('start_exploring')} →</Link></header>
+            <Link className="welcome-primary" to="/bezeg-2.0/demonstrations">{t('start_exploring')} →</Link></header>
         <figure className="welcome-illustration">
             <svg viewBox="0 0 420 240" role="img" aria-label={t('curve_illustration')}>
                 <path d="M25 190 C85 25 305 25 395 180" fill="none" stroke="#4f61bd" strokeWidth="4"/>

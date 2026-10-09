@@ -8,11 +8,11 @@ import './AppHeader.css';
 export function AppHeader() {
     useLanguage();
     return <header className="app-header">
-        <Link className="app-brand" to="/bezeg" aria-label={t('bezeg_home')}>
+        <Link className="app-brand" to="/bezeg-2.0" aria-label={t('bezeg_home')}>
             <img src={Logo} width="34" height="34" alt=""/><span>Bezeg</span>
         </Link>
         <div className="app-header-actions">
-            <NavLink className="app-topic-toggle" to="/bezeg/demonstrations">{t('demonstrations')}</NavLink>
+            <NavLink className="app-topic-toggle" to="/bezeg-2.0/demonstrations">{t('demonstrations')}</NavLink>
             <LanguageSelector compact/>
         </div>
     </header>;

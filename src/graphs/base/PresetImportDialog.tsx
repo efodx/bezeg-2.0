@@ -2,6 +2,7 @@ import {t, useLanguage, LocalizedError} from "../../localization";
 import React, {useRef, useState} from "react";
 import {Alert, Button, Form, Modal} from "react-bootstrap";
 import {commitPresetImport, preflightPresetImport, PresetImportPlan} from "./presets/PresetImport";
+import {appStorage} from "../../storage/appStorage";
 
 export function PresetImportDialog({onImported}: {onImported: () => void}) {
     useLanguage();
@@ -25,7 +26,7 @@ export function PresetImportDialog({onImported}: {onImported: () => void}) {
                         try {
                             if (file) {
                                 const contents = await file.text();
-                                if (version === readVersion.current) { setPlan(preflightPresetImport(contents)); }
+                                if (version === readVersion.current) { setPlan(preflightPresetImport(contents, appStorage)); }
                             }
                         } catch (failure) {
                             if (version === readVersion.current) { setError(failure instanceof LocalizedError ? failure : new LocalizedError({key: "cannot_read_the_file_choose_another_file", params: {}})); }
@@ -42,7 +43,7 @@ export function PresetImportDialog({onImported}: {onImported: () => void}) {
             </Modal.Body>
             <Modal.Footer><Button variant="secondary" onClick={close}>{t("cancel")}</Button>
                 <Button disabled={!plan || reading} onClick={() => {
-                    try { if (plan) { commitPresetImport(plan); close(); onImported(); } }
+                    try { if (plan) { commitPresetImport(plan, appStorage); close(); onImported(); } }
                     catch (failure) { setError(failure instanceof LocalizedError ? failure : new LocalizedError({key: "cannot_save_presets_free_browser_storage_space_and_try_again", params: {}})); }
                 }}>{plan?.replacements.length ? t("replace_collections_and_import") : t("import")}</Button></Modal.Footer>
         </Modal>

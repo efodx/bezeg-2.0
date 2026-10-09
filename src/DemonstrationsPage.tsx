@@ -16,8 +16,8 @@ import familyPh from './images/demonstrations/family-ph.svg';
 import familyParam from './images/demonstrations/family-param.svg';
 
 const familyIllustrations: Record<string, string> = {
-    basics: familyBasics, '/bezeg/bezier': familyBezier, '/bezeg/rational': familyRational,
-    '/bezeg/spline': familySpline, '/bezeg/ph': familyPh, '/bezeg/param': familyParam
+    basics: familyBasics, '/bezeg-2.0/bezier': familyBezier, '/bezeg-2.0/rational': familyRational,
+    '/bezeg-2.0/spline': familySpline, '/bezeg-2.0/ph': familyPh, '/bezeg-2.0/param': familyParam
 };
 const startingIllustrations: Record<string, string> = {
     bezier: startingBezier, decasteljau: startingConstruction, 'ph-cubic': startingPh,

@@ -19,7 +19,7 @@ $env:BENCHMARK_HOST = '0.0.0.0'
 node scripts/bezier-benchmark/serve.cjs
 ```
 
-The server prints the computer's LAN addresses. Open one of those on the phone; `localhost` on the phone refers to the phone itself. Stop the server with Ctrl+C when finished. The server serves generated benchmark files and, after `npm run build`, the production app under `/bezeg/` for manual interaction checks. No app deployment or firewall change is performed by these scripts.
+The server prints the computer's LAN addresses. Open one of those on the phone; `localhost` on the phone refers to the phone itself. Stop the server with Ctrl+C when finished. The server serves generated benchmark files and, after `npm run build`, the production app under `/bezeg-2.0/` for manual interaction checks. No app deployment or firewall change is performed by these scripts.
 
 ## Comparable measurements
 

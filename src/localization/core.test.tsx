@@ -22,7 +22,7 @@ test('switches language, updates the document, and saves a separate preference',
     fireEvent.change(screen.getByRole('combobox'), {target: {value: 'en'}});
     expect(screen.getByText('Language')).toBeVisible();
     expect(document.documentElement.lang).toBe('en');
-    expect(localStorage.getItem('bezeg-language')).toBe('en');
+    expect(localStorage.getItem('bezeg-2.0:bezeg-language')).toBe('en');
     expect(localStorage.getItem('preset-bezier-curve')).toBe('unchanged');
 });
 
@@ -66,10 +66,18 @@ test('runtime missing English message falls back to Slovenian', () => {
 });
 
 test.each(['en', 'sl', 'unsupported'])('initial preference %s is resolved without browser-language detection', saved => {
-    localStorage.setItem('bezeg-language', saved);
+    localStorage.setItem('bezeg-2.0:bezeg-language', saved);
     jest.isolateModules(() => {
         const isolated = require('./index');
         expect(isolated.t('language')).toBe(saved === 'en' ? 'Language' : 'Jezik');
+    });
+});
+
+test('ignores the original site language preference on the shared origin', () => {
+    localStorage.setItem('bezeg-language', 'en');
+    jest.isolateModules(() => {
+        const isolated = require('./index');
+        expect(isolated.t('language')).toBe('Jezik');
     });
 });
 
@@ -79,4 +87,18 @@ test('initial preference read failure falls back without throwing', () => {
         const isolated = require('./index');
         expect(isolated.t('language')).toBe('Jezik');
     });
+});
+
+test('blocked localStorage getter falls back without crashing module initialization', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    Object.defineProperty(window, 'localStorage', {configurable: true, get: () => {throw new Error('blocked');}});
+    try {
+        jest.isolateModules(() => {
+            const isolated = require('./index');
+            expect(isolated.t('language')).toBe('Jezik');
+        });
+    } finally {
+        if (descriptor) { Object.defineProperty(window, 'localStorage', descriptor); }
+        else { Reflect.deleteProperty(window, 'localStorage'); }
+    }
 });

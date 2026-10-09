@@ -1,6 +1,7 @@
 import {message, LocalizedError} from "../../../localization";
 import {BaseGraphState, BoardState} from "../BaseGraph";
 import {commitPresetImport, preflightPresetImport} from "./PresetImport";
+import {appStorage} from "../../../storage/appStorage";
 
 const PRESETS_PREFIX = "preset-";
 
@@ -24,27 +25,26 @@ export class PresetService {
     }
 
     exportAllPresetsToString() {
-        const storage = {...window.localStorage};
         const exportDto: any = {};
-        Object.entries(storage).forEach(entry => {
-            let key = entry[0];
-            let value = entry[1];
-            if (key.startsWith(PRESETS_PREFIX)) {
+        for (let index = 0; index < appStorage.length; index++) {
+            const key = appStorage.key(index);
+            const value = key === null ? null : appStorage.getItem(key);
+            if (key?.startsWith(PRESETS_PREFIX) && value !== null) {
                 exportDto[key] = JSON.parse(value);
             }
-        });
+        }
         return JSON.stringify(exportDto, null, '\t');
     }
 
     importFromString(str: string) {
-        const plan = preflightPresetImport(str);
+        const plan = preflightPresetImport(str, appStorage);
         if (plan.replacements.length) { throw new LocalizedError(message("confirm_replacement_of_existing_preset_collections_first")); }
-        commitPresetImport(plan);
+        commitPresetImport(plan, appStorage);
     }
 
     loadPresets() {
         let preset: string | null;
-        try { preset = window.localStorage.getItem(PRESETS_PREFIX + this.id); }
+        try { preset = appStorage.getItem(PRESETS_PREFIX + this.id); }
         catch { return {data: []} as Presets; }
         if (preset) {
             return JSON.parse(preset) as Presets;
@@ -53,7 +53,7 @@ export class PresetService {
     }
 
     savePresets(presets: Presets) {
-        window.localStorage.setItem(PRESETS_PREFIX + this.id, JSON.stringify(presets));
+        appStorage.setItem(PRESETS_PREFIX + this.id, JSON.stringify(presets));
     }
 
     removePreset(id: string) {

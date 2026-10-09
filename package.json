@@ -1,7 +1,7 @@
 {
-  "name": "bezeg",
-  "version": "0.2.0",
-  "homepage": "/bezeg",
+  "name": "bezeg-2.0",
+  "version": "2.0.0",
+  "homepage": "/bezeg-2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -28,7 +28,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d build -r https://github.com/efodx/bezeg-2.0.git --dotfiles",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test:smoke": "npm run build && npm run test:smoke:built",

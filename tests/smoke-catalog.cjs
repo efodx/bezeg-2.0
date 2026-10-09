@@ -65,7 +65,7 @@ const demonstrations = definitions.elements.map(element => {
     const headingKey = entry.heading || entry.title;
     const heading = messages[headingKey];
     if (!heading || heading.includes('{')) throw new Error(`Missing plain English heading for ${entry.id}: ${headingKey}`);
-    if (!entry.path.startsWith('/bezeg/')) throw new Error(`Demonstration path must stay under /bezeg/: ${entry.path}`);
+    if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
     return {id: entry.id, path: entry.path, heading};
 });
 

@@ -20,15 +20,15 @@ See [initial verification](reviews/automated-smoke-tests.md) for local results, 
 
 ## Setup
 
-Read [UI functionality](ui-functionality.md) for control behavior and `package.json` for current scripts. Resolve representative paths from `src/demonstrations.ts` and lesson availability from `src/learning/runtime/lessonCatalog.ts`. The app base is `/bezeg`; use the actual local preview origin supplied by the handler rather than assuming a port. Confirm preview ownership and report whether the run exercises production or development code.
+Read [UI functionality](ui-functionality.md) for control behavior and `package.json` for current scripts. Resolve representative paths from `src/demonstrations.ts` and lesson availability from `src/learning/runtime/lessonCatalog.ts`. The app base is `/bezeg-2.0`; use the actual local preview origin supplied by the handler rather than assuming a port. Confirm preview ownership and report whether the run exercises production or development code.
 
-Prefer a fresh browser session/origin for preset checks. Use a uniquely named `smoke-<run-id>` preset, preserve existing data, and restore shared-session state. The baseline does not import or replace existing collections.
+Prefer a fresh browser session/origin for preset checks. Use a uniquely named `smoke-<run-id>` preset, preserve existing data, and restore shared-session state. The baseline does not import or replace existing collections. The 2.0 app stores presets under its release namespace; original-site preset files should be exercised only through explicit import.
 
 ## Baseline
 
 | Check | Actions and expected observation |
 | --- | --- |
-| Entry and graph families | Open `/bezeg`, follow the demonstrations link, then open `bezier`, `rational`, `spline-c1`, and `ph-cubic` by catalog ID. Each displays its expected heading, visible curve/board, and usable inspector. Account for PH auxiliary boards as intentional. |
+| Entry and graph families | Open `/bezeg-2.0`, follow the demonstrations link, then open `bezier`, `rational`, `spline-c1`, and `ph-cubic` by catalog ID. Each displays its expected heading, visible curve/board, and usable inspector. Account for PH auxiliary boards as intentional. |
 | Point and slider response | On polynomial Bézier, drag a free control point and observe the point and curve move. On `decasteljau`, change the parameter slider and observe its value and construction update. Record actual before/after behavior. |
 | Family-specific controls | Change one rational weight and observe the curve respond. On PH, open the generating-point editor and confirm its auxiliary board and controls are usable. |
 | Navigation and lifecycle | Navigate from a polynomial route to PH and back, twice. Boards and controls remain usable; no duplicate workspace or unexpected auxiliary board remains. Recheck one edit after returning. |

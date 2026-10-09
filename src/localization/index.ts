@@ -1,6 +1,7 @@
 import {useSyncExternalStore} from 'react';
 import {sl} from './sl';
 import {en} from './en';
+import {appStorage} from '../storage/appStorage';
 
 export type Language = 'sl' | 'en';
 export type MessageKey = keyof typeof sl;
@@ -16,7 +17,7 @@ let persistenceFailed = false;
 let exportsInProgress = 0;
 let exportFailed = false;
 let revision = 0;
-try { if (window.localStorage.getItem(preferenceKey) === 'en') language = 'en'; } catch { persistenceFailed = true; }
+try { if (appStorage.getItem(preferenceKey) === 'en') language = 'en'; } catch { persistenceFailed = true; }
 const update = () => { revision++; listeners.forEach(listener => listener()); };
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 const snapshot = () => revision;
@@ -28,7 +29,7 @@ export function setLanguage(next: Language) {
     if (exportsInProgress > 0 || (next !== 'sl' && next !== 'en')) return;
     language = next;
     document.documentElement.lang = language;
-    try { window.localStorage.setItem(preferenceKey, next); persistenceFailed = false; } catch { persistenceFailed = true; }
+    try { appStorage.setItem(preferenceKey, next); persistenceFailed = false; } catch { persistenceFailed = true; }
     update();
 }
 export function beginFigureExport() {

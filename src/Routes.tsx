@@ -86,10 +86,10 @@ function Refresher({children}: {children: ReactNode}) {
 }
 
 const routes = [{
-    path: '/bezeg', element: <App/>, errorElement: <ErrorPage/>,
+    path: '/bezeg-2.0', element: <App/>, errorElement: <ErrorPage/>,
     children: [
         {index: true, element: <Refresher><WelcomePage/></Refresher>},
-        {path: '/bezeg/demonstrations', element: <Refresher><DemonstrationsPage/></Refresher>},
+        {path: '/bezeg-2.0/demonstrations', element: <Refresher><DemonstrationsPage/></Refresher>},
         ...getDemonstrationCatalog().demonstrations.map(({id, path}) => ({
             path, element: <Refresher>{graphElements[id]}</Refresher>,
         })),

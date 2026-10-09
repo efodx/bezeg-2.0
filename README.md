@@ -1,10 +1,10 @@
-# Bezeg
+# Bezeg 2.0
 
 **Explore the mathematics of curves, one control point at a time.**
 
 Bezeg is an interactive educational app for students and educators. Drag control points, adjust parameters, and follow geometric constructions to see how Bézier curves, splines, and Pythagorean hodograph (PH) curves work.
 
-[**Open Bezeg →**](https://efodx.github.io/bezeg/) · [Documentation](docs/README.md) · [Roadmap](docs/roadmap.md)
+[**Open Bezeg 2.0 →**](https://efodx.github.io/bezeg-2.0/) · [Documentation](docs/README.md) · [Roadmap](docs/roadmap.md)
 
 ## Explore
 
@@ -21,7 +21,7 @@ The app brings together 26 interactive demonstrations:
 
 Controls vary by demonstration. Save examples as browser-local presets, exchange preset files, and export figures as SVG or PNG. Presentation mode gives the graph more room for classroom use.
 
-Bezeg runs in the browser without accounts or a backend. The interface is currently in **Slovenian**; English support is planned. See the [capability map](docs/capabilities.md) and [UI guide](docs/ui-functionality.md) for the full inventory and current limitations.
+Bezeg runs in the browser without accounts or a backend. The interface defaults to **Slovenian**, and **English** is available from the language selector. See the [capability map](docs/capabilities.md) and [UI guide](docs/ui-functionality.md) for the full inventory and current limitations.
 
 ## Run locally
 
@@ -32,7 +32,7 @@ npm install
 npm start
 ```
 
-Open [localhost:3000/bezeg/](http://localhost:3000/bezeg/) in your browser. The development server reloads when you edit the source.
+Open [localhost:3000/bezeg-2.0/](http://localhost:3000/bezeg-2.0/) in your browser. The development server reloads when you edit the source.
 
 The current stack is React, TypeScript, JSXGraph, and Bootstrap, built with Create React App. See [technical architecture](docs/current-architecture.md) for how the app shell, geometry, graph adapters, and presets fit together.
 
@@ -66,7 +66,9 @@ Publish to GitHub Pages using the repository's deployment script:
 npm run deploy
 ```
 
-The deploy command builds first through `predeploy`, then publishes `build/` using `gh-pages`. The app uses the `/bezeg/` base path and a redirect fallback for direct route links. Confirm that the repository's Pages publishing settings match the script before deploying; remote settings have not been verified. The [GitHub Pages SPA playbook](docs/github-pages-spa-playbook.md) covers routing, assets, and publishing checks.
+The deploy command builds first through `predeploy`, then publishes `build/` using `gh-pages` to `https://github.com/efodx/bezeg-2.0.git`. The app is served at `/bezeg-2.0/` with an attributed redirect fallback for direct route links. This release is a separate copy: the original app and its site at `https://efodx.github.io/bezeg/` remain independent and are not targeted by this script.
+
+The public route base and browser storage namespace change in this release. Presets saved in the original site remain there and do not appear automatically in 2.0. To bring them over, export them from the original site and import that `.txt` preset file through 2.0's **Shrani** controls; the established file format and validation remain supported. The 2.0 language choice and saved presets use separate browser-local keys. The [GitHub Pages SPA playbook](docs/github-pages-spa-playbook.md) covers routing, assets, and publishing checks.
 
 ## Contribute
 

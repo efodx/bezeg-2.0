@@ -11,9 +11,9 @@ http.createServer((request, response) => {
     let pathname;
     try { pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname); }
     catch { response.writeHead(400).end(); return; }
-    const appRequest = pathname === '/bezeg' || pathname.startsWith('/bezeg/');
+    const appRequest = pathname === '/bezeg-2.0' || pathname.startsWith('/bezeg-2.0/');
     const root = appRequest ? appRoot : benchmarkRoot;
-    if (appRequest) pathname = pathname.slice('/bezeg'.length) || '/';
+    if (appRequest) pathname = pathname.slice('/bezeg-2.0'.length) || '/';
     if (pathname.endsWith('/')) pathname += 'index.html';
     const file = path.resolve(root, '.' + pathname);
     if (!file.startsWith(root + path.sep)) { response.writeHead(403).end(); return; }

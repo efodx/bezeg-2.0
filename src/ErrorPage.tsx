@@ -6,7 +6,7 @@ export function ErrorPage() {
         <div>
             <LanguageSelector/>
             {t("unable_to_open_this_page_return_to_bezeg_and_choose_a_demonstration")}
-            <p><a href="/bezeg">{t("bezeg_home")}</a></p>
+            <p><a href="/bezeg-2.0">{t("bezeg_home")}</a></p>
         </div>
     );
 }

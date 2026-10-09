@@ -52,8 +52,8 @@ async function setLanguage(page, language) {
 }
 
 test('switching SL → EN → SL keeps edited Bézier geometry and curve selection', async ({page}) => {
-    await page.addInitScript(() => localStorage.setItem('bezeg-language', 'sl'));
-    await page.goto('/bezeg/bezier/curve', {waitUntil: 'domcontentloaded'});
+    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'sl'));
+    await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
     const inspector = await selectBezierCurve(page);
     const editor = await openPointEditor(inspector);
     const x = editor.getByRole('spinbutton', {name: 'p0 x'});
@@ -87,8 +87,8 @@ test('switching SL → EN → SL keeps edited Bézier geometry and curve selecti
 });
 
 test('saving, changing, and reopening a preset restores edited Bézier coordinates', async ({page}) => {
-    await page.addInitScript(() => localStorage.setItem('bezeg-language', 'en'));
-    await page.goto('/bezeg/bezier/curve', {waitUntil: 'domcontentloaded'});
+    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
+    await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
     const inspector = await selectBezierCurve(page);
     const editor = await openPointEditor(inspector);
     const savedCoordinates = {x: '0.65', y: '0.9'};

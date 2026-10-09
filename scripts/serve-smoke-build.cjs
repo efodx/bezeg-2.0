@@ -30,7 +30,7 @@ function send(response, status, body, headers = {}) {
 }
 
 function appFile(pathname) {
-    let relativePath = pathname.slice('/bezeg'.length);
+    let relativePath = pathname.slice('/bezeg-2.0'.length);
     if (!relativePath || relativePath === '/') relativePath = '/index.html';
     const routeFallbackAllowed = !path.extname(relativePath);
     if (relativePath.endsWith('/')) relativePath += 'index.html';
@@ -50,7 +50,7 @@ http.createServer((request, response) => {
         return;
     }
 
-    if (pathname !== '/bezeg' && !pathname.startsWith('/bezeg/')) {
+    if (pathname !== '/bezeg-2.0' && !pathname.startsWith('/bezeg-2.0/')) {
         send(response, 404, 'Not found');
         return;
     }
@@ -83,5 +83,5 @@ http.createServer((request, response) => {
         send(response, error.code === 'ENOENT' ? 404 : 500, 'Not found');
     });
 }).listen(port, host, () => {
-    console.log(`Production smoke preview: http://${host}:${port}/bezeg`);
+    console.log(`Production smoke preview: http://${host}:${port}/bezeg-2.0`);
 });

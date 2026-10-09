@@ -2,7 +2,7 @@ const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 
 async function openEnglish(page, pathname) {
-    await page.addInitScript(() => localStorage.setItem('bezeg-language', 'en'));
+    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
     await page.goto(pathname, {waitUntil: 'domcontentloaded'});
 }
 
@@ -31,7 +31,7 @@ async function expectRenderedWorkspace(page, demonstration) {
 }
 
 test('the demonstration catalog links every maintained route', async ({page}) => {
-    await openEnglish(page, '/bezeg/demonstrations');
+    await openEnglish(page, '/bezeg-2.0/demonstrations');
     const links = page.locator('section[aria-labelledby="all-demonstrations"] .demonstrations-catalog-entry > a[href]:not(.demonstrations-catalog-learn)');
     const displayedPaths = await links.evaluateAll(anchors => anchors.map(anchor => new URL(anchor.href).pathname).sort());
     const expectedPaths = demonstrations.map(demonstration => demonstration.path).sort();

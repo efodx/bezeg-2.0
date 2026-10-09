@@ -23,7 +23,7 @@ module.exports = defineConfig({
     projects: [{name: 'chromium', use: {browserName: 'chromium'}}],
     webServer: {
         command: 'node scripts/serve-smoke-build.cjs',
-        url: `http://127.0.0.1:${port}/bezeg`,
+        url: `http://127.0.0.1:${port}/bezeg-2.0`,
         reuseExistingServer: false,
         timeout: 30_000,
         stdout: 'pipe',
