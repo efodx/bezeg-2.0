@@ -65,13 +65,16 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
         geometryCache.invalidate();
     }
 
-    getWeights(): number[] {
-        let weights;
+    /** Returns the weights currently used by evaluation, without standard-form display normalization. */
+    getEffectiveWeights(): number[] {
         if (this.reactiveWeights) {
-            weights = this.reactiveWeights.map(weight => weight());
-        } else {
-            weights = this.weights;
+            return this.reactiveWeights.map(weight => weight());
         }
+        return this.weights;
+    }
+
+    getWeights(): number[] {
+        const weights = this.getEffectiveWeights();
         if (this.standardForm) {
             return this.standardize(weights);
         }

@@ -102,8 +102,17 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     override addPoint(x: number, y: number) {
+        const weights = this.pointControlledCurve.getEffectiveWeights().slice();
+        const showingFarinPoints = this.showingFarinPoints;
+        if (showingFarinPoints) {
+            this.showFarinPoints(false);
+        }
         super.addPoint(x, y);
-        this.pointControlledCurve.getWeights().push(1);
+        weights.push(1);
+        this.pointControlledCurve.setWeights(weights);
+        if (showingFarinPoints) {
+            this.showFarinPoints(true);
+        }
         if (this.showingWeights) {
             this.hideWeights();
             this.showWeights();
@@ -111,11 +120,34 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     override removePoint(i: number) {
+        const pointCount = this.pointControlledCurve.getPoints().length;
+        if (pointCount <= 1 || i < 0 || i >= pointCount) return;
+        const weights = this.pointControlledCurve.getEffectiveWeights().slice();
+        const showingFarinPoints = this.showingFarinPoints;
+        if (showingFarinPoints) {
+            this.showFarinPoints(false);
+        }
         super.removePoint(i);
-        this.pointControlledCurve.getWeights().splice(1, 1);
+        if (this.pointControlledCurve.getPoints().length !== pointCount - 1) {
+            if (showingFarinPoints) this.showFarinPoints(true);
+            return;
+        }
+        weights.splice(i, 1);
+        this.pointControlledCurve.setWeights(weights);
+        if (this.weightNumber > i) {
+            this.weightNumber -= 1;
+        } else if (this.weightNumber === i) {
+            this.weightNumber = Math.min(i, weights.length - 1);
+        }
+        if (showingFarinPoints) {
+            this.showFarinPoints(true);
+        }
         if (this.showingWeights) {
             this.hideWeights();
             this.showWeights();
+        }
+        if (this.isSelected()) {
+            this.getJxgPoints()[this.weightNumber].setAttribute({color: "yellow"});
         }
     }
 
@@ -139,10 +171,11 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
 
     elevate() {
         const elevated = this.pointControlledCurve.elevate();
-        this.clearJxgPoints();
-        const wrappedPoints = elevated.getPoints().map((point, i) => this.createJSXGraphPoint(point.X(), point.Y(), PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        this.replaceEditablePoints(elevated.getPoints());
         this.pointControlledCurve.setWeights(elevated.getWeights());
-        this.pointControlledCurve.setPoints(wrappedPoints);
+        if (this.isShowingControlPolygon()) {
+            this.showControlPolygon();
+        }
     }
 
     extrapolate(t: number) {
@@ -200,8 +233,9 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     showFarinPoints(show: boolean) {
+        if (show === this.showingFarinPoints) return;
         if (show) {
-            const weights = this.getCurve().getWeights();
+            const weights = this.getCurve().getEffectiveWeights();
             const points = this.getJxgPoints();
 
             const reactiveWeights: Array<() => number> = [];
@@ -249,7 +283,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         } else {
             this.board.removeObject(this.sliders);
             this.sliders = [];
-            this.pointControlledCurve.setWeights(this.pointControlledCurve.getWeights());
+            this.pointControlledCurve.setWeights(this.pointControlledCurve.getEffectiveWeights().slice());
             this.pointControlledCurve.setReactiveWeights(undefined);
         }
         this.showingFarinPoints = show;
@@ -327,7 +361,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     protected getInitialCurve(points: number[][]): RationalBezierCurve {
-        let jsxPoints = points.map((point, i) => this.createJSXGraphPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        return new RationalBezierCurve(jsxPoints, jsxPoints.map(() => 1));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        return new RationalBezierCurve(modelPoints, modelPoints.map(() => 1));
     }
 }

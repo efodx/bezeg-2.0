@@ -7,6 +7,10 @@ import {PointStyles} from "../../styles/PointStyles";
 import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {SizeContext} from "../../context/SizeContext";
 import {SegmentStyles} from "../../styles/SegmentStyles";
+import {PointImpl} from "../../../bezeg/impl/point/point-impl";
+import {Point} from "../../../bezeg/api/point/point";
+import {ModelPointBinding} from "./ModelPointBinding";
+import {graphSessionForBoard} from "../../base/GraphSession";
 
 export interface PointControlledCurveAttributes {
     allowShowControlPolygon: boolean
@@ -35,6 +39,11 @@ export function evaluationPointLabel(t: number): string {
  */
 export function refreshAfterControlPointDrag(board: Pick<Board, 'fullUpdate'>): void {
     geometryCache.invalidate();
+    const session = graphSessionForBoard(board as Board);
+    if (session) {
+        session.requestFullUpdate();
+        return;
+    }
     const boardState = board as Board & {inUpdate?: boolean};
     if (!boardState.inUpdate) {
         board.fullUpdate();
@@ -76,6 +85,8 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     private rotationCenter?: number[];
     private readonly convexHullRefresher = this.refreshConvexHull.bind(this);
     private attributes: Attr = {allowShowControlPolygon: true} as Attr;
+    private readonly editablePointBindings = new Map<PointImpl, ModelPointBinding>();
+    private readonly editablePointsByJxgPoint = new Map<JXG.Point, PointImpl>();
 
     constructor(points: number[][], board: Board, attributes?: Attr) {
         this.board = board;
@@ -130,15 +141,20 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
     addPoint(x: number, y: number) {
         geometryCache.invalidate();
-        let p = this.createJSXGraphPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
+        let p = this.createEditableInputPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
         this.labelJxgPoints();
     }
 
     removePoint(i: number) {
-        this.board.removeObject(this.jxgPoints[i]);
-        this.pointControlledCurve.removePoint(this.pointControlledCurve.getPoints()[i]);
-        this.jxgPoints.splice(i, 1);
+        const point = this.pointControlledCurve.getPoints()[i];
+        const jxgPoint = this.jxgPoints[i];
+        if (point instanceof PointImpl) this.unbindEditableInputPoint(point);
+        if (jxgPoint) {
+            this.board.removeObject(jxgPoint);
+            this.jxgPoints.splice(i, 1);
+        }
+        if (point) this.pointControlledCurve.removePoint(point);
         this.labelJxgPoints();
     }
 
@@ -360,6 +376,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
     /** Remove the base JSXGraph objects owned by this curve before its scene is replaced. */
     dispose(): void {
+        this.disposeEditableInputPoints();
         if (!this.board.renderer) {
             this.convexHull = undefined;
             this.evaluationPoint = undefined;
@@ -530,6 +547,49 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
      * @param opts
      */
     protected createJSXGraphPoint(x: number | (() => number), y: number | (() => number), opts?: any): JXGPointWrapper {
+        return new JXGPointWrapper(this.createJXGPoint(x, y, opts));
+    }
+
+    protected createEditableInputPoint(x: number, y: number, opts?: any): PointImpl {
+        const modelPoint = new PointImpl(x, y);
+        const jxgPoint = this.createJXGPoint(x, y, opts, false);
+        const binding = new ModelPointBinding(modelPoint, jxgPoint, () => refreshAfterControlPointDrag(this.board));
+        this.editablePointBindings.set(modelPoint, binding);
+        this.editablePointsByJxgPoint.set(jxgPoint, modelPoint);
+        return modelPoint;
+    }
+
+    protected replaceEditablePoints(points: Point[]): void {
+        this.clearJxgPoints();
+        const editablePoints = points.map((point, i) => this.createEditableInputPoint(
+            point.X(),
+            point.Y(),
+            PointStyles.pi(i, () => this.isShowingJxgPoints()),
+        ));
+        this.pointControlledCurve.setPoints(editablePoints);
+    }
+
+    protected getEditableInputPoint(jxgPoint: JXG.Point): PointImpl | undefined {
+        return this.editablePointsByJxgPoint.get(jxgPoint);
+    }
+
+    protected unbindEditableInputPoint(point: PointImpl): void {
+        const binding = this.editablePointBindings.get(point);
+        if (!binding) return;
+        binding.dispose();
+        this.editablePointBindings.delete(point);
+        for (const [jxgPoint, boundPoint] of this.editablePointsByJxgPoint) {
+            if (boundPoint === point) this.editablePointsByJxgPoint.delete(jxgPoint);
+        }
+    }
+
+    private disposeEditableInputPoints(): void {
+        this.editablePointBindings.forEach(binding => binding.dispose());
+        this.editablePointBindings.clear();
+        this.editablePointsByJxgPoint.clear();
+    }
+
+    private createJXGPoint(x: number | (() => number), y: number | (() => number), opts?: any, refreshOnDrag = true): JXG.Point {
         let point: JXG.Point;
         if (opts) {
             point = this.board.create('point', [x, y], opts);
@@ -550,11 +610,11 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
         point.on('over', () => over(point));
         point.on('out', () => out(point));
-        point.on('drag', (e) => {
-            refreshAfterControlPointDrag(this.board);
-        });
+        if (refreshOnDrag) {
+            point.on('drag', () => refreshAfterControlPointDrag(this.board));
+        }
         this.jxgPoints.push(point);
-        return new JXGPointWrapper(point);
+        return point;
     }
 
     protected movePointsToNewPoints(newPoints: any[]) {
@@ -571,6 +631,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
      * @private
      */
     protected clearJxgPoints() {
+        this.disposeEditableInputPoints();
         this.board.removeObject(this.jxgPoints);
         this.jxgPoints = [];
     }

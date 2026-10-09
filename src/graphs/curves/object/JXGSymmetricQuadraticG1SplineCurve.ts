@@ -52,7 +52,7 @@ export class JXGSymmetricQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G
     }
 
     protected getInitialCurve(points: number[][]): G1SymmetricQuadraticBezierSpline {
-        const jsxPoints = points.map((point, i) => this.createJSXGraphPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        return new G1SymmetricQuadraticBezierSpline(jsxPoints);
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        return new G1SymmetricQuadraticBezierSpline(modelPoints);
     }
 }

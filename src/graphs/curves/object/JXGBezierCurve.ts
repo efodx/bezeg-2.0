@@ -99,9 +99,7 @@ export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCu
 
     elevate() {
         const elevated = this.pointControlledCurve.elevate();
-        this.clearJxgPoints();
-        const wrappedPoints = elevated.getPoints().map((point, i) => this.createJSXGraphPoint(point.X(), point.Y(), PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        this.pointControlledCurve.setPoints(wrappedPoints);
+        this.replaceEditablePoints(elevated.getPoints());
         if (this.isShowingControlPolygon()) {
             this.showControlPolygon();
         }
@@ -113,7 +111,7 @@ export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCu
     }
 
     getInitialCurve(points: number[][]): BezierCurve {
-        let jsxPoints = points.map((point, i) => this.createJSXGraphPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        return new PolynomialBezierCurve(jsxPoints);
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        return new PolynomialBezierCurve(modelPoints);
     }
 }

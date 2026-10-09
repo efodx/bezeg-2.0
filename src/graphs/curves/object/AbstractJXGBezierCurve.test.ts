@@ -20,6 +20,8 @@ test('disposes De Casteljau auxiliary objects with their owning curve', () => {
         boundBoxPoints: [],
         jxgCurve: undefined,
         jxgPoints: [],
+        editablePointBindings: new Map(),
+        editablePointsByJxgPoint: new Map(),
     });
 
     curve.dispose();

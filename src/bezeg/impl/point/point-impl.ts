@@ -5,6 +5,7 @@ import {geometryCache} from "../../cache/GeometryCache";
 export class PointImpl implements Point {
     private x: number | (() => number);
     private y: number | (() => number);
+    private changeListeners?: Set<() => void>;
     private lastGeometryRevisionX = geometryCache.revision;
     private cachedX?: number = undefined;
     private cachedY?: number = undefined;
@@ -42,11 +43,28 @@ export class PointImpl implements Point {
     setX(x: number | (() => number)) {
         this.x = x;
         geometryCache.invalidate();
+        this.notifyChanged();
     }
 
     setY(y: number | (() => number)) {
         this.y = y;
         geometryCache.invalidate();
+        this.notifyChanged();
+    }
+
+    setCoordinates(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        geometryCache.invalidate();
+        this.notifyChanged();
+    }
+
+    subscribe(listener: () => void): () => void {
+        if (!this.changeListeners) {
+            this.changeListeners = new Set();
+        }
+        this.changeListeners.add(listener);
+        return () => this.changeListeners?.delete(listener);
     }
 
     isXFunction(): boolean {
@@ -55,6 +73,10 @@ export class PointImpl implements Point {
 
     isYFunction(): boolean {
         return typeof this.y === "function";
+    }
+
+    private notifyChanged() {
+        this.changeListeners?.forEach(listener => listener());
     }
 
 }

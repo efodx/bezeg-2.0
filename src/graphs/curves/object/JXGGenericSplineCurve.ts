@@ -94,7 +94,7 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
 
 
     protected getInitialCurve(points: number[][]): GenericBezierSpline {
-        const jsxPoints = points.map((point, i) => this.createJSXGraphPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        return new GenericBezierSpline(jsxPoints, 3, 1);
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        return new GenericBezierSpline(modelPoints, 3, 1);
     }
 }

@@ -36,7 +36,7 @@ export class JXGQuadraticC1SplineCurve extends AbstractJXGSplineCurve<C1Quadrati
     }
 
     protected getInitialCurve(points: number[][]): C1QuadraticBezierSpline {
-        const jsxPoints = points.map((point, i) => this.createJSXGraphPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
-        return new C1QuadraticBezierSpline(jsxPoints);
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        return new C1QuadraticBezierSpline(modelPoints);
     }
 }

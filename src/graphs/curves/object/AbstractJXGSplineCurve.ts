@@ -30,20 +30,21 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
     }
 
     override addPoint(x: number, y: number) {
-        let p = this.createJSXGraphPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
+        let p = this.createEditableInputPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
-        this.pointControlledCurve.generateBezierCurves();
-        this.pointControlledCurve.generateBezierCurves();
         this.refreshNonFreeJsxGraphPoints();
         this.labelJxgPoints();
     }
 
     override removePoint(i: number) {
         const pointToRemove = this.getJxgPoints()[i];
+        if (!pointToRemove) return;
+        const modelPoint = this.getEditableInputPoint(pointToRemove);
+        if (!modelPoint) return;
+        this.unbindEditableInputPoint(modelPoint);
         this.board.removeObject(pointToRemove);
-        this.pointControlledCurve.removePoint(this.pointControlledCurve.getPoints().filter(p => pointToRemove.X() == p.X() && pointToRemove.Y() == p.Y())[0]);
+        this.pointControlledCurve.removePoint(modelPoint);
         this.jxgPoints = this.jxgPoints.filter(point => point !== pointToRemove);
-        this.pointControlledCurve.generateBezierCurves();
         this.refreshNonFreeJsxGraphPoints();
         this.labelJxgPoints();
     }
@@ -119,7 +120,12 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
     }
 
     protected refreshNonFreeJsxGraphPoints() {
-        this.board.removeObject(this.nonFreeJsxPoints);
+        const previousPoints = this.nonFreeJsxPoints ?? [];
+        if (previousPoints.length > 0) {
+            this.board.removeObject(previousPoints);
+            const previousSet = new Set(previousPoints);
+            this.jxgPoints = this.jxgPoints.filter(point => !previousSet.has(point));
+        }
         const spline = this.getCurve();
         // This may look dumb, but in reality this makes us able to change underlying non-free points
         this.nonFreeJsxPoints = spline.getNonFreePoints()
