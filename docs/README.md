@@ -25,6 +25,8 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Tools usability redesign spec](specs/tools-usability-redesign.md): accepted Bézier and PH pilots and the authorized rollout to every active demonstration route.
 - [Workspace implementation review](reviews/tools-workspace-redesign.md): the all-route workspace, interaction checks, compatibility, and remaining device/classroom review.
 - [GitHub Pages SPA playbook](github-pages-spa-playbook.md): reusable setup and publishing process.
+- [Continuous deployment spec](specs/continuous-deployment.md): CI checks and gated native Pages deployment, pending remote activation.
+- [CI/CD verification](reviews/continuous-deployment.md): hosted CI evidence, local checks, and activation limits.
 - [ADR 0001](adr/0001-static-client-only-app.md): accepted static, client-only architecture constraint.
 - [ADR 0002](adr/0002-guided-lessons-static-content-and-graph-capabilities.md): accepted boundary between static lesson content and typed graph capabilities.
 - [Guided lesson runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md): executable feature slice.

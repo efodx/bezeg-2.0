@@ -15,7 +15,7 @@ Before scaffolding, fill in this small project record:
 | Routing | Hash routes, history routes with a documented fallback, or generated static route files | History routes plus a 404 redirect pair |
 | Persistence | Memory, local browser storage, file exchange | Local presets and files |
 | Build and output | Tool, runtime, lockfile, build command, artifact directory | CRA, npm lockfile, `npm run build`, `build/` |
-| Publishing source | Actions workflow or publishing branch | `gh-pages` script targets `efodx/bezeg-2.0`; verified branch source `gh-pages` at `/` |
+| Publishing source | Actions workflow or publishing branch | Current remote source: `gh-pages` at `/`; gated Actions CD is prepared locally, pending push and source activation |
 | External runtime assets | CDN resources and their failure behavior | MathJax loaded from jsDelivr |
 
 GitHub Pages serves static content rather than an application backend. [GitHub Pages creation guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
@@ -67,6 +67,16 @@ Take action versions and permissions from official documentation when implementi
 If publishing built files from a branch, ensure that the publishing source has the appropriate `.nojekyll` handling when Jekyll processing is unwanted. A `.nojekyll` file only in the source repository is not proof it reaches the deployed artifact. See [GitHub's publishing guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
 
 This release copy's `npm run deploy` command runs its `predeploy` build and publishes `build/` through `gh-pages` with the explicit remote `https://github.com/efodx/bezeg-2.0.git`. The command cannot select the original repository through local Git remotes. Building alone does not publish. The verified production artifact was published on 2026-10-09 using the same gh-pages library with the explicit remote and dotfile options; Pages serves the root of this repository's `gh-pages` branch. See [release verification](reviews/separate-project-site.md).
+
+### Bezeg's gated Actions deployment
+
+The [Browser smoke workflow](../.github/workflows/browser-smoke.yml) now runs `npm ci`, TypeScript checking, the complete non-watch CRA unit suite, one production build, and the production Chromium smoke suite. The build continues to permit existing CRA lint warnings; compilation and all checks remain blocking. It uploads that exact `build/` only after success on a push to `master` or a manual run on `master`, restricted to `efodx/bezeg-2.0`. A dependent job configures Pages and deploys the artifact through the `github-pages` environment. PRs never deploy. Only the deploy job receives Pages write and OIDC permissions. Obsolete CI jobs can be cancelled; Pages deployments are serialized without cancelling one already running.
+
+Activation requires pushing the reviewed commits to `master` and changing **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. Ensure the `github-pages` environment permits `master`, then dispatch **Browser smoke** on `master` if the initial push ran before the source change. This uses the ordinary Actions token and requires no personal access token. Follow [GitHub's custom workflow setup](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). The CD task does not push commits or change these settings; see [local verification and current hosted evidence](reviews/continuous-deployment.md).
+
+After activation, use Actions deployment for normal releases. The retained `npm run deploy` script writes the legacy publishing branch and will not update the site while Pages uses the Actions source. Verify the hosted base URL, direct route and refresh, query/hash restoration, missing assets, and navigation after the first deployment: the local smoke server uses a direct SPA fallback and does not exercise Pages' 404 redirect.
+
+For a code rollback, revert the release changes on `master` and let the same checks deploy the resulting artifact. Manual dispatch always builds the selected branch's current commit; this workflow intentionally refuses other branches. To return to branch publishing, first disable Actions CD, switch Pages Source back to **Deploy from a branch**, select `gh-pages` and `/`, and verify or manually publish a known-good artifact. The existing branch may contain an older release; inspect it before treating it as the rollback target.
 
 ## 7. Close the setup with a reusable checklist
 
