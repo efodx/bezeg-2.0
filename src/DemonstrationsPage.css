@@ -1,0 +1,50 @@
+.demonstrations-page { min-height:calc(100vh - 64px); padding:48px max(24px,calc((100vw - 1100px)/2)) 48px; background:#f5f6ee; color:#243b2b; text-align:left; }
+.demonstrations-eyebrow { font-size:11px; letter-spacing:1.4px; color:#5b684c; }
+.demonstrations-page h1 { font-size:40px; font-weight:700; margin:12px 0; }
+.demonstrations-page > header p { font-size:18px; color:#526152; }
+.demonstrations-page > section { margin-top:36px; }
+.demonstrations-page h2 { font-size:24px; margin-bottom:18px; }
+.demonstrations-page h3 { font-size:20px; line-height:1.4; }
+.demonstrations-page a { color:inherit; text-decoration:none; }
+.demonstrations-starting { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.demonstrations-starting-card { display:flex; flex-direction:column; background:white; border:1px solid #d6dccb; border-radius:12px; overflow:hidden; }
+.demonstrations-starting-card > a:first-child { display:flex; flex-direction:column; flex:1; }
+.demonstrations-starting-card > a:first-child:hover { border-color:#9aaa87; }
+.demonstrations-preview { display:block; width:100%; height:auto; }
+.demonstrations-card-copy { padding:20px; flex:1; display:flex; flex-direction:column; border-top:1px solid #e3e8dc; }
+.demonstrations-starting h3 { margin:10px 0; }
+.demonstrations-starting p { color:#526152; font-size:14px; flex:1; }
+.demonstrations-number { font-size:11px; letter-spacing:.6px; color:#647557; }
+.demonstrations-open { font-size:13px; font-weight:650; color:#3b6704; }
+.demonstrations-learn { min-height:44px; padding:12px 20px; border-top:1px solid #e3e8dc; color:#3b6704 !important; font-size:13px; font-weight:650; }
+.demonstrations-catalog-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:22px; }
+.demonstrations-catalog-heading h2 { margin-bottom:8px; }
+.demonstrations-catalog-heading p { font-size:14px; color:#63705c; margin:0; }
+.demonstrations-catalog-heading > span { font-size:12px; color:#63705c; flex-shrink:0; }
+.demonstrations-families { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; align-items:start; }
+.demonstrations-families section { padding:20px; background:#fff; border:1px solid #d6dccb; border-radius:12px; overflow:hidden; }
+.demonstrations-families header { display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid #e7ebdf; padding-bottom:16px; margin-bottom:8px; }
+.demonstrations-families header > div { min-width:0; }
+.demonstrations-families header img { display:block; width:125px; height:auto; flex-shrink:0; }
+.demonstrations-families h3 { font-size:19px; margin:8px 0 0; overflow-wrap:anywhere; }
+.demonstrations-families ul { list-style:none; padding:0; margin:0; }
+.demonstrations-families li + li { border-top:1px solid #eef0e9; }
+.demonstrations-catalog-entry { display:flex; align-items:stretch; gap:8px; }
+.demonstrations-catalog-entry > a:first-child { flex:1; min-width:0; }
+.demonstrations-catalog-entry > .demonstrations-catalog-learn { flex:0 0 auto; color:#3b6704; font-size:12px; font-weight:650; }
+.demonstrations-catalog-entry > .demonstrations-catalog-learn:hover { background:#f2f6e9; }
+.demonstrations-families a { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:10px 4px; border-radius:6px; font-size:14px; }
+.demonstrations-families a > span:last-child { color:#819071; }
+.demonstrations-families a:hover { background:#f2f6e9; color:#3b6704; }
+.demonstrations-art-note { font-size:11px; color:#728069; margin:14px 0 0; }
+.demonstrations-page :focus-visible { outline:3px solid #456db0; outline-offset:3px; }
+.demonstrations-starting a:focus-visible { outline-offset:0; }
+@media(max-width:700px) {
+    .demonstrations-page { padding:24px 16px 32px; }
+    .demonstrations-page h1 { font-size:30px; }
+    .demonstrations-page > header p { font-size:15px; }
+    .demonstrations-starting,.demonstrations-families { grid-template-columns:minmax(0,1fr); gap:16px; }
+    .demonstrations-catalog-heading { flex-direction:column; align-items:flex-start; gap:8px; }
+    .demonstrations-families section { padding:16px; }
+    .demonstrations-families header img { width:100px; }
+}

@@ -1,0 +1,45 @@
+name: Browser smoke
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-smoke-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.1.0
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build production app
+        run: npm run build
+        env:
+          CI: 'false'
+      - name: Run Chromium smoke tests
+        run: npm run test:smoke:built
+        env:
+          CI: 'true'
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-smoke-failure-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 3

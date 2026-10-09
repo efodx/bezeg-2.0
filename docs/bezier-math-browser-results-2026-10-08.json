@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-08",
+  "environment": {
+    "browser": "Chrome 155 user agent in the Codex in-app browser",
+    "operatingSystem": "Windows",
+    "viewport": [1280, 720],
+    "devicePixelRatio": 1,
+    "cpuThrottling": "none configured by the benchmark",
+    "interaction": "animation",
+    "warmupFrames": 60,
+    "measuredFrames": 240,
+    "constructionVisible": true,
+    "labelsVisible": true,
+    "wholeCurve": false,
+    "appControlsLocked": true,
+    "comparison": "production diagnostic current bundle versus production diagnostic after bundle; same benchmark harness and workspace state"
+  },
+  "source": {
+    "baselineEvaluatorCommit": "3d0db2674e64f5df858f5aed948d41329faec5e7",
+    "baselineBundle": "current",
+    "candidateBundle": "after",
+    "sourceLabel": "working-tree",
+    "note": "Both bundles share the same unrelated workspace edits and benchmark harness. Only the candidate evaluator adds scratch rows for curves with at least five control points."
+  },
+  "scenes": [
+    {
+      "name": "polynomial-default",
+      "controlPoints": 5,
+      "weights": 0,
+      "current": [
+        {"frameMedianMs": 33.4, "frameP95Ms": 49.998, "updateMedianMs": 36.4, "updateP95Ms": 53.1},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 30.2, "updateP95Ms": 47.7},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 26.7, "updateP95Ms": 37.1}
+      ],
+      "scratchRows": [
+        {"frameMedianMs": 16.736, "frameP95Ms": 33.37, "updateMedianMs": 20.2, "updateP95Ms": 29.2},
+        {"frameMedianMs": 16.906, "frameP95Ms": 33.4, "updateMedianMs": 21.1, "updateP95Ms": 30.1},
+        {"frameMedianMs": 16.968, "frameP95Ms": 33.434, "updateMedianMs": 20.9, "updateP95Ms": 30.0}
+      ]
+    },
+    {
+      "name": "rational-default",
+      "controlPoints": 4,
+      "weights": 4,
+      "current": [
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 29.0, "updateP95Ms": 38.5},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 29.1, "updateP95Ms": 38.1},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 29.7, "updateP95Ms": 49.0}
+      ],
+      "scratchRows": [
+        {"frameMedianMs": 33.332, "frameP95Ms": 33.436, "updateMedianMs": 25.9, "updateP95Ms": 34.5},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 30.9, "updateP95Ms": 40.0},
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 32.5, "updateP95Ms": 44.1}
+      ]
+    },
+    {
+      "name": "polynomial-degree7",
+      "controlPoints": 8,
+      "weights": 0,
+      "current": [
+        {"frameMedianMs": 49.998, "frameP95Ms": 66.664, "updateMedianMs": 37.9, "updateP95Ms": 52.4},
+        {"frameMedianMs": 49.998, "frameP95Ms": 66.664, "updateMedianMs": 42.3, "updateP95Ms": 52.5}
+      ],
+      "scratchRows": [
+        {"frameMedianMs": 33.332, "frameP95Ms": 49.998, "updateMedianMs": 33.2, "updateP95Ms": 42.5},
+        {"frameMedianMs": 49.998, "frameP95Ms": 49.998, "updateMedianMs": 36.6, "updateP95Ms": 47.0}
+      ]
+    },
+    {
+      "name": "rational-degree7",
+      "controlPoints": 8,
+      "weights": 8,
+      "current": [
+        {"frameMedianMs": 49.998, "frameP95Ms": 66.664, "updateMedianMs": 45.0, "updateP95Ms": 57.4},
+        {"frameMedianMs": 49.998, "frameP95Ms": 66.664, "updateMedianMs": 48.4, "updateP95Ms": 59.0}
+      ],
+      "scratchRows": [
+        {"frameMedianMs": 49.998, "frameP95Ms": 49.998, "updateMedianMs": 37.4, "updateP95Ms": 46.7},
+        {"frameMedianMs": 49.998, "frameP95Ms": 66.664, "updateMedianMs": 40.8, "updateP95Ms": 52.4}
+      ]
+    }
+  ],
+  "phaseProbePolynomialDefault": {
+    "note": "Coarse updateCurve/board phase timing; wrappers add overhead. Curve sampling is included in elements time, and phases exclude paint.",
+    "current": {
+      "frameMedianMs": 33.332,
+      "frameP95Ms": 49.998,
+      "updateMedianMs": 30.1,
+      "updateP95Ms": 41.0,
+      "elementsMedianMs": 16.5,
+      "elementsP95Ms": 24.2,
+      "curveSamplingMedianMs": 14.5,
+      "curveSamplingP95Ms": 22.0,
+      "labelSizeMedianMs": 0.9,
+      "rendererMedianMs": 6.9,
+      "rendererP95Ms": 10.4,
+      "constructionVisibilityMedianMs": 0.2
+    },
+    "scratchRows": {
+      "frameMedianMs": 33.332,
+      "frameP95Ms": 33.5,
+      "updateMedianMs": 22.1,
+      "updateP95Ms": 32.0,
+      "elementsMedianMs": 9.1,
+      "elementsP95Ms": 16.5,
+      "curveSamplingMedianMs": 7.1,
+      "curveSamplingP95Ms": 14.3,
+      "labelSizeMedianMs": 0.9,
+      "rendererMedianMs": 6.6,
+      "rendererP95Ms": 9.3,
+      "constructionVisibilityMedianMs": 0.2
+    }
+  },
+  "hotMethodDiagnostics": {
+    "note": "Separate instrumented runs include 60 warm-up and 240 measured frames. Per-call performance.now wrappers strongly perturb frame timings; nested evaluator timings are attribution evidence only.",
+    "polynomialDefault": {
+      "controlPoints": 5,
+      "framesIncludingWarmup": 300,
+      "evalCalls": 2458800,
+      "cacheMisses": 1229100,
+      "cacheHits": 1229700,
+      "constructionRecurrences": 300,
+      "constructionSchemes": 300,
+      "boardUpdates": 9300,
+      "evalMilliseconds": 4017.0,
+      "pointEvaluationMilliseconds": 751.6,
+      "constructionTableMilliseconds": 2.9,
+      "constructionSchemeMilliseconds": 9.3
+    },
+    "rationalDefault": {
+      "controlPoints": 4,
+      "weights": 4,
+      "framesIncludingWarmup": 300,
+      "evalCalls": 2458800,
+      "cacheMisses": 1229100,
+      "cacheHits": 1229700,
+      "constructionRecurrences": 300,
+      "constructionSchemes": 300,
+      "boardUpdates": 5400,
+      "evalMilliseconds": 5559.4,
+      "pointEvaluationMilliseconds": 1241.1,
+      "constructionTableMilliseconds": 8.0,
+      "constructionSchemeMilliseconds": 16.0
+    }
+  },
+  "phoneAcceptance": "Not repeated. The OnePlus Nord N10 result remains unverified for this candidate."
+}

@@ -1,0 +1,38 @@
+# Demonstration workspace implementation review
+
+Date: 2026-10-08. Scope authorized by the owner: implement the local UI redesign while another agent works independently on drawing performance. No deployment or external tickets are part of this work.
+
+## Implemented scope
+
+The owner accepted the general polynomial Bézier route (`/bezeg/bezier/curve`) and cubic PH route (`/bezeg/ph/cubic`) pilots on 2026-10-08 and authorized continuation across all 26 active graph routes. Every active demonstration now uses the shared graph-centered workspace, while `/bezeg` remains the home page. The desktop topic list and graph remain separate from a stable inspector with **Uredi**, **Prikaz**, and **Shrani** sections. Narrow screens put the graph before the collapsible inspector. Presentation mode has explicit controls and exit buttons, with visible pan/zoom buttons in every mode.
+
+Selection is available through named curve buttons as well as the graph. Polynomial modes expose movement, addition, and deletion with persistent state and Slovenian hints. Operations retain existing parameter domains and include exact preview toggles. Subdivision refreshes the curve list immediately. Deletion targets the selected curve and retains at least one point. Numeric coordinate forms provide keyboard editing, addition, and deletion; PH provides numeric hodograph coordinates alongside its auxiliary graph. PH offsets and control-polygon geometry remain available through Prikaz before and after selection. The offset slider retains its 0.01 step.
+
+Shared sliders have associated labels, current values, supported ranges, and optional help. Visual sizing is labeled Velikost elementov grafa. Controls use text, pressed state, and focus outlines; mathematical point labels remain available. Existing renderer styling and algorithms remain in place.
+
+Preset controls explain browser-local storage. Import validates all collections before writing, lists matching collections for explicit replacement consent, reports actionable errors, and rolls back completed writes if storage fails. Validation checks recognized collection keys, curve DTO types, coordinate/weight data, graph bounds, curve state, spline degree/continuity, and PH degree against the collection. Saving an existing name now updates its geometry, graph state, and bounds together.
+
+## Ownership and compatibility
+
+All workspace routes resize their boards with the workspace and dispose them on unmount. The PH auxiliary editor initializes once per mount, resizes when revealed, detaches on disposal, and preserves the generating points before freeing its board. Inspector sections stay mounted when switched or hidden, preserving input state and auxiliary board ownership. Numeric submissions resolve the current generating points, including the first submission after auxiliary initialization. Route-specific command builders remain reachable in **Uredi**; view and save workflows are shared. The uniform PH parameterization route keeps its parameter selector and sliders alongside the PH editing controls. Spline routes retain their existing constrained and derived-point workflows.
+
+Routes, preset collection keys, class identifiers, and the exported file shape are retained. Import deliberately rejects arbitrary local-storage entries and malformed or incompatible curve data that the old importer accepted without checks. Users receiving an error should re-export a valid Bezeg preset file or correct the indicated data. No migration or automatic overwrite is introduced. The layout rollout is limited to two routes; shared control accessibility, import safety, and save-state corrections also apply to other routes using those components.
+
+## Verification
+
+- Focused automated coverage: 23 tests across workspace section/presentation controls, keyboard coordinates and auxiliary drag refresh, import validation/storage rollback, and import dialog error/cancel/confirmation behavior.
+- Follow-up after localization integration: `npx.cmd tsc --noEmit` and `npm.cmd run build` passed after removing the stale generated `node_modules/.cache/tsconfig.tsbuildinfo`. A fresh development compile reported no TypeScript issues; existing CRA, Browserslist, dependency, and lint warnings remain. In English, browser traversal covered all 26 active routes; each showed its translated title, graph, and shared inspector. Switching from Slovenian to English and back with a Bézier curve selected retained the selection and the same JSXGraph SVG board IDs. The saved language was restored to Slovenian. The focused automated suite was not rerun in this continuation.
+- Browser review at 1280 × 900 and 390 × 844 CSS pixels on the two pilots: selected and unselected Bézier/PH views, persistent inspector controls, PH geometry/offset options, presentation access without hover, and first PH keyboard edit visibly changing the SVG curve path.
+- Browser route smoke review: all 26 active demonstrations rendered the shared workspace, graph, all 26 topic links, and **Uredi**, **Prikaz**, and **Shrani** sections at a 390-pixel viewport with no horizontal overflow. Route-family checks confirmed spline continuity commands, PH hodograph editing, uniform PH parameterization controls, and rational weight controls opened through the named curve button. The uniform route was adjusted after the initial check exposed missing controls.
+- Routes that permit curve selection now include named, keyboard-focusable curve buttons; a rational weight workflow and spline selection state were checked through those buttons. Routes that explicitly disable selection keep that setting and their graph-level controls.
+- Browser checks: navigation away from a selected PH editor, Bézier construction visibility, subdivision immediately adding a second inspector entry, a second-generation general Bézier subdivision appearing as a third named curve, rational subdivision creating one picker entry for each result, and named preset save/reopen retaining both subdivided curves.
+- Live desktop-to-mobile resizing retains responsive board width and the complete default curve; the resize observer does not overwrite the CSS percentage width. Review captures: [desktop](workspace-desktop.jpg) and [mobile](workspace-mobile.jpg).
+- Parallel mathematical/control-wiring and engineering/accessibility reviews. Findings on disposal, stale control state, first PH keyboard submission, selected-curve deletion, preview availability, and input precision were corrected.
+
+## Review limits
+
+The checks establish desktop browser behavior and a simulated narrow viewport. They do not establish physical-phone touch behavior, projector legibility, a classroom usability study, or comprehensive PNG/SVG/MathJax and batch-image export fidelity. Those remain product and device review items after the authorized code rollout. The unrelated historical starter application test remains outside this focused suite. No new mathematical algorithms, renderer, build tooling, dependencies, routes, or hosting configuration were introduced.
+
+## Figure export follow-up
+
+Date: 2026-10-08. The owner accepted the pilot workflows as working and authorized the full route rollout. An earlier automated preview attempt did not capture a PNG download event; this was not reproduced as a user-visible failure and is not treated as a confirmed product defect. The SVG export was inspected structurally on both pilot routes: each file had a 542 × 668 SVG root with no `viewBox`, no `<text>` or `<image>` elements, and one empty `<foreignObject>`. Visual comparison of SVG formula fidelity and batch-image export remains unverified.

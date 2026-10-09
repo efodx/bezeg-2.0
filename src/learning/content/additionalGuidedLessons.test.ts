@@ -1,0 +1,45 @@
+import {additionalGuidedLessons} from './additionalGuidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
+
+test('keeps the additional lesson bounded, localized, and source-backed', () => {
+    expect(additionalGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['rational-decasteljau', 'elevation']);
+    for (const lesson of additionalGuidedLessons) {
+        expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
+        expect(lesson.steps.length).toBeLessThanOrEqual(6);
+        expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
+        expect(new Set(lesson.steps.map(step => step.id)).size).toBe(lesson.steps.length);
+        expect(lesson.sources.length).toBeGreaterThanOrEqual(2);
+        expect(lesson.workedExamples.length).toBeGreaterThan(0);
+        for (const localized of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.explanation, step.observationPrompt])]) {
+            expect(localized.sl.trim()).not.toBe('');
+            expect(localized.en.trim()).not.toBe('');
+            expect(localized.sl).not.toBe(localized.en);
+        }
+        for (const step of lesson.steps) {
+            expect(step.frames[0].kind).toBe('explanation');
+            expect(step.frames.at(-1)?.kind).toBe('observation');
+            for (const sceneAction of step.scene?.actions ?? []) {
+                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(sceneAction.name);
+            }
+        }
+    }
+});
+
+test('records the weighted midpoint used by the rational graph default', () => {
+    const lesson = additionalGuidedLessons[0];
+    const example = lesson.workedExamples[0];
+    expect(example.calculationLatex).toContain('w=(1,2,1,1)');
+    expect(example.resultLatex).toContain('(-9/11,21/11)');
+    expect(lesson.formulaBlocks.map(formula => formula.id)).toEqual([
+        'rational-weighted-form',
+        'rational-homogeneous-row',
+        'rational-projection',
+    ]);
+});
+
+test('records the degree-elevation invariants for the polynomial default', () => {
+    const lesson = additionalGuidedLessons.find(item => item.demonstrationId === 'elevation')!;
+    expect(lesson.formulaBlocks.map(formula => formula.id)).toEqual(['elevation-control-points', 'elevation-shape-invariance']);
+    expect(lesson.workedExamples[0].resultLatex).toContain('\\frac12,3');
+    expect(lesson.steps[1].scene?.actions).toContainEqual({name: 'elevate-degree', value: true});
+});

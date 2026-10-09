@@ -1,0 +1,50 @@
+/* The lesson occupies the graph cell so the graph remains visible beneath it. */
+.demonstration-workspace.lesson-open {
+    grid-template-areas: "heading heading heading" "topics graph inspector" "topics learning inspector";
+}
+
+.demonstration-workspace.is-presenting.lesson-open {
+    grid-template-areas: "heading heading" "graph inspector";
+}
+
+.demonstration-workspace.lesson-open.lesson-content .workspace-graph {
+    pointer-events: none;
+}
+
+/* Keep JSXGraph annotations, including rational weights, visibly behind the lesson copy. */
+.demonstration-workspace.lesson-content .workspace-graph #jgbox {
+    opacity: .48;
+}
+
+.demonstration-workspace.lesson-content .workspace-graph button {
+    pointer-events: none;
+}
+
+.demonstration-workspace.lesson-content .workspace-graph .workspace-navigation button {
+    opacity: .55;
+}
+
+.demonstration-workspace.lesson-content .workspace-inspector {
+    pointer-events: none;
+    opacity: .7;
+}
+
+@media (max-width: 1100px) {
+    .demonstration-workspace.lesson-open {
+        grid-template-areas: "heading heading" "graph inspector" "learning inspector";
+    }
+}
+
+@media (max-width: 700px) {
+    .demonstration-workspace.lesson-open {
+        grid-template-areas: "heading" "graph" "learning" "inspector";
+    }
+
+    .demonstration-workspace.lesson-content .workspace-graph {
+        pointer-events: none;
+    }
+
+    .demonstration-workspace.is-presenting.lesson-open {
+        grid-template-areas: "heading" "graph" "inspector";
+    }
+}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bezeg drawing benchmark</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="benchmark.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Bézier drawing benchmark</h1>
+    <p>Production diagnostic page. Keep the tab visible. Graph controls are locked so the scene stays reproducible.</p>
+    <label>Scene <select id="scene"></select></label>
+    <label>Interaction <select id="interaction"><option>animation</option><option>point</option><option>slider</option><option>weight</option></select></label>
+    <label><input id="diagnostics" type="checkbox"> Count and time evaluation and board work (separate diagnostic run)</label>
+    <label><input id="phase-timings" type="checkbox"> Time board phases (separate diagnostic run)</label>
+    <label><input id="regular-update" type="checkbox"> Experiment: ordinary update without full label sizing</label>
+    <label><input id="stable-visibility" type="checkbox"> Experiment: skip repeated construction show calls</label>
+    <label><input id="visible-sampling" type="checkbox"> Experiment: skip hidden curve sampling</label>
+    <button id="run" type="button">Run 240 frames</button>
+    <button id="compare-sampling" type="button">Compare curve sampling</button>
+    <button id="save" type="button">Download results</button>
+    <p id="status" role="status">Preparing scene</p>
+    <div id="root"></div>
+    <pre id="results" aria-label="Benchmark results"></pre>
+  </main>
+</body>
+</html>

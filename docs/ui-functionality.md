@@ -1,0 +1,75 @@
+# Current UI functionality
+
+Source-based description of Bezeg on 2026-10-08, for product and UI work. This documents the implemented interface, not a user tutorial or a runtime accessibility certification. The app labels are Slovenian; this document explains them in English. See the [capability map](capabilities.md) for all active routes and [architecture](current-architecture.md) for implementation details.
+
+## Navigation and workspace
+
+The catalog uses the accepted preview layout A: three graph preview cards introduce the starting demonstrations, followed by six family panels with one small illustration each and compact links to all 26 demonstrations. Every title stays visible. The drawings are static concept previews, with construction and offsets enabled for recognition; opening a demonstration uses its regular default or selected preset. The illustrated cards and family lists stack on narrow screens. The comparison switcher has been removed.
+
+The accepted learning workspace adds a framed sidebar grouped by mathematical family, with the current family open, and localized **Preizkusi in opazuj** prompts below the graph. **Naslednji namig** cycles two prompts without resetting graph or controls. The starting page follows the same warm visual style, with an introduction, illustration, and **Začni raziskovati** link to `/bezeg/demonstrations`. That dedicated view contains the three-demonstration learning sequence and all 26 demonstrations grouped by mathematical family. See [Learning workspace](specs/learning-workspace.md) and [Demonstrations view](specs/demonstrations-view.md).
+
+The eight allowlisted demonstrations expose an optional **Vodena učna pot** / **Guided lesson** entry. It opens on the existing demonstration route and places a graph-cell-sized lesson overlay over the complete coordinate system: Explanation and Calculation frames cover the graph while reading, then an Observation frame fades out to a compact, pointer-transparent graph-side prompt at the graph's top center with graph interaction enabled. The complete prompt can travel across the full coordinate-system rectangle by mouse/touch drag or arrow keys without leaving that rectangle. **Nadaljuj učno pot** / **Continue lesson** fades the full overlay back in at the current observation frame. **Naprej** is the only forward lesson command; **Nazaj** and **Naprej** are narrow, full-height vertical edge rails without arrow glyphs. The lesson does not expose a separate Reset control because moving backward through the lesson reapplies the earlier scene. Exit is represented by an accessible close icon, restores the graph state captured at entry, and never changes browser-local Presets. Completing a lesson leaves its final scene available for free graph exploration. All eight lesson contents are implementation drafts awaiting owner/subject-matter and classroom review; unreviewed demonstrations remain normal exploration routes.
+
+Structured Bézier editing uses native disclosures for operation settings and editing-mode help; collapsing them retains sliders and previews. **Prilagodi točkam** fits visible board points and leaves the view unchanged when none are visible. Bernstein has no point-fit control. This is point fitting, not a mathematical bound for every curve or offset. Save remains the real browser-local preset workflow, with a prominent save action and text-labeled batch figure export; no simulated unsaved indicator or recovery action is shipped.
+
+The shared off-white header shows the elderflower and Bezeg brand linking to `/bezeg`, one **Demonstracije** link to the dedicated selection view, and a compact **SL / EN** language selector. The selection view groups all 26 demonstrations into basics, polynomial Bézier curves, rational Bézier curves, splines, PH curves, and parameterizations. Brand and controls stay visible on narrow screens and in presentation mode. Titles, catalog entries, learning prompts, and graph navigation choices come from the same [Demonstration metadata](../src/demonstrations.ts). Catalog titles and graph headings preserve their existing differences.
+
+All 26 active demonstration routes use a graph-centered workspace with a desktop topic list and a stable **Uredi**, **Prikaz**, and **Shrani** inspector. Existing route commands remain in **Uredi**; selecting a curve switches it to that curve's commands. Shared view controls and per-curve visibility settings remain in **Prikaz**, and presets plus image exports remain in **Shrani**. The general polynomial Bézier and PH workflows also expose the structured selection and editing controls from the accepted pilots. Narrow screens put the graph before a collapsible control sheet. Presentation mode has explicit open-controls and exit buttons, and visible pan/zoom controls support keyboard and touch activation. See [the implementation report](reviews/tools-workspace-redesign.md) for verification limits.
+
+Each route keeps its own mathematical controls and constraints within the shared workspace. Spline-derived points remain governed by their continuity construction; they do not receive the free-point coordinate editor. Parameterization sliders and selectors stay with their demonstration commands. Selecting an eligible curve replaces graph-level commands with **Izbrana krivulja** (selected curve). Not all demonstrations allow selection or the same operations.
+
+The workspace help text describes Shift + left mouse drag for panning and Shift + mouse wheel for zoom. **Predstavitveni način** has explicit controls for opening the inspector and leaving presentation mode; it changes app presentation rather than invoking browser fullscreen. See [BaseGraph](../src/graphs/base/BaseGraph.tsx) and [workspace styles](../src/graphs/base/DemonstrationWorkspace.css).
+
+## Shared controls
+
+The accepted square control styling uses compact 34px minimum-height desktop buttons, connected tabs/number groups, matching selects and coordinate fields, and tabular slider value badges. Narrow screens and coarse pointers retain 44px minimum heights. Display-switch labels align left and toggles right, with green on/neutral off states. The collapse action has a localized label and SVG chevron; tab switching and collapse retain values. There is no prototype switcher or variant-specific workspace. See [compact controls](specs/calm-tools-prototype.md).
+
+| UI label | Implemented effect |
+| --- | --- |
+| Koordinatni sistem | Chooses Brez (none), Samo osi (axes), Osi in mreža, Osi in mreža in črtice, or Vse (including numeric tick labels). |
+| Velikost elementov grafa | Integer slider from 0 to 25 changes text, point, stroke, and tick sizes. Visible values, bounds, and help distinguish visual sizing from viewport zoom. |
+| Oznake točk | Toggles point labels in curve demonstrations. |
+| Kontrolne točke | Shows or hides control points where permitted. |
+| Kontrolni poligon | Shows or hides the control polygon where permitted. |
+| Konveksna ovojnica | Shows or hides the convex hull where permitted. |
+| SVG / PNG | Downloads an image of the board. |
+
+Shared view choices use mutable contexts and are not all included in saved presets. The presence of a control depends on graph inheritance and curve attributes; this table is not a universal toolbar.
+
+## Curve editing and selection
+
+Free control points can be dragged to change geometry. Clicking an eligible curve selects it and displays its bounding box. In **Operiraj s krivuljo**, dragging within that box moves the curve, dragging a corner resizes it, and dragging in the surrounding padded region rotates it. Clicking outside the selection region deselects it.
+
+The selected-curve mode selector also offers **Dodajaj točke** and **Briši točke**. Addition uses a click on empty board space; deletion uses a point click. These modes require an existing selection and are unsuitable for demonstrations with constrained point editing. PH graphs replace this selector with an empty element and provide a separate hodograph editor.
+
+Selection may also expose subdivision, extrapolation, shrinking, degree elevation, and De Casteljau previews according to attributes. Several previews are shown only while hovering over their controls. See [selection handling](../src/graphs/base/BaseCurveGraph.tsx), [transform handling](../src/graphs/curves/object/AbstractJXGPointControlledCurve.ts), and [Bézier commands](../src/graphs/curves/object/inputs/BezierCurveCommands.tsx).
+
+## Demonstration-specific controls
+
+The [detailed capability inventory](capabilities.md#demonstration-controls-and-effects) describes the mathematical controls by topic. Their central UI patterns are count buttons, parameter sliders, construction visibility switches, and action buttons. Parameter sliders alter a construction or sampling distribution; action buttons can replace or add curve objects.
+
+Rational curves add **Uteži**, a weight selector using left/right arrows, ± buttons changing a weight by 0.25, a center button restoring a weight, and **Standardna Oblika**. PH curves add **Odmiki krivulje**, offset distance/count/visibility settings, and a secondary board for editing the generating `w` points. Splines distinguish free points from derived points and provide **Označi vse točke** and **Skrij fiksne točke**.
+
+## Presets and file exchange
+
+**Prednastavitve** lists saved configurations for the current demonstration and **Privzeta** for its default. Changing the selected preset rebuilds the workspace. Saving requires a name; an empty name generates one. Saved data can include curve configuration, graph state, and viewport bounds. Storage is local to the browser and site origin, with no account synchronization.
+
+| Control / tooltip | Behavior |
+| --- | --- |
+| Ponastavi prednastavitev (⭮) | Remounts the current demonstration, reloading the selected saved preset or default and discarding unsaved edits. |
+| Shrani prednastavitev | Creates a named preset; saving an existing name updates geometry, graph state, and viewport bounds. |
+| Izbriši prednastavitev (🗑) | Requests confirmation, deletes the selected saved entry, and selects the first remaining entry when available. |
+| Izvozi prednastavitve (📤) | Downloads `presets.txt`, containing all `preset-` collections in this origin's local storage, across demonstrations. |
+| Uvozi prednastavitve | Validates the chosen JSON file and asks for consent before replacing matching collections, then refreshes the current demonstration. Collections are replaced rather than merged. |
+| Generiraj slike za prednastavitve (🖼) | Offers checkboxes for the current demonstration's saved presets, then captures them as PNG files in `slike.zip`. |
+
+Import checks known preset keys, collection/curve structure, finite numerical data, graph bounds, and demonstration compatibility before writing any collection. Invalid files show an actionable error. Matching collections are listed for explicit replacement consent; cancellation does not write. A storage-write failure attempts to restore the previous collections. Export a backup before replacing collections. Clearing browser/site storage removes saved presets. Saving an existing name now updates its geometry, graph state, and bounds together. See [PresetSelector](../src/graphs/base/PresetSelector.tsx) and [PresetService](../src/graphs/base/presets/Presets.ts).
+
+## Figure export and observed limitations
+
+SVG exports the board renderer's SVG tree; PNG captures the board element. Downloads use the selected preset name or `izvoz`. An image is a figure, not an editable preset. Formula text rendered outside the SVG tree may differ between formats; exported formulas and batch captures still require visual verification.
+
+Routes that support curve selection provide named curve buttons, so selected-curve commands can be opened without clicking the graph. The general polynomial Bézier workflow adds visible editing modes and numeric point forms; PH generating points can be edited through the hodograph board and numeric fields. Other route point dragging and add/delete gestures still use the existing graph interaction. Preview and construction controls remain specific to each route and curve type. Shared selects and icon buttons have descriptive accessible names. Some route-specific previews still appear on hover. Physical-device touch use, classroom projection, and export fidelity require further review; the implementation report distinguishes browser verification from these outstanding checks.
+## Language selection
+
+The shared app header now offers **Slovenščina / English**, including narrow-screen and presentation layouts. Slovenian is the first-visit default and an explicit choice is remembered separately from presets. Switching translates controls and existing validation errors while retaining the scene and unfinished forms. Numbers retain decimal points. Figure export temporarily disables switching and competing captures. See [localization](localization.md) for failure behavior and [remaining verification](reviews/localization.md).
