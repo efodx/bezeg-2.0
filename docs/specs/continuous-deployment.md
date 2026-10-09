@@ -10,7 +10,7 @@ Requested on 2026-10-09: inspect current CI and add CD where the static hosting 
 - Use GitHub's native Pages artifact/deploy actions with the `github-pages` environment. Keep global permissions read-only; grant `pages: write` and `id-token: write` only to the deployment job. Do not use a personal token, branch push, or the manual `gh-pages` command in CI.
 - Serialize Pages deployment without interrupting an in-flight deployment; retain cancellation of obsolete CI per PR/ref.
 - Preserve `/bezeg-2.0`, the existing 404 redirect pair, and manual scripts. Document the one-time Pages source switch from `gh-pages` branch publishing to GitHub Actions, activation, rollback, and the distinction between local verification and a hosted run.
-- This task commits local changes; it does not push, publish, or change remote settings.
+- The initial setup commits local changes without pushing, publishing, or changing remote settings. Subsequent owner authorization on 2026-10-09 extends completion to pushing the reviewed commits, activating native Pages CD, and verifying the first hosted run.
 
 ## Verification
 

@@ -6,4 +6,4 @@ Own `.github/workflows/browser-smoke.yml`. Extend the existing job with type and
 
 Handler owns hosting documentation, integrated verification, review, and commit. Report the exact changes, syntax/condition checks, and activation limitations; leave staging and commits to the handler.
 
-Implemented on 2026-10-09. See [verification and activation limits](../../reviews/continuous-deployment.md). Remote activation follows the documented Pages source switch after pushing; no deployment was performed by this task.
+Implemented on 2026-10-09 and subsequently pushed and activated after owner authorization. See [local and hosted verification](../../reviews/continuous-deployment.md) and the documented Pages source switch and rollback steps.
