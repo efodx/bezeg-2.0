@@ -15,7 +15,7 @@ Before scaffolding, fill in this small project record:
 | Routing | Hash routes, history routes with a documented fallback, or generated static route files | History routes plus a 404 redirect pair |
 | Persistence | Memory, local browser storage, file exchange | Local presets and files |
 | Build and output | Tool, runtime, lockfile, build command, artifact directory | CRA, npm lockfile, `npm run build`, `build/` |
-| Publishing source | Actions workflow or publishing branch | `gh-pages` script targets `efodx/bezeg-2.0`; Pages settings unverified |
+| Publishing source | Actions workflow or publishing branch | `gh-pages` script targets `efodx/bezeg-2.0`; verified branch source `gh-pages` at `/` |
 | External runtime assets | CDN resources and their failure behavior | MathJax loaded from jsDelivr |
 
 GitHub Pages serves static content rather than an application backend. [GitHub Pages creation guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
@@ -66,7 +66,7 @@ Take action versions and permissions from official documentation when implementi
 
 If publishing built files from a branch, ensure that the publishing source has the appropriate `.nojekyll` handling when Jekyll processing is unwanted. A `.nojekyll` file only in the source repository is not proof it reaches the deployed artifact. See [GitHub's publishing guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
 
-This release copy's `npm run deploy` command runs its `predeploy` build and publishes `build/` through `gh-pages` with the explicit remote `https://github.com/efodx/bezeg-2.0.git`. The command cannot select the original repository through local Git remotes. Building alone does not publish; no deployment was performed while preparing this release copy, and the destination repository's Pages settings still need verification.
+This release copy's `npm run deploy` command runs its `predeploy` build and publishes `build/` through `gh-pages` with the explicit remote `https://github.com/efodx/bezeg-2.0.git`. The command cannot select the original repository through local Git remotes. Building alone does not publish. The verified production artifact was published on 2026-10-09 using the same gh-pages library with the explicit remote and dotfile options; Pages serves the root of this repository's `gh-pages` branch. See [release verification](reviews/separate-project-site.md).
 
 ## 7. Close the setup with a reusable checklist
 
