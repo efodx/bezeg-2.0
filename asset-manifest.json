@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/bezeg-2.0/static/css/main.55242bb6.css",
+    "main.js": "/bezeg-2.0/static/js/main.d4a350b5.js",
+    "static/js/787.b838f722.chunk.js": "/bezeg-2.0/static/js/787.b838f722.chunk.js",
+    "static/media/starting-ph.svg": "/bezeg-2.0/static/media/starting-ph.840d4bbc842efb4bcd4fc175953fb78f.svg",
+    "static/media/family-basics.svg": "/bezeg-2.0/static/media/family-basics.ec3a66062e0322ddb45d194eb9f22626.svg",
+    "static/media/starting-construction.svg": "/bezeg-2.0/static/media/starting-construction.80fbe769e449d53e957855b536e8d789.svg",
+    "static/media/family-ph.svg": "/bezeg-2.0/static/media/family-ph.0606cc000e00890b389ced837d4805bc.svg",
+    "static/media/starting-bezier.svg": "/bezeg-2.0/static/media/starting-bezier.6c29e480f03f8e276525e002482e22c9.svg",
+    "static/media/family-rational.svg": "/bezeg-2.0/static/media/family-rational.725f8f85bc7820a894b6beeab0b2ceb6.svg",
+    "static/media/family-param.svg": "/bezeg-2.0/static/media/family-param.d1b448ebef2aff3b99be2348dfa434bd.svg",
+    "static/media/family-bezier.svg": "/bezeg-2.0/static/media/family-bezier.5eca0475dfbc4cf873024c7933a73240.svg",
+    "index.html": "/bezeg-2.0/index.html",
+    "static/media/family-spline.svg": "/bezeg-2.0/static/media/family-spline.0052cb22ab8a68119148cca5c9b42a68.svg",
+    "main.55242bb6.css.map": "/bezeg-2.0/static/css/main.55242bb6.css.map",
+    "main.d4a350b5.js.map": "/bezeg-2.0/static/js/main.d4a350b5.js.map",
+    "787.b838f722.chunk.js.map": "/bezeg-2.0/static/js/787.b838f722.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.55242bb6.css",
+    "static/js/main.d4a350b5.js"
+  ]
+}
