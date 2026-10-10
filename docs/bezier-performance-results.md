@@ -284,3 +284,80 @@ in the harness instructions.
 
 See [benchmark instructions](../scripts/bezier-benchmark/README.md). Neither the
 first experiment nor the diagnostic work deploys the app or publishes tickets.
+
+## De Casteljau demonstration playback — 2026-10-10
+
+### Measured causes
+
+Production build, Windows Chrome with phone emulation (384 × 704, DPR 2.8125,
+touch) and 6× CPU throttling. The unchanged rational scene ran at an 83–100 ms
+median frame interval, matching the owner's 100 ms Nord N10 result, so this
+setup was used as the phone stand-in. A source-mapped CPU profile and trace of
+`/bezeg-2.0/rational/rational-decasteljau` during playback attributed per-frame
+main-thread time to:
+
+- `componentDidUpdate` → `unsuspendBoardUpdate` → JSXGraph `fullUpdate`: about
+  45 ms. A full update re-measures every HTML text and schedules one
+  `setTimeout` per text (about 8.6 ms of timer tasks per frame).
+- JSXGraph 1.9.2 `setObjectViewport`: about 11–14 ms. On every HTML text style
+  update it reads the text's and container's bounding rectangles, then writes a
+  clip path, forcing one synchronous layout per label (28 labels here).
+- The hidden "whole curve" was sampled every frame because JSXGraph samples
+  before checking visibility; it cost more than the visible curve
+  (5.9 vs 4.9 ms of evaluation).
+- React re-rendered the whole workspace for every frame's `setState`
+  (about 16–17 ms), including `DemonstrationWorkspace` navigation links.
+
+Runtime patches confirmed the ranking before implementation: React-free
+parameter updates with ordinary board updates, plus the clipping and hidden-curve
+fixes, raised the throttled rational scene from 69 to 160 frames in 5 s.
+
+### Change
+
+Scoped to the De Casteljau demonstrations (`DecasteljauGraph`, its rational
+subclass, and `DecasteljauGraph2`); shared drag and slider paths are unchanged.
+
+- The drawn parameter is owned by the graph. Each animation frame sets it and
+  performs one ordinary `boardUpdate()` (cache invalidation plus
+  `board.update()`), not suspend/`fullUpdate`. React state follows at most every
+  100 ms and exactly on play, pause, finish, stop, slider input, and lesson
+  actions. Externally restored state (figures, lessons, presets) still moves the
+  parameter; other graph-state changes keep the previous full refresh.
+- Preset export, figure entry capture, and lesson checkpoints record the drawn
+  parameter rather than the throttled display value.
+- The remaining-curve overlay is created only while "whole curve" is enabled.
+- `skipRedundantHtmlTextClipping` skips JSXGraph's per-label clip only for HTML
+  texts with the default zero viewport; the board container already clips
+  overflow. Earlier clip paths are cleared; other viewports and SVG elements
+  keep JSXGraph behavior.
+- In the alternative demonstration, the two interpolating curves are sampled
+  again only when their control points, the board view, or JSXGraph's
+  drag/settled plot quality change.
+
+Per-frame cache invalidation is retained: curve evaluation caches are keyed by
+parameter in an unbounded map that is cleared on revision change.
+
+### Results (frames drawn in 5 s at 6× throttle)
+
+| Route | Before (2 runs) | After |
+| --- | ---: | ---: |
+| `rational/rational-decasteljau` | 76, 78 | 144, 142 |
+| `bezier/decasteljau` | 72, 71 | 138, 137 |
+| `bezier/decasteljau2` | 73, 69 | 153, 162 (before plot-quality key); 112–152 over 3 later runs |
+
+Median frame interval fell from 83 ms to 33 ms on the first two routes. These
+are single-machine emulated results; CPU throttling does not model the phone GPU.
+
+### Equivalence checks
+
+A scripted desktop comparison of the old and new production builds compared
+rounded SVG geometry and HTML label positions after setting t = 0.37 with the
+slider, toggling the whole curve on and off, and dragging a control point with
+paced moves. All three routes matched. Pausing playback leaves the readout,
+React state, drawn parameter, curve parameter, and exported preset parameter
+equal. No console errors were recorded. Unit tests cover lag-safe parameter
+synchronization, full refresh for other state, exact preset export, the
+state-change classifier, and clipping-skip conditions. TypeScript, the full
+Jest suite (161 tests), and the production build pass. The Playwright smoke
+suite was not run because its bundled browser is not installed. The Nord N10
+before/after check remains outstanding.
