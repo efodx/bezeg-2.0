@@ -33,7 +33,7 @@ The runtime remains responsible for checkpoint capture/restore, animation cancel
 | A — Weighted, PH, and transformation exploration | `rational`, `ph-quintic`, `affine` | Implemented draft; review pending | Deterministic defaults, existing or one narrow graph-owned action family, direct formula/invariant checks |
 | B — Foundations and degree variants | `bernstein`, `rational-elevation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-b.md)) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
 | C — Parameter distributions | `weighted-parameterization`, `uniform-parameterization` | Ready for implementation ([task](../tasks/guided-lessons-rollout/implement-cohort-c.md)) | Typed alpha/sample/mode actions and ownership for generated sample points |
-| D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Hold | Generated-curve ownership, valid parameter domains, and restoration tests |
+| D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Ready for implementation ([task](../tasks/guided-lessons-rollout/implement-cohort-d.md)) | Generated-curve ownership, valid parameter domains, and restoration tests |
 | E — Continuity and circle constructions | spline routes, `spline-parameterization`, `farin`, `circle`, `decasteljau-alternative` | Hold | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
 
 Ten routes are available: `bezier`, `decasteljau`, `ph-cubic`, `rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`, `bernstein`, and `rational-elevation`. The product allowlist must be updated only when a cohort’s route-level gates pass.
@@ -164,6 +164,35 @@ Checks:
 - in weighted mode with $\alpha=\tfrac12$ the samples are at $t_i$, and their arc-length gaps are visibly unequal on the default curve;
 - the inversion uses one predictor step and four Newton corrections, so lesson copy says "approximately equal" and does not claim exact equality;
 - the lesson states the computed length $L$ of the default curve, taken from the implementation and checked by the content test.
+
+## Cohort D implementation contract
+
+Cohort D teaches that De Casteljau's construction splits a Bézier curve into exactly representing pieces and extends it beyond its interval. The graphs create new curves, so generated-curve ownership and restoration are the entry gate. Cohort A's allowlist rule applies.
+
+### Discovery findings to resolve
+
+- `subdivision` and `rational-subdivision` (`SubdivisionGraph1`, `RationalSubdivisionGraph2`) create an untracked orange curve in `initialize()` that captures the first curve object; after a lesson scene re-imports the default preset it can follow a disposed curve. The graph must own and rebind or recreate it.
+- Subdivision sets `t` to 1 after splitting and hides the scheme; the scheme switch is keyed on graph state and must reflect restored state.
+- `repeated-subdivision` (`SubdivisionGraph`) caps at five steps with `stepsDone`, which figure capture restores but lesson checkpoints do not; it also has a leftover `console.log`.
+- Extrapolation routes replace the curve by its extension on $[0,t]$ with $t\in[1,1.5]$, and recreate the extrapolation point on deselect.
+
+### Action seam
+
+- `subdivision-parameter`: $t\in[0.01,0.99]$ on `subdivision` and `rational-subdivision`;
+- `subdivide`: one split at the current parameter (subdivision routes), or one repeated-subdivision step at $\tfrac12$ (rejected after five steps);
+- `extrapolation-parameter`: $t\in[1,1.5]$ on the extrapolation routes;
+- `extrapolate`: one extrapolation at the current parameter;
+- existing visibility actions (`decasteljau-scheme`, `control-polygon`, `weights`) where the graph already supports them;
+- validation happens before mutation. The prepared default scene disposes every generated curve and auxiliary object, resets step counters and parameters, and re-creates route-owned auxiliaries. Checkpoint restore returns exactly the pre-lesson curves, points, weights, step count, and parameter.
+
+### Checks
+
+- `subdivision` at $t=\tfrac12$ on the default curve gives left control points $(-4,-3),(-3.5,0),(-1.75,1.5),(0,1.5)$ and right $(0,1.5),(1.75,1.5),(3.5,0),(4,-3)$; in general $L(u)=B(tu)$ and $R(u)=B(t+(1-t)u)$, checked at sample $u$ for several $t$;
+- `repeated-subdivision`: after $k$ steps there are $2^k$ curves whose union traces the original, and the maximum distance between control polygon and curve decreases with $k$;
+- `rational-subdivision`: the pieces are rational curves obtained by homogeneous De Casteljau; their evaluations match the original on the corresponding intervals;
+- extrapolation: the extended curve $E$ satisfies $E(u)=B(tu)$, so it retraces the original on $u\in[0,\tfrac1t]$; the content states that growing $t$ moves control points quickly and that only $t\in[1,1.5]$ is offered;
+- `rational-extrapolation`: the same identity holds with homogeneous coordinates for the default weights $(1,2,1,1)$, and new weights stay positive for the offered range, verified in tests;
+- repeated lesson entry and exit leaves one curve and no stray auxiliary objects.
 
 ## Route-level acceptance criteria
 
