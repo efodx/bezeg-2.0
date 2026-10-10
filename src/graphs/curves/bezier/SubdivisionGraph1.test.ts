@@ -116,6 +116,28 @@ describe('lesson actions', () => {
         expect(graph.state.t).toBe(1);
     });
 
+    test('prepared scene, parameter and subdivide in one synchronous tick split at the new t after an earlier split', () => {
+        const graph = makeGraph();
+        graph.state.t = 1;
+        // setState is asynchronous in React: state only commits after the whole scene ran.
+        const queued: any[] = [];
+        graph.setState = jest.fn((patch: any) => { queued.push(patch); });
+        const spy = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+            this.jxgCurves = [fakeJxgCurve(poly())];
+        });
+        try {
+            graph.applyLessonAction({kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});
+            graph.applyLessonAction({kind: 'subdivision-parameter', value: 0.3});
+            const jxg = graph.jxgCurves[0];
+            expect(graph.state.t).toBe(1);
+            graph.applyLessonAction({kind: 'subdivide'});
+            expect(jxg.setSubdivisionT).toHaveBeenCalledWith(0.3);
+            expect(jxg.subdivide).toHaveBeenCalledTimes(1);
+            // a second split in the same tick must see the post-split reset value (1) and be rejected
+            expect(() => graph.applyLessonAction({kind: 'subdivide'})).toThrow(/0\.01 and 0\.99/);
+        } finally { spy.mockRestore(); }
+    });
+
     test('decasteljau-scheme visibility keeps state in sync', () => {
         const graph = makeGraph();
         Object.setPrototypeOf(graph.jxgCurves[0], AbstractJXGBezierCurve.prototype);

@@ -163,6 +163,11 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         // Create second curve
         let curve2pointArray = curve2.getPoints().map(point => [point.X(), point.Y()]);
         const newJsxCurve = new JXGRationalBezierCurve(curve2pointArray, curve2.getWeights(), this.board) as this;
+        // The new piece inherits what the source shows, so both pieces stay comparable on screen.
+        newJsxCurve.setAttributes(this.getAttributes());
+        if (this.showingWeights) {
+            newJsxCurve.showWeights();
+        }
         if (this.subdivisionResultConsumer !== undefined) {
             this.subdivisionResultConsumer(newJsxCurve);
         }
