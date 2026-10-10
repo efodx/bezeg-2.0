@@ -4,7 +4,7 @@
 
 **Dependencies:** [Cohort C](implement-cohort-c.md); the data-driven lesson smoke spec that replaces the per-cohort specs
 
-**Status:** ready; implementation not started
+**Status:** implemented draft on 2026-10-10; owner language and classroom review pending
 
 ## Goal
 
@@ -32,3 +32,13 @@ Slices 1–3 run in parallel. Slice 4 waits for them.
 - Routes, Preset identifiers, stored presets, import/export formats, and subdivision/extrapolation algorithms are unchanged.
 - `npx tsc --noEmit --pretty false`, the full Jest suite, the production build, and one full built smoke run pass.
 - Capability, rollout-matrix, and roadmap documents record the draft status.
+
+## Verification
+
+Built as one batch by Sonnet workers with handler review, then verified in a single browser pass with the new data-driven lesson smoke spec.
+
+- `npx tsc --noEmit --pretty false` passed; the full Jest suite passed (48 suites, 316 tests); the production build compiled with existing warnings; the full built smoke suite passed (see the final run recorded in the commit message).
+- Discovery fixes: subdivision scene wiring (remainder curve, interval end, disabled controls) and extrapolation points were set only in `initialize()` and are now rebound after every import; repeated-subdivision steps are part of lesson checkpoints.
+- The browser pass found defects that fake-board unit tests missed, all fixed: subdivision scenes read React state written earlier in the same scene (now a synchronous `pendingT`), the right piece of a rational split lacked weight labels, and the rational-extrapolation step asked learners to find a control point far off-screen (now described with zoom-out guidance).
+- The rational-extrapolation lesson explains that the third weight $1+2t-2t^2$ turns negative above $t\approx1.366$ while the denominator $1+3s(1-s)^2\ge1$ rules out a pole.
+- Pending owner review: Slovenian terms (*subdivizija*, *homogene koordinate*, *ekstrapolacija*) and the quadratic-convergence claim for repeated subdivision. Not covered: physical touch devices and projector/presentation mode.

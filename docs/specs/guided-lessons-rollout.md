@@ -33,15 +33,15 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `decasteljau` | Polynomial Bézier | Pilot draft | construction visibility, `t`, graph-owned animation |
 | `decasteljau-alternative` | Polynomial Bézier | Discovery | alternative construction and overlapping-curve semantics |
 | `affine` | Polynomial Bézier | Expansion draft | translation, scale, and invariant observations; rotation/reflection center semantics remain open |
-| `subdivision` | Polynomial Bézier | Discovery | subdivision parameter, split curves, endpoint correspondence |
-| `repeated-subdivision` | Polynomial Bézier | Discovery | repeated split state and generated-curve ownership |
-| `extrapolation` | Polynomial Bézier | Discovery | extrapolation parameter and valid domain |
+| `subdivision` | Polynomial Bézier | Cohort D draft | subdivision parameter, split curves, endpoint correspondence |
+| `repeated-subdivision` | Polynomial Bézier | Cohort D draft | repeated split state and generated-curve ownership |
+| `extrapolation` | Polynomial Bézier | Cohort D draft | extrapolation parameter and valid domain |
 | `elevation` | Polynomial Bézier | Expansion draft | degree elevation and shape invariance |
 | `rational` | Rational Bézier | Expansion draft | weights, standard form, and valid weight states |
 | `rational-decasteljau` | Rational Bézier | Expansion draft | rational construction rows and weight semantics |
 | `rational-elevation` | Rational Bézier | Cohort B draft | `degree-elevation` with effective weights; homogeneous elevation and shape invariance |
-| `rational-extrapolation` | Rational Bézier | Discovery | rational extrapolation domain and validity |
-| `rational-subdivision` | Rational Bézier | Discovery | rational subdivision and generated curves |
+| `rational-extrapolation` | Rational Bézier | Cohort D draft | rational extrapolation domain and validity |
+| `rational-subdivision` | Rational Bézier | Cohort D draft | rational subdivision and generated curves |
 | `farin` | Rational Bézier | Discovery | Farin points and their geometric meaning |
 | `circle` | Rational Bézier | Discovery | piece count, weights, and circle approximation claims |
 | `spline-cn` | Splines | Discovery | continuity order and derived-point constraints |
