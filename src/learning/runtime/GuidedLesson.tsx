@@ -30,6 +30,21 @@ function frameLabel(frame: LessonFrame) {
     return t('guided_lesson_explanation');
 }
 
+type LessonAnimationCommand = 'play' | 'pause' | 'replay';
+
+// Neutral currentColor icons keep playback controls in the workspace's monochrome button style.
+const ANIMATION_ICON_PATHS: Record<LessonAnimationCommand, React.ReactNode> = {
+    play: <path d="M5 3.5v9l7.5-4.5z" fill="currentColor"/>,
+    pause: <path d="M4.5 3.5h2.5v9H4.5zM9 3.5h2.5v9H9z" fill="currentColor"/>,
+    replay: <path d="M12.5 8a4.5 4.5 0 1 1-1.32-3.18M12.5 2.5v3h-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>,
+};
+
+function AnimationIcon(props: {command: LessonAnimationCommand}) {
+    return <svg className="guided-lesson-animation-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+        {ANIMATION_ICON_PATHS[props.command]}
+    </svg>;
+}
+
 export function GuidedLesson(props: {
     lesson: LessonDefinition;
     capabilities: LessonGraphCapabilities;
@@ -44,6 +59,7 @@ export function GuidedLesson(props: {
     const lessonRef = useRef<HTMLElement>(null);
     const handoffTimer = useRef<number>();
     const promptDrag = useRef<PromptDragState>();
+    const animationPlaying = useRef(false);
     const session = useMemo(() => new LessonSession(props.lesson, props.capabilities), [props.lesson, props.capabilities]);
     const snapshot: LessonSessionSnapshot = session.snapshot();
     const step = props.lesson.steps[snapshot.stepIndex];
@@ -60,6 +76,12 @@ export function GuidedLesson(props: {
             window.clearTimeout(handoffTimer.current);
             handoffTimer.current = undefined;
         }
+    };
+
+    const animateFrame = (command: LessonAnimationCommand) => {
+        if (!frame.animation) return;
+        session.applyAnimation(frame.animation.animationId, command);
+        animationPlaying.current = command !== 'pause';
     };
 
     const scheduleOverlayPhase = (phase: LessonOverlayPhase) => {
@@ -84,6 +106,14 @@ export function GuidedLesson(props: {
     const showOverlay = () => {
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
+        // Playback controls live only in the compact prompt; never keep animating behind the overlay.
+        if (frame.animation && animationPlaying.current) {
+            try {
+                animateFrame('pause');
+            } catch (error) {
+                setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            }
+        }
         setOverlayPhase('opening');
         scheduleOverlayPhase('visible');
     };
@@ -212,6 +242,8 @@ export function GuidedLesson(props: {
     }, [language, revision, overlayVisible, snapshot.status, snapshot.stepIndex, snapshot.frameIndex, startupError]);
 
     useEffect(() => {
+        // Lesson navigation stops scene animations, so playback must be restarted explicitly.
+        animationPlaying.current = false;
         lessonRef.current?.focus({preventScroll: true});
     }, [snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
@@ -266,9 +298,9 @@ export function GuidedLesson(props: {
                 <strong>{localized(frame.title, language)}</strong>
                 {frame.prompt && <span>{localized(frame.prompt, language)}</span>}
                 {frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
-                    <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'play'))}><span aria-hidden="true">▶</span> {t('play')}</button>
-                    <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'pause'))}><span aria-hidden="true">Ⅱ</span> {t('pause')}</button>
-                    <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'replay'))}><span aria-hidden="true">↻</span> {t('replay')}</button>
+                    {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
+                        <AnimationIcon command={command}/>{t(command)}
+                    </button>)}
                 </div>}
                 <span className="guided-lesson-hidden-hint">{t('guided_lesson_hidden_hint')}</span>
                 <button type="button" className="guided-lesson-continue" onClick={showOverlay}>{t('continue_lesson')}</button>
@@ -280,11 +312,6 @@ export function GuidedLesson(props: {
     // Keep a read of revision so action handlers cause this panel to render.
     void revision;
     const frameAction = frame.action;
-    const animationControls = frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
-        <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'play'))}><span aria-hidden="true">▶</span> {t('play')}</button>
-        <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'pause'))}><span aria-hidden="true">Ⅱ</span> {t('pause')}</button>
-        <button type="button" onClick={() => refresh(() => session.applyAnimation(frame.animation!.animationId, 'replay'))}><span aria-hidden="true">↻</span> {t('replay')}</button>
-    </div>;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
     return <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
@@ -320,7 +347,6 @@ export function GuidedLesson(props: {
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <strong>{localized(frame.title, language)}</strong>
             {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
-            {animationControls}
         </div>}
         {isComplete && <p role="status">{t('guided_lesson_free_exploration')}</p>}
         {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}

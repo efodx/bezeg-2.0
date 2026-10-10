@@ -236,7 +236,7 @@ test('allows a pointer drag to move the compact observation prompt toward the ri
     }
 });
 
-test('renders explicit observation animation controls after the explanation frame', () => {
+test('offers observation playback only beside the visible graph and pauses it when the lesson returns', () => {
     jest.useFakeTimers();
     setLanguage('sl');
     try {
@@ -245,13 +245,35 @@ test('renders explicit observation animation controls after the explanation fram
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         act(() => jest.advanceTimersByTime(250));
-        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toBeVisible();
+        const controls = screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'});
+        expect(controls.closest('.guided-lesson-hidden-content')).not.toBeNull();
+        expect(controls.querySelectorAll('svg.guided-lesson-animation-icon')).toHaveLength(3);
+        fireEvent.click(screen.getByRole('button', {name: /Predvajaj/}));
+        expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'play'});
+
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
         act(() => jest.advanceTimersByTime(250));
         expect(screen.getByText('Opazovanje', {selector: 'strong'})).toBeVisible();
-        expect(screen.getByRole('button', {name: /Predvajaj/})).toBeVisible();
-        fireEvent.click(screen.getByRole('button', {name: /Ponovi/}));
-        expect(apply).toHaveBeenCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'replay'});
+        expect(screen.queryByRole('button', {name: /Predvajaj/})).not.toBeInTheDocument();
+        expect(screen.queryByRole('group', {name: 'Kontrole animacije konstrukcije'})).not.toBeInTheDocument();
+    } finally {
+        jest.useRealTimers();
+        act(() => setLanguage('sl'));
+    }
+});
+
+test('does not pause playback that the observation never started', () => {
+    jest.useFakeTimers();
+    setLanguage('sl');
+    try {
+        const apply = jest.fn();
+        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
+
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        act(() => jest.advanceTimersByTime(250));
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        expect(apply).not.toHaveBeenCalledWith(expect.objectContaining({kind: 'animation'}));
     } finally {
         jest.useRealTimers();
         act(() => setLanguage('sl'));

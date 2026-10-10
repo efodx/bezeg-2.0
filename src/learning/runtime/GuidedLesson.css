@@ -26,7 +26,7 @@
 .guided-lesson-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
 .guided-lesson-heading h2 { margin:8px 0 4px; font-size:24px; }
 .guided-lesson-heading p { margin:0; color:#526152; line-height:1.45; }
-.guided-lesson-heading button, .guided-lesson-actions button, .guided-lesson-animation-controls button, .guided-lesson-hidden-content button {
+.guided-lesson-heading button, .guided-lesson-actions button, .guided-lesson-hidden-content button {
     min-height:42px;
     padding:8px 14px;
     border:1px solid #9aaa87;
@@ -36,7 +36,7 @@
     font:inherit;
     cursor:pointer;
 }
-.guided-lesson-heading button:hover, .guided-lesson-actions button:hover, .guided-lesson-animation-controls button:hover { background:#f1f6e9; }
+.guided-lesson-heading button:hover, .guided-lesson-actions button:hover { background:#f1f6e9; }
 .guided-lesson:focus { outline: 3px solid #577cc3; outline-offset: -3px; }
 .guided-lesson-close {
     width:44px !important;
@@ -98,8 +98,6 @@
 .guided-lesson-exploration { animation: guided-lesson-frame-in .18s ease-out; padding:14px 16px; border-left:3px solid #c67516; background:#f5f8ed; }
 .guided-lesson-exploration strong { display:block; font-size:1rem; }
 .guided-lesson-exploration p { margin:8px 0 0; color:#526152; line-height:1.45; }
-.guided-lesson-animation-controls { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
-.guided-lesson-animation-controls button { min-height:38px; padding:6px 10px; font-size:.85rem; }
 .guided-lesson-complete { background:#f5f8ed; }
 .guided-lesson-hidden {
     align-self:start;
@@ -145,8 +143,32 @@
 .guided-lesson-hidden-content strong { flex-basis:100%; color:#243b2b; font-size:.92rem; }
 .guided-lesson-hidden-content > span:not(.guided-lesson-frame-label):not(.guided-lesson-hidden-hint) { line-height:1.35; }
 .guided-lesson-hidden-hint { flex-basis:100%; color:#526152; line-height:1.35; }
-.guided-lesson-hidden-content .guided-lesson-animation-controls { flex-basis:100%; margin-top:2px; }
 .guided-lesson-hidden-content button { min-height:36px; padding:6px 10px; touch-action:manipulation; }
+/* Match the graph tool's playback buttons: neutral panel buttons with monochrome icons. */
+.guided-lesson-hidden-content .guided-lesson-animation-controls {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    flex-basis:100%;
+    gap:5px;
+    margin-top:2px;
+}
+.guided-lesson-hidden-content .guided-lesson-animation-controls button {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    min-width:0;
+    padding:6px 8px;
+    border:1px solid var(--workspace-rule, #d4d0bc);
+    border-radius:4px;
+    background:var(--workspace-panel, #fffdf5);
+    color:var(--workspace-ink, #20372d);
+    font-size:.78rem;
+    white-space:nowrap;
+}
+.guided-lesson-hidden-content .guided-lesson-animation-controls button:hover { background:var(--workspace-canvas-deep, #e9e3cb); }
+.guided-lesson-hidden-content .guided-lesson-animation-controls button:focus-visible { outline:2px solid var(--workspace-green, #3b6704); outline-offset:2px; }
+.guided-lesson-animation-icon { flex:none; }
 .guided-lesson-hidden-content .guided-lesson-continue {
     flex-basis:100%;
     margin-top:4px;
