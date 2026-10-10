@@ -7,6 +7,9 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
+import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+
+export const MAX_SUBDIVISION_STEPS = 5;
 
 function ShowControlPolygons(props: { initialState: boolean, onChange: (checked: boolean) => void }) {
     useLanguage();
@@ -29,6 +32,37 @@ class SubdivisionGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'subdivide') {
+            if (this.stepsDone >= MAX_SUBDIVISION_STEPS) {
+                throw new Error(`At most ${MAX_SUBDIVISION_STEPS} subdivision steps are available. Reset the scene to start again.`);
+            }
+            this.subdivide();
+            return;
+        }
+        super.applyLessonAction(action);
+    }
+
+    protected override prepareLessonDefaultScene(): void {
+        // The default preset import disposes every generated piece and its control polygon / de Casteljau points.
+        super.prepareLessonDefaultScene();
+        this.stepsDone = 0;
+        this.getFirstJxgCurve()?.setAttributes(Attributes.bezierDisabled);
+        this.refreshWorkspace();
+    }
+
+    protected override captureLessonState(): LessonSceneCheckpoint {
+        const checkpoint = super.captureLessonState();
+        return {...checkpoint, value: {...(checkpoint.value as object), stepsDone: this.stepsDone}} as LessonSceneCheckpoint;
+    }
+
+    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
+        const stepsDone = (checkpoint.value as {stepsDone?: unknown} | undefined)?.stepsDone;
+        super.restoreLessonState(checkpoint);
+        if (typeof stepsDone === "number" && Number.isInteger(stepsDone) && stepsDone >= 0) this.stepsDone = stepsDone;
+        this.refreshWorkspace();
     }
 
     defaultPreset(): any {
@@ -54,31 +88,34 @@ class SubdivisionGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
     }
 
     subdivide() {
-        if (this.stepsDone > 4) {
+        if (this.stepsDone >= MAX_SUBDIVISION_STEPS) {
             return;
         }
         this.stepsDone = this.stepsDone + 1;
         // @ts-ignore
         this.board.suspendUpdate();
-        let oldJsxBezierCurves = this.jxgCurves.map(c => c as JXGBezierCurve);
-        console.log(this.jxgCurves.length);
-        for (let bezierCurve of oldJsxBezierCurves) {
-            // TODO REDESIGN SUBDIVISIONRESULTCONSUMER...
-            bezierCurve.setSubdivisionResultConsumer(() => "");
-            let newCurve = bezierCurve.subdivide(1 / 2);
-            if (bezierCurve.isShowingControlPolygon()) {
-                newCurve.showControlPolygon();
+        try {
+            let oldJsxBezierCurves = this.jxgCurves.map(c => c as JXGBezierCurve);
+            for (let bezierCurve of oldJsxBezierCurves) {
+                // TODO REDESIGN SUBDIVISIONRESULTCONSUMER...
+                bezierCurve.setSubdivisionResultConsumer(() => "");
+                let newCurve = bezierCurve.subdivide(1 / 2);
+                if (bezierCurve.isShowingControlPolygon()) {
+                    newCurve.showControlPolygon();
+                }
+                this.jxgCurves.push(newCurve);
             }
-            this.jxgCurves.push(newCurve);
+        } finally {
+            this.unsuspendBoardUpdate();
         }
-        this.unsuspendBoardUpdate();
         this.refreshWorkspace();
     };
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<Button
             onClick={() => this.subdivide()}>{t("subdivide")}</Button>,
-            <ShowControlPolygons initialState={this.getFirstJxgCurve().isShowingControlPolygon()}
+            <ShowControlPolygons key={`control-polygons-${this.workspaceRevision}`}
+                                 initialState={this.getFirstJxgCurve().isShowingControlPolygon()}
                                  onChange={(checked) => {
                                      if (checked) {
                                          this.showControlPolygons();

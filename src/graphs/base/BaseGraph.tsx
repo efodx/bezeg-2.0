@@ -213,7 +213,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         };
     }
 
-    private restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
+    protected restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
         if (!this.graphSession?.isReady) return;
         if (checkpoint.version !== 1 || !isLessonState(checkpoint.value)) {
             throw new Error('This lesson scene is no longer compatible with the graph.');
