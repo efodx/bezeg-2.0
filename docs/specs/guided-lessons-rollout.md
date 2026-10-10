@@ -51,9 +51,9 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `spline-g1-symmetric` | Splines | Discovery | symmetric G¹ construction and invariants |
 | `ph-cubic` | PH | Pilot draft | hodograph, offset visibility, offset distance |
 | `ph-quintic` | PH | Expansion draft | quintic hodograph, speed, and offset semantics |
-| `spline-parameterization` | Parameterization | Discovery | alpha parameter and spline parameter distribution |
-| `weighted-parameterization` | Parameterization | Discovery | weighting rule and geometric effect |
-| `uniform-parameterization` | Parameterization | Discovery | uniform parameter rule and comparison |
+| `spline-parameterization` | Parameterization | Deferred to cohort E | alpha sets knot spacing and changes the C² spline shape; restore must reapply curve-owned alpha |
+| `weighted-parameterization` | Parameterization | Cohort C ready | `parameterization-alpha`/`-samples`; rational reparameterization, symmetry, unchanged curve |
+| `uniform-parameterization` | Parameterization | Cohort C ready | adds `parameterization-mode`; polynomial PH arc length and approximately equal-arc-length samples |
 
 Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decision, supported typed actions, prepared scene description, expected observation, mathematical checks, Slovenian and English review status, and browser/device evidence.
 
@@ -76,3 +76,4 @@ Use focused runtime/content tests first, then production-browser review for ever
 - [Review and release the pilots](../tasks/guided-lessons-rollout/review-and-release-pilot.md)
 - [Extend the polynomial Bézier cohort](../tasks/guided-lessons-rollout/extend-polynomial-bezier-cohort.md)
 - [Implement Cohort B (`bernstein`, `rational-elevation`)](../tasks/guided-lessons-rollout/implement-cohort-b.md)
+- [Implement Cohort C (`weighted-parameterization`, `uniform-parameterization`)](../tasks/guided-lessons-rollout/implement-cohort-c.md)
