@@ -7,6 +7,9 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {SizeContext} from "../context/SizeContext";
 import {Colors} from "../curves/bezier/utilities/Colors";
 import {CountSetter} from "../../inputs/CountSetter";
+import {LessonAction} from "../../learning/model";
+
+export const BERNSTEIN_MAX_DEGREE = 5;
 
 function connectCurves(c1: [x1: (t: number) => number, y1: (t: number) => number], c2: [x2: (t: number) => number, y2: (t: number) => number]) {
     const x = (t: number) => {
@@ -35,10 +38,53 @@ export class BernsteinGraph extends BaseGraph<any, any> {
     override readonly state = {n: 2, isSumGraph: false, showLabels: false};
     private jxgObjects: any = [];
     private padding = 0.1;
+    /** The (n, isSumGraph) pair the board objects were last generated for; null when nothing is generated. */
+    private generatedFor: {n: number, isSumGraph: boolean} | null = null;
 
     override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-        if (prevState === this.state && prevProps === this.props) { return; }
-        this.generateBernsteinPolynomials(this.board, this.state.n, this.state.isSumGraph);
+        if (!this.board || !this.graphSession?.isAlive) { return; }
+        const {n, isSumGraph} = this.state;
+        if (this.generatedFor?.n === n && this.generatedFor.isSumGraph === isSumGraph) { return; }
+        this.generateBernsteinPolynomials(this.board, n, isSumGraph);
+    }
+
+    protected override lessonDefaultState(): any {
+        return {n: 2, isSumGraph: false, showLabels: false};
+    }
+
+    protected override prepareLessonDefaultScene(): void {
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        // The Bernstein default preset is empty, so the scene is fully described by the graph state.
+        const state = this.lessonDefaultState();
+        this.setState(state);
+        this.generateBernsteinPolynomials(this.board, state.n, state.isSumGraph);
+        this.boardUpdate();
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'bernstein-degree') {
+            const degree = action.degree;
+            if (!Number.isInteger(degree) || degree < 0 || degree > BERNSTEIN_MAX_DEGREE) {
+                throw new Error(`The Bernstein degree must be an integer from 0 to ${BERNSTEIN_MAX_DEGREE}.`);
+            }
+            this.setState({n: degree + 1});
+            this.generateBernsteinPolynomials(this.board, degree + 1, this.generatedFor?.isSumGraph ?? this.state.isSumGraph);
+            return;
+        }
+        if (action.kind === 'bernstein-stacked-area') {
+            this.setState({isSumGraph: action.visible});
+            this.generateBernsteinPolynomials(this.board, this.generatedFor?.n ?? this.state.n, action.visible);
+            return;
+        }
+        super.applyLessonAction(action);
+    }
+
+    private removeGeneratedObjects(): void {
+        const objects = [...new Set<any>(this.jxgObjects)]
+            .filter(object => object?.board === this.board && this.board.objectsList.includes(object))
+            .reverse();
+        if (objects.length) this.board.removeObject(objects);
+        this.jxgObjects = [];
     }
 
     override presets() {
@@ -46,11 +92,9 @@ export class BernsteinGraph extends BaseGraph<any, any> {
     }
 
     protected override disposeFigureScene(): void {
-        const existingObjects = [...new Set(this.jxgObjects)]
-            .filter((object: any) => object?.board === this.board && this.board.objectsList.includes(object))
-            .reverse() as any[];
-        if (existingObjects.length && this.graphSession?.isAlive) this.board.removeObject(existingObjects);
+        if (this.graphSession?.isAlive) this.removeGeneratedObjects();
         this.jxgObjects = [];
+        this.generatedFor = null;
     }
 
     initialize(): void {
@@ -63,12 +107,13 @@ export class BernsteinGraph extends BaseGraph<any, any> {
         if (this.state.n === number) {
             return;
         }
-        this.setState({...this.state, n: number});
+        this.setState({n: number});
         this.generateBernsteinPolynomials(this.board, number, this.state.isSumGraph);
     }
 
     generateBernsteinPolynomials(board: JXG.Board, n: number, isSumGraph: boolean) {
-        this.board.removeObject(this.jxgObjects);
+        this.removeGeneratedObjects();
+        this.generatedFor = {n, isSumGraph};
         const numOfPolynoms = n;
         const polynoms: Array<(t: number) => number> = [];
         const jxgObjects = [];
@@ -155,9 +200,8 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                 visible: () => this.state.showLabels
             });
             jxgObjects.push(text);
-            this.jxgObjects.push(...curves);
-            this.jxgObjects.push(...jxgObjects);
         }
+        this.jxgObjects.push(...curves, ...jxgObjects);
 
     }
 
@@ -174,9 +218,7 @@ export class BernsteinGraph extends BaseGraph<any, any> {
     }
 
     private setIsSumGraph(checked: boolean) {
-        this.setState({...this.state, isSumGraph: checked});
-        this.board.removeObject(this.jxgObjects);
-        this.jxgObjects = [];
+        this.setState({isSumGraph: checked});
         this.generateBernsteinPolynomials(this.board, this.state.n, checked);
     }
 }

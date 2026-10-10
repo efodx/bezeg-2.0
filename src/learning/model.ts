@@ -12,6 +12,8 @@ export type LessonAction =
     | {readonly kind: 'affine-transform'; readonly operation: 'translate-x' | 'translate-y' | 'scale' | 'rotate'; readonly value: number}
     | {readonly kind: 'affine-transform'; readonly operation: 'reflect-x' | 'reflect-y'}
     | {readonly kind: 'parameter'; readonly name: 't' | 'offset-distance'; readonly value: number}
+    | {readonly kind: 'bernstein-degree'; readonly degree: number}
+    | {readonly kind: 'bernstein-stacked-area'; readonly visible: boolean}
     | {readonly kind: 'animation'; readonly animationId: 'decasteljau'; readonly command: 'play' | 'pause' | 'replay' | 'stop'};
 
 export type LessonFrameKind = 'explanation' | 'calculation' | 'observation';
