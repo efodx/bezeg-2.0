@@ -87,7 +87,7 @@ const rationalDecasteljau: GuidedLesson = {
                     {name: 'show-weights', value: true},
                     {name: 'set-decasteljau-parameter', value: 0.5},
                 ],
-                expectedState: text('Privzete uteži in racionalna konstrukcija so vidne pri t=1/2.', 'The default weights and rational construction are visible at t=1/2.'),
+                expectedState: text('Privzete uteži in racionalna konstrukcija so vidne pri \\(t=\\tfrac{1}{2}\\).', 'The default weights and rational construction are visible at \\(t=\\tfrac{1}{2}\\).'),
             },
             learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj položaje kontrolnih točk, uteži in krivulje.', 'Compare the positions of the control points, weights, and curve.'),
@@ -110,7 +110,7 @@ const rationalDecasteljau: GuidedLesson = {
                     {name: 'show-decasteljau-construction', value: true},
                     {name: 'set-decasteljau-parameter', value: 0.25},
                 ],
-                expectedState: text('Konstrukcija je prikazana pri t=1/4; vse homogene koordinate se interpolirajo skupaj.', 'The construction is shown at t=1/4; all homogeneous coordinates are interpolated together.'),
+                expectedState: text('Konstrukcija je prikazana pri \\(t=\\tfrac{1}{4}\\); vse homogene koordinate se interpolirajo skupaj.', 'The construction is shown at \\(t=\\tfrac{1}{4}\\); all homogeneous coordinates are interpolated together.'),
             },
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Predvajaj konstrukcijo in poišči vrstico, v kateri se začne spreminjati tudi zadnja, utežna koordinata.', 'Play the construction and identify the row in which the final, weight coordinate also changes.'),
@@ -133,10 +133,10 @@ const rationalDecasteljau: GuidedLesson = {
                     {name: 'show-decasteljau-construction', value: true},
                     {name: 'set-decasteljau-parameter', value: 0.5},
                 ],
-                expectedState: text('Končna konstrukcijska točka pri t=1/2 je projekcija točke B(1/2).', 'The final construction point at t=1/2 is the projection of B(1/2).'),
+                expectedState: text('Končna konstrukcijska točka pri \\(t=\\tfrac{1}{2}\\) je projekcija točke \\(B(\\tfrac{1}{2})\\).', 'The final construction point at \\(t=\\tfrac{1}{2}\\) is the projection of \\(B(\\tfrac{1}{2})\\).'),
             },
             learnerInteraction: 'observe',
-            observationPrompt: text('Primerjaj izračunano točko (-9/11,21/11) s končno točko konstrukcije.', 'Compare the calculated point (-9/11,21/11) with the final construction point.'),
+            observationPrompt: text('Primerjaj izračunano točko \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) s končno točko konstrukcije.', 'Compare the calculated point \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) with the final construction point.'),
             expectedObservations: [text('Po projekciji končna točka konstrukcije sovpada s točko racionalne krivulje.', 'After projection, the final construction point coincides with the point on the rational curve.')],
         },
         {
@@ -155,7 +155,7 @@ const rationalDecasteljau: GuidedLesson = {
             scene: {
                 id: 'rational-decasteljau-weight-exploration', basedOn: 'demonstration-default',
                 actions: [{name: 'show-decasteljau-construction', value: true}, {name: 'show-weights', value: true}, {name: 'set-decasteljau-parameter', value: 0.75}],
-                expectedState: text('Konstrukcija pri t=3/4 ostane vidna med spreminjanjem uteži.', 'The construction at t=3/4 remains visible while weights are changed.'),
+                expectedState: text('Konstrukcija pri \\(t=\\tfrac{3}{4}\\) ostane vidna med spreminjanjem uteži.', 'The construction at \\(t=\\tfrac{3}{4}\\) remains visible while weights are changed.'),
             },
         },
         {
@@ -203,7 +203,7 @@ const elevation: GuidedLesson = {
         'Degree elevation adds a control point while representing the same Bézier curve.',
     ),
     prerequisites: [
-        text('Potrebno je osnovno poznavanje Bézierjevih kontrolnih točk in parametra t.', 'Assumes familiarity with Bézier control points and the parameter t.'),
+        text('Potrebno je osnovno poznavanje Bézierjevih kontrolnih točk in parametra \\(t\\).', 'Assumes familiarity with Bézier control points and the parameter \\(t\\).'),
         text('Potrebno je razlikovati stopnjo krivulje od števila kontrolnih točk.', 'Assumes the distinction between curve degree and the number of control points.'),
     ],
     learningGoals: [
@@ -220,8 +220,8 @@ const elevation: GuidedLesson = {
                 'Each new interior control point is a linear combination of two neighboring old points.',
             ),
             explanation: text(
-                'Ko je stara stopnja n, ima nova krivulja stopnjo n+1 in n+2 kontrolnih točk. Krajišči ostaneta enaki.',
-                'When the old degree is n, the new curve has degree n+1 and n+2 control points. The endpoints stay the same.',
+                'Ko je stara stopnja \\(n\\), ima nova krivulja stopnjo \\(n+1\\) in \\(n+2\\) kontrolnih točk. Krajišči ostaneta enaki.',
+                'When the old degree is \\(n\\), the new curve has degree \\(n+1\\) and \\(n+2\\) control points. The endpoints stay the same.',
             ),
         },
         {
@@ -244,8 +244,8 @@ const elevation: GuidedLesson = {
             calculationLatex: 'P_0=(-4,-2),P_1=(-3,3),P_2=(2,3),P_3=(3,-2)',
             resultLatex: 'Q=(-4,-2),\\left(-\\frac{13}{4},\\frac74\\right),\\left(-\\frac12,3\\right),\\left(\\frac94,\\frac74\\right),(3,-2)',
             check: text(
-                'Pri t=1/2 ostane vrednost B(1/2)=(-1/2,7/4); preveri jo pred in po višanju stopnje.',
-                'At t=1/2 the value remains B(1/2)=(-1/2,7/4); check it before and after elevation.',
+                'Pri \\(t=\\tfrac{1}{2}\\) ostane vrednost \\(B(\\tfrac{1}{2})=\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\); preveri jo pred in po višanju stopnje.',
+                'At \\(t=\\tfrac{1}{2}\\) the value remains \\(B(\\tfrac{1}{2})=\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\); check it before and after elevation.',
             ),
         },
     ],
@@ -274,8 +274,8 @@ const elevation: GuidedLesson = {
             title: text('Nove kontrolne točke', 'New control points'),
             purpose: text('Uporaba formule za konstrukcijo višje stopnje.', 'Using the formula to construct the higher degree.'),
             explanation: text(
-                'Notranje točke Q_i so izračunane iz sosednjih P_i. Krajišči Q_0 in Q_4 se ujemata s starima krajiščema.',
-                'The interior points Q_i are calculated from neighboring P_i. The endpoints Q_0 and Q_4 equal the old endpoints.',
+                'Notranje točke \\(Q_i\\) so izračunane iz sosednjih \\(P_i\\). Krajišči \\(Q_0\\) in \\(Q_4\\) se ujemata s starima krajiščema.',
+                'The interior points \\(Q_i\\) are calculated from neighboring \\(P_i\\). The endpoints \\(Q_0\\) and \\(Q_4\\) equal the old endpoints.',
             ),
             formulaIds: ['elevation-control-points'],
             frames: [frame('elevation-formula-explanation', 'explanation'), frame('elevation-formula-observation', 'observation')],
@@ -300,12 +300,12 @@ const elevation: GuidedLesson = {
             frames: [frame('elevation-calculation-explanation', 'explanation'), frame('elevation-calculation-calculation', 'calculation'), frame('elevation-calculation-observation', 'observation')],
             workedExampleId: 'elevation-cubic-example',
             learnerInteraction: 'observe',
-            observationPrompt: text('Preveri vrednost pri t=1/2 na obeh predstavitvah.', 'Check the value at t=1/2 in both representations.'),
-            expectedObservations: [text('Vrednost (-1/2,7/4) se ohrani, čeprav je kontrolni poligon drugačen.', 'The value (-1/2,7/4) is preserved even though the control polygon is different.')],
+            observationPrompt: text('Preveri vrednost pri \\(t=\\tfrac{1}{2}\\) na obeh predstavitvah.', 'Check the value at \\(t=\\tfrac{1}{2}\\) in both representations.'),
+            expectedObservations: [text('Vrednost \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) se ohrani, čeprav je kontrolni poligon drugačen.', 'The value \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) is preserved even though the control polygon is different.')],
             scene: {
                 id: 'elevation-calculation-scene', basedOn: 'demonstration-default',
                 actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}],
-                expectedState: text('Višana krivulja je pripravljena za primerjavo pri t=1/2.', 'The elevated curve is ready for comparison at t=1/2.'),
+                expectedState: text('Višana krivulja je pripravljena za primerjavo pri \\(t=\\tfrac{1}{2}\\).', 'The elevated curve is ready for comparison at \\(t=\\tfrac{1}{2}\\).'),
             },
         },
         {
@@ -319,7 +319,7 @@ const elevation: GuidedLesson = {
             formulaIds: ['elevation-shape-invariance'],
             frames: [frame('elevation-analysis-explanation', 'explanation'), frame('elevation-analysis-observation', 'observation')],
             learnerInteraction: 'observe',
-            observationPrompt: text('Izberi več vrednosti t in preveri, ali se oblika in krajišči ujemajo.', 'Choose several t values and check whether the shape and endpoints agree.'),
+            observationPrompt: text('Izberi več vrednosti \\(t\\) in preveri, ali se oblika in krajišči ujemajo.', 'Choose several \\(t\\) values and check whether the shape and endpoints agree.'),
             expectedObservations: [text('Pri običajnem intervalu se ujemajo vse preverjene točke, ne samo sredina.', 'All checked points agree on the ordinary interval, not only the midpoint.')],
             scene: {
                 id: 'elevation-analysis-scene', basedOn: 'demonstration-default',

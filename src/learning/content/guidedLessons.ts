@@ -215,8 +215,8 @@ const decasteljauFormulaBlocks: readonly FormulaBlock[] = [
             'Each row linearly interpolates neighboring points; \\(r\\) identifies the construction row.',
         ),
         explanation: text(
-            'Po n korakih je \\(B(t)=P_0^{(n)}(t)\\). Konstrukcija uporablja iste uteži kot Bernsteinova oblika, vendar jih izračuna rekurzivno.',
-            'After n steps, \\(B(t)=P_0^{(n)}(t)\\). The construction uses the same weights as the Bernstein form, but computes them recursively.',
+            'Po \\(n\\) korakih je \\(B(t)=P_0^{(n)}(t)\\). Konstrukcija uporablja iste uteži kot Bernsteinova oblika, vendar jih izračuna rekurzivno.',
+            'After \\(n\\) steps, \\(B(t)=P_0^{(n)}(t)\\). The construction uses the same weights as the Bernstein form, but computes them recursively.',
         ),
     },
     {
@@ -282,11 +282,11 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
         ),
         prerequisites: [
             text('Potrebno je osnovno poznavanje koordinat točk in linearnih kombinacij.', 'Assumes familiarity with point coordinates and linear combinations.'),
-            text('Potrebno je razumevanje parametra t na intervalu [0,1].', 'Assumes familiarity with the parameter t on the interval [0,1].'),
+            text('Potrebno je razumevanje parametra \\(t\\) na intervalu \\([0,1]\\).', 'Assumes familiarity with the parameter \\(t\\) on the interval \\([0,1]\\).'),
         ],
         learningGoals: [
             text('Razložiš vlogo kontrolnih točk in kontrolnega poligona.', 'Explain the role of control points and the control polygon.'),
-            text('Uporabiš krajiščni lastnosti B(0)=P₀ in B(1)=Pₙ.', 'Use the endpoint properties B(0)=P₀ and B(1)=Pₙ.'),
+            text('Uporabiš krajiščni lastnosti \\(B(0)=P_0\\) in \\(B(1)=P_n\\).', 'Use the endpoint properties \\(B(0)=P_0\\) and \\(B(1)=P_n\\).'),
             text('Utemeljiš, zakaj je krivulja v konveksni ovojnici kontrolnih točk.', 'Explain why the curve lies in the convex hull of its control points.'),
         ],
         formulaBlocks: bezierFormulaBlocks,
@@ -314,7 +314,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: [], learnerInteraction: 'observe',
                 frames: [frame('bezier-introduction-explanation', 'explanation'), frame('bezier-introduction-observation', 'observation')],
                 observationPrompt: text('Določi začetno in končno točko krivulje.', 'Identify the initial and terminal points of the curve.'),
-                expectedObservations: [text('Krivulja se začne pri P₀ in konča pri P₃.', 'The curve starts at P₀ and ends at P₃.')],
+                expectedObservations: [text('Krivulja se začne pri \\(P_0\\) in konča pri \\(P_3\\).', 'The curve starts at \\(P_0\\) and ends at \\(P_3\\).')],
                 scene: scene('bezier-default', [], 'Privzeta kubična krivulja z 4 kontrolnimi točkami.', 'The default cubic curve with 4 control points.'),
             },
             {
@@ -343,7 +343,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['bezier-endpoints'], learnerInteraction: 'drag-control-point',
                 frames: [frame('bezier-endpoints-explanation', 'explanation'), frame('bezier-endpoints-observation', 'observation')],
                 observationPrompt: text('Premakni \\(P_1\\) ali \\(P_2\\) ter opiši, kaj se spremeni in kaj ostane nespremenjeno.', 'Move \\(P_1\\) or \\(P_2\\) and describe what changes and what remains invariant.'),
-                expectedObservations: [text('Oblika krivulje se spremeni, krajišči pri P₀ in P₃ pa ostaneta enaki.', 'The shape changes, while the endpoints at P₀ and P₃ stay the same.')],
+                expectedObservations: [text('Oblika krivulje se spremeni, krajišči pri \\(P_0\\) in \\(P_3\\) pa ostaneta enaki.', 'The shape changes, while the endpoints at \\(P_0\\) and \\(P_3\\) stay the same.')],
             },
             {
                 id: 'bezier-evaluation', order: 4,
@@ -356,7 +356,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['bezier-bernstein-form'],
                 frames: [frame('bezier-evaluation-explanation', 'explanation'), frame('bezier-evaluation-calculation', 'calculation'), frame('bezier-evaluation-observation', 'observation')],
                 workedExampleId: 'bezier-cubic-midpoint',
-                scene: scene('bezier-evaluation-point', [action('show-evaluation-point', 0.5)], 'Na krivulji je označena točka B(1/2).', 'The point B(1/2) is marked on the curve.'),
+                scene: scene('bezier-evaluation-point', [action('show-evaluation-point', 0.5)], 'Na krivulji je označena točka \\(B(\\tfrac{1}{2})\\).', 'The point \\(B(\\tfrac{1}{2})\\) is marked on the curve.'),
                 learnerInteraction: 'observe',
                 observationPrompt: text('Preveri, ali izračunana točka leži v konveksni ovojnici kontrolnih točk.', 'Verify whether the evaluated point lies in the convex hull of the control points.'),
                 expectedObservations: [text('Točka je na krivulji in znotraj konveksne ovojnice.', 'The point is on the curve and inside the convex hull.')],
@@ -406,7 +406,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             },
         ],
         edgeCases: [
-            text('Za t izven [0,1] konveksna ovojnica ni več zagotovljena; ta pilot tega ne predstavlja kot običajno raziskovanje.', 'For t outside [0,1] the convex-hull guarantee no longer applies; this pilot does not present that as ordinary exploration.'),
+            text('Za \\(t\\) izven \\([0,1]\\) konveksna ovojnica ni več zagotovljena; ta pilot tega ne predstavlja kot običajno raziskovanje.', 'For \\(t\\) outside \\([0,1]\\) the convex-hull guarantee no longer applies; this pilot does not present that as ordinary exploration.'),
             text('Pri sovpadajočih kontrolnih točkah se lahko krivulja degenerira, vendar formula še vedno velja.', 'Coincident control points can produce a degenerate curve, while the formula still applies.'),
         ],
         unresolvedQuestions: [
@@ -420,18 +420,18 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
         summary: text('Zaporedne linearne interpolacije od kontrolnih točk do točke na krivulji.', 'The sequence of linear interpolations from control points to a point on the curve.'),
         prerequisites: [
             text('Potrebno je osnovno poznavanje linearne interpolacije in Bézierjevih kontrolnih točk.', 'Assumes familiarity with linear interpolation and Bézier control points.'),
-            text('Potrebno je razumevanje, da parameter t določa položaj na krivulji.', 'Assumes that the parameter t selects a position on the curve.'),
+            text('Potrebno je razumevanje, da parameter \\(t\\) določa položaj na krivulji.', 'Assumes that the parameter \\(t\\) selects a position on the curve.'),
         ],
         learningGoals: [
             text('Prebereš eno vrstico De Casteljaujeve konstrukcije kot linearne interpolacije.', 'Read one row of De Casteljau’s construction as linear interpolations.'),
-            text('Povežeš končno točko konstrukcije z B(t).', 'Connect the final construction point with B(t).'),
-            text('Razlikuješ med spremembo parametra t in spremembo kontrolnih točk.', 'Distinguish changing t from changing the control points.'),
+            text('Povežeš končno točko konstrukcije z \\(B(t)\\).', 'Connect the final construction point with \\(B(t)\\).'),
+            text('Razlikuješ med spremembo parametra \\(t\\) in spremembo kontrolnih točk.', 'Distinguish changing \\(t\\) from changing the control points.'),
         ],
         formulaBlocks: decasteljauFormulaBlocks,
         workedExamples: [
             {
                 id: 'decasteljau-degree-four-midpoint',
-                title: text('Privzeta krivulja pri t=1/2', 'Default curve at t=1/2'),
+                title: text('Privzeta krivulja pri \\(t=\\tfrac{1}{2}\\)', 'Default curve at \\(t=\\tfrac{1}{2}\\)'),
                 calculationLatex: '\\begin{array}{l}P^0=(-4,-3),(-3,2),(0,3),(3,2),(4,-3)\\\\P^1=(-7/2,-1/2),(-3/2,5/2),(3/2,5/2),(7/2,-1/2)\\\\P^2=(-5/2,1),(0,5/2),(5/2,1)\\\\P^3=(-5/4,7/4),(5/4,7/4)\\end{array}',
                 resultLatex: 'P_0^{(4)}(1/2)=(0,7/4)',
                 check: text('Vidne vmesne vrstice ustrezajo privzeti konstrukciji; zadnja točka leži na izrisani krivulji.', 'The visible intermediate rows correspond to the default construction; the final point lies on the drawn curve.'),
@@ -448,7 +448,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 animation: {animationId: 'decasteljau'},
                 observationPrompt: text('Določi število novih točk v prvi interpolacijski vrstici.', 'Determine the number of new points in the first interpolation row.'),
                 expectedObservations: [text('Pri petih začetnih točkah nastanejo štiri točke v prvi novi vrstici.', 'With five starting points, four points appear in the first new row.')],
-                scene: scene('decasteljau-default', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Konstrukcija je pripravljena pri t=0,5; animacija lahko pokaže prehod od t=0 do t=1.', 'The construction is prepared at t=0.5; replay can show the transition from t=0 to t=1.'),
+                scene: scene('decasteljau-default', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Konstrukcija je pripravljena pri \\(t=0{,}5\\); animacija lahko pokaže prehod od \\(t=0\\) do \\(t=1\\).', 'The construction is prepared at \\(t=0.5\\); replay can show the transition from \\(t=0\\) to \\(t=1\\).'),
             },
             {
                 id: 'decasteljau-one-step', order: 2,
@@ -459,7 +459,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 frames: [frame('decasteljau-one-step-explanation', 'explanation'), frame('decasteljau-one-step-observation', 'observation')],
                 observationPrompt: text('Pri \\(t=1/2\\) preveri, ali prve vmesne točke sovpadajo s sredinami odsekov.', 'At \\(t=1/2\\), verify whether the first intermediate points coincide with the segment midpoints.'),
                 expectedObservations: [text('Prva vrstica je sestavljena iz sredin štirih sosednjih odsekov.', 'The first row consists of the midpoints of the four neighboring segments.')],
-                scene: scene('decasteljau-first-row', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Parameter ostane pri t=0,5, da lahko primerjaš sredine.', 'The parameter stays at t=0.5 for midpoint comparison.'),
+                scene: scene('decasteljau-first-row', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Parameter ostane pri \\(t=0{,}5\\), da lahko primerjaš sredine.', 'The parameter stays at \\(t=0.5\\) for midpoint comparison.'),
             },
             {
                 id: 'decasteljau-final-point', order: 3,
@@ -470,7 +470,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 frames: [frame('decasteljau-final-point-explanation', 'explanation'), frame('decasteljau-final-point-observation', 'observation')],
                 observationPrompt: text('Preveri, ali zadnja točka konstrukcije leži na krivulji.', 'Verify whether the final construction point lies on the curve.'),
                 expectedObservations: [text('Da; pri privzetem \\(t=0,5\\) je zadnja točka \\((0,7/4)\\).', 'Yes; at the default \\(t=0.5\\) the final point is \\((0,7/4)\\).')],
-                scene: scene('decasteljau-final-point', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Končna konstrukcijska točka je poudarjena pri t=0,5.', 'The final construction point is highlighted at t=0.5.'),
+                scene: scene('decasteljau-final-point', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Končna konstrukcijska točka je poudarjena pri \\(t=0{,}5\\).', 'The final construction point is highlighted at \\(t=0.5\\).'),
             },
             {
                 id: 'decasteljau-change-parameter', order: 4,
@@ -481,7 +481,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 frames: [frame('decasteljau-change-parameter-explanation', 'explanation'), frame('decasteljau-change-parameter-observation', 'observation')],
                 observationPrompt: text('Primerjaj \\(t=1/4\\) in \\(t=3/4\\) ter določi, katere točke se premaknejo.', 'Compare \\(t=1/4\\) and \\(t=3/4\\) and determine which points move.'),
                 expectedObservations: [text('Premaknejo se vse vmesne konstrukcijske točke in končna točka; začetne kontrolne točke se ne.', 'All intermediate construction points and the final point move; the starting control points do not.')],
-                scene: scene('decasteljau-quarter', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.25)], 'Konstrukcija je pripravljena pri t=0,25.', 'The construction is prepared at t=0.25.'),
+                scene: scene('decasteljau-quarter', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.25)], 'Konstrukcija je pripravljena pri \\(t=0{,}25\\).', 'The construction is prepared at \\(t=0.25\\).'),
             },
             {
                 id: 'decasteljau-reconstruct', order: 5,
@@ -491,8 +491,8 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'], learnerInteraction: 'adjust-construction-parameter',
                 frames: [frame('decasteljau-reconstruct-explanation', 'explanation'), frame('decasteljau-reconstruct-observation', 'observation')],
                 observationPrompt: text('Identificiraj korak konstrukcije, ki ustreza tvojemu izračunu.', 'Identify the construction step corresponding to your calculation.'),
-                expectedObservations: [text('Vsaka vrstica uporabi isti t, zadnja pa da točko na krivulji.', 'Every row uses the same t, and the last one gives a point on the curve.')],
-                scene: scene('decasteljau-half', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Konstrukcija je vrnjena na t=0,5 za preverjanje primera.', 'The construction is returned to t=0.5 to check the example.'),
+                expectedObservations: [text('Vsaka vrstica uporabi isti \\(t\\), zadnja pa da točko na krivulji.', 'Every row uses the same \\(t\\), and the last one gives a point on the curve.')],
+                scene: scene('decasteljau-half', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Konstrukcija je vrnjena na \\(t=0{,}5\\) za preverjanje primera.', 'The construction is returned to \\(t=0.5\\) to check the example.'),
             },
             {
                 id: 'decasteljau-free-exploration', order: 6,
@@ -502,7 +502,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'], learnerInteraction: 'adjust-construction-parameter',
                 frames: [frame('decasteljau-free-exploration-explanation', 'explanation'), frame('decasteljau-free-exploration-observation', 'observation')],
                 observationPrompt: text('Kateri del konstrukcije najbolje poveže numerični izračun z grafom?', 'Which part of the construction best relates the numerical evaluation to the graph?'),
-                expectedObservations: [text('Pri vsakem t je zadnja točka na krivulji, vmesne vrstice pa razložijo, kako do nje pridemo.', 'For every t the final point is on the curve, while the intermediate rows explain how it is reached.')],
+                expectedObservations: [text('Pri vsakem \\(t\\) je zadnja točka na krivulji, vmesne vrstice pa razložijo, kako do nje pridemo.', 'For every \\(t\\) the final point is on the curve, while the intermediate rows explain how it is reached.')],
             },
         ],
         sources: [
@@ -525,7 +525,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             },
         ],
         edgeCases: [
-            text('Pri t=0 ali t=1 se vse interpolacije izberejo na enem krajišču; to je veljaven robni primer.', 'At t=0 or t=1 every interpolation selects one endpoint; this is a valid boundary case.'),
+            text('Pri \\(t=0\\) ali \\(t=1\\) se vse interpolacije izberejo na enem krajišču; to je veljaven robni primer.', 'At \\(t=0\\) or \\(t=1\\) every interpolation selects one endpoint; this is a valid boundary case.'),
             text('Če se spremeni število kontrolnih točk, se spremeni število vrstic; runtime mora pri tem osvežiti pripravljeno sceno.', 'If the number of control points changes, the number of rows changes; the runtime must refresh the prepared scene.'),
         ],
         unresolvedQuestions: [
@@ -542,7 +542,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             text('Potrebno je poznavanje vektorjev oziroma kompleksne predstavitve ravnine.', 'Assumes familiarity with vectors or the complex representation of the plane.'),
         ],
         learningGoals: [
-            text('Razložiš, kako generatorja w₀ in w₁ določita kubično PH-krivuljo.', 'Explain how the generators w₀ and w₁ determine a cubic PH curve.'),
+            text('Razložiš, kako generatorja \\(w_0\\) in \\(w_1\\) določita kubično PH-krivuljo.', 'Explain how the generators \\(w_0\\) and \\(w_1\\) determine a cubic PH curve.'),
             text('Povežeš kvadrat hodografa s polinomsko hitrostjo.', 'Connect the squared hodograph with polynomial speed.'),
             text('Analiziraš, kako znak in velikost odmika vplivata na prikazano odmično krivuljo.', 'Analyze how the sign and size of the offset affect the displayed offset curve.'),
         ],
@@ -576,8 +576,8 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                     frame('ph-introduction-observation', 'observation'),
                 ],
                 observationPrompt: text('Razvrsti podatke na vhodne in izpeljane količine.', 'Classify the quantities as inputs or derived values.'),
-                expectedObservations: [text('P₀, w₀ in w₁ so vhodni podatki; preostale kontrolne točke se izračunajo.', 'P₀, w₀, and w₁ are inputs; the remaining control points are derived.')],
-                scene: scene('ph-cubic-default', [], 'Privzeta scena vsebuje P₀=(-4.2,-2), w₀=(-3.5,-1.7) in w₁=(-2.6,1.7).', 'The default scene contains P₀=(-4.2,-2), w₀=(-3.5,-1.7), and w₁=(-2.6,1.7).'),
+                expectedObservations: [text('\\(P_0\\), \\(w_0\\) in \\(w_1\\) so vhodni podatki; preostale kontrolne točke se izračunajo.', '\\(P_0\\), \\(w_0\\), and \\(w_1\\) are inputs; the remaining control points are derived.')],
+                scene: scene('ph-cubic-default', [], 'Privzeta scena vsebuje \\(P_0=\\left(-4{,}2,\\,-2\\right)\\), \\(w_0=\\left(-3{,}5,\\,-1{,}7\\right)\\) in \\(w_1=\\left(-2{,}6,\\,1{,}7\\right)\\).', 'The default scene contains \\(P_0=\\left(-4.2,\\,-2\\right)\\), \\(w_0=\\left(-3.5,\\,-1.7\\right)\\), and \\(w_1=\\left(-2.6,\\,1.7\\right)\\).'),
             },
             {
                 id: 'ph-generator', order: 2,
@@ -600,7 +600,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Pri nespremenjeni osnovni krivulji je prikazan odmik z razdaljo \\(d=0,2\\). Odmik je izračunan iz krivulje in njenega hodografa.', 'With the base curve unchanged, an offset at distance \\(d=0.2\\) is shown. The offset is computed from the curve and its hodograph.'),
                 formulaIds: ['ph-hodograph'],
                 frames: [frame('ph-offsets-explanation', 'explanation'), frame('ph-offsets-observation', 'observation')],
-                scene: scene('ph-offset-positive', [action('set-offset-distance', 0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri d=0,2.', 'The offset at d=0.2 is shown.'),
+                scene: scene('ph-offset-positive', [action('set-offset-distance', 0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=0{,}2\\).', 'The offset at \\(d=0.2\\) is shown.'),
                 learnerInteraction: 'adjust-offset-distance',
                 observationPrompt: text('Preveri, ali je odmična krivulja na zaslonu povsod videti enako oddaljena.', 'Verify whether the offset curve appears equally distant everywhere on the screen.'),
                 expectedObservations: [text('V rednem delu krivulje odmik sledi osnovni krivulji; prikaz uporablja izračunano odmično konstrukcijo.', 'On the regular part of the curve the offset follows the base curve; the display uses the computed offset construction.')],
@@ -612,7 +612,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Pri \\(d=-0,2\\) predznak izbere nasprotno stran odmika, osnovna PH-krivulja in njena kontrolna geometrija pa ostaneta isti.', 'At \\(d=-0.2\\), the sign selects the opposite offset side, while the base PH curve and its control geometry stay the same.'),
                 formulaIds: [],
                 frames: [frame('ph-offset-side-explanation', 'explanation'), frame('ph-offset-side-observation', 'observation')],
-                scene: scene('ph-offset-negative', [action('set-offset-distance', -0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri d=-0,2.', 'The offset at d=-0.2 is shown.'),
+                scene: scene('ph-offset-negative', [action('set-offset-distance', -0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-0{,}2\\).', 'The offset at \\(d=-0.2\\) is shown.'),
                 learnerInteraction: 'adjust-offset-distance',
                 observationPrompt: text('Primerjaj obe predznačeni vrednosti in določi, kaj se spremeni ter kaj ostane nespremenjeno.', 'Compare the two signed values and determine what changes and what remains unchanged.'),
                 expectedObservations: [text('Spremeni se stran oziroma položaj odmika; osnovna krivulja ostane enaka.', 'The offset side or position changes; the base curve remains the same.')],
@@ -636,7 +636,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['ph-polynomial-speed'], learnerInteraction: 'drag-hodograph-point',
                 frames: [frame('ph-free-exploration-explanation', 'explanation'), frame('ph-free-exploration-observation', 'observation')],
                 observationPrompt: text('Izberi spremembo, ki jo lahko utemeljiš z enačbo za \\(w(t)\\) ali hitrost.', 'Choose a change that you can justify using the equation for \\(w(t)\\) or speed.'),
-                expectedObservations: [text('Generatorja določata hitrost in obliko PH-krivulje; d določa prikazani odmik.', 'The generators determine the PH curve’s speed and shape; d determines the displayed offset.')],
+                expectedObservations: [text('Generatorja določata hitrost in obliko PH-krivulje; \\(d\\) določa prikazani odmik.', 'The generators determine the PH curve’s speed and shape; \\(d\\) determines the displayed offset.')],
             },
         ],
         sources: [
@@ -659,7 +659,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             },
         ],
         edgeCases: [
-            text('Če hodograf izgine oziroma je w(t)=0, regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes so that w(t)=0, regularity and a normal offset direction are not guaranteed.'),
+            text('Če hodograf izgine oziroma je \\(w(t)=0\\), regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes so that \\(w(t)=0\\), regularity and a normal offset direction are not guaranteed.'),
             text('Odmična konstrukcija uporablja racionalne krivulje; pri ničelnem imenovalcu lahko nastane nedoločen prikaz, ki ga runtime ne sme skriti.', 'The offset construction uses rational curves; a zero denominator can make the display undefined, which the runtime must not hide.'),
             text('Vrednosti v worked example so zaokrožene in niso nadomestilo za preverjanje v produkcijskem grafu.', 'Worked-example values are rounded and are not a substitute for checking the production graph.'),
         ],

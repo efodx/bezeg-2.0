@@ -84,7 +84,7 @@ test('the rational elevation worked example matches RationalBezierCurve.elevate(
         expect(example.resultLatex).toContain(fragment);
     }
     expect(example.calculationLatex).toContain('w=(1,2,1,1)');
-    expect(example.check.en).toContain('(-3.25, 1.5)');
+    expect(example.check.en).toContain('\\left(-3.25,\\,1.5\\right)');
 
     const twice = elevated.elevate();
     expect(twice.getPoints()).toHaveLength(6);
