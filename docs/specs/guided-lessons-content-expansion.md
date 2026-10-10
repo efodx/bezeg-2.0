@@ -191,7 +191,7 @@ Cohort D teaches that De Casteljau's construction splits a Bézier curve into ex
 - `repeated-subdivision`: after $k$ steps there are $2^k$ curves whose union traces the original, and the maximum distance between control polygon and curve decreases with $k$;
 - `rational-subdivision`: the pieces are rational curves obtained by homogeneous De Casteljau; their evaluations match the original on the corresponding intervals;
 - extrapolation: the extended curve $E$ satisfies $E(u)=B(tu)$, so it retraces the original on $u\in[0,\tfrac1t]$; the content states that growing $t$ moves control points quickly and that only $t\in[1,1.5]$ is offered;
-- `rational-extrapolation`: the same identity holds with homogeneous coordinates for the default weights $(1,2,1,1)$, and new weights stay positive for the offered range, verified in tests;
+- `rational-extrapolation`: the same identity holds with homogeneous coordinates for the default weights $(1,2,1,1)$. The extrapolated weights are $1,\ 1+t,\ 1+2t-2t^2,\ w(t)$; the third becomes zero at $t=\tfrac{1+\sqrt3}{2}\approx1.366$ and is $-\tfrac12$ at $t=1.5$. The original denominator $\sum_i b_{i,3}(s)w_i$ stays positive on $[0,1.5]$, so the extension has no pole and still equals $B(tu)$; a non-positive weight only means the new representation loses the convex-hull property. Lesson copy states this rather than claiming positive weights, and tests check the denominator on $[0,1.5]$;
 - repeated lesson entry and exit leaves one curve and no stray auxiliary objects.
 
 ## Route-level acceptance criteria
