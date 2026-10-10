@@ -3,6 +3,7 @@ import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {JXGGenericSplineCurve} from "../object/JXGGenericSplineCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {CountSetter} from "../../../inputs/CountSetter";
+import {LessonAction} from "../../../learning/model";
 
 class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
 
@@ -21,15 +22,51 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
         }]];
     }
 
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'spline-continuity' || action.kind === 'spline-degree') {
+            const target = action.value;
+            const curve = this.getFirstJxgCurve().getCurve();
+            const degree = curve.getDegree(), continuity = curve.getContinuity();
+            if (action.kind === 'spline-continuity') {
+                if (!Number.isInteger(target) || target < 0 || target > degree - 1) {
+                    throw new Error(`The continuity order must be a whole number from 0 to ${degree - 1} at degree ${degree}.`);
+                }
+            } else {
+                const max = curve.getPoints().length;
+                if (!Number.isInteger(target) || target < continuity + 1 || target > max) {
+                    throw new Error(`The degree must be a whole number from ${continuity + 1} to ${max} at continuity ${continuity}.`);
+                }
+            }
+            this.board.suspendUpdate();
+            try {
+                const jxg = this.getFirstJxgCurve();
+                const read = () => action.kind === 'spline-continuity' ? curve.getContinuity() : curve.getDegree();
+                // Each step stays inside the bounds validated above, because the target is within them.
+                while (read() < target) {
+                    action.kind === 'spline-continuity' ? jxg.increaseContinuity() : jxg.increaseDegree();
+                }
+                while (read() > target) {
+                    action.kind === 'spline-continuity' ? jxg.decreaseContinuity() : jxg.decreaseDegree();
+                }
+            } finally {
+                this.unsuspendBoardUpdate();
+            }
+            // The counters keep their own display state; remount them on the actual values.
+            this.refreshSplineSwitches();
+            return;
+        }
+        super.applyLessonAction(action);
+    }
+
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
-            <div>
+            <div key={`continuity-${this.workspaceRevision}-${this.splineSwitchRevision ?? 0}`}>
                 <div>{t("continuity_order")}</div>
                 <CountSetter onPlus={() => this.increaseContinuity()} onCenter={() => 1}
                              n={this.getFirstJxgCurve().getCurve().getContinuity()}
                              onMinus={() => this.decreaseContinuity()} min={0}
                              max={() => this.getFirstJxgCurve().getCurve().getDegree() - 1}></CountSetter>
-            </div>, <div>
+            </div>, <div key={`degree-${this.workspaceRevision}-${this.splineSwitchRevision ?? 0}`}>
                 <div>{t("spline_degree")}</div>
                 <CountSetter onPlus={() => this.increaseDegree()} onCenter={() => 1}
                              n={this.getFirstJxgCurve().getCurve().getDegree()}

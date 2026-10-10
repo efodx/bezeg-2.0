@@ -21,6 +21,15 @@ export type LessonAction =
     | {readonly kind: 'subdivide'}
     | {readonly kind: 'extrapolation-parameter'; readonly value: number}
     | {readonly kind: 'extrapolate'}
+    | {readonly kind: 'spline-continuity'; readonly value: number}
+    | {readonly kind: 'spline-degree'; readonly value: number}
+    | {readonly kind: 'spline-beta'; readonly index: number; readonly value: number}
+    | {readonly kind: 'spline-label-points'; readonly visible: boolean}
+    | {readonly kind: 'spline-hide-fixed'; readonly hidden: boolean}
+    | {readonly kind: 'farin-points'; readonly visible: boolean}
+    | {readonly kind: 'standard-form'; readonly enabled: boolean}
+    | {readonly kind: 'rational-weights'; readonly weights: readonly number[]}
+    | {readonly kind: 'circle-pieces'; readonly count: number}
     | {readonly kind: 'animation'; readonly animationId: 'decasteljau'; readonly command: 'play' | 'pause' | 'replay' | 'stop'};
 
 export type LessonFrameKind = 'explanation' | 'calculation' | 'observation';

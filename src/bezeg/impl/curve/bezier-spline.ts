@@ -44,7 +44,6 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
 
 
     setB(j: number, b: number) {
-        console.log(j, b);
         this.b[j] = b;
         geometryCache.invalidate();
     }
