@@ -8,6 +8,7 @@ import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
 import {Color, Colors} from "../bezier/utilities/Colors";
+import {LessonAction} from "../../../learning/model";
 
 interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     isAlphaParam: boolean
@@ -17,10 +18,39 @@ interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphState
 
 class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformParamBezierCurveGraphStates> {
     private ts?: number[];
+    /** Sample points this graph created; the only points clearPoints() may remove. */
+    private sampleJxgPoints: JXG.Point[] = [];
 
     protected override disposeFigureSceneResources(): void {
         super.disposeFigureSceneResources();
+        // The scene disposal removes graphJXGPoints (which include the samples) from the board.
         this.ts = undefined;
+        this.sampleJxgPoints = [];
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'parameterization-alpha') {
+            if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) {
+                throw new Error('The parametrization alpha must be between 0 and 1.');
+            }
+            this.setState({alpha: action.value});
+            return;
+        }
+        if (action.kind === 'parameterization-samples') {
+            if (!Number.isInteger(action.count) || action.count < 1 || action.count > 40) {
+                throw new Error('The number of sample points must be an integer between 1 and 40.');
+            }
+            this.setState({numberOfPoints: action.count});
+            return;
+        }
+        if (action.kind === 'parameterization-mode') {
+            if (action.mode !== 'weighted' && action.mode !== 'uniform') {
+                throw new Error('The parametrization mode must be weighted or uniform.');
+            }
+            this.setState({isAlphaParam: action.mode === 'weighted'});
+            return;
+        }
+        super.applyLessonAction(action);
     }
 
     protected override workspaceDescription() {
@@ -38,13 +68,12 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
         if (super.componentDidUpdate) {
             super.componentDidUpdate(prevProps, prevState);
         }
+        if (!this.getFirstJxgCurve()) { return; }
         this.board.suspendUpdate();
-        if (this.ts === undefined || this.ts.length - 1 !== this.state.numberOfPoints) {
-            this.refreshTs();
+        this.refreshTs();
+        if (this.sampleJxgPoints.length !== this.state.numberOfPoints) {
             this.clearPoints();
             this.generateParamPoints();
-        } else {
-            this.refreshTs();
         }
         this.unsuspendBoardUpdate();
     }
@@ -71,7 +100,9 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
         };
     }
 
-    alphaParam: (t: number) => number = (t: number) => (1 - this.state.alpha) * t / (this.state.alpha * (1 - t) + (1 - this.state.alpha) * t);
+    alphaParam(t: number): number {
+        return (1 - this.state.alpha) * t / (this.state.alpha * (1 - t) + (1 - this.state.alpha) * t);
+    }
 
     override getFirstCurve(): PhBezierCurve {
         return super.getFirstCurve() as PhBezierCurve;
@@ -82,8 +113,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
     }
 
     setAlpha(alpha: number) {
-        this.setState({...this.state, alpha: alpha});
-        this.unsuspendBoardUpdate();
+        this.setState({alpha: alpha});
     }
 
     getUniformParamTs() {
@@ -127,8 +157,11 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
     }
 
     clearPoints() {
-        this.board.removeObject(this.graphJXGPoints);
-        this.graphJXGPoints = [];
+        const owned = this.sampleJxgPoints;
+        this.sampleJxgPoints = [];
+        this.graphJXGPoints = this.graphJXGPoints.filter(point => !owned.includes(point));
+        const present = owned.filter(point => this.board.objectsList.includes(point));
+        if (present.length) this.board.removeObject(present);
     }
 
     refreshTs() {
@@ -141,10 +174,8 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
     }
 
     generateParamPoints() {
-        console.log(this.ts);
-        const ts = this.ts ?? [];
         for (let i = 1; i <= this.state.numberOfPoints; i++) {
-            let point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(ts[i - 1]).X(), () => this.getFirstCurve()!.eval(ts[i - 1]).Y(), {
+            let point = this.createJSXGraphPoint(() => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).X(), () => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).Y(), {
                 ...PointStyles.fixed,
                 size: () => SizeContext.pointSize * 0.5,
                 color: Colors[3],
@@ -154,6 +185,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
                 strokeWidth: () => SizeContext.pointSize / 5,
                 strokeColor: Color.BLACK,
             });
+            this.sampleJxgPoints.push(point.point);
         }
     }
 
