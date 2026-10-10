@@ -4,7 +4,7 @@
 
 **Dependencies:** [Guided lesson rollout](../../specs/guided-lessons-rollout.md); the implemented lesson runtime and Cohort A drafts
 
-**Status:** ready; implementation not started
+**Status:** implemented draft on 2026-10-10; owner language and classroom review pending
 
 ## Goal
 
@@ -36,3 +36,13 @@ Slices 1 and 2 can run in parallel. Slice 3 can start once the action names belo
 - Routes, Preset identifiers, stored presets, import/export formats, and curve algorithms are unchanged.
 - `npx tsc --noEmit --pretty false`, the focused Jest suites, and the production build pass; a browser smoke run covers `?learn=1` deep links for both routes, Back/Next/Exit, both languages, and desktop and narrow widths.
 - Capability, rollout-matrix, and roadmap documents record the new draft status.
+
+## Verification
+
+Implemented by Sonnet workers (the owner's chosen fallback for unavailable GPT-6 Luna Max) with handler review. Handler review corrected one mathematical claim (the Bernstein sum is 1 for every t), removed references to never-visible Bernstein labels, and fixed Slovenian terminology (*neuteženo povprečje*, *razčlenitev enote*, *naloženi ploščinski grafikon*).
+
+- `npx tsc --noEmit --pretty false` passed; the full Jest suite passed (39 suites, 195 tests) after updating catalog link counts (36 links, 10 Learn links) and moving the lesson-free workspace test from `bernstein` to `subdivision`; the production build compiled with existing warnings.
+- Rational elevation now uses effective weights, so Farin-slider weights are not ignored, and rebuilds Farin sliders and weight labels for the new degree.
+- `tests/guided-lessons-cohort-b.smoke.spec.cjs` (17 Chromium checks) covers deep links, full Next/Back traversal, stacked-area state, no board-object growth across stepping and three re-entries, Exit restoring a user-changed degree and four rational points, weight labels, English titles, 390-pixel layout, keyboard activation, and elevation with weight labels and with a Farin preset. The full built smoke suite passed (51 tests).
+- The smoke run found two shared-runtime defects, both fixed in lesson CSS: MathJax formulas widened the page at 390 pixels, and JSXGraph HTML labels covered the compact Continue prompt.
+- Not covered: physical touch devices, projector/presentation-mode layout, and owner/subject-matter review. The Farin switch is not exposed on the elevation route, so Farin-plus-elevation is reachable only through an imported preset.

@@ -30,12 +30,12 @@ The runtime remains responsible for checkpoint capture/restore, animation cancel
 | Cohort | Routes | Status | Entry gate |
 | --- | --- | --- | --- |
 | A — Weighted, PH, and transformation exploration | `rational`, `ph-quintic`, `affine` | Implemented draft; review pending | Deterministic defaults, existing or one narrow graph-owned action family, direct formula/invariant checks |
-| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Ready for implementation; see [task](../tasks/guided-lessons-rollout/implement-cohort-b.md) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
+| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-b.md)) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
 | C — Parameter distributions | `weighted-parameterization`, `spline-parameterization`, `uniform-parameterization` | Discovery | Typed alpha/sample actions and ownership for generated sample points |
 | D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Hold | Generated-curve ownership, valid parameter domains, and restoration tests |
 | E — Continuity and circle constructions | spline routes, `farin`, `circle`, `decasteljau-alternative` | Hold | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
 
-The existing eight routes remain available: `bezier`, `decasteljau`, `ph-cubic`, `rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, and `affine`. The product allowlist must be updated only when a cohort’s route-level gates pass.
+Ten routes are available: `bezier`, `decasteljau`, `ph-cubic`, `rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`, `bernstein`, and `rational-elevation`. The product allowlist must be updated only when a cohort’s route-level gates pass.
 
 ## Cohort A implementation contract
 
@@ -120,7 +120,7 @@ Required action seam:
 Checks:
 
 - the default curve has control points $(-4,-3),(-3,3),(3,3),(4,-3)$ and weights $(1,2,1,1)$;
-- one elevation gives weights $(1,	frac74,	frac32,1,1)$ and $Q_1=(-	frac{22}{7},	frac{15}{7})$, $Q_2=(-1,3)$, $Q_3=(	frac{13}{4},	frac32)$;
+- one elevation gives weights $(1,\tfrac74,\tfrac32,1,1)$ and $Q_1=(-\tfrac{22}{7},\tfrac{15}{7})$, $Q_2=(-1,3)$, $Q_3=(\tfrac{13}{4},\tfrac32)$;
 - $Q_1$ differs from the unweighted blend $(-3.25,1.5)$, which is the observation that distinguishes rational from polynomial elevation;
 - elevated and original curves agree at representative parameters within the existing tolerance, including after two elevations;
 - elevation uses the weights currently used for evaluation, and the weight labels show the elevated weights;

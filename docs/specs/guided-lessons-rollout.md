@@ -28,7 +28,7 @@ This matrix is the gate between route inventory and implementation. “Discovery
 
 | Demonstration | Family | Current status | Capability focus for discovery or review |
 | --- | --- | --- | --- |
-| `bernstein` | Foundations | Discovery | degree and basis-visualization actions |
+| `bernstein` | Foundations | Cohort B draft | `bernstein-degree` (0–5) and `bernstein-stacked-area` actions; partition of unity and nonnegativity |
 | `bezier` | Polynomial Bézier | Pilot draft | control polygon, hull, evaluation point, control-point observation |
 | `decasteljau` | Polynomial Bézier | Pilot draft | construction visibility, `t`, graph-owned animation |
 | `decasteljau-alternative` | Polynomial Bézier | Discovery | alternative construction and overlapping-curve semantics |
@@ -39,7 +39,7 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `elevation` | Polynomial Bézier | Expansion draft | degree elevation and shape invariance |
 | `rational` | Rational Bézier | Expansion draft | weights, standard form, and valid weight states |
 | `rational-decasteljau` | Rational Bézier | Expansion draft | rational construction rows and weight semantics |
-| `rational-elevation` | Rational Bézier | Discovery | rational degree elevation and invariance |
+| `rational-elevation` | Rational Bézier | Cohort B draft | `degree-elevation` with effective weights; homogeneous elevation and shape invariance |
 | `rational-extrapolation` | Rational Bézier | Discovery | rational extrapolation domain and validity |
 | `rational-subdivision` | Rational Bézier | Discovery | rational subdivision and generated curves |
 | `farin` | Rational Bézier | Discovery | Farin points and their geometric meaning |
