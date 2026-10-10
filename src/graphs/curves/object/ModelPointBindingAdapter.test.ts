@@ -7,7 +7,7 @@ import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 class FakeSlider {
     private value: number;
 
-    constructor(initialValue: number) { this.value = initialValue; }
+    constructor(initialValue: number, readonly parents: any[] = []) { this.value = initialValue; }
     Value() { return this.value; }
     setValue(value: number) { this.value = value; }
     on(_event: string, _handler: () => void) {}
@@ -59,7 +59,7 @@ function fakeBoard(): {board: JXG.Board; points: FakePoint[]; sliders: FakeSlide
                 return point;
             }
             if (type === "slider") {
-                const slider = new FakeSlider(parents[2][1]);
+                const slider = new FakeSlider(parents[2][1], parents);
                 sliders.push(slider);
                 return slider;
             }
@@ -207,5 +207,23 @@ test("rational point edits preserve live Farin weights while standard form is en
     curve.showFarinPoints(false);
     curve.setStandardForm(false);
     expectWeightsToBeCloseTo(curve.getCurve().getWeights(), [1, 2, 6, 1]);
+    curve.dispose();
+});
+
+test("Farin slider endpoints follow moved control points and keep weights", () => {
+    const {board, sliders} = fakeBoard();
+    const curve = new JXGRationalBezierCurve([[0, 0], [1, 2], [2, 1], [3, 0]], [1, 2, 3, 4], board);
+    curve.showFarinPoints(true);
+    sliders[1].setValue(0.75);
+    const weightsBefore = curve.getCurve().getEffectiveWeights();
+
+    const moved = curve.jxgPoints[1] as unknown as FakePoint;
+    moved.setPositionDirectly(1, [1.5, 3]);
+    moved.trigger("drag");
+
+    const endpoint = (value: any) => typeof value === "function" ? value() : value;
+    expect([endpoint(sliders[0].parents[1][0]), endpoint(sliders[0].parents[1][1])]).toEqual([1.5, 3]);
+    expect([endpoint(sliders[1].parents[0][0]), endpoint(sliders[1].parents[0][1])]).toEqual([1.5, 3]);
+    expectWeightsToBeCloseTo(curve.getCurve().getEffectiveWeights(), weightsBefore);
     curve.dispose();
 });

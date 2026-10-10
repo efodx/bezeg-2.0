@@ -259,10 +259,20 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
             reactiveWeights.push(() => 1);
             for (let i = 0; i < weights.length - 1; i++) {
                 const startingRatio = weights[i + 1] / weights[i];
-                const slider: JXG.Slider = this.board.create('slider', [[points[i].X(), points[i].Y()], [points[i + 1].X(), points[i + 1].Y()], [0, startingRatio / (1 + startingRatio), 1]],
+                const p0 = points[i];
+                const p1 = points[i + 1];
+                // The slider follows its control points. JSXGraph treats slider endpoints, baseline
+                // and ticks as static (needsRegularUpdate: false), so re-enable their updates.
+                // moveOnUp would jump the glider to a control point released on the baseline end.
+                const slider: JXG.Slider = this.board.create('slider', [[() => p0.X(), () => p0.Y()], [() => p1.X(), () => p1.Y()], [0, startingRatio / (1 + startingRatio), 1]],
                     {
                         size: () => SizeContext.pointSize,
+                        moveOnUp: false,
+                        point1: {needsRegularUpdate: true},
+                        point2: {needsRegularUpdate: true},
+                        ticks: {needsRegularUpdate: true},
                         baseline: {
+                            needsRegularUpdate: true,
                             strokeColor: '#0b9ef8',
                             strokeOpacity: 1,
                             strokeWidth: () => SizeContext.strokeWidth

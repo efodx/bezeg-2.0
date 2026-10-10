@@ -48,7 +48,6 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStat
 
     private showFarinPoints(checked: boolean) {
         this.getFirstJxgCurve().showFarinPoints(checked);
-        this.getAllJxgPoints().forEach(point => point.setAttribute({fixed: checked}));
         this.inputsDisabled = checked;
     }
 }

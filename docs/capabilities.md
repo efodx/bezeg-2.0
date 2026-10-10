@@ -73,7 +73,7 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | Rational De Casteljau | Inherits polynomial De Casteljau controls with weighted interpolation. |
 | Rational extrapolation / elevation | Dedicated weighted extrapolation (1–1.5) or elevation action. Elevation uses the effective (evaluation) weights, including Farin-slider weights, and rebuilds Farin sliders and weight labels for the new degree. |
 | Rational subdivision | Single-split construction with parameter 0.01–0.99; the active route is not repeated halving. |
-| Farin points | Farin-point, weight, standard-form switches. Enabling Farin points fixes original points and disables direct editing; disabling restores editing. |
+| Farin points | Farin-point, weight, standard-form switches. Enabling Farin points keeps original points draggable; each Farin slider follows its two control points and keeps its ratio (weights) while points move. Curve selection and curve operations stay disabled until Farin points are turned off. |
 | Circle from n pieces | Rational quadratic piece count, initially 3, minimum 2, no explicit maximum; regenerates a radius-3 circle construction. |
 | One-sided Cⁿ spline | Continuity count 0…degree−1, degree continuity+1…input-point count; initially degree 2 and continuity 1. |
 | Symmetric C¹ / C² | Quadratic C¹ / cubic C² constructions with shared label-all and hide-fixed switches; no degree/continuity counts. |

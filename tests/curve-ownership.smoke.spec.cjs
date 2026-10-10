@@ -249,6 +249,59 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
     await expect(inspector(page).getByRole('checkbox', {name: 'Standard form', exact: true})).toBeChecked();
 });
 
+async function farinGeometry(page) {
+    return page.locator('#jgbox').evaluate(container => {
+        const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.containerObj === container);
+        if (!board) throw new Error('The main JSXGraph board is missing.');
+        const round = value => Number(value.toFixed(6));
+        const controlPoints = board.objectsList.filter(object => object.elType === 'point' && object.visPropCalc?.visible &&
+            !board.objectsList.some(slider => slider.elType === 'slider' && (slider.point1 === object || slider.point2 === object)))
+            .map(point => {
+                const bounds = point.rendNode?.getBoundingClientRect();
+                return {x: round(point.X()), y: round(point.Y()),
+                    screen: bounds && {x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2}};
+            });
+        const sliders = board.objectsList.filter(object => object.elType === 'slider').map(slider => ({
+            value: round(slider.Value()),
+            start: [round(slider.point1.X()), round(slider.point1.Y())],
+            end: [round(slider.point2.X()), round(slider.point2.Y())],
+            glider: [round(slider.X()), round(slider.Y())],
+        }));
+        return {controlPoints, sliders};
+    });
+}
+
+test('Farin sliders follow dragged control points without changing their ratios', async ({page}) => {
+    await page.goto('/bezeg-2.0/rational/farin-points', {waitUntil: 'domcontentloaded'});
+    await inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true}).check();
+    const before = await farinGeometry(page);
+    expect(before.sliders).toHaveLength(3);
+    const p1 = before.controlPoints[1];
+    expect([p1.x, p1.y]).toEqual([-3, 3]);
+    expect(p1.screen).toBeTruthy();
+
+    await page.mouse.move(p1.screen.x, p1.screen.y);
+    await page.mouse.down();
+    await page.mouse.move(p1.screen.x + 40, p1.screen.y + 30, {steps: 6});
+    await page.mouse.up();
+
+    await expect.poll(async () => {
+        const {x, y} = (await farinGeometry(page)).controlPoints[1];
+        return x !== p1.x && y !== p1.y;
+    }).toBe(true);
+    const after = await farinGeometry(page);
+    expect(after.sliders.map(slider => slider.value)).toEqual(before.sliders.map(slider => slider.value));
+    const moved = after.controlPoints[1];
+    expect(after.sliders[0].end).toEqual([moved.x, moved.y]);
+    expect(after.sliders[1].start).toEqual([moved.x, moved.y]);
+    after.sliders.forEach(slider => {
+        for (let axis = 0; axis < 2; axis++) {
+            const expected = slider.start[axis] + slider.value * (slider.end[axis] - slider.start[axis]);
+            expect(slider.glider[axis]).toBeCloseTo(expected, 5);
+        }
+    });
+});
+
 test('PH child board and model points survive batch scene disposal and restoration', async ({page}) => {
     await page.goto('/bezeg-2.0/ph/cubic', {waitUntil: 'domcontentloaded'});
     await createPreset(page, 'ownership-ph');
