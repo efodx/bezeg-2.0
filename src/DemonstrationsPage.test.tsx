@@ -16,8 +16,8 @@ test('Explore opens the catalog, its graph links open demonstrations, and back r
     expect(await screen.findByRole('heading', {level: 1, name: 'Demonstracije'})).toBeVisible();
     expect(router.state.location.pathname).toBe('/bezeg-2.0/demonstrations');
     const all = screen.getByRole('region', {name: 'Vse demonstracije'});
-    expect(within(all).getAllByRole('link')).toHaveLength(34);
-    expect(within(all).getAllByRole('link', {name: /Spoznaj to demonstracijo/})).toHaveLength(8);
+    expect(within(all).getAllByRole('link')).toHaveLength(36);
+    expect(within(all).getAllByRole('link', {name: /Spoznaj to demonstracijo/})).toHaveLength(10);
     expect(within(screen.getByRole('region', {name: 'Začetne demonstracije'})).getAllByRole('link', {name: /Spoznaj to demonstracijo/})[0]).toHaveAttribute('href', '/bezeg-2.0/bezier/curve?learn=1');
     expect(within(all).queryByRole('link', {name: 'Demonstracije'})).not.toBeInTheDocument();
     fireEvent.click(within(screen.getByRole('region', {name: 'Začetne demonstracije'})).getAllByRole('link')[0]);
@@ -34,8 +34,8 @@ test('direct catalog entry and header navigation work in both languages', async 
     expect(screen.queryByRole('button', {name: 'Next prototype'})).not.toBeInTheDocument();
     act(() => setLanguage('en'));
     expect(screen.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
-    expect(within(screen.getByRole('region', {name: 'All demonstrations'})).getAllByRole('link')).toHaveLength(34);
-    expect(within(screen.getByRole('region', {name: 'All demonstrations'})).getAllByRole('link', {name: /Learn this demonstration/})).toHaveLength(8);
+    expect(within(screen.getByRole('region', {name: 'All demonstrations'})).getAllByRole('link')).toHaveLength(36);
+    expect(within(screen.getByRole('region', {name: 'All demonstrations'})).getAllByRole('link', {name: /Learn this demonstration/})).toHaveLength(10);
     expect(screen.getByText('6 families · 26 demonstrations')).toBeVisible();
     expect(screen.getByText(/01 · 1 demonstration$/)).toBeVisible();
     fireEvent.click(screen.getByRole('link', {name: 'Bezeg · home'}));

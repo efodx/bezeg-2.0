@@ -1,4 +1,4 @@
-import {getLessonForDemonstration, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
+import {getLessonForDemonstration, sceneAction, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
 import {getDemonstrationCatalog} from '../../demonstrations';
 
 test('adapts reviewed pilot scene names into typed runtime actions', () => {
@@ -46,11 +46,12 @@ test('returns a stable lesson object so the workspace does not restart its sessi
 
 test('uses an exact availability allowlist across the full demonstration catalog', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic']);
+    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation']);
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
-    expect(ids.filter(isGuidedLessonAvailable)).toEqual([...GUIDED_LESSON_AVAILABLE_IDS]);
+    expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);
-    expect(getLessonForDemonstration('bernstein')).toBeUndefined();
+    expect(getLessonForDemonstration('bernstein')).toBeDefined();
+    expect(getLessonForDemonstration('rational-elevation')).toBeDefined();
     expect(getLessonForDemonstration('rational')).toBeDefined();
 });
 
@@ -100,4 +101,36 @@ test('adapts the expansion cohort to typed graph actions', () => {
     expect(affine.id).toBe('affine-guided');
     expect(affine.steps[1].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'translate-x', value: 0.5});
     expect(affine.steps[2].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'scale', value: 1.2});
+});
+
+test('adapts the foundation cohort to typed graph actions', () => {
+    const bernstein = getLessonForDemonstration('bernstein')!;
+    expect(bernstein.id).toBe('bernstein-guided');
+    expect(bernstein.steps[0].scene?.actions).toEqual([
+        {kind: 'prepared-scene', sceneId: 'bernstein-degree-one', source: 'demonstration-default'},
+    ]);
+    expect(bernstein.steps[3].scene?.actions).toEqual([
+        {kind: 'prepared-scene', sceneId: 'bernstein-stacked-scene', source: 'demonstration-default'},
+        {kind: 'bernstein-degree', degree: 3},
+        {kind: 'bernstein-stacked-area', visible: true},
+    ]);
+    expect(bernstein.steps[2].workedExample?.result.en).toContain(String.raw`\tfrac38`);
+
+    const rational = getLessonForDemonstration('rational-elevation')!;
+    expect(rational.id).toBe('rational-elevation-guided');
+    expect(rational.steps[2].scene?.actions).toEqual([
+        {kind: 'prepared-scene', sceneId: 'rational-elevation-raised', source: 'demonstration-default'},
+        {kind: 'curve-visibility', target: 'control-polygon', visible: true},
+        {kind: 'curve-visibility', target: 'weights', visible: true},
+        {kind: 'degree-elevation'},
+    ]);
+});
+
+test.each([-1, 6, 1.5, Number.NaN, Number.POSITIVE_INFINITY])('rejects the Bernstein degree %p before it reaches the graph', degree => {
+    expect(() => sceneAction({name: 'set-bernstein-degree', value: degree})).toThrow('Bernstein degree');
+});
+
+test.each([0, 1, 3, 5])('maps the valid Bernstein degree %p and the stacked-area switch', degree => {
+    expect(sceneAction({name: 'set-bernstein-degree', value: degree})).toEqual({kind: 'bernstein-degree', degree});
+    expect(sceneAction({name: 'show-bernstein-stacked-area', value: false})).toEqual({kind: 'bernstein-stacked-area', visible: false});
 });

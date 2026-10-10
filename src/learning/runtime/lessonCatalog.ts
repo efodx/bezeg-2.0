@@ -3,7 +3,7 @@ import type {LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '.
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 
-function sceneAction(action: SceneAction): LessonAction {
+export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-control-polygon' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'control-polygon', visible: action.value};
     }
@@ -51,6 +51,13 @@ function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'set-offset-distance' && typeof action.value === 'number') {
         if (action.value < -3 || action.value > 3 || !Number.isFinite(action.value)) throw new Error('The PH offset distance must be between -3 and 3.');
         return {kind: 'parameter', name: 'offset-distance', value: action.value};
+    }
+    if (action.name === 'set-bernstein-degree' && typeof action.value === 'number') {
+        if (!Number.isInteger(action.value) || action.value < 0 || action.value > 5) throw new Error('The Bernstein degree must be an integer between 0 and 5.');
+        return {kind: 'bernstein-degree', degree: action.value};
+    }
+    if (action.name === 'show-bernstein-stacked-area' && typeof action.value === 'boolean') {
+        return {kind: 'bernstein-stacked-area', visible: action.value};
     }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
@@ -140,6 +147,8 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'rational-decasteljau',
     'ph-cubic',
     'ph-quintic',
+    'bernstein',
+    'rational-elevation',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

@@ -15,6 +15,7 @@
 import type {DemonstrationId} from '../../demonstrations';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
+import {foundationGuidedLessons} from './foundationGuidedLessons';
 
 export type LessonLocale = 'sl' | 'en';
 
@@ -53,6 +54,8 @@ export type WorkedExample = Readonly<{
  * - elevate-degree -> ElevationGraph's graph-owned degree elevation operation
  * - show-offset-curve -> JXGPHBezierCurve.setShowOffsetCurve
  * - set-offset-distance -> JXGPHBezierCurve.setOffsetCurveDistance
+ * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (integer 0-5)
+ * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
@@ -71,6 +74,8 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'rotate-affine',
     'reflect-x',
     'reflect-y',
+    'set-bernstein-degree',
+    'show-bernstein-stacked-area',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -666,7 +671,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {
