@@ -1,10 +1,19 @@
 import React from "react";
 import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {range} from "../../../utils/Range";
 import Slider from "../../../inputs/Slider";
+import {LessonAction} from "../../../learning/model";
+import {validateSplineBeta} from "./splineBetaAction";
 
-class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
+export const G1_BETA_MIN = 0.01;
+export const G1_BETA_MAX = 3;
+
+interface G1SplineGraphStates extends BaseGraphStates {
+    /** Bumped when lesson actions change b, so the sliders re-read the model values. */
+    betaRevision?: number;
+}
+
+class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat(this.getBiSetters()
@@ -23,12 +32,26 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
         return "g1-spline-graph";
     }
 
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'spline-beta') {
+            const curve = this.getFirstCurve();
+            validateSplineBeta(action.index, action.value, curve ? curve.getNumOfBs() : 0, G1_BETA_MIN, G1_BETA_MAX);
+            curve.setB(action.index, action.value);
+            this.setState(state => ({betaRevision: (state.betaRevision ?? 0) + 1}));
+            this.boardUpdate();
+            return;
+        }
+        super.applyLessonAction(action);
+    }
+
+    /** Sliders show the model's current b values (b starts at 1), so they follow restores and default scenes. */
     private getBiSetters() {
+        const bs = this.getFirstCurve().getBs();
         return <div>
             <div>ß</div>
-            {range(0, this.getFirstCurve().getNumOfBs() - 1, 1).map(
-                i => <div>
-                    <Slider initialValue={0.5} min={0.01} max={3}
+            {bs.map(
+                (b, i) => <div key={i}>
+                    <Slider initialValue={b} min={G1_BETA_MIN} max={G1_BETA_MAX}
                             onChange={(val) => this.changeBi(i, val)}/></div>
             )}</div>;
     }
