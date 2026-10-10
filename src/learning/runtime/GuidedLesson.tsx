@@ -68,7 +68,9 @@ export function GuidedLesson(props: {
     const isComplete = snapshot.status === 'complete';
     const isExploring = snapshot.status === 'explore';
     const overlayVisible = overlayPhase !== 'hidden';
-    const mode: LessonMode = isComplete ? 'complete' : isExploring ? 'explore' : 'content';
+    // The graph is locked ('content') while the overlay is shown, including the overlay of an observation frame;
+    // only the compact prompt ('explore') unlocks it.
+    const mode: LessonMode = isComplete ? 'complete' : isExploring && !overlayVisible ? 'explore' : 'content';
     const onModeChange = props.onModeChange;
 
     const clearHandoffTimer = () => {
@@ -258,17 +260,29 @@ export function GuidedLesson(props: {
     }, [overlayVisible]);
 
     const refresh = (operation: () => void) => {
-        const previousStatus = session.snapshot().status;
         try {
             operation();
             setStartupError(undefined);
-            const nextStatus = session.snapshot().status;
-            if (previousStatus !== 'explore' && nextStatus === 'explore') hideOverlay();
-            if (previousStatus === 'explore' && nextStatus !== 'explore') showOverlay();
         } catch (error) {
             setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
         }
         setRevision(value => value + 1);
+    };
+
+    // The compact prompt's Continue advances past the observation and opens the overlay for the next frame.
+    const continueAfterObservation = () => {
+        if (frame.animation && animationPlaying.current) {
+            // Never keep animating behind the overlay.
+            try {
+                animateFrame('pause');
+            } catch (error) {
+                setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            }
+        }
+        clearHandoffTimer();
+        refresh(() => session.next());
+        setOverlayPhase('opening');
+        scheduleOverlayPhase('visible');
     };
 
     const close = () => {
@@ -303,7 +317,8 @@ export function GuidedLesson(props: {
                     </button>)}
                 </div>}
                 <span className="guided-lesson-hidden-hint">{t('guided_lesson_hidden_hint')}</span>
-                <button type="button" className="guided-lesson-continue" onClick={showOverlay}>{t('continue_lesson')}</button>
+                <button type="button" className="guided-lesson-continue" onClick={continueAfterObservation}>{t('continue_lesson')}</button>
+                <button type="button" className="guided-lesson-instructions" onClick={showOverlay}>{t('back_to_instructions')}</button>
                 {closeButton}
             </div>
         </section>;
@@ -350,8 +365,9 @@ export function GuidedLesson(props: {
         </div>}
         {isComplete && <p role="status">{t('guided_lesson_free_exploration')}</p>}
         {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}
-        {!isComplete && frameAction && <div className="guided-lesson-actions">
-            <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
+        {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
+            {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
+            {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
         </div>}
     </section>;
 }

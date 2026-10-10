@@ -31,6 +31,18 @@ const framedLesson: LessonDefinition = {
     }],
 };
 
+const observationFirstLesson: LessonDefinition = {
+    id: 'observation-first-test', demonstrationId: 'bezier', title: {sl: 'Opazovanje prvo', en: 'Observation first'}, summary: {sl: 'Povzetek', en: 'Summary'},
+    steps: [{
+        id: 'first', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'},
+        frames: [
+            {id: 'intro', kind: 'explanation', title: {sl: 'Uvod', en: 'Intro'}, body: {sl: 'Telo', en: 'Body'}},
+            {id: 'obs', kind: 'observation', title: {sl: 'Opazovanje', en: 'Observation'}, prompt: {sl: 'Opazuj', en: 'Observe'}},
+            {id: 'closing', kind: 'explanation', title: {sl: 'Zaključek', en: 'Conclusion'}, body: {sl: 'Telo', en: 'Body'}},
+        ],
+    }],
+};
+
 const frameActionLesson: LessonDefinition = {
     id: 'frame-action-test', demonstrationId: 'bezier', title: {sl: 'Dejanje', en: 'Action'}, summary: {sl: 'Povzetek', en: 'Summary'},
     steps: [{
@@ -56,6 +68,11 @@ const denseLesson: LessonDefinition = {
         ],
     }],
 };
+
+function observe() {
+    fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
+    act(() => jest.advanceTimersByTime(250));
+}
 
 test('offers content-first navigation and preserves step identity when language changes', () => {
     setLanguage('sl');
@@ -84,49 +101,104 @@ test('offers content-first navigation and preserves step identity when language 
     act(() => setLanguage('sl'));
 });
 
-test('makes the handoff to graph exploration visible and reversible', () => {
+test('shows the observation in the full overlay first and collapses it only on request', () => {
     jest.useFakeTimers();
     setLanguage('sl');
     try {
         render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
-
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         act(() => jest.advanceTimersByTime(250));
-        expect(screen.queryByText('Razlaga', {selector: 'p'})).not.toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toBeVisible();
+
+        expect(document.querySelector('.guided-lesson-hidden-content')).not.toBeInTheDocument();
+        expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
+        expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
+        expect(screen.getByRole('button', {name: 'Nazaj'})).toBeVisible();
+        expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
+        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
+        act(() => jest.advanceTimersByTime(250));
         expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toHaveClass('guided-lesson-continue');
         expect(screen.getByText('Učna pot je skrita med raziskovanjem grafa.')).toBeVisible();
 
-        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
-        expect(document.querySelector('.guided-lesson-handoff-opening')).toBeInTheDocument();
+        fireEvent.click(screen.getByRole('button', {name: 'Nazaj na navodila'}));
         act(() => jest.advanceTimersByTime(250));
-        expect(screen.getByRole('button', {name: 'Nazaj'})).toBeVisible();
-        expect(screen.queryByRole('button', {name: 'Preskoči učenje'})).not.toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
+        expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
     } finally {
         jest.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
-test('animates the lesson overlay out before revealing the compact observation prompt', () => {
+test('reports the graph as locked in the observation overlay and unlocked in the compact prompt', () => {
     jest.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
-
+        const onModeChange = jest.fn();
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()} onModeChange={onModeChange}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-
-        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
-        expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
-
+        expect(onModeChange).toHaveBeenLastCalledWith('content');
+        observe();
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         act(() => jest.advanceTimersByTime(250));
-        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toBeVisible();
+        expect(onModeChange).toHaveBeenLastCalledWith('complete');
     } finally {
         jest.useRealTimers();
         act(() => setLanguage('sl'));
     }
+});
+
+test('Continue advances to the next frame and opens its overlay', () => {
+    jest.useFakeTimers();
+    setLanguage('sl');
+    try {
+        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
+        observe();
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        act(() => jest.advanceTimersByTime(250));
+        expect(screen.getByRole('heading', {name: 'Zaključek'})).toBeVisible();
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
+        expect(screen.queryByText('Opazuj', {selector: 'p'})).not.toBeInTheDocument();
+    } finally {
+        jest.useRealTimers();
+        act(() => setLanguage('sl'));
+    }
+});
+
+test('Continue on the last observation frame completes the lesson', () => {
+    jest.useFakeTimers();
+    setLanguage('sl');
+    try {
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        observe();
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        act(() => jest.advanceTimersByTime(250));
+        expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
+        expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
+    } finally {
+        jest.useRealTimers();
+        act(() => setLanguage('sl'));
+    }
+});
+
+test('Back from an observation overlay returns to the previous frame', () => {
+    setLanguage('sl');
+    render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+    fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+    expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
+    fireEvent.click(screen.getByRole('button', {name: 'Nazaj'}));
+    expect(screen.getByRole('heading', {name: 'Izračun'})).toBeVisible();
+    expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
 });
 
 test('allows the compact observation prompt to move with keyboard arrows', () => {
@@ -136,7 +208,7 @@ test('allows the compact observation prompt to move with keyboard arrows', () =>
         render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        observe();
 
         const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
         expect(prompt).toHaveAttribute('tabindex', '0');
@@ -155,7 +227,7 @@ test('keeps the compact observation prompt inside the coordinate system rectangl
         render(<div className="demonstration-workspace"><div id="jgbox"/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        observe();
 
         const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
         const lessonElement = prompt.parentElement as HTMLElement;
@@ -193,7 +265,7 @@ test('allows a pointer drag to move the compact observation prompt toward the ri
         render(<div className="demonstration-workspace"><div id="jgbox"/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        observe();
 
         const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
         const lessonElement = prompt.parentElement as HTMLElement;
@@ -244,7 +316,7 @@ test('offers observation playback only beside the visible graph and pauses it wh
         render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        observe();
         const controls = screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'});
         expect(controls.closest('.guided-lesson-hidden-content')).not.toBeNull();
         expect(controls.querySelectorAll('svg.guided-lesson-animation-icon')).toHaveLength(3);
@@ -254,7 +326,7 @@ test('offers observation playback only beside the visible graph and pauses it wh
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
         act(() => jest.advanceTimersByTime(250));
-        expect(screen.getByText('Opazovanje', {selector: 'strong'})).toBeVisible();
+        expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
         expect(screen.queryByRole('button', {name: /Predvajaj/})).not.toBeInTheDocument();
         expect(screen.queryByRole('group', {name: 'Kontrole animacije konstrukcije'})).not.toBeInTheDocument();
     } finally {
@@ -271,7 +343,7 @@ test('does not pause playback that the observation never started', () => {
         render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        observe();
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         expect(apply).not.toHaveBeenCalledWith(expect.objectContaining({kind: 'animation'}));
     } finally {
@@ -317,7 +389,7 @@ test('skips MathJax work for a frame without mathematics', async () => {
     }
 });
 
-test('typesets mathematics after the observation prompt collapses the overlay', async () => {
+test('typesets mathematics in the observation overlay and after the prompt collapses the overlay', async () => {
     setLanguage('sl');
     const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: jest.Mock; typesetPromise: jest.Mock}};
     const previousMathJax = win.MathJax;
@@ -334,6 +406,8 @@ test('typesets mathematics after the observation prompt collapses the overlay', 
     try {
         render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-exploration'))).toBe(true));
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-hidden-content'))).toBe(true));
     } finally {
         if (previousMathJax) win.MathJax = previousMathJax;

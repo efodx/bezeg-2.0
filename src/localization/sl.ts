@@ -299,6 +299,8 @@ export const sl = {
     "export": "izvoz",
     "open_navigation": "Odpri navigacijo",
     "guided_lesson": "Vodena učna pot",
+    "observe_on_graph": "Opazuj na grafu",
+    "back_to_instructions": "Nazaj na navodila",
     "continue_lesson": "Nadaljuj učno pot",
     "move_lesson_prompt": "Premakni opazovalni namig",
     "guided_lesson_hidden_hint": "Učna pot je skrita med raziskovanjem grafa.",

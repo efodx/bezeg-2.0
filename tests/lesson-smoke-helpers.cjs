@@ -78,13 +78,15 @@ async function settle(page) {
     await page.waitForTimeout(60);
 }
 
-// Reveals the full lesson panel again when an observation frame collapsed it to its compact prompt.
+// Reveals the full lesson panel. Observation frames now open in the full overlay first, so this is a no-op
+// unless a test collapsed the panel to the compact prompt; then "Back to the instructions" (not Continue,
+// which now advances a frame) re-opens the overlay for the same frame.
 async function reveal(page) {
     await settle(page);
     if (!(await nextButton(page).isVisible())) {
         // Keyboard activation: a pointer click can be intercepted by board labels (see the pointer test).
-        const cont = lessonPanel(page).getByRole('button', {name: /Continue lesson|Nadaljuj/});
-        await cont.focus();
+        const back = lessonPanel(page).getByRole('button', {name: /Back to the instructions|Nazaj na navodila/});
+        await back.focus();
         await page.keyboard.press('Enter');
         await settle(page);
     }

@@ -300,6 +300,8 @@ export const en: Record<keyof typeof sl, string> = {
     "export": "export",
     "open_navigation": "Open navigation",
     "guided_lesson": "Guided lesson",
+    "observe_on_graph": "Observe on the graph",
+    "back_to_instructions": "Back to the instructions",
     "continue_lesson": "Continue lesson",
     "move_lesson_prompt": "Move observation prompt",
     "guided_lesson_hidden_hint": "The lesson is hidden while you explore the graph.",

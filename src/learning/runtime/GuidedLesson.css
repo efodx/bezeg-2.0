@@ -83,6 +83,8 @@
 .guided-lesson-nav-back { left:0; }
 .guided-lesson-nav-next { right:0; }
 .guided-lesson-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+.guided-lesson-actions .guided-lesson-observe { border-color:#3b6704; background:#3b6704; color:#fff; font-weight:600; }
+.guided-lesson-actions .guided-lesson-observe:hover { background:#2f5203; color:#fff; }
 .guided-lesson-actions button:disabled { opacity:.5; cursor:not-allowed; }
 .guided-lesson-progress { margin:16px 0; color:#5b684c; font-size:13px; font-weight:650; }
 .guided-lesson-frame { animation: guided-lesson-frame-in .18s ease-out; }
@@ -177,6 +179,7 @@
     background:#3b6704;
     color:#fff;
 }
+.guided-lesson-hidden-content .guided-lesson-instructions { flex-basis:100%; }
 .guided-lesson-hidden-content .guided-lesson-continue:hover { background:#2f5203; color:#fff; }
 
 @keyframes guided-lesson-frame-in { from { opacity:.25; transform:translateX(5px); } to { opacity:1; transform:translateX(0); } }

@@ -95,7 +95,7 @@ async function runElevationActions(page, until) {
     const lesson = lessonPanel(page);
     for (let guard = 0; guard < 30; guard += 1) {
         await h.reveal(page);
-        const action = lesson.locator('.guided-lesson-actions button');
+        const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe)');
         if (await action.count()) { await action.first().click(); await settle(page); }
         if (until && await until()) return;
         await advance(page);
@@ -515,6 +515,13 @@ for (const row of LESSONS) {
                 const label = await progress(page);
                 await nextButton(page).click();
                 await settle(page);
+                // Observation frames open in the full overlay; collapse to the compact prompt with the observe button.
+                const observe = lessonPanel(page).locator('.guided-lesson-observe');
+                if (await observe.count()) {
+                    await observe.focus();
+                    await page.keyboard.press('Enter');
+                    await settle(page);
+                }
                 const cont = lessonPanel(page).locator('.guided-lesson-continue');
                 if (await cont.count()) {
                     const blocker = await cont.evaluate(button => {
@@ -523,10 +530,12 @@ for (const row of LESSONS) {
                         return top === button || button.contains(top) ? null : `${top.tagName}.${top.className?.baseVal ?? top.className}`;
                     });
                     if (blocker) covered.push(`after "${label}": ${blocker}`);
+                    // Continue now advances one frame (or completes the lesson) and re-opens the overlay.
                     await cont.focus();
                     await page.keyboard.press('Enter');
                     await settle(page);
                 }
+                if (await lessonPanel(page).locator('.guided-lesson-complete').count()) break;
                 if (/Finish/.test((await nextButton(page).getAttribute('aria-label').catch(() => '')) || '')) break;
             }
             expect(covered, 'Continue lesson center hit-test blocked by board elements').toEqual([]);
@@ -671,7 +680,7 @@ test.describe('Rational elevation extras', () => {
         // Frame-level walk. Elevation is applied by the lesson's action button or scene entry.
         for (let guard = 0; guard < 40; guard += 1) {
             const label = await progress(page);
-            const action = lesson.locator('.guided-lesson-actions button');
+            const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe)');
             if (await action.count()) {
                 await action.first().click();
                 await settle(page);
