@@ -11,7 +11,8 @@ import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier
 import {PointStyles} from "../../styles/PointStyles";
 import {SegmentStyles} from "../../styles/SegmentStyles";
 import {CurveStyles} from "../../styles/CurveStyles";
-import {LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+import {Point} from "../../../bezeg/api/point/point";
 import {Preset} from "../../base/presets/Presets";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS} from "./decasteljauParameter";
@@ -107,15 +108,81 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
     override initialize() {
         super.initialize();
         skipRedundantHtmlTextClipping(this.board);
-        this.getFirstJxgCurve().setAttributes({...this.getFirstJxgCurve().getAttributes(), selectable: false});
-        this.graphJXGPoints = this.getFirstJxgCurve().getJxgPoints();
-        this.generateInterpolatingBezierCurves();
-
-        this.getFirstJxgCurve().setIntervalEnd(() => this.parameter);
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-        this.getFirstJxgCurve().setDecasteljauT(this.parameter);
-        // this.getFirstJxgCurve().showDecasteljauPoints()
+        this.bindSceneToFirstCurve();
         this.boardUpdate();
+    }
+
+    /** Presets, lesson scenes and checkpoints replace the curve objects without calling initialize(). */
+    override importPresetData(data: any) {
+        super.importPresetData(data);
+        this.bindSceneToFirstCurve();
+    }
+
+    /** Auxiliary board objects (helper points, segment, interpolating curves, main point) owned by this graph. */
+    private helperObjects: any[] = [];
+
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        this.removeHelperObjects();
+    }
+
+    private removeHelperObjects() {
+        const objects = this.helperObjects;
+        this.helperObjects = [];
+        if (this.graphJXGPoints) this.graphJXGPoints = this.graphJXGPoints.filter(point => !objects.includes(point));
+        const board = this.board;
+        if (!board) return;
+        objects.reverse().forEach(object => {
+            if (board.objectsList.includes(object)) board.removeObject(object);
+        });
+    }
+
+    /** Idempotent: removes earlier helpers and rebinds the display settings and helpers to the current first curve. */
+    private bindSceneToFirstCurve() {
+        this.removeHelperObjects();
+        const jxgCurve = this.getFirstJxgCurve();
+        if (!jxgCurve || !this.board) return;
+        jxgCurve.setAttributes({...jxgCurve.getAttributes(), selectable: false});
+        this.graphJXGPoints = [];
+        this.generateInterpolatingBezierCurves(jxgCurve);
+
+        jxgCurve.setIntervalEnd(() => this.parameter);
+        jxgCurve.setAttributes(Attributes.bezierDisabled);
+        jxgCurve.setDecasteljauT(this.parameter);
+    }
+
+    protected override lessonDefaultState(): DecasteljauGraphStates {
+        return {...super.lessonDefaultState(), t: 0.5, v: 1, animationStatus: "ready"};
+    }
+
+    protected override prepareLessonDefaultScene(): void {
+        this.animation.stop();
+        this.parameter = 0.5;
+        this.publishedParameter = undefined;
+        super.prepareLessonDefaultScene();
+    }
+
+    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
+        const t = (checkpoint.value as any)?.graphState?.t;
+        if (typeof t === 'number' && Number.isFinite(t)) {
+            this.parameter = t;
+            this.publishedParameter = undefined;
+        }
+        super.restoreLessonState(checkpoint);
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'parameter' && action.name === 't') {
+            const value = action.value;
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
+                throw new Error('The De Casteljau parameter must be between 0 and 1.');
+            }
+            const running = this.animation.isRunning();
+            this.animation.pause();
+            this.setParameter(value, running || this.state.animationStatus === "playing" ? "paused" : this.state.animationStatus);
+            return;
+        }
+        super.applyLessonAction(action);
     }
 
     override componentWillUnmount() {
@@ -142,48 +209,43 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
         ]) : [];
     }
 
-    private generateInterpolatingBezierCurves() {
-        const points = this.getFirstJxgCurve().getCurve().getPoints();
-        const curve1points = points.slice(0, this.graphJXGPoints.length - 1);
-        const curve2points = points.slice(1, this.graphJXGPoints.length);
-        const curvee = new PolynomialBezierCurve(curve1points);
-        const curvee2 = new PolynomialBezierCurve(curve2points);
+    private generateInterpolatingBezierCurves(jxgCurve: ReturnType<DecasteljauGraph["getFirstJxgCurve"]>) {
+        if (jxgCurve.getCurve().getPoints().length < 2) return;
+        const own = <T, >(object: T): T => { this.helperObjects.push(object); return object; };
 
+        // Both helper curves follow the live control points of the bound curve.
+        const sliceCurve = (offset: number) => {
+            let cached: {points: Point[], curve: PolynomialBezierCurve} | undefined;
+            return () => {
+                const all = jxgCurve.getCurve().getPoints();
+                const points = all.slice(offset, offset + all.length - 1);
+                if (!cached || cached.points.length !== points.length || points.some((point, i) => point !== cached!.points[i])) {
+                    cached = {points, curve: new PolynomialBezierCurve(points)};
+                }
+                return cached.curve;
+            };
+        };
+        const first = sliceCurve(0);
+        const second = sliceCurve(1);
 
-        const p1 = this.createJSXGraphPoint(() => curvee.eval(this.parameter).X(), () => curvee.eval(this.parameter).Y(), PointStyles.fixed);
-        const pp1 = this.graphJXGPoints[this.graphJXGPoints.length - 1];
-        const p2 = this.createJSXGraphPoint(() => curvee2.eval(this.parameter).X(), () => curvee2.eval(this.parameter).Y(), PointStyles.fixed);
-        const pp2 = this.graphJXGPoints[this.graphJXGPoints.length - 1];
+        const p1 = own(this.createJSXGraphPoint(() => first().eval(this.parameter).X(), () => first().eval(this.parameter).Y(), PointStyles.fixed).point);
+        const p2 = own(this.createJSXGraphPoint(() => second().eval(this.parameter).X(), () => second().eval(this.parameter).Y(), PointStyles.fixed).point);
 
-        const segment = this.board.create('segment', [pp1, pp2], SegmentStyles.default);
+        own(this.board.create('segment', [p1, p2], SegmentStyles.default));
 
-        this.sampleOnlyWhenChanged(this.board.create('curve',
-            [(t: number) => {
-                return curvee.eval(t).X();
-            },
-                (t: number) => {
-                    return curvee.eval(t).Y();
-                },
-                0,
-                () => 1
-            ], {...CurveStyles.default, strokeColor: Color.E, layer: 2}
-        ) as JXG.Curve, curvee);
-        this.sampleOnlyWhenChanged(this.board.create('curve',
-            [(t: number) => {
-                return curvee2.eval(t).X();
-            },
-                (t: number) => {
-                    return curvee2.eval(t).Y();
-                },
-                0,
-                () => 1
-            ], {...CurveStyles.default, strokeColor: Color.G, layer: 2}
-        ) as JXG.Curve, curvee2);
-        const drawingPoint = this.board?.create('point', [() => this.getFirstJxgCurve().getCurve().eval(this.parameter).X(), () => this.getFirstJxgCurve().getCurve().eval(this.parameter).Y()], {
+        own(this.sampleOnlyWhenChanged(this.board.create('curve',
+            [(t: number) => first().eval(t).X(), (t: number) => first().eval(t).Y(), 0, () => 1],
+            {...CurveStyles.default, strokeColor: Color.E, layer: 2}
+        ) as JXG.Curve, first));
+        own(this.sampleOnlyWhenChanged(this.board.create('curve',
+            [(t: number) => second().eval(t).X(), (t: number) => second().eval(t).Y(), 0, () => 1],
+            {...CurveStyles.default, strokeColor: Color.G, layer: 2}
+        ) as JXG.Curve, second));
+        own(this.board.create('point', [() => jxgCurve.getCurve().eval(this.parameter).X(), () => jxgCurve.getCurve().eval(this.parameter).Y()], {
             ...PointStyles.default,
             color: Colors[4],
             name: () => ""
-        });
+        }));
     }
 
     /**
@@ -191,18 +253,20 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
      * their control points, the board view or the drag sampling quality change instead of on every
      * animation frame.
      */
-    private sampleOnlyWhenChanged(curve: JXG.Curve, source: PolynomialBezierCurve) {
+    private sampleOnlyWhenChanged(curve: JXG.Curve, source: () => PolynomialBezierCurve) {
         const element = curve as any;
         const sample = element.updateCurve;
+        if (typeof sample !== 'function') return curve;
         let sampledFor: string | undefined;
         element.updateCurve = function () {
             const board = this.board;
-            const key = [...source.getPoints().flatMap(point => [point.X(), point.Y()]),
+            const key = [...source().getPoints().flatMap(point => [point.X(), point.Y()]),
                 ...board.getBoundingBox(), board.canvasWidth, board.canvasHeight, board.updateQuality].join(",");
             if (key === sampledFor) return this;
             sampledFor = key;
             return sample.call(this);
         };
+        return curve;
     }
 
     private playAnimation() {
