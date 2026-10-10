@@ -30,7 +30,7 @@ The runtime remains responsible for checkpoint capture/restore, animation cancel
 | Cohort | Routes | Status | Entry gate |
 | --- | --- | --- | --- |
 | A — Weighted, PH, and transformation exploration | `rational`, `ph-quintic`, `affine` | Implemented draft; review pending | Deterministic defaults, existing or one narrow graph-owned action family, direct formula/invariant checks |
-| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Blueprint only | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
+| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Ready for implementation; see [task](../tasks/guided-lessons-rollout/implement-cohort-b.md) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
 | C — Parameter distributions | `weighted-parameterization`, `spline-parameterization`, `uniform-parameterization` | Discovery | Typed alpha/sample actions and ownership for generated sample points |
 | D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Hold | Generated-curve ownership, valid parameter domains, and restoration tests |
 | E — Continuity and circle constructions | spline routes, `farin`, `circle`, `decasteljau-alternative` | Hold | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
@@ -96,6 +96,35 @@ Checks:
 - evaluating before then transforming agrees with transforming control points then evaluating, within the existing numeric tolerance;
 - checkpoint restoration returns the original control points and graph state;
 - rotation/reflection content is not released until its center semantics are documented.
+
+## Cohort B implementation contract
+
+Cohort B adds `bernstein` (contract above) and `rational-elevation`. Like Cohort A, a route may join the allowlist as a draft once route-level criteria 1–4 and 6 pass; criterion 5's owner language review and classroom review stay recorded as pending until completed.
+
+### `bernstein` clarifications
+
+- The graph state `n` counts basis functions; the degree shown in the counter and labels is `n − 1`. Lesson copy uses degree `n` in $B^n_i$, so the typed action is expressed as a **degree** in the integer range 0–5 and the graph maps it to `n = degree + 1`.
+- The default lesson scene is degree 1 without the stacked-area view, matching the route's initial state. Preparing it disposes all graph-owned Bernstein objects before regeneration; repeated degree or view changes must not accumulate board objects or stale references.
+- The stacked-area switch and degree counter must display the restored state after lesson Exit/Cancel.
+- Non-integer, non-finite, or out-of-range degrees are rejected before mutating the graph.
+
+### `rational-elevation`
+
+Teach that rational degree elevation is ordinary degree elevation of the homogeneous control points $(w_iP_i, w_i)$, so both control points and weights change while the curve stays the same. Reuse the existing `degree-elevation` lesson action and rational weight-label visibility.
+
+Required action seam:
+
+- the existing `degree-elevation` action, owned by the rational elevation graph;
+- a prepared-scene hook that reapplies the route's disabled generic Bézier controls after importing the default, as in `elevation`.
+
+Checks:
+
+- the default curve has control points $(-4,-3),(-3,3),(3,3),(4,-3)$ and weights $(1,2,1,1)$;
+- one elevation gives weights $(1,	frac74,	frac32,1,1)$ and $Q_1=(-	frac{22}{7},	frac{15}{7})$, $Q_2=(-1,3)$, $Q_3=(	frac{13}{4},	frac32)$;
+- $Q_1$ differs from the unweighted blend $(-3.25,1.5)$, which is the observation that distinguishes rational from polynomial elevation;
+- elevated and original curves agree at representative parameters within the existing tolerance, including after two elevations;
+- elevation uses the weights currently used for evaluation, and the weight labels show the elevated weights;
+- checkpoint restoration returns the original degree, points, and weights.
 
 ## Route-level acceptance criteria
 

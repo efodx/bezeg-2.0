@@ -75,3 +75,4 @@ Use focused runtime/content tests first, then production-browser review for ever
 - [Build the capability matrix](../tasks/guided-lessons-rollout/build-capability-matrix.md)
 - [Review and release the pilots](../tasks/guided-lessons-rollout/review-and-release-pilot.md)
 - [Extend the polynomial Bézier cohort](../tasks/guided-lessons-rollout/extend-polynomial-bezier-cohort.md)
+- [Implement Cohort B (`bernstein`, `rational-elevation`)](../tasks/guided-lessons-rollout/implement-cohort-b.md)
