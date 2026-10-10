@@ -34,7 +34,7 @@ The runtime remains responsible for checkpoint capture/restore, animation cancel
 | B — Foundations and degree variants | `bernstein`, `rational-elevation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-b.md)) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
 | C — Parameter distributions | `weighted-parameterization`, `uniform-parameterization` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-c.md)) | Typed alpha/sample/mode actions and ownership for generated sample points |
 | D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-d.md)) | Generated-curve ownership, valid parameter domains, and restoration tests |
-| E — Continuity and circle constructions | spline routes, `spline-parameterization`, `farin`, `circle`, `decasteljau-alternative` | Hold | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
+| E — Continuity and circle constructions | spline routes, `spline-parameterization`, `farin`, `circle`, `decasteljau-alternative` | Ready for implementation ([task](../tasks/guided-lessons-rollout/implement-cohort-e.md)); subject source is the owner's thesis | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
 
 Seventeen routes are available: `bezier`, `decasteljau`, `ph-cubic`, `rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`, `bernstein`, `rational-elevation`, `weighted-parameterization`, `uniform-parameterization`, `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, and `rational-extrapolation`. The product allowlist must be updated only when a cohort’s route-level gates pass.
 
@@ -193,6 +193,36 @@ Cohort D teaches that De Casteljau's construction splits a Bézier curve into ex
 - extrapolation: the extended curve $E$ satisfies $E(u)=B(tu)$, so it retraces the original on $u\in[0,\tfrac1t]$; the content states that growing $t$ moves control points quickly and that only $t\in[1,1.5]$ is offered;
 - `rational-extrapolation`: the same identity holds with homogeneous coordinates for the default weights $(1,2,1,1)$. The extrapolated weights are $1,\ 1+t,\ 1+2t-2t^2,\ w(t)$; the third becomes zero at $t=\tfrac{1+\sqrt3}{2}\approx1.366$ and is $-\tfrac12$ at $t=1.5$. The original denominator $\sum_i b_{i,3}(s)w_i$ stays positive on $[0,1.5]$, so the extension has no pole and still equals $B(tu)$; a non-positive weight only means the new representation loses the convex-hull property. Lesson copy states this rather than claiming positive weights, and tests check the denominator on $[0,1.5]$;
 - repeated lesson entry and exit leaves one curve and no stray auxiliary objects.
+
+## Cohort E implementation contract
+
+The owner supplied the subject-matter source: K. Štampar, *Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj*, master's thesis, University of Ljubljana (FMF/FRI), 2024. It documents Bezeg's own constructions, so lesson claims cite its sections and the implementation. The thesis does not treat the n-piece circle; that lesson uses the standard rational quadratic arc (Farin, *Curves and Surfaces for CAGD*). Cohort A's allowlist rule applies.
+
+### Route claims and sources
+
+- `decasteljau-alternative` (thesis §2.4, Izrek 2.13, Slika 6): $B_{[p_0,\dots,p_n]}(t)=(1-t)B_{[p_0,\dots,p_{n-1}]}(t)+tB_{[p_1,\dots,p_n]}(t)$. The graph draws the two degree-3 curves of its quartic, their points at $t$, and the segment between them. Check the identity at several $t$.
+- `farin` (§3.2, Slika 17–18): $f_i=\frac{w_i}{w_i+w_{i+1}}p_i+\frac{w_{i+1}}{w_i+w_{i+1}}p_{i+1}$ divides $p_ip_{i+1}$ in the ratio $w_{i+1}:w_i$, and the weights follow recursively from $w_0=1$. Moving all Farin points to equal ratios gives geometric weights such as $1,3,9,27$, which standardize ($\tilde w_i=w_i/\sqrt[n]{w_n^{\,i}}$, Izrek 3.2) to $1,1,1,1$ with an unchanged curve. Check the ratios, the standard-form formula, and that standardization does not move curve points (only reparameterizes).
+- `circle` (Farin; thesis §3 motivation): $n$ rational quadratic pieces on radius $r=3$ with half-angle $\alpha=\pi/n$; the middle control point is the tangent intersection at distance $r/\cos\alpha$ and has weight $\cos\alpha$. Every evaluated point lies at distance $3$ from the origin, and neighbouring pieces share endpoints and tangent directions. $n=2$ is degenerate ($\cos\tfrac\pi2=0$ sends the middle point to infinity), so the graph's minimum becomes 3 and lessons use $n\ge3$.
+- `spline-cn` (§4.2.1, Algoritem 3, Slika 24): one-sided construction, where each new piece takes its first $r+1$ control points from the extrapolation of the previous piece and the rest are free; degree $n$, continuity $r\le n-1$. Check $C^r$ at every junction (scaled derivatives equal up to order $r$) and that changing a free point of one piece changes later pieces (the thesis's user-unfriendliness note).
+- `spline-c1` and `spline-c2` (§4.2.2, Algoritem 4–5, Slika 25–26): symmetric quadratic $C^1$ and cubic $C^2$ constructions; junction points divide segments in the ratio $\Delta u_l:\Delta u_{l-1}$, and with the route's uniform spacing they are midpoints (C¹) or the C² thirds/midpoint construction. Check $C^1$ resp. $C^2$ at every junction and locality of a control-point change.
+- `spline-g1` (§4.1, (4.6), Slika 23): the next piece's second point is $p^{(2)}_1=p^{(2)}_0+b\,(p^{(1)}_n-p^{(1)}_{n-1})$, i.e. $b=1/\alpha_1$ in the thesis notation. Tangent directions match for every $b>0$; the derivative ratio equals $b$, so the spline is $C^1$ only for one value. The β slider currently shows 0.5 while the model starts at $b=1$; it must display the actual value.
+- `spline-g1-symmetric` (§4.2.2, Algoritem 6, Slika 29): junctions $(1-\beta_l)p_l+\beta_lp_{l+1}$ with $\beta_l\in(0,1)$, starting at $\tfrac12$. Check tangent continuity for all β and how moving the junction changes the neighbouring pieces.
+- `spline-parameterization` (§4.2.3, Slika 30): $\Delta u_i=\lVert\Delta p_i\rVert^\alpha$; $\alpha=0$ uniform, $\tfrac12$ centripetal, $1$ chordal. α changes both the spline's shape (knot spacing moves derived junction points) and the spacing of points sampled at equidistant global parameters. Its α lives on the curve, so the lesson checkpoint and default scene must reapply it.
+
+### Action seam
+
+- `spline-continuity` and `spline-degree` (integers within the route's current bounds) for `spline-cn`;
+- `spline-beta` with an index and a value in the route's slider range (`spline-g1` $[0.01,3]$, `spline-g1-symmetric` $[0.01,0.99]$);
+- `spline-label-points` and `spline-hide-fixed` for all spline routes (existing switches);
+- `parameterization-alpha` and `parameterization-samples` (0–50) reused for `spline-parameterization`;
+- `farin-points`, `standard-form`, and `rational-weights` (all weights finite and positive, one per control point) for `farin`;
+- `circle-pieces` (integer, 3–12) for `circle`;
+- the existing `parameter` action with `t` for `decasteljau-alternative`, which must also rebind its helper curves after every preset import (they are built only in `initialize()` today);
+- every action validates before mutating, and the prepared default scene and checkpoint restore rebuild all derived points, helper curves, sliders, and switches.
+
+### Data findings to report, not silently change
+
+The `spline-cn` and `spline-c2` defaults each contain a three-number point (`[-1.5, -2, 5]`, `[1, -2, 5]`), probably meant as `-2.5`; the importer reads the first two numbers. Lessons describe the rendered default, and the owner decides whether to correct the presets (a visible default change).
 
 ## Route-level acceptance criteria
 
