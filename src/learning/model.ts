@@ -17,6 +17,10 @@ export type LessonAction =
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     | {readonly kind: 'parameterization-samples'; readonly count: number}
     | {readonly kind: 'parameterization-mode'; readonly mode: 'weighted' | 'uniform'}
+    | {readonly kind: 'subdivision-parameter'; readonly value: number}
+    | {readonly kind: 'subdivide'}
+    | {readonly kind: 'extrapolation-parameter'; readonly value: number}
+    | {readonly kind: 'extrapolate'}
     | {readonly kind: 'animation'; readonly animationId: 'decasteljau'; readonly command: 'play' | 'pause' | 'replay' | 'stop'};
 
 export type LessonFrameKind = 'explanation' | 'calculation' | 'observation';

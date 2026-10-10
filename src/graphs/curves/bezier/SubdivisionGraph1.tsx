@@ -9,6 +9,7 @@ import Slider from "../../../inputs/Slider";
 import {CurveStyles} from "../../styles/CurveStyles";
 import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
+import {LessonAction} from "../../../learning/model";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -47,26 +48,79 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
         return "subdivision-1";
     }
 
+    /** Orange remainder [t, 1] of the first curve; owned by this graph and rebuilt whenever the curve set is replaced. */
+    private remainderCurve?: JXG.Curve;
+
     override initialize() {
         super.initialize();
-        this.graphJXGPoints = this.getFirstJxgCurve().getJxgPoints();
-        this.getFirstJxgCurve().setIntervalEnd(() => this.state.showDecasteljau ? 1 : this.state.t);
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-        this.getFirstJxgCurve().showDecasteljauPoints();
+        this.bindSceneToFirstCurve();
+        this.boardUpdate();
+    }
 
-        const curve = this.getFirstCurve();
-        this.board.create('curve',
-            [(t: number) => {
-                return curve.eval(t).X();
-            },
-                (t: number) => {
-                    return curve.eval(t).Y();
-                },
+    /** Presets, lesson scenes and checkpoints replace the curve objects without calling initialize(). */
+    override importPresetData(data: any) {
+        super.importPresetData(data);
+        this.bindSceneToFirstCurve();
+    }
+
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        this.removeRemainderCurve();
+    }
+
+    private removeRemainderCurve() {
+        const remainder = this.remainderCurve;
+        this.remainderCurve = undefined;
+        if (remainder && this.board && this.board.objectsList.includes(remainder)) {
+            this.board.removeObject(remainder);
+        }
+    }
+
+    /** Idempotent: (re)applies display settings to the current first curve and rebinds the orange remainder to it. */
+    private bindSceneToFirstCurve() {
+        this.removeRemainderCurve();
+        const jxgCurve = this.getFirstJxgCurve();
+        if (!jxgCurve) { return; }
+        this.graphJXGPoints = jxgCurve.getJxgPoints();
+        jxgCurve.setIntervalEnd(() => this.state.showDecasteljau ? 1 : this.state.t);
+        jxgCurve.setAttributes(Attributes.bezierDisabled);
+        jxgCurve.showDecasteljauPoints();
+
+        const curve = jxgCurve.getCurve();
+        this.remainderCurve = this.board.create('curve',
+            [(t: number) => curve.eval(t).X(),
+                (t: number) => curve.eval(t).Y(),
                 () => this.state.t,
                 1
             ], {...CurveStyles.default, strokeColor: Color.GREAT_ORANGE}
-        );
-        this.boardUpdate();
+        ) as JXG.Curve;
+    }
+
+    protected override lessonDefaultState(): DecasteljauGraphStates {
+        return {...super.lessonDefaultState(), t: 0.5, v: 1, showDecasteljau: true};
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'subdivision-parameter') {
+            const value = action.value;
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0.01 || value > 0.99) {
+                throw new Error('The subdivision parameter t must be a number from 0.01 to 0.99.');
+            }
+            this.setState({t: value});
+            return;
+        }
+        if (action.kind === 'subdivide') {
+            const t = this.state.t;
+            if (!this.getFirstJxgCurve() || !(t >= 0.01 && t <= 0.99)) {
+                throw new Error('Set the subdivision parameter t between 0.01 and 0.99 before subdividing.');
+            }
+            this.subdivide();
+            return;
+        }
+        super.applyLessonAction(action);
+        if (action.kind === 'curve-visibility' && action.target === 'decasteljau-scheme') {
+            this.setState({showDecasteljau: action.visible});
+        }
     }
 
     override getGraphCommands(): JSX.Element[] {
