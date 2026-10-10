@@ -29,6 +29,15 @@
     opacity: .7;
 }
 
+/* Make the board's own stacking context sit below the lesson so JSXGraph HTML labels cannot cover the compact prompt. */
+.demonstration-workspace.lesson-open .workspace-graph {
+    z-index: 0;
+}
+
+.demonstration-workspace.lesson-open .guided-lesson {
+    min-width: 0;
+}
+
 @media (max-width: 1100px) {
     .demonstration-workspace.lesson-open {
         grid-template-areas: "heading heading" "graph inspector" "learning inspector";
