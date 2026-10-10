@@ -5,12 +5,27 @@ import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {Button} from "react-bootstrap";
 import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {LessonAction} from "../../../learning/model";
 
 class Graph extends BaseRationalCurveGraph<any, BaseGraphStates> {
 
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+    }
+
+    protected override prepareLessonDefaultScene(): void {
+        super.prepareLessonDefaultScene();
+        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+        this.boardUpdate();
+    }
+
+    protected override applyLessonAction(action: LessonAction): void {
+        if (action.kind === 'degree-elevation') {
+            this.elevate();
+            return;
+        }
+        super.applyLessonAction(action);
     }
 
     elevate() {

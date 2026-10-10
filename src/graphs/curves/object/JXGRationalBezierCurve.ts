@@ -170,9 +170,21 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     elevate() {
+        const showingFarinPoints = this.showingFarinPoints;
+        if (showingFarinPoints) {
+            // Bake slider-driven weights into the curve and drop sliders sized for the old degree.
+            this.showFarinPoints(false);
+        }
         const elevated = this.pointControlledCurve.elevate();
         this.replaceEditablePoints(elevated.getPoints());
-        this.pointControlledCurve.setWeights(elevated.getWeights());
+        this.pointControlledCurve.setWeights(elevated.getEffectiveWeights());
+        if (showingFarinPoints) {
+            this.showFarinPoints(true);
+        }
+        if (this.showingWeights) {
+            this.hideWeights();
+            this.showWeights();
+        }
         if (this.isShowingControlPolygon()) {
             this.showControlPolygon();
         }

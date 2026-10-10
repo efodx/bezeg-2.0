@@ -32,14 +32,15 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
 
 
     override elevate(): this {
+        const ws = this.getEffectiveWeights();
         let newPoints = [];
         let newWeights = [];
         newPoints.push(this.points[0]);
-        newWeights.push(this.weights[0]);
+        newWeights.push(ws[0]);
         let n = this.points.length, x, y;
         for (let i = 1; i < n; i++) {
-            let w1 = this.weights[i - 1];
-            let w2 = this.weights[i];
+            let w1 = ws[i - 1];
+            let w2 = ws[i];
             let w = i / n * w1 + (1 - i / n) * w2;
             newWeights.push(w);
             x = i / n * this.points[i - 1].X() * w1 + (1 - i / n) * this.points[i].X() * w2;
@@ -50,7 +51,7 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
             newPoints.push(new PointImpl(x, y));
         }
         newPoints.push(this.points[n - 1]);
-        newWeights.push(this.weights[n - 1]);
+        newWeights.push(ws[n - 1]);
         return new RationalBezierCurve(newPoints, newWeights) as this;
     }
 
