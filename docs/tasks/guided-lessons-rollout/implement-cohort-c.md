@@ -4,7 +4,7 @@
 
 **Dependencies:** [Guided lesson rollout](../../specs/guided-lessons-rollout.md); [Cohort B](implement-cohort-b.md) patterns for graph seams, content, and smoke coverage
 
-**Status:** ready; implementation not started
+**Status:** implemented draft on 2026-10-10; owner language and classroom review pending
 
 ## Goal
 
@@ -33,3 +33,13 @@ Slices 1 and 2 can run in parallel. Slice 3 waits for both.
 - Routes, Preset identifiers, stored presets, import/export formats, and parameterization formulas are unchanged.
 - `npx tsc --noEmit --pretty false`, the full Jest suite, the production build, and the full built smoke suite pass.
 - Capability, rollout-matrix, and roadmap documents record the new draft status and the move of `spline-parameterization` to cohort E.
+
+## Verification
+
+Implemented by Sonnet workers with handler review; the handler clarified that the PH hodograph is the square of a complex polynomial.
+
+- `npx tsc --noEmit --pretty false` passed; the full Jest suite passed (43 suites, 256 tests); the production build compiled with existing warnings; the full built smoke suite passed (65 tests, including 14 Cohort C checks).
+- The PH graph's samples previously captured a stale parameter array and regenerated based on a wrong length check; samples now read current parameters and regenerate only on count changes. Both graphs track their own sample points.
+- Content tests recompute every stated number: the α = 1/4 and 3/4 samples, symmetry, L = s(1) = 1003/60 against Simpson quadrature, σ values, N = 3 arc-length parameters, and the N = 10 chord ratios (about 1.05 uniform, 4.10 weighted).
+- Pending owner review: the Slovenian terms *vzorčne točke* and the app label *enakomerna parametrizacija* for arc-length sampling.
+- Not covered: physical touch devices, projector/presentation mode, and owner/subject-matter review.

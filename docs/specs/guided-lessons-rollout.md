@@ -52,8 +52,8 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `ph-cubic` | PH | Pilot draft | hodograph, offset visibility, offset distance |
 | `ph-quintic` | PH | Expansion draft | quintic hodograph, speed, and offset semantics |
 | `spline-parameterization` | Parameterization | Deferred to cohort E | alpha sets knot spacing and changes the C² spline shape; restore must reapply curve-owned alpha |
-| `weighted-parameterization` | Parameterization | Cohort C ready | `parameterization-alpha`/`-samples`; rational reparameterization, symmetry, unchanged curve |
-| `uniform-parameterization` | Parameterization | Cohort C ready | adds `parameterization-mode`; polynomial PH arc length and approximately equal-arc-length samples |
+| `weighted-parameterization` | Parameterization | Cohort C draft | `parameterization-alpha`/`-samples`; rational reparameterization, symmetry, unchanged curve |
+| `uniform-parameterization` | Parameterization | Cohort C draft | adds `parameterization-mode`; polynomial PH arc length and approximately equal-arc-length samples |
 
 Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decision, supported typed actions, prepared scene description, expected observation, mathematical checks, Slovenian and English review status, and browser/device evidence.
 
