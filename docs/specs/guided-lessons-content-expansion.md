@@ -21,7 +21,8 @@ Each lesson must provide:
 - one worked example or a precise invariant check;
 - a prepared scene based on the route default, expressed only through supported scene actions;
 - an explicit expected observation and edge-case note;
-- no simulated clicks, hidden JSXGraph access, or direct Preset DTO dependence.
+- no simulated clicks, hidden JSXGraph access, or direct Preset DTO dependence;
+- inline mathematics in every prose field written as `\(...\)`, never bare TeX such as `B^n_i` or `Q_1`; formula and worked-example LaTeX fields stay undelimited. The lesson math-notation test enforces this for all lessons.
 
 The runtime remains responsible for checkpoint capture/restore, animation cancellation, action adaptation, and failure rollback. Lesson content describes intent; graph classes own mutation and disposal.
 
