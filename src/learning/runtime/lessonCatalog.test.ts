@@ -46,7 +46,7 @@ test('returns a stable lesson object so the workspace does not restart its sessi
 
 test('uses an exact availability allowlist across the full demonstration catalog', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization']);
+    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation']);
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
     expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);
@@ -163,4 +163,40 @@ test('adapts both parameterization lessons into typed runtime actions', () => {
     expect(kinds(weighted)).toContain('parameterization-samples');
     expect(kinds(weighted)).not.toContain('parameterization-mode');
     expect(kinds(uniform)).toContain('parameterization-mode');
+});
+
+test('adapts subdivision and extrapolation scene actions and rejects invalid values', () => {
+    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.3})).toEqual({kind: 'subdivision-parameter', value: 0.3});
+    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.01})).toEqual({kind: 'subdivision-parameter', value: 0.01});
+    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.99})).toEqual({kind: 'subdivision-parameter', value: 0.99});
+    expect(sceneAction({name: 'subdivide', value: true})).toEqual({kind: 'subdivide'});
+    expect(sceneAction({name: 'set-extrapolation-parameter', value: 1})).toEqual({kind: 'extrapolation-parameter', value: 1});
+    expect(sceneAction({name: 'set-extrapolation-parameter', value: 1.5})).toEqual({kind: 'extrapolation-parameter', value: 1.5});
+    expect(sceneAction({name: 'extrapolate', value: true})).toEqual({kind: 'extrapolate'});
+    for (const value of [0, 0.009, 1, 1.01, Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
+        expect(() => sceneAction({name: 'set-subdivision-parameter', value: value as number})).toThrow(/subdivision parameter.*0\.01 and 0\.99/);
+    }
+    for (const value of [0.99, 1.51, 2, Number.NaN, Number.POSITIVE_INFINITY, '1.2', true]) {
+        expect(() => sceneAction({name: 'set-extrapolation-parameter', value: value as number})).toThrow(/extrapolation parameter.*1 and 1\.5/);
+    }
+    for (const name of ['subdivide', 'extrapolate'] as const) {
+        for (const value of [false, 1, 'true']) {
+            expect(() => sceneAction({name, value: value as boolean})).toThrow(/Unsupported guided scene action/);
+        }
+    }
+});
+
+test('adapts the five construction lessons into typed runtime actions', () => {
+    const kinds = (id: Parameters<typeof getLessonForDemonstration>[0]) => getLessonForDemonstration(id)!.steps.flatMap(step => step.scene?.actions ?? []).map(action => action.kind);
+    for (const id of ['subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation'] as const) {
+        expect(getLessonForDemonstration(id)).toBeDefined();
+        expect(isGuidedLessonAvailable(id)).toBe(true);
+        expect(getLessonForDemonstration(id)!.steps.length).toBeGreaterThanOrEqual(4);
+    }
+    expect(kinds('subdivision')).toEqual(expect.arrayContaining(['subdivision-parameter', 'subdivide']));
+    expect(kinds('repeated-subdivision')).toContain('subdivide');
+    expect(kinds('repeated-subdivision')).not.toContain('subdivision-parameter');
+    expect(kinds('rational-subdivision')).toEqual(expect.arrayContaining(['subdivision-parameter', 'subdivide']));
+    expect(kinds('extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
+    expect(kinds('rational-extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
 });

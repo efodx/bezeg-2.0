@@ -2,6 +2,7 @@ import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
+import {constructionGuidedLessons} from './constructionGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
 
 /**
@@ -25,6 +26,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['expansionGuidedLessons', expansionGuidedLessons],
     ['foundationGuidedLessons', foundationGuidedLessons],
     ['parameterizationGuidedLessons', parameterizationGuidedLessons],
+    ['constructionGuidedLessons', constructionGuidedLessons],
 ];
 
 const TEX_FIELDS = new Set(['latex', 'calculationLatex', 'resultLatex']);
@@ -131,7 +133,8 @@ function findings(): string[] {
 
 test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
-        ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'weighted-parameterization'].sort(),
+        ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'weighted-parameterization',
+            'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation'].sort(),
     );
 });
 

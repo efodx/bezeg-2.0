@@ -17,6 +17,7 @@ import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
+import {constructionGuidedLessons} from './constructionGuidedLessons';
 
 export type LessonLocale = 'sl' | 'en';
 
@@ -58,6 +59,8 @@ export type WorkedExample = Readonly<{
  * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (integer 0-5)
  * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
  * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (alpha in [0,1], integer samples 1-40, mode weighted|uniform)
+ * - set-subdivision-parameter / subdivide -> SubdivisionGraph1 (and rational) parameter t in [0.01,0.99] and one split; on repeated-subdivision, subdivide is one halving step (at most 5)
+ * - set-extrapolation-parameter / extrapolate -> ExtrapolationGraph (and rational) parameter t in [1,1.5] and one extrapolation
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
@@ -81,6 +84,10 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'set-parameterization-alpha',
     'set-parameterization-samples',
     'set-parameterization-mode',
+    'set-subdivision-parameter',
+    'subdivide',
+    'set-extrapolation-parameter',
+    'extrapolate',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -676,7 +683,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {

@@ -77,6 +77,24 @@ export function sceneAction(action: SceneAction): LessonAction {
         }
         return {kind: 'parameterization-mode', mode: action.value};
     }
+    if (action.name === 'set-subdivision-parameter') {
+        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 0.01 || action.value > 0.99) {
+            throw new Error('The subdivision parameter t must be a finite number between 0.01 and 0.99.');
+        }
+        return {kind: 'subdivision-parameter', value: action.value};
+    }
+    if (action.name === 'subdivide' && action.value === true) {
+        return {kind: 'subdivide'};
+    }
+    if (action.name === 'set-extrapolation-parameter') {
+        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 1 || action.value > 1.5) {
+            throw new Error('The extrapolation parameter t must be a finite number between 1 and 1.5.');
+        }
+        return {kind: 'extrapolation-parameter', value: action.value};
+    }
+    if (action.name === 'extrapolate' && action.value === true) {
+        return {kind: 'extrapolate'};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -169,6 +187,11 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'rational-elevation',
     'weighted-parameterization',
     'uniform-parameterization',
+    'subdivision',
+    'repeated-subdivision',
+    'rational-subdivision',
+    'extrapolation',
+    'rational-extrapolation',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

@@ -44,7 +44,7 @@ test('does not lock a deep-linked workspace before graph capabilities are ready'
 });
 
 test('ignores lesson query parameters on demonstrations without reviewed lessons', () => {
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/subdivision?learn=1']}><DemonstrationWorkspace title="Subdivision" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: jest.fn(), apply: jest.fn()}}/></MemoryRouter>);
 
