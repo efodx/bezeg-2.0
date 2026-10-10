@@ -14,6 +14,9 @@ export type LessonAction =
     | {readonly kind: 'parameter'; readonly name: 't' | 'offset-distance'; readonly value: number}
     | {readonly kind: 'bernstein-degree'; readonly degree: number}
     | {readonly kind: 'bernstein-stacked-area'; readonly visible: boolean}
+    | {readonly kind: 'parameterization-alpha'; readonly value: number}
+    | {readonly kind: 'parameterization-samples'; readonly count: number}
+    | {readonly kind: 'parameterization-mode'; readonly mode: 'weighted' | 'uniform'}
     | {readonly kind: 'animation'; readonly animationId: 'decasteljau'; readonly command: 'play' | 'pause' | 'replay' | 'stop'};
 
 export type LessonFrameKind = 'explanation' | 'calculation' | 'observation';
