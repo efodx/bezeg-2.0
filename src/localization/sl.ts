@@ -224,6 +224,7 @@ export const sl = {
     "number_of_curves": "Število krivulj",
     "label_all_points": "Označi vse točke",
     "hide_fixed_points": "Skrij fiksne točke",
+    "spline_parameter_b": "Parameter b",
     "continuity_order": "Stopnja zveznosti",
     "spline_degree": "Stopnja zlepka",
     "increase_b1": "Povečaj B1",

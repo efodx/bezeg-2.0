@@ -66,8 +66,8 @@ export function sceneAction(action: SceneAction): LessonAction {
         return {kind: 'parameterization-alpha', value: action.value};
     }
     if (action.name === 'set-parameterization-samples') {
-        if (typeof action.value !== 'number' || !Number.isInteger(action.value) || action.value < 1 || action.value > 40) {
-            throw new Error('The number of parameterization samples must be an integer between 1 and 40.');
+        if (typeof action.value !== 'number' || !Number.isInteger(action.value) || action.value < 0 || action.value > 50) {
+            throw new Error('The number of parameterization samples must be an integer between 0 and 50.');
         }
         return {kind: 'parameterization-samples', count: action.value};
     }
@@ -94,6 +94,38 @@ export function sceneAction(action: SceneAction): LessonAction {
     }
     if (action.name === 'extrapolate' && action.value === true) {
         return {kind: 'extrapolate'};
+    }
+    if (action.name === 'show-spline-labels' || action.name === 'hide-spline-fixed-points'
+        || action.name === 'show-farin-points' || action.name === 'set-standard-form') {
+        if (typeof action.value !== 'boolean') throw new Error(`The scene action “${action.name}” needs a boolean value.`);
+        if (action.name === 'show-spline-labels') return {kind: 'spline-label-points', visible: action.value};
+        if (action.name === 'hide-spline-fixed-points') return {kind: 'spline-hide-fixed', hidden: action.value};
+        if (action.name === 'show-farin-points') return {kind: 'farin-points', visible: action.value};
+        return {kind: 'standard-form', enabled: action.value};
+    }
+    if (action.name === 'set-spline-continuity' || action.name === 'set-spline-degree' || action.name === 'set-circle-pieces') {
+        if (typeof action.value !== 'number' || !Number.isInteger(action.value) || action.value < 0) {
+            throw new Error(`The scene action “${action.name}” needs a non-negative integer value.`);
+        }
+        if (action.name === 'set-spline-continuity') return {kind: 'spline-continuity', value: action.value};
+        if (action.name === 'set-spline-degree') return {kind: 'spline-degree', value: action.value};
+        return {kind: 'circle-pieces', count: action.value};
+    }
+    if (action.name === 'set-spline-beta') {
+        const value: unknown = action.value;
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('The spline beta action needs a value of the form {index, value}.');
+        }
+        const {index, value: beta} = value as {index?: unknown; value?: unknown};
+        if (typeof index !== 'number' || !Number.isInteger(index) || index < 0) throw new Error('The spline beta index must be a non-negative integer.');
+        if (typeof beta !== 'number' || !Number.isFinite(beta) || beta <= 0) throw new Error('The spline beta value must be a finite positive number.');
+        return {kind: 'spline-beta', index, value: beta};
+    }
+    if (action.name === 'set-rational-weights') {
+        if (!Array.isArray(action.value) || action.value.length === 0 || !action.value.every(weight => typeof weight === 'number' && Number.isFinite(weight) && weight > 0)) {
+            throw new Error('The rational weights must be a non-empty list of finite positive numbers.');
+        }
+        return {kind: 'rational-weights', weights: [...(action.value as readonly number[])]};
     }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
@@ -192,6 +224,15 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'rational-subdivision',
     'extrapolation',
     'rational-extrapolation',
+    'decasteljau-alternative',
+    'farin',
+    'circle',
+    'spline-cn',
+    'spline-c1',
+    'spline-c2',
+    'spline-g1',
+    'spline-g1-symmetric',
+    'spline-parameterization',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

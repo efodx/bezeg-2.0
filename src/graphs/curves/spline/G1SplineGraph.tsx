@@ -2,6 +2,7 @@ import React from "react";
 import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import Slider from "../../../inputs/Slider";
+import {t} from "../../../localization";
 import {LessonAction} from "../../../learning/model";
 import {validateSplineBeta} from "./splineBetaAction";
 
@@ -48,7 +49,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
     private getBiSetters() {
         const bs = this.getFirstCurve().getBs();
         return <div>
-            <div>ß</div>
+            <div>{t('spline_parameter_b')}</div>
             {bs.map(
                 (b, i) => <div key={i}>
                     <Slider initialValue={b} min={G1_BETA_MIN} max={G1_BETA_MAX}

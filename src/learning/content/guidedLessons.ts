@@ -18,6 +18,8 @@ import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
 import {constructionGuidedLessons} from './constructionGuidedLessons';
+import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
+import {splineGuidedLessons} from './splineGuidedLessons';
 
 export type LessonLocale = 'sl' | 'en';
 
@@ -58,9 +60,14 @@ export type WorkedExample = Readonly<{
  * - set-offset-distance -> JXGPHBezierCurve.setOffsetCurveDistance
  * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (integer 0-5)
  * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
- * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (alpha in [0,1], integer samples 1-40, mode weighted|uniform)
+ * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (alpha in [0,1], integer samples 0-50, route bounds enforced by the graph, mode weighted|uniform)
  * - set-subdivision-parameter / subdivide -> SubdivisionGraph1 (and rational) parameter t in [0.01,0.99] and one split; on repeated-subdivision, subdivide is one halving step (at most 5)
  * - set-extrapolation-parameter / extrapolate -> ExtrapolationGraph (and rational) parameter t in [1,1.5] and one extrapolation
+ * - show-spline-labels / hide-spline-fixed-points -> spline graphs' point-label and fixed-point display switches (boolean)
+ * - set-spline-continuity / set-spline-degree -> OneSidedCnSplineGraph continuity r and degree n (integers; route bounds enforced by the graph)
+ * - set-spline-beta -> G1 spline graphs' b/beta slider, value {index, value} (index is a non-negative integer; range enforced by the graph)
+ * - show-farin-points / set-standard-form / set-rational-weights -> FarinPointsCurveGraph display, standard-form switch and weight vector (one positive finite weight per control point)
+ * - set-circle-pieces -> RationalBezierCurveCircleGraphN piece counter (integer; route bounds enforced by the graph)
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
@@ -88,13 +95,29 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'subdivide',
     'set-extrapolation-parameter',
     'extrapolate',
+    'show-spline-labels',
+    'hide-spline-fixed-points',
+    'set-spline-continuity',
+    'set-spline-degree',
+    'set-spline-beta',
+    'show-farin-points',
+    'set-standard-form',
+    'set-rational-weights',
+    'set-circle-pieces',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
 
+export type SceneActionValue =
+    | boolean
+    | number
+    | string
+    | readonly number[]
+    | Readonly<{index: number; value: number}>;
+
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;
-    value: boolean | number | string;
+    value: SceneActionValue;
 }>;
 
 export type LessonScene = Readonly<{
@@ -683,7 +706,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {

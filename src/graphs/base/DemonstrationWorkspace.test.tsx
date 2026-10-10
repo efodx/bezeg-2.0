@@ -1,9 +1,23 @@
 import React from "react";
-import {act, fireEvent, render, screen} from "@testing-library/react";
+import {act, fireEvent, render, screen, waitFor} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {SiteContext} from "../context/react/SiteContext";
 import {setLanguage} from '../../localization';
+import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
+
+// Every active route now has a reviewed lesson, so the "no lesson" branch is exercised by letting the allowlist
+// seam report an unavailable route for one test.
+jest.mock('../../learning/runtime/lessonCatalog', () => {
+    const actual = jest.requireActual('../../learning/runtime/lessonCatalog');
+    return {...actual, getLessonForDemonstration: jest.fn(actual.getLessonForDemonstration)};
+});
+const actualLessonLookup = jest.requireActual('../../learning/runtime/lessonCatalog').getLessonForDemonstration;
+const lessonLookup = getLessonForDemonstration as jest.MockedFunction<typeof getLessonForDemonstration>;
+
+// CRA's resetMocks clears mock implementations before every test, so reinstall the real lookup each time;
+// otherwise every test would silently run with lessons unavailable.
+beforeEach(() => lessonLookup.mockImplementation(actualLessonLookup));
 
 test("inspector sections remain mounted and retain values when switched or collapsed", () => {
     render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
@@ -44,12 +58,23 @@ test('does not lock a deep-linked workspace before graph capabilities are ready'
 });
 
 test('ignores lesson query parameters on demonstrations without reviewed lessons', () => {
+    lessonLookup.mockImplementation(() => undefined);
     render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: jest.fn(), apply: jest.fn()}}/></MemoryRouter>);
 
+    expect(lessonLookup).toHaveBeenCalledWith('spline-cn');
     expect(document.querySelector('.guided-lesson')).toBeNull();
     expect(screen.getByRole('region', {name: 'Interaktivni graf'})).not.toHaveAttribute('data-lesson-locked');
+});
+
+test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
+        edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}
+        lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: jest.fn(), apply: jest.fn()}}/></MemoryRouter>);
+
+    expect(await screen.findByRole('heading', {level: 2, name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
+    await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
 });
 
 test('Bernstein exploration does not instruct students to drag control points', () => {

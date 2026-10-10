@@ -225,6 +225,7 @@ export const en: Record<keyof typeof sl, string> = {
     "number_of_curves": "Number of curves",
     "label_all_points": "Label all points",
     "hide_fixed_points": "Hide fixed points",
+    "spline_parameter_b": "Parameter b",
     "continuity_order": "Continuity order",
     "spline_degree": "Spline degree",
     "increase_b1": "Increase B1",

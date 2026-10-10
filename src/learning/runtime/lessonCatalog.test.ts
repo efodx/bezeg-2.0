@@ -46,7 +46,7 @@ test('returns a stable lesson object so the workspace does not restart its sessi
 
 test('uses an exact availability allowlist across the full demonstration catalog', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation']);
+    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation', 'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization']);
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
     expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);
@@ -145,8 +145,8 @@ test('adapts parameterization scene actions and rejects invalid values with clea
     for (const value of [-0.1, 1.1, Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
         expect(() => sceneAction({name: 'set-parameterization-alpha', value: value as number})).toThrow(/alpha.*between 0 and 1/);
     }
-    for (const value of [0, 41, 2.5, Number.NaN, '3', false]) {
-        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/integer between 1 and 40/);
+    for (const value of [-1, 51, 2.5, Number.NaN, '3', false]) {
+        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/integer between 0 and 50/);
     }
     for (const value of ['arc', 'Weighted', 1, true]) {
         expect(() => sceneAction({name: 'set-parameterization-mode', value: value as string})).toThrow(/weighted.*uniform/);
@@ -199,4 +199,41 @@ test('adapts the five construction lessons into typed runtime actions', () => {
     expect(kinds('rational-subdivision')).toEqual(expect.arrayContaining(['subdivision-parameter', 'subdivide']));
     expect(kinds('extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
     expect(kinds('rational-extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
+});
+
+test('every active demonstration route has an available lesson', () => {
+    const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
+    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
+});
+
+test('maps the spline, Farin and circle scene actions to typed runtime actions', () => {
+    expect(sceneAction({name: 'show-spline-labels', value: true})).toEqual({kind: 'spline-label-points', visible: true});
+    expect(sceneAction({name: 'hide-spline-fixed-points', value: false})).toEqual({kind: 'spline-hide-fixed', hidden: false});
+    expect(sceneAction({name: 'set-spline-continuity', value: 2})).toEqual({kind: 'spline-continuity', value: 2});
+    expect(sceneAction({name: 'set-spline-degree', value: 3})).toEqual({kind: 'spline-degree', value: 3});
+    expect(sceneAction({name: 'set-spline-beta', value: {index: 1, value: 0.25}})).toEqual({kind: 'spline-beta', index: 1, value: 0.25});
+    expect(sceneAction({name: 'show-farin-points', value: true})).toEqual({kind: 'farin-points', visible: true});
+    expect(sceneAction({name: 'set-standard-form', value: true})).toEqual({kind: 'standard-form', enabled: true});
+    expect(sceneAction({name: 'set-rational-weights', value: [1, 3, 9, 27]})).toEqual({kind: 'rational-weights', weights: [1, 3, 9, 27]});
+    expect(sceneAction({name: 'set-circle-pieces', value: 12})).toEqual({kind: 'circle-pieces', count: 12});
+    expect(sceneAction({name: 'set-parameterization-samples', value: 0})).toEqual({kind: 'parameterization-samples', count: 0});
+    expect(sceneAction({name: 'set-parameterization-samples', value: 50})).toEqual({kind: 'parameterization-samples', count: 50});
+});
+
+test('rejects structurally invalid spline, Farin and circle scene actions', () => {
+    expect(() => sceneAction({name: 'show-spline-labels', value: 1})).toThrow('boolean');
+    expect(() => sceneAction({name: 'show-farin-points', value: 'yes'})).toThrow('boolean');
+    expect(() => sceneAction({name: 'set-spline-degree', value: 2.5})).toThrow('non-negative integer');
+    expect(() => sceneAction({name: 'set-spline-continuity', value: -1})).toThrow('non-negative integer');
+    expect(() => sceneAction({name: 'set-circle-pieces', value: true})).toThrow('non-negative integer');
+    expect(() => sceneAction({name: 'set-spline-beta', value: 0.5})).toThrow('{index, value}');
+    expect(() => sceneAction({name: 'set-spline-beta', value: {index: -1, value: 0.5}})).toThrow('index');
+    expect(() => sceneAction({name: 'set-spline-beta', value: {index: 0, value: Number.NaN}})).toThrow('finite positive');
+    expect(() => sceneAction({name: 'set-spline-beta', value: {index: 0, value: 0}})).toThrow('finite positive');
+    expect(() => sceneAction({name: 'set-rational-weights', value: []})).toThrow('weights');
+    expect(() => sceneAction({name: 'set-rational-weights', value: [1, 0, 2]})).toThrow('weights');
+    expect(() => sceneAction({name: 'set-rational-weights', value: [1, Number.POSITIVE_INFINITY]})).toThrow('weights');
+    expect(() => sceneAction({name: 'set-rational-weights', value: 3})).toThrow('weights');
+    expect(() => sceneAction({name: 'set-parameterization-samples', value: 51})).toThrow('between 0 and 50');
+    expect(() => sceneAction({name: 'set-parameterization-samples', value: 2.5})).toThrow('between 0 and 50');
 });
