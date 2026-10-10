@@ -46,7 +46,7 @@ test('returns a stable lesson object so the workspace does not restart its sessi
 
 test('uses an exact availability allowlist across the full demonstration catalog', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation']);
+    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization']);
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
     expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);
@@ -133,4 +133,34 @@ test.each([-1, 6, 1.5, Number.NaN, Number.POSITIVE_INFINITY])('rejects the Berns
 test.each([0, 1, 3, 5])('maps the valid Bernstein degree %p and the stacked-area switch', degree => {
     expect(sceneAction({name: 'set-bernstein-degree', value: degree})).toEqual({kind: 'bernstein-degree', degree});
     expect(sceneAction({name: 'show-bernstein-stacked-area', value: false})).toEqual({kind: 'bernstein-stacked-area', visible: false});
+});
+
+test('adapts parameterization scene actions and rejects invalid values with clear errors', () => {
+    expect(sceneAction({name: 'set-parameterization-alpha', value: 0.25})).toEqual({kind: 'parameterization-alpha', value: 0.25});
+    expect(sceneAction({name: 'set-parameterization-alpha', value: 0})).toEqual({kind: 'parameterization-alpha', value: 0});
+    expect(sceneAction({name: 'set-parameterization-samples', value: 3})).toEqual({kind: 'parameterization-samples', count: 3});
+    expect(sceneAction({name: 'set-parameterization-samples', value: 40})).toEqual({kind: 'parameterization-samples', count: 40});
+    expect(sceneAction({name: 'set-parameterization-mode', value: 'uniform'})).toEqual({kind: 'parameterization-mode', mode: 'uniform'});
+    expect(sceneAction({name: 'set-parameterization-mode', value: 'weighted'})).toEqual({kind: 'parameterization-mode', mode: 'weighted'});
+    for (const value of [-0.1, 1.1, Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
+        expect(() => sceneAction({name: 'set-parameterization-alpha', value: value as number})).toThrow(/alpha.*between 0 and 1/);
+    }
+    for (const value of [0, 41, 2.5, Number.NaN, '3', false]) {
+        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/integer between 1 and 40/);
+    }
+    for (const value of ['arc', 'Weighted', 1, true]) {
+        expect(() => sceneAction({name: 'set-parameterization-mode', value: value as string})).toThrow(/weighted.*uniform/);
+    }
+});
+
+test('adapts both parameterization lessons into typed runtime actions', () => {
+    const weighted = getLessonForDemonstration('weighted-parameterization')!;
+    const uniform = getLessonForDemonstration('uniform-parameterization')!;
+    expect(weighted.steps).toHaveLength(5);
+    expect(uniform.steps).toHaveLength(5);
+    const kinds = (lesson: typeof weighted) => lesson.steps.flatMap(step => step.scene?.actions ?? []).map(action => action.kind);
+    expect(kinds(weighted)).toContain('parameterization-alpha');
+    expect(kinds(weighted)).toContain('parameterization-samples');
+    expect(kinds(weighted)).not.toContain('parameterization-mode');
+    expect(kinds(uniform)).toContain('parameterization-mode');
 });

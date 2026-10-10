@@ -59,6 +59,24 @@ export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-bernstein-stacked-area' && typeof action.value === 'boolean') {
         return {kind: 'bernstein-stacked-area', visible: action.value};
     }
+    if (action.name === 'set-parameterization-alpha') {
+        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 0 || action.value > 1) {
+            throw new Error('The parameterization alpha must be a finite number between 0 and 1.');
+        }
+        return {kind: 'parameterization-alpha', value: action.value};
+    }
+    if (action.name === 'set-parameterization-samples') {
+        if (typeof action.value !== 'number' || !Number.isInteger(action.value) || action.value < 1 || action.value > 40) {
+            throw new Error('The number of parameterization samples must be an integer between 1 and 40.');
+        }
+        return {kind: 'parameterization-samples', count: action.value};
+    }
+    if (action.name === 'set-parameterization-mode') {
+        if (action.value !== 'weighted' && action.value !== 'uniform') {
+            throw new Error('The parameterization mode must be "weighted" or "uniform".');
+        }
+        return {kind: 'parameterization-mode', mode: action.value};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -149,6 +167,8 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'ph-quintic',
     'bernstein',
     'rational-elevation',
+    'weighted-parameterization',
+    'uniform-parameterization',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

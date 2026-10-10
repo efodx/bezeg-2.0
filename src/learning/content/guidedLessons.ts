@@ -16,6 +16,7 @@ import type {DemonstrationId} from '../../demonstrations';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
+import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
 
 export type LessonLocale = 'sl' | 'en';
 
@@ -56,6 +57,7 @@ export type WorkedExample = Readonly<{
  * - set-offset-distance -> JXGPHBezierCurve.setOffsetCurveDistance
  * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (integer 0-5)
  * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
+ * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (alpha in [0,1], integer samples 1-40, mode weighted|uniform)
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
@@ -76,13 +78,16 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'reflect-y',
     'set-bernstein-degree',
     'show-bernstein-stacked-area',
+    'set-parameterization-alpha',
+    'set-parameterization-samples',
+    'set-parameterization-mode',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
 
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;
-    value: boolean | number;
+    value: boolean | number | string;
 }>;
 
 export type LessonScene = Readonly<{
@@ -671,7 +676,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {
