@@ -7,9 +7,10 @@ module.exports = defineConfig({
     timeout: 60_000,
     expect: {timeout: 10_000},
     fullyParallel: false,
-    workers: 1,
+    // Specs own their pages and the preview server is stateless; lesson tests run in parallel (see guided-lessons spec).
+    workers: process.env.CI ? 3 : 2,
     retries: 0,
-    globalTimeout: 15 * 60 * 1000,
+    globalTimeout: 30 * 60 * 1000,
     reporter: [
         ['list'],
         ['html', {outputFolder: 'playwright-report', open: 'never'}],
