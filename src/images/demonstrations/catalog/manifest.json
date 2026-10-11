@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "f290520ce9d49f6b1eac13c89baa59b5c441c2c7",
+  "graphSourceRevision": "a72af4bad44b0e18d6da4f43c89e92aa7f24e7b0",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -14,7 +14,7 @@
     "colorScheme": "light",
     "reducedMotion": "reduce",
     "timezoneId": "Europe/Ljubljana",
-    "baseUrl": "http://127.0.0.1:3013/bezeg-2.0",
+    "baseUrl": "http://127.0.0.1:4186/bezeg-2.0",
     "browserVersion": "156.0.8078.4"
   },
   "image": {
@@ -26,7 +26,7 @@
       "id": "bernstein",
       "path": "/bezeg-2.0/bernstein",
       "file": "bernstein.png",
-      "sha256": "393ceb7d70344c24f25b3c74685b2138de4fda12aa94d34a79981e12378b2334",
+      "sha256": "f5cb93eaffc4b7f2b085cfd303e599be6f80fd4492c0ffd15cd66261376ca112",
       "image": {
         "width": 794,
         "height": 562
@@ -55,7 +55,7 @@
       "id": "bezier",
       "path": "/bezeg-2.0/bezier/curve",
       "file": "bezier.png",
-      "sha256": "2c000d671898751050a22df939ffe9742cfb57a237839762fbf696a86758d1ff",
+      "sha256": "91a5c216990d965cb59319b685fc86e3be80a7713033bf8697b7e5cfb8de0e99",
       "image": {
         "width": 794,
         "height": 562
@@ -85,7 +85,7 @@
       "id": "decasteljau",
       "path": "/bezeg-2.0/bezier/decasteljau",
       "file": "decasteljau.png",
-      "sha256": "1cd39763cb25535f46763a0814d57758cbe301c99e30be7d0f723baeeb622080",
+      "sha256": "c239c28afa1b1c9522f52e9511049726afdac1d5f832fea980e4a258a1377821",
       "image": {
         "width": 794,
         "height": 562
@@ -116,7 +116,7 @@
       "id": "decasteljau-alternative",
       "path": "/bezeg-2.0/bezier/decasteljau2",
       "file": "decasteljau-alternative.png",
-      "sha256": "cd778ca4cd7acda644dd30d26cf356e08125213f065007ba540452c0964d70b7",
+      "sha256": "0368fe29d7d4c69118f179275b3cdd0b25bb2a617af8b1dfc0506959522dec61",
       "image": {
         "width": 794,
         "height": 562
@@ -147,7 +147,7 @@
       "id": "affine",
       "path": "/bezeg-2.0/bezier/affine",
       "file": "affine.png",
-      "sha256": "869811b6cc31cfc081e1b056e895353d329d8e2c27ef91ecd5b04b5f9afb2f26",
+      "sha256": "f1d14561afed705d8724c02db4e10ef544e9966336b7d630170b9c3dd9077315",
       "image": {
         "width": 794,
         "height": 562
@@ -177,7 +177,7 @@
       "id": "subdivision",
       "path": "/bezeg-2.0/bezier/subdivision-2",
       "file": "subdivision.png",
-      "sha256": "009705fc553b088ce34ada3c02e4050a66dcb07054b601d7b74b90b7acb77e54",
+      "sha256": "d69c86f2bd976f942f5e04e489ba7d06133a99304f7ef0d252019d10bf590190",
       "image": {
         "width": 794,
         "height": 562
@@ -208,7 +208,7 @@
       "id": "repeated-subdivision",
       "path": "/bezeg-2.0/bezier/subdivision",
       "file": "repeated-subdivision.png",
-      "sha256": "8a745a547bee44da6fabcad9529257fd6fbc7f4ff838b8e5388fc8ebe69aecd3",
+      "sha256": "9db8a9a1886edab36c1df756385d876bb9b9aea1f22bc7e8f772ede7e1a7cc13",
       "image": {
         "width": 794,
         "height": 562
@@ -239,7 +239,7 @@
       "id": "extrapolation",
       "path": "/bezeg-2.0/bezier/extrapolation",
       "file": "extrapolation.png",
-      "sha256": "b62796ea412831d1e2e9b4f6fedc469992ac7e35bc99a74ad75e99fb2fcd58e8",
+      "sha256": "c2ffabec6773aec976b8c3eb8adb6d2736b8896490d99ad5d3fa688b45d04688",
       "image": {
         "width": 794,
         "height": 562
@@ -269,7 +269,7 @@
       "id": "elevation",
       "path": "/bezeg-2.0/bezier/elevation",
       "file": "elevation.png",
-      "sha256": "b40505d67002b976f7b7703454f6f6248cf688df8d67c87f2c0acd60f50fdc4a",
+      "sha256": "9bcb82bcf17ddd253407f7d1bf1ef54155f5bf18edc01ac57ec33d26a90c2c6f",
       "image": {
         "width": 794,
         "height": 562
@@ -300,7 +300,7 @@
       "id": "rational",
       "path": "/bezeg-2.0/rational/base",
       "file": "rational.png",
-      "sha256": "07c102f090fa97b562c834243b20c39fbc4620845dff337904bab61bf1fea705",
+      "sha256": "b529f01f69934f084469cbc5b7e347392ee5efccac720c500dd5555b24f67b22",
       "image": {
         "width": 794,
         "height": 562
@@ -330,7 +330,7 @@
       "id": "rational-decasteljau",
       "path": "/bezeg-2.0/rational/rational-decasteljau",
       "file": "rational-decasteljau.png",
-      "sha256": "92729caf800d7d575629e1803c1855200670cb55a1dc7b786c1ab70be127bfe2",
+      "sha256": "c5d0e60125d364a8b8efb7c9df6b08669bbb669f85db31ffdad4d04320f08479",
       "image": {
         "width": 794,
         "height": 562
@@ -361,7 +361,7 @@
       "id": "rational-elevation",
       "path": "/bezeg-2.0/rational/rational-elevation",
       "file": "rational-elevation.png",
-      "sha256": "6a2b784450fe8a7c7c3d249e39de1643791d8ea63a29b494e639e1e0c1887a3e",
+      "sha256": "fb7fa1eba95ecd2c5c10e65f54da02e5454b584697c83a5b849a5546f6614747",
       "image": {
         "width": 794,
         "height": 562
@@ -391,7 +391,7 @@
       "id": "rational-extrapolation",
       "path": "/bezeg-2.0/rational/rational-extrapolation",
       "file": "rational-extrapolation.png",
-      "sha256": "d77c80f9977c54f2c1de785d7ff0ee381303401a565f29f8ac4d8de511405329",
+      "sha256": "a76d63563db3dfdeba328270bb97583bc3677c681a1458c06af5b0c4e9c2b6b0",
       "image": {
         "width": 794,
         "height": 562
@@ -421,7 +421,7 @@
       "id": "rational-subdivision",
       "path": "/bezeg-2.0/rational/rational-subdivision",
       "file": "rational-subdivision.png",
-      "sha256": "1a340cc44a527cab5712d0830a80a3b0f352724d7ba83101383d60e429cff121",
+      "sha256": "2b0332cefce796bcb9117c9c8439457f7536aea0ac7ae87e078469c9d4eacf5e",
       "image": {
         "width": 794,
         "height": 562
@@ -452,7 +452,7 @@
       "id": "farin",
       "path": "/bezeg-2.0/rational/farin-points",
       "file": "farin.png",
-      "sha256": "6a2b784450fe8a7c7c3d249e39de1643791d8ea63a29b494e639e1e0c1887a3e",
+      "sha256": "fb7fa1eba95ecd2c5c10e65f54da02e5454b584697c83a5b849a5546f6614747",
       "image": {
         "width": 794,
         "height": 562
@@ -482,7 +482,7 @@
       "id": "circle",
       "path": "/bezeg-2.0/rational/circlen",
       "file": "circle.png",
-      "sha256": "5d9ff539655766b9954814ec9aec176c85f5c9a996e69f8d1833d78c119309a9",
+      "sha256": "8cbe7a4adc5d2edd758cb31f5eedd3e5250c46eb58d2a63252b2a7e517a15bf8",
       "image": {
         "width": 794,
         "height": 562
@@ -512,7 +512,7 @@
       "id": "spline-cn",
       "path": "/bezeg-2.0/spline/spline",
       "file": "spline-cn.png",
-      "sha256": "a3efded054f0185b7f45bfe33110365e0ab59bbb631ad690c8d7641a5ab43f27",
+      "sha256": "b6e12213f2217bd0192199d1f14336f24f07177dcfb8977400bfa42f52facfbe",
       "image": {
         "width": 794,
         "height": 562
@@ -542,7 +542,7 @@
       "id": "spline-c1",
       "path": "/bezeg-2.0/spline/c1spline",
       "file": "spline-c1.png",
-      "sha256": "f338673de82a2c9501822bbe312e68d94b2c27781676e7b08aa9aa956f738f7e",
+      "sha256": "0ae716dfed6ab849f79ac73040a89e6ff6c74e89d4284b7be619c6c471bb9c92",
       "image": {
         "width": 794,
         "height": 562
@@ -572,7 +572,7 @@
       "id": "spline-c2",
       "path": "/bezeg-2.0/spline/c2spline",
       "file": "spline-c2.png",
-      "sha256": "623f8aa52eb64a8b1d7aa0229cf50dba9db94438f41892b0620f4a59c1227da7",
+      "sha256": "a96a7f2c76cbdb1fcc48652c89848ad4445db0efa5549d8f6dff3fcb0bb1bcad",
       "image": {
         "width": 794,
         "height": 562
@@ -602,7 +602,7 @@
       "id": "spline-g1",
       "path": "/bezeg-2.0/spline/g1spline",
       "file": "spline-g1.png",
-      "sha256": "0c629ab81f1247c75a426e8d1c597bd19a3cf06428dbb93a44c7b39f74820749",
+      "sha256": "0a4a3c4be0a845b05626f94a5b558eed4585da55425757666b07bd9aa0101c46",
       "image": {
         "width": 794,
         "height": 562
@@ -632,7 +632,7 @@
       "id": "spline-g1-symmetric",
       "path": "/bezeg-2.0/spline/g1-sym-spline",
       "file": "spline-g1-symmetric.png",
-      "sha256": "f338673de82a2c9501822bbe312e68d94b2c27781676e7b08aa9aa956f738f7e",
+      "sha256": "0ae716dfed6ab849f79ac73040a89e6ff6c74e89d4284b7be619c6c471bb9c92",
       "image": {
         "width": 794,
         "height": 562
@@ -662,7 +662,7 @@
       "id": "ph-cubic",
       "path": "/bezeg-2.0/ph/cubic",
       "file": "ph-cubic.png",
-      "sha256": "c5992917445689ee97ad2b3fb154490855d8dfb16c245150e9d535a286b1ac0b",
+      "sha256": "8d333c738f01b550d42d278fbca3393a6a023059acf0aa0b77c3bace8bd8ca9b",
       "image": {
         "width": 794,
         "height": 562
@@ -692,7 +692,7 @@
       "id": "ph-quintic",
       "path": "/bezeg-2.0/ph/quintic",
       "file": "ph-quintic.png",
-      "sha256": "b5ac1ff6c56b10ab527250afa6535aaad6bbee2ee31f5a9c65051a292bd24dd7",
+      "sha256": "6a9e0be1ee49212e135ff7399b10763d078762a3d02d183155ccca956b2d8e97",
       "image": {
         "width": 794,
         "height": 562
@@ -722,7 +722,7 @@
       "id": "spline-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam2",
       "file": "spline-parameterization.png",
-      "sha256": "09e9568d4c52f91b1a8412dbb937a45ee32848f2e96312a149ec0a8039e6937e",
+      "sha256": "1cf449ba48f842e68d85b5dac65234340e4adfc0a912734999d5802c8e267ccb",
       "image": {
         "width": 794,
         "height": 562
@@ -752,7 +752,7 @@
       "id": "weighted-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam",
       "file": "weighted-parameterization.png",
-      "sha256": "c63dba62aa6c159cffd85bf20a3bdb2cca2fb3b030eb5e2abb248c403c81caf2",
+      "sha256": "d4adf549f270c503a773efd5d3031115699a7d7870efba62dbe503756ad482a1",
       "image": {
         "width": 794,
         "height": 562
@@ -782,7 +782,7 @@
       "id": "uniform-parameterization",
       "path": "/bezeg-2.0/param/param/uniform",
       "file": "uniform-parameterization.png",
-      "sha256": "73b236b22ec2c6634a8299c5c1d22ca7e774255ab3900c3351c46bb85ddbef58",
+      "sha256": "ccbe0b4c2f9f8b65b025446eb4b3c98a272acff05c1f11a6ed746f261449ecd6",
       "image": {
         "width": 794,
         "height": 562
@@ -812,7 +812,7 @@
       "id": "linear-function",
       "path": "/bezeg-2.0/functions/linear",
       "file": "linear-function.png",
-      "sha256": "f34d81441a8e0345928bc55a14c578087c262226db94f7a3513866c61a5cf02f",
+      "sha256": "ccf892d849d59aeae17858c5a2da6f08cfa27c16593dcfb55ba91a2d75061e39",
       "image": {
         "width": 794,
         "height": 562
@@ -843,7 +843,7 @@
       "id": "exponential-function",
       "path": "/bezeg-2.0/functions/exponential",
       "file": "exponential-function.png",
-      "sha256": "7573a8380297f1bf13cdd31fb6b66347e8e09f70b917a8a891bcc8536fd531d0",
+      "sha256": "794180cfd124c7d3daf2dfd639db154d867dba9e724dbfe021c24370871c09df",
       "image": {
         "width": 794,
         "height": 562
@@ -873,7 +873,7 @@
       "id": "trigonometric-functions",
       "path": "/bezeg-2.0/functions/trigonometric",
       "file": "trigonometric-functions.png",
-      "sha256": "fb83a57e3021f87deb0088fe7c82d8424e10231bd6ccf811b499a763e9dd8952",
+      "sha256": "b1597e9712104d57f413e9e0e1e3f06b9bac8a355d5174785c4b56c456ea97a4",
       "image": {
         "width": 794,
         "height": 562
