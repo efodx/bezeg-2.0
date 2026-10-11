@@ -405,7 +405,375 @@ const rationalExtrapolation = {
     stableCounts: async page => ({t: Number(await rangeSlider(page, '1.5').inputValue())}),
 };
 
-const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation];
+// ---------------------------------------------------------------- Rational construction lessons (Cohort B)
+// The inspector renders its sliders in DOM order; the route-specific ones come before "Graph element size" (max 25).
+const inspectorRange = (page, index) => page.locator('input[type="range"]').nth(index);
+const rangeValue = async (page, index) => Number(await inspectorRange(page, index).inputValue());
+const expectRange = (page, index, expected, message, digits = 1) =>
+    expect.poll(() => rangeValue(page, index), {message}).toBeCloseTo(expected, digits);
+// Switches and counters are looked up by label in either language (the lesson tests run in sl and en).
+const SWITCH_NAMES = {farin: ['Farin points', 'Farinove Točke'], weights: ['Weights', 'Uteži'], standard: ['Standard form', 'Standardna Oblika'],
+    labels: ['Label all points', 'Označi vse točke'], hideFixed: ['Hide fixed points', 'Skrij fiksne točke'], polygon: ['Control polygon', 'Kontrolni poligon']};
+// Reads the state straight from the DOM: the inspector is inert during lesson overlays and some switches sit on a hidden tab.
+const switchByName = (page, key) => ({
+    isChecked: () => page.evaluate(names => {
+        const input = [...document.querySelectorAll('input[type="checkbox"]')].find(candidate => names.includes(candidate.labels?.[0]?.textContent?.trim()));
+        if (!input) throw new Error(`switch not found: ${names}`);
+        return input.checked;
+    }, SWITCH_NAMES[key]),
+    locator: () => page.getByLabel(new RegExp(`^(${SWITCH_NAMES[key].join('|')})$`)).first(),
+});
+// Some switches live on the Display tab; open it when the switch is not currently visible.
+async function setSwitch(page, key, on) {
+    const control = switchByName(page, key).locator();
+    if (!(await control.isVisible())) await page.locator('.inspector-tabs button').nth(1).click();
+    await control.setChecked(on);
+}
+// Range inputs only accept values on their step grid; snap the target onto it before filling.
+async function setRange(page, index, target) {
+    const input = inspectorRange(page, index);
+    const value = await input.evaluate((el, wanted) => {
+        const min = Number(el.min), step = Number(el.step) || 1;
+        return String(Number((min + Math.round((wanted - min) / step) * step).toPrecision(10)));
+    }, target);
+    await input.fill(value);
+}
+const countButtons = page => page.locator('button[aria-label^="Current count"], button[aria-label^="Trenutno število"]');
+const countValue = async (page, index) => Number((await countButtons(page).nth(index).getAttribute('aria-label')).replace(/\D+/g, ''));
+const expectCount = (page, index, expected, message) => expect.poll(() => countValue(page, index), {message}).toBe(expected);
+
+const alternativeDeCasteljau = {
+    id: 'decasteljau-alternative',
+    path: `${BASE}/bezier/decasteljau2`,
+    titles: {sl: 'Alternativna De Casteljaujeva rekurzija', en: 'The alternative de Casteljau recursion'},
+    steps: 5,
+    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
+    setup: async page => {
+        // Quartic curve plus its two helper cubics, drawn with 4 + 4 control points.
+        await expect.poll(async () => (await boardStats(page)).curves).toBe(3);
+        return {points: (await boardStats(page)).points};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        await expectRange(page, 0, [0.5, 0.5, 0.25, 0.75, 0.5][step - 1], `t slider at ${label}`, 2);
+        const stats = await boardStats(page);
+        expect(stats.curves, `quartic + two helper cubics at ${label}`).toBe(3);
+        expect(stats.points, `points stable at ${label}`).toBe(ctx.points);
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 0.8);
+        await expectRange(page, 0, 0.8, 'user-set t', 1);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user t', 2); },
+    assertUserState: async (page, ctx, before) => {
+        await expectRange(page, 0, 0.8, 't restored after exit', 1);
+        const after = await boardStats(page);
+        expect(after.curves).toBe(before.curves);
+        expect(after.points).toBe(before.points);
+    },
+    stableCounts: async page => ({t: await rangeValue(page, 0)}),
+};
+
+const farinSwitches = async page => ({
+    farin: await switchByName(page, 'farin').isChecked(),
+    weights: await switchByName(page, 'weights').isChecked(),
+    standard: await switchByName(page, 'standard').isChecked(),
+});
+
+const farin = {
+    id: 'farin',
+    path: `${BASE}/rational/farin-points`,
+    titles: {sl: 'Farinove točke in uteži', en: 'Farin points and weights'},
+    steps: 5,
+    minFrames: 14, // 2 + 3 + 3 + 3 + 3 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBe(4);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const weights = [[1, 2, 1, 1], [1, 2, 1, 1], [1, 2, 1, 1], [1, 3, 9, 27], [1, 1, 1, 1]][step - 1];
+        await expectWeights(page, weights, `weight labels at ${label}`);
+        // Farin points are the 3 sliders on the board, visible from step 2; the control points are then locked.
+        await expect.poll(async () => (await boardStats(page)).sliders, {message: `Farin points at ${label}`}).toBe(step === 1 ? 0 : 3);
+        await expect.poll(() => farinSwitches(page), {message: `switches at ${label}`}).toEqual({farin: step >= 2, weights: true, standard: step === 5});
+        expect((await boardStats(page)).points, `4 control points at ${label}`).toBe(4);
+        expect(await page.locator('#jgbox').evaluate(container => {
+            const board = Object.values(window.JXG.boards).find(candidate => candidate.containerObj === container);
+            return Object.values(board.objects).filter(o => o.elType === 'point' && o.visPropCalc.visible && o.rendNode?.isConnected).map(o => Boolean(o.visProp.fixed));
+        }), `control points locked state at ${label}`).toEqual(step === 1 ? [false, false, false, false] : [true, true, true, true]);
+    },
+    prepareUserState: async page => {
+        await setSwitch(page, 'farin', true);
+        await expect.poll(async () => (await boardStats(page)).sliders).toBe(3);
+        return {...(await boardStats(page)), switches: await farinSwitches(page)};
+    },
+    // Step 1 shows weights but not the Farin points: the lesson scene replaces the user's Farin switch.
+    exitStep: 1,
+    duringLesson: async page => {
+        await expect.poll(() => farinSwitches(page), {message: 'lesson scene replaces the user switches'}).toEqual({farin: false, weights: true, standard: false});
+    },
+    assertUserState: async (page, ctx, saved) => {
+        await expect.poll(() => farinSwitches(page), {message: 'user switches restored after exit'}).toEqual(saved.switches);
+        await expect.poll(async () => (await boardStats(page)).sliders).toBe(saved.sliders);
+        await expectWeights(page, [], 'weight labels hidden again after exit');
+    },
+    reentryStep: 5,
+    stableCounts: async page => ({switches: await farinSwitches(page)}),
+};
+
+const circle = {
+    id: 'circle',
+    path: `${BASE}/rational/circlen`,
+    // The title contains inline math (n), so the heading text includes the rendered math glyph.
+    titles: {sl: /^Krog iz .+ racionalnih kosov$/, en: /^A circle from .+ rational pieces$/},
+    steps: 5,
+    minFrames: 13, // 2 + 3 + 3 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).curves).toBe(3);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const pieces = [3, 3, 4, 6, 12][step - 1];
+        await expectCount(page, 0, pieces, `piece counter at ${label}`);
+        await expect.poll(async () => (await boardStats(page)).curves, {message: `${pieces} curves at ${label}`}).toBe(pieces);
+        expect((await boardStats(page)).points, `3 control points per piece at ${label}`).toBe(3 * pieces);
+    },
+    prepareUserState: async page => {
+        await page.getByRole('button', {name: 'Increase count'}).click();
+        await page.getByRole('button', {name: 'Increase count'}).click();
+        await expectCount(page, 0, 5, 'user-set piece count');
+        await expect.poll(async () => (await boardStats(page)).curves).toBe(5);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expectCount(page, 0, 4, 'lesson scene replaces the user piece count');
+        await expect.poll(async () => (await boardStats(page)).curves).toBe(4);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expectCount(page, 0, 5, 'piece counter restored after exit');
+        await expect.poll(async () => (await boardStats(page)).curves, {message: 'curves restored'}).toBe(before.curves);
+        expect((await boardStats(page)).points).toBe(before.points);
+    },
+    stableCounts: async page => ({pieces: await countValue(page, 0)}),
+};
+
+// Spline lessons: "Label all points" and "Hide fixed points" are plain switches; derived points are the fixed ones.
+const splineSwitches = async page => ({
+    labels: await switchByName(page, 'labels').isChecked(),
+    hideFixed: await switchByName(page, 'hideFixed').isChecked(),
+    polygon: await switchByName(page, 'polygon').isChecked(),
+});
+
+// Visible board points outside the current view box (derived points of high-order splines can be far away).
+const offscreenPoints = page => page.locator('#jgbox').evaluate(container => {
+    const board = Object.values(window.JXG.boards).find(candidate => candidate.containerObj === container);
+    const [left, top, right, bottom] = board.getBoundingBox();
+    return Object.values(board.objects).filter(o => o.elType === 'point' && o.visPropCalc.visible && o.rendNode?.isConnected)
+        .filter(o => o.X() < left || o.X() > right || o.Y() > top || o.Y() < bottom).length;
+});
+
+const splineCn = {
+    id: 'spline-cn',
+    path: `${BASE}/spline/spline`,
+    titles: {sl: 'Enostranski Cⁿ zlepek', en: 'One-sided Cⁿ spline'},
+    steps: 4,
+    minFrames: 10, // 2 + 3 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBe(11);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        // Counter 0 is the continuity order, counter 1 the spline degree.
+        const [continuity, degreeValue, points] = [[1, 2, 11], [1, 2, 11], [2, 3, 13], [1, 2, 11]][step - 1];
+        await expectCount(page, 0, continuity, `continuity at ${label}`);
+        await expectCount(page, 1, degreeValue, `degree at ${label}`);
+        // 7 free points plus the derived points (4 at n=2, r=1; 6 at n=3, r=2).
+        await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(points);
+        expect((await boardStats(page)).curves, `one drawn spline curve at ${label}`).toBe(1);
+        expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2);
+        // Step 3: some derived points lie far outside the default view (zoom out to see them).
+        if (step === 3) expect(await offscreenPoints(page), `derived points outside the default view at ${label}`).toBeGreaterThan(0);
+    },
+    prepareUserState: async page => {
+        await page.getByRole('button', {name: 'Increase count'}).nth(1).click();
+        await expectCount(page, 1, 3, 'user-set degree');
+        await setSwitch(page, 'labels', false);
+        return {...(await boardStats(page)), switches: await splineSwitches(page)};
+    },
+    exitStep: 2,
+    duringLesson: async page => {
+        await expectCount(page, 1, 2, 'lesson scene replaces the user degree');
+        await expect.poll(async () => (await splineSwitches(page)).labels, {message: 'lesson turns the point labels on'}).toBe(true);
+    },
+    assertUserState: async (page, ctx, saved) => {
+        await expectCount(page, 1, 3, 'degree restored after exit');
+        await expectCount(page, 0, 1, 'continuity restored after exit');
+        await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
+        await expect.poll(async () => (await boardStats(page)).points).toBe(saved.points);
+    },
+    reentryStep: 3,
+    stableCounts: async page => ({continuity: await countValue(page, 0), degree: await countValue(page, 1), switches: await splineSwitches(page)}),
+};
+
+// Symmetric splines: 6 / 7 free points plus derived joints and inner points; the lessons only change switches.
+function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps}) {
+    return {
+        id, path, titles, steps, minFrames,
+        setup: async page => {
+            await expect.poll(async () => (await boardStats(page)).points).toBe(points);
+            return {};
+        },
+        stepProbe: async (page, ctx, step, label) => {
+            await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(points);
+            expect((await boardStats(page)).curves, `one drawn spline curve at ${label}`).toBe(1);
+            const switches = await splineSwitches(page);
+            expect(switches.polygon, `control polygon at ${label}`).toBe(polygonSteps.includes(step));
+            expect(switches.hideFixed, `derived points stay visible at ${label}`).toBe(false);
+        },
+        prepareUserState: async page => {
+            await setSwitch(page, 'hideFixed', true);
+            await expect.poll(async () => (await boardStats(page)).points).toBeLessThan(points);
+            await setSwitch(page, 'labels', false);
+            return {...(await boardStats(page)), switches: await splineSwitches(page)};
+        },
+        exitStep: 2,
+        duringLesson: async page => {
+            await expect.poll(() => splineSwitches(page), {message: 'lesson scene replaces the user switches'})
+                .toMatchObject({labels: true, hideFixed: false});
+            expect((await boardStats(page)).points).toBe(points);
+        },
+        assertUserState: async (page, ctx, saved) => {
+            await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
+            await expect.poll(async () => (await boardStats(page)).points, {message: 'hidden derived points restored'}).toBe(saved.points);
+        },
+        reentryStep: 3,
+        stableCounts: async page => ({switches: await splineSwitches(page)}),
+    };
+}
+
+const splineC1 = symmetricSplineRow({
+    id: 'spline-c1', path: `${BASE}/spline/c1spline`, titles: {sl: 'Simetrični C¹ zlepek', en: 'Symmetric C¹ spline'},
+    steps: 5, minFrames: 12, points: 9, polygonSteps: [2, 3], // 6 free points + 3 joints; 2 + 3 + 2 + 2 + 3 frames
+});
+const splineC2 = symmetricSplineRow({
+    id: 'spline-c2', path: `${BASE}/spline/c2spline`, titles: {sl: 'Simetrični C² zlepek', en: 'Symmetric C² spline'},
+    steps: 4, minFrames: 10, points: 16, polygonSteps: [2, 3], // 7 free points + 9 derived; 2 + 3 + 3 + 2 frames
+});
+
+// G1 splines: sliders are the first inspector ranges (b for the one-sided, beta for the symmetric spline).
+const splineG1 = {
+    id: 'spline-g1',
+    path: `${BASE}/spline/g1spline`,
+    titles: {sl: 'Enostranski G¹ zlepek', en: 'One-sided G¹ spline'},
+    steps: 5,
+    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBe(7);
+        await expect(page.getByText('Parameter b', {exact: true}).first(), 'sliders are labelled "Parameter b"').toBeVisible();
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        // The slider snaps to its grid (b = 1 reads 0.9967), hence the tolerance of 0.05.
+        await expectRange(page, 0, [1, 1, 0.25, 2.5, 0.25][step - 1], `first b slider at ${label}`);
+        await expectRange(page, 1, 1, `second b slider unchanged at ${label}`);
+        await expect.poll(async () => (await boardStats(page)).points, {message: `5 free + 2 derived points at ${label}`}).toBe(7);
+        // Even at b = 5/2 the derived point must stay inside the default view.
+        expect(await offscreenPoints(page), `all points visible in the default view at ${label}`).toBe(0);
+        expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2 || step === 5);
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 1.5);
+        await expectRange(page, 0, 1.5, 'user-set b');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user b'); },
+    assertUserState: async (page, ctx, before) => {
+        await expectRange(page, 0, 1.5, 'b restored after exit');
+        await expectRange(page, 1, 1, 'second b untouched');
+        expect((await boardStats(page)).points).toBe(before.points);
+    },
+    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100), b1: Math.round((await rangeValue(page, 1)) * 100)}),
+};
+
+const splineG1Symmetric = {
+    id: 'spline-g1-symmetric',
+    path: `${BASE}/spline/g1-sym-spline`,
+    titles: {sl: 'Simetrični G¹ zlepek', en: 'Symmetric G¹ spline'},
+    steps: 5,
+    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBe(9);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        // beta0, beta1, beta2 sliders; the slider grid is 0.005 wide, so 0.25 reads 0.245.
+        const betas = [[0.5, 0.5, 0.5], [0.25, 0.5, 0.5], [0.75, 0.5, 0.5], [0.5, 0.75, 0.5], [0.99, 0.5, 0.5]][step - 1];
+        for (const [index, value] of betas.entries()) await expectRange(page, index, value, `beta${index} at ${label}`);
+        await expect.poll(async () => (await boardStats(page)).points, {message: `6 free + 3 joint points at ${label}`}).toBe(9);
+        expect(await offscreenPoints(page), `all points visible at ${label}`).toBe(0);
+        expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step <= 3);
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 0.3);
+        await expectRange(page, 0, 0.3, 'user-set beta0');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => { await expectRange(page, 0, 0.75, 'lesson scene replaces the user beta0'); },
+    assertUserState: async (page, ctx, before) => {
+        await expectRange(page, 0, 0.3, 'beta0 restored after exit');
+        expect((await boardStats(page)).points).toBe(before.points);
+    },
+    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100), b1: Math.round((await rangeValue(page, 1)) * 100)}),
+};
+
+const splineParameterization = {
+    id: 'spline-parameterization',
+    path: `${BASE}/param/param/alphaparam2`,
+    titles: {sl: 'α-parametrizacije zlepka', en: 'α-parameterizations of a spline'},
+    steps: 5,
+    minFrames: 12, // 2 + 3 + 2 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBe(34);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        // Range 0 is alpha (0..1), range 1 the number of sample points (0..50).
+        await expectRange(page, 0, [0.5, 0.5, 0, 1, 1][step - 1], `alpha at ${label}`, 2);
+        await expectRange(page, 1, [25, 25, 25, 25, 10][step - 1], `samples at ${label}`, 0);
+        // Step 1 keeps the route's hidden derived points (9 + 25 samples); steps 2-4 show 15 derived points more; step 5 has 10 samples.
+        const points = [34, 49, 49, 49, 34][step - 1];
+        await expect.poll(async () => (await boardStats(page)).points, {message: `points at ${label}`}).toBe(points);
+        expect((await boardStats(page)).curves, `one spline curve at ${label}`).toBe(1);
+        expect((await splineSwitches(page)).hideFixed, `derived points hidden only at step 1 (${label})`).toBe(step === 1);
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 0.8);
+        await setRange(page, 1, 7);
+        await expectRange(page, 1, 7, 'user-set samples', 0);
+        await expect.poll(async () => (await boardStats(page)).points).toBe(9 + 7);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expectRange(page, 0, 0, 'lesson scene replaces the user alpha', 2);
+        await expectRange(page, 1, 25, 'lesson scene replaces the user samples', 0);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expectRange(page, 0, 0.8, 'alpha restored after exit', 2);
+        await expectRange(page, 1, 7, 'samples restored after exit', 0);
+        await expect.poll(async () => (await boardStats(page)).points, {message: 'points restored (derived points hidden again)'}).toBe(before.points);
+        expect((await splineSwitches(page)).hideFixed).toBe(true);
+    },
+    reentryStep: 4,
+    stableCounts: async page => ({alpha: Math.round((await rangeValue(page, 0)) * 100), samples: await rangeValue(page, 1)}),
+};
+
+const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
@@ -535,7 +903,8 @@ for (const row of LESSONS) {
                     await page.keyboard.press('Enter');
                     await settle(page);
                 }
-                if (await lessonPanel(page).locator('.guided-lesson-complete').count()) break;
+                // The panel element itself carries the complete class (it is not a descendant).
+                if (await page.locator('section.guided-lesson.guided-lesson-complete').count()) break;
                 if (/Finish/.test((await nextButton(page).getAttribute('aria-label').catch(() => '')) || '')) break;
             }
             expect(covered, 'Continue lesson center hit-test blocked by board elements').toEqual([]);
@@ -758,5 +1127,97 @@ test.describe('Rational elevation outside lessons', () => {
         await page.getByRole('button', {name: 'Elevate degree'}).click();
         await expect.poll(async () => (await boardStats(page)).points).toBe(6);
         await expect.poll(async () => (await boardStats(page)).sliders).toBe(5);
+    });
+});
+
+// ---------------------------------------------------------------- Extras: observation flow
+// Observation frames open in the full overlay (graph locked); "Observe on the graph" collapses to the compact prompt
+// (graph unlocked); the compact prompt's "Continue lesson" advances one frame, "Back to the instructions" reopens the same frame.
+test.describe('Observation flow', () => {
+    test.setTimeout(150_000);
+    const graph = page => page.locator('section.workspace-graph');
+    const locked = async page => (await graph(page).getAttribute('data-lesson-locked')) === 'true';
+    const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
+    const panelFocused = page => page.evaluate(() => document.activeElement?.matches('section.guided-lesson'));
+    const compactFocused = page => page.evaluate(() => document.activeElement?.matches('.guided-lesson-hidden-content'));
+    async function toFirstObservation(page) {
+        for (let guard = 0; guard < 10; guard += 1) {
+            if (await lessonPanel(page).locator('.guided-lesson-observe').count()) return;
+            await advance(page);
+        }
+        throw new Error('no observation frame reached');
+    }
+
+    test('overlay locks the graph, compact prompt unlocks it, Back reopens and Continue advances; focus follows', async ({page}) => {
+        await openLesson(page, extrapolation, 'en');
+        await toFirstObservation(page);
+        const observationLabel = await progress(page);
+        expect(await locked(page), 'graph locked while the observation overlay is open').toBe(true);
+        expect(await panelFocused(page), 'overlay keeps focus').toBe(true);
+
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await expect(lessonPanel(page)).toHaveClass(/guided-lesson-hidden/);
+        expect(await locked(page), 'graph unlocked in the compact prompt').toBe(false);
+        expect(await compactFocused(page), 'compact prompt takes focus').toBe(true);
+        // The graph accepts input now: a slider change reaches the board.
+        const slider = rangeSlider(page, '1.5');
+        await slider.fill('1.4');
+        await expect.poll(async () => Number(await slider.inputValue())).toBeCloseTo(1.4, 1);
+
+        // Back to the instructions: same frame, graph locked again, focus on the panel.
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-instructions'));
+        await expect(nextButton(page)).toBeVisible();
+        expect(await progress(page)).toBe(observationLabel);
+        expect(await locked(page), 'graph locked after Back to the instructions').toBe(true);
+        expect(await panelFocused(page), 'focus returns to the overlay').toBe(true);
+
+        // Continue advances to the next frame (the explanation of the next step) with the overlay open.
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        await expect(nextButton(page)).toBeVisible();
+        const after = await progress(page);
+        expect(after, 'Continue advanced past the observation frame').not.toBe(observationLabel);
+        expect(stepNumber(after)).toBe(stepNumber(observationLabel) + 1);
+        expect(await locked(page), 'graph locked on the next frame').toBe(true);
+        expect(await panelFocused(page), 'focus on the next overlay').toBe(true);
+        // Back from the next frame returns to the observation frame.
+        await back(page);
+        expect(await progress(page)).toBe(observationLabel);
+    });
+
+    test('Continue on the last observation frame completes the lesson and unlocks the graph', async ({page}) => {
+        await openLesson(page, extrapolation, 'en');
+        for (let guard = 0; guard < 40; guard += 1) {
+            await advance(page);
+            if (await lessonPanel(page).locator('.guided-lesson-observe').count() && /Finish/.test(await nextButton(page).getAttribute('aria-label'))) break;
+        }
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        await expect(page.locator('section.guided-lesson.guided-lesson-complete')).toBeVisible();
+        expect(await locked(page), 'graph free after completion').toBe(false);
+    });
+
+    test('playback stops when the overlay reopens and when Continue advances', async ({page}) => {
+        await openLesson(page, {path: `${BASE}/bezier/decasteljau`}, 'en');
+        await toFirstObservation(page);
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        const play = lessonPanel(page).locator('.guided-lesson-animation-controls button').first();
+        await expect(play, 'compact prompt offers playback on an animated frame').toBeVisible();
+        const t = () => rangeSlider(page, '1').first().inputValue();
+        await play.click();
+        const first = await t();
+        await expect.poll(t, {message: 'playback moves the t slider'}).not.toBe(first);
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-instructions'));
+        const frozen = await t();
+        await page.waitForTimeout(700);
+        expect(await t(), 'playback paused behind the overlay').toBe(frozen);
+
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await lessonPanel(page).locator('.guided-lesson-animation-controls button').first().click();
+        await page.waitForTimeout(250);
+        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        const afterContinue = await t();
+        await page.waitForTimeout(700);
+        expect(await t(), 'no playback behind the next overlay').toBe(afterContinue);
     });
 });

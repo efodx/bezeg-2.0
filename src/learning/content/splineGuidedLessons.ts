@@ -148,7 +148,7 @@ const splineCn: GuidedLesson = {
             frames: [frame('cn-degree-three-explanation', 'explanation'), frame('cn-degree-three-calculation', 'calculation'), frame('cn-degree-three-observation', 'observation')],
             workedExampleId: 'cn-second-order',
             learnerInteraction: 'adjust-construction-parameter',
-            observationPrompt: text('Primerjaj število odsekov in izpeljanih točk s privzetim zlepkom ter poglej, kje so zadnje izpeljane točke.', 'Compare the number of pieces and derived points with the default spline and look where the last derived points are.'),
+            observationPrompt: text('Primerjaj število odsekov in izpeljanih točk s privzetim zlepkom. Zadnje izpeljane točke so izven privzetega pogleda: večkrat pritisni »Oddalji graf« in poglej, kje so.', 'Compare the number of pieces and derived points with the default spline. The last derived points lie outside the default view: press "Zoom out" a few times to see where they are.'),
             expectedObservations: [text('Odsekov je \\(4\\), izpeljanih točk \\(6\\); zadnje izpeljane točke so več deset enot daleč od prostih točk (do približno \\(70\\) enot od izhodišča), zato je pogled lahko zelo oddaljen.', 'There are \\(4\\) pieces and \\(6\\) derived points; the last derived points are tens of units away from the free points (up to about \\(70\\) units from the origin), so the view can be zoomed far out.')],
             scene: {
                 id: 'cn-degree-three-continuity-two', basedOn: 'demonstration-default',
