@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 116" width="540" height="348"><title>Spline join: prototype style reference, illustrative geometry</title><style>.dcp-svg-axis { fill:none; stroke:#70806122; stroke-width:.8; }
+.dcp-svg-muted,.dcp-svg-accent { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
+.dcp-svg-muted { stroke:#9ca78d; }
+.dcp-svg-accent { stroke:#bf8542; }
+.dcp-svg-control { fill:none; stroke:#a8b39c; stroke-width:1.15; stroke-dasharray:3 3; }
+.dcp-svg-control--muted { stroke:#bdc3b5; stroke-width:.9; }
+.dcp-svg-control--accent { stroke:#bd915f; }
+.dcp-svg-guide { fill:none; stroke:#89977e; stroke-width:1; stroke-dasharray:2 3; }
+.dcp-svg-curve,.dcp-svg-curve-secondary,.dcp-svg-curve-muted,.dcp-svg-curve-accent { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.dcp-svg-curve { stroke:#587445; stroke-width:2.5; }
+.dcp-svg-curve-secondary { stroke:#6175ad; stroke-width:2.2; }
+.dcp-svg-curve-muted { stroke:#9aa695; stroke-width:1.7; }
+.dcp-svg-curve-accent { stroke:#bf8542; stroke-width:2.1; }
+.dcp-svg-curve-dashed { stroke-dasharray:3 3; }
+.dcp-svg-point { fill:#bd8040; stroke:#fffdf5; stroke-width:1.35; }
+.dcp-svg-point--pale { fill:#9da98e; }
+.dcp-svg-point--small { fill:#748866; }
+.dcp-svg-weight-ring { fill:#fffdf566; stroke:#73875f; stroke-width:1.1; }
+.dcp-svg-parameter-rail { fill:none; stroke:#aab39d; stroke-width:1.1; }
+.dcp-svg-parameter-tick { fill:none; stroke:#77866a; stroke-width:1.1; }</style><defs><pattern id="grid-spline-c1" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#8f9a79" stroke-opacity=".12" stroke-width=".5"/></pattern></defs><rect width="180" height="116" fill="#f5f7ef"/><rect width="180" height="116" fill="url(#grid-spline-c1)"/><path class="dcp-svg-axis" d="M12 98H169 M18 106V12"></path><path class="dcp-svg-curve-secondary" d="M18 91 Q53 60 90 60"></path><path class="dcp-svg-curve" d="M90 60 Q127 60 162 25"></path><path class="dcp-svg-control" d="M18.00,91.00 L53.00,60.00 L90.00,60.00 L127.00,60.00 L162.00,25.00"></path><circle class="dcp-svg-point" cx="53.00" cy="60.00" r="2.8"></circle><circle class="dcp-svg-point" cx="90.00" cy="60.00" r="2.8"></circle><circle class="dcp-svg-point" cx="127.00" cy="60.00" r="2.8"></circle></svg>

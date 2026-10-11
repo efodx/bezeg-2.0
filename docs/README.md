@@ -2,6 +2,8 @@
 
 This documentation supports planning Bezeg's future and extracting a reusable process for SPAs hosted on GitHub Pages.
 
+- [Graph visual style](specs/graph-visual-style.md): illustrated C references, graph-preservation constraints, and acceptance evidence required for the follow-up.
+- [Graph visual style implementation task](tasks/graph-visual-style/implement-graph-visual-style.md): handoff for a new agent to implement the graph styling on fresh master.
 - [Future plan](future-plan.md): confirmed direction, intended outputs, and unresolved decisions.
 - [SVG export math labels spec](specs/svg-export-math-labels.md): typeset board labels in SVG figure export; [ADR 0008](adr/0008-export-time-mathjax-svg-typesetting.md) records the lazily loaded `mathjax-full` choice.
 - [Guided lessons spec](specs/guided-lessons.md): bounded content-first learning flow, architecture seams, pilot scope, and acceptance evidence.

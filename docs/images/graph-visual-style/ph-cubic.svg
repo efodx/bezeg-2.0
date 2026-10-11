@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 116" width="540" height="348"><title>PH curve and offsets: prototype style reference, illustrative geometry</title><style>.dcp-svg-axis { fill:none; stroke:#70806122; stroke-width:.8; }
+.dcp-svg-muted,.dcp-svg-accent { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
+.dcp-svg-muted { stroke:#9ca78d; }
+.dcp-svg-accent { stroke:#bf8542; }
+.dcp-svg-control { fill:none; stroke:#a8b39c; stroke-width:1.15; stroke-dasharray:3 3; }
+.dcp-svg-control--muted { stroke:#bdc3b5; stroke-width:.9; }
+.dcp-svg-control--accent { stroke:#bd915f; }
+.dcp-svg-guide { fill:none; stroke:#89977e; stroke-width:1; stroke-dasharray:2 3; }
+.dcp-svg-curve,.dcp-svg-curve-secondary,.dcp-svg-curve-muted,.dcp-svg-curve-accent { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.dcp-svg-curve { stroke:#587445; stroke-width:2.5; }
+.dcp-svg-curve-secondary { stroke:#6175ad; stroke-width:2.2; }
+.dcp-svg-curve-muted { stroke:#9aa695; stroke-width:1.7; }
+.dcp-svg-curve-accent { stroke:#bf8542; stroke-width:2.1; }
+.dcp-svg-curve-dashed { stroke-dasharray:3 3; }
+.dcp-svg-point { fill:#bd8040; stroke:#fffdf5; stroke-width:1.35; }
+.dcp-svg-point--pale { fill:#9da98e; }
+.dcp-svg-point--small { fill:#748866; }
+.dcp-svg-weight-ring { fill:#fffdf566; stroke:#73875f; stroke-width:1.1; }
+.dcp-svg-parameter-rail { fill:none; stroke:#aab39d; stroke-width:1.1; }
+.dcp-svg-parameter-tick { fill:none; stroke:#77866a; stroke-width:1.1; }</style><defs><pattern id="grid-ph-cubic" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#8f9a79" stroke-opacity=".12" stroke-width=".5"/></pattern></defs><rect width="180" height="116" fill="#f1f5f5"/><rect width="180" height="116" fill="url(#grid-ph-cubic)"/><path class="dcp-svg-axis" d="M12 98H169 M18 106V12"></path><path class="dcp-svg-curve-secondary" d="M77.84,89.56 L79.49,88.65 L81.07,87.66 L82.56,86.60 L83.97,85.48 L85.29,84.29 L86.54,83.04 L87.71,81.72 L88.79,80.35 L89.78,78.93 L90.70,77.45 L91.52,75.91 L92.26,74.33 L92.91,72.69 L93.47,71.01 L93.94,69.28 L94.31,67.50 L94.59,65.68 L94.77,63.82 L94.85,61.91 L94.83,59.97 L94.70,57.99 L94.46,55.97 L94.11,53.92 L93.65,51.85 L93.08,49.74 L92.38,47.60 L91.56,45.45 L90.62,43.27 L89.55,41.07 L88.35,38.86 L87.02,36.63 L85.56,34.40 L83.95,32.16 L82.21,29.91 L80.32,27.67 L78.29,25.42"></path><path class="dcp-svg-curve-accent" d="M82.46,98.44 L84.58,97.26 L86.62,95.97 L88.57,94.59 L90.42,93.11 L92.17,91.54 L93.83,89.89 L95.37,88.14 L96.81,86.32 L98.14,84.42 L99.36,82.44 L100.46,80.40 L101.44,78.29 L102.31,76.12 L103.05,73.89 L103.66,71.61 L104.15,69.28 L104.51,66.91 L104.75,64.50 L104.85,62.06 L104.82,59.58 L104.66,57.08 L104.36,54.55 L103.93,52.01 L103.36,49.44 L102.65,46.87 L101.81,44.28 L100.83,41.69 L99.71,39.09 L98.45,36.50 L97.04,33.91 L95.50,31.32 L93.80,28.74 L91.97,26.18 L89.99,23.63 L87.86,21.09 L85.58,18.58"></path><path class="dcp-svg-curve" d="M80.15,94.00 L82.04,92.95 L83.84,91.82 L85.56,90.60 L87.19,89.30 L88.73,87.92 L90.18,86.46 L91.54,84.93 L92.80,83.34 L93.96,81.67 L95.03,79.94 L95.99,78.15 L96.85,76.31 L97.61,74.40 L98.26,72.45 L98.80,70.44 L99.23,68.39 L99.55,66.30 L99.76,64.16 L99.85,61.99 L99.82,59.78 L99.68,57.53 L99.41,55.26 L99.02,52.97 L98.51,50.64 L97.87,48.30 L97.10,45.94 L96.20,43.57 L95.16,41.18 L94.00,38.78 L92.70,36.38 L91.26,33.98 L89.68,31.57 L87.96,29.17 L86.10,26.77 L84.09,24.38 L81.94,22.00"></path><circle class="dcp-svg-point" cx="80.15" cy="94.00" r="2.6"></circle><circle class="dcp-svg-point" cx="81.94" cy="22.00" r="2.6"></circle></svg>
