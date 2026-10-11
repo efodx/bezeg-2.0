@@ -35,7 +35,4 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Domain glossary](../GLOSSARY.md): agreed project vocabulary.
 - [Contributor instructions](../AGENTS.md): concise guidance for agents working in this repository.
 
-Status: current functionality documented from source inspection on 2026-10-08, alongside the confirmed planning direction. UI documentation describes the existing interface rather than a user tutorial. The shared workspace is implemented on all 26 active graph routes; physical-device, projector, and classroom review remain follow-up work. The first Bézier drawing experiment adds mathematical checks and desktop production measurements; the first phone comparison still lagged, and further diagnosis is in progress. A broader runtime, accessibility, and hosting audit and proposed migrations remain future work.
-
-The bounded Guided lesson direction was agreed on 2026-10-09. The first client-only runtime and three pilot content drafts are now implemented; owner/subject-matter review and classroom/device review remain open before the pilots are called classroom-ready.
-
+This is an index: open only the documents relevant to the change.

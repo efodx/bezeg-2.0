@@ -1,13 +1,13 @@
 # Working on Bezeg
 
-Read [docs/README.md](docs/README.md) and the documents relevant to the change before editing the app. The agreed direction is in [docs/future-plan.md](docs/future-plan.md); [docs/guardrails.md](docs/guardrails.md) defines product and engineering constraints.
+Before editing, read only the spec or document covering the area you change. [docs/README.md](docs/README.md) is an index, not required reading. [docs/guardrails.md](docs/guardrails.md) defines product and engineering constraints; the agreed direction is in [docs/future-plan.md](docs/future-plan.md).
 
-## Automatic implementation delegation
+## Implementation delegation
 
-- For code implementation and fixes, automatically delegate bounded implementation tasks to subagents using **GPT-6 Luna with Max reasoning**. This is standing authorization; follow [the delegation workflow](docs/agent-workflow.md) for dispatch, ownership, review, and completion.
-- The main chat remains the handler and final reviewer: it owns scope, coordination, acceptance, verification, and commits. Workers implement and return evidence for review.
-- Workers execute their assigned slice and report to the main chat; further delegation requires an explicit assignment from the handler.
-- Check the available spawn tool before dispatch. If it cannot select the exact requested model and effort, report the limitation and ask for a fallback choice before using another model. Continue independent planning and review work while waiting.
+- Delegate multi-file features and slices from a spec in `docs/specs/` or `docs/tasks/` to subagents using **GPT-6 Luna with Max reasoning**, following [the delegation workflow](docs/agent-workflow.md). This is standing authorization.
+- Do small fixes (roughly under 50 changed lines or within one module) directly in the main chat.
+- The main chat owns scope, review, verification, and commits. Workers implement their assigned slice, report evidence, and do not delegate further.
+- If the spawn tool cannot select Luna Max: in Claude Code, use Sonnet workers without asking; elsewhere, report the limitation and ask for a fallback.
 
 ## Product constraints
 
@@ -25,22 +25,22 @@ Read [docs/README.md](docs/README.md) and the documents relevant to the change b
 - Keep hosting/app-shell concerns separate from mathematical features. Work toward geometry independent of React, JSXGraph, and graph-global cache state.
 - Give boards, listeners, and auxiliary objects explicit ownership and disposal. Keep cache invalidation correct.
 - Validate imported preset data and handle unsupported files with an actionable error.
-- Treat typed localization calls as a known recurring TypeScript failure point. `t` in `src/localization/index.ts` uses a key-specific tuple (`TranslationArguments`): call `t('key')` only for messages without placeholders, and call `t('key', {value0: value})` (using the catalog's exact parameter names) for messages with placeholders. Before adding or changing a message, inspect `src/localization/sl.ts` and keep `en.ts` in lockstep; do not silence TS2345 with `any`, casts, or a weakened message type. Run `npx tsc --noEmit --pretty false` and the production build after localization changes, and explicitly recheck this failure mode when adding lesson or UI copy.
-- Lesson prose is plain text: MathJax typesets only `\(...\)` (inline) and `\[...\]` (display) segments. Wrap every symbol, subscript, superscript, or formula in lesson text fields in `\(...\)` (doubled backslashes in TS string literals), use `{,}` for Slovenian decimal commas inside math, and keep `latex`/`calculationLatex`/`resultLatex` fields undelimited. `src/learning/content/lessonMathNotation.test.ts` enforces this for every lesson; never weaken or skip it to make new content pass.
-- A lesson scene applies its actions synchronously in one tick, but React `setState` is asynchronous. A graph's lesson action must never validate or compute from `this.state` written by an earlier action in the same scene; keep the value it needs in a synchronous source (a graph field or the curve object) updated alongside `setState`. Unit-test multi-action scenes in one synchronous sequence, and cover every lesson with a row in `tests/guided-lessons.smoke.spec.cjs`, because fake-board unit tests cannot catch this.
+- Localization calls are type checked per key (a recurring TS2345 failure): call `t('key')` without placeholders and `t('key', {value0: value})` with the catalog's exact names; keep `sl.ts` and `en.ts` in lockstep and never silence errors with `any` or casts. Details: [docs/localization.md](docs/localization.md). After localization changes, run `npx tsc --noEmit --pretty false` and the production build.
+- Lesson prose: wrap every symbol or formula in `\(...\)` or `\[...\]` (doubled backslashes in TS strings), use `{,}` for decimal commas in math, and keep `latex`/`calculationLatex`/`resultLatex` fields undelimited. `src/learning/content/lessonMathNotation.test.ts` enforces this; never weaken or skip it.
+- Lesson scene actions run synchronously in one tick, but `setState` is asynchronous: an action must not read `this.state` written by an earlier action in the same scene; keep such values in a graph field or the curve object. Unit-test multi-action scenes in one synchronous sequence and give every lesson a row in `tests/guided-lessons.smoke.spec.cjs`.
 - Keep changes bounded. Evaluate build-tool, renderer, and UI migrations separately.
 - Follow the existing package scripts until a migration changes them. Technology candidates in the roadmap are not installed dependencies or accepted migration decisions.
 - Match verification to the change: mathematical checks for geometry, interaction review for controls, and production route/asset checks for hosting.
-- After meaningful runtime or UI changes, use `$smoke-tester` with [the browser smoke checklist](docs/smoke-tests.md); report failures and incomplete coverage alongside required change-specific checks. Documentation-only changes do not require app smoke testing.
+- Smoke-test with `$smoke-tester` and [the browser checklist](docs/smoke-tests.md) when a change alters a route, control, lesson, or rendering/interaction path. Check the affected routes and workflows; run the full checklist only when the shared app shell, workspace, or lesson runtime changes. Report failures and incomplete coverage. Documentation, test-only, and behavior-preserving changes covered by unit tests do not need smoke testing.
 - Preserve unrelated working-tree changes.
-- For substantial code reviews, use parallel subagents for mathematical correctness and engineering constraints. Include UI and accessibility review when controls or visual behavior are in scope, and combine the findings in the main chat.
+- Review large diffs (multi-file features or geometry changes) with parallel subagents for mathematical correctness and engineering constraints, adding UI and accessibility review when controls or visuals change. Review smaller diffs in the main chat.
 
 ## Git workflow
 
 - Commit completed, verified work in small, logically separate commits.
 - Use clear commit messages and report commit hashes and verification results.
 - Stage only changes belonging to the current task; preserve unrelated changes.
-- Push committed work to the remote branch unless told not to. Never force-push.
+- Push committed work unless told not to. Never force-push.
 - "Push" means `master` on `origin` (https://github.com/efodx/bezeg-2.0), even when the work was done on another local or worktree branch. Fetch first, rebase only your new commits onto `origin/master`, recheck them against master's code, and push as a fast-forward (`git push origin HEAD:master`). If the rebase conflicts, stop and report. Pushing to `master` deploys GitHub Pages through `.github/workflows/browser-smoke.yml`.
 - Do not amend existing commits or rewrite history unless requested.
 
@@ -48,4 +48,4 @@ Read [docs/README.md](docs/README.md) and the documents relevant to the change b
 
 Update architecture, capabilities, and hosting guidance when their described behavior changes. Use [GLOSSARY.md](GLOSSARY.md) for domain vocabulary only. Record consequential decisions with real alternatives in `docs/adr/`.
 
-For future implementation, start from a bounded spec with acceptance criteria in `docs/specs/`. Create Markdown task files under `docs/tasks/<feature>/` only for implementation work intended to be carried out; keep decisions, research notes, and reference-only material in the spec or planning document instead of creating task files for them. Link task files to their source spec and represent dependencies with links or task titles. Bezeg uses repository-local documents for planning and implementation work, with no external issue tracker or tracker labels. This documentation task does not deploy the app or create external tickets.
+Start implementation from a bounded spec with acceptance criteria in `docs/specs/`. Create task files under `docs/tasks/<feature>/` only for work intended to be carried out, linked to their source spec; keep decisions and research in the spec or planning document. Planning is repository-local, with no external issue tracker.
