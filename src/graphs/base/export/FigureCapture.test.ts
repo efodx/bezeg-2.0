@@ -203,12 +203,15 @@ test("SVG export serializes the owned renderer root and keeps the requested file
     const target = makeTarget(container);
     target.rendererRoot.innerHTML = '<circle cx="2" cy="3" r="4"></circle>';
     const expectedSvg = new XMLSerializer().serializeToString(target.rendererRoot);
-    const serializeSvg = jest.fn(() => expectedSvg);
+    const serializeSvg = jest.fn((_root: SVGSVGElement) => expectedSvg);
     const download = jest.fn();
+    const loadSvgTypesetter = async () => () => ({viewBox: "0 0 1 1", body: ""});
 
-    await downloadSVG(target, "saved-scene.svg", {serializeSvg, download});
+    await downloadSVG(target, "saved-scene.svg", {serializeSvg, download, loadSvgTypesetter});
 
-    expect(serializeSvg).toHaveBeenCalledWith(target.rendererRoot);
+    const serialized = serializeSvg.mock.calls[0][0];
+    expect(serialized).not.toBe(target.rendererRoot);
+    expect(serialized.querySelector("circle")).not.toBeNull();
     expect(download).toHaveBeenCalledTimes(1);
     const [blob, filename] = download.mock.calls[0] as [Blob, string];
     expect(filename).toBe("saved-scene.svg");

@@ -1,5 +1,6 @@
 import html2canvas from "html2canvas";
 import {beginFigureExport, reportFigureExportFailure} from "../../../localization";
+import {buildSvgWithMathLabels, loadSvgTypesetter as loadSvgTypesetterDefault, SvgTypesetter} from "./SvgMathLabels";
 
 /** The graph owner supplies readiness and cancellation for every capture. */
 export interface FigureExportLifecycle {
@@ -17,7 +18,10 @@ export interface FigureCaptureTarget extends FigureExportLifecycle {
 
 export interface FigureCaptureDependencies {
     renderToCanvas?: (container: HTMLElement) => Promise<HTMLCanvasElement>;
+    /** Receives the renderer clone that carries the label overlays. */
     serializeSvg?: (rendererRoot: SVGSVGElement) => string;
+    /** Loads the MathJax SVG typesetter used for formula labels in SVG export. */
+    loadSvgTypesetter?: () => Promise<SvgTypesetter>;
     download?: (blob: Blob, filename: string) => void;
 }
 
@@ -281,7 +285,10 @@ async function runSingleExport(target: FigureCaptureTarget, work: () => Promise<
     }
 }
 
-/** Serializes the existing JSXGraph SVG renderer tree and downloads it. */
+/**
+ * Serializes a clone of the JSXGraph SVG renderer tree with the board's HTML
+ * labels added as SVG (typeset formulas as paths) and downloads it.
+ */
 export function downloadSVG(
     target: FigureCaptureTarget,
     filename: string,
@@ -290,7 +297,13 @@ export function downloadSVG(
     return runSingleExport(target, async () => {
         await waitForFigureCaptureReady(target);
         const serializeSvg = dependencies.serializeSvg ?? serializeSvgDefault;
-        const blob = new Blob([serializeSvg(target.rendererRoot)], {type: "image/svg+xml"});
+        const typeset = await waitForOwned(
+            (dependencies.loadSvgTypesetter ?? loadSvgTypesetterDefault)(),
+            target,
+            "the SVG formula typesetter to load"
+        );
+        const clone = buildSvgWithMathLabels(target.container, target.rendererRoot, typeset);
+        const blob = new Blob([serializeSvg(clone)], {type: "image/svg+xml"});
         assertActive(target);
         (dependencies.download ?? downloadBlob)(blob, filename);
     });

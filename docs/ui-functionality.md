@@ -67,7 +67,7 @@ Import checks known preset keys, collection/curve structure, finite numerical da
 
 ## Figure export and observed limitations
 
-SVG exports the board renderer's SVG tree; PNG captures the board element. Downloads use the selected preset name or `izvoz`. An image is a figure, not an editable preset. Formula text rendered outside the SVG tree may differ between formats; exported formulas and batch captures still require visual verification.
+SVG exports the board renderer's SVG tree; PNG captures the board element. Downloads use the selected preset name or `izvoz`. An image is a figure, not an editable preset. SVG export also includes the board's visible labels, with formulas typeset as vector paths so the file needs no fonts; PNG captures them as rendered on screen. Exported formulas and batch captures still require visual verification.
 
 Figure capture waits for the current scene, fonts and formulas. Batch PNG generation temporarily disables graph controls, then restores the entry scene and selection without saving intermediate scenes to browser storage. A running De Casteljau animation returns paused at its entry parameter. Navigating away cancels the old graph's capture and suppresses its download; capture errors release the controls and show the existing export error.
 
