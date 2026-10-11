@@ -4,7 +4,7 @@
 
 **Subject source:** the owner's master's thesis (Štampar, 2024), §2.4, §3.2, §4, plus Farin for the circle
 
-**Status:** ready; implementation not started
+**Status:** implemented as draft lessons; owner language review pending
 
 ## Goal
 
@@ -31,3 +31,11 @@ Slices 1–4 run in parallel and write only `src/` code and unit tests; they run
 - The circle's minimum piece count change and any preset-data correction are documented with reason and user impact.
 - `npx tsc --noEmit --pretty false`, the full Jest suite, the production build, and one full built smoke run pass.
 - Capability, rollout-matrix, and roadmap documents record that every active route now has a draft lesson.
+
+## Verification
+
+- `npx tsc --noEmit --pretty false` is clean. Jest passes: 57 suites, 559 tests.
+- `npm run build` passes. `npm run test:smoke:built` passes 187/187 with 2 workers in 10.6 min; the lesson spec alone is 153/153. That run includes the nine new rows and an "Observation flow" block covering the observe, back-to-instructions and continue paths, plus playback freezing.
+- Follow-up: spline-cn step 3 leaves derived points outside the default view, so its observation prompt now tells the learner to use "Zoom out".
+- Not covered by smoke: dragging a Farin slider and checking the weights. The G¹ inspector sliders are labelled "Parameter", with "Parameter b" as the heading above them.
+- Open data question for the owner: the three-number default points of `spline-cn` and `spline-c2`.

@@ -31,7 +31,7 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `bernstein` | Foundations | Cohort B draft | `bernstein-degree` (0–5) and `bernstein-stacked-area` actions; partition of unity and nonnegativity |
 | `bezier` | Polynomial Bézier | Pilot draft | control polygon, hull, evaluation point, control-point observation |
 | `decasteljau` | Polynomial Bézier | Pilot draft | construction visibility, `t`, graph-owned animation |
-| `decasteljau-alternative` | Polynomial Bézier | Discovery | alternative construction and overlapping-curve semantics |
+| `decasteljau-alternative` | Polynomial Bézier | Cohort E draft | alternative construction and overlapping-curve semantics |
 | `affine` | Polynomial Bézier | Expansion draft | translation, scale, and invariant observations; rotation/reflection center semantics remain open |
 | `subdivision` | Polynomial Bézier | Cohort D draft | subdivision parameter, split curves, endpoint correspondence |
 | `repeated-subdivision` | Polynomial Bézier | Cohort D draft | repeated split state and generated-curve ownership |
@@ -42,16 +42,16 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `rational-elevation` | Rational Bézier | Cohort B draft | `degree-elevation` with effective weights; homogeneous elevation and shape invariance |
 | `rational-extrapolation` | Rational Bézier | Cohort D draft | rational extrapolation domain and validity |
 | `rational-subdivision` | Rational Bézier | Cohort D draft | rational subdivision and generated curves |
-| `farin` | Rational Bézier | Discovery | Farin points and their geometric meaning |
-| `circle` | Rational Bézier | Discovery | piece count, weights, and circle approximation claims |
-| `spline-cn` | Splines | Discovery | continuity order and derived-point constraints |
-| `spline-c1` | Splines | Discovery | C¹ continuity and editable inputs |
-| `spline-c2` | Splines | Discovery | C² continuity and editable inputs |
-| `spline-g1` | Splines | Discovery | one-sided G¹ continuity and invariants |
-| `spline-g1-symmetric` | Splines | Discovery | symmetric G¹ construction and invariants |
+| `farin` | Rational Bézier | Cohort E draft | Farin points and their geometric meaning |
+| `circle` | Rational Bézier | Cohort E draft | piece count, weights, and circle approximation claims |
+| `spline-cn` | Splines | Cohort E draft | continuity order and derived-point constraints |
+| `spline-c1` | Splines | Cohort E draft | C¹ continuity and editable inputs |
+| `spline-c2` | Splines | Cohort E draft | C² continuity and editable inputs |
+| `spline-g1` | Splines | Cohort E draft | one-sided G¹ continuity and invariants |
+| `spline-g1-symmetric` | Splines | Cohort E draft | symmetric G¹ construction and invariants |
 | `ph-cubic` | PH | Pilot draft | hodograph, offset visibility, offset distance |
 | `ph-quintic` | PH | Expansion draft | quintic hodograph, speed, and offset semantics |
-| `spline-parameterization` | Parameterization | Deferred to cohort E | alpha sets knot spacing and changes the C² spline shape; restore must reapply curve-owned alpha |
+| `spline-parameterization` | Parameterization | Cohort E draft | alpha sets knot spacing and changes the C² spline shape; restore must reapply curve-owned alpha |
 | `weighted-parameterization` | Parameterization | Cohort C draft | `parameterization-alpha`/`-samples`; rational reparameterization, symmetry, unchanged curve |
 | `uniform-parameterization` | Parameterization | Cohort C draft | adds `parameterization-mode`; polynomial PH arc length and approximately equal-arc-length samples |
 
@@ -77,3 +77,5 @@ Use focused runtime/content tests first, then production-browser review for ever
 - [Extend the polynomial Bézier cohort](../tasks/guided-lessons-rollout/extend-polynomial-bezier-cohort.md)
 - [Implement Cohort B (`bernstein`, `rational-elevation`)](../tasks/guided-lessons-rollout/implement-cohort-b.md)
 - [Implement Cohort C (`weighted-parameterization`, `uniform-parameterization`)](../tasks/guided-lessons-rollout/implement-cohort-c.md)
+- [Implement Cohort D (subdivision and extrapolation)](../tasks/guided-lessons-rollout/implement-cohort-d.md)
+- [Implement Cohort E (splines, Farin points, circle, alternative De Casteljau)](../tasks/guided-lessons-rollout/implement-cohort-e.md)
