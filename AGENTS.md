@@ -41,6 +41,7 @@ Read [docs/README.md](docs/README.md) and the documents relevant to the change b
 - Use clear commit messages and report commit hashes and verification results.
 - Stage only changes belonging to the current task; preserve unrelated changes.
 - Push committed work to the remote branch unless told not to. Never force-push.
+- "Push" means `master` on `origin` (https://github.com/efodx/bezeg-2.0), even when the work was done on another local or worktree branch. Fetch first, rebase only your new commits onto `origin/master`, recheck them against master's code, and push as a fast-forward (`git push origin HEAD:master`). If the rebase conflicts, stop and report. Pushing to `master` deploys GitHub Pages through `.github/workflows/browser-smoke.yml`.
 - Do not amend existing commits or rewrite history unless requested.
 
 ## Documentation
