@@ -4,7 +4,7 @@
 
 **Dependencies:** [Exponential function](02-exponential-function.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented on 2026-10-11; owner language and classroom review pending
 
 ## Goal
 
@@ -26,4 +26,10 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 67 suites, 777 tests pass.
+- `CI=false npm run build`: compiled; only pre-existing lint warnings.
+- Lesson and route smoke for the three function routes: 12/12.
+- Worker browser check: tan draws separate branches with dashed asymptotes; SL→EN switch updates board and inspector.
+
+Adds the `function-choice` action kind (`set-function-choice`), `ChoiceSelect`, and an optional `formatValue` on `Slider`. The reference graph follows the chosen g, so the cosine step compares sin with φ=π/2 against the dashed sin x.

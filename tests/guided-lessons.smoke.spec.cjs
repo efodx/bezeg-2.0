@@ -867,8 +867,59 @@ const exponential = {
     stableCounts: async page => ({a: await exponentialReadout(page, 'a')}),
 };
 
+// ---------------------------------------------------------------- Trigonometric functions
+const trigReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+// The range lists its two numbers (separated by ; or , depending on the language); tangent has none.
+const trigRange = async page => ((await page.locator('[data-readout="range"] dd').innerText()).replace(/−/g, '-').match(/-?\d+(?:[.,]\d+)?/g) || []).map(value => value.replace(',', '.'));
+// Per step: equation, period, phase shift (with exact multiples of pi), range and the number of visible graph curves
+// (midline + main graph; the reference graph and, for tan, the asymptotes add one). Steps: default, amplitude, worked example, cosine as shifted sine, tangent.
+const TRIG_STEPS = [
+    {equation: 'f(x) = sin(x)', period: '6.28 (2π)', shift: '0', range: ['-1', '1'], curves: 2},
+    {equation: 'f(x) = 2·sin(x) - 1', period: '6.28 (2π)', shift: '0', range: ['-3', '1'], curves: 2},
+    {equation: 'f(x) = 2·sin(2x + π/2) + 1', period: '3.14 (π)', shift: '-0.79 (-π/4)', range: ['-1', '3'], curves: 2},
+    {equation: 'f(x) = sin(x + π/2)', period: '6.28 (2π)', shift: '-1.57 (-π/2)', range: ['-1', '1'], curves: 3},
+    {equation: 'f(x) = tan(x)', period: '3.14 (π)', shift: '0', range: [], curves: 3},
+];
+
+const trigonometric = {
+    id: 'trigonometric-functions',
+    path: `${BASE}/functions/trigonometric`,
+    titles: {sl: 'Trigonometrične funkcije', en: 'Trigonometric functions'},
+    steps: 5,
+    minFrames: 11, // 2 + 2 + 3 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = TRIG_STEPS[step - 1];
+        await expect.poll(() => trigReadout(page, 'equation'), {message: `equation at ${label}`}).toBe(expected.equation);
+        await expect.poll(() => trigReadout(page, 'period'), {message: `period at ${label}`}).toBe(expected.period);
+        await expect.poll(() => trigReadout(page, 'shift'), {message: `phase shift at ${label}`}).toBe(expected.shift);
+        await expect.poll(() => trigRange(page), {message: `range at ${label}`}).toEqual(expected.range);
+        if (step === 5) expect(await trigReadout(page, 'amplitude'), 'tangent has no amplitude').toBe('—');
+        await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible curves at ${label}`}).toBe(expected.curves);
+        await expect.poll(async () => (await boardStats(page)).drawnCurves, {message: `drawn curves at ${label}`}).toBeGreaterThanOrEqual(expected.curves);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 4).fill('2');
+        await expect.poll(() => trigReadout(page, 'equation')).toBe('f(x) = sin(2x)');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => trigReadout(page, 'equation'), {message: 'lesson scene replaced the user frequency'}).toBe('f(x) = 2·sin(2x + π/2) + 1');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => trigReadout(page, 'equation'), {message: 'user frequency restored'}).toBe('f(x) = sin(2x)');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({equation: await trigReadout(page, 'equation')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

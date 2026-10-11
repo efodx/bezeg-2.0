@@ -24,6 +24,7 @@ export type FunctionGraphState<M extends object> = BaseGraphState & M;
 
 export type FunctionParameterAction = Extract<LessonAction, { kind: 'function-parameter' }>;
 export type FunctionVisibilityAction = Extract<LessonAction, { kind: 'function-visibility' }>;
+export type FunctionChoiceAction = Extract<LessonAction, { kind: 'function-choice' }>;
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -84,6 +85,11 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** Shows or hides one optional element against `this.model`. Throw UnsupportedLessonActionError for targets the graph does not own. */
     protected applyFunctionVisibility(action: FunctionVisibilityAction): void {
+        throw new UnsupportedLessonActionError(action);
+    }
+
+    /** Selects one named choice against `this.model`. Throw UnsupportedLessonActionError for names the graph does not own. */
+    protected applyFunctionChoice(action: FunctionChoiceAction): void {
         throw new UnsupportedLessonActionError(action);
     }
 
@@ -183,6 +189,10 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         }
         if (action.kind === "function-visibility") {
             this.applyFunctionVisibility(action);
+            return;
+        }
+        if (action.kind === "function-choice") {
+            this.applyFunctionChoice(action);
             return;
         }
         super.applyLessonAction(action);

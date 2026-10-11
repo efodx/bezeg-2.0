@@ -5,16 +5,24 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a';
-export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a'];
+export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B';
+export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B'];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export type FunctionVisibilityTarget = 'mirror';
-export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror'];
+export type FunctionVisibilityTarget = 'mirror' | 'reference';
+export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference'];
+
+/** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
+export type FunctionChoiceName = 'trig-function';
+export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
+    'trig-function': ['sin', 'cos', 'tan'],
+};
+export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 
 export type LessonAction =
     | {readonly kind: 'function-parameter'; readonly name: FunctionParameterName; readonly value: number}
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
+    | {readonly kind: 'function-choice'; readonly name: FunctionChoiceName; readonly value: string}
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'}
     | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}
     | {readonly kind: 'curve-evaluation'; readonly parameter: number}

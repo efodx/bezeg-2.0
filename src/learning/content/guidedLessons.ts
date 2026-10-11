@@ -13,7 +13,7 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionParameterName, FunctionVisibilityTarget} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
@@ -72,6 +72,7 @@ export type WorkedExample = Readonly<{
  * - set-circle-pieces -> RationalBezierCurveCircleGraphN piece counter (integer; route bounds enforced by the graph)
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
  * - show-function-element -> function graphs' optional elements (value {name, value}: name is a FunctionVisibilityTarget, value a boolean)
+ * - set-function-choice -> function graphs' named choices, value {name, value} (name is a FunctionChoiceName, value one of the strings allowed for that name; the graph maps it)
  * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
@@ -110,6 +111,7 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'set-circle-pieces',
     'set-function-parameter',
     'show-function-element',
+    'set-function-choice',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -121,7 +123,8 @@ export type SceneActionValue =
     | readonly number[]
     | Readonly<{index: number; value: number}>
     | Readonly<{name: FunctionParameterName; value: number}>
-    | Readonly<{name: FunctionVisibilityTarget; value: boolean}>;
+    | Readonly<{name: FunctionVisibilityTarget; value: boolean}>
+    | Readonly<{name: FunctionChoiceName; value: string}>;
 
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;

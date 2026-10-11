@@ -109,3 +109,23 @@ test.each([[[]], [null], [{}], [{a: 0}], [{a: -2}], [{a: "2"}], [{a: 5.5}], [{a:
     expect(() => preflightPresetImport(exponentialPreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const trigonometricPreset = (data: unknown) => JSON.stringify({"preset-trigonometric-function": {data: [{id: "Osnova", boardState: {boundingBox: [-7, 4, 7, -4]},
+    graphState: {initialized: true, fn: "sin", A: 1, omega: 1, phi: 0, B: 0, reference: false}, data}]}});
+
+test("trigonometric-function collection imports a model object and keeps other storage untouched", () => {
+    const data = {fn: "tan", A: -2, omega: 0.5, phi: Math.PI / 2, B: 1, reference: true};
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(trigonometricPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-trigonometric-function")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validTrig = {fn: "sin", A: 1, omega: 1, phi: 0, B: 0};
+test.each([[[]], [null], [{}], [{...validTrig, fn: "sec"}], [{...validTrig, omega: 0}], [{...validTrig, omega: -1}], [{...validTrig, omega: 5}],
+    [{...validTrig, A: 4}], [{...validTrig, A: "1"}], [{...validTrig, phi: 4}], [{...validTrig, B: -3.5}], [{...validTrig, reference: "yes"}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("trigonometric-function collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(trigonometricPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

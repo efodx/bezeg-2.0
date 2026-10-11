@@ -1,6 +1,6 @@
 import type {DemonstrationId} from '../../demonstrations';
-import {FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
-import type {FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
+import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 
@@ -152,6 +152,21 @@ export function sceneAction(action: SceneAction): LessonAction {
         if (typeof visible !== 'boolean') throw new Error('The function element value must be true or false.');
         return {kind: 'function-visibility', target: name as FunctionVisibilityTarget, visible};
     }
+    if (action.name === 'set-function-choice') {
+        const value: unknown = action.value;
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('The function choice action needs a value of the form {name, value}.');
+        }
+        const {name, value: choice} = value as {name?: unknown; value?: unknown};
+        if (typeof name !== 'string' || !FUNCTION_CHOICE_NAMES.includes(name as FunctionChoiceName)) {
+            throw new Error(`The function choice name must be one of ${FUNCTION_CHOICE_NAMES.join(', ')}.`);
+        }
+        const allowed = FUNCTION_CHOICE_VALUES[name as FunctionChoiceName];
+        if (typeof choice !== 'string' || !allowed.includes(choice)) {
+            throw new Error(`The function choice “${name}” must be one of ${allowed.join(', ')}.`);
+        }
+        return {kind: 'function-choice', name: name as FunctionChoiceName, value: choice};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -260,6 +275,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'spline-parameterization',
     'linear-function',
     'exponential-function',
+    'trigonometric-functions',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

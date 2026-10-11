@@ -39,6 +39,7 @@ import SplineAlphaParametrizationGraph
   from './graphs/curves/parametrisations/SplineAlphaParametrizationGraph';
 import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './graphs/functions/ExponentialFunctionGraph';
+import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFunctionsGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -79,6 +80,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'uniform-parameterization': <UniformParamBezierCurveGraph/>,
     'linear-function': <LinearFunctionGraph/>,
     'exponential-function': <ExponentialFunctionGraph/>,
+    'trigonometric-functions': <TrigonometricFunctionsGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

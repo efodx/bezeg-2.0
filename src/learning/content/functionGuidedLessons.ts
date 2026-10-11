@@ -517,5 +517,275 @@ const exponentialFunction: GuidedLesson = {
     ],
 };
 
+const referenceVisibility = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'reference', value: visible}});
+const trigChoice = (value: 'sin' | 'cos' | 'tan'): SceneAction => ({name: 'set-function-choice', value: {name: 'trig-function', value}});
+
+const trigonometricFunctions: GuidedLesson = {
+    demonstrationId: 'trigonometric-functions',
+    title: text('Trigonometrične funkcije', 'Trigonometric functions'),
+    summary: text(
+        'Funkcija \\(f(x)=A\\,g(\\omega x+\\varphi)+B\\) je osnovna funkcija \\(g\\in\\{\\sin,\\cos,\\tan\\}\\), ki jo razpotegnemo, stisnemo in premaknemo: \\(A\\) določa višino valov, \\(\\omega\\) periodo, \\(\\varphi\\) vodoravni zamik in \\(B\\) srednjo črto.',
+        'The function \\(f(x)=A\\,g(\\omega x+\\varphi)+B\\) is a basic function \\(g\\in\\{\\sin,\\cos,\\tan\\}\\) that is stretched, squeezed and shifted: \\(A\\) sets the height of the waves, \\(\\omega\\) the period, \\(\\varphi\\) the horizontal shift and \\(B\\) the midline.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje funkcij \\(\\sin\\) in \\(\\cos\\) ter merjenja kotov v radianih, na primer \\(\\pi\\) radianov je pol kroga.', 'Assumes familiarity with the functions \\(\\sin\\) and \\(\\cos\\) and with measuring angles in radians, for example \\(\\pi\\) radians is half a turn.'),
+        text('Priporočeno je znanje o navpičnem in vodoravnem premikanju ter raztegovanju grafa funkcije.', 'It helps to know about shifting and stretching the graph of a function vertically and horizontally.'),
+    ],
+    learningGoals: [
+        text('Iz parametrov \\(A\\), \\(\\omega\\), \\(\\varphi\\) in \\(B\\) razbereš amplitudo \\(|A|\\), periodo, fazni zamik \\(-\\varphi/\\omega\\) in zalogo vrednosti \\([B-|A|,B+|A|]\\).', 'Read the amplitude \\(|A|\\), the period, the phase shift \\(-\\varphi/\\omega\\) and the range \\([B-|A|,B+|A|]\\) from the parameters \\(A\\), \\(\\omega\\), \\(\\varphi\\) and \\(B\\).'),
+        text('Pokažeš, da je kosinus zamaknjen sinus: \\(\\cos x=\\sin(x+\\pi/2)\\).', 'Show that the cosine is a shifted sine: \\(\\cos x=\\sin(x+\\pi/2)\\).'),
+        text('Razložiš, zakaj ima \\(\\tan\\) periodo \\(\\pi/\\omega\\), asimptote pri \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) in nima amplitude, ter zakaj je \\(\\omega=0\\) izključen.', 'Explain why \\(\\tan\\) has the period \\(\\pi/\\omega\\), asymptotes at \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) and no amplitude, and why \\(\\omega=0\\) is excluded.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'trig-form',
+            latex: 'f(x)=A\\,g(\\omega x+\\varphi)+B,\\qquad g\\in\\{\\sin,\\cos,\\tan\\},\\quad \\omega>0',
+            notation: text(
+                '\\(A\\) je navpični razteg, \\(\\omega\\) vodoravno stiskanje, \\(\\varphi\\) faza in \\(B\\) navpični premik.',
+                '\\(A\\) is the vertical stretch, \\(\\omega\\) the horizontal squeeze, \\(\\varphi\\) the phase and \\(B\\) the vertical shift.',
+            ),
+            explanation: text(
+                'Pri \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) in \\(B=0\\) dobimo osnovno funkcijo \\(g\\) brez sprememb; črtkani referenčni graf prikazuje prav to.',
+                'For \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) and \\(B=0\\) we get the basic function \\(g\\) unchanged; the dashed reference graph shows exactly that.',
+            ),
+        },
+        {
+            id: 'trig-range',
+            latex: 'f(x)\\in\\left[B-|A|,\\;B+|A|\\right]\\quad(g=\\sin,\\cos)',
+            notation: text(
+                'Sinus in kosinus zavzameta vse vrednosti med \\(-1\\) in \\(1\\), zato \\(A\\,g\\) zavzame vrednosti med \\(-|A|\\) in \\(|A|\\).',
+                'Sine and cosine take all values between \\(-1\\) and \\(1\\), so \\(A\\,g\\) takes values between \\(-|A|\\) and \\(|A|\\).',
+            ),
+            explanation: text(
+                'Dodani \\(B\\) vse vrednosti premakne navzgor, zato je zaloga vrednosti interval od \\(B-|A|\\) do \\(B+|A|\\).',
+                'Adding \\(B\\) moves all values up, so the range is the interval from \\(B-|A|\\) to \\(B+|A|\\).',
+            ),
+        },
+        {
+            id: 'trig-period-shift',
+            latex: 'T=\\frac{2\\pi}{\\omega}\\;(\\tan:\\ \\frac{\\pi}{\\omega}),\\qquad \\omega x+\\varphi=\\omega\\left(x+\\frac{\\varphi}{\\omega}\\right)',
+            notation: text(
+                '\\(T\\) je perioda, \\(-\\varphi/\\omega\\) pa fazni zamik.',
+                '\\(T\\) is the period and \\(-\\varphi/\\omega\\) is the phase shift.',
+            ),
+            explanation: text(
+                'Argument se poveča za \\(2\\pi\\), ko se \\(x\\) poveča za \\(2\\pi/\\omega\\). Graf \\(g\\) je zato premaknjen za \\(-\\varphi/\\omega\\): v desno, če je to število pozitivno, in v levo, če je negativno.',
+                'The argument grows by \\(2\\pi\\) when \\(x\\) grows by \\(2\\pi/\\omega\\). The graph of \\(g\\) is therefore shifted by \\(-\\varphi/\\omega\\): to the right if this number is positive and to the left if it is negative.',
+            ),
+        },
+        {
+            id: 'trig-cos-sin',
+            latex: '\\cos x=\\sin\\left(x+\\frac{\\pi}{2}\\right)',
+            notation: text(
+                'Kosinus je sinus, zamaknjen za \\(\\pi/2\\) v levo.',
+                'The cosine is the sine shifted by \\(\\pi/2\\) to the left.',
+            ),
+            explanation: text(
+                'Pri \\(\\varphi=\\pi/2\\) in \\(\\omega=1\\) je fazni zamik \\(-\\pi/2\\), zato ima \\(\\sin(x+\\pi/2)\\) največjo vrednost pri \\(x=0\\), tako kot \\(\\cos x\\).',
+                'For \\(\\varphi=\\pi/2\\) and \\(\\omega=1\\) the phase shift is \\(-\\pi/2\\), so \\(\\sin(x+\\pi/2)\\) has its maximum at \\(x=0\\), just like \\(\\cos x\\).',
+            ),
+        },
+        {
+            id: 'trig-tan-asymptotes',
+            latex: '\\omega x+\\varphi=\\frac{\\pi}{2}+m\\pi\\;\\Longleftrightarrow\\;x=\\frac{\\frac{\\pi}{2}+m\\pi-\\varphi}{\\omega},\\qquad m\\in\\mathbb{Z}',
+            notation: text(
+                '\\(m\\) je poljubno celo število, vsak \\(m\\) da eno asimptoto.',
+                '\\(m\\) is any integer, and each \\(m\\) gives one asymptote.',
+            ),
+            explanation: text(
+                'Ker je \\(\\tan u=\\sin u/\\cos u\\), tangens ni definiran tam, kjer je \\(\\cos u=0\\), to je pri \\(u=\\pi/2+m\\pi\\). Razmik med sosednjima asimptotama je perioda \\(\\pi/\\omega\\).',
+                'Since \\(\\tan u=\\sin u/\\cos u\\), the tangent is not defined where \\(\\cos u=0\\), that is at \\(u=\\pi/2+m\\pi\\). The distance between neighboring asymptotes is the period \\(\\pi/\\omega\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'trig-period-shift-example',
+            title: text('Zgled s parametri \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\), \\(B=1\\)', 'Example with \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\), \\(B=1\\)'),
+            calculationLatex: 'f(x)=2\\sin\\left(2x+\\frac{\\pi}{2}\\right)+1,\\quad \\max=1+2=3,\\ \\min=1-2=-1,\\quad T=\\frac{2\\pi}{2}=\\pi,\\quad -\\frac{\\varphi}{\\omega}=-\\frac{\\pi/2}{2}=-\\frac{\\pi}{4}',
+            resultLatex: '\\max=3,\\ \\min=-1,\\ T=\\pi,\\ -\\frac{\\varphi}{\\omega}=-\\frac{\\pi}{4}',
+            check: text(
+                'Odčitki v inspektorju se ujemajo: zaloga vrednosti \\([-1,3]\\), perioda \\(\\pi\\approx3{,}14\\), zamik \\(-\\pi/4\\approx-0{,}79\\). Pri \\(x=0\\) je \\(2\\sin(\\pi/2)+1=3\\), največja vrednost.',
+                'The inspector readouts agree: the range is \\([-1,3]\\), the period \\(\\pi\\approx3.14\\), the shift \\(-\\pi/4\\approx-0.79\\). At \\(x=0\\) we have \\(2\\sin(\\pi/2)+1=3\\), the maximum.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'trig-base-sine', order: 1,
+            title: text('Osnovni val \\(\\sin x\\)', 'The basic wave \\(\\sin x\\)'),
+            purpose: text('Spoznati periodo in vrednosti funkcije \\(\\sin x\\), iz katere nastanejo vsi drugi grafi.', 'Getting to know the period and the values of \\(\\sin x\\), from which all other graphs are made.'),
+            explanation: text(
+                'Pri privzetih nastavitvah \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) in \\(B=0\\) je \\(f(x)=\\sin x\\). Val se ponovi vsakih \\(2\\pi\\approx6{,}28\\) in nikoli ne preseže vrednosti \\(1\\) ali pade pod \\(-1\\). Poskusi spremeniti drsnike, nato pa se vrni na te vrednosti.',
+                'With the default settings \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) and \\(B=0\\) we have \\(f(x)=\\sin x\\). The wave repeats every \\(2\\pi\\approx6.28\\) and never rises above \\(1\\) or falls below \\(-1\\). Try the sliders, then return to these values.',
+            ),
+            formulaIds: ['trig-form'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-base-sine-explanation', 'explanation'), frame('trig-base-sine-observation', 'observation')],
+            observationPrompt: text(
+                'Poišči najvišjo in najnižjo točko grafa ter dve točki, kjer se val začne ponavljati, in primerjaj z odčitkoma zaloge vrednosti in periode.',
+                'Find the highest and the lowest point of the graph and two points where the wave starts to repeat, and compare them with the readouts of the range and the period.',
+            ),
+            expectedObservations: [text(
+                'Graf niha med \\(-1\\) in \\(1\\), zaloga vrednosti je \\([-1,1]\\), perioda pa \\(2\\pi\\approx6{,}28\\).',
+                'The graph oscillates between \\(-1\\) and \\(1\\), the range is \\([-1,1]\\) and the period is \\(2\\pi\\approx6.28\\).',
+            )],
+            scene: {
+                id: 'trig-default', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Prikazan je graf \\(f(x)=\\sin x\\) s srednjo črto \\(y=0\\); referenčni graf je skrit.',
+                    'The graph of \\(f(x)=\\sin x\\) is shown with the midline \\(y=0\\); the reference graph is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'trig-amplitude-midline', order: 2,
+            title: text('Amplituda in srednja črta', 'Amplitude and midline'),
+            purpose: text('Zalogo vrednosti izračunati iz \\(A\\) in \\(B\\).', 'Computing the range from \\(A\\) and \\(B\\).'),
+            explanation: text(
+                'Število \\(A\\) razteguje graf navpično: val doseže višino \\(|A|\\) nad srednjo črto in \\(|A|\\) pod njo. Število \\(B\\) premakne srednjo črto na \\(y=B\\). Zato je največja vrednost \\(B+|A|\\), najmanjša pa \\(B-|A|\\). Pri \\(A=2\\) in \\(B=-1\\) je največ \\(-1+2=1\\) in najmanj \\(-1-2=-3\\).',
+                'The number \\(A\\) stretches the graph vertically: the wave reaches \\(|A|\\) above the midline and \\(|A|\\) below it. The number \\(B\\) moves the midline to \\(y=B\\). So the maximum is \\(B+|A|\\) and the minimum is \\(B-|A|\\). For \\(A=2\\) and \\(B=-1\\) the maximum is \\(-1+2=1\\) and the minimum is \\(-1-2=-3\\).',
+            ),
+            formulaIds: ['trig-range'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-amplitude-midline-explanation', 'explanation'), frame('trig-amplitude-midline-observation', 'observation')],
+            observationPrompt: text(
+                'Premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
+                'Move the slider \\(A\\) across \\(0\\) to negative values and watch the graph and the amplitude readout.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(A=2\\) in \\(B=-1\\) je zaloga vrednosti \\([-3,1]\\). Pri negativnem \\(A\\) se graf prezrcali čez srednjo črto, amplituda \\(|A|\\) pa ostane pozitivna.',
+                'For \\(A=2\\) and \\(B=-1\\) the range is \\([-3,1]\\). For a negative \\(A\\) the graph is reflected over the midline, while the amplitude \\(|A|\\) stays positive.',
+            )],
+            scene: {
+                id: 'trig-amplitude-two-midline-minus-one', basedOn: 'demonstration-default',
+                actions: [parameter('A', 2), parameter('B', -1)],
+                expectedState: text(
+                    'Prikazan je graf \\(f(x)=2\\sin x-1\\) s srednjo črto \\(y=-1\\); amplituda je \\(2\\), zaloga vrednosti \\([-3,1]\\).',
+                    'The graph of \\(f(x)=2\\sin x-1\\) is shown with the midline \\(y=-1\\); the amplitude is \\(2\\) and the range \\([-3,1]\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-period-shift-step', order: 3,
+            title: text('Perioda in fazni zamik', 'Period and phase shift'),
+            purpose: text('Periodo \\(2\\pi/\\omega\\) in zamik \\(-\\varphi/\\omega\\) izračunati in odčitati z grafa.', 'Computing the period \\(2\\pi/\\omega\\) and the shift \\(-\\varphi/\\omega\\) and reading them off the graph.'),
+            explanation: text(
+                'Faktor \\(\\omega\\) graf vodoravno stisne: perioda je \\(2\\pi/\\omega\\). Ker je \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), je graf zamaknjen za \\(-\\varphi/\\omega\\). Pri \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) in \\(B=1\\) je največ \\(1+2=3\\), najmanj \\(1-2=-1\\), perioda \\(2\\pi/2=\\pi\\) in zamik \\(-(\\pi/2)/2=-\\pi/4\\).',
+                'The factor \\(\\omega\\) squeezes the graph horizontally: the period is \\(2\\pi/\\omega\\). Since \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), the graph is shifted by \\(-\\varphi/\\omega\\). For \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) and \\(B=1\\) the maximum is \\(1+2=3\\), the minimum \\(1-2=-1\\), the period \\(2\\pi/2=\\pi\\) and the shift \\(-(\\pi/2)/2=-\\pi/4\\).',
+            ),
+            formulaIds: ['trig-period-shift'], workedExampleId: 'trig-period-shift-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-period-shift-explanation', 'explanation'), frame('trig-period-shift-calculation', 'calculation'), frame('trig-period-shift-observation', 'observation')],
+            observationPrompt: text(
+                'Poišči najvišjo točko grafa blizu \\(x=0\\) in preveri njeno višino. Primerjaj razmik med dvema zaporednima vrhovoma z odčitkom periode.',
+                'Find the highest point of the graph near \\(x=0\\) and check its height. Compare the distance between two consecutive peaks with the period readout.',
+            ),
+            expectedObservations: [text(
+                'Največja vrednost je \\(3\\) pri \\(x=0\\), najmanjša \\(-1\\), razmik med vrhovoma je \\(\\pi\\approx3{,}14\\), zamik v inspektorju je \\(-\\pi/4\\approx-0{,}79\\).',
+                'The maximum is \\(3\\) at \\(x=0\\), the minimum is \\(-1\\), the distance between peaks is \\(\\pi\\approx3.14\\) and the shift in the inspector is \\(-\\pi/4\\approx-0.79\\).',
+            )],
+            scene: {
+                id: 'trig-worked-example', basedOn: 'demonstration-default',
+                actions: [parameter('A', 2), parameter('omega', 2), parameter('phi', Math.PI / 2), parameter('B', 1)],
+                expectedState: text(
+                    'Prikazan je graf \\(f(x)=2\\sin(2x+\\pi/2)+1\\): zaloga vrednosti \\([-1,3]\\), perioda \\(\\pi\\), zamik \\(-\\pi/4\\).',
+                    'The graph of \\(f(x)=2\\sin(2x+\\pi/2)+1\\) is shown: range \\([-1,3]\\), period \\(\\pi\\), shift \\(-\\pi/4\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-cosine-shifted-sine', order: 4,
+            title: text('Kosinus je zamaknjen sinus', 'The cosine is a shifted sine'),
+            purpose: text('Pokazati, da je \\(\\cos x=\\sin(x+\\pi/2)\\).', 'Showing that \\(\\cos x=\\sin(x+\\pi/2)\\).'),
+            explanation: text(
+                'Črtkani referenčni graf je osnovni \\(\\sin x\\), polni graf pa \\(\\sin(x+\\pi/2)\\) pri \\(\\varphi=\\pi/2\\). Polni graf je zamaknjen za \\(-\\varphi/\\omega=-\\pi/2\\), torej v levo, in ima pri \\(x=0\\) največjo vrednost \\(1\\), tako kot \\(\\cos x\\). Preveri: izberi \\(\\cos\\) in nastavi \\(\\varphi=0\\); dobiš isti graf.',
+                'The dashed reference graph is the basic \\(\\sin x\\), and the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
+            ),
+            formulaIds: ['trig-cos-sin'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
+                'Compare the solid graph with the dashed one: by how much and in which direction is it shifted? Then choose \\(\\cos\\), set \\(\\varphi=0\\) and check that the solid graph does not change.',
+            ),
+            expectedObservations: [text(
+                'Polni graf je za \\(\\pi/2\\approx1{,}57\\) v levo od črtkanega, odčitek zamika je \\(-\\pi/2\\); isto krivuljo dobiš pri \\(\\cos\\) in \\(\\varphi=0\\).',
+                'The solid graph is \\(\\pi/2\\approx1.57\\) to the left of the dashed one, the shift readout is \\(-\\pi/2\\); you get the same curve with \\(\\cos\\) and \\(\\varphi=0\\).',
+            )],
+            scene: {
+                id: 'trig-sine-shifted-by-half-pi', basedOn: 'demonstration-default',
+                actions: [trigChoice('sin'), parameter('phi', Math.PI / 2), referenceVisibility(true)],
+                expectedState: text(
+                    'Polni graf \\(\\sin(x+\\pi/2)\\), ki je enak \\(\\cos x\\), in črtkani referenčni graf \\(\\sin x\\); zamik je \\(-\\pi/2\\).',
+                    'The solid graph \\(\\sin(x+\\pi/2)\\), which equals \\(\\cos x\\), and the dashed reference graph \\(\\sin x\\); the shift is \\(-\\pi/2\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-tangent', order: 5,
+            title: text('Tangens in asimptote', 'The tangent and its asymptotes'),
+            purpose: text('Spoznati periodo \\(\\pi/\\omega\\), asimptote in odsotnost največje ter najmanjše vrednosti pri \\(\\tan\\).', 'Learning the period \\(\\pi/\\omega\\), the asymptotes and the absence of a maximum and a minimum for \\(\\tan\\).'),
+            explanation: text(
+                'Pri \\(\\tan\\) je perioda \\(\\pi/\\omega\\). Graf ima navpične asimptote, kjer je \\(\\cos(\\omega x+\\varphi)=0\\), torej pri \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) za cele \\(m\\). Pri \\(\\omega=1\\) in \\(\\varphi=0\\) so v pogledu asimptote pri \\(x=\\pm\\pi/2\\approx\\pm1{,}57\\) in \\(x=\\pm3\\pi/2\\approx\\pm4{,}71\\). Med asimptotami graf (pri \\(A>0\\)) narašča čez vse vrednosti, zato nima največje ali najmanjše vrednosti in amplitude, zaloga vrednosti pa so vsa realna števila. Veje niso povezane čez asimptote.',
+                'For \\(\\tan\\) the period is \\(\\pi/\\omega\\). The graph has vertical asymptotes where \\(\\cos(\\omega x+\\varphi)=0\\), that is at \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) for integers \\(m\\). For \\(\\omega=1\\) and \\(\\varphi=0\\) the visible asymptotes are at \\(x=\\pm\\pi/2\\approx\\pm1.57\\) and \\(x=\\pm3\\pi/2\\approx\\pm4.71\\). Between asymptotes the graph (for \\(A>0\\)) rises through all values, so it has no maximum, no minimum and no amplitude, and its range is all real numbers. The branches are not joined across asymptotes.',
+            ),
+            formulaIds: ['trig-tan-asymptotes'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-tangent-explanation', 'explanation'), frame('trig-tangent-observation', 'observation')],
+            observationPrompt: text(
+                'Spremeni \\(\\omega\\) in \\(\\varphi\\) ter opazuj, kako se premikajo asimptote in kako se spreminja razmik med njimi.',
+                'Change \\(\\omega\\) and \\(\\varphi\\) and watch how the asymptotes move and how the distance between them changes.',
+            ),
+            expectedObservations: [text(
+                'Razmik med sosednjima asimptotama je enak periodi \\(\\pi/\\omega\\); namesto amplitude je prikazan pomišljaj, zaloga vrednosti so vsa realna števila.',
+                'The distance between neighboring asymptotes equals the period \\(\\pi/\\omega\\); there is no amplitude (a dash is shown), and the range is all real numbers.',
+            )],
+            scene: {
+                id: 'trig-tangent-scene', basedOn: 'demonstration-default',
+                actions: [trigChoice('tan')],
+                expectedState: text(
+                    'Prikazan je graf \\(f(x)=\\tan x\\) z navpičnimi asimptotami pri \\(\\pi/2+m\\pi\\); perioda je \\(\\pi\\).',
+                    'The graph of \\(f(x)=\\tan x\\) is shown with vertical asymptotes at \\(\\pi/2+m\\pi\\); the period is \\(\\pi\\).',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-trigonometric',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Appendix D: Trigonometry, and Section 1.3: New Functions from Old Functions.',
+            supports: ['graphs of sin, cos and tan and their periods', 'amplitude, period and phase shift of A sin(ωx + φ) + B', 'cos x = sin(x + π/2)', 'vertical asymptotes of tan at π/2 + mπ'],
+        },
+        {
+            id: 'efodx-trigonometric-functions-graph',
+            citation: 'Owner\'s earlier app: efodx.github.io, src/graphs trigonometric-functions-graph (studied 2026-10-11).',
+            supports: ['f(x) = A g(ωx + φ) + B for sin, cos and tan', 'sliders for the four parameters'],
+            implementationCorrespondence: 'Bezeg keeps the function choice and the four parameter sliders, adds the dashed reference graph of g(x) and the midline y = B, draws tan branch by branch so that it is not joined across asymptotes, and shows amplitude, period, phase shift and range as readouts.',
+        },
+        {
+            id: 'bezeg-trigonometric-implementation',
+            citation: 'Bezeg source: src/analysis/trigonometric.ts and src/graphs/functions/TrigonometricFunctionsGraph.tsx.',
+            supports: ['values, amplitude, period, phase shift and range', 'tangent asymptote positions and branches', 'phase slider with step π/12', 'reference graph toggle and midline'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Vrednost \\(\\omega=0\\) ni dovoljena: funkcija bi bila konstantna in ne bi imela periode \\(2\\pi/\\omega\\). Drsnik teče od \\(0{,}25\\) do \\(4\\), uvoz shranjenih nastavitev in učni prizori pa vrednosti zunaj tega območja zavrnejo.',
+            'The value \\(\\omega=0\\) is not allowed: the function would be constant and have no period \\(2\\pi/\\omega\\). The slider runs from \\(0.25\\) to \\(4\\), and importing saved settings and lesson scenes reject values outside that range.',
+        ),
+        text(
+            'Pri \\(A=0\\) je \\(f(x)=B\\) konstanta: amplituda je \\(0\\) in zaloga vrednosti \\([B,B]\\). Pri \\(\\tan\\) funkcija v asimptotah ni definirana, zato graf nima točk na teh navpičnicah.',
+            'For \\(A=0\\) we have \\(f(x)=B\\), a constant: the amplitude is \\(0\\) and the range is \\([B,B]\\). For \\(\\tan\\) the function is not defined at the asymptotes, so the graph has no points on those vertical lines.',
+        ),
+        text(
+            'Drsnik \\(\\varphi\\) ima korak \\(\\pi/12\\), zato so \\(\\pm\\pi/2\\), \\(\\pm\\pi/3\\) in \\(\\pm\\pi/4\\) natančno dosegljive; zamik \\(-\\varphi/\\omega\\) je zapisan tudi kot večkratnik \\(\\pi\\), kadar je natančen.',
+            'The slider \\(\\varphi\\) has the step \\(\\pi/12\\), so \\(\\pm\\pi/2\\), \\(\\pm\\pi/3\\) and \\(\\pm\\pi/4\\) are reachable exactly; the shift \\(-\\varphi/\\omega\\) is also written as a multiple of \\(\\pi\\) when it is exact.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija obravnava tudi negativno frekvenco \\(\\omega<0\\) in zapis \\(A\\,g(\\omega(x-x_0))+B\\).',
+            'Before classroom-ready review, confirm whether the lesson should also treat a negative frequency \\(\\omega<0\\) and the form \\(A\\,g(\\omega(x-x_0))+B\\).',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions];
