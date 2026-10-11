@@ -11,6 +11,7 @@ test('disposes De Casteljau auxiliary objects with their owning curve', () => {
         decasteljauPoints: [decasteljauPoint],
         decasteljauSegments: [decasteljauSegment],
         elevationPoints: [],
+        elevationSegments: [],
         subdivisionPoint: undefined,
         extrapolationPoint: undefined,
         convexHull: undefined,

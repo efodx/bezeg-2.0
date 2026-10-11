@@ -6,17 +6,54 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {LessonAction} from "../../../learning/model";
+import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
 class ElevationGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
+    /** Runtime-only switch; the overlay is on by default and is not stored in presets. */
+    private elevationOverlayOn = true;
+    private polygonShownBeforeOverlay = false;
+
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+        this.applyElevationOverlay();
     }
 
     protected override prepareLessonDefaultScene(): void {
+        this.elevationOverlayOn = true;
         super.prepareLessonDefaultScene();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+        this.applyElevationOverlay();
         this.boardUpdate();
+    }
+
+    protected override workspaceDisplay(): React.ReactNode {
+        return <>{super.workspaceDisplay()}<div className="inspector-group">
+            <OnOffSwitch initialState={this.elevationOverlayOn} label={t("show_elevated_points_on_control_polygon")}
+                         onChange={checked => this.setElevationOverlay(checked)}/>
+            <p>{t("elevated_points_description")}</p></div></>;
+    }
+
+    private setElevationOverlay(on: boolean) {
+        this.elevationOverlayOn = on;
+        this.applyElevationOverlay();
+        this.boardUpdate();
+    }
+
+    /** Brings the board in line with the switch; safe to call repeatedly (show is idempotent). */
+    private applyElevationOverlay() {
+        const curve = this.getFirstJxgCurve();
+        if (!curve) return;
+        if (this.elevationOverlayOn) {
+            if (!curve.isShowingElevatePoints()) {
+                this.polygonShownBeforeOverlay = curve.isShowingControlPolygon();
+            }
+            curve.showControlPolygon();
+            curve.showElevatePoints();
+        } else if (curve.isShowingElevatePoints()) {
+            curve.hideElevatePoints();
+            curve.showControllPolygon(this.polygonShownBeforeOverlay);
+        }
     }
 
     protected override applyLessonAction(action: LessonAction): void {
@@ -44,6 +81,7 @@ class ElevationGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
     elevate() {
         this.board.suspendUpdate();
         this.getFirstJxgCurve().elevate();
+        this.getFirstJxgCurve().rebuildElevatePoints();
         this.unsuspendBoardUpdate();
     }
 

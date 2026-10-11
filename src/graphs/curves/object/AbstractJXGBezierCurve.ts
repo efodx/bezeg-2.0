@@ -15,6 +15,23 @@ export interface BezierCurveAttributes extends PointControlledCurveAttributes {
     allowShrink: boolean
 }
 
+/**
+ * Control points of the degree-elevated curve computed from the given control points:
+ * P'_0 = P_0, P'_i = (i/(n+1)) P_{i-1} + (1 - i/(n+1)) P_i, P'_{n+1} = P_n, where n + 1 = points.length.
+ * Pure, so callers can recompute it on every update and follow dragged control points.
+ */
+export function elevatedControlPoints(points: ReadonlyArray<{ X(): number, Y(): number }>): [number, number][] {
+    const count = points.length;
+    if (count === 0) return [];
+    const result: [number, number][] = [[points[0].X(), points[0].Y()]];
+    for (let i = 1; i < count; i++) {
+        const a = i / count;
+        result.push([a * points[i - 1].X() + (1 - a) * points[i].X(), a * points[i - 1].Y() + (1 - a) * points[i].Y()]);
+    }
+    result.push([points[count - 1].X(), points[count - 1].Y()]);
+    return result;
+}
+
 export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends BezierCurveAttributes> extends AbstractJXGPointControlledCurve<T, Attr> {
     subdivisionT: number = 0.5;
     extrapolationT: number = 1.2;
@@ -31,6 +48,8 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     private decasteljauT: number = 0.5;
     private decasteljauSegments: JXG.Segment[] = [];
     private elevationPoints: JXG.Point[] = [];
+    private elevationSegments: JXG.Segment[] = [];
+    private showingElevatePoints: boolean = false;
 
     /**
      * Subdivides the curve at t.
@@ -49,6 +68,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
     override addPoint(x: number, y: number) {
         super.addPoint(x, y);
+        this.rebuildElevatePoints();
         if (this.decasteljauSegments.length !== 0) {
             this.generateLineSegments();
         }
@@ -59,6 +79,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
     override removePoint(i: number) {
         super.removePoint(i);
+        this.rebuildElevatePoints();
         if (this.decasteljauSegments.length !== 0) {
             this.generateLineSegments();
         }
@@ -123,6 +144,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             ...this.decasteljauPoints,
             ...this.decasteljauSegments,
             ...this.elevationPoints,
+            ...this.elevationSegments,
             this.subdivisionPoint,
             this.extrapolationPoint,
         ].filter((object): object is JXG.Point | JXG.Segment => object !== null);
@@ -132,6 +154,8 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         this.decasteljauPoints = [];
         this.decasteljauSegments = [];
         this.elevationPoints = [];
+        this.elevationSegments = [];
+        this.showingElevatePoints = false;
         this.subdivisionPoint = null;
         this.extrapolationPoint = null;
         this.cachedDecasteljauScheme = [];
@@ -142,14 +166,60 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         super.dispose();
     }
 
+    isShowingElevatePoints() {
+        return this.showingElevatePoints;
+    }
+
+    /**
+     * Shows the control points of the elevated curve as live points (recomputed from the current control
+     * points on every update) joined by a dashed polyline. Idempotent.
+     */
     showElevatePoints() {
-        const elevated = this.pointControlledCurve.elevate();
-        this.elevationPoints = elevated.getPoints().map(point => this.board.create('point', [() => point.X(),
-            () => point.Y()], {...PointStyles.default, color: Color.LIGHT_GREEN}) as JXG.Point);
+        if (this.showingElevatePoints) return;
+        this.showingElevatePoints = true;
+        this.createElevatePoints();
     }
 
     hideElevatePoints() {
-        this.board.removeObject(this.elevationPoints);
+        this.showingElevatePoints = false;
+        this.removeElevatePoints();
+    }
+
+    /** Recreates the overlay for the current number of control points when it is being shown. */
+    rebuildElevatePoints() {
+        if (!this.showingElevatePoints) return;
+        this.removeElevatePoints();
+        this.createElevatePoints();
+    }
+
+    private removeElevatePoints() {
+        const objects = [...this.elevationSegments, ...this.elevationPoints];
+        if (this.board.renderer && objects.length > 0) {
+            this.board.removeObject(objects as JXG.GeometryElement[]);
+        }
+        this.elevationPoints = [];
+        this.elevationSegments = [];
+    }
+
+    private createElevatePoints() {
+        const count = this.pointControlledCurve.getPoints().length;
+        if (count < 2) return;
+        const at = (i: number) => elevatedControlPoints(this.pointControlledCurve.getPoints())[i];
+        // One recomputation per index and coordinate is cheap (n is small); stay stateless to avoid stale caches.
+        this.elevationPoints = Array.from({length: count + 1}, (_, i) => this.board.create('point', [
+            () => (at(i) ?? [NaN, NaN])[0], () => (at(i) ?? [NaN, NaN])[1]], {
+            ...PointStyles.default,
+            color: Color.LIGHT_GREEN,
+            name: "",
+            fixed: true,
+        }) as JXG.Point);
+        for (let i = 1; i < this.elevationPoints.length; i++) {
+            this.elevationSegments.push(this.board.create('segment', [this.elevationPoints[i - 1], this.elevationPoints[i]], {
+                ...SegmentStyles.default,
+                color: Color.LIGHT_GREEN,
+                dash: 2,
+            }) as JXG.Segment);
+        }
     }
 
     generateLineSegments() {
