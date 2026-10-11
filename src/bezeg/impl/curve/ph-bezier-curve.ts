@@ -93,6 +93,11 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
 
     }
 
+    /** Exact total arc length s(1) of the curve on [0, 1]. */
+    arcLength(): number {
+        return this.s(1);
+    }
+
     sigma(t: number) {
         if (!this.bezierCurveSigma) {
             this.bezierCurveSigma = new PolynomialBezierCurve(this.sigmas.map(sigma => new PointImpl(sigma, 1)));

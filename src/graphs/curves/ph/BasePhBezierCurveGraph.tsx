@@ -18,9 +18,15 @@ import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonAction} from '../../../learning/model';
 
+function formatArcLength(value: number): string {
+    const locale = document.documentElement.lang === 'en' ? 'en-US' : 'sl-SI';
+    return new Intl.NumberFormat(locale, {minimumFractionDigits: 3, maximumFractionDigits: 3, useGrouping: false}).format(value);
+}
+
 export interface BasePhBezierCurveGraphStates extends BaseGraphStates {
     showOffsetCurve: boolean,
-    showOffsetCurveControlPoints: boolean
+    showOffsetCurveControlPoints: boolean,
+    showArcLength?: boolean
 }
 
 abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates> extends BaseBezierCurveGraph<P, S> {
@@ -30,6 +36,8 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     private pendingHodographBoundingBox?: [number, number, number, number];
     private hodographBindings: ModelPointBinding[] = [];
     private disposeHodographSessionResources?: () => void;
+    /** Board text owned by this graph; removed with the figure scene and recreated after imports. */
+    private arcLengthText?: JXG.Text;
 
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
@@ -47,14 +55,64 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     }
     protected override workspaceDisplay(): React.ReactNode {
         return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
-            {PhBezierCurveCommands(this.getFirstJxgCurveAsPHCurve())}</div></>;
+            {PhBezierCurveCommands(this.getFirstJxgCurveAsPHCurve())}</div>
+            <div className="inspector-group"><h3>{t("arc_length")}</h3>
+                <OnOffSwitch initialState={this.state.showArcLength !== false}
+                    onChange={checked => this.setState({...this.state, showArcLength: checked}, () => this.boardUpdate())}
+                    label={t("show_arc_length")}/>
+                <p>{t("arc_length_description")}</p></div></>;
+    }
+
+    override initialize() {
+        super.initialize();
+        this.ensureArcLengthText();
+    }
+
+    /** Preset, figure and lesson imports dispose the scene first, so the readout is recreated here. */
+    override importPresetData(data: any) {
+        super.importPresetData(data);
+        this.ensureArcLengthText();
+    }
+
+    /** Idempotent: removes any earlier readout and creates one reading the current first curve lazily. */
+    private ensureArcLengthText() {
+        this.removeArcLengthText();
+        const board = this.board;
+        if (!board) return;
+        const arcLength = () => (this.getFirstCurve() as PhBezierCurve | undefined)?.arcLength?.();
+        const box = () => board.getBoundingBox();
+        this.arcLengthText = board.create('text', [
+            () => box()[0] + 0.02 * (box()[2] - box()[0]),
+            () => box()[1] - 0.02 * (box()[1] - box()[3]),
+            () => {
+                const value = arcLength();
+                return value === undefined || !Number.isFinite(value)
+                    ? ""
+                    : t("arc_length_value", {value0: formatArcLength(value)});
+            }
+        ], {
+            anchorX: 'left',
+            anchorY: 'top',
+            fixed: true,
+            highlight: false,
+            useMathJax: false,
+            fontSize: () => SizeContext.fontSize,
+            visible: () => this.state.showArcLength !== false
+        } as any) as JXG.Text;
+    }
+
+    private removeArcLengthText() {
+        const text = this.arcLengthText;
+        this.arcLengthText = undefined;
+        if (text && text.board?.objectsList.includes(text)) text.board.removeObject(text);
     }
 
     override getInitialState(): S {
         return {
             ...super.getInitialState(),
             showOffsetCurve: false,
-            showOffsetCurveControlPoints: false
+            showOffsetCurveControlPoints: false,
+            showArcLength: true
         };
     }
 
@@ -212,6 +270,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     }
 
     protected override disposeFigureSceneResources(): void {
+        this.removeArcLengthText();
         this.disposeHodographBoard(this.board);
     }
 
