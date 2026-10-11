@@ -39,7 +39,7 @@
 .demonstrations-catalog-card { display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid #d6dccb; border-radius:10px; background:#fffdf5; box-shadow:0 2px 7px #20372d0a; }
 .demonstrations-catalog-main { display:flex; flex:1; flex-direction:column; min-width:0; color:inherit; }
 .demonstrations-catalog-main:hover { color:#3b6704; }
-.demonstrations-catalog-preview { display:block; width:180px; max-width:100%; height:160px; margin:0 auto; object-fit:contain; background:#f5f7ef; }
+.demonstrations-catalog-preview { display:block; width:100%; height:auto; aspect-ratio:360 / 220; object-fit:cover; background:#f5f7ef; }
 .demonstrations-catalog-label { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; min-width:0; min-height:50px; padding:10px 12px 8px; font-size:14px; font-weight:650; line-height:1.35; }
 .demonstrations-catalog-label > span:first-child { min-width:0; overflow-wrap:anywhere; }
 .demonstrations-catalog-label > span:last-child { flex:0 0 auto; color:#819071; font-size:16px; line-height:1.15; }

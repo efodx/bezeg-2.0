@@ -48,8 +48,8 @@ test('Explore opens the catalog, whose topics expand independently and expose ev
     const previews = view.container.querySelectorAll<HTMLImageElement>('.demonstrations-catalog-preview');
     expect(previews).toHaveLength(29);
     previews.forEach(preview => {
-        expect(preview).toHaveAttribute('width', '794');
-        expect(preview).toHaveAttribute('height', '562');
+        expect(preview).toHaveAttribute('width', '360');
+        expect(preview).toHaveAttribute('height', '220');
         expect(preview).toHaveAttribute('alt', '');
         expect(preview).toHaveAttribute('loading', 'lazy');
     });

@@ -97,7 +97,7 @@ export function DemonstrationsPage() {
                                 {family.demonstrations.map(demonstration => <li className="demonstrations-catalog-card" key={demonstration.id}>
                                     <Link className="demonstrations-catalog-main" to={demonstration.path}>
                                         <img className="demonstrations-catalog-preview" src={demonstrationPreviewAssets[demonstration.id]}
-                                            width="794" height="562" alt="" loading="lazy"/>
+                                            width="360" height="220" alt="" loading="lazy"/>
                                         <span className="demonstrations-catalog-label"><span>{demonstration.catalogTitle}</span><span aria-hidden="true">→</span></span>
                                     </Link>
                                     {isGuidedLessonAvailable(demonstration.id) && <Link className="demonstrations-catalog-learn" to={demonstration.path + '?learn=1'}

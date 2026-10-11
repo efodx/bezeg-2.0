@@ -56,8 +56,8 @@ test('the demonstration catalog expands all seven topics and links every maintai
     await expect(page.getByText(/Variant [ABC]/)).toHaveCount(0);
     for (let index = 0; index < await previews.count(); index += 1) {
         const preview = previews.nth(index);
-        await expect(preview).toHaveAttribute('width', '794');
-        await expect(preview).toHaveAttribute('height', '562');
+        await expect(preview).toHaveAttribute('width', '360');
+        await expect(preview).toHaveAttribute('height', '220');
         await expect(preview).toHaveAttribute('alt', '');
         await expect(preview).toHaveAttribute('loading', 'lazy');
         await preview.scrollIntoViewIfNeeded();
