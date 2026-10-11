@@ -494,14 +494,14 @@ const farin = {
     stepProbe: async (page, ctx, step, label) => {
         const weights = [[1, 2, 1, 1], [1, 2, 1, 1], [1, 2, 1, 1], [1, 3, 9, 27], [1, 1, 1, 1]][step - 1];
         await expectWeights(page, weights, `weight labels at ${label}`);
-        // Farin points are the 3 sliders on the board, visible from step 2; the control points are then locked.
+        // Farin points are the 3 sliders on the board, visible from step 2; the control points stay draggable.
         await expect.poll(async () => (await boardStats(page)).sliders, {message: `Farin points at ${label}`}).toBe(step === 1 ? 0 : 3);
         await expect.poll(() => farinSwitches(page), {message: `switches at ${label}`}).toEqual({farin: step >= 2, weights: true, standard: step === 5});
         expect((await boardStats(page)).points, `4 control points at ${label}`).toBe(4);
         expect(await page.locator('#jgbox').evaluate(container => {
             const board = Object.values(window.JXG.boards).find(candidate => candidate.containerObj === container);
             return Object.values(board.objects).filter(o => o.elType === 'point' && o.visPropCalc.visible && o.rendNode?.isConnected).map(o => Boolean(o.visProp.fixed));
-        }), `control points locked state at ${label}`).toEqual(step === 1 ? [false, false, false, false] : [true, true, true, true]);
+        }), `control points stay draggable at ${label}`).toEqual([false, false, false, false]);
     },
     prepareUserState: async page => {
         await setSwitch(page, 'farin', true);
