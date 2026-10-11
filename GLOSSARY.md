@@ -5,7 +5,10 @@ Bezeg is an educational tool for exploring the properties of curves through inte
 ## Language
 
 **Bezeg**:
-The educational app for students and educators exploring Bézier, rational Bézier, spline, and PH curve concepts.
+The educational app for students and educators exploring Bézier, rational Bézier, spline, and PH curve concepts, and the function and calculus concepts that lead to them.
+
+**Function demonstration**:
+A Demonstration of a real function graph `y = f(x)` in the *Functions and calculus* family (linear, exponential and trigonometric functions, continuity, derivative, definite integral, area between curves, arc length), as distinct from a curve demonstration driven by control points.
 
 **Demonstration**:
 An interactive mathematical example through which a learner explores a curve concept or construction.

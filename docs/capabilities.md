@@ -6,7 +6,7 @@ The 2026-10-09 [curve architecture deep dive](curve-architecture-deep-dive.md) a
 
 All routes in this release use the `/bezeg-2.0` base. The home route is `/bezeg-2.0`; its Explore action and the header Demonstrations link open the catalog at `/bezeg-2.0/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped into seven independently expandable topics with separate links to graphs and available Guided lessons. Route suffixes and preset interchange files are retained. The separate original site remains at `/bezeg`; its browser presets are isolated and must be exported there and imported explicitly into this release.
 
-Static graph previews show the three starting examples and the actual default scene for each of the 29 demonstrations. The seven family icons remain conceptual topic illustrations; the catalog does not mount graphs or run animations. See [the expandable catalog spec](specs/expandable-demonstration-catalog.md).
+Static graph previews show the three starting examples and the actual default scene for each of the 34 demonstrations. The seven family icons remain conceptual topic illustrations; the catalog does not mount graphs or run animations. See [the expandable catalog spec](specs/expandable-demonstration-catalog.md).
 
 | Area | Route suffix | Demonstration / component |
 | --- | --- | --- |
@@ -36,6 +36,14 @@ Static graph previews show the three starting examples and the actual default sc
 | Parameterization | `/param/param/alphaparam2` | Spline α parameterization |
 | Parameterization | `/param/param/alphaparam` | Weighted parameterization |
 | Parameterization | `/param/param/uniform` | Uniform / weighted PH parameterization |
+| Functions | `/functions/linear` | Linear function through two points (`LinearFunctionGraph`) |
+| Functions | `/functions/exponential` | Exponential function (`ExponentialFunctionGraph`) |
+| Functions | `/functions/trigonometric` | Trigonometric functions (`TrigonometricFunctionsGraph`) |
+| Functions | `/functions/continuity` | Continuity of a piecewise function (`ContinuityGraph`) |
+| Functions | `/functions/derivative` | Derivative as a limit of secants (`DerivativeGraph`) |
+| Functions | `/functions/integral` | Definite integral and Riemann sums (`DefiniteIntegralGraph`) |
+| Functions | `/functions/area-between` | Area between curves (`AreaBetweenCurvesGraph`) |
+| Functions | `/functions/arc-length` | Arc length by polylines (`ArcLengthGraph`) |
 
 The repeated `/param/param/` segment is present in the source. Treat any route cleanup as a compatibility decision.
 
@@ -51,7 +59,7 @@ The repeated `/param/param/` segment is present in the source. Treat any route c
 | Save an example | Named local presets, reset/delete, file import/export | Storage scope, compatibility, clear errors and recovery |
 | Export a figure | SVG serialization, PNG capture, batch images in a ZIP | Mathematical content, formula rendering, consistent result |
 
-All 26 active graph routes use the shared demonstration workspace. Commands depend on the demonstration and curve attributes. Rational curves add weight controls and standard-form display; PH curves add hodograph editing and offsets; spline demonstrations expose their continuity-specific controls and keep derived points constrained. Do not infer that every command is available on every route.
+All 34 active graph routes use the shared demonstration workspace. The eight function routes (ADR 0007, [spec](specs/function-concepts.md)) share `BaseFunctionGraph`: a synchronous parameter model stored as the preset `data`, inspector inputs and readouts instead of curve commands, and mathematics in `src/analysis/`. Commands depend on the demonstration and curve attributes. Rational curves add weight controls and standard-form display; PH curves add hodograph editing and offsets; spline demonstrations expose their continuity-specific controls and keep derived points constrained. Do not infer that every command is available on every route.
 
 The [curve ownership foundation](specs/curve-ownership-refactor.md) retains these capabilities and JSXGraph. Rational point deletion now removes the matching weight; adding/deleting while standard-form display or Farin editing is active preserves every remaining effective weight. Batch figure capture waits for each scene and restores the entry geometry, selection and view without saving intermediate presets. Controls are temporarily unavailable during capture; running De Casteljau playback returns paused at the entry parameter. Evaluation/sampling and physical-device performance are unchanged by this foundation.
 
@@ -82,6 +90,14 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | Weighted parameterization | α 0–1 (initially 0.5), 1–40 interior samples (initially 10); redistributes samples on a polynomial curve. |
 | Spline α parameterization | α 0–1, 0–50 samples (initially 25); changes segment parameter allocation and samples a cubic C² spline. |
 | Uniform parameterization | PH weighted/uniform selector, initially weighted despite the title; 1–40 samples, α 0–1 in weighted mode. Uniform uses numerical arc-length inversion for approximately equal distances. The workspace editor adds parameterization alongside PH editing; inherited PH offset controls remain in Display. The legacy graph-command builder contains only the parameterization controls. |
+| Linear function | Points P₁, P₂ dragged on a 0.1 grid or typed (\|coordinates\| ≤ 1000); k and n inputs move both points along the new line keeping their x; slope triangle with Δx/Δy. Equal x gives the vertical line `x = c` with k/n disabled; coincident points draw no line. |
+| Exponential function | Base a 0.1–5 (step 0.05); points (0,1) and (1,a); mirror switch shows (1/a)ˣ. |
+| Trigonometric functions | sin/cos/tan select; A −3…3, ω 0.25–4, φ −π…π in steps of π/12, B −3…3; reference graph switch; midline; tan drawn per branch with dashed asymptotes. |
+| Continuity | a 0–3 (step 0.05) for ax² (x ≤ 1) and −ax+3 (x > 1); filled point f(1), hollow point for the right limit; colour and a status text show continuity (tolerance 10⁻⁹). |
+| Derivative | x², sin x, eˣ select; point at x₀ dragged along the graph or typed (−4…4); h −2…2 skipping \|h\| < 0.01; exact tangent switch; quotient vs f′(x₀) readout. The view is kept when the function changes. |
+| Definite integral | x², sin x, eˣ select (each resets the view to its own box); bounds dragged on the x-axis or typed (−7…7); n 1–150; left/right/midpoint/trapezoid; signed, oriented sums against the exact integral; constant object count for every n. |
+| Area between curves | f = (x−2)², g = 3−(x−2)²; bounds −1…5 (default at the intersections 2 ∓ √1.5); mode under f / under g / between; exact signed ∫(g−f) and unsigned ∫\|g−f\|. |
+| Arc length | sin x with endpoints A, B dragged along the graph (x rounded to 0.01) or typed (−7…7); n 1–100 polyline segments, drawn as one curve plus one marker curve (constant object count); polyline length vs arc length ∫√(1+f′²) (adaptive Simpson, 1e-9) and their difference. Lengths are never negative: the order of a and b does not matter. |
 
 Sources: [Bernstein](../src/graphs/bernstein/BernsteinGraph.tsx), [polynomial](../src/graphs/curves/bezier), [rational](../src/graphs/curves/rational), [spline](../src/graphs/curves/spline), [PH](../src/graphs/curves/ph), [parameterization](../src/graphs/curves/parametrisations), and [command builders](../src/graphs/curves/object/inputs).
 
@@ -95,7 +111,7 @@ The C² default preset contains `continuity: 3`, but its mapped class implements
 
 ## Guided-learning capability
 
-The product now has an optional, graph-anchored learning flow for all 26 active demonstrations. The three pilots have bounded six-step Slovenian lessons with English counterparts; the other 23 routes have bounded Slovenian/English implementation drafts with explicit Explanation/Calculation/Observation frames, formulas, worked examples, expected observations, and declarative prepared scenes. The spline, Farin-point, and alternative De Casteljau lessons draw on the owner's master's thesis (Štampar, 2024), and the circle lesson on Farin and Piegl & Tiller. The De Casteljau lessons expose explicit one-pass Play/Pause/Replay controls. Every lesson still requires owner language and classroom review.
+The product now has an optional, graph-anchored learning flow for all 34 active demonstrations. The eight function and calculus lessons (2026-10-11/12) are five-step Slovenian/English drafts written from the [function concepts spec](specs/function-concepts.md); every number they state is asserted in unit tests. The three pilots have bounded six-step Slovenian lessons with English counterparts; the other 23 routes have bounded Slovenian/English implementation drafts with explicit Explanation/Calculation/Observation frames, formulas, worked examples, expected observations, and declarative prepared scenes. The spline, Farin-point, and alternative De Casteljau lessons draw on the owner's master's thesis (Štampar, 2024), and the circle lesson on Farin and Piegl & Tiller. The De Casteljau lessons expose explicit one-pass Play/Pause/Replay controls. Every lesson still requires owner language and classroom review.
 
 The runtime preserves direct graph use, routes, Presets, and static hosting. Static content is keyed by Demonstration identity; lesson scenes and progress are session-only. Demonstration-owned typed Graph actions protect JSXGraph, cache, board, auxiliary-object, and mathematical ownership. Unsupported scene actions fail visibly and restore the pre-scene checkpoint. The workspace and the full catalog use the same exact availability allowlist in [`lessonCatalog.ts`](../src/learning/runtime/lessonCatalog.ts); no route receives a generic fallback lesson; a future route stays lesson-free until it is allowlisted. See the [guided lessons spec](specs/guided-lessons.md), [rollout spec](specs/guided-lessons-rollout.md), [expansion blueprint](specs/guided-lessons-content-expansion.md), [runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md), and [content task](tasks/guided-lessons/study-and-fill-pilot-content.md).
 
