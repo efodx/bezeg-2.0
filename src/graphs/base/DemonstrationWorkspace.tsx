@@ -31,8 +31,10 @@ export function DemonstrationWorkspace(props: {
         right: ['→', t('pan_right')], in: ['+', t('zoom_in')], out: ['−', t('zoom_out')],
     };
     const actions = demonstration?.navigationActions ?? ['left', 'up', 'down', 'right', 'in', 'out'] as const;
-    const sections: {id: Section, label: string}[] = [
-    {id: "edit", label: t("edit")}, {id: "display", label: t("display")}, {id: "save", label: t("save")}
+    const sections: {id: Section, label: string, hint: string}[] = [
+    {id: "edit", label: t("edit"), hint: t("tool_group_edit_hint")},
+    {id: "display", label: t("display"), hint: t("tool_group_display_hint")},
+    {id: "save", label: t("save"), hint: t("tool_group_save_hint")}
 ];
     const {fullScreen: presentation} = useContext(SiteContext);
     const [section, setSection] = useState<Section>("edit");
@@ -97,7 +99,7 @@ export function DemonstrationWorkspace(props: {
             })}
         </nav>
         <section className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
-            <div className="workspace-graph-heading"><span className="workspace-eyebrow">Graf</span></div>
+            <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <JGBox/>
             <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
@@ -113,19 +115,19 @@ export function DemonstrationWorkspace(props: {
             aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">
             <div className="inspector-heading">
-                <div><span className="workspace-inspector-kicker">Orodja za ta graf</span><h2>{t("tools")}</h2></div>
+                <div><span className="workspace-inspector-kicker">{t("tools_for_this_graph")}</span><h2>{t("tools")}</h2></div>
                 <button aria-expanded={expanded} aria-controls="inspector-content" onClick={() => setExpanded(!expanded)}>
                     {expanded ? t("collapse") : t("open")}
                     <svg aria-hidden="true" focusable="false" className="inspector-collapse-chevron" viewBox="0 0 16 16">
                         <path d={expanded ? 'M4 10 L8 6 L12 10' : 'M4 6 L8 10 L12 6'}/>
                     </svg>
                 </button>
-                <p>Vsa dejanja na enem mestu. Najprej izberi, kaj želiš opazovati.</p>
+                <p>{t("inspector_intro")}</p>
             </div>
             <div className="inspector-tabs" role="group" aria-label={t("tool_groups")}>
                 {sections.map(tab => <button key={tab.id} aria-label={tab.label} aria-pressed={section === tab.id}
                     aria-controls={`inspector-${tab.id}`} onClick={() => {setSection(tab.id); setExpanded(true); if (inspector.current) {inspector.current.scrollTop = 0;}}}>
-                    <span>{tab.label}</span><small>{tab.id === "edit" ? "krivulja" : tab.id === "display" ? "pogled" : "primer"}</small>
+                    <span>{tab.label}</span><small>{tab.hint}</small>
                 </button>)}
             </div>
             </div>
