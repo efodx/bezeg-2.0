@@ -68,7 +68,7 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | Affine transformations | Translations ±0.5 units, scaling ×1.2 or ×0.8, rotations ±18°, and reflection about X/Y. |
 | Single subdivision | Parameter 0.01–0.99, construction visibility, and action splitting the first curve into two pieces. |
 | Repeated subdivision | Splits every piece at 0.5, at most five rounds (32 pieces); polygon and selected-piece De Casteljau visibility. |
-| Polynomial extrapolation / elevation | Dedicated extrapolation parameter 1–1.5 and action, or degree-elevation action; generic mathematical commands are disabled. |
+| Polynomial extrapolation / elevation | Dedicated extrapolation parameter 1–1.5 and action, or degree-elevation action; generic mathematical commands are disabled. Elevation shows, by default, the next elevated control points live on the edges of the original control polygon with a dashed elevated polygon (Display switch; runtime-only, not stored in presets). |
 | General rational Bézier | Weighted points and eligible Bézier operations; weight visibility, previous/next weight, ±0.25 adjustment, reset to 1, standard-form switch. |
 | Rational De Casteljau | Inherits polynomial De Casteljau controls with weighted interpolation. |
 | Rational extrapolation / elevation | Dedicated weighted extrapolation (1–1.5) or elevation action. Elevation uses the effective (evaluation) weights, including Farin-slider weights, and rebuilds Farin sliders and weight labels for the new degree. |
@@ -78,7 +78,7 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | One-sided Cⁿ spline | Continuity count 0…degree−1, degree continuity+1…input-point count; initially degree 2 and continuity 1. |
 | Symmetric C¹ / C² | Quadratic C¹ / cubic C² constructions with shared label-all and hide-fixed switches; no degree/continuity counts. |
 | One-sided / symmetric G¹ | Per-join β sliders, respectively 0.01–3 / 0.01–0.99, with shared spline visibility switches. |
-| Cubic / quintic PH | Secondary editor for two/three generating `w` points; offsets, distance −3…3, count at least 1, and offset control points. Selected commands add control-point lines. Cubic polygon-geometry mode hides the curve and shows length labels, angles, and triangles. |
+| Cubic / quintic PH | Secondary editor for two/three generating `w` points; offsets, distance −3…3, count at least 1, and offset control points. Selected commands add control-point lines. Cubic polygon-geometry mode hides the curve and shows length labels, angles, and triangles. A board readout shows the exact polynomial arc length s(1) (Display switch, on by default). |
 | Weighted parameterization | α 0–1 (initially 0.5), 1–40 interior samples (initially 10); redistributes samples on a polynomial curve. |
 | Spline α parameterization | α 0–1, 0–50 samples (initially 25); changes segment parameter allocation and samples a cubic C² spline. |
 | Uniform parameterization | PH weighted/uniform selector, initially weighted despite the title; 1–40 samples, α 0–1 in weighted mode. Uniform uses numerical arc-length inversion for approximately equal distances. The workspace editor adds parameterization alongside PH editing; inherited PH offset controls remain in Display. The legacy graph-command builder contains only the parameterization controls. |
@@ -103,4 +103,4 @@ The runtime preserves direct graph use, routes, Presets, and static hosting. Sta
 
 Circle-from-four-pieces, a derivation graph, and an affine G¹ spline entry are not bound by the routing adapter. Several alternative implementations remain in the source. They are candidates for review, not active product commitments.
 
-`TODO.md` contains proposals such as arbitrary-dimensional points, PH arc-length display, API cleanup, and caching separation. Evaluate these individually when curating the later backlog; do not expose dormant demonstrations just because their components exist.
+`TODO.md` contains proposals such as arbitrary-dimensional points, API cleanup, and caching separation. Evaluate these individually when curating the later backlog; do not expose dormant demonstrations just because their components exist.
