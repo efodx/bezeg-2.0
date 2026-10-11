@@ -143,3 +143,39 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await expect(reopenedEditor.getByRole('spinbutton', {name: 'p0 y'})).toHaveValue(savedCoordinates.y);
     await expect.poll(() => geometrySignature(page)).toBe(savedGeometry);
 });
+
+async function fitState(page) {
+    return page.locator('#jgbox').evaluate(container => {
+        const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
+        const points = board.objectsList.filter(object => window.JXG.isPoint(object) && object.visPropCalc.visible)
+            .map(point => [point.coords.usrCoords[1], point.coords.usrCoords[2]]);
+        return {box: board.getBoundingBox(), points};
+    });
+}
+
+test('fit to points frames every visible point and repeated presses keep the view', async ({page}) => {
+    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
+    await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
+    const navigation = page.locator('.workspace-navigation');
+    const fit = navigation.getByRole('button', {name: 'Fit to points'});
+    await expect(fit).toBeVisible();
+    // Start away from the fitted view; JSXGraph's zoomAllPoints margin depended on the current zoom.
+    await navigation.getByRole('button', {name: 'Zoom in'}).click();
+    await navigation.getByRole('button', {name: 'Zoom in'}).click();
+    await navigation.getByRole('button', {name: 'Pan right'}).click();
+
+    await fit.click();
+    const first = await fitState(page);
+    expect(first.points.length).toBeGreaterThan(0);
+    const [left, top, right, bottom] = first.box;
+    for (const [x, y] of first.points) {
+        expect(x).toBeGreaterThan(left);
+        expect(x).toBeLessThan(right);
+        expect(y).toBeGreaterThan(bottom);
+        expect(y).toBeLessThan(top);
+    }
+
+    await fit.click();
+    const second = await fitState(page);
+    second.box.forEach((value, index) => expect(value).toBeCloseTo(first.box[index], 9));
+});

@@ -3,6 +3,7 @@ import React, {Component, useRef, useState} from 'react';
 
 
 import {Board} from "jsxgraph";
+import {fitBoundingBox} from "./fitBoundingBox";
 import {JGBox} from "../../JGBox";
 import {Col, Container, Overlay, Popover, Row} from "react-bootstrap";
 import {SizeContext} from "../context/SizeContext";
@@ -227,9 +228,18 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     private navigateBoard(action: string) {
         if (action === 'fit') {
-            // JSXGraph fits visible points; an empty set would zoom into the origin.
-            const hasVisiblePoints = this.board.objectsList.some(object => JXG.isPoint(object) && object.visPropCalc.visible);
-            if (hasVisiblePoints) { this.board.zoomAllPoints(); }
+            // JSXGraph's zoomAllPoints depends on the current zoom, so fit from the points and canvas size alone.
+            const points: [number, number][] = [];
+            for (const object of this.board.objectsList) {
+                if (JXG.isPoint(object) && object.visPropCalc.visible) points.push([object.coords.usrCoords[1], object.coords.usrCoords[2]]);
+            }
+            // setBoundingBox re-reads the container size, so fit against the same size.
+            const {width, height} = JXG.getDimensions(this.board.container, document);
+            const box = fitBoundingBox(points, parseFloat(String(width)), parseFloat(String(height)));
+            if (box) {
+                this.board.setBoundingBox(box, true, 'update');
+                this.board.applyZoom();
+            }
             return;
         }
         if (action === "in") { this.board.zoomIn(); return; }
