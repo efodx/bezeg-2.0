@@ -329,5 +329,11 @@ export const sl = {
     "guided_lesson_complete": "Učna pot je končana",
     "guided_lesson_free_exploration": "Končni prizor je pripravljen. Nadaljuj s prostim raziskovanjem grafa.",
     "guided_lesson_scene_error": "Prizora ni mogoče pripraviti.",
-    "guided_lesson_action_unavailable": "Tega dejanja za ta graf ni mogoče uporabiti:"
+    "guided_lesson_action_unavailable": "Tega dejanja za ta graf ni mogoče uporabiti:",
+    "arc_length": "Dolžina loka",
+    "show_arc_length": "Prikaži dolžino loka",
+    "arc_length_value": "Dolžina loka: {value0}",
+    "arc_length_description": "Hitrost PH krivulje je polinom, zato je dolžina loka natančna polinomska vrednost in ne numerični približek.",
+    "show_elevated_points_on_control_polygon": "Pokaži nove točke na kontrolnem poligonu",
+    "elevated_points_description": "Vsaka nova kontrolna točka je konveksna kombinacija sosednjih točk in leži na stranici prvotnega kontrolnega poligona."
 } as const;

@@ -330,5 +330,11 @@ export const en: Record<keyof typeof sl, string> = {
     "guided_lesson_complete": "Lesson complete",
     "guided_lesson_free_exploration": "The final scene is ready. Continue exploring the graph freely.",
     "guided_lesson_scene_error": "The lesson scene could not be prepared.",
-    "guided_lesson_action_unavailable": "This action is not available for this graph:"
+    "guided_lesson_action_unavailable": "This action is not available for this graph:",
+    "arc_length": "Arc length",
+    "show_arc_length": "Show arc length",
+    "arc_length_value": "Arc length: {value0}",
+    "arc_length_description": "The speed of a PH curve is a polynomial, so the arc length is an exact polynomial value rather than a numerical approximation.",
+    "show_elevated_points_on_control_polygon": "Show new points on the control polygon",
+    "elevated_points_description": "Each new control point is a convex combination of neighbouring points and lies on an edge of the original control polygon."
 };
