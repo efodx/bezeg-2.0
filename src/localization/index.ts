@@ -21,6 +21,9 @@ try { if (appStorage.getItem(preferenceKey) === 'en') language = 'en'; } catch {
 const update = () => { revision++; listeners.forEach(listener => listener()); };
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 const snapshot = () => revision;
+/** Subscribe to language/export-state changes outside React; returns the unsubscribe function. */
+export function onLanguageChange(listener: () => void): () => void { return subscribe(listener); }
+export function currentLanguage(): Language { return language; }
 export function useLanguage() {
     useSyncExternalStore(subscribe, snapshot, snapshot);
     return {language, persistenceFailed, exporting: exportsInProgress > 0, exportFailed};

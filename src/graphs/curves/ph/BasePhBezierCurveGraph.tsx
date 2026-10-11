@@ -1,4 +1,4 @@
-import {t} from "../../../localization";
+import {currentLanguage, onLanguageChange, t} from "../../../localization";
 import {HodographInputbox} from "./HodographInputBox";
 import React from "react";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
@@ -19,7 +19,7 @@ import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonAction} from '../../../learning/model';
 
 function formatArcLength(value: number): string {
-    const locale = document.documentElement.lang === 'en' ? 'en-US' : 'sl-SI';
+    const locale = currentLanguage() === 'en' ? 'en-US' : 'sl-SI';
     return new Intl.NumberFormat(locale, {minimumFractionDigits: 3, maximumFractionDigits: 3, useGrouping: false}).format(value);
 }
 
@@ -38,6 +38,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     private disposeHodographSessionResources?: () => void;
     /** Board text owned by this graph; removed with the figure scene and recreated after imports. */
     private arcLengthText?: JXG.Text;
+    private stopArcLengthLanguageUpdates?: () => void;
 
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
@@ -99,9 +100,18 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             fontSize: () => SizeContext.fontSize,
             visible: () => this.state.showArcLength !== false
         } as any) as JXG.Text;
+        // Board text is only recomputed on board update, which a language change does not trigger.
+        const session = this.getActiveGraphSession();
+        const unsubscribe = onLanguageChange(() => {
+            if (this.board === board && this.getActiveGraphSession() === session && board.renderer) board.update();
+        });
+        const unregister = session?.registerCleanup(unsubscribe);
+        this.stopArcLengthLanguageUpdates = () => { unregister?.(); unsubscribe(); };
     }
 
     private removeArcLengthText() {
+        this.stopArcLengthLanguageUpdates?.();
+        this.stopArcLengthLanguageUpdates = undefined;
         const text = this.arcLengthText;
         this.arcLengthText = undefined;
         if (text && text.board?.objectsList.includes(text)) text.board.removeObject(text);

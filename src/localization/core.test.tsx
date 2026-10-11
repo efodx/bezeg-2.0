@@ -2,11 +2,23 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {sl} from './sl';
 import {en} from './en';
-import {beginFigureExport, LocalizedError, message, setLanguage, t} from './index';
+import {beginFigureExport, currentLanguage, LocalizedError, message, onLanguageChange, setLanguage, t} from './index';
 import {LanguageSelector} from './LanguageSelector';
 
 beforeEach(() => { localStorage.clear(); act(() => setLanguage('sl')); });
 afterEach(() => {jest.restoreAllMocks();});
+
+test('onLanguageChange notifies listeners until unsubscribed', () => {
+    const listener = jest.fn();
+    const unsubscribe = onLanguageChange(listener);
+    act(() => setLanguage('en'));
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(currentLanguage()).toBe('en');
+    unsubscribe();
+    act(() => setLanguage('sl'));
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(currentLanguage()).toBe('sl');
+});
 
 test('both catalogs have identical keys and interpolation parameters', () => {
     expect(Object.keys(en).sort()).toEqual(Object.keys(sl).sort());
