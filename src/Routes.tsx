@@ -40,6 +40,7 @@ import SplineAlphaParametrizationGraph
 import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './graphs/functions/ExponentialFunctionGraph';
 import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFunctionsGraph';
+import { ContinuityGraph } from './graphs/functions/ContinuityGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -81,6 +82,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'linear-function': <LinearFunctionGraph/>,
     'exponential-function': <ExponentialFunctionGraph/>,
     'trigonometric-functions': <TrigonometricFunctionsGraph/>,
+    'continuity': <ContinuityGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

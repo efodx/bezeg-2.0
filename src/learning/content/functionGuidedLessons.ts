@@ -787,5 +787,260 @@ const trigonometricFunctions: GuidedLesson = {
     ],
 };
 
+const continuity: GuidedLesson = {
+    demonstrationId: 'continuity',
+    title: text('Zveznost', 'Continuity'),
+    summary: text(
+        'Odsekoma podana funkcija \\(f(x)=ax^2\\) za \\(x\\le1\\) in \\(f(x)=-ax+3\\) za \\(x>1\\) je pri \\(x=1\\) zvezna le za eno vrednost parametra \\(a\\): takrat se limiti z leve in z desne ujemata z vrednostjo \\(f(1)\\).',
+        'The piecewise function \\(f(x)=ax^2\\) for \\(x\\le1\\) and \\(f(x)=-ax+3\\) for \\(x>1\\) is continuous at \\(x=1\\) for exactly one value of the parameter \\(a\\): then the limits from the left and from the right agree with the value \\(f(1)\\).',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje funkcij \\(ax^2\\) in \\(-ax+3\\) ter odčitavanja vrednosti funkcije z grafa.', 'Assumes familiarity with the functions \\(ax^2\\) and \\(-ax+3\\) and with reading function values off a graph.'),
+        text('Priporočeno je, da veš, kaj pomeni, da se \\(x\\) približuje številu z leve ali z desne.', 'It helps to know what it means for \\(x\\) to approach a number from the left or from the right.'),
+    ],
+    learningGoals: [
+        text('Iz obeh delov funkcije izračunaš \\(f(1)\\), limito z leve, limito z desne in skok \\(|3-2a|\\).', 'Compute \\(f(1)\\), the limit from the left, the limit from the right and the jump \\(|3-2a|\\) from the two pieces.'),
+        text('Poiščeš \\(a\\), pri katerem je funkcija zvezna pri \\(x=1\\), in preveriš, da se tedaj vse tri vrednosti ujemajo.', 'Find the \\(a\\) for which the function is continuous at \\(x=1\\) and check that all three values then agree.'),
+        text('Razložiš, zakaj zvezna funkcija ni nujno gladka: naklona obeh delov pri \\(x=1\\) se lahko razlikujeta.', 'Explain why a continuous function need not be smooth: the slopes of the two pieces at \\(x=1\\) can differ.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'continuity-piecewise',
+            latex: 'f(x)=\\begin{cases}ax^{2}, & x\\le 1\\\\ -ax+3, & x>1\\end{cases}',
+            notation: text(
+                'Za \\(x\\le1\\) velja prvi predpis, za \\(x>1\\) drugi; točka \\(x=1\\) spada v levi del.',
+                'The first rule holds for \\(x\\le1\\) and the second for \\(x>1\\); the point \\(x=1\\) belongs to the left piece.',
+            ),
+            explanation: text(
+                'Zato je \\(f(1)=a\\cdot1^2=a\\). Desni predpis pri \\(x=1\\) da \\(-a+3\\), vendar ta vrednost ni vrednost funkcije, ampak le limita z desne.',
+                'Hence \\(f(1)=a\\cdot1^2=a\\). The right rule gives \\(-a+3\\) at \\(x=1\\), but this is not the value of the function, only the limit from the right.',
+            ),
+        },
+        {
+            id: 'continuity-one-sided',
+            latex: '\\lim_{x\\to1^-}f(x)=a,\\qquad \\lim_{x\\to1^+}f(x)=3-a,\\qquad \\left|(3-a)-a\\right|=|3-2a|',
+            notation: text(
+                'Znak \\(1^-\\) pomeni približevanje z leve, znak \\(1^+\\) pa z desne.',
+                'The sign \\(1^-\\) means approaching from the left and \\(1^+\\) approaching from the right.',
+            ),
+            explanation: text(
+                'Vsak del je zvezna funkcija, zato limito dobimo kar z vstavitvijo \\(x=1\\) v ustrezni predpis. Razlika limit je skok.',
+                'Each piece is a continuous function, so each limit is found by substituting \\(x=1\\) into the matching rule. The difference of the limits is the jump.',
+            ),
+        },
+        {
+            id: 'continuity-condition',
+            latex: '\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)',
+            notation: text(
+                'Funkcija je zvezna pri \\(x=1\\), če so leva limita, desna limita in vrednost \\(f(1)\\) enaka.',
+                'The function is continuous at \\(x=1\\) if the left limit, the right limit and the value \\(f(1)\\) are equal.',
+            ),
+            explanation: text(
+                'Ker je \\(f(1)=a\\) že enak levi limiti, ostane pogoj \\(a=3-a\\), to je \\(a=3/2\\).',
+                'Since \\(f(1)=a\\) already equals the left limit, the remaining condition is \\(a=3-a\\), that is \\(a=3/2\\).',
+            ),
+        },
+        {
+            id: 'continuity-slopes',
+            latex: 'f\'_{-}(1)=2a,\\qquad f\'_{+}(1)=-a',
+            notation: text(
+                'Naklon levega dela je odvod \\(2ax\\) pri \\(x=1\\), naklon desnega pa odvod \\(-a\\).',
+                'The slope of the left piece is the derivative \\(2ax\\) at \\(x=1\\), and the slope of the right piece is the derivative \\(-a\\).',
+            ),
+            explanation: text(
+                'Naklona se ujemata le pri \\(2a=-a\\), to je pri \\(a=0\\), tam pa funkcija ni zvezna. Zato ima zvezen graf te funkcije vedno ostri vogal.',
+                'The slopes agree only when \\(2a=-a\\), that is at \\(a=0\\), where the function is not continuous. So the continuous graph of this function always has a corner.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'continuity-condition-example',
+            title: text('Iskanje \\(a\\) za zveznost pri \\(x=1\\)', 'Finding \\(a\\) for continuity at \\(x=1\\)'),
+            calculationLatex: 'a=3-a\\;\\Rightarrow\\;2a=3\\;\\Rightarrow\\;a=\\frac{3}{2},\\quad f(1)=\\frac{3}{2},\\quad \\lim_{x\\to1^-}f(x)=\\frac{3}{2},\\quad \\lim_{x\\to1^+}f(x)=3-\\frac{3}{2}=\\frac{3}{2}',
+            resultLatex: 'a=\\frac{3}{2}',
+            check: text(
+                'Pri \\(a=3/2\\) so vse tri vrednosti enake \\(3/2\\), skok je \\(|3-2\\cdot\\frac{3}{2}|=0\\). Pri vsakem drugem \\(a\\) je skok \\(|3-2a|>0\\).',
+                'For \\(a=3/2\\) all three values equal \\(3/2\\) and the jump is \\(|3-2\\cdot\\frac{3}{2}|=0\\). For every other \\(a\\) the jump \\(|3-2a|\\) is positive.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'continuity-piecewise-step', order: 1,
+            title: text('Odsekoma podana funkcija', 'A piecewise function'),
+            purpose: text('Vrednost \\(f(1)\\) prebrati iz levega dela funkcije.', 'Reading the value \\(f(1)\\) from the left piece of the function.'),
+            explanation: text(
+                'Funkcija ima dva predpisa: \\(f(x)=ax^2\\) za \\(x\\le1\\) in \\(f(x)=-ax+3\\) za \\(x>1\\). Točka \\(x=1\\) spada v levi del, zato je \\(f(1)=a\\cdot1^2=a\\); pri privzetem \\(a=1\\) je \\(f(1)=1\\). Zapolnjena točka \\((1,a)\\) kaže to vrednost. Desni del se začne šele desno od \\(x=1\\).',
+                'The function has two rules: \\(f(x)=ax^2\\) for \\(x\\le1\\) and \\(f(x)=-ax+3\\) for \\(x>1\\). The point \\(x=1\\) belongs to the left piece, so \\(f(1)=a\\cdot1^2=a\\); for the default \\(a=1\\) we get \\(f(1)=1\\). The filled point \\((1,a)\\) shows this value. The right piece starts only to the right of \\(x=1\\).',
+            ),
+            formulaIds: ['continuity-piecewise'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('continuity-piecewise-explanation', 'explanation'), frame('continuity-piecewise-observation', 'observation')],
+            observationPrompt: text(
+                'Premikaj drsnik \\(a\\) in opazuj zapolnjeno točko na navpičnici \\(x=1\\). Primerjaj njeno višino z odčitkom \\(f(1)\\).',
+                'Move the slider \\(a\\) and watch the filled point on the vertical line \\(x=1\\). Compare its height with the readout \\(f(1)\\).',
+            ),
+            expectedObservations: [text(
+                'Zapolnjena točka je vedno na višini \\(a\\) in odčitek \\(f(1)\\) je enak \\(a\\); pri \\(a=1\\) je \\(f(1)=1\\).',
+                'The filled point is always at height \\(a\\) and the readout \\(f(1)\\) equals \\(a\\); for \\(a=1\\) we have \\(f(1)=1\\).',
+            )],
+            scene: {
+                id: 'continuity-default', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Prikazana sta oba dela funkcije pri \\(a=1\\): zapolnjena točka \\((1,1)\\) in votla točka \\((1,2)\\).',
+                    'Both pieces are shown for \\(a=1\\): the filled point \\((1,1)\\) and the hollow point \\((1,2)\\).',
+                ),
+            },
+        },
+        {
+            id: 'continuity-one-sided-step', order: 2,
+            title: text('Enostranski limiti in skok', 'One-sided limits and the jump'),
+            purpose: text('Limito z leve, limito z desne in skok izračunati iz obeh predpisov.', 'Computing the limit from the left, the limit from the right and the jump from the two rules.'),
+            explanation: text(
+                'Ko se \\(x\\) približuje \\(1\\) z leve, računamo z levim predpisom: \\(\\lim_{x\\to1^-}f(x)=a\\). Z desne računamo z desnim predpisom: \\(\\lim_{x\\to1^+}f(x)=-a\\cdot1+3=3-a\\). Votla točka \\((1,3-a)\\) kaže limito z desne; to ni vrednost funkcije, ker \\(x=1\\) ne spada v desni del. Razlika je skok \\(|(3-a)-a|=|3-2a|\\). Pri \\(a=1\\) je leva limita \\(1\\), desna \\(2\\) in skok \\(1\\).',
+                'When \\(x\\) approaches \\(1\\) from the left we use the left rule: \\(\\lim_{x\\to1^-}f(x)=a\\). From the right we use the right rule: \\(\\lim_{x\\to1^+}f(x)=-a\\cdot1+3=3-a\\). The hollow point \\((1,3-a)\\) shows the limit from the right; it is not the value of the function, because \\(x=1\\) does not belong to the right piece. The difference is the jump \\(|(3-a)-a|=|3-2a|\\). For \\(a=1\\) the left limit is \\(1\\), the right limit is \\(2\\) and the jump is \\(1\\).',
+            ),
+            formulaIds: ['continuity-one-sided'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('continuity-one-sided-explanation', 'explanation'), frame('continuity-one-sided-observation', 'observation')],
+            observationPrompt: text(
+                'Poišči zapolnjeno in votlo točko ter odčitaj navpično razdaljo med njima. Primerjaj jo z odčitkom skoka.',
+                'Find the filled and the hollow point and read off the vertical distance between them. Compare it with the jump readout.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(a=1\\) je razdalja med točkama \\(1\\), enaka skoku \\(|3-2\\cdot1|=1\\); točki sta obarvani rdečkasto in na grafu piše, da je skok \\(1\\).',
+                'For \\(a=1\\) the distance between the points is \\(1\\), equal to the jump \\(|3-2\\cdot1|=1\\); the points are colored terracotta and the board says the jump is \\(1\\).',
+            )],
+            scene: {
+                id: 'continuity-jump-example', basedOn: 'demonstration-default',
+                actions: [parameter('a', 1)],
+                expectedState: text(
+                    'Pri \\(a=1\\): leva limita \\(1\\), desna limita \\(2\\), skok \\(1\\); funkcija ni zvezna pri \\(x=1\\).',
+                    'For \\(a=1\\): left limit \\(1\\), right limit \\(2\\), jump \\(1\\); the function is not continuous at \\(x=1\\).',
+                ),
+            },
+        },
+        {
+            id: 'continuity-condition-step', order: 3,
+            title: text('Pogoj za zveznost', 'The condition for continuity'),
+            purpose: text('Iz pogoja \\(a=3-a\\) izračunati parameter, pri katerem je funkcija zvezna.', 'Computing from the condition \\(a=3-a\\) the parameter for which the function is continuous.'),
+            explanation: text(
+                'Funkcija je zvezna pri \\(x=1\\), če je \\(\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)\\). Ker je \\(f(1)=a\\) že enak levi limiti, ostane pogoj \\(a=3-a\\). Iz njega sledi \\(2a=3\\), torej \\(a=3/2\\). Pri tej vrednosti je \\(f(1)=3/2\\), leva limita \\(3/2\\) in desna limita \\(3-3/2=3/2\\). Pri privzetem \\(a=1\\) pogoj ni izpolnjen.',
+                'The function is continuous at \\(x=1\\) if \\(\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)\\). Since \\(f(1)=a\\) already equals the left limit, the remaining condition is \\(a=3-a\\). It gives \\(2a=3\\), so \\(a=3/2\\). For this value \\(f(1)=3/2\\), the left limit is \\(3/2\\) and the right limit is \\(3-3/2=3/2\\). For the default \\(a=1\\) the condition is not met.',
+            ),
+            formulaIds: ['continuity-condition'], workedExampleId: 'continuity-condition-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('continuity-condition-explanation', 'explanation'), frame('continuity-condition-calculation', 'calculation'), frame('continuity-condition-observation', 'observation')],
+            observationPrompt: text(
+                'Poskusi z drsnikom \\(a\\) najti vrednost, pri kateri se zapolnjena in votla točka pokrijeta. Kaj se zgodi z barvo točk in z odčitkom skoka?',
+                'Try the slider \\(a\\) to find the value at which the filled and the hollow point coincide. What happens to the color of the points and to the jump readout?',
+            ),
+            expectedObservations: [text(
+                'Točki se pokrijeta pri \\(a=3/2\\); takrat sta zeleni, skok je \\(0\\) in pri vsaki drugi vrednosti \\(a\\) je skok pozitiven.',
+                'The points coincide at \\(a=3/2\\); then they are green and the jump is \\(0\\), while for every other value of \\(a\\) the jump is positive.',
+            )],
+            scene: {
+                id: 'continuity-condition-scene', basedOn: 'demonstration-default',
+                actions: [parameter('a', 1)],
+                expectedState: text(
+                    'Pri \\(a=1\\) pogoj \\(a=3-a\\) ni izpolnjen: točki se ne pokrivata.',
+                    'For \\(a=1\\) the condition \\(a=3-a\\) is not met: the points do not coincide.',
+                ),
+            },
+        },
+        {
+            id: 'continuity-continuous-step', order: 4,
+            title: text('Zvezna funkcija pri \\(a=3/2\\)', 'The continuous function at \\(a=3/2\\)'),
+            purpose: text('Preveriti, da se pri \\(a=3/2\\) obe točki pokrijeta in skoka ni.', 'Checking that for \\(a=3/2\\) both points coincide and there is no jump.'),
+            explanation: text(
+                'Pri \\(a=3/2\\) leži zapolnjena točka \\((1,3/2)\\) znotraj votle: obe sta zeleni, skok je \\(0\\) in na grafu piše, da je funkcija zvezna pri \\(x=1\\). Drsnik ima korak \\(0{,}05\\), zato je \\(a=1{,}5\\) dosegljiv; odločitev o zveznosti dopušča razliko \\(10^{-9}\\), da zaokrožitvene napake pri premikanju drsnika ne bi skrile zveznosti.',
+                'For \\(a=3/2\\) the filled point \\((1,3/2)\\) sits inside the hollow one: both are green, the jump is \\(0\\) and the board says the function is continuous at \\(x=1\\). The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable; the decision about continuity allows a difference of \\(10^{-9}\\), so that rounding errors from moving the slider do not hide continuity.',
+            ),
+            formulaIds: ['continuity-condition'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('continuity-continuous-explanation', 'explanation'), frame('continuity-continuous-observation', 'observation')],
+            observationPrompt: text(
+                'Premakni drsnik \\(a\\) za en korak v vsako smer in opazuj, kdaj se točki razmakneta in kdaj se barva spremeni.',
+                'Move the slider \\(a\\) one step in each direction and watch when the points separate and when the color changes.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(a=3/2\\) je skok \\(0\\); pri \\(a=1{,}45\\) in \\(a=1{,}55\\) je skok \\(0{,}1\\) in barva se spremeni.',
+                'At \\(a=3/2\\) the jump is \\(0\\); at \\(a=1.45\\) and \\(a=1.55\\) the jump is \\(0.1\\) and the color changes.',
+            )],
+            scene: {
+                id: 'continuity-continuous-scene', basedOn: 'demonstration-default',
+                actions: [parameter('a', 1.5)],
+                expectedState: text(
+                    'Pri \\(a=3/2\\): \\(f(1)=3/2\\), obe limiti \\(3/2\\), skok \\(0\\); funkcija je zvezna pri \\(x=1\\).',
+                    'For \\(a=3/2\\): \\(f(1)=3/2\\), both limits \\(3/2\\), jump \\(0\\); the function is continuous at \\(x=1\\).',
+                ),
+            },
+        },
+        {
+            id: 'continuity-not-smooth', order: 5,
+            title: text('Zvezna ni nujno gladka', 'Continuous is not smooth'),
+            purpose: text('Primerjati naklona obeh delov pri \\(x=1\\) in ju povezati z zveznostjo \\(C^0\\) in \\(C^1\\).', 'Comparing the slopes of the two pieces at \\(x=1\\) and linking them to \\(C^0\\) and \\(C^1\\) continuity.'),
+            explanation: text(
+                'Pri \\(a=3/2\\) je graf zvezen, a ima pri \\(x=1\\) ostri vogal. Levi del ima tam naklon \\(2a=3\\), desni pa \\(-a=-1{,}5\\). Ker se naklona razlikujeta, funkcija ni gladka. Isto razliko srečaš pri zlepkih: zveznost \\(C^0\\) pomeni samo, da se deli stikajo, zveznost \\(C^1\\) pa zahteva še enak naklon v stičišču.',
+                'For \\(a=3/2\\) the graph is continuous but has a corner at \\(x=1\\). The left piece has the slope \\(2a=3\\) there and the right piece has \\(-a=-1.5\\). Because the slopes differ, the function is not smooth. You meet the same distinction for splines: \\(C^0\\) continuity only means that the pieces join, while \\(C^1\\) continuity also requires equal slopes at the joint.',
+            ),
+            formulaIds: ['continuity-slopes'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('continuity-not-smooth-explanation', 'explanation'), frame('continuity-not-smooth-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj odčitka levega in desnega naklona ter poišči vogal na grafu. Ali obstaja \\(a\\), pri katerem sta naklona enaka?',
+                'Compare the readouts of the left and the right slope and find the corner on the graph. Is there an \\(a\\) for which the slopes are equal?',
+            ),
+            expectedObservations: [text(
+                'Naklona sta \\(3\\) in \\(-1{,}5\\); enaka bi bila le pri \\(2a=-a\\), to je pri \\(a=0\\), tam pa skok \\(3\\) uniči zveznost.',
+                'The slopes are \\(3\\) and \\(-1.5\\); they would be equal only for \\(2a=-a\\), that is \\(a=0\\), but there the jump \\(3\\) destroys continuity.',
+            )],
+            scene: {
+                id: 'continuity-slopes-scene', basedOn: 'demonstration-default',
+                actions: [parameter('a', 1.5)],
+                expectedState: text(
+                    'Pri \\(a=3/2\\) je graf zvezen z ostrim vogalom pri \\(x=1\\); levi naklon \\(3\\), desni naklon \\(-1{,}5\\).',
+                    'For \\(a=3/2\\) the graph is continuous with a corner at \\(x=1\\); the left slope is \\(3\\) and the right slope is \\(-1.5\\).',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-continuity',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Section 2.2: The Limit of a Function (one-sided limits), and Section 2.5: Continuity.',
+            supports: ['definition of continuity at a point by lim f(x) = f(a)', 'one-sided limits and the jump discontinuity', 'piecewise functions and the choice of a parameter for continuity'],
+        },
+        {
+            id: 'efodx-continuity-graph',
+            citation: 'Earlier app by the owner: efodx.github.io, src/graphs continuity-graph (studied 2026-10-11).',
+            supports: ['piecewise f(x) = a x^2 for x <= 1 and -a x + 3 for x > 1', 'points marking the two one-sided values'],
+            implementationCorrespondence: 'Bezeg keeps the two pieces and the points at the one-sided values, clips each piece to its own domain, compares the values with a stated tolerance of 10^-9 instead of ===, and adds the status text, the jump and the one-sided slopes as readouts.',
+        },
+        {
+            id: 'bezeg-continuity-implementation',
+            citation: 'Bezeg source: src/analysis/continuity.ts and src/graphs/functions/ContinuityGraph.tsx.',
+            supports: ['pieces, one-sided limits, jump and one-sided slopes', 'continuity test with the tolerance 1e-9', 'slider a in [0, 3] with step 0.05', 'filled and hollow point colored by continuity'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Pri \\(a=0\\) je levi del ničelna funkcija \\(0\\) za \\(x\\le1\\), \\(f(1)=0\\), desna limita je \\(3\\) in skok je \\(3\\). Enak skok \\(3\\) je pri \\(a=3\\). Zveznost je dosegljiva samo pri \\(a=3/2\\).',
+            'For \\(a=0\\) the left piece is the zero function for \\(x\\le1\\), \\(f(1)=0\\), the right limit is \\(3\\) and the jump is \\(3\\). The same jump \\(3\\) occurs at \\(a=3\\). Continuity is reachable only at \\(a=3/2\\).',
+        ),
+        text(
+            'Drsnik ima korak \\(0{,}05\\), zato je \\(a=1{,}5\\) natančno dosegljiv. Zaradi seštevanja decimalk lahko drsnik vrne tudi število, ki se od \\(1{,}5\\) razlikuje za manj kot \\(10^{-9}\\); takšna vrednost šteje kot zvezna, razlika \\(10^{-7}\\) pa ne.',
+            'The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable exactly. Because of decimal addition the slider may also return a number that differs from \\(1.5\\) by less than \\(10^{-9}\\); such a value counts as continuous, while a difference of \\(10^{-7}\\) does not.',
+        ),
+        text(
+            'Točka \\(x=1\\) spada samo v levi del. Zato je \\(f(1)=a\\), ne \\(3-a\\); votla točka \\((1,3-a)\\) ni vrednost funkcije.',
+            'The point \\(x=1\\) belongs only to the left piece. So \\(f(1)=a\\), not \\(3-a\\); the hollow point \\((1,3-a)\\) is not a value of the function.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija zveznost obravnava tudi z zapisom \\(\\varepsilon\\)-\\(\\delta\\).',
+            'Before classroom-ready review, confirm whether the lesson should also treat continuity with the \\(\\varepsilon\\)-\\(\\delta\\) notation.',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity];

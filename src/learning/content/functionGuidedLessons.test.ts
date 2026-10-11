@@ -4,11 +4,12 @@ import {getLessonForDemonstration, sceneAction} from '../runtime/lessonCatalog';
 import {lineThroughPoints, moveAlongLine} from '../../analysis/linear';
 import {exponentialValue, integerValues, mirrorBase} from '../../analysis/exponential';
 import {amplitude, basicValue, period, phaseShift, tangentAsymptotes, trigValue, valueRange} from '../../analysis/trigonometric';
+import {CONTINUOUS_PARAMETER, isContinuous, jump, leftLimit, leftSlope, rightLimit, rightSlope, valueAtJoin} from '../../analysis/continuity';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -240,5 +241,53 @@ describe('trigonometric-functions lesson', () => {
         expect(valueRange({fn: 'tan', A: 1, B: 0})).toBeNull();
         // edge case: A = 0 leaves the constant B
         expect(valueRange({fn: 'sin', A: 0, B: 2})).toEqual([2, 2]);
+    });
+});
+
+describe('continuity lesson', () => {
+    const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'continuity')!;
+    const lesson = () => getLessonForDemonstration('continuity')!;
+
+    test('is available with five steps and adapts its scenes into typed function-parameter actions', () => {
+        expect(lesson().id).toBe('continuity-guided');
+        expect(lesson().steps).toHaveLength(5);
+        expect(lesson().steps[0].scene?.actions).toEqual([{kind: 'prepared-scene', sceneId: 'continuity-default', source: 'demonstration-default'}]);
+        expect(lesson().steps[1].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'a', value: 1}]);
+        expect(lesson().steps[2].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'a', value: 1}]);
+        expect(lesson().steps[3].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'a', value: 1.5}]);
+        expect(lesson().steps[4].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'a', value: 1.5}]);
+    });
+
+    test('the worked example matches the mathematics: a = 3 - a gives a = 3/2 and all three values are 3/2', () => {
+        expect(3 / 2).toBe(CONTINUOUS_PARAMETER);
+        expect(2 * CONTINUOUS_PARAMETER).toBe(3);
+        expect(leftLimit(1.5)).toBe(1.5);
+        expect(rightLimit(1.5)).toBe(3 - 1.5);
+        expect(valueAtJoin(1.5)).toBe(1.5);
+        expect(jump(1.5)).toBe(0);
+        const example = source().workedExamples[0];
+        expect(example.calculationLatex).toContain('a=3-a\\;\\Rightarrow\\;2a=3\\;\\Rightarrow\\;a=\\frac{3}{2}');
+        expect(example.calculationLatex).toContain('\\lim_{x\\to1^+}f(x)=3-\\frac{3}{2}=\\frac{3}{2}');
+        expect(example.resultLatex).toBe('a=\\frac{3}{2}');
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        // steps 1 and 2: default a = 1 has f(1) = 1, left limit 1, right limit 2, jump 1, and is not continuous
+        expect([valueAtJoin(1), leftLimit(1), rightLimit(1), jump(1), isContinuous(1)]).toEqual([1, 1, 2, 1, false]);
+        expect(Math.abs(3 - 2 * 1)).toBe(1);
+        // step 4: the neighbouring slider positions 1.45 and 1.55 have jump 0.1 and are not continuous
+        for (const a of [1.45, 1.55]) {
+            expect(jump(a)).toBeCloseTo(0.1, 12);
+            expect(isContinuous(a)).toBe(false);
+        }
+        // step 5: slopes 2a = 3 and -a = -1.5 at a = 3/2, equal only when 2a = -a, i.e. a = 0 (jump 3 there)
+        expect([leftSlope(1.5), rightSlope(1.5)]).toEqual([3, -1.5]);
+        expect(leftSlope(0)).toBe(-rightSlope(0));
+        expect([jump(0), isContinuous(0)]).toEqual([3, false]);
+        // edge cases: a = 0 and a = 3 both jump by 3; |1.5 + 1e-7 - 1.5| = 1e-7 is outside the tolerance, 1e-10 inside
+        expect([valueAtJoin(0), rightLimit(0), jump(0)]).toEqual([0, 3, 3]);
+        expect([leftLimit(3), rightLimit(3), jump(3)]).toEqual([3, 0, 3]);
+        expect(isContinuous(1.5 + 1e-7)).toBe(false);
+        expect(isContinuous(1.5 + 1e-10)).toBe(true);
     });
 });

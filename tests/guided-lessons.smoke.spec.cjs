@@ -918,8 +918,59 @@ const trigonometric = {
     stableCounts: async page => ({equation: await trigReadout(page, 'equation')}),
 };
 
+// ---------------------------------------------------------------- Continuity
+const continuityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: a, f(1) = left limit, right limit, jump and whether the function is continuous (default, jump example, condition, a = 3/2, slopes).
+const CONTINUITY_STEPS = [
+    {a: 1, right: '2', jump: '1', continuous: false}, {a: 1, right: '2', jump: '1', continuous: false}, {a: 1, right: '2', jump: '1', continuous: false},
+    {a: 1.5, right: '1.5', jump: '0', continuous: true}, {a: 1.5, right: '1.5', jump: '0', continuous: true},
+];
+
+const continuity = {
+    id: 'continuity',
+    path: `${BASE}/functions/continuity`,
+    titles: {sl: 'Zveznost', en: 'Continuity'},
+    steps: 5,
+    minFrames: 11, // 2 + 2 + 3 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = CONTINUITY_STEPS[step - 1];
+        await expect.poll(() => continuityReadout(page, 'value'), {message: `f(1) at ${label}`}).toBe(String(expected.a));
+        await expect.poll(() => continuityReadout(page, 'left-limit'), {message: `left limit at ${label}`}).toBe(String(expected.a));
+        await expect.poll(() => continuityReadout(page, 'right-limit'), {message: `right limit at ${label}`}).toBe(expected.right);
+        await expect.poll(() => continuityReadout(page, 'jump'), {message: `jump at ${label}`}).toBe(expected.jump);
+        // The status is written in the page language (sl: "zvezna pri x = 1" / "skok 1 pri x = 1"; en: "continuous at x = 1" / "jump 1 at x = 1").
+        expect(await continuityReadout(page, 'status'), `status at ${label}`).toMatch(expected.continuous ? /^(zvezna pri|continuous at) x = 1$/ : new RegExp(`^(skok|jump) ${expected.jump} (pri|at) x = 1$`));
+        await expectPointNear(page, [1, expected.a], `filled point (1, a) at ${label}`);
+        await expectPointNear(page, [1, Number(expected.right)], `hollow point (1, 3 - a) at ${label}`);
+        const stats = await boardStats(page);
+        expect(stats.visibleCurves, `both pieces drawn at ${label}`).toBe(2);
+        expect(stats.drawnCurves, `both pieces have points at ${label}`).toBe(2);
+        expect(stats.total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 3).fill('2.5');
+        await expect.poll(() => continuityReadout(page, 'value')).toBe('2.5');
+        await expect.poll(() => continuityReadout(page, 'right-limit')).toBe('0.5');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => continuityReadout(page, 'value'), {message: 'lesson scene replaced the user parameter'}).toBe('1');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => continuityReadout(page, 'value'), {message: 'user parameter restored'}).toBe('2.5');
+        await expectPointNear(page, [1, 0.5], 'user hollow point restored');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({a: await continuityReadout(page, 'value')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

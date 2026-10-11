@@ -29,6 +29,7 @@ import preview_uniform_parameterization from './images/demonstrations/catalog/un
 import preview_linear_function from './images/demonstrations/catalog/linear-function.png';
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
+import preview_continuity from './images/demonstrations/catalog/continuity.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -60,4 +61,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,
     'trigonometric-functions': preview_trigonometric_functions,
+    'continuity': preview_continuity,
 };

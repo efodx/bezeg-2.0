@@ -4,7 +4,7 @@
 
 **Dependencies:** [Trigonometric functions](03-trigonometric-functions.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented
 
 ## Goal
 
@@ -26,4 +26,11 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 72 suites, 853 tests pass.
+- `CI=false npm run build`: compiled.
+- Lesson smoke row (`continuity`, sl + en + narrow viewport): 3/3; `tests/demonstrations.smoke.spec.cjs`: 31/31 after raising the catalog count to 30.
+- Worker browser check: SL→EN switch updates board texts, slider value and inspector readouts live; status "zvezna pri x = 1" / "skok 1 pri x = 1" and English counterparts.
+- Catalog preview regenerated (`continuity.png`, manifest, asset map); no other PNG changed.
+
+No new action kind: `function-parameter` `a` already existed. Points are coloured with `GraphPalette.primaryCurve` (match) and `constructionLevels[5]` (mismatch); the status text carries the same meaning.

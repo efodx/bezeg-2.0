@@ -129,3 +129,19 @@ test.each([[[]], [null], [{}], [{...validTrig, fn: "sec"}], [{...validTrig, omeg
     expect(() => preflightPresetImport(trigonometricPreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const continuityPreset = (data: unknown) => JSON.stringify({"preset-piecewise-continuity": {data: [{id: "Osnova", boardState: {boundingBox: [-2, 5, 4, -2]},
+    graphState: {initialized: true, a: 1}, data}]}});
+
+test("piecewise-continuity collection imports a model object and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(continuityPreset({a: 1.5})));
+    expect(JSON.parse(localStorage.getItem("preset-piecewise-continuity")!).data[0].data).toEqual({a: 1.5});
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{a: -0.05}], [{a: 3.05}], [{a: "1"}], [{a: null}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("piecewise-continuity collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(continuityPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

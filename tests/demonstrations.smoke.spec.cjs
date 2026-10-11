@@ -44,15 +44,15 @@ test('the demonstration catalog expands all seven topics and links every maintai
     }
 
     const cards = catalog.locator('.demonstrations-catalog-card');
-    await expect(cards).toHaveCount(29);
+    await expect(cards).toHaveCount(30);
     const links = cards.locator('a.demonstrations-catalog-main[href]');
     const displayedPaths = await links.evaluateAll(anchors => anchors.map(anchor => new URL(anchor.href).pathname).sort());
     const expectedPaths = demonstrations.map(demonstration => demonstration.path).sort();
     expect(displayedPaths).toEqual(expectedPaths);
 
     const previews = cards.locator('img.demonstrations-catalog-preview');
-    await expect(previews).toHaveCount(29);
-    await expect(cards.locator('.demonstrations-catalog-learn')).toHaveCount(29);
+    await expect(previews).toHaveCount(30);
+    await expect(cards.locator('.demonstrations-catalog-learn')).toHaveCount(30);
     await expect(page.getByText(/Variant [ABC]/)).toHaveCount(0);
     for (let index = 0; index < await previews.count(); index += 1) {
         const preview = previews.nth(index);
