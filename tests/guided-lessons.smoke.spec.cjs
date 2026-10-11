@@ -824,8 +824,51 @@ const linear = {
     stableCounts: async page => ({equation: await linearEquation(page)}),
 };
 
+// ---------------------------------------------------------------- Exponential function
+const exponentialReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: base a (readout and f(1)) and whether the dashed mirror graph is visible (default, doubling, a = 0.5, mirror, above the axis).
+const EXPONENTIAL_STEPS = [
+    {a: '2', mirror: false}, {a: '2', mirror: false}, {a: '0.5', mirror: false}, {a: '2', mirror: true}, {a: '2', mirror: false},
+];
+
+const exponential = {
+    id: 'exponential-function',
+    path: `${BASE}/functions/exponential`,
+    titles: {sl: 'Eksponentna funkcija', en: 'Exponential function'},
+    steps: 5,
+    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = EXPONENTIAL_STEPS[step - 1];
+        await expect.poll(() => exponentialReadout(page, 'a'), {message: `base at ${label}`}).toBe(expected.a);
+        await expect.poll(() => exponentialReadout(page, 'f1'), {message: `f(1) at ${label}`}).toBe(expected.a);
+        await expectPointNear(page, [0, 1], `point (0,1) at ${label}`);
+        await expectPointNear(page, [1, Number(expected.a)], `point (1,a) at ${label}`);
+        await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible graphs at ${label}`}).toBe(expected.mirror ? 2 : 1);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 5).fill('3');
+        await expect.poll(() => exponentialReadout(page, 'a')).toBe('3');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => exponentialReadout(page, 'a'), {message: 'lesson scene replaced the user base'}).toBe('0.5');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => exponentialReadout(page, 'a'), {message: 'user base restored'}).toBe('3');
+        await expectPointNear(page, [1, 3], 'user point (1,a) restored');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({a: await exponentialReadout(page, 'a')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

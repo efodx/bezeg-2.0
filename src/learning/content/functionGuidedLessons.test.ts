@@ -2,11 +2,12 @@ import {functionGuidedLessons} from './functionGuidedLessons';
 import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
 import {getLessonForDemonstration, sceneAction} from '../runtime/lessonCatalog';
 import {lineThroughPoints, moveAlongLine} from '../../analysis/linear';
+import {exponentialValue, integerValues, mirrorBase} from '../../analysis/exponential';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -66,7 +67,7 @@ test('the lesson is available and adapts its scenes into typed function-paramete
 
 test('scene actions reject unknown names, malformed values and non-finite numbers', () => {
     const bad = (value: unknown) => () => sceneAction({name: 'set-function-parameter', value: value as never});
-    expect(bad({name: 'a', value: 1})).toThrow(/name must be one of/);
+    expect(bad({name: 'z', value: 1})).toThrow(/name must be one of/);
     expect(bad({name: 'k', value: NaN})).toThrow(/finite number/);
     expect(bad({name: 'k', value: Infinity})).toThrow(/finite number/);
     expect(bad({name: 'k', value: '2'})).toThrow(/finite number/);
@@ -96,4 +97,52 @@ test('the worked example and the scene values match the line mathematics', () =>
     expect(moveAlongLine(fromDefault[0], fromDefault[1], {k: -0.5})).toEqual([{x: 0, y: 1}, {x: 2, y: 0}]);
     // The edge-case scene places both points on x = 1.
     expect(lineThroughPoints({x: 1, y: -1}, {x: 1, y: 3})).toEqual({kind: 'vertical', x: 1});
+});
+
+test('scene actions accept the exponential base and reject a base that is not a finite number', () => {
+    expect(sceneAction({name: 'set-function-parameter', value: {name: 'a', value: 0.5}})).toEqual({kind: 'function-parameter', name: 'a', value: 0.5});
+    expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'a', value: NaN}})).toThrow(/finite number/);
+});
+
+test('show-function-element validates its closed target and boolean value', () => {
+    const element = (value: unknown) => () => sceneAction({name: 'show-function-element', value: value as never});
+    expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: true}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: true});
+    expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: false}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: false});
+    expect(element({name: 'tangent', value: true})).toThrow(/name must be one of mirror/);
+    expect(element({name: 'mirror', value: 1})).toThrow(/true or false/);
+    expect(element({name: 'mirror', value: 'true'})).toThrow(/true or false/);
+    expect(element({name: 'mirror'})).toThrow(/true or false/);
+    expect(element(true)).toThrow(/{name, value}/);
+    expect(element(null)).toThrow(/{name, value}/);
+    expect(element([])).toThrow(/{name, value}/);
+});
+
+describe('exponential-function lesson', () => {
+    const lesson = () => getLessonForDemonstration('exponential-function')!;
+    const example = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'exponential-function')!.workedExamples[0];
+
+    test('is available with five steps and adapts its scenes into typed actions', () => {
+        expect(lesson().id).toBe('exponential-function-guided');
+        expect(lesson().steps).toHaveLength(5);
+        expect(lesson().steps[2].scene?.actions.at(-1)).toEqual({kind: 'function-parameter', name: 'a', value: 0.5});
+        expect(lesson().steps[3].scene?.actions.slice(1)).toEqual([
+            {kind: 'function-parameter', name: 'a', value: 2},
+            {kind: 'function-visibility', target: 'mirror', visible: true},
+        ]);
+    });
+
+    test('the worked example matches the mathematics: f(0..3) = 1, 2, 4, 8', () => {
+        expect(integerValues(2, 0, 3)).toEqual([1, 2, 4, 8]);
+        expect(example().calculationLatex).toContain('f(0)=2^0=1,\\quad f(1)=2\\cdot1=2,\\quad f(2)=2\\cdot2=4,\\quad f(3)=2\\cdot4=8');
+        expect(example().resultLatex).toBe('f(0),f(1),f(2),f(3)=1,\\,2,\\,4,\\,8');
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        expect(integerValues(0.5, 0, 3)).toEqual([1, 0.5, 0.25, 0.125]);
+        expect(exponentialValue(mirrorBase(2), -1)).toBe(2);
+        expect(exponentialValue(2, -10)).toBe(1 / 1024);
+        expect(1 / 1024).toBeCloseTo(0.001, 3);
+        expect(exponentialValue(0.1, -4)).toBeCloseTo(10000, 6);
+        expect(Math.pow(-2, 0.5)).toBeNaN();
+    });
 });

@@ -23,6 +23,7 @@ import {LessonAction, LessonSceneCheckpoint, UnsupportedLessonActionError} from 
 export type FunctionGraphState<M extends object> = BaseGraphState & M;
 
 export type FunctionParameterAction = Extract<LessonAction, { kind: 'function-parameter' }>;
+export type FunctionVisibilityAction = Extract<LessonAction, { kind: 'function-visibility' }>;
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -78,6 +79,11 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** Applies one lesson parameter against `this.model`. Throw UnsupportedLessonActionError for names the graph does not own. */
     protected applyFunctionParameter(action: FunctionParameterAction): void {
+        throw new UnsupportedLessonActionError(action);
+    }
+
+    /** Shows or hides one optional element against `this.model`. Throw UnsupportedLessonActionError for targets the graph does not own. */
+    protected applyFunctionVisibility(action: FunctionVisibilityAction): void {
         throw new UnsupportedLessonActionError(action);
     }
 
@@ -173,6 +179,10 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     protected override applyLessonAction(action: LessonAction): void {
         if (action.kind === "function-parameter") {
             this.applyFunctionParameter(action);
+            return;
+        }
+        if (action.kind === "function-visibility") {
+            this.applyFunctionVisibility(action);
             return;
         }
         super.applyLessonAction(action);

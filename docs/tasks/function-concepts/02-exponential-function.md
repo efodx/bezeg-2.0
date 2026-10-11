@@ -4,7 +4,7 @@
 
 **Dependencies:** [Linear function](01-linear-function.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented on 2026-10-11; owner language and classroom review pending
 
 ## Goal
 
@@ -26,4 +26,10 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 65 suites, 677 tests pass.
+- `CI=false npm run build`: compiled; only pre-existing lint warnings.
+- Lesson smoke row 3/3 and route smoke for `exponential-function` pass (with the linear rows rerun: 8/8).
+- Worker browser check: SL→EN switch updates the inspector and board legend; `a=0.1` with the mirror draws cleanly.
+
+Adds the `function-visibility` action kind (target `mirror`) and scene action `show-function-element`.

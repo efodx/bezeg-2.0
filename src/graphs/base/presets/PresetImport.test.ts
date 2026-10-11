@@ -91,3 +91,21 @@ test("linear-function collection rejects graph state with a non-number coordinat
     const contents = JSON.stringify({"preset-linear-function": {data: [{id: "x", graphState: {initialized: true, x1: {}}}]}});
     expect(() => preflightPresetImport(contents)).toThrow();
 });
+
+const exponentialPreset = (data: unknown) => JSON.stringify({"preset-exponential-function": {data: [{id: "Osnova", boardState: {boundingBox: [-5, 9, 5, -3]},
+    graphState: {initialized: true, a: 2, mirror: false}, data}]}});
+
+test("exponential-function collection imports a model object and keeps other storage untouched", () => {
+    const data = {a: 0.5, mirror: true};
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(exponentialPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-exponential-function")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{a: 0}], [{a: -2}], [{a: "2"}], [{a: 5.5}], [{a: 1e9}], [{a: 2, mirror: "yes"}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("exponential-function collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(exponentialPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

@@ -1,6 +1,6 @@
 import type {DemonstrationId} from '../../demonstrations';
-import {FUNCTION_PARAMETER_NAMES} from '../model';
-import type {FunctionParameterName, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
+import {FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
+import type {FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 
@@ -140,6 +140,18 @@ export function sceneAction(action: SceneAction): LessonAction {
         if (typeof parameter !== 'number' || !Number.isFinite(parameter)) throw new Error('The function parameter value must be a finite number.');
         return {kind: 'function-parameter', name: name as FunctionParameterName, value: parameter};
     }
+    if (action.name === 'show-function-element') {
+        const value: unknown = action.value;
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('The function element action needs a value of the form {name, value}.');
+        }
+        const {name, value: visible} = value as {name?: unknown; value?: unknown};
+        if (typeof name !== 'string' || !FUNCTION_VISIBILITY_TARGETS.includes(name as FunctionVisibilityTarget)) {
+            throw new Error(`The function element name must be one of ${FUNCTION_VISIBILITY_TARGETS.join(', ')}.`);
+        }
+        if (typeof visible !== 'boolean') throw new Error('The function element value must be true or false.');
+        return {kind: 'function-visibility', target: name as FunctionVisibilityTarget, visible};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -247,6 +259,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'spline-g1-symmetric',
     'spline-parameterization',
     'linear-function',
+    'exponential-function',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);
