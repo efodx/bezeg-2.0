@@ -1,0 +1,4426 @@
+{
+  "phase": "baseline",
+  "revision": "ecc17fabbe0fd03ac4dc9f6b35f6df2efe5316d0",
+  "baseUrl": "http://127.0.0.1:4187/bezeg-2.0",
+  "metadata": {
+    "browserVersion": "156.0.8078.4",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "viewport": {
+      "width": 1440,
+      "height": 850
+    },
+    "deviceScaleFactor": 1,
+    "locale": "sl-SI",
+    "colorScheme": "light",
+    "timezoneId": "Europe/Ljubljana",
+    "input": "Playwright synthetic mouse events in headless Chromium; does not measure physical input-to-photon latency."
+  },
+  "method": {
+    "repeats": 5,
+    "pointGesture": "Five point drags; each uses 12 pointer moves 42px right and 22px up from its current visible point location. Record actual endpoint and board geometry for every trial.",
+    "nativeRangeGesture": "Find by associated label and min/max, scroll into view, then 10 pointer moves alternating between approximately 18% and 82% of the track. Capture input value and board geometry at each endpoint; assert both change.",
+    "farinGesture": "Find JSXGraph Farin slider, map board coordinates through JSXGraph Coords plus container offset, move glider 10 steps alternating between 18% and 82%, and verify ratio and curve geometry change.",
+    "raw": "Per-trial wall time includes synthetic pointer dispatch, checkpoint reads, and 32 ms settling. Also record pointermove counts, board.update calls, observed pointer-to-first-board-DOM-mutation delays, and requestAnimationFrame intervals. p95 uses nearest-rank; with five repeats it equals the maximum."
+  },
+  "scenes": {
+    "bezier": {
+      "path": "/bezeg-2.0/bezier/curve",
+      "errors": [],
+      "board": "jgbox"
+    },
+    "decasteljau": {
+      "path": "/bezeg-2.0/bezier/decasteljau",
+      "errors": [],
+      "board": "jgbox"
+    },
+    "rational": {
+      "path": "/bezeg-2.0/rational/base",
+      "errors": [],
+      "board": "jgbox"
+    },
+    "ph": {
+      "path": "/bezeg-2.0/ph/cubic",
+      "errors": [],
+      "board": "hodograph-input-box"
+    },
+    "construction": {
+      "path": "/bezeg-2.0/bezier/decasteljau",
+      "errors": []
+    },
+    "rational-slider": {
+      "path": "/bezeg-2.0/rational/farin-points",
+      "errors": [],
+      "control": "Farinove Točke"
+    },
+    "ph-offset": {
+      "path": "/bezeg-2.0/ph/cubic",
+      "errors": [],
+      "control": "Razdalja odmika d"
+    }
+  },
+  "measurements": {
+    "bezier-point-drag": {
+      "target": {
+        "id": "jxgBoard1P23",
+        "name": "$$p_{0}$$",
+        "xy": [
+          -4,
+          -3
+        ],
+        "screen": [
+          435.6000061035156,
+          737.7374877929688
+        ],
+        "rect": {
+          "x": 430.6000061035156,
+          "y": 732.7374877929688,
+          "w": 10,
+          "h": 10
+        },
+        "visibleEditablePointCount": 4
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            2,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3,
+            -2
+          ]
+        },
+        {
+          "id": "jxgBoard1G31",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4,
+              "y": -3
+            },
+            {
+              "t": 0.25,
+              "x": -2.625,
+              "y": -0.171875
+            },
+            {
+              "t": 0.5,
+              "x": -0.5,
+              "y": 0.875
+            },
+            {
+              "t": 0.75,
+              "x": 1.625,
+              "y": 0.234375
+            },
+            {
+              "t": 1,
+              "x": 3,
+              "y": -2
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P32",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            3,
+            -3
+          ]
+        }
+      ],
+      "finalXY": [
+        -0.2566850359639591,
+        -1.0392156862745099
+      ],
+      "verification": {
+        "allFiveDisplaced": true,
+        "allFiveChangedGeometry": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 321.15,
+          "p95": 486.35,
+          "max": 486.35,
+          "raw": [
+            303.52,
+            314.01,
+            321.15,
+            370.37,
+            486.35
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 43,
+          "p50": 6.3,
+          "p95": 9.5,
+          "max": 11.5,
+          "raw": [
+            1.2,
+            1.4,
+            1.6,
+            1.6,
+            2.7,
+            2.9,
+            3,
+            3,
+            4.2,
+            4.6,
+            4.9,
+            5.1,
+            5.3,
+            5.5,
+            5.6,
+            5.7,
+            5.9,
+            6,
+            6.1,
+            6.2,
+            6.3,
+            6.3,
+            6.3,
+            6.3,
+            6.6,
+            6.8,
+            6.8,
+            6.9,
+            7.3,
+            7.3,
+            7.4,
+            7.5,
+            7.8,
+            7.8,
+            8.1,
+            8.3,
+            8.4,
+            8.5,
+            8.7,
+            9,
+            9.5,
+            9.9,
+            11.5
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 107,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8,
+          "raw": [
+            16.5,
+            16.5,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.74,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 65,
+        "boardUpdateCallsByTrial": [
+          18,
+          16,
+          16,
+          22,
+          16
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 370.37,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 18,
+            "mutationLatencyMs": [
+              4.6,
+              11.5,
+              7.5,
+              6.3,
+              6.9,
+              5.1,
+              4.2,
+              5.7
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.5,
+              16.7,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -4,
+                -3
+              ],
+              "afterXY": [
+                -3.251336898395722,
+                -2.607843137254902
+              ],
+              "displacement": 0.8451529120235077,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 314.01,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.6,
+              3,
+              6.8,
+              5.9,
+              6.3,
+              6.1,
+              9,
+              6.3
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -3.251336898395722,
+                -2.607843137254902
+              ],
+              "afterXY": [
+                -2.5026743407767937,
+                -2.215686274509804
+              ],
+              "displacement": 0.8451524301441681,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 321.15,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.4,
+              3,
+              6.2,
+              5.3,
+              7.4,
+              6.8,
+              5.6,
+              8.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.736,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -2.5026743407767937,
+                -2.215686274509804
+              ],
+              "afterXY": [
+                -1.7540112391725153,
+                -1.823529411764706
+              ],
+              "displacement": 0.8451529120235082,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 486.35,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 22,
+            "mutationLatencyMs": [
+              1.6,
+              2.9,
+              7.3,
+              8.3,
+              8.4,
+              9.9,
+              8.7,
+              9.5,
+              7.8,
+              7.3,
+              7.8
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.5,
+              16.8,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.7540112391725153,
+                -1.823529411764706
+              ],
+              "afterXY": [
+                -1.0053481375682372,
+                -1.431372549019608
+              ],
+              "displacement": 0.845152912023508,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 303.52,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.2,
+              2.7,
+              5.5,
+              4.9,
+              6,
+              6.3,
+              8.5,
+              6.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.0053481375682372,
+                -1.431372549019608
+              ],
+              "afterXY": [
+                -0.2566850359639591,
+                -1.0392156862745099
+              ],
+              "displacement": 0.845152912023508,
+              "geometryChanged": true
+            }
+          }
+        ]
+      }
+    },
+    "decasteljau-point-drag": {
+      "target": {
+        "id": "jxgBoard1P23",
+        "xy": [
+          -4,
+          -3
+        ],
+        "screen": [
+          435.6000061035156,
+          737.7374877929688
+        ],
+        "rect": {
+          "x": 430.6000061035156,
+          "y": 732.7374877929688,
+          "w": 10,
+          "h": 10
+        },
+        "visibleEditablePointCount": 15
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P31",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1G33",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4,
+              "y": -3
+            },
+            {
+              "t": 0.125,
+              "x": -3.328125,
+              "y": -0.8603515625
+            },
+            {
+              "t": 0.25,
+              "x": -2.375,
+              "y": 0.609375
+            },
+            {
+              "t": 0.375,
+              "x": -1.234375,
+              "y": 1.4677734375
+            },
+            {
+              "t": 0.5,
+              "x": 0,
+              "y": 1.75
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P40",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P50",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3.5,
+            -0.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P52",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -1.5,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P55",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            1.5,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P58",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3.5,
+            -0.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P61",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -2.5,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P63",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P66",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            2.5,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P69",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -1.25,
+            1.75
+          ]
+        },
+        {
+          "id": "jxgBoard1P71",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            1.25,
+            1.75
+          ]
+        },
+        {
+          "id": "jxgBoard1P74",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            1.75
+          ]
+        }
+      ],
+      "finalXY": [
+        -0.3814622195646721,
+        -1.1045744380848932
+      ],
+      "verification": {
+        "allFiveDisplaced": true,
+        "allFiveChangedGeometry": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 313.89,
+          "p95": 369.65,
+          "max": 369.65,
+          "raw": [
+            300.7,
+            312.72,
+            313.89,
+            320.41,
+            369.65
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 42,
+          "p50": 5.8,
+          "p95": 10.4,
+          "max": 12.6,
+          "raw": [
+            0.7,
+            0.9,
+            1.1,
+            1.2,
+            1.5,
+            1.5,
+            2,
+            3.3,
+            3.4,
+            3.8,
+            3.9,
+            4.1,
+            4.3,
+            4.4,
+            5,
+            5.1,
+            5.3,
+            5.4,
+            5.6,
+            5.8,
+            5.8,
+            5.9,
+            6,
+            6.2,
+            6.3,
+            6.5,
+            6.5,
+            6.6,
+            6.7,
+            7,
+            7.2,
+            7.2,
+            7.8,
+            8.2,
+            8.5,
+            8.7,
+            9.5,
+            9.6,
+            10.2,
+            10.4,
+            11.2,
+            12.6
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 96,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8,
+          "raw": [
+            16.5,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.63,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 65,
+        "boardUpdateCallsByTrial": [
+          18,
+          16,
+          16,
+          16,
+          16
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 369.65,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 18,
+            "mutationLatencyMs": [
+              3.8,
+              10.4,
+              9.6,
+              8.7,
+              9.5,
+              6.3,
+              7.8,
+              7.2,
+              12.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.5,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -4,
+                -3
+              ],
+              "afterXY": [
+                -3.313725490196078,
+                -2.640522513160094
+              ],
+              "displacement": 0.7747236709636204,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 320.41,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              2,
+              3.3,
+              5.6,
+              6.5,
+              5.8,
+              4.1,
+              10.2,
+              8.2,
+              11.2
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -3.313725490196078,
+                -2.640522513160094
+              ],
+              "afterXY": [
+                -2.6274515243775065,
+                -2.281045026320187
+              ],
+              "displacement": 0.7747231890843886,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 300.7,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              0.7,
+              1.1,
+              7,
+              4.4,
+              6,
+              5.9,
+              3.9,
+              3.4
+            ],
+            "rafFrameIntervalsMs": [
+              16.634,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -2.6274515243775065,
+                -2.281045026320187
+              ],
+              "afterXY": [
+                -1.8787884227732283,
+                -1.8888881635750894
+              ],
+              "displacement": 0.8451529120235078,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 313.89,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              0.9,
+              1.5,
+              5.3,
+              5.8,
+              4.3,
+              5.4,
+              6.2,
+              6.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.8787884227732283,
+                -1.8888881635750894
+              ],
+              "afterXY": [
+                -1.1301253211689501,
+                -1.4967313008299912
+              ],
+              "displacement": 0.8451529120235082,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 312.72,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.2,
+              1.5,
+              6.7,
+              8.5,
+              6.5,
+              7.2,
+              5,
+              5.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.1301253211689501,
+                -1.4967313008299912
+              ],
+              "afterXY": [
+                -0.3814622195646721,
+                -1.1045744380848932
+              ],
+              "displacement": 0.8451529120235078,
+              "geometryChanged": true
+            }
+          }
+        ]
+      }
+    },
+    "rational-point-drag": {
+      "target": {
+        "id": "jxgBoard1P23",
+        "name": "$$p_{0}$$",
+        "xy": [
+          -4,
+          -3
+        ],
+        "screen": [
+          435.6000061035156,
+          737.7374877929688
+        ],
+        "rect": {
+          "x": 430.6000061035156,
+          "y": 732.7374877929688,
+          "w": 10,
+          "h": 10
+        },
+        "visibleEditablePointCount": 4
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1G31",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4,
+              "y": -3
+            },
+            {
+              "t": 0.25,
+              "x": -2.6263736263736264,
+              "y": 1.1538461538461537
+            },
+            {
+              "t": 0.5,
+              "x": -0.8181818181818179,
+              "y": 1.909090909090909
+            },
+            {
+              "t": 0.75,
+              "x": 1.7945205479452055,
+              "y": 0.6986301369863012
+            },
+            {
+              "t": 1,
+              "x": 4,
+              "y": -3
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P32",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            -3
+          ]
+        }
+      ],
+      "finalXY": [
+        -0.3190736277643156,
+        -1.0718950621797017
+      ],
+      "verification": {
+        "allFiveDisplaced": true,
+        "allFiveChangedGeometry": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 321.95,
+          "p95": 378.05,
+          "max": 378.05,
+          "raw": [
+            302.75,
+            318.2,
+            321.95,
+            354.36,
+            378.05
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 41,
+          "p50": 6.2,
+          "p95": 10.6,
+          "max": 13.3,
+          "raw": [
+            1,
+            1.3,
+            1.3,
+            1.9,
+            2.5,
+            2.6,
+            2.7,
+            4,
+            4.8,
+            4.8,
+            4.9,
+            4.9,
+            5.2,
+            5.2,
+            5.3,
+            5.3,
+            5.3,
+            5.5,
+            5.7,
+            6,
+            6.2,
+            6.4,
+            6.6,
+            6.8,
+            6.8,
+            7.1,
+            7.1,
+            7.1,
+            7.2,
+            7.2,
+            7.6,
+            8.2,
+            8.4,
+            8.4,
+            8.5,
+            8.9,
+            9.1,
+            10,
+            10.6,
+            10.9,
+            13.3
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 98,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8,
+          "raw": [
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 65,
+        "boardUpdateCallsByTrial": [
+          18,
+          16,
+          16,
+          16,
+          18
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 378.05,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 18,
+            "mutationLatencyMs": [
+              7.2,
+              10,
+              8.4,
+              9.1,
+              8.9,
+              5.7,
+              5.3,
+              7.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -4,
+                -3
+              ],
+              "afterXY": [
+                -3.251336898395722,
+                -2.607843137254902
+              ],
+              "displacement": 0.8451529120235077,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 318.2,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.3,
+              2.7,
+              8.5,
+              6.6,
+              6.4,
+              5.2,
+              5.5,
+              6.2
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -3.251336898395722,
+                -2.607843137254902
+              ],
+              "afterXY": [
+                -2.5026743407767937,
+                -2.215686274509804
+              ],
+              "displacement": 0.8451524301441681,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 302.75,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1,
+              2.5,
+              6.8,
+              5.3,
+              4.8,
+              4.8,
+              4.9,
+              4
+            ],
+            "rafFrameIntervalsMs": [
+              16.702,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -2.5026743407767937,
+                -2.215686274509804
+              ],
+              "afterXY": [
+                -1.7540112391725153,
+                -1.823529411764706
+              ],
+              "displacement": 0.8451529120235082,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 321.95,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              1.3,
+              2.6,
+              4.9,
+              5.3,
+              10.6,
+              8.4,
+              6,
+              6.8
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.7540112391725153,
+                -1.823529411764706
+              ],
+              "afterXY": [
+                -1.0053481375682372,
+                -1.431372549019608
+              ],
+              "displacement": 0.845152912023508,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 354.36,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 18,
+            "mutationLatencyMs": [
+              1.9,
+              10.9,
+              7.2,
+              7.6,
+              7.1,
+              8.2,
+              5.2,
+              7.1,
+              13.3
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard1P23",
+              "startXY": [
+                -1.0053481375682372,
+                -1.431372549019608
+              ],
+              "afterXY": [
+                -0.3190736277643156,
+                -1.0718950621797017
+              ],
+              "displacement": 0.7747236709636204,
+              "geometryChanged": true
+            }
+          }
+        ]
+      }
+    },
+    "ph-point-drag": {
+      "target": {
+        "id": "jxgBoard43121P25",
+        "name": "$$w_{0}$$",
+        "xy": [
+          -3.5,
+          -1.7
+        ],
+        "screen": [
+          1133,
+          757.8812255859375
+        ],
+        "rect": {
+          "x": 1128,
+          "y": 752.8812255859375,
+          "w": 10,
+          "h": 10
+        },
+        "visibleEditablePointCount": 2
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard43121P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard43121P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard43121P13",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard43121P14",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard43121P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3.5,
+            -1.7
+          ]
+        },
+        {
+          "id": "jxgBoard43121P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -2.6,
+            1.7
+          ]
+        }
+      ],
+      "finalXY": [
+        3.875,
+        2.163095964704241
+      ],
+      "verification": {
+        "allFiveDisplaced": true,
+        "allFiveChangedGeometry": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 363.68,
+          "p95": 513.42,
+          "max": 513.42,
+          "raw": [
+            319.03,
+            321.56,
+            363.68,
+            444.44,
+            513.42
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 51,
+          "p50": 11.2,
+          "p95": 17.8,
+          "max": 36.4,
+          "raw": [
+            0.4,
+            0.4,
+            0.5,
+            0.6,
+            0.6,
+            0.9,
+            1,
+            1,
+            1,
+            1.1,
+            6.1,
+            8.1,
+            8.7,
+            8.7,
+            8.9,
+            9.1,
+            9.1,
+            9.3,
+            9.3,
+            9.7,
+            9.9,
+            10.5,
+            10.5,
+            10.5,
+            11.1,
+            11.2,
+            11.4,
+            11.4,
+            11.9,
+            12,
+            12.1,
+            12.2,
+            12.6,
+            12.9,
+            13,
+            13,
+            13.1,
+            13.1,
+            13.2,
+            13.3,
+            14,
+            14,
+            14.1,
+            14.3,
+            14.7,
+            14.7,
+            15.4,
+            16.3,
+            17.8,
+            18.2,
+            36.4
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 115,
+          "p50": 16.7,
+          "p95": 16.7,
+          "max": 33.3,
+          "raw": [
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            33.3
+          ]
+        },
+        "framesOver20ms": 1,
+        "totalPointerMoves": 65,
+        "boardUpdateCallsByTrial": [
+          23,
+          21,
+          16,
+          13,
+          13
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 513.42,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 23,
+            "mutationLatencyMs": [
+              1,
+              0.5,
+              36.4,
+              18.2,
+              12.1,
+              17.8,
+              15.4,
+              16.3,
+              13.3,
+              13,
+              14.7,
+              14,
+              13.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.6,
+              33.3,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard43121P25",
+              "startXY": [
+                -3.5,
+                -1.7
+              ],
+              "afterXY": [
+                -2,
+                -0.914285714285714
+              ],
+              "displacement": 1.6933242273042428,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 444.44,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 21,
+            "mutationLatencyMs": [
+              0.6,
+              1.1,
+              14,
+              14.3,
+              11.4,
+              14.1,
+              11.9,
+              13.2,
+              13,
+              12.2,
+              13.1,
+              9.9
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard43121P25",
+              "startXY": [
+                -2,
+                -0.914285714285714
+              ],
+              "afterXY": [
+                -0.5,
+                -0.12857142857142836
+              ],
+              "displacement": 1.6933242273042426,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 363.68,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 16,
+            "mutationLatencyMs": [
+              0.6,
+              1,
+              9.1,
+              8.1,
+              12.9,
+              14.7,
+              10.5,
+              12.6,
+              11.2,
+              6.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard43121P25",
+              "startXY": [
+                -0.5,
+                -0.12857142857142836
+              ],
+              "afterXY": [
+                0.875,
+                0.5916673932756699
+              ],
+              "displacement": 1.5522142121806821,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 321.56,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 13,
+            "mutationLatencyMs": [
+              0.4,
+              1,
+              11.4,
+              9.1,
+              11.1,
+              10.5,
+              8.7,
+              9.3
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard43121P25",
+              "startXY": [
+                0.875,
+                0.5916673932756699
+              ],
+              "afterXY": [
+                2.375,
+                1.3773816789899556
+              ],
+              "displacement": 1.6933242273042426,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 319.03,
+            "pointerMoves": 13,
+            "boardUpdateCalls": 13,
+            "mutationLatencyMs": [
+              0.4,
+              0.9,
+              8.7,
+              8.9,
+              9.3,
+              12,
+              10.5,
+              9.7
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "pointId": "jxgBoard43121P25",
+              "startXY": [
+                2.375,
+                1.3773816789899556
+              ],
+              "afterXY": [
+                3.875,
+                2.163095964704241
+              ],
+              "displacement": 1.6933242273042426,
+              "geometryChanged": true
+            }
+          }
+        ]
+      }
+    },
+    "construction-t-slider": {
+      "control": {
+        "label": "Parameter t",
+        "min": 0,
+        "max": 1,
+        "initialValue": 0.5
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3,
+            2
+          ]
+        },
+        {
+          "id": "jxgBoard1P31",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1G33",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4,
+              "y": -3
+            },
+            {
+              "t": 0.125,
+              "x": -3.328125,
+              "y": -0.8603515625
+            },
+            {
+              "t": 0.25,
+              "x": -2.375,
+              "y": 0.609375
+            },
+            {
+              "t": 0.375,
+              "x": -1.234375,
+              "y": 1.4677734375
+            },
+            {
+              "t": 0.5,
+              "x": 0,
+              "y": 1.75
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P40",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P50",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3.5,
+            -0.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P52",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -1.5,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P55",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            1.5,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P58",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3.5,
+            -0.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P61",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -2.5,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P63",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            2.5
+          ]
+        },
+        {
+          "id": "jxgBoard1P66",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            2.5,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P69",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -1.25,
+            1.75
+          ]
+        },
+        {
+          "id": "jxgBoard1P71",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            1.25,
+            1.75
+          ]
+        },
+        {
+          "id": "jxgBoard1P74",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            0,
+            1.75
+          ]
+        }
+      ],
+      "verification": {
+        "allFiveValuesChanged": true,
+        "allFiveGeometryChanged": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 283.95,
+          "p95": 300.18,
+          "max": 300.18,
+          "raw": [
+            252.84,
+            253.05,
+            283.95,
+            286.64,
+            300.18
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 50,
+          "p50": 5.2,
+          "p95": 10,
+          "max": 12.4,
+          "raw": [
+            4,
+            4.1,
+            4.2,
+            4.3,
+            4.3,
+            4.4,
+            4.4,
+            4.5,
+            4.7,
+            4.7,
+            4.7,
+            4.8,
+            4.8,
+            4.9,
+            4.9,
+            4.9,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5.1,
+            5.1,
+            5.2,
+            5.2,
+            5.3,
+            5.3,
+            5.4,
+            5.4,
+            5.6,
+            5.7,
+            5.7,
+            5.8,
+            5.9,
+            6.1,
+            6.3,
+            6.3,
+            6.4,
+            6.4,
+            6.4,
+            6.6,
+            6.8,
+            7.4,
+            7.4,
+            7.6,
+            8.1,
+            9.3,
+            10,
+            10.7,
+            12.4
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 80,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8,
+          "raw": [
+            16.53,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.63,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 55,
+        "boardUpdateCallsByTrial": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 300.18,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              12.4,
+              10.7,
+              6.3,
+              7.4,
+              6.4,
+              10,
+              7.6,
+              6.4,
+              9.3,
+              5.7
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Parameter t",
+              "startValue": 0.5,
+              "endValue": 0.18,
+              "targetValue": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 286.64,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              5.2,
+              8.1,
+              6.3,
+              5.9,
+              7.4,
+              5.2,
+              5,
+              5.4,
+              6.1,
+              6.8
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Parameter t",
+              "startValue": 0.18,
+              "endValue": 0.82,
+              "targetValue": 0.82,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 252.84,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              5.6,
+              5.1,
+              4.9,
+              4.4,
+              4.7,
+              4.8,
+              5.8,
+              5.7,
+              5.3,
+              6.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.634,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Parameter t",
+              "startValue": 0.82,
+              "endValue": 0.18,
+              "targetValue": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 283.95,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              4.9,
+              4.7,
+              4.3,
+              5,
+              4.9,
+              5.3,
+              5,
+              5.4,
+              5.1,
+              6.4
+            ],
+            "rafFrameIntervalsMs": [
+              16.534,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.6,
+              16.8
+            ],
+            "checkpoint": {
+              "label": "Parameter t",
+              "startValue": 0.18,
+              "endValue": 0.82,
+              "targetValue": 0.82,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 253.05,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              4.4,
+              5,
+              4.8,
+              4.3,
+              4.2,
+              5,
+              4.7,
+              4,
+              4.5,
+              4.1
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Parameter t",
+              "startValue": 0.82,
+              "endValue": 0.18,
+              "targetValue": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          }
+        ]
+      },
+      "finalValue": 0.18
+    },
+    "rational-farin-ratio-slider": {
+      "control": {
+        "id": "jxgBoard1P47",
+        "initialValue": 0.6666666666666661,
+        "position": 0.6666666666666661,
+        "min": 0,
+        "max": 1
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1G31",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4,
+              "y": -3
+            },
+            {
+              "t": 0.25,
+              "x": -2.6263736263736273,
+              "y": 1.1538461538461497
+            },
+            {
+              "t": 0.5,
+              "x": -0.8181818181818177,
+              "y": 1.909090909090907
+            },
+            {
+              "t": 0.75,
+              "x": 1.7945205479452078,
+              "y": 0.6986301369862967
+            },
+            {
+              "t": 1,
+              "x": 4,
+              "y": -3
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P32",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P44",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -4,
+            -3
+          ]
+        },
+        {
+          "id": "jxgBoard1P45",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P51",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P52",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P58",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            3,
+            3
+          ]
+        },
+        {
+          "id": "jxgBoard1P59",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            4,
+            -3
+          ]
+        }
+      ],
+      "verification": {
+        "allFiveValuesChanged": true,
+        "allFiveGeometryChanged": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 272.83,
+          "p95": 278.07,
+          "max": 278.07,
+          "raw": [
+            255.36,
+            270.06,
+            272.83,
+            273.33,
+            278.07
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 35,
+          "p50": 3.3,
+          "p95": 5.2,
+          "max": 5.4,
+          "raw": [
+            0.7,
+            0.9,
+            0.9,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.4,
+            2.7,
+            2.7,
+            2.9,
+            2.9,
+            3.1,
+            3.1,
+            3.2,
+            3.2,
+            3.3,
+            3.5,
+            3.5,
+            3.6,
+            3.6,
+            3.8,
+            3.9,
+            3.9,
+            4,
+            4,
+            4.1,
+            4.1,
+            4.1,
+            4.3,
+            4.4,
+            4.6,
+            5.2,
+            5.4
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 77,
+          "p50": 16.7,
+          "p95": 16.7,
+          "max": 16.8,
+          "raw": [
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 55,
+        "boardUpdateCallsByTrial": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 278.07,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 7,
+            "mutationLatencyMs": [
+              3.9,
+              0.9,
+              4.1,
+              4.3,
+              3.1,
+              3.8,
+              3.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "startValue": 0.6666666666666661,
+              "startPosition": 0.6666666666666661,
+              "endValue": 0.1800001416126178,
+              "endPosition": 0.1800001416126178,
+              "targetPosition": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 272.83,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 7,
+            "mutationLatencyMs": [
+              1,
+              1,
+              3.1,
+              2.9,
+              3.2,
+              3.6,
+              4
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "startValue": 0.1800001416126178,
+              "startPosition": 0.1800001416126178,
+              "endValue": 0.8200000818624429,
+              "endPosition": 0.8200000818624429,
+              "targetPosition": 0.82,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 255.36,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 7,
+            "mutationLatencyMs": [
+              1.2,
+              1.4,
+              5.4,
+              3.2,
+              2.7,
+              3.9,
+              2.7
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6
+            ],
+            "checkpoint": {
+              "startValue": 0.8200000818624429,
+              "startPosition": 0.8200000818624429,
+              "endValue": 0.18000005339877667,
+              "endPosition": 0.18000005339877667,
+              "targetPosition": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 270.06,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 7,
+            "mutationLatencyMs": [
+              0.7,
+              1,
+              4,
+              3.5,
+              3.3,
+              4.1,
+              2.9
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "startValue": 0.18000005339877667,
+              "startPosition": 0.18000005339877667,
+              "endValue": 0.8199999936486018,
+              "endPosition": 0.8199999936486018,
+              "targetPosition": 0.82,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 273.33,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 7,
+            "mutationLatencyMs": [
+              0.9,
+              1,
+              4.1,
+              4.6,
+              4.4,
+              5.2,
+              3.5
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "startValue": 0.8199999936486018,
+              "startPosition": 0.8199999936486018,
+              "endValue": 0.18000005339877623,
+              "endPosition": 0.18000005339877623,
+              "targetPosition": 0.18,
+              "changed": true,
+              "geometryChanged": true
+            }
+          }
+        ]
+      },
+      "final": {
+        "id": "jxgBoard1P47",
+        "value": 0.18000005339877623,
+        "position": 0.18000005339877623,
+        "min": 0,
+        "max": 1,
+        "p1": [
+          -4,
+          -3
+        ],
+        "p2": [
+          -3,
+          3
+        ],
+        "s1": [
+          435.6,
+          742.7375
+        ],
+        "s2": [
+          491.70000000000005,
+          406.1375
+        ],
+        "sc": [
+          445.69800299567135,
+          682.1494820259719
+        ]
+      }
+    },
+    "ph-offset-distance-slider": {
+      "control": {
+        "label": "Razdalja odmika d",
+        "min": -3,
+        "max": 3,
+        "initialValue": 0.2
+      },
+      "geometryBefore": [
+        {
+          "id": "jxgBoard1P1",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P2",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P11",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P12",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "jxgBoard1P23",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4.2,
+            -2
+          ]
+        },
+        {
+          "id": "jxgBoard1P25",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -1.0800000000000005,
+            1.9666666666666668
+          ]
+        },
+        {
+          "id": "jxgBoard1P27",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            2.9166666666666656,
+            1.4566666666666668
+          ]
+        },
+        {
+          "id": "jxgBoard1P29",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4.206666666666666,
+            -1.4899999999999995
+          ]
+        },
+        {
+          "id": "jxgBoard1G31",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4.2,
+              "y": -2
+            },
+            {
+              "t": 0.25,
+              "x": -1.751614583333334,
+              "y": 0.1675000000000001
+            },
+            {
+              "t": 0.5,
+              "x": 0.6895833333333327,
+              "y": 0.8475000000000001
+            },
+            {
+              "t": 0.75,
+              "x": 2.7876562499999995,
+              "y": 0.2312500000000003
+            },
+            {
+              "t": 1,
+              "x": 4.206666666666666,
+              "y": -1.4899999999999995
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P32",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4.2,
+            -2
+          ]
+        },
+        {
+          "id": "jxgBoard1P34",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            -4.2,
+            1.9666666666666668
+          ]
+        },
+        {
+          "id": "jxgBoard1P36",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4.206666666666666,
+            1.9666666666666668
+          ]
+        },
+        {
+          "id": "jxgBoard1P38",
+          "type": "point",
+          "visible": true,
+          "xy": [
+            4.206666666666666,
+            -2
+          ]
+        },
+        {
+          "id": "jxgBoard1G44",
+          "type": "curve",
+          "visible": true,
+          "parameterSamples": [
+            {
+              "t": 0,
+              "x": -4.042800528401585,
+              "y": -2.123645970937913
+            },
+            {
+              "t": 0.25,
+              "x": -1.654349747388583,
+              "y": -0.007255691434186445
+            },
+            {
+              "t": 0.5,
+              "x": 0.6895833333333328,
+              "y": 0.6475000000000006
+            },
+            {
+              "t": 0.75,
+              "x": 2.6772935929084376,
+              "y": 0.06445646319569161
+            },
+            {
+              "t": 1,
+              "x": 4.023454231433505,
+              "y": -1.57020725388601
+            }
+          ]
+        },
+        {
+          "id": "jxgBoard1P49",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            -1.2345574636723915,
+            1.7701673271686482
+          ]
+        },
+        {
+          "id": "jxgBoard1P51",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "jxgBoard1P54",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            2.6686775637812152,
+            1.4883116481024248
+          ]
+        },
+        {
+          "id": "jxgBoard1P56",
+          "type": "point",
+          "visible": false,
+          "xy": [
+            0,
+            0
+          ]
+        }
+      ],
+      "verification": {
+        "allFiveValuesChanged": true,
+        "allFiveGeometryChanged": true
+      },
+      "summary": {
+        "repeats": 5,
+        "gestureDurationMs": {
+          "n": 5,
+          "p50": 284.86,
+          "p95": 324.29,
+          "max": 324.29,
+          "raw": [
+            261.55,
+            282.66,
+            284.86,
+            312.31,
+            324.29
+          ]
+        },
+        "pointerToBoardMutationMs": {
+          "n": 50,
+          "p50": 7.7,
+          "p95": 10.2,
+          "max": 12.3,
+          "raw": [
+            6.4,
+            6.4,
+            6.5,
+            6.5,
+            6.6,
+            6.7,
+            6.8,
+            6.8,
+            6.9,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7.1,
+            7.2,
+            7.4,
+            7.5,
+            7.5,
+            7.5,
+            7.5,
+            7.6,
+            7.7,
+            7.7,
+            7.7,
+            7.7,
+            7.9,
+            7.9,
+            8,
+            8,
+            8.4,
+            8.4,
+            8.5,
+            8.5,
+            8.6,
+            8.6,
+            8.7,
+            8.7,
+            8.8,
+            9,
+            9.3,
+            9.4,
+            9.6,
+            9.7,
+            9.8,
+            10,
+            10.1,
+            10.2,
+            10.8,
+            12.3
+          ]
+        },
+        "rafFrameIntervalMs": {
+          "n": 85,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8,
+          "raw": [
+            16.5,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.6,
+            16.63,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.7,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8,
+            16.8
+          ]
+        },
+        "framesOver20ms": 0,
+        "totalPointerMoves": 55,
+        "boardUpdateCallsByTrial": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "rawTrials": [
+          {
+            "gestureDurationMs": 261.55,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              8.4,
+              7,
+              8.4,
+              7.5,
+              9,
+              6.4,
+              6.4,
+              6.8,
+              6.6,
+              6.5
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.8
+            ],
+            "checkpoint": {
+              "label": "Razdalja odmika d",
+              "startValue": 0.2,
+              "endValue": -1.89,
+              "targetValue": -1.92,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 284.86,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              7,
+              8.5,
+              7.7,
+              7,
+              8.7,
+              7,
+              6.5,
+              8.5,
+              10.8,
+              7.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Razdalja odmika d",
+              "startValue": -1.89,
+              "endValue": 1.89,
+              "targetValue": 1.92,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 324.29,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              10.2,
+              7.7,
+              7.5,
+              12.3,
+              10.1,
+              10,
+              8.8,
+              7.5,
+              8,
+              8.6
+            ],
+            "rafFrameIntervalsMs": [
+              16.634,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.6,
+              16.7,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.8,
+              16.5,
+              16.7,
+              16.7,
+              16.7,
+              16.6
+            ],
+            "checkpoint": {
+              "label": "Razdalja odmika d",
+              "startValue": 1.89,
+              "endValue": -1.89,
+              "targetValue": -1.92,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 312.31,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              9.7,
+              8.7,
+              6.7,
+              7.9,
+              9.8,
+              9.4,
+              7.4,
+              8,
+              7.7,
+              7.2
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.8
+            ],
+            "checkpoint": {
+              "label": "Razdalja odmika d",
+              "startValue": -1.89,
+              "endValue": 1.89,
+              "targetValue": 1.92,
+              "changed": true,
+              "geometryChanged": true
+            }
+          },
+          {
+            "gestureDurationMs": 282.66,
+            "pointerMoves": 11,
+            "boardUpdateCalls": 10,
+            "mutationLatencyMs": [
+              7,
+              9.6,
+              7.1,
+              9.3,
+              7.5,
+              7.7,
+              8.6,
+              6.9,
+              6.8,
+              7.9
+            ],
+            "rafFrameIntervalsMs": [
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7,
+              16.6,
+              16.7,
+              16.7,
+              16.6,
+              16.7
+            ],
+            "checkpoint": {
+              "label": "Razdalja odmika d",
+              "startValue": 1.89,
+              "endValue": -1.89,
+              "targetValue": -1.92,
+              "changed": true,
+              "geometryChanged": true
+            }
+          }
+        ]
+      },
+      "finalValue": -1.89
+    }
+  },
+  "buildProvenance": {
+    "servedBundleUrl": "http://127.0.0.1:4187/bezeg-2.0/static/js/main.cc3c7938.js",
+    "javascriptBundle": {
+      "name": "main.cc3c7938.js",
+      "sha256": "9E55C0E52BFD8A8920C2C5E15F417FF51EEE5635D55B02487D43C3397C7ECEF2"
+    },
+    "stylesheet": {
+      "name": "main.05771437.css",
+      "sha256": "86B42CB5B4A38917689CF7E7E09C5D2DC1C4BE24F1CF66FA038208432AF6FA65"
+    },
+    "sourceState": "Unmodified baseline app at ecc17fabbe0fd03ac4dc9f6b35f6df2efe5316d0; docs-only task context was ahead of d0ca083."
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "bundle": "/bezeg-2.0/static/js/main.9f88cc12.js",
+  "viewport": {
+    "width": 1440,
+    "height": 850
+  },
+  "results": [
+    {
+      "name": "shared hover and curve selection",
+      "status": "Passed",
+      "evidence": {
+        "normal": {
+          "id": "jxgBoard1P23",
+          "rendId": "jgbox_jxgBoard1P23",
+          "name": "$$p_{0}$$",
+          "xy": [
+            -4,
+            -3
+          ],
+          "size": 10,
+          "fill": "#bd8040",
+          "stroke": "#fffdf5",
+          "display": "block",
+          "labelDisplay": "block",
+          "labelVisibility": "visible"
+        },
+        "hover": {
+          "id": "jxgBoard1P23",
+          "rendId": "jgbox_jxgBoard1P23",
+          "name": "$$p_{0}$$",
+          "xy": [
+            -4,
+            -3
+          ],
+          "size": 10,
+          "fill": "#d39a4a",
+          "stroke": "#654c2b",
+          "display": "block",
+          "labelDisplay": "block",
+          "labelVisibility": "visible"
+        },
+        "selected": true
+      }
+    },
+    {
+      "name": "size controls and visibility toggles",
+      "status": "Passed",
+      "evidence": {
+        "pointRadiusBefore": 10,
+        "pointRadiusAfter": 18,
+        "boundsPreserved": true,
+        "coordinateSystemRestored": "Vse"
+      }
+    },
+    {
+      "name": "compact defaults and keyboard focus",
+      "status": "Passed",
+      "evidence": {
+        "widths": [
+          390,
+          724
+        ],
+        "overflow": false,
+        "tabToDisplay": true,
+        "enterActivatesDisplay": true
+      }
+    },
+    {
+      "name": "higher-count De Casteljau preset",
+      "status": "Passed",
+      "evidence": {
+        "namedPoints": 36,
+        "presetRemoved": true,
+        "sceneVisible": true
+      }
+    }
+  ],
+  "errors": [],
+  "cleanup": "isolated context disposed; temporary seeded preset removed"
+}

@@ -1,0 +1,26 @@
+# Graph visual-style evidence tools
+
+These scripts capture matched production-build scenes, retain numeric JSXGraph snapshots, compare default and edited curve geometry, and measure representative desktop interactions. They use the repository's installed Playwright package and accept paths and URLs through CLI options, so the same commands work from PowerShell, cmd.exe, and POSIX shells.
+
+Run commands from the repository root after building the app and starting `scripts/serve-smoke-build.cjs` (or another static server that serves the production build beneath `/bezeg-2.0`). Use a different port for baseline and final builds when both servers must remain available. Pass an explicit phase and output directory for each build.
+
+```sh
+node scripts/graph-visual-style/capture.cjs --phase baseline --base-url http://127.0.0.1:4187/bezeg-2.0 --output .benchmark-output/graph-style
+node scripts/graph-visual-style/sample-curves.cjs --phase baseline --base-url http://127.0.0.1:4187/bezeg-2.0 --data-root .benchmark-output/graph-style
+node scripts/graph-visual-style/performance.cjs --phase baseline --base-url http://127.0.0.1:4187/bezeg-2.0 --output .benchmark-output/graph-style --source-state "baseline production build at <commit>"
+
+node scripts/graph-visual-style/capture.cjs --phase final --base-url http://127.0.0.1:4186/bezeg-2.0 --output .benchmark-output/graph-style --data-root .benchmark-output/graph-style --edit-fixture baseline
+node scripts/graph-visual-style/sample-curves.cjs --phase final --base-url http://127.0.0.1:4186/bezeg-2.0 --data-root .benchmark-output/graph-style --edit-fixture baseline
+node scripts/graph-visual-style/compare.cjs --baseline baseline --after final --data-root .benchmark-output/graph-style --output docs/reviews/graph-visual-style/comparison.json
+node scripts/graph-visual-style/performance.cjs --phase final --base-url http://127.0.0.1:4186/bezeg-2.0 --output .benchmark-output/graph-style --source-state "final graph-style build at <commit>"
+```
+
+`capture.cjs` records desktop screenshots and numeric board snapshots for every active route listed by `tests/smoke-catalog.cjs`. It also captures edited desktop states, 390px and 724px views for the four pilots, De Casteljau presentation mode, and PH offsets enabled. `--edit-fixture baseline` selects the exact baseline input point by JSXGraph ID (with label and starting coordinate fallback for regenerated auxiliary IDs), then uses the normal pointer drag handler to set its baseline user-coordinate. It verifies the point reaches the fixture coordinate within `1e-9`; derived points are never assigned directly. This creates matched visual scenes; performance measurements use separate live drags. Capture manifests record the served main JS/CSS asset URLs and SHA-256 hashes. To limit capture to selected routes use `--default-ids bezier,decasteljau` and/or `--pilot-ids ph-cubic`; `--skip-pilots` omits edited and responsive pilot captures, while `--pilots-only` skips the default routes. `--no-presentation` and `--no-offset` omit the two special scenes.
+
+`sample-curves.cjs` refreshes snapshots with read-only curve evaluations at five evenly spaced parameters over each finite curve domain. When `--edit-fixture baseline` is passed, it restores the same edited pilot coordinate through the app's UI or normal point-drag path before capturing samples. It also refreshes the presentation and offset-enabled scenes.
+
+`compare.cjs` compares all 29 default snapshots, four edited pilot scenes, presentation mode, and PH offset geometry. It reports exact object names/types/fixed/visible state, type-role counts, board and label counts, MathJax counts, point/curve geometry differences, label-anchor movement, and style changes. Curve fidelity uses five finite-domain evaluations at parameter fractions `0, 0.25, 0.5, 0.75, 1`. Rational weights and range-input values are not serialized separately. The linear-function route has a line object but no finite-domain curve samples, so that route is checked through object metadata and source review. JSXGraph auxiliary boards can receive regenerated ID prefixes; when that happens, the report records deterministic object-order/type alignment explicitly.
+
+`performance.cjs` runs five repeated synthetic mouse drags on the ordinary, De Casteljau, rational, and PH control points, then five repetitions each for De Casteljau parameter `t`, the rational Farin ratio, and PH offset distance. It verifies each gesture changes its intended input and board geometry. Raw output includes gesture duration, pointer-move count, board updates, observed pointer-to-board DOM-mutation delay, and rAF intervals. Gesture duration includes Playwright event dispatch, checkpoint reads, and 32ms settling; the DOM mutation value is a rendering proxy. These measurements do not establish physical touch latency or phone performance. The output fetches and hashes the main production JS/CSS assets to identify the exact served build.
+
+All output paths are relative to the repository root unless absolute. Capture and performance output default to `.benchmark-output/graph-style`, which is ignored by Git. Comparison output defaults to `docs/reviews/graph-visual-style/comparison.json`.

@@ -1,6 +1,6 @@
 # Implement the illustrated C visual style in the actual graphs
 
-Status: ready for a new implementation agent. This document is the handoff, not an instruction to start implementation in the current documentation chat.
+Status: implemented and verified on freshly fetched `origin/master` (`d0ca083`), with graph styling in `a72af4b`. See [implementation evidence, matched real scenes, verification, performance, and limits](../../reviews/graph-visual-style/README.md). All 29 faithful catalog previews are regenerated from the final graph source.
 
 Source and acceptance criteria: [Graph visual style specification](../../specs/graph-visual-style.md). Portable examples: [style reference sheet](../../images/graph-visual-style/style-reference.svg). Production catalog context: [Expandable demonstration catalog](../../specs/expandable-demonstration-catalog.md).
 

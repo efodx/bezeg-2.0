@@ -1,0 +1,37 @@
+{
+  "before": [
+    {
+      "axes": [
+        {
+          "display": "block",
+          "visibility": "visible"
+        },
+        {
+          "display": "block",
+          "visibility": "visible"
+        }
+      ],
+      "visiblePoints": 2,
+      "visibleLabels": 18
+    }
+  ],
+  "after": [
+    {
+      "axes": [
+        {
+          "display": "block",
+          "visibility": "visible"
+        },
+        {
+          "display": "block",
+          "visibility": "visible"
+        }
+      ],
+      "visiblePoints": 2,
+      "visibleLabels": 18
+    }
+  ],
+  "errors": [],
+  "mainTogglesRestored": true,
+  "bundle": "/bezeg-2.0/static/js/main.074d7a67.js"
+}
