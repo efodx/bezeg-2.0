@@ -1068,8 +1068,60 @@ const definiteIntegral = {
     stableCounts: async page => ({n: await integralReadout(page, 'n')}),
 };
 
+// ---------------------------------------------------------------- Area between curves
+const areaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const AREA_S = Math.sqrt(1.5);
+// Per step: the bounds a and b (as shown and as placed on the axis), the signed integral of g - f, the unsigned area and the shaded quantity of the mode.
+// Steps: under g at the intersections, the area between [1, 3], the default bounds, [0, 4], [1, 3.5].
+const AREA_STEPS = [
+    {a: '0.78', b: '3.22', pa: 2 - AREA_S, pb: 2 + AREA_S, signed: '4.899', unsigned: '4.899', shaded: '6.1237'},
+    {a: '1', b: '3', pa: 1, pb: 3, signed: '4.6667', unsigned: '4.6667', shaded: '4.6667'},
+    {a: '0.78', b: '3.22', pa: 2 - AREA_S, pb: 2 + AREA_S, signed: '4.899', unsigned: '4.899', shaded: '4.899'},
+    {a: '0', b: '4', pa: 0, pb: 4, signed: '1.3333', unsigned: '8.4646', shaded: '8.4646'},
+    {a: '1', b: '3.5', pa: 1, pb: 3.5, signed: '4.5833', unsigned: '4.9823', shaded: '4.9823'},
+];
+
+const areaBetween = {
+    id: 'area-between-curves',
+    path: `${BASE}/functions/area-between`,
+    titles: {sl: 'Ploščina med krivuljama', en: 'Area between curves'},
+    steps: 5,
+    minFrames: 11, // 2 + 2 + 3 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(4);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = AREA_STEPS[step - 1];
+        await expect.poll(() => areaReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => areaReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => areaReadout(page, 'signed'), {message: `signed integral of g - f at ${label}`}).toBe(expected.signed);
+        await expect.poll(() => areaReadout(page, 'unsigned'), {message: `unsigned area at ${label}`}).toBe(expected.unsigned);
+        await expect.poll(() => areaReadout(page, 'shaded'), {message: `shaded quantity at ${label}`}).toBe(expected.shaded);
+        await expectPointNear(page, [expected.pa, 0], `bound a at ${label}`);
+        await expectPointNear(page, [expected.pb, 0], `bound b at ${label}`);
+        // the shading is two curve objects whatever the mode and the bounds are: the object count must stay put
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.locator('input[type="number"]').nth(1).fill('2.5');
+        await expect.poll(() => areaReadout(page, 'b')).toBe('2.5');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => areaReadout(page, 'b'), {message: 'lesson scene replaced the user bound'}).toBe('3.22');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => areaReadout(page, 'b'), {message: 'user bound restored'}).toBe('2.5');
+        await expectPointNear(page, [2.5, 0], 'user bound b restored');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({b: await areaReadout(page, 'b')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

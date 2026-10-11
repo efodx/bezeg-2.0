@@ -8,11 +8,12 @@ import {CONTINUOUS_PARAMETER, isContinuous, jump, leftLimit, leftSlope, rightLim
 import {catalogFunction} from '../../analysis/functions';
 import {differenceQuotient, isStep, secantLine} from '../../analysis/derivative';
 import {exactIntegral, isBound, riemannSum, subintervalWidth} from '../../analysis/riemann';
+import {isBound as isAreaBound, integralF, integralG, INTERSECTIONS, signedBetween, unsignedBetween} from '../../analysis/areaBetween';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -164,7 +165,9 @@ test('set-function-choice validates its closed name and the values allowed for t
     }
     expect(choice({name: 'derivative-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
     expect(choice({name: 'derivative-function', value: 'tan'})).toThrow(/must be one of square, sin, exp/);
-    expect(choice({name: 'area-mode', value: 'between'})).toThrow(/name must be one of trig-function, derivative-function, integral-function, sum-method/);
+    expect(choice({name: 'arc-mode', value: 'between'})).toThrow(/name must be one of trig-function, derivative-function, integral-function, sum-method, area-mode/);
+    expect(choice({name: 'area-mode', value: 'above'})).toThrow(/must be one of under-f, under-g, between/);
+    expect(choice({name: 'area-mode', value: 'Between'})).toThrow(/must be one of under-f, under-g, between/);
     expect(choice({name: 'integral-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
     expect(choice({name: 'sum-method', value: 'upper'})).toThrow(/must be one of left, right, midpoint, trapezoid/);
     expect(choice({name: 'trig-function', value: 'sec'})).toThrow(/must be one of sin, cos, tan/);
@@ -482,5 +485,119 @@ describe('definite integral lesson', () => {
         expect(riemannSum(square, 2, 0, 4, 'left')).toBe(-riemannSum(square, 0, 2, 4, 'right'));
         // the bounds domain contains 2*pi
         expect(isBound(2 * Math.PI)).toBe(true);
+    });
+});
+
+describe('area between curves lesson', () => {
+    const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'area-between-curves')!;
+    const lesson = () => getLessonForDemonstration('area-between-curves')!;
+    const S = Math.sqrt(1.5);
+    const round4 = (value: number) => Math.round(value * 1e4) / 1e4;
+
+    test('is available with five steps and adapts its scenes into typed actions', () => {
+        expect(lesson().id).toBe('area-between-curves-guided');
+        expect(lesson().steps).toHaveLength(5);
+        const rest = (index: number) => lesson().steps[index].scene?.actions.slice(1);
+        expect(lesson().steps[0].scene?.actions[0]).toEqual({kind: 'prepared-scene', sceneId: 'area-under-g-scene', source: 'demonstration-default'});
+        expect(rest(0)).toEqual([{kind: 'function-choice', name: 'area-mode', value: 'under-g'}]);
+        expect(rest(1)).toEqual([
+            {kind: 'function-choice', name: 'area-mode', value: 'between'},
+            {kind: 'function-parameter', name: 'a', value: 1},
+            {kind: 'function-parameter', name: 'b', value: 3},
+        ]);
+        expect(rest(2)).toEqual([]);
+        expect(rest(3)).toEqual([
+            {kind: 'function-choice', name: 'area-mode', value: 'between'},
+            {kind: 'function-parameter', name: 'a', value: 0},
+            {kind: 'function-parameter', name: 'b', value: 4},
+        ]);
+        expect(rest(4)).toEqual([
+            {kind: 'function-choice', name: 'area-mode', value: 'between'},
+            {kind: 'function-parameter', name: 'a', value: 1},
+            {kind: 'function-parameter', name: 'b', value: 3.5},
+        ]);
+    });
+
+    test('the scene validation accepts the area-mode choice and rejects unknown values', () => {
+        for (const value of ['under-f', 'under-g', 'between']) {
+            expect(sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value}})).toEqual({kind: 'function-choice', name: 'area-mode', value});
+        }
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value: 'sum'}})).toThrow();
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value: 1 as never}})).toThrow();
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'b', value: 3.5}})).toEqual({kind: 'function-parameter', name: 'b', value: 3.5});
+    });
+
+    test('every bound used by a scene is allowed by the graph', () => {
+        const values = lesson().steps.flatMap(step => step.scene?.actions ?? [])
+            .filter(action => action.kind === 'function-parameter').map(action => (action as {value: number}).value);
+        expect(values).toEqual([1, 3, 0, 4, 1, 3.5]);
+        values.forEach(value => expect(isAreaBound(value)).toBe(true));
+    });
+
+    test('the worked example matches the mathematics: 6 sqrt(1.5) - (4/3)(1.5)^(3/2) = 4 sqrt(1.5) = 2 sqrt(6) = 4.8990', () => {
+        const example = source().workedExamples[0];
+        expect(example.calculationLatex).toContain('\\int_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}\\bigl(3-2u^2\\bigr)du');
+        expect(example.calculationLatex).toContain('\\Bigl[3u-\\tfrac23u^3\\Bigr]_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}');
+        expect(example.calculationLatex).toContain('6\\sqrt{1{,}5}-\\tfrac43\\,(1{,}5)^{3/2}');
+        expect(example.calculationLatex).toContain('6\\sqrt{1{,}5}-2\\sqrt{1{,}5}');
+        expect(example.resultLatex).toBe('A=4\\sqrt{1{,}5}=2\\sqrt6\\approx4{,}8990');
+        // the u-substitution: the integral of 3 - 2u^2 from -s to s is 6s - (4/3)s^3 with s^2 = 1.5
+        expect(6 * S - (4 / 3) * Math.pow(1.5, 1.5)).toBeCloseTo(4 * S, 12);
+        expect((4 / 3) * Math.pow(1.5, 1.5)).toBeCloseTo(2 * S, 12);
+        expect(4 * S).toBeCloseTo(2 * Math.sqrt(6), 12);
+        expect(round4(4 * S)).toBe(4.899);
+        expect(signedBetween(...INTERSECTIONS)).toBeCloseTo(4 * S, 12);
+        expect(unsignedBetween(...INTERSECTIONS)).toBeCloseTo(4 * S, 12);
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        // intersections (x-2)^2 = 3/2
+        expect([round4(INTERSECTIONS[0]), round4(INTERSECTIONS[1])]).toEqual([0.7753, 3.2247]);
+        // step 1: under g 5 sqrt(1.5) = 6.1237, under f sqrt(1.5) = 1.2247 at the default bounds
+        expect(integralG(...INTERSECTIONS)).toBeCloseTo(5 * S, 12);
+        expect(round4(5 * S)).toBe(6.1237);
+        expect(integralF(...INTERSECTIONS)).toBeCloseTo(S, 12);
+        expect(round4(S)).toBe(1.2247);
+        // step 2: [1, 3] gives 14/3, with the integrals 16/3 and 2/3 and the antiderivative 3x - (2/3)(x-2)^3
+        const D = (x: number) => 3 * x - (2 / 3) * Math.pow(x - 2, 3);
+        expect(D(3) - D(1)).toBeCloseTo(14 / 3, 12);
+        expect((9 - 2 / 3) - (3 + 2 / 3)).toBeCloseTo(14 / 3, 12);
+        expect(signedBetween(1, 3)).toBeCloseTo(14 / 3, 12);
+        expect(unsignedBetween(1, 3)).toBeCloseTo(14 / 3, 12);
+        expect(round4(14 / 3)).toBe(4.6667);
+        expect(integralG(1, 3)).toBeCloseTo(16 / 3, 12);
+        expect(integralF(1, 3)).toBeCloseTo(2 / 3, 12);
+        expect(round4(16 / 3)).toBe(5.3333);
+        expect(round4(2 / 3)).toBe(0.6667);
+        // step 4: [0, 4]
+        expect(signedBetween(0, 4)).toBeCloseTo(4 / 3, 12);
+        expect(round4(4 / 3)).toBe(1.3333);
+        expect(unsignedBetween(0, 4)).toBeCloseTo(2 * Math.sqrt(6) + 2 * (2 * S - 2 / 3), 12);
+        expect(round4(unsignedBetween(0, 4))).toBe(8.4646);
+        expect(round4(2 / 3 - 2 * S)).toBe(-1.7828);
+        expect(signedBetween(0, INTERSECTIONS[0])).toBeCloseTo(2 / 3 - 2 * S, 12);
+        expect(4 * S + 2 * (2 / 3 - 2 * S)).toBeCloseTo(4 / 3, 12);
+        expect(integralF(0, 4)).toBeCloseTo(16 / 3, 12);
+        expect(integralG(0, 4)).toBeCloseTo(20 / 3, 12);
+        expect(round4(20 / 3)).toBe(6.6667);
+        // swapped bounds flip the signed value and keep the area
+        expect(signedBetween(4, 0)).toBeCloseTo(-4 / 3, 12);
+        expect(unsignedBetween(4, 0)).toBeCloseTo(unsignedBetween(0, 4), 12);
+        // step 5: [1, 3.5]: signed 55/12 = 4.5833, area 4.9823; the last piece beyond 3.2247 contributes -0.1995 and +0.1995
+        expect(signedBetween(1, 3.5)).toBeCloseTo(55 / 12, 12);
+        expect(round4(55 / 12)).toBe(4.5833);
+        expect(round4(unsignedBetween(1, 3.5))).toBe(4.9823);
+        expect(round4(-signedBetween(INTERSECTIONS[1], 3.5))).toBe(0.1995);
+        expect(unsignedBetween(1, 3.5) - signedBetween(1, 3.5)).toBeCloseTo(2 * -signedBetween(INTERSECTIONS[1], 3.5), 12);
+        // b = 3.2 (before the intersection): equal; b = 3.3 (after): integral smaller, area larger
+        expect(round4(signedBetween(1, 3.2))).toBe(4.7813);
+        expect(unsignedBetween(1, 3.2)).toBeCloseTo(signedBetween(1, 3.2), 12);
+        expect(round4(signedBetween(1, 3.3))).toBe(4.7687);
+        expect(round4(unsignedBetween(1, 3.3))).toBe(4.797);
+        expect(signedBetween(1, 3.3)).toBeLessThan(signedBetween(1, 3.2));
+        expect(unsignedBetween(1, 3.3)).toBeGreaterThan(unsignedBetween(1, 3.2));
+        // edge cases: g crosses the axis at 2 -+ sqrt(3) = 0.2679, 3.7321; a = b gives 0
+        expect([round4(2 - Math.sqrt(3)), round4(2 + Math.sqrt(3))]).toEqual([0.2679, 3.7321]);
+        expect(Object.is(unsignedBetween(2, 2), 0)).toBe(true);
     });
 });

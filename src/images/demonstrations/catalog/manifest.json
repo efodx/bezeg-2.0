@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "86ad7a44aa2acafa00d054ce25e4957d7949590e",
+  "graphSourceRevision": "22e5e5a42aa55a421d9793c1177ffc8b40ca4229",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -27,7 +27,8 @@
       "trigonometric-functions",
       "continuity",
       "derivative",
-      "definite-integral"
+      "definite-integral",
+      "area-between-curves"
     ],
     "geometricRoutes": "hide default axes, ticks, and grid",
     "coordinateContext": "retain default axes, ticks, and grid for Bernstein and function demonstrations",
@@ -1439,13 +1440,13 @@
         "paddingFraction": 0.12,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": -1.3666494885038072,
+          "minX": -1.3666494885038076,
           "maxX": 2.9251336898395697,
           "minY": 0.0000071806066179510334,
           "maxY": 2.6512216199801624
         },
         "boardBoundingBox": [
-          -1.5722994723619073,
+          -1.5722994723619077,
           2.8396782827122324,
           3.5722994723619017,
           -0.30424329461898375
@@ -1566,6 +1567,56 @@
         },
         "renderedLabelCount": 4,
         "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "area-between-curves",
+      "path": "/bezeg-2.0/functions/area-between",
+      "file": "area-between-curves.png",
+      "sha256": "c74a40ff8ab799ba628e76d855fe7164eff8bb5607ebce772baf740b4b8bb849",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.12,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": 0.2310202205882349,
+          "maxX": 5.819993921733207,
+          "minY": -0.13463254087921317,
+          "maxY": 4.204955650104825
+        },
+        "boardBoundingBox": [
+          -1.9334270149692119,
+          4.402305258467023,
+          6.142834044826608,
+          -0.5331876114081995
+        ],
+        "framedElementCount": 19,
+        "finalLabelCount": 10,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 24,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3,
+          "segment": 2,
+          "point": 4,
+          "text": 11
+        },
+        "renderedLabelCount": 10,
+        "mathJaxLabelCount": 8
       }
     }
   ]

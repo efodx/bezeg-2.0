@@ -13,12 +13,13 @@ export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent';
 export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent'];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
-export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method';
+export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode';
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
     'trig-function': ['sin', 'cos', 'tan'],
     'derivative-function': ['square', 'sin', 'exp'],
     'integral-function': ['square', 'sin', 'exp'],
     'sum-method': ['left', 'right', 'midpoint', 'trapezoid'],
+    'area-mode': ['under-f', 'under-g', 'between'],
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 

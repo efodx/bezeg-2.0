@@ -43,6 +43,7 @@ import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFun
 import { ContinuityGraph } from './graphs/functions/ContinuityGraph';
 import { DerivativeGraph } from './graphs/functions/DerivativeGraph';
 import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph';
+import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -87,6 +88,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'continuity': <ContinuityGraph/>,
     'derivative': <DerivativeGraph/>,
     'definite-integral': <DefiniteIntegralGraph/>,
+    'area-between-curves': <AreaBetweenCurvesGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

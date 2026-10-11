@@ -185,3 +185,22 @@ test.each([[[]], [null], [{}], [{...validIntegral, fn: "cos"}], [{...validIntegr
     expect(() => preflightPresetImport(integralPreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const areaPreset = (data: unknown) => JSON.stringify({"preset-area-between-curves": {data: [{id: "Osnova", boardState: {boundingBox: [-1.3, 4.2, 5.3, -1]},
+    graphState: {initialized: true, a: 0.78, b: 3.22, mode: "between"}, data}]}});
+
+test("area-between-curves collection imports a model object and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {a: 4, b: -1, mode: "under-g"};
+    commitPresetImport(preflightPresetImport(areaPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-area-between-curves")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validArea = {a: 0, b: 4, mode: "between"};
+test.each([[[]], [null], [{}], [{...validArea, mode: "under"}], [{...validArea, a: 5.5}], [{...validArea, b: -1.5}], [{...validArea, b: "4"}], [{a: 0, b: 4}],
+    [{...validArea, a: NaN}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("area-between-curves collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(areaPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

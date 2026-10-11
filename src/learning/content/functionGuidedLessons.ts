@@ -1534,5 +1534,250 @@ const definiteIntegral: GuidedLesson = {
     ],
 };
 
+const areaMode = (value: 'under-f' | 'under-g' | 'between'): SceneAction => ({name: 'set-function-choice', value: {name: 'area-mode', value}});
+
+const areaBetweenCurves: GuidedLesson = {
+    demonstrationId: 'area-between-curves',
+    title: text('Ploščina med krivuljama', 'Area between curves'),
+    summary: text(
+        'Dve krivulji, \\(f(x)=(x-2)^2\\) in \\(g(x)=3-(x-2)^2\\), omejita lik. Ploščino med njima dobimo kot določeni integral razlike zgornje in spodnje krivulje, \\(\\int_a^b\\bigl(g(x)-f(x)\\bigr)dx\\); kjer je zgoraj \\(f\\), se krivulji zamenjata in predznačeni integral ni več ploščina, zato razdelimo interval v presečiščih.',
+        'Two curves, \\(f(x)=(x-2)^2\\) and \\(g(x)=3-(x-2)^2\\), enclose a region. The area between them is the definite integral of the difference of the upper and the lower curve, \\(\\int_a^b\\bigl(g(x)-f(x)\\bigr)dx\\); where \\(f\\) is on top the curves swap roles and the signed integral is no longer the area, so we split the interval at the intersections.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje določenega integrala kot predznačene ploščine pod grafom in izreka \\(\\int_a^b f(x)\\,dx=F(b)-F(a)\\).', 'Assumes familiarity with the definite integral as signed area under a graph and with \\(\\int_a^b f(x)\\,dx=F(b)-F(a)\\).'),
+        text('Priporočeno je, da znaš rešiti enačbo \\((x-2)^2=c\\).', 'It helps to be able to solve an equation \\((x-2)^2=c\\).'),
+    ],
+    learningGoals: [
+        text('Izračunaš ploščino pod vsako od krivulj posebej in jo primerjaš s ploščino med njima.', 'Compute the area under each curve separately and compare it with the area between them.'),
+        text('Določiš presečišči \\(x=2\\mp\\sqrt{1{,}5}\\) in izračunaš ploščino \\(4\\sqrt{1{,}5}=2\\sqrt6\\) med njima.', 'Find the intersections \\(x=2\\mp\\sqrt{1.5}\\) and compute the area \\(4\\sqrt{1.5}=2\\sqrt6\\) between them.'),
+        text('Razložiš, zakaj je pri mejah zunaj presečišč \\(\\int(g-f)\\,dx\\) manjši od ploščine \\(\\int|g-f|\\,dx\\).', 'Explain why, for bounds beyond the intersections, \\(\\int(g-f)\\,dx\\) is smaller than the area \\(\\int|g-f|\\,dx\\).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'area-between-difference',
+            latex: 'A=\\int_a^b\\bigl(g(x)-f(x)\\bigr)\\,dx=\\int_a^b g(x)\\,dx-\\int_a^b f(x)\\,dx\\quad(g\\ge f)',
+            notation: text(
+                'Funkcija \\(g\\) je zgornja, \\(f\\) pa spodnja krivulja; \\(a\\) in \\(b\\) sta meji na osi \\(x\\).',
+                'The function \\(g\\) is the upper and \\(f\\) the lower curve; \\(a\\) and \\(b\\) are the bounds on the \\(x\\)-axis.',
+            ),
+            explanation: text(
+                'Ploščina med krivuljama je ploščina pod zgornjo krivuljo minus ploščina pod spodnjo, zato se integrala odštejeta. Tako velja, dokler je \\(g\\ge f\\) na vsem intervalu.',
+                'The area between the curves is the area under the upper curve minus the area under the lower one, so the integrals subtract. This holds as long as \\(g\\ge f\\) on the whole interval.',
+            ),
+        },
+        {
+            id: 'area-between-intersections',
+            latex: '\\begin{aligned}f(x)=g(x)&\\iff(x-2)^2=3-(x-2)^2\\iff(x-2)^2=\\tfrac32\\\\&\\iff x=2\\mp\\sqrt{\\tfrac32}\\approx0{,}7753,\\;3{,}2247\\end{aligned}',
+            notation: text(
+                'Presečišči \\(P_1\\) in \\(P_2\\) ležita na višini \\(f=g=\\frac32\\).',
+                'The intersections \\(P_1\\) and \\(P_2\\) lie at the height \\(f=g=\\frac32\\).',
+            ),
+            explanation: text(
+                'Med presečiščema je \\(g>f\\), zunaj njiju pa \\(f>g\\); v presečiščih se krivulji stakneta in razlika \\(g-f\\) spremeni predznak.',
+                'Between the intersections \\(g>f\\), outside them \\(f>g\\); at the intersections the curves meet and the difference \\(g-f\\) changes sign.',
+            ),
+        },
+        {
+            id: 'area-between-unsigned',
+            latex: '\\begin{aligned}\\int_a^b\\bigl(g-f\\bigr)dx&=\\Bigl[3x-\\tfrac23(x-2)^3\\Bigr]_a^b\\\\\\int_a^b|g-f|\\,dx&=\\sum_{k=1}^{m}\\left|\\int_{x_{k-1}}^{x_k}(g-f)\\,dx\\right|\\end{aligned}',
+            notation: text(
+                'Funkcija \\(3x-\\frac23(x-2)^3\\) je antiderivacija razlike \\(g-f=3-2(x-2)^2\\). Točke \\(x_0=a<x_1<\\dots<x_m=b\\) so meji in presečišči, ki ležita med njima.',
+                'The function \\(3x-\\frac23(x-2)^3\\) is an antiderivative of the difference \\(g-f=3-2(x-2)^2\\). The points \\(x_0=a<x_1<\\dots<x_m=b\\) are the bounds and the intersections that lie between them.',
+            ),
+            explanation: text(
+                'Predznačeni integral se računa naravnost iz antiderivacije. Ploščino dobimo tako, da interval razdelimo v presečiščih, ki ležita v njem, in na vsakem delu vzamemo absolutno vrednost integrala razlike. Ploščina je vedno nenegativna, tudi če je \\(a>b\\).',
+                'The signed integral is computed straight from the antiderivative. The area comes from splitting the interval at the intersections that lie inside it and taking the absolute value of the integral of the difference on each piece. The area is always non-negative, even if \\(a>b\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'area-between-example',
+            title: text('Ploščina med presečiščema', 'The area between the intersections'),
+            calculationLatex: '\\begin{aligned}\\int_{2-\\sqrt{1{,}5}}^{2+\\sqrt{1{,}5}}\\bigl(3-2(x-2)^2\\bigr)dx&=\\int_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}\\bigl(3-2u^2\\bigr)du,\\quad u=x-2\\\\&=\\Bigl[3u-\\tfrac23u^3\\Bigr]_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}\\\\&=6\\sqrt{1{,}5}-\\tfrac43\\,(1{,}5)^{3/2}\\\\&=6\\sqrt{1{,}5}-2\\sqrt{1{,}5}\\end{aligned}',
+            resultLatex: 'A=4\\sqrt{1{,}5}=2\\sqrt6\\approx4{,}8990',
+            check: text(
+                'Ker je \\((1{,}5)^{3/2}=1{,}5\\sqrt{1{,}5}\\), je \\(\\frac43(1{,}5)^{3/2}=2\\sqrt{1{,}5}\\). Posebej: \\(\\int f\\,dx=\\sqrt{1{,}5}\\approx1{,}2247\\) in \\(\\int g\\,dx=5\\sqrt{1{,}5}\\approx6{,}1237\\); razlika je \\(4\\sqrt{1{,}5}\\approx4{,}8990\\), kar prikaže tudi odčitek.',
+                'Since \\((1.5)^{3/2}=1.5\\sqrt{1.5}\\), we get \\(\\frac43(1.5)^{3/2}=2\\sqrt{1.5}\\). Separately, \\(\\int f\\,dx=\\sqrt{1.5}\\approx1.2247\\) and \\(\\int g\\,dx=5\\sqrt{1.5}\\approx6.1237\\); the difference is \\(4\\sqrt{1.5}\\approx4.8990\\), which the readout also shows.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'area-under-step', order: 1,
+            title: text('Ploščina pod vsako krivuljo', 'The area under each curve'),
+            purpose: text('Najprej izračunati ploščino pod vsako krivuljo posebej.', 'First computing the area under each curve separately.'),
+            explanation: text(
+                'Krivulji \\(f(x)=(x-2)^2\\) in \\(g(x)=3-(x-2)^2\\) se sekata pri \\(x=2\\mp\\sqrt{1{,}5}\\approx0{,}7753\\) in \\(3{,}2247\\); ti vrednosti sta privzeti meji \\(a\\) in \\(b\\). Pod \\(g\\) do osi \\(x\\) je \\(\\int_a^b g(x)\\,dx=6\\sqrt{1{,}5}-\\sqrt{1{,}5}\\), kar je \\(5\\sqrt{1{,}5}\\approx6{,}1237\\). To scena pobarva. Pod \\(f\\) je \\(\\int_a^b f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_a^b\\), kar je \\(\\sqrt{1{,}5}\\approx1{,}2247\\). Izbirnik »Kaj je pobarvano« preklopi med obema.',
+                'The curves \\(f(x)=(x-2)^2\\) and \\(g(x)=3-(x-2)^2\\) meet at \\(x=2\\mp\\sqrt{1.5}\\approx0.7753\\) and \\(3.2247\\); these are the default bounds \\(a\\) and \\(b\\). Under \\(g\\) down to the \\(x\\)-axis the area is \\(\\int_a^b g(x)\\,dx=6\\sqrt{1.5}-\\sqrt{1.5}\\), which is \\(5\\sqrt{1.5}\\approx6.1237\\). The scene shades this. Under \\(f\\) it is \\(\\int_a^b f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_a^b\\), which is \\(\\sqrt{1.5}\\approx1.2247\\). The selector “What is shaded” switches between the two.',
+            ),
+            formulaIds: ['area-between-intersections'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('area-under-explanation', 'explanation'), frame('area-under-observation', 'observation')],
+            observationPrompt: text(
+                'Preklopi med »Ploščina pod f« in »Ploščina pod g« ter primerjaj pobarvana lika in odčitka \\(\\int f\\,dx\\) ter \\(\\int g\\,dx\\).',
+                'Switch between “Area under f” and “Area under g” and compare the two shaded regions and the readouts of \\(\\int f\\,dx\\) and \\(\\int g\\,dx\\).',
+            ),
+            expectedObservations: [text(
+                'Pod \\(g\\) je pobarvan velik lik z ploščino \\(6{,}1237\\); pod \\(f\\) je manjši lik z ploščino \\(1{,}2247\\). Ploščina med krivuljama je razlika teh dveh.',
+                'Under \\(g\\) a large region with area \\(6.1237\\) is shaded; under \\(f\\) there is a smaller region with area \\(1.2247\\). The area between the curves is the difference of the two.',
+            )],
+            scene: {
+                id: 'area-under-g-scene', basedOn: 'demonstration-default',
+                actions: [areaMode('under-g')],
+                expectedState: text(
+                    'Pobarvan je lik pod \\(g\\) med \\(a\\approx0{,}78\\) in \\(b\\approx3{,}22\\): \\(\\int g\\,dx=6{,}1237\\), \\(\\int f\\,dx=1{,}2247\\).',
+                    'The region under \\(g\\) between \\(a\\approx0.78\\) and \\(b\\approx3.22\\) is shaded: \\(\\int g\\,dx=6.1237\\), \\(\\int f\\,dx=1.2247\\).',
+                ),
+            },
+        },
+        {
+            id: 'area-difference-step', order: 2,
+            title: text('Ploščina med krivuljama je razlika', 'The area between is the difference'),
+            purpose: text('Videti, da je ploščina med krivuljama integral razlike, ko je \\(g\\ge f\\).', 'Seeing that the area between the curves is the integral of the difference when \\(g\\ge f\\).'),
+            explanation: text(
+                'Ploščina med krivuljama je ploščina pod zgornjo minus ploščina pod spodnjo: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx=\\int_a^b(g-f)\\,dx\\), če je \\(g\\ge f\\) na \\([a,b]\\). Pri \\(a=1\\) in \\(b=3\\), ki ležita med presečiščema, je \\(g-f=3-2(x-2)^2\\) z antiderivacijo \\(3x-\\frac23(x-2)^3\\), zato je \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)=\\frac{14}{3}\\approx4{,}6667\\). Odčitka \\(\\int g\\,dx=\\frac{16}{3}\\) in \\(\\int f\\,dx=\\frac23\\) imata prav to razliko. Scena izbere način »Ploščina med f in g«.',
+                'The area between the curves is the area under the upper one minus the area under the lower one: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx=\\int_a^b(g-f)\\,dx\\) if \\(g\\ge f\\) on \\([a,b]\\). For \\(a=1\\) and \\(b=3\\), which lie between the intersections, \\(g-f=3-2(x-2)^2\\) has the antiderivative \\(3x-\\frac23(x-2)^3\\), so \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)=\\frac{14}{3}\\approx4.6667\\). The readouts \\(\\int g\\,dx=\\frac{16}{3}\\) and \\(\\int f\\,dx=\\frac23\\) have exactly this difference. The scene selects the mode “Area between f and g”.',
+            ),
+            formulaIds: ['area-between-difference'], learnerInteraction: 'drag-control-point',
+            frames: [frame('area-difference-explanation', 'explanation'), frame('area-difference-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\), ostani med presečiščema in preveri, da je \\(\\int g\\,dx-\\int f\\,dx\\) enak \\(\\int(g-f)\\,dx\\).',
+                'Drag the points \\(a\\) and \\(b\\) along the \\(x\\)-axis, stay between the intersections, and check that \\(\\int g\\,dx-\\int f\\,dx\\) equals \\(\\int(g-f)\\,dx\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(a=1\\), \\(b=3\\) je \\(\\int g\\,dx=5{,}3333\\), \\(\\int f\\,dx=0{,}6667\\) in \\(\\int(g-f)\\,dx=4{,}6667\\); ploščina je enaka, ker je povsod \\(g\\ge f\\) in je ves lik obarvan z isto barvo.',
+                'For \\(a=1\\), \\(b=3\\) we get \\(\\int g\\,dx=5.3333\\), \\(\\int f\\,dx=0.6667\\) and \\(\\int(g-f)\\,dx=4.6667\\); the area is the same because \\(g\\ge f\\) everywhere and the whole region has one colour.',
+            )],
+            scene: {
+                id: 'area-difference-scene', basedOn: 'demonstration-default',
+                actions: [areaMode('between'), parameter('a', 1), parameter('b', 3)],
+                expectedState: text(
+                    'Pobarvan je lik med krivuljama med \\(a=1\\) in \\(b=3\\): \\(\\int(g-f)\\,dx=4{,}6667\\) in ploščina \\(4{,}6667\\).',
+                    'The region between the curves from \\(a=1\\) to \\(b=3\\) is shaded: \\(\\int(g-f)\\,dx=4.6667\\) and area \\(4.6667\\).',
+                ),
+            },
+        },
+        {
+            id: 'area-intersections-step', order: 3,
+            title: text('Meji v presečiščih', 'Bounds at the intersections'),
+            purpose: text('Ploščino lika, ki ga omejita krivulji, izračunati natančno.', 'Computing exactly the area of the region the two curves enclose.'),
+            explanation: text(
+                'Lik med krivuljama je omejen s presečiščema: \\((x-2)^2=3-(x-2)^2\\) da \\((x-2)^2=\\frac32\\) in \\(x=2\\mp\\sqrt{1{,}5}\\approx0{,}7753;\\;3{,}2247\\). Z \\(u=x-2\\) je ploščina enaka \\(\\int_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}(3-2u^2)\\,du\\), kar je \\(6\\sqrt{1{,}5}-\\frac43(1{,}5)^{3/2}\\), torej \\(6\\sqrt{1{,}5}-2\\sqrt{1{,}5}\\) in končno \\(4\\sqrt{1{,}5}=2\\sqrt6\\approx4{,}8990\\). Točki \\(P_1\\) in \\(P_2\\) na grafu ležita na višini \\(\\frac32\\) in sta krajišči lika. Scena vrne meji na privzeti vrednosti.',
+                'The region between the curves is bounded by the intersections: \\((x-2)^2=3-(x-2)^2\\) gives \\((x-2)^2=\\frac32\\) and \\(x=2\\mp\\sqrt{1.5}\\approx0.7753;\\;3.2247\\). With \\(u=x-2\\) the area equals \\(\\int_{-\\sqrt{1.5}}^{\\sqrt{1.5}}(3-2u^2)\\,du\\), which is \\(6\\sqrt{1.5}-\\frac43(1.5)^{3/2}\\), that is \\(6\\sqrt{1.5}-2\\sqrt{1.5}\\), and finally \\(4\\sqrt{1.5}=2\\sqrt6\\approx4.8990\\). The points \\(P_1\\) and \\(P_2\\) on the graph lie at the height \\(\\frac32\\) and are the ends of the region. The scene returns the bounds to their default values.',
+            ),
+            formulaIds: ['area-between-intersections', 'area-between-unsigned'], workedExampleId: 'area-between-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('area-intersections-explanation', 'explanation'), frame('area-intersections-calculation', 'calculation'), frame('area-intersections-observation', 'observation')],
+            observationPrompt: text(
+                'Poskusi premakniti \\(a\\) in \\(b\\) čim bliže presečiščema (na stotinko natančno) in opazuj, kako se \\(\\int(g-f)\\,dx\\) približa \\(4{,}8990\\).',
+                'Try moving \\(a\\) and \\(b\\) as close to the intersections as possible (to the nearest hundredth) and watch \\(\\int(g-f)\\,dx\\) approach \\(4.8990\\).',
+            ),
+            expectedObservations: [text(
+                'Pri privzetih mejah (v inšpektorju \\(0{,}78\\) in \\(3{,}22\\)) sta \\(\\int(g-f)\\,dx\\) in ploščina oba \\(4{,}8990\\), lik je v celoti obarvan z eno barvo, črtkani navpičnici segata od presečišča do presečišča.',
+                'With the default bounds (shown as \\(0.78\\) and \\(3.22\\) in the inspector) \\(\\int(g-f)\\,dx\\) and the area are both \\(4.8990\\), the whole region has one colour, and the dashed verticals run from intersection to intersection.',
+            )],
+            scene: {
+                id: 'area-intersections-scene', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Meji sta v presečiščih \\(2\\mp\\sqrt{1{,}5}\\), način »med f in g«: \\(\\int(g-f)\\,dx=4{,}8990\\), ploščina \\(4{,}8990\\).',
+                    'The bounds are at the intersections \\(2\\mp\\sqrt{1.5}\\), mode “between f and g”: \\(\\int(g-f)\\,dx=4.8990\\), area \\(4.8990\\).',
+                ),
+            },
+        },
+        {
+            id: 'area-beyond-step', order: 4,
+            title: text('Meji zunaj presečišč', 'Bounds beyond the intersections'),
+            purpose: text('Razumeti, zakaj se predznačeni integral in ploščina razlikujeta.', 'Understanding why the signed integral and the area differ.'),
+            explanation: text(
+                'Pri \\(a=0\\) in \\(b=4\\) sega interval čez presečišči. Na krajnih delih \\([0;0{,}7753]\\) in \\([3{,}2247;4]\\) je zgoraj \\(f\\), zato je tam \\(g-f<0\\): vsak del prispeva \\(\\frac23-2\\sqrt{1{,}5}\\approx-1{,}7828\\) k \\(\\int(g-f)\\,dx\\). Skupaj je \\(\\int_0^4(g-f)\\,dx=4\\sqrt{1{,}5}+2\\left(\\frac23-2\\sqrt{1{,}5}\\right)\\), kar je \\(\\frac43\\approx1{,}3333\\). Prava ploščina pa vsak del šteje pozitivno: \\(\\int_0^4|g-f|\\,dx=2\\sqrt6+2\\left(2\\sqrt{1{,}5}-\\frac23\\right)\\), kar je približno \\(8{,}4646\\). Deli, kjer je zgoraj \\(f\\), se pri predznačenem integralu odštejejo. Drugače obarvana lika ob robovih kažeta ravno te dele.',
+                'For \\(a=0\\) and \\(b=4\\) the interval reaches beyond the intersections. On the end pieces \\([0,0.7753]\\) and \\([3.2247,4]\\) the curve \\(f\\) is on top, so \\(g-f<0\\) there: each piece contributes \\(\\frac23-2\\sqrt{1.5}\\approx-1.7828\\) to \\(\\int(g-f)\\,dx\\). Altogether \\(\\int_0^4(g-f)\\,dx=4\\sqrt{1.5}+2\\left(\\frac23-2\\sqrt{1.5}\\right)\\), which is \\(\\frac43\\approx1.3333\\). The true area counts each piece as positive: \\(\\int_0^4|g-f|\\,dx=2\\sqrt6+2\\left(2\\sqrt{1.5}-\\frac23\\right)\\), which is about \\(8.4646\\). The parts where \\(f\\) is on top are subtracted in the signed integral. The two regions at the edges, in the other colour, show exactly these parts.',
+            ),
+            formulaIds: ['area-between-unsigned'], learnerInteraction: 'drag-control-point',
+            frames: [frame('area-beyond-explanation', 'explanation'), frame('area-beyond-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj odčitka \\(\\int(g-f)\\,dx\\) in \\(\\int|g-f|\\,dx\\) ter obe barvi lika. Nato poglej, kaj se zgodi z obema odčitkoma, če zamenjaš \\(a\\) in \\(b\\).',
+                'Compare the readouts of \\(\\int(g-f)\\,dx\\) and \\(\\int|g-f|\\,dx\\) and the two colours of the region. Then see what happens to both readouts if you swap \\(a\\) and \\(b\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(a=0\\), \\(b=4\\) je \\(\\int(g-f)\\,dx=1{,}3333\\), ploščina pa \\(8{,}4646\\); odčitka \\(\\int f\\,dx=5{,}3333\\) in \\(\\int g\\,dx=6{,}6667\\) imata razliko \\(1{,}3333\\). Pri zamenjanih mejah predznačeni integral zamenja predznak, ploščina ostane \\(8{,}4646\\).',
+                'For \\(a=0\\), \\(b=4\\) we get \\(\\int(g-f)\\,dx=1.3333\\) and an area of \\(8.4646\\); the readouts \\(\\int f\\,dx=5.3333\\) and \\(\\int g\\,dx=6.6667\\) differ by \\(1.3333\\). With swapped bounds the signed integral changes sign and the area stays \\(8.4646\\).',
+            )],
+            scene: {
+                id: 'area-beyond-scene', basedOn: 'demonstration-default',
+                actions: [areaMode('between'), parameter('a', 0), parameter('b', 4)],
+                expectedState: text(
+                    'Prikazan je lik med krivuljama na \\([0,4]\\) v dveh barvah: \\(\\int(g-f)\\,dx=1{,}3333\\), ploščina \\(8{,}4646\\).',
+                    'The region between the curves on \\([0,4]\\) is shown in two colours: \\(\\int(g-f)\\,dx=1.3333\\), area \\(8.4646\\).',
+                ),
+            },
+        },
+        {
+            id: 'area-crossing-step', order: 5,
+            title: text('Prehod čez presečišče', 'Crossing an intersection'),
+            purpose: text('Opaziti, da se pri prehodu meje čez presečišče zamenja zgornja krivulja.', 'Noticing that moving a bound across an intersection changes which curve is on top.'),
+            explanation: text(
+                'Scena postavi \\(a=1\\) in \\(b=3{,}5\\): meja \\(b\\) je že desno od presečišča \\(3{,}2247\\). Do presečišča je zgoraj \\(g\\), za njim pa \\(f\\), zato se zadnji košček z ploščino \\(\\approx0{,}1995\\) pri \\(\\int(g-f)\\,dx=\\frac{55}{12}\\approx4{,}5833\\) odšteje, pri ploščini \\(\\approx4{,}9823\\) pa prišteje. Pri \\(b=3{,}2\\) sta obe vrednosti enaki \\(4{,}7813\\); pri \\(b=3{,}3\\) je \\(\\int(g-f)\\,dx\\approx4{,}7687\\) manjši, ploščina \\(\\approx4{,}7970\\) pa večja. Zgornjo krivuljo pove predznak razlike \\(g-f\\).',
+                'The scene sets \\(a=1\\) and \\(b=3.5\\): the bound \\(b\\) is already to the right of the intersection \\(3.2247\\). Up to the intersection \\(g\\) is on top and beyond it \\(f\\) is, so the last little piece with area \\(\\approx0.1995\\) is subtracted in \\(\\int(g-f)\\,dx=\\frac{55}{12}\\approx4.5833\\) and added in the area \\(\\approx4.9823\\). For \\(b=3.2\\) both values are equal to \\(4.7813\\); for \\(b=3.3\\) the integral \\(\\int(g-f)\\,dx\\approx4.7687\\) is smaller and the area \\(\\approx4.7970\\) is larger. The sign of the difference \\(g-f\\) tells which curve is on top.',
+            ),
+            formulaIds: ['area-between-unsigned'], learnerInteraction: 'drag-control-point',
+            frames: [frame('area-crossing-explanation', 'explanation'), frame('area-crossing-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci \\(b\\) počasi čez presečišče pri \\(3{,}2247\\) in opazuj barvo pobarvanega lika ter obe vrednosti: kdaj se \\(\\int(g-f)\\,dx\\) in ploščina razideta?',
+                'Slowly drag \\(b\\) across the intersection at \\(3.2247\\) and watch the colour of the shaded region and both values: when do \\(\\int(g-f)\\,dx\\) and the area part ways?',
+            ),
+            expectedObservations: [text(
+                'Levo od presečišča sta vrednosti enaki; desno od njega se lik pobarva z drugo barvo, \\(\\int(g-f)\\,dx\\) začne padati, ploščina pa naraščati.',
+                'To the left of the intersection the two values are equal; to the right of it the region gets the other colour, \\(\\int(g-f)\\,dx\\) starts to fall and the area keeps growing.',
+            )],
+            scene: {
+                id: 'area-crossing-scene', basedOn: 'demonstration-default',
+                actions: [areaMode('between'), parameter('a', 1), parameter('b', 3.5)],
+                expectedState: text(
+                    'Meji sta \\(a=1\\) in \\(b=3{,}5\\): \\(\\int(g-f)\\,dx=4{,}5833\\), ploščina \\(4{,}9823\\); ozek del desno od \\(P_2\\) je v drugi barvi.',
+                    'The bounds are \\(a=1\\) and \\(b=3.5\\): \\(\\int(g-f)\\,dx=4.5833\\), area \\(4.9823\\); the narrow part to the right of \\(P_2\\) has the other colour.',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-area-between-curves',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Section 6.1: Areas Between Curves.',
+            supports: ['the area between y = f(x) and y = g(x) as the integral of the upper minus the lower function', 'splitting the interval where the curves intersect', 'the area as the integral of |f(x) - g(x)|'],
+        },
+        {
+            id: 'efodx-area-between-graph',
+            citation: 'Earlier app by the owner: efodx.github.io, src/graphs area-between graph (studied 2026-10-11).',
+            supports: ['two curves with draggable bounds on the x-axis and a choice of the shaded integral', 'readout of the area'],
+            implementationCorrespondence: 'Bezeg keeps the two curves, the draggable bounds on the x-axis and the choice of what is shaded, but connects every input to the curve it names and labels each option with the quantity it really shades (under f, under g, between f and g). It adds the marked intersections, a second colour where f is on top, the signed integral of g - f next to the unsigned area (computed exactly by splitting at the intersections), and oriented bounds (a > b flips the signed values and keeps the area).',
+        },
+        {
+            id: 'bezeg-area-between-implementation',
+            citation: 'Bezeg source: src/analysis/areaBetween.ts and src/graphs/functions/AreaBetweenCurvesGraph.tsx.',
+            supports: ['exact antiderivatives of f, g and g - f', 'unsigned area split at the intersections 2 -+ sqrt(1.5)', 'bounds in [-1, 5]', 'two filled curve objects for the parts where g is on top and where f is on top'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Pri \\(a=b\\) je interval prazen: vsi odčitki so \\(0\\) in nič ni pobarvano. Pri \\(a>b\\) vsi predznačeni odčitki zamenjajo predznak, ploščina \\(\\int|g-f|\\,dx\\) pa je nenegativna in se ne spremeni, kar je dogovor te aplikacije.',
+            'For \\(a=b\\) the interval is empty: every readout is \\(0\\) and nothing is shaded. For \\(a>b\\) all signed readouts change sign while the area \\(\\int|g-f|\\,dx\\) is non-negative and does not change, which is this app\'s convention.',
+        ),
+        text(
+            'Načina »pod f« in »pod g« pobarvata lik med krivuljo in osjo \\(x\\), ne ploščine med krivuljama. Krivulja \\(g\\) seka os \\(x\\) pri \\(2\\mp\\sqrt3\\approx0{,}2679;\\;3{,}7321\\); dele pod osjo prikaže druga barva in štejejo negativno, pri \\(a=0\\), \\(b=4\\) je zato \\(\\int g\\,dx=\\frac{20}{3}\\).',
+            'The modes “under f” and “under g” shade the region between a curve and the \\(x\\)-axis, not the area between the curves. The curve \\(g\\) crosses the \\(x\\)-axis at \\(2\\mp\\sqrt3\\approx0.2679;\\;3.7321\\); the parts below the axis have the other colour and count as negative, so for \\(a=0\\), \\(b=4\\) we get \\(\\int g\\,dx=\\frac{20}{3}\\).',
+        ),
+        text(
+            'Meji ležita v \\([-1,5]\\). Pri robovih te domene graf \\(f\\) zapusti pogled (\\(f(-1)=9\\)); uporabi gumb »Prilagodi točkam« ali premakni pogled.',
+            'The bounds lie in \\([-1,5]\\). Near the ends of that domain the graph of \\(f\\) leaves the view (\\(f(-1)=9\\)); use the “Fit to points” button or pan the view.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija obravnava tudi krivulje, ki se sekajo večkrat ali ne sekajo nikjer.',
+            'Before classroom-ready review, confirm whether the lesson should also treat curves that intersect several times or not at all.',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative, definiteIntegral];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative, definiteIntegral, areaBetweenCurves];

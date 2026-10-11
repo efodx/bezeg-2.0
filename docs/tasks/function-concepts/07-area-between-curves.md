@@ -4,7 +4,7 @@
 
 **Dependencies:** [Definite integral](06-definite-integral.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented
 
 ## Goal
 
@@ -26,4 +26,11 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 78 suites, 1042 tests pass (math module `areaBetween.test.ts` with the plan numbers, graph test, lesson test, preset import).
+- `CI=false npm run build`: compiled.
+- Lesson smoke row (`area-between-curves`, sl + en + narrow viewport): 3/3; `tests/demonstrations.smoke.spec.cjs`: 34/34 after raising the catalog count to 33.
+- Worker browser check (throwaway script, removed): SL to EN switch updates board texts, option labels, readout labels and note live, and back.
+- Catalog preview regenerated (`area-between-curves.png`, manifest, asset map); no other PNG changed.
+
+New action kinds: none. Reused the parameter names `a`, `b`; added the choice `area-mode` (`under-f|under-g|between`). Bounds lie in [-1, 5]; default bounds are the unrounded intersections `2 -+ sqrt(1.5)`. The signed and unsigned integrals, the intersections and the shading polygons live in `src/analysis/areaBetween.ts`. The unsigned area is always >= 0 and independent of the bound order; every signed value is oriented. The shading is two filled curve objects (second colour where f is on top, or below the axis in the under-f and under-g modes), so the board keeps a constant object count.
