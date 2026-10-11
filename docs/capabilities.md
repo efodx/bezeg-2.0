@@ -4,9 +4,9 @@ Source inventory as of 2026-10-08. Routes below come from the ordered [`Demonstr
 
 The 2026-10-09 [curve architecture deep dive](curve-architecture-deep-dive.md) adds the drawing/update path, dependency findings, and preservation requirements for future refactoring. The route inventory remains here; proposed library changes are compared in [renderer options](research/curve-renderer-options.md).
 
-All routes in this release use the `/bezeg-2.0` base. The home route is `/bezeg-2.0`; its Explore action and the header Demonstrations link open the catalog at `/bezeg-2.0/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped by family. Route suffixes and preset interchange files are retained. The separate original site remains at `/bezeg`; its browser presets are isolated and must be exported there and imported explicitly into this release.
+All routes in this release use the `/bezeg-2.0` base. The home route is `/bezeg-2.0`; its Explore action and the header Demonstrations link open the catalog at `/bezeg-2.0/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped into seven independently expandable topics with separate links to graphs and available Guided lessons. Route suffixes and preset interchange files are retained. The separate original site remains at `/bezeg`; its browser presets are isolated and must be exported there and imported explicitly into this release.
 
-Static graph previews illustrate the three starting cards and each of the six mathematical families. All 26 catalog links remain visible; the catalog adds no live graphs or animation.
+Static graph previews show the three starting examples and the actual default scene for each of the 29 demonstrations. The seven family icons remain conceptual topic illustrations; the catalog does not mount graphs or run animations. See [the expandable catalog spec](specs/expandable-demonstration-catalog.md).
 
 | Area | Route suffix | Demonstration / component |
 | --- | --- | --- |

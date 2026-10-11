@@ -1,6 +1,8 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
+import type {FamilyId} from './demonstrations';
+import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {SiteContext} from './graphs/context/react/SiteContext';
 import {t, useLanguage} from './localization';
@@ -16,10 +18,14 @@ import familyPh from './images/demonstrations/family-ph.svg';
 import familyParam from './images/demonstrations/family-param.svg';
 import familyFunctions from './images/demonstrations/family-functions.svg';
 
-const familyIllustrations: Record<string, string> = {
-    basics: familyBasics, '/bezeg-2.0/bezier': familyBezier, '/bezeg-2.0/rational': familyRational,
-    '/bezeg-2.0/spline': familySpline, '/bezeg-2.0/ph': familyPh, '/bezeg-2.0/param': familyParam,
-    '/bezeg-2.0/functions': familyFunctions
+const familyIllustrations: Record<FamilyId, string> = {
+    basics: familyBasics,
+    '/bezeg-2.0/bezier': familyBezier,
+    '/bezeg-2.0/rational': familyRational,
+    '/bezeg-2.0/spline': familySpline,
+    '/bezeg-2.0/ph': familyPh,
+    '/bezeg-2.0/param': familyParam,
+    '/bezeg-2.0/functions': familyFunctions,
 };
 const startingIllustrations: Record<string, string> = {
     bezier: startingBezier, decasteljau: startingConstruction, 'ph-cubic': startingPh,
@@ -37,6 +43,10 @@ export function DemonstrationsPage() {
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     const {demonstrations, families, starting} = getDemonstrationCatalog();
+    const [expandedFamilies, setExpandedFamilies] = useState<Set<FamilyId>>(() =>
+        new Set(families[0] ? [families[0].id] : []));
+    const shortLessonLabel = t('guided_lesson');
+
     return <main className="demonstrations-page">
         <header><span className="demonstrations-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('demonstrations')}</h1><p>{t('choose_demonstration')}</p></header>
@@ -60,17 +70,44 @@ export function DemonstrationsPage() {
                 <span>{t('catalog_summary', {value0: families.length, value1: demonstrations.length})}</span></div>
             <div className="demonstrations-families">
                 {families.map((family, i) => {
-                    const entries = family.demonstrations;
-                    return <section key={family.id} aria-labelledby={`demonstration-family-${i}`}>
-                        <header><div><span className="demonstrations-number">0{i + 1} · {demonstrationCount(entries.length)}</span>
-                            <h3 id={`demonstration-family-${i}`}>{family.title}</h3></div>
-                            {familyIllustrations[family.id] && <img src={familyIllustrations[family.id]} width="180" height="130" alt="" loading="lazy"/>}</header>
-                        <ul>{entries.map(demonstration => <li key={demonstration.id}>
-                            <div className="demonstrations-catalog-entry">
-                                <Link to={demonstration.path}>{demonstration.catalogTitle}<span aria-hidden="true"> →</span></Link>
-                                {isGuidedLessonAvailable(demonstration.id) && <Link className="demonstrations-catalog-learn" to={`${demonstration.path}?learn=1`}>{t('learn_this_demonstration')}<span aria-hidden="true"> →</span></Link>}
-                            </div>
-                        </li>)}</ul>
+                    const expanded = expandedFamilies.has(family.id);
+                    const headingId = 'demonstration-family-heading-' + i;
+                    const panelId = 'demonstration-family-panel-' + i;
+                    return <section className={'demonstrations-topic' + (expanded ? ' is-expanded' : '')} key={family.id}>
+                        <header className="demonstrations-topic-heading">
+                            <h3 id={headingId}>
+                                <button className="demonstrations-topic-toggle" type="button" aria-expanded={expanded} aria-controls={panelId}
+                                    onClick={() => setExpandedFamilies(current => {
+                                        const next = new Set(current);
+                                        if (next.has(family.id)) next.delete(family.id);
+                                        else next.add(family.id);
+                                        return next;
+                                    })}>
+                                    <span className="demonstrations-topic-title">
+                                        <span className="demonstrations-number">{String(i + 1).padStart(2, '0')} · {demonstrationCount(family.demonstrations.length)}</span>
+                                        <span>{family.title}</span>
+                                    </span>
+                                    {familyIllustrations[family.id] && <img src={familyIllustrations[family.id]} width="180" height="130" alt="" loading="lazy"/>}
+                                    <span className="demonstrations-topic-mark" aria-hidden="true">{expanded ? '−' : '+'}</span>
+                                </button>
+                            </h3>
+                        </header>
+                        <div id={panelId} className="demonstrations-topic-panel" role="region" aria-labelledby={headingId} hidden={!expanded}>
+                            <ul className="demonstrations-catalog-grid">
+                                {family.demonstrations.map(demonstration => <li className="demonstrations-catalog-card" key={demonstration.id}>
+                                    <Link className="demonstrations-catalog-main" to={demonstration.path}>
+                                        <img className="demonstrations-catalog-preview" src={demonstrationPreviewAssets[demonstration.id]}
+                                            width="794" height="562" alt="" loading="lazy"/>
+                                        <span className="demonstrations-catalog-label"><span>{demonstration.catalogTitle}</span><span aria-hidden="true">→</span></span>
+                                    </Link>
+                                    {isGuidedLessonAvailable(demonstration.id) && <Link className="demonstrations-catalog-learn" to={demonstration.path + '?learn=1'}
+                                        aria-label={shortLessonLabel + ': ' + demonstration.catalogTitle}
+                                        title={t('learn_this_demonstration') + ': ' + demonstration.catalogTitle}>
+                                        <span>{shortLessonLabel}</span>
+                                    </Link>}
+                                </li>)}
+                            </ul>
+                        </div>
                     </section>;
                 })}
             </div>

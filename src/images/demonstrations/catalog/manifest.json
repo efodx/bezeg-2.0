@@ -1,0 +1,902 @@
+{
+  "generator": "scripts/capture-demonstration-previews.cjs",
+  "graphSourceRevision": "f290520ce9d49f6b1eac13c89baa59b5c441c2c7",
+  "capture": {
+    "source": "live #jgbox from each Demonstration metadata route",
+    "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
+    "scene": "fresh browser context with empty local/session storage; exact route without query; route default preset only; no controls changed",
+    "viewport": {
+      "width": 1440,
+      "height": 850
+    },
+    "deviceScaleFactor": 1,
+    "locale": "sl-SI",
+    "colorScheme": "light",
+    "reducedMotion": "reduce",
+    "timezoneId": "Europe/Ljubljana",
+    "baseUrl": "http://127.0.0.1:3013/bezeg-2.0",
+    "browserVersion": "156.0.8078.4"
+  },
+  "image": {
+    "width": 794,
+    "height": 562
+  },
+  "captures": [
+    {
+      "id": "bernstein",
+      "path": "/bezeg-2.0/bernstein",
+      "file": "bernstein.png",
+      "sha256": "393ceb7d70344c24f25b3c74685b2138de4fda12aa94d34a79981e12378b2334",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -0.3491978609625669,
+          1.15,
+          1.3491978609625672,
+          -0.05000000000000025
+        ],
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "curve": 2
+        },
+        "renderedLabelCount": 17,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "bezier",
+      "path": "/bezeg-2.0/bezier/curve",
+      "file": "bezier.png",
+      "sha256": "2c000d671898751050a22df939ffe9742cfb57a237839762fbf696a86758d1ff",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "decasteljau",
+      "path": "/bezeg-2.0/bezier/decasteljau",
+      "file": "decasteljau.png",
+      "sha256": "1cd39763cb25535f46763a0814d57758cbe301c99e30be7d0f723baeeb622080",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 59,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 29,
+          "point": 15,
+          "curve": 1,
+          "segment": 10
+        },
+        "renderedLabelCount": 33,
+        "mathJaxLabelCount": 30
+      }
+    },
+    {
+      "id": "decasteljau-alternative",
+      "path": "/bezeg-2.0/bezier/decasteljau2",
+      "file": "decasteljau-alternative.png",
+      "sha256": "cd778ca4cd7acda644dd30d26cf356e08125213f065007ba540452c0964d70b7",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 38,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 22,
+          "point": 8,
+          "curve": 3,
+          "segment": 1
+        },
+        "renderedLabelCount": 26,
+        "mathJaxLabelCount": 10
+      }
+    },
+    {
+      "id": "affine",
+      "path": "/bezeg-2.0/bezier/affine",
+      "file": "affine.png",
+      "sha256": "869811b6cc31cfc081e1b056e895353d329d8e2c27ef91ecd5b04b5f9afb2f26",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "subdivision",
+      "path": "/bezeg-2.0/bezier/subdivision-2",
+      "file": "subdivision.png",
+      "sha256": "009705fc553b088ce34ada3c02e4050a66dcb07054b601d7b74b90b7acb77e54",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 46,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 24,
+          "point": 10,
+          "curve": 2,
+          "segment": 6
+        },
+        "renderedLabelCount": 28,
+        "mathJaxLabelCount": 20
+      }
+    },
+    {
+      "id": "repeated-subdivision",
+      "path": "/bezeg-2.0/bezier/subdivision",
+      "file": "repeated-subdivision.png",
+      "sha256": "8a745a547bee44da6fabcad9529257fd6fbc7f4ff838b8e5388fc8ebe69aecd3",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 30,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "extrapolation",
+      "path": "/bezeg-2.0/bezier/extrapolation",
+      "file": "extrapolation.png",
+      "sha256": "b62796ea412831d1e2e9b4f6fedc469992ac7e35bc99a74ad75e99fb2fcd58e8",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 29,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 19,
+          "point": 5,
+          "curve": 1
+        },
+        "renderedLabelCount": 23,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "elevation",
+      "path": "/bezeg-2.0/bezier/elevation",
+      "file": "elevation.png",
+      "sha256": "b40505d67002b976f7b7703454f6f6248cf688df8d67c87f2c0acd60f50fdc4a",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 44,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 23,
+          "point": 9,
+          "curve": 1,
+          "segment": 7
+        },
+        "renderedLabelCount": 27,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "rational",
+      "path": "/bezeg-2.0/rational/base",
+      "file": "rational.png",
+      "sha256": "07c102f090fa97b562c834243b20c39fbc4620845dff337904bab61bf1fea705",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 31,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 22,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 16
+      }
+    },
+    {
+      "id": "rational-decasteljau",
+      "path": "/bezeg-2.0/rational/rational-decasteljau",
+      "file": "rational-decasteljau.png",
+      "sha256": "92729caf800d7d575629e1803c1855200670cb55a1dc7b786c1ab70be127bfe2",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 45,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 24,
+          "point": 10,
+          "curve": 1,
+          "segment": 6
+        },
+        "renderedLabelCount": 28,
+        "mathJaxLabelCount": 20
+      }
+    },
+    {
+      "id": "rational-elevation",
+      "path": "/bezeg-2.0/rational/rational-elevation",
+      "file": "rational-elevation.png",
+      "sha256": "6a2b784450fe8a7c7c3d249e39de1643791d8ea63a29b494e639e1e0c1887a3e",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "rational-extrapolation",
+      "path": "/bezeg-2.0/rational/rational-extrapolation",
+      "file": "rational-extrapolation.png",
+      "sha256": "d77c80f9977c54f2c1de785d7ff0ee381303401a565f29f8ac4d8de511405329",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 29,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 19,
+          "point": 5,
+          "curve": 1
+        },
+        "renderedLabelCount": 23,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "rational-subdivision",
+      "path": "/bezeg-2.0/rational/rational-subdivision",
+      "file": "rational-subdivision.png",
+      "sha256": "1a340cc44a527cab5712d0830a80a3b0f352724d7ba83101383d60e429cff121",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 46,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 24,
+          "point": 10,
+          "curve": 2,
+          "segment": 6
+        },
+        "renderedLabelCount": 28,
+        "mathJaxLabelCount": 20
+      }
+    },
+    {
+      "id": "farin",
+      "path": "/bezeg-2.0/rational/farin-points",
+      "file": "farin.png",
+      "sha256": "6a2b784450fe8a7c7c3d249e39de1643791d8ea63a29b494e639e1e0c1887a3e",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 22,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "circle",
+      "path": "/bezeg-2.0/rational/circlen",
+      "file": "circle.png",
+      "sha256": "5d9ff539655766b9954814ec9aec176c85f5c9a996e69f8d1833d78c119309a9",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 39,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 23,
+          "point": 9,
+          "curve": 3
+        },
+        "renderedLabelCount": 35,
+        "mathJaxLabelCount": 18
+      }
+    },
+    {
+      "id": "spline-cn",
+      "path": "/bezeg-2.0/spline/spline",
+      "file": "spline-cn.png",
+      "sha256": "a3efded054f0185b7f45bfe33110365e0ab59bbb631ad690c8d7641a5ab43f27",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 41,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 25,
+          "point": 11,
+          "curve": 1
+        },
+        "renderedLabelCount": 29,
+        "mathJaxLabelCount": 22
+      }
+    },
+    {
+      "id": "spline-c1",
+      "path": "/bezeg-2.0/spline/c1spline",
+      "file": "spline-c1.png",
+      "sha256": "f338673de82a2c9501822bbe312e68d94b2c27781676e7b08aa9aa956f738f7e",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 37,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 23,
+          "point": 9,
+          "curve": 1
+        },
+        "renderedLabelCount": 27,
+        "mathJaxLabelCount": 18
+      }
+    },
+    {
+      "id": "spline-c2",
+      "path": "/bezeg-2.0/spline/c2spline",
+      "file": "spline-c2.png",
+      "sha256": "623f8aa52eb64a8b1d7aa0229cf50dba9db94438f41892b0620f4a59c1227da7",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 51,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 30,
+          "point": 16,
+          "curve": 1
+        },
+        "renderedLabelCount": 34,
+        "mathJaxLabelCount": 14
+      }
+    },
+    {
+      "id": "spline-g1",
+      "path": "/bezeg-2.0/spline/g1spline",
+      "file": "spline-g1.png",
+      "sha256": "0c629ab81f1247c75a426e8d1c597bd19a3cf06428dbb93a44c7b39f74820749",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 33,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 21,
+          "point": 7,
+          "curve": 1
+        },
+        "renderedLabelCount": 25,
+        "mathJaxLabelCount": 14
+      }
+    },
+    {
+      "id": "spline-g1-symmetric",
+      "path": "/bezeg-2.0/spline/g1-sym-spline",
+      "file": "spline-g1-symmetric.png",
+      "sha256": "f338673de82a2c9501822bbe312e68d94b2c27781676e7b08aa9aa956f738f7e",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 37,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 23,
+          "point": 9,
+          "curve": 1
+        },
+        "renderedLabelCount": 27,
+        "mathJaxLabelCount": 18
+      }
+    },
+    {
+      "id": "ph-cubic",
+      "path": "/bezeg-2.0/ph/cubic",
+      "file": "ph-cubic.png",
+      "sha256": "c5992917445689ee97ad2b3fb154490855d8dfb16c245150e9d535a286b1ac0b",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 28,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 19,
+          "point": 4,
+          "curve": 1
+        },
+        "renderedLabelCount": 28,
+        "mathJaxLabelCount": 14
+      }
+    },
+    {
+      "id": "ph-quintic",
+      "path": "/bezeg-2.0/ph/quintic",
+      "file": "ph-quintic.png",
+      "sha256": "b5ac1ff6c56b10ab527250afa6535aaad6bbee2ee31f5a9c65051a292bd24dd7",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 32,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 21,
+          "point": 6,
+          "curve": 1
+        },
+        "renderedLabelCount": 25,
+        "mathJaxLabelCount": 12
+      }
+    },
+    {
+      "id": "spline-parameterization",
+      "path": "/bezeg-2.0/param/param/alphaparam2",
+      "file": "spline-parameterization.png",
+      "sha256": "09e9568d4c52f91b1a8412dbb937a45ee32848f2e96312a149ec0a8039e6937e",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 102,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 63,
+          "point": 34,
+          "curve": 1
+        },
+        "renderedLabelCount": 67,
+        "mathJaxLabelCount": 18
+      }
+    },
+    {
+      "id": "weighted-parameterization",
+      "path": "/bezeg-2.0/param/param/alphaparam",
+      "file": "weighted-parameterization.png",
+      "sha256": "c63dba62aa6c159cffd85bf20a3bdb2cca2fb3b030eb5e2abb248c403c81caf2",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 47,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 28,
+          "point": 14,
+          "curve": 1
+        },
+        "renderedLabelCount": 32,
+        "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "uniform-parameterization",
+      "path": "/bezeg-2.0/param/param/uniform",
+      "file": "uniform-parameterization.png",
+      "sha256": "73b236b22ec2c6634a8299c5c1d22ca7e774255ab3900c3351c46bb85ddbef58",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          5,
+          7.076648841354724,
+          -5
+        ],
+        "visibleElementCount": 52,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 31,
+          "point": 16,
+          "curve": 1
+        },
+        "renderedLabelCount": 35,
+        "mathJaxLabelCount": 12
+      }
+    },
+    {
+      "id": "linear-function",
+      "path": "/bezeg-2.0/functions/linear",
+      "file": "linear-function.png",
+      "sha256": "f34d81441a8e0345928bc55a14c578087c262226db94f7a3513866c61a5cf02f",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -8.491978609625674,
+          8,
+          8.491978609625667,
+          -4
+        ],
+        "visibleElementCount": 34,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 24,
+          "point": 3,
+          "line": 1,
+          "segment": 2
+        },
+        "renderedLabelCount": 24,
+        "mathJaxLabelCount": 6
+      }
+    },
+    {
+      "id": "exponential-function",
+      "path": "/bezeg-2.0/functions/exponential",
+      "file": "exponential-function.png",
+      "sha256": "7573a8380297f1bf13cdd31fb6b66347e8e09f70b917a8a891bcc8536fd531d0",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -7.076648841354724,
+          8,
+          7.076648841354724,
+          -1.9999999999999998
+        ],
+        "visibleElementCount": 24,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 17,
+          "curve": 1,
+          "point": 2
+        },
+        "renderedLabelCount": 18,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "trigonometric-functions",
+      "path": "/bezeg-2.0/functions/trigonometric",
+      "file": "trigonometric-functions.png",
+      "sha256": "fb83a57e3021f87deb0088fe7c82d8424e10231bd6ccf811b499a763e9dd8952",
+      "image": {
+        "width": 794,
+        "height": 562
+      },
+      "board": {
+        "width": 794,
+        "height": 561,
+        "boundingBox": [
+          -5.66131907308378,
+          4,
+          5.661319073083781,
+          -4
+        ],
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 17,
+          "curve": 2
+        },
+        "renderedLabelCount": 20,
+        "mathJaxLabelCount": 0
+      }
+    }
+  ]
+}
