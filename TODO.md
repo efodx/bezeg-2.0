@@ -6,11 +6,6 @@ This list holds ideas from the original Bezeg TODO, curated on 2026-10-11 agains
 
 - [ ] **Show PH arc length on the PH graphs.** Polynomial arc length is the defining property of PH curves, and the thesis and guided lessons already explain it (`src/learning/content/guidedLessons.ts`). Neither PH graph displays the arc length.
 - [ ] **Show elevated control points on the original control polygon.** Each elevated point is the convex combination `P'_i = (i/(n+1)) P_{i-1} + (1 - i/(n+1)) P_i`, so it lies on the edge `P_{i-1}P_i`. `ElevationGraph` provides only an "elevate" button and does not show this relationship.
-- [ ] **Fix the alternative De Casteljau view (`/bezier/decasteljau2`).** `DecasteljauGraph2` draws the curve as interpolation between two lower-degree Bézier curves. Known problems:
-  - The connecting segment uses the same point twice ([capabilities](docs/capabilities.md)).
-  - The control-point split comes from the point count recorded at initialization, so adding or removing points (an old request) produces wrong sub-curves.
-  
-  Either fix both problems or decide to retire the route.
 - [ ] **Bézier curves in arbitrary dimension.** The old list marked this as top priority. `Point` (`src/bezeg/api/point/point.ts`) is still fixed to `X()`/`Y()`. The algorithms generalize directly, but the app draws 2D boards with JSXGraph, so the spec must first state what students would see (for example, a 3D curve with its projections). It also needs a separate geometry-model change before any UI work.
 
 ## Engineering cleanup
@@ -29,4 +24,4 @@ These items continue the [curve ownership refactor](docs/specs/curve-ownership-r
 
 - *Own script/build setup*: tracked as the Vite evaluation in the [roadmap](docs/roadmap.md).
 - *Use JavaScript `get`/`set` accessors instead of `getX()`/`setX()`*: low value with broad churn. The original note already doubted it was worth doing. Reconsider only as part of an API redesign.
-- *De Casteljau without the full scheme, drawing the two interpolated lower-degree curves*: implemented as `DecasteljauGraph2` (see the fix item above).
+- *De Casteljau without the full scheme, drawing the two interpolated lower-degree curves*: implemented as `DecasteljauGraph2` (`/bezier/decasteljau2`). Its helper curves follow the live control points, so the old "add points in De Casteljau 2" request is covered too.

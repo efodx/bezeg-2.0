@@ -64,7 +64,7 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | Bernstein | Displayed degree 0–5, initially 1; stacked-area switch. Internal `n` counts basis functions, displayed degree is `n − 1`. |
 | General polynomial Bézier | Editable points; eligible selected curves offer subdivision/shrink parameters 0–1, extrapolation 1–1.5, De Casteljau parameter 0–1, and degree elevation. |
 | De Casteljau | Parameter 0–1, animation switch, speed 0–1, and whole-curve visibility; recursive interpolation and traced curve portion. |
-| Alternative De Casteljau | Parameter/animation/speed controls and two curves from overlapping control-point subsets. The intended connecting segment currently uses the same point twice. |
+| Alternative De Casteljau | Parameter/animation/speed controls and two curves from overlapping control-point subsets, which follow the live control points, joined by the segment whose point at t traces the curve. |
 | Affine transformations | Translations ±0.5 units, scaling ×1.2 or ×0.8, rotations ±18°, and reflection about X/Y. |
 | Single subdivision | Parameter 0.01–0.99, construction visibility, and action splitting the first curve into two pieces. |
 | Repeated subdivision | Splits every piece at 0.5, at most five rounds (32 pieces); polygon and selected-piece De Casteljau visibility. |
