@@ -204,3 +204,22 @@ test.each([[[]], [null], [{}], [{...validArea, mode: "under"}], [{...validArea, 
     expect(() => preflightPresetImport(areaPreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const arcPreset = (data: unknown) => JSON.stringify({"preset-arc-length": {data: [{id: "Osnova", boardState: {boundingBox: [-0.6, 2.2, 3.8, -1.3]},
+    graphState: {initialized: true, a: 0, b: 3.14, n: 2}, data}]}});
+
+test("arc-length collection imports a model object and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {a: 3, b: -2, n: 100};
+    commitPresetImport(preflightPresetImport(arcPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-arc-length")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validArc = {a: 0, b: 3, n: 2};
+test.each([[[]], [null], [{}], [{...validArc, n: 0}], [{...validArc, n: 101}], [{...validArc, n: 2.5}], [{...validArc, a: 7.5}], [{...validArc, b: -7.5}], [{...validArc, b: "3"}],
+    [{a: 0, b: 3}], [{...validArc, a: NaN}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("arc-length collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(arcPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

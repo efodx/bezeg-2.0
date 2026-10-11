@@ -28,6 +28,7 @@ const coordinateContextRoutes = new Set([
     'derivative',
     'definite-integral',
     'area-between-curves',
+    'arc-length',
 ]);
 
 function pngDimensions(file) {
@@ -41,7 +42,7 @@ function hashFile(file) {
 }
 
 async function main() {
-    assert.equal(demonstrations.length, 33, `Expected 33 route defaults; found ${demonstrations.length}`);
+    assert.equal(demonstrations.length, 34, `Expected 34 route defaults; found ${demonstrations.length}`);
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
         'Demonstration IDs must be unique');
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.path)).size, demonstrations.length,

@@ -280,6 +280,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'derivative',
     'definite-integral',
     'area-between-curves',
+    'arc-length',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

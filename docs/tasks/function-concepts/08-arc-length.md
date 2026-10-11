@@ -4,7 +4,7 @@
 
 **Dependencies:** [Area between curves](07-area-between-curves.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented
 
 ## Goal
 
@@ -26,4 +26,11 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 80 suites, 1092 tests pass (math module `arcLength.test.ts` with the plan numbers, graph test, lesson test, preset import).
+- `CI=false npm run build`: compiled.
+- Lesson smoke row (`arc-length`, sl + en + narrow viewport): 3/3; `tests/demonstrations.smoke.spec.cjs`: 35/35 after raising the catalog count to 34.
+- Worker browser check (throwaway script, removed): SL to EN switch updates board texts, readout labels, inspector help and note live, and back; dragging B moved it along the graph (x rounded to 0.01) and updated the readouts; board object count stayed 34 for n = 2 and n = 100.
+- Catalog preview regenerated (`arc-length.png`, manifest, asset map); no other PNG changed.
+
+New action kinds: none. Reused the parameter names `a`, `b`, `n`. Endpoints lie in [-7, 7], n in 1-100; default `[0, pi]` (b stored unrounded), n = 2. Lengths are never negative and independent of the order of a and b (`|b - a|`), unlike the oriented integral of the definite-integral demonstration. The polyline is one curve object and its vertices are one more (small filled octagons of constant pixel size separated by NaN), so the object count does not depend on n.

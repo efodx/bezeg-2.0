@@ -9,11 +9,12 @@ import {catalogFunction} from '../../analysis/functions';
 import {differenceQuotient, isStep, secantLine} from '../../analysis/derivative';
 import {exactIntegral, isBound, riemannSum, subintervalWidth} from '../../analysis/riemann';
 import {isBound as isAreaBound, integralF, integralG, INTERSECTIONS, signedBetween, unsignedBetween} from '../../analysis/areaBetween';
+import {arcLength as arcLengthOf, isBound as isArcBound, isSegmentCount, polylineLength} from '../../analysis/arcLength';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -599,5 +600,74 @@ describe('area between curves lesson', () => {
         // edge cases: g crosses the axis at 2 -+ sqrt(3) = 0.2679, 3.7321; a = b gives 0
         expect([round4(2 - Math.sqrt(3)), round4(2 + Math.sqrt(3))]).toEqual([0.2679, 3.7321]);
         expect(Object.is(unsignedBetween(2, 2), 0)).toBe(true);
+    });
+});
+
+describe('arc length lesson', () => {
+    const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'arc-length')!;
+    const lesson = () => getLessonForDemonstration('arc-length')!;
+    const round4 = (value: number) => Math.round(value * 1e4) / 1e4;
+    const L = arcLengthOf(0, Math.PI);
+
+    test('is available with five steps and adapts its scenes into typed actions', () => {
+        expect(lesson().id).toBe('arc-length-guided');
+        expect(lesson().steps).toHaveLength(5);
+        const rest = (index: number) => lesson().steps[index].scene?.actions.slice(1);
+        expect(lesson().steps[0].scene?.actions[0]).toEqual({kind: 'prepared-scene', sceneId: 'arc-chord-scene', source: 'demonstration-default'});
+        expect(rest(0)).toEqual([{kind: 'function-parameter', name: 'n', value: 1}]);
+        expect(rest(1)).toEqual([]);
+        expect(rest(2)).toEqual([{kind: 'function-parameter', name: 'n', value: 10}]);
+        expect(rest(3)).toEqual([{kind: 'function-parameter', name: 'n', value: 100}]);
+        expect(rest(4)).toEqual([{kind: 'function-parameter', name: 'b', value: 2 * Math.PI}]);
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'n', value: 10}})).toEqual({kind: 'function-parameter', name: 'n', value: 10});
+    });
+
+    test('every value used by a scene is allowed by the graph', () => {
+        const actions = lesson().steps.flatMap(step => step.scene?.actions ?? []).filter(action => action.kind === 'function-parameter') as { name: string; value: number }[];
+        expect(actions.map(action => [action.name, action.value])).toEqual([['n', 1], ['n', 10], ['n', 100], ['b', 2 * Math.PI]]);
+        actions.filter(action => action.name === 'n').forEach(action => expect(isSegmentCount(action.value)).toBe(true));
+        actions.filter(action => action.name === 'b').forEach(action => expect(isArcBound(action.value)).toBe(true));
+    });
+
+    test('the worked example matches the mathematics: 2 sqrt((pi/2)^2 + 1) = 3.7242 and n = 1 gives pi', () => {
+        const example = source().workedExamples[0];
+        expect(example.resultLatex).toBe('P_2=2\\sqrt{\\left(\\tfrac{\\pi}{2}\\right)^2+1}\\approx3{,}7242');
+        expect(example.calculationLatex).toContain('\\left(\\tfrac{\\pi}{2},1\\right)');
+        const chord = Math.sqrt((Math.PI / 2) ** 2 + 1);
+        expect(round4(chord)).toBe(1.8621);
+        expect(round4(2 * chord)).toBe(3.7242);
+        expect(polylineLength(0, Math.PI, 2)).toBeCloseTo(2 * chord, 12);
+        expect(polylineLength(0, Math.PI, 1)).toBeCloseTo(Math.PI, 12);
+        expect(round4(Math.PI)).toBe(3.1416);
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        expect(round4(L)).toBe(3.8202);
+        expect(round4(polylineLength(0, Math.PI, 2))).toBe(3.7242);
+        expect(round4(polylineLength(0, Math.PI, 10))).toBe(3.8153);
+        expect(round4(polylineLength(0, Math.PI, 100))).toBe(3.8201);
+        // differences in the readout: 0.0960, 0.0049 and less than 0.0001
+        expect(round4(L - polylineLength(0, Math.PI, 2))).toBe(0.096);
+        expect(round4(L - polylineLength(0, Math.PI, 10))).toBe(0.0049);
+        expect(L - polylineLength(0, Math.PI, 100)).toBeLessThan(0.0001);
+        expect(L - polylineLength(0, Math.PI, 100)).toBeGreaterThan(0);
+        expect(round4(L - Math.PI)).toBeGreaterThan(0.6);
+        // the polylines never exceed the arc, also at the endpoints of the observation in step 5
+        for (const n of [1, 2, 10, 100]) expect(polylineLength(0, Math.PI, n)).toBeLessThanOrEqual(L);
+        // step 5 and the edge case: [0, 2 pi] with n = 2 has both vertices on the x-axis
+        expect(polylineLength(0, 2 * Math.PI, 2)).toBeCloseTo(2 * Math.PI, 12);
+        expect(round4(2 * Math.PI)).toBe(6.2832);
+        expect(round4(arcLengthOf(0, 2 * Math.PI))).toBe(7.6404);
+        expect(arcLengthOf(0, 2 * Math.PI)).toBeCloseTo(2 * L, 8);
+        // swapped endpoints and a = b
+        expect(arcLengthOf(2 * Math.PI, 0)).toBe(arcLengthOf(0, 2 * Math.PI));
+        expect(polylineLength(2 * Math.PI, 0, 2)).toBeCloseTo(polylineLength(0, 2 * Math.PI, 2), 12);
+        expect(arcLengthOf(1, 1)).toBe(0);
+        // derivation: the chord of a small piece is close to sqrt(1 + f'(x)^2) dx for sin
+        const dx = 1e-3;
+        const x = 0.7;
+        expect(Math.hypot(dx, Math.sin(x + dx) - Math.sin(x))).toBeCloseTo(Math.sqrt(1 + Math.cos(x) ** 2) * dx, 6);
+        // at x = pi/2 the single chord (y = 0) is 1 below the top of the arch
+        expect(Math.sin(Math.PI / 2) - 0).toBe(1);
     });
 });

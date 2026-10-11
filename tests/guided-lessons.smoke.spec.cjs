@@ -1120,8 +1120,58 @@ const areaBetween = {
     stableCounts: async page => ({b: await areaReadout(page, 'b')}),
 };
 
+// ---------------------------------------------------------------- Arc length
+const arcReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: n, the displayed endpoint b, the placed endpoint B (x = b, y = sin b), the polyline length, the arc length and their difference.
+// Steps: one chord, the default two chords, ten chords, a hundred chords, [0, 2*pi] with two chords.
+const ARC_STEPS = [
+    {n: '1', b: '3.14', pb: Math.PI, polyline: '3.1416', arc: '3.8202', difference: '0.6786'},
+    {n: '2', b: '3.14', pb: Math.PI, polyline: '3.7242', arc: '3.8202', difference: '0.096'},
+    {n: '10', b: '3.14', pb: Math.PI, polyline: '3.8153', arc: '3.8202', difference: '0.0049'},
+    {n: '100', b: '3.14', pb: Math.PI, polyline: '3.8201', arc: '3.8202', difference: '0'},
+    {n: '2', b: '6.28', pb: 2 * Math.PI, polyline: '6.2832', arc: '7.6404', difference: '1.3572'},
+];
+
+const arcLength = {
+    id: 'arc-length',
+    path: `${BASE}/functions/arc-length`,
+    titles: {sl: 'Dolžina loka krivulje', en: 'Arc length of a curve'},
+    steps: 5,
+    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = ARC_STEPS[step - 1];
+        await expect.poll(() => arcReadout(page, 'n'), {message: `n at ${label}`}).toBe(expected.n);
+        await expect.poll(() => arcReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => arcReadout(page, 'polyline'), {message: `polyline length at ${label}`}).toBe(expected.polyline);
+        await expect.poll(() => arcReadout(page, 'arc'), {message: `arc length at ${label}`}).toBe(expected.arc);
+        await expect.poll(() => arcReadout(page, 'difference'), {message: `difference at ${label}`}).toBe(expected.difference);
+        await expectPointNear(page, [0, 0], `endpoint A at ${label}`);
+        await expectPointNear(page, [expected.pb, Math.sin(expected.pb)], `endpoint B at ${label}`);
+        // the polyline and its markers are two curve objects whatever n is: the object count must not grow with n
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 100).fill('20');
+        await expect.poll(() => arcReadout(page, 'n')).toBe('20');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => arcReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('10');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => arcReadout(page, 'n'), {message: 'user n restored'}).toBe('20');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({n: await arcReadout(page, 'n')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

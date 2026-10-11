@@ -44,6 +44,7 @@ import { ContinuityGraph } from './graphs/functions/ContinuityGraph';
 import { DerivativeGraph } from './graphs/functions/DerivativeGraph';
 import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph';
 import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGraph';
+import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -89,6 +90,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'derivative': <DerivativeGraph/>,
     'definite-integral': <DefiniteIntegralGraph/>,
     'area-between-curves': <AreaBetweenCurvesGraph/>,
+    'arc-length': <ArcLengthGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

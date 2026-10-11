@@ -1779,5 +1779,253 @@ const areaBetweenCurves: GuidedLesson = {
     ],
 };
 
+const arcLength: GuidedLesson = {
+    demonstrationId: 'arc-length',
+    title: text('Dolžina loka krivulje', 'Arc length of a curve'),
+    summary: text(
+        'Dolžino loka grafa \\(y=\\sin x\\) približamo z lomljenko iz \\(n\\) tetiv, od katerih ima vsaka dolžino \\(\\sqrt{\\Delta x^2+\\Delta y^2}\\). Ko je daljic vedno več, se dolžina lomljenke približuje številu \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\), ki je dolžina loka.',
+        'We approximate the arc length of the graph \\(y=\\sin x\\) by a polyline of \\(n\\) chords, each of length \\(\\sqrt{\\Delta x^2+\\Delta y^2}\\). As the number of segments grows, the polyline length approaches the number \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\), the arc length.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje razdalje med dvema točkama v ravnini (Pitagorov izrek) in določenega integrala.', 'Assumes familiarity with the distance between two points in the plane (the Pythagorean theorem) and with the definite integral.'),
+        text('Priporočeno je, da veš, da je odvod \\(f\'(x)\\) naklon tangente na graf.', 'It helps to know that the derivative \\(f\'(x)\\) is the slope of the tangent to the graph.'),
+    ],
+    learningGoals: [
+        text('Izračunaš dolžino lomljenke iz \\(n\\) tetiv na grafu in jo primerjaš z dolžino loka.', 'Compute the length of a polyline of \\(n\\) chords on the graph and compare it with the arc length.'),
+        text('Razložiš, zakaj lomljenka ni nikoli daljša od loka in zakaj se z večanjem \\(n\\) približuje loku.', 'Explain why a polyline is never longer than the arc and why it approaches the arc as \\(n\\) grows.'),
+        text('Izpelješ \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\) in ga povežeš z \\(\\int\\|r\'(t)\\|\\,dt\\) ter s PH-krivuljami.', 'Derive \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\) and connect it with \\(\\int\\|r\'(t)\\|\\,dt\\) and with PH curves.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'arc-length-chord',
+            latex: '\\begin{aligned}x_i&=a+i\\,\\tfrac{b-a}{n},\\quad y_i=f(x_i)\\\\\\ell_i&=\\sqrt{(x_i-x_{i-1})^2+(y_i-y_{i-1})^2}=\\sqrt{\\Delta x^2+\\Delta y^2}\\\\P_n&=\\sum_{i=1}^{n}\\ell_i\\end{aligned}',
+            notation: text(
+                'Točke \\((x_i,y_i)\\) ležijo na grafu, \\(\\ell_i\\) je dolžina \\(i\\)-te tetive, \\(P_n\\) pa dolžina lomljenke z \\(n\\) daljicami.',
+                'The points \\((x_i,y_i)\\) lie on the graph, \\(\\ell_i\\) is the length of the \\(i\\)-th chord and \\(P_n\\) is the length of the polyline with \\(n\\) segments.',
+            ),
+            explanation: text(
+                'Krivuljo razrežemo na \\(n\\) delov enake širine \\(\\Delta x=\\frac{b-a}{n}\\) in vsak del nadomestimo z ravno daljico med krajiščema. Dolžina daljice sledi iz Pitagorovega izreka.',
+                'We cut the curve into \\(n\\) pieces of equal width \\(\\Delta x=\\frac{b-a}{n}\\) and replace each piece by the straight segment between its ends. The length of the segment follows from the Pythagorean theorem.',
+            ),
+        },
+        {
+            id: 'arc-length-integral',
+            latex: 'L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx=\\lim_{n\\to\\infty}P_n',
+            notation: text(
+                'Število \\(L\\) je dolžina loka grafa med \\(x=a\\) in \\(x=b\\); funkcija \\(f\\) mora imeti zvezen odvod.',
+                'The number \\(L\\) is the arc length of the graph from \\(x=a\\) to \\(x=b\\); the function \\(f\\) must have a continuous derivative.',
+            ),
+            explanation: text(
+                'Na majhnem delu je \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), zato je \\(\\sqrt{\\Delta x^2+\\Delta y^2}\\approx\\sqrt{1+f\'(x)^2}\\,\\Delta x\\). Vsota teh členov je Riemannova vsota za integral funkcije \\(\\sqrt{1+f\'(x)^2}\\), njena limita pa dolžina loka. Za \\(f=\\sin\\) je \\(f\'=\\cos\\) in \\(L=\\int_a^b\\sqrt{1+\\cos^2 x}\\,dx\\). Aplikacija ga računa z adaptivnim Simpsonovim pravilom na \\(10^{-9}\\) natančno.',
+                'On a small piece \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), so \\(\\sqrt{\\Delta x^2+\\Delta y^2}\\approx\\sqrt{1+f\'(x)^2}\\,\\Delta x\\). The sum of these terms is a Riemann sum for the integral of \\(\\sqrt{1+f\'(x)^2}\\), and its limit is the arc length. For \\(f=\\sin\\) we have \\(f\'=\\cos\\) and \\(L=\\int_a^b\\sqrt{1+\\cos^2 x}\\,dx\\). The app computes it with adaptive Simpson quadrature to \\(10^{-9}\\).',
+            ),
+        },
+        {
+            id: 'arc-length-parametric',
+            latex: 'L=\\int_{t_0}^{t_1}\\|r\'(t)\\|\\,dt=\\int_{t_0}^{t_1}\\sqrt{x\'(t)^2+y\'(t)^2}\\,dt',
+            notation: text(
+                'Krivulja \\(r(t)=(x(t),y(t))\\) je podana parametrično, \\(\\|r\'(t)\\|\\) pa je njena hitrost.',
+                'The curve \\(r(t)=(x(t),y(t))\\) is given parametrically and \\(\\|r\'(t)\\|\\) is its speed.',
+            ),
+            explanation: text(
+                'Graf funkcije je poseben primer z \\(r(t)=(t,f(t))\\): tedaj je \\(r\'(t)=(1,f\'(t))\\) in \\(\\|r\'(t)\\|=\\sqrt{1+f\'(t)^2}\\). Pri PH-krivuljah (Pitagorejski hodograf) je \\(\\|r\'(t)\\|\\) polinom, zato je dolžina loka natančna vrednost integrala polinoma in ne numerični približek.',
+                'The graph of a function is a special case with \\(r(t)=(t,f(t))\\): then \\(r\'(t)=(1,f\'(t))\\) and \\(\\|r\'(t)\\|=\\sqrt{1+f\'(t)^2}\\). For PH (Pythagorean-hodograph) curves \\(\\|r\'(t)\\|\\) is a polynomial, so the arc length is the exact integral of a polynomial rather than a numerical approximation.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'arc-length-example',
+            title: text('Dve daljici na \\([0,\\pi]\\)', 'Two segments on \\([0,\\pi]\\)'),
+            calculationLatex: '\\begin{aligned}(x_0,y_0)&=(0,0),\\quad(x_1,y_1)=\\left(\\tfrac{\\pi}{2},1\\right),\\quad(x_2,y_2)=(\\pi,0)\\\\\\ell_1=\\ell_2&=\\sqrt{\\left(\\tfrac{\\pi}{2}\\right)^2+1^2}\\approx1{,}8621\\\\P_2&=2\\sqrt{\\left(\\tfrac{\\pi}{2}\\right)^2+1}\\end{aligned}',
+            resultLatex: 'P_2=2\\sqrt{\\left(\\tfrac{\\pi}{2}\\right)^2+1}\\approx3{,}7242',
+            check: text(
+                'Z eno samo tetivo (\\(n=1\\)) je lomljenka daljica od \\((0,0)\\) do \\((\\pi,0)\\) po osi \\(x\\) z dolžino \\(P_1=\\pi\\approx3{,}1416\\). Dolžina loka je \\(L\\approx3{,}8202\\), zato je \\(P_2\\) bližje: razlika znaša \\(3{,}8202-3{,}7242\\approx0{,}0960\\), kar prikaže tudi odčitek.',
+                'With a single chord (\\(n=1\\)) the polyline is the segment from \\((0,0)\\) to \\((\\pi,0)\\) along the \\(x\\)-axis with length \\(P_1=\\pi\\approx3.1416\\). The arc length is \\(L\\approx3.8202\\), so \\(P_2\\) is closer: the difference is \\(3.8202-3.7242\\approx0.0960\\), which the readout also shows.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'arc-chord-step', order: 1,
+            title: text('Krivuljo nadomestimo s tetivami', 'Replacing the curve by chords'),
+            purpose: text('Razumeti idejo: ukrivljeno pot približamo z ravnimi daljicami.', 'Understanding the idea: approximating a bent path by straight segments.'),
+            explanation: text(
+                'Dolžine ukrivljene črte ne znamo izmeriti neposredno, dolžino daljice pa znamo: med \\((x_{i-1},y_{i-1})\\) in \\((x_i,y_i)\\) je \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\). Graf \\(y=\\sin x\\) na \\([0,\\pi]\\) zato nadomestimo z lomljenko iz \\(n\\) tetiv, katerih oglišča ležijo na grafu. Scena nastavi \\(n=1\\): ena sama tetiva gre od \\(A=(0,0)\\) do \\(B=(\\pi,0)\\) po osi \\(x\\) in ima dolžino \\(\\pi\\approx3{,}1416\\), kar je očitno premalo.',
+                'We cannot measure the length of a bent line directly, but we know the length of a segment: between \\((x_{i-1},y_{i-1})\\) and \\((x_i,y_i)\\) it is \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\). So we replace the graph \\(y=\\sin x\\) on \\([0,\\pi]\\) by a polyline of \\(n\\) chords whose vertices lie on the graph. The scene sets \\(n=1\\): a single chord runs from \\(A=(0,0)\\) to \\(B=(\\pi,0)\\) along the \\(x\\)-axis and has length \\(\\pi\\approx3.1416\\), which is clearly too short.',
+            ),
+            formulaIds: ['arc-length-chord'], learnerInteraction: 'observe',
+            frames: [frame('arc-chord-explanation', 'explanation'), frame('arc-chord-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj eno tetivo z lokom sinusoide: koliko manjka in kje je razlika največja?',
+                'Compare the single chord with the arch of the sine: how much is missing and where is the difference largest?',
+            ),
+            expectedObservations: [text(
+                'Odčitek lomljenke je \\(3{,}1416\\), odčitek loka pa \\(3{,}8202\\); tetiva je pri \\(x=\\frac{\\pi}{2}\\) za \\(1\\) pod vrhom loka.',
+                'The polyline readout is \\(3.1416\\) and the arc readout is \\(3.8202\\); at \\(x=\\frac{\\pi}{2}\\) the chord is \\(1\\) below the top of the arch.',
+            )],
+            scene: {
+                id: 'arc-chord-scene', basedOn: 'demonstration-default',
+                actions: [parameter('n', 1)],
+                expectedState: text(
+                    'Ena tetiva od \\(A=(0,0)\\) do \\(B=(\\pi,0)\\): lomljenka \\(3{,}1416\\), lok \\(3{,}8202\\).',
+                    'One chord from \\(A=(0,0)\\) to \\(B=(\\pi,0)\\): polyline \\(3.1416\\), arc \\(3.8202\\).',
+                ),
+            },
+        },
+        {
+            id: 'arc-two-step', order: 2,
+            title: text('Dve daljici: primer', 'Two segments: an example'),
+            purpose: text('Dolžino lomljenke izračunati s formulo za tetive.', 'Computing a polyline length with the chord formula.'),
+            explanation: text(
+                'Pri \\(n=2\\) se oglišča pojavijo pri \\(x=0,\\frac{\\pi}{2},\\pi\\): to so točke \\((0,0)\\), \\(\\left(\\frac{\\pi}{2},1\\right)\\) in \\((\\pi,0)\\). Vsaka tetiva ima \\(\\Delta x=\\frac{\\pi}{2}\\) in \\(|\\Delta y|=1\\), zato je njena dolžina \\(\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx1{,}8621\\) in \\(P_2=2\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx3{,}7242\\). To je že precej bližje loku \\(L\\approx3{,}8202\\) kot \\(P_1=\\pi\\). Scena vrne privzeti \\(n=2\\).',
+                'For \\(n=2\\) the vertices are at \\(x=0,\\frac{\\pi}{2},\\pi\\): the points \\((0,0)\\), \\(\\left(\\frac{\\pi}{2},1\\right)\\) and \\((\\pi,0)\\). Each chord has \\(\\Delta x=\\frac{\\pi}{2}\\) and \\(|\\Delta y|=1\\), so its length is \\(\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx1.8621\\) and \\(P_2=2\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx3.7242\\). This is already much closer to the arc \\(L\\approx3.8202\\) than \\(P_1=\\pi\\). The scene returns to the default \\(n=2\\).',
+            ),
+            formulaIds: ['arc-length-chord'], workedExampleId: 'arc-length-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('arc-two-explanation', 'explanation'), frame('arc-two-calculation', 'calculation'), frame('arc-two-observation', 'observation')],
+            observationPrompt: text(
+                'Premakni drsnik \\(n\\) z \\(1\\) na \\(2\\) in nazaj ter opazuj, kako se oglišče doda na vrh loka in lomljenka podaljša.',
+                'Move the slider \\(n\\) from \\(1\\) to \\(2\\) and back and watch the vertex appear at the top of the arch and the polyline get longer.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=2\\) odčitek lomljenke pokaže \\(3{,}7242\\), razlika do loka je \\(0{,}0960\\); obe tetivi sta enako dolgi.',
+                'For \\(n=2\\) the polyline readout shows \\(3.7242\\) and the difference to the arc is \\(0.0960\\); both chords have the same length.',
+            )],
+            scene: {
+                id: 'arc-two-scene', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Dve tetivi z ogliščem pri \\(\\left(\\frac{\\pi}{2},1\\right)\\): lomljenka \\(3{,}7242\\), lok \\(3{,}8202\\), razlika \\(0{,}0960\\).',
+                    'Two chords with a vertex at \\(\\left(\\frac{\\pi}{2},1\\right)\\): polyline \\(3.7242\\), arc \\(3.8202\\), difference \\(0.0960\\).',
+                ),
+            },
+        },
+        {
+            id: 'arc-more-step', order: 3,
+            title: text('Več daljic: lomljenka ne preseže loka', 'More segments: the polyline never exceeds the arc'),
+            purpose: text('Videti, da se lomljenka z večanjem \\(n\\) približuje loku od spodaj.', 'Seeing that the polyline approaches the arc from below as \\(n\\) grows.'),
+            explanation: text(
+                'Pri \\(n=10\\) je \\(P_{10}\\approx3{,}8153\\), pri \\(n=100\\) pa \\(P_{100}\\approx3{,}8201\\), medtem ko je \\(L\\approx3{,}8202\\). Dolžina lomljenke nikoli ne preseže dolžine loka: vsaka tetiva je najkrajša pot med svojima krajiščema, zato je krajša ali enaka delu loka med njima, vsota pa je krajša ali enaka celotnemu loku. Scena nastavi \\(n=10\\); z drsnikom nadaljuj do \\(n=100\\).',
+                'For \\(n=10\\) we have \\(P_{10}\\approx3.8153\\) and for \\(n=100\\) we have \\(P_{100}\\approx3.8201\\), while \\(L\\approx3.8202\\). The polyline length never exceeds the arc length: each chord is the shortest path between its two ends, so it is no longer than the piece of arc between them, and the sum is no longer than the whole arc. The scene sets \\(n=10\\); continue to \\(n=100\\) with the slider.',
+            ),
+            formulaIds: ['arc-length-chord'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('arc-more-explanation', 'explanation'), frame('arc-more-observation', 'observation')],
+            observationPrompt: text(
+                'Povečuj \\(n\\) od \\(10\\) do \\(100\\) in spremljaj odčitek razlike lok \\(-\\) lomljenka: ali kdaj postane negativna?',
+                'Increase \\(n\\) from \\(10\\) to \\(100\\) and follow the readout of the difference arc \\(-\\) polyline: does it ever become negative?',
+            ),
+            expectedObservations: [text(
+                'Razlika pada (\\(0{,}0049\\) pri \\(n=10\\), manj kot \\(0{,}0001\\) pri \\(n=100\\)), vendar ostaja nenegativna; lomljenka se loku prilega vse natančneje.',
+                'The difference shrinks (\\(0.0049\\) for \\(n=10\\), less than \\(0.0001\\) for \\(n=100\\)) but stays non-negative; the polyline hugs the arc ever more closely.',
+            )],
+            scene: {
+                id: 'arc-more-scene', basedOn: 'demonstration-default',
+                actions: [parameter('n', 10)],
+                expectedState: text(
+                    'Deset tetiv na \\([0,\\pi]\\): lomljenka \\(3{,}8153\\), lok \\(3{,}8202\\), razlika \\(0{,}0049\\).',
+                    'Ten chords on \\([0,\\pi]\\): polyline \\(3.8153\\), arc \\(3.8202\\), difference \\(0.0049\\).',
+                ),
+            },
+        },
+        {
+            id: 'arc-limit-step', order: 4,
+            title: text('Limita: integral', 'The limit: an integral'),
+            purpose: text('Izpeljati formulo za dolžino loka kot limito lomljenk.', 'Deriving the arc length formula as the limit of polylines.'),
+            explanation: text(
+                'Na majhnem delu je \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), zato je \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\approx\\sqrt{1+f\'(x_i)^2}\\,\\Delta x\\). Vsota \\(P_n\\) je torej približno Riemannova vsota za \\(\\sqrt{1+f\'(x)^2}\\), njena limita pa je dolžina loka \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\). Za \\(f=\\sin\\) je \\(f\'=\\cos\\) in \\(L=\\int_0^{\\pi}\\sqrt{1+\\cos^2 x}\\,dx\\approx3{,}8202\\); ta integral nima enostavne zaključene oblike, zato ga aplikacija računa numerično. Scena nastavi \\(n=100\\), kjer se \\(P_{100}\\approx3{,}8201\\) komaj še loči od \\(L\\).',
+                'On a small piece \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), so \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\approx\\sqrt{1+f\'(x_i)^2}\\,\\Delta x\\). The sum \\(P_n\\) is therefore approximately a Riemann sum for \\(\\sqrt{1+f\'(x)^2}\\), and its limit is the arc length \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\). For \\(f=\\sin\\) we have \\(f\'=\\cos\\) and \\(L=\\int_0^{\\pi}\\sqrt{1+\\cos^2 x}\\,dx\\approx3.8202\\); this integral has no simple closed form, so the app computes it numerically. The scene sets \\(n=100\\), where \\(P_{100}\\approx3.8201\\) is hardly distinguishable from \\(L\\).',
+            ),
+            formulaIds: ['arc-length-integral'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('arc-limit-explanation', 'explanation'), frame('arc-limit-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci \\(B\\) po grafu in primerjaj odčitka lomljenke in loka za več intervalov.',
+                'Drag \\(B\\) along the graph and compare the polyline and arc readouts for several intervals.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=100\\) na \\([0,\\pi]\\) odčitka kažeta \\(3{,}8201\\) in \\(3{,}8202\\). Pri vsakem drugem intervalu lomljenka ostane tik pod lokom.',
+                'For \\(n=100\\) on \\([0,\\pi]\\) the readouts show \\(3.8201\\) and \\(3.8202\\). For any other interval the polyline stays just below the arc.',
+            )],
+            scene: {
+                id: 'arc-limit-scene', basedOn: 'demonstration-default',
+                actions: [parameter('n', 100)],
+                expectedState: text(
+                    'Sto tetiv na \\([0,\\pi]\\): lomljenka \\(3{,}8201\\), lok \\(3{,}8202\\).',
+                    'One hundred chords on \\([0,\\pi]\\): polyline \\(3.8201\\), arc \\(3.8202\\).',
+                ),
+            },
+        },
+        {
+            id: 'arc-link-step', order: 5,
+            title: text('Parametrične krivulje in PH-krivulje', 'Parametric curves and PH curves'),
+            purpose: text('Povezati dolžino loka grafa z dolžino parametrične krivulje in s PH-krivuljami.', 'Connecting the arc length of a graph with that of a parametric curve and with PH curves.'),
+            explanation: text(
+                'Enaka zamisel velja za parametrično krivuljo \\(r(t)\\): tetiva med bližnjima točkama ima dolžino približno \\(\\|r\'(t)\\|\\,\\Delta t\\), zato je \\(L=\\int\\|r\'(t)\\|\\,dt\\). Graf funkcije je primer z \\(r(t)=(t,f(t))\\) in hitrostjo \\(\\sqrt{1+f\'(t)^2}\\). Za sinus ta hitrost ni polinom, zato je integral treba računati numerično. PH-krivulje (glej lekcijo o kubični PH-krivulji in grafe PH-krivulj v Bezegu, ki prikažejo natančno dolžino loka) so natanko polinomske krivulje, pri katerih je hitrost \\(\\|r\'(t)\\|\\) polinom, zato je njihova dolžina loka natančna. Scena nastavi \\(b=2\\pi\\) in \\(n=2\\): obe oglišči sta na osi \\(x\\), lomljenka ima dolžino \\(2\\pi\\approx6{,}2832\\), lok pa \\(7{,}6404\\).',
+                'The same idea applies to a parametric curve \\(r(t)\\): the chord between nearby points has length about \\(\\|r\'(t)\\|\\,\\Delta t\\), so \\(L=\\int\\|r\'(t)\\|\\,dt\\). The graph of a function is the case \\(r(t)=(t,f(t))\\) with speed \\(\\sqrt{1+f\'(t)^2}\\). For the sine this speed is not a polynomial, so the integral has to be computed numerically. PH curves (see the cubic PH curve lesson and the PH-curve graphs in Bezeg, which show the exact arc length) are exactly the polynomial curves whose speed \\(\\|r\'(t)\\|\\) is a polynomial, so their arc length is exact. The scene sets \\(b=2\\pi\\) and \\(n=2\\): both vertices lie on the \\(x\\)-axis, the polyline has length \\(2\\pi\\approx6.2832\\) and the arc has \\(7.6404\\).',
+            ),
+            formulaIds: ['arc-length-parametric'], learnerInteraction: 'drag-control-point',
+            frames: [frame('arc-link-explanation', 'explanation'), frame('arc-link-observation', 'observation')],
+            observationPrompt: text(
+                'Pri \\(b=2\\pi\\) povečaj \\(n\\) z \\(2\\) na \\(3\\), \\(4\\), \\(8\\) in opazuj, kako lomljenka sledi grafu; nato zamenjaj \\(a\\) in \\(b\\).',
+                'With \\(b=2\\pi\\), increase \\(n\\) from \\(2\\) to \\(3\\), \\(4\\), \\(8\\) and watch how the polyline follows the graph; then swap \\(a\\) and \\(b\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=2\\) je lomljenka ravna črta po osi \\(x\\) z dolžino \\(6{,}2832\\) in lok \\(7{,}6404\\) je precej daljši. Pri zamenjanih \\(a\\) in \\(b\\) sta dolžini nespremenjeni, ker dolžina ni nikoli negativna.',
+                'For \\(n=2\\) the polyline is a straight line along the \\(x\\)-axis of length \\(6.2832\\) and the arc \\(7.6404\\) is much longer. With \\(a\\) and \\(b\\) swapped the lengths do not change, because a length is never negative.',
+            )],
+            scene: {
+                id: 'arc-link-scene', basedOn: 'demonstration-default',
+                actions: [parameter('b', 2 * Math.PI)],
+                expectedState: text(
+                    'Interval \\([0,2\\pi]\\), dve tetivi po osi \\(x\\): lomljenka \\(6{,}2832\\), lok \\(7{,}6404\\).',
+                    'Interval \\([0,2\\pi]\\), two chords along the \\(x\\)-axis: polyline \\(6.2832\\), arc \\(7.6404\\).',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-arc-length',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Section 8.1: Arc Length.',
+            supports: ['the length of a curve as the limit of inscribed polygons', 'the formula L = integral of sqrt(1 + f\'(x)^2)', 'the arc length of a parametric curve as the integral of the speed'],
+        },
+        {
+            id: 'efodx-line-length-graph',
+            citation: 'Earlier app by the owner: efodx.github.io, src/graphs line-length graph (studied 2026-10-11).',
+            supports: ['a polyline on sin x over draggable endpoints', 'a number of segments from 2 to 100', 'readout of the polyline length'],
+            implementationCorrespondence: 'Bezeg keeps the polyline on sin x with draggable endpoints, extends the number of segments to 1-100 (n = 1 is the chord on the x-axis) and draws the vertices as small markers. It adds the arc length integral sqrt(1 + f\'^2) (adaptive Simpson, 1e-9, exact derivative) and the difference arc - polyline next to the polyline length, and states the convention that lengths are never negative whichever endpoint is larger.',
+        },
+        {
+            id: 'farouki-ph-arc-length',
+            citation: 'Farouki, R. T. Pythagorean-Hodograph Curves: Algebra and Geometry Inseparable, Springer, 2008.',
+            supports: ['PH curves have a polynomial speed ||r\'(t)||', 'the arc length of a PH curve is the integral of a polynomial and therefore exact', 'Bezeg shows this on the PH routes, for example /bezeg-2.0/ph/cubic'],
+        },
+        {
+            id: 'bezeg-arc-length-implementation',
+            citation: 'Bezeg source: src/analysis/arcLength.ts and src/graphs/functions/ArcLengthGraph.tsx.',
+            supports: ['polyline vertices at n equal x-steps with the last vertex exactly at b', 'adaptive Simpson arc length with the catalog derivative of sin', 'endpoints in [-7, 7] rounded to 0.01', 'one curve object for the polyline and one for the vertex markers, whatever n is'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Pri \\(a=b\\) sta obe dolžini \\(0\\). Pri \\(a>b\\) se dolžini ne spremenita, saj je dolžina vedno nenegativna (v aplikaciji se uporabi \\(|b-a|\\)); to se razlikuje od predznačenega integrala v lekciji o določenem integralu.',
+            'For \\(a=b\\) both lengths are \\(0\\). For \\(a>b\\) the lengths do not change, because a length is always non-negative (the app uses \\(|b-a|\\)); this differs from the signed integral in the definite-integral lesson.',
+        ),
+        text(
+            'Pri premajhnem \\(n\\) je lomljenka lahko slab približek: na \\([0,2\\pi]\\) pri \\(n=2\\) ležijo vsa oglišča na osi \\(x\\) in je lomljenka dolga \\(2\\pi\\approx6{,}2832\\) namesto \\(7{,}6404\\). Vseeno je lomljenka vedno krajša od loka ali enako dolga.',
+            'For a small \\(n\\) the polyline can be a poor approximation: on \\([0,2\\pi]\\) with \\(n=2\\) all vertices lie on the \\(x\\)-axis and the polyline has length \\(2\\pi\\approx6.2832\\) instead of \\(7.6404\\). It is still never longer than the arc.',
+        ),
+        text(
+            'Krajišči ležita v \\([-7,7]\\), število daljic \\(n\\) pa je celo število od \\(1\\) do \\(100\\). Vrednosti zunaj teh območij aplikacija zavrne.',
+            'The endpoints lie in \\([-7,7]\\) and the number of segments \\(n\\) is an integer from \\(1\\) to \\(100\\). The app rejects values outside these ranges.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija obravnava tudi druge funkcije kot sinus in primer, ko \\(f\'\\) ni zvezen.',
+            'Before classroom-ready review, confirm whether the lesson should also treat functions other than the sine and the case where \\(f\'\\) is not continuous.',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative, definiteIntegral, areaBetweenCurves];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative, definiteIntegral, areaBetweenCurves, arcLength];

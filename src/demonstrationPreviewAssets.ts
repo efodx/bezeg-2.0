@@ -33,6 +33,7 @@ import preview_continuity from './images/demonstrations/catalog/continuity.png';
 import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
 import preview_area_between_curves from './images/demonstrations/catalog/area-between-curves.png';
+import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -68,4 +69,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'derivative': preview_derivative,
     'definite-integral': preview_definite_integral,
     'area-between-curves': preview_area_between_curves,
+    'arc-length': preview_arc_length,
 };

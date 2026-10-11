@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "22e5e5a42aa55a421d9793c1177ffc8b40ca4229",
+  "graphSourceRevision": "b774ebc84cb44fd0a5b07c4a8a8d5d2ffb3e5133",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -28,7 +28,8 @@
       "continuity",
       "derivative",
       "definite-integral",
-      "area-between-curves"
+      "area-between-curves",
+      "arc-length"
     ],
     "geometricRoutes": "hide default axes, ticks, and grid",
     "coordinateContext": "retain default axes, ticks, and grid for Bernstein and function demonstrations",
@@ -1617,6 +1618,55 @@
         },
         "renderedLabelCount": 10,
         "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "arc-length",
+      "path": "/bezeg-2.0/functions/arc-length",
+      "file": "arc-length.png",
+      "sha256": "050b9d3b949ce00fc8bbfa189fc216d3e383c9ca3cf5ce5c776dcc058a1c2f8a",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.12,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -0.031194361178421857,
+          "maxX": 3.4207709669208364,
+          "minY": -0.10096925133689875,
+          "maxY": 1.5518849679671514
+        },
+        "boardBoundingBox": [
+          -0.4181743155358757,
+          1.6983685259215553,
+          3.5806185461578104,
+          -0.7453382228912525
+        ],
+        "framedElementCount": 11,
+        "finalLabelCount": 4,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 11,
+          "curve": 3,
+          "point": 2
+        },
+        "renderedLabelCount": 4,
+        "mathJaxLabelCount": 4
       }
     }
   ]
