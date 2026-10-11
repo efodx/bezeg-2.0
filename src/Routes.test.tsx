@@ -5,6 +5,7 @@ import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './graphs/functions/ExponentialFunctionGraph';
 import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFunctionsGraph';
 import { ContinuityGraph } from './graphs/functions/ContinuityGraph';
+import { DerivativeGraph } from './graphs/functions/DerivativeGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -52,7 +53,7 @@ test('all existing graph URLs retain their graph implementations', () => {
         const graph = route.element.props.children as React.ReactElement;
         return graph.type;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(30);
+    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(31);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau')).toBe(DecasteljauGraph);
@@ -83,4 +84,5 @@ test('all existing graph URLs retain their graph implementations', () => {
     expect(graphFor('/bezeg-2.0/functions/exponential')).toBe(ExponentialFunctionGraph);
     expect(graphFor('/bezeg-2.0/functions/trigonometric')).toBe(TrigonometricFunctionsGraph);
     expect(graphFor('/bezeg-2.0/functions/continuity')).toBe(ContinuityGraph);
+    expect(graphFor('/bezeg-2.0/functions/derivative')).toBe(DerivativeGraph);
 });

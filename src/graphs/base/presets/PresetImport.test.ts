@@ -145,3 +145,23 @@ test.each([[[]], [null], [{}], [{a: -0.05}], [{a: 3.05}], [{a: "1"}], [{a: null}
     expect(() => preflightPresetImport(continuityPreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const derivativePreset = (data: unknown) => JSON.stringify({"preset-derivative": {data: [{id: "Osnova", boardState: {boundingBox: [-3, 6, 4, -2]},
+    graphState: {initialized: true, fn: "square", x0: 1, h: 1, tangent: false}, data}]}});
+
+test("derivative collection imports a model object and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {fn: "sin", x0: -2, h: -0.5, tangent: true};
+    commitPresetImport(preflightPresetImport(derivativePreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-derivative")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validDerivative = {fn: "square", x0: 1, h: 1};
+test.each([[[]], [null], [{}], [{...validDerivative, fn: "cos"}], [{...validDerivative, x0: 4.5}], [{...validDerivative, x0: "1"}], [{...validDerivative, h: 0}],
+    [{...validDerivative, h: 0.005}], [{...validDerivative, h: -0.005}], [{...validDerivative, h: 2.5}], [{...validDerivative, tangent: "yes"}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("derivative collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(derivativePreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

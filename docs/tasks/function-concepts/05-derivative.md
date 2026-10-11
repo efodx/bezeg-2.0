@@ -4,7 +4,7 @@
 
 **Dependencies:** [Continuity](04-continuity.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented
 
 ## Goal
 
@@ -26,4 +26,11 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 74 suites, 915 tests pass.
+- `CI=false npm run build`: compiled.
+- Lesson smoke row (`derivative`, sl + en + narrow viewport): 3/3; `tests/demonstrations.smoke.spec.cjs`: 32/32 after raising the catalog count to 31.
+- Worker browser check (throwaway spec, removed): SL to EN switch updates board texts and inspector labels live; dragging P keeps it on the graph and writes x0; the h slider skips the excluded band; function select and tangent switch work.
+- Catalog preview regenerated (`derivative.png`, manifest, asset map); no other PNG changed.
+
+New action kinds: none. Added names `x0`, `h` (function-parameter), `tangent` (function-visibility) and the choice `derivative-function`. The shared catalog `src/analysis/functions.ts` (`FUNCTION_CATALOG`, `catalogFunction`, `isFunctionId`) is reused by concepts 6-8. Changing the function keeps x0, h and the view.

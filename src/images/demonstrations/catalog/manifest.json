@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "eb52701d23f57e54ef66ed26da78cee839bd9102",
+  "graphSourceRevision": "cf7416ca5c5ba4f9864d121d24a5422d6abb5b38",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -25,7 +25,8 @@
       "linear-function",
       "exponential-function",
       "trigonometric-functions",
-      "continuity"
+      "continuity",
+      "derivative"
     ],
     "geometricRoutes": "hide default axes, ticks, and grid",
     "coordinateContext": "retain default axes, ticks, and grid for Bernstein and function demonstrations",
@@ -1462,6 +1463,56 @@
           "text": 9,
           "curve": 2,
           "point": 2
+        },
+        "renderedLabelCount": 4,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "derivative",
+      "path": "/bezeg-2.0/functions/derivative",
+      "file": "derivative.png",
+      "sha256": "f59e9301619f663541705fd5877352aad51b0f2099a2902a3d62281b63b9418b",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.12,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -9.029634638474295,
+          "maxX": 3.1951871657754016,
+          "minY": 0.000006201432987866589,
+          "maxY": 10.67548014812627
+        },
+        "boardBoundingBox": [
+          -9.85771214597829,
+          11.434326419932319,
+          10.857712145978295,
+          -1.2250995362633685
+        ],
+        "framedElementCount": 8,
+        "finalLabelCount": 4,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 9,
+          "curve": 1,
+          "point": 2,
+          "line": 1
         },
         "renderedLabelCount": 4,
         "mathJaxLabelCount": 4

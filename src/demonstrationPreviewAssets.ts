@@ -30,6 +30,7 @@ import preview_linear_function from './images/demonstrations/catalog/linear-func
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
 import preview_continuity from './images/demonstrations/catalog/continuity.png';
+import preview_derivative from './images/demonstrations/catalog/derivative.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -62,4 +63,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'exponential-function': preview_exponential_function,
     'trigonometric-functions': preview_trigonometric_functions,
     'continuity': preview_continuity,
+    'derivative': preview_derivative,
 };

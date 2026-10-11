@@ -5,11 +5,13 @@ import {lineThroughPoints, moveAlongLine} from '../../analysis/linear';
 import {exponentialValue, integerValues, mirrorBase} from '../../analysis/exponential';
 import {amplitude, basicValue, period, phaseShift, tangentAsymptotes, trigValue, valueRange} from '../../analysis/trigonometric';
 import {CONTINUOUS_PARAMETER, isContinuous, jump, leftLimit, leftSlope, rightLimit, rightSlope, valueAtJoin} from '../../analysis/continuity';
+import {catalogFunction} from '../../analysis/functions';
+import {differenceQuotient, isStep, secantLine} from '../../analysis/derivative';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -111,7 +113,8 @@ test('show-function-element validates its closed target and boolean value', () =
     expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: true}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: true});
     expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: false}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: false});
     expect(sceneAction({name: 'show-function-element', value: {name: 'reference', value: true}})).toEqual({kind: 'function-visibility', target: 'reference', visible: true});
-    expect(element({name: 'tangent', value: true})).toThrow(/name must be one of mirror, reference/);
+    expect(sceneAction({name: 'show-function-element', value: {name: 'tangent', value: true}})).toEqual({kind: 'function-visibility', target: 'tangent', visible: true});
+    expect(element({name: 'area', value: true})).toThrow(/name must be one of mirror, reference, tangent/);
     expect(element({name: 'mirror', value: 1})).toThrow(/true or false/);
     expect(element({name: 'mirror', value: 'true'})).toThrow(/true or false/);
     expect(element({name: 'mirror'})).toThrow(/true or false/);
@@ -155,7 +158,12 @@ test('set-function-choice validates its closed name and the values allowed for t
     for (const value of ['sin', 'cos', 'tan']) {
         expect(sceneAction({name: 'set-function-choice', value: {name: 'trig-function', value}})).toEqual({kind: 'function-choice', name: 'trig-function', value});
     }
-    expect(choice({name: 'derivative-function', value: 'sin'})).toThrow(/name must be one of trig-function/);
+    for (const value of ['square', 'sin', 'exp']) {
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'derivative-function', value}})).toEqual({kind: 'function-choice', name: 'derivative-function', value});
+    }
+    expect(choice({name: 'derivative-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
+    expect(choice({name: 'derivative-function', value: 'tan'})).toThrow(/must be one of square, sin, exp/);
+    expect(choice({name: 'integral-function', value: 'sin'})).toThrow(/name must be one of trig-function, derivative-function/);
     expect(choice({name: 'trig-function', value: 'sec'})).toThrow(/must be one of sin, cos, tan/);
     expect(choice({name: 'trig-function', value: 'SIN'})).toThrow(/must be one of sin, cos, tan/);
     expect(choice({name: 'trig-function', value: 1})).toThrow(/must be one of sin, cos, tan/);
@@ -289,5 +297,80 @@ describe('continuity lesson', () => {
         expect([leftLimit(3), rightLimit(3), jump(3)]).toEqual([3, 0, 3]);
         expect(isContinuous(1.5 + 1e-7)).toBe(false);
         expect(isContinuous(1.5 + 1e-10)).toBe(true);
+    });
+});
+
+describe('derivative lesson', () => {
+    const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'derivative')!;
+    const lesson = () => getLessonForDemonstration('derivative')!;
+    const square = catalogFunction('square');
+    const sine = catalogFunction('sin');
+
+    test('is available with five steps and adapts its scenes into typed actions', () => {
+        expect(lesson().id).toBe('derivative-guided');
+        expect(lesson().steps).toHaveLength(5);
+        expect(lesson().steps[0].scene?.actions).toEqual([{kind: 'prepared-scene', sceneId: 'derivative-default', source: 'demonstration-default'}]);
+        expect(lesson().steps[1].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'h', value: 0.5}]);
+        expect(lesson().steps[2].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'h', value: 0.1}]);
+        expect(lesson().steps[3].scene?.actions.slice(1)).toEqual([
+            {kind: 'function-parameter', name: 'h', value: -0.5},
+            {kind: 'function-visibility', target: 'tangent', visible: true},
+        ]);
+        expect(lesson().steps[4].scene?.actions.slice(1)).toEqual([
+            {kind: 'function-choice', name: 'derivative-function', value: 'sin'},
+            {kind: 'function-parameter', name: 'x0', value: 1},
+            {kind: 'function-parameter', name: 'h', value: 0.2},
+            {kind: 'function-visibility', target: 'tangent', visible: true},
+        ]);
+    });
+
+    test('every h used by a scene is allowed by the graph (|h| >= 0.01, inside [-2, 2])', () => {
+        const hs = lesson().steps.flatMap(step => step.scene?.actions ?? []).filter(action => action.kind === 'function-parameter' && action.name === 'h')
+            .map(action => (action as {value: number}).value);
+        expect(hs).toEqual([0.5, 0.1, -0.5, 0.2]);
+        hs.forEach(h => expect(isStep(h)).toBe(true));
+    });
+
+    test('the worked example matches the mathematics: ((1+h)^2-1)/h = 2+h, h=1 gives 3, h=0.5 gives 2.5, f\'(1)=2', () => {
+        const example = source().workedExamples[0];
+        expect(example.calculationLatex).toContain('\\frac{(1+h)^{2}-1}{h}=\\frac{2h+h^{2}}{h}=2+h');
+        expect(example.calculationLatex).toContain('h=1:\\ 3');
+        expect(example.calculationLatex).toContain('h=\\frac{1}{2}:\\ \\frac{5}{2}');
+        expect(example.calculationLatex).toContain('h=\\frac{1}{10}:\\ \\frac{21}{10}');
+        expect(example.resultLatex).toBe('f\'(1)=2');
+        expect(differenceQuotient(square, 1, 1)).toBe(3);
+        expect(differenceQuotient(square, 1, 0.5)).toBe(2.5);
+        expect(differenceQuotient(square, 1, 0.1)).toBeCloseTo(21 / 10, 12);
+        expect(square.derivative(1)).toBe(2);
+        // the points named in the prose: Q = (2, 4) for h = 1, Q = (1.5, 2.25) for h = 0.5
+        expect(secantLine(square, 1, 1).p1).toEqual({x: 2, y: 4});
+        expect(secantLine(square, 1, 0.5).p1).toEqual({x: 1.5, y: 2.25});
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        // step 3: h = 0.1 gives 2.1 and the difference 0.1; h = 0.01 gives 2.01; Q = (1.1, 1.21)
+        expect(differenceQuotient(square, 1, 0.1)).toBeCloseTo(2.1, 12);
+        expect(differenceQuotient(square, 1, 0.1) - square.derivative(1)).toBeCloseTo(0.1, 12);
+        expect(differenceQuotient(square, 1, 0.01)).toBeCloseTo(2.01, 12);
+        expect(differenceQuotient(square, 1, 0.01) - square.derivative(1)).toBeCloseTo(0.01, 12);
+        expect(secantLine(square, 1, 0.1).p1.x).toBeCloseTo(1.1, 12);
+        expect(secantLine(square, 1, 0.1).p1.y).toBeCloseTo(1.21, 12);
+        // step 4: h = -0.5 gives Q = (0.5, 0.25) and the quotient 1.5 = 2 + h, below f'(1) = 2; h = 0.5 gives 2.5, above
+        expect(secantLine(square, 1, -0.5).p1).toEqual({x: 0.5, y: 0.25});
+        expect(differenceQuotient(square, 1, -0.5)).toBe(1.5);
+        expect(differenceQuotient(square, 1, -0.5)).toBeLessThan(2);
+        expect(differenceQuotient(square, 1, 0.5)).toBeGreaterThan(2);
+        // step 5: sin at x0 = 1: h = 0.2 gives 0.4528, cos 1 = 0.5403, difference about -0.0875, h = 0.01 gives 0.5361
+        expect(differenceQuotient(sine, 1, 0.2)).toBeCloseTo(0.4528405, 6);
+        expect(Math.round(differenceQuotient(sine, 1, 0.2) * 1e4) / 1e4).toBe(0.4528);
+        expect(Math.round(sine.derivative(1) * 1e4) / 1e4).toBe(0.5403);
+        expect(Math.round((sine.derivative(1) - differenceQuotient(sine, 1, 0.2)) * 1e4) / 1e4).toBe(0.0875);
+        expect(Math.round(differenceQuotient(sine, 1, 0.01) * 1e4) / 1e4).toBe(0.5361);
+        // edge case: the quotient is never exactly the derivative for x^2, the difference is h
+        for (const h of [-1, -0.1, 0.01, 0.5]) expect(differenceQuotient(square, 1, h) - 2).toBeCloseTo(h, 12);
+        // edge case: h = 0 is the undefined 0/0
+        expect(() => differenceQuotient(square, 1, 0)).toThrow(RangeError);
+        expect(isStep(0.01)).toBe(true);
+        expect(isStep(0.005)).toBe(false);
     });
 });

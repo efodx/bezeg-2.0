@@ -39,14 +39,14 @@ test('Explore opens the catalog, whose topics expand independently and expose ev
     topicButtons.forEach(button => {
         if (button.getAttribute('aria-expanded') === 'false') fireEvent.click(button);
     });
-    expect(within(all).getAllByRole('link')).toHaveLength(60);
-    expect(within(all).getAllByRole('link', {name: /Vodena učna pot:/})).toHaveLength(30);
+    expect(within(all).getAllByRole('link')).toHaveLength(62);
+    expect(within(all).getAllByRole('link', {name: /Vodena učna pot:/})).toHaveLength(31);
 
     const graphLinks = [...view.container.querySelectorAll<HTMLAnchorElement>('.demonstrations-catalog-main')];
     expect(graphLinks.map(link => link.getAttribute('href')).sort()).toEqual(
         getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.path).sort());
     const previews = view.container.querySelectorAll<HTMLImageElement>('.demonstrations-catalog-preview');
-    expect(previews).toHaveLength(30);
+    expect(previews).toHaveLength(31);
     previews.forEach(preview => {
         expect(preview).toHaveAttribute('width', '360');
         expect(preview).toHaveAttribute('height', '220');
@@ -68,7 +68,7 @@ test('direct catalog entry and header navigation work in both languages', async 
     render(<RouterProvider router={router}/>);
     const all = screen.getByRole('region', {name: 'Vse demonstracije'});
     expect(all).toBeVisible();
-    expect(screen.getByText('7 tem · 30 prikazov')).toBeVisible();
+    expect(screen.getByText('7 tem · 31 prikazov')).toBeVisible();
     expect(within(all).getAllByRole('button')).toHaveLength(7);
     expect(within(all).getAllByRole('link')).toHaveLength(2);
     expect(screen.queryByRole('group', {name: /prototype/i})).not.toBeInTheDocument();
@@ -79,9 +79,9 @@ test('direct catalog entry and header navigation work in both languages', async 
     for (const button of within(englishCatalog).getAllByRole('button')) {
         if (button.getAttribute('aria-expanded') === 'false') fireEvent.click(button);
     }
-    expect(within(englishCatalog).getAllByRole('link')).toHaveLength(60);
-    expect(within(englishCatalog).getAllByRole('link', {name: /Guided lesson:/})).toHaveLength(30);
-    expect(screen.getByText('7 families · 30 demonstrations')).toBeVisible();
+    expect(within(englishCatalog).getAllByRole('link')).toHaveLength(62);
+    expect(within(englishCatalog).getAllByRole('link', {name: /Guided lesson:/})).toHaveLength(31);
+    expect(screen.getByText('7 families · 31 demonstrations')).toBeVisible();
     expect(screen.getByText(/01 · 1 demonstration$/)).toBeVisible();
 
     fireEvent.click(screen.getByRole('link', {name: 'Bezeg · home'}));

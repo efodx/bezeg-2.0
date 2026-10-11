@@ -277,6 +277,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'exponential-function',
     'trigonometric-functions',
     'continuity',
+    'derivative',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

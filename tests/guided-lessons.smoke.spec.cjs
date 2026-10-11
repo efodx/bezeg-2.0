@@ -969,8 +969,59 @@ const continuity = {
     stableCounts: async page => ({a: await continuityReadout(page, 'value')}),
 };
 
+// ---------------------------------------------------------------- Derivative
+const derivativeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: h, the difference quotient, f'(1), the P and Q coordinates and the number of visible curves (the function plus, when shown, the tangent).
+// Steps: default, worked example h = 0.5, h = 0.1, h = -0.5 with the tangent, sin with h = 0.2 and the tangent.
+const DERIVATIVE_STEPS = [
+    {h: '1', quotient: '3', exact: '2', p: [1, 1], q: [2, 4], curves: 1},
+    {h: '0.5', quotient: '2.5', exact: '2', p: [1, 1], q: [1.5, 2.25], curves: 1},
+    {h: '0.1', quotient: '2.1', exact: '2', p: [1, 1], q: [1.1, 1.21], curves: 1},
+    {h: '-0.5', quotient: '1.5', exact: '2', p: [1, 1], q: [0.5, 0.25], curves: 2},
+    {h: '0.2', quotient: '0.4528', exact: '0.5403', p: [1, Math.sin(1)], q: [1.2, Math.sin(1.2)], curves: 2},
+];
+
+const derivative = {
+    id: 'derivative',
+    path: `${BASE}/functions/derivative`,
+    titles: {sl: 'Odvod', en: 'Derivative'},
+    steps: 5,
+    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = DERIVATIVE_STEPS[step - 1];
+        await expect.poll(() => derivativeReadout(page, 'x0'), {message: `x0 at ${label}`}).toBe('1');
+        await expect.poll(() => derivativeReadout(page, 'h'), {message: `h at ${label}`}).toBe(expected.h);
+        await expect.poll(() => derivativeReadout(page, 'quotient'), {message: `difference quotient at ${label}`}).toBe(expected.quotient);
+        await expect.poll(() => derivativeReadout(page, 'derivative'), {message: `exact derivative at ${label}`}).toBe(expected.exact);
+        await expectPointNear(page, expected.p, `point P at ${label}`);
+        await expectPointNear(page, expected.q, `point Q at ${label}`);
+        await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible curves at ${label}`}).toBe(expected.curves);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 2).fill('-1.5');
+        await expect.poll(() => derivativeReadout(page, 'h')).toBe('-1.5');
+        await expect.poll(() => derivativeReadout(page, 'quotient')).toBe('0.5');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => derivativeReadout(page, 'h'), {message: 'lesson scene replaced the user step'}).toBe('0.1');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => derivativeReadout(page, 'h'), {message: 'user step restored'}).toBe('-1.5');
+        await expectPointNear(page, [-0.5, 0.25], 'user point Q restored');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({h: await derivativeReadout(page, 'h')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

@@ -1042,5 +1042,251 @@ const continuity: GuidedLesson = {
     ],
 };
 
+const derivativeChoice = (value: 'square' | 'sin' | 'exp'): SceneAction => ({name: 'set-function-choice', value: {name: 'derivative-function', value}});
+const tangentVisibility = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'tangent', value: visible}});
+
+const derivative: GuidedLesson = {
+    demonstrationId: 'derivative',
+    title: text('Odvod', 'Derivative'),
+    summary: text(
+        'Sekanta skozi \\(P=(x_0,f(x_0))\\) in \\(Q=(x_0+h,f(x_0+h))\\) ima naklon, ki ga imenujemo diferenčni kvocient. Ko se \\(h\\) bliža \\(0\\), se sekanta bliža tangenti, njen naklon pa odvodu \\(f\'(x_0)\\).',
+        'The secant through \\(P=(x_0,f(x_0))\\) and \\(Q=(x_0+h,f(x_0+h))\\) has a slope called the difference quotient. As \\(h\\) approaches \\(0\\), the secant approaches the tangent and its slope approaches the derivative \\(f\'(x_0)\\).',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje naklona premice \\(k=\\Delta y/\\Delta x\\) in odčitavanja vrednosti funkcije z grafa.', 'Assumes familiarity with the slope of a line \\(k=\\Delta y/\\Delta x\\) and with reading function values off a graph.'),
+        text('Priporočeno je, da veš, kaj pomeni, da se \\(h\\) približuje številu \\(0\\).', 'It helps to know what it means for \\(h\\) to approach \\(0\\).'),
+    ],
+    learningGoals: [
+        text('Izračunaš naklon sekante, to je diferenčni kvocient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\).', 'Compute the slope of the secant, that is the difference quotient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\).'),
+        text('Pri \\(f(x)=x^2\\) kvocient poenostaviš v \\(2+h\\) in iz tega razbereš \\(f\'(1)=2\\).', 'For \\(f(x)=x^2\\) simplify the quotient to \\(2+h\\) and read off \\(f\'(1)=2\\).'),
+        text('Razložiš, zakaj \\(h=0\\) ni dovoljen, in zakaj se kvocient približuje odvodu z obeh strani, pri \\(h>0\\) in pri \\(h<0\\).', 'Explain why \\(h=0\\) is not allowed and why the quotient approaches the derivative from both sides, for \\(h>0\\) and for \\(h<0\\).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'derivative-difference-quotient',
+            latex: 'm_{\\mathrm{sek}}=\\frac{f(x_0+h)-f(x_0)}{h}',
+            notation: text(
+                'Število \\(h\\) je vodoravni razmik med \\(P\\) in \\(Q\\); lahko je pozitivno ali negativno, ne pa \\(0\\).',
+                'The number \\(h\\) is the horizontal distance from \\(P\\) to \\(Q\\); it can be positive or negative, but not \\(0\\).',
+            ),
+            explanation: text(
+                'To je naklon \\(\\Delta y/\\Delta x\\) premice skozi \\(P=(x_0,f(x_0))\\) in \\(Q=(x_0+h,f(x_0+h))\\), torej naklon sekante.',
+                'This is the slope \\(\\Delta y/\\Delta x\\) of the line through \\(P=(x_0,f(x_0))\\) and \\(Q=(x_0+h,f(x_0+h))\\), that is the slope of the secant.',
+            ),
+        },
+        {
+            id: 'derivative-square-quotient',
+            latex: '\\frac{(1+h)^{2}-1}{h}=\\frac{2h+h^{2}}{h}=2+h',
+            notation: text(
+                'Za \\(f(x)=x^2\\) in \\(x_0=1\\) velja \\(f(1+h)=(1+h)^2\\) in \\(f(1)=1\\).',
+                'For \\(f(x)=x^2\\) and \\(x_0=1\\) we have \\(f(1+h)=(1+h)^2\\) and \\(f(1)=1\\).',
+            ),
+            explanation: text(
+                'Ker je \\(h\\ne0\\), smemo okrajšati \\(h\\) v števcu \\(2h+h^2\\). Izraz \\(2+h\\) velja za vsak \\(h\\ne0\\).',
+                'Since \\(h\\ne0\\), we may cancel \\(h\\) in the numerator \\(2h+h^2\\). The expression \\(2+h\\) holds for every \\(h\\ne0\\).',
+            ),
+        },
+        {
+            id: 'derivative-limit',
+            latex: 'f\'(x_0)=\\lim_{h\\to0}\\frac{f(x_0+h)-f(x_0)}{h}',
+            notation: text(
+                'Odvod je limita diferenčnega kvocienta, ko gre \\(h\\) proti \\(0\\) z desne ali z leve.',
+                'The derivative is the limit of the difference quotient as \\(h\\) goes to \\(0\\) from the right or from the left.',
+            ),
+            explanation: text(
+                'Pri \\(f(x)=x^2\\) je \\(f\'(x)=2x\\), pri \\(\\sin x\\) je \\(\\cos x\\), pri \\(e^x\\) pa spet \\(e^x\\). Tangenta je premica skozi \\(P\\) z naklonom \\(f\'(x_0)\\).',
+                'For \\(f(x)=x^2\\) we have \\(f\'(x)=2x\\), for \\(\\sin x\\) it is \\(\\cos x\\) and for \\(e^x\\) again \\(e^x\\). The tangent is the line through \\(P\\) with slope \\(f\'(x_0)\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'derivative-square-example',
+            title: text('Kvocient za \\(f(x)=x^2\\) pri \\(x_0=1\\)', 'The quotient for \\(f(x)=x^2\\) at \\(x_0=1\\)'),
+            calculationLatex: '\\frac{(1+h)^{2}-1}{h}=\\frac{2h+h^{2}}{h}=2+h,\\quad h=1:\\ 3,\\quad h=\\frac{1}{2}:\\ \\frac{5}{2},\\quad h=\\frac{1}{10}:\\ \\frac{21}{10}',
+            resultLatex: 'f\'(1)=2',
+            check: text(
+                'Za \\(h=1\\) je \\(Q=(2,4)\\) in naklon \\((4-1)/1=3\\). Za \\(h=0{,}5\\) je \\(Q=(1{,}5;\\,2{,}25)\\) in naklon \\((2{,}25-1)/0{,}5=2{,}5\\). Oba se ujemata z \\(2+h\\).',
+                'For \\(h=1\\) we get \\(Q=(2,4)\\) and the slope \\((4-1)/1=3\\). For \\(h=0.5\\) we get \\(Q=(1.5,\\,2.25)\\) and the slope \\((2.25-1)/0.5=2.5\\). Both agree with \\(2+h\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'derivative-secant-step', order: 1,
+            title: text('Sekanta in njen naklon', 'The secant and its slope'),
+            purpose: text('Naklon sekante izračunati kot diferenčni kvocient.', 'Computing the slope of the secant as the difference quotient.'),
+            explanation: text(
+                'Točka \\(P=(x_0,f(x_0))\\) leži na grafu, točka \\(Q=(x_0+h,f(x_0+h))\\) pa je za \\(h\\) vodoravno od nje. Premica skozi \\(P\\) in \\(Q\\) je sekanta; njen naklon je razmerje \\(\\Delta y/\\Delta x\\), to je diferenčni kvocient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\). Pri privzetem \\(f(x)=x^2\\), \\(x_0=1\\) in \\(h=1\\) je \\(P=(1,1)\\), \\(Q=(2,4)\\) in naklon \\((4-1)/1=3\\).',
+                'The point \\(P=(x_0,f(x_0))\\) lies on the graph, and the point \\(Q=(x_0+h,f(x_0+h))\\) is \\(h\\) horizontally away from it. The line through \\(P\\) and \\(Q\\) is the secant; its slope is the ratio \\(\\Delta y/\\Delta x\\), that is the difference quotient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\). For the default \\(f(x)=x^2\\), \\(x_0=1\\) and \\(h=1\\) we get \\(P=(1,1)\\), \\(Q=(2,4)\\) and the slope \\((4-1)/1=3\\).',
+            ),
+            formulaIds: ['derivative-difference-quotient'], learnerInteraction: 'drag-control-point',
+            frames: [frame('derivative-secant-explanation', 'explanation'), frame('derivative-secant-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci točko \\(P\\) po grafu in premakni drsnik \\(h\\). Primerjaj naklon sekante na grafu z odčitkom diferenčnega kvocienta.',
+                'Drag the point \\(P\\) along the graph and move the slider \\(h\\). Compare the slope of the secant on the board with the difference quotient readout.',
+            ),
+            expectedObservations: [text(
+                'Točka \\(P\\) ostane na grafu, točka \\(Q\\) je vedno za \\(h\\) desno od nje; pri \\(x_0=1\\) in \\(h=1\\) je naklon sekante \\(3\\).',
+                'The point \\(P\\) stays on the graph and \\(Q\\) is always \\(h\\) to the right of it; for \\(x_0=1\\) and \\(h=1\\) the slope of the secant is \\(3\\).',
+            )],
+            scene: {
+                id: 'derivative-default', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Prikazan je graf \\(x^2\\) s točkama \\(P=(1,1)\\), \\(Q=(2,4)\\) in sekanto z naklonom \\(3\\); tangenta je skrita.',
+                    'The graph of \\(x^2\\) is shown with the points \\(P=(1,1)\\), \\(Q=(2,4)\\) and the secant with slope \\(3\\); the tangent is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'derivative-quotient-step', order: 2,
+            title: text('Izračun kvocienta za \\(x^2\\)', 'Computing the quotient for \\(x^2\\)'),
+            purpose: text('Kvocient za \\(f(x)=x^2\\) poenostaviti v \\(2+h\\).', 'Simplifying the quotient for \\(f(x)=x^2\\) to \\(2+h\\).'),
+            explanation: text(
+                'Za \\(f(x)=x^2\\) in \\(x_0=1\\) je \\(\\frac{(1+h)^2-1}{h}=\\frac{2h+h^2}{h}=2+h\\). Pri \\(h=1\\) dobimo \\(3\\), pri \\(h=0{,}5\\) pa \\(2{,}5\\). Scena nastavi \\(h=0{,}5\\): točka \\(Q=(1{,}5;\\,2{,}25)\\) in naklon sekante \\(2{,}5\\).',
+                'For \\(f(x)=x^2\\) and \\(x_0=1\\) we have \\(\\frac{(1+h)^2-1}{h}=\\frac{2h+h^2}{h}=2+h\\). For \\(h=1\\) we get \\(3\\) and for \\(h=0.5\\) we get \\(2.5\\). The scene sets \\(h=0.5\\): the point \\(Q=(1.5,\\,2.25)\\) and the secant slope \\(2.5\\).',
+            ),
+            formulaIds: ['derivative-square-quotient'], workedExampleId: 'derivative-square-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('derivative-quotient-explanation', 'explanation'), frame('derivative-quotient-calculation', 'calculation'), frame('derivative-quotient-observation', 'observation')],
+            observationPrompt: text(
+                'Nastavi nekaj vrednosti \\(h\\) in za vsako primerjaj odčitek kvocienta z izrazom \\(2+h\\).',
+                'Set a few values of \\(h\\) and for each compare the quotient readout with the expression \\(2+h\\).',
+            ),
+            expectedObservations: [text(
+                'Odčitek kvocienta je vedno enak \\(2+h\\): \\(3\\) pri \\(h=1\\), \\(2{,}5\\) pri \\(h=0{,}5\\); pri \\(h=0{,}5\\) je \\(f(1+h)=2{,}25\\).',
+                'The quotient readout always equals \\(2+h\\): \\(3\\) at \\(h=1\\), \\(2.5\\) at \\(h=0.5\\); at \\(h=0.5\\) we have \\(f(1+h)=2.25\\).',
+            )],
+            scene: {
+                id: 'derivative-quotient-scene', basedOn: 'demonstration-default',
+                actions: [parameter('h', 0.5)],
+                expectedState: text(
+                    'Pri \\(h=0{,}5\\): \\(Q=(1{,}5;\\,2{,}25)\\), naklon sekante \\(2{,}5\\), \\(f\'(1)=2\\).',
+                    'For \\(h=0.5\\): \\(Q=(1.5,\\,2.25)\\), secant slope \\(2.5\\), \\(f\'(1)=2\\).',
+                ),
+            },
+        },
+        {
+            id: 'derivative-shrinking-step', order: 3,
+            title: text('Manjši \\(h\\): sekanta se bliža tangenti', 'Smaller \\(h\\): the secant approaches the tangent'),
+            purpose: text('Videti, da se kvocient \\(2+h\\) bliža številu \\(2=f\'(1)\\).', 'Seeing that the quotient \\(2+h\\) approaches \\(2=f\'(1)\\).'),
+            explanation: text(
+                'Ko se \\(h\\) manjša, se \\(Q\\) bliža točki \\(P\\) in sekanta se obrača proti tangenti. Pri \\(h=0{,}1\\) je kvocient \\(2+0{,}1=2{,}1\\), pri \\(h=0{,}01\\) pa \\(2{,}01\\). Vrednosti se bližajo številu \\(2\\), to je odvodu \\(f\'(1)=2\\cdot1=2\\). Odvod je limita \\(\\lim_{h\\to0}(2+h)=2\\).',
+                'As \\(h\\) shrinks, \\(Q\\) approaches \\(P\\) and the secant turns towards the tangent. At \\(h=0.1\\) the quotient is \\(2+0.1=2.1\\) and at \\(h=0.01\\) it is \\(2.01\\). The values approach \\(2\\), the derivative \\(f\'(1)=2\\cdot1=2\\). The derivative is the limit \\(\\lim_{h\\to0}(2+h)=2\\).',
+            ),
+            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('derivative-shrinking-explanation', 'explanation'), frame('derivative-shrinking-observation', 'observation')],
+            observationPrompt: text(
+                'Počasi manjšaj \\(h\\) do \\(0{,}01\\) in opazuj odčitek razlike med kvocientom in \\(f\'(1)\\).',
+                'Slowly decrease \\(h\\) down to \\(0.01\\) and watch the readout of the difference between the quotient and \\(f\'(1)\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(h=0{,}1\\) je kvocient \\(2{,}1\\) in razlika \\(0{,}1\\); pri \\(h=0{,}01\\) je razlika \\(0{,}01\\). Razlika je enaka \\(h\\).',
+                'At \\(h=0.1\\) the quotient is \\(2.1\\) and the difference is \\(0.1\\); at \\(h=0.01\\) the difference is \\(0.01\\). The difference equals \\(h\\).',
+            )],
+            scene: {
+                id: 'derivative-shrinking-scene', basedOn: 'demonstration-default',
+                actions: [parameter('h', 0.1)],
+                expectedState: text(
+                    'Pri \\(h=0{,}1\\): \\(Q=(1{,}1;\\,1{,}21)\\), naklon sekante \\(2{,}1\\), \\(f\'(1)=2\\).',
+                    'For \\(h=0.1\\): \\(Q=(1.1,\\,1.21)\\), secant slope \\(2.1\\), \\(f\'(1)=2\\).',
+                ),
+            },
+        },
+        {
+            id: 'derivative-tangent-step', order: 4,
+            title: text('Tangenta in negativen \\(h\\)', 'The tangent and a negative \\(h\\)'),
+            purpose: text('Tangento prikazati kot mejno premico in preveriti, da se kvocient bliža odvodu tudi z leve.', 'Showing the tangent as the limit line and checking that the quotient approaches the derivative from the left as well.'),
+            explanation: text(
+                'Tangenta je premica skozi \\(P\\) z naklonom \\(f\'(x_0)\\); prikažeš jo s stikalom. Pri negativnem \\(h\\) leži \\(Q\\) levo od \\(P\\). Za \\(h=-0{,}5\\) je \\(Q=(0{,}5;\\,0{,}25)\\) in kvocient \\(\\frac{0{,}25-1}{-0{,}5}=1{,}5=2+h\\). Tudi z leve se kvocient bliža številu \\(2\\).',
+                'The tangent is the line through \\(P\\) with slope \\(f\'(x_0)\\); you show it with the switch. For a negative \\(h\\), the point \\(Q\\) lies to the left of \\(P\\). For \\(h=-0.5\\) we get \\(Q=(0.5,\\,0.25)\\) and the quotient \\(\\frac{0.25-1}{-0.5}=1.5=2+h\\). From the left as well, the quotient approaches \\(2\\).',
+            ),
+            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('derivative-tangent-explanation', 'explanation'), frame('derivative-tangent-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj črtkano tangento s sekanto, ko je \\(h\\) pozitiven in ko je negativen. Na kateri strani od \\(P\\) leži \\(Q\\)?',
+                'Compare the dashed tangent with the secant when \\(h\\) is positive and when it is negative. On which side of \\(P\\) does \\(Q\\) lie?',
+            ),
+            expectedObservations: [text(
+                'Pri \\(h=-0{,}5\\) je naklon sekante \\(1{,}5\\), manj kot naklon tangente \\(2\\); pri \\(h=0{,}5\\) je \\(2{,}5\\), več kot \\(2\\). Ko se \\(|h|\\) manjša, se sekanta z obeh strani bliža tangenti.',
+                'At \\(h=-0.5\\) the secant slope is \\(1.5\\), below the tangent slope \\(2\\); at \\(h=0.5\\) it is \\(2.5\\), above \\(2\\). As \\(|h|\\) shrinks, the secant approaches the tangent from both sides.',
+            )],
+            scene: {
+                id: 'derivative-tangent-scene', basedOn: 'demonstration-default',
+                actions: [parameter('h', -0.5), tangentVisibility(true)],
+                expectedState: text(
+                    'Pri \\(h=-0{,}5\\): \\(Q=(0{,}5;\\,0{,}25)\\), naklon sekante \\(1{,}5\\); črtkana tangenta ima naklon \\(2\\).',
+                    'For \\(h=-0.5\\): \\(Q=(0.5,\\,0.25)\\), secant slope \\(1.5\\); the dashed tangent has slope \\(2\\).',
+                ),
+            },
+        },
+        {
+            id: 'derivative-sin-step', order: 5,
+            title: text('Opazovanje pri \\(\\sin x\\)', 'An observation with \\(\\sin x\\)'),
+            purpose: text('Isti postopek preizkusiti na funkciji, kjer odvoda ne moremo uganiti iz poenostavitve.', 'Trying the same procedure on a function where the derivative cannot be guessed from a simplification.'),
+            explanation: text(
+                'Izberi \\(f(x)=\\sin x\\) pri \\(x_0=1\\). Odvod je \\(\\cos 1\\approx0{,}5403\\). Pri \\(h=0{,}2\\) je kvocient \\(\\frac{\\sin1{,}2-\\sin1}{0{,}2}\\approx0{,}4528\\), torej za približno \\(0{,}0875\\) manj. Pri \\(h=0{,}01\\) je kvocient \\(\\approx0{,}5361\\). Kvocient se bliža vrednosti \\(\\cos1\\), vendar \\(h\\) ne sme postati \\(0\\): tam bi bil kvocient \\(0/0\\).',
+                'Choose \\(f(x)=\\sin x\\) at \\(x_0=1\\). The derivative is \\(\\cos 1\\approx0.5403\\). At \\(h=0.2\\) the quotient is \\(\\frac{\\sin1.2-\\sin1}{0.2}\\approx0.4528\\), about \\(0.0875\\) below it. At \\(h=0.01\\) the quotient is \\(\\approx0.5361\\). The quotient approaches \\(\\cos1\\), but \\(h\\) must never become \\(0\\): there the quotient would be \\(0/0\\).',
+            ),
+            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('derivative-sin-explanation', 'explanation'), frame('derivative-sin-observation', 'observation')],
+            observationPrompt: text(
+                'Manjšaj \\(h\\) in primerjaj kvocient z natančnim odvodom \\(\\cos x_0\\). Poskusi tudi povleči \\(P\\) po grafu in poišči mesto z vodoravno tangento.',
+                'Decrease \\(h\\) and compare the quotient with the exact derivative \\(\\cos x_0\\). Also try dragging \\(P\\) along the graph and find the place with a horizontal tangent.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(h=0{,}2\\) je kvocient \\(0{,}4528\\) in odvod \\(0{,}5403\\); razlika je približno \\(-0{,}0875\\). Manjši kot je \\(|h|\\), manjša je razlika.',
+                'At \\(h=0.2\\) the quotient is \\(0.4528\\) and the derivative is \\(0.5403\\); the difference is about \\(-0.0875\\). The smaller \\(|h|\\) is, the smaller the difference.',
+            )],
+            scene: {
+                id: 'derivative-sin-scene', basedOn: 'demonstration-default',
+                actions: [derivativeChoice('sin'), parameter('x0', 1), parameter('h', 0.2), tangentVisibility(true)],
+                expectedState: text(
+                    'Prikazan je \\(\\sin x\\) pri \\(x_0=1\\) in \\(h=0{,}2\\): kvocient \\(0{,}4528\\), \\(f\'(1)=\\cos1=0{,}5403\\), tangenta je prikazana.',
+                    'The graph of \\(\\sin x\\) is shown at \\(x_0=1\\) and \\(h=0.2\\): quotient \\(0.4528\\), \\(f\'(1)=\\cos1=0.5403\\), the tangent is shown.',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-derivative',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Section 2.7: Derivatives and Rates of Change, and Section 3.1: Derivatives of Polynomials and Exponential Functions.',
+            supports: ['tangent as the limit of secant lines', 'derivative as the limit of the difference quotient', 'derivatives of x^2, sin x and e^x'],
+        },
+        {
+            id: 'efodx-derivatives-graph',
+            citation: 'Earlier app by the owner: efodx.github.io, src/graphs derivatives-graph (studied 2026-10-11).',
+            supports: ['secant of sin through x and x + h with draggable x and slider h', 'slope readout'],
+            implementationCorrespondence: 'Bezeg keeps the secant, the draggable point on the graph and the slider h, and adds a choice of x^2, sin x and e^x, the exact tangent, the exact derivative and the difference as readouts, and excludes |h| < 0.01 instead of allowing the undefined 0/0 quotient.',
+        },
+        {
+            id: 'bezeg-derivative-implementation',
+            citation: 'Bezeg source: src/analysis/derivative.ts, src/analysis/functions.ts and src/graphs/functions/DerivativeGraph.tsx.',
+            supports: ['difference quotient, secant and tangent', 'function catalog with exact derivatives', 'slider h in [-2, 2] with step 0.01 excluding |h| < 0.01', 'point P constrained to the graph'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Pri \\(h=0\\) bi bil kvocient \\(\\frac{0}{0}\\), ki ni definiran; sekanta bi se skrčila v eno samo točko. Zato je prepovedan pas \\(|h|<0{,}01\\): drsnik, ki bi prečkal \\(0\\), skoči z \\(0{,}01\\) na \\(-0{,}01\\) in obratno.',
+            'At \\(h=0\\) the quotient would be \\(\\frac{0}{0}\\), which is undefined; the secant would collapse to a single point. That is why the band \\(|h|<0.01\\) is excluded: a slider crossing \\(0\\) jumps from \\(0.01\\) to \\(-0.01\\) and back.',
+        ),
+        text(
+            'Kvocient ni nikoli točno enak odvodu: pri \\(x^2\\) je razlika natanko \\(h\\), ki ni \\(0\\). Odvod je limita, ne vrednost pri nobenem \\(h\\ne0\\).',
+            'The quotient is never exactly the derivative: for \\(x^2\\) the difference is exactly \\(h\\), which is not \\(0\\). The derivative is a limit, not the value at any \\(h\\ne0\\).',
+        ),
+        text(
+            'Pri \\(e^x\\) in večjem \\(x_0\\) so vrednosti velike in graf zapusti pogled; uporabi gumb »Prilagodi točkam« ali premakni pogled.',
+            'For \\(e^x\\) and a larger \\(x_0\\) the values are large and the graph leaves the view; use the “Fit to points” button or pan the view.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija odvod obravnava tudi kot trenutno hitrost.',
+            'Before classroom-ready review, confirm whether the lesson should also present the derivative as an instantaneous rate of change.',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative];
