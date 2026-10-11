@@ -26,6 +26,7 @@ const coordinateContextRoutes = new Set([
     'trigonometric-functions',
     'continuity',
     'derivative',
+    'definite-integral',
 ]);
 
 function pngDimensions(file) {
@@ -39,7 +40,7 @@ function hashFile(file) {
 }
 
 async function main() {
-    assert.equal(demonstrations.length, 31, `Expected 31 route defaults; found ${demonstrations.length}`);
+    assert.equal(demonstrations.length, 32, `Expected 32 route defaults; found ${demonstrations.length}`);
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
         'Demonstration IDs must be unique');
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.path)).size, demonstrations.length,

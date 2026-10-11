@@ -1288,5 +1288,251 @@ const derivative: GuidedLesson = {
     ],
 };
 
+const integralFunction = (value: 'square' | 'sin' | 'exp'): SceneAction => ({name: 'set-function-choice', value: {name: 'integral-function', value}});
+const sumMethod = (value: 'left' | 'right' | 'midpoint' | 'trapezoid'): SceneAction => ({name: 'set-function-choice', value: {name: 'sum-method', value}});
+
+const definiteIntegral: GuidedLesson = {
+    demonstrationId: 'definite-integral',
+    title: text('Določeni integral', 'Definite integral'),
+    summary: text(
+        'Določeni integral \\(\\int_a^b f(x)\\,dx\\) je predznačena ploščina med grafom in osjo \\(x\\). Interval \\([a,b]\\) razdelimo na \\(n\\) podintervalov širine \\(h=\\frac{b-a}{n}\\), seštejemo ploščine pravokotnikov ali trapezov in dobimo Riemannovo vsoto, ki se z večjim \\(n\\) bliža točnemu integralu \\(F(b)-F(a)\\).',
+        'The definite integral \\(\\int_a^b f(x)\\,dx\\) is the signed area between the graph and the \\(x\\)-axis. We split the interval \\([a,b]\\) into \\(n\\) subintervals of width \\(h=\\frac{b-a}{n}\\), add the areas of rectangles or trapezoids, and get a Riemann sum that approaches the exact integral \\(F(b)-F(a)\\) as \\(n\\) grows.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje ploščine pravokotnika in trapeza ter odčitavanja vrednosti funkcije z grafa.', 'Assumes familiarity with the area of a rectangle and a trapezoid and with reading function values off a graph.'),
+        text('Priporočeno je, da veš, kaj je odvod in kaj je antiderivacija: \\(F\'=f\\).', 'It helps to know what a derivative is and what an antiderivative is: \\(F\'=f\\).'),
+    ],
+    learningGoals: [
+        text('Izračunaš širino \\(h=\\frac{b-a}{n}\\) in levo, desno, sredinsko ter trapezno vsoto za \\(f(x)=x^2\\) na \\([0,2]\\).', 'Compute the width \\(h=\\frac{b-a}{n}\\) and the left, right, midpoint and trapezoid sums for \\(f(x)=x^2\\) on \\([0,2]\\).'),
+        text('Primerjaš vsote s točnim integralom \\(\\frac{8}{3}\\) in razložiš, zakaj se z večjim \\(n\\) približajo.', 'Compare the sums with the exact integral \\(\\frac{8}{3}\\) and explain why they approach it as \\(n\\) grows.'),
+        text('Razložiš, zakaj deli pod osjo \\(x\\) štejejo negativno in kaj se zgodi pri \\(a=b\\) ter pri zamenjanih mejah.', 'Explain why parts below the \\(x\\)-axis count as negative and what happens for \\(a=b\\) and for swapped bounds.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'integral-width',
+            latex: 'h=\\frac{b-a}{n},\\qquad x_i=a+ih',
+            notation: text(
+                'Število \\(h\\) je širina podintervala, \\(x_i\\) so delilne točke od \\(x_0=a\\) do \\(x_n=b\\).',
+                'The number \\(h\\) is the width of a subinterval and the \\(x_i\\) are the division points from \\(x_0=a\\) to \\(x_n=b\\).',
+            ),
+            explanation: text(
+                'Pri \\(a>b\\) je \\(h\\) negativen, pri \\(a=b\\) je \\(h=0\\).',
+                'For \\(a>b\\) the width \\(h\\) is negative, and for \\(a=b\\) we get \\(h=0\\).',
+            ),
+        },
+        {
+            id: 'integral-sums',
+            latex: '\\begin{aligned}L&=h\\sum_{i=0}^{n-1}f(x_i)\\\\R&=h\\sum_{i=1}^{n}f(x_i)\\\\M&=h\\sum_{i=0}^{n-1}f\\!\\left(x_i+\\tfrac{h}{2}\\right)\\\\T&=\\frac{L+R}{2}\\end{aligned}',
+            notation: text(
+                'Vsota \\(L\\) je leva, \\(R\\) desna, \\(M\\) sredinska, \\(T\\) pa trapezna.',
+                'The sum \\(L\\) is the left, \\(R\\) the right, \\(M\\) the midpoint and \\(T\\) the trapezoid sum.',
+            ),
+            explanation: text(
+                'Leva, desna in sredinska vsota seštejejo ploščine pravokotnikov, ki imajo višino \\(f\\) v levem krajišču, v desnem krajišču oziroma v sredini podintervala. Trapezna vsota je povprečje leve in desne.',
+                'The left, right and midpoint sums add the areas of rectangles whose height is \\(f\\) at the left end, at the right end or at the middle of the subinterval. The trapezoid sum is the mean of the left and right sums.',
+            ),
+        },
+        {
+            id: 'integral-exact',
+            latex: '\\begin{aligned}\\int_a^b f(x)\\,dx&=F(b)-F(a),\\quad F\'=f\\\\\\int_0^2 x^{2}\\,dx&=\\left[\\frac{x^{3}}{3}\\right]_0^2=\\frac{8}{3}\\end{aligned}',
+            notation: text(
+                'Funkcija \\(F\\) je antiderivacija funkcije \\(f\\); za \\(x^2\\) je to \\(\\frac{x^3}{3}\\), za \\(\\sin x\\) je \\(-\\cos x\\), za \\(e^x\\) pa spet \\(e^x\\).',
+                'The function \\(F\\) is an antiderivative of \\(f\\); for \\(x^2\\) it is \\(\\frac{x^3}{3}\\), for \\(\\sin x\\) it is \\(-\\cos x\\), and for \\(e^x\\) it is again \\(e^x\\).',
+            ),
+            explanation: text(
+                'Točni integral je razlika vrednosti antiderivacije v mejah. Je predznačen: pri \\(a>b\\) je \\(h\\) negativen, vsota in integral pa zamenjata predznak.',
+                'The exact integral is the difference of the antiderivative at the bounds. It is signed: for \\(a>b\\) the width \\(h\\) is negative, and the sum and the integral change sign.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'integral-square-example',
+            title: text('Vsote za \\(f(x)=x^2\\) na \\([0,2]\\) pri \\(n=4\\)', 'Sums for \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=4\\)'),
+            calculationLatex: '\\begin{aligned}h&=\\frac{2-0}{4}=\\frac{1}{2}\\\\L&=\\frac{1}{2}\\left(0+\\frac{1}{4}+1+\\frac{9}{4}\\right)=\\frac{7}{4}\\\\R&=\\frac{1}{2}\\left(\\frac{1}{4}+1+\\frac{9}{4}+4\\right)=\\frac{15}{4}\\\\M&=\\frac{21}{8},\\quad T=\\frac{L+R}{2}=\\frac{11}{4}\\end{aligned}',
+            resultLatex: '\\int_0^2 x^{2}\\,dx=\\frac{8}{3}\\approx2{,}6667',
+            check: text(
+                'Leva vsota je \\(1{,}75\\), desna \\(3{,}75\\), sredinska \\(2{,}625\\) in trapezna \\(2{,}75\\). Točna vrednost \\(\\frac{8}{3}\\approx2{,}6667\\) leži med levo in desno vsoto, ker je \\(x^2\\) na \\([0,2]\\) naraščajoča.',
+                'The left sum is \\(1.75\\), the right sum \\(3.75\\), the midpoint sum \\(2.625\\) and the trapezoid sum \\(2.75\\). The exact value \\(\\frac{8}{3}\\approx2.6667\\) lies between the left and the right sum because \\(x^2\\) is increasing on \\([0,2]\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'integral-area-step', order: 1,
+            title: text('Ploščina pod grafom in širina \\(h\\)', 'Area under the graph and the width \\(h\\)'),
+            purpose: text('Ploščino pod grafom oceniti z vsoto ploščin pravokotnikov.', 'Estimating the area under the graph with a sum of rectangle areas.'),
+            explanation: text(
+                'Interval \\([a,b]\\) razdelimo na \\(n\\) enako širokih podintervalov širine \\(h=\\frac{b-a}{n}\\) in na vsakem narišemo pravokotnik. Pri privzetih \\(f(x)=x^2\\), \\(a=0\\), \\(b=2\\) in \\(n=4\\) je \\(h=\\frac{2-0}{4}=0{,}5\\). Privzeta je leva vsota: višina pravokotnika je vrednost \\(f\\) v levem krajišču podintervala. Točni integral je \\(\\int_0^2 x^2\\,dx=\\frac{8}{3}\\approx2{,}6667\\).',
+                'We split the interval \\([a,b]\\) into \\(n\\) equally wide subintervals of width \\(h=\\frac{b-a}{n}\\) and draw a rectangle on each one. For the default \\(f(x)=x^2\\), \\(a=0\\), \\(b=2\\) and \\(n=4\\) we get \\(h=\\frac{2-0}{4}=0.5\\). The default is the left sum: the height of a rectangle is the value of \\(f\\) at the left end of its subinterval. The exact integral is \\(\\int_0^2 x^2\\,dx=\\frac{8}{3}\\approx2.6667\\).',
+            ),
+            formulaIds: ['integral-width', 'integral-exact'], learnerInteraction: 'drag-control-point',
+            frames: [frame('integral-area-explanation', 'explanation'), frame('integral-area-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\) in opazuj širino \\(h\\), pravokotnike ter vsoto. Nato ju vrni na \\(0\\) in \\(2\\).',
+                'Drag the points \\(a\\) and \\(b\\) along the \\(x\\)-axis and watch the width \\(h\\), the rectangles and the sum. Then return them to \\(0\\) and \\(2\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(a=0\\), \\(b=2\\) in \\(n=4\\) je \\(h=0{,}5\\), narisani so štirje pravokotniki pod grafom, leva vsota je \\(1{,}75\\) in je manjša od točnega integrala \\(2{,}6667\\).',
+                'For \\(a=0\\), \\(b=2\\) and \\(n=4\\) the width is \\(h=0.5\\), four rectangles are drawn under the graph, the left sum is \\(1.75\\) and it is smaller than the exact integral \\(2.6667\\).',
+            )],
+            scene: {
+                id: 'integral-default', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Prikazan je graf \\(x^2\\) na \\([0,2]\\) s štirimi levimi pravokotniki: \\(h=0{,}5\\), vsota \\(1{,}75\\), integral \\(2{,}6667\\).',
+                    'The graph of \\(x^2\\) on \\([0,2]\\) is shown with four left rectangles: \\(h=0.5\\), sum \\(1.75\\), integral \\(2.6667\\).',
+                ),
+            },
+        },
+        {
+            id: 'integral-left-right-step', order: 2,
+            title: text('Leva in desna vsota', 'The left and the right sum'),
+            purpose: text('Levo in desno vsoto izračunati ročno in ju primerjati s točnim integralom.', 'Computing the left and the right sum by hand and comparing them with the exact integral.'),
+            explanation: text(
+                'Leva vsota: višine v levih krajiščih so \\(0\\), \\(0{,}25\\), \\(1\\) in \\(2{,}25\\) z vsoto \\(3{,}5\\), zato \\(L=0{,}5\\cdot3{,}5=1{,}75\\). Desna vsota uporabi desna krajišča: višine \\(0{,}25\\), \\(1\\), \\(2{,}25\\) in \\(4\\) imajo vsoto \\(7{,}5\\), zato \\(R=0{,}5\\cdot7{,}5=3{,}75\\). Točna vrednost je \\(\\frac{8}{3}\\approx2{,}6667\\). Ker \\(x^2\\) na \\([0,2]\\) narašča, leva vsota podceni (\\(1{,}75<\\frac{8}{3}\\)), desna pa preceni (\\(3{,}75>\\frac{8}{3}\\)). Scena izbere desno vsoto.',
+                'Left sum: the heights at the left ends are \\(0\\), \\(0.25\\), \\(1\\) and \\(2.25\\) with sum \\(3.5\\), so \\(L=0.5\\cdot3.5=1.75\\). The right sum uses the right ends: the heights \\(0.25\\), \\(1\\), \\(2.25\\) and \\(4\\) have sum \\(7.5\\), so \\(R=0.5\\cdot7.5=3.75\\). The exact value is \\(\\frac{8}{3}\\approx2.6667\\). Since \\(x^2\\) is increasing on \\([0,2]\\), the left sum underestimates (\\(1.75<\\frac{8}{3}\\)) and the right sum overestimates (\\(3.75>\\frac{8}{3}\\)). The scene selects the right sum.',
+            ),
+            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('integral-left-right-explanation', 'explanation'), frame('integral-left-right-calculation', 'calculation'), frame('integral-left-right-observation', 'observation')],
+            observationPrompt: text(
+                'Preklopi med levo in desno vsoto in primerjaj višine pravokotnikov z grafom. Kateri pravokotniki ležijo pod grafom in kateri nad njim?',
+                'Switch between the left and the right sum and compare the heights of the rectangles with the graph. Which rectangles lie under the graph and which stick out above it?',
+            ),
+            expectedObservations: [text(
+                'Leva vsota je \\(1{,}75\\) in vsi pravokotniki ležijo pod grafom; desna vsota je \\(3{,}75\\) in vsi pravokotniki segajo nad graf. Točni integral \\(2{,}6667\\) leži vmes.',
+                'The left sum is \\(1.75\\) and all rectangles lie under the graph; the right sum is \\(3.75\\) and all rectangles stick out above the graph. The exact integral \\(2.6667\\) lies in between.',
+            )],
+            scene: {
+                id: 'integral-right-scene', basedOn: 'demonstration-default',
+                actions: [sumMethod('right')],
+                expectedState: text(
+                    'Pri desni vsoti z \\(n=4\\): vsota \\(3{,}75\\), integral \\(2{,}6667\\), pravokotniki segajo nad graf.',
+                    'For the right sum with \\(n=4\\): sum \\(3.75\\), integral \\(2.6667\\), the rectangles stick out above the graph.',
+                ),
+            },
+        },
+        {
+            id: 'integral-midpoint-trapezoid-step', order: 3,
+            title: text('Sredinska in trapezna vsota', 'The midpoint and the trapezoid sum'),
+            purpose: text('Videti, da sta sredinska in trapezna vsota z istim \\(n\\) bližje točni vrednosti.', 'Seeing that the midpoint and trapezoid sums are closer to the exact value with the same \\(n\\).'),
+            explanation: text(
+                'Sredinska vsota vzame višino v sredini podintervala, pri \\(x=0{,}25\\), \\(0{,}75\\), \\(1{,}25\\) in \\(1{,}75\\). Višine imajo vsoto \\(5{,}25\\), zato \\(M=0{,}5\\cdot5{,}25=2{,}625\\). Trapezna vsota je povprečje leve in desne: \\(T=\\frac{1{,}75+3{,}75}{2}=2{,}75\\); namesto pravokotnikov riše trapeze. Napaki sta \\(\\frac{8}{3}-2{,}625=\\frac{1}{24}\\approx0{,}0417\\) in \\(2{,}75-\\frac{8}{3}=\\frac{1}{12}\\approx0{,}0833\\), pri levi in desni vsoti pa \\(\\frac{11}{12}\\) in \\(\\frac{13}{12}\\). Scena izbere sredinsko vsoto.',
+                'The midpoint sum takes the height at the middle of the subinterval, at \\(x=0.25\\), \\(0.75\\), \\(1.25\\) and \\(1.75\\). The heights have sum \\(5.25\\), so \\(M=0.5\\cdot5.25=2.625\\). The trapezoid sum is the mean of the left and right sums: \\(T=\\frac{1.75+3.75}{2}=2.75\\); it draws trapezoids instead of rectangles. The errors are \\(\\frac{8}{3}-2.625=\\frac{1}{24}\\approx0.0417\\) and \\(2.75-\\frac{8}{3}=\\frac{1}{12}\\approx0.0833\\), against \\(\\frac{11}{12}\\) and \\(\\frac{13}{12}\\) for the left and right sums. The scene selects the midpoint sum.',
+            ),
+            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('integral-midpoint-explanation', 'explanation'), frame('integral-midpoint-calculation', 'calculation'), frame('integral-midpoint-observation', 'observation')],
+            observationPrompt: text(
+                'Preklopi med sredinsko in trapezno vsoto ter primerjaj odčitek razlike med vsoto in integralom z obema prejšnjima vsotama.',
+                'Switch between the midpoint and the trapezoid sum and compare the readout of the difference between the sum and the integral with the two earlier sums.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=4\\) je sredinska vsota \\(2{,}625\\) (razlika \\(-0{,}0417\\)) in trapezna \\(2{,}75\\) (razlika \\(0{,}0833\\)); obe sta veliko bližje kot leva in desna. Sredinska vsota je tu pod, trapezna nad točnim integralom, ker je \\(x^2\\) konveksna.',
+                'With \\(n=4\\) the midpoint sum is \\(2.625\\) (difference \\(-0.0417\\)) and the trapezoid sum is \\(2.75\\) (difference \\(0.0833\\)); both are much closer than the left and right sums. Here the midpoint sum lies below and the trapezoid sum above the exact integral because \\(x^2\\) is convex.',
+            )],
+            scene: {
+                id: 'integral-midpoint-scene', basedOn: 'demonstration-default',
+                actions: [sumMethod('midpoint')],
+                expectedState: text(
+                    'Pri sredinski vsoti z \\(n=4\\): vsota \\(2{,}625\\), integral \\(2{,}6667\\), razlika \\(-0{,}0417\\).',
+                    'For the midpoint sum with \\(n=4\\): sum \\(2.625\\), integral \\(2.6667\\), difference \\(-0.0417\\).',
+                ),
+            },
+        },
+        {
+            id: 'integral-more-rectangles-step', order: 4,
+            title: text('Več podintervalov', 'More subintervals'),
+            purpose: text('Videti, da se vse vsote z večjim \\(n\\) bližajo točnemu integralu.', 'Seeing that all sums approach the exact integral as \\(n\\) grows.'),
+            explanation: text(
+                'Pri \\(n=100\\) je \\(h=0{,}02\\) in vsote so: leva \\(2{,}6268\\), desna \\(2{,}7068\\), sredinska \\(2{,}6666\\), trapezna \\(2{,}6668\\). Vse so znotraj \\(0{,}05\\) od \\(\\frac{8}{3}\\approx2{,}6667\\). Napaka leve in desne vsote je približno \\(0{,}04\\), sredinske in trapezne pa manj kot \\(0{,}0002\\). Z večjim \\(n\\) so pravokotniki ožji in bolje prekrijejo ploščino; integral je limita teh vsot. Scena nastavi \\(n=100\\) pri levi vsoti.',
+                'With \\(n=100\\) the width is \\(h=0.02\\) and the sums are: left \\(2.6268\\), right \\(2.7068\\), midpoint \\(2.6666\\), trapezoid \\(2.6668\\). All of them are within \\(0.05\\) of \\(\\frac{8}{3}\\approx2.6667\\). The error of the left and right sums is about \\(0.04\\), and that of the midpoint and trapezoid sums is below \\(0.0002\\). With larger \\(n\\) the rectangles are narrower and cover the area better; the integral is the limit of these sums. The scene sets \\(n=100\\) with the left sum.',
+            ),
+            formulaIds: ['integral-sums', 'integral-exact'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('integral-more-explanation', 'explanation'), frame('integral-more-observation', 'observation')],
+            observationPrompt: text(
+                'Premakni drsnik \\(n\\) od \\(1\\) do \\(150\\) in pri vsaki vrsti vsote opazuj razliko med vsoto in integralom.',
+                'Move the slider \\(n\\) from \\(1\\) to \\(150\\) and, for each kind of sum, watch the difference between the sum and the integral.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=100\\) leva vsota \\(2{,}6268\\) zaostaja za integralom \\(2{,}6667\\) za približno \\(0{,}04\\); pri drugih vrstah vsote je razlika še manjša ali nasprotnega predznaka. Z večjim \\(n\\) se vse razlike manjšajo proti \\(0\\).',
+                'For \\(n=100\\) the left sum \\(2.6268\\) falls short of the integral \\(2.6667\\) by about \\(0.04\\); the other kinds of sum are closer or differ in sign. As \\(n\\) grows, all differences shrink towards \\(0\\).',
+            )],
+            scene: {
+                id: 'integral-more-scene', basedOn: 'demonstration-default',
+                actions: [parameter('n', 100)],
+                expectedState: text(
+                    'Pri levi vsoti z \\(n=100\\): \\(h=0{,}02\\), vsota \\(2{,}6268\\), integral \\(2{,}6667\\), razlika približno \\(-0{,}04\\).',
+                    'For the left sum with \\(n=100\\): \\(h=0.02\\), sum \\(2.6268\\), integral \\(2.6667\\), difference about \\(-0.04\\).',
+                ),
+            },
+        },
+        {
+            id: 'integral-signed-step', order: 5,
+            title: text('Predznačena ploščina pri \\(\\sin x\\)', 'Signed area with \\(\\sin x\\)'),
+            purpose: text('Razumeti, da deli pod osjo \\(x\\) štejejo negativno.', 'Understanding that parts below the \\(x\\)-axis count as negative.'),
+            explanation: text(
+                'Pri \\(f(x)=\\sin x\\) na \\([0,2\\pi]\\) je točni integral \\(-\\cos2\\pi+\\cos0=-1+1=0\\). Del na \\([0,\\pi]\\) nad osjo da \\(+2\\), del na \\([\\pi,2\\pi]\\) pod osjo pa \\(-2\\); drugače obarvani pravokotniki pod osjo se odštejejo. Scena nastavi sredinsko vsoto z \\(n=12\\) in vsota je \\(0\\). Navadna (nepredznačena) ploščina bi bila \\(2+2=4\\), integral pa to ni. Pri \\(a=b\\) je \\(h=0\\) in sta vsota ter integral \\(0\\); pri zamenjanih mejah \\(a>b\\) je \\(h<0\\) in obe zamenjata predznak.',
+                'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) the exact integral is \\(-\\cos2\\pi+\\cos0=-1+1=0\\). The part on \\([0,\\pi]\\) above the axis gives \\(+2\\) and the part on \\([\\pi,2\\pi]\\) below the axis gives \\(-2\\); the differently coloured rectangles below the axis are subtracted. The scene sets the midpoint sum with \\(n=12\\) and the sum is \\(0\\). The ordinary (unsigned) area would be \\(2+2=4\\), but the integral is not that. For \\(a=b\\) we get \\(h=0\\) and both the sum and the integral are \\(0\\); for swapped bounds \\(a>b\\) we get \\(h<0\\) and both change sign.',
+            ),
+            formulaIds: ['integral-exact'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('integral-signed-explanation', 'explanation'), frame('integral-signed-observation', 'observation')],
+            observationPrompt: text(
+                'Premakni \\(b\\) na \\(\\pi\\) in nazaj na \\(2\\pi\\) ter primerjaj odčitek vsote. Nato zamenjaj \\(a\\) in \\(b\\) ter nastavi \\(a=b\\).',
+                'Move \\(b\\) to \\(\\pi\\) and back to \\(2\\pi\\) and compare the sum readout. Then swap \\(a\\) and \\(b\\) and set \\(a=b\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(b=2\\pi\\) je vsota \\(0\\) in integral \\(0\\); pri \\(b=\\pi\\) je integral \\(2\\). Pri zamenjanih mejah je predznak obrnjen, pri \\(a=b\\) pa ni narisanih likov in je rezultat \\(0\\).',
+                'For \\(b=2\\pi\\) the sum is \\(0\\) and the integral is \\(0\\); for \\(b=\\pi\\) the integral is \\(2\\). With swapped bounds the sign is reversed, and for \\(a=b\\) no shapes are drawn and the result is \\(0\\).',
+            )],
+            scene: {
+                id: 'integral-signed-scene', basedOn: 'demonstration-default',
+                actions: [integralFunction('sin'), parameter('a', 0), parameter('b', 2 * Math.PI), parameter('n', 12), sumMethod('midpoint')],
+                expectedState: text(
+                    'Prikazan je \\(\\sin x\\) na \\([0,2\\pi]\\) z 12 sredinskimi pravokotniki: šest nad osjo, šest pod njo, vsota \\(0\\), integral \\(0\\).',
+                    'The graph of \\(\\sin x\\) on \\([0,2\\pi]\\) is shown with 12 midpoint rectangles: six above the axis and six below it, sum \\(0\\), integral \\(0\\).',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'stewart-definite-integral',
+            citation: 'Stewart, J. Calculus: Early Transcendentals, Section 5.2: The Definite Integral, Section 5.3: The Fundamental Theorem of Calculus, and Section 7.7: Approximate Integration.',
+            supports: ['Riemann sums with left, right and midpoint sample points', 'the trapezoidal rule', 'the signed definite integral and F(b) - F(a)', 'the effect of swapping the bounds'],
+        },
+        {
+            id: 'efodx-integral-graph',
+            citation: 'Earlier app by the owner: efodx.github.io, src/graphs integral-graph (studied 2026-10-11).',
+            supports: ['rectangles under sin on draggable bounds [a, b] with a count slider', 'area readout'],
+            implementationCorrespondence: 'Bezeg keeps the draggable bounds on the x-axis and the count slider, and adds a choice of x^2, sin x and e^x, explicit left, right, midpoint and trapezoid rules (the trapezoid rule drawn as trapezoids), the signed sum next to the exact integral F(b) - F(a) instead of a sum of absolute rectangle areas, a differently shaded negative part, and oriented bounds (a > b flips the sign).',
+        },
+        {
+            id: 'bezeg-integral-implementation',
+            citation: 'Bezeg source: src/analysis/riemann.ts, src/analysis/functions.ts and src/graphs/functions/DefiniteIntegralGraph.tsx.',
+            supports: ['signed oriented left, right, midpoint and trapezoid sums', 'exact integral from the catalog antiderivative', 'bounds in [-7, 7] and n from 1 to 150', 'two filled curve objects for the parts above and below the axis'],
+        },
+    ],
+    edgeCases: [
+        text(
+            'Pri \\(a=b\\) je \\(h=0\\): vsota in integral sta \\(0\\), likov ni. Pri zamenjanih mejah (\\(a=2\\), \\(b=0\\)) je \\(h=-0{,}5\\), integral je \\(-\\frac{8}{3}\\) in sredinska vsota z \\(n=4\\) je \\(-2{,}625\\): predznak se obrne, velikost pa ostane.',
+            'For \\(a=b\\) the width is \\(h=0\\): the sum and the integral are \\(0\\) and no shapes are drawn. With swapped bounds (\\(a=2\\), \\(b=0\\)) the width is \\(h=-0.5\\), the integral is \\(-\\frac{8}{3}\\) and the midpoint sum with \\(n=4\\) is \\(-2.625\\): the sign flips and the magnitude stays.',
+        ),
+        text(
+            'Pri zamenjanih mejah leva vsota uporabi začetno krajišče vsakega podintervala v smeri od \\(a\\) proti \\(b\\), to je desno krajišče na osi, zato postane enaka negativni desni vsoti prvotnih mej: \\(-3{,}75\\) pri \\(a=2\\), \\(b=0\\), \\(n=4\\).',
+            'With swapped bounds the left sum takes the starting end of each subinterval in the direction from \\(a\\) to \\(b\\), which is the right end on the axis, so it equals the negative of the right sum of the original bounds: \\(-3.75\\) for \\(a=2\\), \\(b=0\\), \\(n=4\\).',
+        ),
+        text(
+            'Število podintervalov \\(n\\) je celo število od \\(1\\) do \\(150\\), meji sta v \\([-7,7]\\), da je mogoče izbrati \\(2\\pi\\). Pri \\(e^x\\) in večjih mejah graf zapusti pogled; uporabi gumb »Prilagodi točkam« ali premakni pogled.',
+            'The number of subintervals \\(n\\) is an integer from \\(1\\) to \\(150\\) and the bounds lie in \\([-7,7]\\) so that \\(2\\pi\\) can be chosen. For \\(e^x\\) and larger bounds the graph leaves the view; use the “Fit to points” button or pan the view.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija omeni tudi osnovni izrek analize in napako trapezne ter sredinske vsote.',
+            'Before classroom-ready review, confirm whether the lesson should also mention the fundamental theorem of calculus and the error terms of the trapezoid and midpoint rules.',
+        ),
+    ],
+};
+
 /** Lessons of the Functions and calculus family, in teaching order. */
-export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative];
+export const functionGuidedLessons: readonly GuidedLesson[] = [linearFunction, exponentialFunction, trigonometricFunctions, continuity, derivative, definiteIntegral];

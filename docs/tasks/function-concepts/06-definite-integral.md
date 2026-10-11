@@ -4,7 +4,7 @@
 
 **Dependencies:** [Derivative](05-derivative.md) (shared foundation and integration files)
 
-**Status:** planned
+**Status:** implemented
 
 ## Goal
 
@@ -26,4 +26,13 @@ Spec acceptance criteria 1–8 for this concept, including the plan's worked-exa
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 76 suites, all tests pass (math module `riemann.test.ts` with the plan numbers, graph test, lesson test, preset import).
+- `CI=false npm run build`: compiled, no new warnings.
+- Lesson smoke row (`definite-integral`, sl + en + narrow viewport): 3/3; `tests/demonstrations.smoke.spec.cjs`: 33/33 after raising the catalog count to 32.
+- Worker browser check (throwaway script, removed): SL to EN switch updates board texts and inspector labels live; n slider up to 150 does not add board objects; sin on [0, 2 pi] draws positive and negative shapes in different palette colours; swapped bounds flip the sign.
+- Catalog preview regenerated (`definite-integral.png`, manifest, asset map); no other PNG changed.
+
+New action kinds: none. Added the parameter name `b` (`a` and `n` reused) and the choices `integral-function` (`square|sin|exp`) and `sum-method` (`left|right|midpoint|trapezoid`). Bounds lie in [-7, 7] (so that 2 pi is selectable); the sums, shapes and exact integral live in `src/analysis/riemann.ts` and are reusable by concept 7 (shapes are drawn as two filled curve objects whose point lists are rebuilt in `updateDataArray`).
+
+View: each function has its own default view (`FUNCTION_VIEWS` in `DefiniteIntegralGraph.tsx`), applied on every function change (inspector select and the `integral-function` action) and for the default scene; a view stored in a preset still wins. The derivative route keeps the view on function change; this one deliberately resets it because the lesson's last step needs sin on [0, 2 pi]. Boxes have about the workspace aspect (1.27), and the drawn function path leaves out values more than a quarter view height outside the view, so the catalog preview frames the default scene tightly.

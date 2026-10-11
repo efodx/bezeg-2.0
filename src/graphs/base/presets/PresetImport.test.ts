@@ -165,3 +165,23 @@ test.each([[[]], [null], [{}], [{...validDerivative, fn: "cos"}], [{...validDeri
     expect(() => preflightPresetImport(derivativePreset(data))).toThrow();
     expect(localStorage.length).toBe(0);
 });
+
+const integralPreset = (data: unknown) => JSON.stringify({"preset-definite-integral": {data: [{id: "Osnova", boardState: {boundingBox: [-1.5, 5, 7.5, -2]},
+    graphState: {initialized: true, fn: "square", a: 0, b: 2, n: 4, method: "left"}, data}]}});
+
+test("definite-integral collection imports a model object and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {fn: "sin", a: 2, b: -1.5, n: 150, method: "trapezoid"};
+    commitPresetImport(preflightPresetImport(integralPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-definite-integral")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validIntegral = {fn: "square", a: 0, b: 2, n: 4, method: "left"};
+test.each([[[]], [null], [{}], [{...validIntegral, fn: "cos"}], [{...validIntegral, a: 7.5}], [{...validIntegral, b: "2"}], [{...validIntegral, n: 0}],
+    [{...validIntegral, n: 151}], [{...validIntegral, n: 2.5}], [{...validIntegral, method: "upper"}], [{fn: "square", a: 0, b: 2, n: 4}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("definite-integral collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(integralPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});

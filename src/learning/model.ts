@@ -5,18 +5,20 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h';
-export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h'];
+export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b';
+export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b'];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
 export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent';
 export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent'];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
-export type FunctionChoiceName = 'trig-function' | 'derivative-function';
+export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method';
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
     'trig-function': ['sin', 'cos', 'tan'],
     'derivative-function': ['square', 'sin', 'exp'],
+    'integral-function': ['square', 'sin', 'exp'],
+    'sum-method': ['left', 'right', 'midpoint', 'trapezoid'],
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 

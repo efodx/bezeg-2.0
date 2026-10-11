@@ -7,11 +7,12 @@ import {amplitude, basicValue, period, phaseShift, tangentAsymptotes, trigValue,
 import {CONTINUOUS_PARAMETER, isContinuous, jump, leftLimit, leftSlope, rightLimit, rightSlope, valueAtJoin} from '../../analysis/continuity';
 import {catalogFunction} from '../../analysis/functions';
 import {differenceQuotient, isStep, secantLine} from '../../analysis/derivative';
+import {exactIntegral, isBound, riemannSum, subintervalWidth} from '../../analysis/riemann';
 
 const linearLesson = () => functionGuidedLessons.find(lesson => lesson.demonstrationId === 'linear-function')!;
 
 test('keeps the function lessons bounded, localized, and source-backed', () => {
-    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative']);
+    expect(functionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral']);
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
@@ -163,7 +164,9 @@ test('set-function-choice validates its closed name and the values allowed for t
     }
     expect(choice({name: 'derivative-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
     expect(choice({name: 'derivative-function', value: 'tan'})).toThrow(/must be one of square, sin, exp/);
-    expect(choice({name: 'integral-function', value: 'sin'})).toThrow(/name must be one of trig-function, derivative-function/);
+    expect(choice({name: 'area-mode', value: 'between'})).toThrow(/name must be one of trig-function, derivative-function, integral-function, sum-method/);
+    expect(choice({name: 'integral-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
+    expect(choice({name: 'sum-method', value: 'upper'})).toThrow(/must be one of left, right, midpoint, trapezoid/);
     expect(choice({name: 'trig-function', value: 'sec'})).toThrow(/must be one of sin, cos, tan/);
     expect(choice({name: 'trig-function', value: 'SIN'})).toThrow(/must be one of sin, cos, tan/);
     expect(choice({name: 'trig-function', value: 1})).toThrow(/must be one of sin, cos, tan/);
@@ -372,5 +375,112 @@ describe('derivative lesson', () => {
         expect(() => differenceQuotient(square, 1, 0)).toThrow(RangeError);
         expect(isStep(0.01)).toBe(true);
         expect(isStep(0.005)).toBe(false);
+    });
+});
+
+describe('definite integral lesson', () => {
+    const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'definite-integral')!;
+    const lesson = () => getLessonForDemonstration('definite-integral')!;
+    const square = catalogFunction('square');
+    const sine = catalogFunction('sin');
+    const round4 = (value: number) => Math.round(value * 1e4) / 1e4;
+
+    test('is available with five steps and adapts its scenes into typed actions', () => {
+        expect(lesson().id).toBe('definite-integral-guided');
+        expect(lesson().steps).toHaveLength(5);
+        expect(lesson().steps[0].scene?.actions).toEqual([{kind: 'prepared-scene', sceneId: 'integral-default', source: 'demonstration-default'}]);
+        expect(lesson().steps[1].scene?.actions.slice(1)).toEqual([{kind: 'function-choice', name: 'sum-method', value: 'right'}]);
+        expect(lesson().steps[2].scene?.actions.slice(1)).toEqual([{kind: 'function-choice', name: 'sum-method', value: 'midpoint'}]);
+        expect(lesson().steps[3].scene?.actions.slice(1)).toEqual([{kind: 'function-parameter', name: 'n', value: 100}]);
+        expect(lesson().steps[4].scene?.actions.slice(1)).toEqual([
+            {kind: 'function-choice', name: 'integral-function', value: 'sin'},
+            {kind: 'function-parameter', name: 'a', value: 0},
+            {kind: 'function-parameter', name: 'b', value: 2 * Math.PI},
+            {kind: 'function-parameter', name: 'n', value: 12},
+            {kind: 'function-choice', name: 'sum-method', value: 'midpoint'},
+        ]);
+    });
+
+    test('the scene validation accepts the new names and rejects unknown names and values', () => {
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'b', value: 6.28}})).toEqual({kind: 'function-parameter', name: 'b', value: 6.28});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'integral-function', value: 'exp'}})).toEqual({kind: 'function-choice', name: 'integral-function', value: 'exp'});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'sum-method', value: 'trapezoid'}})).toEqual({kind: 'function-choice', name: 'sum-method', value: 'trapezoid'});
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'sum-method', value: 'upper'}})).toThrow();
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'integral-function', value: 'cos'}})).toThrow();
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'c', value: 1} as never})).toThrow();
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'b', value: Infinity}})).toThrow();
+    });
+
+    test('every bound used by a scene is allowed by the graph and every n is an allowed integer', () => {
+        const values = (name: string) => lesson().steps.flatMap(step => step.scene?.actions ?? [])
+            .filter(action => action.kind === 'function-parameter' && action.name === name).map(action => (action as {value: number}).value);
+        values('a').concat(values('b')).forEach(value => expect(isBound(value)).toBe(true));
+        expect(values('n')).toEqual([100, 12]);
+    });
+
+    test('the worked example matches the mathematics: h = 1/2, L = 7/4, R = 15/4, M = 21/8, T = 11/4, exact 8/3', () => {
+        const example = source().workedExamples[0];
+        expect(example.calculationLatex).toContain('h&=\\frac{2-0}{4}=\\frac{1}{2}');
+        expect(example.calculationLatex).toContain('L&=\\frac{1}{2}\\left(0+\\frac{1}{4}+1+\\frac{9}{4}\\right)=\\frac{7}{4}');
+        expect(example.calculationLatex).toContain('R&=\\frac{1}{2}\\left(\\frac{1}{4}+1+\\frac{9}{4}+4\\right)=\\frac{15}{4}');
+        expect(example.calculationLatex).toContain('M&=\\frac{21}{8}');
+        expect(example.calculationLatex).toContain('T=\\frac{L+R}{2}=\\frac{11}{4}');
+        expect(example.resultLatex).toBe('\\int_0^2 x^{2}\\,dx=\\frac{8}{3}\\approx2{,}6667');
+        expect(subintervalWidth(0, 2, 4)).toBe(1 / 2);
+        expect(riemannSum(square, 0, 2, 4, 'left')).toBe(7 / 4);
+        expect(riemannSum(square, 0, 2, 4, 'right')).toBe(15 / 4);
+        expect(riemannSum(square, 0, 2, 4, 'midpoint')).toBe(21 / 8);
+        expect(riemannSum(square, 0, 2, 4, 'trapezoid')).toBe(11 / 4);
+        expect(exactIntegral(square, 0, 2)).toBeCloseTo(8 / 3, 14);
+        expect(round4(8 / 3)).toBe(2.6667);
+    });
+
+    test('the numbers stated in the prose are correct', () => {
+        const exact = exactIntegral(square, 0, 2);
+        // step 2: left 1.75 below, right 3.75 above the exact value of the increasing function
+        expect([riemannSum(square, 0, 2, 4, 'left'), riemannSum(square, 0, 2, 4, 'right')]).toEqual([1.75, 3.75]);
+        expect(0.5 * (0 + 0.25 + 1 + 2.25)).toBe(1.75);
+        expect(0.5 * (0.25 + 1 + 2.25 + 4)).toBe(3.75);
+        expect(1.75).toBeLessThan(exact);
+        expect(3.75).toBeGreaterThan(exact);
+        // step 3: midpoint 2.625 and trapezoid 2.75 with errors 1/24 and 1/12; left and right errors 11/12 and 13/12
+        expect(0.5 * (0.0625 + 0.5625 + 1.5625 + 3.0625)).toBe(2.625);
+        expect(riemannSum(square, 0, 2, 4, 'midpoint')).toBe(2.625);
+        expect(riemannSum(square, 0, 2, 4, 'trapezoid')).toBe(2.75);
+        expect(exact - 2.625).toBeCloseTo(1 / 24, 14);
+        expect(round4(1 / 24)).toBe(0.0417);
+        expect(2.75 - exact).toBeCloseTo(1 / 12, 14);
+        expect(round4(1 / 12)).toBe(0.0833);
+        expect(exact - 1.75).toBeCloseTo(11 / 12, 14);
+        expect(3.75 - exact).toBeCloseTo(13 / 12, 14);
+        // step 4: n = 100, h = 0.02: left 2.6268, right 2.7068, midpoint 2.6666, trapezoid 2.6668, all within 0.05; errors ~0.04 and < 0.0002
+        expect(subintervalWidth(0, 2, 100)).toBe(0.02);
+        const at100 = (method: 'left' | 'right' | 'midpoint' | 'trapezoid') => riemannSum(square, 0, 2, 100, method);
+        expect([at100('left'), at100('right'), at100('midpoint'), at100('trapezoid')].map(round4)).toEqual([2.6268, 2.7068, 2.6666, 2.6668]);
+        for (const method of ['left', 'right', 'midpoint', 'trapezoid'] as const) expect(Math.abs(at100(method) - exact)).toBeLessThan(0.05);
+        expect(Math.abs(at100('left') - exact)).toBeCloseTo(0.04, 2);
+        expect(Math.abs(at100('right') - exact)).toBeCloseTo(0.04, 2);
+        expect(Math.abs(at100('midpoint') - exact)).toBeLessThan(0.0002);
+        expect(Math.abs(at100('trapezoid') - exact)).toBeLessThan(0.0002);
+        expect(round4(at100('left') - exact)).toBe(-0.0399);
+        // step 5: sin on [0, 2*pi] has integral -cos(2pi) + cos(0) = 0, +2 above and -2 below, unsigned area 4, midpoint n = 12 sums to 0
+        expect(-Math.cos(2 * Math.PI) + Math.cos(0)).toBe(0);
+        expect(exactIntegral(sine, 0, 2 * Math.PI)).toBe(0);
+        expect(exactIntegral(sine, 0, Math.PI)).toBeCloseTo(2, 14);
+        expect(exactIntegral(sine, Math.PI, 2 * Math.PI)).toBeCloseTo(-2, 14);
+        expect(riemannSum(sine, 0, 2 * Math.PI, 12, 'midpoint')).toBeCloseTo(0, 12);
+        const heights = Array.from({length: 12}, (_, i) => Math.sin((i + 0.5) * Math.PI / 6));
+        expect(heights.filter(height => height > 0)).toHaveLength(6);
+        expect(heights.filter(height => height < 0)).toHaveLength(6);
+        // edge cases: a = b gives 0; a = 2, b = 0 gives h = -0.5, integral -8/3, midpoint -2.625 and left -3.75
+        expect(exactIntegral(square, 1, 1)).toBe(0);
+        expect(riemannSum(square, 1, 1, 4, 'left')).toBe(0);
+        expect(subintervalWidth(2, 0, 4)).toBe(-0.5);
+        expect(exactIntegral(square, 2, 0)).toBeCloseTo(-8 / 3, 14);
+        expect(riemannSum(square, 2, 0, 4, 'midpoint')).toBe(-2.625);
+        expect(riemannSum(square, 2, 0, 4, 'left')).toBe(-3.75);
+        expect(riemannSum(square, 2, 0, 4, 'left')).toBe(-riemannSum(square, 0, 2, 4, 'right'));
+        // the bounds domain contains 2*pi
+        expect(isBound(2 * Math.PI)).toBe(true);
     });
 });

@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "cf7416ca5c5ba4f9864d121d24a5422d6abb5b38",
+  "graphSourceRevision": "86ad7a44aa2acafa00d054ce25e4957d7949590e",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -26,7 +26,8 @@
       "exponential-function",
       "trigonometric-functions",
       "continuity",
-      "derivative"
+      "derivative",
+      "definite-integral"
     ],
     "geometricRoutes": "hide default axes, ticks, and grid",
     "coordinateContext": "retain default axes, ticks, and grid for Bernstein and function demonstrations",
@@ -1438,13 +1439,13 @@
         "paddingFraction": 0.12,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": -1.3666494885038076,
+          "minX": -1.3666494885038072,
           "maxX": 2.9251336898395697,
           "minY": 0.0000071806066179510334,
           "maxY": 2.6512216199801624
         },
         "boardBoundingBox": [
-          -1.5722994723619077,
+          -1.5722994723619073,
           2.8396782827122324,
           3.5722994723619017,
           -0.30424329461898375
@@ -1513,6 +1514,55 @@
           "curve": 1,
           "point": 2,
           "line": 1
+        },
+        "renderedLabelCount": 4,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "definite-integral",
+      "path": "/bezeg-2.0/functions/integral",
+      "file": "definite-integral.png",
+      "sha256": "8ac935134a518937888f927f615dc04fac5abfeb09ff30206bcf7b0924c8c08c",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.12,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -0.04901960784313734,
+          "maxX": 4.983782181145249,
+          "minY": -0.11599788468279262,
+          "maxY": 3.5220013796811442
+        },
+        "boardBoundingBox": [
+          -1.6869386783810651,
+          3.776537679036459,
+          5.26154039406734,
+          -0.4697550874597882
+        ],
+        "framedElementCount": 8,
+        "finalLabelCount": 4,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "point": 2,
+          "text": 4
         },
         "renderedLabelCount": 4,
         "mathJaxLabelCount": 4

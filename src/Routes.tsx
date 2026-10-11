@@ -42,6 +42,7 @@ import { ExponentialFunctionGraph } from './graphs/functions/ExponentialFunction
 import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFunctionsGraph';
 import { ContinuityGraph } from './graphs/functions/ContinuityGraph';
 import { DerivativeGraph } from './graphs/functions/DerivativeGraph';
+import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -85,6 +86,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'trigonometric-functions': <TrigonometricFunctionsGraph/>,
     'continuity': <ContinuityGraph/>,
     'derivative': <DerivativeGraph/>,
+    'definite-integral': <DefiniteIntegralGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

@@ -1020,8 +1020,56 @@ const derivative = {
     stableCounts: async page => ({h: await derivativeReadout(page, 'h')}),
 };
 
+// ---------------------------------------------------------------- Definite integral
+const integralReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: n, h, the signed sum, the exact integral and the bound b. Steps: default (left), right, midpoint, n = 100, sin on [0, 2*pi] with 12 midpoint rectangles.
+const INTEGRAL_STEPS = [
+    {n: '4', h: '0.5', sum: '1.75', exact: '2.6667', b: 2},
+    {n: '4', h: '0.5', sum: '3.75', exact: '2.6667', b: 2},
+    {n: '4', h: '0.5', sum: '2.625', exact: '2.6667', b: 2},
+    {n: '100', h: '0.02', sum: '2.6268', exact: '2.6667', b: 2},
+    {n: '12', h: '0.5236', sum: '0', exact: '0', b: 2 * Math.PI},
+];
+
+const definiteIntegral = {
+    id: 'definite-integral',
+    path: `${BASE}/functions/integral`,
+    titles: {sl: 'Določeni integral', en: 'Definite integral'},
+    steps: 5,
+    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = INTEGRAL_STEPS[step - 1];
+        await expect.poll(() => integralReadout(page, 'n'), {message: `n at ${label}`}).toBe(expected.n);
+        await expect.poll(() => integralReadout(page, 'h'), {message: `h at ${label}`}).toBe(expected.h);
+        await expect.poll(() => integralReadout(page, 'sum'), {message: `signed sum at ${label}`}).toBe(expected.sum);
+        await expect.poll(() => integralReadout(page, 'exact'), {message: `exact integral at ${label}`}).toBe(expected.exact);
+        await expectPointNear(page, [0, 0], `bound a at ${label}`);
+        await expectPointNear(page, [expected.b, 0], `bound b at ${label}`);
+        // the shapes are two curve objects whatever n is: the object count must not grow with n
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await rangeSlider(page, 150).fill('20');
+        await expect.poll(() => integralReadout(page, 'n')).toBe('20');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => integralReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('4');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => integralReadout(page, 'n'), {message: 'user n restored'}).toBe('20');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({n: await integralReadout(page, 'n')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

@@ -31,6 +31,7 @@ import preview_exponential_function from './images/demonstrations/catalog/expone
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
 import preview_continuity from './images/demonstrations/catalog/continuity.png';
 import preview_derivative from './images/demonstrations/catalog/derivative.png';
+import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -64,4 +65,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'trigonometric-functions': preview_trigonometric_functions,
     'continuity': preview_continuity,
     'derivative': preview_derivative,
+    'definite-integral': preview_definite_integral,
 };
