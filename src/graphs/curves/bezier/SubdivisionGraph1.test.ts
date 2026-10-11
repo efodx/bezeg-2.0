@@ -5,6 +5,7 @@ import {AbstractJXGBezierCurve} from '../object/AbstractJXGBezierCurve';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
+import {GraphPalette} from '../../styles/GraphPalette';
 
 const P = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
 const poly = () => new PolynomialBezierCurve(P.map(([x, y]) => new PointImpl(x, y)));
@@ -29,8 +30,11 @@ function fakeBoard() {
 }
 
 function fakeJxgCurve(curve: any) {
+    const jsxCurve = {setAttribute: jest.fn()};
     return {
         getCurve: () => curve,
+        getJxgCurve: () => jsxCurve,
+        jsxCurve,
         getJxgPoints: () => [],
         setIntervalEnd: jest.fn(),
         setAttributes: jest.fn(),
@@ -180,6 +184,22 @@ describe('orange remainder ownership', () => {
             expect(end()).toBe(1);
             graph.state = {...graph.state, showDecasteljau: false, t: 0.25};
             expect(end()).toBe(0.25);
+        } finally { spy.mockRestore(); }
+    });
+
+    test('restoring a subdivided two-curve preset retains blue left and orange right roles', () => {
+        const graph = makeGraph();
+        const first = fakeJxgCurve(poly());
+        const second = fakeJxgCurve(poly());
+        const spy = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+            this.jxgCurves = [first, second];
+        });
+        try {
+            graph.importPresetData([]);
+            const firstStyle = first.jsxCurve.setAttribute.mock.calls[first.jsxCurve.setAttribute.mock.calls.length - 1][0];
+            const secondStyle = second.jsxCurve.setAttribute.mock.calls[second.jsxCurve.setAttribute.mock.calls.length - 1][0];
+            expect(firstStyle).toMatchObject({strokeColor: GraphPalette.comparisonCurve});
+            expect(secondStyle).toMatchObject({strokeColor: GraphPalette.constructionAccent});
         } finally { spy.mockRestore(); }
     });
 

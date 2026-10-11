@@ -17,6 +17,7 @@ import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonAction} from '../../../learning/model';
+import {PointStyles} from "../../styles/PointStyles";
 
 function formatArcLength(value: number): string {
     const locale = currentLanguage() === 'en' ? 'en-US' : 'sl-SI';
@@ -223,12 +224,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             this.getFirstCurveAsPHBezierCurve().w = modelPoints;
         }
         const jxgGraphPoints = modelPoints.map(((w, i) => this.hodographBoard.create('point', [w.X(), w.Y()], {
-            label: {
-                fontSize: () => Math.max(20, 0.5 * SizeContext.fontSize),
-                useMathJax: true,
-                parse: false
-            },
-            size: () => Math.max(4, 0.5 * SizeContext.pointSize),
+            ...PointStyles.hodograph,
             name: "$$w_{" + i + "}$$"
         } as unknown as PointAttributes)));
         this.hodographBindings = jxgGraphPoints.map((point, i) => new ModelPointBinding(modelPoints[i], point));

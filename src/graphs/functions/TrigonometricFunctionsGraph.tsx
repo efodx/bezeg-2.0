@@ -16,7 +16,7 @@ import {
 } from "../../analysis/trigonometricModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
 import {SizeContext} from "../context/SizeContext";
-import {Color} from "../curves/bezier/utilities/Colors";
+import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -146,6 +146,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             },
         ];
         const strokeWidth = () => SizeContext.strokeWidth;
+        const referenceStrokeWidth = () => Math.max(1, SizeContext.strokeWidth * 0.72);
         const branches = (parameters: Omit<TrigonometricModel, "fn" | "reference">) => () => {
             const {left, right} = view();
             return tangentBranches(parameters, left, right);
@@ -153,15 +154,15 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
         // Layers, lowest first: midline, reference graph, asymptotes, then the main graph over them.
         this.own(board.create("functiongraph", [() => model().B], {
-            strokeColor: Color.W2, dash: 3, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6),
+            strokeColor: GraphPalette.referenceCurve, dash: 3, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6),
         }));
 
         const referenceVisible = () => model().reference;
         this.own(board.create("functiongraph", [(x: number) => basicValue(model().fn, x)], {
-            strokeColor: Color.E, dash: 2, highlight: false, fixed: true, strokeWidth, visible: () => referenceVisible() && !isTangent(),
+            strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true, strokeWidth: referenceStrokeWidth, visible: () => referenceVisible() && !isTangent(),
         }));
         this.dataCurve(() => referenceVisible() && isTangent() ? branches(REFERENCE)() : [], {
-            strokeColor: Color.E, dash: 2, highlight: false, fixed: true, strokeWidth, visible: () => referenceVisible() && isTangent(),
+            strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true, strokeWidth: referenceStrokeWidth, visible: () => referenceVisible() && isTangent(),
         });
 
         this.dataCurve(() => {
@@ -169,21 +170,21 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             const {omega, phi} = model();
             const {left, right, top, bottom} = view();
             return tangentAsymptotes(omega, phi, left, right).map(x => ({x: [x, x], y: [bottom, top]}));
-        }, {strokeColor: Color.W2, dash: 3, strokeOpacity: 0.7, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6), visible: isTangent});
+        }, {strokeColor: GraphPalette.referenceCurve, dash: 3, strokeOpacity: 0.7, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6), visible: isTangent});
 
         this.own(board.create("functiongraph", [(x: number) => trigValue(model(), x)], {
-            strokeColor: Color.BLUEISH, highlight: false, fixed: true, strokeWidth, visible: () => !isTangent(),
+            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: () => !isTangent(),
         }));
         this.dataCurve(() => isTangent() ? branches(model())() : [], {
-            strokeColor: Color.BLUEISH, highlight: false, fixed: true, strokeWidth, visible: isTangent,
+            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: isTangent,
         });
 
         // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
         this.own(board.create("text", [...topLeft(0), () => equationText(model(), language())], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: Color.BLUEISH,
+            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
         }));
         this.own(board.create("text", [...topLeft(1), () => `${model().fn}(x) (${t("trig_reference_legend")})`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: Color.E,
+            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
             visible: () => model().reference,
         }));
     }

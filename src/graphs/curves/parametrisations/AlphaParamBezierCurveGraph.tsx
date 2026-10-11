@@ -5,7 +5,7 @@ import React from "react";
 import Slider from "../../../inputs/Slider";
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
-import {Color, Colors} from "../bezier/utilities/Colors";
+import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonAction} from "../../../learning/model";
 
 export const ALPHA_PARAM_MAX_SAMPLES = 40;
@@ -149,14 +149,11 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<any, AlphaParamGra
             const point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(this.alphaParam(i * dt)).X(), () => this.getFirstCurve()!.eval(this.alphaParam(i * dt)).Y(), {
                 ...PointStyles.fixed,
                 size: () => SizeContext.pointSize * 0.5,
-                color: Colors[3],
+                fillColor: GraphPalette.parameterSample,
             });
             this.sampleMarkers.push(point.point);
-            // For some reason you cant set color and stroke color at the same time....
-            point.point.setAttribute({
-                strokeWidth: () => SizeContext.pointSize / 5,
-                strokeColor: Color.BLACK,
-            });
+            // Keep the outline as a post-creation override; JSXGraph merges color and strokeColor unreliably.
+            point.point.setAttribute({strokeWidth: () => SizeContext.pointSize / 5, strokeColor: GraphPalette.label});
         }
     }
 

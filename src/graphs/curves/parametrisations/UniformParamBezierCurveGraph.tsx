@@ -7,7 +7,7 @@ import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
-import {Color, Colors} from "../bezier/utilities/Colors";
+import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonAction} from "../../../learning/model";
 
 interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
@@ -178,13 +178,10 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
             let point = this.createJSXGraphPoint(() => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).X(), () => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).Y(), {
                 ...PointStyles.fixed,
                 size: () => SizeContext.pointSize * 0.5,
-                color: Colors[3],
+                fillColor: GraphPalette.parameterSample,
             });
-            // For some reason you cant set color and stroke color at the same time....
-            point.point.setAttribute({
-                strokeWidth: () => SizeContext.pointSize / 5,
-                strokeColor: Color.BLACK,
-            });
+            // Keep the outline as a post-creation override; JSXGraph merges color and strokeColor unreliably.
+            point.point.setAttribute({strokeWidth: () => SizeContext.pointSize / 5, strokeColor: GraphPalette.label});
             this.sampleJxgPoints.push(point.point);
         }
     }

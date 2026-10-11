@@ -1,4 +1,4 @@
-import {Color} from "../bezier/utilities/Colors";
+import {GraphPalette} from "../../styles/GraphPalette";
 import {PointStyles} from "../../styles/PointStyles";
 import {SegmentStyles} from "../../styles/SegmentStyles";
 import BaseGraph from "../../base/BaseGraph";
@@ -9,14 +9,14 @@ function withName(name: string) {
 }
 
 function withColor(color: string) {
-    return {...SegmentStyles.default, color: color};
+    return {...SegmentStyles.controlPolygon, color: color};
 }
 
 function withRadius(r: number) {
     const label = PointStyles.default.label;
     label!.anchorY = "auto";
     label!.anchorX = "auto";
-    return {radius: r, color: Color.MAGENTA, label: label, name: "$$a$$"};
+    return {radius: r, color: GraphPalette.constructionAccent, label: label, name: "$$a$$"};
 }
 
 export class IzpeljavaGraf extends BaseGraph<any, any> {
@@ -48,12 +48,12 @@ export class IzpeljavaGraf extends BaseGraph<any, any> {
         });
 
 
-        const segment = this.board.create('segment', [S, p1], withColor(Color.LIGHT_GREEN));
-        const segment2 = this.board.create('segment', [S, p2], withColor(Color.LIGHT_GREEN));
-        const segment3 = this.board.create('segment', [S, p0], withColor(Color.LIGHT_GREEN));
-        const segment4 = this.board.create('segment', [p2, p1], withColor(Color.LIGHT_GREEN));
-        const segment5 = this.board.create('segment', [p0, p1], withColor(Color.LIGHT_GREEN));
-        const segment6 = this.board.create('segment', [p2, p0], withColor(Color.LIGHT_GREEN));
+        const segment = this.board.create('segment', [S, p1], withColor(GraphPalette.constructionLevels[0]));
+        const segment2 = this.board.create('segment', [S, p2], withColor(GraphPalette.constructionLevels[0]));
+        const segment3 = this.board.create('segment', [S, p0], withColor(GraphPalette.constructionLevels[0]));
+        const segment4 = this.board.create('segment', [p2, p1], withColor(GraphPalette.constructionLevels[0]));
+        const segment5 = this.board.create('segment', [p0, p1], withColor(GraphPalette.constructionLevels[0]));
+        const segment6 = this.board.create('segment', [p2, p0], withColor(GraphPalette.constructionLevels[0]));
 
         const angle1 = this.board.create('angle', [O, p0, S], withRadius(0.4)) as JXG.Angle;
         const angle2 = this.board.create('angle', [O, p1, p0], withRadius(0.4));

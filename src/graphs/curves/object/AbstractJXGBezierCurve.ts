@@ -1,5 +1,4 @@
 import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from "./AbstractJXGPointControlledCurve";
-import {Color, Colors} from "../bezier/utilities/Colors";
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
@@ -208,16 +207,12 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         // One recomputation per index and coordinate is cheap (n is small); stay stateless to avoid stale caches.
         this.elevationPoints = Array.from({length: count + 1}, (_, i) => this.board.create('point', [
             () => (at(i) ?? [NaN, NaN])[0], () => (at(i) ?? [NaN, NaN])[1]], {
-            ...PointStyles.default,
-            color: Color.LIGHT_GREEN,
+            ...PointStyles.fixed,
             name: "",
-            fixed: true,
         }) as JXG.Point);
         for (let i = 1; i < this.elevationPoints.length; i++) {
             this.elevationSegments.push(this.board.create('segment', [this.elevationPoints[i - 1], this.elevationPoints[i]], {
-                ...SegmentStyles.default,
-                color: Color.LIGHT_GREEN,
-                dash: 2,
+                ...SegmentStyles.controlPolygon,
             }) as JXG.Segment);
         }
     }
@@ -228,6 +223,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         this.decasteljauSegments = [];
         this.decasteljauPoints = [];
         const n = this.pointControlledCurve.getPoints().length;
+        const compactLabels = () => this.board.canvasWidth < 480;
         this.showControlPolygonInternal();
         for (let r = 1; r < n; r++) {
             for (let i = 1; i < n - r; i++) {
@@ -237,8 +233,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                     // @ts-ignore
                     pp1 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].X(),
                         () => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].Y()], {
-                        ...PointStyles.default,
-                        color: Colors[r],
+                        ...PointStyles.construction(r, i - 1, n, compactLabels),
                         name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i - 1}^${r}$$` : ""
                     });
                 } else {
@@ -249,11 +244,10 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
                 pp2 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i].X(),
                     () => this.getDecasteljauScheme(this.decasteljauT)[r][i].Y()], {
-                    ...PointStyles.default,
-                    color: Colors[r],
+                    ...PointStyles.construction(r, i, n, compactLabels),
                     name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^${r}$$` : ""
                 });
-                const segment = this.board!.create('segment', [pp1, pp2], SegmentStyles.default);
+                const segment = this.board!.create('segment', [pp1, pp2], SegmentStyles.construction(r, true));
                 this.decasteljauSegments.push(segment);
                 // @ts-ignore
                 this.decasteljauPoints.push(pp1);
@@ -262,8 +256,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             }
         }
         const drawingPoint = this.board?.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].X(), () => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].Y()], {
-            ...PointStyles.default,
-            color: Colors[n - 1],
+            ...PointStyles.result(n - 1, 0, n, compactLabels),
             name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${0}^${n - 1}$$` : ""
         });
 

@@ -1,7 +1,7 @@
 import {t} from "../../../localization";
 import React from 'react';
 
-import {Color} from "./utilities/Colors";
+import {GraphPalette} from "../../styles/GraphPalette";
 import {Button} from "react-bootstrap";
 import {BaseGraphStates} from '../../base/BaseCurveGraph';
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -97,9 +97,19 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
         this.removeRemainderCurve();
         const jxgCurve = this.getFirstJxgCurve();
         if (!jxgCurve) { return; }
+        this.jxgCurves.forEach((curve, index) => {
+            if (index === 0) {
+                curve.getJxgCurve().setAttribute({strokeColor: GraphPalette.comparisonCurve, highlightStrokeColor: GraphPalette.comparisonCurve});
+            } else if (index === 1) {
+                curve.getJxgCurve().setAttribute({strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent});
+            } else {
+                this.applyCurveVisualRole(curve, index);
+            }
+        });
         this.graphJXGPoints = jxgCurve.getJxgPoints();
         jxgCurve.setIntervalEnd(() => this.state.showDecasteljau ? 1 : this.state.t);
         jxgCurve.setAttributes(Attributes.bezierDisabled);
+        // The subdivision lesson describes the retained left piece as blue.
         jxgCurve.showDecasteljauPoints();
 
         const curve = jxgCurve.getCurve();
@@ -108,7 +118,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
                 (t: number) => curve.eval(t).Y(),
                 () => this.state.t,
                 1
-            ], {...CurveStyles.default, strokeColor: Color.GREAT_ORANGE}
+            ], {...CurveStyles.default, strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent}
         ) as JXG.Curve;
     }
 
@@ -170,7 +180,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
         this.getFirstJxgCurve().setSubdivisionT(this.currentT());
         const newcurve = this.getFirstJxgCurve().subdivide();
         this.getFirstJxgCurve().showCurrentDecasteljauScheme(false);
-        newcurve.getJxgCurve().setAttribute({strokeColor: Color.GREAT_ORANGE});
+        newcurve.getJxgCurve().setAttribute({strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent});
         this.boardUpdate();
         this.setT(1, {...this.state, showDecasteljau: false});
     }

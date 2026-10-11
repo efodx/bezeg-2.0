@@ -1,6 +1,6 @@
 import {t} from "../../../localization";
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
-import {Color} from "../bezier/utilities/Colors";
+import {GraphPalette} from "../../styles/GraphPalette";
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
 import {SegmentStyles} from "../../styles/SegmentStyles";
@@ -38,7 +38,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<any, CubicPhBezierC
         label!.visible = () => false;
         let attr = {
             radius: () => SizeContext.strokeWidth / 8,
-            color: Color.MAGENTA,
+            color: GraphPalette.constructionAccent,
             label: label,
             name: "$$\\theta_1$$",
             visible: () => !this.state.showingCurve
@@ -57,20 +57,20 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<any, CubicPhBezierC
         this.createLLabel(points, 1);
         this.createLLabel(points, 2);
         const segment1 = this.board.create('segment', [points[0], points[2]], {
-            ...SegmentStyles.default,
+            ...SegmentStyles.controlPolygon,
             visible: () => !this.state.showingCurve
         });
         const segment2 = this.board.create('segment', [points[1], points[3]], {
-            ...SegmentStyles.default,
+            ...SegmentStyles.controlPolygon,
             visible: () => !this.state.showingCurve
         });
 
         const s = this.board.create('polygon', [points[1], points[2], points[3]], {
-            ...SegmentStyles.default,
+            ...SegmentStyles.controlPolygon,
             visible: () => !this.state.showingCurve
         });
         const s2 = this.board.create('polygon', [points[0], points[1], points[2]], {
-            ...SegmentStyles.default,
+            ...SegmentStyles.controlPolygon,
             visible: () => !this.state.showingCurve
         });
     }

@@ -135,7 +135,7 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
 
     protected createFixedJsxPoint(p: Point) {
         return this.createJSXGraphPoint(() => p.X(), () => p.Y(), {
-            ...PointStyles.fixed,
+            ...PointStyles.splineJoin,
             visible: () => !this.hideFixed
         });
     }

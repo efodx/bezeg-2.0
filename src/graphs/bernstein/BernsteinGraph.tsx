@@ -5,7 +5,7 @@ import {PointImpl} from "../../bezeg/impl/point/point-impl";
 import BaseGraph from "../base/BaseGraph";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {SizeContext} from "../context/SizeContext";
-import {Colors} from "../curves/bezier/utilities/Colors";
+import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
 import {CountSetter} from "../../inputs/CountSetter";
 import {LessonAction} from "../../learning/model";
 
@@ -145,8 +145,9 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                     }
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,
-                        strokeColor: Colors[i],
-                        fillColor: Colors[i]
+                        strokeColor: basisCurveColor(i),
+                        fillColor: basisCurveColor(i),
+                        fillOpacity: 0.42
                     });
                     curves.push(curve);
                 } else if (i === numOfPolynoms - 1) {
@@ -159,8 +160,9 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                     let c = connectCurves(connectCurves(c2, c3), c1);
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,
-                        strokeColor: Colors[i],
-                        fillColor: Colors[i]
+                        strokeColor: basisCurveColor(i),
+                        fillColor: basisCurveColor(i),
+                        fillOpacity: 0.42
                     });
                     curves.push(curve);
                 } else {
@@ -171,23 +173,25 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                     let c = connectCurves(c1, c2);
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,
-                        strokeColor: Colors[i],
-                        fillColor: Colors[i]
+                        strokeColor: basisCurveColor(i),
+                        fillColor: basisCurveColor(i),
+                        fillOpacity: 0.42
                     });
                     curves.push(curve);
                 }
 
             } else {
                 let curve = board.create("curve", [(t: number) => t, (t: number) => polynoms[i](t), 0, 1], {
-                    strokeWidth: () => SizeContext.strokeWidth,
-                    strokeColor: Colors[i]
+                    strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.82),
+                    strokeColor: basisCurveColor(i),
+                    dash: basisCurveDash(i)
                 });
                 jxgObjects.push(curve);
                 // let segment = board.create('segment', [[anchor[0], anchor[1]], [anchor[0] + 0.1, anchor[1]]], {
                 //     strokeWidth: () => Contexts.strokeWidth,
                 //     useMathJax: true,
                 //     parse: false,
-                //     color: Colors[i],
+                //     color: basisCurveColor(i),
                 //     fixed: true
                 // })
                 // jxgObjects.push(segment)
@@ -195,7 +199,7 @@ export class BernsteinGraph extends BaseGraph<any, any> {
             }
             let text = board.create('text', [anchor[0] - 0.06, anchor[1], () => "$$B^{" + (n - 1) + "}_{" + i + "}(t)$$"], {
                 useMathJax: true,
-                color: Colors[i],
+                color: GraphPalette.label,
                 fontSize: () => SizeContext.fontSize - 5,
                 visible: () => this.state.showLabels
             });

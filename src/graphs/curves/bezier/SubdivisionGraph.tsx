@@ -103,6 +103,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
                 if (bezierCurve.isShowingControlPolygon()) {
                     newCurve.showControlPolygon();
                 }
+                this.applyCurveVisualRole(newCurve, this.jxgCurves.length);
                 this.jxgCurves.push(newCurve);
             }
         } finally {

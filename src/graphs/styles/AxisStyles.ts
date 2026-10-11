@@ -1,14 +1,19 @@
 import {AxisAttributes, TicksOptions} from "jsxgraph";
 import {SizeContext} from "../context/SizeContext";
 import {AxisContext} from "../context/AxisContext";
+import {GraphPalette} from "./GraphPalette";
 
 const tick: TicksOptions = {
     // @ts-ignore
     visible: () => AxisContext.ticksVisible(),
     // @ts-ignore
-    strokeWidth: () => SizeContext.strokeWidth * 0.5,
+    strokeColor: GraphPalette.tick,
     // @ts-ignore
-    highlightStrokeWidth: () => SizeContext.strokeWidth * 0.5,
+    highlightStrokeColor: GraphPalette.tick,
+    // @ts-ignore
+    strokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
+    // @ts-ignore
+    highlightStrokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
     // @ts-ignore
     // majorHeight: () => Contexts.majorHeight,
     // @ts-ignore
@@ -20,7 +25,7 @@ const tick: TicksOptions = {
         visible: () => AxisContext.tickNumbersVisible(),
         parse: false,
         useMathJax: true,
-        cssStyle: 'font-family: MJXZERO, MJXTEX',
+        cssStyle: `font-family: MJXZERO, MJXTEX; color: ${GraphPalette.label}`,
         // @ts-ignore
         display: 'html'
     },
@@ -39,14 +44,37 @@ const tickY: TicksOptions = {
 
 function axisStyle(tick: TicksOptions): AxisAttributes {
     return {
-        strokeWidth: () => SizeContext.strokeWidth,
+        strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.62),
+        strokeColor: GraphPalette.axis,
+        highlightStrokeColor: GraphPalette.axis,
         visible: () => AxisContext.axisVisible(),
         ticks: tick,
         lastArrow: false
     };
 }
 
+
+const auxiliaryTick: TicksOptions = {
+    strokeColor: GraphPalette.tick,
+    highlightStrokeColor: GraphPalette.tick,
+    // @ts-ignore JSXGraph evaluates callback-valued style attributes at render time.
+    strokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
+    // @ts-ignore
+    highlightStrokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38)
+};
+
+function auxiliaryAxisStyle(): AxisAttributes {
+    return {
+        strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.62),
+        strokeColor: GraphPalette.axis,
+        highlightStrokeColor: GraphPalette.axis,
+        ticks: auxiliaryTick
+    };
+}
+
 export const AxisStyles = {
     defaultX: axisStyle(tickX),
-    defaultY: axisStyle(tickY)
+    defaultY: axisStyle(tickY),
+    auxiliaryX: auxiliaryAxisStyle(),
+    auxiliaryY: auxiliaryAxisStyle()
 };

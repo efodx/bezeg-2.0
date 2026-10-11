@@ -10,7 +10,7 @@ import {UnsupportedLessonActionError} from "../../learning/model";
 import {SizeContext} from "../context/SizeContext";
 import {PointStyles} from "../styles/PointStyles";
 import {VisibilityContext} from "../context/VisibilityContext";
-import {Color} from "../curves/bezier/utilities/Colors";
+import {GraphPalette} from "../styles/GraphPalette";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
 export const LINEAR_SNAP_SIZE = 0.1;
@@ -128,7 +128,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
 
         // The line is drawn through the two points; coincident points hide it.
         this.own(board.create("line", [p1, p2], {
-            strokeColor: Color.BLUEISH, highlight: false, fixed: true,
+            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true,
             strokeWidth: () => SizeContext.strokeWidth, visible: hasLine,
         }));
 
@@ -137,14 +137,14 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             visible: false, fixed: true, withLabel: false, name: "",
         }) as JXG.Point);
         const legStyle = (leg: "dx" | "dy") => ({
-            dash: 2, strokeColor: Color.E, highlight: false, fixed: true,
-            strokeWidth: () => SizeContext.strokeWidth, visible: () => hasLeg(leg),
+            dash: 2, strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true,
+            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.68), visible: () => hasLeg(leg),
         });
         this.own(board.create("segment", [p1, corner], legStyle("dx")));
         this.own(board.create("segment", [corner, p2], legStyle("dy")));
         const label = (text: () => string, x: () => number, y: () => number, anchorX: () => string, anchorY: () => string, leg: "dx" | "dy") =>
             this.own(board.create("text", [x, y, text], {
-                anchorX, anchorY, fixed: true, highlight: false, fontSize: fontSize(0.85), strokeColor: Color.E, visible: () => hasLeg(leg),
+                anchorX, anchorY, fixed: true, highlight: false, fontSize: fontSize(0.85), strokeColor: GraphPalette.label, visible: () => hasLeg(leg),
             }));
         label(() => ` Δx = ${formatNumber(slopeTriangle({x: model().x1, y: model().y1}, {x: model().x2, y: model().y2}).dx, language())} `,
             () => (model().x1 + model().x2) / 2, () => model().y1, () => "middle", () => (model().y2 >= model().y1 ? "top" : "bottom"), "dx");
@@ -162,7 +162,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
                 return top - 0.06 * (top - bottom);
             },
             () => lineEquation(this.currentLine(), language()),
-        ], {anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: Color.BLUEISH}));
+        ], {anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label}));
     }
 
     protected override syncSceneToModel(): void {

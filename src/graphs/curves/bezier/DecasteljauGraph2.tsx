@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Color, Colors} from "./utilities/Colors";
+
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BaseGraphState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -235,15 +235,14 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
 
         own(this.sampleOnlyWhenChanged(this.board.create('curve',
             [(t: number) => first().eval(t).X(), (t: number) => first().eval(t).Y(), 0, () => 1],
-            {...CurveStyles.default, strokeColor: Color.E, layer: 2}
+            {...CurveStyles.comparison(0), layer: 2}
         ) as JXG.Curve, first));
         own(this.sampleOnlyWhenChanged(this.board.create('curve',
             [(t: number) => second().eval(t).X(), (t: number) => second().eval(t).Y(), 0, () => 1],
-            {...CurveStyles.default, strokeColor: Color.G, layer: 2}
+            {...CurveStyles.comparison(1), layer: 2}
         ) as JXG.Curve, second));
         own(this.board.create('point', [() => jxgCurve.getCurve().eval(this.parameter).X(), () => jxgCurve.getCurve().eval(this.parameter).Y()], {
-            ...PointStyles.default,
-            color: Colors[4],
+            ...PointStyles.result(0),
             name: () => ""
         }));
     }

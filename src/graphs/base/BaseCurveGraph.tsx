@@ -25,6 +25,7 @@ import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
 import {PointCoordinateEditor} from "./PointCoordinateEditor";
 import {PointControlledCurveCommands} from "../curves/object/inputs/PointControlledCurveCommands";
 import {LessonAction} from '../../learning/model';
+import {CurveStyles} from "../styles/CurveStyles";
 
 enum SelectedCurveOption {
     MOVE_CURVE, ADD_POINTS, DELETE_POINTS
@@ -84,10 +85,16 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     private registerSubdivisionResultConsumer<T extends AbstractJXGBezierCurve<any, any>>(curve: T) {
         curve.setSubdivisionResultConsumer((newCurve: T) => {
+            this.applyCurveVisualRole(newCurve, this.jxgCurves.length);
             this.jxgCurves.push(newCurve);
             this.registerSubdivisionResultConsumer(newCurve);
             if (this.workspaceTitle()) { this.refreshWorkspace(); }
         });
+    }
+
+    /** Apply a stable visual role based on scene order without changing the curve or its model data. */
+    protected applyCurveVisualRole(curve: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>, index: number): void {
+        curve.getJxgCurve().setAttribute(CurveStyles.series(index));
     }
 
     protected workspacePointEditing() { return true; }
@@ -262,6 +269,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     createRationalJSXBezierCurve(points: number[][], weights: number[]): JXGRationalBezierCurve {
         const curve = new JXGRationalBezierCurve(points, weights, this.board);
+        this.applyCurveVisualRole(curve, this.jxgCurves.length);
         this.jxgCurves.push(curve);
         this.registerSubdivisionResultConsumer(curve);
         return curve;
@@ -417,6 +425,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
                 if (curve instanceof AbstractJXGBezierCurve) {
                     this.registerSubdivisionResultConsumer(curve);
                 }
+                this.applyCurveVisualRole(curve, this.jxgCurves.length);
                 return this.jxgCurves.push(curve);
             });
         } finally {

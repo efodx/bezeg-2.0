@@ -1,4 +1,5 @@
 import {JSXGraph} from "jsxgraph";
+import {AxisStyles} from "../../styles/AxisStyles";
 import {useLayoutEffect, useRef} from "react";
 
 interface HodographInputBoxProps {
@@ -35,11 +36,10 @@ export function HodographInputbox(props: HodographInputBoxProps) {
                     showNavigation: false,
                     showCopyright: false,
                     showScreenshot: true,
-                    // TODO MAKE THIS GOOD
-                    // defaultAxes: {
-                    //     x: AxisStyles.defaultX,
-                    //     y: AxisStyles.defaultY
-                    // },
+                    defaultAxes: {
+                        x: AxisStyles.auxiliaryX,
+                        y: AxisStyles.auxiliaryY
+                    },
                 });
                 // Apply the actual size while keeping the board's initial box.
                 callbacks.current.setRef(board);
@@ -72,7 +72,7 @@ export function HodographInputbox(props: HodographInputBoxProps) {
     return <div id="hodograph-input-box" style={{
         width: "100%",
         aspectRatio: 1 / 1,
-        background: "white",
+        background: "var(--workspace-panel, var(--bezeg-panel, #fffdf5))",
         marginTop: "2vh",
         marginBottom: "2vh",
         borderRadius: "10px"

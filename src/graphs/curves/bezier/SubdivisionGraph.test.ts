@@ -1,13 +1,17 @@
 import SubdivisionGraph from './SubdivisionGraph';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
+import {GraphPalette} from '../../styles/GraphPalette';
 
 const DEFAULT_POINTS = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
 const makeCurve = () => new PolynomialBezierCurve(DEFAULT_POINTS.map(([x, y]) => new PointImpl(x, y)));
 
 function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
+    const jsxCurve = {setAttribute: jest.fn()};
     const jxg: any = {
         curve, disposed: false,
+        getJxgCurve: () => jsxCurve,
+        jsxCurve,
         setSubdivisionResultConsumer: jest.fn(),
         isShowingControlPolygon: () => false,
         showControlPolygon: jest.fn(),
@@ -65,6 +69,14 @@ test('subdivide action allows 5 steps and the 6th throws without mutation', () =
     expect(graph.stepsDone).toBe(5);
     expect(graph.jxgCurves).toEqual(curves);
     expect(graph.jxgCurves.length).toBe(32);
+});
+
+test('newly owned subdivision curves receive the next scene-order visual role', () => {
+    const graph = makeGraph();
+    lesson(graph, subdivide);
+    expect(graph.jxgCurves[1].jsxCurve.setAttribute).toHaveBeenCalledWith(expect.objectContaining({
+        strokeColor: GraphPalette.comparisonCurve
+    }));
 });
 
 test('other actions fall through to the base class', () => {

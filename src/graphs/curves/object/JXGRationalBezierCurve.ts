@@ -9,6 +9,7 @@ import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-cur
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
 import {geometryCache} from "../../../bezeg/cache/GeometryCache";
+import {GraphPalette} from "../../styles/GraphPalette";
 
 interface JSXRationalBezierCurveConstructorParams {
     points: number[][],
@@ -147,7 +148,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
             this.showWeights();
         }
         if (this.isSelected()) {
-            this.getJxgPoints()[this.weightNumber].setAttribute({color: "yellow"});
+            this.setWeightPointColor(this.weightNumber, GraphPalette.selectedControlPoint, GraphPalette.selectedControlPointOutline);
         }
     }
 
@@ -273,12 +274,13 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                         ticks: {needsRegularUpdate: true},
                         baseline: {
                             needsRegularUpdate: true,
-                            strokeColor: '#0b9ef8',
+                            strokeColor: GraphPalette.referenceCurve,
                             strokeOpacity: 1,
                             strokeWidth: () => SizeContext.strokeWidth
                         },
                         highline: {
-                            strokeColor: '#F8650B',
+                            strokeColor: GraphPalette.constructionAccent,
+                            highlightStrokeColor: GraphPalette.constructionAccent,
                             strokeOpacity: 1,
                             strokeWidth: () => SizeContext.strokeWidth
                         },
@@ -325,17 +327,17 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         this.board.update();
     }
 
+    private setWeightPointColor(index: number, color: string, outline: string = GraphPalette.pointOutline) {
+        this.getJxgPoints()[index].setAttribute({fillColor: color, strokeColor: outline});
+    }
+
     override select() {
         super.select();
-        this.getJxgPoints()[this.weightNumber].setAttribute({
-            color: "yellow"
-        });
+        this.setWeightPointColor(this.weightNumber, GraphPalette.selectedControlPoint, GraphPalette.selectedControlPointOutline);
     }
 
     override deselect() {
-        this.getJxgPoints()[this.weightNumber].setAttribute({
-            color: "#D55E00"
-        });
+        this.setWeightPointColor(this.weightNumber, GraphPalette.controlPoint);
         super.deselect();
     }
 
@@ -348,9 +350,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     setSelectedWeight(i: number) {
-        this.getJxgPoints()[this.weightNumber].setAttribute({
-            color: "#D55E00"
-        });
+        this.setWeightPointColor(this.weightNumber, GraphPalette.controlPoint);
         if (i > this.getCurve().getWeights().length - 1) {
             this.weightNumber = 0;
         } else if (i < 0) {
@@ -358,9 +358,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         } else {
             this.weightNumber = i;
         }
-        this.getJxgPoints()[this.weightNumber].setAttribute({
-            color: "yellow  "
-        });
+        this.setWeightPointColor(this.weightNumber, GraphPalette.selectedControlPoint, GraphPalette.selectedControlPointOutline);
         this.board.update();
     }
 

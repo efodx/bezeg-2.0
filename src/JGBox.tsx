@@ -16,7 +16,7 @@ export function JGBox() {
     return <div id="jgbox" style={{
         width: width,
         height: fullScreen ? "100vh" : height,
-        background: "white",
+        background: "var(--workspace-panel, var(--bezeg-panel, #fffdf5))",
         borderRadius: fullScreen ? 0 : "5px"
     }}/>;
 }

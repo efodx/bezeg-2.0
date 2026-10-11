@@ -1,6 +1,7 @@
 import {AbstractJXGBezierCurve} from "./AbstractJXGBezierCurve";
 import {JXGRationalBezierCurve} from "./JXGRationalBezierCurve";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
+import {GraphPalette} from "../../styles/GraphPalette";
 
 function createCurve(weights: number[], selectedWeight = 0) {
     const points = weights.map((_, i) => new PointImpl(i, i % 2));
@@ -40,12 +41,12 @@ test("deleting rational control point i removes weight i and keeps selected weig
         expect(weights).toEqual([1, 2, 3, 4]);
         expect(setWeights).toHaveBeenLastCalledWith([1, 2, 4]);
         expect(curve.getWeightNumber()).toBe(2);
-        expect(selectedLastPoint.setAttribute).toHaveBeenCalledWith({color: "yellow"});
+        expect(selectedLastPoint.setAttribute).toHaveBeenCalledWith({fillColor: GraphPalette.selectedControlPoint, strokeColor: GraphPalette.selectedControlPointOutline});
 
         curve.removePoint(2);
         expect(setWeights).toHaveBeenLastCalledWith([1, 2]);
         expect(curve.getWeightNumber()).toBe(1);
-        expect(adjacentPoint.setAttribute).toHaveBeenCalledWith({color: "yellow"});
+        expect(adjacentPoint.setAttribute).toHaveBeenCalledWith({fillColor: GraphPalette.selectedControlPoint, strokeColor: GraphPalette.selectedControlPointOutline});
     } finally {
         removePoint.mockRestore();
     }

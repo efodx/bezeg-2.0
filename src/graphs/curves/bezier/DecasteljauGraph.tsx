@@ -1,7 +1,6 @@
 import {t} from "../../../localization";
 import React from 'react';
 
-import {Colors} from "./utilities/Colors";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BaseGraphState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -131,7 +130,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
                     (t: number) => this.getFirstCurve().eval(t).Y(),
                     () => this.parameter,
                     1
-                ], {...CurveStyles.default, strokeColor: Colors[2]}
+                ], CurveStyles.comparison(0)
             ) as JXG.Curve;
         } else if (!this.state.wholeCurve && this.wholeCurveElement) {
             this.board.removeObject(this.wholeCurveElement);

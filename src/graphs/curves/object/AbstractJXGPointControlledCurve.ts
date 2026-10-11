@@ -11,6 +11,7 @@ import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "./ModelPointBinding";
 import {graphSessionForBoard} from "../../base/GraphSession";
+import {GraphPalette} from "../../styles/GraphPalette";
 
 export interface PointControlledCurveAttributes {
     allowShowControlPolygon: boolean
@@ -645,7 +646,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
             const segmentPoints = this.getJxgPoints();
             for (let i = 1; i < segmentPoints.length; i = i + 1) {
-                const segment = this.board.create('segment', [segmentPoints[i - 1], segmentPoints[i]], SegmentStyles.default);
+                const segment = this.board.create('segment', [segmentPoints[i - 1], segmentPoints[i]], SegmentStyles.controlPolygon);
                 this.controlPolygonSegments.push(segment);
             }
         }
@@ -686,7 +687,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             }
         };
         // @ts-ignore
-        const pointStyle: PointAttributes = {name: "", color: "gray", opacity: 0.4, size: () => SizeContext.pointSize};
+        const pointStyle: PointAttributes = {name: "", color: GraphPalette.controlPolygon, opacity: 0.4, size: () => SizeContext.pointSize};
         const p = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[2]], pointStyle);
         const p2 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);
         const p3 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[1], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);
@@ -696,7 +697,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         this.boundBoxPoints.forEach(p => p.on('over', () => over(p)));
         this.boundBoxPoints.forEach(p => p.on('out', () => out(p)));
 
-        const segmentStyle = {color: "gray", strokeWidth: 0.5, dash: 2, highlight: false};
+        const segmentStyle = {color: GraphPalette.constructionAccent, strokeWidth: 0.5, dash: 2, highlight: false};
         const segment = this.board.create('segment', [p, p2], segmentStyle);
         const segment2 = this.board.create('segment', [p2, p3], segmentStyle);
         const segment3 = this.board.create('segment', [p3, p4], segmentStyle);

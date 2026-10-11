@@ -12,7 +12,7 @@ import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase, parseExp
 import {UnsupportedLessonActionError} from "../../learning/model";
 import {SizeContext} from "../context/SizeContext";
 import {PointStyles} from "../styles/PointStyles";
-import {Color} from "../curves/bezier/utilities/Colors";
+import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -88,11 +88,11 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
 
         // The mirror graph goes first (lower layer) so the main graph is drawn over it.
         this.own(board.create("functiongraph", [(x: number) => exponentialValue(mirrorBase(model().a), x)], {
-            strokeColor: Color.E, dash: 2, highlight: false, fixed: true,
-            strokeWidth: () => SizeContext.strokeWidth, visible: () => model().mirror,
+            strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true,
+            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.72), visible: () => model().mirror,
         }));
         this.own(board.create("functiongraph", [(x: number) => exponentialValue(model().a, x)], {
-            strokeColor: Color.BLUEISH, highlight: false, fixed: true, strokeWidth: () => SizeContext.strokeWidth,
+            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth: () => SizeContext.strokeWidth,
         }));
 
         // Every base passes through (0, 1); the second point (1, a) shows the base itself.
@@ -101,10 +101,10 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
 
         // The equation, the most important readout, stays on the board; the mirror has its own line while it is shown.
         this.own(board.create("text", [...topLeft(0), () => `f(x) = ${formatNumber(model().a, language())}^x`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: Color.BLUEISH,
+            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
         }));
         this.own(board.create("text", [...topLeft(1), () => `(1/a)^x = ${formatNumber(mirrorBase(model().a), language(), 3)}^x (${t("exponential_mirror_legend")})`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: Color.E,
+            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
             visible: () => model().mirror,
         }));
     }
