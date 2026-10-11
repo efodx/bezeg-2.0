@@ -4,7 +4,7 @@
 
 **Dependencies:** none (first slice)
 
-**Status:** planned
+**Status:** implemented on 2026-10-11; owner language and classroom review pending
 
 ## Goal
 
@@ -30,4 +30,10 @@ Spec acceptance criteria 1–8 for this concept. Additionally: repeated lesson e
 
 ## Verification
 
-To be recorded on completion.
+- `npx tsc --noEmit --pretty false`: clean.
+- Unit suite: 63 suites, 630 tests pass (baseline 58 / 572 before this task, rebased onto master f74dabb).
+- `CI=false npm run build`: compiled; only pre-existing lint warnings.
+- `tests/guided-lessons.smoke.spec.cjs` linear-function row: 3/3 (sl walk, en exit/re-entry, 390 px); `tests/demonstrations.smoke.spec.cjs`: 28/28.
+- Worker browser check: dragging snaps to 0.1; vertical line shows `x = c` with k/n disabled; SL→EN switch on the open route updates board text (decimal separator) and the inspector.
+
+Deviations recorded: a third line state `degenerate` for coincident points; coordinates limited to magnitude 1000; the shared route smoke check also accepts SVG `line` elements.

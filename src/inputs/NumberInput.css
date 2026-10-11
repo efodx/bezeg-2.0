@@ -1,0 +1,22 @@
+/* Matches the point coordinate editor. The attribute selector outranks the global `input[type]` colour in bootstrap-overrides. */
+.number-input { display: grid; min-width: 0; gap: 3px; }
+.number-input label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.1; }
+.number-input input[type="number"] {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 34px;
+    border: 1px solid var(--workspace-rule);
+    border-radius: 2px;
+    padding: 4px 7px;
+    background: var(--workspace-panel);
+    color: var(--workspace-ink);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+}
+.number-input input[type="number"]:focus { border-color: var(--workspace-green); box-shadow: 0 0 0 2px color-mix(in srgb, var(--workspace-green) 20%, transparent); outline: none; }
+.number-input input[type="number"]:disabled { background: transparent; color: var(--workspace-ink-soft); }
+.is-presenting .number-input label { color: #b5bfd0; }
+.is-presenting .number-input input[type="number"] { background: #20304a; border-color: #50617b; color: var(--bezeg-night-panel); }
+@media (pointer: coarse), (max-width: 700px) {
+    .number-input input[type="number"] { min-height: 44px; }
+}

@@ -1,0 +1,5 @@
+.function-readout dl { margin: 0; }
+.function-readout-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }
+.function-readout-row dt { font-weight: 600; font-size: .86rem; }
+.function-readout-row dd { margin: 0; font-variant-numeric: tabular-nums; font-size: .95rem; text-align: right; }
+.function-points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }

@@ -37,6 +37,7 @@ import SubdivisionGraph from './graphs/curves/bezier/SubdivisionGraph';
 import CnSplineGraph from './graphs/curves/spline/CnSplineGraph';
 import SplineAlphaParametrizationGraph
   from './graphs/curves/parametrisations/SplineAlphaParametrizationGraph';
+import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import { RefreshContext } from './graphs/context/react/RefreshContext';
 import { useState } from 'react';
 import RationalSubdivisionGraph2
@@ -75,6 +76,7 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'spline-parameterization': <SplineAlphaParametrizationGraph/>,
     'weighted-parameterization': <AlphaParamBezierCurveGraph/>,
     'uniform-parameterization': <UniformParamBezierCurveGraph/>,
+    'linear-function': <LinearFunctionGraph/>,
 };
 
 function Refresher({children}: {children: ReactNode}) {

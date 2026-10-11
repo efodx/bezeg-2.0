@@ -68,3 +68,26 @@ test("a failed storage write restores prior collections", () => {
     expect(values.get("preset-bezier-curve")).toBe("original");
     expect(values.has("preset-cubic-ph")).toBe(false);
 });
+
+const linearPreset = (data: unknown) => JSON.stringify({"preset-linear-function": {data: [{id: "Premica", boardState: {boundingBox: [-6, 8, 6, -4]},
+    graphState: {initialized: true, x1: 0, y1: 1, x2: 2, y2: 5}, data}]}});
+
+test("linear-function collection imports a model object and keeps other storage untouched", () => {
+    const data = {x1: 0, y1: 1, x2: 2, y2: 5};
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(linearPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-linear-function")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{x1: 0, y1: 1, x2: 2}], [{x1: 0, y1: 1, x2: 2, y2: "5"}], [{x1: 0, y1: 1, x2: 2, y2: 1e9}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("linear-function collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(linearPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});
+
+test("linear-function collection rejects graph state with a non-number coordinate", () => {
+    const contents = JSON.stringify({"preset-linear-function": {data: [{id: "x", graphState: {initialized: true, x1: {}}}]}});
+    expect(() => preflightPresetImport(contents)).toThrow();
+});

@@ -1,6 +1,7 @@
 import React from 'react';
 import routes from './Routes';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
+import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -48,7 +49,7 @@ test('all existing graph URLs retain their graph implementations', () => {
         const graph = route.element.props.children as React.ReactElement;
         return graph.type;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(26);
+    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(27);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau')).toBe(DecasteljauGraph);
@@ -75,4 +76,5 @@ test('all existing graph URLs retain their graph implementations', () => {
     expect(graphFor('/bezeg-2.0/param/param/alphaparam2')).toBe(SplineAlphaParametrizationGraph);
     expect(graphFor('/bezeg-2.0/param/param/alphaparam')).toBe(AlphaParamBezierCurveGraph);
     expect(graphFor('/bezeg-2.0/param/param/uniform')).toBe(UniformParamBezierCurveGraph);
+    expect(graphFor('/bezeg-2.0/functions/linear')).toBe(LinearFunctionGraph);
 });

@@ -11,6 +11,7 @@ const families = [
     {id: '/bezeg-2.0/spline', title: 'splines'},
     {id: '/bezeg-2.0/ph', title: 'ph_curves'},
     {id: '/bezeg-2.0/param', title: 'parametrizations'},
+    {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
 ] as const;
 export type FamilyId = typeof families[number]['id'];
 type Definition = {
@@ -46,6 +47,7 @@ const definitions = [
     {id: 'spline-parameterization', path: '/bezeg-2.0/param/param/alphaparam2', family: '/bezeg-2.0/param', title: 'parametrizations_233', prompts: ['prompt_parameterization', 'prompt_compare']},
     {id: 'weighted-parameterization', path: '/bezeg-2.0/param/param/alphaparam', family: '/bezeg-2.0/param', title: 'weighted_parametrization_234', prompts: ['prompt_parameterization', 'prompt_compare']},
     {id: 'uniform-parameterization', path: '/bezeg-2.0/param/param/uniform', family: '/bezeg-2.0/param', title: 'uniform_parametrization_235', prompts: ['prompt_parameterization', 'prompt_compare']},
+    {id: 'linear-function', path: '/bezeg-2.0/functions/linear', family: '/bezeg-2.0/functions', title: 'linear_function', prompts: ['prompt_linear_function', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 export type Demonstration = Readonly<{

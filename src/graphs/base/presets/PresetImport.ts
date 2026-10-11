@@ -1,10 +1,13 @@
 import {message, LocalizedError, Message} from "../../../localization";
+import {parseLinearModel} from "../../../analysis/linearModel";
 // Existing collection keys and DTO names are a file contract, independent of the graph renderer.
 const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decasteljau2", "subdivision-1", "affine-transform", "elevation-graph",
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function"];
+// Function demonstrations store a validated model object, not a list of curves.
+const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -61,7 +64,9 @@ export function preflightPresetImport(contents: string, storage: Storage = windo
                 if (!Array.isArray(box) || box.length !== 4 || !box.every(finite) || box[0] >= box[2] || box[1] <= box[3]) { fail(message("invalid_graph_bounds")); }
             }
             if (preset.graphState !== undefined) { state(preset.graphState); }
-            if (preset.data !== undefined) {
+            if (preset.data !== undefined && functionModelParsers[key]) {
+                if (functionModelParsers[key](preset.data) === undefined) { fail(message("invalid_function_data")); }
+            } else if (preset.data !== undefined) {
                 if (!Array.isArray(preset.data)) { fail(message("invalid_curve_data")); }
                 preset.data.forEach(curve);
                 if (key !== "preset-bernstein-graph" && preset.data.length === 0) {fail(message("preset_has_no_curve"));}

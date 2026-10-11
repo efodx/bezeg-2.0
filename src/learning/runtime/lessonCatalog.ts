@@ -1,5 +1,6 @@
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
+import {FUNCTION_PARAMETER_NAMES} from '../model';
+import type {FunctionParameterName, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 
@@ -127,6 +128,18 @@ export function sceneAction(action: SceneAction): LessonAction {
         }
         return {kind: 'rational-weights', weights: [...(action.value as readonly number[])]};
     }
+    if (action.name === 'set-function-parameter') {
+        const value: unknown = action.value;
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('The function parameter action needs a value of the form {name, value}.');
+        }
+        const {name, value: parameter} = value as {name?: unknown; value?: unknown};
+        if (typeof name !== 'string' || !FUNCTION_PARAMETER_NAMES.includes(name as FunctionParameterName)) {
+            throw new Error(`The function parameter name must be one of ${FUNCTION_PARAMETER_NAMES.join(', ')}.`);
+        }
+        if (typeof parameter !== 'number' || !Number.isFinite(parameter)) throw new Error('The function parameter value must be a finite number.');
+        return {kind: 'function-parameter', name: name as FunctionParameterName, value: parameter};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -233,6 +246,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'spline-g1',
     'spline-g1-symmetric',
     'spline-parameterization',
+    'linear-function',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

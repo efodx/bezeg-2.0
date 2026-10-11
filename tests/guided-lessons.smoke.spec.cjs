@@ -776,8 +776,56 @@ const splineParameterization = {
     stableCounts: async page => ({alpha: Math.round((await rangeValue(page, 0)) * 100), samples: await rangeValue(page, 1)}),
 };
 
+// ---------------------------------------------------------------- Linear function
+const linearField = (page, label) => page.getByLabel(label, {exact: true});
+// The equation is the board's and the inspector's most important readout; compare it without language-specific punctuation.
+const linearEquation = async page => (await page.locator('[data-readout="equation"] dd').innerText()).replace('−', '-').replace(',', '.');
+// Per step: equation and the two draggable points (default scene, worked example, n = -2, k = -1/2, vertical line).
+const LINEAR_STEPS = [
+    {equation: 'y = 2x + 1', points: [[0, 1], [2, 5]]},
+    {equation: 'y = 2x + 1', points: [[0, 1], [2, 5]]},
+    {equation: 'y = 2x - 2', points: [[0, -2], [2, 2]]},
+    {equation: 'y = -0.5x + 1', points: [[0, 1], [2, 0]]},
+    {equation: 'x = 1', points: [[1, -1], [1, 3]]},
+];
+
+const linear = {
+    id: 'linear-function',
+    path: `${BASE}/functions/linear`,
+    titles: {sl: 'Linearna funkcija', en: 'Linear function'},
+    steps: 5,
+    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = LINEAR_STEPS[step - 1];
+        await expect.poll(() => linearEquation(page), {message: `equation at ${label}`}).toBe(expected.equation);
+        for (const point of expected.points) await expectPointNear(page, point, `point near (${point}) at ${label}`);
+        const stats = await boardStats(page);
+        expect(stats.curves, `no stray curves at ${label}`).toBe(0);
+        expect(stats.total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
+    },
+    prepareUserState: async page => {
+        await linearField(page, 'x₂').fill('3');
+        await expect.poll(() => linearEquation(page)).toBe('y = 1.33x + 1');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expectPointNear(page, [2, 2], 'lesson scene replaced the user point');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => linearEquation(page), {message: 'user line restored'}).toBe('y = 1.33x + 1');
+        await expect(linearField(page, 'x₂')).toHaveValue('3');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({equation: await linearEquation(page)}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

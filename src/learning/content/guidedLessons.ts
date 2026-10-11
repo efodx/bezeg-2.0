@@ -13,9 +13,11 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
+import type {FunctionParameterName} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
+import {functionGuidedLessons} from './functionGuidedLessons';
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
 import {constructionGuidedLessons} from './constructionGuidedLessons';
 import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
@@ -69,6 +71,7 @@ export type WorkedExample = Readonly<{
  * - show-farin-points / set-standard-form / set-rational-weights -> FarinPointsCurveGraph display, standard-form switch and weight vector (one positive finite weight per control point)
  * - set-circle-pieces -> RationalBezierCurveCircleGraphN piece counter (integer; route bounds enforced by the graph)
  * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
+ * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
     'show-control-polygon',
@@ -104,6 +107,7 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'set-standard-form',
     'set-rational-weights',
     'set-circle-pieces',
+    'set-function-parameter',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -113,7 +117,8 @@ export type SceneActionValue =
     | number
     | string
     | readonly number[]
-    | Readonly<{index: number; value: number}>;
+    | Readonly<{index: number; value: number}>
+    | Readonly<{name: FunctionParameterName; value: number}>;
 
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;
@@ -706,7 +711,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {
