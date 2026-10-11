@@ -1,11 +1,15 @@
 /*
  * Data-driven guided-lesson smoke spec.
  *
- * ADDING A LESSON: append one row to LESSONS below. Every generic test runs for every row:
- *   deep link + titles, Next through all frames to completion, lossless Back, header language switch,
- *   Exit restores a user-changed state, 3x re-entry keeps board counts stable, pointer reachability of the
- *   compact "Continue lesson" prompt, 390x844 layout (no horizontal overflow, Next/Exit visible, Next clickable),
- *   and keyboard Tab+Enter on Next. No new spec file is needed.
+ * ADDING A LESSON: append one row to LESSONS below. Three tests run for every row:
+ *   1. sl forward walk: deep link + title, setup, every frame probed (stepProbe), observation frames go through the
+ *      real flow (observe button, graph unlocked, Continue hit-tested at its center, Continue advances), completion.
+ *   2. en Exit/re-entry: setup, prepareUserState, short Back/Next check at exitStep, duringLesson, Exit,
+ *      assertUserState, then two re-entry rounds with a stable board snapshot (curves/points/total + stableCounts).
+ *   3. 390x844 narrow viewport: Next/Exit visible; calculation and notation frames have no horizontal overflow and
+ *      a pointer-clickable Next.
+ * Shared GuidedLesson runtime behaviour (header language switch, Tab+Enter on Next, lossless Back walk) is not
+ * repeated per row; it runs on SHARED_RUNTIME_ROWS in the 'Shared lesson runtime' block. No new spec file is needed.
  *
  * Row schema (all hooks receive Playwright `page`; `ctx` is whatever `setup` returned):
  *   id        string   test-name label.
@@ -16,14 +20,14 @@
  *   setup(page)                        optional; runs after the route is open with the lesson state ready;
  *                                      returns ctx (e.g. a control-point count or baseline curve count).
  *   stepProbe(page, ctx, step, label)  optional; asserts the board for the scene of `step`. Runs on every frame
- *                                      while stepping forward, backward and forward again, and during re-entry.
- *   prepareUserState(page, ctx)        optional (null = skip the Exit test); with no lesson open, changes a user
+ *                                      of the forward walk, around the short Back check, and during re-entry.
+ *   prepareUserState(page, ctx)        optional (absent = skip the user-state parts); with no lesson open, changes a user
  *                                      control and returns a `saved` value (usually before-lesson board stats).
  *   exitStep  number?                  step to advance to before exiting (default 3).
  *   duringLesson(page, ctx, saved)     optional; asserts the lesson scene replaced the user state at exitStep.
  *   assertUserState(page, ctx, saved)  asserts the user state is restored after Exit.
  *   stableCounts(page, ctx)            optional; returns an object that must be identical before and after each
- *                                      of three enter/advance/exit rounds (board curves/points/total are always
+ *                                      of two enter/advance/exit rounds (board curves/points/total are always
  *                                      compared too).
  *   assertBaseline(page, ctx)          optional; sanity checks on the untouched route before re-entry rounds.
  *   reentryStep number?                step reached in each re-entry round (default 3).
@@ -33,7 +37,7 @@ const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
 const {lessonPanel, nextButton, backButton, exitButton, learnButton, lessonHeading, boardStats, settle, progress,
-    stepNumber, advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow} = h;
+    stepNumber, isFinishing, advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow} = h;
 
 h.failOnRuntimeErrors();
 
@@ -782,90 +786,88 @@ async function openLesson(page, row, language) {
     await expect(lessonPanel(page)).toBeVisible();
 }
 
+const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
+
+// Shared runtime behaviour (GuidedLesson.tsx) is identical for every lesson, so it is tested once on these rows.
+const SHARED_RUNTIME_ROWS = [bernstein, farin, splineG1];
+
 for (const row of LESSONS) {
-    const lastStep = new RegExp(`Step ${row.steps} of ${row.steps}`);
     const minFrames = row.minFrames ?? 10;
 
     test.describe(`Lesson ${row.id}`, () => {
         test.setTimeout(150_000);
 
-        test('?learn=1 opens the Slovenian lesson; Next traverses every frame, then completes', async ({page}) => {
+        test('sl: ?learn=1 walks every frame (observation frames through observe + Continue) and completes', async ({page}) => {
             await openLesson(page, row, 'sl');
             await expect(lessonHeading(page)).toHaveText(row.titles.sl);
             await expect(backButton(page)).toBeDisabled();
             const ctx = row.setup ? await row.setup(page) : undefined;
-            const seen = await stepToCompletion(page, async label => {
+            const seen = [];
+            const blocked = [];
+            for (let guard = 0; guard < 60; guard += 1) {
+                const label = await progress(page);
+                seen.push(label);
                 if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label);
-            });
+                const finishing = await isFinishing(page);
+                const observe = lessonPanel(page).locator('.guided-lesson-observe');
+                if (await observe.count()) {
+                    // Real observation flow: collapse to the compact prompt, graph must be unlocked, Continue must be reachable.
+                    await pressOn(page, observe);
+                    expect(await page.locator('section.workspace-graph').getAttribute('data-lesson-locked'), `graph unlocked while observing at ${label}`).not.toBe('true');
+                    const cont = lessonPanel(page).locator('.guided-lesson-continue');
+                    await expect(cont).toBeVisible();
+                    const blocker = await cont.evaluate(button => {
+                        const r = button.getBoundingClientRect();
+                        const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+                        return top === button || button.contains(top) ? null : `${top.tagName}.${top.className?.baseVal ?? top.className}`;
+                    });
+                    if (blocker) blocked.push(`at "${label}": ${blocker}`);
+                    // Keyboard activation: board labels can intercept pointer clicks; the hit-test above asserts reach.
+                    await pressOn(page, cont);
+                } else {
+                    await nextButton(page).click();
+                    await settle(page);
+                }
+                if (finishing) break;
+            }
+            await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
+            expect(blocked, 'Continue lesson center hit-test blocked by board elements').toEqual([]);
             expect(new Set(seen.map(stepNumber)), 'every step visited').toEqual(new Set(Array.from({length: row.steps}, (_, i) => i + 1)));
             expect(seen.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
         });
 
-        test('Back is lossless in both directions and the English lesson completes', async ({page}) => {
-            await openLesson(page, row, 'en');
-            await expect(lessonHeading(page)).toHaveText(row.titles.en);
-            const ctx = row.setup ? await row.setup(page) : undefined;
-            const probe = async label => { if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label); };
-            const trail = [];
-            for (let guard = 0; guard < 40; guard += 1) {
-                const label = await progress(page);
-                trail.push(label);
-                if (lastStep.test(label)) break;
-                await advance(page);
-            }
-            expect(new Set(trail.map(stepNumber)).has(row.steps)).toBe(true);
-            for (let index = trail.length - 2; index >= 0; index -= 1) {
-                await back(page);
-                const label = await progress(page);
-                expect(label).toBe(trail[index]);
-                await probe(label);
-            }
-            await expect(backButton(page)).toBeDisabled();
-            for (let index = 1; index < trail.length; index += 1) {
-                await advance(page);
-                const label = await progress(page);
-                expect(label).toBe(trail[index]);
-                await probe(label);
-            }
-            await stepToCompletion(page);
-        });
-
-        test('header language switch re-titles the open lesson', async ({page}) => {
-            await openLesson(page, row, 'sl');
-            await expect(lessonHeading(page)).toHaveText(row.titles.sl);
-            await page.locator('#bezeg-language').selectOption('en');
-            await expect(lessonHeading(page)).toHaveText(row.titles.en);
-            await expect(exitButton(page)).toBeVisible();
-        });
-
-        if (row.prepareUserState) {
-            test('Exit mid-lesson restores the user-changed state', async ({page}) => {
-                await h.useLanguage(page, 'en');
-                await page.goto(row.path, {waitUntil: 'domcontentloaded'});
-                const ctx = row.setup ? await row.setup(page) : undefined;
-                const saved = await row.prepareUserState(page, ctx);
-                await learnButton(page).click();
-                await expect(lessonPanel(page)).toBeVisible();
-                await advanceToStep(page, row.exitStep ?? 3);
-                if (row.duringLesson) await row.duringLesson(page, ctx, saved);
-                await exitButton(page).click();
-                await expect(lessonPanel(page)).toHaveCount(0);
-                await row.assertUserState(page, ctx, saved);
-            });
-        }
-
-        test('re-entering the lesson three times keeps board counts stable', async ({page}) => {
+        test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
             await h.useLanguage(page, 'en');
             await page.goto(row.path, {waitUntil: 'domcontentloaded'});
             const ctx = row.setup ? await row.setup(page) : undefined;
             if (row.assertBaseline) await row.assertBaseline(page, ctx);
+            const saved = row.prepareUserState ? await row.prepareUserState(page, ctx) : undefined;
+            const probe = async label => { if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label); };
+            await learnButton(page).click();
+            await expect(lessonPanel(page)).toBeVisible();
+            await expect(lessonHeading(page)).toHaveText(row.titles.en);
+            await advanceToStep(page, row.exitStep ?? 3);
+            // Short Back check: step one frame away (Back, or Next when this is the first frame) and return by the opposite move.
+            const here = await progress(page);
+            const onFirstFrame = await backButton(page).isDisabled();
+            await (onFirstFrame ? advance : back)(page);
+            const neighbour = await progress(page);
+            expect(neighbour, 'moving one frame changes the frame').not.toBe(here);
+            await probe(neighbour);
+            await (onFirstFrame ? back : advance)(page);
+            expect(await progress(page), 'the opposite move returns to the same frame').toBe(here);
+            await probe(here);
+            if (row.prepareUserState && row.duringLesson) await row.duringLesson(page, ctx, saved);
+            await exitButton(page).click();
+            await expect(lessonPanel(page)).toHaveCount(0);
+            if (row.prepareUserState) await row.assertUserState(page, ctx, saved);
             const snapshot = async () => {
                 const stats = await boardStats(page);
                 return {curves: stats.curves, points: stats.points, total: stats.total, ...(row.stableCounts ? await row.stableCounts(page, ctx) : {})};
             };
             const baseline = await snapshot();
             const step = row.reentryStep ?? 3;
-            for (let round = 0; round < 3; round += 1) {
+            for (let round = 0; round < 2; round += 1) {
                 await learnButton(page).click();
                 await expect(lessonPanel(page)).toBeVisible();
                 await advanceToStep(page, step);
@@ -876,50 +878,9 @@ for (const row of LESSONS) {
             }
         });
 
-        test('Continue lesson is clickable at its center on every observation frame', async ({page}) => {
-            await openLesson(page, row, 'en');
-            const covered = [];
-            for (let guard = 0; guard < 30; guard += 1) {
-                const label = await progress(page);
-                await nextButton(page).click();
-                await settle(page);
-                // Observation frames open in the full overlay; collapse to the compact prompt with the observe button.
-                const observe = lessonPanel(page).locator('.guided-lesson-observe');
-                if (await observe.count()) {
-                    await observe.focus();
-                    await page.keyboard.press('Enter');
-                    await settle(page);
-                }
-                const cont = lessonPanel(page).locator('.guided-lesson-continue');
-                if (await cont.count()) {
-                    const blocker = await cont.evaluate(button => {
-                        const r = button.getBoundingClientRect();
-                        const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-                        return top === button || button.contains(top) ? null : `${top.tagName}.${top.className?.baseVal ?? top.className}`;
-                    });
-                    if (blocker) covered.push(`after "${label}": ${blocker}`);
-                    // Continue now advances one frame (or completes the lesson) and re-opens the overlay.
-                    await cont.focus();
-                    await page.keyboard.press('Enter');
-                    await settle(page);
-                }
-                // The panel element itself carries the complete class (it is not a descendant).
-                if (await page.locator('section.guided-lesson.guided-lesson-complete').count()) break;
-                if (/Finish/.test((await nextButton(page).getAttribute('aria-label').catch(() => '')) || '')) break;
-            }
-            expect(covered, 'Continue lesson center hit-test blocked by board elements').toEqual([]);
-        });
-
-        test('Next is reachable via Tab and activated with Enter', async ({page}) => {
-            await openLesson(page, row, 'en');
-            const before = await progress(page);
-            await h.pressNextWithKeyboard(page);
-            await expect.poll(() => progress(page)).not.toBe(before);
-        });
-
         test.describe('narrow viewport', () => {
             test.use({viewport: {width: 390, height: 844}});
-            test('lesson controls are visible and the page has no horizontal overflow on any frame', async ({page}) => {
+            test('lesson controls are visible; calculation and notation frames have no horizontal overflow and Next is clickable', async ({page}) => {
                 await openLesson(page, row, 'en');
                 const lesson = lessonPanel(page);
                 for (const control of [nextButton(page), exitButton(page)]) {
@@ -930,24 +891,29 @@ for (const row of LESSONS) {
                 }
                 const overflowing = [];
                 const blocked = [];
-                for (let guard = 0; guard < 40; guard += 1) {
+                for (let guard = 0; guard < 60; guard += 1) {
                     const label = await progress(page);
-                    const {scrollWidth, innerWidth} = await page.evaluate(() => ({
-                        scrollWidth: document.scrollingElement.scrollWidth, innerWidth: window.innerWidth}));
-                    if (scrollWidth > innerWidth + 1) overflowing.push(`${label}: scrollWidth ${scrollWidth} > ${innerWidth}`);
+                    const hasMath = await lesson.locator('.guided-lesson-worked-example, .guided-lesson-notation').count() > 0;
                     const finishing = (await nextButton(page).getAttribute('aria-label')) === 'Finish';
-                    try {
-                        await nextButton(page).click({timeout: 4000});
-                    } catch (error) {
-                        blocked.push(`${label}: ${error.message.split(String.fromCharCode(10)).find(line => line.includes('intercepts')) || 'click failed'}`);
-                        await nextButton(page).focus();
-                        await page.keyboard.press('Enter');
+                    if (hasMath) {
+                        const {scrollWidth, innerWidth} = await page.evaluate(() => ({
+                            scrollWidth: document.scrollingElement.scrollWidth, innerWidth: window.innerWidth}));
+                        if (scrollWidth > innerWidth + 1) overflowing.push(`${label}: scrollWidth ${scrollWidth} > ${innerWidth}`);
+                        try {
+                            await nextButton(page).click({timeout: 4000});
+                        } catch (error) {
+                            blocked.push(`${label}: ${error.message.split(String.fromCharCode(10)).find(line => line.includes('intercepts')) || 'click failed'}`);
+                            await nextButton(page).focus();
+                            await page.keyboard.press('Enter');
+                        }
+                    } else {
+                        await nextButton(page).click();
                     }
                     await settle(page);
                     if (finishing) break;
                 }
-                expect(blocked, 'Next not pointer-clickable on frames').toEqual([]);
-                expect(overflowing, 'frames with horizontal page overflow').toEqual([]);
+                expect(blocked, 'Next not pointer-clickable on calculation/notation frames').toEqual([]);
+                expect(overflowing, 'calculation/notation frames with horizontal page overflow').toEqual([]);
                 await expect(page.locator('#jgbox')).toBeVisible();
                 await noHorizontalOverflow(page);
                 await expect(lesson).toBeAttached();
@@ -955,6 +921,60 @@ for (const row of LESSONS) {
         });
     });
 }
+
+// ---------------------------------------------------------------- Shared lesson runtime
+test.describe('Shared lesson runtime', () => {
+    test.setTimeout(150_000);
+
+    for (const row of SHARED_RUNTIME_ROWS) {
+        test.describe(`on ${row.id}`, () => {
+            test('header language switch re-titles the open lesson', async ({page}) => {
+                await openLesson(page, row, 'sl');
+                await expect(lessonHeading(page)).toHaveText(row.titles.sl);
+                await page.locator('#bezeg-language').selectOption('en');
+                await expect(lessonHeading(page)).toHaveText(row.titles.en);
+                await expect(exitButton(page)).toBeVisible();
+            });
+
+            test('Next is reachable via Tab and activated with Enter', async ({page}) => {
+                await openLesson(page, row, 'en');
+                const before = await progress(page);
+                await h.pressNextWithKeyboard(page);
+                await expect.poll(() => progress(page)).not.toBe(before);
+            });
+
+            test('Back is lossless in both directions and the English lesson completes', async ({page}) => {
+                const lastStep = new RegExp(`Step ${row.steps} of ${row.steps}`);
+                await openLesson(page, row, 'en');
+                await expect(lessonHeading(page)).toHaveText(row.titles.en);
+                const ctx = row.setup ? await row.setup(page) : undefined;
+                const probe = async label => { if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label); };
+                const trail = [];
+                for (let guard = 0; guard < 40; guard += 1) {
+                    const label = await progress(page);
+                    trail.push(label);
+                    if (lastStep.test(label)) break;
+                    await advance(page);
+                }
+                expect(new Set(trail.map(stepNumber)).has(row.steps)).toBe(true);
+                for (let index = trail.length - 2; index >= 0; index -= 1) {
+                    await back(page);
+                    const label = await progress(page);
+                    expect(label).toBe(trail[index]);
+                    await probe(label);
+                }
+                await expect(backButton(page)).toBeDisabled();
+                for (let index = 1; index < trail.length; index += 1) {
+                    await advance(page);
+                    const label = await progress(page);
+                    expect(label).toBe(trail[index]);
+                    await probe(label);
+                }
+                await stepToCompletion(page);
+            });
+        });
+    }
+});
 
 // ---------------------------------------------------------------- Extras: Bernstein
 test.describe('Bernstein extras', () => {

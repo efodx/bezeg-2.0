@@ -72,10 +72,10 @@ function visiblePoints(page) {
     });
 }
 
-// The runtime animates overlay hand-offs (about 220ms); wait until the panel is steady.
+// The runtime animates overlay hand-offs (about 220ms) unless reduced motion is set (playwright.config.cjs does); wait until the panel is steady.
 async function settle(page) {
     await expect(lessonPanel(page)).toHaveClass(/guided-lesson-handoff-visible|guided-lesson-hidden/);
-    await page.waitForTimeout(60);
+    await page.waitForTimeout(20);
 }
 
 // Reveals the full lesson panel. Observation frames now open in the full overlay first, so this is a no-op
