@@ -38,7 +38,8 @@ Read [docs/README.md](docs/README.md) and the documents relevant to the change b
 - Commit completed, verified work in small, logically separate commits.
 - Use clear commit messages and report commit hashes and verification results.
 - Stage only changes belonging to the current task; preserve unrelated changes.
-- Do not push, amend existing commits, or rewrite history unless requested.
+- Push committed work to the remote branch unless told not to. Never force-push.
+- Do not amend existing commits or rewrite history unless requested.
 
 ## Documentation
 
