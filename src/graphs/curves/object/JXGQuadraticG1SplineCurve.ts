@@ -1,7 +1,6 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams, SplineCurveState} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {G1QuadraticBezierSpline} from "../../../bezeg/impl/curve/G1QuadraticBezierSpline";
-import {PointStyles} from "../../styles/PointStyles";
 
 interface JXGQuadraticG1SplineCurveState extends SplineCurveState {
     b: number[];
@@ -52,11 +51,11 @@ export class JXGQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G1Quadrati
                     }
                 });
             });
-            //    const name = PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string;
+            //    const name = this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string;
             this.getJxgPoints().forEach((point, i) => point.setName(labels[i]));
         } else {
             this.getJxgPoints().forEach((point, i) => point.setName(""));
-            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string));
+            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string));
         }
     }
 
@@ -75,7 +74,7 @@ export class JXGQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G1Quadrati
     }
 
     protected getInitialCurve(points: number[][]): G1QuadraticBezierSpline {
-        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return new G1QuadraticBezierSpline(modelPoints);
     }
 }

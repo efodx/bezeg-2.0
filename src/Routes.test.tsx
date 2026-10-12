@@ -53,7 +53,7 @@ test('all existing graph URLs retain their graph implementations', () => {
     const children = routes[0].children;
     const graphFor = (path: string) => {
         const route = children.find(entry => entry.path === path)!;
-        const graph = route.element.props.children as React.ReactElement;
+        const graph = route.element as React.ReactElement;
         // GraphHost receives a factory; creating the controller has no side effects.
         return (graph.props as {create: () => object}).create().constructor;
     };

@@ -7,9 +7,7 @@ import {Select} from "../../inputs/Select";
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {Commands} from "./Commands";
-import BaseGraph, {BaseGraphState, GraphMountContext} from "./BaseGraph";
-import {VisibilityContext} from "../context/VisibilityContext";
-import {PointStyles} from "../styles/PointStyles";
+import BaseGraph, {BaseGraphState} from "./BaseGraph";
 import {Preset} from "./presets/Presets";
 import {
     AbstractJXGPointControlledCurve,
@@ -25,7 +23,6 @@ import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
 import {PointCoordinateEditor} from "./PointCoordinateEditor";
 import {PointControlledCurveCommands} from "../curves/object/inputs/PointControlledCurveCommands";
 import {LessonAction} from '../../learning/model';
-import {CurveStyles} from "../styles/CurveStyles";
 
 enum SelectedCurveOption {
     MOVE_CURVE, ADD_POINTS, DELETE_POINTS
@@ -48,7 +45,6 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
-    protected workspaceRevision = 0;
     protected refreshWorkspace() {
         if (!this.graphSession?.isAlive) return;
         this.workspaceRevision++;
@@ -96,7 +92,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
 
     /** Apply a stable visual role based on scene order without changing the curve or its model data. */
     protected applyCurveVisualRole(curve: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>, index: number): void {
-        curve.getJxgCurve().setAttribute(CurveStyles.series(index));
+        curve.getJxgCurve().setAttribute(this.styles.curve.series(index));
     }
 
     /** Sets curve-selection keys; see `setBaseState`. */
@@ -135,7 +131,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
             t("click_an_empty_part_of_the_graph_to_add_a_point_to_the_selected_curve"), t("click_a_control_point_of_the_selected_curve_to_delete_it")];
         return <>
             {this.workspaceCurveSelection()}
-            {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={this.jxgCurves.indexOf(selected)} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
+            {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
             {selected && this.workspacePointEditing() && <PointCoordinateEditor key={`points-${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`}
                 points={() => selected.getCurve().getPoints()} board={this.board}
                 onChange={() => {this.boardUpdate(); this.requestRender();}}
@@ -152,9 +148,9 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
 
     protected override workspaceDisplay(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("graph_view")}</h3>{super.workspaceDisplay()}
-            <OnOffSwitch label={t("point_labels")} initialState={VisibilityContext.pointsVisible()}
-                onChange={checked => this.showPointLabels(checked)}/></div>
-            {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={i}><h3>{t("curve_display")} {i + 1}</h3>
+            <OnOffSwitch label={t("point_labels")} initialState={this.displaySettings.pointLabelsVisible}
+                onChange={checked => this.setPointLabelsVisible(checked)}/></div>
+            {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={`${i}-${this.workspaceRevision}`}><h3>{t("curve_display")} {i + 1}</h3>
                 {PointControlledCurveCommands(curve).map((control, index) => <div className="inspector-control" key={index}>{control}</div>)}
             </div>)}</>;
     }
@@ -190,8 +186,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         return this.jxgCurves.flatMap(c => c.getJxgPoints()).concat(this.graphJXGPoints);
     }
 
-    override mount(container: HTMLElement, context?: GraphMountContext) {
-        super.mount(container, context);
+    override mount(container: HTMLElement) {
+        super.mount(container);
         const session = this.getActiveGraphSession();
         if (!session) return;
         session.on('down', (e) => this.handleDown(e));
@@ -295,7 +291,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         if (opts) {
             point = this.board.create('point', [x, y], opts);
         } else {
-            point = this.board.create('point', [x, y], PointStyles.default);
+            point = this.board.create('point', [x, y], this.styles.point.default);
         }
         point.on('drag', (e) => {
             refreshAfterControlPointDrag(this.board);
@@ -404,7 +400,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     getSelectableCurveArea() {
         let commands = [this.getSelect()];
         commands = commands.concat(this.getSelectedCurveCommands());
-        return <Commands commands={commands} title={t("selected_curve_25")}></Commands>;
+        return <Commands commands={commands} revision={this.workspaceRevision} title={t("selected_curve_25")}></Commands>;
     }
 
     override exportPresetData() {
@@ -472,13 +468,6 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
             this.unsuspendBoardUpdate();
         }
     }
-
-    private showPointLabels(show: boolean) {
-        this.board.suspendUpdate();
-        VisibilityContext.setPointVisibility(show);
-        this.unsuspendBoardUpdate();
-    }
-
 
 }
 

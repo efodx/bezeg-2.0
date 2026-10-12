@@ -9,7 +9,6 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {CountSetter} from "../../../inputs/CountSetter";
-import {SizeContext} from "../../context/SizeContext";
 import {PointAttributes} from "jsxgraph";
 import {PhBezierCurveCommands} from "../object/inputs/PhBezierCurveCommands";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
@@ -17,7 +16,6 @@ import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonAction} from '../../../learning/model';
-import {PointStyles} from "../../styles/PointStyles";
 
 function formatArcLength(value: number): string {
     const locale = currentLanguage() === 'en' ? 'en-US' : 'sl-SI';
@@ -53,7 +51,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         const parentBoard = this.board;
         return <>{super.workspaceEdit()}{this.getSelectedCurve() && <div className="inspector-group">
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
-            <HodographInputbox key={`hodograph-${this.workspaceRevision}`}
+            <HodographInputbox key={`hodograph-${this.workspaceRevision}`} axisStyles={this.styles.axis}
                 setRef={board => this.setHodographBoard(board)}
                 onResize={board => this.handleHodographBoardResize(board)} onDispose={() => {
                 this.disposeHodographBoard(parentBoard);
@@ -61,13 +59,18 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
                 board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}</>;
     }
     protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+        return <>{super.workspaceDisplay()}<div className="inspector-group" key={`offsets-${this.workspaceRevision}`}><h3>{t("curve_offsets")}</h3>
             {PhBezierCurveCommands(this.getFirstJxgCurveAsPHCurve())}</div>
-            <div className="inspector-group"><h3>{t("arc_length")}</h3>
+            <div className="inspector-group" key={`arc-length-${this.workspaceRevision}`}><h3>{t("arc_length")}</h3>
                 <OnOffSwitch initialState={this.state.showArcLength !== false}
                     onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}
                     label={t("show_arc_length")}/>
                 <p>{t("arc_length_description")}</p></div></>;
+    }
+
+    protected override resetSceneFields(): void {
+        super.resetSceneFields();
+        this.pendingHodographBoundingBox = undefined;
     }
 
     override initialize() {
@@ -103,7 +106,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             fixed: true,
             highlight: false,
             useMathJax: false,
-            fontSize: () => SizeContext.fontSize,
+            fontSize: () => this.displaySettings.fontSize,
             visible: () => this.state.showArcLength !== false
         } as any) as JXG.Text;
         // Board text is only recomputed on board update, which a language change does not trigger.
@@ -215,7 +218,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             this.getFirstCurveAsPHBezierCurve().w = modelPoints;
         }
         const jxgGraphPoints = modelPoints.map(((w, i) => this.hodographBoard.create('point', [w.X(), w.Y()], {
-            ...PointStyles.hodograph,
+            ...this.styles.point.hodograph,
             name: "$$w_{" + i + "}$$"
         } as unknown as PointAttributes)));
         this.hodographBindings = jxgGraphPoints.map((point, i) => new ModelPointBinding(modelPoints[i], point));

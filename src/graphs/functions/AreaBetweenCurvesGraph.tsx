@@ -11,9 +11,6 @@ import {
 } from "../../analysis/areaBetween";
 import {AreaBetweenModel, DEFAULT_AREA_BETWEEN_MODEL, parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
-import {SegmentStyles} from "../styles/SegmentStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
@@ -122,7 +119,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         const board = this.board;
         const model = () => this.model;
         const language = () => currentLanguage();
-        const strokeWidth = () => SizeContext.strokeWidth;
+        const strokeWidth = () => this.displaySettings.strokeWidth;
         // Values far above or below the view are left out or clamped (a quarter of the view height beyond it, much more than
         // the sampling step), so the drawn paths never reach f(-1) = 9; this keeps their extent, which framing tools read, close to the view.
         const limits = () => {
@@ -134,7 +131,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         // Layers, lowest first: the shading, the dashed bound lines, the curves, the intersection and bound points.
         const fill = (color: string, part: "positive" | "negative") => {
             const curve = this.own(board.create("curve", [[], []], {
-                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.35),
+                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.35),
                 highlight: false, fixed: true,
             })) as unknown as FillCurve;
             curve.updateDataArray = () => {
@@ -152,8 +149,8 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
             [() => model()[which], () => model().mode === "between" ? f(model()[which]) : 0],
             [() => model()[which], () => model().mode === "under-f" ? f(model()[which]) : g(model()[which])],
         ], {
-            ...SegmentStyles.default, color: GraphPalette.constructionAccent, dash: 2, highlight: false, fixed: true,
-            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.7),
+            ...this.styles.segment.default, color: GraphPalette.constructionAccent, dash: 2, highlight: false, fixed: true,
+            strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.7),
         }));
         boundLine("a");
         boundLine("b");
@@ -170,14 +167,14 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         INTERSECTIONS.forEach((x, index) => {
             // The curves cross there like an X: the free wedge is outside (left of P1, right of P2), the shaded one inside.
             this.own(board.create("point", [x, INTERSECTION_HEIGHT], {
-                ...PointStyles.fixed, name: `$$P_${index + 1}$$`, highlight: false, label: this.pointLabel(index === 0 ? "left" : "right", 1.4),
+                ...this.styles.point.fixed, name: `$$P_${index + 1}$$`, highlight: false, label: this.pointLabel(index === 0 ? "left" : "right", 1.4),
             }));
         });
 
         // The bounds slide along the x-axis: a drag keeps y = 0 and writes the rounded x to the model.
         const bound = (which: "a" | "b") => this.slidingPoint({
             x: model()[which], position: () => 0, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
-            attributes: {...PointStyles.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
+            attributes: {...this.styles.point.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
             write: x => this.setBound(which, x, {syncScene: false}),
         });
         this.pointA = bound("a");
@@ -186,7 +183,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         // Curve names stay on the board, each on the outside of its curve (below-right of the rising branch of f, right of the falling branch of g).
         const label = (x: number, y: number, anchorX: "left" | "middle", anchorY: "top" | "bottom", name: string, color: string) =>
             this.own(board.create("text", [x, y, mathTextHtml(name)], {
-                anchorX, anchorY, fixed: true, highlight: false, parse: false, fontSize: () => SizeContext.fontSize * 1.2, strokeColor: color,
+                anchorX, anchorY, fixed: true, highlight: false, parse: false, fontSize: () => this.displaySettings.fontSize * 1.2, strokeColor: color,
                 cssStyle: BOARD_TEXT_STYLE, highlightCssStyle: BOARD_TEXT_STYLE,
             }));
         label(4.08, f(3.95), "left", "top", "f", GraphPalette.comparisonCurve);

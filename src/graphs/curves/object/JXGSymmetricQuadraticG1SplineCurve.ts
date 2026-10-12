@@ -1,7 +1,6 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams, SplineCurveState} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {G1SymmetricQuadraticBezierSpline} from "../../../bezeg/impl/curve/G1SymmetricQuadraticBezierSpline";
-import {PointStyles} from "../../styles/PointStyles";
 
 interface G1SymSplineState extends SplineCurveState {
     b: number[];
@@ -50,7 +49,7 @@ export class JXGSymmetricQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G
     }
 
     protected getInitialCurve(points: number[][]): G1SymmetricQuadraticBezierSpline {
-        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return new G1SymmetricQuadraticBezierSpline(modelPoints);
     }
 }

@@ -4,7 +4,7 @@ import {Alert, Button, Form, Modal} from "react-bootstrap";
 import {commitPresetImport, preflightPresetImport, PresetImportPlan} from "./presets/PresetImport";
 import {appStorage} from "../../storage/appStorage";
 
-export function PresetImportDialog({onImported}: {onImported: () => void}) {
+export function PresetImportDialog({onImported, disabled}: {onImported: () => void, disabled?: boolean}) {
     useLanguage();
     const [show, setShow] = useState(false);
     const [error, setError] = useState<Error | string>("");
@@ -13,7 +13,7 @@ export function PresetImportDialog({onImported}: {onImported: () => void}) {
     const readVersion = useRef(0);
     const close = () => {readVersion.current++; setShow(false); setPlan(undefined); setError(""); setReading(false);};
     return <>
-        <Button onClick={() => setShow(true)}>{t("import_presets")}</Button>
+        <Button disabled={disabled} onClick={() => setShow(true)}>{t("import_presets")}</Button>
         <Modal show={show} onHide={close}>
             <Modal.Header closeButton closeLabel={t("close")}><Modal.Title>{t("import_presets")}</Modal.Title></Modal.Header>
             <Modal.Body>

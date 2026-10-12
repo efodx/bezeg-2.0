@@ -5,8 +5,6 @@ import React from "react";
 import Slider from "../../../inputs/Slider";
 import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
-import {PointStyles} from "../../styles/PointStyles";
-import {SizeContext} from "../../context/SizeContext";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonAction} from "../../../learning/model";
 
@@ -58,7 +56,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{super.workspaceEdit()}<div className="inspector-group">
+        return <>{super.workspaceEdit()}<div className="inspector-group" key={`parametrization-${this.workspaceRevision}`}>
             <h3>{t("parametrization")}</h3>{this.paramField()}
         </div></>;
     }
@@ -174,12 +172,12 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     generateParamPoints() {
         for (let i = 1; i <= this.state.numberOfPoints; i++) {
             let point = this.createJSXGraphPoint(() => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).X(), () => this.getFirstCurve().eval(this.ts?.[i - 1] ?? 0).Y(), {
-                ...PointStyles.fixed,
-                size: () => SizeContext.pointSize * 0.5,
+                ...this.styles.point.fixed,
+                size: () => this.displaySettings.pointSize * 0.5,
                 fillColor: GraphPalette.parameterSample,
             });
             // Keep the outline as a post-creation override; JSXGraph merges color and strokeColor unreliably.
-            point.point.setAttribute({strokeWidth: () => SizeContext.pointSize / 5, strokeColor: GraphPalette.label});
+            point.point.setAttribute({strokeWidth: () => this.displaySettings.pointSize / 5, strokeColor: GraphPalette.label});
             this.sampleJxgPoints.push(point.point);
         }
     }

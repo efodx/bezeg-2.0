@@ -10,8 +10,6 @@ import {
 } from "../../analysis/arcLength";
 import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL, parseArcLengthModel} from "../../analysis/arcLengthModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
@@ -99,7 +97,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         const board = this.board;
         const model = () => this.model;
         const language = () => currentLanguage();
-        const strokeWidth = () => SizeContext.strokeWidth;
+        const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the curve, the polyline, the polyline vertices, then the endpoints.
         this.own(board.create("functiongraph", [arcValue], {
@@ -120,7 +118,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
             highlight: false, fixed: true,
         })) as unknown as DataCurve;
         markers.updateDataArray = () => {
-            const radius = Math.max(3, SizeContext.pointSize * 0.4);
+            const radius = Math.max(3, this.displaySettings.pointSize * 0.4);
             const rx = radius / (board.unitX || 1);
             const ry = radius / (board.unitY || 1);
             const x: number[] = [];
@@ -144,7 +142,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         // The labels go above the arch for the endpoints on the rising part, i.e. outside the region under the polyline.
         const endpoint = (which: "a" | "b") => this.slidingPoint({
             x: model()[which], position: arcValue, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
-            attributes: {...PointStyles.default, name: `$$${which.toUpperCase()}$$`, label: this.pointLabel("above", 1.2)},
+            attributes: {...this.styles.point.default, name: `$$${which.toUpperCase()}$$`, label: this.pointLabel("above", 1.2)},
             write: x => this.setBound(which, x, {syncScene: false}),
         });
         this.pointA = endpoint("a");

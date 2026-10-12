@@ -1,12 +1,10 @@
 import React from "react";
-import BaseGraph, {BaseGraphState, GraphMountContext} from "../base/BaseGraph";
+import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, onLanguageChange} from "../../localization";
 import {Preset} from "../base/presets/Presets";
 import {LessonAction, LessonSceneCheckpoint, UnsupportedLessonActionError} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
-import {SizeContext} from "../context/SizeContext";
 import {GraphPalette} from "../styles/GraphPalette";
-import {PointStyles} from "../styles/PointStyles";
 
 /**
  * Shared foundation of the function and calculus demonstrations (ADR 0007).
@@ -112,8 +110,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * Board texts are functions evaluated on board update, so a language switch on an open graph must trigger one.
      * Subclass texts that read the language (`currentLanguage()` / `t()`) in their text functions therefore refresh.
      */
-    override mount(container: HTMLElement, context?: GraphMountContext): void {
-        super.mount(container, context);
+    override mount(container: HTMLElement): void {
+        super.mount(container);
         this.unsubscribeLanguage?.();
         this.lastLanguage = currentLanguage();
         // The listener also fires on figure-export state changes; only an actual language change needs a board update.
@@ -383,7 +381,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         };
         this.own(board.create("text", [x, y, () => this.captionHtml()], {
             anchorX: horizontal === "center" ? "middle" : horizontal, anchorY: vertical, fixed: true, highlight: false, parse: false,
-            fontSize: () => Math.max(CAPTION_MIN_FONT, SizeContext.fontSize * Math.min(1, this.boardWidth() / CAPTION_FULL_WIDTH)),
+            fontSize: () => Math.max(CAPTION_MIN_FONT, this.displaySettings.fontSize * Math.min(1, this.boardWidth() / CAPTION_FULL_WIDTH)),
             strokeColor: GraphPalette.label, cssStyle: CAPTION_STYLE, highlightCssStyle: CAPTION_STYLE,
         }));
     }
@@ -396,10 +394,10 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         const vertical = () => resolve().startsWith("above") ? 1 : resolve().startsWith("below") ? -1 : 0;
         const horizontal = () => resolve().endsWith("left") ? -1 : resolve().endsWith("right") ? 1 : 0;
         return {
-            ...PointStyles.default.label,
+            ...this.styles.point.default.label,
             anchorX: () => horizontal() < 0 ? "right" : horizontal() > 0 ? "left" : "middle",
             anchorY: () => vertical() > 0 ? "bottom" : vertical() < 0 ? "top" : "middle",
-            offset: () => [horizontal() * 6 * distance, vertical() * 0.5 * SizeContext.fontSize * distance],
+            offset: () => [horizontal() * 6 * distance, vertical() * 0.5 * this.displaySettings.fontSize * distance],
         };
     }
 

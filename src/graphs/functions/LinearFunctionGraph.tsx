@@ -7,9 +7,6 @@ import {formatNumber} from "../../analysis/format";
 import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, slopeTriangle} from "../../analysis/linear";
 import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, LinearModel, parseLinearModel} from "../../analysis/linearModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
-import {VisibilityContext} from "../context/VisibilityContext";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
@@ -98,9 +95,9 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         const language = () => currentLanguage();
         const hasLine = () => this.currentLine().kind !== "degenerate";
         const hasLeg = (leg: "dx" | "dy") => hasLine() && Math.abs(leg === "dx" ? model().x2 - model().x1 : model().y2 - model().y1) > COINCIDENCE_TOLERANCE;
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
+        const fontSize = (scale: number) => () => this.displaySettings.fontSize * scale;
         const pointOptions = (name: string) => ({
-            ...PointStyles.default, name, snapToGrid: true, snapSizeX: LINEAR_SNAP_SIZE, snapSizeY: LINEAR_SNAP_SIZE,
+            ...this.styles.point.default, name, snapToGrid: true, snapSizeX: LINEAR_SNAP_SIZE, snapSizeY: LINEAR_SNAP_SIZE,
         });
 
         // The y-intercept (0, n), only while the line has one. It sits on a lower layer so it never hides or steals a draggable
@@ -109,11 +106,11 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             const line = this.currentLine();
             return line.kind === "line" ? line.n : 0;
         }], {
-            ...PointStyles.fixed, name: "$$(0,n)$$", layer: 7, highlight: false, visible: () => this.currentLine().kind === "line",
+            ...this.styles.point.fixed, name: "$$(0,n)$$", layer: 7, highlight: false, visible: () => this.currentLine().kind === "line",
             // A label does not follow its point's `visible`, so it repeats the condition.
             label: {
-                ...PointStyles.fixed.label, anchorX: "left", anchorY: "top", offset: [8, -4],
-                visible: () => VisibilityContext.pointsVisible() && this.currentLine().kind === "line",
+                ...this.styles.point.fixed.label, anchorX: "left", anchorY: "top", offset: [8, -4],
+                visible: () => this.displaySettings.pointLabelsVisible && this.currentLine().kind === "line",
             },
         }));
 
@@ -129,7 +126,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         // The line is drawn through the two points; coincident points hide it.
         this.own(board.create("line", [p1, p2], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true,
-            strokeWidth: () => SizeContext.strokeWidth, visible: hasLine,
+            strokeWidth: () => this.displaySettings.strokeWidth, visible: hasLine,
         }));
 
         // Slope triangle: horizontal leg (dx) from P1, vertical leg (dy) up to P2.
@@ -138,7 +135,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         }) as JXG.Point);
         const legStyle = (leg: "dx" | "dy") => ({
             dash: 2, strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true,
-            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.68), visible: () => hasLeg(leg),
+            strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.68), visible: () => hasLeg(leg),
         });
         this.own(board.create("segment", [p1, corner], legStyle("dx")));
         this.own(board.create("segment", [corner, p2], legStyle("dy")));

@@ -4,7 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {createRoot} from 'react-dom/client';
 import {flushSync} from 'react-dom';
 import {JSXGraph} from 'jsxgraph';
-import BaseGraph, {BaseGraphState, GraphMountContext} from './BaseGraph';
+import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {GraphHost} from './GraphHost';
 import {LessonAction} from '../../learning/model';
 
@@ -27,10 +27,10 @@ class TestGraph extends BaseGraph<TestState> {
         return {initialized: false, count: 0};
     }
 
-    override mount(container: HTMLElement, context?: GraphMountContext) {
+    override mount(container: HTMLElement) {
         this.mounts++;
         this.containers.push(container);
-        super.mount(container, context);
+        super.mount(container);
     }
 
     override unmount() {

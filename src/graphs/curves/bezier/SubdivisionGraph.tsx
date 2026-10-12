@@ -29,6 +29,11 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         if (typeof stepsDone === "number" && Number.isFinite(stepsDone)) this.stepsDone = stepsDone;
     }
 
+    protected override resetSceneFields(): void {
+        super.resetSceneFields();
+        this.stepsDone = 0;
+    }
+
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);

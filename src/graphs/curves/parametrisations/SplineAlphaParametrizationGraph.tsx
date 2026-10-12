@@ -2,10 +2,8 @@ import {t} from "../../../localization";
 import {BaseSplineCurveGraph} from "../spline/BaseSplineCurveGraph";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {PointStyles} from "../../styles/PointStyles";
 import React from "react";
 import Slider from "../../../inputs/Slider";
-import {SizeContext} from "../../context/SizeContext";
 import {Preset} from "../../base/presets/Presets";
 import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
 
@@ -191,13 +189,13 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
         const dt = 1 / (numberOfPoints + 1);
         for (let i = 1; i <= numberOfPoints; i++) {
             let point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(i * dt).X(), () => this.getFirstCurve()!.eval(i * dt).Y(), {
-                ...PointStyles.default,
-                size: () => SizeContext.pointSize * 0.5,
+                ...this.styles.point.default,
+                size: () => this.displaySettings.pointSize * 0.5,
                 fillColor: GraphPalette.parameterSample,
             });
             this.sampleMarkers.push(point.point);
             // Keep the outline as a post-creation override; JSXGraph merges color and strokeColor unreliably.
-            point.point.setAttribute({strokeWidth: () => SizeContext.pointSize / 5, strokeColor: GraphPalette.label});
+            point.point.setAttribute({strokeWidth: () => this.displaySettings.pointSize / 5, strokeColor: GraphPalette.label});
         }
     }
 

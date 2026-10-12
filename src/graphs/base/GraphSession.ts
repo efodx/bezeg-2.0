@@ -1,4 +1,5 @@
 import {Board, JSXGraph} from "jsxgraph";
+import {DisplaySettings} from "./DisplaySettings";
 
 export type GraphBoardOptions = Parameters<typeof JSXGraph.initBoard>[1];
 
@@ -29,7 +30,13 @@ export class GraphSession {
     private refreshPending = false;
     private pendingTransitions = 0;
 
-    constructor(private readonly dependencies: GraphSessionDependencies = defaultDependencies) {}
+    /**
+     * @param displaySettings the owning graph's display settings, which style callbacks reach through the board
+     */
+    constructor(
+        private readonly dependencies: GraphSessionDependencies = defaultDependencies,
+        readonly displaySettings: DisplaySettings = new DisplaySettings(),
+    ) {}
 
     get isAlive(): boolean {
         return !this.disposed && this.board !== undefined;

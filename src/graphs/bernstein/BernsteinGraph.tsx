@@ -4,7 +4,6 @@ import {PolynomialBezierCurve} from "../../bezeg/impl/curve/polynomial-bezier-cu
 import {PointImpl} from "../../bezeg/impl/point/point-impl";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {SizeContext} from "../context/SizeContext";
 import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
 import {CountSetter} from "../../inputs/CountSetter";
 import {LessonAction} from "../../learning/model";
@@ -188,7 +187,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
 
             } else {
                 let curve = board.create("curve", [(t: number) => t, (t: number) => polynoms[i](t), 0, 1], {
-                    strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.82),
+                    strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.82),
                     strokeColor: basisCurveColor(i),
                     dash: basisCurveDash(i)
                 });
@@ -206,7 +205,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
             let text = board.create('text', [anchor[0] - 0.06, anchor[1], () => "$$B^{" + (n - 1) + "}_{" + i + "}(t)$$"], {
                 useMathJax: true,
                 color: GraphPalette.label,
-                fontSize: () => SizeContext.fontSize - 5,
+                fontSize: () => this.displaySettings.fontSize - 5,
                 visible: () => this.state.showLabels
             });
             jxgObjects.push(text);

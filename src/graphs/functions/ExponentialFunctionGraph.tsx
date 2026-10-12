@@ -10,8 +10,6 @@ import {
 } from "../../analysis/exponential";
 import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase, parseExponentialModel} from "../../analysis/exponentialModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
@@ -78,10 +76,10 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         // The mirror graph goes first (lower layer) so the main graph is drawn over it.
         this.own(board.create("functiongraph", [(x: number) => exponentialValue(mirrorBase(model().a), x)], {
             strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true,
-            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.72), visible: () => model().mirror,
+            strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.72), visible: () => model().mirror,
         }));
         this.own(board.create("functiongraph", [(x: number) => exponentialValue(model().a, x)], {
-            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth: () => SizeContext.strokeWidth,
+            strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth: () => this.displaySettings.strokeWidth,
         }));
 
         // Every base passes through (0, 1); the second point (1, a) shows the base itself.
@@ -89,10 +87,10 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         // right of the y-axis (its tick numbers are on the left): below the rising graph, above the falling one.
         const rising = () => model().a >= 1;
         this.own(board.create("point", [0, 1], {
-            ...PointStyles.fixed, name: "$$(0,1)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "above-right"),
+            ...this.styles.point.fixed, name: "$$(0,1)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "above-right"),
         }));
         this.own(board.create("point", [1, () => model().a], {
-            ...PointStyles.fixed, name: "$$(1,a)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "below-left"),
+            ...this.styles.point.fixed, name: "$$(1,a)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "below-left"),
         }));
 
         // The equation, the most important readout, stays on the board, in the corner no default curve reaches; the mirror has its own line while it is shown.

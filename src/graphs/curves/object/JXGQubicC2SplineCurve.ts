@@ -1,7 +1,6 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {C2QubicBezierSpline} from "../../../bezeg/impl/curve/C2QubicBezierSpline";
-import {PointStyles} from "../../styles/PointStyles";
 
 
 export class JXGQubicC2SplineCurve extends AbstractJXGSplineCurve<C2QubicBezierSpline> {
@@ -26,16 +25,16 @@ export class JXGQubicC2SplineCurve extends AbstractJXGSplineCurve<C2QubicBezierS
 
     override labelJxgPoints() {
         if (this.labelAll) {
-            this.getJxgPoints().forEach((point, i) => point.setName(PointStyles.pi(i - 1, () => this.isShowingJxgPoints()).name as string));
+            this.getJxgPoints().forEach((point, i) => point.setName(this.styles.point.pi(i - 1, () => this.isShowingJxgPoints()).name as string));
         } else {
             this.getJxgPoints().forEach((point, i) => point.setName(""));
-            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string));
+            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string));
         }
 
     }
 
     protected getInitialCurve(points: number[][]): C2QubicBezierSpline {
-        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return new C2QubicBezierSpline(modelPoints);
     }
 }

@@ -8,9 +8,6 @@ import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
-import {PointStyles} from "../../styles/PointStyles";
-import {SegmentStyles} from "../../styles/SegmentStyles";
-import {CurveStyles} from "../../styles/CurveStyles";
 import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
 import {Point} from "../../../bezeg/api/point/point";
 import {Preset} from "../../base/presets/Presets";
@@ -196,6 +193,10 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
         const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
+        // The loaded scene starts at its own parameter, with no playback value left over from the previous scene.
+        this.parameter = state.t;
+        this.publishedParameter = undefined;
+        this.lastPublishTime = -Infinity;
         return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
@@ -228,21 +229,21 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const first = sliceCurve(0);
         const second = sliceCurve(1);
 
-        const p1 = own(this.createJSXGraphPoint(() => first().eval(this.parameter).X(), () => first().eval(this.parameter).Y(), PointStyles.fixed).point);
-        const p2 = own(this.createJSXGraphPoint(() => second().eval(this.parameter).X(), () => second().eval(this.parameter).Y(), PointStyles.fixed).point);
+        const p1 = own(this.createJSXGraphPoint(() => first().eval(this.parameter).X(), () => first().eval(this.parameter).Y(), this.styles.point.fixed).point);
+        const p2 = own(this.createJSXGraphPoint(() => second().eval(this.parameter).X(), () => second().eval(this.parameter).Y(), this.styles.point.fixed).point);
 
-        own(this.board.create('segment', [p1, p2], SegmentStyles.default));
+        own(this.board.create('segment', [p1, p2], this.styles.segment.default));
 
         own(this.sampleOnlyWhenChanged(this.board.create('curve',
             [(t: number) => first().eval(t).X(), (t: number) => first().eval(t).Y(), 0, () => 1],
-            {...CurveStyles.comparison(0), layer: 2}
+            {...this.styles.curve.comparison(0), layer: 2}
         ) as JXG.Curve, first));
         own(this.sampleOnlyWhenChanged(this.board.create('curve',
             [(t: number) => second().eval(t).X(), (t: number) => second().eval(t).Y(), 0, () => 1],
-            {...CurveStyles.comparison(1), layer: 2}
+            {...this.styles.curve.comparison(1), layer: 2}
         ) as JXG.Curve, second));
         own(this.board.create('point', [() => jxgCurve.getCurve().eval(this.parameter).X(), () => jxgCurve.getCurve().eval(this.parameter).Y()], {
-            ...PointStyles.result(0),
+            ...this.styles.point.result(0),
             name: () => ""
         }));
     }

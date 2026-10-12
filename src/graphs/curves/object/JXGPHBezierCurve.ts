@@ -8,14 +8,11 @@ import {BezierCurveAttributes} from "./AbstractJXGBezierCurve";
 import {PhBezierCurveCommands} from "./inputs/PhBezierCurveCommands";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {Attributes} from "../../attributes/Attributes";
-import {PointStyles} from "../../styles/PointStyles";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
-import {CurveStyles} from "../../styles/CurveStyles";
 import {Point} from "../../../bezeg/api/point/point";
 import {JXGPointWrapper as PointWrapper} from "./JXGPointWrapper";
 import {constructionLevelColor} from "../../styles/GraphPalette";
-import {SegmentStyles} from "../../styles/SegmentStyles";
 
 interface JSXPHBezierCurveConstructorParams extends JSXBezierCurveConstructorParams {
     hodographs: number[][],
@@ -108,7 +105,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     override getInitialCurve(points: number[][]): BezierCurve {
         const pointsImpl = points.map(p => new PointImpl(p[0], p[1]));
         const curve = new PhBezierCurve(pointsImpl.slice(0, 1), pointsImpl.slice(1));
-        curve.getPoints().map((p, i) => this.createJSXGraphPoint(() => p.X(), () => p.Y(), PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        curve.getPoints().map((p, i) => this.createJSXGraphPoint(() => p.X(), () => p.Y(), this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return curve;
     }
 
@@ -119,7 +116,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     generateJxgOffsetCurveControlPoints() {
         this.getCurve().getOffsetCurves().forEach(curve => {
             let jxgOffsetControlPoints = curve.getPoints().map((point, pointIndex) => this.board.create('point', [() => point.X(), () => point.Y()], {
-                ...PointStyles.default,
+                ...this.styles.point.default,
                 fillColor: constructionLevelColor(pointIndex)
             }));
             this.jxgOffsetControlPoints.push(...jxgOffsetControlPoints);
@@ -184,7 +181,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
             const offsetLine = this.board.create('line', [this.jxgOffsetControlPoints[i], this.jxgOffsetControlPoints[this.jxgOffsetControlPoints.length - numOfLines + i]], {
                 straightFirst: false,
                 straightLast: false,
-                ...SegmentStyles.construction(i)
+                ...this.styles.segment.construction(i)
             });
             this.jxgOffsetControlPointsLines.push(offsetLine);
         }
@@ -202,7 +199,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
                 },
                 0,
                 1
-            ], CurveStyles.comparison(index)
+            ], this.styles.curve.comparison(index)
         ));
         if (hide) {
             this.jsxOffsetCurves.forEach(curve => curve.hide());

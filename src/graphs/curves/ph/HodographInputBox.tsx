@@ -1,8 +1,10 @@
 import {JSXGraph} from "jsxgraph";
-import {AxisStyles} from "../../styles/AxisStyles";
 import {useLayoutEffect, useRef} from "react";
+import type {AxisStyleSet} from "../../styles/AxisStyles";
 
 interface HodographInputBoxProps {
+    /** Axis style presets of the owning graph, so the auxiliary axes follow its display settings. */
+    axisStyles: AxisStyleSet
     setRef: (arg0: JXG.Board) => void
     onResize?: (board: JXG.Board) => void
     onDispose?: () => void
@@ -38,8 +40,8 @@ export function HodographInputbox(props: HodographInputBoxProps) {
                     showCopyright: false,
                     showScreenshot: true,
                     defaultAxes: {
-                        x: AxisStyles.auxiliaryX,
-                        y: AxisStyles.auxiliaryY
+                        x: props.axisStyles.auxiliaryX,
+                        y: props.axisStyles.auxiliaryY
                     },
                 });
                 // Apply the actual size while keeping the board's initial box.

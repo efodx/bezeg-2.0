@@ -1,6 +1,6 @@
 /**
  * A JSXGraph attribute object in which every value, at any depth, may also be a function that JSXGraph
- * re-evaluates whenever the element is drawn (`size: () => SizeContext.pointSize`). The bundled typings
+ * re-evaluates whenever the element is drawn (`size: () => settings.pointSize`). The bundled typings
  * only declare the plain value.
  */
 export type DynamicAttributes<T> =

@@ -6,7 +6,6 @@ import {Button} from "react-bootstrap";
 import {BaseGraphStates} from '../../base/BaseCurveGraph';
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import Slider from "../../../inputs/Slider";
-import {CurveStyles} from "../../styles/CurveStyles";
 import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
@@ -106,7 +105,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 (t: number) => curve.eval(t).Y(),
                 () => this.state.t,
                 1
-            ], {...CurveStyles.default, strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent}
+            ], {...this.styles.curve.default, strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent}
         ) as JXG.Curve;
     }
 

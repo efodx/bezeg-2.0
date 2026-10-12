@@ -1,10 +1,11 @@
 import {t, useLanguage} from "../../localization";
-import React, {useState} from "react";
+import React from "react";
 import {Form} from "react-bootstrap";
-import {AxisContext, AxisSelect} from "../context/AxisContext";
+import {AxisSelect} from "./DisplaySettings";
 
 
-export function AxisSelector(props: { board: () => JXG.Board }) {
+/** The coordinate-system picker; the graph owns the selection and redraws its board when `onChange` runs. */
+export function AxisSelector(props: { selected: AxisSelect, onChange: (selected: AxisSelect) => void }) {
     useLanguage();
 
     const labels: Record<AxisSelect, string> = {
@@ -14,16 +15,12 @@ export function AxisSelector(props: { board: () => JXG.Board }) {
         [AxisSelect.AXIS_AND_MINOR]: t("axes_grid_and_ticks"),
         [AxisSelect.EVERYTHING]: t("all")
     };
-    const [selectedAxis, setAxis] = useState(AxisContext.getSelected());
 
     return <Form.Group>
         <Form.Label>{t("coordinate_system")}</Form.Label>
-        <Form.Select onChange={(value) => {
-            AxisContext.setSelected(value.target.value as AxisSelect);
-            setAxis(value.target.value as AxisSelect);
-            props.board().fullUpdate();
-        }} aria-label={t("coordinate_system")}
-                     defaultValue={selectedAxis}
+        <Form.Select onChange={(value) => props.onChange(value.target.value as AxisSelect)}
+                     aria-label={t("coordinate_system")}
+                     defaultValue={props.selected}
         >
             {Object.values(AxisSelect).map(select =>
                 <option key={select} value={select}>{labels[select]}</option>)}

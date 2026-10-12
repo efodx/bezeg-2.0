@@ -1,6 +1,7 @@
 import {JSXGraph} from "jsxgraph";
 import {GraphPalette} from "./GraphPalette";
-import {PointStyles} from "./PointStyles";
+import {stylesFor} from "./GraphStyles";
+import {DisplaySettings} from "../base/DisplaySettings";
 
 import {decasteljauLabelLayout} from "./PointStyles";
 
@@ -57,7 +58,7 @@ test("JSXGraph renders control-point fill and outline as separate colors", () =>
     });
 
     try {
-        const point = board.create("point", [0, 0], PointStyles.default);
+        const point = board.create("point", [0, 0], stylesFor(new DisplaySettings()).point.default);
         board.update();
         const marker = container.querySelector("ellipse");
 

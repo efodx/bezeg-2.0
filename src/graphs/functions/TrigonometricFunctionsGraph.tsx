@@ -15,7 +15,6 @@ import {
     DEFAULT_TRIGONOMETRIC_MODEL, isAmplitude, isMidline, isOmega, isPhase, isTrigFunction, parseTrigonometricModel, TrigonometricModel,
 } from "../../analysis/trigonometricModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
@@ -134,8 +133,8 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             const [left, top, right, bottom] = board.getBoundingBox();
             return {left, top, right, bottom};
         };
-        const strokeWidth = () => SizeContext.strokeWidth;
-        const referenceStrokeWidth = () => Math.max(1, SizeContext.strokeWidth * 0.72);
+        const strokeWidth = () => this.displaySettings.strokeWidth;
+        const referenceStrokeWidth = () => Math.max(1, this.displaySettings.strokeWidth * 0.72);
         const branches = (parameters: Omit<TrigonometricModel, "fn" | "reference">) => () => {
             const {left, right} = view();
             return tangentBranches(parameters, left, right);
@@ -143,7 +142,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
         // Layers, lowest first: midline, reference graph, asymptotes, then the main graph over them.
         this.own(board.create("functiongraph", [() => model().B], {
-            strokeColor: GraphPalette.referenceCurve, dash: 3, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6),
+            strokeColor: GraphPalette.referenceCurve, dash: 3, highlight: false, fixed: true, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.6),
         }));
 
         const referenceVisible = () => model().reference;
@@ -159,7 +158,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             const {omega, phi} = model();
             const {left, right, top, bottom} = view();
             return tangentAsymptotes(omega, phi, left, right).map(x => ({x: [x, x], y: [bottom, top]}));
-        }, {strokeColor: GraphPalette.referenceCurve, dash: 3, strokeOpacity: 0.7, highlight: false, fixed: true, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.6), visible: isTangent});
+        }, {strokeColor: GraphPalette.referenceCurve, dash: 3, strokeOpacity: 0.7, highlight: false, fixed: true, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.6), visible: isTangent});
 
         this.own(board.create("functiongraph", [(x: number) => trigValue(model(), x)], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: () => !isTangent(),

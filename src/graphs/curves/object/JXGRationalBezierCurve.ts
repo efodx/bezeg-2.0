@@ -6,8 +6,6 @@ import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezier
 import {RationalBezierCurveCommands} from "./inputs/RationalBezierCurveCommands";
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
-import {PointStyles} from "../../styles/PointStyles";
-import {SizeContext} from "../../context/SizeContext";
 import {GraphPalette} from "../../styles/GraphPalette";
 
 interface JSXRationalBezierCurveConstructorParams {
@@ -216,8 +214,8 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         }
         this.weightLabels = this.getJxgPoints().map((point, i) =>
             this.board.create('smartlabel', [point, () => "$$w_{" + i + "}=" + this.getCurve().getWeights()[i].toFixed(2) + "$$"], {
-                fontSize: () => SizeContext.fontSize,
-                size: () => SizeContext.fontSize,
+                fontSize: () => this.displaySettings.fontSize,
+                size: () => this.displaySettings.fontSize,
                 cssClass: "smart-label-point2",
                 highlightCssClass: "smart-label-point2",
                 useMathJax: true,
@@ -264,7 +262,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                 // moveOnUp would jump the glider to a control point released on the baseline end.
                 const slider: JXG.Slider = this.board.create('slider', [[() => p0.X(), () => p0.Y()], [() => p1.X(), () => p1.Y()], [0, startingRatio / (1 + startingRatio), 1]],
                     {
-                        size: () => SizeContext.pointSize,
+                        size: () => this.displaySettings.pointSize,
                         moveOnUp: false,
                         point1: {needsRegularUpdate: true},
                         point2: {needsRegularUpdate: true},
@@ -273,13 +271,13 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                             needsRegularUpdate: true,
                             strokeColor: GraphPalette.referenceCurve,
                             strokeOpacity: 1,
-                            strokeWidth: () => SizeContext.strokeWidth
+                            strokeWidth: () => this.displaySettings.strokeWidth
                         },
                         highline: {
                             strokeColor: GraphPalette.constructionAccent,
                             highlightStrokeColor: GraphPalette.constructionAccent,
                             strokeOpacity: 1,
-                            strokeWidth: () => SizeContext.strokeWidth
+                            strokeWidth: () => this.displaySettings.strokeWidth
                         },
                         label: {fontSize: 0}
                     });
@@ -379,7 +377,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     protected getInitialCurve(points: number[][]): RationalBezierCurve {
-        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return new RationalBezierCurve(modelPoints, modelPoints.map(() => 1));
     }
 }

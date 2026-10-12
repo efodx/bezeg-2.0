@@ -2,9 +2,7 @@ import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from ".
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
-import {PointStyles} from "../../styles/PointStyles";
 import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
-import {SegmentStyles} from "../../styles/SegmentStyles";
 
 export interface BezierCurveAttributes extends PointControlledCurveAttributes {
     allowSubdivision: boolean,
@@ -209,12 +207,12 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         // One recomputation per index and coordinate is cheap (n is small); stay stateless to avoid stale caches.
         this.elevationPoints = Array.from({length: count + 1}, (_, i) => this.board.create('point', [
             () => (at(i) ?? [NaN, NaN])[0], () => (at(i) ?? [NaN, NaN])[1]], {
-            ...PointStyles.fixed,
+            ...this.styles.point.fixed,
             name: "",
         }) as JXG.Point);
         for (let i = 1; i < this.elevationPoints.length; i++) {
             this.elevationSegments.push(this.board.create('segment', [this.elevationPoints[i - 1], this.elevationPoints[i]], {
-                ...SegmentStyles.controlPolygon,
+                ...this.styles.segment.controlPolygon,
             }) as JXG.Segment);
         }
     }
@@ -233,7 +231,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                 if (i === 1) {
                     pp1 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].X(),
                         () => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].Y()], {
-                        ...PointStyles.construction(r, i - 1, n, compactLabels),
+                        ...this.styles.point.construction(r, i - 1, n, compactLabels),
                         name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i - 1}^${r}$$` : ""
                     });
                 } else {
@@ -243,17 +241,17 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
                 pp2 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i].X(),
                     () => this.getDecasteljauScheme(this.decasteljauT)[r][i].Y()], {
-                    ...PointStyles.construction(r, i, n, compactLabels),
+                    ...this.styles.point.construction(r, i, n, compactLabels),
                     name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^${r}$$` : ""
                 });
-                const segment = this.board!.create('segment', [pp1, pp2], SegmentStyles.construction(r, true));
+                const segment = this.board!.create('segment', [pp1, pp2], this.styles.segment.construction(r, true));
                 this.decasteljauSegments.push(segment);
                 this.decasteljauPoints.push(pp1);
                 this.decasteljauPoints.push(pp2);
             }
         }
         const drawingPoint = this.board?.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].X(), () => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].Y()], {
-            ...PointStyles.result(n - 1, 0, n, compactLabels),
+            ...this.styles.point.result(n - 1, 0, n, compactLabels),
             name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${0}^${n - 1}$$` : ""
         });
 
@@ -310,7 +308,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     createSubdivisionPoint() {
         if (this.board && !this.subdivisionPoint && this) {
             this.subdivisionPoint = this.board.create('point', [() => this.getCurve().eval(this.subdivisionT).X(),
-                () => this.getCurve().eval(this.subdivisionT).Y()], PointStyles.default) as JXG.Point;
+                () => this.getCurve().eval(this.subdivisionT).Y()], this.styles.point.default) as JXG.Point;
             this.subdivisionPoint.hide();
         }
     }
@@ -318,7 +316,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     createExtrapolationPoint() {
         if (this.board && !this.extrapolationPoint && this) {
             this.extrapolationPoint = this.board.create('point', [() => this.getCurve().eval(this.extrapolationT).X(),
-                () => this.getCurve().eval(this.extrapolationT).Y()], PointStyles.default) as JXG.Point;
+                () => this.getCurve().eval(this.extrapolationT).Y()], this.styles.point.default) as JXG.Point;
             this.extrapolationPoint.hide();
         }
     }

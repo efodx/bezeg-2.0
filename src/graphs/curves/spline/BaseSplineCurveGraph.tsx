@@ -1,4 +1,3 @@
-import {GraphMountContext} from "../../base/BaseGraph";
 import {t} from "../../../localization";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
@@ -7,8 +6,8 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonAction} from "../../../learning/model";
 
 export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends BaseCurveGraph<S> {
-    override mount(container: HTMLElement, context?: GraphMountContext) {
-        super.mount(container, context);
+    override mount(container: HTMLElement) {
+        super.mount(container);
         this.getFirstJxgCurve().setAttributes({allowShowPoints: true});
     }
 

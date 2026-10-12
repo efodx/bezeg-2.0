@@ -2,6 +2,10 @@ import React from "react";
 import {act, render} from "@testing-library/react";
 import {JSXGraph} from "jsxgraph";
 import {HodographInputbox} from "./HodographInputBox";
+import {stylesFor} from "../../styles/GraphStyles";
+import {DisplaySettings} from "../../base/DisplaySettings";
+
+const axisStyles = stylesFor(new DisplaySettings()).axis;
 
 jest.mock("jsxgraph", () => ({JSXGraph: {initBoard: jest.fn(), freeBoard: jest.fn()}}));
 
@@ -61,7 +65,7 @@ test("defers creation until visible size, then preserves the saved viewport thro
         }
     });
     const onDispose = jest.fn();
-    const {unmount} = render(<HodographInputbox setRef={setRef} onResize={onResize} onDispose={onDispose}/>);
+    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={setRef} onResize={onResize} onDispose={onDispose}/>);
 
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     resize.notify(0, 0);
@@ -89,7 +93,7 @@ test("defers creation until visible size, then preserves the saved viewport thro
 
 test("a queued resize after hidden unmount cannot create the auxiliary board", () => {
     const resize = installResizeObserver();
-    const {unmount} = render(<HodographInputbox setRef={jest.fn()}/>);
+    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={jest.fn()}/>);
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     unmount();
 

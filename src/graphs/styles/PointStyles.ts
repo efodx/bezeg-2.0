@@ -1,47 +1,8 @@
 import {PointAttributes} from "jsxgraph";
-import {SizeContext} from "../context/SizeContext";
-import {VisibilityContext} from "../context/VisibilityContext";
+import type {DisplaySettings} from "../base/DisplaySettings";
 import {GraphPalette, constructionLevelColor} from "./GraphPalette";
 import {dynamicAttributes} from "./dynamicAttributes";
 
-
-const pointStyle = dynamicAttributes<PointAttributes>({
-    size: () => SizeContext.pointSize,
-    fillColor: GraphPalette.controlPoint,
-    strokeColor: GraphPalette.pointOutline,
-    strokeWidth: 1.5,
-    highlightFillColor: GraphPalette.selectedControlPoint,
-    highlightStrokeColor: GraphPalette.selectedControlPointOutline,
-    label: {
-        color: GraphPalette.label,
-        fontSize: () => SizeContext.fontSize,
-        useMathJax: true,
-        parse: false,
-        anchorY: "bottom",
-        anchorX: "left",
-        //   anchorX: "middle",
-        offset: () => [0, SizeContext.fontSize * -0.3],
-        visible: () => VisibilityContext.pointsVisible()
-    },
-    name: "",
-});
-
-const hodographPointStyle = dynamicAttributes<PointAttributes>({
-    ...pointStyle,
-    size: () => Math.max(4, 0.5 * SizeContext.pointSize),
-    label: {
-        fontSize: () => Math.max(20, 0.5 * SizeContext.fontSize),
-        useMathJax: true,
-        parse: false
-    }
-});
-
-const fixedPointStyle = dynamicAttributes<PointAttributes>({
-    ...pointStyle,
-    fixed: true,
-    fillColor: GraphPalette.derivedPoint,
-    highlightFillColor: GraphPalette.derivedPoint
-});
 
 const compactLabelDirections = [
     {x: 0, y: -1, anchorX: "middle" as const, anchorY: "bottom" as const},
@@ -81,21 +42,61 @@ export function decasteljauLabelLayout(level: number, pointIndex: number, pointC
     return {direction: index < center ? 6 : 2, ring};
 }
 
-function constructionLabel(level: number, pointIndex: number, pointCount: number, compactBoard: () => boolean): NonNullable<PointAttributes["label"]> {
+/** Point attribute presets whose callbacks read the display settings of one graph. */
+export function createPointStyles(settings: DisplaySettings) {
+const pointStyle = dynamicAttributes<PointAttributes>({
+    size: () => settings.pointSize,
+    fillColor: GraphPalette.controlPoint,
+    strokeColor: GraphPalette.pointOutline,
+    strokeWidth: 1.5,
+    highlightFillColor: GraphPalette.selectedControlPoint,
+    highlightStrokeColor: GraphPalette.selectedControlPointOutline,
+    label: {
+        color: GraphPalette.label,
+        fontSize: () => settings.fontSize,
+        useMathJax: true,
+        parse: false,
+        anchorY: "bottom",
+        anchorX: "left",
+        //   anchorX: "middle",
+        offset: () => [0, settings.fontSize * -0.3],
+        visible: () => settings.pointLabelsVisible
+    },
+    name: "",
+});
+
+const hodographPointStyle = dynamicAttributes<PointAttributes>({
+    ...pointStyle,
+    size: () => Math.max(4, 0.5 * settings.pointSize),
+    label: {
+        fontSize: () => Math.max(20, 0.5 * settings.fontSize),
+        useMathJax: true,
+        parse: false
+    }
+});
+
+const fixedPointStyle = dynamicAttributes<PointAttributes>({
+    ...pointStyle,
+    fixed: true,
+    fillColor: GraphPalette.derivedPoint,
+    highlightFillColor: GraphPalette.derivedPoint
+});
+
+function constructionLabel(settings: DisplaySettings, pointStyle: PointAttributes, level: number, pointIndex: number, pointCount: number, compactBoard: () => boolean): NonNullable<PointAttributes["label"]> {
     const above = Math.abs(Math.trunc(level)) % 2 === 0;
     const distance = 0.55 + Math.floor(Math.abs(Math.trunc(level)) / 2) * 0.35;
     const layout = decasteljauLabelLayout(level, pointIndex, pointCount);
     const direction = compactLabelDirections[layout.direction];
     return dynamicAttributes<NonNullable<PointAttributes["label"]>>({
-        ...pointStyle.label,
+        ...(pointStyle.label as object),
         anchorX: () => compactBoard() ? direction.anchorX : "middle",
         anchorY: () => compactBoard() ? direction.anchorY : above ? "bottom" : "top",
         offset: () => {
             if (compactBoard()) {
-                const compactDistance = SizeContext.fontSize * (0.36 + layout.ring * 0.16);
+                const compactDistance = settings.fontSize * (0.36 + layout.ring * 0.16);
                 return [direction.x * compactDistance, direction.y * compactDistance] as [number, number];
             }
-            return [0, (above ? -1 : 1) * SizeContext.fontSize * distance] as [number, number];
+            return [0, (above ? -1 : 1) * settings.fontSize * distance] as [number, number];
         }
     });
 }
@@ -105,7 +106,7 @@ function resultPointStyle(level: number, pointIndex = 0, pointCount = 1, compact
         ...pointStyle,
         name: "",
         fillColor: GraphPalette.constructionAccent,
-        label: constructionLabel(level, pointIndex, pointCount, compactBoard)
+        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard)
     });
 }
 
@@ -115,7 +116,7 @@ function constructionPointStyle(level: number, pointIndex = 0, pointCount = 1, c
         ...pointStyle,
         name: "",
         fillColor: color,
-        label: constructionLabel(level, pointIndex, pointCount, compactBoard)
+        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard)
     });
 }
 
@@ -129,7 +130,7 @@ function pi(i: number, visible: () => boolean): PointAttributes {
     });
 }
 
-export const PointStyles = {
+return {
     pi: pi,
     default: pointStyle,
     hodograph: hodographPointStyle,
@@ -138,5 +139,6 @@ export const PointStyles = {
     result: resultPointStyle,
     construction: constructionPointStyle
 };
+}
 
-
+export type PointStyleSet = ReturnType<typeof createPointStyles>;

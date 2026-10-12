@@ -1,12 +1,10 @@
+import type {DisplaySettings} from "../../base/DisplaySettings";
+import {GraphStyles, settingsForBoard, stylesForBoard} from "../../styles/GraphStyles";
 import {Board, PointAttributes, SegmentAttributes} from "jsxgraph";
 import {JXGPointWrapper} from "./JXGPointWrapper";
 import {PointControlledCurveCommands} from "./inputs/PointControlledCurveCommands";
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
-import {CurveStyles} from "../../styles/CurveStyles";
-import {PointStyles} from "../../styles/PointStyles";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
-import {SizeContext} from "../../context/SizeContext";
-import {SegmentStyles} from "../../styles/SegmentStyles";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "./ModelPointBinding";
@@ -65,6 +63,16 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     jxgPoints: JXG.Point[] = [];
     readonly pointControlledCurve: T;
     readonly board: Board;
+
+    /** Display settings of the graph that owns this curve's board. */
+    protected get displaySettings(): DisplaySettings {
+        return settingsForBoard(this.board);
+    }
+
+    /** Style presets bound to the display settings of the graph that owns this curve's board. */
+    protected get styles(): GraphStyles {
+        return stylesForBoard(this.board);
+    }
     protected boundBoxPoints: JXG.Point[] = [];
     protected resizingStart: JXG.Point | undefined;
     private jxgCurve: JXG.Curve;
@@ -115,7 +123,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
                     }
                     return this.intervalEnd();
                 }],
-            CurveStyles.default
+            this.styles.curve.default
         );
         this.addBoundingBox();
         this.hideBoundingBox();
@@ -140,7 +148,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     addPoint(x: number, y: number) {
-        let p = this.createEditableInputPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
+        let p = this.createEditableInputPoint(x, y, this.styles.point.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
         this.labelJxgPoints();
     }
@@ -158,7 +166,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     labelJxgPoints() {
-        this.getJxgPoints().forEach((point, i) => point.setName(PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string));
+        this.getJxgPoints().forEach((point, i) => point.setName(this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string));
     }
 
     move(newCoords: JXG.Coords) {
@@ -353,7 +361,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             () => this.pointControlledCurve.eval(t).X(),
             () => this.pointControlledCurve.eval(t).Y(),
         ], {
-            ...PointStyles.fixed,
+            ...this.styles.point.fixed,
             name: evaluationPointLabel(t),
         });
         this.board.fullUpdate();
@@ -556,7 +564,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         const editablePoints = points.map((point, i) => this.createEditableInputPoint(
             point.X(),
             point.Y(),
-            PointStyles.pi(i, () => this.isShowingJxgPoints()),
+            this.styles.point.pi(i, () => this.isShowingJxgPoints()),
         ));
         this.pointControlledCurve.setPoints(editablePoints);
     }
@@ -636,7 +644,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
             const segmentPoints = this.getJxgPoints();
             for (let i = 1; i < segmentPoints.length; i = i + 1) {
-                const segment = this.board.create('segment', [segmentPoints[i - 1], segmentPoints[i]], SegmentStyles.controlPolygon);
+                const segment = this.board.create('segment', [segmentPoints[i - 1], segmentPoints[i]], this.styles.segment.controlPolygon);
                 this.controlPolygonSegments.push(segment);
             }
         }
@@ -656,8 +664,8 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             return;
         }
         this.convexHull = this.board.create('polygon', [...jxgPoints, jxgPoints[0]], {
-            ...SegmentStyles.default,
-            borders: {...SegmentStyles.default},
+            ...this.styles.segment.default,
+            borders: {...this.styles.segment.default},
             fillOpacity: 0.175
         });
     }
@@ -674,7 +682,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
                 board.containerObj.style.cursor = 'default';
             }
         };
-        const pointStyle = dynamicAttributes<PointAttributes>({name: "", color: GraphPalette.controlPolygon, opacity: 0.4, size: () => SizeContext.pointSize});
+        const pointStyle = dynamicAttributes<PointAttributes>({name: "", color: GraphPalette.controlPolygon, opacity: 0.4, size: () => this.displaySettings.pointSize});
         const p = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[2]], pointStyle);
         const p2 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);
         const p3 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[1], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);

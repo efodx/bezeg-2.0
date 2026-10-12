@@ -5,7 +5,6 @@ import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BaseGraphState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import {CurveStyles} from "../../styles/CurveStyles";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from '../../../learning/runtime/animation';
 import {LessonAction, LessonSceneCheckpoint} from '../../../learning/model';
@@ -58,6 +57,12 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         } else if (parameterChanged || wholeCurveChanged) {
             this.drawParameter(this.parameter);
         }
+    }
+
+    protected override resetSceneFields(): void {
+        super.resetSceneFields();
+        // The previous scene element was removed with the board objects.
+        this.wholeCurveElement = undefined;
     }
 
     override unmount() {
@@ -130,7 +135,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                     (t: number) => this.getFirstCurve().eval(t).Y(),
                     () => this.parameter,
                     1
-                ], CurveStyles.comparison(0)
+                ], this.styles.curve.comparison(0)
             ) as JXG.Curve;
         } else if (!this.state.wholeCurve && this.wholeCurveElement) {
             this.board.removeObject(this.wholeCurveElement);
@@ -195,6 +200,10 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
         const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
+        // The loaded scene starts at its own parameter, with no playback value left over from the previous scene.
+        this.parameter = state.t;
+        this.publishedParameter = undefined;
+        this.lastPublishTime = -Infinity;
         return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 

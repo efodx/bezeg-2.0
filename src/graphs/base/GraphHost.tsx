@@ -29,14 +29,12 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
     useLayoutEffect(() => {
         const element = container.current;
         if (!element) return;
-        graph.mount(element, {selectedPreset: site.preset.selected});
+        graph.mount(element);
         // The store subscription above only starts in a passive effect, so mounting's state changes would not
         // schedule a render before the first paint. A render requested here is flushed synchronously, which shows
         // the initialized panels and runs the first deferred state work before the browser paints.
         renderAfterMount();
         return () => graph.unmount();
-        // The preset is read once per mount; changing it remounts the app shell (`App` keys on it).
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [graph]);
 
     return <DemonstrationWorkspace {...graph.getWorkspacePanels({title: site.workspace?.title, description: site.workspace?.description})}

@@ -1,32 +1,23 @@
-import {t, useLanguage} from "../../localization";
+import {t} from "../../localization";
 import React from 'react';
 
 
 import {Board} from "jsxgraph";
 import {fitBoundingBox} from "./fitBoundingBox";
-import {SizeContext} from "../context/SizeContext";
 import {Commands} from "./Commands";
-import {AxisStyles} from "../styles/AxisStyles";
-import Slider from "../../inputs/Slider";
-import {Preset, PresetService} from "./presets/Presets";
+import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
+import {SizeRange} from "./SizeRange";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
+import {AxisSelect, DisplaySettings} from "./DisplaySettings";
+import {GraphStyles, stylesFor} from "../styles/GraphStyles";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 
-
-function SizeRange(props: { board: () => JXG.Board }) {
-    useLanguage();
-    return <div><Slider customText={t("graph_element_size")} help={t("size_of_points_lines_and_labels_does_not_change_the_viewport_zoom")} min={0} max={25} initialValue={SizeContext.getSize()} step={1}
-                        onChange={(i) => {
-                            SizeContext.setSize(i);
-                            props.board().fullUpdate();
-                        }}/></div>;
-}
 
 function cloneLessonValue<T>(value: T): T {
     if (value === undefined) return value;
@@ -60,12 +51,8 @@ export interface GraphPanelContext {
     description?: string;
 }
 
-/** What the app shell tells the controller when it mounts. */
-export interface GraphMountContext {
-    /** Id of the browser-local preset selected in the app shell ("" for none). */
-    selectedPreset: string;
-}
-
+/** Bounding box a new board starts with, and a reset returns to. */
+const DEFAULT_BOUNDING_BOX: [number, number, number, number] = [-5, 5, 5, -5];
 
 /** Props the host passes to `DemonstrationWorkspace` for one render of the graph's panels. */
 export interface GraphWorkspacePanels {
@@ -93,6 +80,13 @@ abstract class BaseGraph<S extends BaseGraphState> {
     private pendingPreviousState?: S;
     private pendingCallbacks: Array<() => void> = [];
     private hasBeenMounted = false;
+    private selectedPresetIdValue = "";
+    private presetListVersionValue = 0;
+    /** An import changed the stored presets while an export was running; the scene reloads when it finishes. */
+    private reloadAfterExportPending = false;
+    /** Counts scene replacements; keyed onto scene-backed inspector controls so they re-seed from the new scene. */
+    protected workspaceRevision = 0;
+    private displaySettingsInstance?: DisplaySettings;
     protected board!: Board;
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
@@ -189,6 +183,134 @@ abstract class BaseGraph<S extends BaseGraphState> {
         };
     }
 
+    /**
+     * How this graph is displayed. Owned by the graph, so two graphs never share a setting; created on first use like
+     * the scene store.
+     */
+    get displaySettings(): DisplaySettings {
+        return this.displaySettingsInstance ??= new DisplaySettings();
+    }
+
+    /** Style presets whose callbacks read this graph's display settings. */
+    protected get styles(): GraphStyles {
+        return stylesFor(this.displaySettings);
+    }
+
+    /** Sets the element size step and redraws the board with it. */
+    setElementSize(size: number): void {
+        this.displaySettings.setSize(size);
+        if (this.graphSession?.isAlive) this.board.fullUpdate();
+    }
+
+    setAxisSelect(selected: AxisSelect): void {
+        this.displaySettings.setAxisSelect(selected);
+        if (this.graphSession?.isAlive) this.board.fullUpdate();
+    }
+
+    setPointLabelsVisible(visible: boolean): void {
+        this.displaySettings.pointLabelsVisible = visible;
+        if (!this.graphSession?.isAlive) return;
+        this.board.suspendUpdate();
+        this.unsuspendBoardUpdate();
+    }
+
+    /** Id of the selected browser-local preset ("" for the default scene). */
+    get selectedPresetId(): string {
+        return this.selectedPresetIdValue;
+    }
+
+    /** Changes whenever the stored presets of this demonstration changed (save, delete, import). */
+    get presetListVersion(): number {
+        return this.presetListVersionValue;
+    }
+
+    /** Selects a preset ("" for the default scene) and loads it into the live board. */
+    selectPreset(id: string): Promise<void> {
+        if (this.exportBusy) {
+            // The scene cannot be replaced under a running export; keep the previous selection and resync the selector.
+            this.requestRender();
+            return Promise.resolve();
+        }
+        this.selectedPresetIdValue = id;
+        return this.reloadSelectedScene();
+    }
+
+    /** Reloads the selected preset, or the default scene, into the live board. */
+    reset(): Promise<void> {
+        return this.reloadSelectedScene();
+    }
+
+    /** Called after presets were imported: refreshes the list and reloads the selection, which may have changed. */
+    reloadAfterImport(): Promise<void> {
+        this.presetListVersionValue++;
+        if (this.exportBusy) {
+            this.reloadAfterExportPending = true;
+            this.requestRender();
+            return Promise.resolve();
+        }
+        return this.reloadSelectedScene();
+    }
+
+    /** Stores the current scene under `name` (the first unused `preset-N` when empty) and selects it. */
+    saveCurrentPreset(name: string): void {
+        const service = this.presetService;
+        if (!service) return;
+        const id = name || firstUnusedPresetName(service.loadPresets().data);
+        service.savePreset({...this.exportPreset(), id});
+        this.selectedPresetIdValue = id;
+        this.presetListVersionValue++;
+        this.requestRender();
+    }
+
+    /** Deletes the selected preset and loads the first remaining one, or the default scene. */
+    deleteSelectedPreset(): Promise<void> {
+        const service = this.presetService;
+        if (!service || !this.selectedPresetIdValue || this.exportBusy) return Promise.resolve();
+        const remaining = service.removePreset(this.selectedPresetIdValue);
+        this.selectedPresetIdValue = remaining.data[0]?.id ?? "";
+        this.presetListVersionValue++;
+        return this.reloadSelectedScene();
+    }
+
+    private reloadSelectedScene(): Promise<void> {
+        const session = this.getActiveGraphSession();
+        if (!session) {
+            // Not mounted: the selection is applied by the next mount().
+            this.requestRender();
+            return Promise.resolve();
+        }
+        if (this.exportBusy) {
+            this.reloadAfterExportPending = true;
+            this.requestRender();
+            return Promise.resolve();
+        }
+        const stored = this.presetService?.getPreset(this.selectedPresetIdValue);
+        if (!stored) this.selectedPresetIdValue = "";
+        this.requestRender();
+        // A new board starts at the default view; a stored preset's own view is applied after the scene.
+        this.board.setBoundingBox(DEFAULT_BOUNDING_BOX, true);
+        return this.applyFigurePreset(session, stored ?? {id: ""}, session.signal, undefined, true)
+            .catch(error => console.error("The preset could not be loaded.", error));
+    }
+
+    private get exportBusy(): boolean {
+        return this.figureBatchActive || this.activeSingleFigureExports > 0;
+    }
+
+    /** Runs a reload that an import had to defer until the running export finished. */
+    private runPendingReload(): void {
+        if (!this.reloadAfterExportPending || this.exportBusy || !this.graphSession?.isAlive) return;
+        this.reloadAfterExportPending = false;
+        void this.reloadSelectedScene();
+    }
+
+    /**
+     * Resets graph-owned instance fields that a new instance would start with, before a preset, the default scene or an
+     * import replaces the scene in place. Not called when an export restores the scene it started from.
+     */
+    protected resetSceneFields(): void {
+    }
+
     /** Browser-local presets of this demonstration; created once on first use. */
     get presetService(): PresetService | undefined {
         if (!this.presetServiceInstance) {
@@ -207,14 +329,19 @@ abstract class BaseGraph<S extends BaseGraphState> {
     protected workspaceDescription(context: GraphPanelContext): string { return context.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
     protected workspaceDisplay(): React.ReactNode {
-        return <><div className="inspector-control"><AxisSelector board={() => this.board}/></div>
-            <SizeRange board={() => this.board}/></>;
+        return <><div className="inspector-control"><AxisSelector selected={this.displaySettings.getAxisSelect()}
+                onChange={selected => this.setAxisSelect(selected)}/></div>
+            <SizeRange size={this.displaySettings.getSize()} onChange={size => this.setElementSize(size)}/></>;
     }
     protected workspaceSave(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
             {this.presetService && <PresetSelector presetService={this.presetService}
-                batchExporter={presets => this.exportPresetFigures(presets)} presetProvider={() => this.exportPreset()}/>}</div>
-            <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} saveAsSVG={name => this.saveAsSVG(name)}
+                selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion}
+                onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
+                onSave={name => this.saveCurrentPreset(name)} onDelete={() => { void this.deleteSelectedPreset(); }}
+                onImported={() => { void this.reloadAfterImport(); }}
+                batchExporter={presets => this.exportPresetFigures(presets)}/>}</div>
+            <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} presetId={this.selectedPresetId} saveAsSVG={name => this.saveAsSVG(name)}
                 saveAsPNG={name => this.saveAsPNG2(name)}/></div></>;
     }
 
@@ -335,9 +462,9 @@ abstract class BaseGraph<S extends BaseGraphState> {
      * Creates the board on the host's container and loads the selected preset or the default scene. Safe to call again
      * on the same instance after `unmount()` (React StrictMode mounts, unmounts and mounts again).
      */
-    mount(container: HTMLElement, context: GraphMountContext = {selectedPreset: ""}): void {
+    mount(container: HTMLElement): void {
         if (!this.graphSession?.isAlive) {
-            const session = new GraphSession();
+            const session = new GraphSession(undefined, this.displaySettings);
             this.graphSession = session;
             // A remount starts from a fresh scene state, exactly like a new instance.
             if (this.hasBeenMounted) this.store.replaceState(this.getInitialState());
@@ -346,20 +473,22 @@ abstract class BaseGraph<S extends BaseGraphState> {
             // JXG.Options.text.display = 'internal';
             this.board = session.createBoard(container, {
                 showFullscreen: false,
-                boundingBox: [-5, 5, 5, -5],
+                boundingBox: DEFAULT_BOUNDING_BOX,
                 axis: true,
                 keepAspectRatio: true,
                 showScreenshot: false,
                 showCopyright: false,
                 showNavigation: false,
                 defaultAxes: {
-                    x: AxisStyles.defaultX,
-                    y: AxisStyles.defaultY
+                    x: this.styles.axis.defaultX,
+                    y: this.styles.axis.defaultY
                 },
             });
 
             this.setBaseState({initialized: true});
-            const preset = this.presetService?.getPreset(context.selectedPreset);
+            const preset = this.presetService?.getPreset(this.selectedPresetIdValue);
+            // A selection whose preset no longer exists shows the default scene, so it is not a selection any more.
+            if (!preset) this.selectedPresetIdValue = "";
             if (preset) {
                 this.importPreset(preset);
             } else {
@@ -401,7 +530,10 @@ abstract class BaseGraph<S extends BaseGraphState> {
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         return downloadSVG(this.getFigureCaptureTarget(session), fileName)
-            .finally(() => { this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1); });
+            .finally(() => {
+                this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
+                this.runPendingReload();
+            });
     }
 
 
@@ -437,7 +569,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
 
     getGraphCommandsArea() {
         return this.getGraphCommands().length > 0 ?
-            <Commands commands={this.getGraphCommands()} title={t("graph_commands")}/> : null;
+            <Commands commands={this.getGraphCommands()} revision={this.workspaceRevision} title={t("graph_commands")}/> : null;
     }
 
     presets(): undefined | string {
@@ -484,7 +616,10 @@ abstract class BaseGraph<S extends BaseGraphState> {
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         return downloadPNG(this.getFigureCaptureTarget(session), fileName)
-            .finally(() => { this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1); });
+            .finally(() => {
+                this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
+                this.runPendingReload();
+            });
     }
 
     private getFigureCaptureTarget(session: GraphSession) {
@@ -549,6 +684,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                     this.graphInteractionLocked = false;
                     this.figureBatchActive = false;
                     this.requestRender(finish);
+                    this.runPendingReload();
                 });
             });
         });
@@ -559,6 +695,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         preset: Preset,
         operationSignal: AbortSignal,
         runtimeState?: unknown,
+        freshScene = false,
     ): Promise<void> {
         const generation = ++this.figureSceneGeneration;
         const isCurrent = () => this.graphSession === session && session.isAlive &&
@@ -570,6 +707,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
             this.board.suspendUpdate();
             try {
                 this.disposeFigureScene();
+                if (freshScene) this.resetSceneFields();
                 const preservedBoardObjects = this.boardInfrastructureObjectClosure();
                 const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
                 if (remainingObjects.length) this.board.removeObject(remainingObjects);
@@ -578,6 +716,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                 if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
             }
 
+            this.workspaceRevision++;
             const nextState = this.figurePresetGraphState(preset.graphState, runtimeState);
             await new Promise<void>((resolve, reject) => {
                 let finished = false;
@@ -593,7 +732,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                 };
                 operationSignal.addEventListener("abort", cancel, {once: true});
                 try {
-                    this.setState(() => isCurrent() ? nextState : null, () => {
+                    this.replaceSceneState(() => isCurrent() ? nextState : null, () => {
                         if (!isCurrent()) {
                             finish(resolve);
                             return;
@@ -617,6 +756,22 @@ abstract class BaseGraph<S extends BaseGraphState> {
             releaseTransition();
         }
         if (!operationSignal.aborted && session.isAlive) await session.waitUntilReady();
+    }
+
+    /**
+     * Replaces the whole scene state (keys the new state does not have are dropped, unlike `setState`). The deferred
+     * `onStateChange` still receives the state from before the load, so the board syncs to what changed.
+     */
+    private replaceSceneState(next: () => S | null, callback: () => void): void {
+        const state = next();
+        if (state === null) {
+            this.setState(() => null, callback);
+            return;
+        }
+        const before = this.store.getState();
+        if (this.pendingPreviousState === undefined) this.pendingPreviousState = before;
+        this.pendingCallbacks.push(callback);
+        this.store.replaceState(state);
     }
 
     private boardInfrastructureObjectClosure(): Set<object> {

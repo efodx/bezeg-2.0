@@ -13,6 +13,12 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     private elevationOverlayOn = true;
     private polygonShownBeforeOverlay = false;
 
+    protected override resetSceneFields(): void {
+        super.resetSceneFields();
+        this.elevationOverlayOn = true;
+        this.polygonShownBeforeOverlay = false;
+    }
+
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
@@ -28,7 +34,7 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group">
+        return <>{super.workspaceDisplay()}<div className="inspector-group" key={`elevation-overlay-${this.workspaceRevision}`}>
             <OnOffSwitch initialState={this.elevationOverlayOn} label={t("show_elevated_points_on_control_polygon")}
                          onChange={checked => this.setElevationOverlay(checked)}/>
             <p>{t("elevated_points_description")}</p></div></>;

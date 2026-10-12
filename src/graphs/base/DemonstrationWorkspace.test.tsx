@@ -109,7 +109,7 @@ test('language changes preserve the current learning prompt and mounted draft co
 test("presentation offers controls and exit without hover, and pan is explicit", () => {
     const setFullScreen = jest.fn();
     const navigate = jest.fn();
-    render(<MemoryRouter><SiteContext.Provider value={{preset: {selected: "", setSelected: jest.fn()}, fullScreen: {fullScreen: true, setFullScreen}}}>
+    render(<MemoryRouter><SiteContext.Provider value={{fullScreen: {fullScreen: true, setFullScreen}}}>
         <DemonstrationWorkspace title="PH" description="Raziskuj" edit={<p>Urejanje</p>} display={null} save={null} navigate={navigate}/>
     </SiteContext.Provider></MemoryRouter>);
     expect(screen.getByText("Urejanje")).not.toBeVisible();
@@ -119,4 +119,26 @@ test("presentation offers controls and exit without hover, and pan is explicit",
     expect(navigate).toHaveBeenCalledWith("left");
     fireEvent.click(screen.getByRole("button", {name: "Zapri predstavitev"}));
     expect(setFullScreen).toHaveBeenCalledWith(false);
+});
+
+test("topic families open for the current route on navigation, and the user can still toggle them", () => {
+    const view = render(<MemoryRouter initialEntries={["/bezeg-2.0/bernstein"]}><DemonstrationWorkspace title="B" description="D" edit={null}
+        display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+    const families = () => Array.from(view.container.querySelectorAll<HTMLDetailsElement>(".workspace-topics details"));
+    const openTitles = () => families().filter(family => family.open).map(family => family.querySelector("summary")!.textContent);
+    expect(openTitles()).toHaveLength(1);
+    const initiallyOpen = openTitles();
+
+    // The user opens another family; it stays open until the next navigation.
+    const other = families().find(family => !family.open)!;
+    other.open = true;
+    fireEvent(other, new Event("toggle"));
+    expect(openTitles()).toHaveLength(2);
+    expect(other.open).toBe(true);
+
+    // Navigating to a route of the other family opens that family and closes the rest.
+    fireEvent.click(other.querySelector("a")!);
+    expect(openTitles()).toHaveLength(1);
+    expect(openTitles()).toEqual([other.querySelector("summary")!.textContent]);
+    expect(openTitles()).not.toEqual(initiallyOpen);
 });

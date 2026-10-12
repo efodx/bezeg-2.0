@@ -2,6 +2,7 @@ import {t, useLanguage} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {NavLink, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
+import {PresetLockContext} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction} from "../../demonstrations";
 import "./DemonstrationWorkspace.css";
@@ -26,6 +27,12 @@ export function DemonstrationWorkspace(props: {
     const {families} = getDemonstrationCatalog();
     const demonstration = findDemonstration(pathname);
     const lesson = demonstration && getLessonForDemonstration(demonstration.id);
+    // The topic list opens the current family on every navigation; the user can still open and close families.
+    const currentFamily = demonstration?.family;
+    const [openFamilies, setOpenFamilies] = useState<ReadonlySet<string>>(() => new Set(currentFamily ? [currentFamily] : []));
+    useEffect(() => {
+        setOpenFamilies(new Set(currentFamily ? [currentFamily] : []));
+    }, [pathname, currentFamily]);
     const navigationLabels: Record<Exclude<NavigationAction, 'fit'>, [string, string]> = {
         left: ['←', t('pan_left')], up: ['↑', t('pan_up')], down: ['↓', t('pan_down')],
         right: ['→', t('pan_right')], in: ['+', t('zoom_in')], out: ['−', t('zoom_out')],
@@ -73,7 +80,7 @@ export function DemonstrationWorkspace(props: {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
-    return <main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+    return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
             <div><span className="workspace-eyebrow">{t("bezeg_explore_curves")}</span>
@@ -101,7 +108,15 @@ export function DemonstrationWorkspace(props: {
         <nav className="workspace-topics" aria-label={t("demonstration_topics")}>
             <h2>{t("explore")}</h2>
             {families.map(family => {
-                return <details key={`${family.id}-${pathname}`} open={family.id === demonstration?.family}>
+                return <details key={family.id} open={openFamilies.has(family.id)} onToggle={event => {
+                    const open = event.currentTarget.open;
+                    setOpenFamilies(current => {
+                        if (current.has(family.id) === open) return current;
+                        const next = new Set(current);
+                        if (open) next.add(family.id); else next.delete(family.id);
+                        return next;
+                    });
+                }}>
                     <summary>{family.title}</summary>
                     {family.demonstrations.map(entry => <NavLink key={entry.id} to={entry.path}>{entry.catalogTitle}</NavLink>)}
                 </details>;
@@ -145,5 +160,5 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>
-    </main>;
+    </main></PresetLockContext.Provider>;
 }

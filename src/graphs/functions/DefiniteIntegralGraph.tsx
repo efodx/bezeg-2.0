@@ -14,8 +14,6 @@ import {
 import {DEFAULT_RIEMANN_MODEL, parseRiemannModel, RiemannModel} from "../../analysis/riemannModel";
 import {Preset} from "../base/presets/Presets";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
@@ -157,12 +155,12 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         const model = () => this.model;
         const fn = () => this.currentFunction();
         const language = () => currentLanguage();
-        const strokeWidth = () => SizeContext.strokeWidth;
+        const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the shapes above the axis, the shapes below it, the function, then the bound points.
         const fill = (color: string, part: "positive" | "negative") => {
             const curve = this.own(board.create("curve", [[], []], {
-                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.35),
+                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.35),
                 highlight: false, fixed: true,
             })) as unknown as FillCurve;
             curve.updateDataArray = () => {
@@ -190,7 +188,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         // Their labels go below the axis, under the tick numbers, away from the graph that starts on the axis (x^2 and e^x touch it near a = 0).
         const bound = (which: "a" | "b") => this.slidingPoint({
             x: model()[which], position: () => 0, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
-            attributes: {...PointStyles.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
+            attributes: {...this.styles.point.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
             write: x => this.setBound(which, x, {syncScene: false}),
         });
         this.pointA = bound("a");

@@ -5,7 +5,6 @@ import {AbstractJXGPointControlledCurve, PointControlledCurveState} from "./Abst
 import {Board} from "jsxgraph";
 import {Point} from "../../../bezeg/api/point/point";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
-import {PointStyles} from "../../styles/PointStyles";
 
 export interface JSXSplineConstructorParams {
     points: number[][],
@@ -30,7 +29,7 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
     }
 
     override addPoint(x: number, y: number) {
-        let p = this.createEditableInputPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
+        let p = this.createEditableInputPoint(x, y, this.styles.point.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
         this.refreshNonFreeJsxGraphPoints();
         this.labelJxgPoints();
@@ -111,11 +110,11 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
                 });
             });
 
-            //    const name = PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string;
+            //    const name = this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string;
             this.getJxgPoints().forEach((point, i) => point.setName(labels[i]));
         } else {
             this.getJxgPoints().forEach((point, i) => point.setName(""));
-            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(PointStyles.pi(i, () => this.isShowingJxgPoints()).name as string));
+            this.getAllFreeJxgPoints().forEach((point, i) => point.setName(this.styles.point.pi(i, () => this.isShowingJxgPoints()).name as string));
         }
     }
 
@@ -135,7 +134,7 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
 
     protected createFixedJsxPoint(p: Point) {
         return this.createJSXGraphPoint(() => p.X(), () => p.Y(), {
-            ...PointStyles.splineJoin,
+            ...this.styles.point.splineJoin,
             visible: () => !this.hideFixed
         });
     }

@@ -4,7 +4,6 @@ import {Board} from "jsxgraph";
 import {PointControlledCurveState} from "./AbstractJXGPointControlledCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
-import {PointStyles} from "../../styles/PointStyles";
 
 export interface JSXBezierCurveConstructorParams {
     points: number[][],
@@ -111,7 +110,7 @@ export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCu
     }
 
     getInitialCurve(points: number[][]): BezierCurve {
-        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], PointStyles.pi(i, () => this.isShowingJxgPoints())));
+        const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));
         return new PolynomialBezierCurve(modelPoints);
     }
 }

@@ -15,7 +15,8 @@ async function selectBezierCurve(page) {
 
 async function openPointEditor(inspector) {
     const editor = inspector.locator('.point-coordinate-editor');
-    await editor.locator('summary').click();
+    // Presets load in place now, so the editor may still be open from before; only open it when closed.
+    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
     await expect(editor.getByRole('spinbutton', {name: 'p0 x'})).toBeVisible();
     return editor;
 }

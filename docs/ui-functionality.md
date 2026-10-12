@@ -36,7 +36,7 @@ The accepted square control styling uses compact 34px minimum-height desktop but
 | Konveksna ovojnica | Shows or hides the convex hull where permitted. |
 | SVG / PNG | Downloads an image of the board. |
 
-Shared view choices use mutable contexts and are not all included in saved presets. The presence of a control depends on graph inheritance and curve attributes; this table is not a universal toolbar.
+View choices belong to the current demonstration's graph: they start at defaults when another demonstration opens, survive preset changes and Reset on the same route, and are not included in saved presets. The presence of a control depends on graph inheritance and curve attributes; this table is not a universal toolbar.
 
 ## Curve editing and selection
 
@@ -54,11 +54,11 @@ Rational curves add **Uteži**, a weight selector using left/right arrows, ± bu
 
 ## Presets and file exchange
 
-**Prednastavitve** lists saved configurations for the current demonstration and **Privzeta** for its default. Changing the selected preset rebuilds the workspace. Saving requires a name; an empty name generates one. Saved data can include curve configuration, graph state, and viewport bounds. Storage is local to the browser and site origin, with no account synchronization.
+**Prednastavitve** lists saved configurations for the current demonstration and **Privzeta** for its default. Changing the selected preset replaces the scene in place; open inspector sections and focus are kept. The selection belongs to the current demonstration and does not carry to other routes. While a guided lesson is open, selecting, resetting, deleting and importing presets are disabled; saving and exporting remain available. Selecting or deleting a preset is refused while a figure export runs, and an import made during an export is loaded when the export finishes. Saving requires a name; an empty name uses the first unused `preset-N` and selects it. Saved data can include curve configuration, graph state, and viewport bounds. Storage is local to the browser and site origin, with no account synchronization.
 
 | Control / tooltip | Behavior |
 | --- | --- |
-| Ponastavi prednastavitev (⭮) | Remounts the current demonstration, reloading the selected saved preset or default and discarding unsaved edits. |
+| Ponastavi prednastavitev (⭮) | Reloads the selected saved preset or default in place, discarding unsaved edits; the workspace is not rebuilt. |
 | Shrani prednastavitev | Creates a named preset; saving an existing name updates geometry, graph state, and viewport bounds. |
 | Izbriši prednastavitev (🗑) | Requests confirmation, deletes the selected saved entry, and selects the first remaining entry when available. |
 | Izvozi prednastavitve (📤) | Downloads `presets.txt`, containing all `preset-` collections in this origin's local storage, across demonstrations. |

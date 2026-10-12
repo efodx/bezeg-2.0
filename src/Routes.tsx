@@ -1,4 +1,3 @@
-import {useLanguage} from "./localization";
 import { ErrorPage } from './ErrorPage';
 import App from './App';
 import { WelcomePage } from './WelcomePage';
@@ -46,8 +45,6 @@ import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph'
 import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
 import { GraphHost } from './graphs/base/GraphHost';
-import { RefreshContext } from './graphs/context/react/RefreshContext';
-import { useState } from 'react';
 import RationalSubdivisionGraph2
   from './graphs/curves/rational/RationalSubdivisionGraph2';
 import RationalBezierCurveGraph
@@ -94,21 +91,13 @@ const graphElements: Record<DemonstrationId, ReactNode> = {
     'arc-length': <GraphHost key="arc-length" create={() => new ArcLengthGraph()}/>,
 };
 
-function Refresher({children}: {children: ReactNode}) {
-    useLanguage();
-    const [key, setKey] = useState(1);
-    return <RefreshContext.Provider value={() => {setKey(current => current + 1); return undefined;}}>
-        <div key={key}>{children}</div>
-    </RefreshContext.Provider>;
-}
-
 const routes = [{
     path: '/bezeg-2.0', element: <App/>, errorElement: <ErrorPage/>,
     children: [
-        {index: true, element: <Refresher><WelcomePage/></Refresher>},
-        {path: '/bezeg-2.0/demonstrations', element: <Refresher><DemonstrationsPage/></Refresher>},
+        {index: true, element: <WelcomePage/>},
+        {path: '/bezeg-2.0/demonstrations', element: <DemonstrationsPage/>},
         ...getDemonstrationCatalog().demonstrations.map(({id, path}) => ({
-            path, element: <Refresher>{graphElements[id]}</Refresher>,
+            path, element: graphElements[id],
         })),
     ],
 }];

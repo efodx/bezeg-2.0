@@ -1,9 +1,8 @@
 import {t, useLanguage} from "../../localization";
-import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
-import React, {useContext, useRef, useState} from "react";
-import {SiteContext} from "../context/react/SiteContext";
+import {Preset, PresetService} from "./presets/Presets";
+import React, {useContext, useMemo, useRef, useState} from "react";
+import {PresetLockContext} from "../context/react/PresetLockContext";
 import {Button, ButtonGroup, Form, Modal} from "react-bootstrap";
-import {RefreshContext} from "../context/react/RefreshContext";
 import {ResetButton} from "./ResetButton";
 import ToolTippedButton from "../../inputs/ToolTippedButton";
 import {PresetImportDialog} from "./PresetImportDialog";
@@ -113,7 +112,10 @@ function SaveModal(props: { onSave: (name: string) => void, initialValue: string
         props.onSave(presetName);
         setShow(false);
     };
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        setPresetName(props.initialValue);
+        setShow(true);
+    };
 
     return (
         <>
@@ -180,81 +182,51 @@ function TrashModal(props: { trash: () => void, disabled?: boolean }) {
 
 export function PresetSelector(props: {
     presetService: PresetService,
-    presetProvider: () => Preset,
+    /** Id of the selected preset ("" for the default scene), owned by the graph controller. */
+    selectedPresetId: string,
+    /** Changes whenever the stored presets changed, so the list below is read again. */
+    presetListVersion: number,
+    onSelect: (id: string) => void,
+    onReset: () => void,
+    onSave: (name: string) => void,
+    onDelete: () => void,
+    onImported: () => void,
     batchExporter: (presets: Preset[]) => void | Promise<void>
 }) {
     useLanguage();
-    const siteContext = useContext(SiteContext);
-    const presetContext = siteContext.preset;
-    const refreshContext = useContext(RefreshContext);
-
-    const [presets, setPresets] = useState({
-        presets: props.presetService.loadPresets(),
-        selectedPreset: props.presetService.getPreset(presetContext.selected)
-    });
+    const lessonActive = useContext(PresetLockContext);
+    const {presetService, selectedPresetId, presetListVersion} = props;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const presets = useMemo(() => presetService.loadPresets(), [presetService, presetListVersion]);
+    const selectedPreset = presets.data.find(preset => preset.id === selectedPresetId);
 
     return <Form.Group>
         <p className="inspector-help">{t("stored_in_this_browser_export_a_file_to_back_up_your_presets_or_transfer_them_to_another_browser")}</p>
         <Form.Label>{t("presets")}</Form.Label>
-        <Form.Select onChange={(value) => {
-            const preset = props.presetService.getPreset(value.target.value);
-            if (preset !== undefined) {
-                setPresets({
-                    presets: presets.presets,
-                    selectedPreset: preset
-                });
-                presetContext.setSelected(preset.id);
-            } else {
-                setPresets({
-                    presets: presets.presets,
-                    selectedPreset: preset
-                });
-                presetContext.setSelected("");
-            }
-        }} aria-label={t("presets")}
-                     defaultValue={presetContext.selected}
+        <Form.Select onChange={(value) => props.onSelect(value.target.value)} aria-label={t("presets")} disabled={lessonActive}
+                     value={selectedPreset ? selectedPreset.id : ""}
         >
             <option value={""}>{t("default")}</option>
-            {presets.presets.data.map(preset =>
+            {presets.data.map(preset =>
                 <option key={preset.id} value={preset.id}>{preset.id}</option>)}
         </Form.Select>
         <Form.Group className="my-1">
             <ButtonGroup vertical={true}>
                 <ButtonGroup>
-                    <ResetButton/>
-                    <SaveModal onSave={(name) => {
-                        if (name === null || name === "") {
-                            name = firstUnusedPresetName(props.presetService.loadPresets().data);
-                        }
-                        const newPresets = props.presetService.savePreset({
-                            ...props.presetProvider(),
-                            id: name
-                        });
-                        setPresets({
-                            presets: newPresets,
-                            selectedPreset: newPresets.data[newPresets.data.length - 1]
-                        });
-                        presetContext.setSelected(name);
-                    }} initialValue={presetContext.selected}></SaveModal>
-                    <TrashModal disabled={presets.selectedPreset === undefined} trash={() => {
-                        const newPresets = props.presetService.removePreset(presets.selectedPreset.id);
-                        setPresets({
-                            presets: newPresets,
-                            selectedPreset: newPresets.data[0]
-                        });
-                        presetContext.setSelected(newPresets.data[0]?.id ?? "");
-                    }}></TrashModal>
+                    <ResetButton onReset={props.onReset} disabled={lessonActive}/>
+                    <SaveModal onSave={props.onSave} initialValue={selectedPresetId}></SaveModal>
+                    <TrashModal disabled={selectedPreset === undefined || lessonActive} trash={props.onDelete}></TrashModal>
                 </ButtonGroup>
                 <ButtonGroup>
                     <ToolTippedButton tooltip={t("export_presets")} onClick={() => {
-                        exportToFile(props.presetService.exportAllPresetsToString());
+                        exportToFile(presetService.exportAllPresetsToString());
                     }}>{t("export_presets")}</ToolTippedButton>
-                    <PresetImportDialog onImported={refreshContext}/>
-                    <ImageGenerationModal onConfirm={presets => {
-                        const allPresets = props.presetService.loadPresets();
-                        const selected = allPresets.data.filter(preset => presets.includes(preset.id));
+                    <PresetImportDialog onImported={props.onImported} disabled={lessonActive}/>
+                    <ImageGenerationModal onConfirm={selectedIds => {
+                        const allPresets = presetService.loadPresets();
+                        const selected = allPresets.data.filter(preset => selectedIds.includes(preset.id));
                         return props.batchExporter(selected);
-                    }} presetService={props.presetService}/>
+                    }} presetService={presetService}/>
 
                 </ButtonGroup></ButtonGroup></Form.Group>
 

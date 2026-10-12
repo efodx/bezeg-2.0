@@ -13,8 +13,6 @@ import {
 } from "../../analysis/derivative";
 import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel, parseDerivativeModel} from "../../analysis/derivativeModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (-2 + 150 * 0.01) without changing meaningful digits. */
@@ -110,7 +108,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         const model = () => this.model;
         const fn = () => this.currentFunction();
         const language = () => currentLanguage();
-        const strokeWidth = () => SizeContext.strokeWidth;
+        const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the function, the exact tangent, the secant, then the points.
         this.own(board.create("functiongraph", [(x: number) => fn().value(x)], {
@@ -118,7 +116,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         }));
         this.own(board.create("functiongraph", [(x: number) => lineValue(tangentLine(fn(), model().x0), x)], {
             strokeColor: GraphPalette.primaryCurve, dash: 2, highlight: false, fixed: true,
-            strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.85), visible: () => model().tangent,
+            strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.85), visible: () => model().tangent,
         }));
 
         // P is a free point whose drag is projected onto the graph; the model is written from the projected x.
@@ -126,11 +124,11 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         // labels sit below-right of the points: the graph and the secant rise there (for the catalog functions near x0), so below-right is free of both.
         const pointP = this.pointP = this.slidingPoint({
             x: model().x0, position: x => fn().value(x), min: X0_MIN, max: X0_MAX, step: X0_STEP,
-            attributes: {...PointStyles.default, name: "$$P$$", label: this.pointLabel("below-right")},
+            attributes: {...this.styles.point.default, name: "$$P$$", label: this.pointLabel("below-right")},
             write: x => this.setX0(x, {syncScene: false}),
         });
         const pointQ = this.own(board.create("point", [() => model().x0 + model().h, () => fn().value(model().x0 + model().h)], {
-            ...PointStyles.fixed, name: "$$Q$$", highlight: false, label: this.pointLabel("below-right"),
+            ...this.styles.point.fixed, name: "$$Q$$", highlight: false, label: this.pointLabel("below-right"),
         }) as JXG.Point);
 
         // The secant is a full line through P and Q; its slope is the difference quotient.

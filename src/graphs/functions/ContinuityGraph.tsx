@@ -10,8 +10,6 @@ import {
 } from "../../analysis/continuity";
 import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter, parseContinuityModel} from "../../analysis/continuityModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
-import {SizeContext} from "../context/SizeContext";
-import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (30 * 0.05) without changing meaningful digits. */
@@ -92,7 +90,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         const language = () => currentLanguage();
         const matches = () => isContinuous(model().a);
         const statusColor = () => matches() ? MATCH_COLOR : MISMATCH_COLOR;
-        const strokeWidth = () => SizeContext.strokeWidth;
+        const strokeWidth = () => this.displaySettings.strokeWidth;
         const pieceStyle = {strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth};
 
         // The left piece ends at x = 1 (included); the right piece starts just right of 1 (excluded).
@@ -101,12 +99,12 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
 
         // Hollow point first, filled point over it: when the limits agree the filled dot sits inside the ring.
         this.own(board.create("point", [JOIN_X, () => rightLimit(model().a)], {
-            ...PointStyles.fixed, name: "$$(1,3-a)$$", highlight: false, size: () => SizeContext.pointSize, label: this.pointLabel("above-right"),
+            ...this.styles.point.fixed, name: "$$(1,3-a)$$", highlight: false, size: () => this.displaySettings.pointSize, label: this.pointLabel("above-right"),
             fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface,
-            strokeColor: statusColor, highlightStrokeColor: statusColor, strokeWidth: () => Math.max(2, SizeContext.strokeWidth * 0.9),
+            strokeColor: statusColor, highlightStrokeColor: statusColor, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
         }));
         this.own(board.create("point", [JOIN_X, () => valueAtJoin(model().a)], {
-            ...PointStyles.fixed, name: "$$(1,a)$$", highlight: false, size: () => Math.max(3, SizeContext.pointSize * 0.7),
+            ...this.styles.point.fixed, name: "$$(1,a)$$", highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
             // The right piece leaves (1, 3 - a) down to the right and the left piece arrives from the left: below-right is free of both and of the ring label.
             label: this.pointLabel("below-right"),
             fillColor: statusColor, highlightFillColor: statusColor,

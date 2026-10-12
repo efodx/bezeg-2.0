@@ -160,7 +160,8 @@ test('batch export captures different saved Bézier scenes and restores selectio
     await createPreset(page, 'ownership-default');
     await selectFirstCurve(page);
     editor = inspector(page).locator('.point-coordinate-editor');
-    await editor.locator('summary').click();
+    // Presets load in place now, so the editor may still be open from before; only open it when closed.
+    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
     await expect(editor).toBeVisible();
     await editor.getByRole('spinbutton', {name: 'p0 x'}).fill('0.8');
     await editor.locator('.point-coordinate-form button.point-coordinate-submit').click();
