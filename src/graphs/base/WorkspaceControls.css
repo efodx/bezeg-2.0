@@ -22,6 +22,10 @@
 .workspace-learning button { font-size:.8rem; }
 .slider-range { font-size:.75rem; line-height:1.4; color:var(--workspace-ink-soft); font-variant-numeric:tabular-nums; margin-top:2px; margin-bottom:6px; }
 .workspace-inspector .form-range { display:block; margin-bottom:0; }
+/* Keyboard focus ring for range sliders (Bootstrap removes the outline): the workspace's focus colour on the track and the thumb. */
+.workspace-inspector .form-range:focus-visible { outline:3px solid #577cc3; outline-offset:3px; border-radius:4px; }
+.workspace-inspector .form-range:focus-visible::-webkit-slider-thumb { box-shadow:0 0 0 2px #fff, 0 0 0 5px #577cc3; }
+.workspace-inspector .form-range:focus-visible::-moz-range-thumb { box-shadow:0 0 0 2px #fff, 0 0 0 5px #577cc3; }
 #inspector-display .inspector-group > h3 { margin-bottom:8px; }
 #inspector-display .inspector-control:has(.form-check) { margin:0; }
 #inspector-display .form-check { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:38px; margin:0; padding:6px 0; }
