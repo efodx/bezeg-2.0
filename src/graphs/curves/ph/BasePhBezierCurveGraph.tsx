@@ -6,16 +6,14 @@ import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import Slider from "../../../inputs/Slider";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
-import {CountSetter} from "../../../inputs/CountSetter";
 import {PointAttributes} from "jsxgraph";
-import {PhBezierCurveCommands} from "../object/inputs/PhBezierCurveCommands";
+import {PhBezierCurveControls} from "../../base/controls/PhBezierCurveControls";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
-import {LessonAction} from '../../../learning/model';
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 function formatArcLength(value: number): string {
     const locale = currentLanguage() === 'en' ? 'en-US' : 'sl-SI';
@@ -59,10 +57,10 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
                 board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}</>;
     }
     protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group" key={`offsets-${this.workspaceRevision}`}><h3>{t("curve_offsets")}</h3>
-            {PhBezierCurveCommands(this.getFirstJxgCurveAsPHCurve())}</div>
-            <div className="inspector-group" key={`arc-length-${this.workspaceRevision}`}><h3>{t("arc_length")}</h3>
-                <OnOffSwitch initialState={this.state.showArcLength !== false}
+        return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+            <PhBezierCurveControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>
+            <div className="inspector-group"><h3>{t("arc_length")}</h3>
+                <OnOffSwitch checked={this.state.showArcLength !== false}
                     onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}
                     label={t("show_arc_length")}/>
                 <p>{t("arc_length_description")}</p></div></>;
@@ -157,46 +155,6 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         }
     }
 
-    override getGraphCommands(): JSX.Element[] {
-        if (!this.state.initialized) {
-            return [];
-        }
-        const commands = [];
-        commands.push(<OnOffSwitch
-            initialState={this.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()}
-            onChange={checked => {
-                this.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(checked);
-                this.setPhState({showOffsetCurve: checked});
-            }}
-            label={t("curve_offsets")}/>);
-
-        if (this.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()) {
-            commands.push(<Slider min={-3}
-                                  max={3}
-                                  initialValue={this.getFirstCurveAsPHBezierCurve()?.getOffsetCurveDistance() ? this.getFirstCurveAsPHBezierCurve()?.getOffsetCurveDistance() : 0}
-                                  step={0.01}
-                                  onChange={e => this.setOffsetCurveDistance(e)}/>);
-            commands.push(<OnOffSwitch
-                onChange={checked => {
-                    this.getFirstJxgCurveAsPHCurve().setShowOffsetCurveControlPoints(checked);
-                    this.setPhState({showOffsetCurveControlPoints: checked});
-                }}
-                label={t("offset_curve_control_points")}
-                initialState={this.state.showOffsetCurveControlPoints}/>);
-            commands.push(<div>
-                <div>{t("number_of_offsets")}</div>
-                <CountSetter onPlus={() => {
-                    this.getFirstJxgCurveAsPHCurve().addOffsetCurve();
-                }} onCenter={() => 1} n={this.getFirstJxgCurveAsPHCurve().getNumberOfOffsetCurves()}
-                             onMinus={() => {
-                                 this.getFirstJxgCurveAsPHCurve().removeOffsetCurve();
-                             }}
-                             min={1}
-                ></CountSetter></div>);
-        }
-        return super.getGraphCommands().concat(commands);
-    }
-
     getFirstCurveAsPHBezierCurve() {
         return this.getFirstCurve() as PhBezierCurve;
     }
@@ -234,21 +192,19 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         this.unsuspendBoardUpdate();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'curve-visibility' && action.target === 'offset-curve') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated('curve-visibility', 'offset-curve', action => {
             this.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(action.visible);
             this.setPhState({showOffsetCurve: action.visible});
             this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'parameter' && action.name === 'offset-distance') {
+        });
+        registry.onDiscriminated('parameter', 'offset-distance', action => {
             if (!Number.isFinite(action.value) || action.value < -3 || action.value > 3) {
                 throw new Error('The PH offset distance must be between -3 and 3.');
             }
             this.setOffsetCurveDistance(action.value);
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     private setHodographBoard(board: JXG.Board) {

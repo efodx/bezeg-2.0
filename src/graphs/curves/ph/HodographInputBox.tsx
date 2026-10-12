@@ -40,8 +40,8 @@ export function HodographInputbox(props: HodographInputBoxProps) {
                     showCopyright: false,
                     showScreenshot: true,
                     defaultAxes: {
-                        x: props.axisStyles.auxiliaryX,
-                        y: props.axisStyles.auxiliaryY
+                        x: callbacks.current.axisStyles.auxiliaryX,
+                        y: callbacks.current.axisStyles.auxiliaryY
                     },
                 });
                 // Apply the actual size while keeping the board's initial box.

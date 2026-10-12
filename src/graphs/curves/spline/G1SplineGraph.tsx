@@ -3,14 +3,14 @@ import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import Slider from "../../../inputs/Slider";
 import {t} from "../../../localization";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
 
 export const G1_BETA_MIN = 0.01;
 export const G1_BETA_MAX = 3;
 
 interface G1SplineGraphStates extends BaseGraphStates {
-    /** Bumped when lesson actions change b, so the sliders re-read the model values. */
+    /** Bumped when lesson actions change b; part of the saved scene state. The sliders read the model values while rendering. */
     betaRevision?: number;
 }
 
@@ -33,16 +33,15 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
         return "g1-spline-graph";
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'spline-beta') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('spline-beta', action => {
             const curve = this.getFirstCurve();
             validateSplineBeta(action.index, action.value, curve ? curve.getNumOfBs() : 0, G1_BETA_MIN, G1_BETA_MAX);
             curve.setB(action.index, action.value);
             this.setState(state => ({betaRevision: (state.betaRevision ?? 0) + 1}));
             this.boardUpdate();
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     /** Sliders show the model's current b values (b starts at 1), so they follow restores and default scenes. */
@@ -52,7 +51,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
             <div>{t('spline_parameter_b')}</div>
             {bs.map(
                 (b, i) => <div key={i}>
-                    <Slider initialValue={b} min={G1_BETA_MIN} max={G1_BETA_MAX}
+                    <Slider value={b} min={G1_BETA_MIN} max={G1_BETA_MAX}
                             onChange={(val) => this.changeBi(i, val)}/></div>
             )}</div>;
     }
@@ -60,6 +59,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
     private changeBi(i: number, val: number) {
         this.getFirstCurve().setB(i, val);
         this.boardUpdate();
+        this.store.notify();
     }
 }
 

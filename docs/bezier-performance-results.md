@@ -386,3 +386,14 @@ Version reads are memoized against the global stamp counter: a version can only 
 | Rational De Casteljau, slider t | 8.3 → 6.9 | 11.9 → 16.8 |
 
 The PH regression is resolved within run-to-run noise. No speed-up is claimed for the other scenes. Phone and CPU-throttled runs were not repeated. The harness (`run.cjs`, `ab.cjs`, `analyze.cjs`) was kept outside the repository for this session.
+
+## Controlled inspector sliders — 2026-10-13
+
+[Task 4](tasks/react-architecture/04-composition-and-lesson-registry.md) made inspector inputs controlled: a slider backed by a curve adapter notifies the graph's scene store on every input, which re-renders the inspector. Measured as the synchronous `input` handler time (including React's render and the JSXGraph update), headless Chromium, 1600×1000, six alternating runs per build, 366 samples per run (pooled n = 2196), against the `e35075f` master build:
+
+| Slider | Median master → task 4 (ms) | p95 master → task 4 (ms) |
+|---|---|---|
+| Bézier extrapolation (`/bezier/extrapolation`) | 3.6 → 5.5 | 5.3 → 9.8 |
+| Quintic PH offset distance (`/ph/quintic`) | 8.0 → 9.7 | 10.6 → 12.8 |
+
+The added cost (about 2 ms per input) was consistent in every alternating pair. Both sliders stay within a 60 Hz frame at p95, with less margin than before. Accepted for correctness (controls can no longer show stale values); narrowing re-renders to the changed control group is a candidate optimization if profiling on target devices shows it matters. Phone and throttled runs were not repeated.

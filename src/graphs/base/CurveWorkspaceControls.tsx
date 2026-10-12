@@ -47,27 +47,27 @@ export function CurveWorkspaceOperations({curve, onChanged}: {curve: JXGBezierCu
     };
     return <div className="inspector-group curve-operations"><h3>{t("selected_curve_operations")}</h3>
         {attributes.allowSubdivision && <OperationGroup title={t('subdivide')}>
-            <Slider customText={t("subdivision_parameter_t")} min={0} max={1} fixedValue={subdivision}
+            <Slider customText={t("subdivision_parameter_t")} min={0} max={1} value={subdivision}
                 help={t("split_the_curve_into_two_parts_at_the_selected_parameter")}
                 onChange={t => {setSubdivision(t); curve.setSubdivisionT(t);}}/>
             <button aria-pressed={operationPreview === "subdivision"} onClick={() => togglePreview("subdivision")}>{t("preview_subdivision")}</button>
             <button onClick={() => operate(() => {curve.setSubdivisionT(subdivision); curve.subdivide();})}>{t("subdivide")}</button></OperationGroup>}
         {attributes.allowExtrapolation && <OperationGroup title={t('extrapolate')}>
-            <Slider customText={t("extrapolation_parameter_t")} min={1} max={1.5} fixedValue={extrapolation}
+            <Slider customText={t("extrapolation_parameter_t")} min={1} max={1.5} value={extrapolation}
                 help={t("extend_the_curve_beyond_its_end_parameter")}
                 onChange={t => {setExtrapolation(t); curve.setExtrapolationT(t);}}/>
             <button aria-pressed={operationPreview === "extrapolation"} onClick={() => togglePreview("extrapolation")}>{t("preview_extrapolation")}</button>
             <button onClick={() => operate(() => curve.extrapolate(extrapolation))}>{t("extrapolate")}</button></OperationGroup>}
         {attributes.allowShrink && <OperationGroup title={t('shorten')}>
-            <Slider customText={t("end_parameter_of_the_shortened_curve_t")} min={0} max={1} fixedValue={shrink}
+            <Slider customText={t("end_parameter_of_the_shortened_curve_t")} min={0} max={1} value={shrink}
                 help={t("keep_the_curve_from_the_start_to_the_selected_parameter")} onChange={t => {setShrink(t); if (operationPreview === "shrink") {curve.setSubdivisionT(t);}}}/>
             <button aria-pressed={operationPreview === "shrink"} onClick={() => togglePreview("shrink")}>{t("preview_shortening")}</button>
             <button onClick={() => operate(() => curve.extrapolate(shrink))}>{t("shorten")}</button></OperationGroup>}
         {attributes.allowDecasteljau && <OperationGroup title={t('de_casteljau_construction')}>
-            <OnOffSwitch label={t("de_casteljau_construction")} initialState={preview} onChange={checked => {
+            <OnOffSwitch label={t("de_casteljau_construction")} checked={preview} onChange={checked => {
                 setPreview(checked); redraw(() => checked ? curve.showCurrentDecasteljauScheme() : curve.hideDecasteljauScheme());
             }}/>
-            <Slider customText={t("construction_parameter_t")} min={0} max={1} fixedValue={decasteljau}
+            <Slider customText={t("construction_parameter_t")} min={0} max={1} value={decasteljau}
                 help={t("show_intermediate_construction_steps_at_the_selected_parameter")}
                 onChange={t => {setDecasteljau(t); redraw(() => {curve.setDecasteljauT(t); if (preview) {curve.showCurrentDecasteljauScheme();}});}}/>
         </OperationGroup>}

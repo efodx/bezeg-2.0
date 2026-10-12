@@ -4,7 +4,7 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
 import {GraphPalette} from "../../styles/GraphPalette";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 export const ALPHA_PARAM_MAX_SAMPLES = 40;
 
@@ -59,17 +59,17 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
         this.boardUpdate();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'parameterization-alpha') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('parameterization-alpha', action => {
             const value = action.value;
             if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
                 throw new Error('The parameter α must be a number from 0 to 1.');
             }
             this.setState({alpha: value});
             this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'parameterization-samples') {
+        });
+        registry.on('parameterization-samples', action => {
             const count = action.count;
             if (!Number.isInteger(count) || count < 1 || count > ALPHA_PARAM_MAX_SAMPLES) {
                 throw new Error(`The number of sample points must be an integer from 1 to ${ALPHA_PARAM_MAX_SAMPLES}.`);
@@ -82,10 +82,8 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
             } finally {
                 this.unsuspendBoardUpdate();
             }
-            return;
-        }
-        // 'parameterization-mode' belongs to the weighted/uniform comparison graph; unsupported here.
-        super.applyLessonAction(action);
+        });
+        // 'parameterization-mode' belongs to the weighted/uniform comparison graph; it is not registered here.
     }
 
     protected override disposeFigureScene(): void {
@@ -122,13 +120,13 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     alphaParamSlider() {
-        return <div><Slider min={0} max={1} initialValue={this.state.alpha} customText={'α = ' + this.state.alpha}
+        return <div><Slider min={0} max={1} value={this.state.alpha} customText={'α = ' + this.state.alpha}
                             onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 
     numberOfPointsSlider() {
         return <div>{t("number_of_points")}<Slider min={1} max={40} step={1}
-                                         initialValue={this.state.numberOfPoints}
+                                         value={this.state.numberOfPoints}
                                          onChange={(num) => this.setNumberOfPoints(num)}/>
         </div>;
     }

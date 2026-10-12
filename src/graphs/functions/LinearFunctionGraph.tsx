@@ -1,12 +1,11 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, FunctionParameterAction, mathTextHtml} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, slopeTriangle} from "../../analysis/linear";
 import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, LinearModel, parseLinearModel} from "../../analysis/linearModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
@@ -68,23 +67,17 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         this.commitModel(next);
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "x1":
-            case "y1":
-            case "x2":
-            case "y2":
-                this.setCoordinate(action.name, action.value);
-                return;
-            case "k":
-                this.setLineParameter({k: action.value});
-                return;
-            case "n":
-                this.setLineParameter({n: action.value});
-                return;
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                x1: value => this.setCoordinate("x1", value),
+                y1: value => this.setCoordinate("y1", value),
+                x2: value => this.setCoordinate("x2", value),
+                y2: value => this.setCoordinate("y2", value),
+                k: value => this.setLineParameter({k: value}),
+                n: value => this.setLineParameter({n: value}),
+            },
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

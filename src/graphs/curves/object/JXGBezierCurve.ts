@@ -1,5 +1,4 @@
 import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezierCurve";
-import {BezierCurveCommands} from "./inputs/BezierCurveCommands";
 import {Board} from "jsxgraph";
 import {PointControlledCurveState} from "./AbstractJXGPointControlledCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
@@ -71,10 +70,6 @@ export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCu
         if (this.isShowingDecasteljauScheme()) {
             this.showControlPolygonInternal();
         }
-    }
-
-    override getCurveCommands(): JSX.Element[] {
-        return super.getCurveCommands().concat(...BezierCurveCommands(this));
     }
 
 

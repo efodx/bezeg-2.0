@@ -289,7 +289,7 @@ test('controls: endpoint inputs and an n slider 1-100', () => {
 
     expect(found.Slider).toHaveLength(1);
     const slider = found.Slider[0].props;
-    expect([slider.min, slider.max, slider.step, slider.fixedValue]).toEqual([1, 100, 1, 2]);
+    expect([slider.min, slider.max, slider.step, slider.value]).toEqual([1, 100, 1, 2]);
     expect(slider.formatValue(12)).toBe('12');
     slider.onChange(100);
     expect(graph.model.n).toBe(100);

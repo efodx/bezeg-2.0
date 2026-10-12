@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, FunctionChoiceAction, FunctionParameterAction, mathTextHtml} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -10,7 +10,6 @@ import {
     isAreaMode, isBound, shadedQuantity, signedBetween, unsignedBetween,
 } from "../../analysis/areaBetween";
 import {AreaBetweenModel, DEFAULT_AREA_BETWEEN_MODEL, parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
@@ -87,23 +86,14 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         this.commitModel({...this.model, [which]: value}, options);
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "a":
-                return this.setBound("a", action.value);
-            case "b":
-                return this.setBound("b", action.value);
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
-    }
-
-    protected override applyFunctionChoice(action: FunctionChoiceAction): void {
-        if (action.name === "area-mode") {
-            this.setMode(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                a: value => this.setBound("a", value),
+                b: value => this.setBound("b", value),
+            },
+            choices: {"area-mode": value => this.setMode(value)},
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

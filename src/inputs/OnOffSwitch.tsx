@@ -1,25 +1,20 @@
-import React, {useEffect, useId, useState} from "react";
+import React, {useId} from "react";
 import {Form} from "react-bootstrap";
 
+/** A controlled switch: it shows `checked` and reports the requested value; the caller owns the state. */
 export function OnOffSwitch(props: {
-    initialState?: boolean,
+    checked: boolean,
     onChange: (checked: boolean) => void,
     label: string,
     disabled?: boolean
 }) {
-    const initialState = props.initialState === undefined ? true : props.initialState;
-    const [checked, setChecked] = useState(initialState);
     const id = useId();
-    useEffect(() => setChecked(initialState), [initialState]);
     return <Form> <Form.Check
         disabled={props.disabled}// prettier-ignore
         type="switch"
         id={id}
         label={props.label}
-        checked={checked}
-        onChange={() => {
-            props.onChange(!checked);
-            setChecked(!checked);
-        }}/>
+        checked={props.checked}
+        onChange={() => props.onChange(!props.checked)}/>
     </Form>;
 }

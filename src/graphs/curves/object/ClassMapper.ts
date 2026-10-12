@@ -28,6 +28,11 @@ export class ClassMapper {
         return nameToClassMap.get(name).fromDto;
     }
 
+    /** The adapter class that stores curves under `name`, or undefined for an unknown name. */
+    static getClass(name: string): (new (...args: any[]) => unknown) | undefined {
+        return nameToClassMap.get(name);
+    }
+
     static getClassName(clazz: any): string {
         return classToNameMap.get(clazz)!;
     }

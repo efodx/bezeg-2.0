@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -9,7 +9,6 @@ import {
     arcLength, arcValue, BOUND_MAX, BOUND_MIN, BOUND_STEP, isBound, isSegmentCount, lengthDifference, N_MAX, N_MIN, N_STEP, polylineLength, polylineVertices,
 } from "../../analysis/arcLength";
 import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL, parseArcLengthModel} from "../../analysis/arcLengthModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
@@ -71,17 +70,14 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         this.commitModel({...this.model, n: value});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "a":
-                return this.setBound("a", action.value);
-            case "b":
-                return this.setBound("b", action.value);
-            case "n":
-                return this.setCount(action.value);
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                a: value => this.setBound("a", value),
+                b: value => this.setBound("b", value),
+                n: value => this.setCount(value),
+            },
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -183,7 +179,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
                 <p className="inspector-help">{t("arc_bounds_help")}</p>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} fixedValue={n}
+                <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
                         help={t("arc_n_help")} formatValue={value => String(Math.round(value))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
             </div>

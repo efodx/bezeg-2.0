@@ -73,11 +73,10 @@ describe('spline-continuity', () => {
         expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
-    test('requests counter remount so the displayed values follow', () => {
+    test('requests a render so the counters show the actual values', () => {
         const graph = makeGraph(CnSplineGraph, genericCurve(2, 1));
         apply(graph, {kind: 'spline-continuity', value: 0});
         expect(graph.requestRender).toHaveBeenCalledTimes(1);
-        expect(graph.splineSwitchRevision).toBe(1);
     });
 });
 
@@ -130,7 +129,7 @@ describe('label and hide-fixed actions', () => {
         apply(graph, {kind: 'spline-label-points', visible: true});
         expect(curve.getLabelAll()).toBe(true);
         expect(curve.getHideFixed()).toBe(false);
-        expect(graph.splineSwitchRevision).toBe(4);
+        expect(graph.requestRender).toHaveBeenCalledTimes(4);
     });
 
     test.each([['spline-label-points', 'visible'], ['spline-hide-fixed', 'hidden']])('%s rejects a non-boolean without mutation', (kind, key) => {
@@ -142,15 +141,18 @@ describe('label and hide-fixed actions', () => {
         expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
-    test('switches are keyed on the workspace revision and action revision so they reflect restored state', () => {
-        const graph = makeGraph(CnSplineGraph, genericCurve());
-        const keys = () => (graph.getGraphCommands() as any[]).filter(el => el?.key).map(el => el.key);
-        const before = keys();
-        graph.workspaceRevision++;
-        expect(keys()).not.toEqual(before);
-        const mid = keys();
+    test('the switches are controlled by the curve, so they reflect restored state and lesson actions', () => {
+        const curve = genericCurve();
+        const graph = makeGraph(CnSplineGraph, curve);
+        const checked = () => (graph.getGraphCommands() as any[]).filter(el => el?.props?.checked !== undefined).map(el => el.props.checked);
+        expect(checked()).toEqual([true, false]);
         apply(graph, {kind: 'spline-hide-fixed', hidden: true});
-        expect(keys()).not.toEqual(mid);
+        apply(graph, {kind: 'spline-label-points', visible: false});
+        expect(checked()).toEqual([false, true]);
+        // A restored curve with other flags shows them without any remounting.
+        curve.labelAll = true;
+        curve.hideFixed = false;
+        expect(checked()).toEqual([true, false]);
     });
 });
 

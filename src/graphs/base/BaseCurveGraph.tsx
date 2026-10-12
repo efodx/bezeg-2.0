@@ -2,7 +2,7 @@ import {t} from "../../localization";
 import React from 'react';
 
 
-import {Board} from "jsxgraph";
+
 import {Select} from "../../inputs/Select";
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -21,12 +21,13 @@ import {JXGPointWrapper} from "../curves/object/JXGPointWrapper";
 import {CurveWorkspaceOperations} from "./CurveWorkspaceControls";
 import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
 import {PointCoordinateEditor} from "./PointCoordinateEditor";
-import {PointControlledCurveCommands} from "../curves/object/inputs/PointControlledCurveCommands";
-import {LessonAction} from '../../learning/model';
+import {CurveDisplayControls} from "./controls/CurveDisplayControls";
+import {selectedCurveControls} from "./controls/SelectedCurveControls";
+import {CurveEditingFeature, SelectedCurveOption} from "./CurveEditingFeature";
+import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
+import {curveVisibilityActions} from "./lesson/curveLessonActions";
 
-enum SelectedCurveOption {
-    MOVE_CURVE, ADD_POINTS, DELETE_POINTS
-}
+export {SelectedCurveOption};
 
 interface BaseGraphStates extends BaseGraphState {
     selectedCurveOption: SelectedCurveOption;
@@ -51,34 +52,38 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         this.requestRender();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        const curve = this.getFirstJxgCurve();
-        if (action.kind === 'curve-visibility' && action.target === 'control-polygon') {
-            curve.showControllPolygon(action.visible);
-            this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'curve-visibility' && action.target === 'convex-hull') {
-            curve.showConvexHull(action.visible);
-            this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'curve-visibility' && action.target === 'decasteljau-scheme' && curve instanceof AbstractJXGBezierCurve) {
-            curve.showCurrentDecasteljauScheme(action.visible);
-            this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'curve-evaluation') {
-            curve.showEvaluationPoint(action.parameter);
-            this.boardUpdate();
-            return;
-        }
-        if (action.kind === 'curve-visibility' && action.target === 'weights' && curve instanceof JXGRationalBezierCurve) {
-            curve.showwWeights(action.visible);
-            this.boardUpdate();
-            return;
-        }
-        super.applyLessonAction(action);
+    /**
+     * Pointer handling, selection and the editing mode live in the composed editing feature; the graph supplies the
+     * scene it edits.
+     */
+    protected readonly editing = new CurveEditingFeature({
+        board: () => this.board,
+        curves: () => this.jxgCurves,
+        allPoints: () => this.getAllJxgPoints(),
+        editingMode: () => this.state.selectedCurveOption,
+        inputsDisabled: () => this.inputsDisabled,
+        interactionLocked: () => this.graphInteractionLocked,
+        setEditingState: patch => this.setCurveState(patch),
+        deselectSelectedCurve: () => this.deselectSelectedCurve(),
+        selectCurve: curve => this.selectCurve(curve),
+        unsuspendBoardUpdate: () => this.unsuspendBoardUpdate(),
+        refreshWorkspace: () => this.refreshWorkspace(),
+    });
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(curveVisibilityActions({
+            curve: () => this.getFirstJxgCurve(),
+            curveClass: () => {
+                // A live curve is authoritative; before the board exists the default scene says which adapter the graph uses.
+                const live: unknown = this.getFirstJxgCurve();
+                if (live) return (live as { constructor: new (...args: any[]) => unknown }).constructor;
+                const preset: unknown = this.defaultPreset();
+                const className = Array.isArray(preset) && Array.isArray(preset[0]) ? preset[0][0] : undefined;
+                return typeof className === 'string' ? ClassMapper.getClass(className) : undefined;
+            },
+            boardUpdate: () => this.boardUpdate(),
+        }));
     }
 
     private registerSubdivisionResultConsumer<T extends AbstractJXGBezierCurve<any, any>>(curve: T) {
@@ -148,10 +153,10 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
 
     protected override workspaceDisplay(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("graph_view")}</h3>{super.workspaceDisplay()}
-            <OnOffSwitch label={t("point_labels")} initialState={this.displaySettings.pointLabelsVisible}
+            <OnOffSwitch label={t("point_labels")} checked={this.displaySettings.pointLabelsVisible}
                 onChange={checked => this.setPointLabelsVisible(checked)}/></div>
-            {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={`${i}-${this.workspaceRevision}`}><h3>{t("curve_display")} {i + 1}</h3>
-                {PointControlledCurveCommands(curve).map((control, index) => <div className="inspector-control" key={index}>{control}</div>)}
+            {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={i}><h3>{t("curve_display")} {i + 1}</h3>
+                <CurveDisplayControls curve={curve} onChanged={() => this.store.notify()}/>
             </div>)}</>;
     }
 
@@ -190,9 +195,9 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         super.mount(container);
         const session = this.getActiveGraphSession();
         if (!session) return;
-        session.on('down', (e) => this.handleDown(e));
-        session.on('up', (e) => this.handleUp(e));
-        session.on('move', (e) => this.handleMove(e));
+        session.on('down', (e) => this.editing.handleDown(e));
+        session.on('up', (e) => this.editing.handleUp(e));
+        session.on('move', (e) => this.editing.handleMove(e));
     }
 
     override unmount() {
@@ -300,12 +305,6 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         return new JXGPointWrapper(point);
     }
 
-    // TODO change e to pointerevent
-    getMouseCoords(e: any) {
-        const pos = this.board.getMousePosition(e);
-        return new JXG.Coords(JXG.COORDS_BY_SCREEN, pos, this.board as Board);
-    }
-
     getSelect() {
         return <Select onChange={e => this.onSelectChange(e)}
                        options={[{
@@ -323,74 +322,17 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
 
     getSelectedCurveCommands(): JSX.Element[] {
         if (this.getSelectedCurve()) {
-            return this.getSelectedCurve().getCurveCommands();
+            return selectedCurveControls(this.getSelectedCurve(), () => this.store.notify());
         }
         return [];
     }
 
-    handleDown(e: PointerEvent) {
-        if (this.inputsDisabled || this.graphInteractionLocked) {
-            return;
-        }
-        this.board.suspendUpdate();
-        let coords = this.getMouseCoords(e);
-        let selectedCurve, selectableCurve;
-        if (this.state.selectedCurveOption === SelectedCurveOption.MOVE_CURVE) {
-            selectedCurve = this.getSelectedCurve();
-            if (selectedCurve) {
-                selectedCurve.coords = coords;
-                if (selectedCurve.isMouseInsidePaddedBoundingBox()) {
-                    selectedCurve.processMouseDown(e);
-                } else {
-                    this.deselectSelectedCurve();
-                }
-            }
-            selectedCurve = this.getSelectedCurve();
-            if (!selectedCurve) {
-                if (!this.getAllJxgPoints().some(p => p.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))) {
-                    selectableCurve = this.jxgCurves.filter(curve => curve.isSelectable(e))[0];
-                    if (selectableCurve) {
-                        this.selectCurve(selectableCurve);
-                    }
-                }
-            }
-            this.unsuspendBoardUpdate();
-            return;
-        }
-        let canCreate = true;
-
-        for (let el of this.board.objectsList) {
-            if (JXG.isPoint(el) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-                canCreate = false;
-                break;
-            }
-        }
-        if (canCreate && this.state.selectedCurveOption === SelectedCurveOption.ADD_POINTS && this.getSelectedCurve()) {
-            this.getSelectedCurve().addPoint(coords.usrCoords[1], coords.usrCoords[2]);
-        }
-        if (!canCreate && this.state.selectedCurveOption === SelectedCurveOption.DELETE_POINTS && this.getSelectedCurve()) {
-            this.getSelectedCurve().getJxgPoints().every((point, i) => {
-                if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-                    if (this.getSelectedCurve().getJxgPoints().length > 1) { this.getSelectedCurve().removePoint(i); }
-                    return false;
-                }
-                return true;
-            });
-        }
-
-        this.unsuspendBoardUpdate();
-        this.refreshWorkspace();
-    };
-
     getSelectedCurve() {
-        return this.jxgCurves.filter(curve => curve.isSelected())[0];
+        return this.editing.getSelectedCurve()!;
     }
 
-
     deselectSelectedCurve() {
-        this.getSelectedCurve().deselect();
-
-        this.setCurveState({curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE});
+        this.editing.deselect();
     }
 
     getAllJxgCurves() {
@@ -400,7 +342,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     getSelectableCurveArea() {
         let commands = [this.getSelect()];
         commands = commands.concat(this.getSelectedCurveCommands());
-        return <Commands commands={commands} revision={this.workspaceRevision} title={t("selected_curve_25")}></Commands>;
+        return <Commands commands={commands} title={t("selected_curve_25")}></Commands>;
     }
 
     override exportPresetData() {
@@ -429,48 +371,14 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     }
 
     protected selectCurve(selectableCurve: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>, additionalState: Partial<BaseGraphStates> = {}) {
-        selectableCurve.select();
-        this.setCurveState({curveSelected: true, ...additionalState});
+        this.editing.select(selectableCurve, additionalState);
     }
 
     private onSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        let selectTool = e.target.value;
-        let selectedCurveOption = Number(selectTool);
-        this.setCurveState({selectedCurveOption});
-    }
-
-    private handleUp(e: PointerEvent) {
-        if (this.graphInteractionLocked) return;
-        if (this.state.selectedCurveOption !== SelectedCurveOption.MOVE_CURVE) {
-            // only handle when we're just moving curve
-            return;
-        }
-        let selectedCurve = this.getSelectedCurve();
-        if (selectedCurve && selectedCurve.needToProcessMoveEvent()) {
-            this.board.suspendUpdate();
-            selectedCurve?.processMouseUp(e);
-            this.unsuspendBoardUpdate();
-        }
-    }
-
-    private handleMove(e: PointerEvent) {
-        if (this.graphInteractionLocked) return;
-        if (this.state.selectedCurveOption !== SelectedCurveOption.MOVE_CURVE) {
-            return;
-        }
-        let selectedCurve = this.getSelectedCurve();
-        if (!selectedCurve?.needToProcessMoveEvent()) {
-            selectedCurve?.processMouseCursor(e);
-        }
-        if (selectedCurve && selectedCurve.needToProcessMoveEvent()) {
-            this.board.suspendUpdate();
-            selectedCurve?.processMouseMove(e);
-            this.unsuspendBoardUpdate();
-        }
+        this.editing.setMode(Number(e.target.value));
     }
 
 }
 
 export default BaseCurveGraph;
 export type {BaseGraphStates};
-

@@ -6,7 +6,7 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
 import {CountSetter} from "../../inputs/CountSetter";
-import {LessonAction} from "../../learning/model";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 export const BERNSTEIN_MAX_DEGREE = 5;
 
@@ -70,22 +70,20 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
         this.boardUpdate();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'bernstein-degree') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('bernstein-degree', action => {
             const degree = action.degree;
             if (!Number.isInteger(degree) || degree < 0 || degree > BERNSTEIN_MAX_DEGREE) {
                 throw new Error(`The Bernstein degree must be an integer from 0 to ${BERNSTEIN_MAX_DEGREE}.`);
             }
             this.setState({n: degree + 1});
             this.generateBernsteinPolynomials(this.board, degree + 1, this.generatedFor?.isSumGraph ?? this.state.isSumGraph);
-            return;
-        }
-        if (action.kind === 'bernstein-stacked-area') {
+        });
+        registry.on('bernstein-stacked-area', action => {
             this.setState({isSumGraph: action.visible});
             this.generateBernsteinPolynomials(this.board, this.generatedFor?.n ?? this.state.n, action.visible);
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     private removeGeneratedObjects(): void {
@@ -218,7 +216,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
         return super.getGraphCommands().concat(<CountSetter min={0} max={5} onPlus={() => this.setN(this.state.n + 1)}
                                                             onCenter={() => 1} n={this.state.n - 1}
                                                             onMinus={() => this.setN(this.state.n - 1)}/>,
-            <OnOffSwitch initialState={this.state.isSumGraph} onChange={checked => this.setIsSumGraph(checked)}
+            <OnOffSwitch checked={this.state.isSumGraph} onChange={checked => this.setIsSumGraph(checked)}
                          label={t("stacked_area_chart")}/>);
     }
 

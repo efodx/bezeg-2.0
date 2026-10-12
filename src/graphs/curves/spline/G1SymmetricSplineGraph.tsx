@@ -2,14 +2,14 @@ import React from "react";
 import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import Slider from "../../../inputs/Slider";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
 
 export const G1_SYMMETRIC_BETA_MIN = 0.01;
 export const G1_SYMMETRIC_BETA_MAX = 0.99;
 
 interface G1SymmetricSplineGraphStates extends BaseGraphStates {
-    /** Bumped when lesson actions change β, so the sliders re-read the model values. */
+    /** Bumped when lesson actions change β; part of the saved scene state. The sliders read the model values while rendering. */
     betaRevision?: number;
 }
 
@@ -32,22 +32,21 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
         return "g1-symmetric-spline-graph";
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'spline-beta') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('spline-beta', action => {
             const curve = this.getFirstCurve();
             validateSplineBeta(action.index, action.value, curve ? curve.getNumOfBs() : 0, G1_SYMMETRIC_BETA_MIN, G1_SYMMETRIC_BETA_MAX);
             curve.setB(action.index, action.value);
             this.setState(state => ({betaRevision: (state.betaRevision ?? 0) + 1}));
             this.boardUpdate();
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     private getBiSetters() {
         return this.getFirstCurve().getBs().map(
             (b, i) => <div key={i}>
-                <Slider initialValue={b} min={G1_SYMMETRIC_BETA_MIN} max={G1_SYMMETRIC_BETA_MAX}
+                <Slider value={b} min={G1_SYMMETRIC_BETA_MIN} max={G1_SYMMETRIC_BETA_MAX}
                         onChange={(val) => this.changeBi(i, val)}/></div>
         );
     }
@@ -55,6 +54,7 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
     private changeBi(i: number, val: number) {
         this.getFirstCurve().setB(i, val);
         this.boardUpdate();
+        this.store.notify();
     }
 
 

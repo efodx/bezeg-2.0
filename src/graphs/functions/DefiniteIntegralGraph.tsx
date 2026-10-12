@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -13,7 +13,6 @@ import {
 } from "../../analysis/riemann";
 import {DEFAULT_RIEMANN_MODEL, parseRiemannModel, RiemannModel} from "../../analysis/riemannModel";
 import {Preset} from "../base/presets/Presets";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
@@ -105,29 +104,18 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         this.commitModel({...this.model, n: value});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "a":
-                return this.setBound("a", action.value);
-            case "b":
-                return this.setBound("b", action.value);
-            case "n":
-                return this.setCount(action.value);
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
-    }
-
-    protected override applyFunctionChoice(action: FunctionChoiceAction): void {
-        if (action.name === "integral-function") {
-            this.setFunction(action.value);
-            return;
-        }
-        if (action.name === "sum-method") {
-            this.setMethod(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                a: value => this.setBound("a", value),
+                b: value => this.setBound("b", value),
+                n: value => this.setCount(value),
+            },
+            choices: {
+                "integral-function": value => this.setFunction(value),
+                "sum-method": value => this.setMethod(value),
+            },
+        };
     }
 
     /** A preset or file whose function differs and which carries no view of its own shows that function's view, like the choice does. */
@@ -234,7 +222,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
                 <p className="inspector-help">{t("integral_bounds_help")}</p>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} fixedValue={n}
+                <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
                         help={t("integral_n_help")} formatValue={value => String(Math.round(value))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
                 <ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}

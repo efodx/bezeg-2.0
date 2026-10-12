@@ -6,7 +6,7 @@ import Slider from "../../../inputs/Slider";
 import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     isAlphaParam: boolean
@@ -26,29 +26,26 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         this.sampleJxgPoints = [];
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'parameterization-alpha') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('parameterization-alpha', action => {
             if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) {
                 throw new Error('The parametrization alpha must be between 0 and 1.');
             }
             this.setState({alpha: action.value});
-            return;
-        }
-        if (action.kind === 'parameterization-samples') {
+        });
+        registry.on('parameterization-samples', action => {
             if (!Number.isInteger(action.count) || action.count < 1 || action.count > 40) {
                 throw new Error('The number of sample points must be an integer between 1 and 40.');
             }
             this.setState({numberOfPoints: action.count});
-            return;
-        }
-        if (action.kind === 'parameterization-mode') {
+        });
+        registry.on('parameterization-mode', action => {
             if (action.mode !== 'weighted' && action.mode !== 'uniform') {
                 throw new Error('The parametrization mode must be weighted or uniform.');
             }
             this.setState({isAlphaParam: action.mode === 'weighted'});
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     protected override workspaceDescription() {
@@ -56,7 +53,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{super.workspaceEdit()}<div className="inspector-group" key={`parametrization-${this.workspaceRevision}`}>
+        return <>{super.workspaceEdit()}<div className="inspector-group">
             <h3>{t("parametrization")}</h3>{this.paramField()}
         </div></>;
     }
@@ -104,10 +101,6 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         return super.getFirstCurve() as PhBezierCurve;
     }
 
-    override getGraphCommands(): JSX.Element[] {
-        return [this.paramField()];
-    }
-
     setAlpha(alpha: number) {
         this.setState({alpha: alpha});
     }
@@ -141,11 +134,11 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
                 </Form.Select>
             </Form>
             <div>{t("number_of_points")}<Slider min={1} max={40} step={1}
-                                      initialValue={this.state.numberOfPoints}
+                                      value={this.state.numberOfPoints}
                                       onChange={(num) => this.setNumberOfPoints(num)}/>
             </div>
             {this.state.isAlphaParam ? <div>
-                <Slider min={0} max={1} initialValue={this.state.alpha} customText={'α'}
+                <Slider min={0} max={1} value={this.state.alpha} customText={'α'}
                         onChange={(alpha) => this.setAlpha(alpha)}/>
             </div> : null}
 

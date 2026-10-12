@@ -8,7 +8,8 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import Slider from "../../../inputs/Slider";
 import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -115,33 +116,32 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         return {...super.lessonDefaultState(), t: 0.5, v: 1, showDecasteljau: true};
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'subdivision-parameter') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('subdivision-parameter', action => {
             const value = action.value;
             if (typeof value !== 'number' || !Number.isFinite(value) || value < 0.01 || value > 0.99) {
                 throw new Error('The subdivision parameter t must be a number from 0.01 to 0.99.');
             }
             this.setT(value);
-            return;
-        }
-        if (action.kind === 'subdivide') {
+        });
+        registry.on('subdivide', () => {
             const t = this.state.t;
             if (!this.getFirstJxgCurve() || !(t >= 0.01 && t <= 0.99)) {
                 throw new Error('Set the subdivision parameter t between 0.01 and 0.99 before subdividing.');
             }
             this.subdivide();
-            return;
-        }
-        super.applyLessonAction(action);
-        if (action.kind === 'curve-visibility' && action.target === 'decasteljau-scheme') {
+        });
+        // The scheme switch also drives the drawn interval, so it extends the shared curve visibility handler.
+        registry.onDiscriminated('curve-visibility', 'decasteljau-scheme', (action, shared) => {
+            shared(action);
             this.setState({showDecasteljau: action.visible});
-        }
+        });
     }
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<OnOffSwitch
-            key={this.state.showDecasteljau + ""}
-            initialState={this.getFirstJxgCurve().isShowingDecasteljauScheme() || this.state.showDecasteljau}
+            checked={this.getFirstJxgCurve().isShowingDecasteljauScheme() || !!this.state.showDecasteljau}
             onChange={checked => {
                 this.getFirstJxgCurve().showCurrentDecasteljauScheme(checked);
                 this.setState({showDecasteljau: checked});
@@ -149,7 +149,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
             }}
             label={t("show_scheme")}></OnOffSwitch>,
             <Slider customText={'t = ' + this.state.t.toFixed(2)} min={0.01} max={0.99}
-                    fixedValue={this.state.t}
+                    value={this.state.t}
                     onChange={(t) => this.setT(t, this.state)}></Slider>,
             <Button onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];
     }

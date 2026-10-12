@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -12,7 +12,6 @@ import {
     differenceQuotient, H_MAX, H_MIN, H_MIN_ABS, H_STEP, isStep, isX0, lineValue, stepOutOfBand, tangentLine, X0_MAX, X0_MIN, X0_STEP,
 } from "../../analysis/derivative";
 import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel, parseDerivativeModel} from "../../analysis/derivativeModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (-2 + 150 * 0.01) without changing meaningful digits. */
@@ -74,31 +73,15 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         this.commitModel({...this.model, tangent: visible});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "x0":
-                return this.setX0(action.value);
-            case "h":
-                return this.setStep(action.value);
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
-    }
-
-    protected override applyFunctionVisibility(action: FunctionVisibilityAction): void {
-        if (action.target === "tangent") {
-            this.setTangentVisible(action.visible);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
-    }
-
-    protected override applyFunctionChoice(action: FunctionChoiceAction): void {
-        if (action.name === "derivative-function") {
-            this.setFunction(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                x0: value => this.setX0(value),
+                h: value => this.setStep(value),
+            },
+            visibility: {tangent: visible => this.setTangentVisible(visible)},
+            choices: {"derivative-function": value => this.setFunction(value)},
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -169,12 +152,12 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
             <div className="inspector-group">
                 <NumberInput label={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-                <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} fixedValue={h}
+                <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} value={h}
                         help={t("derivative_h_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(stepOutOfBand(next, this.model.h)))}/>
             </div>
             <div className="inspector-group">
-                <OnOffSwitch initialState={tangent} label={t("derivative_show_tangent")}
+                <OnOffSwitch checked={tangent} label={t("derivative_show_tangent")}
                              onChange={checked => this.setTangentVisible(checked)}/>
             </div>
         </>;

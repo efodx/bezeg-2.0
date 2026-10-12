@@ -287,7 +287,7 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
 
     expect(found.Slider).toHaveLength(1);
     const slider = found.Slider[0].props;
-    expect([slider.min, slider.max, slider.step, slider.fixedValue]).toEqual([-2, 2, 0.01, 1]);
+    expect([slider.min, slider.max, slider.step, slider.value]).toEqual([-2, 2, 0.01, 1]);
     slider.onChange(-2 + 150 * 0.01); // -0.5 up to rounding noise
     expect(graph.model.h).toBe(-0.5);
     // stepping over 0: the slider cannot take a value inside the band, it skips to the other side

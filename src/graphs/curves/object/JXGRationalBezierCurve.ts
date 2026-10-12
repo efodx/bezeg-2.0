@@ -3,7 +3,6 @@
  */
 import {Board} from "jsxgraph";
 import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezierCurve";
-import {RationalBezierCurveCommands} from "./inputs/RationalBezierCurveCommands";
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
@@ -307,10 +306,6 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
             this.pointControlledCurve.setReactiveWeights(undefined);
         }
         this.showingFarinPoints = show;
-    }
-
-    override getCurveCommands(): JSX.Element[] {
-        return super.getCurveCommands().concat(...RationalBezierCurveCommands(this));
     }
 
     setStandardForm(standard: boolean) {

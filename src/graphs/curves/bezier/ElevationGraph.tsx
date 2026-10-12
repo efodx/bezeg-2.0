@@ -5,7 +5,8 @@ import {Button} from "react-bootstrap";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
@@ -34,8 +35,8 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group" key={`elevation-overlay-${this.workspaceRevision}`}>
-            <OnOffSwitch initialState={this.elevationOverlayOn} label={t("show_elevated_points_on_control_polygon")}
+        return <>{super.workspaceDisplay()}<div className="inspector-group">
+            <OnOffSwitch checked={this.elevationOverlayOn} label={t("show_elevated_points_on_control_polygon")}
                          onChange={checked => this.setElevationOverlay(checked)}/>
             <p>{t("elevated_points_description")}</p></div></>;
     }
@@ -44,6 +45,7 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.elevationOverlayOn = on;
         this.applyElevationOverlay();
         this.boardUpdate();
+        this.store.notify();
     }
 
     /** Brings the board in line with the switch; safe to call repeatedly (show is idempotent). */
@@ -62,12 +64,9 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         }
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'degree-elevation') {
-            this.elevate();
-            return;
-        }
-        super.applyLessonAction(action);
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(degreeElevationAction(() => this.elevate()));
     }
 
     defaultPreset(): any {

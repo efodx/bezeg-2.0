@@ -2,7 +2,6 @@ import type {DisplaySettings} from "../../base/DisplaySettings";
 import {GraphStyles, settingsForBoard, stylesForBoard} from "../../styles/GraphStyles";
 import {Board, PointAttributes, SegmentAttributes} from "jsxgraph";
 import {JXGPointWrapper} from "./JXGPointWrapper";
-import {PointControlledCurveCommands} from "./inputs/PointControlledCurveCommands";
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
@@ -223,7 +222,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     processMouseDown(e: PointerEvent) {
-        console.time("Processing mouse down event");
         this.coords = this.getMouseCoords(e);
         if (this.selected && this.boundBoxPoints?.some(point => point.hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2]))) {
             this.startResizing();
@@ -233,11 +231,9 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         if (this.selected && !this.resizing && !this.rotating) {
             this.startDragging();
         }
-        console.timeEnd("Processing mouse down event");
     }
 
     processMouseMove(e: PointerEvent) {
-        console.time("Processing mouse move event");
         const newCoords = this.getMouseCoords(e);
         if (this.dragging) {
             this.move(newCoords);
@@ -250,7 +246,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         }
         this.board.update();
         this.coords = newCoords;
-        console.timeEnd("Processing mouse move event");
     }
 
     needToProcessMoveEvent() {
@@ -472,13 +467,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         return this.showingConvexHull;
     }
 
-    getCurveCommands(): JSX.Element[] {
-        if (this.attributes.allowShowControlPolygon) {
-            return PointControlledCurveCommands(this);
-        }
-        return [];
-    }
-
     getAttributes(): Attr {
         return this.attributes;
     }
@@ -531,7 +519,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         }
         this.boundBoxPoints.forEach((p, i) => {
             if (p.hasPoint(newCoords.scrCoords[1], newCoords.scrCoords[2])) {
-                this.board.containerObj.style.cursor = i % 2 != 0 ? 'nwse-resize' : 'nesw-resize';
+                this.board.containerObj.style.cursor = i % 2 !== 0 ? 'nwse-resize' : 'nesw-resize';
             }
         });
 

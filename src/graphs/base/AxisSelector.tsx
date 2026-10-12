@@ -20,7 +20,7 @@ export function AxisSelector(props: { selected: AxisSelect, onChange: (selected:
         <Form.Label>{t("coordinate_system")}</Form.Label>
         <Form.Select onChange={(value) => props.onChange(value.target.value as AxisSelect)}
                      aria-label={t("coordinate_system")}
-                     defaultValue={props.selected}
+                     value={props.selected}
         >
             {Object.values(AxisSelect).map(select =>
                 <option key={select} value={select}>{labels[select]}</option>)}

@@ -13,6 +13,7 @@ import {SizeRange} from "./SizeRange";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
+import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import {AxisSelect, DisplaySettings} from "./DisplaySettings";
 import {GraphStyles, stylesFor} from "../styles/GraphStyles";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
@@ -76,6 +77,7 @@ export interface GraphWorkspacePanels {
 abstract class BaseGraph<S extends BaseGraphState> {
     private sceneStore?: SceneStore<S>;
     private presetServiceInstance?: PresetService;
+    private lessonActionRegistry?: LessonActionRegistry;
     /** State from before the first update that `onStateChange` has not seen yet. */
     private pendingPreviousState?: S;
     private pendingCallbacks: Array<() => void> = [];
@@ -199,16 +201,19 @@ abstract class BaseGraph<S extends BaseGraphState> {
     /** Sets the element size step and redraws the board with it. */
     setElementSize(size: number): void {
         this.displaySettings.setSize(size);
+        this.store.notify();
         if (this.graphSession?.isAlive) this.board.fullUpdate();
     }
 
     setAxisSelect(selected: AxisSelect): void {
         this.displaySettings.setAxisSelect(selected);
+        this.store.notify();
         if (this.graphSession?.isAlive) this.board.fullUpdate();
     }
 
     setPointLabelsVisible(visible: boolean): void {
         this.displaySettings.pointLabelsVisible = visible;
+        this.store.notify();
         if (!this.graphSession?.isAlive) return;
         this.board.suspendUpdate();
         this.unsuspendBoardUpdate();
@@ -355,12 +360,39 @@ abstract class BaseGraph<S extends BaseGraphState> {
         return this.graphSession?.isAlive ? this.graphSession : undefined;
     }
 
-    protected applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'prepared-scene' && action.source === 'demonstration-default') {
-            this.prepareLessonDefaultScene();
-            return;
+    /**
+     * The lesson actions this graph supports, composed from the features it uses on first use. Graphs add handlers by
+     * overriding `registerLessonActions`; nothing dispatches through `super`.
+     */
+    protected get lessonActions(): LessonActionRegistry {
+        if (!this.lessonActionRegistry) {
+            const registry = new LessonActionRegistry();
+            this.registerLessonActions(registry);
+            this.lessonActionRegistry = registry;
         }
-        throw new UnsupportedLessonActionError(action);
+        return this.lessonActionRegistry;
+    }
+
+    /** Contributes this graph's lesson action handlers. Overrides call `super` first, then add their own. */
+    protected registerLessonActions(registry: LessonActionRegistry): void {
+        registry.on('prepared-scene', action => {
+            if (action.source !== 'demonstration-default') throw new UnsupportedLessonActionError(action);
+            this.prepareLessonDefaultScene();
+        });
+    }
+
+    /** Whether the graph has a handler for the action (it may still reject the action's values or scene). */
+    supportsLessonAction(action: LessonAction): boolean {
+        return this.lessonActions.handles(action);
+    }
+
+    protected applyLessonAction(action: LessonAction): void {
+        try {
+            this.lessonActions.apply(action);
+        } finally {
+            // Handlers change adapters and boards outside the scene store; controls read those values live.
+            this.store.notify();
+        }
     }
 
     /** Restores a static lesson scene through the graph's own preset importer. */
@@ -569,7 +601,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
 
     getGraphCommandsArea() {
         return this.getGraphCommands().length > 0 ?
-            <Commands commands={this.getGraphCommands()} revision={this.workspaceRevision} title={t("graph_commands")}/> : null;
+            <Commands commands={this.getGraphCommands()} title={t("graph_commands")}/> : null;
     }
 
     presets(): undefined | string {

@@ -45,6 +45,8 @@ import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph'
 import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
 import { GraphHost } from './graphs/base/GraphHost';
+import type BaseGraph from './graphs/base/BaseGraph';
+import type { BaseGraphState } from './graphs/base/BaseGraph';
 import RationalSubdivisionGraph2
   from './graphs/curves/rational/RationalSubdivisionGraph2';
 import RationalBezierCurveGraph
@@ -54,42 +56,45 @@ import React, {ReactNode} from 'react';
 import {DemonstrationId, getDemonstrationCatalog} from './demonstrations';
 
 // The routing adapter owns executable graphs; metadata owns identity and paths.
-const graphElements: Record<DemonstrationId, ReactNode> = {
-    'bernstein': <GraphHost key="bernstein" create={() => new BernsteinGraph()}/>,
-    'bezier': <GraphHost key="bezier" create={() => new BezierCurveGraph()}/>,
-    'decasteljau': <GraphHost key="decasteljau" create={() => new DecasteljauGraph()}/>,
-    'decasteljau-alternative': <GraphHost key="decasteljau-alternative" create={() => new DecasteljauGraph2()}/>,
-    'affine': <GraphHost key="affine" create={() => new AffineTransformBezierCurveGraph()}/>,
-    'subdivision': <GraphHost key="subdivision" create={() => new DecasteljauGraph3()}/>,
-    'repeated-subdivision': <GraphHost key="repeated-subdivision" create={() => new SubdivisionGraph()}/>,
-    'extrapolation': <GraphHost key="extrapolation" create={() => new ExtrapolationGraph()}/>,
-    'elevation': <GraphHost key="elevation" create={() => new ElevationGraph()}/>,
-    'rational': <GraphHost key="rational" create={() => new RationalBezierCurveGraph()}/>,
-    'rational-decasteljau': <GraphHost key="rational-decasteljau" create={() => new RationalDecasteljauGraph()}/>,
-    'rational-elevation': <GraphHost key="rational-elevation" create={() => new RationalElevationGraph()}/>,
-    'rational-extrapolation': <GraphHost key="rational-extrapolation" create={() => new RationalExtrapolationGraph()}/>,
-    'rational-subdivision': <GraphHost key="rational-subdivision" create={() => new RationalSubdivisionGraph2()}/>,
-    'farin': <GraphHost key="farin" create={() => new FarinPointsCurveGraph()}/>,
-    'circle': <GraphHost key="circle" create={() => new RationalBezierCurveCircleGraphN()}/>,
-    'spline-cn': <GraphHost key="spline-cn" create={() => new CnSplineGraph()}/>,
-    'spline-c1': <GraphHost key="spline-c1" create={() => new C1SplineGraph()}/>,
-    'spline-c2': <GraphHost key="spline-c2" create={() => new C2SplineGraph()}/>,
-    'spline-g1': <GraphHost key="spline-g1" create={() => new G1SplineGraph()}/>,
-    'spline-g1-symmetric': <GraphHost key="spline-g1-symmetric" create={() => new G1SymmetricSplineGraph()}/>,
-    'ph-cubic': <GraphHost key="ph-cubic" create={() => new CubicPhBezierCurveGraph()}/>,
-    'ph-quintic': <GraphHost key="ph-quintic" create={() => new QuinticPhBezierCurve()}/>,
-    'spline-parameterization': <GraphHost key="spline-parameterization" create={() => new SplineAlphaParametrizationGraph()}/>,
-    'weighted-parameterization': <GraphHost key="weighted-parameterization" create={() => new AlphaParamBezierCurveGraph()}/>,
-    'uniform-parameterization': <GraphHost key="uniform-parameterization" create={() => new UniformParamBezierCurveGraph()}/>,
-    'linear-function': <GraphHost key="linear-function" create={() => new LinearFunctionGraph()}/>,
-    'exponential-function': <GraphHost key="exponential-function" create={() => new ExponentialFunctionGraph()}/>,
-    'trigonometric-functions': <GraphHost key="trigonometric-functions" create={() => new TrigonometricFunctionsGraph()}/>,
-    'continuity': <GraphHost key="continuity" create={() => new ContinuityGraph()}/>,
-    'derivative': <GraphHost key="derivative" create={() => new DerivativeGraph()}/>,
-    'definite-integral': <GraphHost key="definite-integral" create={() => new DefiniteIntegralGraph()}/>,
-    'area-between-curves': <GraphHost key="area-between-curves" create={() => new AreaBetweenCurvesGraph()}/>,
-    'arc-length': <GraphHost key="arc-length" create={() => new ArcLengthGraph()}/>,
+export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphState>> = {
+    'bernstein': () => new BernsteinGraph(),
+    'bezier': () => new BezierCurveGraph(),
+    'decasteljau': () => new DecasteljauGraph(),
+    'decasteljau-alternative': () => new DecasteljauGraph2(),
+    'affine': () => new AffineTransformBezierCurveGraph(),
+    'subdivision': () => new DecasteljauGraph3(),
+    'repeated-subdivision': () => new SubdivisionGraph(),
+    'extrapolation': () => new ExtrapolationGraph(),
+    'elevation': () => new ElevationGraph(),
+    'rational': () => new RationalBezierCurveGraph(),
+    'rational-decasteljau': () => new RationalDecasteljauGraph(),
+    'rational-elevation': () => new RationalElevationGraph(),
+    'rational-extrapolation': () => new RationalExtrapolationGraph(),
+    'rational-subdivision': () => new RationalSubdivisionGraph2(),
+    'farin': () => new FarinPointsCurveGraph(),
+    'circle': () => new RationalBezierCurveCircleGraphN(),
+    'spline-cn': () => new CnSplineGraph(),
+    'spline-c1': () => new C1SplineGraph(),
+    'spline-c2': () => new C2SplineGraph(),
+    'spline-g1': () => new G1SplineGraph(),
+    'spline-g1-symmetric': () => new G1SymmetricSplineGraph(),
+    'ph-cubic': () => new CubicPhBezierCurveGraph(),
+    'ph-quintic': () => new QuinticPhBezierCurve(),
+    'spline-parameterization': () => new SplineAlphaParametrizationGraph(),
+    'weighted-parameterization': () => new AlphaParamBezierCurveGraph(),
+    'uniform-parameterization': () => new UniformParamBezierCurveGraph(),
+    'linear-function': () => new LinearFunctionGraph(),
+    'exponential-function': () => new ExponentialFunctionGraph(),
+    'trigonometric-functions': () => new TrigonometricFunctionsGraph(),
+    'continuity': () => new ContinuityGraph(),
+    'derivative': () => new DerivativeGraph(),
+    'definite-integral': () => new DefiniteIntegralGraph(),
+    'area-between-curves': () => new AreaBetweenCurvesGraph(),
+    'arc-length': () => new ArcLengthGraph(),
 };
+
+const graphElements = Object.fromEntries(Object.entries(graphFactories).map(([id, create]) =>
+    [id, <GraphHost key={id} create={create}/>])) as Record<DemonstrationId, ReactNode>;
 
 const routes = [{
     path: '/bezeg-2.0', element: <App/>, errorElement: <ErrorPage/>,

@@ -3,7 +3,8 @@ import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import React from "react";
 import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
@@ -34,22 +35,21 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         this.refreshWorkspace();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'farin-points') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('farin-points', action => {
             if (typeof action.visible !== 'boolean') throw new Error('Farin point visibility must be true or false.');
             this.showFarinPoints(action.visible);
             this.boardUpdate();
             this.refreshWorkspace();
-            return;
-        }
-        if (action.kind === 'standard-form') {
+        });
+        registry.on('standard-form', action => {
             if (typeof action.enabled !== 'boolean') throw new Error('Standard form must be true or false.');
             this.getFirstJxgCurve().setStandardForm(action.enabled);
             this.boardUpdate();
             this.refreshWorkspace();
-            return;
-        }
-        if (action.kind === 'rational-weights') {
+        });
+        registry.on('rational-weights', action => {
             const count = this.getFirstJxgCurve().getJxgPoints().length;
             const weights = action.weights;
             if (!Array.isArray(weights) || weights.length !== count
@@ -59,9 +59,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
             this.setEffectiveWeights(weights.slice());
             this.boardUpdate();
             this.refreshWorkspace();
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     /** Farin sliders are sized from the weights, so rebuild them around a weight change. */
@@ -107,17 +105,19 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override getGraphCommands(): JSX.Element[] {
-        const revision = this.workspaceRevision;
         return this.state.initialized ? super.getGraphCommands().concat(<OnOffSwitch
-            key={`farin-${revision}`}
-            initialState={this.getFirstJxgCurve().isShowingFarinPoints()}
+            checked={this.getFirstJxgCurve().isShowingFarinPoints()}
             onChange={(checked) => this.showFarinPoints(checked)} label={t("farin_points")}/>, <OnOffSwitch
-            key={`weights-${revision}`}
-            initialState={this.getFirstJxgCurve().isShowingWeights()}
-            onChange={(checked) => this.getFirstJxgCurve().showwWeights(checked)} label={t("weights")}/>, <OnOffSwitch
-            key={`standard-${revision}`}
-            initialState={this.getFirstJxgCurve().inStandardForm()}
-            onChange={(checked) => this.getFirstJxgCurve().setStandardForm(checked)}
+            checked={this.getFirstJxgCurve().isShowingWeights()}
+            onChange={(checked) => {
+                this.getFirstJxgCurve().showwWeights(checked);
+                this.store.notify();
+            }} label={t("weights")}/>, <OnOffSwitch
+            checked={this.getFirstJxgCurve().inStandardForm()}
+            onChange={(checked) => {
+                this.getFirstJxgCurve().setStandardForm(checked);
+                this.store.notify();
+            }}
             label={t("standard_form")}/>) : [];
     }
 
@@ -143,6 +143,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
     private showFarinPoints(checked: boolean) {
         this.getFirstJxgCurve().showFarinPoints(checked);
         this.syncFarinInteraction();
+        this.store.notify();
     }
 }
 

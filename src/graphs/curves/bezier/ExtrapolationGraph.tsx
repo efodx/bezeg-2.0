@@ -5,7 +5,8 @@ import {Button} from "react-bootstrap";
 import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {extrapolationActions} from "../../base/lesson/curveLessonActions";
 import Slider from "../../../inputs/Slider";
 
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
@@ -52,28 +53,25 @@ class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
         this.prepareExtrapolationCurve();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'extrapolation-parameter') {
-            const value = action.value;
-            if (typeof value !== 'number' || !Number.isFinite(value) || value < 1 || value > 1.5) {
-                throw new Error('The extrapolation parameter must be a number from 1 to 1.5.');
-            }
-            this.getFirstJxgCurve().setExtrapolationT(value);
-            this.refreshWorkspace();
-            return;
-        }
-        if (action.kind === 'extrapolate') {
-            this.extrapolate();
-            return;
-        }
-        super.applyLessonAction(action);
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(extrapolationActions({
+            setParameter: value => {
+                this.getFirstJxgCurve().setExtrapolationT(value);
+                this.refreshWorkspace();
+            },
+            extrapolate: () => this.extrapolate(),
+        }));
     }
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<div>
             <Slider min={1} max={1.5}
-                    initialValue={this.getFirstJxgCurve().getExtrapolationT()}
-                    onChange={(t) => this.getFirstJxgCurve().setExtrapolationT(t)}></Slider>
+                    value={this.getFirstJxgCurve().getExtrapolationT()}
+                    onChange={(t) => {
+                        this.getFirstJxgCurve().setExtrapolationT(t);
+                        this.store.notify();
+                    }}></Slider>
             <Button
                 onClick={() => this.extrapolate()}>{t("extrapolate")}</Button>
         </div>]) : [];

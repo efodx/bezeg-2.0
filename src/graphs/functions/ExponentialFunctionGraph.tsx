@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionParameterAction, FunctionVisibilityAction, localizedSliderValue} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -9,7 +9,6 @@ import {
     classifyBase, EXPONENTIAL_BASE_MAX, EXPONENTIAL_BASE_MIN, EXPONENTIAL_BASE_STEP, exponentialValue, mirrorBase,
 } from "../../analysis/exponential";
 import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase, parseExponentialModel} from "../../analysis/exponentialModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
@@ -50,20 +49,11 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         this.commitModel({...this.model, mirror: visible});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        if (action.name === "a") {
-            this.setBase(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
-    }
-
-    protected override applyFunctionVisibility(action: FunctionVisibilityAction): void {
-        if (action.target === "mirror") {
-            this.setMirrorVisible(action.visible);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {a: value => this.setBase(value)},
+            visibility: {mirror: visible => this.setMirrorVisible(visible)},
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -107,11 +97,11 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         return <>
             <div className="inspector-group">
                 <Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
-                        step={EXPONENTIAL_BASE_STEP} fixedValue={a} help={t("exponential_base_help")} formatValue={localizedSliderValue}
+                        step={EXPONENTIAL_BASE_STEP} value={a} help={t("exponential_base_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
             </div>
             <div className="inspector-group">
-                <OnOffSwitch initialState={mirror} label={t("exponential_show_mirror")}
+                <OnOffSwitch checked={mirror} label={t("exponential_show_mirror")}
                              onChange={checked => this.setMirrorVisible(checked)}/>
             </div>
         </>;

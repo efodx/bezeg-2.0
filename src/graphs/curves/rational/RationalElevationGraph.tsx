@@ -5,7 +5,8 @@ import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {Button} from "react-bootstrap";
 import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 
 class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
@@ -20,12 +21,9 @@ class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
         this.boardUpdate();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'degree-elevation') {
-            this.elevate();
-            return;
-        }
-        super.applyLessonAction(action);
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(degreeElevationAction(() => this.elevate()));
     }
 
     elevate() {

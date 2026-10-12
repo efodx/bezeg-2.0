@@ -5,7 +5,7 @@ import {Button} from "react-bootstrap";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
-import {LessonAction} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 function AffineActionButton(props: {
     label: string;
@@ -38,8 +38,9 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         this.boardUpdate();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'affine-transform') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('affine-transform', action => {
             const curve = this.getFirstCurve();
             if (action.operation === 'translate-x') curve.moveFor(action.value, 0);
             if (action.operation === 'translate-y') curve.moveFor(0, action.value);
@@ -48,9 +49,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             if (action.operation === 'reflect-x') curve.flip(false, true);
             if (action.operation === 'reflect-y') curve.flip(true, false);
             this.boardUpdate();
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
 

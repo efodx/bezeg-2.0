@@ -370,7 +370,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
 
     expect(found.Slider).toHaveLength(1);
     const slider = found.Slider[0].props;
-    expect([slider.min, slider.max, slider.step, slider.fixedValue]).toEqual([1, 150, 1, 4]);
+    expect([slider.min, slider.max, slider.step, slider.value]).toEqual([1, 150, 1, 4]);
     expect(slider.formatValue(12)).toBe('12');
     slider.onChange(150);
     expect(graph.model.n).toBe(150);

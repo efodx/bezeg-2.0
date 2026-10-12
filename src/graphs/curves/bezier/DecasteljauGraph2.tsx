@@ -8,7 +8,8 @@ import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
-import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Point} from "../../../bezeg/api/point/point";
 import {Preset} from "../../base/presets/Presets";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
@@ -168,8 +169,9 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         super.restoreLessonState(checkpoint);
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'parameter' && action.name === 't') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated('parameter', 't', action => {
             const value = action.value;
             if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
                 throw new Error('The De Casteljau parameter must be between 0 and 1.');
@@ -177,9 +179,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
             const running = this.animation.isRunning();
             this.animation.pause();
             this.setParameter(value, running || this.state.animationStatus === "playing" ? "paused" : this.state.animationStatus);
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     override unmount() {

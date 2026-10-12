@@ -1,7 +1,8 @@
 import {t, useLanguage} from "../localization";
 import {Button, ButtonGroup} from "react-bootstrap";
-import React, {useEffect, useState} from "react";
+import React from "react";
 
+/** A controlled counter: it shows `n`; the caller changes it in response to `onPlus`/`onMinus`. */
 export function CountSetter(props: {
     onPlus: () => void,
     onCenter: () => number,
@@ -11,8 +12,7 @@ export function CountSetter(props: {
     max?: number | (() => number)
 }) {
     useLanguage();
-    const [n, setN] = useState(props.n);
-    useEffect(() => setN(props.n), [props.n]);
+    const {n} = props;
     const onPlus = () => {
         if (n === props.max) {
             return;
@@ -21,7 +21,6 @@ export function CountSetter(props: {
             return;
         }
         props.onPlus();
-        setN(n + 1);
     };
 
     const onMinus = () => {
@@ -32,7 +31,6 @@ export function CountSetter(props: {
             return;
         }
         props.onMinus();
-        setN(n - 1);
     };
 
     return <ButtonGroup>

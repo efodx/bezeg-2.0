@@ -5,7 +5,6 @@ import {JSXBezierCurveConstructorParams, JXGBezierCurve, JXGBezierCurveState} fr
 import {Board} from "jsxgraph";
 import {BezierCurveAttributes} from "./AbstractJXGBezierCurve";
 
-import {PhBezierCurveCommands} from "./inputs/PhBezierCurveCommands";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {Attributes} from "../../attributes/Attributes";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
@@ -254,10 +253,6 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
         }
 
 
-    }
-
-    override getCurveCommands(): JSX.Element[] {
-        return super.getCurveCommands().concat(...PhBezierCurveCommands(this));
     }
 
     override getCurve(): PhBezierCurve {

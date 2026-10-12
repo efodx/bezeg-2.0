@@ -2,8 +2,9 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, onLanguageChange} from "../../localization";
 import {Preset} from "../base/presets/Presets";
-import {LessonAction, LessonSceneCheckpoint, UnsupportedLessonActionError} from "../../learning/model";
+import {LessonAction, LessonSceneCheckpoint} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /**
@@ -27,6 +28,13 @@ export type FunctionGraphState<M extends object> = BaseGraphState & M;
 export type FunctionParameterAction = Extract<LessonAction, { kind: 'function-parameter' }>;
 export type FunctionVisibilityAction = Extract<LessonAction, { kind: 'function-visibility' }>;
 export type FunctionChoiceAction = Extract<LessonAction, { kind: 'function-choice' }>;
+
+/** What a function graph offers lessons, keyed by the closed name sets of the lesson model. */
+export interface FunctionLessonActions {
+    parameters?: Partial<Record<FunctionParameterAction['name'], (value: number) => void>>;
+    visibility?: Partial<Record<FunctionVisibilityAction['target'], (visible: boolean) => void>>;
+    choices?: Partial<Record<FunctionChoiceAction['name'], (value: string) => void>>;
+}
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -160,19 +168,12 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return null;
     }
 
-    /** Applies one lesson parameter against `this.model`. Throw UnsupportedLessonActionError for names the graph does not own. */
-    protected applyFunctionParameter(action: FunctionParameterAction): void {
-        throw new UnsupportedLessonActionError(action);
-    }
-
-    /** Shows or hides one optional element against `this.model`. Throw UnsupportedLessonActionError for targets the graph does not own. */
-    protected applyFunctionVisibility(action: FunctionVisibilityAction): void {
-        throw new UnsupportedLessonActionError(action);
-    }
-
-    /** Selects one named choice against `this.model`. Throw UnsupportedLessonActionError for names the graph does not own. */
-    protected applyFunctionChoice(action: FunctionChoiceAction): void {
-        throw new UnsupportedLessonActionError(action);
+    /**
+     * The lesson parameters, optional elements and named choices this graph owns, each with the function that applies
+     * it against `this.model`. A name missing here is unsupported: the registry does not handle it.
+     */
+    protected lessonFunctionActions(): FunctionLessonActions {
+        return {};
     }
 
     // ---- Model -------------------------------------------------------------------------------------------------
@@ -270,20 +271,15 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     // ---- Lessons -------------------------------------------------------------------------------------------------
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === "function-parameter") {
-            this.applyFunctionParameter(action);
-            return;
-        }
-        if (action.kind === "function-visibility") {
-            this.applyFunctionVisibility(action);
-            return;
-        }
-        if (action.kind === "function-choice") {
-            this.applyFunctionChoice(action);
-            return;
-        }
-        super.applyLessonAction(action);
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        // A graph handles exactly the names, elements and choices its `lessonFunctionActions()` lists.
+        registry.on("function-parameter", action => this.lessonFunctionActions().parameters?.[action.name]?.(action.value),
+            {supports: action => this.lessonFunctionActions().parameters?.[action.name] !== undefined});
+        registry.on("function-visibility", action => this.lessonFunctionActions().visibility?.[action.target]?.(action.visible),
+            {supports: action => this.lessonFunctionActions().visibility?.[action.target] !== undefined});
+        registry.on("function-choice", action => this.lessonFunctionActions().choices?.[action.name]?.(action.value),
+            {supports: action => this.lessonFunctionActions().choices?.[action.name] !== undefined});
     }
 
     protected override lessonDefaultState(): FunctionGraphState<M> {

@@ -8,6 +8,7 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from '../../../learning/runtime/animation';
 import {LessonAction, LessonSceneCheckpoint} from '../../../learning/model';
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS} from "./decasteljauParameter";
 import {Preset} from "../../base/presets/Presets";
@@ -161,7 +162,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<OnOffSwitch
-            initialState={this.state.wholeCurve ? this.state.wholeCurve : false}
+            checked={this.state.wholeCurve ? this.state.wholeCurve : false}
             onChange={checked => this.setState({wholeCurve: checked})}
             label={t("full_curve")}></OnOffSwitch>,
             <DecasteljauAnimationControls status={this.state.animationStatus} parameter={this.state.t} speed={this.state.v}
@@ -214,19 +215,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         if (action === 'stop') this.stopAnimation();
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'parameter' && action.name === 't') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated('parameter', 't', action => {
             if (action.value < 0 || action.value > 1 || !Number.isFinite(action.value)) {
                 throw new Error('The De Casteljau parameter must be between 0 and 1.');
             }
             this.setParameter(action.value, this.state.animationStatus);
-            return;
-        }
-        if (action.kind === 'animation' && action.animationId === 'decasteljau') {
-            this.setLessonAnimation(action.command);
-            return;
-        }
-        super.applyLessonAction(action);
+        });
+        registry.onDiscriminated('animation', 'decasteljau', action => this.setLessonAnimation(action.command));
     }
 
 }

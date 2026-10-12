@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, t} from "../../localization";
@@ -9,7 +9,6 @@ import {
     sampleRightPiece, SampledPiece, valueAtJoin,
 } from "../../analysis/continuity";
 import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter, parseContinuityModel} from "../../analysis/continuityModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (30 * 0.05) without changing meaningful digits. */
@@ -61,12 +60,8 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         this.commitModel({a: clean(value)});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        if (action.name === "a") {
-            this.setParameter(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {parameters: {a: value => this.setParameter(value)}};
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -130,7 +125,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     protected renderControls(): React.ReactNode {
         const {a} = this.state;
         return <div className="inspector-group">
-            <Slider customText={t("continuity_param_label")} min={CONTINUITY_A_MIN} max={CONTINUITY_A_MAX} step={CONTINUITY_A_STEP} fixedValue={a}
+            <Slider customText={t("continuity_param_label")} min={CONTINUITY_A_MIN} max={CONTINUITY_A_MAX} step={CONTINUITY_A_STEP} value={a}
                     help={t("continuity_param_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setParameter(next))}/>
         </div>;
     }

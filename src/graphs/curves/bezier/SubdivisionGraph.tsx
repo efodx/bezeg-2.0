@@ -7,13 +7,14 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
-import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonSceneCheckpoint} from "../../../learning/model";
+import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 export const MAX_SUBDIVISION_STEPS = 5;
 
-function ShowControlPolygons(props: { initialState: boolean, onChange: (checked: boolean) => void }) {
+function ShowControlPolygons(props: { checked: boolean, onChange: (checked: boolean) => void }) {
     useLanguage();
-    return <OnOffSwitch initialState={props.initialState} label={t("control_polygons")} onChange={props.onChange}/>;
+    return <OnOffSwitch checked={props.checked} label={t("control_polygons")} onChange={props.onChange}/>;
 }
 
 class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
@@ -39,15 +40,14 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
     }
 
-    protected override applyLessonAction(action: LessonAction): void {
-        if (action.kind === 'subdivide') {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('subdivide', () => {
             if (this.stepsDone >= MAX_SUBDIVISION_STEPS) {
                 throw new Error(`At most ${MAX_SUBDIVISION_STEPS} subdivision steps are available. Reset the scene to start again.`);
             }
             this.subdivide();
-            return;
-        }
-        super.applyLessonAction(action);
+        });
     }
 
     protected override prepareLessonDefaultScene(): void {
@@ -119,8 +119,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<Button
             onClick={() => this.subdivide()}>{t("subdivide")}</Button>,
-            <ShowControlPolygons key={`control-polygons-${this.workspaceRevision}`}
-                                 initialState={this.getFirstJxgCurve().isShowingControlPolygon()}
+            <ShowControlPolygons checked={this.getFirstJxgCurve().isShowingControlPolygon()}
                                  onChange={(checked) => {
                                      if (checked) {
                                          this.showControlPolygons();
@@ -132,7 +131,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
 
     override getSelectedCurveCommands(): JSX.Element[] {
         return super.getSelectedCurveCommands().concat([<OnOffSwitch
-            initialState={this.getSelectedCurve().isShowingDecasteljauScheme()} onChange={checked => {
+            checked={this.getSelectedCurve().isShowingDecasteljauScheme()} onChange={checked => {
             if (checked) {
                 this.showDecasteljauScheme();
             } else {
@@ -146,12 +145,14 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.jxgCurves.forEach(curve => (curve as JXGBezierCurve).hideDecasteljauScheme());
         this.jxgCurves.forEach(curve => curve.hideControlPolygon());
         this.unsuspendBoardUpdate();
+        this.store.notify();
     }
 
     private showControlPolygons() {
         this.board.suspendUpdate();
         this.jxgCurves.forEach(curve => curve.showControlPolygon());
         this.unsuspendBoardUpdate();
+        this.store.notify();
     }
 
     private showDecasteljauScheme() {
@@ -160,6 +161,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
             this.getSelectedCurve().setDecasteljauT(1 / 2);
         }
         this.unsuspendBoardUpdate();
+        this.store.notify();
     }
 
     private hideDecasteljauScheme() {
@@ -168,6 +170,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
             this.getSelectedCurve().hideDecasteljauScheme();
         }
         this.unsuspendBoardUpdate();
+        this.store.notify();
     }
 }
 

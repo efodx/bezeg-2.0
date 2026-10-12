@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -14,7 +14,6 @@ import {
 import {
     DEFAULT_TRIGONOMETRIC_MODEL, isAmplitude, isMidline, isOmega, isPhase, isTrigFunction, parseTrigonometricModel, TrigonometricModel,
 } from "../../analysis/trigonometricModel";
-import {UnsupportedLessonActionError} from "../../learning/model";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
@@ -77,35 +76,17 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         this.commitModel({...this.model, reference: visible});
     }
 
-    protected override applyFunctionParameter(action: FunctionParameterAction): void {
-        switch (action.name) {
-            case "A":
-                return this.setAmplitude(action.value);
-            case "omega":
-                return this.setOmega(action.value);
-            case "phi":
-                return this.setPhase(action.value);
-            case "B":
-                return this.setMidline(action.value);
-            default:
-                throw new UnsupportedLessonActionError(action);
-        }
-    }
-
-    protected override applyFunctionVisibility(action: FunctionVisibilityAction): void {
-        if (action.target === "reference") {
-            this.setReferenceVisible(action.visible);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
-    }
-
-    protected override applyFunctionChoice(action: FunctionChoiceAction): void {
-        if (action.name === "trig-function") {
-            this.setFunction(action.value);
-            return;
-        }
-        throw new UnsupportedLessonActionError(action);
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                A: value => this.setAmplitude(value),
+                omega: value => this.setOmega(value),
+                phi: value => this.setPhase(value),
+                B: value => this.setMidline(value),
+            },
+            visibility: {reference: visible => this.setReferenceVisible(visible)},
+            choices: {"trig-function": value => this.setFunction(value)},
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -186,18 +167,18 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} fixedValue={A}
+                <Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} value={A}
                         formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/>
-                <Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} fixedValue={omega}
+                <Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} value={omega}
                         help={t("trig_omega_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/>
-                <Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} fixedValue={phi}
+                <Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} value={phi}
                         help={t("trig_phase_help")} formatValue={value => formatPhase(value, language)}
                         onChange={next => this.ignoreOutOfDomain(() => this.setPhase(next))}/>
-                <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} fixedValue={B}
+                <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
                         formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
             </div>
             <div className="inspector-group">
-                <OnOffSwitch initialState={reference} label={t("trig_show_reference")}
+                <OnOffSwitch checked={reference} label={t("trig_show_reference")}
                              onChange={checked => this.setReferenceVisible(checked)}/>
             </div>
         </>;

@@ -45,9 +45,8 @@ export class JXGQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G1Quadrati
                         const name = "$$p_{\\scriptsize" + i + "}^{\\scriptsize(" + (c + 1) + ")}$$";
                         labels.push(name);
                     } else {
-                        var name = " $$ p_{\\scriptsize" + (curves[c - 1].getPoints().length - 1) + "}^{\\scriptsize(" + c + ")}$$";
-                        var name = " $$ p_{\\scriptsize" + (curves[c - 1].getPoints().length - 1) + "}^{\\scriptsize(" + c + ")}{\\scriptsize=}p_{\\scriptsize" + 0 + "}^{\\scriptsize(" + (c + 1) + ")}$$";
-                        labels[labels.length - 1] = name;
+                        // The previous piece's last point and this piece's first point coincide: one combined label.
+                        labels[labels.length - 1] = " $$ p_{\\scriptsize" + (curves[c - 1].getPoints().length - 1) + "}^{\\scriptsize(" + c + ")}{\\scriptsize=}p_{\\scriptsize" + 0 + "}^{\\scriptsize(" + (c + 1) + ")}$$";
                     }
                 });
             });

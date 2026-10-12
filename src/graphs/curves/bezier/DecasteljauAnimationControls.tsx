@@ -48,11 +48,11 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
             </button>
         </div>
         <div className="decasteljau-animation-slider">
-            <Slider customText={t("animation_parameter")} min={0} max={1} fixedValue={props.parameter}
+            <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
                     onChange={props.onParameterChange}/>
         </div>
         <div className="decasteljau-animation-slider">
-            <Slider customText={t("animation_speed")} min={0} max={1} fixedValue={props.speed}
+            <Slider customText={t("animation_speed")} min={0} max={1} value={props.speed}
                     onChange={props.onSpeedChange}/>
         </div>
     </section>;
