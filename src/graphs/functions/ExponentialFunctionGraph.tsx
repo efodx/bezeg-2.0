@@ -97,7 +97,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
 
         // The equation, the most important readout, stays on the board, in the corner no default curve reaches; the mirror has its own line while it is shown.
         this.caption("bottom-right", [
-            {text: () => `f(x) = ${formatNumber(model().a, language())}^x`, scale: 1.2},
+            {text: () => `f(x) = ${formatNumber(model().a, language())}^x`, scale: 1.2, math: true},
             {text: () => `(1/a)^x = ${formatNumber(mirrorBase(model().a), language(), 3)}^x (${t("exponential_mirror_legend")})`, visible: () => model().mirror},
         ]);
     }

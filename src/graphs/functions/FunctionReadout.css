@@ -10,6 +10,16 @@
 .function-inspector .inspector-group > .number-input ~ form,
 .function-inspector .inspector-group > form ~ .number-input,
 .function-inspector .inspector-group > form ~ form { margin-top: 12px; }
+/* Switches match the Display tab: label first, a compact moss track at the end of the row. */
+.function-inspector .form-check { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; margin: 0; padding: 6px 0; }
+.function-inspector .form-check-label { flex: 1; font-size: .88rem; line-height: 1.4; cursor: pointer; }
+.function-inspector .form-switch .form-check-input { order: 2; float: none; flex-shrink: 0; width: 32px; height: 18px; margin: 0; border: 1px solid #8b9786; background-color: #e5e9e0; cursor: pointer; --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23526152'/%3e%3c/svg%3e"); }
+.function-inspector .form-switch .form-check-input:checked { background-color: var(--workspace-green); border-color: var(--workspace-green); --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='white'/%3e%3c/svg%3e"); }
+.function-inspector .form-switch .form-check-input:focus { box-shadow: none; }
+.function-inspector .form-switch .form-check-input:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .function-inspector .form-check { min-height: 44px; }
+}
 .function-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .function-legend li { display: flex; align-items: center; gap: 8px; font-size: .86rem; line-height: 1.35; }
 .function-legend-swatch { flex: none; width: 22px; height: 12px; border-radius: 2px; opacity: .85; }

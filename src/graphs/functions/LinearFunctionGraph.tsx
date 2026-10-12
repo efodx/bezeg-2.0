@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, FunctionParameterAction, mathTextHtml} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {currentLanguage, t} from "../../localization";
@@ -143,8 +143,9 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         this.own(board.create("segment", [p1, corner], legStyle("dx")));
         this.own(board.create("segment", [corner, p2], legStyle("dy")));
         const label = (text: () => string, x: () => number, y: () => number, anchorX: () => string, anchorY: () => string, leg: "dx" | "dy") =>
-            this.own(board.create("text", [x, y, text], {
-                anchorX, anchorY, fixed: true, highlight: false, fontSize: fontSize(0.85), strokeColor: GraphPalette.label, visible: () => hasLeg(leg),
+            this.own(board.create("text", [x, y, () => mathTextHtml(text())], {
+                anchorX, anchorY, fixed: true, highlight: false, parse: false, fontSize: fontSize(0.85), strokeColor: GraphPalette.label, visible: () => hasLeg(leg),
+                cssStyle: BOARD_TEXT_STYLE, highlightCssStyle: BOARD_TEXT_STYLE,
             }));
         label(() => ` Δx = ${formatNumber(slopeTriangle({x: model().x1, y: model().y1}, {x: model().x2, y: model().y2}).dx, language())} `,
             () => (model().x1 + model().x2) / 2, () => model().y1, () => "middle", () => (model().y2 >= model().y1 ? "top" : "bottom"), "dx");
@@ -152,7 +153,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             () => model().x2, () => (model().y1 + model().y2) / 2, () => (model().x1 <= model().x2 ? "left" : "right"), () => "middle", "dy");
 
         // The equation, the most important readout, stays on the board.
-        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2}]);
+        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {

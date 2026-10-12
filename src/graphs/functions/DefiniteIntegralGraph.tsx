@@ -198,7 +198,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
 
         // The function and the two results, the most important readouts, stay on the board, top left: every catalog graph rises to the right or is small there.
         this.caption("top-left", [
-            {text: () => `f(x) = ${fn().plain}`, scale: 1.2},
+            {text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true},
             {text: () => t("integral_board_values", {
                 value0: formatNumber(riemannSum(fn(), model().a, model().b, model().n, model().method), language(), PRECISE),
                 value1: formatNumber(exactIntegral(fn(), model().a, model().b), language(), PRECISE),

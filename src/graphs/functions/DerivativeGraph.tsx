@@ -141,7 +141,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         // The function and the slopes, the most important readouts, stay on the board.
         // At the top centre: the catalog graphs rise at both sides of x0 only far from the centre of the default view.
         this.caption("top-center", [
-            {text: () => `f(x) = ${fn().plain}`, scale: 1.2},
+            {text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true},
             {text: () => t("derivative_board_slopes", {
                 value0: formatNumber(differenceQuotient(fn(), model().x0, model().h), language(), PRECISE),
                 value1: formatNumber(fn().derivative(model().x0), language(), PRECISE),

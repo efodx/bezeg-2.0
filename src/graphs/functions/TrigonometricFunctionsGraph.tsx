@@ -170,7 +170,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
         // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
         this.caption("top-left", [
-            {text: () => equationText(model(), language()), scale: 1.2},
+            {text: () => equationText(model(), language()), scale: 1.2, math: true},
             {text: () => `${model().fn}(x) (${t("trig_reference_legend")})`, visible: () => model().reference},
         ]);
     }

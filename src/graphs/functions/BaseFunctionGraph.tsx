@@ -62,6 +62,8 @@ export interface CaptionLine {
     visible?: () => boolean;
     /** The line is shown only while the board is at least this many pixels wide (its content is then in the inspector). */
     minBoardWidth?: number;
+    /** The line is a formula: its one-letter variables are set in italics, as in the MathJax point labels. */
+    math?: boolean;
 }
 
 /** Where a point's label sits relative to the point; chosen per point so that the label clears the curves through it. */
@@ -69,8 +71,17 @@ export type LabelPlacement = "above" | "below" | "left" | "right" | "above-left"
 
 const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+/** The serif of the workspace headings and coordinate editor, so plain board text sits with the MathJax labels (SVG export keeps it). */
+export const BOARD_TEXT_STYLE = 'font-family:Georgia,"Times New Roman",serif;font-variant-numeric:lining-nums;';
+
+/**
+ * Escaped HTML of a plain-text formula with its one-letter variables in italics; names such as sin, cos or dx stay upright
+ * and Δ is an upright operator (Δy).
+ */
+export const mathTextHtml = (text: string) => escapeHtml(text).replace(/(?<!(?!Δ)\p{L})([A-Za-zα-ω])(?!\p{L})/gu, "<i>$1</i>");
+
 /** A soft board-coloured plate so that a curve crossing the caption does not hurt legibility; it never takes pointer events. */
-const CAPTION_STYLE = "background-color:rgba(255,253,245,0.86);padding:3px 8px;border-radius:5px;line-height:1.3;white-space:nowrap;pointer-events:none;";
+const CAPTION_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:3px 8px;border-radius:2px;line-height:1.3;white-space:nowrap;pointer-events:none;`;
 
 /** The caption's base font size shrinks with the board width and never goes below this. */
 const CAPTION_MIN_FONT = 11;
@@ -343,7 +354,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         const colors = this.captionColors();
         return this.visibleCaptionLines().map((line, index) => {
             const color = colors[index];
-            return `<div style="color:${color};font-size:${line.scale ?? 1}em">${escapeHtml(line.text())}</div>`;
+            const html = line.math ? mathTextHtml(line.text()) : escapeHtml(line.text());
+            return `<div style="color:${color};font-size:${line.scale ?? 1}em">${html}</div>`;
         }).join("");
     }
 

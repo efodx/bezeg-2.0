@@ -1,5 +1,5 @@
 import BaseGraph from '../base/BaseGraph';
-import {DomainError} from './BaseFunctionGraph';
+import {DomainError, mathTextHtml} from './BaseFunctionGraph';
 import {LinearFunctionGraph} from './LinearFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {beginFigureExport, setLanguage} from '../../localization';
@@ -140,5 +140,16 @@ describe('domain errors', () => {
         const bug = new TypeError('a real bug');
         expect(() => graph.ignoreOutOfDomain(() => { throw bug; })).toThrow(bug);
         expect(new DomainError('x')).toBeInstanceOf(Error);
+    });
+});
+
+describe('mathTextHtml', () => {
+    it('italicizes one-letter variables and keeps names upright', () => {
+        expect(mathTextHtml('f(x) = sin(2x + φ)')).toBe('<i>f</i>(<i>x</i>) = sin(2<i>x</i> + <i>φ</i>)');
+        expect(mathTextHtml('f′(x₀) = 2, Δy = 4')).toBe('<i>f</i>′(<i>x</i>₀) = 2, Δ<i>y</i> = 4');
+    });
+
+    it('escapes HTML before adding markup', () => {
+        expect(mathTextHtml('a < b & c')).toBe('<i>a</i> &lt; <i>b</i> &amp; <i>c</i>');
     });
 });

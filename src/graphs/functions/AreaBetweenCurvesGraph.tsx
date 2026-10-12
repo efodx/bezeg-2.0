@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, FunctionChoiceAction, FunctionParameterAction, mathTextHtml} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -185,8 +185,9 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
 
         // Curve names stay on the board, each on the outside of its curve (below-right of the rising branch of f, right of the falling branch of g).
         const label = (x: number, y: number, anchorX: "left" | "middle", anchorY: "top" | "bottom", name: string, color: string) =>
-            this.own(board.create("text", [x, y, name], {
-                anchorX, anchorY, fixed: true, highlight: false, fontSize: () => SizeContext.fontSize * 1.2, strokeColor: color,
+            this.own(board.create("text", [x, y, mathTextHtml(name)], {
+                anchorX, anchorY, fixed: true, highlight: false, parse: false, fontSize: () => SizeContext.fontSize * 1.2, strokeColor: color,
+                cssStyle: BOARD_TEXT_STYLE, highlightCssStyle: BOARD_TEXT_STYLE,
             }));
         label(4.08, f(3.95), "left", "top", "f", GraphPalette.comparisonCurve);
         label(3.72, g(3.6), "left", "bottom", "g", GraphPalette.primaryCurve);
@@ -194,8 +195,8 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         this.caption("top-center", [
             {text: () => t("area_board_signed", {value0: formatNumber(signedBetween(model().a, model().b), language(), PRECISE)}), scale: 1.1},
             {text: () => t("area_board_area", {value0: formatNumber(unsignedBetween(model().a, model().b), language(), PRECISE)})},
-            {text: () => "f(x) = (x − 2)²", color: GraphPalette.comparisonCurve, minBoardWidth: WIDE_BOARD, scale: 0.9},
-            {text: () => "g(x) = 3 − (x − 2)²", color: GraphPalette.primaryCurve, minBoardWidth: WIDE_BOARD, scale: 0.9},
+            {text: () => "f(x) = (x − 2)²", color: GraphPalette.comparisonCurve, minBoardWidth: WIDE_BOARD, scale: 0.9, math: true},
+            {text: () => "g(x) = 3 − (x − 2)²", color: GraphPalette.primaryCurve, minBoardWidth: WIDE_BOARD, scale: 0.9, math: true},
         ]);
     }
 

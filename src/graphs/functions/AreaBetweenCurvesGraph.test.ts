@@ -115,7 +115,7 @@ test('initialization draws two fill curves, two bound lines, two curves, two fix
     const [curveF, curveG] = ofType(graph, 'functiongraph');
     expect(curveF.attributes.strokeColor).not.toBe(curveG.attributes.strokeColor);
     expect([curveF.parents[0](2), curveG.parents[0](2)]).toEqual([0, 3]);
-    expect([textAt(graph, LABEL_F), textAt(graph, LABEL_G)]).toEqual(['f', 'g']);
+    expect([textAt(graph, LABEL_F), textAt(graph, LABEL_G)]).toEqual(['<i>f</i>', '<i>g</i>']);
     expect(graph.captionPlainLines().slice(2)).toEqual(['f(x) = (x − 2)²', 'g(x) = 3 − (x − 2)²']);
     expect(ofType(graph, 'text')[LABEL_F].attributes.strokeColor).toBe(curveF.attributes.strokeColor);
     expect(ofType(graph, 'text')[LABEL_G].attributes.strokeColor).toBe(curveG.attributes.strokeColor);

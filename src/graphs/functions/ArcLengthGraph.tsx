@@ -152,7 +152,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
 
         // The function and the two lengths, the most important readouts, stay on the board, top right: the arch never rises above y = 1.
         this.caption("top-right", [
-            {text: () => "f(x) = sin x", scale: 1.2},
+            {text: () => "f(x) = sin x", scale: 1.2, math: true},
             {text: () => t("arc_board_lengths", {
                 value0: formatNumber(polylineLength(model().a, model().b, model().n), language(), PRECISE),
                 value1: formatNumber(arcLength(model().a, model().b), language(), PRECISE),
