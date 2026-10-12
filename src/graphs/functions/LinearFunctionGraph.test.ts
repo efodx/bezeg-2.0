@@ -179,17 +179,16 @@ test('readouts never contain Infinity or NaN, including the vertical and coincid
     expect(text(rowsFor(0, 0, 3, -1)).split('|')[1]).toBe('−0.33');
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const equation = graph.board.objectsList.filter((object: any) => object.type === 'text').map((object: any) => object.parents[2]);
     apply(graph, parameter('k', -0.5));
     setLanguage('sl');
-    expect(equation.map((text: () => string) => text())).toContain('y = −0,5x + 1');
+    expect(graph.captionPlainLines()).toEqual(['y = −0,5x + 1']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(equation.map((text: () => string) => text())).toContain('y = −0.5x + 1');
+    expect(graph.captionPlainLines()).toEqual(['y = −0.5x + 1']);
     unsubscribe();
     setLanguage('sl');
     expect(listener).toHaveBeenCalledTimes(1);

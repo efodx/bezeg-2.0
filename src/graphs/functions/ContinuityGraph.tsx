@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionParameterAction} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, t} from "../../localization";
@@ -26,6 +26,9 @@ const formatJump = (a: number, language: "sl" | "en") => {
 /** The one-sided values match: the palette's green; they do not: the palette's terracotta. The status text repeats the meaning, colour is never the only cue. */
 const MATCH_COLOR = GraphPalette.primaryCurve;
 const MISMATCH_COLOR = GraphPalette.constructionLevels[5];
+/** The status text uses darker tones of the same two hues so that it reaches about 4.5:1 on the board surface (the points keep the palette colours). */
+const MATCH_TEXT_COLOR = GraphPalette.primaryCurve;
+const MISMATCH_TEXT_COLOR = "#9c5d48";
 
 /**
  * Piecewise function `f(x) = a*x^2` for `x <= 1` and `-a*x + 3` for `x > 1` with a slider `a`. Each piece is drawn only on
@@ -55,7 +58,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     /** Sets the parameter; throws when it is outside [0, 3]. */
     protected setParameter(value: number): void {
         if (!isContinuityParameter(value)) {
-            throw new Error(`The parameter a must be a finite number between ${CONTINUITY_A_MIN} and ${CONTINUITY_A_MAX}.`);
+            throw new DomainError(`The parameter a must be a finite number between ${CONTINUITY_A_MIN} and ${CONTINUITY_A_MAX}.`);
         }
         this.commitModel({a: clean(value)});
     }
@@ -89,17 +92,6 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         const language = () => currentLanguage();
         const matches = () => isContinuous(model().a);
         const statusColor = () => matches() ? MATCH_COLOR : MISMATCH_COLOR;
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
-        const topLeft = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return left + 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
         const strokeWidth = () => SizeContext.strokeWidth;
         const pieceStyle = {strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth};
 
@@ -109,24 +101,25 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
 
         // Hollow point first, filled point over it: when the limits agree the filled dot sits inside the ring.
         this.own(board.create("point", [JOIN_X, () => rightLimit(model().a)], {
-            ...PointStyles.fixed, name: "$$(1,3-a)$$", highlight: false, size: () => SizeContext.pointSize,
+            ...PointStyles.fixed, name: "$$(1,3-a)$$", highlight: false, size: () => SizeContext.pointSize, label: this.pointLabel("above-right"),
             fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface,
             strokeColor: statusColor, highlightStrokeColor: statusColor, strokeWidth: () => Math.max(2, SizeContext.strokeWidth * 0.9),
         }));
         this.own(board.create("point", [JOIN_X, () => valueAtJoin(model().a)], {
             ...PointStyles.fixed, name: "$$(1,a)$$", highlight: false, size: () => Math.max(3, SizeContext.pointSize * 0.7),
+            // The right piece leaves (1, 3 - a) down to the right and the left piece arrives from the left: below-right is free of both and of the ring label.
+            label: this.pointLabel("below-right"),
             fillColor: statusColor, highlightFillColor: statusColor,
         }));
 
         // The status, the most important readout, stays on the board in text as well as colour.
-        this.own(board.create("text", [...topLeft(0), () => this.statusText(language())], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: statusColor,
-        }));
-        this.own(board.create("text", [...topLeft(1), () => t("continuity_board_limits", {
-            value0: formatNumber(leftLimit(model().a), language()), value1: formatNumber(rightLimit(model().a), language()),
-        })], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-        }));
+        // Top right: the left piece falls to the top left and the right piece descends below it, so no default curve reaches that corner.
+        this.caption("top-right", [
+            {text: () => this.statusText(language()), scale: 1.2, color: () => matches() ? MATCH_TEXT_COLOR : MISMATCH_TEXT_COLOR},
+            {text: () => t("continuity_board_limits", {
+                value0: formatNumber(leftLimit(model().a), language()), value1: formatNumber(rightLimit(model().a), language()),
+            })},
+        ]);
     }
 
     private statusText(language: "sl" | "en"): string {
@@ -140,16 +133,8 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         const {a} = this.state;
         return <div className="inspector-group">
             <Slider customText={t("continuity_param_label")} min={CONTINUITY_A_MIN} max={CONTINUITY_A_MAX} step={CONTINUITY_A_STEP} fixedValue={a}
-                    help={t("continuity_param_help")} formatValue={value => formatNumber(value, currentLanguage())} onChange={next => this.ignoreOutOfDomain(() => this.setParameter(next))}/>
+                    help={t("continuity_param_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setParameter(next))}/>
         </div>;
-    }
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The slider only offers values inside the domain.
-        }
     }
 
     protected renderReadout(): React.ReactNode {

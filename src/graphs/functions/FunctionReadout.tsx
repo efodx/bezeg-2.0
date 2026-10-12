@@ -1,5 +1,5 @@
 import React from "react";
-import {useLanguage} from "../../localization";
+import {t, useLanguage} from "../../localization";
 import "./FunctionReadout.css";
 
 export interface ReadoutRow {
@@ -14,8 +14,9 @@ export interface ReadoutRow {
  * Inspector readout for numeric results of a function demonstration. Values are formatted by the caller with
  * `formatNumber` from src/analysis/format so the board and the inspector agree.
  */
-export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string }) {
+export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string | readonly string[] }) {
     useLanguage();
+    const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
     return <div className="inspector-group function-readout">
         <h3>{props.title}</h3>
         <dl>
@@ -24,6 +25,30 @@ export function FunctionReadout(props: { title: string; rows: readonly ReadoutRo
                 <dd>{row.value}</dd>
             </div>)}
         </dl>
-        {props.note && <p className="inspector-help" role="note">{props.note}</p>}
+        {notes.map(note => <p key={note} className="inspector-help" role="note">{note}</p>)}
+    </div>;
+}
+
+export interface LegendItem {
+    /** Stable key and test hook (data-legend). */
+    id: string;
+    color: string;
+    /** The meaning in words: colour is never the only cue. */
+    label: string;
+    /** `line` for a curve, `area` (default) for a shaded region. */
+    kind?: "area" | "line";
+}
+
+/** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
+export function FunctionLegend(props: { items: readonly LegendItem[] }) {
+    useLanguage();
+    return <div className="inspector-group function-legend">
+        <h3>{t("function_legend")}</h3>
+        <ul>
+            {props.items.map(item => <li key={item.id} data-legend={item.id}>
+                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={{backgroundColor: item.color}} aria-hidden="true"/>
+                <span>{item.label}</span>
+            </li>)}
+        </ul>
     </div>;
 }

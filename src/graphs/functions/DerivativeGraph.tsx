@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -9,7 +9,7 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
 import {
-    differenceQuotient, H_MAX, H_MIN, H_MIN_ABS, H_STEP, isStep, isX0, lineValue, secantLine, stepOutOfBand, tangentLine, X0_MAX, X0_MIN, X0_STEP,
+    differenceQuotient, H_MAX, H_MIN, H_MIN_ABS, H_STEP, isStep, isX0, lineValue, stepOutOfBand, tangentLine, X0_MAX, X0_MIN, X0_STEP,
 } from "../../analysis/derivative";
 import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel, parseDerivativeModel} from "../../analysis/derivativeModel";
 import {UnsupportedLessonActionError} from "../../learning/model";
@@ -56,18 +56,18 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     }
 
     protected setFunction(value: unknown): void {
-        if (!isFunctionId(value)) throw new Error(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
+        if (!isFunctionId(value)) throw new DomainError(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
         this.commitModel({...this.model, fn: value});
     }
 
     protected setX0(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isX0(value)) throw new Error(`The point x0 must be a finite number between ${X0_MIN} and ${X0_MAX}.`);
+        if (!isX0(value)) throw new DomainError(`The point x0 must be a finite number between ${X0_MIN} and ${X0_MAX}.`);
         this.commitModel({...this.model, x0: clean(value)}, options);
     }
 
     protected setStep(value: number): void {
         if (!isStep(value)) {
-            throw new Error(`The step h must be a finite number between ${H_MIN} and ${H_MAX} with |h| of at least ${H_MIN_ABS} (h = 0 gives the undefined quotient 0/0).`);
+            throw new DomainError(`The step h must be a finite number between ${H_MIN} and ${H_MAX} with |h| of at least ${H_MIN_ABS} (h = 0 gives the undefined quotient 0/0).`);
         }
         this.commitModel({...this.model, h: clean(value)});
     }
@@ -110,18 +110,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         const model = () => this.model;
         const fn = () => this.currentFunction();
         const language = () => currentLanguage();
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
         const strokeWidth = () => SizeContext.strokeWidth;
-        const topLeft = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return left + 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
 
         // Layers, lowest first: the function, the exact tangent, the secant, then the points.
         this.own(board.create("functiongraph", [(x: number) => fn().value(x)], {
@@ -133,19 +122,16 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         }));
 
         // P is a free point whose drag is projected onto the graph; the model is written from the projected x.
-        const pointP = this.pointP = this.own(board.create("point", [model().x0, fn().value(model().x0)], {
-            ...PointStyles.default, name: "$$P$$",
-        }) as JXG.Point);
-        const pointQ = this.own(board.create("point", [() => model().x0 + model().h, () => fn().value(model().x0 + model().h)], {
-            ...PointStyles.fixed, name: "$$Q$$", highlight: false,
-        }) as JXG.Point);
-        pointP.on("drag", () => {
-            // A dragged x0 is rounded to 0.01 so that the readout of x0 shows exactly the value used for f(x0).
-            const x = Math.min(X0_MAX, Math.max(X0_MIN, Math.round(pointP.X() * 100) / 100 + 0));
-            if (!Number.isFinite(x)) return;
-            this.setX0(x, {syncScene: false});
-            pointP.moveTo([x, fn().value(x)]);
+        // A dragged x0 is rounded to X0_STEP (0.01) so that the readout of x0 shows exactly the value used for f(x0). The
+        // labels sit below-right of the points: the graph and the secant rise there (for the catalog functions near x0), so below-right is free of both.
+        const pointP = this.pointP = this.slidingPoint({
+            x: model().x0, position: x => fn().value(x), min: X0_MIN, max: X0_MAX, step: X0_STEP,
+            attributes: {...PointStyles.default, name: "$$P$$", label: this.pointLabel("below-right")},
+            write: x => this.setX0(x, {syncScene: false}),
         });
+        const pointQ = this.own(board.create("point", [() => model().x0 + model().h, () => fn().value(model().x0 + model().h)], {
+            ...PointStyles.fixed, name: "$$Q$$", highlight: false, label: this.pointLabel("below-right"),
+        }) as JXG.Point);
 
         // The secant is a full line through P and Q; its slope is the difference quotient.
         this.own(board.create("line", [pointP, pointQ], {
@@ -153,15 +139,14 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         }));
 
         // The function and the slopes, the most important readouts, stay on the board.
-        this.own(board.create("text", [...topLeft(0), () => `f(x) = ${fn().plain}`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
-        }));
-        this.own(board.create("text", [...topLeft(1), () => t("derivative_board_slopes", {
-            value0: formatNumber(differenceQuotient(fn(), model().x0, model().h), language(), PRECISE),
-            value1: formatNumber(fn().derivative(model().x0), language(), PRECISE),
-        })], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-        }));
+        // At the top centre: the catalog graphs rise at both sides of x0 only far from the centre of the default view.
+        this.caption("top-center", [
+            {text: () => `f(x) = ${fn().plain}`, scale: 1.2},
+            {text: () => t("derivative_board_slopes", {
+                value0: formatNumber(differenceQuotient(fn(), model().x0, model().h), language(), PRECISE),
+                value1: formatNumber(fn().derivative(model().x0), language(), PRECISE),
+            })},
+        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -175,17 +160,8 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The controls only offer values inside the domain.
-        }
-    }
-
     protected renderControls(): React.ReactNode {
         const {fn, x0, h, tangent} = this.state;
-        const language = currentLanguage();
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
@@ -196,7 +172,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
                 <NumberInput label={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
                 <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} fixedValue={h}
-                        help={t("derivative_h_help")} formatValue={value => formatNumber(value, language)}
+                        help={t("derivative_h_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(stepOutOfBand(next, this.model.h)))}/>
             </div>
             <div className="inspector-group">

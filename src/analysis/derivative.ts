@@ -7,7 +7,7 @@ import {CatalogFunction} from './functions';
 /** The point x0 may move in [X0_MIN, X0_MAX]; the same range holds for every catalog function. */
 export const X0_MIN = -4;
 export const X0_MAX = 4;
-export const X0_STEP = 0.05;
+export const X0_STEP = 0.01;
 
 /** The step h is a slider value in [H_MIN, H_MAX] with |h| >= H_MIN_ABS: h = 0 would give the undefined quotient 0/0. */
 export const H_MIN = -2;

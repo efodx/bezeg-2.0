@@ -56,24 +56,25 @@ const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const [FUNCTION, TANGENT] = [0, 1];
 const [POINT_P, POINT_Q] = [0, 1];
-const [SLOPES_TEXT] = [1];
 const functionCurve = (graph: any) => ofType(graph, 'functiongraph')[FUNCTION];
 const tangentCurve = (graph: any) => ofType(graph, 'functiongraph')[TANGENT];
 const pointP = (graph: any) => ofType(graph, 'point')[POINT_P];
 const pointQ = (graph: any) => ofType(graph, 'point')[POINT_Q];
 const q = (graph: any) => [pointQ(graph).X(), pointQ(graph).Y()];
-const slopesText = (graph: any) => ofType(graph, 'text')[SLOPES_TEXT].parents[2]();
+/** The board's one text is the caption: line 0 the function, line 1 the slopes. */
+const slopesText = (graph: any) => graph.captionPlainLines()[1];
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the function, the tangent, P, Q, the secant and two texts for x^2, x0 = 1, h = 1', () => {
+test('initialization draws the function, the tangent, P, Q, the secant and one caption text for x^2, x0 = 1, h = 1', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({fn: 'square', x0: 1, h: 1, tangent: false});
     expect(graph.presets()).toBe('derivative');
     expect(ofType(graph, 'functiongraph')).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(2);
     expect(ofType(graph, 'line')).toHaveLength(1);
-    expect(ofType(graph, 'text')).toHaveLength(2);
+    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = x²', 'naklon sekante 3, f′(x₀) = 2']);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-3, 6, 4, -2], true);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([1, 1]);
     expect(q(graph)).toEqual([2, 4]);
@@ -244,17 +245,16 @@ test('readouts: x0, h, values, quotient, exact derivative and difference, in bot
     }
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const texts = ofType(graph, 'text').map((object: any) => object.parents[2]);
     apply(graph, choice('sin'));
     apply(graph, parameter('h', 0.2));
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = sin x', 'naklon sekante 0,4528, f′(x₀) = 0,5403']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'naklon sekante 0,4528, f′(x₀) = 0,5403']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = sin x', 'secant slope 0.4528, f′(x₀) = 0.5403']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'secant slope 0.4528, f′(x₀) = 0.5403']);
     unsubscribe();
 });
 
@@ -278,7 +278,7 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
     expect(graph.model.fn).toBe('sin');
 
     expect(found.NumberInput).toHaveLength(1);
-    expect([found.NumberInput[0].props.min, found.NumberInput[0].props.max, found.NumberInput[0].props.value]).toEqual([-4, 4, 1]);
+    expect([found.NumberInput[0].props.min, found.NumberInput[0].props.max, found.NumberInput[0].props.value, found.NumberInput[0].props.step]).toEqual([-4, 4, 1, 0.01]);
     found.NumberInput[0].props.onChange(-2.5);
     expect(graph.model.x0).toBe(-2.5);
     expect(() => found.NumberInput[0].props.onChange(7)).not.toThrow();
@@ -375,7 +375,7 @@ test('default scene preparation resets model and view and keeps the object count
 test('generated objects are disposed and not duplicated across repeated generation', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(7);
+    expect(baseline).toBe(6);
     expect(graph.generatedObjectCount).toBe(baseline);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);

@@ -1,6 +1,6 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {DomainError, FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
+import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -12,13 +12,11 @@ import {
     riemannSum, SUM_METHODS, SumMethod, subintervalWidth,
 } from "../../analysis/riemann";
 import {DEFAULT_RIEMANN_MODEL, parseRiemannModel, RiemannModel} from "../../analysis/riemannModel";
+import {Preset} from "../base/presets/Presets";
 import {UnsupportedLessonActionError} from "../../learning/model";
 import {SizeContext} from "../context/SizeContext";
 import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
-
-/** Removes floating-point noise left by rounding to the bound step without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
 const PRECISE = 4;
@@ -89,23 +87,23 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     }
 
     protected setFunction(value: unknown): void {
-        if (!isFunctionId(value)) throw new Error(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
+        if (!isFunctionId(value)) throw new DomainError(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
         this.commitModel({...this.model, fn: value});
         if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[value]], true);
     }
 
     protected setMethod(value: unknown): void {
-        if (!isSumMethod(value)) throw new Error(`The sum method must be one of ${SUM_METHODS.join(", ")}.`);
+        if (!isSumMethod(value)) throw new DomainError(`The sum method must be one of ${SUM_METHODS.join(", ")}.`);
         this.commitModel({...this.model, method: value});
     }
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new Error(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
         this.commitModel({...this.model, [which]: value}, options);
     }
 
     protected setCount(value: number): void {
-        if (!isSubintervalCount(value)) throw new Error(`The number of subintervals n must be an integer from ${N_MIN} to ${N_MAX}.`);
+        if (!isSubintervalCount(value)) throw new DomainError(`The number of subintervals n must be an integer from ${N_MIN} to ${N_MAX}.`);
         this.commitModel({...this.model, n: value});
     }
 
@@ -134,6 +132,15 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         throw new UnsupportedLessonActionError(action);
     }
 
+    /** A preset or file whose function differs and which carries no view of its own shows that function's view, like the choice does. */
+    override importPreset(preset: Preset): void {
+        const previous = this.model.fn;
+        super.importPreset(preset);
+        if (!preset.boardState && this.model.fn !== previous && this.generatedObjectCount > 0) {
+            this.board.setBoundingBox([...FUNCTION_VIEWS[this.model.fn]], true);
+        }
+    }
+
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     /** The drawing data for the current model, computed once per model however many curves read it. */
@@ -150,18 +157,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         const model = () => this.model;
         const fn = () => this.currentFunction();
         const language = () => currentLanguage();
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
         const strokeWidth = () => SizeContext.strokeWidth;
-        const topRight = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return right - 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
 
         // Layers, lowest first: the shapes above the axis, the shapes below it, the function, then the bound points.
         const fill = (color: string, part: "positive" | "negative") => {
@@ -191,30 +187,23 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         }));
 
         // The bounds slide along the x-axis: a drag keeps y = 0 and writes the rounded x to the model.
-        const bound = (which: "a" | "b") => {
-            const point = this.own(board.create("point", [model()[which], 0], {...PointStyles.default, name: `$$${which}$$`})) as JXG.Point;
-            point.on("drag", () => {
-                const x = Math.min(BOUND_MAX, Math.max(BOUND_MIN, Math.round(point.X() / BOUND_STEP) * BOUND_STEP + 0));
-                if (!Number.isFinite(x)) return;
-                const rounded = clean(x);
-                this.setBound(which, rounded, {syncScene: false});
-                point.moveTo([rounded, 0]);
-            });
-            return point;
-        };
+        // Their labels go below the axis, under the tick numbers, away from the graph that starts on the axis (x^2 and e^x touch it near a = 0).
+        const bound = (which: "a" | "b") => this.slidingPoint({
+            x: model()[which], position: () => 0, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
+            attributes: {...PointStyles.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
+            write: x => this.setBound(which, x, {syncScene: false}),
+        });
         this.pointA = bound("a");
         this.pointB = bound("b");
 
-        // The function and the two results, the most important readouts, stay on the board, top right so that they clear the y-axis labels.
-        this.own(board.create("text", [...topRight(0), () => `f(x) = ${fn().plain}`], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
-        }));
-        this.own(board.create("text", [...topRight(1), () => t("integral_board_values", {
-            value0: formatNumber(riemannSum(fn(), model().a, model().b, model().n, model().method), language(), PRECISE),
-            value1: formatNumber(exactIntegral(fn(), model().a, model().b), language(), PRECISE),
-        })], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-        }));
+        // The function and the two results, the most important readouts, stay on the board, top left: every catalog graph rises to the right or is small there.
+        this.caption("top-left", [
+            {text: () => `f(x) = ${fn().plain}`, scale: 1.2},
+            {text: () => t("integral_board_values", {
+                value0: formatNumber(riemannSum(fn(), model().a, model().b, model().n, model().method), language(), PRECISE),
+                value1: formatNumber(exactIntegral(fn(), model().a, model().b), language(), PRECISE),
+            })},
+        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -230,14 +219,6 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The controls only offer values inside the domain.
-        }
-    }
 
     protected renderControls(): React.ReactNode {
         const {fn, a, b, n, method} = this.state;
@@ -281,7 +262,15 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
             {id: "exact", label: t("integral_exact"), value: number(exact, PRECISE)},
             {id: "difference", label: t("integral_difference"), value: number(sum - exact, PRECISE)},
         ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("integral_note")}/>;
+        const notes = a > b ? [t("integral_note"), t("integral_reversed_note")] : t("integral_note");
+        return <FunctionReadout title={t("function_readouts")} rows={rows} note={notes}/>;
+    }
+
+    protected override renderLegend(): React.ReactNode {
+        return <FunctionLegend items={[
+            {id: "positive", color: GraphPalette.additionalCurves[0], label: t("integral_legend_positive")},
+            {id: "negative", color: GraphPalette.additionalCurves[1], label: t("integral_legend_negative")},
+        ]}/>;
     }
 }
 

@@ -61,7 +61,6 @@ const ofType = (graph: any, type: string) => graph.board.objectsList.filter((obj
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const [POSITIVE, NEGATIVE] = [0, 1];
 const [POINT_A, POINT_B] = [0, 1];
-const [BOARD_VALUES] = [1];
 /** The curve's point lists as the board would read them after an update. */
 const curveData = (graph: any, index: number) => {
     const curve = ofType(graph, 'curve')[index];
@@ -75,7 +74,8 @@ const polygons = (list: number[]) => list.reduce<number[][]>((groups, value) => 
 }, [[]]);
 const pointA = (graph: any) => ofType(graph, 'point')[POINT_A];
 const pointB = (graph: any) => ofType(graph, 'point')[POINT_B];
-const valuesText = (graph: any) => ofType(graph, 'text')[BOARD_VALUES].parents[2]();
+/** The board's one text is the caption: line 0 the function, line 1 the sum and the integral. */
+const valuesText = (graph: any) => graph.captionPlainLines()[1];
 
 beforeEach(() => setLanguage('sl'));
 
@@ -86,7 +86,7 @@ test('initialization draws two fill curves, the function, the two bound points a
     expect(ofType(graph, 'curve')).toHaveLength(2);
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(ofType(graph, 'point')).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(2);
+    expect(ofType(graph, 'text')).toHaveLength(1);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect([pointA(graph).x, pointA(graph).y, pointB(graph).x, pointB(graph).y]).toEqual([0, 0, 2, 0]);
     // the shapes use two different palette colours, the function is drawn after (above) them
@@ -153,7 +153,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
 test('changing n or the method regenerates the data but never the number of board objects', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(7);
+    expect(baseline).toBe(6);
     for (const method of ['left', 'right', 'midpoint', 'trapezoid']) {
         for (const n of [1, 4, 150, 37, 2]) {
             apply(graph, methodChoice(method));
@@ -284,20 +284,55 @@ test('readouts: a, b, n, h, sum, exact integral and difference, in both language
     }
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const texts = ofType(graph, 'text').map((object: any) => object.parents[2]);
     apply(graph, fnChoice('sin'));
     apply(graph, parameter('b', Math.PI));
     apply(graph, parameter('n', 2));
     apply(graph, methodChoice('midpoint'));
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = sin x', 'vsota 2,2214, integral 2']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'vsota 2,2214, integral 2']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = sin x', 'sum 2.2214, integral 2']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'sum 2.2214, integral 2']);
     unsubscribe();
+});
+
+test('importing a model with another function and no view shows that function view; a stored view or the same function keeps the view', () => {
+    const graph = makeGraph();
+    const model = (fn: string) => ({fn, a: 0, b: 2, n: 4, method: 'left'});
+    graph.board.setBoundingBox.mockClear();
+    graph.importPreset({id: 'definite-integral', data: model('sin')});
+    expect(graph.model.fn).toBe('sin');
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
+    graph.board.setBoundingBox.mockClear();
+    graph.importPreset({id: 'definite-integral', data: model('sin')});
+    expect(graph.board.setBoundingBox).not.toHaveBeenCalled();
+    graph.importPreset({id: 'definite-integral', data: model('exp'), boardState: {boundingBox: [-1, 2, 3, -4]}});
+    expect(graph.model.fn).toBe('exp');
+    expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 3, -4], true);
+    graph.importPreset({id: 'definite-integral', data: model('exp')});
+    expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+    graph.importPreset({id: 'definite-integral', data: model('square')});
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(BOX, true);
+});
+
+test('reversed bounds add a readout note and the legend names the two colours in words', () => {
+    const graph = makeGraph();
+    const notes = () => ([] as string[]).concat(graph.renderReadout().props.note);
+    expect(notes()).toHaveLength(1);
+    apply(graph, parameter('a', 3));
+    apply(graph, parameter('b', 1));
+    graph.state = {...graph.state, ...graph.model};
+    expect(notes()).toHaveLength(2);
+    expect(notes()[1]).toMatch(/obrnjeni/);
+    const legend = graph.renderLegend().props.items;
+    expect(legend.map((item: any) => item.id)).toEqual(['positive', 'negative']);
+    expect(legend.map((item: any) => item.color)).toEqual([GraphPalette.additionalCurves[0], GraphPalette.additionalCurves[1]]);
+    expect(legend[0].label).toMatch(/pozitivno/);
+    expect(legend[1].label).toMatch(/negativno/);
 });
 
 test('controls: function select, bound inputs, n slider 1-150 and method select', () => {

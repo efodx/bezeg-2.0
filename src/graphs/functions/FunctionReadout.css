@@ -1,5 +1,16 @@
+.function-inspector { display: contents; }
 .function-readout dl { margin: 0; }
 .function-readout-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }
 .function-readout-row dt { font-weight: 600; font-size: .86rem; }
 .function-readout-row dd { margin: 0; font-variant-numeric: tabular-nums; font-size: .95rem; text-align: right; }
+.function-readout .inspector-help { margin: 6px 0 0; }
 .function-points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+/* Consecutive inputs and sliders of the function inspector get a gap (the shared slider and number blocks have none). */
+.function-inspector .inspector-group > .number-input ~ .number-input,
+.function-inspector .inspector-group > .number-input ~ form,
+.function-inspector .inspector-group > form ~ .number-input,
+.function-inspector .inspector-group > form ~ form { margin-top: 12px; }
+.function-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.function-legend li { display: flex; align-items: center; gap: 8px; font-size: .86rem; line-height: 1.35; }
+.function-legend-swatch { flex: none; width: 22px; height: 12px; border-radius: 2px; opacity: .85; }
+.function-legend-line { height: 3px; opacity: 1; }

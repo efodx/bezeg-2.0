@@ -15,6 +15,12 @@
 }
 .number-input input[type="number"]:focus { border-color: var(--workspace-green); box-shadow: 0 0 0 2px color-mix(in srgb, var(--workspace-green) 20%, transparent); outline: none; }
 .number-input input[type="number"]:disabled { background: transparent; color: var(--workspace-ink-soft); }
+/* The arrow keys step by the `step` prop; the browser's own spin buttons would step by 1 (the field has no step attribute), so they are hidden. */
+.number-input input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.number-input input[type="number"]::-webkit-inner-spin-button,
+.number-input input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.number-input-hint { margin: 0; color: #8a4a2e; font-size: .78rem; line-height: 1.35; }
+.is-presenting .number-input-hint { color: #f0b89c; }
 .is-presenting .number-input label { color: #b5bfd0; }
 .is-presenting .number-input input[type="number"] { background: #20304a; border-color: #50617b; color: var(--bezeg-night-panel); }
 @media (pointer: coarse), (max-width: 700px) {

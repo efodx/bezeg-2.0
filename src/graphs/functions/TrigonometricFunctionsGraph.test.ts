@@ -63,7 +63,7 @@ test('initialization draws f(x) = sin x, the midline, hidden reference, tangent 
     expect(graph.presets()).toBe('trigonometric-function');
     expect(functions(graph)).toHaveLength(3);
     expect(dataCurves(graph)).toHaveLength(3);
-    expect(ofType(graph, 'text')).toHaveLength(2);
+    expect(ofType(graph, 'text')).toHaveLength(1);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-7, 4, 7, -4], true);
     expect(mainValue(graph, Math.PI / 2)).toBeCloseTo(1, 12);
     expect(functions(graph)[MIDLINE].parents[0](123)).toBe(0);
@@ -301,19 +301,18 @@ test('readouts: amplitude, period, shift and range, with exact multiples of pi, 
     }
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const texts = ofType(graph, 'text').map((object: any) => object.parents[2]);
     apply(graph, parameter('A', 0.5));
     apply(graph, parameter('omega', 0.5));
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)']);
     apply(graph, reference(true));
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = 0,5·sin(0,5x)', 'sin(x) (referenčni graf)']);
-    expect(ofType(graph, 'text')[1].attributes.visible()).toBe(true);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)', 'sin(x) (referenčni graf)']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = 0.5·sin(0.5x)', 'sin(x) (reference graph)']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0.5·sin(0.5x)', 'sin(x) (reference graph)']);
     unsubscribe();
 });
 

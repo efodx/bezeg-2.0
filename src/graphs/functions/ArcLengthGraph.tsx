@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, FunctionParameterAction} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -13,9 +13,6 @@ import {UnsupportedLessonActionError} from "../../learning/model";
 import {SizeContext} from "../context/SizeContext";
 import {PointStyles} from "../styles/PointStyles";
 import {GraphPalette} from "../styles/GraphPalette";
-
-/** Removes floating-point noise left by rounding to the endpoint step without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
 const PRECISE = 4;
@@ -67,12 +64,12 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new Error(`The endpoint ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(`The endpoint ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
         this.commitModel({...this.model, [which]: value}, options);
     }
 
     protected setCount(value: number): void {
-        if (!isSegmentCount(value)) throw new Error(`The number of segments n must be an integer from ${N_MIN} to ${N_MAX}.`);
+        if (!isSegmentCount(value)) throw new DomainError(`The number of segments n must be an integer from ${N_MIN} to ${N_MAX}.`);
         this.commitModel({...this.model, n: value});
     }
 
@@ -102,18 +99,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         const board = this.board;
         const model = () => this.model;
         const language = () => currentLanguage();
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
         const strokeWidth = () => SizeContext.strokeWidth;
-        const topRight = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return right - 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
 
         // Layers, lowest first: the curve, the polyline, the polyline vertices, then the endpoints.
         this.own(board.create("functiongraph", [arcValue], {
@@ -155,32 +141,23 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         };
 
         // A and B are free points whose drag is projected onto the graph; the model is written from the projected x.
-        const endpoint = (which: "a" | "b") => {
-            const point = this.own(board.create("point", [model()[which], arcValue(model()[which])], {
-                ...PointStyles.default, name: `$$${which.toUpperCase()}$$`,
-            })) as JXG.Point;
-            point.on("drag", () => {
-                const x = Math.min(BOUND_MAX, Math.max(BOUND_MIN, Math.round(point.X() / BOUND_STEP) * BOUND_STEP + 0));
-                if (!Number.isFinite(x)) return;
-                const rounded = clean(x);
-                this.setBound(which, rounded, {syncScene: false});
-                point.moveTo([rounded, arcValue(rounded)]);
-            });
-            return point;
-        };
+        // The labels go above the arch for the endpoints on the rising part, i.e. outside the region under the polyline.
+        const endpoint = (which: "a" | "b") => this.slidingPoint({
+            x: model()[which], position: arcValue, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
+            attributes: {...PointStyles.default, name: `$$${which.toUpperCase()}$$`, label: this.pointLabel("above", 1.2)},
+            write: x => this.setBound(which, x, {syncScene: false}),
+        });
         this.pointA = endpoint("a");
         this.pointB = endpoint("b");
 
-        // The function and the two lengths, the most important readouts, stay on the board, top right so that they clear the y-axis labels.
-        this.own(board.create("text", [...topRight(0), "f(x) = sin x"], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
-        }));
-        this.own(board.create("text", [...topRight(1), () => t("arc_board_lengths", {
-            value0: formatNumber(polylineLength(model().a, model().b, model().n), language(), PRECISE),
-            value1: formatNumber(arcLength(model().a, model().b), language(), PRECISE),
-        })], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-        }));
+        // The function and the two lengths, the most important readouts, stay on the board, top right: the arch never rises above y = 1.
+        this.caption("top-right", [
+            {text: () => "f(x) = sin x", scale: 1.2},
+            {text: () => t("arc_board_lengths", {
+                value0: formatNumber(polylineLength(model().a, model().b, model().n), language(), PRECISE),
+                value1: formatNumber(arcLength(model().a, model().b), language(), PRECISE),
+            })},
+        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -196,14 +173,6 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The controls only offer values inside the domain.
-        }
-    }
 
     protected renderControls(): React.ReactNode {
         const {a, b, n} = this.state;

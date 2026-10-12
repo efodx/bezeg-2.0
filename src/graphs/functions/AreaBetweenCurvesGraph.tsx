@@ -1,6 +1,6 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {DomainError, FunctionChoiceAction, FunctionParameterAction} from "./BaseFunctionGraph";
+import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
@@ -15,9 +15,6 @@ import {SizeContext} from "../context/SizeContext";
 import {PointStyles} from "../styles/PointStyles";
 import {SegmentStyles} from "../styles/SegmentStyles";
 import {GraphPalette} from "../styles/GraphPalette";
-
-/** Removes floating-point noise left by rounding to the bound step without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
 
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
 const PRECISE = 4;
@@ -50,6 +47,9 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  */
 const DEFAULT_VIEW: BoundingBox = [-1.3, 4.2, 5.3, -1];
 
+/** The formulas are written on the board only from this board width on; below it the legend in the inspector holds them. */
+const WIDE_BOARD = 620;
+
 /**
  * The area between f(x) = (x - 2)^2 and g(x) = 3 - (x - 2)^2 over bounds a and b that are points on the x-axis (dragging
  * keeps y = 0 and rounds x to 0.01). The mode chooses what is shaded: the region between f and the x-axis, between g and the
@@ -81,12 +81,12 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setMode(value: unknown): void {
-        if (!isAreaMode(value)) throw new Error(`The area mode must be one of ${AREA_MODES.join(", ")}.`);
+        if (!isAreaMode(value)) throw new DomainError(`The area mode must be one of ${AREA_MODES.join(", ")}.`);
         this.commitModel({...this.model, mode: value});
     }
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new Error(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
         this.commitModel({...this.model, [which]: value}, options);
     }
 
@@ -122,29 +122,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         const board = this.board;
         const model = () => this.model;
         const language = () => currentLanguage();
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
         const strokeWidth = () => SizeContext.strokeWidth;
-        const topRight = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return right - 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
-        // The two results sit at the top centre, above the peak of g: within the default view neither curve passes there.
-        const topCenter = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return (left + right) / 2;
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.04 + 0.07 * row) * (top - bottom);
-            },
-        ];
         // Values far above or below the view are left out or clamped (a quarter of the view height beyond it, much more than
         // the sampling step), so the drawn paths never reach f(-1) = 9; this keeps their extent, which framing tools read, close to the view.
         const limits = () => {
@@ -190,43 +168,35 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
 
         // The intersections are fixed points of the figure, not of the model.
         INTERSECTIONS.forEach((x, index) => {
-            this.own(board.create("point", [x, INTERSECTION_HEIGHT], {...PointStyles.fixed, name: `$$P_${index + 1}$$`, highlight: false}));
+            // The curves cross there like an X: the free wedge is outside (left of P1, right of P2), the shaded one inside.
+            this.own(board.create("point", [x, INTERSECTION_HEIGHT], {
+                ...PointStyles.fixed, name: `$$P_${index + 1}$$`, highlight: false, label: this.pointLabel(index === 0 ? "left" : "right", 1.4),
+            }));
         });
 
         // The bounds slide along the x-axis: a drag keeps y = 0 and writes the rounded x to the model.
-        const bound = (which: "a" | "b") => {
-            const point = this.own(board.create("point", [model()[which], 0], {...PointStyles.default, name: `$$${which}$$`})) as JXG.Point;
-            point.on("drag", () => {
-                const x = Math.min(BOUND_MAX, Math.max(BOUND_MIN, Math.round(point.X() / BOUND_STEP) * BOUND_STEP + 0));
-                if (!Number.isFinite(x)) return;
-                const rounded = clean(x);
-                this.setBound(which, rounded, {syncScene: false});
-                point.moveTo([rounded, 0]);
-            });
-            return point;
-        };
+        const bound = (which: "a" | "b") => this.slidingPoint({
+            x: model()[which], position: () => 0, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP,
+            attributes: {...PointStyles.default, name: `$$${which}$$`, label: this.pointLabel("below-right", 1.6)},
+            write: x => this.setBound(which, x, {syncScene: false}),
+        });
         this.pointA = bound("a");
         this.pointB = bound("b");
 
-        // Curve names and the two results stay on the board; the formulas are top right so that they clear the y-axis labels, the results top centre.
-        const label = (x: number, anchorX: "left" | "middle", value: (x: number) => number, name: string, color: string) =>
-            this.own(board.create("text", [x, () => value(x), name], {
-                anchorX, anchorY: "bottom", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: color,
+        // Curve names stay on the board, each on the outside of its curve (below-right of the rising branch of f, right of the falling branch of g).
+        const label = (x: number, y: number, anchorX: "left" | "middle", anchorY: "top" | "bottom", name: string, color: string) =>
+            this.own(board.create("text", [x, y, name], {
+                anchorX, anchorY, fixed: true, highlight: false, fontSize: () => SizeContext.fontSize * 1.2, strokeColor: color,
             }));
-        label(3.95, "left", f, "f", GraphPalette.comparisonCurve);
-        label(2, "middle", g, "g", GraphPalette.primaryCurve);
-        this.own(board.create("text", [...topRight(0), "f(x) = (x − 2)²"], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.1), strokeColor: GraphPalette.comparisonCurve,
-        }));
-        this.own(board.create("text", [...topRight(1), "g(x) = 3 − (x − 2)²"], {
-            anchorX: "right", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.1), strokeColor: GraphPalette.primaryCurve,
-        }));
-        const result = (row: number, key: "area_board_signed" | "area_board_area", value: () => number) =>
-            this.own(board.create("text", [...topCenter(row), () => t(key, {value0: formatNumber(value(), language(), PRECISE)})], {
-                anchorX: "middle", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-            }));
-        result(0, "area_board_signed", () => signedBetween(model().a, model().b));
-        result(1, "area_board_area", () => unsignedBetween(model().a, model().b));
+        label(4.08, f(3.95), "left", "top", "f", GraphPalette.comparisonCurve);
+        label(3.72, g(3.6), "left", "bottom", "g", GraphPalette.primaryCurve);
+        // The two results are the caption, at the top centre above the peak of g; at small widths only they remain (the formulas are in the inspector legend).
+        this.caption("top-center", [
+            {text: () => t("area_board_signed", {value0: formatNumber(signedBetween(model().a, model().b), language(), PRECISE)}), scale: 1.1},
+            {text: () => t("area_board_area", {value0: formatNumber(unsignedBetween(model().a, model().b), language(), PRECISE)})},
+            {text: () => "f(x) = (x − 2)²", color: GraphPalette.comparisonCurve, minBoardWidth: WIDE_BOARD, scale: 0.9},
+            {text: () => "g(x) = 3 − (x − 2)²", color: GraphPalette.primaryCurve, minBoardWidth: WIDE_BOARD, scale: 0.9},
+        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -242,14 +212,6 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The controls only offer values inside the domain.
-        }
-    }
 
     protected renderControls(): React.ReactNode {
         const {a, b, mode} = this.state;
@@ -282,7 +244,25 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
             {id: "unsigned", label: t("area_unsigned"), value: number(unsignedBetween(a, b), PRECISE)},
             {id: "shaded", label: SHADED_LABELS[mode](), value: number(shadedQuantity(mode, a, b), PRECISE)},
         ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("area_note")}/>;
+        return <FunctionReadout title={t("function_readouts")} rows={rows} note={a > b ? [t("area_note"), t("area_reversed_note")] : t("area_note")}/>;
+    }
+
+    protected override renderLegend(): React.ReactNode {
+        const {mode} = this.state;
+        const legend = mode === "between"
+            ? [
+                {id: "positive", color: GraphPalette.additionalCurves[0], label: t("area_legend_g_top")},
+                {id: "negative", color: GraphPalette.additionalCurves[1], label: t("area_legend_f_top")},
+            ]
+            : [
+                {id: "positive", color: GraphPalette.additionalCurves[0], label: t("area_legend_above_axis")},
+                {id: "negative", color: GraphPalette.additionalCurves[1], label: t("area_legend_below_axis")},
+            ];
+        return <FunctionLegend items={[
+            {id: "f", kind: "line", color: GraphPalette.comparisonCurve, label: "f(x) = (x − 2)²"},
+            {id: "g", kind: "line", color: GraphPalette.primaryCurve, label: "g(x) = 3 − (x − 2)²"},
+            ...legend,
+        ]}/>;
     }
 }
 

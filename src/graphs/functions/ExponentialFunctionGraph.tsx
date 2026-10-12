@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, FunctionParameterAction, FunctionVisibilityAction, localizedSliderValue} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -43,7 +43,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
     /** Sets the base; throws when it is outside the model domain, so a <= 0 can never be applied. */
     protected setBase(value: number): void {
         if (!isExponentialBase(value)) {
-            throw new Error(`The base a must be a finite number between ${EXPONENTIAL_BASE_MIN} and ${EXPONENTIAL_BASE_MAX}.`);
+            throw new DomainError(`The base a must be a finite number between ${EXPONENTIAL_BASE_MIN} and ${EXPONENTIAL_BASE_MAX}.`);
         }
         this.commitModel({...this.model, a: clean(value)});
     }
@@ -74,17 +74,6 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         const board = this.board;
         const model = () => this.model;
         const language = () => currentLanguage();
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
-        const topLeft = (row: number) => [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return left + 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
 
         // The mirror graph goes first (lower layer) so the main graph is drawn over it.
         this.own(board.create("functiongraph", [(x: number) => exponentialValue(mirrorBase(model().a), x)], {
@@ -96,17 +85,21 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         }));
 
         // Every base passes through (0, 1); the second point (1, a) shows the base itself.
-        this.own(board.create("point", [0, 1], {...PointStyles.fixed, name: "$$(0,1)$$", highlight: false}));
-        this.own(board.create("point", [1, () => model().a], {...PointStyles.fixed, name: "$$(1,a)$$", highlight: false}));
+        // The graph rises (a > 1) or falls (a < 1) through both points: a label sits on the side of the curve away from it and
+        // right of the y-axis (its tick numbers are on the left): below the rising graph, above the falling one.
+        const rising = () => model().a >= 1;
+        this.own(board.create("point", [0, 1], {
+            ...PointStyles.fixed, name: "$$(0,1)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "above-right"),
+        }));
+        this.own(board.create("point", [1, () => model().a], {
+            ...PointStyles.fixed, name: "$$(1,a)$$", highlight: false, label: this.pointLabel(() => rising() ? "below-right" : "below-left"),
+        }));
 
-        // The equation, the most important readout, stays on the board; the mirror has its own line while it is shown.
-        this.own(board.create("text", [...topLeft(0), () => `f(x) = ${formatNumber(model().a, language())}^x`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
-        }));
-        this.own(board.create("text", [...topLeft(1), () => `(1/a)^x = ${formatNumber(mirrorBase(model().a), language(), 3)}^x (${t("exponential_mirror_legend")})`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-            visible: () => model().mirror,
-        }));
+        // The equation, the most important readout, stays on the board, in the corner no default curve reaches; the mirror has its own line while it is shown.
+        this.caption("bottom-right", [
+            {text: () => `f(x) = ${formatNumber(model().a, language())}^x`, scale: 1.2},
+            {text: () => `(1/a)^x = ${formatNumber(mirrorBase(model().a), language(), 3)}^x (${t("exponential_mirror_legend")})`, visible: () => model().mirror},
+        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -116,7 +109,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         return <>
             <div className="inspector-group">
                 <Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
-                        step={EXPONENTIAL_BASE_STEP} fixedValue={a} help={t("exponential_base_help")}
+                        step={EXPONENTIAL_BASE_STEP} fixedValue={a} help={t("exponential_base_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
             </div>
             <div className="inspector-group">
@@ -124,14 +117,6 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
                              onChange={checked => this.setMirrorVisible(checked)}/>
             </div>
         </>;
-    }
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The slider only offers bases inside the domain.
-        }
     }
 
     protected renderReadout(): React.ReactNode {

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionParameterAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, FunctionParameterAction} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {currentLanguage, t} from "../../localization";
@@ -54,7 +54,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     /** Sets one point coordinate; throws when the value is outside the model domain. */
     protected setCoordinate(name: CoordinateName, value: number): void {
         if (!isLinearCoordinate(value)) {
-            throw new Error(`The coordinate ${name} must be a finite number between -${LINEAR_COORDINATE_LIMIT} and ${LINEAR_COORDINATE_LIMIT}.`);
+            throw new DomainError(`The coordinate ${name} must be a finite number between -${LINEAR_COORDINATE_LIMIT} and ${LINEAR_COORDINATE_LIMIT}.`);
         }
         this.commitModel({...this.model, [name]: clean(value)});
     }
@@ -63,10 +63,10 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     protected setLineParameter(change: { k?: number; n?: number }): void {
         const {x1, y1, x2, y2} = this.model;
         const moved = moveAlongLine({x: x1, y: y1}, {x: x2, y: y2}, change);
-        if (!moved) throw new Error("The slope k and the intercept n are undefined for a vertical line or coincident points.");
+        if (!moved) throw new DomainError("The slope k and the intercept n are undefined for a vertical line or coincident points.");
         const next = parseLinearModel({x1: moved[0].x, y1: clean(moved[0].y), x2: moved[1].x, y2: clean(moved[1].y)});
         if (!next || Object.values(change).some(value => !Number.isFinite(value))) {
-            throw new Error(`The slope and intercept must keep both points within ${LINEAR_COORDINATE_LIMIT} of the origin.`);
+            throw new DomainError(`The slope and intercept must keep both points within ${LINEAR_COORDINATE_LIMIT} of the origin.`);
         }
         this.commitModel(next);
     }
@@ -152,17 +152,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             () => model().x2, () => (model().y1 + model().y2) / 2, () => (model().x1 <= model().x2 ? "left" : "right"), () => "middle", "dy");
 
         // The equation, the most important readout, stays on the board.
-        this.own(board.create("text", [
-            () => {
-                const [left, , right] = board.getBoundingBox();
-                return left + 0.04 * (right - left);
-            },
-            () => {
-                const [, top, , bottom] = board.getBoundingBox();
-                return top - 0.06 * (top - bottom);
-            },
-            () => lineEquation(this.currentLine(), language()),
-        ], {anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label}));
+        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2}]);
     }
 
     protected override syncSceneToModel(): void {
@@ -186,14 +176,6 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The input stays as typed until it is inside the domain (NumberInput also bounds the value).
-        }
-    }
-
     protected renderControls(): React.ReactNode {
         const {x1, y1, x2, y2} = this.state;
         const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});
@@ -212,8 +194,10 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             <div className="inspector-group">
                 <div className="function-points-grid">
                     <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} disabled={!hasKn} step={LINEAR_SNAP_SIZE}
+                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
                     <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} disabled={!hasKn} step={LINEAR_SNAP_SIZE}
+                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
                 </div>
                 <p className="inspector-help">{t("linear_kn_help")}</p>

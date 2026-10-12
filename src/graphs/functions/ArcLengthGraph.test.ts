@@ -60,7 +60,6 @@ const ofType = (graph: any, type: string) => graph.board.objectsList.filter((obj
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const [POLYLINE, MARKERS] = [0, 1];
 const [POINT_A, POINT_B] = [0, 1];
-const [, LENGTHS] = [0, 1];
 const curveData = (graph: any, index: number) => {
     const curve = ofType(graph, 'curve')[index];
     curve.updateDataArray();
@@ -73,19 +72,21 @@ const groups = (list: number[]) => list.reduce<number[][]>((result, value) => {
 }, [[]]);
 const pointA = (graph: any) => ofType(graph, 'point')[POINT_A];
 const pointB = (graph: any) => ofType(graph, 'point')[POINT_B];
-const lengthsText = (graph: any) => ofType(graph, 'text')[LENGTHS].parents[2]();
+/** The board's one text is the caption: line 0 the function, line 1 the lengths. */
+const lengthsText = (graph: any) => graph.captionPlainLines()[1];
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the sine, the polyline, the vertex markers, two endpoints on the graph and two texts for [0, pi], n = 2', () => {
+test('initialization draws the sine, the polyline, the vertex markers, two endpoints on the graph and one caption text for [0, pi], n = 2', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual(DEFAULT);
     expect(graph.presets()).toBe('arc-length');
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(ofType(graph, 'curve')).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(2);
-    expect(boardObjectCount(graph)).toBe(7);
+    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(boardObjectCount(graph)).toBe(6);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'lomljenka 3,7242, lok 3,8202']);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(BOX[2] - BOX[0]).toBeCloseTo(1.27 * (BOX[1] - BOX[3]), 0);
     expect(ofType(graph, 'functiongraph')[0].parents[0](Math.PI / 2)).toBe(1);
@@ -252,16 +253,15 @@ test('readouts: a, b, n, polyline length, arc length and difference, in both lan
     }
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const texts = ofType(graph, 'text').map((object: any) => object.parents[2]);
     apply(graph, parameter('n', 10));
-    expect(texts.map((text: any) => (typeof text === 'function' ? text() : text))).toEqual(['f(x) = sin x', 'lomljenka 3,8153, lok 3,8202']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'lomljenka 3,8153, lok 3,8202']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(texts.map((text: any) => (typeof text === 'function' ? text() : text))).toEqual(['f(x) = sin x', 'polyline 3.8153, arc 3.8202']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'polyline 3.8153, arc 3.8202']);
     unsubscribe();
 });
 

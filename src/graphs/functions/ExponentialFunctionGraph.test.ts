@@ -51,7 +51,7 @@ test('initialization draws f(x) = 2^x, the mirror graph (hidden), the points (0,
     expect(graph.presets()).toBe('exponential-function');
     expect(curves(graph)).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(2);
+    expect(ofType(graph, 'text')).toHaveLength(1);
     const [fixed, moving] = ofType(graph, 'point');
     expect(fixed.parents).toEqual([0, 1]);
     expect(moving.parents[0]).toBe(1);
@@ -162,16 +162,17 @@ test('readouts show a, f(0), f(1) and the classification, and never contain Infi
     expect(byId()['mirror-base']).toBe('2');
 });
 
-test('board texts are functions that follow the language, and a language change notifies subscribers', () => {
+test('the caption follows the language, shows the mirror line only while the mirror is shown, and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    const texts = ofType(graph, 'text').map((object: any) => object.parents[2]);
     apply(graph, parameter('a', 0.5));
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = 0,5^x', '(1/a)^x = 2^x (zrcalni graf)']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5^x']);
+    apply(graph, mirror(true));
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5^x', '(1/a)^x = 2^x (zrcalni graf)']);
     const listener = jest.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(texts.map((text: () => string) => text())).toEqual(['f(x) = 0.5^x', '(1/a)^x = 2^x (mirror graph)']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = 0.5^x', '(1/a)^x = 2^x (mirror graph)']);
     unsubscribe();
 });
 

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionChoiceAction, FunctionParameterAction, FunctionVisibilityAction} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -50,27 +50,27 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setFunction(value: unknown): void {
-        if (!isTrigFunction(value)) throw new Error("The function must be sin, cos or tan.");
+        if (!isTrigFunction(value)) throw new DomainError("The function must be sin, cos or tan.");
         this.commitModel({...this.model, fn: value});
     }
 
     protected setAmplitude(value: number): void {
-        if (!isAmplitude(value)) throw new Error(`The amplitude A must be a finite number between ${AMPLITUDE_MIN} and ${AMPLITUDE_MAX}.`);
+        if (!isAmplitude(value)) throw new DomainError(`The amplitude A must be a finite number between ${AMPLITUDE_MIN} and ${AMPLITUDE_MAX}.`);
         this.commitModel({...this.model, A: clean(value)});
     }
 
     protected setOmega(value: number): void {
-        if (!isOmega(value)) throw new Error(`The frequency omega must be a finite number between ${OMEGA_MIN} and ${OMEGA_MAX}.`);
+        if (!isOmega(value)) throw new DomainError(`The frequency omega must be a finite number between ${OMEGA_MIN} and ${OMEGA_MAX}.`);
         this.commitModel({...this.model, omega: clean(value)});
     }
 
     protected setPhase(value: number): void {
-        if (!isPhase(value)) throw new Error("The phase phi must be a finite number between -pi and pi.");
+        if (!isPhase(value)) throw new DomainError("The phase phi must be a finite number between -pi and pi.");
         this.commitModel({...this.model, phi: Math.min(PHASE_MAX, Math.max(PHASE_MIN, snapPhase(value)))});
     }
 
     protected setMidline(value: number): void {
-        if (!isMidline(value)) throw new Error(`The midline B must be a finite number between ${MIDLINE_MIN} and ${MIDLINE_MAX}.`);
+        if (!isMidline(value)) throw new DomainError(`The midline B must be a finite number between ${MIDLINE_MIN} and ${MIDLINE_MAX}.`);
         this.commitModel({...this.model, B: clean(value)});
     }
 
@@ -130,21 +130,10 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         const model = () => this.model;
         const language = () => currentLanguage();
         const isTangent = () => model().fn === "tan";
-        const fontSize = (scale: number) => () => SizeContext.fontSize * scale;
         const view = () => {
             const [left, top, right, bottom] = board.getBoundingBox();
             return {left, top, right, bottom};
         };
-        const topLeft = (row: number) => [
-            () => {
-                const {left, right} = view();
-                return left + 0.04 * (right - left);
-            },
-            () => {
-                const {top, bottom} = view();
-                return top - (0.06 + 0.07 * row) * (top - bottom);
-            },
-        ];
         const strokeWidth = () => SizeContext.strokeWidth;
         const referenceStrokeWidth = () => Math.max(1, SizeContext.strokeWidth * 0.72);
         const branches = (parameters: Omit<TrigonometricModel, "fn" | "reference">) => () => {
@@ -180,24 +169,13 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         });
 
         // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
-        this.own(board.create("text", [...topLeft(0), () => equationText(model(), language())], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1.2), strokeColor: GraphPalette.label,
-        }));
-        this.own(board.create("text", [...topLeft(1), () => `${model().fn}(x) (${t("trig_reference_legend")})`], {
-            anchorX: "left", anchorY: "top", fixed: true, highlight: false, fontSize: fontSize(1), strokeColor: GraphPalette.label,
-            visible: () => model().reference,
-        }));
+        this.caption("top-left", [
+            {text: () => equationText(model(), language()), scale: 1.2},
+            {text: () => `${model().fn}(x) (${t("trig_reference_legend")})`, visible: () => model().reference},
+        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
-
-    private ignoreOutOfDomain(action: () => void) {
-        try {
-            action();
-        } catch {
-            // The controls only offer values inside the domain.
-        }
-    }
 
     protected renderControls(): React.ReactNode {
         const {fn, A, omega, phi, B, reference} = this.state;
@@ -210,14 +188,14 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             </div>
             <div className="inspector-group">
                 <Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} fixedValue={A}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/>
+                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/>
                 <Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} fixedValue={omega}
-                        help={t("trig_omega_help")} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/>
+                        help={t("trig_omega_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/>
                 <Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} fixedValue={phi}
                         help={t("trig_phase_help")} formatValue={value => formatPhase(value, language)}
                         onChange={next => this.ignoreOutOfDomain(() => this.setPhase(next))}/>
                 <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} fixedValue={B}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
+                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch initialState={reference} label={t("trig_show_reference")}

@@ -6,6 +6,7 @@ import {exponentialValue, integerValues, mirrorBase} from '../../analysis/expone
 import {amplitude, basicValue, period, phaseShift, tangentAsymptotes, trigValue, valueRange} from '../../analysis/trigonometric';
 import {CONTINUOUS_PARAMETER, isContinuous, jump, leftLimit, leftSlope, rightLimit, rightSlope, valueAtJoin} from '../../analysis/continuity';
 import {catalogFunction} from '../../analysis/functions';
+import {formatNumber} from '../../analysis/format';
 import {differenceQuotient, isStep, secantLine} from '../../analysis/derivative';
 import {exactIntegral, isBound, riemannSum, subintervalWidth} from '../../analysis/riemann';
 import {isBound as isAreaBound, integralF, integralG, INTERSECTIONS, signedBetween, unsignedBetween} from '../../analysis/areaBetween';
@@ -91,8 +92,9 @@ test('the worked example and the scene values match the line mathematics', () =>
     expect(example.calculationLatex).toContain('\\frac{5-1}{2-0}=\\frac42=2');
     expect(example.calculationLatex).toContain('n=y_1-kx_1=1-2\\cdot0=1');
     expect(example.resultLatex).toBe('y=2x+1');
-    // 2 * 2 + 1 = 5 is the check stated for P2.
-    expect(2 * 2 + 1).toBe(5);
+    // the check stated for P2: the line through both points passes through P2 = (2, 5)
+    const line = lineThroughPoints({x: 0, y: 1}, {x: 2, y: 5});
+    expect(line.kind === 'line' && line.k * 2 + line.n).toBe(5);
 
     const parameters = lesson.steps.flatMap(step => step.scene?.actions ?? []).filter(action => action.name === 'set-function-parameter');
     const values = parameters.map(action => action.value as {name: string; value: number});
@@ -234,19 +236,18 @@ describe('trigonometric-functions lesson', () => {
         expect(valueRange({fn: 'sin', A: 1, B: 0})).toEqual([-1, 1]);
         expect(period({fn: 'sin', omega: 1})).toBeCloseTo(6.28, 2);
         // step 2: A = 2, B = -1
-        expect(-1 + 2).toBe(1);
-        expect(-1 - 2).toBe(-3);
         expect(valueRange({fn: 'sin', A: 2, B: -1})).toEqual([-3, 1]);
         expect(valueRange({fn: 'sin', A: -2, B: -1})).toEqual([-3, 1]);
         expect(amplitude({fn: 'sin', A: -2})).toBe(2);
-        // step 3: -(pi/2)/2 = -pi/4 = -0.79, pi = 3.14, 2 sin(pi/2) + 1 = 3
-        expect(-(Math.PI / 2) / 2).toBeCloseTo(-Math.PI / 4, 14);
-        expect(Math.PI).toBeCloseTo(3.14, 2);
-        expect(Math.PI / 4).toBeCloseTo(0.79, 2);
-        expect(2 * Math.sin(Math.PI / 2) + 1).toBe(3);
+        // step 3: shift -pi/4 = -0.79, period pi = 3.14, and f(0) = 2 sin(pi/2) + 1 = 3
+        const example = {fn: 'sin' as const, A: 2, omega: 2, phi: Math.PI / 2, B: 1};
+        expect(phaseShift(example)).toBeCloseTo(-Math.PI / 4, 14);
+        expect(formatNumber(Math.PI / 4, 'en')).toBe('0.79');
+        expect(formatNumber(period(example), 'en')).toBe('3.14');
+        expect(trigValue(example, 0)).toBeCloseTo(3, 12);
         // step 4: cos x = sin(x + pi/2), shift -pi/2 = -1.57, maximum 1 at x = 0
         for (const x of [-4, -1, 0, 2, 5]) expect(basicValue('sin', x + Math.PI / 2)).toBeCloseTo(basicValue('cos', x), 12);
-        expect(Math.PI / 2).toBeCloseTo(1.57, 2);
+        expect(formatNumber(Math.PI / 2, 'en')).toBe('1.57');
         expect(trigValue({fn: 'sin', A: 1, omega: 1, phi: Math.PI / 2, B: 0}, 0)).toBeCloseTo(1, 12);
         // step 5: asymptotes of tan x in view: +-pi/2 = +-1.57 and +-3 pi/2 = +-4.71, period pi
         const asymptotes = tangentAsymptotes(1, 0, -7, 7);
@@ -274,10 +275,10 @@ describe('continuity lesson', () => {
     });
 
     test('the worked example matches the mathematics: a = 3 - a gives a = 3/2 and all three values are 3/2', () => {
-        expect(3 / 2).toBe(CONTINUOUS_PARAMETER);
-        expect(2 * CONTINUOUS_PARAMETER).toBe(3);
+        expect(CONTINUOUS_PARAMETER).toBe(1.5);
+        expect(isContinuous(CONTINUOUS_PARAMETER)).toBe(true);
         expect(leftLimit(1.5)).toBe(1.5);
-        expect(rightLimit(1.5)).toBe(3 - 1.5);
+        expect(rightLimit(1.5)).toBe(1.5);
         expect(valueAtJoin(1.5)).toBe(1.5);
         expect(jump(1.5)).toBe(0);
         const example = source().workedExamples[0];
@@ -443,12 +444,9 @@ describe('definite integral lesson', () => {
         const exact = exactIntegral(square, 0, 2);
         // step 2: left 1.75 below, right 3.75 above the exact value of the increasing function
         expect([riemannSum(square, 0, 2, 4, 'left'), riemannSum(square, 0, 2, 4, 'right')]).toEqual([1.75, 3.75]);
-        expect(0.5 * (0 + 0.25 + 1 + 2.25)).toBe(1.75);
-        expect(0.5 * (0.25 + 1 + 2.25 + 4)).toBe(3.75);
-        expect(1.75).toBeLessThan(exact);
-        expect(3.75).toBeGreaterThan(exact);
+        expect(riemannSum(square, 0, 2, 4, 'left')).toBeLessThan(exact);
+        expect(riemannSum(square, 0, 2, 4, 'right')).toBeGreaterThan(exact);
         // step 3: midpoint 2.625 and trapezoid 2.75 with errors 1/24 and 1/12; left and right errors 11/12 and 13/12
-        expect(0.5 * (0.0625 + 0.5625 + 1.5625 + 3.0625)).toBe(2.625);
         expect(riemannSum(square, 0, 2, 4, 'midpoint')).toBe(2.625);
         expect(riemannSum(square, 0, 2, 4, 'trapezoid')).toBe(2.75);
         expect(exact - 2.625).toBeCloseTo(1 / 24, 14);
@@ -468,7 +466,6 @@ describe('definite integral lesson', () => {
         expect(Math.abs(at100('trapezoid') - exact)).toBeLessThan(0.0002);
         expect(round4(at100('left') - exact)).toBe(-0.0399);
         // step 5: sin on [0, 2*pi] has integral -cos(2pi) + cos(0) = 0, +2 above and -2 below, unsigned area 4, midpoint n = 12 sums to 0
-        expect(-Math.cos(2 * Math.PI) + Math.cos(0)).toBe(0);
         expect(exactIntegral(sine, 0, 2 * Math.PI)).toBe(0);
         expect(exactIntegral(sine, 0, Math.PI)).toBeCloseTo(2, 14);
         expect(exactIntegral(sine, Math.PI, 2 * Math.PI)).toBeCloseTo(-2, 14);
