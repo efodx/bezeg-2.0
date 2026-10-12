@@ -1,9 +1,10 @@
+/** Stable identifiers; the visible labels are translated by `AxisSelector`. */
 export enum AxisSelect {
-    NONE = "Brez",
-    ONLY_AXIS = "Samo osi",
-    AXIS_AND_MAJOR = "Osi in mreža",
-    AXIS_AND_MINOR = "Osi in mreža in črtice",
-    EVERYTHING = "Vse"
+    NONE = "none",
+    ONLY_AXIS = "axes",
+    AXIS_AND_MAJOR = "axes-major",
+    AXIS_AND_MINOR = "axes-minor",
+    EVERYTHING = "all"
 }
 
 class AxisContextSingleton {

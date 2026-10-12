@@ -2,74 +2,63 @@ import {AxisAttributes, TicksOptions} from "jsxgraph";
 import {SizeContext} from "../context/SizeContext";
 import {AxisContext} from "../context/AxisContext";
 import {GraphPalette} from "./GraphPalette";
+import {dynamicAttributes} from "./dynamicAttributes";
 
-const tick: TicksOptions = {
-    // @ts-ignore
+const tick = dynamicAttributes<TicksOptions>({
     visible: () => AxisContext.ticksVisible(),
-    // @ts-ignore
     strokeColor: GraphPalette.tick,
-    // @ts-ignore
     highlightStrokeColor: GraphPalette.tick,
-    // @ts-ignore
     strokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
-    // @ts-ignore
     highlightStrokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
-    // @ts-ignore
     // majorHeight: () => Contexts.majorHeight,
-    // @ts-ignore
-    minorHeight: () => SizeContext.minorHeight * AxisContext.minorVisible(),
+    minorHeight: () => SizeContext.minorHeight * (AxisContext.minorVisible() ? 1 : 0),
     label: {
-        // @ts-ignore
         fontSize: () => SizeContext.fontSize * 0.6,
-        // @ts-ignore
         visible: () => AxisContext.tickNumbersVisible(),
         parse: false,
         useMathJax: true,
         cssStyle: `font-family: MJXZERO, MJXTEX; color: ${GraphPalette.label}`,
-        // @ts-ignore
+        // @ts-ignore The bundled typings restrict LabelOptions.display to 'internal'; JSXGraph also accepts 'html'.
         display: 'html'
     },
-};
+});
 
 const tickX: TicksOptions = tick;
 
-const tickY: TicksOptions = {
+const tickY = dynamicAttributes<TicksOptions>({
     ...tick,
     label: {
         ...tick.label,
-        // @ts-ignore
         offset: [-10, -5]
     }
-};
+});
 
 function axisStyle(tick: TicksOptions): AxisAttributes {
-    return {
+    return dynamicAttributes<AxisAttributes>({
         strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.62),
         strokeColor: GraphPalette.axis,
         highlightStrokeColor: GraphPalette.axis,
         visible: () => AxisContext.axisVisible(),
         ticks: tick,
         lastArrow: false
-    };
+    });
 }
 
 
-const auxiliaryTick: TicksOptions = {
+const auxiliaryTick = dynamicAttributes<TicksOptions>({
     strokeColor: GraphPalette.tick,
     highlightStrokeColor: GraphPalette.tick,
-    // @ts-ignore JSXGraph evaluates callback-valued style attributes at render time.
     strokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38),
-    // @ts-ignore
     highlightStrokeWidth: () => Math.max(0.75, SizeContext.strokeWidth * 0.38)
-};
+});
 
 function auxiliaryAxisStyle(): AxisAttributes {
-    return {
+    return dynamicAttributes<AxisAttributes>({
         strokeWidth: () => Math.max(1, SizeContext.strokeWidth * 0.62),
         strokeColor: GraphPalette.axis,
         highlightStrokeColor: GraphPalette.axis,
         ticks: auxiliaryTick
-    };
+    });
 }
 
 export const AxisStyles = {

@@ -50,6 +50,10 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     private elevationSegments: JXG.Segment[] = [];
     private showingElevatePoints: boolean = false;
 
+    private decasteljauElements(): JXG.GeometryElement[] {
+        return [...this.decasteljauPoints, ...this.decasteljauSegments];
+    }
+
     /**
      * Subdivides the curve at t.
      * This JXGBezierCurve becomes the part that was at [0,t] while the method returns the part from [t,1]
@@ -108,8 +112,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
 
     hideDecasteljauScheme() {
-        // @ts-ignore
-        this.decasteljauPoints.concat(this.decasteljauSegments).forEach(el => el.hide());
+        this.decasteljauElements().forEach(el => el.hide());
         this.showingDecasteljauScheme = false;
         if (!this.isShowingControlPolygon()) {
             this.hideControlPolygon();
@@ -121,8 +124,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             this.lastDecasteljauN = this.pointControlledCurve.getPoints().length;
             this.generateLineSegments();
         } else {
-            // @ts-ignore
-            this.decasteljauPoints.concat(this.decasteljauSegments).forEach(el => el.show());
+            this.decasteljauElements().forEach(el => el.show());
             this.showControlPolygonInternal();
         }
         this.showingDecasteljauScheme = true;
@@ -218,8 +220,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     }
 
     generateLineSegments() {
-        // @ts-ignore
-        this.board.removeObject(this.decasteljauPoints.concat(this.decasteljauSegments));
+        this.board.removeObject(this.decasteljauElements());
         this.decasteljauSegments = [];
         this.decasteljauPoints = [];
         const n = this.pointControlledCurve.getPoints().length;
@@ -230,7 +231,6 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                 let pp1 = null;
                 let pp2 = null;
                 if (i === 1) {
-                    // @ts-ignore
                     pp1 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].X(),
                         () => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].Y()], {
                         ...PointStyles.construction(r, i - 1, n, compactLabels),
@@ -239,7 +239,6 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                 } else {
                     pp1 = this.decasteljauPoints[this.decasteljauPoints.length - 1];
                 }
-                // @ts-ignore
                 this.decasteljauPoints.push(pp1);
 
                 pp2 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i].X(),
@@ -249,9 +248,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                 });
                 const segment = this.board!.create('segment', [pp1, pp2], SegmentStyles.construction(r, true));
                 this.decasteljauSegments.push(segment);
-                // @ts-ignore
                 this.decasteljauPoints.push(pp1);
-                // @ts-ignore
                 this.decasteljauPoints.push(pp2);
             }
         }

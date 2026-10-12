@@ -92,7 +92,6 @@ class SubdivisionGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
             return;
         }
         this.stepsDone = this.stepsDone + 1;
-        // @ts-ignore
         this.board.suspendUpdate();
         try {
             let oldJsxBezierCurves = this.jxgCurves.map(c => c as JXGBezierCurve);

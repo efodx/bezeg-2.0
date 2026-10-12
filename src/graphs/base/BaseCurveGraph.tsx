@@ -36,6 +36,9 @@ interface BaseGraphStates extends BaseGraphState {
     curveSelected: boolean;
 }
 
+/** Serialized curves of a preset: `[class name, curve DTO]` pairs, see `ClassMapper`. */
+export type CurveCollectionPresetData = ReadonlyArray<readonly [string, unknown]>;
+
 JXG.extend(JXG.Point.prototype, {});
 
 /**
@@ -153,10 +156,9 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     }
 
     override importPreset(preset: Preset) {
-        // TODO fix this in another way, this is ugly..
-        // @ts-ignore
-        preset.graphState = {...preset.graphState, curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE};
-        super.importPreset(preset);
+        // A freshly imported preset never starts with a selected curve. The argument is left untouched.
+        const graphState = {...preset.graphState, initialized: true, curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE};
+        super.importPreset({...preset, graphState});
     }
 
     initialize() {
@@ -342,7 +344,6 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
             }
             selectedCurve = this.getSelectedCurve();
             if (!selectedCurve) {
-                // @ts-ignore
                 if (!this.getAllJxgPoints().some(p => p.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))) {
                     selectableCurve = this.jxgCurves.filter(curve => curve.isSelectable(e))[0];
                     if (selectableCurve) {
@@ -356,7 +357,6 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         let canCreate = true;
 
         for (let el of this.board.objectsList) {
-            // @ts-ignore
             if (JXG.isPoint(el) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
                 canCreate = false;
                 break;
@@ -367,7 +367,6 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         }
         if (!canCreate && this.state.selectedCurveOption === SelectedCurveOption.DELETE_POINTS && this.getSelectedCurve()) {
             this.getSelectedCurve().getJxgPoints().every((point, i) => {
-                // @ts-ignore
                 if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
                     if (this.getSelectedCurve().getJxgPoints().length > 1) { this.getSelectedCurve().removePoint(i); }
                     return false;
@@ -403,16 +402,14 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     override exportPresetData() {
         return this.jxgCurves.map(curve => {
-            // @ts-ignore
             return [ClassMapper.getClassName(curve.constructor), ClassMapper.getToDto(curve.constructor)(curve)];
         });
     }
 
-    override importPresetData(str: string) {
+    override importPresetData(str: CurveCollectionPresetData) {
         this.board.suspendUpdate();
         try {
             this.disposeFigureScene();
-            // @ts-ignore
             str.forEach(p => {
                 const [id, object] = [p[0], p[1]];
                 let curve = ClassMapper.getFromDto(id)(object, this.board);

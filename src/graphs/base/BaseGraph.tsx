@@ -14,7 +14,6 @@ import {SiteContext} from "../context/react/SiteContext";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
-import {AxisContext} from "../context/AxisContext";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
@@ -217,8 +216,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
             this.board = session.createBoard("jgbox", {
                 showFullscreen: false,
                 boundingBox: [-5, 5, 5, -5],
-                // @ts-ignore
-                axis: AxisContext.axisVisible,
+                axis: true,
                 keepAspectRatio: true,
                 showScreenshot: false,
                 showCopyright: false,
@@ -229,9 +227,8 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
                 },
             });
 
-            let siteContext = this.context;
+            const siteContext = this.context as React.ContextType<typeof SiteContext>;
             this.setState({initialized: true});
-            // @ts-ignore
             const preset = this.presetService?.getPreset(siteContext.preset.selected);
             if (preset) {
                 this.importPreset(preset);
@@ -355,7 +352,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         const board = this.board;
         return {
             container: board.containerObj as HTMLElement,
-            rendererRoot: (board.renderer as any).svgRoot as SVGSVGElement,
+            rendererRoot: ('svgRoot' in board.renderer ? board.renderer.svgRoot : undefined) as SVGSVGElement,
             isAlive: () => this.graphSession === session && session.isAlive,
             signal: session.signal,
             waitUntilReady: () => session.waitUntilReady(),
@@ -485,24 +482,27 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     private boardInfrastructureObjectClosure(): Set<object> {
         const preserved = new Set<object>();
-        const visit = (object: any) => {
-            if (!object || preserved.has(object)) return;
+        const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+        const valuesOf = (value: unknown): unknown[] => isObject(value) ? Object.values(value) : [];
+        const visit = (object: unknown): void => {
+            if (!isObject(object) || preserved.has(object)) return;
             preserved.add(object);
-            Object.values(object.childElements ?? {}).forEach(visit);
-            Object.values(object.ticks ?? {}).forEach(visit);
-            Object.values(object.labels ?? {}).forEach(visit);
+            valuesOf(object.childElements).forEach(visit);
+            valuesOf(object.ticks).forEach(visit);
+            valuesOf(object.labels).forEach(visit);
             visit(object.defaultTicks);
         };
-        const defaultAxes = (this.board as any).defaultAxes;
+        const defaultAxes = this.board.defaultAxes;
         // JSXGraph creates one board-owned infobox even when it is hidden. It
         // remains part of its pointer/drag infrastructure for the board's
         // entire lifetime, so scene replacement must leave it in place.
-        visit((this.board as any).infobox);
+        visit(this.board.infobox);
         for (const axis of [defaultAxes?.x, defaultAxes?.y]) {
             visit(axis);
-            Object.values(axis?.ancestors ?? {}).forEach(visit);
-            visit(axis?.point1);
-            visit(axis?.point2);
+            if (!isObject(axis)) continue;
+            valuesOf(axis.ancestors).forEach(visit);
+            visit(axis.point1);
+            visit(axis.point2);
         }
         return preserved;
     }

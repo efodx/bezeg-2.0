@@ -1,7 +1,7 @@
 import {t} from "../../../localization";
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import React from "react";
-import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
 import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
@@ -17,7 +17,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStat
         geometryCache.invalidate();
     }
 
-    override importPresetData(str: string) {
+    override importPresetData(str: CurveCollectionPresetData) {
         super.importPresetData(str);
         this.syncFarinInteraction();
     }

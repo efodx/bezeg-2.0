@@ -124,7 +124,6 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
                 ...PointStyles.default,
                 fillColor: constructionLevelColor(pointIndex)
             }));
-            // @ts-ignore
             this.jxgOffsetControlPoints.push(...jxgOffsetControlPoints);
         });
     }
@@ -271,15 +270,12 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     }
 
     override getResizingDir(): number[] {
-        // @ts-ignore
         if (this.boundBoxPoints[0] === this.resizingStart) {
             return [-1, -1];
         }
-        // @ts-ignore
         if (this.boundBoxPoints[1] === this.resizingStart) {
             return [-1, 1];
         }
-        // @ts-ignore
         if (this.boundBoxPoints[2] === this.resizingStart) {
             return [1, 1];
         }

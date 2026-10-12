@@ -11,7 +11,9 @@ import {LessonAction} from "../../learning/model";
 
 export const BERNSTEIN_MAX_DEGREE = 5;
 
-function connectCurves(c1: [x1: (t: number) => number, y1: (t: number) => number], c2: [x2: (t: number) => number, y2: (t: number) => number]) {
+type ParametricCurve = readonly [x: (t: number) => number, y: (t: number) => number, ...parameterRange: number[]];
+
+function connectCurves(c1: ParametricCurve, c2: ParametricCurve): [x: (t: number) => number, y: (t: number) => number] {
     const x = (t: number) => {
         if (t < 1 / 2) {
             const c = t * 2;
@@ -132,15 +134,13 @@ export class BernsteinGraph extends BaseGraph<any, any> {
             }
             if (isSumGraph) {
                 if (i === 0) {
-                    let c1 = [(t: number) => t, (t: number) => polynoms[i](t), 0, 1];
-                    let c2 = [(t: number) => 0, (t: number) => 1 - t, 0, 1];
-                    let c3 = [(t: number) => t, (t: number) => 0, 0, 1];
+                    const c1: ParametricCurve = [(t: number) => t, (t: number) => polynoms[i](t), 0, 1];
+                    const c2: ParametricCurve = [(t: number) => 0, (t: number) => 1 - t, 0, 1];
+                    const c3: ParametricCurve = [(t: number) => t, (t: number) => 0, 0, 1];
 
-                    // @ts-ignore
                     let c = connectCurves(connectCurves(c2, c3), c1);
                     if (n === 1) {
-                        let c4 = [(t: number) => 1, (t: number) => 1 - t, 0, 1];
-                        // @ts-ignore
+                        const c4: ParametricCurve = [(t: number) => 1, (t: number) => 1 - t, 0, 1];
                         c = connectCurves(c, c4);
                     }
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
@@ -152,11 +152,10 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                     curves.push(curve);
                 } else if (i === numOfPolynoms - 1) {
                     let prevPolynom = polynoms[i - 1];
-                    let c1 = [(t: number) => t, (t: number) => prevPolynom(t), 0, 1];
-                    let c2 = [(t: number) => 1, (t: number) => t, 0, 1];
-                    let c3 = [(t: number) => 1 - t, (t: number) => 1, 0, 1];
+                    const c1: ParametricCurve = [(t: number) => t, (t: number) => prevPolynom(t), 0, 1];
+                    const c2: ParametricCurve = [(t: number) => 1, (t: number) => t, 0, 1];
+                    const c3: ParametricCurve = [(t: number) => 1 - t, (t: number) => 1, 0, 1];
 
-                    // @ts-ignore
                     let c = connectCurves(connectCurves(c2, c3), c1);
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,
@@ -167,9 +166,8 @@ export class BernsteinGraph extends BaseGraph<any, any> {
                     curves.push(curve);
                 } else {
                     let prevPolynom = polynoms[i - 1];
-                    let c1 = [(t: number) => t, (t: number) => prevPolynom(t)];
-                    let c2 = [(t: number) => t, (t: number) => polynoms[i](t)];
-                    // @ts-ignore
+                    const c1: ParametricCurve = [(t: number) => t, (t: number) => prevPolynom(t)];
+                    const c2: ParametricCurve = [(t: number) => t, (t: number) => polynoms[i](t)];
                     let c = connectCurves(c1, c2);
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,

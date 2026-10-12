@@ -1,9 +1,10 @@
-import {Board, PointAttributes} from "jsxgraph";
+import {Board, PointAttributes, SegmentAttributes} from "jsxgraph";
 import {JXGPointWrapper} from "./JXGPointWrapper";
 import {PointControlledCurveCommands} from "./inputs/PointControlledCurveCommands";
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
 import {CurveStyles} from "../../styles/CurveStyles";
 import {PointStyles} from "../../styles/PointStyles";
+import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {SizeContext} from "../../context/SizeContext";
 import {SegmentStyles} from "../../styles/SegmentStyles";
@@ -212,7 +213,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             return false;
         }
         let coords = this.getMouseCoords(e);
-        // @ts-ignore
         return this.jxgCurve?.hasPoint(coords.scrCoords[1], coords.scrCoords[2]);
         //&& !this.jxgPoints.some(point => point.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))
     }
@@ -220,7 +220,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     processMouseDown(e: PointerEvent) {
         console.time("Processing mouse down event");
         this.coords = this.getMouseCoords(e);
-        // @ts-ignore
         if (this.selected && this.boundBoxPoints?.some(point => point.hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2]))) {
             this.startResizing();
         } else if (this.selected && !this.isMouseInsideBoundingBox() && this.isMouseInsidePaddedBoundingBox()) {
@@ -254,15 +253,12 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     getResizingDir(): number[] {
-        // @ts-ignore
         if (this.boundBoxPoints[0].hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2])) {
             return [-1, -1];
         }
-        // @ts-ignore
         if (this.boundBoxPoints[1].hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2])) {
             return [-1, 1];
         }
-        // @ts-ignore
         if (this.boundBoxPoints[2].hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2])) {
             return [1, 1];
         }
@@ -270,7 +266,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     startResizing() {
-        // @ts-ignore
         this.resizingStart = this.boundBoxPoints?.filter(point => point.hasPoint(this.coords!.scrCoords[1], this.coords!.scrCoords[2]))[0]!;
         this.resizing = true;
     }
@@ -530,8 +525,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             this.board.containerObj.style.cursor = 'default';
         }
         this.boundBoxPoints.forEach((p, i) => {
-            // @ts-ignore
-            if (p.hasPoint(this.coords?.scrCoords[1], this.coords?.scrCoords[2])) {
+            if (p.hasPoint(newCoords.scrCoords[1], newCoords.scrCoords[2])) {
                 this.board.containerObj.style.cursor = i % 2 != 0 ? 'nwse-resize' : 'nesw-resize';
             }
         });
@@ -598,7 +592,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             point = this.board.create('point', [x, y]);
         }
         let over = (p: JXG.Point) => {
-            // @ts-ignore
             if (!p.visProp.fixed) {
                 this.board.containerObj.style.cursor = 'pointer';
             }
@@ -675,7 +668,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     private addBoundingBox() {
         var board = this.board;
         let over = function (p: JXG.Point) {
-            // @ts-ignore
             if (!p.visProp.fixed) {
                 board.containerObj.style.cursor = 'pointer';
             }
@@ -685,23 +677,20 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
                 board.containerObj.style.cursor = 'default';
             }
         };
-        // @ts-ignore
-        const pointStyle: PointAttributes = {name: "", color: GraphPalette.controlPolygon, opacity: 0.4, size: () => SizeContext.pointSize};
+        const pointStyle = dynamicAttributes<PointAttributes>({name: "", color: GraphPalette.controlPolygon, opacity: 0.4, size: () => SizeContext.pointSize});
         const p = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[2]], pointStyle);
         const p2 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[0], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);
         const p3 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[1], () => this.pointControlledCurve.getBoundingBox()[3]], pointStyle);
         const p4 = this.board.create('point', [() => this.pointControlledCurve.getBoundingBox()[1], () => this.pointControlledCurve.getBoundingBox()[2]], pointStyle);
-        // @ts-ignore
         this.boundBoxPoints = [p, p2, p3, p4];
         this.boundBoxPoints.forEach(p => p.on('over', () => over(p)));
         this.boundBoxPoints.forEach(p => p.on('out', () => out(p)));
 
-        const segmentStyle = {color: GraphPalette.constructionAccent, strokeWidth: 0.5, dash: 2, highlight: false};
+        const segmentStyle: SegmentAttributes = {color: GraphPalette.constructionAccent, strokeWidth: 0.5, dash: 2, highlight: false};
         const segment = this.board.create('segment', [p, p2], segmentStyle);
         const segment2 = this.board.create('segment', [p2, p3], segmentStyle);
         const segment3 = this.board.create('segment', [p3, p4], segmentStyle);
         const segment4 = this.board.create('segment', [p4, p], segmentStyle);
-        // @ts-ignore
         this.boundBoxSegments = [segment, segment2, segment3, segment4];
     }
 

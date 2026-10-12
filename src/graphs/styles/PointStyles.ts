@@ -2,10 +2,10 @@ import {PointAttributes} from "jsxgraph";
 import {SizeContext} from "../context/SizeContext";
 import {VisibilityContext} from "../context/VisibilityContext";
 import {GraphPalette, constructionLevelColor} from "./GraphPalette";
+import {dynamicAttributes} from "./dynamicAttributes";
 
 
-const pointStyle: PointAttributes = {
-    // @ts-ignore
+const pointStyle = dynamicAttributes<PointAttributes>({
     size: () => SizeContext.pointSize,
     fillColor: GraphPalette.controlPoint,
     strokeColor: GraphPalette.pointOutline,
@@ -14,39 +14,34 @@ const pointStyle: PointAttributes = {
     highlightStrokeColor: GraphPalette.selectedControlPointOutline,
     label: {
         color: GraphPalette.label,
-        // @ts-ignore
         fontSize: () => SizeContext.fontSize,
         useMathJax: true,
         parse: false,
         anchorY: "bottom",
         anchorX: "left",
         //   anchorX: "middle",
-        // @ts-ignore
         offset: () => [0, SizeContext.fontSize * -0.3],
-        // @ts-ignore
         visible: () => VisibilityContext.pointsVisible()
     },
     name: "",
-};
+});
 
-const hodographPointStyle: PointAttributes = {
+const hodographPointStyle = dynamicAttributes<PointAttributes>({
     ...pointStyle,
-    // @ts-ignore JSXGraph evaluates callback-valued style attributes at render time.
     size: () => Math.max(4, 0.5 * SizeContext.pointSize),
     label: {
-        // @ts-ignore
         fontSize: () => Math.max(20, 0.5 * SizeContext.fontSize),
         useMathJax: true,
         parse: false
     }
-};
+});
 
-const fixedPointStyle: PointAttributes = {
+const fixedPointStyle = dynamicAttributes<PointAttributes>({
     ...pointStyle,
     fixed: true,
     fillColor: GraphPalette.derivedPoint,
     highlightFillColor: GraphPalette.derivedPoint
-};
+});
 
 const compactLabelDirections = [
     {x: 0, y: -1, anchorX: "middle" as const, anchorY: "bottom" as const},
@@ -91,13 +86,10 @@ function constructionLabel(level: number, pointIndex: number, pointCount: number
     const distance = 0.55 + Math.floor(Math.abs(Math.trunc(level)) / 2) * 0.35;
     const layout = decasteljauLabelLayout(level, pointIndex, pointCount);
     const direction = compactLabelDirections[layout.direction];
-    return {
+    return dynamicAttributes<NonNullable<PointAttributes["label"]>>({
         ...pointStyle.label,
-        // @ts-ignore JSXGraph evaluates callback-valued label anchors when rendering.
         anchorX: () => compactBoard() ? direction.anchorX : "middle",
-        // @ts-ignore JSXGraph evaluates callback-valued label anchors when rendering.
         anchorY: () => compactBoard() ? direction.anchorY : above ? "bottom" : "top",
-        // @ts-ignore JSXGraph supports a dynamic offset although its declarations only allow a tuple.
         offset: () => {
             if (compactBoard()) {
                 const compactDistance = SizeContext.fontSize * (0.36 + layout.ring * 0.16);
@@ -105,37 +97,36 @@ function constructionLabel(level: number, pointIndex: number, pointCount: number
             }
             return [0, (above ? -1 : 1) * SizeContext.fontSize * distance] as [number, number];
         }
-    };
+    });
 }
 
 function resultPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false): PointAttributes {
-    return {
+    return dynamicAttributes<PointAttributes>({
         ...pointStyle,
         name: "",
         fillColor: GraphPalette.constructionAccent,
         label: constructionLabel(level, pointIndex, pointCount, compactBoard)
-    };
+    });
 }
 
 function constructionPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false): PointAttributes {
     const color = constructionLevelColor(level);
-    return {
+    return dynamicAttributes<PointAttributes>({
         ...pointStyle,
         name: "",
         fillColor: color,
         label: constructionLabel(level, pointIndex, pointCount, compactBoard)
-    };
+    });
 }
 
 
 function pi(i: number, visible: () => boolean): PointAttributes {
-    return {
+    return dynamicAttributes<PointAttributes>({
         ...pointStyle,
         name: "$$p_{" + i + "}$$",
         // name: "$$p_{\\scriptsize" + i + "}$$",
-        // @ts-ignore
         visible: visible
-    };
+    });
 }
 
 export const PointStyles = {

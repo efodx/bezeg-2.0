@@ -1,7 +1,9 @@
+import {LabelOptions} from "jsxgraph";
 import {t} from "../../../localization";
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {PointStyles} from "../../styles/PointStyles";
+import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {SizeContext} from "../../context/SizeContext";
 import {SegmentStyles} from "../../styles/SegmentStyles";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -32,10 +34,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<any, CubicPhBezierC
         this.getFirstJxgCurve().getJxgCurve().setAttribute({visible: () => this.state.showingCurve});
         const points = this.getAllJxgPoints();
 
-        const label = {...PointStyles.default.label};
-
-        // @ts-ignore
-        label!.visible = () => false;
+        const label = dynamicAttributes<LabelOptions>({...PointStyles.default.label, visible: () => false});
         let attr = {
             radius: () => SizeContext.strokeWidth / 8,
             color: GraphPalette.constructionAccent,

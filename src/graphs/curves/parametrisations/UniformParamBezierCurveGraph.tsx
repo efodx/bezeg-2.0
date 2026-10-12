@@ -190,8 +190,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
         return "uniform-graph";
     }
 
-    private selectParam(select: React.SyntheticEvent<HTMLSelectElement>) {
-        // @ts-ignore
+    private selectParam(select: React.ChangeEvent<HTMLSelectElement>) {
         const param = select.target.value;
         this.setState({...this.state, isAlphaParam: param === "alpha"});
     }

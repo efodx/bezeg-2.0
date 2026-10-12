@@ -215,9 +215,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         if (this.weightLabels.length !== 0) {
             this.hideWeights();
         }
-        // @ts-ignore
         this.weightLabels = this.getJxgPoints().map((point, i) =>
-            // @ts-ignore
             this.board.create('smartlabel', [point, () => "$$w_{" + i + "}=" + this.getCurve().getWeights()[i].toFixed(2) + "$$"], {
                 fontSize: () => SizeContext.fontSize,
                 size: () => SizeContext.fontSize,
@@ -288,7 +286,6 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                     });
                 this.sliders.push(slider);
                 let over = (p: JXG.Slider) => {
-                    // @ts-ignore
                     if (!p.visProp.fixed) {
                         this.board.containerObj.style.cursor = 'pointer';
                     }
