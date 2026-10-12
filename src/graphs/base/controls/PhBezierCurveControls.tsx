@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {useT} from "../../../localization";
 import React from "react";
 import {JXGPHBezierCurve} from "../../curves/object/JXGPHBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -8,7 +8,7 @@ import {CurveControlsProps} from "./CurveDisplayControls";
 
 /** Offset curve settings of a PH Bézier adapter, read live from the adapter. */
 export function PhBezierCurveControls({curve, onChanged}: CurveControlsProps<JXGPHBezierCurve>) {
-    useLanguage();
+    const t = useT();
     const showOffsetCurve = curve.isShowingOffsetCurve();
     const showControlPoints = curve.isShowingOffsetCurveControlPoints();
     return <div>

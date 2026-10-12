@@ -1,5 +1,5 @@
 import React, {useEffect, useId, useState} from "react";
-import {currentLanguage, t, useLanguage} from "../localization";
+import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
 import "./NumberInput.css";
 
@@ -29,7 +29,7 @@ type Hint = "range" | "rejected" | undefined;
  * the range, or one the model rejects, is explained by a short hint under the field.
  */
 export function NumberInput(props: NumberInputProps) {
-    useLanguage();
+    const t = useT();
     const {value, decimals = 2, min, max, step} = props;
     const id = useId();
     const [draft, setDraft] = useState(show(value, decimals));

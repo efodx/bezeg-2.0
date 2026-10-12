@@ -1,11 +1,11 @@
-import {t, useLanguage} from "./localization";
+import {useT} from "./localization";
 import React, {useContext, useEffect} from "react";
 import {SiteContext} from "./graphs/context/react/SiteContext";
 import {Link} from 'react-router-dom';
 import './WelcomePage.css';
 
 export function WelcomePage() {
-    useLanguage();
+    const t = useT();
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     return <main className="welcome-page">

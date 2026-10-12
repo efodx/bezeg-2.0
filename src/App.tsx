@@ -1,4 +1,4 @@
-import {t, useLanguage} from "./localization";
+import {useT} from "./localization";
 import React, {useState} from 'react';
 import './App.css';
 import {Outlet, useLocation} from "react-router-dom";
@@ -7,7 +7,7 @@ import {SiteContext} from "./graphs/context/react/SiteContext";
 import {AppHeader} from './AppHeader';
 
 function App() {
-    useLanguage();
+    const t = useT();
 
     const [fullScreen, setFullScreen] = useState(false);
     const location = useLocation();

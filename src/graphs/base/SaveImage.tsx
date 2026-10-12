@@ -1,10 +1,10 @@
-import {t, useLanguage} from "../../localization";
+import {t, useLanguage, useT} from "../../localization";
 import React from "react";
 import {Button, Form} from "react-bootstrap";
 
 /** `presetId` is the selected preset ("" for none); it names the downloaded file. */
 export function SaveImage(props: { saveAsSVG: (name: string) => void, saveAsPNG: (name: string) => void, showLabel?: boolean, presetId?: string }) {
-    useLanguage();
+    const t = useT();
     return <>
         {props.showLabel !== false && <Form.Label>{t("export_figure")}</Form.Label>}
         <div className="figure-export-actions">

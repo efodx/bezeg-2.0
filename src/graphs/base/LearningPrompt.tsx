@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
-import {t, useLanguage} from '../../localization';
+import {useT} from '../../localization';
 import {findDemonstration} from '../../demonstrations';
 
 export function LearningPrompt({pathname}: {pathname: string}) {
-    useLanguage();
+    const t = useT();
     const [index, setIndex] = useState(0);
     const prompts = findDemonstration(pathname)?.prompts ?? [t('change_the_settings_and_observe_their_effect_on_the_graph'), t('prompt_compare')];
     return <section className="workspace-learning" aria-label={t('try_and_observe')}>

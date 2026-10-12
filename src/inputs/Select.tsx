@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../localization";
+import {useT} from "../localization";
 interface SelectProps {
     options: { value: any; text: string; }[];
     selected?: string;
@@ -7,7 +7,7 @@ interface SelectProps {
 
 
 export function Select(props: SelectProps) {
-    useLanguage();
+    const t = useT();
     let getOptions = () => props.options.map((option: { value: any; text: string }) =>
         <option value={option.value}>{option.text}</option>);
 

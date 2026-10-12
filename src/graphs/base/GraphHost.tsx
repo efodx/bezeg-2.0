@@ -1,5 +1,5 @@
 import {useContext, useLayoutEffect, useReducer, useRef, useState, useSyncExternalStore} from "react";
-import {useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import {SiteContext} from "../context/react/SiteContext";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import type BaseGraph from "./BaseGraph";
@@ -13,8 +13,9 @@ import type {BaseGraphState} from "./BaseGraph";
  * controller supports; the discarded second `create()` result of the lazy initializer never mounts and owns nothing.
  */
 export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> }) {
-    // Until task 7 moves localization into the store, a language switch re-renders the panels through this hook.
-    useLanguage();
+    // Panels are produced by controller methods that call the module-level `t`, so GraphHost must stay subscribed
+    // for a language switch to re-render them.
+    useT();
     const [graph] = useState(create);
     const container = useRef<HTMLDivElement>(null);
     const site = useContext(SiteContext);

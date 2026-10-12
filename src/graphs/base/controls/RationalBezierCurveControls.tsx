@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {useT} from "../../../localization";
 import {Button, ButtonGroup} from "react-bootstrap";
 import React from "react";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
@@ -6,7 +6,7 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {CurveControlsProps} from "./CurveDisplayControls";
 
 function WeightController({curve, onChanged}: CurveControlsProps<JXGRationalBezierCurve>) {
-    useLanguage();
+    useT();
     const change = (action: () => void) => {
         action();
         curve.board.update();
@@ -26,7 +26,7 @@ function WeightController({curve, onChanged}: CurveControlsProps<JXGRationalBezi
 
 /** Weight display, weight editing and standard form of a rational Bézier adapter, read live from the adapter. */
 export function RationalBezierCurveControls({curve, onChanged}: CurveControlsProps<JXGRationalBezierCurve>) {
-    useLanguage();
+    const t = useT();
     return <div>
         <OnOffSwitch checked={curve.isShowingWeights()} label={t("weights")}
                      onChange={checked => {curve.showwWeights(checked); onChanged();}}/>

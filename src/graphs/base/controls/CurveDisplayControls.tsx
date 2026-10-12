@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {useT} from "../../../localization";
 import React from "react";
 import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from "../../curves/object/AbstractJXGPointControlledCurve";
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
@@ -26,7 +26,7 @@ export function displayToggles(curve: DisplayedCurve): DisplayToggle[] {
 
 /** One display switch of a curve, read live from the adapter. */
 export function CurveDisplayToggle({curve, toggle, onChanged}: CurveControlsProps<DisplayedCurve> & { toggle: DisplayToggle }) {
-    useLanguage();
+    const t = useT();
     if (toggle === "control-polygon") {
         return <OnOffSwitch checked={curve.isShowingControlPolygon()} label={t("control_polygon")}
                             onChange={checked => {curve.showControllPolygon(checked); onChanged();}}/>;

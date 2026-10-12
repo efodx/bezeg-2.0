@@ -1,7 +1,7 @@
-import {t, useLanguage} from "./localization";
+import {useT} from "./localization";
 import {LanguageSelector} from "./localization/LanguageSelector";
 export function ErrorPage() {
-    useLanguage();
+    const t = useT();
     return (
         <div>
             <LanguageSelector/>

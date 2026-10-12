@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {t, useT} from "../../../localization";
 import React from 'react';
 
 import {Button} from "react-bootstrap";
@@ -13,7 +13,7 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 export const MAX_SUBDIVISION_STEPS = 5;
 
 function ShowControlPolygons(props: { checked: boolean, onChange: (checked: boolean) => void }) {
-    useLanguage();
+    const t = useT();
     return <OnOffSwitch checked={props.checked} label={t("control_polygons")} onChange={props.onChange}/>;
 }
 

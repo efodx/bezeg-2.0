@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {useT} from "../../../localization";
 import {Button} from "react-bootstrap";
 import React from "react";
 import {JXGBezierCurve} from "../../curves/object/JXGBezierCurve";
@@ -23,7 +23,7 @@ export function bezierTools(curve: BezierAdapter): BezierToolName[] {
 
 /** One tool of a Bézier curve adapter: its slider and button, read live from the adapter. */
 export function BezierTool({curve, tool, onChanged}: CurveControlsProps<BezierAdapter> & { tool: BezierToolName }) {
-    useLanguage();
+    const t = useT();
     const apply = (action: () => void) => {
         action();
         curve.board.update();

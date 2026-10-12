@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {NavLink, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
@@ -21,7 +21,7 @@ export function DemonstrationWorkspace(props: {
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
     graphBusy?: boolean, graphContainerRef?: React.Ref<HTMLDivElement>,
 }) {
-    useLanguage();
+    const t = useT();
     const {pathname, search, hash} = useLocation();
     const navigateRoute = useNavigate();
     const {families} = getDemonstrationCatalog();

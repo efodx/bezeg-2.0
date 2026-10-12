@@ -1,11 +1,11 @@
-import {t, useLanguage, LocalizedError} from "../../localization";
+import {LocalizedError, useT} from "../../localization";
 import React, {useRef, useState} from "react";
 import {Alert, Button, Form, Modal} from "react-bootstrap";
 import {commitPresetImport, preflightPresetImport, PresetImportPlan} from "./presets/PresetImport";
 import {appStorage} from "../../storage/appStorage";
 
 export function PresetImportDialog({onImported, disabled}: {onImported: () => void, disabled?: boolean}) {
-    useLanguage();
+    const t = useT();
     const [show, setShow] = useState(false);
     const [error, setError] = useState<Error | string>("");
     const [plan, setPlan] = useState<PresetImportPlan>();

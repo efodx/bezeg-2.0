@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import React from "react";
 import {Form} from "react-bootstrap";
 import {AxisSelect} from "./DisplaySettings";
@@ -6,7 +6,7 @@ import {AxisSelect} from "./DisplaySettings";
 
 /** The coordinate-system picker; the graph owns the selection and redraws its board when `onChange` runs. */
 export function AxisSelector(props: { selected: AxisSelect, onChange: (selected: AxisSelect) => void }) {
-    useLanguage();
+    const t = useT();
 
     const labels: Record<AxisSelect, string> = {
         [AxisSelect.NONE]: t("none"),

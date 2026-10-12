@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import React, {useEffect, useState} from "react";
 import Slider from "../../inputs/Slider";
 import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
@@ -9,7 +9,7 @@ function OperationGroup({title, children}: {title: string, children: React.React
 }
 
 export function CurveWorkspaceOperations({curve, onChanged}: {curve: JXGBezierCurve, onChanged: () => void}) {
-    useLanguage();
+    const t = useT();
     const [subdivision, setSubdivision] = useState(curve.getSubdivisionT());
     const [extrapolation, setExtrapolation] = useState(curve.getExtrapolationT());
     const [shrink, setShrink] = useState(curve.getSubdivisionT());

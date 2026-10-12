@@ -1,5 +1,5 @@
 import React from "react";
-import {t, useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import "./FunctionReadout.css";
 
 export interface ReadoutRow {
@@ -15,7 +15,7 @@ export interface ReadoutRow {
  * `formatNumber` from src/analysis/format so the board and the inspector agree.
  */
 export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string | readonly string[] }) {
-    useLanguage();
+    useT();
     const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
     return <div className="inspector-group function-readout">
         <h3>{props.title}</h3>
@@ -41,7 +41,7 @@ export interface LegendItem {
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
 export function FunctionLegend(props: { items: readonly LegendItem[] }) {
-    useLanguage();
+    const t = useT();
     return <div className="inspector-group function-legend">
         <h3>{t("function_legend")}</h3>
         <ul>

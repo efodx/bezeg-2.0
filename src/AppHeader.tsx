@@ -2,11 +2,11 @@ import React from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import Logo from './images/elderflower.png';
 import {LanguageSelector} from './localization/LanguageSelector';
-import {t, useLanguage} from './localization';
+import {useT} from './localization';
 import './AppHeader.css';
 
 export function AppHeader() {
-    useLanguage();
+    const t = useT();
     return <header className="app-header">
         <Link className="app-brand" to="/bezeg-2.0" aria-label={t('bezeg_home')}>
             <img src={Logo} width="34" height="34" alt=""/><span>Bezeg</span>

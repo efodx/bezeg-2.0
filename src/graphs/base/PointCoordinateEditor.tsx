@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../localization";
+import {useT} from "../../localization";
 import React, {useEffect, useState} from "react";
 import {Point} from "../../bezeg/api/point/point";
 
@@ -14,7 +14,7 @@ export function PointCoordinateEditor(props: {
     onAdd?: (x: number, y: number) => void, onDelete?: (index: number) => void, prefix?: string,
     observeBoard?: () => JXG.Board | undefined
 }) {
-    useLanguage();
+    const t = useT();
     const [revision, setRevision] = useState(0);
     const [error, setError] = useState<"enter_finite_numeric_coordinates" | "">("");
     const {board, observeBoard} = props;

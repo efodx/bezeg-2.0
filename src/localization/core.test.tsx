@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {sl} from './sl';
 import {en} from './en';
-import {beginFigureExport, currentLanguage, LocalizedError, message, onLanguageChange, setLanguage, t} from './index';
+import {beginFigureExport, currentLanguage, LocalizedError, message, onLanguageChange, setLanguage, t, useT} from './index';
 import {LanguageSelector} from './LanguageSelector';
 
 beforeEach(() => { localStorage.clear(); act(() => setLanguage('sl')); });
@@ -113,4 +113,17 @@ test('blocked localStorage getter falls back without crashing module initializat
         if (descriptor) { Object.defineProperty(window, 'localStorage', descriptor); }
         else { Reflect.deleteProperty(window, 'localStorage'); }
     }
+});
+
+test('useT re-renders a memoized component with the new language', () => {
+    const Memoized = React.memo(function Memoized() {
+        const translate = useT();
+        return <span data-testid="memo">{translate('point_coordinates_keyboard_editing')}</span>;
+    });
+    render(<Memoized/>);
+    expect(screen.getByTestId('memo').textContent).toBe(sl.point_coordinates_keyboard_editing);
+    act(() => setLanguage('en'));
+    expect(screen.getByTestId('memo').textContent).toBe(en.point_coordinates_keyboard_editing);
+    act(() => setLanguage('sl'));
+    expect(screen.getByTestId('memo').textContent).toBe(sl.point_coordinates_keyboard_editing);
 });

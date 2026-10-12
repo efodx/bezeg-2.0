@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../localization";
+import {useT} from "../localization";
 import {useId} from "react";
 import Form from 'react-bootstrap/Form';
 
@@ -16,7 +16,7 @@ interface SliderProps {
 }
 
 export default function Slider(props: SliderProps) {
-    useLanguage();
+    const t = useT();
     const id = useId();
     const {step = (props.max - props.min) / 100} = props;
     const show = props.formatValue ?? ((value: number) => value.toFixed(2));

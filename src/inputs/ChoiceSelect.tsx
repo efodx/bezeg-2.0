@@ -1,6 +1,6 @@
 import {useId} from "react";
 import Form from "react-bootstrap/Form";
-import {useLanguage} from "../localization";
+import {useT} from "../localization";
 
 interface ChoiceSelectProps {
     /** Visible label, also the accessible name of the native select. */
@@ -13,7 +13,7 @@ interface ChoiceSelectProps {
 
 /** A labelled native select for choosing one of a few named options (keyboard and touch work as for any select). */
 export function ChoiceSelect(props: ChoiceSelectProps) {
-    useLanguage();
+    useT();
     const id = useId();
     return <Form>
         <Form.Label htmlFor={id}>{props.label}</Form.Label>

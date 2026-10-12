@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../../localization";
+import {t, useT} from "../../../localization";
 import React from "react";
 import Slider from "../../../inputs/Slider";
 
@@ -24,7 +24,7 @@ function statusLabel(status: DecasteljauAnimationStatus): string {
 }
 
 export function DecasteljauAnimationControls(props: DecasteljauAnimationControlsProps) {
-    useLanguage();
+    const t = useT();
     return <section className="decasteljau-animation-panel" aria-label={t("animation_controls")}>
         <div className="decasteljau-animation-heading">
             <div>

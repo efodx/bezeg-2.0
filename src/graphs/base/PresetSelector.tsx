@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../../localization";
+import {t, useLanguage, useT} from "../../localization";
 import {Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useMemo, useRef, useState} from "react";
 import {PresetLockContext} from "../context/react/PresetLockContext";
@@ -103,7 +103,7 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
 }
 
 function SaveModal(props: { onSave: (name: string) => void, initialValue: string }) {
-    useLanguage();
+    const t = useT();
     const [show, setShow] = useState(false);
     const [presetName, setPresetName] = useState(props.initialValue);
 
@@ -153,7 +153,7 @@ function SaveModal(props: { onSave: (name: string) => void, initialValue: string
 }
 
 function TrashModal(props: { trash: () => void, disabled?: boolean }) {
-    useLanguage();
+    const t = useT();
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -193,7 +193,7 @@ export function PresetSelector(props: {
     onImported: () => void,
     batchExporter: (presets: Preset[]) => void | Promise<void>
 }) {
-    useLanguage();
+    const t = useT();
     const lessonActive = useContext(PresetLockContext);
     const {presetService, selectedPresetId, presetListVersion} = props;
     // eslint-disable-next-line react-hooks/exhaustive-deps

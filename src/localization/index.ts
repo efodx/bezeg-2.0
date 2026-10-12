@@ -28,6 +28,11 @@ export function useLanguage() {
     useSyncExternalStore(subscribe, snapshot, snapshot);
     return {language, persistenceFailed, exporting: exportsInProgress > 0, exportFailed};
 }
+/** Subscribes the calling component to language changes (like useLanguage) and returns the typed `t`. */
+export function useT(): typeof t {
+    useSyncExternalStore(subscribe, snapshot, snapshot);
+    return t;
+}
 export function setLanguage(next: Language) {
     if (exportsInProgress > 0 || (next !== 'sl' && next !== 'en')) return;
     language = next;

@@ -1,4 +1,4 @@
-import {t, useLanguage} from "../localization";
+import {useT} from "../localization";
 import {Button, ButtonGroup} from "react-bootstrap";
 import React from "react";
 
@@ -11,7 +11,7 @@ export function CountSetter(props: {
     min?: number | (() => number),
     max?: number | (() => number)
 }) {
-    useLanguage();
+    const t = useT();
     const {n} = props;
     const onPlus = () => {
         if (n === props.max) {

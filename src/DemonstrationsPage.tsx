@@ -5,7 +5,7 @@ import type {DemonstrationId, FamilyId} from './demonstrations';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {SiteContext} from './graphs/context/react/SiteContext';
-import {t, useLanguage} from './localization';
+import {t, useT} from './localization';
 import './DemonstrationsPage.css';
 import startingBezier from './images/demonstrations/starting-bezier.svg';
 import startingConstruction from './images/demonstrations/starting-construction.svg';
@@ -119,7 +119,7 @@ function CatalogSchematicPreview({id}: {id: DemonstrationId}) {
 }
 
 export function DemonstrationsPage() {
-    useLanguage();
+    const t = useT();
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     const {demonstrations, families, starting} = getDemonstrationCatalog();

@@ -12,6 +12,20 @@ Source spec: [React architecture refactor](../../specs/react-architecture-refact
 | 6 | [Per-curve geometry cache versions](06-per-curve-cache.md) | — (parallel) | 6 |
 | 7 | [`useT()` and subscribable lesson session](07-use-t-and-lesson-store.md) | 3 | 12, 3 (lessons) |
 
+**Status (2026-10-13): all seven tasks are complete.**
+
+| Task | Commits |
+|------|---------|
+| 1 | 63af46b |
+| 2 | 430a7e1 |
+| 3 | eb11e11 |
+| 4 | c6f4779 |
+| 5 | e35075f |
+| 6 | c59f45f, 998a6f1, 01abdfc, c81f6c8 |
+| 7 | f4a8808 plus the `useT()` commit |
+
+Prototype gating remains deferred.
+
 Task 6 is confined to `src/bezeg` and runs in parallel with tasks 1–3; the graph layer's `geometryCache` calls are removed when it integrates.
 
 ## Shared verification
