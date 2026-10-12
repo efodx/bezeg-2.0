@@ -1,6 +1,6 @@
 # Bezeg demonstration workspace usability redesign
 
-Status: the owner accepted the general polynomial Bézier and cubic PH pilots on 2026-10-08 and authorized rollout to every active demonstration route. The shared workspace follows [the redesign proposal](../prototypes/tools-redesign-proposal.md). Pilot verification and remaining classroom/device review are recorded in [the implementation report](../reviews/tools-workspace-redesign.md).
+Status: implemented on all active demonstration routes. The owner accepted the general polynomial Bézier and cubic PH pilots on 2026-10-08 and authorized rollout to every active route. The shared workspace follows [the redesign proposal](../prototypes/tools-redesign-proposal.md); implementation evidence and remaining classroom/device review are in [the implementation report](../reviews/tools-workspace-redesign.md).
 
 ## Problem Statement
 

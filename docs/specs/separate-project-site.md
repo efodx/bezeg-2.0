@@ -1,5 +1,7 @@
 # Separate Bezeg 2.0 project site
 
+Status: release completed on 2026-10-09. The final hosting, storage-isolation, and route evidence is recorded in the [release review](../reviews/separate-project-site.md); ongoing hosting instructions are in the [GitHub Pages SPA playbook](../github-pages-spa-playbook.md).
+
 Publish a snapshot of the current Bezeg source as a separate public repository `efodx/bezeg-2.0`, served at `https://efodx.github.io/bezeg-2.0/`. The original repository and published site must not be deployed or changed.
 
 ## Acceptance
@@ -12,5 +14,5 @@ Publish a snapshot of the current Bezeg source as a separate public repository `
 - Production build, TypeScript, route checks and representative browser smoke pass.
 - README and hosting guidance describe the new site and the independent original site.
 
-Source snapshot: original local HEAD `d409cd0` plus the working-tree app and documentation changes present on 2026-10-09. Temporary attachment/smoke lock files and environment files were excluded. No deployment until authenticated GitHub access is available.
+Source snapshot: original local HEAD `d409cd0` plus the working-tree app and documentation changes present on 2026-10-09. Temporary attachment/smoke lock files and environment files were excluded. At initial scoping, deployment awaited authenticated GitHub access; the authorized release and hosted evidence are recorded in the [release review](../reviews/separate-project-site.md).
 

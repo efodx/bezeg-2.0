@@ -8,7 +8,7 @@ The production-built Chromium suite passed all 29 checks with one worker in 52.5
 
 Local verification used Node 22.1.0, Playwright 1.64.0, and its downloaded Chromium on Windows. TypeScript checking (`npx tsc --noEmit --pretty false`) and the production build passed. Existing CRA lint and Browserslist warnings remain; CI permits lint warnings only during the production build. Preview HTTP checks passed for the app entry, deep links, trailing-slash deep links, JavaScript assets, and missing-asset/non-app 404 responses. An occupied preview port was rejected rather than silently reused.
 
-The complete local entry point, `npm run test:smoke`, also passed: production build followed by all 29 Chromium checks in 46.6 seconds for the browser phase.
+The complete local entry point, `npm run test:smoke`, also passed: production build followed by all 29 Chromium checks in 46.6 seconds for the browser phase. The later CI/CD change extended this workflow and its first hosted run passed; see the [CI/CD review](continuous-deployment.md).
 
 A temporary test with an intentionally wrong heading exited with status 1 and generated `test-failed-1.png`, `trace.zip`, an error context, and an HTML report under ignored `test-results/failure-evidence/`. Its test/config files were removed and its preview port was closed. This verifies failure handling rather than representing an app regression; successful tests retain no screenshots/traces.
 
@@ -20,6 +20,6 @@ A task-only Playwright lockfile delta initially failed `npm ci` because the comm
 
 ## Limits
 
-Local checks exercised the working checkout, including pre-existing UI changes being developed concurrently. No workflow has been pushed or run on GitHub by this task, and no deployment or repository branch-protection change was made. The workflow will become available when the commits are pushed.
+At the time of this initial review, checks were local and the workflow had not yet been pushed or run on GitHub. The later CI/CD task activated the workflow and recorded its first hosted run in the [CI/CD review](continuous-deployment.md).
 
 The historical CRA starter test remains outside this focused suite. The route smoke proves a visible scene loads, rather than mathematical identity of every route mapping. Dragging, sliders, lessons, narrow-screen/keyboard behavior, other browsers, full visual/accessibility review, physical devices, and deployed Pages behavior remain in [the complementary checklist](../smoke-tests.md). Runtime errors without a tested visible symptom are not comprehensively monitored by this initial suite.

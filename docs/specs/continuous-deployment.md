@@ -1,5 +1,7 @@
 # Continuous integration and Pages deployment
 
+Status: implemented, activated, and verified on GitHub Pages. See the [CI/CD review](../reviews/continuous-deployment.md) for hosted evidence, activation details, and remaining coverage limits.
+
 Requested on 2026-10-09: inspect current CI and add CD where the static hosting contract supports it.
 
 ## Scope and acceptance
@@ -16,4 +18,4 @@ Requested on 2026-10-09: inspect current CI and add CD where the static hosting 
 
 Inspect workflow YAML and event/branch/permission/dependency conditions. Run TypeScript, all unit tests, production build, and the production Chromium suite. Check that the artifact includes `index.html`, `404.html`, and base-path assets. Record actual current hosted CI status separately from local results. No app runtime behavior changes are required.
 
-Implementation: [workflow task](../tasks/continuous-deployment/implement-pages-workflow.md).
+Implementation and activation are complete. Operational setup and rollback instructions remain in the [GitHub Pages SPA playbook](../github-pages-spa-playbook.md#bezegs-gated-actions-deployment).

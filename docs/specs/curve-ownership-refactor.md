@@ -1,5 +1,7 @@
 # Curve ownership refactor
 
+Status: the bounded foundation is implemented and reviewed. Its remaining limits and separate follow-up architecture slices are recorded in the [verification review](../reviews/curve-ownership-refactor.md) and [architecture assessment](../curve-architecture-deep-dive.md).
+
 Approved direction: the owner authorized implementation of the [architecture assessment](../curve-architecture-deep-dive.md) on 2026-10-09. This is the first bounded production refactor in that direction, retaining JSXGraph and all mathematical algorithms. Subsequent scene/command migration and renderer comparison remain separate slices.
 
 ## Outcome and scope

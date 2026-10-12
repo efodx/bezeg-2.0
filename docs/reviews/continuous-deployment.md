@@ -6,7 +6,7 @@ Source: [continuous deployment spec](../specs/continuous-deployment.md). Checked
 
 The public GitHub API reports the latest [Browser smoke run](https://github.com/efodx/bezeg-2.0/actions/runs/37958234031) completed successfully at `39ee1cb4244386c7f449f84aa5b96e016604a2f1`. Its install, Chromium installation, build, and smoke steps all passed; failure evidence was skipped. The latest [Pages branch build and deployment](https://github.com/efodx/bezeg-2.0/actions/runs/37958685554) also succeeded, at publishing-branch commit `d3757e4e004092a2d5f4600752142a45d86ad1c1`. The remote default branch is `master` and Pages is enabled.
 
-These are existing hosted runs, not evidence that the new workflow has run. Before this task, the current local branch was five commits ahead of `origin/master`, with a clean working tree. Remote Pages source was previously verified as `gh-pages` at `/` in the [release review](separate-project-site.md); the anonymous Pages configuration endpoint requires authentication and returned 404 in this inspection.
+The first two runs above predate activation of this workflow. The first hosted run of the new gated CI/CD workflow is recorded under [activation and remaining coverage](#activation-and-remaining-coverage). Before this task, the current local branch was five commits ahead of `origin/master`, with a clean working tree. Remote Pages source was previously verified as `gh-pages` at `/` in the [release review](separate-project-site.md); the anonymous Pages configuration endpoint requires authentication and returned 404 in this inspection.
 
 ## Change and review
 

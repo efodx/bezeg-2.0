@@ -1,5 +1,7 @@
 # Automated browser smoke tests
 
+Status: implemented and hosted in GitHub Actions. The initial local evidence is in the [smoke-test review](../reviews/automated-smoke-tests.md); hosted deployment evidence is in the [CI/CD review](../reviews/continuous-deployment.md).
+
 Confirmed on 2026-10-09: add a small Playwright suite and GitHub Actions workflow, complementing [agent smoke testing](smoke-testing.md).
 
 ## Accepted scope
@@ -20,4 +22,4 @@ Run TypeScript checking, a production build, and the new Chromium suite. Demonst
 
 The historical CRA starter test is unrelated and is not silently included in this focused workflow or claimed as passing. Dragging, sliders, lessons, other browsers, physical devices, full accessibility, visual baselines, and deployed Pages verification remain follow-up coverage. Keep the agent checklist for these and for exploration of changed workflows.
 
-Implementation: [Playwright and CI task](../tasks/automated-smoke-tests/implement-playwright-and-ci.md).
+Implementation and verification are complete; remaining browser/device coverage is tracked in [the smoke checklist](../smoke-tests.md).
