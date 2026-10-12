@@ -1,5 +1,5 @@
 import {Point} from "../../api/point/point";
-import {MaybeVersioned, maxVersion, nextVersion, Versioned, VOLATILE} from "../versioning";
+import {currentStamp, MaybeVersioned, maxVersion, NO_MEMO, nextVersion, Versioned, VOLATILE} from "../versioning";
 
 /**
  * Mutable point.
@@ -17,6 +17,8 @@ export class PointImpl implements Point, Versioned {
     private changeListeners?: Set<() => void>;
     private ownVersion = nextVersion();
     private dependencies?: ReadonlyArray<MaybeVersioned>;
+    private versionMemoStamp = NO_MEMO;
+    private versionMemo = VOLATILE;
     private cachedX = 0;
     private cachedXVersion = VOLATILE;
     private cachedY = 0;
@@ -42,7 +44,16 @@ export class PointImpl implements Point, Versioned {
         if (!this.dependencies) {
             return VOLATILE;
         }
-        return maxVersion(this.dependencies, this.ownVersion);
+        const stamp = currentStamp();
+        if (stamp === this.versionMemoStamp) {
+            return this.versionMemo;
+        }
+        const version = maxVersion(this.dependencies, this.ownVersion);
+        if (version !== VOLATILE) {
+            this.versionMemoStamp = stamp;
+            this.versionMemo = version;
+        }
+        return version;
     }
 
     X(): number {

@@ -27,6 +27,19 @@ export function nextVersion(): number {
     return ++counter;
 }
 
+/**
+ * The newest stamp handed out so far. Every version in the system is a stamp from
+ * `nextVersion()`, so while this value is unchanged no version can have changed and a
+ * memoized non-volatile `version()` may be returned without rescanning dependencies.
+ * Custom `version()` implementations must therefore only change by taking a new stamp.
+ */
+export function currentStamp(): number {
+    return counter;
+}
+
+/** Stamp value that never matches `currentStamp()`: marks an empty version memo. */
+export const NO_MEMO = -1;
+
 /** Version of any object that may implement `Versioned`; missing means volatile. */
 export function versionOf(value: MaybeVersioned): number {
     return value.version ? value.version() : VOLATILE;

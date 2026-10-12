@@ -4,7 +4,7 @@ import {BezierCurve} from "../../api/curve/bezier-curve";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {RationalBezierCurve} from "./rational-bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
-import {maxVersion, Versioned, VOLATILE} from "../versioning";
+import {currentStamp, maxVersion, NO_MEMO, Versioned, VOLATILE} from "../versioning";
 
 const deltaPravokoten = (p0: Point, p1: Point, inputs: Versioned) => new PointImpl(() => p1.Y() - p0.Y(), () => p0.X() - p1.X(), [inputs]);
 const bin = (n: number, k: number): number => k === 0 ? 1 : (n * bin(n - 1, k - 1)) / k;
@@ -49,9 +49,21 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
      * VOLATILE if any generating point is volatile.
      */
     private inputsVersion(): number {
+        const stamp = currentStamp();
+        if (stamp === this.inputsMemoStamp) {
+            return this.inputsMemo;
+        }
         const base = super.version();
-        return base === VOLATILE ? VOLATILE : maxVersion(this._w, base);
+        const version = base === VOLATILE ? VOLATILE : maxVersion(this._w, base);
+        if (version !== VOLATILE) {
+            this.inputsMemoStamp = stamp;
+            this.inputsMemo = version;
+        }
+        return version;
     }
+
+    private inputsMemoStamp = NO_MEMO;
+    private inputsMemo = VOLATILE;
 
     /** Declared as the dependency of every hodograph-derived point so they cache. */
     private readonly inputs: Versioned = {version: () => this.inputsVersion()};

@@ -1,10 +1,12 @@
 import {Point} from "../../api/point/point";
 import {PointControlledCurve} from "../../api/curve/point-controlled-curve";
-import {maxVersion, nextVersion, Versioned} from "../versioning";
+import {currentStamp, maxVersion, NO_MEMO, nextVersion, Versioned, VOLATILE} from "../versioning";
 
 export abstract class AbstractPointControlledCurve implements PointControlledCurve, Versioned {
     points: Array<Point>;
     private structuralVersion = nextVersion();
+    private versionMemoStamp = NO_MEMO;
+    private versionMemo = VOLATILE;
 
     constructor(points: Array<Point>) {
         this.points = points;
@@ -27,7 +29,17 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
      * VOLATILE when any control point is volatile. O(n), allocation free.
      */
     version(): number {
-        return maxVersion(this.points, this.structuralVersion);
+        // O(1) while no stamp has been taken since the last scan; volatile results are never memoized.
+        const stamp = currentStamp();
+        if (stamp === this.versionMemoStamp) {
+            return this.versionMemo;
+        }
+        const version = maxVersion(this.points, this.structuralVersion);
+        if (version !== VOLATILE) {
+            this.versionMemoStamp = stamp;
+            this.versionMemo = version;
+        }
+        return version;
     }
 
     /** Marks a structural change (points, weights, parameters, transform) of this curve. */

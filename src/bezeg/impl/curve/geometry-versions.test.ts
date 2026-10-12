@@ -7,7 +7,7 @@ import {PhBezierCurve} from './ph-bezier-curve';
 import {PointImpl} from '../point/point-impl';
 import {FixedPoint} from '../point/fixed-point';
 import {Point} from '../../api/point/point';
-import {VOLATILE} from '../versioning';
+import {nextVersion, VOLATILE} from '../versioning';
 
 const coords = [[-4, -3], [-3, 3], [3, 3], [4, -3], [6, 1], [7, -2]];
 const pts = (n = 4, dx = 0) => coords.slice(0, n).map(([x, y]) => new PointImpl(x + dx, y));
@@ -313,5 +313,78 @@ describe('PH inputs version', () => {
         const before = curve.eval(0.6).Y();
         y = 4;
         expect(curve.eval(0.6).Y()).not.toBeCloseTo(before, 6);
+    });
+});
+
+describe('O(1) version reads between mutations', () => {
+    function countingDependency() {
+        const state = {reads: 0, version: nextVersion()};
+        return {
+            state,
+            dependency: {version: () => { state.reads++; return state.version; }},
+            bump: () => { state.version = nextVersion(); },
+        };
+    }
+
+    test('a computed point does not rescan its dependencies until a stamp is taken', () => {
+        const {state, dependency, bump} = countingDependency();
+        let value = 1;
+        const p = new PointImpl(() => value, 0, [dependency]);
+        expect(p.X()).toBe(1);
+        const reads = state.reads;
+        for (let i = 0; i < 10; i++) {
+            p.version();
+            p.X();
+        }
+        expect(state.reads).toBe(reads);
+
+        value = 2;
+        bump();
+        expect(p.X()).toBe(2);
+        expect(state.reads).toBeGreaterThan(reads);
+    });
+
+    test('mutations of unrelated objects rescan once but observe nothing new', () => {
+        const {state, dependency} = countingDependency();
+        const p = new PointImpl(() => 1, 0, [dependency]);
+        const v = p.version();
+        new PointImpl(0, 0).setX(1);
+        const reads = state.reads;
+        expect(p.version()).toBe(v);
+        expect(p.version()).toBe(v);
+        expect(state.reads).toBe(reads + 1);
+    });
+
+    test('curve versions are memoized and still observe point moves, structure and volatility', () => {
+        const a = new PointImpl(0, 0);
+        const spy = countingDependency();
+        const curve = new PolynomialBezierCurve([a, new PointImpl(1, 1), new PointImpl(() => 2, 0, [spy.dependency])]);
+        const v = curve.version();
+        const reads = spy.state.reads;
+        curve.version();
+        curve.eval(0.5);
+        expect(spy.state.reads).toBe(reads);
+
+        a.setX(3);
+        expect(curve.version()).toBeGreaterThan(v);
+        const v2 = curve.version();
+        curve.addPoint(new PointImpl(4, 4));
+        expect(curve.version()).toBeGreaterThan(v2);
+
+        const volatileCurve = new PolynomialBezierCurve([a, new PointImpl(() => 1, 0)]);
+        expect(volatileCurve.version()).toBe(VOLATILE);
+        expect(volatileCurve.version()).toBe(VOLATILE);
+    });
+
+    test('PH inputs version is memoized and a hodograph drag is still observed', () => {
+        const w = [new PointImpl(-3.5, -1.7), new PointImpl(-2.6, 1.7)];
+        const curve = new PhBezierCurve([new PointImpl(-4.2, -2)], w);
+        const first = curve.eval(0.4);
+        expect(curve.eval(0.4)).toBe(first);
+        const v = curve.version();
+        expect(curve.version()).toBe(v);
+        w[0].setCoordinates(-1, 1);
+        expect(curve.version()).toBeGreaterThan(v);
+        expect(curve.eval(0.4)).not.toBe(first);
     });
 });

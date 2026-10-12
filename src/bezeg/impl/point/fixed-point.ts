@@ -1,5 +1,5 @@
 import {Point} from "../../api/point/point";
-import {MaybeVersioned, maxVersion, nextVersion, Versioned, VOLATILE} from "../versioning";
+import {currentStamp, MaybeVersioned, maxVersion, NO_MEMO, nextVersion, Versioned, VOLATILE} from "../versioning";
 
 /**
  * Point whose coordinates are always computed. Without `dependencies` it is
@@ -12,6 +12,8 @@ export class FixedPoint implements Point, Versioned {
     private readonly ownVersion = nextVersion();
     private cachedCoords: undefined | [number, number] = undefined;
     private cachedVersion = VOLATILE;
+    private versionMemoStamp = NO_MEMO;
+    private versionMemo = VOLATILE;
 
     constructor(generatingFunction: () => [number, number], dependencies?: ReadonlyArray<MaybeVersioned>) {
         this.coords = generatingFunction;
@@ -19,7 +21,19 @@ export class FixedPoint implements Point, Versioned {
     }
 
     version(): number {
-        return this.dependencies ? maxVersion(this.dependencies, this.ownVersion) : VOLATILE;
+        if (!this.dependencies) {
+            return VOLATILE;
+        }
+        const stamp = currentStamp();
+        if (stamp === this.versionMemoStamp) {
+            return this.versionMemo;
+        }
+        const version = maxVersion(this.dependencies, this.ownVersion);
+        if (version !== VOLATILE) {
+            this.versionMemoStamp = stamp;
+            this.versionMemo = version;
+        }
+        return version;
     }
 
     X(): number {
