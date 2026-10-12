@@ -1,6 +1,6 @@
 # React architecture refactor
 
-Status: proposed on 2026-10-12 from a source review of the React and graph layers. Not yet approved for implementation; no task files exist. It continues the direction of the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md): JSXGraph and all mathematical algorithms are retained, and a renderer decision remains separate.
+Status: proposed on 2026-10-12 from a source review of the React and graph layers; implementation approved by the owner on 2026-10-12. Tasks: [docs/tasks/react-architecture/](../tasks/react-architecture/README.md). It continues the direction of the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md): JSXGraph and all mathematical algorithms are retained, and a renderer decision remains separate.
 
 ## Problem
 
@@ -69,8 +69,10 @@ Each step is a separate bounded slice with its own verification.
 
 Replacing JSXGraph, changing the build tool (Create React App), changing UI design or lesson content, and altering mathematical algorithms or sampling quality. Each needs its own evaluation per AGENTS.md.
 
-## Open decisions
+## Decisions at approval (2026-10-12)
 
-- Whether the selected preset belongs in the URL or in route-local memory only; the URL makes it shareable but is a visible route change.
-- Whether the store is hand-written or uses a small library; adding a dependency is a separate decision recorded in an ADR.
-- Pilot route choice if De Casteljau's animation coupling makes the first slice too large; the plain Bézier route is the fallback.
+- **Selected preset stays route-local, not in the URL.** The graph controller owns the selected preset; Reset reloads it (or the default) in place. No route change. Previously the selection lived in app-wide state and remounted the whole app; the only user-visible change is that the selection no longer carries across demonstrations, where preset collections are separate anyway.
+- **The store is hand-written** (no new dependency): a small class with `getSnapshot`/`subscribe` consumed through `useSyncExternalStore`.
+- **Base-class migration instead of a single-route pilot.** All 43 graph classes share `BaseGraph`/`BaseCurveGraph`, so one route cannot leave React class components without duplicating the hierarchy. Step 3 converts the base into a controller while keeping the subclass API (`state`, `setState`, `initialize`, panel methods) and migrates every route at once. De Casteljau and the plain Bézier route are the measured representatives.
+- **Display settings are per board.** Size, axis mode and point labels reset to defaults when another demonstration opens. Previously they leaked across routes through module singletons.
+- **Prototype gating (finding 15) is deferred** to the branch that introduces the prototypes; `master` has none.
