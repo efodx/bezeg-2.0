@@ -283,8 +283,8 @@ const exponentialFunction: GuidedLesson = {
             id: 'exponential-form',
             latex: 'f(x)=a^x,\\qquad a>0,\\qquad f(0)=1,\\quad f(1)=a',
             notation: text(
-                'Število \\(a\\) je osnova, \\(x\\) pa eksponent. Vsaka potenca z eksponentom \\(0\\) je enaka \\(1\\), potenca z eksponentom \\(1\\) pa je kar osnova.',
-                'The number \\(a\\) is the base and \\(x\\) is the exponent. Every power with exponent \\(0\\) equals \\(1\\), and the power with exponent \\(1\\) is the base itself.',
+                'Število \\(a\\) je osnova, \\(x\\) pa eksponent. Vsaka potenca s pozitivno osnovo in eksponentom \\(0\\) je enaka \\(1\\), potenca z eksponentom \\(1\\) pa je kar osnova.',
+                'The number \\(a\\) is the base and \\(x\\) is the exponent. Every power with a positive base and exponent \\(0\\) equals \\(1\\), and the power with exponent \\(1\\) is the base itself.',
             ),
             explanation: text(
                 'Zato gredo vsi grafi \\(a^x\\) skozi točko \\((0,1)\\), druga označena točka \\((1,a)\\) pa kaže osnovo.',
@@ -842,10 +842,10 @@ const continuity: GuidedLesson = {
         },
         {
             id: 'continuity-slopes',
-            latex: 'f\'_{-}(1)=2a,\\qquad f\'_{+}(1)=-a',
+            latex: 'k_{-}=2a,\\qquad k_{+}=-a',
             notation: text(
-                'Naklon levega dela je odvod \\(2ax\\) pri \\(x=1\\), naklon desnega pa odvod \\(-a\\).',
-                'The slope of the left piece is the derivative \\(2ax\\) at \\(x=1\\), and the slope of the right piece is the derivative \\(-a\\).',
+                'Naklon levega dela \\(k_{-}\\) je odvod \\(2ax\\) pri \\(x=1\\), naklon desnega dela \\(k_{+}\\) pa \\(-a\\). To sta naklona delov; enostranski odvod funkcije \\(f\\) v \\(x=1\\) z desne obstaja le, ko je funkcija tam zvezna.',
+                'The slope of the left piece \\(k_{-}\\) is the derivative \\(2ax\\) at \\(x=1\\), and the slope of the right piece \\(k_{+}\\) is \\(-a\\). These are slopes of the pieces; the right-hand derivative of \\(f\\) at \\(x=1\\) exists only when the function is continuous there.',
             ),
             explanation: text(
                 'Naklona se ujemata le pri \\(2a=-a\\), to je pri \\(a=0\\), tam pa funkcija ni zvezna. Zato ima zvezen graf te funkcije vedno ostri vogal.',
@@ -1272,8 +1272,8 @@ const derivative: GuidedLesson = {
             'At \\(h=0\\) the quotient would be \\(\\frac{0}{0}\\), which is undefined; the secant would collapse to a single point. That is why the band \\(|h|<0.01\\) is excluded: a slider crossing \\(0\\) jumps from \\(0.01\\) to \\(-0.01\\) and back.',
         ),
         text(
-            'Kvocient ni nikoli točno enak odvodu: pri \\(x^2\\) je razlika natanko \\(h\\), ki ni \\(0\\). Odvod je limita, ne vrednost pri nobenem \\(h\\ne0\\).',
-            'The quotient is never exactly the derivative: for \\(x^2\\) the difference is exactly \\(h\\), which is not \\(0\\). The derivative is a limit, not the value at any \\(h\\ne0\\).',
+            'Pri \\(x^2\\) kvocient ni nikoli točno enak odvodu, saj je razlika natanko \\(h\\), ki ni \\(0\\); pri drugih funkcijah se lahko pri kakšnem \\(h\\) ujemata po naključju. Odvod je limita, ne vrednost pri nobenem \\(h\\ne0\\).',
+            'For \\(x^2\\) the quotient is never exactly the derivative, since the difference is exactly \\(h\\), which is not \\(0\\); for other functions the two can agree at some \\(h\\) by coincidence. The derivative is a limit, not the value at any \\(h\\ne0\\).',
         ),
         text(
             'Pri \\(e^x\\) in večjem \\(x_0\\) so vrednosti velike in graf zapusti pogled; uporabi gumb »Prilagodi točkam« ali premakni pogled.',
@@ -1300,7 +1300,7 @@ const definiteIntegral: GuidedLesson = {
     ),
     prerequisites: [
         text('Potrebno je poznavanje ploščine pravokotnika in trapeza ter odčitavanja vrednosti funkcije z grafa.', 'Assumes familiarity with the area of a rectangle and a trapezoid and with reading function values off a graph.'),
-        text('Priporočeno je, da veš, kaj je odvod in kaj je antiderivacija: \\(F\'=f\\).', 'It helps to know what a derivative is and what an antiderivative is: \\(F\'=f\\).'),
+        text('Priporočeno je, da veš, kaj je odvod in kaj je primitivna funkcija: \\(F\'=f\\).', 'It helps to know what a derivative is and what an antiderivative is: \\(F\'=f\\).'),
     ],
     learningGoals: [
         text('Izračunaš širino \\(h=\\frac{b-a}{n}\\) in levo, desno, sredinsko ter trapezno vsoto za \\(f(x)=x^2\\) na \\([0,2]\\).', 'Compute the width \\(h=\\frac{b-a}{n}\\) and the left, right, midpoint and trapezoid sums for \\(f(x)=x^2\\) on \\([0,2]\\).'),
@@ -1336,11 +1336,11 @@ const definiteIntegral: GuidedLesson = {
             id: 'integral-exact',
             latex: '\\begin{aligned}\\int_a^b f(x)\\,dx&=F(b)-F(a),\\quad F\'=f\\\\\\int_0^2 x^{2}\\,dx&=\\left[\\frac{x^{3}}{3}\\right]_0^2=\\frac{8}{3}\\end{aligned}',
             notation: text(
-                'Funkcija \\(F\\) je antiderivacija funkcije \\(f\\); za \\(x^2\\) je to \\(\\frac{x^3}{3}\\), za \\(\\sin x\\) je \\(-\\cos x\\), za \\(e^x\\) pa spet \\(e^x\\).',
+                'Funkcija \\(F\\) je primitivna funkcija funkcije \\(f\\); za \\(x^2\\) je to \\(\\frac{x^3}{3}\\), za \\(\\sin x\\) je \\(-\\cos x\\), za \\(e^x\\) pa spet \\(e^x\\).',
                 'The function \\(F\\) is an antiderivative of \\(f\\); for \\(x^2\\) it is \\(\\frac{x^3}{3}\\), for \\(\\sin x\\) it is \\(-\\cos x\\), and for \\(e^x\\) it is again \\(e^x\\).',
             ),
             explanation: text(
-                'Točni integral je razlika vrednosti antiderivacije v mejah. Je predznačen: pri \\(a>b\\) je \\(h\\) negativen, vsota in integral pa zamenjata predznak.',
+                'Točni integral je razlika vrednosti primitivne funkcije v mejah. Je predznačen: pri \\(a>b\\) je \\(h\\) negativen, vsota in integral pa zamenjata predznak.',
                 'The exact integral is the difference of the antiderivative at the bounds. It is signed: for \\(a>b\\) the width \\(h\\) is negative, and the sum and the integral change sign.',
             ),
         },
@@ -1581,11 +1581,11 @@ const areaBetweenCurves: GuidedLesson = {
             id: 'area-between-unsigned',
             latex: '\\begin{aligned}\\int_a^b\\bigl(g-f\\bigr)dx&=\\Bigl[3x-\\tfrac23(x-2)^3\\Bigr]_a^b\\\\\\int_a^b|g-f|\\,dx&=\\sum_{k=1}^{m}\\left|\\int_{x_{k-1}}^{x_k}(g-f)\\,dx\\right|\\end{aligned}',
             notation: text(
-                'Funkcija \\(3x-\\frac23(x-2)^3\\) je antiderivacija razlike \\(g-f=3-2(x-2)^2\\). Točke \\(x_0=a<x_1<\\dots<x_m=b\\) so meji in presečišči, ki ležita med njima.',
+                'Funkcija \\(3x-\\frac23(x-2)^3\\) je primitivna funkcija razlike \\(g-f=3-2(x-2)^2\\). Točke \\(x_0=a<x_1<\\dots<x_m=b\\) so meji in presečišči, ki ležita med njima.',
                 'The function \\(3x-\\frac23(x-2)^3\\) is an antiderivative of the difference \\(g-f=3-2(x-2)^2\\). The points \\(x_0=a<x_1<\\dots<x_m=b\\) are the bounds and the intersections that lie between them.',
             ),
             explanation: text(
-                'Predznačeni integral se računa naravnost iz antiderivacije. Ploščino dobimo tako, da interval razdelimo v presečiščih, ki ležita v njem, in na vsakem delu vzamemo absolutno vrednost integrala razlike. Ploščina je vedno nenegativna, tudi če je \\(a>b\\).',
+                'Predznačeni integral se računa naravnost iz primitivne funkcije. Ploščino dobimo tako, da interval razdelimo v presečiščih, ki ležita v njem, in na vsakem delu vzamemo absolutno vrednost integrala razlike. Ploščina je vedno nenegativna, tudi če je \\(a>b\\).',
                 'The signed integral is computed straight from the antiderivative. The area comes from splitting the interval at the intersections that lie inside it and taking the absolute value of the integral of the difference on each piece. The area is always non-negative, even if \\(a>b\\).',
             ),
         },
@@ -1635,7 +1635,7 @@ const areaBetweenCurves: GuidedLesson = {
             title: text('Ploščina med krivuljama je razlika', 'The area between is the difference'),
             purpose: text('Videti, da je ploščina med krivuljama integral razlike, ko je \\(g\\ge f\\).', 'Seeing that the area between the curves is the integral of the difference when \\(g\\ge f\\).'),
             explanation: text(
-                'Ploščina med krivuljama je ploščina pod zgornjo minus ploščina pod spodnjo: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx=\\int_a^b(g-f)\\,dx\\), če je \\(g\\ge f\\) na \\([a,b]\\). Pri \\(a=1\\) in \\(b=3\\), ki ležita med presečiščema, je \\(g-f=3-2(x-2)^2\\) z antiderivacijo \\(3x-\\frac23(x-2)^3\\), zato je \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)=\\frac{14}{3}\\approx4{,}6667\\). Odčitka \\(\\int g\\,dx=\\frac{16}{3}\\) in \\(\\int f\\,dx=\\frac23\\) imata prav to razliko. Scena izbere način »Ploščina med f in g«.',
+                'Ploščina med krivuljama je ploščina pod zgornjo minus ploščina pod spodnjo: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx=\\int_a^b(g-f)\\,dx\\), če je \\(g\\ge f\\) na \\([a,b]\\). Pri \\(a=1\\) in \\(b=3\\), ki ležita med presečiščema, je \\(g-f=3-2(x-2)^2\\) z primitivno funkcijo \\(3x-\\frac23(x-2)^3\\), zato je \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)=\\frac{14}{3}\\approx4{,}6667\\). Odčitka \\(\\int g\\,dx=\\frac{16}{3}\\) in \\(\\int f\\,dx=\\frac23\\) imata prav to razliko. Scena izbere način »Ploščina med f in g«.',
                 'The area between the curves is the area under the upper one minus the area under the lower one: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx=\\int_a^b(g-f)\\,dx\\) if \\(g\\ge f\\) on \\([a,b]\\). For \\(a=1\\) and \\(b=3\\), which lie between the intersections, \\(g-f=3-2(x-2)^2\\) has the antiderivative \\(3x-\\frac23(x-2)^3\\), so \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)=\\frac{14}{3}\\approx4.6667\\). The readouts \\(\\int g\\,dx=\\frac{16}{3}\\) and \\(\\int f\\,dx=\\frac23\\) have exactly this difference. The scene selects the mode “Area between f and g”.',
             ),
             formulaIds: ['area-between-difference'], learnerInteraction: 'drag-control-point',
@@ -1942,8 +1942,8 @@ const arcLength: GuidedLesson = {
                 'Drag \\(B\\) along the graph and compare the polyline and arc readouts for several intervals.',
             ),
             expectedObservations: [text(
-                'Pri \\(n=100\\) na \\([0,\\pi]\\) odčitka kažeta \\(3{,}8201\\) in \\(3{,}8202\\). Pri vsakem drugem intervalu lomljenka ostane tik pod lokom.',
-                'For \\(n=100\\) on \\([0,\\pi]\\) the readouts show \\(3.8201\\) and \\(3.8202\\). For any other interval the polyline stays just below the arc.',
+                'Pri \\(n=100\\) na \\([0,\\pi]\\) odčitka kažeta \\(3{,}8201\\) in \\(3{,}8202\\). Na vsakem intervalu je lomljenka kvečjemu tako dolga kot lok; pri velikem \\(n\\) je tik pod njim.',
+                'For \\(n=100\\) on \\([0,\\pi]\\) the readouts show \\(3.8201\\) and \\(3.8202\\). On every interval the polyline is at most as long as the arc; for large \\(n\\) it is just below it.',
             )],
             scene: {
                 id: 'arc-limit-scene', basedOn: 'demonstration-default',
