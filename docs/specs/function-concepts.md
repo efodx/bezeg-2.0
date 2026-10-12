@@ -197,3 +197,22 @@ Free-text function formulas; symbolic differentiation or integration; additional
 ## Verification evidence
 
 Recorded per task in its task file and in commit messages.
+
+## Review — 2026-10-12
+
+Parallel read-only reviews of the whole family (mathematics, engineering, UI/accessibility), as AGENTS.md requires for large diffs:
+
+- **Mathematics:** every number in `src/analysis/` and in the eight lessons was recomputed independently; no calculation errors. Wording fixes applied in 764f0dd (Slovenian "primitivna funkcija", the derivative "never exact" claim limited to x², continuity slopes labelled as slopes of the pieces, positive base for a⁰ = 1, polyline "just below the arc" only for large n). The claim that PH curves are exactly the polynomial curves with polynomial speed was kept: it is their definition.
+- **Engineering:** no high-severity defects; fixed in d10059a (one-shot preset view flag, per-function view on integral preset import, unmount guard, language-only board refresh, shared `DomainError` helper, number-input stepping, tautological tests).
+- **UI/accessibility:** fixed in d10059a and 301f466 (shared board caption that does not overlap at 390 px, labels off the curves, readouts first, colour legends with words, contrast, localized slider values, reversed-bounds and out-of-range hints, slider focus ring on every route).
+
+Verified after the fixes: TypeScript clean; 81 suites / 1104 unit tests; production build; full browser smoke suite 140/140.
+
+Deferred, outside this family's scope (shared app shell or lesson runtime):
+
+- The lesson overlay covers the graph during explanation frames, and at 390 px wide formulas are clipped and the close button floats mid-panel.
+- JSXGraph axis tick labels use a decimal point in Slovenian.
+- The left navigation is clipped at 900 px window height.
+- Axis tick labels are small for projection.
+
+Still open for every lesson: owner language and classroom review, and a check of the citations (two were written from memory).
