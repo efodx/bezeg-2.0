@@ -20,31 +20,20 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     /** Sample markers owned by this graph; control points belong to the curve objects and are never listed here. */
     private sampleMarkers: JXG.Point[] = [];
 
-    /**
-     * α lives on the curve model, not only in state, and setState is asynchronous. The value written in this tick is
-     * kept here so a replacement curve (preset import, default scene, checkpoint restore) receives it immediately.
-     */
-    private pendingAlpha?: number;
-
-    private currentAlpha(): number {
-        return this.pendingAlpha ?? this.state.alpha;
-    }
-
     override initialize() {
         super.initialize();
-        this.getFirstCurve()?.setAlpha(this.currentAlpha());
+        this.getFirstCurve()?.setAlpha(this.state.alpha);
         this.boardUpdate();
     }
 
     /** Presets, lesson scenes and checkpoints replace the curve without calling initialize(): reapply α to it. */
     override importPresetData(data: any) {
         super.importPresetData(data);
-        this.getFirstCurve()?.setAlpha(this.currentAlpha());
+        this.getFirstCurve()?.setAlpha(this.state.alpha);
     }
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<SplineAlphaParamGraphStates>, snapshot?: any) {
-        this.pendingAlpha = undefined;
-        if (prevState === this.state && prevProps === this.props) { return; }
+    protected override onStateChange(prevState: Readonly<SplineAlphaParamGraphStates>) {
+        if (prevState === this.state) { return; }
         if (!this.board || !this.graphSession?.isAlive || !this.getFirstJxgCurve()) { return; }
         if (this.getFirstCurve().getAlpha() !== this.state.alpha) {
             this.getFirstCurve().setAlpha(this.state.alpha);
@@ -72,7 +61,8 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
     protected override prepareLessonDefaultScene(): void {
         const state = this.lessonDefaultState();
-        this.pendingAlpha = state.alpha;
+        // The replacement curve takes alpha from state when the default preset is imported, so write it first.
+        this.setState({alpha: state.alpha});
         super.prepareLessonDefaultScene();
         this.regenerateSamples(state.numberOfPoints);
     }
@@ -83,7 +73,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
     protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
         const saved = (checkpoint.value as any)?.graphState;
-        if (typeof saved?.alpha === 'number' && Number.isFinite(saved.alpha)) { this.pendingAlpha = saved.alpha; }
+        if (typeof saved?.alpha === 'number' && Number.isFinite(saved.alpha)) { this.setState({alpha: saved.alpha}); }
         super.restoreLessonState(checkpoint);
         if (this.graphSession?.isReady && typeof saved?.numberOfPoints === 'number') {
             this.regenerateSamples(saved.numberOfPoints);
@@ -96,7 +86,6 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
             if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
                 throw new Error('The parameter α must be a number from 0 to 1.');
             }
-            this.pendingAlpha = value;
             this.getFirstCurve().setAlpha(value);
             this.setState({alpha: value});
             this.boardUpdate();
@@ -138,7 +127,6 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
         if (presetState && typeof presetState.numberOfPoints === "number") {
             this.board.suspendUpdate();
             const alpha = typeof presetState.alpha === "number" ? presetState.alpha : this.state.alpha;
-            this.pendingAlpha = alpha;
             this.getFirstCurve().setAlpha(alpha);
             this.setState({alpha, numberOfPoints: presetState.numberOfPoints});
             this.clearPoints();
@@ -160,8 +148,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
     setAlpha(alpha: number) {
         this.board.suspendUpdate();
-        this.pendingAlpha = alpha;
-        this.setState({...this.state, alpha: alpha});
+        this.setState({alpha: alpha});
         this.getFirstCurve().setAlpha(alpha);
         this.unsuspendBoardUpdate();
     }
@@ -175,7 +162,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
     setNumberOfPoints(numberOfPoints: number) {
-        this.setState({...this.state, numberOfPoints: numberOfPoints});
+        this.setState({numberOfPoints: numberOfPoints});
         this.regenerateSamples(numberOfPoints);
     }
 

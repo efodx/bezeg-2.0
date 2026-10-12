@@ -7,7 +7,7 @@ import {Select} from "../../inputs/Select";
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {Commands} from "./Commands";
-import BaseGraph, {BaseGraphState} from "./BaseGraph";
+import BaseGraph, {BaseGraphState, GraphMountContext} from "./BaseGraph";
 import {VisibilityContext} from "../context/VisibilityContext";
 import {PointStyles} from "../styles/PointStyles";
 import {Preset} from "./presets/Presets";
@@ -44,8 +44,7 @@ JXG.extend(JXG.Point.prototype, {});
 /**
  * Abstract class for creating graphs.
  */
-abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P, S> {
-    public override readonly state = this.getInitialState();
+abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
@@ -53,7 +52,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     protected refreshWorkspace() {
         if (!this.graphSession?.isAlive) return;
         this.workspaceRevision++;
-        this.forceUpdate();
+        this.requestRender();
     }
 
     protected override applyLessonAction(action: LessonAction): void {
@@ -100,6 +99,11 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         curve.getJxgCurve().setAttribute(CurveStyles.series(index));
     }
 
+    /** Sets curve-selection keys; see `setBaseState`. */
+    protected setCurveState(patch: Partial<BaseGraphStates>, callback?: () => void): void {
+        this.setState(patch as Partial<S>, callback);
+    }
+
     protected workspacePointEditing() { return true; }
     protected workspaceUsesStructuredEditing() { return false; }
     private workspaceCurveSelection(): React.ReactNode {
@@ -134,13 +138,13 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={this.jxgCurves.indexOf(selected)} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
             {selected && this.workspacePointEditing() && <PointCoordinateEditor key={`points-${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`}
                 points={() => selected.getCurve().getPoints()} board={this.board}
-                onChange={() => {this.boardUpdate(); this.forceUpdate();}}
+                onChange={() => {this.boardUpdate(); this.requestRender();}}
                 onAdd={(x, y) => selected.addPoint(x, y)} onDelete={i => selected.removePoint(i)}/>}
             <details className="inspector-group editing-mode"><summary>{t("editing_mode")}: {this.workspacePointEditing() ? [t('move'), t('add_point'), t('delete_point')][mode] : t('hodograph')}</summary>
                 {this.workspacePointEditing() ? <><div className="workspace-modes">
                     {[t("move"), t("add_point"), t("delete_point")].map((label, i) =>
                         <button key={i} disabled={!selected && i !== 0} aria-pressed={mode === i}
-                            onClick={() => this.setState({selectedCurveOption: i} as Pick<S, keyof S>)}>{label}</button>)}
+                            onClick={() => this.setCurveState({selectedCurveOption: i})}>{label}</button>)}
                 </div><p>{hints[mode]}</p></> : <p>{t("edit_the_ph_curve_using_its_hodograph_points_adding_and_deleting_points_is_unavailable_here")}</p>}
             </details>
         </>;
@@ -164,7 +168,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     initialize() {
     }
 
-    getInitialState(): S {
+    override getInitialState(): S {
         return {
             selectedCurveOption: SelectedCurveOption.MOVE_CURVE, curveSelected: false
         } as S;
@@ -186,8 +190,8 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         return this.jxgCurves.flatMap(c => c.getJxgPoints()).concat(this.graphJXGPoints);
     }
 
-    override componentDidMount() {
-        super.componentDidMount();
+    override mount(container: HTMLElement, context?: GraphMountContext) {
+        super.mount(container, context);
         const session = this.getActiveGraphSession();
         if (!session) return;
         session.on('down', (e) => this.handleDown(e));
@@ -195,12 +199,15 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         session.on('move', (e) => this.handleMove(e));
     }
 
-    override componentWillUnmount() {
+    override unmount() {
         const board = this.board;
         try {
             this.jxgCurves.filter(curve => curve.board === board).forEach(curve => curve.dispose());
         } finally {
-            super.componentWillUnmount();
+            super.unmount();
+            // The curves belonged to the disposed board; a later mount() on this instance starts with a fresh scene.
+            this.jxgCurves = [];
+            this.graphJXGPoints = [];
         }
     }
 
@@ -387,7 +394,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
     deselectSelectedCurve() {
         this.getSelectedCurve().deselect();
 
-        this.setState({...this.state, curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE, showingControlPolygon: false});
+        this.setCurveState({curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE});
     }
 
     getAllJxgCurves() {
@@ -425,15 +432,15 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
 
     }
 
-    protected selectCurve(selectableCurve: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>, additionalState = {}) {
+    protected selectCurve(selectableCurve: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>, additionalState: Partial<BaseGraphStates> = {}) {
         selectableCurve.select();
-        this.setState({...this.state, curveSelected: true, ...additionalState});
+        this.setCurveState({curveSelected: true, ...additionalState});
     }
 
     private onSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
         let selectTool = e.target.value;
         let selectedCurveOption = Number(selectTool);
-        this.setState({...this.state, selectedCurveOption: selectedCurveOption});
+        this.setCurveState({selectedCurveOption});
     }
 
     private handleUp(e: PointerEvent) {

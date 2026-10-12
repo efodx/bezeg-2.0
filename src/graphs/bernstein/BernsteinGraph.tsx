@@ -2,7 +2,7 @@ import {t} from "../../localization";
 import React from "react";
 import {PolynomialBezierCurve} from "../../bezeg/impl/curve/polynomial-bezier-curve";
 import {PointImpl} from "../../bezeg/impl/point/point-impl";
-import BaseGraph from "../base/BaseGraph";
+import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {SizeContext} from "../context/SizeContext";
 import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
@@ -36,22 +36,30 @@ function connectCurves(c1: ParametricCurve, c2: ParametricCurve): [x: (t: number
 }
 
 
-export class BernsteinGraph extends BaseGraph<any, any> {
-    override readonly state = {n: 2, isSumGraph: false, showLabels: false};
+interface BernsteinGraphState extends BaseGraphState {
+    n: number;
+    isSumGraph: boolean;
+    showLabels: boolean;
+}
+
+export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
+    override getInitialState(): BernsteinGraphState {
+        return {initialized: false, n: 2, isSumGraph: false, showLabels: false};
+    }
     private jxgObjects: any = [];
     private padding = 0.1;
     /** The (n, isSumGraph) pair the board objects were last generated for; null when nothing is generated. */
     private generatedFor: {n: number, isSumGraph: boolean} | null = null;
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+    protected override onStateChange(prevState: Readonly<BernsteinGraphState>) {
         if (!this.board || !this.graphSession?.isAlive) { return; }
         const {n, isSumGraph} = this.state;
-        if (this.generatedFor?.n === n && this.generatedFor.isSumGraph === isSumGraph) { return; }
+        if (this.generatedFor !== null && this.generatedFor.n === n && this.generatedFor.isSumGraph === isSumGraph) { return; }
         this.generateBernsteinPolynomials(this.board, n, isSumGraph);
     }
 
-    protected override lessonDefaultState(): any {
-        return {n: 2, isSumGraph: false, showLabels: false};
+    protected override lessonDefaultState(): BernsteinGraphState {
+        return {initialized: true, n: 2, isSumGraph: false, showLabels: false};
     }
 
     protected override prepareLessonDefaultScene(): void {

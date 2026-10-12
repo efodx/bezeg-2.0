@@ -28,8 +28,8 @@ function makeGraph(initial = {alpha: 0.5, numberOfPoints: 10}) {
     graph.graphJXGPoints = [];
     graph.jxgCurves = [{getCurve: () => ({eval: (t: number) => ({X: () => t, Y: () => 2 * t})})}];
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {...initial, initialized: true};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...patch}; });
+    graph.store.replaceState({...initial, initialized: true});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     // Class fields are not on the prototype, so mirror the graph's own definition.
     graph.alphaParam = (t: number) => alphaParameterization(graph.state.alpha, t);
     const curve = graph.jxgCurves[0];
@@ -108,13 +108,13 @@ test('repeated regeneration and restore do not accumulate sample points', () => 
     expect(sampleCount(graph)).toBe(7);
     expect(graph.graphJXGPoints.length).toBe(sampleCount(graph));
     expect(pointsOnBoard(graph)).toBe(7 + 2);
-    // Checkpoint restore: preset import disposes scene samples, then state change triggers componentDidUpdate.
+    // Checkpoint restore: preset import disposes scene samples, then state change triggers onStateChange.
     graph.getFirstJxgCurve = () => graph.jxgCurves[0];
     graph.importPresetData();
     expect(sampleCount(graph)).toBe(0);
     const prevState = graph.state;
-    graph.state = {...prevState, numberOfPoints: 5, alpha: 0.75};
-    graph.componentDidUpdate({}, prevState);
+    graph.store.replaceState({...prevState, numberOfPoints: 5, alpha: 0.75});
+    graph.onStateChange(prevState);
     expect(sampleCount(graph)).toBe(5);
     expect(pointsOnBoard(graph)).toBe(5 + 2);
     expect(graph.board.objectsList).toEqual(expect.arrayContaining(graph.controlPoints));
@@ -138,7 +138,7 @@ test('sample positions follow phi_alpha at the sample parameters', () => {
     expect(xs[0]).toBeCloseTo(1 / 2, 12);
     expect(xs[1]).toBeCloseTo(3 / 4, 12);
     expect(xs[2]).toBeCloseTo(9 / 10, 12);
-    graph.state = {...graph.state, alpha: 0.75};
+    graph.store.replaceState({...graph.state, alpha: 0.75});
     const ys = graph.sampleMarkers.map((p: any) => p.args[1]() / 2);
     expect(ys[0]).toBeCloseTo(1 / 10, 12);
     expect(ys[1]).toBeCloseTo(1 / 4, 12);

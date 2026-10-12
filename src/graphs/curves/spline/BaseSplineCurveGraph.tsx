@@ -1,3 +1,4 @@
+import {GraphMountContext} from "../../base/BaseGraph";
 import {t} from "../../../localization";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
@@ -5,13 +6,13 @@ import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonAction} from "../../../learning/model";
 
-export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends BaseCurveGraph<any, S> {
-    override componentDidMount() {
-        super.componentDidMount();
+export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends BaseCurveGraph<S> {
+    override mount(container: HTMLElement, context?: GraphMountContext) {
+        super.mount(container, context);
         this.getFirstJxgCurve().setAttributes({allowShowPoints: true});
     }
 
-    /** Presets, lesson scenes and checkpoints replace the curve objects without calling componentDidMount(). */
+    /** Presets, lesson scenes and checkpoints replace the curve objects without calling mount(). */
     override importPresetData(data: any) {
         super.importPresetData(data);
         this.getFirstJxgCurve()?.setAttributes({allowShowPoints: true});
@@ -43,7 +44,7 @@ export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends Ba
 
     protected refreshSplineSwitches() {
         this.splineSwitchRevision = (this.splineSwitchRevision ?? 0) + 1;
-        this.forceUpdate();
+        this.requestRender();
     }
 
     override getFirstCurve(): BezierSpline {

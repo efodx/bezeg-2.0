@@ -1,7 +1,7 @@
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 
-class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStates> {
+class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
 
     defaultPreset(): any {
         return [["JSXRationalBezierCurve", {

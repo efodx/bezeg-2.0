@@ -35,11 +35,11 @@ function fakeBoard() {
 
 /** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
 function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
-    const graph = new LinearFunctionGraph({}) as any;
+    const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.state = {...graph.state, ...patch}; });
+    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -270,7 +270,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('a stored board state is not overwritten by the default view during initialization', () => {
-    const graph = new LinearFunctionGraph({}) as any;
+    const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();

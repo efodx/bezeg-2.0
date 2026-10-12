@@ -54,7 +54,8 @@ test('all existing graph URLs retain their graph implementations', () => {
     const graphFor = (path: string) => {
         const route = children.find(entry => entry.path === path)!;
         const graph = route.element.props.children as React.ReactElement;
-        return graph.type;
+        // GraphHost receives a factory; creating the controller has no side effects.
+        return (graph.props as {create: () => object}).create().constructor;
     };
     expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(34);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);

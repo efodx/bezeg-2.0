@@ -37,9 +37,9 @@ function makeGraph(Cls: any, curve: any) {
     graph.graphJXGPoints = [];
     graph.workspaceRevision = 0;
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {initialized: true};
+    graph.store.replaceState({initialized: true});
     graph.setState = jest.fn();
-    graph.forceUpdate = jest.fn();
+    graph.requestRender = jest.fn();
     graph.boardUpdate = jest.fn();
     graph.unsuspendBoardUpdate = jest.fn();
     return graph;
@@ -70,13 +70,13 @@ describe('spline-continuity', () => {
         const graph = makeGraph(CnSplineGraph, genericCurve(2, 1));
         expect(() => apply(graph, {kind: 'spline-continuity', value})).toThrow(/continuity/);
         expect(dc(graph)).toEqual([2, 1]);
-        expect(graph.forceUpdate).not.toHaveBeenCalled();
+        expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
     test('requests counter remount so the displayed values follow', () => {
         const graph = makeGraph(CnSplineGraph, genericCurve(2, 1));
         apply(graph, {kind: 'spline-continuity', value: 0});
-        expect(graph.forceUpdate).toHaveBeenCalledTimes(1);
+        expect(graph.requestRender).toHaveBeenCalledTimes(1);
         expect(graph.splineSwitchRevision).toBe(1);
     });
 });
@@ -96,7 +96,7 @@ describe('spline-degree', () => {
         expect(graph.getFirstJxgCurve().getCurve().getPoints().length).toBe(9);
         expect(() => apply(graph, {kind: 'spline-degree', value})).toThrow(/degree/);
         expect(dc(graph)).toEqual([3, 1]);
-        expect(graph.forceUpdate).not.toHaveBeenCalled();
+        expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
     test('the degree floor follows the current continuity', () => {
@@ -139,7 +139,7 @@ describe('label and hide-fixed actions', () => {
         expect(() => apply(graph, {kind, [key]: 'yes'})).toThrow(/on or off/);
         expect(curve.getLabelAll()).toBe(true);
         expect(curve.getHideFixed()).toBe(false);
-        expect(graph.forceUpdate).not.toHaveBeenCalled();
+        expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
     test('switches are keyed on the workspace revision and action revision so they reflect restored state', () => {

@@ -224,14 +224,15 @@ test('keeps the compact observation prompt inside the coordinate system rectangl
     jest.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<div className="demonstration-workspace"><div id="jgbox"/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/></div>);
+        const graphRef = React.createRef<HTMLDivElement>();
+        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={jest.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
 
         const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
         const lessonElement = prompt.parentElement as HTMLElement;
-        const graphElement = document.querySelector('#jgbox') as HTMLElement;
+        const graphElement = graphRef.current as HTMLElement;
         Object.defineProperty(graphElement, 'getBoundingClientRect', {configurable: true, value: () => ({left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300})});
         Object.defineProperty(lessonElement, 'getBoundingClientRect', {
             configurable: true,
@@ -262,14 +263,15 @@ test('allows a pointer drag to move the compact observation prompt toward the ri
     jest.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<div className="demonstration-workspace"><div id="jgbox"/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/></div>);
+        const graphRef = React.createRef<HTMLDivElement>();
+        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={jest.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
 
         const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
         const lessonElement = prompt.parentElement as HTMLElement;
-        const graphElement = document.querySelector('#jgbox') as HTMLElement;
+        const graphElement = graphRef.current as HTMLElement;
         Object.defineProperty(graphElement, 'getBoundingClientRect', {configurable: true, value: () => ({left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300})});
         Object.defineProperty(lessonElement, 'getBoundingClientRect', {
             configurable: true,

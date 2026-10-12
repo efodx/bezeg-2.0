@@ -1,5 +1,5 @@
 import {t, useLanguage} from "../../localization";
-import React, {useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {NavLink, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {JGBox} from "../../JGBox";
@@ -18,7 +18,7 @@ type LessonMode = "content" | "explore" | "complete" | "closed";
 export function DemonstrationWorkspace(props: {
     title: React.ReactNode, description: string, edit: React.ReactNode, display: React.ReactNode,
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
-    graphBusy?: boolean,
+    graphBusy?: boolean, graphContainerRef?: React.Ref<HTMLDivElement>,
 }) {
     useLanguage();
     const {pathname, search, hash} = useLocation();
@@ -45,6 +45,15 @@ export function DemonstrationWorkspace(props: {
     const inspector = useRef<HTMLElement>(null);
     const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
+    // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
+    // keeps its prompt inside it).
+    const graphContainer = useRef<HTMLDivElement | null>(null);
+    const hostContainerRef = props.graphContainerRef;
+    const setGraphContainer = useCallback((element: HTMLDivElement | null) => {
+        graphContainer.current = element;
+        if (typeof hostContainerRef === "function") hostContainerRef(element);
+        else if (hostContainerRef) (hostContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = element;
+    }, [hostContainerRef]);
     const fullScreen = presentation.fullScreen;
     const inspectorVisible = !fullScreen || presentationControls;
     // A requested lesson may arrive before a graph has finished creating its
@@ -78,7 +87,7 @@ export function DemonstrationWorkspace(props: {
             </div>
         </header>
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
-            onModeChange={setLessonMode}
+            onModeChange={setLessonMode} graphContainer={graphContainer}
             onClose={() => {
                 setLessonMode('closed');
                 setLessonOpen(false);
@@ -100,7 +109,7 @@ export function DemonstrationWorkspace(props: {
         </nav>
         <section className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
-            <JGBox/>
+            <JGBox ref={setGraphContainer}/>
             <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
                     if (action === 'fit') return <button key={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;

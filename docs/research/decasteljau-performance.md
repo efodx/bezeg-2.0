@@ -2,6 +2,8 @@
 
 **Status:** research report, 2026-10-09
 
+**Historical note (2026-10-12):** source links and lifecycle names below describe the code at the time of writing. Graphs are no longer React class components: `componentDidMount`/`componentDidUpdate` are now `BaseGraph.mount`/`onStateChange` hosted by `GraphHost`, and the global geometry cache was replaced by per-curve versions. See the [React architecture refactor](../specs/react-architecture-refactor.md).
+
 **Scope.** This note covers JSXGraph behavior that matters for interactive curve drawing, especially phone/touch dragging, dynamic parametric curves, and a visible De Casteljau construction. It is source research, not a performance result or an authorization to change the renderer. The repository currently locks JSXGraph 1.9.2 in [`package-lock.json`](../../package-lock.json#L10972-L10975). The official source links below point to the maintained `main` source tree; implementation work should re-check any candidate against the locked version or an explicitly approved upgrade. The official changelog records the 1.9.2 release.
 
 ## Findings

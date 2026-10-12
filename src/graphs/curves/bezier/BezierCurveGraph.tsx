@@ -1,7 +1,7 @@
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 
-class BezierCurveGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
+class BezierCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     protected override workspaceUsesStructuredEditing() { return true; }
 
     defaultPreset(): any {

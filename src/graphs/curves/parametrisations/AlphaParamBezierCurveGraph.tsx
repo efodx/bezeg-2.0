@@ -20,7 +20,7 @@ export function alphaParameterization(alpha: number, t: number): number {
     return (1 - alpha) * t / (alpha * (1 - t) + (1 - alpha) * t);
 }
 
-class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<any, AlphaParamGraphStates> {
+class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphStates> {
 
     override getInitialState() {
         return {
@@ -33,8 +33,8 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<any, AlphaParamGra
     /** Sample markers owned by this graph; control points belong to the curve objects and are never listed here. */
     private sampleMarkers: JXG.Point[] = [];
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<AlphaParamGraphStates>, snapshot?: any) {
-        if (prevState === this.state && prevProps === this.props) { return; }
+    protected override onStateChange(prevState: Readonly<AlphaParamGraphStates>) {
+        if (prevState === this.state) { return; }
         if (!this.board || !this.graphSession?.isAlive || !this.getFirstJxgCurve()) { return; }
         if (this.samplesAreCurrent(this.state.numberOfPoints)) {
             // Alpha is read lazily by the marker coordinates, so markers only need a refresh.
@@ -116,11 +116,11 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<any, AlphaParamGra
     }
 
     setAlpha(alpha: number) {
-        this.setState({...this.state, alpha: alpha});
+        this.setState({alpha: alpha});
     }
 
     setNumberOfPoints(numberOfPoints: number) {
-        this.setState({...this.state, numberOfPoints: numberOfPoints});
+        this.setState({numberOfPoints: numberOfPoints});
     }
 
     alphaParamSlider() {

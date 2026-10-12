@@ -17,33 +17,21 @@ interface DecasteljauGraphStates extends BaseGraphStates {
     showDecasteljau?: boolean
 }
 
-class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates> {
+class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override getInitialState(): DecasteljauGraphStates {
         return {...super.getInitialState(), t: 0.5, v: 1};
     }
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<DecasteljauGraphStates>, snapshot?: any) {
-        this.pendingT = undefined;
-        if (prevState === this.state && prevProps === this.props) { return; }
+    protected override onStateChange(prevState: Readonly<DecasteljauGraphStates>) {
+        if (prevState === this.state) { return; }
         this.board.suspendUpdate();
         this.getFirstJxgCurve().setDecasteljauT(this.state.t);
         this.unsuspendBoardUpdate();
     }
 
-    /**
-     * setState is asynchronous, but one lesson scene may apply 'subdivision-parameter' and 'subdivide' in the same
-     * tick. The value written in this tick is kept here until the next render commits it into state.
-     */
-    private pendingT?: number;
-
-    private currentT(): number {
-        return this.pendingT ?? this.state.t;
-    }
-
     private setT(value: number, extra?: Partial<DecasteljauGraphStates>) {
-        this.pendingT = value;
-        this.setState({...extra, t: value} as DecasteljauGraphStates);
+        this.setState({...extra, t: value});
     }
 
     defaultPreset(): any {
@@ -122,16 +110,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
         ) as JXG.Curve;
     }
 
-    protected override prepareLessonDefaultScene(): void {
-        super.prepareLessonDefaultScene();
-        this.pendingT = this.lessonDefaultState().t;
-    }
 
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        super.restoreLessonState(checkpoint);
-        const t = (checkpoint.value as any)?.graphState?.t;
-        if (typeof t === 'number') { this.pendingT = t; }
-    }
 
     protected override lessonDefaultState(): DecasteljauGraphStates {
         return {...super.lessonDefaultState(), t: 0.5, v: 1, showDecasteljau: true};
@@ -147,7 +126,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
             return;
         }
         if (action.kind === 'subdivide') {
-            const t = this.currentT();
+            const t = this.state.t;
             if (!this.getFirstJxgCurve() || !(t >= 0.01 && t <= 0.99)) {
                 throw new Error('Set the subdivision parameter t between 0.01 and 0.99 before subdividing.');
             }
@@ -166,7 +145,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
             initialState={this.getFirstJxgCurve().isShowingDecasteljauScheme() || this.state.showDecasteljau}
             onChange={checked => {
                 this.getFirstJxgCurve().showCurrentDecasteljauScheme(checked);
-                this.setState({...this.state, showDecasteljau: checked});
+                this.setState({showDecasteljau: checked});
                 this.boardUpdate();
             }}
             label={t("show_scheme")}></OnOffSwitch>,
@@ -177,7 +156,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<any, DecasteljauGraphStates
     }
 
     private subdivide() {
-        this.getFirstJxgCurve().setSubdivisionT(this.currentT());
+        this.getFirstJxgCurve().setSubdivisionT(this.state.t);
         const newcurve = this.getFirstJxgCurve().subdivide();
         this.getFirstJxgCurve().showCurrentDecasteljauScheme(false);
         newcurve.getJxgCurve().setAttribute({strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent});

@@ -7,7 +7,7 @@ import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonAction} from "../../../learning/model";
 
-class Graph extends BaseRationalCurveGraph<any, BaseGraphStates> {
+class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
     override initialize() {
         super.initialize();

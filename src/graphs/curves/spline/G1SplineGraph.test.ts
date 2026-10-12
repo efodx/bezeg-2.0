@@ -38,9 +38,9 @@ function makeGraph(Cls: any, curve: BezierSpline) {
     const graph = Object.create(Cls.prototype) as any;
     graph.jxgCurves = [{getCurve: () => curve}];
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {initialized: true};
+    graph.store.replaceState({initialized: true});
     graph.setState = jest.fn((patch: any) => {
-        graph.state = {...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)};
+        graph.store.replaceState({...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)});
     });
     graph.boardUpdate = jest.fn();
     return graph;

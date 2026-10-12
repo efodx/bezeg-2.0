@@ -8,7 +8,7 @@ import {Attributes} from "../../attributes/Attributes";
 import {LessonAction} from "../../../learning/model";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
-class ElevationGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
+class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     /** Runtime-only switch; the overlay is on by default and is not stored in presets. */
     private elevationOverlayOn = true;
     private polygonShownBeforeOverlay = false;

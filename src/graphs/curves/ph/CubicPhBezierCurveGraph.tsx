@@ -13,15 +13,15 @@ interface CubicPhBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     showingCurve: boolean
 }
 
-class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<any, CubicPhBezierCurveGraphStates> {
+class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveGraphStates> {
     protected override workspaceDescription() { return t("explore_the_hodograph_offsets_and_control_polygon_geometry"); }
     protected override workspaceDisplay() {
         return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("ph_curve_geometry")}</h3>
             <OnOffSwitch initialState={!this.state.showingCurve} onChange={checked => this.showControlyPolygonGeometry(checked)}
                 label={t("control_polygon_geometry")}/></div></>;
     }
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<CubicPhBezierCurveGraphStates>, snapshot?: any) {
-        if (prevState === this.state && prevProps === this.props) { return; }
+    protected override onStateChange(prevState: Readonly<CubicPhBezierCurveGraphStates>) {
+        if (prevState === this.state) { return; }
         this.boardUpdate();
     }
 
@@ -138,7 +138,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<any, CubicPhBezierC
     }
 
     private showControlyPolygonGeometry(checked: boolean) {
-        this.setState({...this.state, showingCurve: !checked});
+        this.setState({showingCurve: !checked});
         this.getFirstJxgCurve().showControllPolygon(checked);
     }
 

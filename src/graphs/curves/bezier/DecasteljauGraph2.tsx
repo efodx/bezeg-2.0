@@ -23,7 +23,7 @@ interface DecasteljauGraphStates extends BaseGraphStates {
     animationStatus: DecasteljauAnimationStatus
 }
 
-class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates> {
+class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     /** The drawn parameter; during playback React state follows it at a display cadence. */
     private parameter = 0.5;
     private publishedParameter?: number;
@@ -44,12 +44,12 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
         return {...super.getInitialState(), t: 0.5, v: 1, animationStatus: "ready"};
     }
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<DecasteljauGraphStates>, snapshot?: any) {
-        if (prevState === this.state && prevProps === this.props) { return; }
+    protected override onStateChange(prevState: Readonly<DecasteljauGraphStates>) {
+        if (prevState === this.state) { return; }
         // A published playback value may lag the drawn parameter; only external values move it.
         const parameterChanged = this.state.t !== prevState.t && this.state.t !== this.publishedParameter;
         if (parameterChanged) this.parameter = this.state.t;
-        if (prevProps !== this.props || !onlyParameterStateChanged(prevState, this.state)) {
+        if (!onlyParameterStateChanged(prevState, this.state)) {
             this.board.suspendUpdate();
             this.getFirstJxgCurve().setDecasteljauT(this.parameter);
             this.unsuspendBoardUpdate();
@@ -185,9 +185,9 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
         super.applyLessonAction(action);
     }
 
-    override componentWillUnmount() {
+    override unmount() {
         this.animation.dispose();
-        super.componentWillUnmount();
+        super.unmount();
     }
 
     protected override stopLessonAnimations(): void {
@@ -205,7 +205,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
                 onPlay={() => this.playAnimation()} onPause={() => this.pauseAnimation()}
                 onStop={() => this.stopAnimation()} onReplay={() => this.replayAnimation()}
                 onParameterChange={(value) => this.changeParameter(value)}
-                onSpeedChange={(value) => this.setState({...this.state, v: value})}/>
+                onSpeedChange={(value) => this.setState({v: value})}/>
         ]) : [];
     }
 
@@ -270,7 +270,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
 
     private playAnimation() {
         const restart = this.parameter >= 1;
-        this.setParameter(restart ? 0 : this.parameter, "playing", () => this.animation.play());
+        this.setParameter(restart ? 0 : this.parameter, "playing", this.whileMounted(() => this.animation.play()));
     }
 
     private pauseAnimation() {
@@ -284,7 +284,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<any, DecasteljauGraphStates>
     }
 
     private replayAnimation() {
-        this.setParameter(0, "playing", () => this.animation.replay());
+        this.setParameter(0, "playing", this.whileMounted(() => this.animation.replay()));
     }
 
     private changeParameter(value: number) {

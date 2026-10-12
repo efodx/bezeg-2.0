@@ -30,7 +30,7 @@ export interface BasePhBezierCurveGraphStates extends BaseGraphStates {
     showArcLength?: boolean
 }
 
-abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates> extends BaseBezierCurveGraph<P, S> {
+abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> extends BaseBezierCurveGraph<S> {
 
     private hodographBoard!: JXG.Board;
     private hodographInitializedBoard?: JXG.Board;
@@ -40,6 +40,11 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     /** Board text owned by this graph; removed with the figure scene and recreated after imports. */
     private arcLengthText?: JXG.Text;
     private stopArcLengthLanguageUpdates?: () => void;
+
+    /** Sets PH display keys; see `setBaseState`. */
+    private setPhState(patch: Partial<BasePhBezierCurveGraphStates>, callback?: () => void): void {
+        this.setState(patch as Partial<S>, callback);
+    }
 
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
@@ -60,7 +65,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             {PhBezierCurveCommands(this.getFirstJxgCurveAsPHCurve())}</div>
             <div className="inspector-group"><h3>{t("arc_length")}</h3>
                 <OnOffSwitch initialState={this.state.showArcLength !== false}
-                    onChange={checked => this.setState({...this.state, showArcLength: checked}, () => this.boardUpdate())}
+                    onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}
                     label={t("show_arc_length")}/>
                 <p>{t("arc_length_description")}</p></div></>;
     }
@@ -158,7 +163,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             initialState={this.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()}
             onChange={checked => {
                 this.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(checked);
-                this.setState({...this.state, showOffsetCurve: checked});
+                this.setPhState({showOffsetCurve: checked});
             }}
             label={t("curve_offsets")}/>);
 
@@ -171,7 +176,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
             commands.push(<OnOffSwitch
                 onChange={checked => {
                     this.getFirstJxgCurveAsPHCurve().setShowOffsetCurveControlPoints(checked);
-                    this.setState({...this.state, showOffsetCurveControlPoints: checked});
+                    this.setPhState({showOffsetCurveControlPoints: checked});
                 }}
                 label={t("offset_curve_control_points")}
                 initialState={this.state.showOffsetCurveControlPoints}/>);
@@ -229,7 +234,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
     protected override applyLessonAction(action: LessonAction): void {
         if (action.kind === 'curve-visibility' && action.target === 'offset-curve') {
             this.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(action.visible);
-            this.setState({...this.state, showOffsetCurve: action.visible});
+            this.setPhState({showOffsetCurve: action.visible});
             this.boardUpdate();
             return;
         }
@@ -294,7 +299,7 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
         this.hodographInitializedBoard = board;
         // PointCoordinateEditor subscribes to the auxiliary board on mount.
         // Re-render without changing workspaceRevision so it binds this board.
-        if (this.getActiveGraphSession()?.isAlive) this.forceUpdate();
+        if (this.getActiveGraphSession()?.isAlive) this.requestRender();
     }
 
     private hasUsableHodographSize(board: JXG.Board): boolean {

@@ -43,11 +43,11 @@ function fakeBoard() {
 
 /** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
 function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
-    const graph = new DefiniteIntegralGraph({}) as any;
+    const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.state = {...graph.state, ...patch}; });
+    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -199,7 +199,7 @@ test('a = b draws nothing and reports 0; a > b flips the sign of the sum and the
     expect(valuesText(graph)).toBe('vsota −2,625, integral −2,6667');
     // negative width: the shapes still lie above the axis for x^2 and are drawn
     expect(polygons(curveData(graph, POSITIVE).x)).toHaveLength(4);
-    graph.state = {...graph.state, ...graph.model};
+    graph.store.replaceState({...graph.state, ...graph.model});
     const rows = Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
     expect(rows).toMatchObject({a: '2', b: '0', h: '−0,5', sum: '−2,625'});
 });
@@ -325,7 +325,7 @@ test('reversed bounds add a readout note and the legend names the two colours in
     expect(notes()).toHaveLength(1);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('b', 1));
-    graph.state = {...graph.state, ...graph.model};
+    graph.store.replaceState({...graph.state, ...graph.model});
     expect(notes()).toHaveLength(2);
     expect(notes()[1]).toMatch(/obrnjeni/);
     const legend = graph.renderLegend().props.items;
@@ -470,7 +470,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('a stored board state is not overwritten by the default view during initialization', () => {
-    const graph = new DefiniteIntegralGraph({}) as any;
+    const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
@@ -529,7 +529,7 @@ test('the default scene uses the x^2 view and lesson step 5 ends with the sin vi
 });
 
 test('a view stored in a preset wins over the function view on initialization, and a preset with sin and no view uses the sin view', () => {
-    const graph = new DefiniteIntegralGraph({}) as any;
+    const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();

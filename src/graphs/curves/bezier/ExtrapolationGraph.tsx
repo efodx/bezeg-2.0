@@ -8,7 +8,7 @@ import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGr
 import {LessonAction} from "../../../learning/model";
 import Slider from "../../../inputs/Slider";
 
-class GraphExtrapolation extends BaseBezierCurveGraph<any, BaseGraphStates> {
+class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
     defaultPreset(): any {
         return [["JSXBezierCurve", {
             "points": [[-4, -2], [-3, 3], [2, 3], [3, -1]], "state": {

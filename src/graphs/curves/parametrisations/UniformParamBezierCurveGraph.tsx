@@ -16,7 +16,7 @@ interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphState
     alpha: number
 }
 
-class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformParamBezierCurveGraphStates> {
+class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBezierCurveGraphStates> {
     private ts?: number[];
     /** Sample points this graph created; the only points clearPoints() may remove. */
     private sampleJxgPoints: JXG.Point[] = [];
@@ -63,11 +63,9 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
         </div></>;
     }
 
-    override componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<UniformParamBezierCurveGraphStates>, snapshot?: any) {
-        if (prevState === this.state && prevProps === this.props) { return; }
-        if (super.componentDidUpdate) {
-            super.componentDidUpdate(prevProps, prevState);
-        }
+    protected override onStateChange(prevState: Readonly<UniformParamBezierCurveGraphStates>) {
+        if (prevState === this.state) { return; }
+        super.onStateChange(prevState);
         if (!this.getFirstJxgCurve()) { return; }
         this.board.suspendUpdate();
         this.refreshTs();
@@ -130,7 +128,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
     }
 
     setNumberOfPoints(numberOfPoints: number) {
-        this.setState({...this.state, numberOfPoints: numberOfPoints});
+        this.setState({numberOfPoints: numberOfPoints});
     }
 
     paramField() {
@@ -192,7 +190,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<any, UniformPa
 
     private selectParam(select: React.ChangeEvent<HTMLSelectElement>) {
         const param = select.target.value;
-        this.setState({...this.state, isAlphaParam: param === "alpha"});
+        this.setState({isAlphaParam: param === "alpha"});
     }
 }
 

@@ -9,10 +9,11 @@ interface HodographInputBoxProps {
 }
 
 export function HodographInputbox(props: HodographInputBoxProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
     const callbacks = useRef(props);
     callbacks.current = props;
     useLayoutEffect(() => {
-        const container = document.getElementById("hodograph-input-box");
+        const container = containerRef.current;
         if (!container) return;
         let board: JXG.Board | undefined;
         let disposed = false;
@@ -29,7 +30,7 @@ export function HodographInputbox(props: HodographInputBoxProps) {
         const resize = (width: number, height: number) => {
             if (disposed || width <= 0 || height <= 0) return;
             if (!board) {
-                board = JSXGraph.initBoard("hodograph-input-box", {
+                board = JSXGraph.initBoard(container, {
                     showFullscreen: false,
                     boundingbox: [-5, 5, 5, -5],
                     axis: true,
@@ -69,7 +70,8 @@ export function HodographInputbox(props: HodographInputBoxProps) {
         };
     }, []);
 
-    return <div id="hodograph-input-box" style={{
+    // JSXGraph derives its element ids from the container id; the container itself is reached through the ref.
+    return <div ref={containerRef} id="hodograph-input-box" style={{
         width: "100%",
         aspectRatio: 1 / 1,
         background: "var(--workspace-panel, var(--bezeg-panel, #fffdf5))",

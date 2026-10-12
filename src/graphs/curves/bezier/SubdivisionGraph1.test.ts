@@ -55,8 +55,8 @@ function makeGraph(Cls: any = SubdivisionGraph1) {
     graph.graphJXGPoints = [];
     graph.workspaceRevision = 0;
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {t: 0.5, v: 1, showDecasteljau: true, initialized: true};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)}; });
+    graph.store.replaceState({t: 0.5, v: 1, showDecasteljau: true, initialized: true});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     graph.boardUpdate = jest.fn();
     return graph;
 }
@@ -122,10 +122,7 @@ describe('lesson actions', () => {
 
     test('prepared scene, parameter and subdivide in one synchronous tick split at the new t after an earlier split', () => {
         const graph = makeGraph();
-        graph.state.t = 1;
-        // setState is asynchronous in React: state only commits after the whole scene ran.
-        const queued: any[] = [];
-        graph.setState = jest.fn((patch: any) => { queued.push(patch); });
+        graph.store.setState({t: 1});
         const spy = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
             this.jxgCurves = [fakeJxgCurve(poly())];
         });
@@ -133,11 +130,12 @@ describe('lesson actions', () => {
             graph.applyLessonAction({kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});
             graph.applyLessonAction({kind: 'subdivision-parameter', value: 0.3});
             const jxg = graph.jxgCurves[0];
-            expect(graph.state.t).toBe(1);
+            // the store is synchronous: the earlier actions already wrote their values
+            expect(graph.state.t).toBe(0.3);
             graph.applyLessonAction({kind: 'subdivide'});
             expect(jxg.setSubdivisionT).toHaveBeenCalledWith(0.3);
             expect(jxg.subdivide).toHaveBeenCalledTimes(1);
-            // a second split in the same tick must see the post-split reset value (1) and be rejected
+            // a second split in the same tick must see the post-split reset value (1) written by the previous action and be rejected
             expect(() => graph.applyLessonAction({kind: 'subdivide'})).toThrow(/0\.01 and 0\.99/);
         } finally { spy.mockRestore(); }
     });
@@ -182,7 +180,7 @@ describe('orange remainder ownership', () => {
             expect(graph.jxgCurves[0].setIntervalEnd).toHaveBeenCalledTimes(1);
             const end = graph.jxgCurves[0].setIntervalEnd.mock.calls[0][0];
             expect(end()).toBe(1);
-            graph.state = {...graph.state, showDecasteljau: false, t: 0.25};
+            graph.store.replaceState({...graph.state, showDecasteljau: false, t: 0.25});
             expect(end()).toBe(0.25);
         } finally { spy.mockRestore(); }
     });
@@ -207,7 +205,7 @@ describe('orange remainder ownership', () => {
         const graph = makeGraph();
         graph.bindSceneToFirstCurve();
         graph.jxgCurves.push(fakeJxgCurve(poly()));
-        graph.state = {...graph.state, t: 1, showDecasteljau: false};
+        graph.store.replaceState({...graph.state, t: 1, showDecasteljau: false});
         const spy = stubImport();
         try {
             graph.applyLessonAction({kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});

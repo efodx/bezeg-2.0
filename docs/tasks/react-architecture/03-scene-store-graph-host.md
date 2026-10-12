@@ -10,7 +10,7 @@ Graphs stop being React class components. A graph is a plain controller whose st
 
 - **`SceneStore<S>`** (`src/graphs/base/SceneStore.ts`): `getState(): S`, `setState(update: Partial<S> | ((s: S) => Partial<S> | null))` that applies **synchronously** and replaces the state object, `notify()` for changes outside `S` (curve objects, adapter flags), `subscribe(listener)`, and `getVersion()` for `useSyncExternalStore`. Unit-tested.
 - **`BaseGraph<S>`** keeps its name and subclass API but no longer extends `React.Component`:
-  - `state` is a getter over the store; `setState(update, callback?)` applies synchronously, then calls `onStateChange(prevState)` (replaces `componentDidUpdate`; subclasses drop the `prevProps` checks), then `callback`.
+  - `state` is a getter over the store; `setState(update, callback?)` applies synchronously, so a later read in the same tick sees it. Side effects keep React's batching and ordering: `onStateChange(prevState)` (replaces `componentDidUpdate`; subclasses drop the `prevProps` checks) runs once per host commit with the state from before the first pending update, followed by queued callbacks in order. `flushStateChanges()` runs them immediately for hostless unit tests and before unmount.
   - `componentDidMount`/`componentWillUnmount` become `mount(container: HTMLElement)`/`unmount()`; `mount` creates the `GraphSession` on the given element (no `#jgbox` lookup). `mount` after `unmount` on the same instance must work (React StrictMode).
   - `forceUpdate(cb?)` becomes `requestRender(cb?)`: `store.notify()`, and `cb` runs after the host has committed the render (the host flushes pending callbacks in `useLayoutEffect`). Figure batches rely on this ordering.
   - Initial state comes from a constructor-safe path: no virtual method call from a field initializer. Subclasses declare `getInitialState()`; the base reads it in an `init` step after construction (the host calls it), or the subclass passes it to `super`.
@@ -35,3 +35,12 @@ Graphs stop being React class components. A graph is a plain controller whose st
 4. Lesson multi-action same-tick test passes without a graph-field side channel.
 5. `tsc`, build, Jest and `npm run test:smoke` pass. A browser smoke check covers all routes, dragging, sliders, De Casteljau animation, presets save/load/reset/import, single and batch figure export, guided lessons, PH hodograph board, language switch, presentation mode.
 6. Drag and slider responsiveness on De Casteljau and Bézier is no worse than before (performance plan protocol, desktop).
+
+## Implementation notes (2026-10-12)
+
+- `BaseGraph<S>` dropped the former props type parameter; subclasses declare only their state type.
+- Host values are passed as arguments: `getWorkspacePanels({title, description})` during render and `mount(container, {selectedPreset})` in the layout effect. The controller is never mutated during render.
+- `unmount()` drops a pending `onStateChange` (React never ran `componentDidUpdate` after unmount) but still runs queued callbacks so batch promises settle; callbacks that start work are wrapped in `whileMounted`.
+- A remount of the same instance (React StrictMode) starts from `getInitialState()`.
+- The same-tick side channels `SubdivisionGraph1.pendingT` and `SplineAlphaParametrizationGraph.pendingAlpha` were removed; the AGENTS.md lesson rule was relaxed accordingly.
+- Element ids `jgbox` and `hodograph-input-box` remain because JSXGraph derives sub-element ids from them and CSS/Playwright select on them; no code looks them up.

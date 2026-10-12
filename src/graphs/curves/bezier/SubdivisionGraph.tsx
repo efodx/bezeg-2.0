@@ -16,7 +16,7 @@ function ShowControlPolygons(props: { initialState: boolean, onChange: (checked:
     return <OnOffSwitch initialState={props.initialState} label={t("control_polygons")} onChange={props.onChange}/>;
 }
 
-class SubdivisionGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
+class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     private stepsDone: number = 0;
 
     protected override captureFigureRuntimeState(): unknown {

@@ -1,5 +1,5 @@
 import {t, useLanguage} from "../../localization";
-import React, {Component} from 'react';
+import React from 'react';
 
 
 import {Board} from "jsxgraph";
@@ -9,11 +9,10 @@ import {Commands} from "./Commands";
 import {AxisStyles} from "../styles/AxisStyles";
 import Slider from "../../inputs/Slider";
 import {Preset, PresetService} from "./presets/Presets";
-import {SiteContext} from "../context/react/SiteContext";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
-import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
+import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
@@ -54,15 +53,46 @@ interface FigureBatchScene {
     runtimeState: unknown;
 }
 
-/**
- * Abstract class for creating graphs.
- */
-abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
-    static override contextType = SiteContext;
-    // TODO fix this, it doesn't work for some reason :/
-    //  declare context: React.ContextType<typeof PresetContext>
+/** What the app shell tells the host about the route, passed in for each render of the panels. */
+export interface GraphPanelContext {
+    /** Workspace title of the current route, if the app shell provides one. */
+    title?: React.ReactNode;
+    description?: string;
+}
 
-    presetService: PresetService | undefined;
+/** What the app shell tells the controller when it mounts. */
+export interface GraphMountContext {
+    /** Id of the browser-local preset selected in the app shell ("" for none). */
+    selectedPreset: string;
+}
+
+
+/** Props the host passes to `DemonstrationWorkspace` for one render of the graph's panels. */
+export interface GraphWorkspacePanels {
+    title: React.ReactNode;
+    description: string;
+    edit: React.ReactNode;
+    display: React.ReactNode;
+    save: React.ReactNode;
+    navigate: (action: string) => void;
+    graphBusy: boolean;
+    lessonCapabilities: LessonGraphCapabilities | undefined;
+}
+
+/**
+ * Abstract controller for creating graphs. It is not a React component: its state lives in a synchronous
+ * `SceneStore`, and `GraphHost` renders its panels, mounts it on a container element and flushes its deferred
+ * `onStateChange`/callback work after every commit.
+ *
+ * `P` is the historical props type parameter; graphs take no props any more.
+ */
+abstract class BaseGraph<S extends BaseGraphState> {
+    private sceneStore?: SceneStore<S>;
+    private presetServiceInstance?: PresetService;
+    /** State from before the first update that `onStateChange` has not seen yet. */
+    private pendingPreviousState?: S;
+    private pendingCallbacks: Array<() => void> = [];
+    private hasBeenMounted = false;
     protected board!: Board;
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
@@ -78,8 +108,103 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         isAvailable: () => this.graphSession?.isReady === true,
     };
 
-    protected workspaceTitle(): React.ReactNode { return (this.context as React.ContextType<typeof SiteContext>).workspace?.title ?? "Bezeg"; }
-    protected workspaceDescription(): string { return (this.context as React.ContextType<typeof SiteContext>).workspace?.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
+    /**
+     * The scene store, created on first use so that subclasses define their initial state in `getInitialState()`
+     * (a prototype method) instead of a field initializer that would run before their own fields exist.
+     */
+    get store(): SceneStore<S> {
+        if (!this.sceneStore) this.sceneStore = new SceneStore<S>(this.getInitialState());
+        return this.sceneStore;
+    }
+
+    /** The current state. Updates are applied synchronously, so a later read in the same tick sees them. */
+    get state(): Readonly<S> {
+        return this.store.getState();
+    }
+
+    /** Initial scene state; subclasses extend it with their own fields. It must not read subclass fields. */
+    getInitialState(): S {
+        return {initialized: false} as S;
+    }
+
+    /**
+     * Applies a partial update synchronously. Side effects keep React's batching: `onStateChange` runs once per host
+     * commit with the state from before the first pending update, followed by the queued callbacks in order.
+     */
+    setState(update: SceneStateUpdate<S>, callback?: () => void): void {
+        const before = this.store.getState();
+        const changed = this.store.setState(update);
+        if (changed && this.pendingPreviousState === undefined) this.pendingPreviousState = before;
+        if (callback) {
+            this.pendingCallbacks.push(callback);
+            // Make sure the host commits (and therefore flushes) even when the update changed nothing.
+            if (!changed) this.store.notify();
+        }
+    }
+
+    /**
+     * Sets keys every graph state has. TypeScript cannot see that a literal of `BaseGraphState` keys is a
+     * `Partial<S>` for a generic `S`; this is the one place that says so.
+     */
+    protected setBaseState(patch: Partial<BaseGraphState>, callback?: () => void): void {
+        this.setState(patch as Partial<S>, callback);
+    }
+
+    /** Runs `onStateChange` for the pending updates, then the queued callbacks, as one batch. */
+    flushStateChanges(): void {
+        const previous = this.pendingPreviousState;
+        const callbacks = this.pendingCallbacks;
+        this.pendingPreviousState = undefined;
+        this.pendingCallbacks = [];
+        let failure: { error: unknown } | undefined;
+        const run = (work: () => void) => {
+            try {
+                work();
+            } catch (error) {
+                failure ??= {error};
+            }
+        };
+        if (previous !== undefined) run(() => this.onStateChange(previous));
+        for (const callback of callbacks) run(callback);
+        if (failure) throw failure.error;
+    }
+
+    /** Called after the host committed a batch of state updates (the old React update lifecycle hook). */
+    protected onStateChange(previousState: Readonly<S>): void {
+    }
+
+    /** Re-renders the panels; `callback` runs after the host has committed that render. */
+    requestRender(callback?: () => void): void {
+        if (callback) this.pendingCallbacks.push(callback);
+        this.store.notify();
+    }
+
+    /**
+     * Wraps a callback so it is skipped once the graph is unmounted. Queued callbacks still run at unmount to settle
+     * promises; a callback that starts work (an animation, a board update) must not.
+     */
+    protected whileMounted(callback: () => void): () => void {
+        return () => {
+            if (this.graphSession?.isAlive) callback();
+        };
+    }
+
+    /** Browser-local presets of this demonstration; created once on first use. */
+    get presetService(): PresetService | undefined {
+        if (!this.presetServiceInstance) {
+            const id = this.presets();
+            if (id) this.presetServiceInstance = new PresetService(id);
+        }
+        return this.presetServiceInstance;
+    }
+
+    /** True while a batch export locks the workspace. */
+    get graphBusy(): boolean {
+        return this.figureBatchActive;
+    }
+
+    protected workspaceTitle(context: GraphPanelContext): React.ReactNode { return context.title ?? "Bezeg"; }
+    protected workspaceDescription(context: GraphPanelContext): string { return context.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
     protected workspaceDisplay(): React.ReactNode {
         return <><div className="inspector-control"><AxisSelector board={() => this.board}/></div>
@@ -206,13 +331,20 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     abstract initialize(): void;
 
-    override componentDidMount() {
+    /**
+     * Creates the board on the host's container and loads the selected preset or the default scene. Safe to call again
+     * on the same instance after `unmount()` (React StrictMode mounts, unmounts and mounts again).
+     */
+    mount(container: HTMLElement, context: GraphMountContext = {selectedPreset: ""}): void {
         if (!this.graphSession?.isAlive) {
             const session = new GraphSession();
             this.graphSession = session;
+            // A remount starts from a fresh scene state, exactly like a new instance.
+            if (this.hasBeenMounted) this.store.replaceState(this.getInitialState());
+            this.hasBeenMounted = true;
             this.initialFigureGraphState = cloneLessonValue(this.state);
             // JXG.Options.text.display = 'internal';
-            this.board = session.createBoard("jgbox", {
+            this.board = session.createBoard(container, {
                 showFullscreen: false,
                 boundingBox: [-5, 5, 5, -5],
                 axis: true,
@@ -226,9 +358,8 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
                 },
             });
 
-            const siteContext = this.context as React.ContextType<typeof SiteContext>;
-            this.setState({initialized: true});
-            const preset = this.presetService?.getPreset(siteContext.preset.selected);
+            this.setBaseState({initialized: true});
+            const preset = this.presetService?.getPreset(context.selectedPreset);
             if (preset) {
                 this.importPreset(preset);
             } else {
@@ -236,15 +367,13 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
             }
             // TODO We should remove this...
             this.initialize();
-            const container = document.getElementById("jgbox");
-            if (container) {
-                session.observeResize(container);
-            }
+            session.observeResize(container);
             session.markReady();
         }
     }
 
-    override componentWillUnmount() {
+    /** Disposes the board and everything the session owns. Pending state work is dropped; pending callbacks still settle. */
+    unmount(): void {
         this.figureSceneGeneration++;
         this.figureBatchActive = false;
         this.graphInteractionLocked = false;
@@ -252,6 +381,19 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         this.graphSession = undefined;
         this.board = undefined as unknown as Board;
         session?.dispose();
+        // Nothing renders after this, so onStateChange would only touch a disposed scene. Callbacks (for example a
+        // figure batch waiting for its commit) re-check the session and settle their promises.
+        this.pendingPreviousState = undefined;
+        const callbacks = this.pendingCallbacks;
+        this.pendingCallbacks = [];
+        for (const callback of callbacks) {
+            try {
+                callback();
+            } catch (error) {
+                // A failing late callback must not block the rest of the teardown, but it must not vanish either.
+                console.error("A graph callback failed while the graph was unmounting.", error);
+            }
+        }
     }
 
     saveAsSVG(fileName: string) {
@@ -263,20 +405,19 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
     }
 
 
-    override render() {
-        const presetsId = this.presets();
-        if (presetsId) {
-            this.presetService = new PresetService(presetsId);
-        }
-        return <DemonstrationWorkspace title={this.workspaceTitle()} description={this.workspaceDescription()}
-            edit={this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>}
-            display={this.state.initialized ? this.workspaceDisplay() : null}
-            save={this.workspaceSave()} navigate={action => this.navigateBoard(action)} graphBusy={this.figureBatchActive}
+    /** The panels of one render, called by the host. */
+    getWorkspacePanels(context: GraphPanelContext): GraphWorkspacePanels {
+        return {
+            title: this.workspaceTitle(context), description: this.workspaceDescription(context),
+            edit: this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>,
+            display: this.state.initialized ? this.workspaceDisplay() : null,
+            save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureBatchActive,
             // A deep link can request a lesson before JSXGraph has created
             // its board. Do not mount the session until the graph-owned
             // capability is ready; otherwise captureState() fails once
             // and the overlay has no reason to retry.
-            lessonCapabilities={this.state.initialized ? this.getLessonCapabilities() : undefined}/>;
+            lessonCapabilities: this.state.initialized ? this.getLessonCapabilities() : undefined,
+        };
     }
 
     unsuspendBoardUpdate() {
@@ -317,7 +458,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
             this.importBoardState(preset.boardState);
         }
         if (preset.graphState) {
-            this.setState({...preset.graphState, initialized: true});
+            this.setBaseState({...preset.graphState, initialized: true});
         }
         if (preset.data) {
             this.importPresetData(preset.data);
@@ -381,7 +522,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
                 finish();
             };
             session.signal.addEventListener("abort", abort, {once: true});
-            this.forceUpdate(() => {
+            this.requestRender(() => {
                 releaseLockTransition();
                 if (this.graphSession !== session || !session.isAlive) {
                     finish();
@@ -407,7 +548,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
                     boardContainer.style.pointerEvents = previousPointerEvents;
                     this.graphInteractionLocked = false;
                     this.figureBatchActive = false;
-                    this.forceUpdate(finish);
+                    this.requestRender(finish);
                 });
             });
         });

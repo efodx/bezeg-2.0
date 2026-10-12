@@ -26,7 +26,7 @@ function AffineActionGroup(props: {title: string; children: React.ReactNode; cla
     </section>;
 }
 
-export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGraph<any, BaseGraphStates> {
+export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     override initialize() {
         super.initialize();
         this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);

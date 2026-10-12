@@ -43,11 +43,11 @@ function fakeBoard() {
 
 /** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
 function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
-    const graph = new AreaBetweenCurvesGraph({}) as any;
+    const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.state = {...graph.state, ...patch}; });
+    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -163,7 +163,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         apply(graph, parameter('b', 0.2));
         for (const action of step.scene!.actions) apply(graph, action);
         const rows = readout(graph);
-        graph.state = {...graph.state, ...graph.model};
+        graph.store.replaceState({...graph.state, ...graph.model});
         return [graph.model, [rows['int-f'], rows['int-g'], rows.signed, rows.unsigned, rows.shaded].join(' | '), valuesText(graph)];
     });
     expect(finals).toEqual([
@@ -359,11 +359,11 @@ test('the legend names the colours in words for each mode, and reversed bounds a
     expect(legend()).toEqual([
         ['f', 'f(x) = (x − 2)²'], ['g', 'g(x) = 3 − (x − 2)²'], ['positive', 'g nad f: šteje pozitivno (+)'], ['negative', 'f nad g: šteje negativno (−)'],
     ]);
-    graph.state = {...graph.state, mode: 'under-f'};
+    graph.store.replaceState({...graph.state, mode: 'under-f'});
     expect(legend().slice(2)).toEqual([['positive', 'Krivulja nad osjo x: šteje pozitivno (+)'], ['negative', 'Krivulja pod osjo x: šteje negativno (−)']]);
     const notes = () => ([] as string[]).concat(graph.renderReadout().props.note);
     expect(notes()).toHaveLength(1);
-    graph.state = {...graph.state, a: 3, b: 1};
+    graph.store.replaceState({...graph.state, a: 3, b: 1});
     expect(notes()).toHaveLength(2);
     expect(notes()[1]).toMatch(/obrnjeni/);
 });
@@ -500,7 +500,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('a stored board state is not overwritten by the default view during initialization', () => {
-    const graph = new AreaBetweenCurvesGraph({}) as any;
+    const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();

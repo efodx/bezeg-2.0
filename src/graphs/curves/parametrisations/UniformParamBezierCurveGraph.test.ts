@@ -34,16 +34,16 @@ function makeGraph(curve = defaultCurve()) {
     graph.hodographBindings = [];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
-    graph.state = {isAlphaParam: true, alpha: 0.5, numberOfPoints: 10, initialized: true};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...patch}; });
+    graph.store.replaceState({isAlphaParam: true, alpha: 0.5, numberOfPoints: 10, initialized: true});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     return graph;
 }
 
-/** Simulates React calling componentDidUpdate after a state change. */
+/** Simulates the host calling onStateChange after a state change. */
 function update(graph: any) {
     const prev = graph.state;
-    graph.state = {...graph.state};
-    graph.componentDidUpdate({}, prev);
+    graph.store.replaceState({...graph.state});
+    graph.onStateChange(prev);
 }
 
 const sampleCount = (graph: any) => graph.board.objectsList.filter((o: any) => o.type === 'point').length;
@@ -142,7 +142,7 @@ describe('sample point ownership', () => {
         expect(sampleCount(graph)).toBe(10);
         for (const patch of [{numberOfPoints: 3}, {isAlphaParam: false}, {numberOfPoints: 25}, {alpha: 0.2},
             {isAlphaParam: true}, {numberOfPoints: 10}]) {
-            graph.state = {...graph.state, ...patch};
+            graph.store.replaceState({...graph.state, ...patch});
             update(graph);
             expect(sampleCount(graph)).toBe(graph.state.numberOfPoints);
             expect(graph.sampleJxgPoints).toHaveLength(graph.state.numberOfPoints);
@@ -155,7 +155,7 @@ describe('sample point ownership', () => {
         const graph = makeGraph();
         update(graph);
         const point = graph.sampleJxgPoints[4];
-        graph.state = {...graph.state, isAlphaParam: false};
+        graph.store.replaceState({...graph.state, isAlphaParam: false});
         update(graph);
         expect(graph.sampleJxgPoints[4]).toBe(point);
         expect(graph.ts[4]).not.toBeCloseTo(5 / 11, 3);
@@ -175,7 +175,7 @@ describe('sample point ownership', () => {
         expect(graph.ts).toBeUndefined();
         const newCurve = defaultCurve();
         graph.jxgCurves = [{getCurve: () => newCurve}];
-        graph.state = {...graph.state, isAlphaParam: false, numberOfPoints: 6, alpha: 0.3};
+        graph.store.replaceState({...graph.state, isAlphaParam: false, numberOfPoints: 6, alpha: 0.3});
         update(graph);
         expect(sampleCount(graph)).toBe(6);
         expect(graph.ts).toHaveLength(7);

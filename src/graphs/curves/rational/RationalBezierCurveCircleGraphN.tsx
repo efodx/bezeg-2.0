@@ -8,7 +8,7 @@ export const MIN_CIRCLE_PIECES = 3;
 export const MAX_CIRCLE_PIECES = 12;
 
 
-class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStates> {
+class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
     defaultPreset(): any {
         return [];
     }

@@ -8,7 +8,7 @@ import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGr
 import {LessonAction} from "../../../learning/model";
 import Slider from '../../../inputs/Slider';
 
-class GraphExtrapolation extends BaseRationalCurveGraph<any, BaseGraphStates> {
+class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
     override initialize() {
         super.initialize();
         this.prepareExtrapolationCurve();

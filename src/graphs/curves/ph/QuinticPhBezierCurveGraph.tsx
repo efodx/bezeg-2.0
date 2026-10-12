@@ -1,6 +1,6 @@
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
 
-class QuinticPhBezierCurve extends BasePhBezierCurveGraph<any, BasePhBezierCurveGraphStates> {
+class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraphStates> {
 
     defaultPreset(): any {
         return [["JSXPHBezierCurve", {

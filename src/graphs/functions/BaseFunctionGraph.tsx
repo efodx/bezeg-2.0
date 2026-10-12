@@ -1,5 +1,5 @@
 import React from "react";
-import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
+import BaseGraph, {BaseGraphState, GraphMountContext} from "../base/BaseGraph";
 import {currentLanguage, Language, onLanguageChange} from "../../localization";
 import {Preset} from "../base/presets/Presets";
 import {LessonAction, LessonSceneCheckpoint, UnsupportedLessonActionError} from "../../learning/model";
@@ -87,7 +87,7 @@ const CAPTION_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88
 const CAPTION_MIN_FONT = 11;
 const CAPTION_FULL_WIDTH = 700;
 
-export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<{}, FunctionGraphState<M>> {
+export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<FunctionGraphState<M>> {
     /** Synchronous source of truth for the graph; `this.state` mirrors it for rendering. */
     protected model: M;
     private generatedObjects: any[] = [];
@@ -96,10 +96,14 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     private captionLines: CaptionLine[] = [];
     private lastLanguage: Language = currentLanguage();
 
-    constructor(props: {}) {
-        super(props);
+    constructor() {
+        super();
         this.model = this.defaultModel();
-        this.state = {initialized: false, ...this.model};
+    }
+
+    override getInitialState(): FunctionGraphState<M> {
+        // Always the default model: a remount must not start from values a preset import wrote into `this.model`.
+        return {initialized: false, ...this.defaultModel()};
     }
 
     private unsubscribeLanguage?: () => void;
@@ -108,8 +112,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * Board texts are functions evaluated on board update, so a language switch on an open graph must trigger one.
      * Subclass texts that read the language (`currentLanguage()` / `t()`) in their text functions therefore refresh.
      */
-    override componentDidMount(): void {
-        super.componentDidMount();
+    override mount(container: HTMLElement, context?: GraphMountContext): void {
+        super.mount(container, context);
         this.unsubscribeLanguage?.();
         this.lastLanguage = currentLanguage();
         // The listener also fires on figure-export state changes; only an actual language change needs a board update.
@@ -121,14 +125,16 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         });
     }
 
-    override componentWillUnmount(): void {
+    override unmount(): void {
         this.unsubscribeLanguage?.();
         this.unsubscribeLanguage = undefined;
         // The board is disposed with the session: drop every reference to its objects so nothing can touch them afterwards.
         this.generatedObjects = [];
         this.captionLines = [];
         this.onSceneRemoved();
-        super.componentWillUnmount();
+        super.unmount();
+        // A later mount() on this instance starts from the default model, like a new instance.
+        this.model = this.defaultModel();
     }
 
     // ---- Subclass contract -------------------------------------------------------------------------------------

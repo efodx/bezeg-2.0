@@ -37,8 +37,8 @@ function makeGraph() {
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(makeCurve(), log)];
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {initialized: true};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...patch}; });
+    graph.store.replaceState({initialized: true});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     graph.refreshWorkspace = jest.fn(() => { graph.workspaceRevision++; });
     graph.unsuspendBoardUpdate = jest.fn();
     graph.boardUpdate = jest.fn();

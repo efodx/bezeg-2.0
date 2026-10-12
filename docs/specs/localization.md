@@ -30,7 +30,7 @@ Provide a complete Slovenian and English experience for students and educators, 
 - No localization dependency or shared formatting infrastructure is present in the inspected source.
 - Route/group labels and mathematical title markup live in `src/Routes.js`. Navigation groups and some editing controls currently use visible labels as identities; translation requires stable identities independent of text.
 - `App` and the route refresher intentionally remount content for preset/refresh changes. Language must not become a remount key.
-- Some graph `componentDidUpdate` methods regenerate constructions. Some command builders create preview objects during rendering. Preserving a scene requires guarding language-only updates and removing affected render side effects, rather than merely avoiding remounts.
+- Some graph `componentDidUpdate` methods (now `onStateChange`) regenerate constructions. Some command builders create preview objects during rendering. Preserving a scene requires guarding language-only updates and removing affected render side effects, rather than merely avoiding remounts.
 - Class-based graphs already consume `SiteContext`; localization must work across that hierarchy, functional React controls, command builders, and plain validation services.
 - Import errors are built and cached as Slovenian strings. Already-visible errors need to update when language changes.
 - Sliders and several graph labels currently use decimal points and `toFixed`; coordinate entry uses native number inputs. Numeric formatting and input policy remain open. Preset JSON must remain numeric and language-neutral.

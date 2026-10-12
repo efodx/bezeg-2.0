@@ -27,8 +27,8 @@ function makeGraph(initial = {n: 2, isSumGraph: false, showLabels: false}) {
     graph.padding = 0.1;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = jest.fn();
-    graph.state = {...initial};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...patch}; });
+    graph.store.replaceState({...initial});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     return graph;
 }
 
@@ -65,7 +65,7 @@ test('stacked-area action toggles the sum graph and keeps degree', () => {
 test('default scene preparation resets to degree 1, stacked area off', () => {
     const graph = makeGraph({n: 6, isSumGraph: true, showLabels: true});
     graph.applyLessonAction({kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});
-    expect(graph.state).toEqual({n: 2, isSumGraph: false, showLabels: false});
+    expect(graph.state).toEqual({initialized: true, n: 2, isSumGraph: false, showLabels: false});
     expect(curveCount(graph)).toBe(2);
 });
 
@@ -86,14 +86,14 @@ test('repeated regeneration does not accumulate board objects or references', ()
     expect(graph.board.objectsList.length).toBe(2); // one curve + one label
 });
 
-test('componentDidUpdate regenerates only when the generated state is stale', () => {
+test('onStateChange regenerates only when the generated state is stale', () => {
     const graph = makeGraph();
     graph.applyLessonAction({kind: 'bernstein-degree', degree: 2});
     const calls = graph.board.create.mock.calls.length;
-    graph.componentDidUpdate({}, {});
+    graph.onStateChange({});
     expect(graph.board.create.mock.calls.length).toBe(calls);
-    graph.state = {...graph.state, n: 5}; // e.g. restored checkpoint
-    graph.componentDidUpdate({}, {});
+    graph.store.replaceState({...graph.state, n: 5}); // e.g. restored checkpoint
+    graph.onStateChange({});
     expect(curveCount(graph)).toBe(5);
 });
 

@@ -46,8 +46,8 @@ function makeGraph() {
     graph.workspaceRevision = 0;
     graph.parameter = 0.5;
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {t: 0.5, v: 1, animationStatus: 'ready', initialized: true};
-    graph.setState = jest.fn((patch: any) => { graph.state = {...graph.state, ...patch}; });
+    graph.store.replaceState({t: 0.5, v: 1, animationStatus: 'ready', initialized: true});
+    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
     graph.boardUpdate = jest.fn();
     graph.animation = {isRunning: jest.fn(() => false), pause: jest.fn(), stop: jest.fn()};
     return graph;
@@ -169,7 +169,7 @@ describe('helper ownership', () => {
     test('default lesson scene rebinds with t = 0.5 and ready animation', () => {
         const graph = makeGraph();
         graph.parameter = 0.9;
-        graph.state = {...graph.state, t: 0.9, animationStatus: 'paused'};
+        graph.store.replaceState({...graph.state, t: 0.9, animationStatus: 'paused'});
         graph.bindSceneToFirstCurve();
         const spy = stubImport();
         try {

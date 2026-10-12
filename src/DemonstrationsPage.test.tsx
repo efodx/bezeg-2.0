@@ -6,7 +6,8 @@ import {getDemonstrationCatalog} from './demonstrations';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {setLanguage} from './localization';
 
-jest.mock('./graphs/curves/bezier/BezierCurveGraph', () => ({__esModule: true, default: () => <p>Opened Bézier graph</p>}));
+// Routes only hand a controller factory to GraphHost; mounting a real board is not what this suite checks.
+jest.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
 
 beforeEach(() => {setLanguage('sl');});
 

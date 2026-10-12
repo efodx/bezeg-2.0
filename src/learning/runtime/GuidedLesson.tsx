@@ -50,6 +50,8 @@ export function GuidedLesson(props: {
     capabilities: LessonGraphCapabilities;
     onClose: () => void;
     onModeChange?: (mode: LessonMode) => void;
+    /** The element holding the graph board; its bounds limit the movable prompt. */
+    graphContainer?: React.RefObject<HTMLElement>;
 }) {
     const {language} = useLanguage();
     const [revision, setRevision] = useState(0);
@@ -123,7 +125,7 @@ export function GuidedLesson(props: {
     const promptBounds = (position: PromptPosition) => {
         const lessonElement = lessonRef.current;
         const workspace = lessonElement?.closest('.demonstration-workspace');
-        const graphElement = workspace?.querySelector('#jgbox') ?? workspace?.querySelector('.workspace-graph');
+        const graphElement = props.graphContainer?.current ?? workspace?.querySelector('.workspace-graph');
         if (!(lessonElement instanceof HTMLElement) || !(graphElement instanceof HTMLElement)) return undefined;
         const promptElement = lessonElement.querySelector<HTMLElement>('.guided-lesson-hidden-content') ?? lessonElement;
         const promptRect = promptElement.getBoundingClientRect();

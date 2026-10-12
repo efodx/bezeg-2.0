@@ -128,9 +128,9 @@ function makeGraph(initial = {alpha: 0.5, numberOfPoints: 25}) {
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(graph.board, makeSpline())];
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.state = {...initial, initialized: true};
+    graph.store.replaceState({...initial, initialized: true});
     graph.setState = jest.fn((patch: any) => {
-        graph.state = {...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)};
+        graph.store.replaceState({...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)});
     });
     graph.boardUpdate = jest.fn();
     return graph;
@@ -263,7 +263,7 @@ describe('default scene and checkpoint restore', () => {
             // the render that follows must find nothing left to regenerate
             const prevState = {...graph.state};
             const before = [...graph.sampleMarkers];
-            graph.componentDidUpdate({}, prevState);
+            graph.onStateChange(prevState);
             expect(graph.sampleMarkers).toEqual(before);
         } finally { spy.mockRestore(); }
     });

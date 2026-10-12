@@ -38,7 +38,7 @@ function fakeBoard() {
 
 /** A graph before its first initialize(): the board exists, the scene does not. */
 function makeUninitializedGraph() {
-    const graph = new LinearFunctionGraph({}) as any;
+    const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true, dispose: jest.fn()};
     graph.boardUpdate = jest.fn();
@@ -88,7 +88,7 @@ describe('a dead graph session is never touched', () => {
         graph.initialize();
         const point = graph.board.objectsList.find((object: any) => object.type === 'point' && object.handlers.drag);
         expect(graph.generatedObjectCount).toBeGreaterThan(0);
-        graph.componentWillUnmount();
+        graph.unmount();
         expect(graph.generatedObjectCount).toBe(0);
         expect(graph.p1).toBeUndefined();
         graph.setState.mockClear();
@@ -104,10 +104,10 @@ describe('a dead graph session is never touched', () => {
 
 describe('language changes', () => {
     test('only an actual language change updates the board, not a figure-export state change', () => {
-        jest.spyOn(BaseGraph.prototype, 'componentDidMount').mockImplementation(() => undefined);
+        jest.spyOn(BaseGraph.prototype, 'mount').mockImplementation(() => undefined);
         try {
             const graph = makeUninitializedGraph();
-            graph.componentDidMount();
+            graph.mount(document.createElement('div'));
             expect(graph.boardUpdate).not.toHaveBeenCalled();
             const endExport = beginFigureExport();
             endExport();
@@ -118,8 +118,8 @@ describe('language changes', () => {
             expect(graph.boardUpdate).toHaveBeenCalledTimes(1);
             setLanguage('sl');
             expect(graph.boardUpdate).toHaveBeenCalledTimes(2);
-            jest.spyOn(BaseGraph.prototype, 'componentWillUnmount').mockImplementation(() => undefined);
-            graph.componentWillUnmount();
+            jest.spyOn(BaseGraph.prototype, 'unmount').mockImplementation(() => undefined);
+            graph.unmount();
             setLanguage('en');
             expect(graph.boardUpdate).toHaveBeenCalledTimes(2);
         } finally {
