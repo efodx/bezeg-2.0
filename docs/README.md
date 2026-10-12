@@ -15,6 +15,7 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [ADR 0006](adr/0006-model-input-ownership-before-renderer-migration.md): numeric model ownership and a staged renderer decision.
 - [Capability map](capabilities.md): active demonstrations and shared user workflows.
 - [UI functionality](ui-functionality.md): current workspace, selection, controls, presets, and figure export, described in English with Slovenian UI labels.
+- [Demonstration action affordances](specs/demonstration-action-affordances.md): accepted circular outline actions, catalog density, localized labels, and keyboard/tooltips criteria.
 - [Product direction](product-direction.md): audience, devices, languages, tool usability, and visual direction.
 - [Localization](localization.md): Slovenian/English behavior, contributor workflow, and mathematical translation review.
 - [Localization spec](specs/localization.md): confirmed scope and acceptance criteria.

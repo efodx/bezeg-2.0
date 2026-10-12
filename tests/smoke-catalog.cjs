@@ -51,22 +51,70 @@ function parseSource(relativePath) {
     return sourceFile;
 }
 
-const definitions = variableInitializer(parseSource('src/demonstrations.ts'), 'definitions');
+const demonstrationSource = parseSource('src/demonstrations.ts');
+const definitions = variableInitializer(demonstrationSource, 'definitions');
 if (!ts.isArrayLiteralExpression(definitions) || definitions.elements.length === 0) {
     throw new Error('The demonstrations catalog must remain a non-empty array literal.');
 }
+const familyDefinitions = variableInitializer(demonstrationSource, 'families');
+if (!ts.isArrayLiteralExpression(familyDefinitions) || familyDefinitions.elements.length === 0) {
+    throw new Error('The demonstration family catalog must remain a non-empty array literal.');
+}
+const familyIds = familyDefinitions.elements.map(element => {
+    const family = stringProperties(unwrapExpression(element), false);
+    if (!family.id) throw new Error(`A demonstration family is missing its id: ${element.getText()}`);
+    return family.id;
+});
+if (new Set(familyIds).size !== familyIds.length) throw new Error('The demonstration family catalog contains duplicate ids.');
 
 const messages = stringProperties(variableInitializer(parseSource('src/localization/en.ts'), 'en'));
+const lessonIdsExpression = variableInitializer(parseSource('src/learning/runtime/lessonCatalog.ts'), 'GUIDED_LESSON_AVAILABLE_IDS');
+if (!ts.isArrayLiteralExpression(lessonIdsExpression)) throw new Error('Guided lesson availability must remain an array literal.');
+const availableLessonIds = new Set(lessonIdsExpression.elements.map(element => {
+    const value = unwrapExpression(element);
+    if (!ts.isStringLiteral(value)) throw new Error(`Expected a string lesson id: ${value.getText()}`);
+    return value.text;
+}));
+const lessonContentSource = parseSource('src/learning/content/guidedLessons.ts');
+const lessonContentIds = new Set();
+function collectLessonIds(sourceFile, variableName) {
+    const lessonArray = variableInitializer(sourceFile, variableName);
+    if (!ts.isArrayLiteralExpression(lessonArray)) throw new Error(`${variableName} must remain an array literal.`);
+    for (const element of lessonArray.elements) {
+        const unwrapped = unwrapExpression(element);
+        const lesson = ts.isIdentifier(unwrapped) ? variableInitializer(sourceFile, unwrapped.text) : unwrapped;
+        if (!ts.isObjectLiteralExpression(lesson)) continue;
+        for (const property of lesson.properties) {
+            if (ts.isPropertyAssignment(property) && propertyName(property.name) === 'demonstrationId') {
+                const value = unwrapExpression(property.initializer);
+                if (ts.isStringLiteral(value)) lessonContentIds.add(value.text);
+            }
+        }
+    }
+}
+collectLessonIds(lessonContentSource, 'pilotGuidedLessons');
+for (const statement of lessonContentSource.statements) {
+    if (!ts.isImportDeclaration(statement) || statement.importClause?.isTypeOnly
+        || !ts.isStringLiteral(statement.moduleSpecifier) || !statement.moduleSpecifier.text.startsWith('./')
+        || !statement.importClause?.namedBindings || !ts.isNamedImports(statement.importClause.namedBindings)) continue;
+    const importedSource = parseSource(path.join('src/learning/content', `${statement.moduleSpecifier.text.slice(2)}.ts`));
+    for (const specifier of statement.importClause.namedBindings.elements) {
+        collectLessonIds(importedSource, (specifier.propertyName || specifier.name).text);
+    }
+}
 const demonstrations = definitions.elements.map(element => {
     const entry = stringProperties(unwrapExpression(element), false);
-    for (const required of ['id', 'path', 'title']) {
+    for (const required of ['id', 'path', 'family', 'title']) {
         if (!entry[required]) throw new Error(`A demonstration definition is missing ${required}: ${element.getText()}`);
     }
     const headingKey = entry.heading || entry.title;
     const heading = messages[headingKey];
     if (!heading || heading.includes('{')) throw new Error(`Missing plain English heading for ${entry.id}: ${headingKey}`);
+    const title = messages[entry.title];
+    if (!title || title.includes('{')) throw new Error(`Missing plain English catalog title for ${entry.id}: ${entry.title}`);
     if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
-    return {id: entry.id, path: entry.path, heading};
+    return {id: entry.id, path: entry.path, family: entry.family, title, heading,
+        hasLesson: availableLessonIds.has(entry.id) && lessonContentIds.has(entry.id)};
 });
 
 const routePaths = new Set();
@@ -76,6 +124,9 @@ for (const demonstration of demonstrations) {
     if (ids.has(demonstration.id)) throw new Error(`Duplicate demonstration id: ${demonstration.id}`);
     routePaths.add(demonstration.path);
     ids.add(demonstration.id);
+    if (!familyIds.includes(demonstration.family)) throw new Error(`Unknown demonstration family for ${demonstration.id}: ${demonstration.family}`);
 }
 
 module.exports = demonstrations;
+module.exports.familyIds = familyIds;
+module.exports.availableLessonIds = [...availableLessonIds];

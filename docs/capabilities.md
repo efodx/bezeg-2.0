@@ -6,7 +6,7 @@ The 2026-10-09 [curve architecture deep dive](curve-architecture-deep-dive.md) a
 
 All routes in this release use the `/bezeg-2.0` base. The home route is `/bezeg-2.0`; its Explore action and the header Demonstrations link open the catalog at `/bezeg-2.0/demonstrations`. The catalog offers three starting examples plus every graph route below, grouped into seven independently expandable topics with separate links to graphs and available Guided lessons. Route suffixes and preset interchange files are retained. The separate original site remains at `/bezeg`; its browser presets are isolated and must be exported there and imported explicitly into this release.
 
-Static graph previews show the three starting examples and the actual default scene for each of the 34 demonstrations. The seven family icons remain conceptual topic illustrations; the catalog does not mount graphs or run animations. See [the expandable catalog spec](specs/expandable-demonstration-catalog.md).
+Static graph previews show the three starting examples and 34 demonstrations. Thirty-two demonstrations use captures of their actual default scene; two use distinct schematic SVGs because their captures were identical. The seven family icons remain conceptual topic illustrations; the catalog does not mount graphs or run animations. See [the expandable catalog spec](specs/expandable-demonstration-catalog.md) and [action affordances spec](specs/demonstration-action-affordances.md).
 
 | Area | Route suffix | Demonstration / component |
 | --- | --- | --- |
