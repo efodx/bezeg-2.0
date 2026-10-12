@@ -1,6 +1,6 @@
 # Compact workspace controls
 
-Status: accepted for implementation by the owner on 2026-10-08; refined prototype C is the source design.
+Status: implemented and browser-verified. Physical-device and projector review remain follow-up evidence. Refined prototype C was the accepted source design.
 
 ## Problem and agreed solution
 

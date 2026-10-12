@@ -1,5 +1,7 @@
 # Figure export panel cleanup
 
+Status: implemented and verified at the documented browser sizes. See completion evidence below; device and classroom review remain outside this bounded fix.
+
 The browser comment on De Casteljau highlights a figure export section with duplicate “Izvoz slike” labels and excess nested panel spacing.
 
 ## Scope and acceptance

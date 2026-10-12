@@ -1,5 +1,7 @@
 # Dedicated demonstrations view
 
+Status: implemented and verified. The selected illustrations and production evidence are recorded below; physical-device and projector review remain product follow-ups.
+
 ## Scope
 
 Separate the landing page from demonstration selection. The home Explore action and shared header link open `/bezeg/demonstrations`, where students can choose a starting demonstration or browse all mathematical families. Reuse route metadata and the existing warm visual style, with Slovenian and English labels.

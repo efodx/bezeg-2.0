@@ -1,5 +1,7 @@
 # Learning workspace
 
+Status: implemented and reviewed. Physical touch and projector review remain open; see the [implementation review](../reviews/learning-workspace.md).
+
 Implement workspace prototype B, selected on 2026-10-08. The comparison is preserved on `codex/workspace-prototypes` at `375d453`; see [prototype notes](../prototypes/workspace-improvements.md).
 
 ## Scope and acceptance

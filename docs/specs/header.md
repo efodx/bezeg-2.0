@@ -1,5 +1,7 @@
 # Shared header
 
+Status: implemented and browser-verified. Physical-device and projector review remain follow-up evidence.
+
 The owner selected header prototype A on 2026-10-08 for the whole app. Use a quiet, warm off-white header with elderflower + Bezeg at the left, one demonstration menu, and the real language selector at the right.
 
 Acceptance criteria:

@@ -1,5 +1,7 @@
 # Demonstration metadata module
 
+Status: implemented and verified on 2026-10-08. The implementation evidence and remaining verification limits are recorded below; current ownership is described in [current architecture](../current-architecture.md).
+
 Agreed with the owner on 2026-10-08. Implement a behavior-preserving deepening of the Demonstration metadata module.
 
 ## Scope and design
