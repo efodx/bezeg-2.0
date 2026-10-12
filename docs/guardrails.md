@@ -20,7 +20,7 @@ For changes to numerical evaluation, compare representative results before and a
 ## Architecture practices
 
 - Keep reusable hosting logic and app-shell concerns separate from Bezeg's mathematical features.
-- Aim for geometry that can be evaluated and checked independently of React, JSXGraph, and graph-global state. Geometry freshness now lives in `geometryCache`; keep improving its ownership and granularity incrementally.
+- Aim for geometry that can be evaluated and checked independently of React, JSXGraph, and graph-global state. Geometry freshness is tracked by per-point and per-curve version stamps in `src/bezeg`; keep dependency declarations complete when adding derived geometry.
 - Give imperative boards, event listeners, auxiliary boards, and generated objects explicit ownership and disposal. Audit repeated navigation and remounting when changing lifecycle code.
 - Treat cache invalidation as part of correctness. A geometry change must invalidate affected results; cosmetic view changes should not force unrelated numerical work without a reason.
 - Rendering React controls should not create or mutate graph objects as a side effect. Review existing command builders against this goal during refactoring.

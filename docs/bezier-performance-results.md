@@ -361,3 +361,28 @@ state-change classifier, and clipping-skip conditions. TypeScript, the full
 Jest suite (161 tests), and the production build pass. The Playwright smoke
 suite was not run because its bundled browser is not installed. The Nord N10
 before/after check remains outstanding.
+
+## Per-curve geometry versions — 2026-10-12
+
+[Task 6](tasks/react-architecture/06-per-curve-cache.md) of the [React architecture refactor](specs/react-architecture-refactor.md) replaced the global geometry revision with per-point and per-curve version stamps (`src/bezeg/impl/versioning.ts`).
+
+### Method
+
+Headless Chromium 156 (Playwright), Windows 11, viewport 1600×1000, production builds served under `/bezeg-2.0`. Each scene opens fresh; 2 warm-up and 6 measured repetitions of 90 scripted pointer moves (or `t` slider steps), one double-rAF wait per move. The metric is the synchronous handler time from a capture-phase `pointermove` to the next task. Builds alternate A/B/A/B/A/B; three runs per side are pooled (1098 events per scene per side). Final board geometry (all visible point coordinates on both boards, rounded to 3 decimals) was identical across builds in every run. The machine had intermittent background builds, so per-run medians on one build vary by several milliseconds; differences of 1–2 ms are within that noise.
+
+### First candidate (per-object versions, no memoization)
+
+Baseline `ed85e58` against `171e483`. Bézier, De Casteljau, rational, rational De Casteljau and spline scenes stayed within noise. Dragging a hodograph point on the quintic PH route regressed: median 10.4 → 24.9 ms (w0) and 10.3 → 35.5 ms (w1), p95 17 → 62–74 ms; every candidate run was slower than every baseline run. Cause: the old code checked one global revision in O(1), while each read of a PH derived point rescanned its inputs' versions, multiplied through nested derived closures.
+
+### Fix and result
+
+Version reads are memoized against the global stamp counter: a version can only change through `nextVersion()`, so while the counter is unchanged a memoized version is returned in O(1). Baseline `ed85e58` against the fix (`25130bb` on the task branch):
+
+| Scene | Median A → B (ms) | p95 A → B (ms) |
+|---|---|---|
+| Quintic PH, drag w0 | 13.2 → 14.0 | 19.3 → 21.8 |
+| Quintic PH, drag w1 | 14.5 → 14.7 | 22.0 → 27.2 |
+| Bézier, drag control point | 5.7 → 5.7 | 10.1 → 11.1 |
+| Rational De Casteljau, slider t | 8.3 → 6.9 | 11.9 → 16.8 |
+
+The PH regression is resolved within run-to-run noise. No speed-up is claimed for the other scenes. Phone and CPU-throttled runs were not repeated. The harness (`run.cjs`, `ab.cjs`, `analyze.cjs`) was kept outside the repository for this session.
