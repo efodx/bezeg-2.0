@@ -1,14 +1,11 @@
 import {t, useLanguage} from "../../localization";
-import React, {Component, useRef, useState} from 'react';
+import React, {Component} from 'react';
 
 
 import {Board} from "jsxgraph";
 import {fitBoundingBox} from "./fitBoundingBox";
-import {JGBox} from "../../JGBox";
-import {Col, Container, Overlay, Popover, Row} from "react-bootstrap";
 import {SizeContext} from "../context/SizeContext";
 import {Commands} from "./Commands";
-import {Tools} from "./Tools";
 import {AxisStyles} from "../styles/AxisStyles";
 import Slider from "../../inputs/Slider";
 import {geometryCache} from "../../bezeg/cache/GeometryCache";
@@ -18,53 +15,12 @@ import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
 import {AxisContext} from "../context/AxisContext";
-import ToolTippedButton from "../../inputs/ToolTippedButton";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 
-
-function Help() {
-    useLanguage();
-    const [show, setShow] = useState(false);
-    const [target, setTarget] = useState(null);
-    const ref = useRef(null);
-
-    const handleClick = (event: any) => {
-        setShow(!show);
-        setTarget(event.target);
-    };
-
-
-    return (
-        <div className={'help-button'} ref={ref}>
-            <ToolTippedButton tooltip={t("help")} onClick={handleClick}>🛈</ToolTippedButton>
-            <Overlay
-                show={show}
-                target={target}
-                placement="top-start"
-                container={ref}
-                containerPadding={20}
-            >
-                <Popover id="popover-contained">
-                    <Popover.Header as="h3">{t("navigating_the_graph")}</Popover.Header>
-                    <Popover.Body>
-                        <strong>{t("pan")}</strong>:
-                        <div><strong>Shift</strong> + <strong>{t("left_mouse_button")}</strong></div>
-                    </Popover.Body>
-                    <Popover.Body>
-                        <strong>{t("zoom")}</strong>:
-                        <div>
-                            <strong>Shift</strong> + <strong>{t("mouse_wheel")}</strong>
-                        </div>
-                    </Popover.Body>
-                </Popover>
-            </Overlay>
-        </div>
-    );
-}
 
 function SizeRange(props: { board: () => JXG.Board }) {
     useLanguage();
@@ -124,7 +80,7 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         isAvailable: () => this.graphSession?.isReady === true,
     };
 
-    protected workspaceTitle(): React.ReactNode | undefined { return (this.context as React.ContextType<typeof SiteContext>).workspace?.title; }
+    protected workspaceTitle(): React.ReactNode { return (this.context as React.ContextType<typeof SiteContext>).workspace?.title ?? "Bezeg"; }
     protected workspaceDescription(): string { return (this.context as React.ContextType<typeof SiteContext>).workspace?.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
     protected workspaceDisplay(): React.ReactNode {
@@ -273,30 +229,19 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
                 },
             });
 
-            // this is a way to brute force the updates, but it is not efficient.... like ... AT ALL. Avoid this and use it only when testing.
-            // PLEASE DO NOT LET THIS INTO PRODUCTION... PLEASE
-            // this.board.on('update', (e) => {
-            //    geometryCache.invalidate()
-            // });
-
-
             let siteContext = this.context;
             this.setState({initialized: true});
             // @ts-ignore
             const preset = this.presetService?.getPreset(siteContext.preset.selected);
             if (preset) {
-                console.debug("Loading preset:");
-                console.debug(preset);
                 this.importPreset(preset);
             } else {
-                console.debug("Loading default preset:");
-                console.debug(this.defaultPreset());
                 this.importPresetData(this.defaultPreset());
             }
             // TODO We should remove this...
             this.initialize();
             const container = document.getElementById("jgbox");
-            if (this.workspaceTitle() && container) {
+            if (container) {
                 session.observeResize(container);
             }
             session.markReady();
@@ -327,39 +272,15 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
         if (presetsId) {
             this.presetService = new PresetService(presetsId);
         }
-        // @ts-ignore
-        const fullScreenContext = this.context.fullScreen;
-        const title = this.workspaceTitle();
-        if (title) {
-            return <DemonstrationWorkspace title={title} description={this.workspaceDescription()}
-                edit={this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>}
-                display={this.state.initialized ? this.workspaceDisplay() : null}
-                save={this.workspaceSave()} navigate={action => this.navigateBoard(action)} graphBusy={this.figureBatchActive}
-                // A deep link can request a lesson before JSXGraph has created
-                // its board. Do not mount the session until the graph-owned
-                // capability is ready; otherwise captureState() fails once
-                // and the overlay has no reason to retry.
-                lessonCapabilities={this.state.initialized ? this.getLessonCapabilities() : undefined}/>;
-        }
-        return <Container fluid>
-            <Row className={"align-items-center"} style={{height: "92vh"}}>
-                <Col className={(fullScreenContext.fullScreen ? 'tools-fs' : '')}
-                     xs={0} lg={2}><Tools
-                    tools={this.getTools()}/></Col>
-                <Col className={fullScreenContext.fullScreen ? 'graph-fs' : 'graph'} xs={12}
-                     lg={fullScreenContext.fullScreen ? 12 : 8}><JGBox/>
-                    <div className={"help-container"}><Help></Help>
-                        <div className={"fs-button"}>
-                            <ToolTippedButton tooltip={t("presentation_mode")}
-                                              onClick={() => fullScreenContext.setFullScreen(!fullScreenContext.fullScreen)}>⛶</ToolTippedButton>
-                        </div>
-                    </div>
-                </Col>
-                <Col className={fullScreenContext.fullScreen ? 'graph-commands-fs' : 'graph-commands'}
-                     xs={0}
-                     lg={2}>{this.getGraphCommandsArea()}</Col>
-            </Row>
-        </Container>;
+        return <DemonstrationWorkspace title={this.workspaceTitle()} description={this.workspaceDescription()}
+            edit={this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>}
+            display={this.state.initialized ? this.workspaceDisplay() : null}
+            save={this.workspaceSave()} navigate={action => this.navigateBoard(action)} graphBusy={this.figureBatchActive}
+            // A deep link can request a lesson before JSXGraph has created
+            // its board. Do not mount the session until the graph-owned
+            // capability is ready; otherwise captureState() fails once
+            // and the overlay has no reason to retry.
+            lessonCapabilities={this.state.initialized ? this.getLessonCapabilities() : undefined}/>;
     }
 
     unsuspendBoardUpdate() {
@@ -370,19 +291,6 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     getGraphCommands(): JSX.Element[] {
         return [];
-    }
-
-    getTools(): JSX.Element[] {
-        const tools = [<AxisSelector board={() => this.board}></AxisSelector>,
-            <SizeRange board={() => this.board}/>,
-            <SaveImage saveAsSVG={name => this.saveAsSVG(name)} saveAsPNG={name => this.saveAsPNG2(name)}/>,
-        ];
-        if (this.presetService) {
-            tools.push(<PresetSelector presetService={this.presetService}
-                                       batchExporter={presets => this.exportPresetFigures(presets)}
-                                       presetProvider={() => this.exportPreset()}/>);
-        }
-        return tools;
     }
 
     boardUpdate() {

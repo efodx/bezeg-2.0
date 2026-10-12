@@ -3,19 +3,9 @@ import {SiteContext} from "./graphs/context/react/SiteContext";
 
 export function JGBox() {
     const fullScreen = useContext(SiteContext).fullScreen.fullScreen;
-    let width, height;
-    // use this for creating the magistrska grafix
-    let hait = 1000;
-    let wif = 1.414 * hait;
-    width = `${wif}px`;
-    height = `${hait}px`;
-
-
-    width = "100%";
-    height = "85vh";
     return <div id="jgbox" style={{
-        width: width,
-        height: fullScreen ? "100vh" : height,
+        width: "100%",
+        height: fullScreen ? "100vh" : "85vh",
         background: "var(--workspace-panel, var(--bezeg-panel, #fffdf5))",
         borderRadius: fullScreen ? 0 : "5px"
     }}/>;

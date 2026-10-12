@@ -663,7 +663,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         const hull = this.getCurve().getConvexHull();
         const jxgPoints = hull.map(p => this.jxgPoints.filter(point => point.X() === p.X() && point.Y() === p.Y())[0]);
         if (jxgPoints.filter(p => p !== undefined).length !== hull.length) {
-            console.debug("WE SHOULDN'T COME HERE, ASYNC STUFF IS SCARY!!");
             return;
         }
         this.convexHull = this.board.create('polygon', [...jxgPoints, jxgPoints[0]], {

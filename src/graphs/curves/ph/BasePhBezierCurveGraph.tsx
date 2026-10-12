@@ -189,15 +189,6 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
         return super.getGraphCommands().concat(commands);
     }
 
-    override getSelectedCurveCommands(): JSX.Element[] {
-        const parentBoard = this.board;
-        return super.getSelectedCurveCommands().concat(<HodographInputbox key={`hodograph-${this.workspaceRevision}`}
-            setRef={board => this.setHodographBoard(board)}
-            onResize={board => this.handleHodographBoardResize(board)} onDispose={() => {
-                this.disposeHodographBoard(parentBoard);
-            }}/>);
-    }
-
     getFirstCurveAsPHBezierCurve() {
         return this.getFirstCurve() as PhBezierCurve;
     }
@@ -208,11 +199,6 @@ abstract class BasePhBezierCurveGraph<P, S extends BasePhBezierCurveGraphStates>
 
     getFirstJxgCurveAsPHCurve(): JXGPHBezierCurve {
         return super.getFirstJxgCurve() as JXGPHBezierCurve;
-    }
-
-    override getSelect() {
-        // TODO curve selection should be refactored
-        return <div></div>;
     }
 
     private initializeHodographs(hodographs: Point[]) {

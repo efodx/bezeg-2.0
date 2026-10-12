@@ -17,6 +17,14 @@ export interface Presets {
 }
 
 
+/** First `preset-N` (N = 1, 2, ...) that no preset in the collection uses. */
+export function firstUnusedPresetName(presets: Preset[]): string {
+    const used = new Set(presets.map(preset => preset.id));
+    let n = 1;
+    while (used.has(`preset-${n}`)) n++;
+    return `preset-${n}`;
+}
+
 export class PresetService {
     private readonly id: string;
 
@@ -65,8 +73,6 @@ export class PresetService {
 
     savePreset(preset: Preset) {
         const presets = this.loadPresets();
-        console.debug("Saving preset data:");
-        console.debug(preset.data);
         const storedPreset = presets.data.find(preset2 => preset2.id === preset.id);
         if (storedPreset) {
             Object.assign(storedPreset, preset);

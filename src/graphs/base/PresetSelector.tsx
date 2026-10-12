@@ -1,5 +1,5 @@
 import {t, useLanguage} from "../../localization";
-import {Preset, PresetService} from "./presets/Presets";
+import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useRef, useState} from "react";
 import {SiteContext} from "../context/react/SiteContext";
 import {Button, ButtonGroup, Form, Modal} from "react-bootstrap";
@@ -198,7 +198,6 @@ export function PresetSelector(props: {
         <Form.Label>{t("presets")}</Form.Label>
         <Form.Select onChange={(value) => {
             const preset = props.presetService.getPreset(value.target.value);
-            console.debug("Preset:", preset);
             if (preset !== undefined) {
                 setPresets({
                     presets: presets.presets,
@@ -225,7 +224,7 @@ export function PresetSelector(props: {
                     <ResetButton/>
                     <SaveModal onSave={(name) => {
                         if (name === null || name === "") {
-                            name = "preset-" + Math.random();
+                            name = firstUnusedPresetName(props.presetService.loadPresets().data);
                         }
                         const newPresets = props.presetService.savePreset({
                             ...props.presetProvider(),

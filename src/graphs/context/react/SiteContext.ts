@@ -18,11 +18,11 @@ interface SiteContextValue {
 export const SiteContext = createContext<SiteContextValue>({
     preset: {
         selected: "",
-        setSelected: (selected: string) => console.debug(selected)
+        setSelected: () => undefined
     },
     fullScreen: {
         fullScreen: false,
-        setFullScreen: (fullScreen: boolean) => console.debug(fullScreen)
+        setFullScreen: () => undefined
     },
     workspace: undefined
 });

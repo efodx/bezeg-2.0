@@ -88,7 +88,7 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
             this.applyCurveVisualRole(newCurve, this.jxgCurves.length);
             this.jxgCurves.push(newCurve);
             this.registerSubdivisionResultConsumer(newCurve);
-            if (this.workspaceTitle()) { this.refreshWorkspace(); }
+            this.refreshWorkspace();
         });
     }
 
@@ -377,19 +377,13 @@ abstract class BaseCurveGraph<P, S extends BaseGraphStates> extends BaseGraph<P,
         }
 
         this.unsuspendBoardUpdate();
-        if (this.workspaceTitle()) {this.refreshWorkspace();}
+        this.refreshWorkspace();
     };
 
     getSelectedCurve() {
         return this.jxgCurves.filter(curve => curve.isSelected())[0];
     }
 
-
-    override getTools(): JSX.Element[] {
-        return super.getTools().concat(<OnOffSwitch label={t("point_labels")}
-                                                    initialState={VisibilityContext.pointsVisible()}
-                                                    onChange={checked => this.showPointLabels(checked)}/>);
-    }
 
     deselectSelectedCurve() {
         this.getSelectedCurve().deselect();
