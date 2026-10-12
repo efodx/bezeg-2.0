@@ -4,10 +4,9 @@ Before editing, read only the spec or document covering the area you change. [do
 
 ## Implementation delegation
 
-- Delegate multi-file features and slices from a spec in `docs/specs/` or `docs/tasks/` to subagents using **GPT-6 Luna with Max reasoning**, following [the delegation workflow](docs/agent-workflow.md). This is standing authorization.
-- Do small fixes (roughly under 50 changed lines or within one module) directly in the main chat.
+- Delegate code implementation and fixes when a worker can make meaningful progress on a bounded, separable slice, using **GPT-6 Luna with Max reasoning** or **Sonnet 5.5 with High reasoning** when Luna Max is unavailable. Small or tightly coupled changes may stay with the handler. This is standing authorization; follow [the delegation workflow](docs/agent-workflow.md).
 - The main chat owns scope, review, verification, and commits. Workers implement their assigned slice, report evidence, and do not delegate further.
-- If the spawn tool cannot select Luna Max: in Claude Code, use Sonnet workers without asking; elsewhere, report the limitation and ask for a fallback.
+- Check the available spawn tool before dispatch. Use Sonnet 5.5 at High reasoning automatically when Luna Max cannot be selected and Sonnet 5.5 High is available. If neither option is available, report the limitation and continue useful independent work without delegating until an approved model option is available.
 
 ## Product constraints
 
@@ -40,7 +39,7 @@ Before editing, read only the spec or document covering the area you change. [do
 - Commit completed, verified work in small, logically separate commits.
 - Use clear commit messages and report commit hashes and verification results.
 - Stage only changes belonging to the current task; preserve unrelated changes.
-- Push committed work unless told not to. Never force-push.
+- Only the main handler may push; subagents must never push. The handler pushes committed work unless told not to. Never force-push.
 - "Push" means `master` on `origin` (https://github.com/efodx/bezeg-2.0), even when the work was done on another local or worktree branch. Fetch first, rebase only your new commits onto `origin/master`, recheck them against master's code, and push as a fast-forward (`git push origin HEAD:master`). If the rebase conflicts, stop and report. Pushing to `master` deploys GitHub Pages through `.github/workflows/browser-smoke.yml`.
 - Do not amend existing commits or rewrite history unless requested.
 

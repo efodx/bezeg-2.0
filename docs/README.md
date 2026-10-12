@@ -41,5 +41,6 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Function and calculus concepts spec](specs/function-concepts.md): study of the earlier app, the new functions family, and per-concept lesson plans; [ADR 0007](adr/0007-function-concepts-family.md) records the scope decision and [tasks](tasks/function-concepts/) the concept-by-concept slices.
 - [Domain glossary](../GLOSSARY.md): agreed project vocabulary.
 - [Contributor instructions](../AGENTS.md): concise guidance for agents working in this repository.
+- [Agent workflow evaluation log](agent-workflow/evaluation-log.md): task-level observations used to assess and improve the delegation process.
 
 This is an index: open only the documents relevant to the change.
