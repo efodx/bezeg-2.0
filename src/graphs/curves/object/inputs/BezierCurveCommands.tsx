@@ -3,7 +3,6 @@ import {Button} from "react-bootstrap";
 import React from "react";
 import {JXGBezierCurve} from "../JXGBezierCurve";
 import Slider from "../../../../inputs/Slider";
-import {geometryCache} from "../../../../bezeg/cache/GeometryCache";
 
 export function BezierCurveCommands(curve: JXGBezierCurve): JSX.Element[] {
     const commands = [];
@@ -15,7 +14,6 @@ export function BezierCurveCommands(curve: JXGBezierCurve): JSX.Element[] {
                     onChange={(t) => curve.setSubdivisionT(t)}></Slider>
             <Button onClick={() => {
                 curve.subdivide();
-                geometryCache.invalidate();
                 curve.board.update();
             }}>{t("subdivide")}</Button>
         </div>);
@@ -29,7 +27,6 @@ export function BezierCurveCommands(curve: JXGBezierCurve): JSX.Element[] {
             <Button
                 onClick={() => {
                     curve.extrapolate(curve.getExtrapolationT());
-                    geometryCache.invalidate();
                     curve.board.update();
                 }}>{t("extrapolate")}</Button>
         </div>);
@@ -42,7 +39,6 @@ export function BezierCurveCommands(curve: JXGBezierCurve): JSX.Element[] {
                     onChange={(t) => curve.setSubdivisionT(t)}></Slider>
             <Button onClick={() => {
                 curve.extrapolate(curve.getSubdivisionT());
-                geometryCache.invalidate();
                 curve.board.update();
             }}>{t("shorten")}</Button>
         </div>);
@@ -63,7 +59,6 @@ export function BezierCurveCommands(curve: JXGBezierCurve): JSX.Element[] {
                            onMouseLeave={() => curve.hideElevatePoints()}>
             <Button onClick={() => {
                 curve.elevate();
-                geometryCache.invalidate();
                 curve.board.update();
             }}>{t("elevate_degree")}</Button></div>);
     }

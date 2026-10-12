@@ -2,7 +2,6 @@ import {AbstractJXGSplineCurve, JSXSplineConstructorParams, SplineCurveState} fr
 import {Board} from "jsxgraph";
 import {G1SymmetricQuadraticBezierSpline} from "../../../bezeg/impl/curve/G1SymmetricQuadraticBezierSpline";
 import {PointStyles} from "../../styles/PointStyles";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 
 interface G1SymSplineState extends SplineCurveState {
     b: number[];
@@ -24,7 +23,6 @@ export class JXGSymmetricQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G
         const state = params.state as G1SymSplineState;
         if (state.b) {
             state.b.forEach((b, i) => curve.getCurve().setB(i, b));
-            geometryCache.invalidate();
             board.update();
         }
         return curve;

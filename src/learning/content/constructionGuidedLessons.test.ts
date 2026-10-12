@@ -4,7 +4,6 @@ import {sceneAction} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
-import {geometryCache} from '../../bezeg/cache/GeometryCache';
 
 const lessonFor = (id: string) => constructionGuidedLessons.find(lesson => lesson.demonstrationId === id)!;
 const toPoints = (values: number[][]) => values.map(([x, y]) => new PointImpl(x, y));
@@ -16,7 +15,6 @@ const rationalWeights = [1, 2, 1, 1];
 const extrapolationPoints = [[-4, -2], [-3, 3], [2, 3], [3, -1]];
 const rationalExtrapolationPoints = [[-4, -3], [-3, 3], [3, 3], [4, -1]];
 
-beforeEach(() => geometryCache.invalidate());
 
 function expectPoints(actual: number[][], expected: number[][]) {
     expect(actual).toHaveLength(expected.length);

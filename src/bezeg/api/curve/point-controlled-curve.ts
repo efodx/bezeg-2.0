@@ -2,6 +2,12 @@ import {Point} from "../point/point";
 
 export interface PointControlledCurve {
 
+    /**
+     * Cache version: changes whenever the curve's geometry may have changed, and is
+     * VOLATILE (-1) when it cannot be tracked. A missing method means volatile.
+     */
+    version?(): number;
+
     eval(t: number): Point;
 
     /**

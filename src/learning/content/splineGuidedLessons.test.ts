@@ -8,7 +8,6 @@ import {G1QuadraticBezierSpline} from '../../bezeg/impl/curve/G1QuadraticBezierS
 import {G1SymmetricQuadraticBezierSpline} from '../../bezeg/impl/curve/G1SymmetricQuadraticBezierSpline';
 import {BezierSpline} from '../../bezeg/impl/curve/bezier-spline';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
-import {geometryCache} from '../../bezeg/cache/GeometryCache';
 import CnSplineGraph from '../../graphs/curves/spline/CnSplineGraph';
 import C1SplineGraph from '../../graphs/curves/spline/C1SplineGraph';
 import C2SplineGraph from '../../graphs/curves/spline/C2SplineGraph';
@@ -81,7 +80,6 @@ const changedPieces = (make: (points: number[][]) => BezierSpline, base: number[
     return pieces(make(moved)).map((piece, i) => !same(piece, before[i]));
 };
 
-beforeEach(() => geometryCache.invalidate());
 
 // ---------------------------------------------------------------------------------------------
 // structure

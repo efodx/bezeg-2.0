@@ -1,8 +1,8 @@
+import {versionOf} from "../../../bezeg/impl/versioning";
 import {JXGBezierCurve} from "./JXGBezierCurve";
 import {JXGRationalBezierCurve} from "./JXGRationalBezierCurve";
 import {JXGQuadraticC1SplineCurve} from "./JXGQuadraticC1SplineCurve";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 
 class FakeSlider {
     private value: number;
@@ -97,10 +97,10 @@ test("Bézier adapter keeps numeric model inputs independent and replaces same-c
     const oldBoardPoint = inputPoints[1];
     oldBoardPoint.setPositionDirectly(1, [1.5, 2.5]);
     expect([oldModelPoint.X(), oldModelPoint.Y()]).toEqual([1, 2]);
-    const revision = geometryCache.revision;
+    const version = versionOf(curve.getCurve());
     oldBoardPoint.trigger("drag");
     expect([oldModelPoint.X(), oldModelPoint.Y()]).toEqual([1.5, 2.5]);
-    expect(geometryCache.revision).toBeGreaterThan(revision);
+    expect(versionOf(curve.getCurve())).toBeGreaterThan(version);
 
     curve.getCurve().moveFor(2, -1);
     expect([oldBoardPoint.X(), oldBoardPoint.Y()]).toEqual([3.5, 1.5]);

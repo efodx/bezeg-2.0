@@ -3,7 +3,6 @@ import {Button, ButtonGroup} from "react-bootstrap";
 import React, {useState} from "react";
 import {JXGRationalBezierCurve} from "../JXGRationalBezierCurve";
 import {BezierCurveCommands} from "./BezierCurveCommands";
-import {geometryCache} from "../../../../bezeg/cache/GeometryCache";
 import {OnOffSwitch} from "../../../../inputs/OnOffSwitch";
 
 function WeightController(props: { curve: JXGRationalBezierCurve }): JSX.Element {
@@ -11,7 +10,6 @@ function WeightController(props: { curve: JXGRationalBezierCurve }): JSX.Element
     const [stateRefresher, setStateRefresher] = useState(1);
     const refreshState = () => {
         setStateRefresher(stateRefresher + 1);
-        geometryCache.invalidate();
         props.curve.board.update();
     };
     return <ButtonGroup key={stateRefresher} vertical={true}>

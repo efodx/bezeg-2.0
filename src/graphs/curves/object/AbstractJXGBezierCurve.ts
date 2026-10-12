@@ -3,7 +3,7 @@ import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
 import {PointStyles} from "../../styles/PointStyles";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
+import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
 import {SegmentStyles} from "../../styles/SegmentStyles";
 
 export interface BezierCurveAttributes extends PointControlledCurveAttributes {
@@ -265,8 +265,9 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     }
 
     getDecasteljauScheme(t: number) {
-        const cacheRevision = geometryCache.revision;
-        if (this.cacheRevision === cacheRevision && this.lastDecasteljauT === t) {
+        // Valid while the curve's version is unchanged; a volatile curve is never cached.
+        const cacheRevision = versionOf(this.pointControlledCurve);
+        if (cacheRevision !== VOLATILE && this.cacheRevision === cacheRevision && this.lastDecasteljauT === t) {
             return this.cachedDecasteljauScheme;
         } else {
             this.cachedDecasteljauScheme = this.pointControlledCurve.decasteljauScheme(t);

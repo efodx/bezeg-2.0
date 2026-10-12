@@ -8,7 +8,6 @@ import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
 import {PointStyles} from "../../styles/PointStyles";
 import {SizeContext} from "../../context/SizeContext";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {GraphPalette} from "../../styles/GraphPalette";
 
 interface JSXRationalBezierCurveConstructorParams {
@@ -298,9 +297,6 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
 
                 slider.on('over', () => over(slider));
                 slider.on('out', () => out(slider));
-                slider.on('drag', (e) => {
-                    geometryCache.invalidate();
-                });
                 const ratio = () => slider.Value() / (1 - slider.Value());
                 const weight = () => reactiveWeights[i]() * ratio();
                 reactiveWeights.push(weight);

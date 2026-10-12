@@ -4,7 +4,6 @@ import {sceneAction} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
-import {geometryCache} from '../../bezeg/cache/GeometryCache';
 
 const lessonFor = (id: string) => rationalConstructionGuidedLessons.find(lesson => lesson.demonstrationId === id)!;
 const toPoints = (values: number[][]) => values.map(([x, y]) => new PointImpl(x, y));
@@ -14,7 +13,6 @@ const quarticPoints = [[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]];
 const farinPoints = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
 const farinWeights = [1, 2, 1, 1];
 
-beforeEach(() => geometryCache.invalidate());
 
 const expectPoint = (actual: {X(): number; Y(): number}, x: number, y: number) => {
     expect(actual.X()).toBeCloseTo(x, 12);

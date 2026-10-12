@@ -8,7 +8,6 @@ import {SizeContext} from "../context/SizeContext";
 import {Commands} from "./Commands";
 import {AxisStyles} from "../styles/AxisStyles";
 import Slider from "../../inputs/Slider";
-import {geometryCache} from "../../bezeg/cache/GeometryCache";
 import {Preset, PresetService} from "./presets/Presets";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetSelector} from "./PresetSelector";
@@ -292,7 +291,6 @@ abstract class BaseGraph<P, S extends BaseGraphState> extends Component<P, S> {
 
     boardUpdate() {
         if (!this.graphSession?.isAlive) return;
-        geometryCache.invalidate();
         this.board.update();
     }
 

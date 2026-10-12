@@ -8,7 +8,6 @@ import {BezierCurveAttributes} from "./AbstractJXGBezierCurve";
 import {PhBezierCurveCommands} from "./inputs/PhBezierCurveCommands";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {Attributes} from "../../attributes/Attributes";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {PointStyles} from "../../styles/PointStyles";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
@@ -87,7 +86,6 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
 
     setOffsetCurveDistance(d: number) {
         this.getCurve().setOffsetCurveDistance(d);
-        geometryCache.invalidate();
         this.board.update();
     }
 

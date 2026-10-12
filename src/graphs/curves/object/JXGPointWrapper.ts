@@ -1,5 +1,4 @@
 import {Point} from "../../../bezeg/api/point/point";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 
 /**
  * Class that wraps a JXG.Point into BezegPoint interface.
@@ -25,7 +24,6 @@ export class JXGPointWrapper implements Point {
             throw "Not implemented yet";
         }
         this.point.setPositionDirectly(JXG.COORDS_BY_USER, [x, this.point.Y()]);
-        geometryCache.invalidate();
     }
 
     setY(y: number | (() => number)): void {
@@ -34,7 +32,6 @@ export class JXGPointWrapper implements Point {
             throw "Not implemented yet";
         }
         this.point.setPositionDirectly(JXG.COORDS_BY_USER, [this.point.X(), y]);
-        geometryCache.invalidate();
     }
 
     isXFunction(): boolean {

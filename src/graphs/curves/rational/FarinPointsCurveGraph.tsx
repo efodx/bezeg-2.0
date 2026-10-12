@@ -2,7 +2,6 @@ import {t} from "../../../localization";
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import React from "react";
 import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonAction, LessonSceneCheckpoint} from "../../../learning/model";
 
@@ -14,7 +13,6 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<any, BaseGraphStat
         if (this.getFirstJxgCurve().isShowingFarinPoints()) {
             this.showFarinPoints(true);
         }
-        geometryCache.invalidate();
     }
 
     override importPresetData(str: CurveCollectionPresetData) {

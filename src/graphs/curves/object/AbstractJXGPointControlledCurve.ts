@@ -5,7 +5,6 @@ import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-cu
 import {CurveStyles} from "../../styles/CurveStyles";
 import {PointStyles} from "../../styles/PointStyles";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
-import {geometryCache} from "../../../bezeg/cache/GeometryCache";
 import {SizeContext} from "../../context/SizeContext";
 import {SegmentStyles} from "../../styles/SegmentStyles";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
@@ -40,7 +39,6 @@ export function evaluationPointLabel(t: number): string {
  * invalidation and a full board pass to redraw those callbacks.
  */
 export function refreshAfterControlPointDrag(board: Pick<Board, 'fullUpdate'>): void {
-    geometryCache.invalidate();
     const session = graphSessionForBoard(board as Board);
     if (session) {
         session.requestFullUpdate();
@@ -142,7 +140,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     addPoint(x: number, y: number) {
-        geometryCache.invalidate();
         let p = this.createEditableInputPoint(x, y, PointStyles.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
         this.labelJxgPoints();
