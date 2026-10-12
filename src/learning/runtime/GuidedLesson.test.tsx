@@ -4,6 +4,7 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {setLanguage} from '../../localization';
 import type {LessonDefinition, LessonGraphCapabilities} from '../model';
 import {GuidedLesson} from './GuidedLesson';
+import {LessonSession} from './LessonSession';
 
 const lesson: LessonDefinition = {
     id: 'accessible-test', demonstrationId: 'bezier', title: {sl: 'Vodena pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -389,6 +390,47 @@ test('skips MathJax work for a frame without mathematics', async () => {
         else delete win.MathJax;
         act(() => setLanguage('sl'));
     }
+});
+
+describe('session subscription', () => {
+    function captureSessions() {
+        const sessions: LessonSession[] = [];
+        const original = LessonSession.prototype.start;
+        jest.spyOn(LessonSession.prototype, 'start').mockImplementation(function (this: LessonSession) {
+            sessions.push(this);
+            return original.call(this);
+        });
+        return sessions;
+    }
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('re-renders when the session transitions without any other state change', () => {
+        setLanguage('sl');
+        const sessions = captureSessions();
+        render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
+
+        act(() => sessions[0].next());
+        expect(screen.getByRole('heading', {name: 'Drugi korak'})).toBeVisible();
+        expect(screen.getByRole('status')).toHaveTextContent('Korak 2 od 2');
+    });
+
+    test('creates a new session when the lesson prop changes', () => {
+        setLanguage('sl');
+        const sessions = captureSessions();
+        const caps = capabilities();
+        const {rerender} = render(<GuidedLesson lesson={lesson} capabilities={caps} onClose={jest.fn()}/>);
+        rerender(<GuidedLesson lesson={framedLesson} capabilities={caps} onClose={jest.fn()}/>);
+
+        expect(sessions).toHaveLength(2);
+        expect(sessions[1]).not.toBe(sessions[0]);
+        expect(sessions[1].lesson).toBe(framedLesson);
+        expect(screen.getByRole('heading', {name: 'Konstrukcija'})).toBeVisible();
+        expect(caps.restoreState).toHaveBeenCalled();
+    });
 });
 
 test('typesets mathematics in the observation overlay and after the prompt collapses the overlay', async () => {

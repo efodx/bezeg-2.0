@@ -122,3 +122,36 @@ test('closing after the graph has been disposed does not restore through a dead 
     expect(() => session.close()).not.toThrow();
     expect(fake.capabilities.restoreState).not.toHaveBeenCalled();
 });
+
+test('returns the same snapshot object until a transition changes it and notifies subscribers', () => {
+    const session = new LessonSession(lesson, fakeCapabilities().capabilities);
+    const listener = jest.fn();
+    const unsubscribe = session.subscribe(listener);
+    const initial = session.getSnapshot();
+    expect(session.getSnapshot()).toBe(initial);
+    expect(listener).not.toHaveBeenCalled();
+
+    session.start();
+    const started = session.getSnapshot();
+    expect(started).not.toBe(initial);
+    expect(session.getSnapshot()).toBe(started);
+    expect(listener).toHaveBeenCalled();
+
+    listener.mockClear();
+    session.next();
+    expect(session.getSnapshot()).not.toBe(started);
+    expect(session.getSnapshot().stepIndex).toBe(1);
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    // A no-op transition (back at the very first frame) keeps identity and stays silent.
+    session.back();
+    const first = session.getSnapshot();
+    listener.mockClear();
+    session.back();
+    expect(session.getSnapshot()).toBe(first);
+    expect(listener).not.toHaveBeenCalled();
+
+    unsubscribe();
+    session.next();
+    expect(listener).not.toHaveBeenCalled();
+});

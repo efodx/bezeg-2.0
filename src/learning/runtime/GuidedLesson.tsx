@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, Language, t} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
@@ -54,7 +54,6 @@ export function GuidedLesson(props: {
     graphContainer?: React.RefObject<HTMLElement>;
 }) {
     const {language} = useLanguage();
-    const [revision, setRevision] = useState(0);
     const [startupError, setStartupError] = useState<string>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [promptPosition, setPromptPosition] = useState<PromptPosition>({x: 0, y: 0});
@@ -62,8 +61,16 @@ export function GuidedLesson(props: {
     const handoffTimer = useRef<number>();
     const promptDrag = useRef<PromptDragState>();
     const animationPlaying = useRef(false);
-    const session = useMemo(() => new LessonSession(props.lesson, props.capabilities), [props.lesson, props.capabilities]);
-    const snapshot: LessonSessionSnapshot = session.snapshot();
+    // The session is kept in state with the inputs it was built from and replaced when either prop changes.
+    // Creating it is side-effect free; starting and closing it belong to the effect below.
+    const [held, setHeld] = useState(() => ({lesson: props.lesson, capabilities: props.capabilities, session: new LessonSession(props.lesson, props.capabilities)}));
+    let current = held;
+    if (held.lesson !== props.lesson || held.capabilities !== props.capabilities) {
+        current = {lesson: props.lesson, capabilities: props.capabilities, session: new LessonSession(props.lesson, props.capabilities)};
+        setHeld(current);
+    }
+    const session = current.session;
+    const snapshot: LessonSessionSnapshot = useSyncExternalStore(session.subscribe, session.getSnapshot);
     const step = props.lesson.steps[snapshot.stepIndex];
     const frames = framesForLessonStep(step);
     const frame = frames[Math.min(snapshot.frameIndex, frames.length - 1)];
@@ -197,7 +204,6 @@ export function GuidedLesson(props: {
         try {
             session.start();
             setStartupError(undefined);
-            setRevision(value => value + 1);
         } catch (error) {
             setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
         }
@@ -243,7 +249,7 @@ export function GuidedLesson(props: {
             cancelled = true;
             script?.removeEventListener('load', typeset);
         };
-    }, [language, revision, overlayVisible, snapshot.status, snapshot.stepIndex, snapshot.frameIndex, startupError]);
+    }, [language, overlayVisible, snapshot, startupError]);
 
     useEffect(() => {
         // Lesson navigation stops scene animations, so playback must be restarted explicitly.
@@ -268,7 +274,6 @@ export function GuidedLesson(props: {
         } catch (error) {
             setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
         }
-        setRevision(value => value + 1);
     };
 
     // The compact prompt's Continue advances past the observation and opens the overlay for the next frame.
@@ -326,8 +331,6 @@ export function GuidedLesson(props: {
         </section>;
     }
 
-    // Keep a read of revision so action handlers cause this panel to render.
-    void revision;
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;

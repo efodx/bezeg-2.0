@@ -14,12 +14,37 @@ export class LessonSession {
     private checkpoint?: LessonSceneCheckpoint;
     // Track whether lesson setup or exploration may have changed the graph from the checkpoint.
     private graphNeedsRestore = false;
-    private snapshotValue: LessonSessionSnapshot = {status: 'closed', stepIndex: 0, frameIndex: 0};
+    private currentSnapshot: LessonSessionSnapshot = {status: 'closed', stepIndex: 0, frameIndex: 0};
+    private readonly listeners = new Set<() => void>();
 
     constructor(readonly lesson: LessonDefinition, private readonly capabilities: LessonGraphCapabilities) {}
 
+    /** The current state; the same object until a transition changes it (useSyncExternalStore contract). */
+    getSnapshot = (): LessonSessionSnapshot => this.currentSnapshot;
+
     snapshot() {
-        return this.snapshotValue;
+        return this.currentSnapshot;
+    }
+
+    /** Registers a transition listener and returns its unsubscribe function. */
+    subscribe = (listener: () => void): (() => void) => {
+        this.listeners.add(listener);
+        return () => {
+            this.listeners.delete(listener);
+        };
+    };
+
+    private get snapshotValue(): LessonSessionSnapshot {
+        return this.currentSnapshot;
+    }
+
+    // Every transition assigns here; an unchanged state keeps its identity and does not notify.
+    private set snapshotValue(next: LessonSessionSnapshot) {
+        const current = this.currentSnapshot;
+        if (current.status === next.status && current.stepIndex === next.stepIndex
+            && current.frameIndex === next.frameIndex && current.error === next.error) return;
+        this.currentSnapshot = next;
+        [...this.listeners].forEach(listener => listener());
     }
 
     start() {
