@@ -1,7 +1,7 @@
 import {Point} from "../../api/point/point";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
-import {geometryCache} from "../../cache/GeometryCache";
+import {PointImpl} from "../point/point-impl";
 
 abstract class BezierSpline extends AbstractPointControlledCurve {
     protected bezierCurves: PolynomialBezierCurve[] = [];
@@ -20,7 +20,7 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
 
     setAlpha(alpha: number) {
         this.alpha = alpha;
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getAlpha() {
@@ -28,6 +28,19 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
     }
 
     abstract generateBezierCurves(): void;
+
+    /**
+     * Declares the spline as the dependency of its computed (non-free) points: they are
+     * functions of the free points, alpha, b and the structure, all covered by version().
+     * Call at the end of every generateBezierCurves().
+     */
+    protected bindNonFreePoints() {
+        this.nonFreePoints.forEach(point => {
+            if (point instanceof PointImpl) {
+                point.dependOn([this]);
+            }
+        });
+    }
 
     eval(t: number): Point {
         let n = this.bezierCurves.length;
@@ -45,7 +58,7 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
 
     setB(j: number, b: number) {
         this.b[j] = b;
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getB(j: number) {

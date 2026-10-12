@@ -69,6 +69,8 @@ export class PhBezierCurve extends PolynomialBezierCurve {
 
             let nonFreePoint = new PointImpl(() => xyCalc()[0], () => xyCalc()[1]);
             // Zavrtimo P1 okoli P2 za Theta!
+            // Reads only the three free control points that exist before the computed point is appended.
+            nonFreePoint.dependOn(this.getPoints().slice());
             this.addPoint(nonFreePoint);
             this.nonFreePoints.push(nonFreePoint);
         }

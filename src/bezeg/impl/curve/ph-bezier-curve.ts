@@ -4,9 +4,9 @@ import {BezierCurve} from "../../api/curve/bezier-curve";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {RationalBezierCurve} from "./rational-bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
-import {geometryCache} from "../../cache/GeometryCache";
+import {maxVersion, Versioned, VOLATILE} from "../versioning";
 
-const deltaPravokoten = (p0: Point, p1: Point) => new PointImpl(() => p1.Y() - p0.Y(), () => p0.X() - p1.X());
+const deltaPravokoten = (p0: Point, p1: Point, inputs: Versioned) => new PointImpl(() => p1.Y() - p0.Y(), () => p0.X() - p1.X(), [inputs]);
 const bin = (n: number, k: number): number => k === 0 ? 1 : (n * bin(n - 1, k - 1)) / k;
 
 /**
@@ -39,7 +39,29 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
 
     set w(value: Point[]) {
         this._w = value;
-        geometryCache.invalidate();
+        this.touch();
+    }
+
+    /**
+     * Version of everything the derived geometry is computed from: the structural stamp (w
+     * replacement, offset distance and count, transforms), the base point and the hodograph
+     * points `w`. It never looks at the derived control points, so it has no cycle with them.
+     * VOLATILE if any generating point is volatile.
+     */
+    private inputsVersion(): number {
+        const base = super.version();
+        return base === VOLATILE ? VOLATILE : maxVersion(this._w, base);
+    }
+
+    /** Declared as the dependency of every hodograph-derived point so they cache. */
+    private readonly inputs: Versioned = {version: () => this.inputsVersion()};
+
+    private derived(x: number | (() => number), y: number | (() => number)): PointImpl {
+        return new PointImpl(x, y, [this.inputs]);
+    }
+
+    override version(): number {
+        return this.inputsVersion();
     }
 
     get degree() {
@@ -59,13 +81,13 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
     addOffsetCurve() {
         const len = this.offsetCurves.length;
         let [rpoints2, rweights2] = this.generateOffsetCurvePoints(this.degree, () => (len + 1) * this.d);
-        this.offsetCurves.push(new RationalBezierCurve(rpoints2, rweights2));
-        geometryCache.invalidate();
+        this.offsetCurves.push(new RationalBezierCurve(rpoints2, rweights2, [this.inputs]));
+        this.touch();
     }
 
     removeOffsetCurve() {
         this.offsetCurves.pop();
-        geometryCache.invalidate();
+        this.touch();
     }
 
     tk(tkminus1: number, deltas: number, k: number) {
@@ -87,7 +109,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
                 },
                 () => 0);
             s.push(lastS);
-            this.bezierCurveS = new PolynomialBezierCurve(s.map(p => new PointImpl(p, 1)));
+            this.bezierCurveS = new PolynomialBezierCurve(s.map(p => this.derived(p, 1)));
         }
         return this.bezierCurveS.eval(t).X();
 
@@ -100,7 +122,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
 
     sigma(t: number) {
         if (!this.bezierCurveSigma) {
-            this.bezierCurveSigma = new PolynomialBezierCurve(this.sigmas.map(sigma => new PointImpl(sigma, 1)));
+            this.bezierCurveSigma = new PolynomialBezierCurve(this.sigmas.map(sigma => this.derived(sigma, 1)));
         }
         return this.bezierCurveSigma.eval(t).X();
     }
@@ -111,7 +133,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
 
     setOffsetCurveDistance(d: number) {
         this.d = d;
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getOffsetCurveDistance() {
@@ -128,10 +150,10 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
             for (let j = sumStartId; j <= sumEndId; j++) {
                 const scalar = bin(m, j) / bin(n - 1, k) * bin(m, k - j);
                 // We also pack the calculation of sigma in a point for some caching, ideally Point would be of any dimension
-                const sSumPart = new PointImpl(() => scalar * (this._w[j].X() * this._w[k - j].X() + this._w[j].Y() * this._w[k - j].Y()), 0);
+                const sSumPart = this.derived(() => scalar * (this._w[j].X() * this._w[k - j].X() + this._w[j].Y() * this._w[k - j].Y()), 0);
                 sSumParts.push(sSumPart);
             }
-            const sigmaK = new PointImpl(() => sSumParts.reduce((acc, part) => part.X() + acc, 0), 0);
+            const sigmaK = this.derived(() => sSumParts.reduce((acc, part) => part.X() + acc, 0), 0);
             sigma.push(() => sigmaK.X());
         }
         return sigma;
@@ -141,7 +163,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
         const p: Point[] = this.underlyingCurveControlPoints;
 
         const sigma = this.sigmas;
-        const deltaPravokotenP = p.slice(1).map((pp, i) => deltaPravokoten(p[i], pp));
+        const deltaPravokotenP = p.slice(1).map((pp, i) => deltaPravokoten(p[i], pp, this.inputs));
 
         const numOfPoints = 2 * n;
         const o = [];
@@ -154,17 +176,17 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
             for (let j = sumStartId; j <= sumEndId; j++) {
                 const scalar = bin(n - 1, j) / bin(2 * n - 1, k) * bin(n, k - j);
                 // We make these into points to make use of the caching system behind them
-                const sumPart = new PointImpl(() => scalar * (sigma[j]() * p[k - j].X() + d() * n * deltaPravokotenP[j].X()),
+                const sumPart = this.derived(() => scalar * (sigma[j]() * p[k - j].X() + d() * n * deltaPravokotenP[j].X()),
                     () => scalar * (sigma[j]() * p[k - j].Y() + d() * n * deltaPravokotenP[j].Y()));
                 sumParts.push(sumPart);
 
                 // We also pack the calculation of w in a point for some caching, ideally Point would be of any dimension
-                const wSumPart = new PointImpl(() => scalar * sigma[j](), 0);
+                const wSumPart = this.derived(() => scalar * sigma[j](), 0);
                 wSumParts.push(wSumPart);
             }
-            const wk = new PointImpl(() => wSumParts.reduce((acc, part) => part.X() + acc, 0), 0);
+            const wk = this.derived(() => wSumParts.reduce((acc, part) => part.X() + acc, 0), 0);
             w.push(() => wk.X());
-            const ok = new PointImpl(
+            const ok = this.derived(
                 () => sumParts.reduce((acc, part) => part.X() + acc, 0) / wk.X(),
                 () => sumParts.reduce((acc, part) => part.Y() + acc, 0) / wk.X());
             o.push(ok);
@@ -183,12 +205,12 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
             for (let j = sumStartId; j <= sumEndId; j++) {
                 const scalar = bin(m - 1, j) / bin(2 * m - 2, k) * bin(m - 1, k - j);
                 // We also pack the calculation of sigma in a point for some caching, ideally Point would be of any dimension
-                const pSumPart = new PointImpl(
+                const pSumPart = this.derived(
                     () => scalar * (this._w[j].X() * this._w[k - j].X() - this._w[j].Y() * this._w[k - j].Y()),
                     () => scalar * (this._w[j].X() * this._w[k - j].Y() + this._w[j].Y() * this._w[k - j].X()));
                 pSumParts.push(pSumPart);
             }
-            const point = new PointImpl(() => points[k].X() + 1 / n * pSumParts.reduce((acc, part) => part.X() + acc, 0),
+            const point = this.derived(() => points[k].X() + 1 / n * pSumParts.reduce((acc, part) => part.X() + acc, 0),
                 () => points[k].Y() + 1 / n * pSumParts.reduce((acc, part) => part.Y() + acc, 0));
             points.push(point);
         }

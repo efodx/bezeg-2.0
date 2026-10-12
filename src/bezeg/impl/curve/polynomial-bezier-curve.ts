@@ -3,11 +3,11 @@ import {Point} from "../../api/point/point";
 import {BezierCurve} from "../../api/curve/bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 
-import {geometryCache} from "../../cache/GeometryCache";
+import {VOLATILE} from "../versioning";
 
 
 export class PolynomialBezierCurve extends AbstractPointControlledCurve implements BezierCurve {
-    private lastGeometryRevision?: number;
+    private lastVersion?: number;
     private cachedPoints: Map<number, PointImpl> = new Map();
     private evaluationScratch: number[][] = [];
 
@@ -30,10 +30,13 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @returns {Point} point
      */
     eval(t: number): Point {
-        const currentRevision = geometryCache.revision;
-        if (currentRevision !== this.lastGeometryRevision) {
+        // Valid while this curve's version (own stamp plus control point versions) is unchanged;
+        // a volatile curve is never cached.
+        const currentVersion = this.version();
+        const volatile = currentVersion === VOLATILE;
+        if (volatile || currentVersion !== this.lastVersion) {
             this.cachedPoints.clear();
-            this.lastGeometryRevision = currentRevision;
+            this.lastVersion = volatile ? undefined : currentVersion;
         }
         const cached = this.cachedPoints.get(t);
         if (cached === undefined) {
@@ -53,7 +56,9 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
                 pointsAtT = this.points.map(point => [point.X(), point.Y()]);
             }
             const point = this.evaluatePoint(t, pointsAtT);
-            this.cachedPoints.set(t, point);
+            if (!volatile) {
+                this.cachedPoints.set(t, point);
+            }
             return point;
         }
         return cached;

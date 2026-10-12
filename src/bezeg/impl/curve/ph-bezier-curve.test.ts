@@ -1,6 +1,5 @@
 import {PhBezierCurve} from './ph-bezier-curve';
 import {PointImpl} from '../point/point-impl';
-import {geometryCache} from '../../cache/GeometryCache';
 
 const presets: Array<[string, number[], number[][]]> = [
     ['cubic', [-4.2, -2], [[-3.5, -1.7], [-2.6, 1.7]]],
@@ -85,7 +84,6 @@ describe('PH arc length freshness', () => {
         const curve = new PhBezierCurve([new PointImpl(1, -1)], w);
         const before = curve.arcLength();
         w[1].setCoordinates(0.2, -6);
-        geometryCache.invalidate();
         expect(curve.arcLength()).toBeGreaterThan(before);
     });
 });

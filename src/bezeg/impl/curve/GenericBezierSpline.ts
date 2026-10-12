@@ -2,7 +2,6 @@ import {BezierSpline} from "./bezier-spline";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
-import {geometryCache} from "../../cache/GeometryCache";
 
 export class GenericBezierSpline extends BezierSpline {
     protected degree: number;
@@ -63,11 +62,12 @@ export class GenericBezierSpline extends BezierSpline {
             this.nonFreePoints.push(...nonFreePoints);
             this.bezierCurves.push(new PolynomialBezierCurve(bezierCurvePoints));
         }
+        this.bindNonFreePoints();
     }
 
     setContinuity(continuity: number) {
         this.continuity = continuity;
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getContinuity() {
@@ -76,7 +76,7 @@ export class GenericBezierSpline extends BezierSpline {
 
     setDegree(degree: number) {
         this.degree = degree;
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getDegree() {

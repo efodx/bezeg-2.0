@@ -27,6 +27,7 @@ export class G1QuadraticBezierSpline extends BezierSpline {
                 this.bezierCurves.push(new PolynomialBezierCurve(bezierCurvePoints));
             }
         }
+        this.bindNonFreePoints();
     }
 
 }

@@ -53,6 +53,7 @@ export class C1QuadraticBezierSpline extends BezierSpline {
 
         this.nonFreePoints = nonFreePoints;
         this.bezierCurves = bezcurves;
+        this.bindNonFreePoints();
     }
 
     override getPoints(): Point[] {

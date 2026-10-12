@@ -1,61 +1,102 @@
 import {Point} from "../../api/point/point";
+import {MaybeVersioned, maxVersion, nextVersion, Versioned, VOLATILE} from "../versioning";
 
-import {geometryCache} from "../../cache/GeometryCache";
-
-export class PointImpl implements Point {
+/**
+ * Mutable point.
+ *
+ * Versioning: numeric coordinates carry a version stamp refreshed by every setter.
+ * A function-backed coordinate is VOLATILE (recomputed on every read, version() is
+ * VOLATILE) unless the point declares `dependencies`: the objects the functions
+ * read. Then version() is the newest stamp among the point and its dependencies
+ * and the computed value is cached until that changes. An incomplete dependency
+ * list leaves the cache stale, so list everything the functions read.
+ */
+export class PointImpl implements Point, Versioned {
     private x: number | (() => number);
     private y: number | (() => number);
     private changeListeners?: Set<() => void>;
-    private lastGeometryRevisionX = geometryCache.revision;
-    private cachedX?: number = undefined;
-    private cachedY?: number = undefined;
-    private lastGeometryRevisionY = geometryCache.revision;
+    private ownVersion = nextVersion();
+    private dependencies?: ReadonlyArray<MaybeVersioned>;
+    private cachedX = 0;
+    private cachedXVersion = VOLATILE;
+    private cachedY = 0;
+    private cachedYVersion = VOLATILE;
 
-    constructor(x: number | (() => number), y: number | (() => number)) {
+    constructor(x: number | (() => number), y: number | (() => number),
+                dependencies?: ReadonlyArray<MaybeVersioned>) {
         this.x = x;
         this.y = y;
+        this.dependencies = dependencies;
+    }
+
+    /** Declares the objects whose changes the coordinate functions react to. */
+    dependOn(dependencies: ReadonlyArray<MaybeVersioned>) {
+        this.dependencies = dependencies;
+        this.ownVersion = nextVersion();
+    }
+
+    version(): number {
+        if (typeof this.x === 'number' && typeof this.y === 'number') {
+            return this.ownVersion;
+        }
+        if (!this.dependencies) {
+            return VOLATILE;
+        }
+        return maxVersion(this.dependencies, this.ownVersion);
     }
 
     X(): number {
         if (typeof this.x == 'number') {
             return this.x;
         }
-        const currentRevision = geometryCache.revision;
-        if (this.cachedX === undefined || currentRevision !== this.lastGeometryRevisionX) {
-            this.cachedX = this.x();
-            this.lastGeometryRevisionX = currentRevision;
+        const version = this.dependencies ? this.version() : VOLATILE;
+        if (version === VOLATILE) {
+            return this.x();
         }
-        return this.cachedX!;
+        if (version !== this.cachedXVersion) {
+            this.cachedX = this.x();
+            this.cachedXVersion = version;
+        }
+        return this.cachedX;
     }
 
     Y(): number {
         if (typeof this.y == 'number') {
             return this.y;
         }
-        const currentRevision = geometryCache.revision;
-        if (this.cachedY === undefined || currentRevision !== this.lastGeometryRevisionY) {
-            this.cachedY = this.y();
-            this.lastGeometryRevisionY = currentRevision;
+        const version = this.dependencies ? this.version() : VOLATILE;
+        if (version === VOLATILE) {
+            return this.y();
         }
-        return this.cachedY!;
+        if (version !== this.cachedYVersion) {
+            this.cachedY = this.y();
+            this.cachedYVersion = version;
+        }
+        return this.cachedY;
     }
 
     setX(x: number | (() => number)) {
+        if (typeof x === 'function') {
+            this.dependencies = undefined;
+        }
         this.x = x;
-        geometryCache.invalidate();
+        this.ownVersion = nextVersion();
         this.notifyChanged();
     }
 
     setY(y: number | (() => number)) {
+        if (typeof y === 'function') {
+            this.dependencies = undefined;
+        }
         this.y = y;
-        geometryCache.invalidate();
+        this.ownVersion = nextVersion();
         this.notifyChanged();
     }
 
     setCoordinates(x: number, y: number) {
         this.x = x;
         this.y = y;
-        geometryCache.invalidate();
+        this.ownVersion = nextVersion();
         this.notifyChanged();
     }
 

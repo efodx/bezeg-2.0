@@ -1,7 +1,7 @@
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
-import {geometryCache} from "../../cache/GeometryCache";
+import {MaybeVersioned, maxVersion, VOLATILE} from "../versioning";
 
 
 export class RationalBezierCurve extends PolynomialBezierCurve {
@@ -11,14 +11,17 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
     // However other bezier curve methods won't work, since the original weights will be just the reactiveWeights evaluated at start
     private reactiveWeights?: Array<() => number> = undefined;
     private standardForm = false;
+    // Objects the reactive weights read; without them reactive weights make the curve volatile.
+    private weightDependencies?: ReadonlyArray<MaybeVersioned>;
 
     /**
      * @constructor
      * @param {Array.<Point>} points - Curve's control points
      * @param weights - Curve's weights
      */
-    constructor(points: Array<Point>, weights: Array<() => number> | Array<number>) {
+    constructor(points: Array<Point>, weights: Array<() => number> | Array<number>, weightDependencies?: ReadonlyArray<MaybeVersioned>) {
         super(points);
+        this.weightDependencies = weightDependencies;
         if (typeof weights[0] == 'number') {
             this.weights = weights as Array<number>;
         }
@@ -55,15 +58,25 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
         return new RationalBezierCurve(newPoints, newWeights) as this;
     }
 
+    /** Reactive weights are closures: volatile unless the constructor declared what they read. */
+    override version(): number {
+        if (!this.reactiveWeights) {
+            return super.version();
+        }
+        const base = super.version();
+        return this.weightDependencies && base !== VOLATILE ? maxVersion(this.weightDependencies, base) : VOLATILE;
+    }
+
     setWeights(weights: number[]) {
         this.weights = weights;
-        geometryCache.invalidate();
+        this.touch();
     }
 
 
     setReactiveWeights(weights: (() => number)[] | undefined) {
         this.reactiveWeights = weights;
-        geometryCache.invalidate();
+        this.weightDependencies = undefined;
+        this.touch();
     }
 
     /** Returns the weights currently used by evaluation, without standard-form display normalization. */

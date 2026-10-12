@@ -1,9 +1,10 @@
 import {Point} from "../../api/point/point";
 import {PointControlledCurve} from "../../api/curve/point-controlled-curve";
-import {geometryCache} from "../../cache/GeometryCache";
+import {maxVersion, nextVersion, Versioned} from "../versioning";
 
-export abstract class AbstractPointControlledCurve implements PointControlledCurve {
+export abstract class AbstractPointControlledCurve implements PointControlledCurve, Versioned {
     points: Array<Point>;
+    private structuralVersion = nextVersion();
 
     constructor(points: Array<Point>) {
         this.points = points;
@@ -17,7 +18,21 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
      */
     setPoints(points: Point[]) {
         this.points = points;
-        geometryCache.invalidate();
+        this.touch();
+    }
+
+    /**
+     * Cache version of this curve: the newest stamp among its structural stamp
+     * (point set, weights, parameters, transforms) and its control points, or
+     * VOLATILE when any control point is volatile. O(n), allocation free.
+     */
+    version(): number {
+        return maxVersion(this.points, this.structuralVersion);
+    }
+
+    /** Marks a structural change (points, weights, parameters, transform) of this curve. */
+    protected touch() {
+        this.structuralVersion = nextVersion();
     }
 
     getPoints(): Point[] {
@@ -88,6 +103,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
         this.points.forEach(point => {
             this.transformPoint(point, xCenter, yCenter, A, b);
         });
+        this.touch();
 
     }
 
@@ -128,7 +144,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
      */
     removePoint(point: Point) {
         this.points = this.points.filter(point2 => point2 !== point);
-        geometryCache.invalidate();
+        this.touch();
     }
 
     /**
@@ -137,7 +153,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
      */
     addPoint(point: Point) {
         this.points.push(point);
-        geometryCache.invalidate();
+        this.touch();
     }
 
     getConvexHull(): Point[] {

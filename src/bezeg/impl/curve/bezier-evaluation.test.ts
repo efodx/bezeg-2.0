@@ -1,7 +1,6 @@
 import {PolynomialBezierCurve} from './polynomial-bezier-curve';
 import {RationalBezierCurve} from './rational-bezier-curve';
 import {PointImpl} from '../point/point-impl';
-import {geometryCache} from '../../cache/GeometryCache';
 import {Point} from '../../api/point/point';
 import {C1QuadraticBezierSpline} from './C1QuadraticBezierSpline';
 import {PhBezierCurve} from './ph-bezier-curve';
@@ -31,7 +30,6 @@ function close(actual: Point, expected: number[]) {
     });
 }
 
-beforeEach(() => geometryCache.invalidate());
 
 test('direct geometry mutations refresh evaluation without graph coordination', () => {
     const curve = new PolynomialBezierCurve(points());
@@ -42,19 +40,32 @@ test('direct geometry mutations refresh evaluation without graph coordination', 
     expect(curve.eval(0.5).X()).not.toBe(before);
 });
 
-test('zero-valued function coordinates remain cached within a revision', () => {
+test('zero-valued function coordinates stay cached until their dependencies change', () => {
+    let evaluations = 0;
+    const source = new PointImpl(1, 1);
+    const point = new PointImpl(() => {
+        evaluations += 1;
+        return 0;
+    }, () => 0, [source]);
+
+    expect(point.X()).toBe(0);
+    expect(point.X()).toBe(0);
+    expect(evaluations).toBe(1);
+
+    source.setCoordinates(2, 2);
+    expect(point.X()).toBe(0);
+    expect(evaluations).toBe(2);
+});
+
+test('function coordinates without declared dependencies are recomputed on every read', () => {
     let evaluations = 0;
     const point = new PointImpl(() => {
         evaluations += 1;
         return 0;
     }, () => 0);
 
-    expect(point.X()).toBe(0);
-    expect(point.X()).toBe(0);
-    expect(evaluations).toBe(1);
-
-    geometryCache.invalidate();
-    expect(point.X()).toBe(0);
+    point.X();
+    point.X();
     expect(evaluations).toBe(2);
 });
 
@@ -105,7 +116,6 @@ test.each([false, true])('subdivision and degree elevation preserve shape (ratio
 test('existing revision invalidation covers edits, transforms, replacement and point counts', () => {
     const curve = new PolynomialBezierCurve(points());
     const verify = () => {
-        geometryCache.invalidate();
         close(curve.eval(0.43), reference(curve.getPoints(), 0.43));
         expect(curve.eval(0.43)).toBe(curve.eval(0.43));
     };
@@ -130,14 +140,11 @@ test('reactive coordinates and numeric/reactive weights refresh after revision c
     close(curve.eval(0.43), reference(control, 0.43, [1, 2, 1, 1]));
     x = 3;
     curve.setWeights([1, 3, 1, 1]);
-    geometryCache.invalidate();
     close(curve.eval(0.43), reference(control, 0.43, [1, 3, 1, 1]));
     curve.setReactiveWeights([() => 1, () => weight, () => 1, () => 1]);
-    geometryCache.invalidate();
     close(curve.eval(0.43), reference(control, 0.43, [1, weight, 1, 1]));
     weight = 4;
     x = 0;
-    geometryCache.invalidate();
     close(curve.eval(0.43), reference(control, 0.43, [1, weight, 1, 1]));
 });
 
@@ -149,7 +156,6 @@ test('five-point polynomial scratch rows refresh function-backed coordinates', (
 
     close(curve.eval(0.43), reference(control, 0.43));
     x = 3;
-    geometryCache.invalidate();
     close(curve.eval(0.43), reference(control, 0.43));
 });
 
@@ -164,7 +170,6 @@ test('five-point rational scratch rows refresh function-backed coordinates and w
     close(curve.eval(0.43), reference(control, 0.43, [1, 2, weight, 1, 3]));
     x = 3;
     weight = 4;
-    geometryCache.invalidate();
     close(curve.eval(0.43), reference(control, 0.43, [1, 2, weight, 1, 3]));
 });
 
