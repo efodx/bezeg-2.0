@@ -205,7 +205,9 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         </div>
         <div className="demonstrations-opening-rail" ref={choiceRailRef}
             role="group" aria-label={t('starting_demonstrations')}
-            onScroll={() => setManuallyControlled(true)}>
+            onWheel={() => setManuallyControlled(true)}
+            onPointerDown={() => setManuallyControlled(true)}
+            onTouchStart={() => setManuallyControlled(true)}>
             {entries.map((entry, index) => <button key={entry.demonstration.id}
                 ref={button => { choiceButtons.current[index] = button; }}
                 type="button" className="demonstrations-opening-choice"

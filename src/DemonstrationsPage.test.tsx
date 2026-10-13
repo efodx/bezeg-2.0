@@ -134,9 +134,15 @@ test('manual carousel actions and row scrolling take control for the page visit'
     const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
     const choices = within(choiceGroup).getAllByRole('button');
 
+    // Scroll-snap settling fires scroll events without user input; it must not stop autoplay.
     fireEvent.scroll(choiceGroup);
+    act(() => {vi.advanceTimersByTime(6000);});
+    expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.wheel(choiceGroup);
+    const heldIndex = choices.findIndex(choice => choice.getAttribute('aria-pressed') === 'true');
     act(() => {vi.advanceTimersByTime(18000);});
-    expect(choices[0]).toHaveAttribute('aria-pressed', 'true');
+    expect(choices[heldIndex]).toHaveAttribute('aria-pressed', 'true');
     expect(opening.querySelector('[aria-live]')).toHaveAttribute('aria-live', 'off');
 
     fireEvent.click(choices[2]);
