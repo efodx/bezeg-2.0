@@ -1,8 +1,9 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import type {Demonstration} from './demonstrations';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {useT} from './localization';
+import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 
 type Catalog = ReturnType<typeof import('./demonstrations').getDemonstrationCatalog>;
 type Family = Catalog['families'][number];
@@ -157,22 +158,99 @@ function VariantB({entries}: {entries: OpeningEntry[]}) {
 
 function VariantC({entries}: {entries: OpeningEntry[]}) {
     const t = useT();
-    return <div className="demonstrations-prototype-c">
-        <div className="demonstrations-prototype-c-board">
-            <div className="demonstrations-prototype-c-heading">
-                <span className="demonstrations-prototype-family">{t('bezeg_explore_curves')}</span>
-                <p>{t('prompt_compare')}</p>
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const choiceRail = useRef<HTMLDivElement>(null);
+    const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
+    const shouldScrollAfterSelection = useRef(false);
+    const prefersReducedMotion = usePrefersReducedMotion();
+    const selectedEntry = entries[selectedIndex];
+
+    useEffect(() => {
+        if (!shouldScrollAfterSelection.current) return;
+        shouldScrollAfterSelection.current = false;
+        const rail = choiceRail.current;
+        const selectedButton = choiceButtons.current[selectedIndex];
+        if (rail && selectedButton) {
+            const railBounds = rail.getBoundingClientRect();
+            const buttonBounds = selectedButton.getBoundingClientRect();
+            const visibleLeft = railBounds.left + rail.clientLeft;
+            const visibleRight = visibleLeft + rail.clientWidth;
+            const scrollLeft = buttonBounds.left < visibleLeft
+                ? rail.scrollLeft + buttonBounds.left - visibleLeft
+                : buttonBounds.right > visibleRight
+                    ? rail.scrollLeft + buttonBounds.right - visibleRight
+                    : rail.scrollLeft;
+            if (scrollLeft !== rail.scrollLeft) rail.scrollTo({
+                left: scrollLeft,
+                behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            });
+        }
+    }, [prefersReducedMotion, selectedIndex]);
+
+    if (!selectedEntry) return null;
+
+    const selectIndex = (index: number) => {
+        shouldScrollAfterSelection.current = true;
+        setSelectedIndex(index);
+    };
+    const selectRelative = (amount: number, focusChoice = false) => {
+        const nextIndex = (selectedIndex + amount + entries.length) % entries.length;
+        selectIndex(nextIndex);
+        if (focusChoice) choiceButtons.current[nextIndex]?.focus();
+    };
+
+    return <div className="demonstrations-prototype-c" onKeyDown={event => {
+        if (event.altKey || event.ctrlKey || event.metaKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
+        event.preventDefault();
+        const direction = event.key === 'ArrowLeft' ? -1 : 1;
+        const target = event.target;
+        const choiceButton = target instanceof HTMLElement
+            ? target.closest<HTMLButtonElement>('[data-demonstration-index]') : null;
+        const focusedIndex = choiceButton ? Number(choiceButton.dataset.demonstrationIndex) : selectedIndex;
+        const baseIndex = Number.isInteger(focusedIndex) ? focusedIndex : selectedIndex;
+        const nextIndex = (baseIndex + direction + entries.length) % entries.length;
+        selectIndex(nextIndex);
+        choiceButtons.current[nextIndex]?.focus();
+    }}>
+        <article key={selectedEntry.demonstration.id} className="demonstrations-prototype-c-preview" aria-live="polite">
+            <img className="demonstrations-prototype-c-image"
+                src={demonstrationPreviewAssets[selectedEntry.demonstration.id]}
+                alt="" width="360" height="220"/>
+            <div className="demonstrations-prototype-c-copy">
+                <span className="demonstrations-prototype-family">{selectedEntry.family.title}</span>
+                <h3>{selectedEntry.demonstration.catalogTitle}</h3>
+                <p>{selectedEntry.demonstration.prompts[0]}</p>
+                <DemonstrationActions entry={selectedEntry}/>
             </div>
-            <CurveSketch kind="map"/>
+        </article>
+        <div className="demonstrations-prototype-c-controls">
+            <button type="button" onClick={() => selectRelative(-1)}
+                aria-label={`${t('back')}: ${entries[(selectedIndex - 1 + entries.length) % entries.length].demonstration.catalogTitle}`}>
+                <span aria-hidden="true">←</span>
+            </button>
+            <span aria-live="polite" aria-atomic="true">{selectedIndex + 1} / {entries.length}</span>
+            <button type="button" onClick={() => selectRelative(1)}
+                aria-label={`${t('next')}: ${entries[(selectedIndex + 1) % entries.length].demonstration.catalogTitle}`}>
+                <span aria-hidden="true">→</span>
+            </button>
         </div>
-        <ol className="demonstrations-prototype-map">
-            {entries.map((entry, index) => <li key={entry.demonstration.id}>
-                <span className="demonstrations-prototype-map-node">{index + 1}</span>
-                <span className="demonstrations-prototype-family">{entry.family.title}</span>
-                <Link to={entry.demonstration.path}>{entry.demonstration.catalogTitle}</Link>
-                <DemonstrationActions entry={entry}/>
-            </li>)}
-        </ol>
+        <div className="demonstrations-prototype-c-rail" ref={choiceRail}
+            role="group" aria-label={t('starting_demonstrations')}>
+            {entries.map((entry, index) => <button key={entry.demonstration.id}
+                ref={button => { choiceButtons.current[index] = button; }}
+                type="button" className="demonstrations-prototype-c-choice"
+                data-demonstration-index={index}
+                aria-label={`${entry.family.title}: ${entry.demonstration.catalogTitle}`}
+                title={`${entry.family.title}: ${entry.demonstration.catalogTitle}`}
+                aria-pressed={selectedIndex === index}
+                onClick={() => selectIndex(index)}>
+                <span className="demonstrations-prototype-c-choice-number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="demonstrations-prototype-c-choice-copy">
+                    <span className="demonstrations-prototype-family" title={entry.family.title}>{entry.family.title}</span>
+                    <span className="demonstrations-prototype-c-choice-title">{entry.demonstration.catalogTitle}</span>
+                </span>
+            </button>)}
+        </div>
     </div>;
 }
 
@@ -191,6 +269,7 @@ function PrototypeSwitcher({current}: {current: typeof variants[number]}) {
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
+            if (event.defaultPrevented) return;
             const target = event.target;
             if (target instanceof HTMLElement && (target.isContentEditable ||
                 target.matches('input, textarea, [contenteditable="true"], [role="textbox"]'))) return;
