@@ -1,4 +1,4 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["browser.tsx", "../../src/react-app-env.d.ts"]
+  "include": ["browser.tsx", "../../src/vite-env.d.ts"]
 }

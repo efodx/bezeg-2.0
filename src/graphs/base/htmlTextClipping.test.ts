@@ -1,7 +1,7 @@
 import {skipRedundantHtmlTextClipping} from './htmlTextClipping';
 
 function boardWith(viewport: unknown) {
-    const original = jest.fn();
+    const original = vi.fn();
     const renderer = {setObjectViewport: original};
     return {board: {renderer, attr: {viewport}} as any, renderer, original};
 }

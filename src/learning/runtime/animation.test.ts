@@ -12,7 +12,7 @@ function scheduler() {
 
 test('animation driver pauses, replays, and cancels pending frames on dispose', () => {
     const frames = scheduler();
-    const onFrame = jest.fn();
+    const onFrame = vi.fn();
     const driver = new AnimationDriver(onFrame, frames.value);
     driver.play();
     const consume = (time: number) => {

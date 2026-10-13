@@ -6,10 +6,10 @@ import {beginFigureExport, currentLanguage, LocalizedError, message, onLanguageC
 import {LanguageSelector} from './LanguageSelector';
 
 beforeEach(() => { localStorage.clear(); act(() => setLanguage('sl')); });
-afterEach(() => {jest.restoreAllMocks();});
+afterEach(() => {vi.restoreAllMocks();});
 
 test('onLanguageChange notifies listeners until unsubscribed', () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     act(() => setLanguage('en'));
     expect(listener).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ test('switches language, updates the document, and saves a separate preference',
 });
 
 test('storage failure retains session choice and displays a translated notice', () => {
-    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {throw new Error('blocked');});
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {throw new Error('blocked');});
     render(<LanguageSelector/>);
     fireEvent.change(screen.getByRole('combobox'), {target: {value: 'en'}});
     expect(screen.getByRole('status')).toHaveTextContent('Cannot remember the language choice');
@@ -77,38 +77,34 @@ test('runtime missing English message falls back to Slovenian', () => {
     finally {en.help = original;}
 });
 
-test.each(['en', 'sl', 'unsupported'])('initial preference %s is resolved without browser-language detection', saved => {
+test.each(['en', 'sl', 'unsupported'])('initial preference %s is resolved without browser-language detection', async saved => {
     localStorage.setItem('bezeg-2.0:bezeg-language', saved);
-    jest.isolateModules(() => {
-        const isolated = require('./index');
-        expect(isolated.t('language')).toBe(saved === 'en' ? 'Language' : 'Jezik');
-    });
+    vi.resetModules();
+    const isolated = await import('./index');
+    expect(isolated.t('language')).toBe(saved === 'en' ? 'Language' : 'Jezik');
 });
 
-test('ignores the original site language preference on the shared origin', () => {
+test('ignores the original site language preference on the shared origin', async () => {
     localStorage.setItem('bezeg-language', 'en');
-    jest.isolateModules(() => {
-        const isolated = require('./index');
-        expect(isolated.t('language')).toBe('Jezik');
-    });
+    vi.resetModules();
+    const isolated = await import('./index');
+    expect(isolated.t('language')).toBe('Jezik');
 });
 
-test('initial preference read failure falls back without throwing', () => {
-    jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {throw new Error('blocked');});
-    jest.isolateModules(() => {
-        const isolated = require('./index');
-        expect(isolated.t('language')).toBe('Jezik');
-    });
+test('initial preference read failure falls back without throwing', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {throw new Error('blocked');});
+    vi.resetModules();
+    const isolated = await import('./index');
+    expect(isolated.t('language')).toBe('Jezik');
 });
 
-test('blocked localStorage getter falls back without crashing module initialization', () => {
+test('blocked localStorage getter falls back without crashing module initialization', async () => {
     const descriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
     Object.defineProperty(window, 'localStorage', {configurable: true, get: () => {throw new Error('blocked');}});
     try {
-        jest.isolateModules(() => {
-            const isolated = require('./index');
-            expect(isolated.t('language')).toBe('Jezik');
-        });
+        vi.resetModules();
+        const isolated = await import('./index');
+        expect(isolated.t('language')).toBe('Jezik');
     } finally {
         if (descriptor) { Object.defineProperty(window, 'localStorage', descriptor); }
         else { Reflect.deleteProperty(window, 'localStorage'); }

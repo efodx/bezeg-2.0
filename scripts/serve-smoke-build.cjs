@@ -68,7 +68,7 @@ http.createServer((request, response) => {
             return;
         }
 
-        // Only extensionless routes use the CRA SPA shell. Missing asset URLs stay 404s.
+        // Only extensionless routes use the SPA shell. Missing asset URLs stay 404s.
         if (error.code === 'ENOENT' && target.routeFallbackAllowed) {
             fs.readFile(path.join(buildRoot, 'index.html'), (indexError, html) => {
                 if (indexError) {

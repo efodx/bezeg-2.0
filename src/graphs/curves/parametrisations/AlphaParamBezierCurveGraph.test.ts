@@ -3,18 +3,18 @@ import AlphaParamBezierCurveGraph, {alphaParameterization} from './AlphaParamBez
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, args: any[]) => {
-            const object: any = {type, args, board, on: jest.fn(), setAttribute: jest.fn()};
+        create: vi.fn((type: string, args: any[]) => {
+            const object: any = {type, args, board, on: vi.fn(), setAttribute: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((o: any) => !list.includes(o));
         }),
-        update: jest.fn(),
-        suspendUpdate: jest.fn(),
-        unsuspendUpdate: jest.fn(),
+        update: vi.fn(),
+        suspendUpdate: vi.fn(),
+        unsuspendUpdate: vi.fn(),
     };
     return board;
 }
@@ -29,11 +29,11 @@ function makeGraph(initial = {alpha: 0.5, numberOfPoints: 10}) {
     graph.jxgCurves = [{getCurve: () => ({eval: (t: number) => ({X: () => t, Y: () => 2 * t})})}];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...initial, initialized: true});
-    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
     // Class fields are not on the prototype, so mirror the graph's own definition.
     graph.alphaParam = (t: number) => alphaParameterization(graph.state.alpha, t);
     const curve = graph.jxgCurves[0];
-    graph.importPresetData = jest.fn(() => { graph.disposeFigureScene(); graph.jxgCurves = [curve]; });
+    graph.importPresetData = vi.fn(() => { graph.disposeFigureScene(); graph.jxgCurves = [curve]; });
     return graph;
 }
 

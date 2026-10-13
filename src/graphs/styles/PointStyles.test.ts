@@ -38,15 +38,15 @@ test("JSXGraph renders control-point fill and outline as separate colors", () =>
     const originalMatchMedia = window.matchMedia;
     Object.defineProperty(window, "matchMedia", {
         configurable: true,
-        value: jest.fn((media: string) => ({
+        value: vi.fn((media: string) => ({
             matches: false,
             media,
             onchange: null,
-            addListener: jest.fn(),
-            removeListener: jest.fn(),
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            dispatchEvent: jest.fn()
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn()
         }))
     });
     const board = JSXGraph.initBoard(container.id, {

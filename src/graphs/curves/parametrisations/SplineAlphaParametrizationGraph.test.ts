@@ -99,25 +99,25 @@ describe('spline alpha parametrization math (thesis 4.2.3)', () => {
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, args: any[]) => {
-            const object: any = {type, args, board, on: jest.fn(), setAttribute: jest.fn()};
+        create: vi.fn((type: string, args: any[]) => {
+            const object: any = {type, args, board, on: vi.fn(), setAttribute: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((o: any) => !list.includes(o));
         }),
-        update: jest.fn(),
-        suspendUpdate: jest.fn(),
-        unsuspendUpdate: jest.fn(),
-        setBoundingBox: jest.fn(),
+        update: vi.fn(),
+        suspendUpdate: vi.fn(),
+        unsuspendUpdate: vi.fn(),
+        setBoundingBox: vi.fn(),
     };
     return board;
 }
 
 function fakeJxgCurve(board: any, spline: C2QubicBezierSpline) {
-    return {board, getCurve: () => spline, dispose: jest.fn(), getJxgPoints: () => [], setAttributes: jest.fn()};
+    return {board, getCurve: () => spline, dispose: vi.fn(), getJxgPoints: () => [], setAttributes: vi.fn()};
 }
 
 function makeGraph(initial = {alpha: 0.5, numberOfPoints: 25}) {
@@ -129,10 +129,10 @@ function makeGraph(initial = {alpha: 0.5, numberOfPoints: 25}) {
     graph.jxgCurves = [fakeJxgCurve(graph.board, makeSpline())];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...initial, initialized: true});
-    graph.setState = jest.fn((patch: any) => {
+    graph.setState = vi.fn((patch: any) => {
         graph.store.replaceState({...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)});
     });
-    graph.boardUpdate = jest.fn();
+    graph.boardUpdate = vi.fn();
     return graph;
 }
 
@@ -142,7 +142,7 @@ const lesson = (graph: any, action: any) => graph.applyLessonAction(action);
 
 /** Stands in for the real preset importer: disposes the scene and installs a brand-new spline (alpha 0). */
 function stubImport() {
-    return jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+    return vi.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
         this.disposeFigureScene();
         this.jxgCurves = [fakeJxgCurve(this.board, makeSpline())];
     });
@@ -229,7 +229,7 @@ describe('default scene and checkpoint restore', () => {
     test('prepared scene, alpha and samples in one synchronous tick keep the later values', () => {
         const graph = makeGraph();
         const queued: any[] = [];
-        graph.setState = jest.fn((patch: any) => { queued.push(patch); });
+        graph.setState = vi.fn((patch: any) => { queued.push(patch); });
         const spy = stubImport();
         try {
             lesson(graph, {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});

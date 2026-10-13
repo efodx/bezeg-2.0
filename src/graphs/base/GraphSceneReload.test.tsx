@@ -10,10 +10,11 @@ import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {appStorage} from '../../storage/appStorage';
 import {downloadSVG} from './export/FigureCapture';
+import type {Mock} from 'vitest';
 
-jest.mock('./export/FigureCapture', () => ({
-    ...jest.requireActual('./export/FigureCapture'),
-    downloadSVG: jest.fn(),
+vi.mock('./export/FigureCapture', async () => ({
+    ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
+    downloadSVG: vi.fn(),
 }));
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
@@ -136,7 +137,7 @@ describe('selecting a preset while an export is running', () => {
         act(() => graph.addPoint());
         act(() => graph.saveCurrentPreset('mine'));
         let finishExport!: () => void;
-        (downloadSVG as jest.Mock).mockImplementation(() => new Promise<void>(resolve => { finishExport = resolve; }));
+        (downloadSVG as Mock).mockImplementation(() => new Promise<void>(resolve => { finishExport = resolve; }));
         void graph.saveAsSVG('figure');
         return {graph, view, defaultCount, finishExport: () => finishExport()};
     }

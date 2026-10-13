@@ -9,19 +9,19 @@ const BOX = [-7, 4, 7, -4];
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -31,8 +31,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new TrigonometricFunctionsGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -308,7 +308,7 @@ test('the caption follows the language, and a language change notifies subscribe
     expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)']);
     apply(graph, reference(true));
     expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)', 'sin(x) (referenčni graf)']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -361,7 +361,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({fn: 'cos', A: -2, omega: 0.5, phi: -Math.PI / 3, B: 1, reference: false});
     graph.importPresetData(JSON.stringify({fn: 'sin', A: 1, omega: 4, phi: 0, B: 0, reference: true}));
     expect(graph.model).toMatchObject({fn: 'sin', omega: 4, reference: true});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const base = {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0};
     const bad = [undefined, null, 'not json', {}, [], {...base, fn: 'sec'}, {...base, omega: 0}, {...base, omega: -2}, {...base, A: 4}, {...base, phi: 4}, {...base, B: NaN}, {...base, reference: 'yes'}];
     for (const entry of bad) {
@@ -436,8 +436,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new TrigonometricFunctionsGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'trigonometric-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

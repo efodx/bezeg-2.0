@@ -106,8 +106,8 @@ test('reset keeps the controller and the board and restores the default scene', 
 
 test('select, save, delete and import presets work without unmounting the graph', async () => {
     const graph = new TestBezierGraph();
-    const mount = jest.spyOn(graph, 'mount');
-    const unmount = jest.spyOn(graph, 'unmount');
+    const mount = vi.spyOn(graph, 'mount');
+    const unmount = vi.spyOn(graph, 'unmount');
     const view = renderGraph(graph);
     const board = graph.liveBoard();
     const defaultCount = graph.pointCount();

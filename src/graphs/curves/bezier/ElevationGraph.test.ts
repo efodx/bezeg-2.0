@@ -5,7 +5,7 @@ import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
 test('owns degree elevation as a typed lesson action', () => {
     const graph = Object.create(ElevationGraph.prototype) as any;
-    graph.elevate = jest.fn();
+    graph.elevate = vi.fn();
 
     graph.applyLessonAction({kind: 'degree-elevation'});
 

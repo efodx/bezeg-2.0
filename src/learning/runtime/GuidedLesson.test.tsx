@@ -5,6 +5,7 @@ import {setLanguage} from '../../localization';
 import type {LessonDefinition, LessonGraphCapabilities} from '../model';
 import {GuidedLesson} from './GuidedLesson';
 import {LessonSession} from './LessonSession';
+import type {Mock} from 'vitest';
 
 const lesson: LessonDefinition = {
     id: 'accessible-test', demonstrationId: 'bezier', title: {sl: 'Vodena pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -18,7 +19,7 @@ const lesson: LessonDefinition = {
 };
 
 function capabilities(): LessonGraphCapabilities {
-    return {captureState: () => ({version: 1, value: 'before'}), restoreState: jest.fn(), apply: jest.fn()};
+    return {captureState: () => ({version: 1, value: 'before'}), restoreState: vi.fn(), apply: vi.fn()};
 }
 
 const framedLesson: LessonDefinition = {
@@ -72,12 +73,12 @@ const denseLesson: LessonDefinition = {
 
 function observe() {
     fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
-    act(() => jest.advanceTimersByTime(250));
+    act(() => vi.advanceTimersByTime(250));
 }
 
 test('offers content-first navigation and preserves step identity when language changes', () => {
     setLanguage('sl');
-    const close = jest.fn();
+    const close = vi.fn();
     render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={close}/>);
     expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Korak 1 od 2');
@@ -103,13 +104,13 @@ test('offers content-first navigation and preserves step identity when language 
 });
 
 test('shows the observation in the full overlay first and collapses it only on request', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
 
         expect(document.querySelector('.guided-lesson-hidden-content')).not.toBeInTheDocument();
         expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
@@ -119,81 +120,81 @@ test('shows the observation in the full overlay first and collapses it only on r
 
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toHaveClass('guided-lesson-continue');
         expect(screen.getByText('Učna pot je skrita med raziskovanjem grafa.')).toBeVisible();
 
         fireEvent.click(screen.getByRole('button', {name: 'Nazaj na navodila'}));
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('reports the graph as locked in the observation overlay and unlocked in the compact prompt', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        const onModeChange = jest.fn();
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()} onModeChange={onModeChange}/>);
+        const onModeChange = vi.fn();
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         observe();
         expect(onModeChange).toHaveBeenLastCalledWith('explore');
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('complete');
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('Continue advances to the next frame and opens its overlay', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         observe();
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('heading', {name: 'Zaključek'})).toBeVisible();
         expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
         expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
         expect(screen.queryByText('Opazuj', {selector: 'p'})).not.toBeInTheDocument();
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('Continue on the last observation frame completes the lesson', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
         expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('Back from an observation overlay returns to the previous frame', () => {
     setLanguage('sl');
-    render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+    render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
     fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
     fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
     expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
@@ -203,10 +204,10 @@ test('Back from an observation overlay returns to the previous frame', () => {
 });
 
 test('allows the compact observation prompt to move with keyboard arrows', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
@@ -216,17 +217,17 @@ test('allows the compact observation prompt to move with keyboard arrows', () =>
         fireEvent.keyDown(prompt, {key: 'ArrowRight'});
         expect(prompt.parentElement).toHaveStyle({left: '12px'});
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('keeps the compact observation prompt inside the coordinate system rectangle', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
         const graphRef = React.createRef<HTMLDivElement>();
-        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={jest.fn()}/></div>);
+        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={vi.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
@@ -255,17 +256,17 @@ test('keeps the compact observation prompt inside the coordinate system rectangl
         for (let index = 0; index < 20; index += 1) fireEvent.keyDown(prompt, {key: 'ArrowLeft'});
         expect(lessonElement).toHaveStyle({left: '-92px'});
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('allows a pointer drag to move the compact observation prompt toward the right edge', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
         const graphRef = React.createRef<HTMLDivElement>();
-        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={jest.fn()}/></div>);
+        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={vi.fn()}/></div>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
@@ -290,9 +291,9 @@ test('allows a pointer drag to move the compact observation prompt toward the ri
                 return {left, top, right: left + 200, bottom: top + 100, width: 200, height: 100};
             },
         });
-        Object.defineProperty(prompt, 'setPointerCapture', {configurable: true, value: jest.fn()});
+        Object.defineProperty(prompt, 'setPointerCapture', {configurable: true, value: vi.fn()});
         Object.defineProperty(prompt, 'hasPointerCapture', {configurable: true, value: () => true});
-        Object.defineProperty(prompt, 'releasePointerCapture', {configurable: true, value: jest.fn()});
+        Object.defineProperty(prompt, 'releasePointerCapture', {configurable: true, value: vi.fn()});
 
         const dispatchPointer = (type: string, values: Record<string, unknown>) => {
             const event = new Event(type, {bubbles: true});
@@ -306,17 +307,17 @@ test('allows a pointer drag to move the compact observation prompt toward the ri
         });
         expect(lessonElement).toHaveStyle({left: '92px'});
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('offers observation playback only beside the visible graph and pauses it when the lesson returns', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        const apply = jest.fn();
-        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
+        const apply = vi.fn();
+        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
@@ -328,37 +329,37 @@ test('offers observation playback only beside the visible graph and pauses it wh
 
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
-        act(() => jest.advanceTimersByTime(250));
+        act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
         expect(screen.queryByRole('button', {name: /Predvajaj/})).not.toBeInTheDocument();
         expect(screen.queryByRole('group', {name: 'Kontrole animacije konstrukcije'})).not.toBeInTheDocument();
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('does not pause playback that the observation never started', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setLanguage('sl');
     try {
-        const apply = jest.fn();
-        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
+        const apply = vi.fn();
+        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         expect(apply).not.toHaveBeenCalledWith(expect.objectContaining({kind: 'animation'}));
     } finally {
-        jest.useRealTimers();
+        vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
 test('applies an action declared by the current frame', () => {
     setLanguage('sl');
-    const apply = jest.fn();
-    render(<GuidedLesson lesson={frameActionLesson} capabilities={{...capabilities(), apply}} onClose={jest.fn()}/>);
+    const apply = vi.fn();
+    render(<GuidedLesson lesson={frameActionLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
     fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
     fireEvent.click(screen.getByRole('button', {name: 'Pokaži poligon'}));
@@ -367,7 +368,7 @@ test('applies an action declared by the current frame', () => {
 
 test('uses Next as the only forward lesson command', () => {
     setLanguage('sl');
-    render(<GuidedLesson lesson={framedLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+    render(<GuidedLesson lesson={framedLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
 
     expect(screen.queryByRole('button', {name: 'Razišči v grafu'})).not.toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Naprej'})).toBeVisible();
@@ -376,13 +377,13 @@ test('uses Next as the only forward lesson command', () => {
 
 test('skips MathJax work for a frame without mathematics', async () => {
     setLanguage('sl');
-    const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: jest.Mock; typesetPromise: jest.Mock}};
+    const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: Mock; typesetPromise: Mock}};
     const previousMathJax = win.MathJax;
-    const typesetPromise = jest.fn((..._args: unknown[]) => Promise.resolve());
-    win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: jest.fn(), typesetPromise};
+    const typesetPromise = vi.fn((..._args: unknown[]) => Promise.resolve());
+    win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise};
 
     try {
-        render(<GuidedLesson lesson={framedLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={framedLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         await act(async () => { await Promise.resolve(); });
         expect(typesetPromise).not.toHaveBeenCalled();
     } finally {
@@ -396,7 +397,7 @@ describe('session subscription', () => {
     function captureSessions() {
         const sessions: LessonSession[] = [];
         const original = LessonSession.prototype.start;
-        jest.spyOn(LessonSession.prototype, 'start').mockImplementation(function (this: LessonSession) {
+        vi.spyOn(LessonSession.prototype, 'start').mockImplementation(function (this: LessonSession) {
             sessions.push(this);
             return original.call(this);
         });
@@ -404,13 +405,13 @@ describe('session subscription', () => {
     }
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     test('re-renders when the session transitions without any other state change', () => {
         setLanguage('sl');
         const sessions = captureSessions();
-        render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
 
         act(() => sessions[0].next());
@@ -422,8 +423,8 @@ describe('session subscription', () => {
         setLanguage('sl');
         const sessions = captureSessions();
         const caps = capabilities();
-        const {rerender} = render(<GuidedLesson lesson={lesson} capabilities={caps} onClose={jest.fn()}/>);
-        rerender(<GuidedLesson lesson={framedLesson} capabilities={caps} onClose={jest.fn()}/>);
+        const {rerender} = render(<GuidedLesson lesson={lesson} capabilities={caps} onClose={vi.fn()}/>);
+        rerender(<GuidedLesson lesson={framedLesson} capabilities={caps} onClose={vi.fn()}/>);
 
         expect(sessions).toHaveLength(2);
         expect(sessions[1]).not.toBe(sessions[0]);
@@ -435,10 +436,10 @@ describe('session subscription', () => {
 
 test('typesets mathematics in the observation overlay and after the prompt collapses the overlay', async () => {
     setLanguage('sl');
-    const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: jest.Mock; typesetPromise: jest.Mock}};
+    const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: Mock; typesetPromise: Mock}};
     const previousMathJax = win.MathJax;
-    const typesetPromise = jest.fn((..._args: unknown[]) => Promise.resolve());
-    win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: jest.fn(), typesetPromise};
+    const typesetPromise = vi.fn((..._args: unknown[]) => Promise.resolve());
+    win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise};
     const mathLesson: LessonDefinition = {
         id: 'math-observation-test', demonstrationId: 'bezier', title: {sl: 'Matematika', en: 'Mathematics'}, summary: {sl: 'Povzetek', en: 'Summary'},
         steps: [{id: 'first', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'}, frames: [
@@ -448,7 +449,7 @@ test('typesets mathematics in the observation overlay and after the prompt colla
     };
 
     try {
-        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={jest.fn()}/>);
+        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-exploration'))).toBe(true));
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));

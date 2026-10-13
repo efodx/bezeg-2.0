@@ -6,7 +6,7 @@ class FakePoint {
     private x: number;
     private y: number;
     private handlers = new Map<string, Set<() => void>>();
-    readonly setPositionDirectly = jest.fn((_mode: number, coordinates: [number, number]) => {
+    readonly setPositionDirectly = vi.fn((_mode: number, coordinates: [number, number]) => {
         this.x = coordinates[0];
         this.y = coordinates[1];
     });

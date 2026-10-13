@@ -7,11 +7,11 @@ import {PresetImportDialog} from '../graphs/base/PresetImportDialog';
 import {DemonstrationWorkspace} from '../graphs/base/DemonstrationWorkspace';
 
 beforeEach(() => { localStorage.clear(); act(() => setLanguage('sl')); });
-afterEach(() => {jest.restoreAllMocks();});
+afterEach(() => {vi.restoreAllMocks();});
 
 
 test('existing import error and open dialog switch immediately', async () => {
-    render(<><LanguageSelector/><PresetImportDialog onImported={jest.fn()}/></>);
+    render(<><LanguageSelector/><PresetImportDialog onImported={vi.fn()}/></>);
     fireEvent.click(screen.getByRole('button', {name: 'Uvozi prednastavitve'}));
     const file = new File(['{'], 'broken.txt');
     Object.defineProperty(file, 'text', {value: async () => '{'});
@@ -25,7 +25,7 @@ test('existing import error and open dialog switch immediately', async () => {
 
 test('language changes preserve draft input and inspector state', () => {
     render(<MemoryRouter><LanguageSelector/><DemonstrationWorkspace title="Bézier" description=""
-        edit={<input aria-label="draft" defaultValue="0.5"/>} display={<p>display content</p>} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        edit={<input aria-label="draft" defaultValue="0.5"/>} display={<p>display content</p>} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const draft = screen.getByLabelText('draft');
     fireEvent.change(draft, {target: {value: '0.75'}});
     fireEvent.click(screen.getByRole('button', {name: 'Prikaz', exact: true}));
@@ -38,7 +38,7 @@ test('language changes preserve draft input and inspector state', () => {
 });
 
 test('file read failure becomes an actionable error in the current language', async () => {
-    render(<><LanguageSelector/><PresetImportDialog onImported={jest.fn()}/></>);
+    render(<><LanguageSelector/><PresetImportDialog onImported={vi.fn()}/></>);
     fireEvent.click(screen.getByRole('button', {name: 'Uvozi prednastavitve'}));
     const file = new File([''], 'unreadable.txt');
     Object.defineProperty(file, 'text', {value: async () => {throw new Error('OS-specific failure');}});
@@ -49,7 +49,7 @@ test('file read failure becomes an actionable error in the current language', as
 });
 
 test('native import storage failure remains actionable after a language switch', async () => {
-    render(<><LanguageSelector/><PresetImportDialog onImported={jest.fn()}/></>);
+    render(<><LanguageSelector/><PresetImportDialog onImported={vi.fn()}/></>);
     fireEvent.click(screen.getByRole('button', {name: 'Uvozi prednastavitve'}));
     const contents = JSON.stringify({'preset-bezier-curve': {data: [{id: 'Example', data: [['JSXBezierCurve', {points: [[0, 0], [1, 2]]}]]}]}});
     const file = new File([contents], 'presets.txt');
@@ -57,8 +57,8 @@ test('native import storage failure remains actionable after a language switch',
     fireEvent.change(screen.getByLabelText('Datoteka prednastavitev'), {target: {files: [file]}});
     const confirm = await screen.findByRole('button', {name: 'Uvozi', exact: true});
     await screen.findByText(/Datoteka je veljavna/);
-    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {throw new Error('blocked');});
-    jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {throw new Error('rollback blocked');});
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {throw new Error('blocked');});
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {throw new Error('rollback blocked');});
     fireEvent.click(confirm);
     expect(screen.getByRole('alert')).toHaveTextContent('Prednastavitev ni bilo mogoče shraniti');
     fireEvent.change(screen.getByRole('combobox'), {target: {value: 'en'}});

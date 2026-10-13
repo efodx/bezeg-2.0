@@ -6,7 +6,7 @@ import {GraphPalette} from "../../styles/GraphPalette";
 function createCurve(weights: number[], selectedWeight = 0) {
     const points = weights.map((_, i) => new PointImpl(i, i % 2));
     let currentWeights = [...weights];
-    const setWeights = jest.fn((next: number[]) => { currentWeights = [...next]; });
+    const setWeights = vi.fn((next: number[]) => { currentWeights = [...next]; });
     const model = {
         points,
         getPoints: () => points,
@@ -14,7 +14,7 @@ function createCurve(weights: number[], selectedWeight = 0) {
         getEffectiveWeights: () => [...currentWeights],
         setWeights,
     };
-    const jsxPoints = points.map(() => ({setAttribute: jest.fn()}));
+    const jsxPoints = points.map(() => ({setAttribute: vi.fn()}));
     const curve = Object.create(JXGRationalBezierCurve.prototype) as any;
     Object.assign(curve, {
         pointControlledCurve: model,
@@ -28,7 +28,7 @@ function createCurve(weights: number[], selectedWeight = 0) {
 }
 
 test("deleting rational control point i removes weight i and keeps selected weight in range", () => {
-    const removePoint = jest.spyOn(AbstractJXGBezierCurve.prototype, "removePoint").mockImplementation(function (this: any, i: number) {
+    const removePoint = vi.spyOn(AbstractJXGBezierCurve.prototype, "removePoint").mockImplementation(function (this: any, i: number) {
         this.pointControlledCurve.points.splice(i, 1);
         this.jxgPoints.splice(i, 1);
     });
@@ -53,7 +53,7 @@ test("deleting rational control point i removes weight i and keeps selected weig
 });
 
 test("rational control point deletion ignores invalid and final-point indices", () => {
-    const removePoint = jest.spyOn(AbstractJXGBezierCurve.prototype, "removePoint").mockImplementation(function (this: any, i: number) {
+    const removePoint = vi.spyOn(AbstractJXGBezierCurve.prototype, "removePoint").mockImplementation(function (this: any, i: number) {
         this.pointControlledCurve.points.splice(i, 1);
         this.jxgPoints.splice(i, 1);
     });

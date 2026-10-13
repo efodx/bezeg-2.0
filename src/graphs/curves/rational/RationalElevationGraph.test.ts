@@ -7,7 +7,7 @@ const curve = () => new RationalBezierCurve(points(), [1, 2, 1, 1]);
 
 test('owns degree elevation as a typed lesson action', () => {
     const graph = Object.create(RationalElevationGraph.prototype) as any;
-    graph.elevate = jest.fn();
+    graph.elevate = vi.fn();
 
     graph.applyLessonAction({kind: 'degree-elevation'});
 

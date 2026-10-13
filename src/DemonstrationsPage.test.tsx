@@ -9,7 +9,7 @@ import * as lessonCatalog from './learning/runtime/lessonCatalog';
 import {setLanguage} from './localization';
 
 // Routes only hand a controller factory to GraphHost; mounting a real board is not what this suite checks.
-jest.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
+vi.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
 
 beforeEach(() => {setLanguage('sl');});
 let restoreMatchMedia: (() => void) | undefined;
@@ -25,7 +25,7 @@ afterEach(() => {
     restoreIntersectionObserver = undefined;
     restoreLessonAvailability?.();
     restoreLessonAvailability = undefined;
-    jest.useRealTimers();
+    vi.useRealTimers();
 });
 
 class TestIntersectionObserver implements IntersectionObserver {
@@ -80,7 +80,7 @@ function openingDemonstrations() {
 }
 
 test('the opening carousel advances on a six-second dwell and resets its interval after hover and focus pauses', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
     const view = render(<RouterProvider router={router}/>);
     const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
@@ -94,40 +94,40 @@ test('the opening carousel advances on a six-second dwell and resets its interva
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
     expect(opening.querySelector('[aria-live]')).toHaveAttribute('aria-live', 'off');
 
-    act(() => {jest.advanceTimersByTime(5999);});
+    act(() => {vi.advanceTimersByTime(5999);});
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
-    act(() => {jest.advanceTimersByTime(1);});
+    act(() => {vi.advanceTimersByTime(1);});
     expect(currentTitle()).toBe(openingDemonstrations()[1].catalogTitle);
 
     for (let interval = 0; interval < 5; interval += 1) {
-        act(() => {jest.advanceTimersByTime(6000);});
+        act(() => {vi.advanceTimersByTime(6000);});
     }
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
 
     fireEvent.mouseEnter(carousel);
-    act(() => {jest.advanceTimersByTime(12000);});
+    act(() => {vi.advanceTimersByTime(12000);});
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
     fireEvent.mouseLeave(carousel);
-    act(() => {jest.advanceTimersByTime(5999);});
+    act(() => {vi.advanceTimersByTime(5999);});
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
-    act(() => {jest.advanceTimersByTime(1);});
+    act(() => {vi.advanceTimersByTime(1);});
     expect(currentTitle()).toBe(openingDemonstrations()[1].catalogTitle);
 
     fireEvent.focus(choices[1]);
-    act(() => {jest.advanceTimersByTime(12000);});
+    act(() => {vi.advanceTimersByTime(12000);});
     expect(currentTitle()).toBe(openingDemonstrations()[1].catalogTitle);
     fireEvent.blur(choices[1], {relatedTarget: document.body});
-    act(() => {jest.advanceTimersByTime(5999);});
+    act(() => {vi.advanceTimersByTime(5999);});
     expect(currentTitle()).toBe(openingDemonstrations()[1].catalogTitle);
-    act(() => {jest.advanceTimersByTime(1);});
+    act(() => {vi.advanceTimersByTime(1);});
     expect(currentTitle()).toBe(openingDemonstrations()[2].catalogTitle);
 
     view.unmount();
-    jest.useRealTimers();
+    vi.useRealTimers();
 });
 
 test('manual carousel actions and row scrolling take control for the page visit', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
     const view = render(<RouterProvider router={router}/>);
     const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
@@ -135,7 +135,7 @@ test('manual carousel actions and row scrolling take control for the page visit'
     const choices = within(choiceGroup).getAllByRole('button');
 
     fireEvent.scroll(choiceGroup);
-    act(() => {jest.advanceTimersByTime(18000);});
+    act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[0]).toHaveAttribute('aria-pressed', 'true');
     expect(opening.querySelector('[aria-live]')).toHaveAttribute('aria-live', 'off');
 
@@ -150,22 +150,22 @@ test('manual carousel actions and row scrolling take control for the page visit'
         expect(within(opening).getByRole('link', {name: `Vodena učna pot: ${selected.catalogTitle}`}))
             .toHaveAttribute('href', selected.path + '?learn=1');
     }
-    act(() => {jest.advanceTimersByTime(18000);});
+    act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
 
     fireEvent.click(within(opening).getByRole('button', {name: `Naprej: ${openingDemonstrations()[3].catalogTitle}`}));
     expect(choices[3]).toHaveAttribute('aria-pressed', 'true');
     act(() => {choices[3].focus();});
-    const previousChoiceFocus = jest.spyOn(choices[2], 'focus');
+    const previousChoiceFocus = vi.spyOn(choices[2], 'focus');
     fireEvent.keyDown(choices[3], {key: 'ArrowLeft'});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
     expect(previousChoiceFocus).toHaveBeenCalledWith({preventScroll: true});
     expect(document.activeElement).toBe(choices[2]);
-    act(() => {jest.advanceTimersByTime(18000);});
+    act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
 
     view.unmount();
-    jest.useRealTimers();
+    vi.useRealTimers();
 });
 
 test('arrow keys on a focused action keep focus there when the choice row is below the viewport', () => {
@@ -180,12 +180,12 @@ test('arrow keys on a focused action keep focus there when the choice row is bel
         top, right: 640, bottom: top + 80, left: 0,
         toJSON: () => ({}),
     };
-    const belowViewport = jest.spyOn(choiceGroup, 'getBoundingClientRect')
+    const belowViewport = vi.spyOn(choiceGroup, 'getBoundingClientRect')
         .mockReturnValue(railBounds);
     const nextControl = within(opening).getByRole('button', {
         name: `Naprej: ${openingDemonstrations()[1].catalogTitle}`,
     });
-    const selectedChoiceFocus = jest.spyOn(choices[1], 'focus');
+    const selectedChoiceFocus = vi.spyOn(choices[1], 'focus');
 
     expect(choiceGroup.getBoundingClientRect().top).toBeGreaterThan(window.innerHeight);
     act(() => {nextControl.focus();});
@@ -202,7 +202,7 @@ test('arrow keys on a focused action keep focus there when the choice row is bel
 
 test('arrow selection from preview actions preserves focus and updates the selected links', () => {
     const originalLessonAvailability = lessonCatalog.isGuidedLessonAvailable;
-    const lessonAvailability = jest.spyOn(lessonCatalog, 'isGuidedLessonAvailable')
+    const lessonAvailability = vi.spyOn(lessonCatalog, 'isGuidedLessonAvailable')
         .mockImplementation(id => id !== 'rational' && originalLessonAvailability(id));
     restoreLessonAvailability = () => lessonAvailability.mockRestore();
 
@@ -242,7 +242,7 @@ test('arrow selection from preview actions preserves focus and updates the selec
 });
 
 test('reduced-motion users get a manual-only carousel with the matching preview and catalog choices', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'matchMedia');
     Object.defineProperty(window, 'matchMedia', {
         configurable: true,
@@ -272,7 +272,7 @@ test('reduced-motion users get a manual-only carousel with the matching preview 
         const family = getDemonstrationCatalog().families.find(entry => entry.id === demonstration.family)!;
         return `${family.title}: ${demonstration.catalogTitle}`;
     }));
-    act(() => {jest.advanceTimersByTime(30000);});
+    act(() => {vi.advanceTimersByTime(30000);});
     expect(choices[0]).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(choices[1]);
     expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
@@ -281,7 +281,7 @@ test('reduced-motion users get a manual-only carousel with the matching preview 
 });
 
 test('autoplay pauses outside the viewport and while the page is hidden, then resumes with a full dwell', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const hiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     const observerDescriptor = Object.getOwnPropertyDescriptor(window, 'IntersectionObserver');
     Object.defineProperty(document, 'hidden', {configurable: true, value: false});
@@ -308,25 +308,25 @@ test('autoplay pauses outside the viewport and while the page is hidden, then re
     const choices = within(within(opening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
     const currentTitle = () => within(opening).getByRole('heading', {level: 3}).textContent;
 
-    act(() => {jest.advanceTimersByTime(2000);});
+    act(() => {vi.advanceTimersByTime(2000);});
     act(() => {routeObserver?.emit(false);});
-    act(() => {jest.advanceTimersByTime(12000);});
+    act(() => {vi.advanceTimersByTime(12000);});
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
     act(() => {routeObserver?.emit(true);});
-    act(() => {jest.advanceTimersByTime(5999);});
+    act(() => {vi.advanceTimersByTime(5999);});
     expect(currentTitle()).toBe(openingDemonstrations()[0].catalogTitle);
-    act(() => {jest.advanceTimersByTime(1);});
+    act(() => {vi.advanceTimersByTime(1);});
     expect(currentTitle()).toBe(openingDemonstrations()[1].catalogTitle);
 
     Object.defineProperty(document, 'hidden', {configurable: true, value: true});
     fireEvent(document, new Event('visibilitychange'));
-    act(() => {jest.advanceTimersByTime(12000);});
+    act(() => {vi.advanceTimersByTime(12000);});
     expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
     Object.defineProperty(document, 'hidden', {configurable: true, value: false});
     fireEvent(document, new Event('visibilitychange'));
-    act(() => {jest.advanceTimersByTime(5999);});
+    act(() => {vi.advanceTimersByTime(5999);});
     expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
-    act(() => {jest.advanceTimersByTime(1);});
+    act(() => {vi.advanceTimersByTime(1);});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
 
     view.unmount();

@@ -12,7 +12,7 @@ function fakeBoard() {
         objectsList: [] as any[],
         unitX: 100,
         unitY: 100,
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>};
             if (type === 'point') {
                 const free = parents.every((parent: unknown) => typeof parent === 'number');
@@ -20,8 +20,8 @@ function fakeBoard() {
                 object.y = free ? parents[1] : undefined;
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
-                object.moveTo = jest.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
-                object.on = jest.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
+                object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
+                object.on = vi.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
             }
             if (type === 'curve') {
                 object.dataX = parents[0];
@@ -30,14 +30,14 @@ function fakeBoard() {
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -47,8 +47,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new ArcLengthGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -257,7 +257,7 @@ test('the caption follows the language, and a language change notifies subscribe
     const graph = makeGraph();
     apply(graph, parameter('n', 10));
     expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'lomljenka 3,8153, lok 3,8202']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -313,7 +313,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPresetData(JSON.stringify({a: 0, b: 1, n: 5}));
     expect(graph.model).toEqual({a: 0, b: 1, n: 5});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {a: 8, b: 0, n: 2}, {a: 0, b: -8, n: 2}, {a: 0, b: 1, n: 0}, {a: 0, b: 1, n: 101}, {a: 0, b: 1, n: 2.5}, {a: 0, b: 1}];
     for (const entry of bad) {
         graph.importPresetData(entry);
@@ -385,8 +385,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new ArcLengthGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'arc-length', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 2, n: 4}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

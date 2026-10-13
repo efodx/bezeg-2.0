@@ -6,7 +6,7 @@ import {onLanguageChange, setLanguage} from '../../localization';
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>, snapLog: [] as boolean[]};
             const free = type === 'point' && parents.every((parent: unknown) => typeof parent === 'number');
             if (type === 'point') {
@@ -14,21 +14,21 @@ function fakeBoard() {
                 object.y = free ? parents[1] : undefined;
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
-                object.moveTo = jest.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
-                object.setAttribute = jest.fn((attribute: any) => { object.snapLog.push(attribute.snapToGrid); });
-                object.on = jest.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
+                object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
+                object.setAttribute = vi.fn((attribute: any) => { object.snapLog.push(attribute.snapToGrid); });
+                object.on = vi.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
             }
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => [-6, 8, 6, -4]),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => [-6, 8, 6, -4]),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -38,8 +38,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -184,7 +184,7 @@ test('the caption follows the language, and a language change notifies subscribe
     apply(graph, parameter('k', -0.5));
     setLanguage('sl');
     expect(graph.captionPlainLines()).toEqual(['y = −0,5x + 1']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -205,7 +205,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(points(graph)).toEqual([[5, 6], [7, 8]]);
     graph.importPresetData(JSON.stringify({x1: 1, y1: 2, x2: 3, y2: 4}));
     expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 4});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     for (const bad of [undefined, null, 'not json', {x1: 1}, {x1: 1, y1: 2, x2: 3, y2: NaN}, [], {x1: 1e12, y1: 0, x2: 0, y2: 0}]) {
         graph.importPresetData(bad);
         expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
@@ -273,8 +273,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'linear-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {x1: 0, y1: 0, x2: 1, y2: 1}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

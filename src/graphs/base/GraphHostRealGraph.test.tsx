@@ -34,7 +34,7 @@ test('a state change on a real graph calls onStateChange once per commit and red
     expect(graph.state.initialized).toBe(true);
     expect(screen.queryByText(/Priprava grafa|Preparing graph/)).not.toBeInTheDocument();
 
-    const update = jest.spyOn(graph.liveBoard(), 'update');
+    const update = vi.spyOn(graph.liveBoard(), 'update');
     graph.stateChanges.length = 0;
     act(() => {
         graph.setState({t: 0.25});

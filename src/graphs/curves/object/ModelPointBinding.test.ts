@@ -12,13 +12,13 @@ function mockPoint(x: number, y: number) {
     let coordinates: [number, number] = [x, y];
     const handlers = new Map<string, Set<(event?: Event) => void>>();
     const point = {
-        setPositionDirectly: jest.fn((_mode: number, next: [number, number]) => { coordinates = [...next]; }),
-        on: jest.fn((event: string, handler: (event?: Event) => void) => {
+        setPositionDirectly: vi.fn((_mode: number, next: [number, number]) => { coordinates = [...next]; }),
+        on: vi.fn((event: string, handler: (event?: Event) => void) => {
             const eventHandlers = handlers.get(event) ?? new Set();
             eventHandlers.add(handler);
             handlers.set(event, eventHandlers);
         }),
-        off: jest.fn((event: string, handler: (event?: Event) => void) => handlers.get(event)?.delete(handler)),
+        off: vi.fn((event: string, handler: (event?: Event) => void) => handlers.get(event)?.delete(handler)),
         X: () => coordinates[0],
         Y: () => coordinates[1],
         moveTo(next: [number, number]) { coordinates = next; },
@@ -30,7 +30,7 @@ function mockPoint(x: number, y: number) {
 test("model and board edits synchronize without making board coordinates the model", () => {
     const modelPoint = new PointImpl(1, 2);
     const boardPoint = mockPoint(1, 2);
-    const afterDrag = jest.fn();
+    const afterDrag = vi.fn();
     const binding = new ModelPointBinding(modelPoint, boardPoint as unknown as JXG.Point, afterDrag);
 
     boardPoint.moveTo([3, 4]);

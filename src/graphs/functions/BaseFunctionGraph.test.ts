@@ -9,7 +9,7 @@ const DEFAULT_BOX = [-6, 8, 6, -4];
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>};
             if (type === 'point') {
                 const free = parents.every((parent: unknown) => typeof parent === 'number');
@@ -17,21 +17,21 @@ function fakeBoard() {
                 object.y = free ? parents[1] : undefined;
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
-                object.moveTo = jest.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
-                object.setAttribute = jest.fn();
-                object.on = jest.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
+                object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
+                object.setAttribute = vi.fn();
+                object.on = vi.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
             }
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => DEFAULT_BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => DEFAULT_BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -40,9 +40,9 @@ function fakeBoard() {
 function makeUninitializedGraph() {
     const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
-    graph.graphSession = {isReady: true, isAlive: true, dispose: jest.fn()};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.graphSession = {isReady: true, isAlive: true, dispose: vi.fn()};
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     return graph;
 }
 
@@ -104,7 +104,7 @@ describe('a dead graph session is never touched', () => {
 
 describe('language changes', () => {
     test('only an actual language change updates the board, not a figure-export state change', () => {
-        jest.spyOn(BaseGraph.prototype, 'mount').mockImplementation(() => undefined);
+        vi.spyOn(BaseGraph.prototype, 'mount').mockImplementation(() => undefined);
         try {
             const graph = makeUninitializedGraph();
             graph.mount(document.createElement('div'));
@@ -118,12 +118,12 @@ describe('language changes', () => {
             expect(graph.boardUpdate).toHaveBeenCalledTimes(1);
             setLanguage('sl');
             expect(graph.boardUpdate).toHaveBeenCalledTimes(2);
-            jest.spyOn(BaseGraph.prototype, 'unmount').mockImplementation(() => undefined);
+            vi.spyOn(BaseGraph.prototype, 'unmount').mockImplementation(() => undefined);
             graph.unmount();
             setLanguage('en');
             expect(graph.boardUpdate).toHaveBeenCalledTimes(2);
         } finally {
-            jest.restoreAllMocks();
+            vi.restoreAllMocks();
         }
     });
 });

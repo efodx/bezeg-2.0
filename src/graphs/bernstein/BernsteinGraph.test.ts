@@ -5,16 +5,16 @@ import {PointImpl} from '../../bezeg/impl/point/point-impl';
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string) => {
+        create: vi.fn((type: string) => {
             const object = {type, board};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((o: any) => !list.includes(o));
         }),
-        update: jest.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -26,9 +26,9 @@ function makeGraph(initial = {n: 2, isSumGraph: false, showLabels: false}) {
     graph.generatedFor = null;
     graph.padding = 0.1;
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
+    graph.boardUpdate = vi.fn();
     graph.store.replaceState({...initial});
-    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
     return graph;
 }
 

@@ -2,14 +2,14 @@ import AffineTransformBezierCurveGraph from './AffineTransformsBezierCurveGraph'
 
 test('owns affine guided actions and updates the board after each operation', () => {
     const curve = {
-        moveFor: jest.fn(),
-        scale: jest.fn(),
-        rotate: jest.fn(),
-        flip: jest.fn(),
+        moveFor: vi.fn(),
+        scale: vi.fn(),
+        rotate: vi.fn(),
+        flip: vi.fn(),
     };
     const graph = Object.create(AffineTransformBezierCurveGraph.prototype) as any;
-    graph.getFirstCurve = jest.fn(() => curve);
-    graph.boardUpdate = jest.fn();
+    graph.getFirstCurve = vi.fn(() => curve);
+    graph.boardUpdate = vi.fn();
 
     graph.applyLessonAction({kind: 'affine-transform', operation: 'translate-x', value: 0.5});
     graph.applyLessonAction({kind: 'affine-transform', operation: 'translate-y', value: -0.25});

@@ -18,7 +18,7 @@ class FakePoint {
     private y: number | (() => number);
     private handlers = new Map<string, Set<() => void>>();
     readonly visProp: {fixed?: boolean};
-    readonly setPositionDirectly = jest.fn((_mode: number, coords: [number, number]) => {
+    readonly setPositionDirectly = vi.fn((_mode: number, coords: [number, number]) => {
         this.x = coords[0];
         this.y = coords[1];
     });
@@ -67,8 +67,8 @@ function fakeBoard(): {board: JXG.Board; points: FakePoint[]; sliders: FakeSlide
             return {hide() {}, show() {}};
         },
         removeObject(objects: any) { removed.push(objects); },
-        on: jest.fn(), off: jest.fn(), update: jest.fn(), fullUpdate: jest.fn(),
-        suspendUpdate: jest.fn(), unsuspendUpdate: jest.fn(),
+        on: vi.fn(), off: vi.fn(), update: vi.fn(), fullUpdate: vi.fn(),
+        suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(),
     };
     return {board: board as unknown as JXG.Board, points, sliders, removed};
 }

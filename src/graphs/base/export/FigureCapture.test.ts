@@ -1,6 +1,7 @@
 import {waitFor} from "@testing-library/react";
 import {setLanguage} from "../../../localization";
 import {capturePNGBlob, downloadPNG, downloadSVG, FigureCaptureTarget, FigureExportCancelledError} from "./FigureCapture";
+import type {Mock} from 'vitest';
 
 function makeTarget(container: HTMLElement, controller = new AbortController()): FigureCaptureTarget {
     return {
@@ -27,7 +28,7 @@ test("PNG capture hides only target MathJax assistive nodes and restores their e
     document.body.appendChild(container);
     document.body.appendChild(outside);
     const expected = new Blob(["png"], {type: "image/png"});
-    const renderToCanvas = jest.fn(async (target: HTMLElement) => {
+    const renderToCanvas = vi.fn(async (target: HTMLElement) => {
         expect(target).toBe(container);
         expect(withDisplay.style.getPropertyValue("display")).toBe("none");
         expect(withDisplay.style.getPropertyPriority("display")).toBe("important");
@@ -57,8 +58,8 @@ test("PNG capture restores MathJax styles and does not download after capture fa
     const container = document.createElement("div");
     container.innerHTML = '<mjx-assistive-mml style="display: contents !important; color: purple"></mjx-assistive-mml>';
     const mml = container.querySelector<HTMLElement>("mjx-assistive-mml")!;
-    const download = jest.fn();
-    const renderToCanvas = jest.fn(async () => {
+    const download = vi.fn();
+    const renderToCanvas = vi.fn(async () => {
         expect(mml.style.getPropertyValue("display")).toBe("none");
         throw new Error("renderer failed");
     });
@@ -88,11 +89,11 @@ test("PNG capture cancellation prevents download and restores capture styles", a
     container.innerHTML = '<mjx-assistive-mml style="display: inline"></mjx-assistive-mml>';
     const mml = container.querySelector<HTMLElement>("mjx-assistive-mml")!;
     const target = makeTarget(container, controller);
-    const download = jest.fn();
+    const download = vi.fn();
     let signalCaptureStarted: () => void = () => undefined;
     const captureStarted = new Promise<void>(resolve => { signalCaptureStarted = resolve; });
     let finishRendering: (canvas: HTMLCanvasElement) => void = () => undefined;
-    const renderToCanvas = jest.fn(() => new Promise<HTMLCanvasElement>(resolve => {
+    const renderToCanvas = vi.fn(() => new Promise<HTMLCanvasElement>(resolve => {
         signalCaptureStarted();
         finishRendering = resolve;
     }));
@@ -134,12 +135,12 @@ test("PNG capture waits for MathJax startup and an explicit current-container ty
             return startup;
         },
     }) as {promise: Promise<unknown>};
-    const typesetPromise = jest.fn((_elements?: Element[]) => new Promise<void>(resolve => {
+    const typesetPromise = vi.fn((_elements?: Element[]) => new Promise<void>(resolve => {
         resolveTypesetting = resolve;
     }));
     win.MathJax = {startup: startupApi, typesetPromise};
     const renderedBlob = new Blob(["png"], {type: "image/png"});
-    const renderToCanvas = jest.fn(async () => makeCanvas(renderedBlob));
+    const renderToCanvas = vi.fn(async () => makeCanvas(renderedBlob));
 
     try {
         const capture = capturePNGBlob(target, {renderToCanvas});
@@ -163,7 +164,7 @@ test("PNG capture waits for MathJax startup and an explicit current-container ty
 });
 
 test("disposing the graph while MathJax is pending cancels capture", async () => {
-    type TestMathJax = {startup: {promise: Promise<unknown>}; typesetPromise: jest.Mock};
+    type TestMathJax = {startup: {promise: Promise<unknown>}; typesetPromise: Mock};
     const win = window as Window & {MathJax?: TestMathJax};
     const previousMathJax = win.MathJax;
     const controller = new AbortController();
@@ -180,8 +181,8 @@ test("disposing the graph while MathJax is pending cancels capture", async () =>
             return startup;
         },
     }) as {promise: Promise<unknown>};
-    const typesetPromise = jest.fn();
-    const renderToCanvas = jest.fn(async () => makeCanvas(new Blob(["late"])));
+    const typesetPromise = vi.fn();
+    const renderToCanvas = vi.fn(async () => makeCanvas(new Blob(["late"])));
     win.MathJax = {startup: startupApi, typesetPromise};
 
     try {
@@ -203,8 +204,8 @@ test("SVG export serializes the owned renderer root and keeps the requested file
     const target = makeTarget(container);
     target.rendererRoot.innerHTML = '<circle cx="2" cy="3" r="4"></circle>';
     const expectedSvg = new XMLSerializer().serializeToString(target.rendererRoot);
-    const serializeSvg = jest.fn((_root: SVGSVGElement) => expectedSvg);
-    const download = jest.fn();
+    const serializeSvg = vi.fn((_root: SVGSVGElement) => expectedSvg);
+    const download = vi.fn();
     const loadSvgTypesetter = async () => () => ({viewBox: "0 0 1 1", body: ""});
 
     await downloadSVG(target, "saved-scene.svg", {serializeSvg, download, loadSvgTypesetter});

@@ -230,8 +230,8 @@ describe("downloadSVG with math labels", () => {
     beforeEach(() => setLanguage("sl"));
 
     function exportWith(scene: Scene, loadSvgTypesetter: () => Promise<SvgTypesetter>) {
-        const download = jest.fn();
-        const serializeSvg = jest.fn((root: SVGSVGElement) => new XMLSerializer().serializeToString(root));
+        const download = vi.fn();
+        const serializeSvg = vi.fn((root: SVGSVGElement) => new XMLSerializer().serializeToString(root));
         return {download, serializeSvg, run: () => downloadSVG(scene.target, "f.svg", {download, serializeSvg, loadSvgTypesetter})};
     }
 

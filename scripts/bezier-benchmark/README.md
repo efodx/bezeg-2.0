@@ -2,6 +2,8 @@
 
 This is a separate diagnostic bundle of the real De Casteljau graph component and its shared JSXGraph adapter. It does not add a route or controls to the normal app, change sampling settings, or save presets.
 
+**Currently not buildable:** `browser.tsx` still imports `src/graphs/context/VisibilityContext`, removed in `e35075f`, so the harness must be updated to the current graph API before use. The build itself uses Vite (since [ADR 0009](../../docs/adr/0009-vite-build-and-vitest.md)); the `before` label swaps the evaluator sources through a Vite `load` plugin.
+
 Use the existing installed dependencies. From the repository root:
 
 ```powershell

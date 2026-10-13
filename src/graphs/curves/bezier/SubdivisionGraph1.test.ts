@@ -15,35 +15,35 @@ const xy = (pts: any[]) => pts.map(p => [p.X(), p.Y()]);
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[]) => {
+        create: vi.fn((type: string, parents: any[]) => {
             const object = {type, parents};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((o: any) => !list.includes(o));
         }),
-        update: jest.fn(),
+        update: vi.fn(),
     };
     return board;
 }
 
 function fakeJxgCurve(curve: any) {
-    const jsxCurve = {setAttribute: jest.fn()};
+    const jsxCurve = {setAttribute: vi.fn()};
     return {
         getCurve: () => curve,
         getJxgCurve: () => jsxCurve,
         jsxCurve,
         getJxgPoints: () => [],
-        setIntervalEnd: jest.fn(),
-        setAttributes: jest.fn(),
-        showDecasteljauPoints: jest.fn(),
-        showCurrentDecasteljauScheme: jest.fn(),
-        setSubdivisionT: jest.fn(),
-        subdivide: jest.fn(() => ({getJxgCurve: () => ({setAttribute: jest.fn()})})),
+        setIntervalEnd: vi.fn(),
+        setAttributes: vi.fn(),
+        showDecasteljauPoints: vi.fn(),
+        showCurrentDecasteljauScheme: vi.fn(),
+        setSubdivisionT: vi.fn(),
+        subdivide: vi.fn(() => ({getJxgCurve: () => ({setAttribute: vi.fn()})})),
         isShowingDecasteljauScheme: () => false,
-        dispose: jest.fn(),
+        dispose: vi.fn(),
         board: undefined as any,
     };
 }
@@ -56,8 +56,8 @@ function makeGraph(Cls: any = SubdivisionGraph1) {
     graph.workspaceRevision = 0;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({t: 0.5, v: 1, showDecasteljau: true, initialized: true});
-    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
-    graph.boardUpdate = jest.fn();
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
     return graph;
 }
 
@@ -123,7 +123,7 @@ describe('lesson actions', () => {
     test('prepared scene, parameter and subdivide in one synchronous tick split at the new t after an earlier split', () => {
         const graph = makeGraph();
         graph.store.setState({t: 1});
-        const spy = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+        const spy = vi.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
             this.jxgCurves = [fakeJxgCurve(poly())];
         });
         try {
@@ -151,7 +151,7 @@ describe('lesson actions', () => {
 
 describe('orange remainder ownership', () => {
     function stubImport() {
-        return jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+        return vi.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
             this.disposeFigureScene();
             this.jxgCurves = [fakeJxgCurve(poly())];
         });
@@ -189,7 +189,7 @@ describe('orange remainder ownership', () => {
         const graph = makeGraph();
         const first = fakeJxgCurve(poly());
         const second = fakeJxgCurve(poly());
-        const spy = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+        const spy = vi.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
             this.jxgCurves = [first, second];
         });
         try {

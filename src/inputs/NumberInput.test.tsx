@@ -4,7 +4,7 @@ import {NumberInput} from './NumberInput';
 import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 
 test('commits only finite in-range numbers, keeps partial typing, and follows the model value', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const {rerender} = render(<NumberInput label="k" value={2} min={-10} max={10} onChange={onChange}/>);
     const input = screen.getByLabelText('k') as HTMLInputElement;
     expect(input.value).toBe('2');
@@ -21,7 +21,7 @@ test('commits only finite in-range numbers, keeps partial typing, and follows th
 });
 
 test('arrow keys step by the step prop, clamp to the range, and any typed number is valid for the browser (no step attribute)', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<NumberInput label="x" value={1} min={-4} max={4} step={0.01} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
     expect(input.step).toBe('any');
@@ -39,7 +39,7 @@ test('arrow keys step by the step prop, clamp to the range, and any typed number
 });
 
 test('a value outside the range or rejected by the model is explained, in the current language, and the hint goes away when a valid value is typed', () => {
-    const onChange = jest.fn(() => true);
+    const onChange = vi.fn(() => true);
     render(<NumberInput label="x" value={1} min={-4} max={4} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
     fireEvent.change(input, {target: {value: '7'}});

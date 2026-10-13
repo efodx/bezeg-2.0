@@ -10,16 +10,16 @@ const sub = (from: number, to: number) => new PolynomialBezierCurve(P.slice(from
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[]) => {
-            const object: any = {type, parents, board, on: jest.fn()};
+        create: vi.fn((type: string, parents: any[]) => {
+            const object: any = {type, parents, board, on: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((o: any) => !list.includes(o));
         }),
-        update: jest.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -29,10 +29,10 @@ function fakeJxgCurve(curve: any) {
         getCurve: () => curve,
         getAttributes: () => ({}),
         getJxgPoints: () => [],
-        setIntervalEnd: jest.fn(),
-        setAttributes: jest.fn(),
-        setDecasteljauT: jest.fn(),
-        dispose: jest.fn(),
+        setIntervalEnd: vi.fn(),
+        setAttributes: vi.fn(),
+        setDecasteljauT: vi.fn(),
+        dispose: vi.fn(),
         board: undefined as any,
     };
 }
@@ -47,9 +47,9 @@ function makeGraph() {
     graph.parameter = 0.5;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({t: 0.5, v: 1, animationStatus: 'ready', initialized: true});
-    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
-    graph.boardUpdate = jest.fn();
-    graph.animation = {isRunning: jest.fn(() => false), pause: jest.fn(), stop: jest.fn()};
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.animation = {isRunning: vi.fn(() => false), pause: vi.fn(), stop: vi.fn()};
     return graph;
 }
 
@@ -123,7 +123,7 @@ describe('lesson parameter action', () => {
 });
 
 describe('helper ownership', () => {
-    const stubImport = () => jest.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
+    const stubImport = () => vi.spyOn(BaseCurveGraph.prototype, 'importPresetData').mockImplementation(function (this: any) {
         this.disposeFigureScene();
         this.jxgCurves = [fakeJxgCurve(quartic())];
     });

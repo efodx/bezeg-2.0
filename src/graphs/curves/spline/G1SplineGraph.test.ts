@@ -39,10 +39,10 @@ function makeGraph(Cls: any, curve: BezierSpline) {
     graph.jxgCurves = [{getCurve: () => curve}];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({initialized: true});
-    graph.setState = jest.fn((patch: any) => {
+    graph.setState = vi.fn((patch: any) => {
         graph.store.replaceState({...graph.state, ...(typeof patch === 'function' ? patch(graph.state) : patch)});
     });
-    graph.boardUpdate = jest.fn();
+    graph.boardUpdate = vi.fn();
     return graph;
 }
 

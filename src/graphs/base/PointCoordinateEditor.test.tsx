@@ -7,8 +7,8 @@ test("keyboard submission resolves current points after an auxiliary editor repl
     const before = [new PointImpl(1, 2)];
     const after = [new PointImpl(1, 2)];
     let points = before;
-    const board = {on: jest.fn(), off: jest.fn()} as unknown as JXG.Board;
-    const onChange = jest.fn();
+    const board = {on: vi.fn(), off: vi.fn()} as unknown as JXG.Board;
+    const onChange = vi.fn();
     render(<PointCoordinateEditor prefix="w" points={() => points} board={board} onChange={onChange}/>);
     points = after;
     fireEvent.click(screen.getByText("Koordinate točk · urejanje s tipkovnico"));
@@ -21,10 +21,10 @@ test("keyboard submission resolves current points after an auxiliary editor repl
 
 test("auxiliary graph dragging refreshes coordinates and listeners are disposed", () => {
     const point = new PointImpl(1, 2);
-    const board = {on: jest.fn(), off: jest.fn()} as unknown as JXG.Board;
+    const board = {on: vi.fn(), off: vi.fn()} as unknown as JXG.Board;
     let refresh = () => {};
-    const auxiliary = {on: jest.fn((event, callback) => {refresh = callback;}), off: jest.fn()} as unknown as JXG.Board;
-    const {unmount} = render(<PointCoordinateEditor points={() => [point]} board={board} observeBoard={() => auxiliary} onChange={jest.fn()}/>);
+    const auxiliary = {on: vi.fn((event, callback) => {refresh = callback;}), off: vi.fn()} as unknown as JXG.Board;
+    const {unmount} = render(<PointCoordinateEditor points={() => [point]} board={board} observeBoard={() => auxiliary} onChange={vi.fn()}/>);
     fireEvent.click(screen.getByText("Koordinate točk · urejanje s tipkovnico"));
     point.setX(4);
     act(() => refresh());

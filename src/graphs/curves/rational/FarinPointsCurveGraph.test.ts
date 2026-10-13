@@ -14,11 +14,11 @@ function fakeCurve(count = 4) {
         farin: false, standard: false, weights: [1, 2, 1, 1], calls: [] as string[],
         getJxgPoints: () => new Array(count).fill({}),
         isShowingFarinPoints: () => fake.farin,
-        showFarinPoints: jest.fn((v: boolean) => { fake.calls.push(`farin:${v}`); fake.farin = v; }),
-        setStandardForm: jest.fn((v: boolean) => { fake.standard = v; }),
+        showFarinPoints: vi.fn((v: boolean) => { fake.calls.push(`farin:${v}`); fake.farin = v; }),
+        setStandardForm: vi.fn((v: boolean) => { fake.standard = v; }),
         inStandardForm: () => fake.standard,
         getCurve: () => ({
-            setWeights: jest.fn((w: number[]) => { fake.calls.push('weights'); fake.weights = w; }),
+            setWeights: vi.fn((w: number[]) => { fake.calls.push('weights'); fake.weights = w; }),
             getEffectiveWeights: () => fake.weights,
         }),
     };
@@ -28,8 +28,8 @@ function fakeCurve(count = 4) {
 function graphWith(c: any) {
     const graph = Object.create(FarinPointsCurveGraph.prototype) as any;
     graph.jxgCurves = [c];
-    graph.boardUpdate = jest.fn();
-    graph.refreshWorkspace = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.refreshWorkspace = vi.fn();
     graph.inputsDisabled = false;
     graph.getAllJxgPoints = () => [];
     return graph;
@@ -38,7 +38,7 @@ function graphWith(c: any) {
 test('farin-points action toggles display and curve inputs, keeping control points draggable', () => {
     const c = fakeCurve();
     const graph = graphWith(c);
-    const point = {setAttribute: jest.fn()};
+    const point = {setAttribute: vi.fn()};
     graph.getAllJxgPoints = () => [point];
     graph.applyLessonAction({kind: 'farin-points', visible: true});
     expect(c.farin).toBe(true);

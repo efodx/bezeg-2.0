@@ -4,19 +4,20 @@ import {JSXGraph} from "jsxgraph";
 import {HodographInputbox} from "./HodographInputBox";
 import {stylesFor} from "../../styles/GraphStyles";
 import {DisplaySettings} from "../../base/DisplaySettings";
+import type {Mock} from 'vitest';
 
 const axisStyles = stylesFor(new DisplaySettings()).axis;
 
-jest.mock("jsxgraph", () => ({JSXGraph: {initBoard: jest.fn(), freeBoard: jest.fn()}}));
+vi.mock("jsxgraph", () => ({JSXGraph: {initBoard: vi.fn(), freeBoard: vi.fn()}}));
 
-const jsxgraph = JSXGraph as unknown as {initBoard: jest.Mock, freeBoard: jest.Mock};
+const jsxgraph = JSXGraph as unknown as {initBoard: Mock, freeBoard: Mock};
 
 function installResizeObserver() {
     let callback: ResizeObserverCallback | undefined;
-    const disconnect = jest.fn();
+    const disconnect = vi.fn();
     class ResizeObserverStub {
         constructor(nextCallback: ResizeObserverCallback) { callback = nextCallback; }
-        observe = jest.fn();
+        observe = vi.fn();
         disconnect = disconnect;
     }
     const original = globalThis.ResizeObserver;
@@ -36,13 +37,13 @@ function installResizeObserver() {
 function createBoard() {
     let boundingBox: [number, number, number, number] = [-5, 5, 5, -5];
     const board = {
-        resizeContainer: jest.fn((_width: number, _height: number, _dontSetCss: boolean, dontSetBoundingBox: boolean) => {
+        resizeContainer: vi.fn((_width: number, _height: number, _dontSetCss: boolean, dontSetBoundingBox: boolean) => {
             boundingBox = dontSetBoundingBox
                 ? [-10, 10, 10, -10]
                 : [Number.NaN, Number.NaN, Number.NaN, Number.NaN];
         }),
-        getBoundingBox: jest.fn(() => boundingBox),
-        setBoundingBox: jest.fn((next: number[]) => { boundingBox = next as [number, number, number, number]; }),
+        getBoundingBox: vi.fn(() => boundingBox),
+        setBoundingBox: vi.fn((next: number[]) => { boundingBox = next as [number, number, number, number]; }),
     } as unknown as JXG.Board;
     return board;
 }
@@ -56,15 +57,15 @@ test("defers creation until visible size, then preserves the saved viewport thro
     const resize = installResizeObserver();
     const board = createBoard();
     jsxgraph.initBoard.mockReturnValue(board);
-    const setRef = jest.fn();
+    const setRef = vi.fn();
     let pendingBoundingBox: [number, number, number, number] | undefined = [-2, 3, 3, -2];
-    const onResize = jest.fn((resizedBoard: JXG.Board) => {
+    const onResize = vi.fn((resizedBoard: JXG.Board) => {
         if (pendingBoundingBox) {
             resizedBoard.setBoundingBox(pendingBoundingBox, true);
             pendingBoundingBox = undefined;
         }
     });
-    const onDispose = jest.fn();
+    const onDispose = vi.fn();
     const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={setRef} onResize={onResize} onDispose={onDispose}/>);
 
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
@@ -93,7 +94,7 @@ test("defers creation until visible size, then preserves the saved viewport thro
 
 test("a queued resize after hidden unmount cannot create the auxiliary board", () => {
     const resize = installResizeObserver();
-    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={jest.fn()}/>);
+    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={vi.fn()}/>);
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     unmount();
 

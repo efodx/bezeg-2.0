@@ -11,14 +11,14 @@ function fakeCurve() {
         extrapolationPoint: null as object | null,
         extrapolationT: 1.2,
         created,
-        createExtrapolationPoint: jest.fn(() => {
+        createExtrapolationPoint: vi.fn(() => {
             if (!fake.extrapolationPoint) { fake.extrapolationPoint = {}; created.push(fake.extrapolationPoint); }
         }),
-        showExtrapolationPoint: jest.fn(),
-        setAttributes: jest.fn(),
-        setExtrapolationT: jest.fn((v: number) => { fake.extrapolationT = v; }),
+        showExtrapolationPoint: vi.fn(),
+        setAttributes: vi.fn(),
+        setExtrapolationT: vi.fn((v: number) => { fake.extrapolationT = v; }),
         getExtrapolationT: () => fake.extrapolationT,
-        extrapolate: jest.fn(),
+        extrapolate: vi.fn(),
     };
     return fake;
 }
@@ -26,9 +26,9 @@ function fakeCurve() {
 function graphWith(c: any) {
     const graph = Object.create(RationalExtrapolationGraph.prototype) as any;
     graph.jxgCurves = [c];
-    graph.refreshWorkspace = jest.fn();
-    graph.board = {suspendUpdate: jest.fn()};
-    graph.unsuspendBoardUpdate = jest.fn();
+    graph.refreshWorkspace = vi.fn();
+    graph.board = {suspendUpdate: vi.fn()};
+    graph.unsuspendBoardUpdate = vi.fn();
     return graph;
 }
 
@@ -57,7 +57,7 @@ test('extrapolate action extrapolates at the current parameter', () => {
 test('preset import recreates exactly one extrapolation point per curve', () => {
     const second = fakeCurve();
     const graph = graphWith(fakeCurve());
-    const spy = jest.spyOn(BaseRationalCurveGraph.prototype as any, 'importPresetData').mockImplementation(function (this: any) {
+    const spy = vi.spyOn(BaseRationalCurveGraph.prototype as any, 'importPresetData').mockImplementation(function (this: any) {
         this.jxgCurves = [second];
     });
     try {

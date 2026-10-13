@@ -11,7 +11,7 @@ const S = Math.sqrt(1.5);
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>};
             if (type === 'point') {
                 const free = parents.every((parent: unknown) => typeof parent === 'number');
@@ -19,8 +19,8 @@ function fakeBoard() {
                 object.y = free ? parents[1] : undefined;
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
-                object.moveTo = jest.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
-                object.on = jest.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
+                object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
+                object.on = vi.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
             }
             if (type === 'curve') {
                 object.dataX = parents[0];
@@ -29,14 +29,14 @@ function fakeBoard() {
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -46,8 +46,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -345,7 +345,7 @@ test('the caption follows the language, and a language change notifies subscribe
     apply(graph, parameter('a', 0));
     apply(graph, parameter('b', 4));
     expect(graph.captionPlainLines().slice(0, 2)).toEqual(['∫(g − f) dx = 1,3333', 'ploščina = 8,4646']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -431,7 +431,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPresetData(JSON.stringify({a: 0, b: 4, mode: 'between'}));
     expect(graph.model).toEqual({a: 0, b: 4, mode: 'between'});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {a: 2 - S, b: 2 + S, mode: 'between'};
     const bad = [undefined, null, 'not json', {}, [], {a: 0, b: 4, mode: 'under'}, {a: 5.5, b: 0, mode: 'between'}, {a: 0, b: -2, mode: 'between'}, {a: '0', b: 4, mode: 'between'}, {a: 0, b: 4}];
     for (const entry of bad) {
@@ -503,8 +503,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'area-between-curves', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 2, mode: 'between'}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

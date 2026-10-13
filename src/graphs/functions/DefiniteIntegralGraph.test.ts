@@ -11,7 +11,7 @@ const EXP_BOX = [-3, 8.5, 9, -1];
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>};
             if (type === 'point') {
                 const free = parents.every((parent: unknown) => typeof parent === 'number');
@@ -19,8 +19,8 @@ function fakeBoard() {
                 object.y = free ? parents[1] : undefined;
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
-                object.moveTo = jest.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
-                object.on = jest.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
+                object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
+                object.on = vi.fn((event: string, handler: () => void) => { object.handlers[event] = handler; });
             }
             if (type === 'curve') {
                 object.dataX = parents[0];
@@ -29,14 +29,14 @@ function fakeBoard() {
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -46,8 +46,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -291,7 +291,7 @@ test('the caption follows the language, and a language change notifies subscribe
     apply(graph, parameter('n', 2));
     apply(graph, methodChoice('midpoint'));
     expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'vsota 2,2214, integral 2']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -396,7 +396,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPresetData(JSON.stringify({fn: 'square', a: 0, b: 1, n: 5, method: 'left'}));
     expect(graph.model).toEqual({fn: 'square', a: 0, b: 1, n: 5, method: 'left'});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {fn: 'square', a: 0, b: 2, n: 4, method: 'left'};
     const bad = [undefined, null, 'not json', {}, [], {...good, fn: 'cos'}, {...good, a: 8}, {...good, b: -8}, {...good, n: 0}, {...good, n: 200}, {...good, n: 2.5},
         {...good, method: 'upper'}, {fn: 'square', a: 0, b: 2, n: 4}];
@@ -473,8 +473,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'definite-integral', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'square', a: 0, b: 2, n: 4, method: 'left'}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();
@@ -532,8 +532,8 @@ test('a view stored in a preset wins over the function view on initialization, a
     const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'definite-integral', data: {fn: 'sin', a: 0, b: 3, n: 6, method: 'left'}});
     graph.initialize();
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(SIN_BOX, true);

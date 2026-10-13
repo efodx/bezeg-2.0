@@ -1,5 +1,6 @@
 import {LessonAction, LessonDefinition, LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
 import {LessonSession} from './LessonSession';
+import type {Mock} from 'vitest';
 
 const lesson: LessonDefinition = {
     id: 'test', demonstrationId: 'bezier', title: {sl: 'Test', en: 'Test'}, summary: {sl: 'Test', en: 'Test'},
@@ -33,13 +34,13 @@ function fakeCapabilities() {
     const actions: LessonAction[] = [];
     const checkpoint: LessonSceneCheckpoint = {version: 1, value};
     const capabilities: LessonGraphCapabilities = {
-        captureState: jest.fn(() => checkpoint),
-        restoreState: jest.fn(state => {value = state.value as string;}),
-        apply: jest.fn(action => {
+        captureState: vi.fn(() => checkpoint),
+        restoreState: vi.fn(state => {value = state.value as string;}),
+        apply: vi.fn(action => {
             actions.push(action);
             value = JSON.stringify(action);
         }),
-        stopAnimations: jest.fn(),
+        stopAnimations: vi.fn(),
     };
     return {capabilities, actions, getValue: () => value};
 }
@@ -104,7 +105,7 @@ test('unsupported or failed actions restore the checkpoint before reporting an e
     const fake = fakeCapabilities();
     const session = new LessonSession(lesson, fake.capabilities);
     session.start();
-    (fake.capabilities.apply as jest.Mock).mockImplementationOnce(() => {throw new Error('unsupported');});
+    (fake.capabilities.apply as Mock).mockImplementationOnce(() => {throw new Error('unsupported');});
     expect(() => session.reset()).toThrow('unsupported');
     expect(fake.getValue()).toBe('original');
 });
@@ -117,7 +118,7 @@ test('closing after the graph has been disposed does not restore through a dead 
     } as LessonGraphCapabilities & {isAvailable: () => boolean};
     const session = new LessonSession(lesson, unavailable);
     session.start();
-    (fake.capabilities.restoreState as jest.Mock).mockClear();
+    (fake.capabilities.restoreState as Mock).mockClear();
 
     expect(() => session.close()).not.toThrow();
     expect(fake.capabilities.restoreState).not.toHaveBeenCalled();
@@ -125,7 +126,7 @@ test('closing after the graph has been disposed does not restore through a dead 
 
 test('returns the same snapshot object until a transition changes it and notifies subscribers', () => {
     const session = new LessonSession(lesson, fakeCapabilities().capabilities);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = session.subscribe(listener);
     const initial = session.getSnapshot();
     expect(session.getSnapshot()).toBe(initial);

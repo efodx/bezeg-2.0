@@ -11,7 +11,7 @@ function chooseFile(text: string) {
 beforeEach(() => localStorage.clear());
 
 test("invalid file reports an actionable error and cannot write", async () => {
-    const imported = jest.fn();
+    const imported = vi.fn();
     render(<PresetImportDialog onImported={imported}/>);
     fireEvent.click(screen.getByRole("button", {name: "Uvozi prednastavitve"}));
     chooseFile("{");
@@ -23,7 +23,7 @@ test("invalid file reports an actionable error and cannot write", async () => {
 
 test("replacement lists the affected collection and cancellation preserves it", async () => {
     localStorage.setItem("bezeg-2.0:preset-bezier-curve", "original");
-    const imported = jest.fn();
+    const imported = vi.fn();
     render(<PresetImportDialog onImported={imported}/>);
     fireEvent.click(screen.getByRole("button", {name: "Uvozi prednastavitve"}));
     chooseFile(contents);
@@ -36,7 +36,7 @@ test("replacement lists the affected collection and cancellation preserves it", 
 
 test("explicit replacement commits the validated file", async () => {
     localStorage.setItem("bezeg-2.0:preset-bezier-curve", "original");
-    const imported = jest.fn();
+    const imported = vi.fn();
     render(<PresetImportDialog onImported={imported}/>);
     fireEvent.click(screen.getByRole("button", {name: "Uvozi prednastavitve"}));
     chooseFile(contents);

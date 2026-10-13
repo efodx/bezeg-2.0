@@ -4,16 +4,16 @@ import {Attributes} from '../../attributes/Attributes';
 
 test('keeps the De Casteljau curve clipped after preset data is restored', () => {
     const curve = {
-        setIntervalEnd: jest.fn(),
-        setAttributes: jest.fn(),
-        showDecasteljauPoints: jest.fn(),
+        setIntervalEnd: vi.fn(),
+        setAttributes: vi.fn(),
+        showDecasteljauPoints: vi.fn(),
     };
     const graph = Object.create(DecasteljauGraph.prototype) as any;
     graph.store.replaceState({t: 0.5, wholeCurve: false});
     graph.parameter = 0.5;
-    graph.getFirstJxgCurve = jest.fn(() => curve);
+    graph.getFirstJxgCurve = vi.fn(() => curve);
 
-    const importPresetData = jest.spyOn(BaseCurveGraph.prototype, 'importPresetData')
+    const importPresetData = vi.spyOn(BaseCurveGraph.prototype, 'importPresetData')
         .mockImplementation(() => undefined);
 
     try {
@@ -34,17 +34,17 @@ test('keeps the De Casteljau curve clipped after preset data is restored', () =>
 });
 
 function graphWithParameter(t: number) {
-    const curve = {setDecasteljauT: jest.fn()};
+    const curve = {setDecasteljauT: vi.fn()};
     const graph = Object.create(DecasteljauGraph.prototype) as any;
     const props = {};
     graph.props = props;
     graph.parameter = t;
     graph.store.replaceState({t, v: 1, animationStatus: 'playing', wholeCurve: false});
     graph.graphSession = {isAlive: true};
-    graph.board = {suspendUpdate: jest.fn()};
+    graph.board = {suspendUpdate: vi.fn()};
     graph.getFirstJxgCurve = () => curve;
-    graph.boardUpdate = jest.fn();
-    graph.unsuspendBoardUpdate = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.unsuspendBoardUpdate = vi.fn();
     return {graph, curve, props};
 }
 
@@ -90,7 +90,7 @@ test('keeps the full refresh for other graph state changes', () => {
 test('exports the drawn parameter rather than the lagging display state', () => {
     const {graph} = graphWithParameter(0.3);
     graph.parameter = 0.42;
-    const exportPreset = jest.spyOn(BaseCurveGraph.prototype, 'exportPreset')
+    const exportPreset = vi.spyOn(BaseCurveGraph.prototype, 'exportPreset')
         .mockImplementation(() => ({id: 'decasteljau', graphState: {t: 0.3}, data: []} as any));
     try {
         expect(graph.exportPreset().graphState.t).toBe(0.42);

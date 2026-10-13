@@ -5,23 +5,23 @@ import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {SiteContext} from "../context/react/SiteContext";
 import {setLanguage} from '../../localization';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
+import type {MockedFunction} from 'vitest';
 
 // Every active route now has a reviewed lesson, so the "no lesson" branch is exercised by letting the allowlist
 // seam report an unavailable route for one test.
-jest.mock('../../learning/runtime/lessonCatalog', () => {
-    const actual = jest.requireActual('../../learning/runtime/lessonCatalog');
-    return {...actual, getLessonForDemonstration: jest.fn(actual.getLessonForDemonstration)};
+vi.mock('../../learning/runtime/lessonCatalog', async () => {
+    const actual = await vi.importActual<typeof import('../../learning/runtime/lessonCatalog')>('../../learning/runtime/lessonCatalog');
+    return {...actual, getLessonForDemonstration: vi.fn(actual.getLessonForDemonstration)};
 });
-const actualLessonLookup = jest.requireActual('../../learning/runtime/lessonCatalog').getLessonForDemonstration;
-const lessonLookup = getLessonForDemonstration as jest.MockedFunction<typeof getLessonForDemonstration>;
+const actualLessonLookup = (await vi.importActual<typeof import('../../learning/runtime/lessonCatalog')>('../../learning/runtime/lessonCatalog')).getLessonForDemonstration;
+const lessonLookup = getLessonForDemonstration as MockedFunction<typeof getLessonForDemonstration>;
 
-// CRA's resetMocks clears mock implementations before every test, so reinstall the real lookup each time;
-// otherwise every test would silently run with lessons unavailable.
+// Reinstall the real lookup before every test so one test's unavailable-route override cannot leak into the next.
 beforeEach(() => lessonLookup.mockImplementation(actualLessonLookup));
 
 test("inspector sections remain mounted and retain values when switched or collapsed", () => {
     render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
-        display={<p>Koordinatni sistem</p>} save={<p>Prednastavitve</p>} navigate={jest.fn()}/></MemoryRouter>);
+        display={<p>Koordinatni sistem</p>} save={<p>Prednastavitve</p>} navigate={vi.fn()}/></MemoryRouter>);
     const parameter = screen.getByLabelText("Parameter");
     fireEvent.change(parameter, {target: {value: ".7"}});
     fireEvent.click(screen.getByRole("button", {name: "Prikaz"}));
@@ -37,7 +37,7 @@ test("inspector sections remain mounted and retain values when switched or colla
 
 test('learning prompts switch without remounting controls and fit delegates to the board', () => {
     setLanguage('sl');
-    const navigate = jest.fn();
+    const navigate = vi.fn();
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Raziskuj"
         edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={navigate}/></MemoryRouter>);
     const parameter = screen.getByLabelText('Parameter');
@@ -51,7 +51,7 @@ test('learning prompts switch without remounting controls and fit delegates to t
 
 test('does not lock a deep-linked workspace before graph capabilities are ready', () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?learn=1']}><DemonstrationWorkspace title="Bézier" description="Raziskuj"
-        edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
 
     expect(document.querySelector('.guided-lesson')).toBeNull();
     expect(screen.getByRole('region', {name: 'Interaktivni graf'})).not.toHaveAttribute('data-lesson-locked');
@@ -60,8 +60,8 @@ test('does not lock a deep-linked workspace before graph capabilities are ready'
 test('ignores lesson query parameters on demonstrations without reviewed lessons', () => {
     lessonLookup.mockImplementation(() => undefined);
     render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
-        edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}
-        lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: jest.fn(), apply: jest.fn()}}/></MemoryRouter>);
+        edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
+        lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
     expect(lessonLookup).toHaveBeenCalledWith('spline-cn');
     expect(document.querySelector('.guided-lesson')).toBeNull();
@@ -70,8 +70,8 @@ test('ignores lesson query parameters on demonstrations without reviewed lessons
 
 test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
-        edit={<p>Urejanje</p>} display={null} save={null} navigate={jest.fn()}
-        lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: jest.fn(), apply: jest.fn()}}/></MemoryRouter>);
+        edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
+        lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
     expect(await screen.findByRole('heading', {level: 2, name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
@@ -80,7 +80,7 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
 test('Bernstein exploration does not instruct students to drag control points', () => {
     setLanguage('sl');
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace title="Bernstein" description="Raziskuj"
-        edit={null} display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.getByText(/Spremeni stopnjo polinomov/)).toBeVisible();
     expect(screen.queryByText(/Premakni eno kontrolno točko/)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', {name: 'Prilagodi točkam'})).not.toBeInTheDocument();
@@ -88,14 +88,14 @@ test('Bernstein exploration does not instruct students to drag control points', 
 
 test('repeated subdivision prompt reflects its fixed parameter', () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/subdivision']}><DemonstrationWorkspace title="Subdivision" description="Raziskuj"
-        edit={null} display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.getByText(/Ponovi subdivizijo pri t = ½/)).toBeVisible();
 });
 
 test('language changes preserve the current learning prompt and mounted draft controls', () => {
     setLanguage('sl');
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description=""
-        edit={<input aria-label="draft" defaultValue=".5"/>} display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        edit={<input aria-label="draft" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const draft = screen.getByLabelText('draft');
     fireEvent.change(draft, {target: {value: '.9'}});
     fireEvent.click(screen.getByRole('button', {name: 'Naslednji namig'}));
@@ -107,8 +107,8 @@ test('language changes preserve the current learning prompt and mounted draft co
 });
 
 test("presentation offers controls and exit without hover, and pan is explicit", () => {
-    const setFullScreen = jest.fn();
-    const navigate = jest.fn();
+    const setFullScreen = vi.fn();
+    const navigate = vi.fn();
     render(<MemoryRouter><SiteContext.Provider value={{fullScreen: {fullScreen: true, setFullScreen}}}>
         <DemonstrationWorkspace title="PH" description="Raziskuj" edit={<p>Urejanje</p>} display={null} save={null} navigate={navigate}/>
     </SiteContext.Provider></MemoryRouter>);
@@ -123,7 +123,7 @@ test("presentation offers controls and exit without hover, and pan is explicit",
 
 test("topic families open for the current route on navigation, and the user can still toggle them", () => {
     const view = render(<MemoryRouter initialEntries={["/bezeg-2.0/bernstein"]}><DemonstrationWorkspace title="B" description="D" edit={null}
-        display={null} save={null} navigate={jest.fn()}/></MemoryRouter>);
+        display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const families = () => Array.from(view.container.querySelectorAll<HTMLDetailsElement>(".workspace-topics details"));
     const openTitles = () => families().filter(family => family.open).map(family => family.querySelector("summary")!.textContent);
     expect(openTitles()).toHaveLength(1);

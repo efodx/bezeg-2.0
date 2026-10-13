@@ -7,11 +7,11 @@ interface Piece {points: number[][]; weights: number[]}
 function graph() {
     const g = Object.create(CircleGraph.prototype) as any;
     g.jxgCurves = [] as Piece[];
-    g.createRationalJSXBezierCurve = jest.fn((points: number[][], weights: number[]) => { g.jxgCurves.push({points, weights}); });
-    g.boardUpdate = jest.fn();
-    g.refreshWorkspace = jest.fn();
-    g.board = {suspendUpdate: jest.fn(), unsuspendUpdate: jest.fn()};
-    g.disposeFigureScene = jest.fn(() => { g.jxgCurves = []; });
+    g.createRationalJSXBezierCurve = vi.fn((points: number[][], weights: number[]) => { g.jxgCurves.push({points, weights}); });
+    g.boardUpdate = vi.fn();
+    g.refreshWorkspace = vi.fn();
+    g.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn()};
+    g.disposeFigureScene = vi.fn(() => { g.jxgCurves = []; });
     return g;
 }
 
@@ -49,10 +49,10 @@ test('the UI setter keeps the count within 3 to 12', () => {
 test('prepared default scene yields three pieces from a clean board', () => {
     const g = graph();
     g.jxgCurves = [{}, {}];
-    g.importPresetData = jest.fn(() => { g.jxgCurves = []; });
+    g.importPresetData = vi.fn(() => { g.jxgCurves = []; });
     g.defaultPreset = () => [];
     g.graphSession = {isReady: true, isAlive: true};
-    g.setState = jest.fn();
+    g.setState = vi.fn();
     g.prepareLessonDefaultScene();
     expect(g.jxgCurves).toHaveLength(3);
 });

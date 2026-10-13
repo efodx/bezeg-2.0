@@ -23,7 +23,7 @@ test('a function update reads the state written by the update before it', () => 
 
 test('an update returning null changes nothing and does not notify', () => {
     const store = new SceneStore<State>({a: 1, b: 'x'});
-    const listener = jest.fn();
+    const listener = vi.fn();
     store.subscribe(listener);
     const before = store.getState();
     const version = store.getVersion();
@@ -35,7 +35,7 @@ test('an update returning null changes nothing and does not notify', () => {
 
 test('every change and every notify bumps the version and calls subscribers', () => {
     const store = new SceneStore<State>({a: 1, b: 'x'});
-    const listener = jest.fn();
+    const listener = vi.fn();
     store.subscribe(listener);
     const start = store.getVersion();
     store.setState({a: 2});
@@ -53,7 +53,7 @@ test('subscribers see the new state and can unsubscribe, also while notifying', 
         seen.push(store.getState().a);
         unsubscribeFirst();
     });
-    const second = jest.fn();
+    const second = vi.fn();
     const unsubscribeSecond = store.subscribe(second);
     store.setState({a: 2});
     store.setState({a: 3});

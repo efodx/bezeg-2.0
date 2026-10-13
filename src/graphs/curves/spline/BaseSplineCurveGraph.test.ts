@@ -5,15 +5,16 @@ import {BaseSplineCurveGraph} from './BaseSplineCurveGraph';
 import {JXGGenericSplineCurve} from '../object/JXGGenericSplineCurve';
 import {GenericBezierSpline} from '../../../bezeg/impl/curve/GenericBezierSpline';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
+import type {Mock} from 'vitest';
 
 const CN = [[-3, 2], [-4, 0.5], [-3.5, -1], [-1.5, -2], [0.5, 0], [2.5, 1.5], [4, -2]];
 
 function fakeBoard() {
     return {
         objectsList: [] as any[],
-        update: jest.fn(),
-        suspendUpdate: jest.fn(),
-        unsuspendUpdate: jest.fn(),
+        update: vi.fn(),
+        suspendUpdate: vi.fn(),
+        unsuspendUpdate: vi.fn(),
     };
 }
 
@@ -24,10 +25,10 @@ function genericCurve(degree = 2, continuity = 1, board: any = fakeBoard()) {
     curve.labelAll = true;
     curve.hideFixed = false;
     curve.pointControlledCurve = new GenericBezierSpline(CN.map(([x, y]) => new PointImpl(x, y)), degree, continuity);
-    curve.refreshNonFreeJsxGraphPoints = jest.fn();
-    curve.labelJxgPoints = jest.fn();
-    curve.setAttributes = jest.fn();
-    return curve as JXGGenericSplineCurve & {setAttributes: jest.Mock; labelJxgPoints: jest.Mock};
+    curve.refreshNonFreeJsxGraphPoints = vi.fn();
+    curve.labelJxgPoints = vi.fn();
+    curve.setAttributes = vi.fn();
+    return curve as JXGGenericSplineCurve & {setAttributes: Mock; labelJxgPoints: Mock};
 }
 
 function makeGraph(Cls: any, curve: any) {
@@ -38,10 +39,10 @@ function makeGraph(Cls: any, curve: any) {
     graph.workspaceRevision = 0;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({initialized: true});
-    graph.setState = jest.fn();
-    graph.requestRender = jest.fn();
-    graph.boardUpdate = jest.fn();
-    graph.unsuspendBoardUpdate = jest.fn();
+    graph.setState = vi.fn();
+    graph.requestRender = vi.fn();
+    graph.boardUpdate = vi.fn();
+    graph.unsuspendBoardUpdate = vi.fn();
     return graph;
 }
 
@@ -163,7 +164,7 @@ describe('importPresetData', () => {
         const graph = makeGraph(CnSplineGraph, old);
         const base = BaseSplineCurveGraph.prototype as any;
         const parent = Object.getPrototypeOf(base);
-        const spy = jest.spyOn(parent, 'importPresetData').mockImplementation(function (this: any) {
+        const spy = vi.spyOn(parent, 'importPresetData').mockImplementation(function (this: any) {
             this.jxgCurves = [replacement];
         });
         try {

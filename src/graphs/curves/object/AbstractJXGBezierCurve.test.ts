@@ -3,11 +3,11 @@ import {AbstractJXGBezierCurve} from './AbstractJXGBezierCurve';
 test('disposes De Casteljau auxiliary objects with their owning curve', () => {
     const decasteljauPoint = {} as JXG.Point;
     const decasteljauSegment = {} as JXG.Segment;
-    const removeObject = jest.fn();
+    const removeObject = vi.fn();
     const curve = Object.create(AbstractJXGBezierCurve.prototype) as any;
 
     Object.assign(curve, {
-        board: {renderer: {}, off: jest.fn(), removeObject},
+        board: {renderer: {}, off: vi.fn(), removeObject},
         decasteljauPoints: [decasteljauPoint],
         decasteljauSegments: [decasteljauSegment],
         elevationPoints: [],

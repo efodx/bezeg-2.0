@@ -7,7 +7,7 @@ test('labels the fixed midpoint evaluation explicitly', () => {
 });
 
 test('refreshes callback-based curve geometry after a control-point drag', async () => {
-    const board = {fullUpdate: jest.fn(), inUpdate: true} as unknown as Board;
+    const board = {fullUpdate: vi.fn(), inUpdate: true} as unknown as Board;
     refreshAfterControlPointDrag(board);
 
     expect(board.fullUpdate).not.toHaveBeenCalled();
@@ -16,10 +16,10 @@ test('refreshes callback-based curve geometry after a control-point drag', async
 });
 
 test('does not run a deferred drag refresh after its graph session is disposed', async () => {
-    const board = {fullUpdate: jest.fn(), inUpdate: true} as unknown as Board;
-    const freeBoard = jest.fn();
+    const board = {fullUpdate: vi.fn(), inUpdate: true} as unknown as Board;
+    const freeBoard = vi.fn();
     const dependencies = {
-        initBoard: jest.fn(() => board),
+        initBoard: vi.fn(() => board),
         freeBoard,
     } as GraphSessionDependencies;
     const session = new GraphSession(dependencies);

@@ -6,19 +6,19 @@ import {onLanguageChange, setLanguage} from '../../localization';
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => [-5, 9, 5, -3]),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => [-5, 9, 5, -3]),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -28,8 +28,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new ExponentialFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -168,7 +168,7 @@ test('the caption follows the language, shows the mirror line only while the mir
     expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5^x']);
     apply(graph, mirror(true));
     expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5^x', '(1/a)^x = 2^x (zrcalni graf)']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -187,7 +187,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({a: 0.25, mirror: false});
     graph.importPresetData(JSON.stringify({a: 4}));
     expect(graph.model).toEqual({a: 4, mirror: false});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     for (const bad of [undefined, null, 'not json', {}, {a: 0}, {a: -3}, {a: 1e9}, {a: NaN}, {a: 2, mirror: 'yes'}, []]) {
         graph.importPresetData(bad);
         expect(graph.model).toEqual({a: 2, mirror: false});
@@ -255,8 +255,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new ExponentialFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'exponential-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1.5, mirror: false}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

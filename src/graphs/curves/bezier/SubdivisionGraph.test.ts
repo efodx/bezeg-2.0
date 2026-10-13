@@ -7,17 +7,17 @@ const DEFAULT_POINTS = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
 const makeCurve = () => new PolynomialBezierCurve(DEFAULT_POINTS.map(([x, y]) => new PointImpl(x, y)));
 
 function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
-    const jsxCurve = {setAttribute: jest.fn()};
+    const jsxCurve = {setAttribute: vi.fn()};
     const jxg: any = {
         curve, disposed: false,
         getJxgCurve: () => jsxCurve,
         jsxCurve,
-        setSubdivisionResultConsumer: jest.fn(),
+        setSubdivisionResultConsumer: vi.fn(),
         isShowingControlPolygon: () => false,
-        showControlPolygon: jest.fn(),
-        dispose: jest.fn(() => { jxg.disposed = true; }),
+        showControlPolygon: vi.fn(),
+        dispose: vi.fn(() => { jxg.disposed = true; }),
         board: undefined,
-        subdivide: jest.fn((t: number) => {
+        subdivide: vi.fn((t: number) => {
             const [left, right] = jxg.curve.subdivide(t);
             jxg.curve = left;
             const created = fakeJxgCurve(right, log);
@@ -31,25 +31,25 @@ function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
 function makeGraph() {
     const graph = Object.create(SubdivisionGraph.prototype) as any;
     const log: any[] = [];
-    graph.board = {suspendUpdate: jest.fn(), unsuspendUpdate: jest.fn(), update: jest.fn(), setBoundingBox: jest.fn()};
+    graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), setBoundingBox: vi.fn()};
     graph.stepsDone = 0;
     graph.workspaceRevision = 0;
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(makeCurve(), log)];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({initialized: true});
-    graph.setState = jest.fn((patch: any) => { graph.store.setState(patch); });
-    graph.refreshWorkspace = jest.fn(() => { graph.workspaceRevision++; });
-    graph.unsuspendBoardUpdate = jest.fn();
-    graph.boardUpdate = jest.fn();
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.refreshWorkspace = vi.fn(() => { graph.workspaceRevision++; });
+    graph.unsuspendBoardUpdate = vi.fn();
+    graph.boardUpdate = vi.fn();
     graph.boardState = () => ({boundingBox: [-1, 1, 1, -1]});
     graph.exportPresetData = () => graph.jxgCurves.map((c: any) =>
         ['JSXBezierCurve', {points: c.curve.getPoints().map((p: any) => [p.X(), p.Y()])}]);
-    graph.importPresetData = jest.fn((data: any) => {
+    graph.importPresetData = vi.fn((data: any) => {
         graph.jxgCurves.forEach((c: any) => c.dispose());
         graph.jxgCurves = data.map((d: any) => fakeJxgCurve(
             new PolynomialBezierCurve(d[1].points.map(([x, y]: number[]) => new PointImpl(x, y))), log));
-        graph.jxgCurves[0].setAttributes = jest.fn();
+        graph.jxgCurves[0].setAttributes = vi.fn();
     });
     return graph;
 }

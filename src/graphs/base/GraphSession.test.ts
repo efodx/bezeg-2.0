@@ -4,16 +4,16 @@ import {GraphSession, GraphSessionDependencies} from "./GraphSession";
 function createBoard(inUpdate = false) {
     return Object.assign({
         inUpdate,
-        on: jest.fn(),
-        off: jest.fn(),
-        fullUpdate: jest.fn(),
-        resizeContainer: jest.fn(),
+        on: vi.fn(),
+        off: vi.fn(),
+        fullUpdate: vi.fn(),
+        resizeContainer: vi.fn(),
     }, {}) as unknown as Board & {inUpdate: boolean};
 }
 
 function createDependencies(board: Board) {
-    const initBoard = jest.fn(() => board);
-    const freeBoard = jest.fn();
+    const initBoard = vi.fn(() => board);
+    const freeBoard = vi.fn();
     return {
         dependencies: {initBoard, freeBoard} as GraphSessionDependencies,
         initBoard,
@@ -25,14 +25,14 @@ test('owns board subscriptions and resize observation through idempotent disposa
     const board = createBoard();
     const {dependencies, initBoard, freeBoard} = createDependencies(board);
     const session = new GraphSession(dependencies);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const originalResizeObserver = globalThis.ResizeObserver;
     let resizeCallback: ResizeObserverCallback | undefined;
-    const disconnect = jest.fn();
+    const disconnect = vi.fn();
     class ResizeObserverStub {
         constructor(callback: ResizeObserverCallback) { resizeCallback = callback; }
-        observe = jest.fn();
-        unobserve = jest.fn();
+        observe = vi.fn();
+        unobserve = vi.fn();
         disconnect = disconnect;
     }
     Object.defineProperty(globalThis, 'ResizeObserver', {configurable: true, value: ResizeObserverStub});
@@ -68,7 +68,7 @@ test('owns board subscriptions and resize observation through idempotent disposa
 });
 
 test('coalesces deferred refreshes and settles after the update runs', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const board = createBoard(true);
     const {dependencies} = createDependencies(board);
     const session = new GraphSession(dependencies);
@@ -88,7 +88,7 @@ test('coalesces deferred refreshes and settles after the update runs', async () 
         expect(didSettle).toBe(false);
 
         board.inUpdate = false;
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         await settled;
 
         expect((board as any).fullUpdate).toHaveBeenCalledTimes(1);
@@ -96,12 +96,12 @@ test('coalesces deferred refreshes and settles after the update runs', async () 
         expect(didSettle).toBe(true);
     } finally {
         session.dispose();
-        jest.useRealTimers();
+        vi.useRealTimers();
     }
 });
 
 test('disposal cancels deferred updates and releases readiness waiters', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const board = createBoard(true);
     const {dependencies, freeBoard} = createDependencies(board);
     const session = new GraphSession(dependencies);
@@ -112,9 +112,9 @@ test('disposal cancels deferred updates and releases readiness waiters', async (
 
     session.dispose();
     await settled;
-    jest.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
     session.dispose();
-    jest.useRealTimers();
+    vi.useRealTimers();
 
     expect((board as any).fullUpdate).not.toHaveBeenCalled();
     expect(freeBoard).toHaveBeenCalledTimes(1);

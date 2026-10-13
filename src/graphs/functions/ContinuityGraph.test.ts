@@ -9,19 +9,19 @@ const BOX = [-2, 5, 4, -2];
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: jest.fn((type: string, parents: any[], attributes: any) => {
+        create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes};
             board.objectsList.push(object);
             return object;
         }),
-        removeObject: jest.fn((objects: any) => {
+        removeObject: vi.fn((objects: any) => {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
-        getBoundingBox: jest.fn(() => BOX),
-        setBoundingBox: jest.fn(),
-        fullUpdate: jest.fn(),
-        update: jest.fn(),
+        getBoundingBox: vi.fn(() => BOX),
+        setBoundingBox: vi.fn(),
+        fullUpdate: vi.fn(),
+        update: vi.fn(),
     };
     return board;
 }
@@ -31,8 +31,8 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     const graph = new ContinuityGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -224,7 +224,7 @@ test('the caption follows the language, and a language change notifies subscribe
     const graph = makeGraph();
     apply(graph, parameter('a', 1.25));
     expect(graph.captionPlainLines()).toEqual(['skok 0,5 pri x = 1', 'limita z leve 1,25, z desne 1,75']);
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -262,7 +262,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({a: 0.5});
     graph.importPresetData(JSON.stringify({a: 3}));
     expect(graph.model).toEqual({a: 3});
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {a: -1}, {a: 3.1}, {a: '1'}, {a: NaN}];
     for (const entry of bad) {
         graph.importPresetData(entry);
@@ -329,8 +329,8 @@ test('a stored board state is not overwritten by the default view during initial
     const graph = new ContinuityGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
-    graph.boardUpdate = jest.fn();
-    graph.setState = jest.fn();
+    graph.boardUpdate = vi.fn();
+    graph.setState = vi.fn();
     graph.importPreset({id: 'piecewise-continuity', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

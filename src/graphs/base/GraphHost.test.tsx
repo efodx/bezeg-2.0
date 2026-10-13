@@ -7,10 +7,11 @@ import {JSXGraph} from 'jsxgraph';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {GraphHost} from './GraphHost';
 import {LessonAction} from '../../learning/model';
+import type {Mock} from 'vitest';
 
 // A fake board keeps the suite independent of JSXGraph's DOM requirements; the session and host are real.
-jest.mock('jsxgraph', () => ({
-    JSXGraph: {initBoard: jest.fn(() => ({})), freeBoard: jest.fn()},
+vi.mock('jsxgraph', () => ({
+    JSXGraph: {initBoard: vi.fn(() => ({})), freeBoard: vi.fn()},
 }));
 
 interface TestState extends BaseGraphState {
@@ -69,8 +70,8 @@ const renderHost = (graph: TestGraph, strict = false) => {
 
 beforeEach(() => {
     // CRA resets mock implementations before every test.
-    (JSXGraph.initBoard as jest.Mock).mockImplementation(() => ({}));
-    (JSXGraph.freeBoard as jest.Mock).mockImplementation(() => undefined);
+    (JSXGraph.initBoard as Mock).mockImplementation(() => ({}));
+    (JSXGraph.freeBoard as Mock).mockImplementation(() => undefined);
 });
 
 test('the host mounts the controller on the container it renders and shows the initialized panels', () => {
@@ -129,7 +130,7 @@ test('requestRender re-renders the panels and calls back after the commit', () =
     const graph = new TestGraph();
     renderHost(graph);
     const shown: Array<string | null> = [];
-    const renders = jest.spyOn(graph, 'getWorkspacePanels');
+    const renders = vi.spyOn(graph, 'getWorkspacePanels');
     act(() => {
         graph.requestRender(() => shown.push(graph.shownCount()));
         expect(shown).toEqual([]);
@@ -182,7 +183,7 @@ test('unmounting disposes the board, drops pending state work and still settles 
     const graph = new TestGraph();
     const view = renderHost(graph);
     graph.log.length = 0;
-    const settled = jest.fn();
+    const settled = vi.fn();
     // The host has not committed this update yet when it unmounts.
     act(() => {
         graph.setState({count: 3}, settled);
