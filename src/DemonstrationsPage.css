@@ -82,3 +82,104 @@
     .demonstrations-topic-mark { width:28px; height:28px; flex-basis:28px; }
     .demonstrations-topic-panel { padding:0 12px 12px; }
 }
+
+/* Disposable development comparison: A atlas, B construction trail, C route map. */
+.demonstrations-prototype-a { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr); gap:18px; align-items:stretch; }
+.demonstrations-prototype-feature { min-width:0; overflow:hidden; border:1px solid #d6dccb; border-radius:14px; background:#fffdf5; }
+.demonstrations-prototype-feature-copy { padding:18px 22px 22px; }
+.demonstrations-prototype-feature-copy h3 { margin:8px 0; font-size:24px; }
+.demonstrations-prototype-feature-copy p { margin:0 0 16px; color:#526152; line-height:1.5; }
+.demonstrations-prototype-family { display:block; color:#647557; font-size:11px; font-weight:700; letter-spacing:.08em; line-height:1.4; text-transform:uppercase; }
+.demonstrations-prototype-index { min-width:0; padding:18px 18px 10px; border:1px solid #d6dccb; border-radius:14px; background:#eff2e8; }
+.demonstrations-prototype-index > h3 { margin:0 0 8px; font-size:16px; }
+.demonstrations-prototype-index ol { margin:0; padding:0; list-style:none; }
+.demonstrations-prototype-index li { display:grid; grid-template-columns:32px minmax(0,1fr) 72px; gap:8px; align-items:center; min-height:77px; border-top:1px solid #d9dfd0; }
+.demonstrations-prototype-index-number,.demonstrations-prototype-trail-step { color:#9a6b36; font-size:12px; font-weight:750; font-variant-numeric:tabular-nums; }
+.demonstrations-prototype-index-copy { min-width:0; padding:10px 0; }
+.demonstrations-prototype-index-copy > a { display:block; margin:3px 0 5px; font-size:14px; font-weight:700; line-height:1.3; }
+.demonstrations-prototype-route-glyph { display:block; width:72px; height:auto; }
+.demonstrations-prototype-glyph-control { fill:none; stroke:#a8b29a; stroke-width:1.5; stroke-dasharray:3 3; }
+.demonstrations-prototype-glyph-curve { fill:none; stroke:#5e774d; stroke-width:2.8; stroke-linecap:round; }
+.demonstrations-prototype-route-glyph circle { fill:#bd8750; stroke:#fffdf5; stroke-width:1; }
+.demonstrations-prototype-sketch { display:block; width:100%; height:auto; background:#f3f5ed; }
+.demonstrations-prototype-grid { fill:none; stroke:#dfe5d9; stroke-width:1; }
+.demonstrations-prototype-axis { fill:none; stroke:#b9c3af; stroke-width:1.4; }
+.demonstrations-prototype-control { fill:none; stroke:#a8b29a; stroke-width:2; stroke-dasharray:7 6; }
+.demonstrations-prototype-curve { fill:none; stroke:#55734a; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+.demonstrations-prototype-control-point,.demonstrations-prototype-endpoint { fill:#bd8750; stroke:#fffdf5; stroke-width:2; }
+.demonstrations-prototype-endpoint { fill:#4f6f42; }
+.demonstrations-prototype-moving-point { fill:#d59a51; stroke:#fffdf5; stroke-width:2.5; }
+.demonstrations-prototype-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; }
+.demonstrations-prototype-open,.demonstrations-prototype-lesson { display:inline-flex; align-items:center; gap:5px; min-height:40px; color:#3b6704 !important; font-size:13px; font-weight:700; }
+.demonstrations-prototype-lesson { color:#67502a !important; }
+.demonstrations-prototype-open:hover,.demonstrations-prototype-lesson:hover { text-decoration:underline; text-underline-offset:3px; }
+.demonstrations-prototype-a :focus-visible,.demonstrations-prototype-b :focus-visible,.demonstrations-prototype-c :focus-visible { outline:3px solid #456db0; outline-offset:3px; border-radius:3px; }
+
+.demonstrations-prototype-b-intro { display:grid; grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr); gap:20px; align-items:center; margin-bottom:16px; padding:12px 18px; border:1px solid #d6dccb; border-radius:14px; background:#fffdf5; }
+.demonstrations-prototype-b-intro .demonstrations-prototype-sketch { border-radius:8px; }
+.demonstrations-prototype-b-intro p { max-width:440px; margin:0; color:#526152; font-size:17px; line-height:1.5; }
+.demonstrations-prototype-trail { margin:0; padding:0; border-top:1px solid #d6dccb; list-style:none; }
+.demonstrations-prototype-trail li { display:grid; grid-template-columns:52px minmax(0,1fr) 170px; gap:16px; align-items:center; min-width:0; padding:14px 10px; border-bottom:1px solid #d6dccb; }
+.demonstrations-prototype-trail-step { align-self:start; padding-top:4px; font-size:18px; }
+.demonstrations-prototype-trail-copy { min-width:0; }
+.demonstrations-prototype-trail-copy h3 { margin:4px 0 3px; font-size:18px; }
+.demonstrations-prototype-trail-copy p { margin:0 0 4px; color:#63705c; font-size:13px; line-height:1.4; }
+.demonstrations-prototype-sketch.is-small { width:100%; max-width:170px; border-radius:8px; }
+
+.demonstrations-prototype-c-board { position:relative; overflow:hidden; border:1px solid #d6dccb; border-radius:14px 14px 0 0; background:#f3f5ed; }
+.demonstrations-prototype-c-heading { position:absolute; z-index:1; top:18px; left:20px; max-width:290px; padding:10px 14px; border:1px solid #d6dccb; border-radius:9px; background:#fffdf5eF; }
+.demonstrations-prototype-c-heading p { margin:5px 0 0; color:#526152; font-size:14px; }
+.demonstrations-prototype-c-board > .demonstrations-prototype-sketch { max-height:310px; }
+.demonstrations-prototype-map { position:relative; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:0; margin:0; padding:22px 0 0; list-style:none; }
+.demonstrations-prototype-map::before { position:absolute; top:39px; right:8%; left:8%; height:2px; background:#b5c2a9; content:""; }
+.demonstrations-prototype-map li { position:relative; display:flex; min-width:0; flex-direction:column; align-items:center; padding:0 10px 16px; text-align:center; }
+.demonstrations-prototype-map-node { z-index:1; display:grid; place-items:center; width:36px; height:36px; margin-bottom:10px; border:2px solid #769066; border-radius:50%; background:#fffdf5; color:#3b5d37; font-size:13px; font-weight:750; }
+.demonstrations-prototype-map .demonstrations-prototype-family { min-height:30px; margin-bottom:4px; font-size:9px; }
+.demonstrations-prototype-map li > a { min-height:42px; font-size:14px; font-weight:700; line-height:1.35; }
+.demonstrations-prototype-map .demonstrations-prototype-actions { justify-content:center; gap:0 10px; }
+.demonstrations-prototype-map .demonstrations-prototype-open,.demonstrations-prototype-map .demonstrations-prototype-lesson { min-height:36px; font-size:11px; }
+
+.demonstrations-prototype-switcher { position:fixed; z-index:1100; bottom:16px; left:50%; display:flex; align-items:center; gap:10px; max-width:calc(100vw - 24px); padding:7px 10px; transform:translateX(-50%); border:1px solid #536b4b; border-radius:999px; background:#243b2b; box-shadow:0 8px 26px #1d332c44; color:#fffdf5; }
+.demonstrations-prototype-switcher button { display:grid; place-items:center; width:42px; height:42px; flex:0 0 42px; border:1px solid #73846b; border-radius:50%; background:#334c37; color:#fffdf5; font-size:21px; cursor:pointer; }
+.demonstrations-prototype-switcher button:hover { background:#496344; }
+.demonstrations-prototype-switcher button:focus-visible { outline:3px solid #e3bd78; outline-offset:2px; }
+.demonstrations-prototype-switcher-current { display:flex; align-items:center; gap:8px; min-width:0; font-size:13px; white-space:nowrap; }
+.demonstrations-prototype-switcher-current strong { display:grid; place-items:center; width:27px; height:27px; border-radius:50%; background:#e6d6ae; color:#243b2b; }
+.demonstrations-prototype-shortcut { padding:0 7px 0 2px; color:#d1ddc9; font-size:11px; white-space:nowrap; }
+
+@media(prefers-reduced-motion:reduce) {
+    .demonstrations-prototype-switcher button { transition:none; }
+}
+@media(max-width:900px) {
+    .demonstrations-prototype-a { grid-template-columns:minmax(0,1fr); }
+    .demonstrations-prototype-index ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:16px; }
+    .demonstrations-prototype-map { grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:10px; }
+    .demonstrations-prototype-map::before { display:none; }
+    .demonstrations-prototype-map li { padding-top:6px; border-top:1px solid #d6dccb; }
+}
+@media(max-width:700px) {
+    .demonstrations-prototype-feature-copy { padding:15px 16px 18px; }
+    .demonstrations-prototype-feature-copy h3 { font-size:20px; }
+    .demonstrations-prototype-index { padding:14px 12px 8px; }
+    .demonstrations-prototype-index ol { grid-template-columns:minmax(0,1fr); }
+    .demonstrations-prototype-index li { grid-template-columns:30px minmax(0,1fr) 64px; }
+    .demonstrations-prototype-route-glyph { width:64px; }
+    .demonstrations-prototype-b-intro { grid-template-columns:minmax(0,1fr); gap:10px; padding:12px; }
+    .demonstrations-prototype-b-intro .demonstrations-prototype-sketch { max-height:150px; }
+    .demonstrations-prototype-b-intro p { font-size:15px; }
+    .demonstrations-prototype-trail li { grid-template-columns:38px minmax(0,1fr); gap:9px; padding:12px 4px; }
+    .demonstrations-prototype-trail li > .demonstrations-prototype-sketch { grid-column:2; max-width:100%; height:50px; }
+    .demonstrations-prototype-trail-step { font-size:15px; }
+    .demonstrations-prototype-trail-copy h3 { font-size:16px; }
+    .demonstrations-prototype-trail-copy p { font-size:12px; }
+    .demonstrations-prototype-c-heading { top:10px; left:10px; max-width:220px; padding:7px 9px; }
+    .demonstrations-prototype-c-heading p { font-size:12px; }
+    .demonstrations-prototype-c-board > .demonstrations-prototype-sketch { min-height:190px; object-fit:cover; }
+    .demonstrations-prototype-map { grid-template-columns:repeat(2,minmax(0,1fr)); padding-top:14px; }
+    .demonstrations-prototype-map li { padding:4px 8px 10px; }
+    .demonstrations-prototype-map .demonstrations-prototype-family { min-height:unset; }
+    .demonstrations-prototype-map li > a { min-height:36px; }
+    .demonstrations-prototype-switcher { bottom:10px; gap:7px; padding:5px 7px; }
+    .demonstrations-prototype-switcher button { width:40px; height:40px; flex-basis:40px; }
+    .demonstrations-prototype-shortcut { display:none; }
+}

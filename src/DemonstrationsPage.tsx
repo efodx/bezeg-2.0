@@ -6,6 +6,7 @@ import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {SiteContext} from './graphs/context/react/SiteContext';
 import {t, useT} from './localization';
+import {DemonstrationsOpeningPrototype} from './DemonstrationsOpeningPrototype';
 import './DemonstrationsPage.css';
 import startingBezier from './images/demonstrations/starting-bezier.svg';
 import startingConstruction from './images/demonstrations/starting-construction.svg';
@@ -134,18 +135,22 @@ export function DemonstrationsPage() {
         <header><span className="demonstrations-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('demonstrations')}</h1><p>{t('choose_demonstration')}</p></header>
         <section aria-labelledby="starting-demonstrations">
-            <h2 id="starting-demonstrations">{t('starting_demonstrations')}</h2>
-            <div className="demonstrations-starting">
-                {starting.map((example, i) => <div className="demonstrations-starting-card" key={example.demonstration.id}>
-                    <Link to={example.demonstration.path}>
-                        <img className="demonstrations-preview" src={startingIllustrations[example.demonstration.id]} width="360" height="220" alt=""/>
-                        <div className="demonstrations-card-copy"><span className="demonstrations-number">0{i + 1} · {example.caption}</span>
-                            <h3>{example.title}</h3><p>{example.description}</p>
-                            <span className="demonstrations-open">{t('open_demonstration')} →</span></div>
-                    </Link>
-                    {isGuidedLessonAvailable(example.demonstration.id) && <Link className="demonstrations-learn" to={`${example.demonstration.path}?learn=1`}>{t('learn_this_demonstration')} →</Link>}
-                </div>)}
-            </div>
+            {process.env.NODE_ENV === 'development'
+                ? <DemonstrationsOpeningPrototype demonstrations={demonstrations} families={families}/>
+                : <>
+                    <h2 id="starting-demonstrations">{t('starting_demonstrations')}</h2>
+                    <div className="demonstrations-starting">
+                        {starting.map((example, i) => <div className="demonstrations-starting-card" key={example.demonstration.id}>
+                            <Link to={example.demonstration.path}>
+                                <img className="demonstrations-preview" src={startingIllustrations[example.demonstration.id]} width="360" height="220" alt=""/>
+                                <div className="demonstrations-card-copy"><span className="demonstrations-number">0{i + 1} · {example.caption}</span>
+                                    <h3>{example.title}</h3><p>{example.description}</p>
+                                    <span className="demonstrations-open">{t('open_demonstration')} →</span></div>
+                            </Link>
+                            {isGuidedLessonAvailable(example.demonstration.id) && <Link className="demonstrations-learn" to={`${example.demonstration.path}?learn=1`}>{t('learn_this_demonstration')} →</Link>}
+                        </div>)}
+                    </div>
+                </>}
         </section>
         <section aria-labelledby="all-demonstrations">
             <div className="demonstrations-catalog-heading"><div><h2 id="all-demonstrations">{t('all_demonstrations')}</h2>
