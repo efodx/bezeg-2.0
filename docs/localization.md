@@ -49,4 +49,4 @@ Existing Slovenian wording is retained, including its mixed capitalization and B
 
 See [verification evidence and remaining checks](reviews/localization.md).
 
-If CRA reports missing locale modules while a fresh `npx tsc --noEmit` succeeds, check `node_modules/.cache/tsconfig.tsbuildinfo`. During this rollout that file retained failed resolutions from initial module creation. A fresh incremental checker passed while the cached checker failed. Remove only that generated build-info file and rerun the existing build script; do not weaken the message types or disable type checking to accommodate stale diagnostics.
+Type errors come from `npx tsc --noEmit`; the Vite build does not type-check. Do not weaken the message types or disable type checking to accommodate diagnostics.

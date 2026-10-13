@@ -32,6 +32,7 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Tools usability redesign spec](specs/tools-usability-redesign.md): accepted Bézier and PH pilots and the authorized rollout to every active demonstration route.
 - [Workspace implementation review](reviews/tools-workspace-redesign.md): the all-route workspace, interaction checks, compatibility, and remaining device/classroom review.
 - [GitHub Pages SPA playbook](github-pages-spa-playbook.md): reusable setup and publishing process.
+- [Vite migration spec](specs/vite-migration.md): CRA/Jest replaced by Vite/Vitest on Node 24, with parity evidence; [ADR 0009](adr/0009-vite-build-and-vitest.md) records the choice.
 - [Continuous deployment spec](specs/continuous-deployment.md): CI checks and gated native Pages deployment, activated on `master`.
 - [CI/CD verification](reviews/continuous-deployment.md): hosted CI evidence, local checks, and activation limits.
 - [ADR 0001](adr/0001-static-client-only-app.md): accepted static, client-only architecture constraint.

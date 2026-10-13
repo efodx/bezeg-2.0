@@ -25,7 +25,7 @@ Bezeg runs in the browser without accounts or a backend. The interface defaults 
 
 ## Run locally
 
-With Node.js and npm installed, run these commands from the project directory:
+With Node.js 24 (the version in [`.nvmrc`](.nvmrc); at least 24.15) and npm installed, run these commands from the project directory:
 
 ```sh
 npm install
@@ -34,30 +34,32 @@ npm start
 
 Open [localhost:3000/bezeg-2.0/](http://localhost:3000/bezeg-2.0/) in your browser. The development server reloads when you edit the source.
 
-The current stack is React, TypeScript, JSXGraph, and Bootstrap, built with Create React App. See [technical architecture](docs/current-architecture.md) for how the app shell, geometry, graph adapters, and presets fit together.
+The current stack is React, TypeScript, JSXGraph, and Bootstrap, built with [Vite](https://vite.dev/) and tested with [Vitest](https://vitest.dev/). See [technical architecture](docs/current-architecture.md) for how the app shell, geometry, graph adapters, and presets fit together.
 
 ## Check your changes
 
 Run the mathematical regression checks:
 
 ```sh
-npm test -- --watchAll=false --runInBand --runTestsByPath src/bezeg/impl/curve/bezier-evaluation.test.ts
+npm test -- src/bezeg/impl/curve/bezier-evaluation.test.ts
 ```
 
-Run the full test suite:
+Run the full test suite, and check types (Vite does not type-check):
 
 ```sh
-npm test -- --watchAll=false --runInBand
+npm test
+npx tsc --noEmit --pretty false
 ```
 
-The full suite currently includes an outdated starter test in `src/App.test.tsx` that fails because it lacks router/context setup. See [current coverage](docs/current-architecture.md#current-coverage) for the testing status and [the performance plan](docs/performance-plan.md) for interaction measurements.
+`npm test` watches for changes in an interactive terminal and runs once in CI or non-interactive shells. See [current coverage](docs/current-architecture.md#current-coverage) for the testing status and [the performance plan](docs/performance-plan.md) for interaction measurements.
 
 ## Build and publish
 
-Create the production bundle in `build/`:
+Create the production bundle in `build/`, and optionally inspect it locally at `/bezeg-2.0/`:
 
 ```sh
 npm run build
+npm run preview
 ```
 
 Publish to GitHub Pages using the repository's deployment script:

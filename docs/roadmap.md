@@ -12,6 +12,8 @@ Collect the [performance baseline](performance-plan.md) for dragging and sliders
 
 ## 2. Modernize the foundation in bounded changes
 
+Done on 2026-10-13: Create React App was replaced by Vite and Vitest ([ADR 0009](adr/0009-vite-build-and-vitest.md), [spec](specs/vite-migration.md)); ESLint restoration remains open. The original evaluation brief follows.
+
 Evaluate React + TypeScript + Vite as the first build-tool candidate. Create React App is deprecated, and React documents Vite as a build-tool migration option. This warrants evaluation, rather than selecting a whole application rewrite. [React's announcement](https://react.dev/blog/2025/02/14/sunsetting-create-react-app).
 
 Compare keeping the current build temporarily against a Vite migration and a static-compatible framework approach. Prefer the smallest change that gives an understandable, maintained build and reusable hosting process. Record supported runtime versions, JSXGraph integration, MathJax loading, Sass imports, type checking, test tooling, and production output. A Vite build alone does not replace type checks or application tests.

@@ -31,6 +31,6 @@ Task 6 is confined to `src/bezeg` and runs in parallel with tasks 1–3; the gra
 ## Shared verification
 
 - `npx tsc --noEmit --pretty false` and `npm run build`.
-- Jest (`CI=true npx react-scripts test --watchAll=false`). In a worktree under `.claude/`, add `--testMatch '**/src/**/*.{spec,test}.{js,jsx,ts,tsx}'`: Jest's default absolute glob treats the backslash before `.claude` as an escape and finds no tests.
+- Unit tests (`npm test`; Vitest since [ADR 0009](../../adr/0009-vite-build-and-vitest.md)).
 - Baseline on `master` at 2026-10-12: 81 suites, 1106 tests passing.
 - Browser smoke checks per [AGENTS.md](../../../AGENTS.md) for tasks that change routes, controls, lessons or the workspace.

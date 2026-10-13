@@ -14,7 +14,7 @@ Before scaffolding, fill in this small project record:
 | Public base path | `/<repository>/` for a project site; normally `/` for a root site/domain | `/bezeg-2.0/` |
 | Routing | Hash routes, history routes with a documented fallback, or generated static route files | History routes plus a 404 redirect pair |
 | Persistence | Memory, local browser storage, file exchange | Local presets and files |
-| Build and output | Tool, runtime, lockfile, build command, artifact directory | CRA, npm lockfile, `npm run build`, `build/` |
+| Build and output | Tool, runtime, lockfile, build command, artifact directory | Vite, npm lockfile, `npm run build`, `build/` (configured `outDir`) |
 | Publishing source | Actions workflow or publishing branch | Native GitHub Actions CD on `master`, activated 2026-10-09; legacy `gh-pages` branch retained for rollback |
 | External runtime assets | CDN resources and their failure behavior | MathJax loaded from jsDelivr |
 
@@ -26,7 +26,7 @@ For a small React + TypeScript SPA, evaluate Vite as a straightforward starting 
 
 Keep app-shell navigation, domain logic, UI components, persistence, and hosting configuration distinguishable. Avoid embedding a particular repository name throughout domain code. Configure type checks explicitly; a bundler producing files does not prove type correctness.
 
-For Bezeg, this is a migration candidate, not a command to replace the existing app. Its current development command remains `npm start`.
+Bezeg migrated from Create React App to Vite on 2026-10-13 ([ADR 0009](adr/0009-vite-build-and-vitest.md)). Its development command remains `npm start`.
 
 ## 3. Decide routing before adding pages
 
@@ -48,7 +48,7 @@ For a Vite project site, set `base` to `'/<repository>/'`; root sites normally u
 
 Choose a router base/basename consistent with that hosting path. Prefer route definitions relative to that base instead of repeating a repository name in each route. Configure any history fallback for the same base. Resolve images, CSS, fonts, manifests, and lazy chunks through the build tool's base-aware asset handling.
 
-Bezeg currently uses CRA's `homepage: "/bezeg-2.0"`, hard-coded `/bezeg-2.0` routes, `%PUBLIC_URL%` in its HTML template, and the redirect pair. Migrating to Vite must replace CRA-specific HTML substitutions and review script, style, and public-file handling. Merely changing `homepage` does not complete a migration.
+Bezeg sets Vite's `base: '/bezeg-2.0/'` and keeps `build.outDir: 'build'`, hard-coded `/bezeg-2.0` routes, `%BASE_URL%` in its root `index.html`, and the redirect pair. Changing the base requires updating all of these together.
 
 ## 5. Build and verify the production artifact
 
@@ -70,7 +70,7 @@ This release copy's `npm run deploy` command runs its `predeploy` build and publ
 
 ### Bezeg's gated Actions deployment
 
-The [Browser smoke workflow](../.github/workflows/browser-smoke.yml) now runs `npm ci`, TypeScript checking, the complete non-watch CRA unit suite, one production build, and the production Chromium smoke suite. The build continues to permit existing CRA lint warnings; compilation and all checks remain blocking. It uploads that exact `build/` only after success on a push to `master` or a manual run on `master`, restricted to `efodx/bezeg-2.0`. A dependent job configures Pages and deploys the artifact through the `github-pages` environment. PRs never deploy. Only the deploy job receives Pages write and OIDC permissions. Obsolete CI jobs can be cancelled; Pages deployments are serialized without cancelling one already running.
+The [Browser smoke workflow](../.github/workflows/browser-smoke.yml) now runs `npm ci`, TypeScript checking, the complete Vitest unit suite, one production build, and the production Chromium smoke suite. Compilation and all checks are blocking. It uploads that exact `build/` only after success on a push to `master` or a manual run on `master`, restricted to `efodx/bezeg-2.0`. A dependent job configures Pages and deploys the artifact through the `github-pages` environment. PRs never deploy. Only the deploy job receives Pages write and OIDC permissions. Obsolete CI jobs can be cancelled; Pages deployments are serialized without cancelling one already running.
 
 CD was activated on 2026-10-09 after owner authorization: the reviewed commits were pushed to `master`, Pages Source changed to **GitHub Actions**, and `master` was added to the `github-pages` environment branch allowlist. The existing `gh-pages` rule remains available for rollback. For recreating this setup, change **Settings → Pages → Build and deployment → Source** to **GitHub Actions**, ensure the environment permits `master`, and dispatch **Browser smoke** on `master` if the initial push ran before the source change. This uses the ordinary Actions token and requires no personal access token. Follow [GitHub's custom workflow setup](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). See [local verification and hosted evidence](reviews/continuous-deployment.md).
 
