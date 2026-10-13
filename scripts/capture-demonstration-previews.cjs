@@ -18,7 +18,11 @@ const frame = {width: 360, height: 220};
 const deviceScaleFactor = 2;
 const locale = 'sl-SI';
 const colorScheme = 'light';
-const paddingFraction = 0.12;
+const paddingFraction = 0.14;
+const captureTextSize = 12;
+const captureTextLineHeight = 1.2;
+const captureCurveStrokeScale = 1.12;
+const captureConstructionStrokeScale = 1.16;
 
 function pngDimensions(file) {
     const data = fs.readFileSync(file);
@@ -128,7 +132,7 @@ async function main() {
                     }
 
                     const typography = document.createElement('style');
-                    typography.textContent = '#jgbox .JXGtext, #jgbox .smart-label-point2, #jgbox .smart-label-point2 * { font-size: 11px !important; line-height: 1.2 !important; } #jgbox .JXGtext mjx-container, #jgbox .smart-label-point2 mjx-container { font-size: 100% !important; }';
+                    typography.textContent = `#jgbox .JXGtext, #jgbox .smart-label-point2, #jgbox .smart-label-point2 * { font-size: ${options.captureTextSize}px !important; line-height: ${options.captureTextLineHeight} !important; } #jgbox .JXGtext mjx-container, #jgbox .smart-label-point2 mjx-container { font-size: 100% !important; }`;
                     document.head.appendChild(typography);
 
                     // Resize only the captured board and use equal user-unit scales so geometric
@@ -160,6 +164,27 @@ async function main() {
                     const addUserPoint = (x, y) => {
                         if (Number.isFinite(x) && Number.isFinite(y)) ranges.push({minX: x, maxX: x, minY: y, maxY: y});
                     };
+
+                    // Strengthen only the captured DOM so small previews retain a clear
+                    // distinction between the main curve and its supporting construction.
+                    // Route state, JSXGraph attributes, and source graph styles stay unchanged.
+                    const applyCaptureStrokeTreatment = object => {
+                        if (!isVisible(object) || axisGridObjects.has(object) ||
+                            ['axis', 'ticks', 'grid'].includes(object.elType) ||
+                            !['curve', 'line'].includes(object.elType)) return;
+                        const node = object.rendNode;
+                        const currentWidth = Number.parseFloat(getComputedStyle(node).strokeWidth);
+                        if (!Number.isFinite(currentWidth) || currentWidth <= 0) return;
+                        const scale = object.elType === 'curve'
+                            ? options.captureCurveStrokeScale : options.captureConstructionStrokeScale;
+                        const minimum = object.elType === 'curve' ? 2 : 1.25;
+                        node.style.setProperty('stroke-width', `${Math.max(minimum, currentWidth * scale)}px`);
+                        const currentOpacity = Number.parseFloat(getComputedStyle(node).opacity);
+                        if (Number.isFinite(currentOpacity)) {
+                            node.style.setProperty('opacity', String(Math.min(1, currentOpacity * 1.08)));
+                        }
+                    };
+                    Object.values(board.objects || {}).forEach(applyCaptureStrokeTreatment);
 
                     Object.values(board.objects || {}).forEach(object => {
                         if (!isVisible(object)) return;
@@ -344,7 +369,15 @@ async function main() {
                         axesAndGrid: keepCoordinateContext ? 'retain' : 'hide',
                         boundsPolicy: 'finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport',
                     };
-                }, {frame, paddingFraction, keepCoordinateContext: demonstrations.coordinateContextPolicy(demonstration) === 'retain'});
+                }, {
+                    frame,
+                    paddingFraction,
+                    captureTextSize,
+                    captureTextLineHeight,
+                    captureCurveStrokeScale,
+                    captureConstructionStrokeScale,
+                    keepCoordinateContext: demonstrations.coordinateContextPolicy(demonstration) === 'retain',
+                });
 
                 assert.deepEqual([scene.width, scene.height], [frame.width, frame.height],
                     demonstration.id + ' did not resize to the 360:220 preview frame');
@@ -434,7 +467,7 @@ async function main() {
         capture: {
             source: 'live #jgbox from each Demonstration metadata route',
             routeMetadata: 'src/demonstrations.ts (validated by tests/smoke-catalog.cjs)',
-            scene: 'fresh browser context with empty local/session storage; exact route without query; route default preset; capture-time board resize, axes/grid visibility, and bounding box only',
+            scene: 'fresh browser context with empty local/session storage; exact route without query; route default preset; capture-only board resize, axes/grid visibility, preview legibility treatment, and bounding box; graph state and geometry unchanged',
             viewport,
             frameCssPixels: frame,
             deviceScaleFactor,
@@ -449,7 +482,8 @@ async function main() {
             paddingFraction,
             frameAspectRatio: frame.width / frame.height,
             scalePolicy: 'equal user-unit scale to preserve geometric proportions',
-            typography: 'capture-only 11px JSXGraph text and rational smart-label font; source content unchanged',
+            typography: `capture-only ${captureTextSize}px JSXGraph text and rational smart-label font with ${captureTextLineHeight} line-height; source content unchanged`,
+            strokeTreatment: `capture-only curve strokes scaled ${captureCurveStrokeScale}× and construction strokes scaled ${captureConstructionStrokeScale}× with modest opacity lift; source content unchanged`,
             containment: 'finite construction objects and their text annotations stay within the board; axis/tick labels are context; unbounded coordinate-route curves are viewport-clipped by JSXGraph',
             boundsPolicy: 'finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport',
         },

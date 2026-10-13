@@ -387,15 +387,9 @@ test('Explore opens the catalog, whose topics expand independently and expose ev
         const preview = card.querySelector<HTMLElement>('.demonstrations-catalog-preview');
         expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(demonstration.catalogTitle);
         expect(preview).toBeInTheDocument();
-        if (demonstration.id === 'spline-g1-symmetric' || demonstration.id === 'rational-elevation') {
-            expect(preview?.tagName.toLowerCase()).toBe('svg');
-            expect(preview).toHaveAttribute('data-preview-schematic', demonstration.id);
-            expect(preview).toHaveAttribute('aria-hidden', 'true');
-        } else {
-            expect(preview?.tagName.toLowerCase()).toBe('img');
-            expect(preview).toHaveAttribute('alt', '');
-            expect(preview).toHaveAttribute('loading', 'lazy');
-        }
+        expect(preview?.tagName.toLowerCase()).toBe('img');
+        expect(preview).toHaveAttribute('alt', '');
+        expect(preview).toHaveAttribute('loading', 'lazy');
         expect(graphLink).toHaveAttribute('href', demonstration.path);
         expect(graphLink).toHaveAttribute('aria-label', `Odpri demonstracijo: ${demonstration.catalogTitle}`);
         expect(graphLink).toHaveAttribute('data-tooltip', `Preizkusi in opazuj: ${demonstration.catalogTitle}`);
@@ -408,9 +402,9 @@ test('Explore opens the catalog, whose topics expand independently and expose ev
     });
     const previews = view.container.querySelectorAll<HTMLElement>('.demonstrations-catalog-preview');
     expect(previews).toHaveLength(catalog.demonstrations.length);
-    expect(view.container.querySelectorAll('.demonstrations-catalog-svg-preview')).toHaveLength(2);
+    expect(view.container.querySelectorAll('.demonstrations-catalog-svg-preview')).toHaveLength(0);
     const imagePreviews = view.container.querySelectorAll<HTMLImageElement>('img.demonstrations-catalog-preview');
-    expect(imagePreviews).toHaveLength(catalog.demonstrations.length - 2);
+    expect(imagePreviews).toHaveLength(catalog.demonstrations.length);
     expect(new Set(Array.from(imagePreviews, preview => preview.getAttribute('src'))).size).toBe(imagePreviews.length);
     imagePreviews.forEach(preview => {
         expect(preview).toHaveAttribute('width', '360');

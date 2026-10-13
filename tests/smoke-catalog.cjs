@@ -205,6 +205,11 @@ function validateGeneratedPreviews(activeDemonstrations) {
     if (!/fresh browser context with empty local\/session storage; exact route without query; route default preset/.test(manifest.capture.scene || '')) {
         throw new Error('Preview manifest must document clean-storage capture from exact default routes.');
     }
+    if (!/capture-only .*preview legibility treatment/.test(manifest.capture.scene || '') ||
+        !/capture-only .*JSXGraph text/.test(manifest.capture.typography || '') ||
+        !/capture-only .*curve strokes scaled/.test(manifest.capture.strokeTreatment || '')) {
+        throw new Error('Preview manifest must document capture-only legibility treatment and its source-preserving scope.');
+    }
     if (!manifest.capture.viewport || !manifest.capture.frameCssPixels || !manifest.capture.deviceScaleFactor ||
         !manifest.capture.coordinateContextPolicy || !manifest.capture.boundsPolicy || !manifest.capture.containment) {
         throw new Error('Preview manifest is missing capture dimensions, coordinate-context policy, or containment provenance.');
