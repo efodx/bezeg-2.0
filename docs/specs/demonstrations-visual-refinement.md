@@ -1,6 +1,6 @@
 # Demonstrations page visual refinement and repeatable previews
 
-**Status:** proposed. The owner approved the visual direction shown in the [static mockup](../prototypes/demonstrations-visual-refinement.png) and confirmed the choices below on 2026-10-13.
+**Status:** implementation complete; production build and browser smoke verification remain incomplete because of local environment limitations. The owner approved the visual direction shown in the [static mockup](../prototypes/demonstrations-visual-refinement.png) and confirmed the choices below on 2026-10-13. Verification details are recorded in the [implementation task](../tasks/demonstrations-visual-refinement/implement.md).
 
 ## Problem Statement
 

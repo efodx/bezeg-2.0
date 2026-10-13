@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const path = require('node:path');
 const ts = require('typescript');
 
@@ -60,12 +61,19 @@ const familyDefinitions = variableInitializer(demonstrationSource, 'families');
 if (!ts.isArrayLiteralExpression(familyDefinitions) || familyDefinitions.elements.length === 0) {
     throw new Error('The demonstration family catalog must remain a non-empty array literal.');
 }
-const familyIds = familyDefinitions.elements.map(element => {
+const familyCatalog = familyDefinitions.elements.map(element => {
     const family = stringProperties(unwrapExpression(element), false);
-    if (!family.id) throw new Error(`A demonstration family is missing its id: ${element.getText()}`);
-    return family.id;
+    if (!family.id || !family.title) throw new Error(`A demonstration family is missing its id or title: ${element.getText()}`);
+    return {id: family.id, titleKey: family.title};
 });
+const familyIds = familyCatalog.map(family => family.id);
 if (new Set(familyIds).size !== familyIds.length) throw new Error('The demonstration family catalog contains duplicate ids.');
+
+function coordinateContextPolicy(demonstration) {
+    return demonstration.family === 'basics' || demonstration.family === '/bezeg-2.0/functions'
+        ? 'retain'
+        : 'hide';
+}
 
 const messages = stringProperties(variableInitializer(parseSource('src/localization/en.ts'), 'en'));
 const lessonIdsExpression = variableInitializer(parseSource('src/learning/runtime/lessonCatalog.ts'), 'GUIDED_LESSON_AVAILABLE_IDS');
@@ -116,6 +124,11 @@ const demonstrations = definitions.elements.map(element => {
     return {id: entry.id, path: entry.path, family: entry.family, title, heading,
         hasLesson: availableLessonIds.has(entry.id) && lessonContentIds.has(entry.id)};
 });
+const families = familyCatalog.map(family => {
+    const title = messages[family.titleKey];
+    if (!title || title.includes('{')) throw new Error(`Missing plain English title for demonstration family ${family.id}: ${family.titleKey}`);
+    return {id: family.id, title, demonstrations: demonstrations.filter(demonstration => demonstration.family === family.id)};
+});
 
 const routePaths = new Set();
 const ids = new Set();
@@ -127,6 +140,150 @@ for (const demonstration of demonstrations) {
     if (!familyIds.includes(demonstration.family)) throw new Error(`Unknown demonstration family for ${demonstration.id}: ${demonstration.family}`);
 }
 
+function findVariableDeclaration(sourceFile, name) {
+    for (const statement of sourceFile.statements) {
+        if (!ts.isVariableStatement(statement)) continue;
+        for (const declaration of statement.declarationList.declarations) {
+            if (ts.isIdentifier(declaration.name) && declaration.name.text === name) return declaration;
+        }
+    }
+    throw new Error(`Could not find ${name} in ${sourceFile.fileName}`);
+}
+
+function validateGeneratedPreviews(activeDemonstrations) {
+    const catalogDirectory = path.join(root, 'src/images/demonstrations/catalog');
+    const mappingSource = parseSource('src/demonstrationPreviewAssets.ts');
+    const mappingDeclaration = findVariableDeclaration(mappingSource, 'demonstrationPreviewAssets');
+    if (!mappingDeclaration.type || !ts.isTypeReferenceNode(mappingDeclaration.type) ||
+        !ts.isIdentifier(mappingDeclaration.type.typeName) || mappingDeclaration.type.typeName.text !== 'Record' ||
+        mappingDeclaration.type.typeArguments?.length !== 2 ||
+        !ts.isTypeReferenceNode(mappingDeclaration.type.typeArguments[0]) ||
+        !ts.isIdentifier(mappingDeclaration.type.typeArguments[0].typeName) ||
+        mappingDeclaration.type.typeArguments[0].typeName.text !== 'DemonstrationId' ||
+        mappingDeclaration.type.typeArguments[1].kind !== ts.SyntaxKind.StringKeyword) {
+        throw new Error('The generated preview map must remain exhaustively typed as Record<DemonstrationId, string>.');
+    }
+    const importedAssets = new Map();
+    for (const statement of mappingSource.statements) {
+        if (!ts.isImportDeclaration(statement) || !statement.importClause?.name || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+        const specifier = statement.moduleSpecifier.text;
+        const match = /^\.\/images\/demonstrations\/catalog\/(.+)\.png$/.exec(specifier);
+        if (!match) throw new Error(`Unexpected generated preview import: ${specifier}`);
+        if (importedAssets.has(statement.importClause.name.text)) throw new Error(`Duplicate preview import alias: ${statement.importClause.name.text}`);
+        importedAssets.set(statement.importClause.name.text, match[1]);
+    }
+    const mapping = unwrapExpression(mappingDeclaration.initializer);
+    if (!ts.isObjectLiteralExpression(mapping)) throw new Error('The generated preview map must be an object literal.');
+    const mappedIds = new Map();
+    for (const property of mapping.properties) {
+        if (!ts.isPropertyAssignment(property)) throw new Error(`Unsupported generated preview map entry: ${property.getText()}`);
+        const id = propertyName(property.name);
+        const importedAlias = unwrapExpression(property.initializer);
+        if (!ts.isIdentifier(importedAlias)) throw new Error(`Preview map entry for ${id} must refer to its imported asset.`);
+        if (!importedAssets.has(importedAlias.text)) throw new Error(`Preview map entry for ${id} has no matching image import.`);
+        const importedId = importedAssets.get(importedAlias.text);
+        if (importedId !== id) throw new Error(`Preview map entry ${id} points to the ${importedId} image.`);
+        if (mappedIds.has(id)) throw new Error(`Duplicate generated preview map id: ${id}`);
+        mappedIds.set(id, importedAlias.text);
+    }
+
+    const activeIds = activeDemonstrations.map(demonstration => demonstration.id).sort();
+    const mappedActiveIds = Array.from(mappedIds.keys()).sort();
+    if (JSON.stringify(mappedActiveIds) !== JSON.stringify(activeIds)) {
+        throw new Error(`Generated preview map must cover every active Demonstration exactly once. Expected ${activeIds.join(', ')}; found ${mappedActiveIds.join(', ')}.`);
+    }
+    if (importedAssets.size !== activeDemonstrations.length) {
+        throw new Error(`Expected one generated image import per active Demonstration; found ${importedAssets.size}.`);
+    }
+
+    const manifestPath = path.join(catalogDirectory, 'manifest.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (manifest.generator !== 'scripts/capture-demonstration-previews.cjs') throw new Error('Preview manifest generator provenance is missing or stale.');
+    if (!manifest.capture || manifest.capture.source !== 'live #jgbox from each Demonstration metadata route') {
+        throw new Error('Preview manifest must identify live route-default capture provenance.');
+    }
+    if (!/fresh browser context with empty local\/session storage; exact route without query; route default preset/.test(manifest.capture.scene || '')) {
+        throw new Error('Preview manifest must document clean-storage capture from exact default routes.');
+    }
+    if (!manifest.capture.viewport || !manifest.capture.frameCssPixels || !manifest.capture.deviceScaleFactor ||
+        !manifest.capture.coordinateContextPolicy || !manifest.capture.boundsPolicy || !manifest.capture.containment) {
+        throw new Error('Preview manifest is missing capture dimensions, coordinate-context policy, or containment provenance.');
+    }
+    const frame = manifest.capture.frameCssPixels;
+    if (!manifest.image || !Number.isInteger(manifest.image.width) || !Number.isInteger(manifest.image.height)) {
+        throw new Error('Preview manifest is missing common generated image dimensions.');
+    }
+    if (!frame || !Number.isInteger(frame.width) || !Number.isInteger(frame.height) ||
+        manifest.image.width !== frame.width * manifest.capture.deviceScaleFactor ||
+        manifest.image.height !== frame.height * manifest.capture.deviceScaleFactor) {
+        throw new Error('Preview image dimensions do not match the CSS frame and device scale factor.');
+    }
+
+    const demonstrationsById = new Map(activeDemonstrations.map(demonstration => [demonstration.id, demonstration]));
+    if (!Array.isArray(manifest.captures)) throw new Error('Preview manifest captures must be an array.');
+    const capturesById = new Map();
+    for (const capture of manifest.captures) {
+        if (!demonstrationsById.has(capture.id)) throw new Error(`Preview manifest contains inactive Demonstration ${capture.id}.`);
+        if (capturesById.has(capture.id)) throw new Error(`Preview manifest contains duplicate capture ${capture.id}.`);
+        const demonstration = demonstrationsById.get(capture.id);
+        if (capture.path !== demonstration.path || capture.file !== `${capture.id}.png`) {
+            throw new Error(`Preview manifest route or filename does not match active metadata for ${capture.id}.`);
+        }
+        const expectedPolicy = coordinateContextPolicy(demonstration);
+        if (!['retain', 'hide'].includes(expectedPolicy)) {
+            throw new Error(`Invalid shared coordinate-context policy for ${capture.id}: ${expectedPolicy}`);
+        }
+        if (capture.coordinateContextPolicy !== expectedPolicy || capture.axesAndGrid !== expectedPolicy) {
+            throw new Error(`Preview coordinate-context policy for ${capture.id} should be ${expectedPolicy}.`);
+        }
+        if (capture.image?.width !== manifest.image.width || capture.image?.height !== manifest.image.height) {
+            throw new Error(`Preview dimensions for ${capture.id} do not match the common manifest dimensions.`);
+        }
+        if (capture.framing?.frameCssPixels?.width !== frame.width || capture.framing?.frameCssPixels?.height !== frame.height ||
+            capture.board?.width !== frame.width || capture.board?.height !== frame.height) {
+            throw new Error(`Preview frame dimensions for ${capture.id} do not match the global capture frame.`);
+        }
+        if (!/^[a-f0-9]{64}$/.test(capture.sha256 || '')) throw new Error(`Preview checksum is missing for ${capture.id}.`);
+        const imagePath = path.join(catalogDirectory, capture.file);
+        if (!fs.existsSync(imagePath)) throw new Error(`Generated preview image is missing for ${capture.id}: ${capture.file}`);
+        const png = fs.readFileSync(imagePath);
+        if (png.toString('hex', 0, 8) !== '89504e470d0a1a0a') throw new Error(`${capture.file} is not a PNG.`);
+        const imageDimensions = {width: png.readUInt32BE(16), height: png.readUInt32BE(20)};
+        if (imageDimensions.width !== manifest.image.width || imageDimensions.height !== manifest.image.height ||
+            imageDimensions.width !== capture.image.width || imageDimensions.height !== capture.image.height) {
+            throw new Error(`PNG dimensions for ${capture.id} do not match its manifest.`);
+        }
+        const digest = crypto.createHash('sha256').update(png).digest('hex');
+        if (digest !== capture.sha256) throw new Error(`PNG checksum for ${capture.id} does not match its manifest.`);
+        const framing = capture.framing;
+        if (!framing || !Array.isArray(framing.boardBoundingBox) || framing.boardBoundingBox.length !== 4 ||
+            !framing.boardBoundingBox.every(Number.isFinite) || !framing.sceneBounds ||
+            !Number.isFinite(framing.sceneBounds.minX) || !Number.isFinite(framing.sceneBounds.maxX) ||
+            !Number.isFinite(framing.sceneBounds.minY) || !Number.isFinite(framing.sceneBounds.maxY) ||
+            framing.sceneBounds.minX < framing.boardBoundingBox[0] - 1e-6 ||
+            framing.sceneBounds.maxX > framing.boardBoundingBox[2] + 1e-6 ||
+            framing.sceneBounds.minY < framing.boardBoundingBox[3] - 1e-6 ||
+            framing.sceneBounds.maxY > framing.boardBoundingBox[1] + 1e-6 ||
+            !Array.isArray(framing.outOfFrameElements) || framing.outOfFrameElements.length !== 0) {
+            throw new Error(`Preview scene containment is invalid for ${capture.id}.`);
+        }
+        capturesById.set(capture.id, capture);
+    }
+    if (JSON.stringify(Array.from(capturesById.keys()).sort()) !== JSON.stringify(activeIds)) {
+        throw new Error('Preview manifest must contain exactly one capture for every active Demonstration.');
+    }
+
+    const generatedPngNames = fs.readdirSync(catalogDirectory).filter(name => name.endsWith('.png')).sort();
+    const expectedPngNames = activeDemonstrations.map(demonstration => `${demonstration.id}.png`).sort();
+    if (JSON.stringify(generatedPngNames) !== JSON.stringify(expectedPngNames)) {
+        throw new Error(`Generated preview files must match the active Demonstration catalog. Expected ${expectedPngNames.join(', ')}; found ${generatedPngNames.join(', ')}.`);
+    }
+    return {manifest, map: Object.fromEntries(Array.from(mappedIds.keys(), id => [id, `./images/demonstrations/catalog/${id}.png`]))};
+}
+
 module.exports = demonstrations;
 module.exports.familyIds = familyIds;
+module.exports.families = families;
 module.exports.availableLessonIds = [...availableLessonIds];
+module.exports.coordinateContextPolicy = coordinateContextPolicy;
+module.exports.validateGeneratedPreviews = () => validateGeneratedPreviews(demonstrations);

@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "2480a007a0820afc16aa372884fe346c38ee6ffb",
+  "graphSourceRevision": "77eb3979f25d347480504b11c5303a89e7c7d2a2",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -18,21 +18,10 @@
     "colorScheme": "light",
     "reducedMotion": "reduce",
     "timezoneId": "Europe/Ljubljana",
-    "baseUrl": "http://127.0.0.1:4294/bezeg-2.0",
-    "browserVersion": "156.0.8078.4",
-    "coordinateContextRoutes": [
-      "bernstein",
-      "linear-function",
-      "exponential-function",
-      "trigonometric-functions",
-      "continuity",
-      "derivative",
-      "definite-integral",
-      "area-between-curves",
-      "arc-length"
-    ],
-    "geometricRoutes": "hide default axes, ticks, and grid",
-    "coordinateContext": "retain default axes, ticks, and grid for Bernstein and function demonstrations",
+    "baseUrl": "http://127.0.0.1:4173/bezeg-2.0",
+    "browserVersion": "155.0.8059.40",
+    "browserSource": "configured executable",
+    "coordinateContextPolicy": "per capture: retain axes, ticks, and grid for basics and function families; hide them for other families",
     "paddingFraction": 0.12,
     "frameAspectRatio": 1.6363636363636365,
     "scalePolicy": "equal user-unit scale to preserve geometric proportions",
@@ -49,11 +38,12 @@
       "id": "bernstein",
       "path": "/bezeg-2.0/bernstein",
       "file": "bernstein.png",
-      "sha256": "2bba772f36b1a5848d7de2eff3a830e1396d707c062851eb4097e7ceb3a0ff44",
+      "sha256": "bbe01a9383aa272c47926fb607e957fc080f13512cc535b295a8dd43538b9f3d",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -97,11 +87,12 @@
       "id": "bezier",
       "path": "/bezeg-2.0/bezier/curve",
       "file": "bezier.png",
-      "sha256": "f60b47f5e21a55eab180f06915c2e9d8f6d91db17e4f045660526549551dd963",
+      "sha256": "9082c671fe062433ea1124483d8cfeb479164505c81d2c4af351a200f3c89dcf",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -144,11 +135,12 @@
       "id": "decasteljau",
       "path": "/bezeg-2.0/bezier/decasteljau",
       "file": "decasteljau.png",
-      "sha256": "b57dc9308c1e3a60de536efdde9fb7282b192da244807fafc5d952da3ab6a1b2",
+      "sha256": "c3125f7ac1fa774c4ec8244ea6d295e2552363423315e361ee0180a955a02b11",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -192,11 +184,12 @@
       "id": "decasteljau-alternative",
       "path": "/bezeg-2.0/bezier/decasteljau2",
       "file": "decasteljau-alternative.png",
-      "sha256": "4d8fbecb309a1dac36046f99ae7d00fa1a3c4df03c1da015901c08992f1435bc",
+      "sha256": "129f786b55e0b8841295f14d2d0adabafe48551e5e880de42b48be5912f9b815",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -240,11 +233,12 @@
       "id": "affine",
       "path": "/bezeg-2.0/bezier/affine",
       "file": "affine.png",
-      "sha256": "bfdd48f80b91da1dfc21b14aefd3ce94caa11d289a0248ddd308eb0fff0ddc06",
+      "sha256": "721a17abdafa231f224e02566b85e7f653d85bf851f6743132187f8de9eb3632",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -287,11 +281,12 @@
       "id": "subdivision",
       "path": "/bezeg-2.0/bezier/subdivision-2",
       "file": "subdivision.png",
-      "sha256": "6d33526878f108fd7bb5160d9e632212c1883498951a22c733784f18957b3f65",
+      "sha256": "9d9129b74b4e9c8637c1fb1225d56790d408030b927c9c07b6fa57298ac4310e",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -335,11 +330,12 @@
       "id": "repeated-subdivision",
       "path": "/bezeg-2.0/bezier/subdivision",
       "file": "repeated-subdivision.png",
-      "sha256": "93fcee62679c1465bef834da22cc2bffccc7ae9b2e999ed816e6fcc8752aaadd",
+      "sha256": "20fcb17819f9e86832dc799414d99627ff9fba25a5b3f3a84832c07c8a6576fc",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -383,11 +379,12 @@
       "id": "extrapolation",
       "path": "/bezeg-2.0/bezier/extrapolation",
       "file": "extrapolation.png",
-      "sha256": "7b439bfa878fe3901f228dc0ba510597bae10c83b137e39526d9373e5af86bc5",
+      "sha256": "4fef2264a8e9cfb6e5fa421310b40d0a5c12feece47480218db4d24bfd692426",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -430,11 +427,12 @@
       "id": "elevation",
       "path": "/bezeg-2.0/bezier/elevation",
       "file": "elevation.png",
-      "sha256": "babb99cc98496e0fa184a40b0b9b9bb033c81405be867a0a98c74647df3aeb44",
+      "sha256": "73fbd45123b067b524c09746f484a12b817d18fbf1414e7bd8f227ead0697ab2",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -478,11 +476,12 @@
       "id": "rational",
       "path": "/bezeg-2.0/rational/base",
       "file": "rational.png",
-      "sha256": "f89124a72b44ce6919dbf10949af5327d0a1f7dfbcdcdaddd9c3fbd964a07600",
+      "sha256": "8e07b8dc62e188229c9faded5217a956bb2640feecc1c639c0ded63d241f1a9a",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -525,11 +524,12 @@
       "id": "rational-decasteljau",
       "path": "/bezeg-2.0/rational/rational-decasteljau",
       "file": "rational-decasteljau.png",
-      "sha256": "d0003e67b6041cba27e0f7d5b4cc04ce2a7a8a4261f5ba4748c1f2cfae12a527",
+      "sha256": "4c550ef216c41eb7ad8f3855b6c73da1747aec5c18dd5dcce16564e0aa8fa193",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -573,11 +573,12 @@
       "id": "rational-elevation",
       "path": "/bezeg-2.0/rational/rational-elevation",
       "file": "rational-elevation.png",
-      "sha256": "f36ab2b4a75c1aaacb668cb3fea297e85875dda61281b7dad9a16511840b8ea6",
+      "sha256": "9124e6e566c3469e08725b2f180d93568171f7a06ac73fdd3ca2e11ea1546a07",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -620,11 +621,12 @@
       "id": "rational-extrapolation",
       "path": "/bezeg-2.0/rational/rational-extrapolation",
       "file": "rational-extrapolation.png",
-      "sha256": "cb07b7ea8fa5777697f464838c356854dd5e6c37f1b4f31a07483c405d4ebafb",
+      "sha256": "ec99f3ee79c0ca5500f7cfc4d7fcae0f9eb55d097ebac07a979eec0c5ac57d4c",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -667,11 +669,12 @@
       "id": "rational-subdivision",
       "path": "/bezeg-2.0/rational/rational-subdivision",
       "file": "rational-subdivision.png",
-      "sha256": "64716331e00fc5d6b963a5e1fb268beb2d7ab41f61510eb4485228a30da19547",
+      "sha256": "f4c875a72e4f6c14b8b52c36bf1ea0fcc58eb1e66e332911180df2f8c827168f",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -715,11 +718,12 @@
       "id": "farin",
       "path": "/bezeg-2.0/rational/farin-points",
       "file": "farin.png",
-      "sha256": "f36ab2b4a75c1aaacb668cb3fea297e85875dda61281b7dad9a16511840b8ea6",
+      "sha256": "9124e6e566c3469e08725b2f180d93568171f7a06ac73fdd3ca2e11ea1546a07",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -762,11 +766,12 @@
       "id": "circle",
       "path": "/bezeg-2.0/rational/circlen",
       "file": "circle.png",
-      "sha256": "72066e8e5b02077c6040e26327a4508c3a074effa33aa2c23ef77c828e1d226f",
+      "sha256": "b18efaeefc7a027db5bd8e94047b8fa503ee48097695c0272ba9a7066f3c1844",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -809,11 +814,12 @@
       "id": "spline-cn",
       "path": "/bezeg-2.0/spline/spline",
       "file": "spline-cn.png",
-      "sha256": "bd2fe84d4e68c8cfa02df0c082af6b08497f9785c91440c823e8eb153fc9c8c9",
+      "sha256": "b329fa9a3133a0eb87c8f7ef272bf22af88f46aaaad8b23ec873bc897488cb03",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -856,11 +862,12 @@
       "id": "spline-c1",
       "path": "/bezeg-2.0/spline/c1spline",
       "file": "spline-c1.png",
-      "sha256": "dd8d23bd3c8bfef64afcc9c4a4c0e3538c5ef12f2033abd7db6db4550d25af5c",
+      "sha256": "4845825b1f32dbe176f560777bbd41963761d8c2eb779ef7c06705321cb744cc",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -903,11 +910,12 @@
       "id": "spline-c2",
       "path": "/bezeg-2.0/spline/c2spline",
       "file": "spline-c2.png",
-      "sha256": "917cb33d7f249ca10f0f5f5a029136592335deb8221f126851e8946a2df6acf6",
+      "sha256": "2701eb5b4b4516743840e283c60faabd3419d6a9ced683c1cb35c983fe4e2b3a",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -950,11 +958,12 @@
       "id": "spline-g1",
       "path": "/bezeg-2.0/spline/g1spline",
       "file": "spline-g1.png",
-      "sha256": "db7fc795c3473e19e6c72ac7ab91787c12dd02978abcb61ecc897b5aefb9fb57",
+      "sha256": "2335058776cb7da220b0ffc8169170992c4a16b42dd7ff08c1e038f10aefe9be",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -997,11 +1006,12 @@
       "id": "spline-g1-symmetric",
       "path": "/bezeg-2.0/spline/g1-sym-spline",
       "file": "spline-g1-symmetric.png",
-      "sha256": "dd8d23bd3c8bfef64afcc9c4a4c0e3538c5ef12f2033abd7db6db4550d25af5c",
+      "sha256": "4845825b1f32dbe176f560777bbd41963761d8c2eb779ef7c06705321cb744cc",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1044,11 +1054,12 @@
       "id": "ph-cubic",
       "path": "/bezeg-2.0/ph/cubic",
       "file": "ph-cubic.png",
-      "sha256": "90cdbc19b3ce6442033d207c5103e2f82359feb047e8074cb8fd83d91ecc9a44",
+      "sha256": "a4a45c8001af58e58c4c30d4d4c16dc219d5af52c2f7c2e1501d8b2628447653",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1091,11 +1102,12 @@
       "id": "ph-quintic",
       "path": "/bezeg-2.0/ph/quintic",
       "file": "ph-quintic.png",
-      "sha256": "23d809cd0953a6ece11bc1701d07d83932290bf91e9129597c751cb3197bf28d",
+      "sha256": "24ff744287a0de10558d96cb54d1dab320937f118bb11b1f0592b66dd59e92c4",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1138,11 +1150,12 @@
       "id": "spline-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam2",
       "file": "spline-parameterization.png",
-      "sha256": "243fc5b642a8e45a20cb0e955dbfac466e82bb26289b1527f4ea1f9160ca17e0",
+      "sha256": "8035add28de50f66bd8a4b465d29fc2b5bc141c86e9990225a5813211603034f",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1185,11 +1198,12 @@
       "id": "weighted-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam",
       "file": "weighted-parameterization.png",
-      "sha256": "a18ea0cc5afa39973be800349565dd026104cc936040f9bc26d4146a90f0f100",
+      "sha256": "8ef56ab6f2d726bc8a1ff6b4c4196fbacc4189c2ad5d14bb701c6d64fee5abe3",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1232,11 +1246,12 @@
       "id": "uniform-parameterization",
       "path": "/bezeg-2.0/param/param/uniform",
       "file": "uniform-parameterization.png",
-      "sha256": "2ecd4acfd28b3e3deaa5439fdd19a81cee90e96f65392985d738394e11f86b9b",
+      "sha256": "479e0a8fe2b55bea058838002c5863c2dabd6bd21c389b9a86b677b521591b79",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "hide",
       "axesAndGrid": "hide",
       "framing": {
         "frameCssPixels": {
@@ -1279,11 +1294,12 @@
       "id": "linear-function",
       "path": "/bezeg-2.0/functions/linear",
       "file": "linear-function.png",
-      "sha256": "2e14a84131a03be150b111842388229b876a833d93d27b0c2dbee0fb1fa6f299",
+      "sha256": "71ab17667352d86a05271e46e7fe7aa0d9ffe4617d252a6738dcc7b20a9726b6",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1294,15 +1310,15 @@
         "paddingFraction": 0.12,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": -5.87392575751246,
-          "maxX": 3.2286581689429346,
+          "minX": -5.870583511523155,
+          "maxX": 3.2392633908224924,
           "minY": -0.3529411764705882,
           "maxY": 5.952577018830517
         },
         "boardBoundingBox": [
-          -6.351725814292662,
+          -6.348383568303357,
           6.244652406417112,
-          5.6010573650947935,
+          5.604399611084099,
           -1.0598262032085548
         ],
         "framedElementCount": 12,
@@ -1329,11 +1345,12 @@
       "id": "exponential-function",
       "path": "/bezeg-2.0/functions/exponential",
       "file": "exponential-function.png",
-      "sha256": "4aa18410308cbf550b6bf4e934d7a3f0843cc1179721e3c33669224cb6e64d33",
+      "sha256": "3fce8ac1bb4956b4107f83e82c0ac9ab60d06d3154318a387c175523e55f153c",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1378,11 +1395,12 @@
       "id": "trigonometric-functions",
       "path": "/bezeg-2.0/functions/trigonometric",
       "file": "trigonometric-functions.png",
-      "sha256": "66b139fd2b547d5fca752ddc476bfaa279f7c9e405dc18f5d2b749305ebac59b",
+      "sha256": "25438186b7b0eb497c232b9449e23573f1fcdd94764dd9c4384a1dbc7c40eb2e",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1426,11 +1444,12 @@
       "id": "continuity",
       "path": "/bezeg-2.0/functions/continuity",
       "file": "continuity.png",
-      "sha256": "0a0cc2dc9cca7c44fb992815aecdd337ee7c9dbbd60755e7a3854ca418c686d3",
+      "sha256": "0cd197f419c688d7290ddc5d3ac2ae4eaf2cfcdceaa0e0cfe62236767c338841",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1475,11 +1494,12 @@
       "id": "derivative",
       "path": "/bezeg-2.0/functions/derivative",
       "file": "derivative.png",
-      "sha256": "100e76c5454189c1a2b1fe658939f32287734fd03b6efceb259b9cd2ad962cb1",
+      "sha256": "8a9b5cea2f2d9ce320ed40eb676553e3c6eb9e73fdac25214d3c84cb0b2acee8",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1490,15 +1510,15 @@
         "paddingFraction": 0.12,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": -4.480329170008087,
-          "maxX": 5.50401256679974,
+          "minX": -4.636747624707548,
+          "maxX": 5.577539132728441,
           "minY": -1.7160740038802134,
           "maxY": 11.787286156092229
         },
         "boardBoundingBox": [
-          -11.872954132259256,
+          -11.891835378358694,
           12.392234972043887,
-          12.883743415744656,
+          12.864862169645217,
           -2.7368579739584993
         ],
         "framedElementCount": 7,
@@ -1525,11 +1545,12 @@
       "id": "definite-integral",
       "path": "/bezeg-2.0/functions/integral",
       "file": "definite-integral.png",
-      "sha256": "447d24e5c61de7dee3c715f9f2ed5b625557b0a18d452869b965df8f261e5c18",
+      "sha256": "0d8b19a3a2930bbd6b710b94f31180a05e93ae06bb3211c5a63c944fbc60e615",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1574,11 +1595,12 @@
       "id": "area-between-curves",
       "path": "/bezeg-2.0/functions/area-between",
       "file": "area-between-curves.png",
-      "sha256": "d79fb08ea0f33bf31718e4fab2dce7260a93f45ac2ebb615ea98f645e659e526",
+      "sha256": "1657416856fba7accf197f0b985d7391ff92104cd1dea862dc9336d76aafb643",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
@@ -1589,15 +1611,15 @@
         "paddingFraction": 0.12,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": 0.20984480296575647,
-          "maxX": 4.169362256920635,
+          "minX": 0.20969010016841252,
+          "maxX": 4.18565984271313,
           "minY": -1.3376269826145268,
           "maxY": 4.465460809435222
         },
         "boardBoundingBox": [
-          -3.07284377872375,
+          -3.0661433612753277,
           4.722756322659668,
-          7.456620918773986,
+          7.463321336222408,
           -1.7119165480333915
         ],
         "framedElementCount": 16,
@@ -1624,11 +1646,12 @@
       "id": "arc-length",
       "path": "/bezeg-2.0/functions/arc-length",
       "file": "arc-length.png",
-      "sha256": "dbd9d2aef80ded638833d44cdf5176c76d77d536b2e336c64bc9ebd9e64f1d56",
+      "sha256": "34325dca9c49bc95a5fcbbf770f6cfdd89d743fcdae40610f74f0916f09ceeba",
       "image": {
         "width": 720,
         "height": 440
       },
+      "coordinateContextPolicy": "retain",
       "axesAndGrid": "retain",
       "framing": {
         "frameCssPixels": {
