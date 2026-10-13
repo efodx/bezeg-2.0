@@ -50,16 +50,20 @@
 .demonstrations-catalog-entry-row { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:62px; padding:8px 10px; }
 .demonstrations-catalog-title { flex:1 1 auto; min-width:0; overflow-wrap:anywhere; font-size:14px; font-weight:650; line-height:1.35; }
 .demonstrations-catalog-actions { display:flex; align-items:center; flex:0 0 auto; gap:6px; }
-.demonstrations-catalog-action { position:relative; display:grid; place-items:center; width:44px; height:44px; flex:0 0 44px; border:1px solid #c9d4be; border-radius:50%; background:#fffdf5; color:#3b6704; }
+.demonstrations-catalog-action { position:relative; display:grid; place-items:center; box-sizing:border-box; width:44px; height:44px; flex:0 0 44px; border:1px solid transparent; border-radius:10px; background:transparent; color:#29452e; transition:background-color 120ms ease,border-color 120ms ease; }
 .demonstrations-catalog-action svg { display:block; width:22px; height:22px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
-.demonstrations-catalog-lesson { border-color:#d8cce0; color:#684b78; }
-.demonstrations-catalog-graph:hover { background:#f2f6e9; }
-.demonstrations-catalog-lesson:hover { background:#f6f0f8; }
+.demonstrations-page a.demonstrations-catalog-graph { color:#29452e; }
+.demonstrations-page a.demonstrations-catalog-lesson { color:#67502a; }
+.demonstrations-catalog-graph:hover,.demonstrations-catalog-graph:focus-visible { border-color:#dce5d4; background:#eef3e5; }
+.demonstrations-catalog-lesson:hover,.demonstrations-catalog-lesson:focus-visible { border-color:#eee2cc; background:#f7edd8; }
 .demonstrations-catalog-action::after { position:absolute; z-index:5; right:0; bottom:calc(100% + 7px); width:max-content; max-width:min(250px,70vw); padding:7px 9px; border-radius:5px; background:#243b2b; color:#fff; content:attr(data-tooltip); font-size:12px; font-weight:500; line-height:1.35; text-align:left; white-space:normal; pointer-events:none; opacity:0; visibility:hidden; transform:translateY(2px); transition:opacity 120ms ease,transform 120ms ease,visibility 120ms; }
 .demonstrations-catalog-action:hover::after,.demonstrations-catalog-action:focus-visible::after { opacity:1; visibility:visible; transform:translateY(0); }
 .demonstrations-page :focus-visible { outline:3px solid #456db0; outline-offset:3px; }
 .demonstrations-starting a:focus-visible { outline-offset:0; }
 .demonstrations-catalog-action:focus-visible { outline-offset:2px; }
+@media(prefers-reduced-motion:reduce) {
+    .demonstrations-catalog-action { transition:none; }
+}
 .demonstrations-art-note { font-size:11px; color:#728069; margin:14px 0 0; }
 @media(min-width:680px) {
     .demonstrations-catalog-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }

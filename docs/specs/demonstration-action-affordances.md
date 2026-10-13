@@ -1,6 +1,6 @@
 # Demonstration catalog action affordances
 
-**Status:** Accepted and implemented on 2026-10-12. The owner selected treatment A, circular outline buttons.
+**Status:** Accepted and implemented on 2026-10-13. The owner selected treatment C, minimal ghost buttons.
 
 ## Problem Statement
 
@@ -10,7 +10,7 @@ The all-demonstrations catalog repeats a graph-opening arrow and a text link for
 
 Give each Demonstration entry a decorative schematic graph preview, its title, and a compact inline action area. Put the graph action and, when available, the Guided lesson action to the right of the title in the same footer row. Use icon-only links with localized accessible names and localized tooltips on hover and keyboard focus. Keep the existing route and destination behavior.
 
-The prototype compared three visual treatments for the same layout: circular outline, rounded square, and minimal ghost buttons. On 2026-10-12 the owner selected treatment A, circular outline buttons. See [the catalog prototype notes](demonstration-catalog-prototype.md) and the prototype source on `codex/prototype-demonstration-motion` at `7bd9630`.
+The prototype compared three visual treatments for the same layout: circular outline, rounded square, and minimal ghost buttons. On 2026-10-13 the owner selected treatment C. Idle actions have no visible fill or outline; hover and keyboard focus add a subtle tinted surface, while distinct graph and lesson colors remain. See [the catalog prototype notes](demonstration-catalog-prototype.md) and the prototype source on `codex/prototype-demonstration-motion` at `7bd9630`.
 
 ## User Stories
 
@@ -34,7 +34,7 @@ The prototype compared three visual treatments for the same layout: circular out
 - Keep each entry's preview above a footer row. In the footer, place the Demonstration title at the left and the icon actions at the right. Wrap long titles without pushing actions outside the card.
 - The graph icon links to the existing Demonstration path. The book/lesson icon links to that path with the existing `learn=1` query only when the Demonstration is reported available by the existing lesson catalog.
 - Make each action a separate link with a localized accessible name containing the action and Demonstration title. Show a localized tooltip on hover and keyboard focus. Keep visible focus and a minimum 44 by 44 CSS pixel target.
-- Use owner-selected treatment A, circular outline. Preserve the different graph and lesson semantic colors.
+- Use owner-selected treatment C, minimal ghost buttons. Preserve the different graph and lesson semantic colors and reveal a quiet tinted surface on hover and keyboard focus.
 - Keep the compact family-entry grid: one column on narrow phone layouts, three columns around the reviewed 724px tablet width, and auto-filled columns on wider desktop. Avoid horizontal overflow and conspicuous empty rows at the target widths.
 - Slovenian remains the default language; action names and tooltips use the existing localization catalog and have English counterparts.
 - Remove development-only variant switching from the production catalog when the selected treatment is implemented. Existing graph routes and lesson query behavior remain unchanged.
