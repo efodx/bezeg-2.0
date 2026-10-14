@@ -205,7 +205,12 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         </div>
         <div className="demonstrations-opening-rail" ref={choiceRailRef}
             role="group" aria-label={t('starting_demonstrations')}
-            onWheel={() => setManuallyControlled(true)}
+            onWheel={event => {
+                // Vertical wheel input scrolls the page, not the row; shift+wheel scrolls the row horizontally.
+                const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+                    || (event.shiftKey && event.deltaY !== 0);
+                if (horizontal) setManuallyControlled(true);
+            }}
             onPointerDown={() => setManuallyControlled(true)}
             onTouchStart={() => setManuallyControlled(true)}>
             {entries.map((entry, index) => <button key={entry.demonstration.id}

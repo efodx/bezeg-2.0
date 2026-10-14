@@ -139,7 +139,13 @@ test('manual carousel actions and row scrolling take control for the page visit'
     act(() => {vi.advanceTimersByTime(6000);});
     expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
 
-    fireEvent.wheel(choiceGroup);
+    // Scrolling the page vertically while the pointer crosses the row must not stop autoplay.
+    fireEvent.wheel(choiceGroup, {deltaY: 120});
+    act(() => {vi.advanceTimersByTime(6000);});
+    expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
+
+    // Horizontal wheel input scrolls the row and takes control.
+    fireEvent.wheel(choiceGroup, {deltaX: 120});
     const heldIndex = choices.findIndex(choice => choice.getAttribute('aria-pressed') === 'true');
     act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[heldIndex]).toHaveAttribute('aria-pressed', 'true');
@@ -169,6 +175,26 @@ test('manual carousel actions and row scrolling take control for the page visit'
     expect(document.activeElement).toBe(choices[2]);
     act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
+
+    view.unmount();
+    vi.useRealTimers();
+});
+
+test('shift plus vertical wheel scrolls the choice row horizontally and takes control', () => {
+    vi.useFakeTimers();
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
+    const view = render(<RouterProvider router={router}/>);
+    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
+    const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
+    const choices = within(choiceGroup).getAllByRole('button');
+
+    fireEvent.wheel(choiceGroup, {deltaY: 120});
+    act(() => {vi.advanceTimersByTime(6000);});
+    expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.wheel(choiceGroup, {deltaY: 120, shiftKey: true});
+    act(() => {vi.advanceTimersByTime(18000);});
+    expect(choices[1]).toHaveAttribute('aria-pressed', 'true');
 
     view.unmount();
     vi.useRealTimers();
