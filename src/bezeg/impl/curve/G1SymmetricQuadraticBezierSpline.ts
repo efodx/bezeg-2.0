@@ -6,7 +6,7 @@ import {Point} from "../../api/point/point";
 
 export class G1SymmetricQuadraticBezierSpline extends BezierSpline {
 
-    override getU() {
+    protected override computeKnots(): number[] {
         const spans: Array<readonly [Point, Point]> = [];
         for (let i = 1; i < this.points.length - 1; i++) {
             spans.push([this.points[i], this.points[i + 1]]);
@@ -41,12 +41,9 @@ export class G1SymmetricQuadraticBezierSpline extends BezierSpline {
             //         return du2 / duSum * points[l - 1].Y() + du1 / duSum * points[l].Y();
             //     });
 
-            const p = new PointImpl(() => {
-                    return (1 - this.b[j]) * points[l - 1].X() + this.b[j] * points[l].X();
-                },
-                () => {
-                    return (1 - this.b[j]) * points[l - 1].Y() + this.b[j] * points[l].Y();
-                });
+            const p = PointImpl.derived(() => [
+                (1 - this.b[j]) * points[l - 1].X() + this.b[j] * points[l].X(),
+                (1 - this.b[j]) * points[l - 1].Y() + this.b[j] * points[l].Y()]);
             const curveNum = l - 1;
             nonFreePoints.push(p);
             bezpoints[curveNum - 1].push(p);

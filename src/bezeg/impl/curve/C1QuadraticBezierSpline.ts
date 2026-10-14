@@ -6,7 +6,7 @@ import {Point} from "../../api/point/point";
 
 export class C1QuadraticBezierSpline extends BezierSpline {
 
-    override getU() {
+    protected override computeKnots(): number[] {
         const spans: Array<readonly [Point, Point]> = [];
         for (let i = 1; i < this.points.length - 1; i++) {
             spans.push([this.points[i], this.points[i + 1]]);
@@ -23,20 +23,14 @@ export class C1QuadraticBezierSpline extends BezierSpline {
         const nonFreePoints = [];
         bezpoints[0] = [points[0], points[1]];
         for (let l = 2; l < points.length - 1; l++) {
-            const p = new PointImpl(() => {
-                    const u = this.getU();
-                    let du1 = u[l - 1] - u[l - 2];
-                    let du2 = u[l] - u[l - 1];
-                    let duSum = du1 + du2;
-                    return du2 / duSum * points[l - 1].X() + du1 / duSum * points[l].X();
-                },
-                () => {
-                    const u = this.getU();
-                    let du1 = u[l - 1] - u[l - 2];
-                    let du2 = u[l] - u[l - 1];
-                    let duSum = du1 + du2;
-                    return du2 / duSum * points[l - 1].Y() + du1 / duSum * points[l].Y();
-                });
+            const p = PointImpl.derived(() => {
+                const u = this.getU();
+                const du1 = u[l - 1] - u[l - 2];
+                const du2 = u[l] - u[l - 1];
+                const duSum = du1 + du2;
+                return [du2 / duSum * points[l - 1].X() + du1 / duSum * points[l].X(),
+                    du2 / duSum * points[l - 1].Y() + du1 / duSum * points[l].Y()];
+            });
             const curveNum = l - 1;
             nonFreePoints.push(p);
             bezpoints[curveNum - 1].push(p);

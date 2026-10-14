@@ -3,12 +3,15 @@ import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 import {boundingBoxOf, chordKnots} from "./geometry";
 import {PointImpl} from "../point/point-impl";
+import {VOLATILE} from "../versioning";
 
 abstract class BezierSpline extends AbstractPointControlledCurve {
     protected bezierCurves: PolynomialBezierCurve[] = [];
     protected nonFreePoints: Array<Point> = [];
     protected b: number[] = [];
     protected alpha: number = 0;
+    private knots: number[] = [];
+    private knotsVersion = VOLATILE;
 
     /**
      * @constructor
@@ -110,7 +113,24 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
         return this.bezierCurves;
     }
 
-    protected getU() {
+    /**
+     * Knot vector of the spans. Cached against this spline's version, so the many computed
+     * points that read it share one computation; never cached while a control point is volatile.
+     */
+    protected getU(): number[] {
+        const version = this.version();
+        if (version !== VOLATILE && version === this.knotsVersion) {
+            return this.knots;
+        }
+        const knots = this.computeKnots();
+        if (version !== VOLATILE) {
+            this.knots = knots;
+            this.knotsVersion = version;
+        }
+        return knots;
+    }
+
+    protected computeKnots(): number[] {
         return chordKnots(this.bezierCurves.map(curve => {
             const points = curve.getPoints();
             return [points[0], points[points.length - 1]] as const;

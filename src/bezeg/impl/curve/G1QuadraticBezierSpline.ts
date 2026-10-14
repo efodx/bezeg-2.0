@@ -21,7 +21,9 @@ export class G1QuadraticBezierSpline extends BezierSpline {
                 let startingPoint = bezierCurvePoints[0];
                 this.b.push(1);
                 let j = this.b.length - 1;
-                let nonFreePoint = new PointImpl(() => startingPoint.X() + this.b[j] * (startingPoint.X() - previousPoint.X()), () => startingPoint.Y() + this.b[j] * (startingPoint.Y() - previousPoint.Y()));
+                const nonFreePoint = PointImpl.derived(() => [
+                    startingPoint.X() + this.b[j] * (startingPoint.X() - previousPoint.X()),
+                    startingPoint.Y() + this.b[j] * (startingPoint.Y() - previousPoint.Y())]);
                 this.nonFreePoints.push(nonFreePoint);
                 bezierCurvePoints.splice(1, 0, nonFreePoint);
                 this.bezierCurves.push(new PolynomialBezierCurve(bezierCurvePoints));

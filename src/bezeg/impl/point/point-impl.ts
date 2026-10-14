@@ -31,6 +31,31 @@ export class PointImpl implements Point, Versioned {
         this.dependencies = dependencies;
     }
 
+    /**
+     * A point computed from other geometry as one [x, y] function. `compute` runs once per
+     * version for both coordinates instead of once per coordinate. Declare `dependencies`
+     * (or call `dependOn` later) to make the result cacheable; without them it is volatile
+     * and `compute` runs on every read, as with two separate closures.
+     */
+    static derived(compute: () => readonly [number, number],
+                   dependencies?: ReadonlyArray<MaybeVersioned>): PointImpl {
+        let memoVersion = VOLATILE;
+        let memo: readonly [number, number] = [0, 0];
+        const read = (): readonly [number, number] => {
+            const version = point.version();
+            if (version === VOLATILE) {
+                return compute();
+            }
+            if (version !== memoVersion) {
+                memo = compute();
+                memoVersion = version;
+            }
+            return memo;
+        };
+        const point: PointImpl = new PointImpl(() => read()[0], () => read()[1], dependencies);
+        return point;
+    }
+
     /** Declares the objects whose changes the coordinate functions react to. */
     dependOn(dependencies: ReadonlyArray<MaybeVersioned>) {
         this.dependencies = dependencies;

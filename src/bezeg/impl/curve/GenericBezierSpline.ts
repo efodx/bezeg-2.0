@@ -35,24 +35,15 @@ export class GenericBezierSpline extends BezierSpline {
             const l = this.bezierCurves.length;
             const nonFreePoints = [];
             for (let j = 1; j <= this.continuity; j++) {
-                // TODO MAKE THIS EFFICIENT
-                let nonFreePoint = new PointImpl(() => {
+                const nonFreePoint = PointImpl.derived(() => {
                     const u = this.getU();
                     const deltaU1 = u[l] - u[l - 1];
                     const deltaU2 = u[l + 1] - u[l];
 
-                    let nextT = (deltaU2 + deltaU1) / deltaU1;
+                    const nextT = (deltaU2 + deltaU1) / deltaU1;
                     const decasteljau = previousBezierCurve.decasteljauScheme(nextT);
-                    return decasteljau[this.degree][this.degree - j].X();
-                }, () => {
-                    const u = this.getU();
-                    const deltaU1 = u[l] - u[l - 1];
-                    const deltaU2 = u[l + 1] - u[l];
-
-                    let nextT = (deltaU2 + deltaU1) / deltaU1;
-
-                    const decasteljau = previousBezierCurve.decasteljauScheme(nextT);
-                    return decasteljau[this.degree][this.degree - j].Y();
+                    const point = decasteljau[this.degree][this.degree - j];
+                    return [point.X(), point.Y()];
                 });
                 nonFreePoints.push(nonFreePoint);
                 bezierCurvePoints.push(nonFreePoint);
@@ -65,6 +56,10 @@ export class GenericBezierSpline extends BezierSpline {
         this.bindNonFreePoints();
     }
 
+    /**
+     * Setters only record the parameters. Callers must call `generateBezierCurves()` once both
+     * degree and continuity are final (an intermediate state can have degree === continuity).
+     */
     setContinuity(continuity: number) {
         this.continuity = continuity;
         this.touch();
