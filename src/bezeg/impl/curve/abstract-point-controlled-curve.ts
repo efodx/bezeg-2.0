@@ -1,6 +1,6 @@
 import {Point} from "../../api/point/point";
 import {PointControlledCurve} from "../../api/curve/point-controlled-curve";
-import {boundingBoxOf} from "./geometry";
+import {boundingBoxOf, convexHull} from "./geometry";
 import {currentStamp, maxVersion, NO_MEMO, nextVersion, Versioned, VOLATILE} from "../versioning";
 
 export abstract class AbstractPointControlledCurve implements PointControlledCurve, Versioned {
@@ -148,30 +148,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
     }
 
     getConvexHull(): Point[] {
-        const allPoints = this.getPoints().map(point => point);
-        const leftMostPoint = allPoints.sort((p1, p2) => p1.X() === p2.X() ? p1.Y() - p2.Y() : p1.X() - p2.X())[0];
-        const pointsOnHull = [leftMostPoint];
-        for (let i = 0; i < allPoints.length; i++) {
-            const current = pointsOnHull[pointsOnHull.length - 1];
-            const next = allPoints.filter(point => point !== current).filter(point => this.everyOtherOnTheLeft(current, point, allPoints))[0];
-            if (pointsOnHull.includes(next)) {
-                break;
-            }
-            if (next !== undefined) {
-                pointsOnHull.push(next);
-            }
-        }
-        return pointsOnHull;
-    }
-
-    private everyOtherOnTheLeft(current: Point, point: Point, allPoints: Point[]) {
-        return allPoints.filter(p => p !== current && p !== point).every(p => this.isPointOnLeft(current, point, p));
-    }
-
-    private isPointOnLeft(current: Point, point: Point, p: Point) {
-        // Ax * By - Ay * Bx
-        // (p-current)(point-current)
-        return ((p.X() - current.X()) * (point.Y() - current.Y()) - (p.Y() - current.Y()) * (point.X() - current.X())) <= 0;
+        return convexHull(this.getPoints());
     }
 
 }

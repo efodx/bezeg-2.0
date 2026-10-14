@@ -37,3 +37,30 @@ export function chordKnots(spans: ReadonlyArray<readonly [Point, Point]>, alpha:
     }
     return u.map(t => t / total);
 }
+
+/**
+ * Convex hull vertices (Andrew's monotone chain, O(n log n)), counter-clockwise starting at the
+ * leftmost point. Points collinear with a hull edge are omitted; coincident points count once.
+ * The result contains the given Point objects, never copies.
+ */
+export function convexHull(points: ReadonlyArray<Point>): Point[] {
+    const sorted = [...points].sort((p, q) => p.X() === q.X() ? p.Y() - q.Y() : p.X() - q.X());
+    const unique = sorted.filter((p, i) => i === 0 || p.X() !== sorted[i - 1].X() || p.Y() !== sorted[i - 1].Y());
+    if (unique.length < 3) {
+        return unique;
+    }
+    const cross = (o: Point, a: Point, b: Point) =>
+        (a.X() - o.X()) * (b.Y() - o.Y()) - (a.Y() - o.Y()) * (b.X() - o.X());
+    const chain = (ordered: Point[]): Point[] => {
+        const result: Point[] = [];
+        for (const p of ordered) {
+            while (result.length >= 2 && cross(result[result.length - 2], result[result.length - 1], p) <= 0) {
+                result.pop();
+            }
+            result.push(p);
+        }
+        result.pop();
+        return result;
+    };
+    return [...chain(unique), ...chain([...unique].reverse())];
+}

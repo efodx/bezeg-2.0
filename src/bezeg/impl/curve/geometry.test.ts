@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest";
 import {PointImpl} from "../point/point-impl";
-import {boundingBoxOf, chordKnots, distance} from "./geometry";
+import {boundingBoxOf, chordKnots, convexHull, distance} from "./geometry";
 import {C1QuadraticBezierSpline} from "./C1QuadraticBezierSpline";
 
 const pt = (x: number, y: number) => new PointImpl(x, y);
@@ -22,6 +22,38 @@ describe("geometry helpers", () => {
     it("falls back to uniform knots when every span has zero length", () => {
         const p = pt(1, 1);
         expect(chordKnots([[p, p], [p, p]], 1)).toEqual([0, 0.5, 1]);
+    });
+
+    it("computes the convex hull counter-clockwise from the leftmost point", () => {
+        const [a, b, c, d, inside, onEdge, duplicate] = [pt(0, 0), pt(4, 0), pt(4, 3), pt(0, 3), pt(2, 1), pt(2, 0), pt(4, 3)];
+        const hull = convexHull([c, inside, a, onEdge, d, b, duplicate]);
+        expect(hull).toEqual([a, b, c, d]);
+        hull.forEach(p => expect([a, b, c, d]).toContain(p));
+    });
+
+    it("handles degenerate inputs", () => {
+        expect(convexHull([])).toEqual([]);
+        const a = pt(1, 1);
+        expect(convexHull([a, pt(1, 1)])).toEqual([a]);
+        const [p, q, r, s] = [pt(0, 0), pt(1, 1), pt(2, 2), pt(3, 3)];
+        expect(convexHull([r, p, s, q])).toEqual([p, s]);
+    });
+
+    it("keeps every random point inside the hull", () => {
+        let seed = 7;
+        const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        for (let run = 0; run < 50; run++) {
+            const points = Array.from({length: 3 + Math.floor(random() * 20)}, () => pt(random() * 10, random() * 10));
+            const hull = convexHull(points);
+            expect(hull.length).toBeGreaterThanOrEqual(3);
+            for (const p of points) {
+                for (let i = 0; i < hull.length; i++) {
+                    const o = hull[i], e = hull[(i + 1) % hull.length];
+                    const cross = (e.X() - o.X()) * (p.Y() - o.Y()) - (e.Y() - o.Y()) * (p.X() - o.X());
+                    expect(cross).toBeGreaterThanOrEqual(-1e-9);
+                }
+            }
+        }
     });
 
     it("evaluates a spline whose points all coincide without NaN", () => {
