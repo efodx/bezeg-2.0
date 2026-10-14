@@ -1,4 +1,5 @@
 import {Point} from "../../api/point/point";
+import {PointImpl} from "../point/point-impl";
 
 export function distance(p: Point, q: Point): number {
     return Math.sqrt((p.X() - q.X()) ** 2 + (p.Y() - q.Y()) ** 2);
@@ -63,4 +64,15 @@ export function convexHull(points: ReadonlyArray<Point>): Point[] {
         return result;
     };
     return [...chain(unique), ...chain([...unique].reverse())];
+}
+
+/**
+ * Computed point `wa * a + wb * b` for weights read at evaluation time. Memoized per version like
+ * any `PointImpl.derived` point; the owner declares its dependencies (see `bindNonFreePoints`).
+ */
+export function blendPoints(a: Point, b: Point, weights: () => readonly [number, number]): PointImpl {
+    return PointImpl.derived(() => {
+        const [wa, wb] = weights();
+        return [wa * a.X() + wb * b.X(), wa * a.Y() + wb * b.Y()];
+    });
 }
