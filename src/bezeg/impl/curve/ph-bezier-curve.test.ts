@@ -110,3 +110,71 @@ describe('PH arc length freshness', () => {
         expect(curve.arcLength()).toBeGreaterThan(before);
     });
 });
+
+describe('PH similarity transforms', () => {
+    const boxCenter = (curve: PhBezierCurve) => {
+        const [minX, maxX, minY, maxY] = curve.getBoundingBox();
+        return [(minX + maxX) / 2, (minY + maxY) / 2];
+    };
+    const centroid = (curve: PhBezierCurve) => {
+        const p = curve.getPoints();
+        return [p.reduce((s, q) => s + q.X(), 0) / p.length, p.reduce((s, q) => s + q.Y(), 0) / p.length];
+    };
+
+    test.each([0.5, 0.8, 1.2, 2])('scale(%s) scales by that factor about the bounding-box center', factor => {
+        const curve = build(presets[1][1], presets[1][2]);
+        const [cx, cy] = boxCenter(curve);
+        const [minX, maxX, minY, maxY] = curve.getBoundingBox();
+        const length = curve.arcLength();
+        curve.scale(factor);
+        const [nx, ny] = boxCenter(curve);
+        expect(nx).toBeCloseTo(cx, 9);
+        expect(ny).toBeCloseTo(cy, 9);
+        const [a, b, c, d] = curve.getBoundingBox();
+        expect(b - a).toBeCloseTo(factor * (maxX - minX), 9);
+        expect(d - c).toBeCloseTo(factor * (maxY - minY), 9);
+        expect(curve.arcLength()).toBeCloseTo(factor * length, 9);
+        // still a PH curve: sigma is the speed
+        for (const t of [0, 0.4, 1]) {
+            expect(Math.abs(curve.sigma(t) - speed(curve, t))).toBeLessThanOrEqual(1e-9);
+        }
+    });
+
+    test.each([0.3, 1, -2])('rotate(%s) keeps centroid and arc length and turns the start tangent', theta => {
+        const curve = build(presets[1][1], presets[1][2]);
+        const [cx, cy] = centroid(curve);
+        const length = curve.arcLength();
+        const [p0, p1] = curve.getPoints();
+        const angle = Math.atan2(p1.Y() - p0.Y(), p1.X() - p0.X());
+        curve.rotate(theta);
+        const [nx, ny] = centroid(curve);
+        expect(nx).toBeCloseTo(cx, 9);
+        expect(ny).toBeCloseTo(cy, 9);
+        expect(curve.arcLength()).toBeCloseTo(length, 9);
+        const [q0, q1] = curve.getPoints();
+        const turned = Math.atan2(q1.Y() - q0.Y(), q1.X() - q0.X()) - angle;
+        expect(Math.cos(turned)).toBeCloseTo(Math.cos(theta), 9);
+        expect(Math.sin(turned)).toBeCloseTo(Math.sin(theta), 9);
+    });
+});
+
+describe('PH tk', () => {
+    test('t_k reaches arc length k * ds and is increasing', () => {
+        const curve = build(presets[0][1], presets[0][2]);
+        const ds = curve.arcLength() / 10;
+        let t = 0;
+        for (let k = 1; k <= 9; k++) {
+            const next = curve.tk(t, ds, k);
+            expect(next).toBeGreaterThan(t);
+            expect(curve.s(next)).toBeCloseTo(k * ds, 6);
+            t = next;
+        }
+    });
+
+    test('returns the previous parameter instead of NaN where the speed is zero (cusp)', () => {
+        // w(t) = t, so r'(0) = 0 and the curve starts with a cusp.
+        const curve = build([0, 0], [[0, 0], [1, 0]]);
+        expect(curve.sigma(0)).toBeCloseTo(0, 12);
+        expect(curve.tk(0, 0.1, 1)).toBe(0);
+    });
+});

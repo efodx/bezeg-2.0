@@ -137,13 +137,26 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
         this.touch();
     }
 
+    /**
+     * Parameter t_k where the arc length s(t) reaches k * deltas, given the previous parameter
+     * t_(k-1) as the starting guess: one forward Euler step, then four Newton iterations on
+     * s(t) - k * deltas (s' = sigma). Where the speed vanishes (a cusp) Newton cannot proceed and
+     * the best estimate so far is returned instead of NaN.
+     */
     tk(tkminus1: number, deltas: number, k: number) {
-        let tk0 = tkminus1 + deltas / this.sigma(tkminus1);
-        tk0 = tk0 - (this.s(tk0) - k * deltas) / this.sigma(tk0);
-        tk0 = tk0 - (this.s(tk0) - k * deltas) / this.sigma(tk0);
-        tk0 = tk0 - (this.s(tk0) - k * deltas) / this.sigma(tk0);
-        tk0 = tk0 - (this.s(tk0) - k * deltas) / this.sigma(tk0);
-        return tk0;
+        const startSpeed = this.sigma(tkminus1);
+        if (!(startSpeed > 0)) {
+            return tkminus1;
+        }
+        let t = tkminus1 + deltas / startSpeed;
+        for (let iteration = 0; iteration < 4; iteration++) {
+            const speed = this.sigma(t);
+            if (!(speed > 0)) {
+                break;
+            }
+            t = t - (this.s(t) - k * deltas) / speed;
+        }
+        return t;
     }
 
     s(t: number) {
@@ -198,15 +211,28 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
         return this.underlyingBezierCurve.decasteljau(t, pointsAtT);
     }
 
+    /** Rotates the curve by theta about the centroid of its control points. */
     override rotate(theta: number) {
-        const rotateByHalfTheta = [[Math.cos(theta / 2), -Math.sin(theta / 2)], [Math.sin(theta / 2), Math.cos(theta / 2)]];
-        const [cX, cY] = [this.underlyingBezierCurve.getPoints().map(point => point.X()).reduce((previousValue, currentValue) => previousValue + currentValue) / this.underlyingBezierCurve.getPoints().length,
-            this.underlyingBezierCurve.getPoints().map(point => point.Y()).reduce((previousValue, currentValue) => previousValue + currentValue) / this.underlyingBezierCurve.getPoints().length];
-        this._w.forEach(point => this.transformPoint(point, 0, 0, rotateByHalfTheta, undefined));
-        const rotateByTheta = [[Math.cos(theta), -Math.sin(theta)], [Math.sin(theta), Math.cos(theta)]];
-        const newCenter = new PointImpl(cX, cY);
-        this.transformPoint(newCenter, this.points[0].X(), this.points[0].Y(), rotateByTheta, undefined);
-        this.moveFor(cX - newCenter.X(), cY - newCenter.Y());
+        this.transformAbout(1, theta, () => this.controlPointCentroid());
+    }
+
+    /**
+     * A PH curve has r'(t) = w(t)^2, so multiplying every hodograph point by the complex number
+     * sqrt(factor) * e^(i theta / 2) scales the curve by `factor` and rotates it by `theta`, both
+     * about the start point. The curve is then translated so that `center()` stays where it was.
+     */
+    private transformAbout(factor: number, theta: number, center: () => number[]) {
+        const [cX, cY] = center();
+        const r = Math.sqrt(factor);
+        const A = [[r * Math.cos(theta / 2), -r * Math.sin(theta / 2)], [r * Math.sin(theta / 2), r * Math.cos(theta / 2)]];
+        this._w.forEach(point => this.transformPoint(point, 0, 0, A, undefined));
+        const [newX, newY] = center();
+        this.moveFor(cX - newX, cY - newY);
+    }
+
+    private controlPointCentroid(): number[] {
+        const points = this.underlyingBezierCurve.getPoints();
+        return [points.reduce((sum, p) => sum + p.X(), 0) / points.length, points.reduce((sum, p) => sum + p.Y(), 0) / points.length];
     }
 
     elevate(): BezierCurve {
@@ -217,13 +243,12 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
         return this.underlyingBezierCurve.decasteljauScheme(t);
     }
 
-    override scale(xScale: number) {
-        xScale = Math.sqrt(xScale);
-        this._w.forEach(point => this.transformPoint(point, 0, 0, [[xScale, 0], [0, xScale]], undefined));
-        const [cX, cY] = this.getBoundingBoxCenter();
-        const newCenter = new PointImpl(cX, cY);
-        this.transformPoint(newCenter, this.points[0].X(), this.points[0].Y(), [[xScale, 0], [0, xScale]], undefined);
-        this.moveFor(2 * (cX - newCenter.X()), 2 * (cY - newCenter.Y()));
+    /**
+     * Scales the curve uniformly by `factor` about its bounding-box center. A PH curve cannot be
+     * scaled differently per axis, so only one factor is accepted.
+     */
+    override scale(factor: number) {
+        this.transformAbout(factor, 0, () => this.getBoundingBoxCenter());
     }
 
     override getBoundingBox(): number[] {
