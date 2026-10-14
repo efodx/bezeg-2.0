@@ -1,0 +1,154 @@
+import React from 'react';
+import {act, fireEvent, render} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import {t} from '../../localization';
+import BezierCurveGraph from '../curves/bezier/BezierCurveGraph';
+import CubicPhBezierCurveGraph from '../curves/ph/CubicPhBezierCurveGraph';
+import {BaseBezierCurveGraph} from './BaseBezierCurveGraph';
+import {BaseGraphStates} from './BaseCurveGraph';
+import {GraphHost} from './GraphHost';
+import BaseGraph, {BaseGraphState} from './BaseGraph';
+import {SelectedCurveOption} from './CurveEditingFeature';
+import {appStorage} from '../../storage/appStorage';
+
+// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
+beforeAll(() => {
+    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
+    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
+    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
+        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
+});
+
+beforeEach(() => {
+    appStorage.clear();
+});
+
+const renderGraph = (graph: BaseGraph<BaseGraphState>) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+
+/** A route without structured editing (the editing-mode dropdown is the only mode control) holding two curves. */
+class TwoCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    defaultPreset(): any {
+        return [["JSXBezierCurve", {points: [[-4, -3], [-3, 2], [2, 2], [3, -2]]}],
+            ["JSXBezierCurve", {points: [[-4, 3], [-3, -2], [2, -2], [3, 2]]}]];
+    }
+
+    override presets() { return "two-curve-test"; }
+
+    selectWith(index: number, selectedCurveOption: SelectedCurveOption) {
+        this.selectCurve(this.jxgCurves[index], {selectedCurveOption});
+    }
+}
+
+class SelectableBezierGraph extends BezierCurveGraph {
+    selectFirst() { this.selectCurve(this.getFirstJxgCurve()); }
+}
+
+test('the editing-mode dropdown follows the graph when another curve is picked in move mode', () => {
+    const graph = new TwoCurveGraph();
+    const view = renderGraph(graph);
+    act(() => graph.selectWith(0, SelectedCurveOption.ADD_POINTS));
+
+    const dropdown = () => view.getByLabelText(t('editing_mode')) as HTMLSelectElement;
+    expect(dropdown().value).toBe(String(SelectedCurveOption.ADD_POINTS));
+
+    // The curve picker selects the other curve and switches the graph to move mode.
+    fireEvent.click(view.getByRole('button', {name: `${t('curve')}2`}));
+    expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.MOVE_CURVE);
+    expect(dropdown().value).toBe(String(SelectedCurveOption.MOVE_CURVE));
+
+    // A user choice is written to the graph and shown.
+    fireEvent.change(dropdown(), {target: {value: String(SelectedCurveOption.DELETE_POINTS)}});
+    expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
+    expect(dropdown().value).toBe(String(SelectedCurveOption.DELETE_POINTS));
+    view.unmount();
+});
+
+test('the De Casteljau switch of the selected curve follows a lesson action and then toggles on the first click', () => {
+    const graph = new SelectableBezierGraph();
+    const view = renderGraph(graph);
+    act(() => graph.selectFirst());
+    const scheme = () => view.getByLabelText(t('de_casteljau_construction'), {selector: 'input'}) as HTMLInputElement;
+    expect(scheme().checked).toBe(false);
+
+    act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true}));
+    expect(graph.getFirstJxgCurve().isShowingDecasteljauScheme()).toBe(true);
+    expect(scheme().checked).toBe(true);
+
+    fireEvent.click(scheme());
+    expect(graph.getFirstJxgCurve().isShowingDecasteljauScheme()).toBe(false);
+    expect(scheme().checked).toBe(false);
+    view.unmount();
+});
+
+test('the selected-curve parameter sliders read the adapter, so an outside change shows after a store notification', () => {
+    const graph = new SelectableBezierGraph();
+    const view = renderGraph(graph);
+    act(() => graph.selectFirst());
+    act(() => {
+        graph.getFirstJxgCurve().setSubdivisionT(0.8);
+        graph.getFirstJxgCurve().setExtrapolationT(1.4);
+        graph.store.notify();
+    });
+    expect(Number((view.getByLabelText(t('subdivision_parameter_t')) as HTMLInputElement).value)).toBeCloseTo(0.8);
+    expect(Number((view.getByLabelText(t('extrapolation_parameter_t')) as HTMLInputElement).value)).toBeCloseTo(1.4);
+    view.unmount();
+});
+
+test('using the shorten preview does not change the subdivision parameter the user chose', () => {
+    class Graph extends SelectableBezierGraph {
+        curveCount() { return this.jxgCurves.length; }
+    }
+    const graph = new Graph();
+    const view = renderGraph(graph);
+    act(() => graph.selectFirst());
+    const curve = graph.getFirstJxgCurve();
+    const subdivisionSlider = () => view.getByLabelText(t('subdivision_parameter_t')) as HTMLInputElement;
+    const expectedSplit = curve.getCurve().eval(0.3);
+
+    fireEvent.change(subdivisionSlider(), {target: {value: '0.3'}});
+    fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
+    fireEvent.change(view.getByLabelText(t('end_parameter_of_the_shortened_curve_t')), {target: {value: '0.8'}});
+
+    // The preview borrows the shared parameter, but the slider keeps the user's choice.
+    expect(Number(subdivisionSlider().value)).toBeCloseTo(0.3);
+
+    // Ending the preview gives the adapter its own value back.
+    fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
+    expect(curve.getSubdivisionT()).toBeCloseTo(0.3);
+
+    fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
+    fireEvent.click(view.getByRole('button', {name: t('subdivide')}));
+    expect(graph.curveCount()).toBe(2);
+    const left = graph.getFirstJxgCurve().getCurve().getPoints();
+    expect(left[left.length - 1].X()).toBeCloseTo(expectedSplit.X());
+    expect(left[left.length - 1].Y()).toBeCloseTo(expectedSplit.Y());
+    view.unmount();
+});
+
+test('PH offsets: the switch and the captured scene agree, and restoring a checkpoint re-applies the offsets', () => {
+    const graph = new CubicPhBezierCurveGraph();
+    const view = renderGraph(graph);
+    const offsets = () => view.getAllByLabelText(t('curve_offsets')).find(element => element instanceof HTMLInputElement) as HTMLInputElement;
+
+    // Offset visibility is owned by the curve adapter alone; the graph state carries no second copy of it.
+    expect(graph.state).not.toHaveProperty('showOffsetCurve');
+    expect(graph.state).not.toHaveProperty('showOffsetCurveControlPoints');
+
+    fireEvent.click(offsets());
+    expect(graph.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()).toBe(true);
+    expect(offsets().checked).toBe(true);
+    expect(graph.state).not.toHaveProperty('showOffsetCurve');
+
+    const checkpoint = graph.getLessonCapabilities().captureState();
+    fireEvent.click(offsets());
+    expect(offsets().checked).toBe(false);
+
+    act(() => graph.getLessonCapabilities().restoreState(checkpoint));
+    expect(graph.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()).toBe(true);
+    expect(offsets().checked).toBe(true);
+
+    act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'offset-curve', visible: false}));
+    expect(graph.getFirstJxgCurveAsPHCurve().isShowingOffsetCurve()).toBe(false);
+    expect(offsets().checked).toBe(false);
+    view.unmount();
+});

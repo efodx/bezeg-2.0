@@ -307,6 +307,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
 
     getSelect() {
         return <Select onChange={e => this.onSelectChange(e)}
+                       value={String(this.state.selectedCurveOption)}
+                       ariaLabel={t("editing_mode")}
                        options={[{
                            "value": "0", "text": t("manipulate_curve")
                        }, {

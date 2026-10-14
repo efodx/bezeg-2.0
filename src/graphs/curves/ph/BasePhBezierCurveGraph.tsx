@@ -21,8 +21,6 @@ function formatArcLength(value: number): string {
 }
 
 export interface BasePhBezierCurveGraphStates extends BaseGraphStates {
-    showOffsetCurve: boolean,
-    showOffsetCurveControlPoints: boolean,
     showArcLength?: boolean
 }
 
@@ -127,8 +125,6 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     override getInitialState(): S {
         return {
             ...super.getInitialState(),
-            showOffsetCurve: false,
-            showOffsetCurveControlPoints: false,
             showArcLength: true
         };
     }
@@ -196,7 +192,6 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         super.registerLessonActions(registry);
         registry.onDiscriminated('curve-visibility', 'offset-curve', action => {
             this.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(action.visible);
-            this.setPhState({showOffsetCurve: action.visible});
             this.boardUpdate();
         });
         registry.onDiscriminated('parameter', 'offset-distance', action => {
