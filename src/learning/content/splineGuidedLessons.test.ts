@@ -3,7 +3,7 @@ import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
 import {sceneAction} from '../runtime/lessonCatalog';
 import {GenericBezierSpline} from '../../bezeg/impl/curve/GenericBezierSpline';
 import {C1QuadraticBezierSpline} from '../../bezeg/impl/curve/C1QuadraticBezierSpline';
-import {C2QubicBezierSpline} from '../../bezeg/impl/curve/C2QubicBezierSpline';
+import {C2CubicBezierSpline} from '../../bezeg/impl/curve/C2CubicBezierSpline';
 import {G1QuadraticBezierSpline} from '../../bezeg/impl/curve/G1QuadraticBezierSpline';
 import {G1SymmetricQuadraticBezierSpline} from '../../bezeg/impl/curve/G1SymmetricQuadraticBezierSpline';
 import {BezierSpline} from '../../bezeg/impl/curve/bezier-spline';
@@ -31,10 +31,10 @@ const PARAM = defaultPoints(SplineAlphaParametrizationGraph);
 const model = (points: number[][]) => points.map(([x, y]) => new PointImpl(x, y));
 const cn = (degree: number, continuity: number, points = CN) => new GenericBezierSpline(model(points), degree, continuity);
 const c1 = (points = C1) => new C1QuadraticBezierSpline(model(points));
-const c2 = (points = C2) => new C2QubicBezierSpline(model(points));
+const c2 = (points = C2) => new C2CubicBezierSpline(model(points));
 const g1 = (points = G1) => new G1QuadraticBezierSpline(model(points));
 const g1s = (points = G1S) => new G1SymmetricQuadraticBezierSpline(model(points));
-const param = () => new C2QubicBezierSpline(model(PARAM));
+const param = () => new C2CubicBezierSpline(model(PARAM));
 
 const pieces = (spline: BezierSpline): number[][][] => spline.getUnderlyingCurves().map(curve => curve.getPoints().map(p => [p.X(), p.Y()]));
 const derived = (spline: BezierSpline): number[][] => spline.getNonFreePoints().map(p => [p.X(), p.Y()]);
@@ -591,7 +591,7 @@ describe('spline-g1-symmetric numbers', () => {
 describe('spline-parameterization numbers', () => {
     const chord = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
     const chords = () => [chord(PARAM[0], PARAM[2]), chord(PARAM[2], PARAM[3]), chord(PARAM[3], PARAM[4]), chord(PARAM[4], PARAM[5]), chord(PARAM[5], PARAM[6]), chord(PARAM[6], PARAM[8])];
-    const gaps = (spline: C2QubicBezierSpline, count: number) => {
+    const gaps = (spline: C2CubicBezierSpline, count: number) => {
         const samples = Array.from({length: count}, (_, i) => {
             const p = spline.eval((i + 1) / (count + 1));
             return [p.X(), p.Y()];
@@ -599,7 +599,7 @@ describe('spline-parameterization numbers', () => {
         const lengths = samples.slice(1).map((p, i) => chord(p, samples[i]));
         return Math.max(...lengths) / Math.min(...lengths);
     };
-    const samplesPerPiece = (spline: C2QubicBezierSpline, count: number) => {
+    const samplesPerPiece = (spline: C2CubicBezierSpline, count: number) => {
         const u: number[] = (spline as any).getU();
         const result = new Array(u.length - 1).fill(0);
         for (let i = 1; i <= count; i++) {

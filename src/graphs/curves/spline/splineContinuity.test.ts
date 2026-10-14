@@ -1,6 +1,6 @@
 import {GenericBezierSpline} from '../../../bezeg/impl/curve/GenericBezierSpline';
 import {C1QuadraticBezierSpline} from '../../../bezeg/impl/curve/C1QuadraticBezierSpline';
-import {C2QubicBezierSpline} from '../../../bezeg/impl/curve/C2QubicBezierSpline';
+import {C2CubicBezierSpline} from '../../../bezeg/impl/curve/C2CubicBezierSpline';
 import {BezierSpline} from '../../../bezeg/impl/curve/bezier-spline';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
@@ -13,7 +13,7 @@ const C2 = [[-2.7, 1.8], [-4.7, 0.35], [-4.3, -3], [1, -2], [0.2, 1.8], [4, 1], 
 const model = (pts: number[][]) => pts.map(([x, y]) => new PointImpl(x, y));
 const cn = (degree: number, continuity: number, pts = CN) => new GenericBezierSpline(model(pts), degree, continuity);
 const c1 = (pts = C1) => new C1QuadraticBezierSpline(model(pts));
-const c2 = (pts = C2) => new C2QubicBezierSpline(model(pts));
+const c2 = (pts = C2) => new C2CubicBezierSpline(model(pts));
 
 const spans = (spline: BezierSpline): number[] => {
     const u: number[] = (spline as any).getU();

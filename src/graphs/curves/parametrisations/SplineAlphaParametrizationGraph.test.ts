@@ -1,10 +1,10 @@
 import SplineAlphaParametrizationGraph from './SplineAlphaParametrizationGraph';
 import BaseCurveGraph from '../../base/BaseCurveGraph';
-import {C2QubicBezierSpline} from '../../../bezeg/impl/curve/C2QubicBezierSpline';
+import {C2CubicBezierSpline} from '../../../bezeg/impl/curve/C2CubicBezierSpline';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
 const defaultPoints: number[][] = Object.create(SplineAlphaParametrizationGraph.prototype).defaultPreset()[0][1].points;
-const makeSpline = () => new C2QubicBezierSpline(defaultPoints.map(([x, y]) => new PointImpl(x, y)));
+const makeSpline = () => new C2CubicBezierSpline(defaultPoints.map(([x, y]) => new PointImpl(x, y)));
 const spans = (curve: any): number[] => {
     const u: number[] = curve.getU();
     return u.slice(1).map((value, i) => value - u[i]);
@@ -20,7 +20,7 @@ function chords(): number[] {
     return result;
 }
 
-const junctions = (curve: C2QubicBezierSpline) => {
+const junctions = (curve: C2CubicBezierSpline) => {
     const pieces = curve.getUnderlyingCurves();
     return pieces.slice(0, -1).map(piece => {
         const end = piece.getPoints()[3];
@@ -116,7 +116,7 @@ function fakeBoard() {
     return board;
 }
 
-function fakeJxgCurve(board: any, spline: C2QubicBezierSpline) {
+function fakeJxgCurve(board: any, spline: C2CubicBezierSpline) {
     return {board, getCurve: () => spline, dispose: vi.fn(), getJxgPoints: () => [], setAttributes: vi.fn()};
 }
 

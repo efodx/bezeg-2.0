@@ -541,9 +541,9 @@ const splineC2: GuidedLesson = {
         farinSource('farin-cagd-spline-c2', ['piecewise cubic Bézier curves', 'C^2 continuity of cubic splines']),
         {
             id: 'bezeg-spline-c2-implementation',
-            citation: 'Bezeg source: src/graphs/curves/spline/C2SplineGraph.tsx and src/bezeg/impl/curve/C2QubicBezierSpline.ts.',
+            citation: 'Bezeg source: src/graphs/curves/spline/C2SplineGraph.tsx and src/bezeg/impl/curve/C2CubicBezierSpline.ts.',
             supports: ['derived inner and joint points', 'Label all points and Hide fixed points switches', 'control polygon switch'],
-            implementationCorrespondence: 'C2QubicBezierSpline.generateBezierCurves places the inner points with the weights (du2+du3)/duSum, du1/duSum and the junction between the neighbouring inner points; its default has 7 points and 4 pieces.',
+            implementationCorrespondence: 'C2CubicBezierSpline.generateBezierCurves places the inner points with the weights (du2+du3)/duSum, du1/duSum and the junction between the neighbouring inner points; its default has 7 points and 4 pieces.',
         },
     ],
     edgeCases: [
@@ -1095,9 +1095,9 @@ const splineParameterization: GuidedLesson = {
         farinSource('farin-cagd-spline-parameterization', ['uniform, chordal and centripetal parameterization of interpolating splines']),
         {
             id: 'bezeg-spline-parameterization-implementation',
-            citation: 'Bezeg source: src/graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx and src/bezeg/impl/curve/C2QubicBezierSpline.ts.',
+            citation: 'Bezeg source: src/graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx and src/bezeg/impl/curve/C2CubicBezierSpline.ts.',
             supports: ['alpha slider', 'Number of points slider', 'derived joints that move with alpha'],
-            implementationCorrespondence: 'C2QubicBezierSpline.getU builds the spans as chord^alpha divided by their sum; the graph samples S(i/(N+1)) for i = 1..N and keeps alpha on the curve.',
+            implementationCorrespondence: 'C2CubicBezierSpline.getU builds the spans as chord^alpha divided by their sum; the graph samples S(i/(N+1)) for i = 1..N and keeps alpha on the curve.',
         },
     ],
     edgeCases: [

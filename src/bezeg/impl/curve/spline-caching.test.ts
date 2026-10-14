@@ -2,7 +2,7 @@ import {describe, expect, it} from "vitest";
 import {PointImpl} from "../point/point-impl";
 import {BezierSpline} from "./bezier-spline";
 import {C1QuadraticBezierSpline} from "./C1QuadraticBezierSpline";
-import {C2QubicBezierSpline} from "./C2QubicBezierSpline";
+import {C2CubicBezierSpline} from "./C2CubicBezierSpline";
 import {G1QuadraticBezierSpline} from "./G1QuadraticBezierSpline";
 import {G1SymmetricQuadraticBezierSpline} from "./G1SymmetricQuadraticBezierSpline";
 import {GenericBezierSpline} from "./GenericBezierSpline";
@@ -12,7 +12,7 @@ const model = (coords = COORDS) => coords.map(([x, y]) => new PointImpl(x, y));
 
 const factories: Record<string, (points: PointImpl[]) => BezierSpline> = {
     c1: points => new C1QuadraticBezierSpline(points),
-    c2: points => new C2QubicBezierSpline(points),
+    c2: points => new C2CubicBezierSpline(points),
     g1: points => new G1QuadraticBezierSpline(points),
     g1Symmetric: points => new G1SymmetricQuadraticBezierSpline(points),
     generic: points => new GenericBezierSpline(points, 3, 1),
