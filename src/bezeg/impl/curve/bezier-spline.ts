@@ -16,10 +16,14 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
     /**
      * @constructor
      * @param {Array.<Point>} points - Curve's control points
+     * @param generateNow - false when the subclass needs to set parameters first and will call
+     *                      generateBezierCurves() itself
      */
-    constructor(points: Array<Point>) {
+    constructor(points: Array<Point>, generateNow: boolean = true) {
         super(points);
-        this.generateBezierCurves();
+        if (generateNow) {
+            this.generateBezierCurves();
+        }
     }
 
     setAlpha(alpha: number) {

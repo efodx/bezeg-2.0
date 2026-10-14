@@ -14,27 +14,30 @@ export class GenericBezierSpline extends BezierSpline {
      * @param continuity
      */
     constructor(points: Array<Point>, degree: number, continuity: number) {
-        super(points);
-        this.bezierCurves = [];
+        super(points, false);
         this.degree = degree;
         this.continuity = continuity;
         this.generateBezierCurves();
     }
 
     generateBezierCurves() {
+        const degree = this.degree;
+        const continuity = this.continuity;
+        const step = degree - continuity;
+        if (!(step >= 1)) {
+            throw new RangeError(`Continuity (${continuity}) must be smaller than degree (${degree}).`);
+        }
         this.bezierCurves = [];
         this.nonFreePoints = [];
-        let step = this.degree - this.continuity;
-        let bezierCurvePoints = this.points.slice(0, this.degree + 1);
-        this.bezierCurves.push(new PolynomialBezierCurve(bezierCurvePoints));
+        this.bezierCurves.push(new PolynomialBezierCurve(this.points.slice(0, degree + 1)));
 
-        for (let i = this.degree; i < this.points.length - 1; i = i + step) {
-            let bezierCurvePoints = [this.points[i]];
+        for (let i = degree; i < this.points.length - 1; i = i + step) {
+            const bezierCurvePoints = [this.points[i]];
 
-            let previousBezierCurve = this.bezierCurves[this.bezierCurves.length - 1];
+            const previousBezierCurve = this.bezierCurves[this.bezierCurves.length - 1];
             const l = this.bezierCurves.length;
             const nonFreePoints = [];
-            for (let j = 1; j <= this.continuity; j++) {
+            for (let j = 1; j <= continuity; j++) {
                 const nonFreePoint = PointImpl.derived(() => {
                     const u = this.getU();
                     const deltaU1 = u[l] - u[l - 1];
@@ -42,7 +45,7 @@ export class GenericBezierSpline extends BezierSpline {
 
                     const nextT = (deltaU2 + deltaU1) / deltaU1;
                     const decasteljau = previousBezierCurve.decasteljauScheme(nextT);
-                    const point = decasteljau[this.degree][this.degree - j];
+                    const point = decasteljau[degree][degree - j];
                     return [point.X(), point.Y()];
                 });
                 nonFreePoints.push(nonFreePoint);
