@@ -35,6 +35,7 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Vite migration spec](specs/vite-migration.md): CRA/Jest replaced by Vite/Vitest on Node 24, with parity evidence; [ADR 0009](adr/0009-vite-build-and-vitest.md) records the choice.
 - [Continuous deployment spec](specs/continuous-deployment.md): CI checks and gated native Pages deployment, activated on `master`.
 - [CI/CD verification](reviews/continuous-deployment.md): hosted CI evidence, local checks, and activation limits.
+- [ADR 0010](adr/0010-scheme-driven-bezier-splines.md): accepted scheme-driven Bézier splines (one `BezierSpline`, one `SplineScheme` per kind) replacing the subclass hierarchy.
 - [ADR 0001](adr/0001-static-client-only-app.md): accepted static, client-only architecture constraint.
 - [ADR 0002](adr/0002-guided-lessons-static-content-and-graph-capabilities.md): accepted boundary between static lesson content and typed graph capabilities.
 - [Guided lesson runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md): executable feature slice.

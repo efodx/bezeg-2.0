@@ -4,8 +4,13 @@ import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 import {boundingBoxOf, chordKnots} from "./geometry";
 import {PointImpl} from "../point/point-impl";
 import {VOLATILE} from "../versioning";
+import {SplineScheme} from "./spline-scheme";
 
-abstract class BezierSpline extends AbstractPointControlledCurve {
+/**
+ * A piecewise Bezier curve whose spans, computed control points and knots come from a
+ * `SplineScheme`. The concrete spline classes (C1, C2, G1, ...) are this class with one scheme.
+ */
+class BezierSpline extends AbstractPointControlledCurve {
     protected bezierCurves: PolynomialBezierCurve[] = [];
     protected nonFreePoints: Array<Point> = [];
     protected b: number[] = [];
@@ -15,15 +20,12 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
 
     /**
      * @constructor
-     * @param {Array.<Point>} points - Curve's control points
-     * @param generateNow - false when the subclass needs to set parameters first and will call
-     *                      generateBezierCurves() itself
+     * @param {Array.<Point>} points - Curve's free control points
+     * @param scheme - how the spans, computed points and knots are derived from them
      */
-    constructor(points: Array<Point>, generateNow: boolean = true) {
+    constructor(points: Array<Point>, protected readonly scheme: SplineScheme) {
         super(points);
-        if (generateNow) {
-            this.generateBezierCurves();
-        }
+        this.generateBezierCurves();
     }
 
     setAlpha(alpha: number) {
@@ -35,14 +37,24 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
         return this.alpha;
     }
 
-    abstract generateBezierCurves(): void;
+    /** Rebuilds the spans and computed points (and resets the editable parameters) from the free points. */
+    generateBezierCurves(): void {
+        this.b = this.scheme.initialParameters?.(this.points.length) ?? [];
+        const {curves, computedPoints} = this.scheme.build({
+            points: this.points,
+            knots: () => this.getU(),
+            parameter: j => this.b[j],
+        });
+        this.bezierCurves = curves;
+        this.nonFreePoints = computedPoints;
+        this.bindNonFreePoints();
+    }
 
     /**
      * Declares the spline as the dependency of its computed (non-free) points: they are
      * functions of the free points, alpha, b and the structure, all covered by version().
-     * Call at the end of every generateBezierCurves().
      */
-    protected bindNonFreePoints() {
+    private bindNonFreePoints() {
         this.nonFreePoints.forEach(point => {
             if (point instanceof PointImpl) {
                 point.dependOn([this]);
@@ -51,18 +63,24 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
     }
 
     eval(t: number): Point {
-        let n = this.bezierCurves.length;
-        let u = this.getU();
-        for (let i = 0; i < n; i++) {
-            if (t < u[i + 1]) {
-                t = t - u[i];
-                t = t / (u[i + 1] - u[i]);
-                return this.bezierCurves[i].eval(t);
+        const n = this.bezierCurves.length;
+        const u = this.getU();
+        // First span whose end knot lies beyond t (binary search; u is non-decreasing).
+        let low = 0;
+        let high = n;
+        while (low < high) {
+            const middle = (low + high) >> 1;
+            if (t < u[middle + 1]) {
+                high = middle;
+            } else {
+                low = middle + 1;
             }
         }
-        return this.bezierCurves[this.bezierCurves.length - 1].eval(1);
+        if (low === n) {
+            return this.bezierCurves[n - 1].eval(1);
+        }
+        return this.bezierCurves[low].eval((t - u[low]) / (u[low + 1] - u[low]));
     }
-
 
     setB(j: number, b: number) {
         this.b[j] = b;
@@ -86,7 +104,7 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
     }
 
     override getPoints(): Point[] {
-        return this.getAllCurvePoints();
+        return this.scheme.listsComputedPoints ? this.getAllCurvePoints() : this.points;
     }
 
     getAllCurvePoints(): Point[] {
@@ -126,19 +144,12 @@ abstract class BezierSpline extends AbstractPointControlledCurve {
         if (version !== VOLATILE && version === this.knotsVersion) {
             return this.knots;
         }
-        const knots = this.computeKnots();
+        const knots = chordKnots(this.scheme.knotSpans(this.points, this.bezierCurves), this.alpha);
         if (version !== VOLATILE) {
             this.knots = knots;
             this.knotsVersion = version;
         }
         return knots;
-    }
-
-    protected computeKnots(): number[] {
-        return chordKnots(this.bezierCurves.map(curve => {
-            const points = curve.getPoints();
-            return [points[0], points[points.length - 1]] as const;
-        }), this.alpha);
     }
 
 }

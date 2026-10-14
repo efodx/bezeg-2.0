@@ -1,15 +1,15 @@
-import {QuadraticJoinedSpline} from "./quadratic-joined-spline";
+import {BezierSpline} from "./bezier-spline";
+import {quadraticJoinScheme} from "./quadratic-join-scheme";
+import {Point} from "../../api/point/point";
 
 /** Each join sits on its segment at the user-editable fraction b[j] (default the midpoint), giving G1 continuity. */
-export class G1SymmetricQuadraticBezierSpline extends QuadraticJoinedSpline {
+const G1_SYMMETRIC_SCHEME = quadraticJoinScheme((context, _l, j) => {
+    const b = context.parameter(j);
+    return [1 - b, b];
+}, 0.5);
 
-    protected joinWeights(_l: number, j: number): readonly [number, number] {
-        return [1 - this.b[j], this.b[j]];
-    }
-
-    override generateBezierCurves() {
-        // One parameter per join; regenerating resets them to the midpoint.
-        this.b = new Array(Math.max(0, this.points.length - 3)).fill(0.5);
-        super.generateBezierCurves();
+export class G1SymmetricQuadraticBezierSpline extends BezierSpline {
+    constructor(points: Array<Point>) {
+        super(points, G1_SYMMETRIC_SCHEME);
     }
 }
