@@ -21,5 +21,8 @@ export default defineConfig({
         mockReset: true,
         // tests/ holds the Playwright smoke specs, which run against a production build.
         include: ['src/**/*.test.{ts,tsx}'],
+        // Jest ran serially with a 5 s timeout; Vitest runs files in parallel workers, and several slow component
+        // tests (2-3 s alone) exceeded the 5 s default under CI load.
+        testTimeout: 15000,
     },
 });
