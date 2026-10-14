@@ -66,14 +66,47 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
 
     /** Evaluate only the final point; keep full intermediate rows for constructions. */
     protected evaluatePoint(t: number, pointsAtT: number[][]): PointImpl {
-        const n = pointsAtT.length;
+        this.runDeCasteljau(t, pointsAtT, this.evaluationWeights());
+        return new PointImpl(pointsAtT[0][0], pointsAtT[0][1]);
+    }
+
+    /** Weights for the projected (rational) recurrence, or undefined for a plain polynomial curve. */
+    protected evaluationWeights(): number[] | undefined {
+        return undefined;
+    }
+
+    /**
+     * The one de Casteljau recurrence, in place on `rows` (one coordinate row per control point).
+     * With `weights` each step blends by the weighted (projected) coefficients and updates them;
+     * the weights array is consumed. If `scheme` is given, a copy of the rows is appended to it
+     * before the first step and after every step.
+     */
+    protected runDeCasteljau(t: number, rows: number[][], weights?: number[], scheme?: number[][][]): void {
+        const n = rows.length;
+        scheme?.push(rows.map(row => [...row]));
         for (let r = 1; r < n; r++) {
             for (let i = 0; i < n - r; i++) {
-                pointsAtT[i][0] = (1 - t) * pointsAtT[i][0] + t * pointsAtT[i + 1][0];
-                pointsAtT[i][1] = (1 - t) * pointsAtT[i][1] + t * pointsAtT[i + 1][1];
+                let left = 1 - t;
+                let right = t;
+                if (weights) {
+                    const w = left * weights[i] + right * weights[i + 1];
+                    left = left * weights[i] / w;
+                    right = right * weights[i + 1] / w;
+                    weights[i] = w;
+                }
+                const row = rows[i];
+                const next = rows[i + 1];
+                if (row.length === 2) {
+                    row[0] = left * row[0] + right * next[0];
+                    row[1] = left * row[1] + right * next[1];
+                } else {
+                    for (let d = 0; d < row.length; d++) {
+                        row[d] = left * row[d] + right * next[d];
+                    }
+                }
             }
+            scheme?.push(rows.map(row => [...row]));
         }
-        return new PointImpl(pointsAtT[0][0], pointsAtT[0][1]);
     }
 
     /**
@@ -112,17 +145,8 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
 
     decasteljau(t: number, pointsAtT: number[][]): number[][][] {
         // TODO think about removing pointsAtT argument
-        const decasteljauScheme = [];
-        const n = this.points.length;
-        decasteljauScheme.push(pointsAtT.map(row => [...row]));
-        for (let r = 1; r < n; r++) {
-            for (let i = 0; i < n - r; i++) {
-                for (let d = 0; d < pointsAtT[i].length; d++) {
-                    pointsAtT[i][d] = ((1 - t) * pointsAtT[i][d] + t * pointsAtT[i + 1][d]);
-                }
-            }
-            decasteljauScheme.push(pointsAtT.map(row => [...row]));
-        }
+        const decasteljauScheme: number[][][] = [];
+        this.runDeCasteljau(t, pointsAtT, undefined, decasteljauScheme);
         return decasteljauScheme;
     }
 }

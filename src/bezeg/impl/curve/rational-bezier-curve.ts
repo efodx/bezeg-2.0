@@ -131,39 +131,15 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
      */
     override decasteljau(t: number, pointsAtT: number[][]): number[][][] {
         // TODO think about removing pointsAtT argument
-        const decasteljauScheme = [];
-        const n = this.points.length;
-        const ws = this.reactiveWeights ? this.reactiveWeights.map(w => w()) : this.weights.map(w => w);
-        decasteljauScheme.push(pointsAtT.map(row => [...row]));
-        for (let r = 1; r < n; r++) {
-            for (let i = 0; i < n - r; i++) {
-                const w = (1 - t) * ws[i] + t * ws[i + 1];
-                for (let d = 0; d < pointsAtT[i].length; d++) {
-                    pointsAtT[i][d] = ((1 - t) * ws[i] / w * pointsAtT[i][d] + t * ws[i + 1] / w * pointsAtT[i + 1][d]);
-                }
-                ws[i] = w;
-            }
-            decasteljauScheme.push(pointsAtT.map(row => [...row]));
-        }
+        const decasteljauScheme: number[][][] = [];
+        this.runDeCasteljau(t, pointsAtT, this.evaluationWeights(), decasteljauScheme);
         return decasteljauScheme;
     }
 
-    protected override evaluatePoint(t: number, pointsAtT: number[][]): PointImpl {
-        const ws = this.reactiveWeights ? this.reactiveWeights.map(w => w()) : [...this.weights];
-        const n = pointsAtT.length;
-        for (let r = 1; r < n; r++) {
-            for (let i = 0; i < n - r; i++) {
-                const w = (1 - t) * ws[i] + t * ws[i + 1];
-                const left = (1 - t) * ws[i] / w;
-                const right = t * ws[i + 1] / w;
-                pointsAtT[i][0] = left * pointsAtT[i][0] + right * pointsAtT[i + 1][0];
-                pointsAtT[i][1] = left * pointsAtT[i][1] + right * pointsAtT[i + 1][1];
-                ws[i] = w;
-            }
-        }
-        // Use the same projected recurrence as the full construction. A homogeneous
-        // evaluator would change existing behavior at zero intermediate weights.
-        return new PointImpl(pointsAtT[0][0], pointsAtT[0][1]);
+    // Evaluation uses the same projected recurrence as the full construction. A homogeneous
+    // evaluator would change existing behavior at zero intermediate weights.
+    protected override evaluationWeights(): number[] {
+        return this.reactiveWeights ? this.reactiveWeights.map(w => w()) : [...this.weights];
     }
 
     setStandardForm(standard: boolean) {
