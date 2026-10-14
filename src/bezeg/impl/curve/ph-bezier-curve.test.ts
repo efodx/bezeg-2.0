@@ -79,6 +79,29 @@ describe('PH arc length freshness', () => {
         expect(Math.abs(afterMove - simpson(t => speed(curve, t), 0, 1))).toBeLessThanOrEqual(1e-6);
     });
 
+    test('replacing w with a different number of points rebuilds the curve like a fresh one', () => {
+        const [, start, cubicW] = presets[0];
+        const [, , quinticW] = presets[1];
+        const curve = build(start, cubicW);
+        curve.setOffsetCurveNumber(2);
+        curve.arcLength(); // warm the s / sigma caches at degree 3
+
+        curve.w = quinticW.map(([x, y]) => new PointImpl(x, y));
+        const fresh = build(start, quinticW);
+        fresh.setOffsetCurveNumber(2);
+
+        expect(curve.degree).toBe(5);
+        expect(curve.getPoints()).toHaveLength(6);
+        expect(curve.getOffsetCurves()).toHaveLength(2);
+        expect(curve.arcLength()).toBeCloseTo(fresh.arcLength(), 12);
+        for (const t of [0, 0.3, 0.77, 1]) {
+            expect(curve.eval(t).X()).toBeCloseTo(fresh.eval(t).X(), 12);
+            expect(curve.eval(t).Y()).toBeCloseTo(fresh.eval(t).Y(), 12);
+            expect(curve.sigma(t)).toBeCloseTo(fresh.sigma(t), 12);
+            expect(curve.getOffsetCurves()[1].eval(t).X()).toBeCloseTo(fresh.getOffsetCurves()[1].eval(t).X(), 12);
+        }
+    });
+
     test('a hodograph drag followed by a cache invalidation is reflected', () => {
         const w = presets[1][2].map(([x, y]) => new PointImpl(x, y));
         const curve = new PhBezierCurve([new PointImpl(1, -1)], w);

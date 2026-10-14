@@ -15,19 +15,17 @@ const bin = (n: number, k: number): number => k === 0 ? 1 : (n * bin(n - 1, k - 
  */
 export class PhBezierCurve extends AbstractPointControlledCurve implements BezierCurve {
     private d: number = 0.2;
-    private underlyingBezierCurve: BezierCurve;
-    private underlyingCurveControlPoints: Point[];
+    private underlyingBezierCurve!: BezierCurve;
+    private underlyingCurveControlPoints!: Point[];
     private offsetCurves: BezierCurve[] = [];
-    private sigmas: Array<() => number>;
+    private sigmas!: Array<() => number>;
     private bezierCurveS?: BezierCurve;
     private bezierCurveSigma?: BezierCurve;
 
     constructor(points: Point[], w: Point[]) {
         super(points);
         this._w = w;
-        this.underlyingCurveControlPoints = this.generatePointsForDegree(this.degree);
-        this.underlyingBezierCurve = new PolynomialBezierCurve(this.underlyingCurveControlPoints);
-        this.sigmas = this.generateSigmas(this.degree);
+        this.rebuild();
         this.addOffsetCurve();
     }
 
@@ -37,9 +35,32 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
         return this._w;
     }
 
+    /**
+     * Replaces the hodograph points. A different number of points changes the degree, so
+     * everything derived from it (control points, sigmas, arc length, offsets) is rebuilt;
+     * with the same number the existing derived points read the new `w` directly.
+     */
     set w(value: Point[]) {
+        const degreeChanged = value.length !== this._w.length;
         this._w = value;
+        if (degreeChanged) {
+            const offsetCount = this.offsetCurves.length;
+            this.rebuild();
+            for (let i = 0; i < offsetCount; i++) {
+                this.addOffsetCurve();
+            }
+        }
         this.touch();
+    }
+
+    /** Builds everything derived from the base point and the degree implied by `w`. */
+    private rebuild() {
+        this.bezierCurveS = undefined;
+        this.bezierCurveSigma = undefined;
+        this.offsetCurves = [];
+        this.underlyingCurveControlPoints = this.generatePointsForDegree(this.degree);
+        this.underlyingBezierCurve = new PolynomialBezierCurve(this.underlyingCurveControlPoints);
+        this.sigmas = this.generateSigmas(this.degree);
     }
 
     /**
