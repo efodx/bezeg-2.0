@@ -22,9 +22,6 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
     constructor(points: Array<Point>, weights: Array<() => number> | Array<number>, weightDependencies?: ReadonlyArray<MaybeVersioned>) {
         super(points);
         this.weightDependencies = weightDependencies;
-        if (typeof weights[0] == 'number') {
-            this.weights = weights as Array<number>;
-        }
         if (typeof weights[0] == 'function') {
             this.reactiveWeights = weights as Array<() => number>;
             this.weights = this.reactiveWeights.map(w => w());

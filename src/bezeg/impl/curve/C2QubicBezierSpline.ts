@@ -1,27 +1,20 @@
 import {BezierSpline} from "./bezier-spline";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
+import {chordKnots} from "./geometry";
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 
 export class C2QubicBezierSpline extends BezierSpline {
 
     override getU() {
-        const u = [0];
-        let pointStart = this.points[0];
-        let pointEnd = this.points[2];
-        let d = Math.sqrt((pointStart.X() - pointEnd.X()) ** 2 + (pointStart.Y() - pointEnd.Y()) ** 2) ** this.alpha;
-        u.push(u[u.length - 1] + d);
-        for (let i = 2; i < this.points.length - 3; i++) {
-            pointStart = this.points[i];
-            pointEnd = this.points[i + 1];
-            d = Math.sqrt((pointStart.X() - pointEnd.X()) ** 2 + (pointStart.Y() - pointEnd.Y()) ** 2) ** this.alpha;
-            u.push(u[u.length - 1] + d);
+        const points = this.points;
+        const n = points.length;
+        const spans: Array<readonly [Point, Point]> = [[points[0], points[2]]];
+        for (let i = 2; i < n - 3; i++) {
+            spans.push([points[i], points[i + 1]]);
         }
-        pointStart = this.points[this.points.length - 3];
-        pointEnd = this.points[this.points.length - 1];
-        d = Math.sqrt((pointStart.X() - pointEnd.X()) ** 2 + (pointStart.Y() - pointEnd.Y()) ** 2) ** this.alpha;
-        u.push(u[u.length - 1] + d);
-        return u.map(t => t / u[u.length - 1]);
+        spans.push([points[n - 3], points[n - 1]]);
+        return chordKnots(spans, this.alpha);
     }
 
     generateBezierCurves() {

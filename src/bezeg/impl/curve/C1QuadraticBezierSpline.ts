@@ -1,19 +1,17 @@
 import {BezierSpline} from "./bezier-spline";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
+import {chordKnots} from "./geometry";
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 
 export class C1QuadraticBezierSpline extends BezierSpline {
 
     override getU() {
-        const u = [0];
+        const spans: Array<readonly [Point, Point]> = [];
         for (let i = 1; i < this.points.length - 1; i++) {
-            let pointStart = this.points[i];
-            let pointEnd = this.points[i + 1];
-            let d = Math.sqrt((pointStart.X() - pointEnd.X()) ** 2 + (pointStart.Y() - pointEnd.Y()) ** 2) ** this.alpha;
-            u.push(u[u.length - 1] + d);
+            spans.push([this.points[i], this.points[i + 1]]);
         }
-        return u.map(t => t / u[u.length - 1]);
+        return chordKnots(spans, this.alpha);
     }
 
     generateBezierCurves() {

@@ -1,5 +1,6 @@
 import {Point} from "../../api/point/point";
 import {PointControlledCurve} from "../../api/curve/point-controlled-curve";
+import {boundingBoxOf} from "./geometry";
 import {currentStamp, maxVersion, NO_MEMO, nextVersion, Versioned, VOLATILE} from "../versioning";
 
 export abstract class AbstractPointControlledCurve implements PointControlledCurve, Versioned {
@@ -78,27 +79,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
     }
 
     getBoundingBox() {
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        let minX = Infinity;
-        let minY = Infinity;
-
-        this.points.forEach(point => {
-                if (point.X() > maxX) {
-                    maxX = point.X();
-                }
-                if (point.Y() > maxY) {
-                    maxY = point.Y();
-                }
-                if (point.X() < minX) {
-                    minX = point.X();
-                }
-                if (point.Y() < minY) {
-                    minY = point.Y();
-                }
-            }
-        );
-        return [minX, maxX, minY, maxY];
+        return boundingBoxOf(this.points);
     }
 
     getBoundingBoxCenter() {
@@ -142,8 +123,6 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
         // This is so that we don't override points that have their coordinated fixed by others
         if (!point.isXFunction()) {
             point.setX(newX);
-        } else {
-            console.log("NO XXY FOR U");
         }
         if (!point.isYFunction()) {
             point.setY(newY);
