@@ -9,7 +9,7 @@ Use this skill only for the project's implementation delegation workflow describ
 
 ## `do-log`
 
-At the end of a completed or blocked coding task, append one entry to [`docs/agent-workflow/evaluation-log.md`](../../../docs/agent-workflow/evaluation-log.md). Create the file with its schema header if needed. Preserve existing entries. Do not commit or push as part of logging.
+At the end of a completed or blocked coding task, append one entry to [`docs/agent-workflow/evaluation-log.md`](../../../docs/agent-workflow/evaluation-log.md). Create the file with its schema header if needed. Preserve existing entries. Always commit the log entry: include it in the task's normal commit when that commit is still pending, or make a small follow-up commit if the task work was already committed. Never leave a completed log entry uncommitted. Follow the repository's Git workflow for pushing commits.
 
 Use the current task context, agent reports, command results, timestamps, and available usage data. Record unknowns as `unknown`; do not infer durations, token usage, defects, severity, or causation. A concise task summary is enough; avoid copying private or sensitive content into the log.
 
