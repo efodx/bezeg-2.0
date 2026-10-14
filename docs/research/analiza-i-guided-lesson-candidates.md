@@ -1,6 +1,6 @@
 # Guided-lesson candidates from *Analiza I*
 
-**Status:** research report, 2026-10-14  
+**Status:** research report, 2026-10-14
 **Scope:** Ranked interactive lesson proposals, current Bezeg fit, and a suggested first batch. Not an implementation spec or feature decision.
 
 ## Source and current coverage
@@ -46,4 +46,3 @@ These examples and lesson flows are proposals; numerical values were checked ind
 - A sampled height is not necessarily an interval infimum or supremum. Taylor series need not equal every smooth function. Uniform-convergence visuals must keep the domain fixed and distinguish one shared \(N\) from an \(N\) that depends on \(x\).
 - The derivative chapter’s cusp discussion appears to state “no tangent” for \((t^3,t^2)\) without distinguishing a limiting vertical tangent from a regular derivative-based tangent. Its printed derivative of \(t\sin t\) on p. 146 also appears erroneous. Recompute such formulas independently before reuse.
 - Inspected sections: §§1.7.1, 2.4–2.5, 3.5, 4.1.1, 4.4–4.7, 5.3, 5.5–5.6, 5.11–5.12, 6.7–6.8, 7.1–7.3, and 8.6. This is selective research from a 306-page text; screenshot rendering remained unavailable.
-
