@@ -39,8 +39,10 @@ describe.each(presets)("PH curve golden values (%s)", (_name, start, w) => {
     });
 
     it("after moving a hodograph point and changing the offset distance", () => {
-        const curve = build();
-        curve.w[1].setCoordinates(curve.w[1].X() + 0.7, curve.w[1].Y() - 0.2);
+        const hodographs = w.map(([x, y]) => new PointImpl(x, y));
+        const curve = new PhBezierCurve([new PointImpl(start[0], start[1])], hodographs);
+        curve.setOffsetCurveNumber(2);
+        hodographs[1].setCoordinates(hodographs[1].X() + 0.7, hodographs[1].Y() - 0.2);
         curve.setOffsetCurveDistance(0.35);
         expect({
             curve: [0.1, 0.9].map(t => xy(curve.eval(t))),

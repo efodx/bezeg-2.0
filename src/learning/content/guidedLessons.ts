@@ -599,7 +599,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Kontrolne točke iz privzetega hodografa', 'Control points from the default hodograph'),
                 calculationLatex: 'P_0=(-4.2,-2),\\;w_0=(-3.5,-1.7),\\;w_1=(-2.6,1.7)',
                 resultLatex: 'P_1\\approx(-1.08,1.9667),\\;P_2\\approx(2.9167,1.4567),\\;P_3\\approx(4.2067,-1.49)',
-                check: text('Vrednosti so zaokrožene; graf uporablja iste izračune kot PhBezierCurve.generatePointsForDegree.', 'Values are rounded; the graph uses the same calculations as PhBezierCurve.generatePointsForDegree.'),
+                check: text('Vrednosti so zaokrožene; graf uporablja iste izračune kot phControlPoints (ph-math.ts).', 'Values are rounded; the graph uses the same calculations as phControlPoints (ph-math.ts).'),
             },
             {
                 id: 'ph-default-speed-at-half',
@@ -690,7 +690,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 id: 'stampar-thesis-ph',
                 citation: 'Štampar, Kevin. Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, magistrsko delo, Univerza v Ljubljani, 2024, §§5.1–5.5 (printed pp. 29–34).',
                 supports: ['hodograph definition', 'PH condition', 'polynomial speed', 'cubic PH control points'],
-                implementationCorrespondence: 'Section 5.3 gives the cubic recurrence with the mixed term coefficient 1/3; the current model applies the same recurrence in generatePointsForDegree.',
+                implementationCorrespondence: 'Section 5.3 gives the cubic recurrence with the mixed term coefficient 1/3; the current model applies the same recurrence in phControlPoints (ph-math.ts).',
             },
             {
                 id: 'farouki-ph',

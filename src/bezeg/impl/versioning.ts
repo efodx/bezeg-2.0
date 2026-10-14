@@ -59,3 +59,31 @@ export function maxVersion(dependencies: ReadonlyArray<MaybeVersioned>, start: n
     }
     return result;
 }
+
+/**
+ * A value computed from `dependencies` and recomputed only when their combined version changes.
+ * Never cached while any dependency is volatile. One memo can feed many derived points, so a
+ * vector-valued computation runs once per version instead of once per coordinate or element.
+ */
+export class VersionedMemo<T> {
+    private cachedVersion = VOLATILE;
+    private hasValue = false;
+    private value!: T;
+
+    constructor(private readonly compute: () => T,
+                private readonly dependencies: ReadonlyArray<MaybeVersioned>) {
+    }
+
+    get(): T {
+        const version = maxVersion(this.dependencies, 0);
+        if (version === VOLATILE) {
+            return this.compute();
+        }
+        if (!this.hasValue || version !== this.cachedVersion) {
+            this.value = this.compute();
+            this.cachedVersion = version;
+            this.hasValue = true;
+        }
+        return this.value;
+    }
+}
