@@ -223,8 +223,8 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                 onClick={() => selectManually(index)}>
                 <span className="demonstrations-opening-choice-number">{String(index + 1).padStart(2, '0')}</span>
                 <span className="demonstrations-opening-choice-copy">
-                    <span className="demonstrations-opening-family">{entry.family.title}</span>
                     <span className="demonstrations-opening-choice-title">{entry.demonstration.catalogTitle}</span>
+                    <span className="demonstrations-opening-family">{entry.family.title}</span>
                 </span>
             </button>)}
         </div>
@@ -308,11 +308,11 @@ export function DemonstrationsPage() {
                                         else next.add(family.id);
                                         return next;
                                     })}>
+                                    {familyIllustrations[family.id] && <img src={familyIllustrations[family.id]} width="180" height="130" alt="" loading="lazy"/>}
                                     <span className="demonstrations-topic-title">
                                         <span className="demonstrations-topic-family">{family.title}</span>
                                         <span className="demonstrations-number">{String(i + 1).padStart(2, '0')} · {demonstrationCount(family.demonstrations.length)}</span>
                                     </span>
-                                    {familyIllustrations[family.id] && <img src={familyIllustrations[family.id]} width="180" height="130" alt="" loading="lazy"/>}
                                     <span className="demonstrations-topic-mark" aria-hidden="true">{expanded ? '−' : '+'}</span>
                                 </button>
                             </h3>

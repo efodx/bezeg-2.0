@@ -383,6 +383,16 @@ test('Explore opens the catalog, whose topics expand independently and expose ev
     const topicButtons = within(all).getAllByRole('button');
     expect(topicButtons).toHaveLength(catalog.families.length);
     expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
+    topicButtons.forEach(button => {
+        const illustration = button.querySelector('img');
+        expect(illustration).toHaveAttribute('alt', '');
+        expect(illustration).not.toHaveAttribute('tabindex');
+    });
+    const firstTopicIllustration = topicButtons[0].querySelector('img')!;
+    fireEvent.click(firstTopicIllustration);
+    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(firstTopicIllustration);
+    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
     expect(within(all).getAllByRole('link')).toHaveLength(initiallyVisibleLinkCount);
 
     topicButtons.slice(1).forEach(button => {
