@@ -56,9 +56,9 @@ export class C2QubicBezierSpline extends BezierSpline {
         }
         const newPoint2 = PointImpl.derived(() => {
             const u = this.getU();
-            // Both spans are negated (u is increasing), so the weights du2 / duSum and du1 / duSum are unchanged.
-            const du1 = u[u.length - 3] - u[u.length - 2];
-            const du2 = u[u.length - 2] - u[u.length - 1];
+            // Mirror image of the first computed point: du1 is the second-to-last span, du2 the last.
+            const du1 = u[u.length - 2] - u[u.length - 3];
+            const du2 = u[u.length - 1] - u[u.length - 2];
             const duSum = du1 + du2;
             return [du2 / duSum * points[points.length - 3].X() + du1 / duSum * points[points.length - 2].X(),
                 du2 / duSum * points[points.length - 3].Y() + du1 / duSum * points[points.length - 2].Y()];
