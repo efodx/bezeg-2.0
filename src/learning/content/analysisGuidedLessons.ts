@@ -26,6 +26,10 @@
  * The convexity lesson uses the same generic actions (`set-function-parameter` convexity-a/convexity-b/convexity-t,
  * `set-function-choice` convexity-example and `show-function-element` second-derivative). A prediction step hides the second
  * derivative and the learner presses the graph's own Show second derivative after predicting; the revealing steps show it.
+ *
+ * The Taylor lesson uses the same generic actions (`set-function-parameter` taylor-center/taylor-degree/taylor-x, `set-function-choice`
+ * taylor-example and `show-function-element` taylor-bound). A prediction step hides the error bound and the learner changes the degree
+ * or presses the graph's own Show error bound after predicting; the revealing steps show it.
  */
 import type {FunctionParameterName} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
@@ -34,6 +38,7 @@ import type {FunctionId} from '../../analysis/functions';
 import type {DarbouxExampleId} from '../../analysis/darboux';
 import type {ExtremaExampleId} from '../../analysis/extrema';
 import type {ConvexityExampleId} from '../../analysis/convexity';
+import type {TaylorExampleId} from '../../analysis/taylor';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -1936,5 +1941,365 @@ const convexity: GuidedLesson = {
     ],
 };
 
+const taylorChoice = (value: TaylorExampleId): SceneAction => ({
+    name: 'set-function-choice', value: {name: 'taylor-example', value},
+});
+const taylorBound = (visible: boolean): SceneAction => ({
+    name: 'show-function-element', value: {name: 'taylor-bound', value: visible},
+});
+
+const taylor: GuidedLesson = {
+    demonstrationId: 'taylor',
+    title: text('Taylorjev polinom in napaka približka', 'Taylor polynomial and the error of the approximation'),
+    summary: text(
+        'Taylorjev polinom \\(T_n\\) stopnje \\(n\\) funkcije \\(f\\) okoli središča \\(c\\) je končna vsota \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); obstaja vedno, kadar ima \\(f\\) v \\(c\\) odvode do stopnje \\(n\\). Napaka \\(f(x)-T_n(x)\\) ima Lagrangeevo obliko \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) za neki \\(\\xi\\) med \\(c\\) in \\(x\\), zato velja ocena \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), če je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\). To je pomembno ločiti od neskončne Taylorjeve vrste: pri \\(e^x\\) in \\(\\sin x\\) vrsta konvergira k \\(f\\) povsod, pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri gladki funkciji \\(e^{-1/x}\\) (za \\(x>0\\), sicer \\(0\\)) pa so vsi koeficienti v \\(0\\) enaki \\(0\\), zato vrsta konvergira k \\(0\\), ne k \\(f\\).',
+        'The Taylor polynomial \\(T_n\\) of degree \\(n\\) of a function \\(f\\) about a center \\(c\\) is the finite sum \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); it exists whenever \\(f\\) has derivatives at \\(c\\) up to order \\(n\\). The error \\(f(x)-T_n(x)\\) has the Lagrange form \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) for some \\(\\xi\\) between \\(c\\) and \\(x\\), hence the bound \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\) when \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\). This must be kept apart from the infinite Taylor series: for \\(e^x\\) and \\(\\sin x\\) the series converges to \\(f\\) everywhere, for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for the smooth function \\(e^{-1/x}\\) (for \\(x>0\\), otherwise \\(0\\)) all coefficients at \\(0\\) equal \\(0\\), so the series converges to \\(0\\), not to \\(f\\).',
+    ),
+    prerequisites: [
+        text(
+            'Potrebno je poznavanje višjih odvodov \\(f^{\\prime}\\), \\(f^{\\prime\\prime}\\), \\(f^{(k)}\\) in fakultet \\(k!\\) ter odvodov funkcij \\(e^x\\), \\(\\sin x\\) in \\(\\frac{1}{1-x}\\).',
+            'Assumes familiarity with higher derivatives \\(f^{\\prime}\\), \\(f^{\\prime\\prime}\\), \\(f^{(k)}\\) and factorials \\(k!\\), and with the derivatives of \\(e^x\\), \\(\\sin x\\) and \\(\\frac{1}{1-x}\\).',
+        ),
+        text(
+            'Potrebno je razumevanje geometrijske vrste in pojma konvergence zaporedja delnih vsot.',
+            'Assumes an understanding of the geometric series and of convergence of a sequence of partial sums.',
+        ),
+    ],
+    learningGoals: [
+        text(
+            'Pri \\(e^x\\) okoli \\(0\\) v točki \\(x=1\\) primerjaš \\(T_1(1)=2\\), \\(T_3(1)=\\frac83\\) in \\(T_6(1)=\\frac{1957}{720}\\) z \\(e\\) in napoveš, kako se napaka spreminja s stopnjo.',
+            'For \\(e^x\\) about \\(0\\) at \\(x=1\\) compare \\(T_1(1)=2\\), \\(T_3(1)=\\frac83\\) and \\(T_6(1)=\\frac{1957}{720}\\) with \\(e\\) and predict how the error changes with the degree.',
+        ),
+        text(
+            'Z Lagrangeevo oceno utemeljiš, da napaka ne presega \\(\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), in poveš, kaj je \\(M\\) pri \\(e^x\\) in pri \\(\\sin x\\).',
+            'Use the Lagrange bound to justify that the error does not exceed \\(\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), and state what \\(M\\) is for \\(e^x\\) and for \\(\\sin x\\).',
+        ),
+        text(
+            'Pri \\(\\frac{1}{1-x}\\) okoli \\(0\\) v točki \\(x=-1{,}5\\) ugotoviš, da višja stopnja napako poveča, ker \\(x\\) ne leži v \\(|x|<1\\).',
+            'For \\(\\frac{1}{1-x}\\) about \\(0\\) at \\(x=-1.5\\) find that a higher degree increases the error, because \\(x\\) does not lie in \\(|x|<1\\).',
+        ),
+        text(
+            'Pri funkciji \\(e^{-1/x}\\) za \\(x>0\\) (sicer \\(0\\)) pojasniš, da so vsi koeficienti v \\(0\\) enaki \\(0\\), a je \\(f(1)>0\\): vrsta konvergira, vendar ne k \\(f\\).',
+            'For the function \\(e^{-1/x}\\) for \\(x>0\\) (otherwise \\(0\\)) explain that all coefficients at \\(0\\) are \\(0\\) while \\(f(1)>0\\): the series converges, but not to \\(f\\).',
+        ),
+    ],
+    formulaBlocks: [
+        {
+            id: 'taylor-polynomial',
+            latex: 'T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}\\,(x-c)^k',
+            notation: text(
+                'Število \\(c\\) je središče, \\(n\\) stopnja, \\(f^{(k)}(c)\\) odvod stopnje \\(k\\) v \\(c\\), \\(k!\\) fakulteta; člen z \\(k=0\\) je \\(f(c)\\).',
+                'The number \\(c\\) is the center, \\(n\\) the degree, \\(f^{(k)}(c)\\) the derivative of order \\(k\\) at \\(c\\) and \\(k!\\) a factorial; the term with \\(k=0\\) is \\(f(c)\\).',
+            ),
+            explanation: text(
+                '\\(T_n\\) je polinom stopnje največ \\(n\\), ki se v \\(c\\) z \\(f\\) ujema v vrednosti in vseh odvodih do stopnje \\(n\\). Je končna vsota in obstaja pri vsakem \\(n\\), ne glede na to, ali neskončna vrsta konvergira.',
+                '\\(T_n\\) is the polynomial of degree at most \\(n\\) that agrees with \\(f\\) at \\(c\\) in value and in all derivatives up to order \\(n\\). It is a finite sum and exists for every \\(n\\), whether or not the infinite series converges.',
+            ),
+        },
+        {
+            id: 'taylor-lagrange',
+            latex: '|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!},\\qquad M\\ge\\left|f^{(n+1)}(t)\\right|\\ \\text{for all}\\ t\\ \\text{between}\\ c\\ \\text{and}\\ x',
+            notation: text(
+                'Število \\(M\\) je zgornja meja za absolutno vrednost odvoda stopnje \\(n+1\\) na daljici med \\(c\\) in \\(x\\).',
+                'The number \\(M\\) is an upper bound for the absolute value of the derivative of order \\(n+1\\) on the segment between \\(c\\) and \\(x\\).',
+            ),
+            explanation: text(
+                'Ocena sledi iz Lagrangeeve oblike ostanka \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\). Velja le ob predpostavki o \\(M\\): pri \\(e^x\\) je \\(M=\\max(e^c,e^x)\\), ker je \\(e^t\\) naraščajoča, pri \\(\\sin x\\) je \\(M=1\\), ker je vsak odvod enak \\(\\pm\\sin x\\) ali \\(\\pm\\cos x\\).',
+                'The bound follows from the Lagrange form of the remainder \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\). It holds only under the assumption on \\(M\\): for \\(e^x\\) take \\(M=\\max(e^c,e^x)\\), because \\(e^t\\) is increasing; for \\(\\sin x\\) take \\(M=1\\), because every derivative is \\(\\pm\\sin x\\) or \\(\\pm\\cos x\\).',
+            ),
+        },
+        {
+            id: 'taylor-geometric',
+            latex: '\\frac{1}{1-x}-T_n(x)=\\frac{x^{n+1}}{1-x}\\quad(c=0),\\qquad T_n(x)=\\sum_{k=0}^{n}x^k',
+            notation: text(
+                'Pri središču \\(c=0\\) so vsi koeficienti funkcije \\(\\frac{1}{1-x}\\) enaki \\(1\\), \\(T_n\\) pa je delna vsota geometrijske vrste.',
+                'With center \\(c=0\\) every coefficient of \\(\\frac{1}{1-x}\\) equals \\(1\\), and \\(T_n\\) is a partial sum of the geometric series.',
+            ),
+            explanation: text(
+                'Za \\(|x|<1\\) gre \\(x^{n+1}\\to0\\) in napaka pada k \\(0\\); za \\(|x|>1\\) gre \\(|x|^{n+1}\\to\\infty\\) in napaka z večanjem stopnje raste. Splošno vrsta okoli \\(c\\) konvergira natanko za \\(|x-c|<1-c\\).',
+                'For \\(|x|<1\\) we have \\(x^{n+1}\\to0\\) and the error falls to \\(0\\); for \\(|x|>1\\) we have \\(|x|^{n+1}\\to\\infty\\) and the error grows with the degree. In general the series about \\(c\\) converges exactly for \\(|x-c|<1-c\\).',
+            ),
+        },
+        {
+            id: 'taylor-flat',
+            latex: 'f(x)=\\begin{cases}e^{-1/x}&x>0\\\\0&x\\le0\\end{cases},\\qquad f^{(k)}(0)=0\\ \\text{for every}\\ k',
+            notation: text(
+                'Funkcija je neskončnokrat odvedljiva tudi v \\(0\\), vsi njeni odvodi v \\(0\\) pa so enaki \\(0\\).',
+                'The function is infinitely differentiable also at \\(0\\), and all its derivatives at \\(0\\) equal \\(0\\).',
+            ),
+            explanation: text(
+                'Zato je \\(T_n=0\\) pri vsaki stopnji in Taylorjeva vrsta v \\(0\\) je identično \\(0\\). Konvergira, a za \\(x>0\\) ne k \\(f\\), saj je tam \\(f(x)=e^{-1/x}>0\\).',
+                'Hence \\(T_n=0\\) at every degree and the Taylor series at \\(0\\) is identically \\(0\\). It converges, but for \\(x>0\\) not to \\(f\\), because there \\(f(x)=e^{-1/x}>0\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'taylor-exp-example',
+            title: text('Funkcija \\(e^x\\) okoli \\(0\\) v točki \\(x=1\\)', 'The function \\(e^x\\) about \\(0\\) at \\(x=1\\)'),
+            calculationLatex: 'T_3(1)=1+1+\\tfrac12+\\tfrac16=\\tfrac83,\\quad T_6(1)=\\tfrac83+\\tfrac1{24}+\\tfrac1{120}+\\tfrac1{720}=\\tfrac{1957}{720},\\qquad M=\\max(e^0,e^1)=e<3',
+            resultLatex: '0\\le e-T_6(1)\\le\\frac{e}{7!}=\\frac{e}{5040}',
+            check: text(
+                'Velja \\(e\\approx2{,}71828\\), \\(T_6(1)\\approx2{,}71806\\), zato je dejanska napaka približno \\(0{,}000226\\), ocena \\(\\frac{e}{5040}\\) pa približno \\(0{,}000539\\) in je nad napako. Ocena je zgornja meja, ne vrednost napake.',
+                'We have \\(e\\approx2.71828\\) and \\(T_6(1)\\approx2.71806\\), so the actual error is about \\(0.000226\\), while the bound \\(\\frac{e}{5040}\\) is about \\(0.000539\\) and lies above the error. The bound is an upper limit, not the value of the error.',
+            ),
+        },
+        {
+            id: 'taylor-sine-example',
+            title: text('Funkcija \\(\\sin x\\) okoli \\(0\\) v točki \\(x=2\\)', 'The function \\(\\sin x\\) about \\(0\\) at \\(x=2\\)'),
+            calculationLatex: 'T_3(2)=2-\\frac{2^3}{3!}=2-\\frac86=\\frac23,\\qquad M=1,\\quad \\frac{2^{4}}{4!}=\\frac{16}{24}=\\frac23',
+            resultLatex: '|\\sin 2-T_3(2)|\\le\\frac23',
+            check: text(
+                'Velja \\(\\sin2\\approx0{,}9093\\), zato je napaka približno \\(0{,}2426\\), ocena pa \\(0{,}6667\\). Za \\(n=5\\) je \\(T_5(2)=\\frac{14}{15}\\), napaka približno \\(0{,}0240\\) in ocena \\(\\frac{2^6}{6!}=\\frac{4}{45}\\approx0{,}0889\\).',
+                'We have \\(\\sin2\\approx0.9093\\), so the error is about \\(0.2426\\) and the bound \\(0.6667\\). For \\(n=5\\), \\(T_5(2)=\\frac{14}{15}\\), the error is about \\(0.0240\\) and the bound \\(\\frac{2^6}{6!}=\\frac{4}{45}\\approx0.0889\\).',
+            ),
+        },
+        {
+            id: 'taylor-geometric-example',
+            title: text('Funkcija \\(\\frac{1}{1-x}\\) okoli \\(0\\) v točki \\(x=-1{,}5\\)', 'The function \\(\\frac{1}{1-x}\\) about \\(0\\) at \\(x=-1.5\\)'),
+            calculationLatex: 'f(-\\tfrac32)=\\tfrac25,\\qquad f(x)-T_n(x)=\\frac{x^{n+1}}{1-x}=\\frac{\\left(-\\tfrac32\\right)^{n+1}}{\\tfrac52}',
+            resultLatex: '\\left|f-T_1\\right|=\\tfrac{9}{10},\\quad \\left|f-T_3\\right|=\\tfrac{81}{40},\\quad \\left|f-T_5\\right|=\\tfrac{729}{160}',
+            check: text(
+                'Napaka je po vrsti \\(0{,}9\\), \\(2{,}025\\) in približno \\(4{,}556\\): z večanjem stopnje narašča, ker je \\(\\left|-\\tfrac32\\right|>1\\). Pri \\(x=0{,}5\\) je napaka \\(\\frac{0{,}5^{n+1}}{0{,}5}\\), torej \\(0{,}125\\) pri \\(n=3\\) in \\(0{,}03125\\) pri \\(n=5\\).',
+                'The error is \\(0.9\\), \\(2.025\\) and about \\(4.556\\) in turn: it grows with the degree because \\(\\left|-\\tfrac32\\right|>1\\). At \\(x=0.5\\) the error is \\(\\frac{0.5^{n+1}}{0.5}\\), that is \\(0.125\\) at \\(n=3\\) and \\(0.03125\\) at \\(n=5\\).',
+            ),
+        },
+        {
+            id: 'taylor-flat-example',
+            title: text('Gladka funkcija \\(e^{-1/x}\\) v točki \\(x=1\\)', 'The smooth function \\(e^{-1/x}\\) at \\(x=1\\)'),
+            calculationLatex: 'f^{(k)}(0)=0\\ \\Rightarrow\\ T_n(1)=0,\\qquad f(1)=e^{-1}=\\frac1e',
+            resultLatex: 'f(1)-T_n(1)=\\frac1e>0\\quad\\text{for every}\\ n',
+            check: text(
+                'Velja \\(e^{-1}\\approx0{,}3679\\): napaka je pri vsaki stopnji ista, ker se \\(T_n\\) s stopnjo ne spremeni. Vrsta konvergira (k \\(0\\)), vendar ne k \\(f\\).',
+                'We have \\(e^{-1}\\approx0.3679\\): the error is the same at every degree because \\(T_n\\) does not change with the degree. The series converges (to \\(0\\)), but not to \\(f\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'taylor-prerequisites-step', order: 1,
+            title: text('Višji odvodi in polinom \\(T_n\\)', 'Higher derivatives and the polynomial \\(T_n\\)'),
+            purpose: text('Pripraviti pojme in napoved, preden se ocena napake pokaže.', 'Preparing the terms and a prediction before the error bound is shown.'),
+            explanation: text(
+                'Taylorjev polinom \\(T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\) sestavimo iz višjih odvodov \\(f^{(k)}(c)\\) in fakultet \\(k!\\). Pri \\(f(x)=e^x\\) je vsak odvod enak \\(e^x\\), zato so koeficienti okoli \\(c=0\\) enaki \\(\\frac{1}{k!}\\). Opazujemo točko \\(x=1\\) in stopnjo \\(n=1\\): \\(T_1(1)=1+1=2\\), prava vrednost pa je \\(e\\approx2{,}7183\\), torej je napaka približno \\(0{,}7183\\). Polna črta je \\(f\\), črtkana \\(T_n\\), navpična črta pri \\(x\\) pa napaka. Ocena napake je skrita.',
+                'The Taylor polynomial \\(T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\) is built from higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). For \\(f(x)=e^x\\) every derivative equals \\(e^x\\), so the coefficients about \\(c=0\\) are \\(\\frac{1}{k!}\\). We look at the point \\(x=1\\) and degree \\(n=1\\): \\(T_1(1)=1+1=2\\), while the true value is \\(e\\approx2.7183\\), so the error is about \\(0.7183\\). The solid line is \\(f\\), the dashed line is \\(T_n\\) and the vertical line at \\(x\\) is the error. The error bound is hidden.',
+            ),
+            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
+            frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(3\\) in na \\(6\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
+                'Predict how the error at \\(x=1\\) changes when you raise the degree \\(n\\) to \\(3\\) and to \\(6\\) (the + button); only then press Show error bound.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=1\\) je \\(T_1(1)=2\\) in napaka približno \\(0{,}7183\\); ocena napake je skrita.',
+                'At \\(n=1\\), \\(T_1(1)=2\\) and the error is about \\(0.7183\\); the error bound is hidden.',
+            )],
+            scene: {
+                id: 'taylor-prerequisites-scene', basedOn: 'demonstration-default',
+                actions: [taylorBound(false)],
+                expectedState: text(
+                    'Prikazan je \\(e^x\\) okoli \\(c=0\\) s polinomom stopnje \\(n=1\\) v točki \\(x=1\\); ocena napake je skrita.',
+                    'The graph of \\(e^x\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=1\\) at \\(x=1\\); the error bound is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-exp-step', order: 2,
+            title: text('Višja stopnja in Lagrangeeva ocena', 'A higher degree and the Lagrange bound'),
+            purpose: text('Primerjati napoved z vrednostmi in oceno napake.', 'Comparing the prediction with the values and the error bound.'),
+            explanation: text(
+                'Pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\approx2{,}6667\\), pri \\(n=6\\) pa \\(T_6(1)=\\frac{1957}{720}\\approx2{,}7181\\): napaka pada od približno \\(0{,}7183\\) prek \\(0{,}0516\\) do približno \\(0{,}000226\\). Zdaj je prikazana še Lagrangeeva ocena. Predpostavka je, da je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\); pri \\(e^x\\) je to \\(M=\\max(e^c,e^x)=e<3\\), ker je \\(e^t\\) naraščajoča. Pri \\(n=6\\) je ocena \\(\\frac{e}{7!}\\approx0{,}000539\\), kar je nad dejansko napako \\(0{,}000226\\).',
+                'At \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\approx2.6667\\), and at \\(n=6\\), \\(T_6(1)=\\frac{1957}{720}\\approx2.7181\\): the error falls from about \\(0.7183\\) through \\(0.0516\\) to about \\(0.000226\\). The Lagrange bound is now shown as well. The assumption is that \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\); for \\(e^x\\) this is \\(M=\\max(e^c,e^x)=e<3\\), because \\(e^t\\) is increasing. At \\(n=6\\) the bound is \\(\\frac{e}{7!}\\approx0.000539\\), which lies above the actual error \\(0.000226\\).',
+            ),
+            formulaIds: ['taylor-polynomial', 'taylor-lagrange'], workedExampleId: 'taylor-exp-example', learnerInteraction: 'observe',
+            frames: [frame('taylor-exp-explanation', 'explanation'), frame('taylor-exp-calculation', 'calculation'), frame('taylor-exp-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj z napovedjo: preberi \\(T_6(1)\\), absolutno napako in oceno napake v odčitkih ter predpostavko ocene; nato stopnjo zmanjšaj in opazuj, kako se spremenita napaka in ocena.',
+                'Compare with your prediction: read \\(T_6(1)\\), the absolute error and the error bound in the readouts together with the assumption of the bound; then lower the degree and watch how the error and the bound change.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=6\\) je \\(T_6(1)\\approx2{,}7181\\), absolutna napaka približno \\(0{,}000226\\) in ocena približno \\(0{,}000539\\); ocena je večja od napake.',
+                'At \\(n=6\\), \\(T_6(1)\\approx2.7181\\), the absolute error is about \\(0.000226\\) and the bound about \\(0.000539\\); the bound exceeds the error.',
+            )],
+            scene: {
+                id: 'taylor-exp-scene', basedOn: 'demonstration-default',
+                actions: [parameter('taylor-degree', 6), taylorBound(true)],
+                expectedState: text(
+                    'Prikazan je \\(e^x\\) okoli \\(c=0\\) s polinomom stopnje \\(n=6\\) v \\(x=1\\); ocena napake je prikazana.',
+                    'The graph of \\(e^x\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=6\\) at \\(x=1\\); the error bound is shown.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-sine-prediction-step', order: 3,
+            title: text('Funkcija \\(\\sin x\\): napoved', 'The function \\(\\sin x\\): a prediction'),
+            purpose: text('Napovedati oceno napake, preden se pokaže.', 'Predicting the error bound before it is shown.'),
+            explanation: text(
+                'Odvodi funkcije \\(\\sin x\\) se ponavljajo: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). V središču \\(c=0\\) so vrednosti \\(0\\), \\(1\\), \\(0\\), \\(-1\\), zato ima \\(T_n\\) le lihe potence. Pri \\(e^x\\) smo videli, da je ocena nad napako, ker je \\(M=e<3\\). Zdaj opazujemo \\(\\sin x\\) v točki \\(x=2\\) pri \\(n=3\\); ocena napake je skrita.',
+                'The derivatives of \\(\\sin x\\) repeat: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). At the center \\(c=0\\) their values are \\(0\\), \\(1\\), \\(0\\), \\(-1\\), so \\(T_n\\) has only odd powers. For \\(e^x\\) we saw that the bound lies above the error because \\(M=e<3\\). Now we look at \\(\\sin x\\) at the point \\(x=2\\) with \\(n=3\\); the error bound is hidden.',
+            ),
+            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
+            frames: [frame('taylor-sine-prediction-explanation', 'explanation'), frame('taylor-sine-prediction-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali je pri \\(n=3\\) napaka v \\(x=2\\) večja od \\(0{,}1\\) in kolikšna bi bila ocena \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\); šele nato pritisni Pokaži oceno napake.',
+                'Predict whether at \\(n=3\\) the error at \\(x=2\\) is larger than \\(0.1\\) and what the bound \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) would be; only then press Show error bound.',
+            ),
+            expectedObservations: [text(
+                'Prikazani sta \\(T_3(2)\\approx0{,}6667\\) in \\(\\sin2\\approx0{,}9093\\), napaka je približno \\(0{,}2426\\); ocena napake je skrita.',
+                'The values \\(T_3(2)\\approx0.6667\\) and \\(\\sin2\\approx0.9093\\) are shown, the error is about \\(0.2426\\); the error bound is hidden.',
+            )],
+            scene: {
+                id: 'taylor-sine-prediction-scene', basedOn: 'demonstration-default',
+                actions: [taylorChoice('sine'), taylorBound(false)],
+                expectedState: text(
+                    'Prikazan je \\(\\sin x\\) okoli \\(c=0\\) s polinomom stopnje \\(n=3\\) v \\(x=2\\); ocena napake je skrita.',
+                    'The graph of \\(\\sin x\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=3\\) at \\(x=2\\); the error bound is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-sine-step', order: 4,
+            title: text('Ocena \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) za \\(\\sin x\\)', 'The bound \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) for \\(\\sin x\\)'),
+            purpose: text('Primerjati napoved z oceno z \\(M=1\\).', 'Comparing the prediction with the bound with \\(M=1\\).'),
+            explanation: text(
+                'Pri \\(n=3\\) je \\(T_3(2)=2-\\frac{2^3}{3!}=2-\\frac86=\\frac23\\approx0{,}6667\\), \\(\\sin2\\approx0{,}9093\\) in napaka približno \\(0{,}2426\\). Predpostavka ocene: vsak odvod funkcije \\(\\sin x\\) je \\(\\pm\\sin x\\) ali \\(\\pm\\cos x\\), zato je \\(M=1\\) in ocena je \\(\\frac{|x-c|^{n+1}}{(n+1)!}=\\frac{2^4}{4!}=\\frac{16}{24}=\\frac23\\). Ocena je nad napako, vendar zelo groba. S stopnjo \\(n=5\\) se napaka zmanjša na približno \\(0{,}0240\\), ocena pa na \\(\\frac{2^6}{6!}\\approx0{,}0889\\).',
+                'At \\(n=3\\), \\(T_3(2)=2-\\frac{2^3}{3!}=2-\\frac86=\\frac23\\approx0.6667\\), \\(\\sin2\\approx0.9093\\) and the error is about \\(0.2426\\). The assumption of the bound: every derivative of \\(\\sin x\\) is \\(\\pm\\sin x\\) or \\(\\pm\\cos x\\), so \\(M=1\\) and the bound is \\(\\frac{|x-c|^{n+1}}{(n+1)!}=\\frac{2^4}{4!}=\\frac{16}{24}=\\frac23\\). The bound lies above the error, but it is very rough. With degree \\(n=5\\) the error drops to about \\(0.0240\\) and the bound to \\(\\frac{2^6}{6!}\\approx0.0889\\).',
+            ),
+            formulaIds: ['taylor-lagrange'], workedExampleId: 'taylor-sine-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('taylor-sine-explanation', 'explanation'), frame('taylor-sine-calculation', 'calculation'), frame('taylor-sine-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj z napovedjo. Nato povečaj stopnjo na \\(5\\) in preberi novo napako in oceno; poskusi še drugo središče \\(c\\), na primer \\(c=1\\).',
+                'Compare with your prediction. Then raise the degree to \\(5\\) and read the new error and bound; also try another center \\(c\\), for example \\(c=1\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=3\\) je ocena napake \\(\\frac23\\approx0{,}6667\\) in napaka približno \\(0{,}2426\\); predpostavka ocene je \\(M=1\\).',
+                'At \\(n=3\\) the error bound is \\(\\frac23\\approx0.6667\\) and the error about \\(0.2426\\); the assumption of the bound is \\(M=1\\).',
+            )],
+            scene: {
+                id: 'taylor-sine-scene', basedOn: 'demonstration-default',
+                actions: [taylorChoice('sine'), taylorBound(true)],
+                expectedState: text(
+                    'Prikazan je \\(\\sin x\\) okoli \\(c=0\\) s polinomom stopnje \\(n=3\\) v \\(x=2\\); ocena napake je prikazana.',
+                    'The graph of \\(\\sin x\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=3\\) at \\(x=2\\); the error bound is shown.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-geometric-step', order: 5,
+            title: text('Zunaj konvergenčnega intervala: \\(\\frac{1}{1-x}\\)', 'Outside the convergence interval: \\(\\frac{1}{1-x}\\)'),
+            purpose: text('Napovedati, da višja stopnja ne pomeni vedno boljšega približka.', 'Predicting that a higher degree does not always mean a better approximation.'),
+            explanation: text(
+                'Pri \\(\\sin x\\) smo za \\(n=5\\) dobili manjšo napako kot za \\(n=3\\). Ali to velja vedno? Opazujemo \\(f(x)=\\frac{1}{1-x}\\) okoli \\(c=0\\); koeficienti so vsi \\(1\\), \\(T_n\\) je delna vsota geometrijske vrste. Točka je \\(x=-1{,}5\\), kjer je \\(f(-1{,}5)=\\frac{1}{2{,}5}=0{,}4\\), stopnja je \\(n=1\\). Na osi \\(x\\) je odebeljena črta konvergenčni interval vrste, to je \\(|x-c|<1-c\\), torej tu med \\(-1\\) in \\(1\\). Točka \\(x\\) je zunaj njega.',
+                'For \\(\\sin x\\) degree \\(n=5\\) gave a smaller error than \\(n=3\\). Is that always so? We look at \\(f(x)=\\frac{1}{1-x}\\) about \\(c=0\\); all coefficients are \\(1\\) and \\(T_n\\) is a partial sum of the geometric series. The point is \\(x=-1.5\\), where \\(f(-1.5)=\\frac{1}{2.5}=0.4\\), and the degree is \\(n=1\\). The thick line on the \\(x\\)-axis is the convergence interval of the series, that is \\(|x-c|<1-c\\), here between \\(-1\\) and \\(1\\). The point \\(x\\) is outside it.',
+            ),
+            formulaIds: ['taylor-geometric'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('taylor-geometric-explanation', 'explanation'), frame('taylor-geometric-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali bo napaka v \\(x=-1{,}5\\) manjša, če stopnjo povečaš na \\(3\\) in na \\(5\\) (gumb +); nato stopnjo povečaj in preberi absolutno napako. Nazadnje premakni \\(x\\) na \\(0{,}5\\) in primerjaj.',
+                'Predict whether the error at \\(x=-1.5\\) becomes smaller if you raise the degree to \\(3\\) and to \\(5\\) (the + button); then raise the degree and read the absolute error. Finally move \\(x\\) to \\(0.5\\) and compare.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=1\\) je \\(T_1(-1{,}5)=-0{,}5\\) in napaka \\(0{,}9\\); stanje piše, da je \\(x\\) zunaj konvergenčnega intervala.',
+                'At \\(n=1\\), \\(T_1(-1.5)=-0.5\\) and the error is \\(0.9\\); the status says that \\(x\\) is outside the convergence interval.',
+            )],
+            scene: {
+                id: 'taylor-geometric-scene', basedOn: 'demonstration-default',
+                actions: [taylorChoice('geometric'), parameter('taylor-x', -1.5), parameter('taylor-degree', 1), taylorBound(false)],
+                expectedState: text(
+                    'Prikazan je \\(\\frac{1}{1-x}\\) okoli \\(c=0\\) s polinomom stopnje \\(n=1\\) v \\(x=-1{,}5\\), zunaj konvergenčnega intervala; ocena napake je skrita.',
+                    'The graph of \\(\\frac{1}{1-x}\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=1\\) at \\(x=-1.5\\), outside the convergence interval; the error bound is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-flat-prediction-step', order: 6,
+            title: text('Gladka funkcija z vsemi koeficienti \\(0\\)', 'A smooth function with all coefficients \\(0\\)'),
+            purpose: text('Napovedati, kaj stori Taylorjev polinom, ko so vsi odvodi v središču \\(0\\).', 'Predicting what the Taylor polynomial does when all derivatives at the center are \\(0\\).'),
+            explanation: text(
+                'Zunaj konvergenčnega intervala napaka narašča: \\(f-T_n=\\frac{x^{n+1}}{1-x}=\\frac{(-1{,}5)^{n+1}}{2{,}5}\\), torej \\(0{,}9\\) pri \\(n=1\\), \\(2{,}025\\) pri \\(n=3\\) in približno \\(4{,}556\\) pri \\(n=5\\); znotraj, pri \\(x=0{,}5\\), pa pada, na primer \\(0{,}125\\) pri \\(n=3\\) in \\(0{,}03125\\) pri \\(n=5\\). Zdaj gladka funkcija \\(f(x)=e^{-1/x}\\) za \\(x>0\\) in \\(f(x)=0\\) za \\(x\\le0\\) okoli središča \\(c=0\\), ki je tu stalno. Njeni odvodi v \\(0\\) so vsi \\(0\\). Opazujemo točko \\(x=1\\).',
+                'Outside the convergence interval the error grows: \\(f-T_n=\\frac{x^{n+1}}{1-x}=\\frac{(-1.5)^{n+1}}{2.5}\\), that is \\(0.9\\) at \\(n=1\\), \\(2.025\\) at \\(n=3\\) and about \\(4.556\\) at \\(n=5\\); inside, at \\(x=0.5\\), it falls, for example \\(0.125\\) at \\(n=3\\) and \\(0.03125\\) at \\(n=5\\). Now the smooth function \\(f(x)=e^{-1/x}\\) for \\(x>0\\) and \\(f(x)=0\\) for \\(x\\le0\\) about the center \\(c=0\\), which is fixed here. Its derivatives at \\(0\\) are all \\(0\\). We look at the point \\(x=1\\).',
+            ),
+            formulaIds: ['taylor-flat'], learnerInteraction: 'observe',
+            frames: [frame('taylor-flat-prediction-explanation', 'explanation'), frame('taylor-flat-prediction-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali se bo \\(T_n(1)\\) z večanjem stopnje približal \\(f(1)\\); povečaj stopnjo in preveri. Šele nato pritisni Pokaži oceno napake in preberi, kaj aplikacija pove o oceni.',
+                'Predict whether \\(T_n(1)\\) approaches \\(f(1)\\) as the degree grows; raise the degree and check. Only then press Show error bound and read what the app says about the bound.',
+            ),
+            expectedObservations: [text(
+                'Pri vsaki stopnji je \\(T_n(1)=0\\), \\(f(1)\\approx0{,}3679\\) in napaka je ista; ocena napake je skrita.',
+                'At every degree \\(T_n(1)=0\\), \\(f(1)\\approx0.3679\\) and the error is the same; the error bound is hidden.',
+            )],
+            scene: {
+                id: 'taylor-flat-prediction-scene', basedOn: 'demonstration-default',
+                actions: [taylorChoice('flat'), taylorBound(false)],
+                expectedState: text(
+                    'Prikazana je gladka funkcija \\(e^{-1/x}\\) za \\(x>0\\) okoli \\(c=0\\) s polinomom stopnje \\(n=3\\) v \\(x=1\\); ocena napake je skrita.',
+                    'The smooth function \\(e^{-1/x}\\) for \\(x>0\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=3\\) at \\(x=1\\); the error bound is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-free-exploration', order: 7,
+            title: text('Približek ni vrsta in samostojno raziskovanje', 'An approximation is not a series, and free exploration'),
+            purpose: text('Ločiti končni približek od konvergence vrste in preiti v samostojno raziskovanje.', 'Separating the finite approximation from convergence of the series and handing over to free exploration.'),
+            explanation: text(
+                'Pri \\(f(x)=e^{-1/x}\\) je \\(T_n(1)=0\\) pri vsakem \\(n\\), \\(f(1)=e^{-1}\\approx0{,}3679\\), napaka pa je pri vsaki stopnji \\(0{,}3679\\). Vsi koeficienti v \\(0\\) so \\(0\\), vrsta je identično \\(0\\) in konvergira, a k \\(0\\), ne k \\(f\\). Ocena napake ni prikazana: odvodi v \\(c=0\\) so vsi \\(0\\), zato iz njih ne dobimo meje za ostanek, mejo za \\(|f^{(n+1)}|\\) bi morali poiskati iz odvodov drugje, tega pa aplikacija ne modelira. Ločimo torej dvoje: končni polinom \\(T_n\\) vedno obstaja, kako dobro približa \\(f\\) v \\(x\\), pa pove napaka ali, kadar jo imamo, ocena; neskončna vrsta pa konvergira povsod pri \\(e^x\\) in \\(\\sin x\\), pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri tej funkciji pa k napačni vrednosti. Zdaj raziskuj sam: zamenjaj primer, premakni \\(c\\) in \\(x\\), spreminjaj stopnjo in napovej napako, preden pokažeš oceno.',
+                'For \\(f(x)=e^{-1/x}\\), \\(T_n(1)=0\\) for every \\(n\\), \\(f(1)=e^{-1}\\approx0.3679\\), and the error is \\(0.3679\\) at every degree. All coefficients at \\(0\\) are \\(0\\), the series is identically \\(0\\) and converges, but to \\(0\\), not to \\(f\\). The error bound is not shown: the derivatives at \\(c=0\\) are all \\(0\\) and give no limit for the remainder; a limit for \\(|f^{(n+1)}|\\) would have to come from derivatives elsewhere, which the app does not model. So two things are kept apart: the finite polynomial \\(T_n\\) always exists, and how well it approximates \\(f\\) at \\(x\\) is told by the error or, where there is one, the bound; the infinite series converges everywhere for \\(e^x\\) and \\(\\sin x\\), for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for this function to the wrong value. Now explore on your own: change the example, move \\(c\\) and \\(x\\), change the degree and predict the error before you show the bound.',
+            ),
+            formulaIds: ['taylor-flat', 'taylor-lagrange'], workedExampleId: 'taylor-flat-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('taylor-free-explanation', 'explanation'), frame('taylor-free-calculation', 'calculation'), frame('taylor-free-observation', 'observation')],
+            observationPrompt: text(
+                'Preberi, zakaj ocena napake ni prikazana. Nato skrij oceno, izberi drug primer ali središče in napovej, preden jo spet pokažeš.',
+                'Read why the error bound is not shown. Then hide the bound, choose another example or center and predict before you show it again.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=3\\) je \\(T_n(1)=0\\), napaka je \\(f(1)\\approx0{,}3679\\), pri oceni napake piše, da je ni, in stanje pojasni razlog; vrsta konvergira k \\(0\\), ne k \\(f\\).',
+                'At \\(n=3\\), \\(T_n(1)=0\\) and the error is \\(f(1)\\approx0.3679\\); the bound row says there is none and the status explains why; the series converges to \\(0\\), not to \\(f\\).',
+            )],
+            scene: {
+                id: 'taylor-free-scene', basedOn: 'demonstration-default',
+                actions: [taylorChoice('flat'), taylorBound(true)],
+                expectedState: text(
+                    'Prikazana je gladka funkcija \\(e^{-1/x}\\) okoli \\(c=0\\) z \\(T_3(1)=0\\); ocena napake je zahtevana, a ni na voljo.',
+                    'The smooth function \\(e^{-1/x}\\) about \\(c=0\\) is shown with \\(T_3(1)=0\\); the error bound is requested but not available.',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'globevnik-brojan-analiza-1-taylor',
+            citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§7.1 and 7.3 (printed pp. 251–260).',
+            supports: ['the Taylor polynomial of degree n about c is the sum of f^(k)(c)/k! (x - c)^k for k = 0..n', 'the remainder has the Lagrange form f^(n+1)(xi)/(n+1)! (x - c)^(n+1) for some xi between c and x', 'the Taylor series of a function need not converge to the function'],
+        },
+        {
+            id: 'bezeg-taylor-implementation',
+            citation: 'Bezeg source: src/analysis/taylor.ts, src/analysis/taylorModel.ts and src/graphs/functions/TaylorGraph.tsx.',
+            supports: ['e^x about 0 at x = 1 has T_1(1) = 2, T_3(1) = 8/3 and T_6(1) = 1957/720 with error bound e/7! >= the actual error', 'sin x about 0 at x = 2 has T_3(2) = 2/3, error about 0.2426 and bound 2^4/4! = 2/3 (M = 1)', '1/(1 - x) about 0 at x = -1.5 has error (-1.5)^(n+1)/2.5, with absolute values 0.9, 2.025 and about 4.556 at n = 1, 3, 5', 'the flat function has T_n = 0 for every n and f(1) = e^-1 > 0, and no derivative bound is offered'],
+            implementationCorrespondence: 'Coefficients are closed forms, never symbolic differentiation; T_n is evaluated in Horner form and the error as f(x) - T_n(x); the Lagrange bound uses M = max(e^c, e^x) for e^x, M = 1 for sin x and (n+1)!/(1 - max(c, x))^(n+2) for 1/(1 - x), and none for the flat function; the convergence interval |x - c| < 1 - c is shown for 1/(1 - x) only; a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text(
+            'Središče, točka \\(x\\) ali stopnja zunaj območja primera (stopnja je celo število od \\(0\\) do \\(10\\); pri \\(\\frac{1}{1-x}\\) središče \\(c\\in[-1;0{,}5]\\) in \\(x\\le0{,}95\\); pri gladki funkciji je središče stalno \\(0\\)) se zavrnejo, model ostane nespremenjen, datoteka s takšno vrednostjo pa se ne uvozi in pove, kaj popraviti.',
+            'A center, point \\(x\\) or degree outside the range of the example (the degree is an integer from \\(0\\) to \\(10\\); for \\(\\frac{1}{1-x}\\) the center \\(c\\in[-1,0.5]\\) and \\(x\\le0.95\\); for the smooth function the center is fixed at \\(0\\)) is rejected and the model stays unchanged; a file with such a value is not imported and says what to correct.',
+        ),
+        text(
+            'Pri \\(x\\) na robu konvergenčnega intervala, \\(x=2c-1\\), vrsta \\(\\frac{1}{1-x}\\) ne konvergira, zato aplikacija piše, da je \\(x\\) zunaj; napaka tam z večanjem stopnje ne pada.',
+            'At \\(x\\) on the edge of the convergence interval, \\(x=2c-1\\), the series of \\(\\frac{1}{1-x}\\) does not converge, so the app says that \\(x\\) is outside; the error there does not fall as the degree grows.',
+        ),
+        text(
+            'Napake pod \\(10^{-12}\\) so zaradi zaokroževanja prikazane kot \\(0\\); ocena napake je vedno vsaj tako velika kot dejanska napaka, kadar je prikazana.',
+            'Errors below \\(10^{-12}\\) are shown as \\(0\\) because of rounding; the bound, when shown, is always at least as large as the actual error.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred pregledom za uporabo v razredu je treba potrditi razdelka §7.1 in §7.3 ter strani v viru (povzeto po poročilu o kandidatih, ne preverjeno v PDF) in ali naj lekcija doda še Peanovo obliko ostanka ter Taylorjeve vrste z drugimi središči.',
+            'Before classroom-ready review, confirm the sections §7.1 and §7.3 and their pages in the source (taken from the candidate report, not checked in the PDF) and whether the lesson should also add the Peano form of the remainder and Taylor series about other centers.',
+        ),
+    ],
+};
+
 /** Lessons of the Analysis family, in teaching order. */
-export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation, darboux, extrema, convexity];
+export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation, darboux, extrema, convexity, taylor];

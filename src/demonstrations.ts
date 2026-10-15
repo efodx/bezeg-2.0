@@ -62,6 +62,7 @@ const definitions = [
     {id: 'darboux', path: '/bezeg-2.0/analysis/darboux', family: 'analysis', title: 'darboux', prompts: ['prompt_darboux', 'prompt_compare']},
     {id: 'extrema', path: '/bezeg-2.0/analysis/extrema', family: 'analysis', title: 'extrema', prompts: ['prompt_extrema', 'prompt_compare']},
     {id: 'convexity', path: '/bezeg-2.0/analysis/convexity', family: 'analysis', title: 'convexity', prompts: ['prompt_convexity', 'prompt_compare']},
+    {id: 'taylor', path: '/bezeg-2.0/analysis/taylor', family: 'analysis', title: 'taylor', prompts: ['prompt_taylor', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 export type Demonstration = Readonly<{

@@ -29,3 +29,26 @@ export function formatLineEquation(line: {readonly slope: number; readonly inter
     if (intercept === '0') return `y = ${term}`;
     return intercept.startsWith(MINUS_SIGN) ? `y = ${term} ${MINUS_SIGN} ${intercept.slice(1)}` : `y = ${term} + ${intercept}`;
 }
+
+const SUPERSCRIPT_DIGITS: Readonly<Record<string, string>> = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'};
+
+/**
+ * A magnitude with `digits` significant digits, for errors and bounds that span many orders of magnitude: plain decimals from
+ * 0.0001 to 1 000 000, "1,23·10⁻⁷" outside that range, and 0 for anything below 1e-12 (floating-point noise such as 1e-17 or -0
+ * never reaches the reader). Decimal comma for Slovenian and a true minus sign.
+ */
+export function formatSignificant(value: number, language: NumberLanguage, digits = 4): string {
+    if (!Number.isFinite(value)) return NOT_A_NUMBER_TEXT;
+    const magnitude = Math.abs(value);
+    if (magnitude < 1e-12) return '0';
+    const decimalSeparator = (text: string) => language === 'sl' ? text.replace('.', ',') : text;
+    let text: string;
+    if (magnitude >= 1e-4 && magnitude < 1e6) {
+        text = decimalSeparator(String(Number(magnitude.toPrecision(digits))));
+    } else {
+        const [mantissa, exponent] = magnitude.toExponential(digits - 1).split('e');
+        const trimmed = mantissa.includes('.') ? mantissa.replace(/0+$/, '').replace(/\.$/, '') : mantissa;
+        text = `${decimalSeparator(trimmed)}·10${String(Number(exponent)).replace(/./g, character => SUPERSCRIPT_DIGITS[character])}`;
+    }
+    return value < 0 ? `${MINUS_SIGN}${text}` : text;
+}

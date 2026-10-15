@@ -80,3 +80,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .convexity-actions button { min-height: 44px; }
 }
+/* Taylor: the degree stepper, the Show/Hide error bound button and the statuses, styled like the convexity controls. */
+.taylor-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); gap: 6px; }
+.taylor-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.taylor-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.taylor-status p { margin: 0; }
+.taylor-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .taylor-actions button { min-height: 44px; }
+}

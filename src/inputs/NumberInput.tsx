@@ -18,6 +18,8 @@ interface NumberInputProps {
     decimals?: number;
     /** Why the model rejected a value (for example an ordering rule); replaces the generic rejection hint. */
     rejectedHint?: string;
+    /** Id of an element that explains the field (for example why it is disabled); joined with the hint in aria-describedby. */
+    describedBy?: string;
 }
 
 const show = (value: number | undefined, decimals: number) =>
@@ -57,7 +59,7 @@ export function NumberInput(props: NumberInputProps) {
         <label htmlFor={id}>{props.label}</label>
         <input id={id} type="number" inputMode="decimal" value={draft} disabled={props.disabled}
                min={min} max={max} step="any" aria-invalid={hintText ? true : undefined}
-               aria-describedby={hintText ? `${id}-hint` : undefined}
+               aria-describedby={[hintText ? `${id}-hint` : undefined, props.describedBy].filter(Boolean).join(" ") || undefined}
                onChange={event => {
                    setDraft(event.target.value);
                    const parsed = event.target.value.trim() === "" ? NaN : Number(event.target.value);

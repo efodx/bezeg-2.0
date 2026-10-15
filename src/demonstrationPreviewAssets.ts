@@ -43,6 +43,8 @@ import preview_darboux from './images/demonstrations/catalog/darboux.png';
 import preview_extrema from './images/demonstrations/catalog/extrema.png';
 // Placeholder: a copy of the accumulation preview, replaced by the generated convexity preview in the Batch B release task.
 import preview_convexity from './images/demonstrations/catalog/convexity.png';
+// Placeholder: a copy of the accumulation preview, replaced by the generated Taylor preview in the Batch B release task.
+import preview_taylor from './images/demonstrations/catalog/taylor.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -85,4 +87,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'darboux': preview_darboux,
     'extrema': preview_extrema,
     'convexity': preview_convexity,
+    'taylor': preview_taylor,
 };

@@ -291,6 +291,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'darboux',
     'extrema',
     'convexity',
+    'taylor',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

@@ -1,6 +1,6 @@
 import {
-    geometricConvergenceInterval, isInsideGeometricConvergence, isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX,
-    TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorAbsoluteError, taylorCoefficient, taylorErrorBound, taylorExample,
+    evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence, isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX,
+    TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorAbsoluteError, taylorCoefficient, taylorCoefficients, taylorErrorBound, taylorExample,
     TaylorExample, TaylorExampleId, taylorFunctionValue, taylorPolynomial, taylorSignedError,
 } from './taylor';
 import {DEFAULT_TAYLOR_MODEL, parseTaylorModel, TAYLOR_EXAMPLE_MODELS} from './taylorModel';
@@ -404,4 +404,17 @@ describe('Taylor model', () => {
         parseTaylorModel(input);
         expect(input).toEqual(copy);
     });
+});
+
+test('the coefficient list and the unrestricted Horner evaluation agree with the polynomial and with direct sums', () => {
+    expect(taylorCoefficients(exp, 0, 3)).toEqual([1, 1, 0.5, 1 / 6]);
+    expect(taylorCoefficients(flat, 0, 4)).toEqual([0, 0, 0, 0, 0]);
+    expect(taylorCoefficients(sine, 0, 5).map(value => Math.round(value * 120))).toEqual([0, 120, 0, -20, 0, 1]);
+    expect(() => taylorCoefficients(geometric, 1, 2)).toThrow(RangeError);
+    expect(() => taylorCoefficients(exp, 0, 11)).toThrow(RangeError);
+    expect(() => taylorCoefficients(exp, 0, 1.5)).toThrow(RangeError);
+    // the polynomial of the list is the one taylorPolynomial returns inside the domain, and exists far outside it (the board draws it there)
+    expect(evaluateTaylorCoefficients(taylorCoefficients(exp, 0, 3), 1)).toBe(taylorPolynomial(exp, 0, 3, 1));
+    expect(evaluateTaylorCoefficients(taylorCoefficients(exp, 0, 3), -10)).toBeCloseTo(1 - 10 + 50 - 1000 / 6, 12);
+    expect(evaluateTaylorCoefficients([5], 123)).toBe(5);
 });

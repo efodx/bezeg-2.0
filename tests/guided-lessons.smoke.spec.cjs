@@ -1546,8 +1546,67 @@ const convexity = {
     stableCounts: async page => ({t: await convexityReadout(page, 't')}),
 };
 
+// ---------------------------------------------------------------- Taylor approximation
+const taylorReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const taylorStatuses = page => page.locator('[data-taylor-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-taylor-status')));
+// Per step: the displayed center, degree, x and T_n(x), and the statuses on screen. While the bound is hidden (steps 1, 3, 5 and 6; the learner
+// changes the degree or presses Show error bound after predicting) the bound readouts are words ("skrito" / "hidden"), so only the
+// language-independent status ids are checked there.
+const TAYLOR_STEPS = [
+    {center: '0', degree: '1', x: '1', polynomial: '2', statuses: ['hidden']},
+    {center: '0', degree: '6', x: '1', polynomial: '2.7181', statuses: ['revealed']},
+    {center: '0', degree: '3', x: '2', polynomial: '0.6667', statuses: ['hidden']},
+    {center: '0', degree: '3', x: '2', polynomial: '0.6667', statuses: ['revealed'], bound: '0.6667'},
+    {center: '0', degree: '1', x: '-1.5', polynomial: '-0.5', statuses: ['hidden', 'outside-convergence']},
+    {center: '0', degree: '3', x: '1', polynomial: '0', statuses: ['hidden', 'flat']},
+    {center: '0', degree: '3', x: '1', polynomial: '0', statuses: ['revealed', 'no-bound', 'flat']},
+];
+
+const taylor = {
+    id: 'taylor',
+    path: `${BASE}/analysis/taylor`,
+    titles: {sl: 'Taylorjev polinom in napaka približka', en: 'Taylor polynomial and the error of the approximation'},
+    steps: 7,
+    minFrames: 17, // 2 + 3 + 2 + 3 + 2 + 2 + 3 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = TAYLOR_STEPS[step - 1];
+        await expect.poll(() => taylorReadout(page, 'center'), {message: `center at ${label}`}).toBe(expected.center);
+        await expect.poll(() => taylorReadout(page, 'degree'), {message: `degree at ${label}`}).toBe(expected.degree);
+        await expect.poll(() => taylorReadout(page, 'x'), {message: `x at ${label}`}).toBe(expected.x);
+        await expect.poll(() => taylorReadout(page, 'polynomial'), {message: `T_n(x) at ${label}`}).toBe(expected.polynomial);
+        if (expected.bound !== undefined) await expect.poll(() => taylorReadout(page, 'bound'), {message: `bound at ${label}`}).toBe(expected.bound);
+        await expect.poll(() => taylorStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // c and x are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.center), 0], `c on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.x), 0], `x on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/^(Degree n|Stopnja n)$/).fill('7');
+        await expect.poll(() => taylorReadout(page, 'degree')).toBe('7');
+        await page.locator('[data-action="toggle-taylor-bound"]').click();
+        await expect.poll(() => taylorStatuses(page), {message: 'the error bound is shown'}).toEqual(['revealed']);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => taylorReadout(page, 'degree'), {message: 'lesson scene replaced the user degree'}).toBe('3');
+        await expect.poll(() => taylorStatuses(page), {message: 'lesson scene hid the error bound'}).toEqual(['hidden']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => taylorReadout(page, 'degree'), {message: 'user degree restored'}).toBe('7');
+        await expect.poll(() => taylorStatuses(page), {message: 'user error bound restored'}).toEqual(['revealed']);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({degree: await taylorReadout(page, 'degree')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

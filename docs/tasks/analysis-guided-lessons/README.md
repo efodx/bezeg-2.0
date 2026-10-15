@@ -14,7 +14,7 @@
 | [05 Extrema](05-extrema.md) | 04 | implemented, not released |
 | [06 Convexity and concavity](06-convexity.md) | 04 | implemented, not released |
 | [07 Darboux sums](07-darboux.md) | 04 | implemented, not released |
-| [08 Taylor approximation](08-taylor.md) | 04 | not started |
+| [08 Taylor approximation](08-taylor.md) | 04 | implemented, not released |
 | [09 Batch B release](09-batch-b-release.md) | 05–08 | not started |
 
 ## Ordering and delegation

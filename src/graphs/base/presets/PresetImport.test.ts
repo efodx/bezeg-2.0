@@ -522,3 +522,66 @@ test("the convexity messages are localized and show the supported range from the
     expect(attempt({...validConvexity, t: 9})).toContain("med −2 in 2");
     expect(attempt({...validConvexity, secondDerivativeVisible: "yes"})).toContain("true ali false");
 });
+
+const taylorPreset = (data: unknown) => JSON.stringify({"preset-taylor": {data: [{id: "Osnova", boardState: {boundingBox: [-3.5, 10, 3.5, -4]},
+    graphState: {initialized: true, example: "exp", center: 0, degree: 1, x: 1, boundVisible: false}, data}]}});
+
+test("taylor collection imports a model object with its reveal flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "geometric", center: -0.5, degree: 10, x: -2, boundVisible: true};
+    commitPresetImport(preflightPresetImport(taylorPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-taylor")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    // the boundary values of every example are accepted, including the fixed center of the flat function
+    for (const boundary of [{example: "exp", center: 2, degree: 0, x: -3}, {example: "sine", center: -4, degree: 10, x: 7}, {example: "geometric", center: 0.5, degree: 3, x: 0.95},
+        {example: "flat", center: 0, degree: 5, x: -1}, {example: "flat", center: 0, degree: 5, x: 3}]) {
+        expect(() => preflightPresetImport(taylorPreset({...boundary, boundVisible: false}))).not.toThrow();
+    }
+});
+
+const validTaylor = {example: "exp", center: 0, degree: 1, x: 1, boundVisible: false};
+test.each([[[]], [null], [{}], [{...validTaylor, example: "cos"}], [{...validTaylor, center: 2.01}], [{...validTaylor, x: 3.01}], [{...validTaylor, degree: 11}], [{...validTaylor, degree: -1}],
+    [{...validTaylor, degree: 2.5}], [{...validTaylor, degree: "1"}], [{...validTaylor, center: "0"}], [{...validTaylor, x: "1"}], [{...validTaylor, boundVisible: "true"}],
+    [{...validTaylor, boundVisible: 1}], [{example: "exp", center: 0, degree: 1, x: 1}], [{...validTaylor, example: "flat", center: 0.5}], [{...validTaylor, example: "geometric", x: 1}],
+    [{...validTaylor, example: "geometric", center: 0.6}], [{...validTaylor, example: "sine", x: 8}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("taylor collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(taylorPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validTaylor, example: "cos"}, /exp, sine, geometric, flat/],
+    [{...validTaylor, center: 5}, /exp.*−2.*2/],
+    [{...validTaylor, example: "sine", center: 4.5}, /sine.*−4.*4/],
+    [{...validTaylor, example: "geometric", center: 1}, /geometric.*−1.*0\.5/],
+    [{...validTaylor, example: "flat", center: 0.5}, /flat.*(must be 0|mora biti 0)/],
+    [{...validTaylor, x: 4}, /exp.*−3.*3/],
+    [{...validTaylor, example: "geometric", x: 1}, /geometric.*−2.*0\.95/],
+    [{...validTaylor, degree: 11}, /(integer between|celo število med) 0 (and|in) 10/],
+    [{...validTaylor, degree: 1.5}, /(integer between|celo število med) 0 (and|in) 10/],
+    [{...validTaylor, boundVisible: "true"}, /boundVisible/],
+])("taylor errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(taylorPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(taylorPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("taylor data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validTaylor, center: "0"}, {...validTaylor, x: "1"}, {...validTaylor, degree: "1"}, {example: "exp", center: 0, degree: 1, x: 1}]) {
+        expect(() => preflightPresetImport(taylorPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the taylor messages are localized and show the supported range of the example from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(taylorPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validTaylor, example: "geometric", center: 0.9})).toContain("between −1 and 0.5");
+    expect(attempt({...validTaylor, example: "flat", center: 1})).toContain("must be 0");
+    expect(attempt({...validTaylor, degree: 12})).toContain("integer between 0 and 10");
+    expect(attempt({...validTaylor, boundVisible: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validTaylor, example: "geometric", center: 0.9})).toContain("med −1 in 0.5");
+    expect(attempt({...validTaylor, example: "flat", center: 1})).toContain("mora biti 0");
+    expect(attempt({...validTaylor, degree: 12})).toContain("celo število med 0 in 10");
+    expect(attempt({...validTaylor, boundVisible: "yes"})).toContain("true ali false");
+});

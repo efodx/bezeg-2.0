@@ -164,13 +164,24 @@ export function taylorFunctionValue(example: TaylorExample, x: number): number {
     return example.value(x);
 }
 
+/** The coefficients a_0..a_n of T_n about c. Throws unless the center is in its domain and n is an integer 0..10. */
+export function taylorCoefficients(example: TaylorExample, center: number, degree: number): number[] {
+    if (!isTaylorCenter(example, center)) throw new RangeError('The center is outside the domain of the example.');
+    if (!isTaylorDegree(degree)) throw new RangeError('The degree must be an integer from 0 to 10.');
+    return Array.from({length: degree + 1}, (_, k) => example.coefficient(center, k));
+}
+
+/** The polynomial a_0 + a_1 t + ... + a_n t^n at t = x - c in Horner form; any real t (a graph draws T_n beyond the x domain). */
+export function evaluateTaylorCoefficients(coefficients: readonly number[], offset: number): number {
+    let result = coefficients[coefficients.length - 1];
+    for (let k = coefficients.length - 2; k >= 0; k--) result = result * offset + coefficients[k];
+    return result;
+}
+
 /** T_n(x) = sum of a_k (x - c)^k for k = 0..n, evaluated in Horner form in (x - c). Throws on arguments outside the domains. */
 export function taylorPolynomial(example: TaylorExample, center: number, degree: number, x: number): number {
     requireArguments(example, center, degree, x);
-    const offset = x - center;
-    let result = example.coefficient(center, degree);
-    for (let k = degree - 1; k >= 0; k--) result = result * offset + example.coefficient(center, k);
-    return result;
+    return evaluateTaylorCoefficients(taylorCoefficients(example, center, degree), x - center);
 }
 
 /** The signed error f(x) - T_n(x): positive where the polynomial lies below the function. */
