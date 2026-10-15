@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "629ddf0e1862d74ddf095c0b82faebc4800ac73d",
+  "graphSourceRevision": "b806323908a64288dc5c304d1b68424a43e8bdda",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -18,7 +18,7 @@
     "colorScheme": "light",
     "reducedMotion": "reduce",
     "timezoneId": "Europe/Ljubljana",
-    "baseUrl": "http://127.0.0.1:3013/bezeg-2.0",
+    "baseUrl": "http://127.0.0.1:3012/bezeg-2.0",
     "browserVersion": "156.0.8078.4",
     "browserSource": "Playwright-managed Chromium",
     "coordinateContextPolicy": "per capture: retain axes, ticks, and grid for basics and function families; hide them for other families",
@@ -1844,6 +1844,209 @@
         },
         "renderedLabelCount": 5,
         "mathJaxLabelCount": 8
+      }
+    },
+    {
+      "id": "darboux",
+      "path": "/bezeg-2.0/analysis/darboux",
+      "file": "darboux.png",
+      "sha256": "69caaa5d5d36b42bd3eed60111c2354f80bc202f7bf0722d67cf49a5ec331194",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -1.1474489169274606,
+          "maxX": 16.961159652560873,
+          "minY": -3.9043633421016644,
+          "maxY": 9.57356387867647
+        },
+        "boardBoundingBox": [
+          -7.929737249534109,
+          11.30655276737968,
+          17.997577033402205,
+          -4.537917072192513
+        ],
+        "framedElementCount": 9,
+        "finalLabelCount": 3,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 4,
+          "point": 2,
+          "text": 6
+        },
+        "renderedLabelCount": 3,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "extrema",
+      "path": "/bezeg-2.0/analysis/extrema",
+      "file": "extrema.png",
+      "sha256": "1ba375ac8c329d0fc0199b428e2384e703ac89725549e6889dac7b37ca7c835a",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -2.2792102001544183,
+          "maxX": 17.661059550414073,
+          "minY": -4.273159866478047,
+          "maxY": 11.451195816514925
+        },
+        "boardBoundingBox": [
+          -10.092453324795118,
+          12.687111101205963,
+          18.816671710008436,
+          -4.979576420062874
+        ],
+        "framedElementCount": 17,
+        "finalLabelCount": 8,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 10,
+          "line": 3,
+          "curve": 1,
+          "point": 5
+        },
+        "renderedLabelCount": 8,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "convexity",
+      "path": "/bezeg-2.0/analysis/convexity",
+      "file": "convexity.png",
+      "sha256": "41c69c34af36389dc4f33a3f75e53a6e43704cbcf5853f2734f8270b4f890a84",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -2.002139037433155,
+          "maxX": 6.032468897617845,
+          "minY": -2.808203146947337,
+          "maxY": 4.008560697450146
+        },
+        "boardBoundingBox": [
+          -6.556660222715121,
+          4.885058678611716,
+          6.556660222715121,
+          -3.1286371491512095
+        ],
+        "framedElementCount": 16,
+        "finalLabelCount": 4,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 24,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 8,
+          "segment": 4,
+          "curve": 2,
+          "point": 6
+        },
+        "renderedLabelCount": 4,
+        "mathJaxLabelCount": 6
+      }
+    },
+    {
+      "id": "taylor",
+      "path": "/bezeg-2.0/analysis/taylor",
+      "file": "taylor.png",
+      "sha256": "492827198a5869f5a762b0aeca64e852b2bc1924eec17c9c304f4df968a566e9",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -26.486426918153693,
+          "maxX": 2.9752215916391282,
+          "minY": -5.453046238475765,
+          "maxY": 18.10689286591698
+        },
+        "boardBoundingBox": [
+          -28.21416829208042,
+          19.163047473431362,
+          15.007505166412205,
+          -7.2501974178696855
+        ],
+        "framedElementCount": 12,
+        "finalLabelCount": 3,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "segment": 2,
+          "curve": 2,
+          "point": 5
+        },
+        "renderedLabelCount": 3,
+        "mathJaxLabelCount": 4
       }
     }
   ]
