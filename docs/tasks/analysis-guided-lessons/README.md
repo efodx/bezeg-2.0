@@ -1,8 +1,8 @@
-# Analysis guided lessons — Batch A tasks
+# Analysis guided lessons — Batch A and B tasks
 
 **Source spec:** [Analysis guided lessons and complex multiplication](../../specs/analysis-guided-lessons.md)
 
-**Scope of this breakdown:** Batch A only (intermediate value theorem and bisection, mean value theorem, accumulated integral and FTC). Batches B and C get their own task files when Batch A is released.
+**Scope of this breakdown:** Batch A (intermediate value theorem and bisection, mean value theorem, accumulated integral and FTC) and Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation). Batch C gets its own task files when Batch B is released.
 
 | Task | Depends on | Status |
 | --- | --- | --- |
@@ -11,6 +11,11 @@
 | [02 Mean value theorem](02-mean-value-theorem.md) | 00 (family only) | released 2026-10-15 |
 | [03 Accumulated integral and FTC](03-accumulation.md) | 00 (family only) | released 2026-10-15 |
 | [04 Batch A release](04-batch-a-release.md) | 01–03 | released 2026-10-15 |
+| [05 Extrema](05-extrema.md) | 04 | not started |
+| [06 Convexity and concavity](06-convexity.md) | 04 | not started |
+| [07 Darboux sums](07-darboux.md) | 04 | not started |
+| [08 Taylor approximation](08-taylor.md) | 04 | not started |
+| [09 Batch B release](09-batch-b-release.md) | 05–08 | not started |
 
 ## Ordering and delegation
 
@@ -24,7 +29,7 @@
 The spec forbids exposing unimplemented Demonstrations, and pushing to `master` deploys. Therefore:
 
 - Task 00 changes that are invisible to learners (action vocabulary, playback contract, an empty family that the catalogue does not render) may be pushed after review and verification.
-- Topic commits that register routes, catalogue entries, previews, or lesson availability stay on the Batch A branch until task 04 passes, then reach `master` together as a fast-forward.
+- Topic commits that register routes, catalogue entries, previews, or lesson availability stay on the batch branch until the batch release task (04, 09) passes, then reach `master` together as a fast-forward.
 
 ## Shared conventions
 
