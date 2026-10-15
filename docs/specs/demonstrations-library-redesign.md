@@ -1,93 +1,167 @@
-# Demonstrations library redesign proposal
+# Demonstrations library and focused workspace
 
-**Status:** proposed on 2026-10-15; design discussion only. No application implementation is authorized by this document. The exploratory image is in the originating conversation and is not a production asset.
+**Status:** specification for review, synthesized on 2026-10-15 at the owner's request using to-spec. This document replaces the earlier proposal in place. It specifies the revised overview-to-experiment direction; it does not authorize application implementation or create implementation tasks. The owner confirmed route-level user-flow tests plus real-browser verification as the intended test boundaries.
 
-## Purpose and observed problem
+## Problem Statement
 
-Following the [homepage carousel relocation](homepage-carousel-and-demonstrations-catalogue.md), the owner requested a redesign of the dedicated Demonstrations page. The homepage now provides an introduction and discovery. The catalogue should help students and educators choose a mathematical experiment deliberately.
+Students and educators need a clear way to find a Demonstration, understand what they can investigate, and move into mathematical exploration. Following the homepage carousel relocation, the dedicated catalogue initially shows one Bernstein card inside a wide Osnove panel, while the other families are collapsed. This hides the collection's breadth and gives the page an uneven composition.
 
-The deployed catalogue currently exposes seven topics and 34 demonstrations. Only Osnove opens initially, showing its single Bernstein demonstration inside a much wider panel. Other topics are closed. This makes the first view sparse and hides the variety of available mathematics. Expanding topics also moves subsequent topic navigation down the page.
+The first library proposal improved discovery with search, topic navigation, and visible graph cards. The owner identified a second problem: its sidebar resembles the active workspace's topic tree, although the proposed sidebar filters cards and the current tree expands graph-navigation links. Users would move between similar-looking interfaces with different behaviour.
 
-The design should support three intentions:
+The collection and the active experiment need distinct purposes, with a consistent selection experience connecting them. Browsing another possibility must not discard the graph or Guided lesson a learner is currently using.
 
-- A student browses previews and plain-language purposes to find an interesting experiment without already knowing every construction name.
-- A returning learner finds a named construction quickly.
-- An educator locates a topic, compares related demonstrations, and opens a graph or an available Guided lesson for class.
+## Solution
 
-These are proposed design priorities, not findings from user testing.
+Provide a connected flow with two primary views and one shared selection interface:
 
-## Recommended composition
+1. **Choose a Demonstration.** The dedicated catalogue shows search, topic filters, and a continuous grid of graph previews. Each card identifies its family, names the Demonstration, explains one investigation, and offers graph and supported Guided lesson entry.
+2. **Explore its mathematics.** The active workspace gives its width to one graph and its tools. Remove the permanent global topic tree. A compact breadcrumb identifies the collection, family, and current Demonstration; returning to the collection restores the learner's browsing context.
+3. **Choose again when needed.** A compact “Zamenjaj demonstracijo” action opens the same selection interface in an accessible modal picker. Learners can browse and cancel while retaining their active experiment. Choosing a destination performs ordinary graph or lesson navigation.
 
-Keep the existing shared header and a compact introduction headed Demonstracije. Use a short invitation such as “Izberi temo. Razišči graf. Razumi povezavo.” Counts remain subordinate and derived from metadata.
+The catalogue and picker use the same filtering and entry rules. Existing direct Demonstration and Guided lesson links remain available for educators and returning learners.
 
-Below the introduction, place a visible search field and a library with two desktop columns:
+## User Stories
 
-- A narrow topic navigation column contains Vse teme and all seven existing families, with their counts. Give the active topic a restrained sage surface and clear focus indication. Keep navigation available while the card collection scrolls.
-- A wider content column contains one continuous grid of demonstration cards. Default to all demonstrations in the existing teaching order, with a family label on every card. Do not introduce per-family grid gaps or reserve a full-width panel for the one-item Osnove family. Selecting a topic narrows the grid to its demonstrations.
+1. As a first-time student, I want to see the range of Demonstrations immediately, so that I can find something interesting without opening every topic.
+2. As a student unfamiliar with construction names, I want a graph preview and a concrete investigation sentence, so that I can understand what a Demonstration offers.
+3. As a student browsing a small family, I want its entries to use the same card layout as other entries, so that one card does not occupy an oversized section.
+4. As a student, I want to filter the collection by mathematical family, so that I can compare related Demonstrations.
+5. As a student, I want an all-topics choice, so that I can broaden my exploration again.
+6. As a returning learner, I want to search titles, families, and investigation copy, so that I can find a named construction or concept quickly.
+7. As a Slovenian learner, I want forgiving search for capitalization and diacritics, so that typing a familiar term is sufficient to find it.
+8. As a learner, I want to see my active filters and result count, so that I understand which part of the collection I am viewing.
+9. As a learner with no search results, I want useful clearing actions, so that I can recover without guessing what went wrong.
+10. As a learner, I want to open a graph from its preview, title, or graph action, so that its primary destination is easy to discover.
+11. As a learner seeking an explanation, I want a separate Guided lesson action where one is supported, so that I can begin with instruction.
+12. As a learner, I want previews to match the Demonstrations they advertise, so that choosing from a picture is trustworthy.
+13. As an educator, I want topic counts and stable catalogue ordering, so that I can orient a class efficiently.
+14. As an educator, I want to share a filtered collection link, so that students can open the intended selection without an account.
+15. As an educator, I want existing direct graph and lesson links to keep working, so that classroom materials remain useful.
+16. As a learner entering a graph, I want a focused workspace with a prominent graph, so that browsing controls do not compete with mathematical work.
+17. As a learner, I want a breadcrumb naming the collection, topic, and current Demonstration, so that I know where I am.
+18. As a learner, I want to return to my previous catalogue filters and position, so that exploring one graph does not lose my place.
+19. As a learner arriving from a direct graph link, I want a useful collection destination, so that I can discover related mathematics without previous browsing history.
+20. As a learner, I want to request another Demonstration from the workspace heading, so that switching remains easy without a permanent navigation tree.
+21. As a learner opening the picker, I want my current family and Demonstration identified, so that I can start from familiar context.
+22. As a learner, I want topic selection to filter cards everywhere, so that the same interface has the same meaning.
+23. As a learner, I want to browse and cancel the picker without resetting my edited graph, so that looking at alternatives is reversible.
+24. As a learner, I want to cancel without losing my selected curve, board view, or draft controls, so that I can continue exactly where I was working.
+25. As a learner in a Guided lesson, I want picker cancellation to preserve my frame, scene, and entry checkpoint, so that browsing does not interrupt the lesson's restore behaviour.
+26. As a learner watching a construction animation, I want browsing to pause it safely, so that mathematical state does not advance behind the picker.
+27. As a learner selecting another destination, I want a single clear navigation, so that duplicate graphs or overlapping lessons do not appear.
+28. As a learner selecting the current graph, I want to continue my existing workspace, so that I do not accidentally reset my work.
+29. As a keyboard user, I want to reach every filter and entry action with visible focus, so that I can browse without a pointer.
+30. As a keyboard user opening the picker, I want focus contained inside it and returned on cancellation, so that I remain oriented.
+31. As a screen-reader user, I want the picker, current Demonstration, selected topic, and results identified, so that collection state is understandable.
+32. As a touch user, I want comfortable controls and a labeled topic selector on narrow screens, so that every family remains reachable.
+33. As a learner using enlarged text, I want titles and actions to wrap without clipping, so that content stays readable.
+34. As an English-language user, I want the same flow and translated purpose copy, so that language does not change the available experience.
+35. As a learner switching language, I want my graph and navigation context preserved, so that translation does not reset my work.
+36. As an educator projecting Bezeg, I want readable previews and a spacious active graph, so that the class can recognize the mathematical idea.
+37. As a Presentation mode user, I want the picker to remain usable and cancellation to restore my presentation context, so that switching does not require hover or exiting presentation first.
+38. As a learner who prefers reduced motion, I want the same clear flow without required animation, so that navigation remains comfortable.
+39. As a learner using browser Back and Forward, I want meaningful collection and graph history, so that navigation behaves predictably.
+40. As a contributor, I want one collection implementation and one catalogue data source, so that adding a Demonstration does not create inconsistent page and picker lists.
 
-Use three card columns when previews, titles, and actions fit comfortably; reduce columns as space narrows. At phone widths use a labeled topic selector above a single card column, with search still visible. Avoid a horizontally scrolling topic strip as the only way to discover later families.
+## Implementation Decisions
 
-Each card contains:
+### Collection and card ownership
 
-1. Its existing faithful route-default graph preview as the main visual.
-2. A quiet family label and recognizable demonstration title.
-3. One concise purpose or observation prompt that explains what the learner can investigate. Reuse existing localized prompts where they work; any new copy requires Slovenian and English counterparts and mathematical review.
-4. Separate compact graph and available Guided lesson actions, with visible labels and distinct accessible names. Preserve the current green/ochre distinction and restrained ghost treatment. The lesson action follows actual lesson availability.
+- Share a collection presentation and selection model between the dedicated catalogue page and workspace picker. Host-specific concerns are limited to URL/history integration, return context, dialog behaviour, and closing/navigation callbacks. Do not duplicate cards or maintain a second route, family, lesson-availability, or preview registry.
+- Continue using the existing Demonstration catalogue, family identities, teaching order, route-default preview map, and reviewed-lesson availability. Counts are derived; seven families and 34 Demonstrations describe the inspected baseline, not permanent constants.
+- A fresh unfiltered catalogue visit shows all Demonstrations in one continuous grid, preserving their existing metadata order. Family labels provide context without per-family rows, empty grid slots, or disclosure panels.
+- On wide screens use a persistent topic column and up to three comfortable card columns. Reduce columns when content needs more room. At narrow widths use a labeled topic selector and one card column; do not make a horizontally scrolling topic strip the only access to later families.
+- Each card contains its real static preview, family label, existing title, one concise investigation sentence, and compact graph and available Guided lesson actions. Reuse suitable localized prompts; replace generic prompts with specific, mathematically reviewed Slovenian and English copy where necessary. No new lesson content is implied.
+- Preview and title lead to the graph. The separate lesson action leads to the existing supported lesson destination. Use distinct accessible names including the Demonstration title and avoid nested links or an interactive card enclosing other interactive controls. Mark decorative preview images appropriately.
+- Retain visible action labels, the green graph/ochre lesson distinction, and restrained ghost styling. Preserve the elderflower identity and existing logo. Quiet page decoration and use light card boundaries; mathematical previews remain the main visual evidence.
 
-The image explores these relationships only. Its generated graph marks, logo, wording, and sample card sequence are not authoritative; actual metadata and reviewed previews remain the implementation sources.
+### Filtering, URLs, and return context
 
-## Proposed behaviour
+- Share one filter contract: all topics or one existing family, combined with a text query. Search localized title, family name, and investigation copy. Trim surrounding whitespace and match case- and diacritic-insensitively. Match all whitespace-separated query terms across those fields; preserve the user's entered text in the input. Fuzzy search, translated aliases from the inactive language, and formula parsing are excluded.
+- Show the active topic and result count, with separate clear-query and all-topics actions. No results must explain the active constraints and offer clearing the query or broadening the topic. Topic counts describe the full family; the result count describes the combined filter.
+- Use the existing catalogue route with optional `topic` and `q` query parameters. `topic` is a URL-encoded existing family identity; omission means all topics. `q` is the search text; an empty query is omitted. Unknown topic values fall back to all topics and never produce a route error. Retain unrelated query parameters and the hash when changing these filters.
+- Typing replaces the current catalogue history entry rather than adding one entry per keystroke. Explicit topic selection and clear actions create navigable history entries. Back and Forward restore controls and results from the URL.
+- Keep return context in app-owned, visit-scoped navigation state: validated internal catalogue location, a stable visible-card anchor/scroll position, and a focus target. Do not accept an arbitrary external return URL or put this context into Presets. In-app graph and lesson entry retain the originating catalogue context across later switches.
+- Browser Back and the workspace's collection breadcrumb/header link return to the originating collection filters and position. Restore the originating card's focus when possible. Clamp scrolling or use the nearest available card if a translated or changed result set affects layout.
+- Direct graph arrivals with no catalogue context return to the unfiltered catalogue at its start. The family breadcrumb separately opens that family's filtered catalogue. A direct shared catalogue URL reconstructs filters after refresh; scroll/focus restoration is a visit convenience, not cross-device persistence.
+- A language change translates the UI and recomputes matching in the selected language while retaining the entered query and selected family. It does not recreate the active graph or overwrite edited geometry.
 
-- Search matches localized titles, family names, and purpose copy. Show the active topic, query, and result count together; search and the selected topic combine visibly.
-- Provide explicit clearing controls. An empty result explains how to clear the query or search all topics, rather than leaving an unexplained blank grid.
-- Preserve topic/query and scroll position when returning from a demonstration. Prefer URL-backed catalogue filters so an educator can share the selected collection without an account; exact query names remain an implementation decision.
-- Make graph preview/title a clear graph destination while keeping the lesson action a separate link. Avoid nested links or making a whole card containing links into another interactive target.
-- Keep every entry reachable through ordinary scrolling. No pagination is proposed for the current collection size.
+### Focused workspace and picker
 
-## Relationship to the active workspace
+- Remove the permanent global family tree from the shared workspace. Give the graph and existing inspector the available width. Retain the graph's controls, Exploration prompts, Guided lesson entry, Presentation mode, and mounted Uredi/Prikaz/Shrani sections.
+- Keep a compact breadcrumb for collection, family, and current Demonstration; the current item is non-interactive and identified as current. The workspace heading contains a labeled switcher, “Zamenjaj demonstracijo” in Slovenian, with its English counterpart.
+- Each picker opening starts with the current family and an empty query. Identify the active Demonstration separately from keyboard focus and selected topic. Browsing in the picker does not rewrite the graph URL, add history entries, or overwrite the standalone catalogue's return context.
+- The picker uses the same collection cards, filters, ordering, and graph/lesson destinations as the page, adapting columns to the available dialog width. Selecting a topic always filters cards. It does not directly replace the graph.
+- Keep the active graph host, board, auxiliary boards, controls, selection, view, and lesson session mounted while the picker is open. Do not serialize into a Preset, import a scene, reset a lesson, or recreate geometry to implement cancellation.
+- Pause active graph-owned playback at its current frame before exposing the picker, through its owner. Leave it paused on cancellation, with existing playback controls available to resume deliberately. Preserve mathematical state and lesson position; do not use a destructive scene-reset command as a pause. This narrow integration does not authorize an animation-system rewrite.
+- The picker is the sole active modal while open. Make the underlying workspace, global header, and any lesson presentation non-interactive and unavailable to keyboard focus. Retain the lesson session, checkpoint, current frame, explanation/observation mode, and Presentation mode beneath it.
+- Provide a visible close action and Escape cancellation. Place initial focus on the search field, contain Tab navigation, prevent background scrolling, and restore focus to the switcher on cancellation. A click outside need not dismiss the picker. Search-result changes must not steal focus; use a concise result announcement without reading every card.
+- Choosing the current graph closes the picker and resumes the existing workspace state, including an already active lesson, without resetting it. Choosing its Guided lesson resumes the active lesson if present or starts it through the existing entry flow on the same graph. Starting a lesson must retain the normal pre-lesson capture/Exit-restore contract.
+- Choosing another graph or available Guided lesson closes the picker and performs one normal route navigation. The previous owner disposes its boards, listeners, timers, animation, and lesson session through existing lifecycle boundaries. Do not promise recovery of unsaved edits after an actual route switch.
+- Switching demonstration within Presentation mode retains Presentation mode; cancelling always retains it. The picker must fit and scroll independently without making essential actions inaccessible. Retain the existing explicit presentation tools/exit controls.
+- Block opening the picker while the graph is in an existing busy scene-replacement or export operation; expose the temporarily unavailable action accessibly. Do not start parallel operations or bypass existing language/export locks.
 
-**Proposal revision, 2026-10-15:** the owner liked the library direction but identified that its topic sidebar resembles the active demonstration workspace while behaving differently. The deployed Bernstein workspace and its component were inspected. Its permanent family tree expands links that navigate to graphs; the proposed library sidebar filters cards. Retaining both would create similar-looking navigation with different effects.
+### Constraints and documentation
 
-Recommend a connected overview-to-experiment flow:
+- Keep existing catalogue, graph, and lesson URLs, query/hash behaviour outside the new catalogue filters, Preset formats, stored data, geometry, and static client-only hosting. There is no backend or account requirement.
+- Respect existing graph-owned geometry/disposal and typed Guided lesson capabilities. Do not reach into board internals from the collection or reconstruct lesson state in navigation code.
+- Use typed localization keys and exact placeholder names in both languages. New module boundaries must not couple mathematical features to app-shell navigation.
+- This spec supersedes family-disclosure and permanent-workspace-topic-tree presentation requirements in the earlier catalogue and learning-workspace specifications for this feature. The homepage carousel relocation and its interaction contract remain unchanged. The user-visible change is removal of those two navigation structures in favour of filters and an on-demand picker; no route alias, storage migration, or data reset is required.
+- At implementation, update architecture and user-flow/hosting guidance that describes ownership or entry behaviour. Update affected test expectations rather than retaining obsolete disclosure assertions. The unrelated visual-hierarchy draft is not an implementation dependency.
 
-- Keep the standalone catalogue as the broad selection surface, with search, topic filters, previews, and graph/lesson entry actions.
-- Remove the permanent global topic tree from the active workspace. Use the released width for the graph, alongside its existing tools. Keep a compact demonstration heading and a breadcrumb identifying the collection, family, and current demonstration. The collection link returns to the previous catalogue filters and position, with a sensible all-topics fallback for direct arrivals.
-- Offer a compact “Zamenjaj demonstracijo” action in the workspace heading. It opens the same selection interface as an accessible overlay, initially oriented to the current family and identifying the current demonstration. Topic selection always filters cards in this picker, just as it does in the standalone catalogue.
-- Keep the active graph mounted and unchanged while the picker is open. Closing or cancelling restores focus to its trigger without selecting another graph. Choosing an explicit graph or lesson destination performs the existing navigation. Preserving edited scenes across an actual demonstration switch is a separate persistence decision and is not promised here.
-- Reuse the collection's metadata, search/filter rules, cards, and entry actions for the full page and overlay. The overlay may adapt its column count to available space. Keep graph tools and lesson controls with the active demonstration, outside the collection picker.
-- Retain addressable catalogue and demonstration routes, including direct graph and lesson arrivals. A classroom link can still open straight into a focused experiment. No route rename is proposed.
+## Acceptance Criteria
 
-A full permanent combination of catalogue, live graph, and tools would keep selection constantly available but would consume graph space and retain the competing browsing/editing tasks. Purely changing page colors or adding an animation would leave the two sidebar behaviours unresolved. The recommended distinction comes from what occupies the screen and when navigation appears; motion is optional and must respect reduced motion.
+1. Fresh catalogue entry shows every current Demonstration in metadata order in a continuous grid, with derived counts and no closed family panels or oversized one-card section.
+2. Topic selection, text search, clear actions, empty results, URL refresh, and Back/Forward follow the shared filter contract. Shared filtered URLs work on direct entry.
+3. Every card has its faithful preview, family, title, useful localized investigation sentence, graph entry, and only its supported lesson entry. All existing destinations remain reachable.
+4. The focused workspace contains a prominent graph, existing tools, breadcrumb, and switcher, with no permanent global family tree.
+5. Full-page and picker collection controls have consistent meaning and results for the same language, topic, and query. A picker starts at the active family and identifies the current Demonstration.
+6. Opening, filtering, and cancelling the picker preserve graph/board identity, edited geometry, selection, view, draft controls, lesson state/checkpoint, and Presentation mode. Any running playback pauses at its current frame and remains paused on cancellation.
+7. Selecting the current graph does not reset it. Current-graph lesson entry preserves normal lesson capture/restore behaviour; selecting another destination navigates once and cleans up the previous owner.
+8. Returning to the catalogue restores its filters and browsing position/focus where valid. Direct graph arrivals receive the documented catalogue fallback without relying on prior app history.
+9. Picker keyboard focus, Escape/close, background isolation, result announcements, scroll containment, and focus restoration work. Graph input and lesson controls cannot respond behind the open picker.
+10. Slovenian and English, 390/724/1440 CSS-pixel layouts, enlarged text, and reduced motion retain readable content, reachable actions, and no document-level horizontal overflow. Physical touch and classroom projector review are reported separately from browser emulation.
+11. Presentation mode, busy/export locks, direct lesson arrivals, lesson explanation/observation/completion, repeated switching, and language changes remain operable without duplicated or leaked boards/listeners.
+12. Appropriate route/workspace tests, TypeScript, production build, browser workflows, and required documentation updates pass or report explicit failures and incomplete coverage before implementation is declared complete.
 
-The revised conversation image shows the catalogue and focused Bernstein workspace side by side. It illustrates the two primary states; it does not show or validate the open picker overlay. Generated mathematics and controls remain placeholders.
+## Testing Decisions
 
-## Visual direction and trade-offs
+The owner confirmed the primary boundary on 2026-10-15: route-level user flows plus real-browser checks. Prefer existing router/component integration seams and the production browser harness. Do not add a separate filter-service test framework or tests that merely mirror implementation details.
 
-Retain cream, ivory, sage, dark green, ochre, and the existing elderflower identity. Quiet the page-wide grid so the mathematical previews provide the strongest detail. Use one card surface with a light border, modest corners, and little or no shadow. Keep typography readable for projection and allow long titles to wrap.
+| Boundary | Required observable evidence | Existing prior art |
+| --- | --- | --- |
+| Catalogue route with shared collection | All metadata entries/order, family and combined search filtering, normalization, counts, clearing, empty results, unavailable lessons, current marker, both languages, query/hash and malformed-topic fallback | Dedicated catalogue route tests, metadata/preview-map checks, app-header navigation tests |
+| Router flow into and out of workspace | Graph/lesson destinations, current-route selection, URL history, return filters/scroll/focus, direct-arrival fallback, filtered refresh, no graph navigation while only browsing the picker | Existing memory-router catalogue/deep-link/error tests and shared app route tests |
+| Shared workspace and lesson entry | Cancel preserves mounted draft controls and host identity; current graph does not reset; current lesson resumes; lesson start captures and Exit restores the pre-lesson scene; busy and Presentation mode behaviour | Workspace control-retention/language/presentation tests and Guided lesson session/runtime tests |
+| Production browser | Real edited points and selected curve survive picker open/filter/cancel; animation pause at current frame; focus trap and background isolation; scroll restoration; PH auxiliary boards and repeated route disposal | Catalogue, ownership, workflow, and data-driven Guided lesson browser suites |
 
-This replaces independently expandable family panels with a stable topic navigation and a visible collection. The benefit is faster scanning and comparison, with no empty family containers. The cost is a longer default collection and a need for small family labels on cards. Topic selection and search address that cost.
+Good tests operate controls, follow links, and observe URLs, rendered results, mathematical state, focus, and resource lifetime. Avoid exact CSS values, component decomposition, generated-image pixels, fixed counts that duplicate metadata, or exposing private implementation state solely to assert it. Real board identity/lifetime inspection through the existing browser harness is appropriate for proving absence of remounts and leaks.
 
-An alternative is to keep every family expanded and add topic jump links. That preserves an explicit chapter structure, but retains uneven sections for families containing one versus eight entries and makes cross-family searching less direct. Improving only accordion styling would leave most of the collection concealed. The library is the recommended direction for discussion.
+For implementation verification:
 
-Do not add another featured carousel, a large decorative hero, accounts, progress tracking, favorites, unsupported difficulty levels, or invented lesson durations. The page's value is choosing and opening mathematics.
+- Extend or replace affected catalogue and workspace interaction tests at their existing seams. Keep unrelated homepage carousel coverage. Include malformed/encoded filter values, diacritic-insensitive terms, zero results, current-target selection, a lesson-unavailable entry, and restoration after switching families.
+- Use the existing data-driven lesson suite for representative lesson integration; do not rewrite lesson prose or weaken mathematical-notation tests. Exercise explanation, observation, animation, completion, Exit restoration, and repeated picker cancellation.
+- Run the relevant established unit/integration scripts, typed-localization checks, `npx tsc --noEmit --pretty false`, and the production build. The build does not replace TypeScript checking.
+- Run the smoke-tester workflow and the full shared-workspace browser checklist because navigation presentation changes across every Demonstration. Add the changed catalogue/picker flows and account for every selected check as passed, failed, blocked, or skipped.
+- Verify production catalogue and graph deep links, refresh, filtered query URLs, lesson query/hash preservation, assets, unknown-route behaviour, and browser history. Distinguish local production-preview evidence from hosted GitHub Pages evidence.
+- Review 390, 724, and 1440 CSS pixels in both languages, enlarged text, reduced motion, keyboard, touch-sized targets, and Presentation mode. Inspect card copy/previews and a normal workspace plus an open picker; the static mockups do not prove these properties.
+- Keep mathematical algorithms and generated previews unchanged. Use before/after numeric scene values to verify preservation; if implementation touches evaluation, construction, animation semantics, or scene restoration, add the relevant mathematical and lifecycle checks for the actual changed operations.
+- Review the resulting multi-file feature with parallel reviewers for engineering/ownership, mathematical preservation, and UI/accessibility under the repository workflow. Implementation delegation and evidence capture follow the existing workflow; no workers are dispatched by this spec-writing task.
+- Record checkout/build provenance, commands, browser observations, cleanup, known failures, and remaining physical-device/projector gaps. Documentation-only specification work needs no app build or browser smoke run.
 
-## Boundaries and provisional acceptance criteria
+## Out of Scope
 
-This proposal broadens catalogue design beyond the earlier relocation spec and now includes active-workspace navigation presentation and a shared collection picker. It does not change the homepage, graph routes, geometry, lesson contents or availability, Presets, storage formats, or the static/client-only product constraint. It is not an instruction to implement the older untracked visual-hierarchy draft.
+- Application implementation, executable task breakdown, or a runnable prototype in this request.
+- Homepage/carousel redesign, new Demonstrations, new Guided lessons, curriculum paths, or lesson prose changes beyond catalogue investigation copy.
+- A permanent combined catalogue/graph/tools dashboard, a second topic tree in the workspace, pagination, favourites, difficulty labels, invented durations, accounts, progress dashboards, or cross-device synchronization.
+- Recovering unsaved scenes after actual graph navigation, persistent browsing preferences, automatic graph-state backups, or new Preset/file formats.
+- Renderer, build-tool, UI-library, numerical-algorithm, preview-generation, or animation-engine migrations; new performance claims without measurements.
+- A new logo, generated mathematical production artwork, mandatory animated card-to-graph morphing, or generic search infrastructure.
 
-Before implementation, confirm or revise this direction and turn the selected behaviour into a bounded approved brief. Proposed acceptance criteria are:
+## Further Notes
 
-1. A fresh visit shows all current demonstrations in a continuous grid, without a one-card full-width Osnove panel or closed topic disclosures.
-2. Every existing topic and demonstration remains reachable; counts and destinations come from the existing catalogue.
-3. Topic selection, search, clearing, empty results, browser back, and shared filtered links behave consistently and expose their current state accessibly.
-4. Each card helps a learner identify both its mathematics and its two supported ways to begin; unsupported lessons are not advertised.
-5. Slovenian and English layouts work at representative desktop, tablet, phone, and enlarged-text sizes. Keyboard focus and touch targets remain usable; there is no page-level horizontal overflow.
-6. Production previews retain mathematical meaning and scene provenance. This static image establishes no evidence of responsive behaviour, accessibility, or mathematical correctness.
-7. Implementation verification includes appropriate component tests, TypeScript, production build, and the smoke-tester workflow on the affected catalogue and graph/lesson entry paths.
-8. The active workspace gives its width to the graph and tools without a permanent global topic tree. Its collection breadcrumb and switcher provide clear ways to browse again.
-9. The full catalogue and overlay use consistent filtering and entry behaviour. Opening, filtering, and cancelling the overlay preserve the current graph and lesson state; focus stays in the open picker and returns to its trigger on cancellation. Navigation to a chosen demonstration disposes the previous graph through its existing owner.
-10. Workspace navigation changes require the full shared-workspace browser checklist, including direct arrivals, lesson modes, narrow layouts, presentation mode, picker keyboard/touch operation, and repeated navigation/disposal. This wider coverage supersedes catalogue-only smoke coverage when the revised proposal is implemented.
-
-## Design evidence
-
-The current deployed catalogue and Bernstein workspace were inspected through the browser on 2026-10-15 and compared with DemonstrationsPage, DemonstrationWorkspace, and the route catalogue. The original library and revised overview-to-experiment compositions are illustrated with built-in ImageGen mockups in the originating conversation. No runnable prototype, user study, or application changes were made for this proposal.
+- This document is the canonical specification for the conversation. The owner requested synthesis without another design interview. Detailed search, URL, current-target, focus, and playback-pause rules above resolve routine implementation ambiguities; they are specification decisions, not claims of completed implementation or user-tested behaviour.
+- Design evidence: the deployed catalogue and Bernstein workspace were inspected on 2026-10-15 and compared with their route and shared-workspace components. The owner liked the initial library direction and raised the conflicting-sidebar concern; the revised design removes the active workspace's permanent tree.
+- [The overview-to-experiment image study](../prototypes/demonstrations-library-flow.png) preserves the revised composition. It shows the catalogue and focused workspace, not the open picker. Generated graph marks, formulas, wording, proportions, and branding details are illustrative placeholders. Existing metadata, reviewed previews, logo, and graph mathematics remain authoritative.
+- The open picker, layered lesson interaction, and animation-pause integration require implementation-time visual and behavioural validation. Use the existing prototype workflow if a runnable exploration is needed; do not treat an untested mockup as acceptance evidence.
+- Related guidance: [homepage/catalogue ownership](homepage-carousel-and-demonstrations-catalogue.md), [learning workspace](learning-workspace.md), [browser checklist](../smoke-tests.md), [localization](../localization.md), [static-client constraint](../adr/0001-static-client-only-app.md), [typed graph capabilities](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), [graph-anchored lessons](../adr/0003-frame-based-graph-anchored-lesson-overlay.md), and [graph ownership](../adr/0006-model-input-ownership-before-renderer-migration.md).
