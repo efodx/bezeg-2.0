@@ -1,8 +1,8 @@
 # Demonstrations opening carousel
 
-Status: specified for implementation. Variant C of the [opening prototype](demonstrations-opening-prototype.md) is the chosen direction; the prototype remains review evidence, not production code.
+Status: implemented; current homepage placement and verification are recorded in [the page-composition review](../reviews/homepage-carousel-and-demonstrations-catalogue.md). Variant C of the [opening prototype](demonstrations-opening-prototype.md) is the chosen direction; the prototype remains review evidence, not production code.
 
-Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) moves this carousel to the homepage and makes Demonstrations catalogue-only. It supersedes placement above the catalogue; the interaction, timing, accessibility, and lifecycle contract below remains authoritative. The relocation is not yet implemented.
+Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) moves this carousel to the homepage and makes Demonstrations catalogue-only. It supersedes placement above the catalogue; the interaction, timing, accessibility, and lifecycle contract below remains authoritative. The relocation is implemented under that brief; its review records current verification.
 
 ## Problem Statement
 

@@ -1,6 +1,6 @@
 # Homepage carousel and dedicated demonstrations catalogue
 
-**Status:** design brief confirmed by the owner on 2026-10-15; implementation not started. Image mockups are exploratory and await visual review.
+**Status:** visuals approved and implementation authorized by the owner on 2026-10-15. Implementation and verification are recorded in [the review](../reviews/homepage-carousel-and-demonstrations-catalogue.md).
 
 ## Problem
 
@@ -96,6 +96,6 @@ The independently expandable catalogue and faithful route-default preview decisi
 
 ## Mockup record and scope
 
-Source: the 2026-10-15 design interview, with explicit confirmation of the complete brief. Built-in image generation is used for an exploratory homepage view and catalogue view. These images answer the composition question; generated text, dimensions, logos, and mathematical marks are not production assets or authoritative content. Visual selection remains pending. Preview-only images stay in the conversation until selected as repository references.
+Source: the 2026-10-15 design interview, with explicit confirmation of the complete brief. Built-in image generation is used for an exploratory homepage view and catalogue view. These images answer the composition question; generated text, dimensions, logos, and mathematical marks are not production assets or authoritative content. The owner approved the final homepage and catalogue accuracy revisions on 2026-10-15. Their prompt record is `bezeg-homepage-catalogue-mockup-prompts.md` in the originating conversation artifact directory; the existing production previews and logo remain authoritative assets.
 
-This delivery records the specification and image studies only. It does not create implementation task files or change application code. Sidebar navigation, search/filtering, new card descriptions, new carousel controls, altered timing, new preview artwork, and broader catalogue redesign remain outside this scope.
+The original design delivery recorded the specification and image studies only; the subsequent implementation follows this bounded brief. Sidebar navigation, search/filtering, new card descriptions, new carousel controls, altered timing, new preview artwork, and broader catalogue redesign remain outside this scope.

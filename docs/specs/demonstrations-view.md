@@ -2,7 +2,7 @@
 
 Status: implemented and verified. The selected illustrations and production evidence are recorded below; physical-device and projector review remain product follow-ups.
 
-Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) supersedes this document's homepage-only introduction/illustration and starter-placement requirements for upcoming implementation. This document's implementation evidence remains historical; the dedicated catalogue route and existing graph destinations are retained.
+Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) supersedes this document's homepage-only introduction/illustration and starter-placement requirements in the implemented page composition. This document's implementation evidence remains historical; the dedicated catalogue route and existing graph destinations are retained.
 
 ## Scope
 

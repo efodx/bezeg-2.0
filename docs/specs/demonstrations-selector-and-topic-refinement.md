@@ -1,6 +1,6 @@
 # Compact starting choices and recognisable topic headers
 
-**Status:** specified for implementation; no app implementation in this change. Selected by the owner on 2026-10-14 from the Demonstrations visual review and image prototypes.
+**Status:** implemented, including the subsequent homepage relocation; see [current verification](../reviews/homepage-carousel-and-demonstrations-catalogue.md). Selected by the owner on 2026-10-14 from the Demonstrations visual review and image prototypes.
 
 Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) supersedes this document's requirement to preserve page composition and carousel placement. Compact choice tiles travel with the carousel to the homepage; family thumbnail/title grouping stays in the catalogue. Other component-refinement decisions remain in force.
 
