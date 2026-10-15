@@ -37,13 +37,9 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
-// Placeholder: a copy of the accumulation preview, replaced by the generated Darboux preview in the Batch B release task.
 import preview_darboux from './images/demonstrations/catalog/darboux.png';
-// Placeholder: a copy of the accumulation preview, replaced by the generated extrema preview in the Batch B release task.
 import preview_extrema from './images/demonstrations/catalog/extrema.png';
-// Placeholder: a copy of the accumulation preview, replaced by the generated convexity preview in the Batch B release task.
 import preview_convexity from './images/demonstrations/catalog/convexity.png';
-// Placeholder: a copy of the accumulation preview, replaced by the generated Taylor preview in the Batch B release task.
 import preview_taylor from './images/demonstrations/catalog/taylor.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
