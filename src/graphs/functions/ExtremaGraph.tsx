@@ -24,13 +24,15 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
  * `extrema-example` lesson action) and for the default scene; a view stored in a preset still wins on import. The bottom margin
- * leaves room for the board caption, the top margin for the row of derivative signs.
+ * is an empty band for the board caption (below the x-axis, the a and b labels and the labels under minima), the top margin
+ * leaves room for the row of derivative signs. With a fixed aspect ratio the board shows `min(width, height)` of the box
+ * vertically, so each box is at least as wide as it is tall and its height is what the board shows.
  */
 const EXAMPLE_VIEWS: Readonly<Record<ExtremaExampleId, BoundingBox>> = {
-    square: [-3, 6.5, 4, -3],
-    cube: [-2.5, 3.5, 2.5, -3.5],
-    abs: [-3, 3.5, 3, -2.5],
-    sine: [-5.5, 2.4, 5.5, -3.4],
+    square: [-6, 4.6, 6, -5.6],
+    cube: [-6, 3.4, 6, -4.4],
+    abs: [-6, 3.6, 6, -4.2],
+    sine: [-7, 3.4, 7, -5],
 };
 
 /**
@@ -38,6 +40,17 @@ const EXAMPLE_VIEWS: Readonly<Record<ExtremaExampleId, BoundingBox>> = {
  * two stationary points in [-4, 4]); the graph test scans the range to prove it. The number of board objects never changes.
  */
 const SLOTS: Readonly<Record<CandidateKind, number>> = {endpoint: 2, stationary: 2, corner: 1};
+/** Below this board width the point labels shorten to the value line and the kind. */
+const COMPACT_BOARD_WIDTH = 520;
+/** How far beyond an endpoint the curve is probed to see on which side of the point its label has room. */
+const OUTWARD_PROBE = 0.4;
+/** Rough size of a three-line point label, of its characters and its padding, and of the row of x-axis tick labels (pixels). */
+const LABEL_LINES_PX = 60;
+const LABEL_CHAR_WIDTH = 0.52;
+const LABEL_PADDING_PX = 12;
+const AXIS_LABEL_ROW_PX = 52;
+const COMPACT_ENDPOINT_GAP_PX = 20;
+const AXIS_LABEL_ROW_COMPACT_PX = 46;
 const MAX_CANDIDATES = SLOTS.endpoint + SLOTS.stationary + SLOTS.corner;
 const MAX_PIECES = MAX_CANDIDATES - 1;
 const KINDS: readonly CandidateKind[] = ["endpoint", "stationary", "corner"];
@@ -176,6 +189,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
 
     /** The lines of a candidate's board label: its value, what kind of point it is, and, once revealed, its classification. */
     private markerLines(model: ExtremaModel, candidate: ExtremaCandidate): string[] {
+        const compact = this.boardWidth() < COMPACT_BOARD_WIDTH;
         const lines = [`f(${this.number(candidate.x)}) = ${this.number(candidate.value)}`];
         if (candidate.kind === "endpoint") {
             const extra = candidate.derivative === undefined ? t("extrema_board_corner") : candidate.derivative === 0 ? t("extrema_board_stationary") : undefined;
@@ -183,12 +197,55 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         } else {
             lines.push(candidate.kind === "stationary" ? t("extrema_board_stationary") : t("extrema_board_corner"));
         }
-        if (model.revealed) lines.push(this.classificationText(candidate));
+        // On a narrow board the label is the value and the kind; the classification is in the readout.
+        if (model.revealed && !compact) lines.push(this.classificationText(candidate));
         return lines;
     }
 
     private globalText(value: number, at: readonly number[]): string {
         return t("extrema_readout_global_value", {value0: this.number(value), value1: at.map(x => this.number(x)).join("; ")});
+    }
+
+    private labelFontSize(): number {
+        return Math.max(10, this.displaySettings.fontSize * 0.9);
+    }
+
+    /**
+     * Where a candidate's label sits. An endpoint's label goes outward (a's to the left of a, b's to the right of b) so the two
+     * never meet, unless the board has no room on that side; it goes above or below the point, on the side where the curve does
+     * not run through it and the x-axis (with the a and b labels) is not in the way. Labels under a point on the axis start below
+     * the axis tick labels.
+     */
+    private labelPlacement(kind: CandidateKind, slot: number, candidate: ExtremaCandidate | undefined, view: View, model: ExtremaModel):
+        { anchorX: "left" | "middle" | "right"; anchorY: "top" | "bottom"; dx: number; dy: number } {
+        if (candidate === undefined || !this.board) return {anchorX: "middle", anchorY: "bottom", dx: 0, dy: 0};
+        const {unitX, unitY} = this.board;
+        const [left, , right] = this.board.getBoundingBox();
+        const heightUnits = LABEL_LINES_PX / unitY;
+        let anchorX: "left" | "middle" | "right" = "middle";
+        let anchorY: "top" | "bottom";
+        let dx = 0;
+        if (kind === "endpoint") {
+            const outwardSign = slot === 0 ? -1 : 1;
+            const widthPx = Math.max(...this.markerLines(model, candidate).map(line => line.length)) * this.labelFontSize() * LABEL_CHAR_WIDTH + LABEL_PADDING_PX;
+            const roomPx = (outwardSign < 0 ? candidate.x - left : right - candidate.x) * unitX;
+            const outward = roomPx >= widthPx ? outwardSign : -outwardSign;
+            // The anchor stays on the outward side (JSXGraph clips text to the board using the previous draw's position); a label
+            // with no room outward is moved inward by its width instead.
+            anchorX = outwardSign < 0 ? "right" : "left";
+            if (outward !== outwardSign) dx = -outwardSign * widthPx / unitX;
+            else if (this.boardWidth() < COMPACT_BOARD_WIDTH) dx = outwardSign * COMPACT_ENDPOINT_GAP_PX / unitX; // clear of the a / b label
+            const curveAhead = view.example.value(candidate.x + outward * OUTWARD_PROBE);
+            const crossesAxis = (below: boolean) => below ? candidate.value > 0 && candidate.value - heightUnits < 0 : candidate.value < 0 && candidate.value + heightUnits > 0;
+            const costBelow = (curveAhead < candidate.value ? 1 : 0) + (crossesAxis(true) ? 1.5 : 0);
+            const costAbove = (curveAhead > candidate.value ? 1 : 0) + (crossesAxis(false) ? 1.5 : 0);
+            anchorY = costBelow < costAbove ? "top" : costAbove < costBelow ? "bottom" : candidate.value > 0 ? "bottom" : "top";
+        } else {
+            anchorY = model.revealed && candidate.local === "localMinimum" ? "top" : "bottom";
+        }
+        const row = this.boardWidth() < COMPACT_BOARD_WIDTH ? AXIS_LABEL_ROW_COMPACT_PX : AXIS_LABEL_ROW_PX;
+        const onAxis = Math.abs(candidate.value) * unitY < row;
+        return {anchorX, anchorY, dx, dy: anchorY === "top" && kind !== "endpoint" && onAxis ? -row / unitY : 0};
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -229,7 +286,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         };
         for (let index = 0; index < MAX_PIECES; index++) {
             const piece = () => view().analysis.pieces[index];
-            this.own(board.create("text", [() => piece() ? (piece().from + piece().to) / 2 : 0, stripY, () => piece() ? SIGN_CHARACTER[piece().sign] : ""], {
+            this.own(board.create("text", [() => piece() ? this.signMarkX(piece().from, piece().to) : 0, stripY, () => piece() ? SIGN_CHARACTER[piece().sign] : ""], {
                 anchorX: "middle", anchorY: "top", fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label,
                 fontSize: () => fontSize() * 1.5, cssStyle: SIGN_STYLE, highlightCssStyle: SIGN_STYLE, visible: () => piece() !== undefined,
             }));
@@ -248,10 +305,16 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
                     const c = current();
                     return c ? this.markerLines(model(), c).map(line => `<div>${escapeHtml(line)}</div>`).join("") : "";
                 };
-                this.own(board.create("text", [() => current()?.x ?? 0, () => current()?.value ?? 0, html], {
-                    anchorX: kind === "endpoint" ? (slot === 0 ? "left" : "right") : "middle",
-                    anchorY: () => model().revealed && current()?.local === "localMinimum" ? "top" : "bottom",
-                    fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label, fontSize: () => Math.max(10, fontSize() * 0.9),
+                const placement = () => this.labelPlacement(kind, slot, current(), view(), model());
+                this.own(board.create("text", [() => {
+                    const c = current();
+                    return c === undefined ? 0 : c.x + placement().dx;
+                }, () => {
+                    const c = current();
+                    return c === undefined ? 0 : c.value + placement().dy;
+                }, html], {
+                    anchorX: () => placement().anchorX, anchorY: () => placement().anchorY,
+                    fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label, fontSize: () => this.labelFontSize(),
                     cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => current() !== undefined,
                 }));
             }

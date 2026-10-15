@@ -65,6 +65,9 @@ export const cleanNoise = (value: number) => {
 /** A number for a slider value or label: the current language's decimal separator and a true minus sign. */
 export const localizedSliderValue = (value: number) => formatNumber(value, currentLanguage());
 
+/** A sign mark closer than this many pixels to the y-axis moves off it (see `signMarkX`). */
+const SIGN_AXIS_CLEARANCE_PX = 24;
+
 export type CaptionCorner = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 
 /** One line of the board caption. */
@@ -373,9 +376,19 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         }
     }
 
+    /**
+     * Where the sign mark of a piece [from, to] sits: its centre, unless that is within a few pixels of the y-axis (whose tick
+     * labels it would cover), in which case the centre of the wider side of the piece.
+     */
+    protected signMarkX(from: number, to: number): number {
+        const centre = (from + to) / 2;
+        if (!(from < 0 && to > 0) || Math.abs(centre) * this.board.unitX >= SIGN_AXIS_CLEARANCE_PX) return centre;
+        return to > -from ? to / 2 : from / 2;
+    }
+
     // ---- Board caption -------------------------------------------------------------------------------------------------
 
-    private boardWidth(): number {
+    protected boardWidth(): number {
         return this.board?.canvasWidth || CAPTION_FULL_WIDTH;
     }
 

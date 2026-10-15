@@ -8,7 +8,7 @@ import {CONVEXITY_EXAMPLE_MODELS} from '../../analysis/convexityModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 
-const BOX = [-2.6, 7.2, 2.6, -2.8];
+const BOX = [-6.5, 4.2, 6.5, -3.2];
 
 function fakeBoard() {
     const board: any = {
@@ -31,6 +31,7 @@ function fakeBoard() {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
+        unitX: 100, unitY: 100, canvasWidth: 1000,
         getBoundingBox: vi.fn(() => BOX),
         setBoundingBox: vi.fn(),
         fullUpdate: vi.fn(),
@@ -255,24 +256,24 @@ test('x^4 on [-1, 1]: convex, f\'\'(0) = 0 yet no inflection point, and the zero
     expect(visible(inflectionRing(graph))).toBe(false);
     expect(visible(inflectionLabel(graph))).toBe(false);
     expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2]()])).toEqual([[true, '+'], [true, '+']]);
-    expect([visible(zeroMark(graph)), zeroMark(graph).parents[2](), zeroMark(graph).parents[0]()]).toEqual([true, '0', 0]);
+    expect([visible(zeroMark(graph)), zeroMark(graph).parents[2](), zeroMark(graph).parents[0]()]).toEqual([true, '0', 0.14]);
 });
 
 test('the sign strip is a row of + and − marks per piece of the view (not colour only), centred on the piece, with a 0 where f\'\' vanishes', () => {
     const graph = makeGraph({asyncState: false});
     apply(graph, reveal(true));
-    expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2](), text.parents[0]()])).toEqual([[true, '+', 0], [false, '', 0]]);
+    expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2](), text.parents[0]()])).toEqual([[true, '+', -3.25], [false, '', 0]]);
     expect(visible(zeroMark(graph))).toBe(false);
     apply(graph, choice('negSquare'));
     apply(graph, reveal(true));
     expect(signTexts(graph).map((text: any) => text.parents[2]())).toEqual(['−', '']);
     apply(graph, choice('cube'));
     apply(graph, reveal(true));
-    expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2](), text.parents[0]()])).toEqual([[true, '−', -1.3], [true, '+', 1.3]]);
-    expect([zeroMark(graph).parents[2](), zeroMark(graph).parents[0]()]).toEqual(['0', 0]);
+    expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2](), text.parents[0]()])).toEqual([[true, '−', -3.25], [true, '+', 3.25]]);
+    expect([zeroMark(graph).parents[2](), zeroMark(graph).parents[0]()]).toEqual(['0', 0.14]);
     // the marks sit at the top of the view
     const y = signTexts(graph)[0].parents[1]();
-    expect(y).toBeCloseTo(7.2 - 0.07 * 10, 12);
+    expect(y).toBeCloseTo(4.2 - 0.07 * 7.4, 12);
 });
 
 test('the board objects never exceed the fixed pool: slots for one inflection, two sign pieces and one zero hold every example and view', () => {
@@ -538,11 +539,11 @@ test('a preset of another example without a view of its own shows that example\'
     const graph = makeGraph({asyncState: false});
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'convexity', data: {example: 'cube', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false}});
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-2.6, 6.8, 2.6, -6.8], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6.5, 4.2, 6.5, -3.2], true);
     apply(graph, choice('negSquare'));
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-2.6, 2.8, 2.6, -7.6], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6.5, 2.3, 6.5, -7.8], true);
     apply(graph, choice('quartic'));
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-2.6, 9, 2.6, -3.4], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6.5, 4.2, 6.5, -3.2], true);
 });
 
 test('malformed or misordered preset data is rejected to the default model with a warning', () => {

@@ -26,20 +26,25 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
  * `convexity-example` lesson action) and for the default scene; a view stored in a preset still wins on import. The caption sits
- * in the bottom-right corner, so the bottom margin is tall where the graph itself runs low (-x^2); the top margin leaves room
- * for the row of f'' signs.
+ * in the bottom-right corner, so below the x-axis (and the a, b, t labels) every view keeps an empty band for it, taller where the
+ * graph itself runs low (-x^2); the top margin leaves room for the row of f'' signs. With a fixed aspect ratio the board shows
+ * `min(width, height)` of the box vertically, so each box is at least as wide as it is tall and its height is what the board shows.
  */
 const EXAMPLE_VIEWS: Readonly<Record<ConvexityExampleId, BoundingBox>> = {
-    square: [-2.6, 7.2, 2.6, -2.8],
-    negSquare: [-2.6, 2.8, 2.6, -7.6],
-    cube: [-2.6, 6.8, 2.6, -6.8],
-    quartic: [-2.6, 9, 2.6, -3.4],
+    square: [-6.5, 4.2, 6.5, -3.2],
+    negSquare: [-6.5, 2.3, 6.5, -7.8],
+    cube: [-6.5, 4.2, 6.5, -3.2],
+    quartic: [-6.5, 4.2, 6.5, -3.2],
 };
 
 /** The board keeps one slot for an inflection point (no example has two), two sign pieces and one zero mark of f''. */
 const MAX_INFLECTIONS = 1;
 const MAX_PIECES = 2;
 const MAX_ZEROS = 1;
+/** A 0 mark at x = 0 is shifted this many pixels right of the y-axis, clear of its tick labels. */
+const ZERO_MARK_OFFSET_PX = 14;
+/** Space kept between a shifted point label and the board edge (pixels). */
+const LABEL_EDGE_MARGIN_PX = 4;
 
 /** Dash styles (JSXGraph numbering): the chord is a solid segment, the tangent a dashed line, so they differ by pattern and not only by colour. */
 const CHORD_DASH = 0;
@@ -261,6 +266,15 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
 
         // The inflection point of f: an open ring on the graph with a label, once the second derivative is shown.
         const inflection = () => revealed() ? view().inflection : undefined;
+        // How many pixels the inflection label must move left to stay inside the board (0 when it fits right of the ring). The
+        // anchor never changes: JSXGraph clips text to the board using the position of the previous draw.
+        const inflectionLabelShiftPx = () => {
+            const x = inflection();
+            if (x === undefined) return 0;
+            const [, , right] = board.getBoundingBox();
+            const widthPx = t("convexity_board_inflection", {value0: this.number(x)}).length * Math.max(10, fontSize() * 0.9) * 0.62 + 12;
+            return Math.max(0, widthPx + LABEL_EDGE_MARGIN_PX - (right - x) * board.unitX);
+        };
         for (let slot = 0; slot < MAX_INFLECTIONS; slot++) {
             this.own(board.create("point", [() => inflection() ?? 0, () => f(inflection() ?? 0)], {
                 ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, visible: () => inflection() !== undefined,
@@ -268,11 +282,14 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
                 strokeColor: GraphPalette.additionalCurves[2], highlightStrokeColor: GraphPalette.additionalCurves[2],
                 strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth),
             }));
-            this.own(board.create("text", [() => inflection() ?? 0, () => f(inflection() ?? 0), () => {
+            this.own(board.create("text", [() => (inflection() ?? 0) - inflectionLabelShiftPx() / board.unitX, () => f(inflection() ?? 0), () => {
                 const x = inflection();
                 return x === undefined ? "" : `<div>${escapeHtml(t("convexity_board_inflection", {value0: this.number(x)}))}</div>`;
             }], {
-                anchorX: "left", anchorY: "top", fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label,
+                // Right of the ring, below the axis; with no room on the right (a narrow board) it moves left and above the axis,
+                // clear of the a, b and t labels.
+                anchorX: "left", anchorY: () => inflectionLabelShiftPx() > 0 ? "bottom" : "top",
+                fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label,
                 fontSize: () => Math.max(10, fontSize() * 0.9), cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => inflection() !== undefined,
             }));
         }
@@ -288,7 +305,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         }));
         for (let index = 0; index < MAX_PIECES; index++) {
             const piece = () => revealed() ? this.piecesInView(view().example)[index] : undefined;
-            signText(() => piece() ? SIGN_CHARACTER[piece()!.sign] : "", () => piece() ? (piece()!.from + piece()!.to) / 2 : 0, () => piece() !== undefined);
+            signText(() => piece() ? SIGN_CHARACTER[piece()!.sign] : "", () => piece() ? this.signMarkX(piece()!.from, piece()!.to) : 0, () => piece() !== undefined);
         }
         for (let index = 0; index < MAX_ZEROS; index++) {
             const zero = () => {
@@ -296,7 +313,8 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
                 const [left, , right] = board.getBoundingBox();
                 return view().example.secondDerivativeZeros.filter(x => x > left && x < right)[index];
             };
-            signText(() => zero() === undefined ? "" : "0", () => zero() ?? 0, () => zero() !== undefined);
+            // The y-axis tick labels sit left of x = 0, so a 0 mark there is set just right of the axis.
+            signText(() => zero() === undefined ? "" : "0", () => (zero() ?? 0) + (zero() === 0 ? ZERO_MARK_OFFSET_PX / board.unitX : 0), () => zero() !== undefined);
         }
 
         // a, b and t are dragged along the x-axis, projected onto the grid and onto the range the model allows; a value the model still refuses puts the point back.

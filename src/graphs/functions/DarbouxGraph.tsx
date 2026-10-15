@@ -25,11 +25,12 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
  * `darboux-example` lesson action) and for the default scene; a view stored in a preset still wins on import. x^2 on [0, 2]
  * needs y up to 4, sin x on [0, 2 pi] needs x up to 6.3 and y from -1 to 1; one shared view would show one of them tiny.
- * The bottom margin leaves room for the board caption below the rectangles.
+ * The bottom margin is an empty band for the board caption below the x-axis. With a fixed aspect ratio the board shows
+ * `min(width, height)` of the box vertically, so each box is at least as wide as it is tall and its height is what the board shows.
  */
 const EXAMPLE_VIEWS: Readonly<Record<DarbouxExampleId, BoundingBox>> = {
-    square: [-0.8, 5, 3.6, -1.9],
-    sine: [-1, 2, 7.6, -3],
+    square: [-3.2, 4.6, 5.2, -3.6],
+    sine: [-1, 2, 7.6, -4.6],
 };
 
 /** A JSXGraph curve built from point lists whose data is rebuilt in `updateDataArray` (one object for any number of shapes). */

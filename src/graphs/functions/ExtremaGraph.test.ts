@@ -6,7 +6,7 @@ import {EXTREMA_EXAMPLE_MODELS} from '../../analysis/extremaModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 
-const BOX = [-3, 6.5, 4, -3];
+const BOX = [-6, 4.6, 6, -5.6];
 
 function fakeBoard() {
     const board: any = {
@@ -29,6 +29,7 @@ function fakeBoard() {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
+        unitX: 100, unitY: 100, canvasWidth: 1000,
         getBoundingBox: vi.fn(() => BOX),
         setBoundingBox: vi.fn(),
         fullUpdate: vi.fn(),
@@ -231,7 +232,7 @@ test('sin x on [-4, 4]: stationary points at +-pi/2, global values 1 and -1, and
         'candidate-2': "f = 1, f′ = 0; lokalni maksimum, globalni maksimum", 'candidate-3': "f = −0,7568, f′ = −0,6536; lokalni minimum",
         'global-minimum': '−1 pri x = −1,5708', 'global-maximum': '1 pri x = 1,5708',
     });
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-5.5, 2.4, 5.5, -3.4], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-7, 3.4, 7, -5], true);
 });
 
 test('sin x on [0, pi]: both endpoints tie as global minima with value 0 and the interior pi/2 is the global maximum', () => {
@@ -478,7 +479,7 @@ test('a preset of another example without a view of its own shows that example\'
     const graph = makeGraph({asyncState: false});
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'extrema', data: {example: 'abs', a: -1, b: 1, revealed: false}});
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-3, 3.5, 3, -2.5], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6, 3.6, 6, -4.2], true);
 });
 
 test('malformed or misordered preset data is rejected to the default model with a warning', () => {

@@ -6,7 +6,7 @@ import {DARBOUX_EXAMPLE_MODELS} from '../../analysis/darbouxModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 
-const BOX = [-0.8, 5, 3.6, -1.9];
+const BOX = [-3.2, 4.6, 5.2, -3.6];
 
 function fakeBoard() {
     const board: any = {
@@ -29,6 +29,7 @@ function fakeBoard() {
             const list = Array.isArray(objects) ? objects : [objects];
             board.objectsList = board.objectsList.filter((object: any) => !list.includes(object));
         }),
+        unitX: 100, unitY: 100, canvasWidth: 1000,
         getBoundingBox: vi.fn(() => BOX),
         setBoundingBox: vi.fn(),
         fullUpdate: vi.fn(),
@@ -169,7 +170,7 @@ test('sin x on [0, pi] with n = 1: the supremum is 1 at the interior pi/2, so U 
     expect(rects(curves(graph)[LOWER])).toEqual([[0, Math.PI, 0]]);
     // a left-endpoint sample (f(0) * pi = 0) is not an upper bound of the integral 2, and the app does not use one
     expect(darbouxExample('sine').value(0) * Math.PI).toBeLessThan(2);
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -3], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -4.6], true);
 });
 
 test('the default sine example shows negative infima below the axis and the signed sums L = -pi, U = pi around the integral 0', () => {
@@ -470,7 +471,7 @@ test('a preset of another example without a view of its own shows that example\'
     const graph = makeGraph({asyncState: false});
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'darboux', data: {example: 'sine', a: 0, b: 2 * Math.PI, n: 4, lowerVisible: true, upperVisible: true}});
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -3], true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -4.6], true);
 });
 
 test('malformed or misordered preset data is rejected to the default model with a warning', () => {
