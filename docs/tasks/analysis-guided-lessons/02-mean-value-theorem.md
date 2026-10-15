@@ -4,7 +4,7 @@
 
 **Dependencies:** [00](00-family-and-playback.md) (family only)
 
-**Status:** implemented, awaiting review
+**Status:** released 2026-10-15 with Batch A (task 04)
 
 ## Part A — mathematics (`src/analysis/meanValue.ts`, `meanValueModel.ts`)
 

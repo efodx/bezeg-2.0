@@ -4,7 +4,7 @@
 
 **Dependencies:** [01](01-bisection.md), [02](02-mean-value-theorem.md), [03](03-accumulation.md)
 
-**Status:** in progress; not released
+**Status:** released 2026-10-15 (pushed to master)
 
 ## Goal
 
@@ -12,7 +12,7 @@ Expose the three Batch A Demonstrations and lessons together, then publish.
 
 ## Steps
 
-Progress (2026-10-15): step 1 done (routes, catalogue entries, preset collections, allowlist ids and count assertions; the 37-route count is asserted). Step 2 pending: the three Analysis previews are placeholder copies of the continuity capture, and the previews must still be generated and checked for unrelated changes. Step 3 done except for the final check that the documents match the released state. Steps 4 to 6 pending; nothing has been pushed.
+Release (2026-10-15): routes, catalogue entries, preset collections, allowlist ids and counts (37 routes); real previews captured and checked; capabilities and architecture documents updated; parallel mathematics, engineering and UI/accessibility reviews run and their findings fixed; production smoke suite run (151/154 rows initially, the three failures traced to a label-visibility bug, a long lesson formula at 390 px and a wrong smoke expectation, all fixed and the affected rows rerun green, the full 154-row suite was not rerun after the fixes). Known limits: no physical touch device or projector, GitHub Pages hosting not exercised locally, the "a" label of the accumulation preview touches a tick label, and the label crowding on the narrow mean-value board is not addressed.
 
 1. Register the routes in `src/Routes.tsx`, catalogue entries in `src/demonstrations.ts` under the Analysis family, preset collections, and the three IDs in `GUIDED_LESSON_AVAILABLE_IDS`; update count assertions.
 2. Generate static previews with `scripts/generate-demonstration-previews.cjs` and `scripts/capture-demonstration-previews.cjs`; confirm that no unrelated preview changes.

@@ -4,7 +4,7 @@
 
 **Dependencies:** [00](00-family-and-playback.md) (family and iterative playback)
 
-**Status:** implemented on the Batch A branch (Parts A–C), awaiting review; not released until task 04
+**Status:** released 2026-10-15 with Batch A (task 04)
 
 ## Part A — mathematics (`src/analysis/bisection.ts`, `bisectionModel.ts`)
 
