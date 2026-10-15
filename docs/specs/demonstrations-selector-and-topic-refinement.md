@@ -2,6 +2,8 @@
 
 **Status:** specified for implementation; no app implementation in this change. Selected by the owner on 2026-10-14 from the Demonstrations visual review and image prototypes.
 
+Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) supersedes this document's requirement to preserve page composition and carousel placement. Compact choice tiles travel with the carousel to the homepage; family thumbnail/title grouping stays in the catalogue. Other component-refinement decisions remain in force.
+
 ## Problem Statement
 
 The owner likes the Demonstrations page placement and opening carousel. Two details make browsing harder than it needs to be: the starting-choice tiles have excess empty space below small labels, and the conceptual family thumbnails sit far from their titles at the right of the catalogue headers. Learners should be able to identify a starting Demonstration or mathematical family quickly, including during classroom projection.

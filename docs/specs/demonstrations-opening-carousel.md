@@ -2,6 +2,8 @@
 
 Status: specified for implementation. Variant C of the [opening prototype](demonstrations-opening-prototype.md) is the chosen direction; the prototype remains review evidence, not production code.
 
+Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) moves this carousel to the homepage and makes Demonstrations catalogue-only. It supersedes placement above the catalogue; the interaction, timing, accessibility, and lifecycle contract below remains authoritative. The relocation is not yet implemented.
+
 ## Problem Statement
 
 The first view of the Demonstrations page should invite a learner to explore, but a fixed set of three cards feels static and hides the range of mathematical ideas available. The owner chose the single-row Variant C carousel and wants it to advance automatically until the learner interacts with it. The opening must retain the calm Bezeg identity and leave the full Demonstrations catalog easy to reach.
