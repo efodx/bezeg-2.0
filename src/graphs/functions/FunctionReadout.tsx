@@ -35,8 +35,8 @@ export interface LegendItem {
     color: string;
     /** The meaning in words: colour is never the only cue. */
     label: string;
-    /** `line` for a curve, `area` (default) for a shaded region. */
-    kind?: "area" | "line";
+    /** `line` for a curve, `area` (default) for a shaded region, `dashed` for a lightly shaded region with a dashed outline. */
+    kind?: "area" | "line" | "dashed";
 }
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
@@ -46,7 +46,7 @@ export function FunctionLegend(props: { items: readonly LegendItem[] }) {
         <h3>{t("function_legend")}</h3>
         <ul>
             {props.items.map(item => <li key={item.id} data-legend={item.id}>
-                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={{backgroundColor: item.color}} aria-hidden="true"/>
+                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={item.kind === "dashed" ? {borderColor: item.color} : {backgroundColor: item.color}} aria-hidden="true"/>
                 <span>{item.label}</span>
             </li>)}
         </ul>

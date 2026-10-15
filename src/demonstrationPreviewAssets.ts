@@ -37,6 +37,8 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
+// Placeholder: a copy of the accumulation preview, replaced by the generated Darboux preview in the Batch B release task.
+import preview_darboux from './images/demonstrations/catalog/darboux.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -76,4 +78,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bisection': preview_bisection,
     'mean-value': preview_mean_value,
     'accumulation': preview_accumulation,
+    'darboux': preview_darboux,
 };

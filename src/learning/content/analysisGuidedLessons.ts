@@ -13,11 +13,17 @@
  * The accumulation lesson uses the same generic actions (`set-function-parameter` accum-a/accum-x, `set-function-choice`
  * accumulation-function and `show-function-element` accumulation-curve); the learner presses the graph's own Show accumulation A
  * after predicting, except in the steps whose point is the revealed curve or its tangent.
+ *
+ * The Darboux lesson uses the same generic actions (`set-function-parameter` darboux-a/darboux-b/darboux-n, `set-function-choice`
+ * darboux-example and `show-function-element` lower-sum/upper-sum). A prediction step hides both sums and the learner presses the
+ * graph's own Show lower sum / Show upper sum after predicting; the revealing step shows them. Refining is the graph's own
+ * button or `darboux-n`.
  */
 import type {FunctionParameterName} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
 import type {MeanValueExampleId} from '../../analysis/meanValue';
 import type {FunctionId} from '../../analysis/functions';
+import type {DarbouxExampleId} from '../../analysis/darboux';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -974,5 +980,293 @@ const accumulation: GuidedLesson = {
     ],
 };
 
+const darbouxExample = (value: DarbouxExampleId): SceneAction => ({
+    name: 'set-function-choice', value: {name: 'darboux-example', value},
+});
+const lowerSum = (visible: boolean): SceneAction => ({
+    name: 'show-function-element', value: {name: 'lower-sum', value: visible},
+});
+const upperSum = (visible: boolean): SceneAction => ({
+    name: 'show-function-element', value: {name: 'upper-sum', value: visible},
+});
+
+const darboux: GuidedLesson = {
+    demonstrationId: 'darboux',
+    title: text('Darbouxove vsote', 'Darboux sums'),
+    summary: text(
+        'Razdelitev intervala \\([a,b]\\) na dele določa spodnjo vsoto \\(L\\) iz infimumov funkcije na delih in zgornjo vsoto \\(U\\) iz supremumov. Za vsako razdelitev velja \\(L\\le\\int_a^b f(x)\\,dx\\le U\\), z gostitvijo razdelitve pa se \\(L\\) ne zmanjša in \\(U\\) se ne poveča. Infimum in supremum na delu nista nujno vrednosti v krajiščih dela.',
+        'A partition of the interval \\([a,b]\\) into parts defines the lower sum \\(L\\) from the infima of the function on the parts and the upper sum \\(U\\) from the suprema. For every partition \\(L\\le\\int_a^b f(x)\\,dx\\le U\\), and refining the partition does not decrease \\(L\\) and does not increase \\(U\\). The infimum and the supremum on a part are not necessarily values at the endpoints of the part.',
+    ),
+    prerequisites: [
+        text(
+            'Potrebno je razumevanje razdelitve intervala na dele, določenega integrala kot števila med spodnjimi in zgornjimi ocenami ter neenačb.',
+            'Assumes an understanding of a partition of an interval into parts, of the definite integral as a number between lower and upper estimates, and of inequalities.',
+        ),
+        text(
+            'Potrebno je poznavanje infimuma (največje spodnje meje) in supremuma (najmanjše zgornje meje) množice vrednosti funkcije.',
+            'Assumes familiarity with the infimum (greatest lower bound) and the supremum (least upper bound) of a set of function values.',
+        ),
+    ],
+    learningGoals: [
+        text(
+            'Pri \\(f(x)=x^2\\) na \\([0,2]\\) z \\(n=4\\) deli napoveš spodnjo in zgornjo vsoto ter preveriš \\(1{,}75\\le\\frac83\\le3{,}75\\).',
+            'For \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=4\\) parts predict the lower and the upper sum, and check \\(1.75\\le\\frac83\\le3.75\\).',
+        ),
+        text(
+            'Pri gostitvi razdelitve opaziš, da se \\(L\\) veča, \\(U\\) manjša, integral pa ostane med njima.',
+            'When the partition is refined, observe that \\(L\\) increases, \\(U\\) decreases, and the integral stays between them.',
+        ),
+        text(
+            'Pri \\(\\sin x\\) na \\([0,\\pi]\\) pojasniš, zakaj je supremum \\(1\\) v notranji točki \\(\\frac{\\pi}{2}\\) in zakaj vrednost v levem krajišču ni zgornja meja.',
+            'For \\(\\sin x\\) on \\([0,\\pi]\\) explain why the supremum is \\(1\\) at the interior point \\(\\frac{\\pi}{2}\\) and why the value at the left endpoint is not an upper bound.',
+        ),
+    ],
+    formulaBlocks: [
+        {
+            id: 'darboux-sums',
+            latex: 'L=\\sum_{i=1}^{n} m_i\\,\\Delta x,\\qquad U=\\sum_{i=1}^{n} M_i\\,\\Delta x,\\qquad m_i=\\inf_{[x_{i-1},\\,x_i]} f,\\quad M_i=\\sup_{[x_{i-1},\\,x_i]} f,\\quad \\Delta x=\\frac{b-a}{n}',
+            notation: text(
+                'Točke \\(a=x_0<x_1<\\dots<x_n=b\\) so delilne točke razdelitve na \\(n\\) enakih delov širine \\(\\Delta x\\); \\(m_i\\) je infimum in \\(M_i\\) supremum funkcije \\(f\\) na \\(i\\)-tem delu \\([x_{i-1},x_i]\\).',
+                'The points \\(a=x_0<x_1<\\dots<x_n=b\\) are the dividing points of the partition into \\(n\\) equal parts of width \\(\\Delta x\\); \\(m_i\\) is the infimum and \\(M_i\\) the supremum of \\(f\\) on the \\(i\\)-th part \\([x_{i-1},x_i]\\).',
+            ),
+            explanation: text(
+                'Spodnja vsota \\(L\\) sešteje ploščine pravokotnikov višine \\(m_i\\), zgornja vsota \\(U\\) pa pravokotnikov višine \\(M_i\\). To nista vsoti vrednosti v levih ali desnih krajiščih: infimum in supremum sta lahko tudi v notranji točki dela.',
+                'The lower sum \\(L\\) adds the areas of rectangles of height \\(m_i\\), and the upper sum \\(U\\) those of height \\(M_i\\). They are not sums of values at the left or right endpoints: the infimum and the supremum can lie at an interior point of a part.',
+            ),
+        },
+        {
+            id: 'darboux-bounds',
+            latex: 'L\\le\\int_a^b f(x)\\,dx\\le U,\\qquad L\\le L^{\\prime}\\le\\int_a^b f(x)\\,dx\\le U^{\\prime}\\le U',
+            notation: text(
+                'Števili \\(L^{\\prime}\\) in \\(U^{\\prime}\\) sta vsoti gostejše razdelitve, ki vsebuje vse delilne točke prejšnje.',
+                'The numbers \\(L^{\\prime}\\) and \\(U^{\\prime}\\) are the sums of a finer partition that contains all the dividing points of the previous one.',
+            ),
+            explanation: text(
+                'Vsak del gostejše razdelitve leži v enem delu prejšnje, zato je njegov infimum večji ali enak in njegov supremum manjši ali enak. Integral je za vsako razdelitev ujet med \\(L\\) in \\(U\\). Aplikacija ti to pokaže na primerih, ne dokaže.',
+                'Every part of the finer partition lies in one part of the previous one, so its infimum is greater or equal and its supremum is less or equal. For every partition the integral is trapped between \\(L\\) and \\(U\\). The app shows this on examples; it does not prove it.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'darboux-square-example',
+            title: text('Funkcija \\(f(x)=x^2\\) na \\([0,2]\\) z \\(n=4\\)', 'The function \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=4\\)'),
+            calculationLatex: '\\Delta x=\\frac12,\\quad L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74,\\quad U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)=\\frac{15}{4},\\quad \\int_0^2 x^2\\,dx=\\frac83',
+            resultLatex: '\\frac74\\le\\frac83\\le\\frac{15}{4}',
+            check: text(
+                'Funkcija \\(x^2\\) na \\([0,2]\\) narašča, zato je infimum na vsakem delu v levem krajišču in supremum v desnem; to velja za to funkcijo na tem intervalu in ne splošno. Razlika \\(U-L=2\\) je enaka \\(\\Delta x\\,\\bigl(f(2)-f(0)\\bigr)=\\frac12\\cdot4\\).',
+                'The function \\(x^2\\) is increasing on \\([0,2]\\), so the infimum on every part is at the left endpoint and the supremum at the right one; this holds for this function on this interval and not in general. The gap \\(U-L=2\\) equals \\(\\Delta x\\,\\bigl(f(2)-f(0)\\bigr)=\\frac12\\cdot4\\).',
+            ),
+        },
+        {
+            id: 'darboux-sine-example',
+            title: text('Funkcija \\(f(x)=\\sin x\\) na \\([0,\\pi]\\) z \\(n=1\\)', 'The function \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) with \\(n=1\\)'),
+            calculationLatex: 'm=\\inf_{[0,\\pi]}\\sin x=0,\\quad M=\\sup_{[0,\\pi]}\\sin x=\\sin\\frac{\\pi}{2}=1,\\quad L=0\\cdot\\pi=0,\\quad U=1\\cdot\\pi=\\pi,\\quad \\int_0^{\\pi}\\sin x\\,dx=2',
+            resultLatex: '0\\le2\\le\\pi',
+            check: text(
+                'Supremum \\(1\\) je dosežen v notranji točki \\(\\frac{\\pi}{2}\\), kjer je \\(\\cos\\frac{\\pi}{2}=0\\), ne v krajiščih, kjer je \\(\\sin x=0\\). Vrednost v levem krajišču bi dala \\(0\\cdot\\pi=0<2\\), kar ni zgornja ocena integrala.',
+                'The supremum \\(1\\) is attained at the interior point \\(\\frac{\\pi}{2}\\), where \\(\\cos\\frac{\\pi}{2}=0\\), not at the endpoints, where \\(\\sin x=0\\). The value at the left endpoint would give \\(0\\cdot\\pi=0<2\\), which is not an upper estimate of the integral.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'darboux-prerequisites-step', order: 1,
+            title: text('Razdelitev, infimum in supremum', 'The partition, the infimum and the supremum'),
+            purpose: text('Pripraviti razdelitev, infimum in supremum, preden se vsoti pokažeta.', 'Preparing the partition, the infimum and the supremum before the sums are shown.'),
+            explanation: text(
+                'Interval \\([0,2]\\) razdelimo na \\(n=4\\) enake dele širine \\(\\Delta x=\\frac{2-0}{4}=\\frac12\\) z delilnimi točkami \\(0,\\frac12,1,\\frac32,2\\). Na vsakem delu je infimum \\(m_i\\) največja spodnja meja vrednosti funkcije \\(f(x)=x^2\\), supremum \\(M_i\\) pa najmanjša zgornja meja. Spodnja vsota je \\(L=\\sum m_i\\,\\Delta x\\), zgornja pa \\(U=\\sum M_i\\,\\Delta x\\). Obe vsoti sta zdaj skriti; vidiš le delilne točke in natančni integral.',
+                'The interval \\([0,2]\\) is split into \\(n=4\\) equal parts of width \\(\\Delta x=\\frac{2-0}{4}=\\frac12\\) with the dividing points \\(0,\\frac12,1,\\frac32,2\\). On every part the infimum \\(m_i\\) is the greatest lower bound of the values of \\(f(x)=x^2\\), and the supremum \\(M_i\\) is the least upper bound. The lower sum is \\(L=\\sum m_i\\,\\Delta x\\) and the upper sum is \\(U=\\sum M_i\\,\\Delta x\\). Both sums are hidden now; you see only the dividing points and the exact integral.',
+            ),
+            formulaIds: ['darboux-sums'], learnerInteraction: 'observe',
+            frames: [frame('darboux-prerequisites-explanation', 'explanation'), frame('darboux-prerequisites-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej infimum in supremum na vsakem delu, nato vsoti \\(L\\) in \\(U\\) ter ali integral leži med njima; šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
+                'Predict the infimum and the supremum on each part, then the sums \\(L\\) and \\(U\\) and whether the integral lies between them; only then press Show lower sum and Show upper sum.',
+            ),
+            expectedObservations: [text(
+                'Vidni so štirje deli širine \\(0{,}5\\), vsoti sta skriti, natančni integral pa je \\(2{,}6667\\).',
+                'Four parts of width \\(0.5\\) are visible, the sums are hidden, and the exact integral is \\(2.6667\\).',
+            )],
+            scene: {
+                id: 'darboux-prerequisites-scene', basedOn: 'demonstration-default',
+                actions: [lowerSum(false), upperSum(false)],
+                expectedState: text(
+                    'Prikazan je \\(f(x)=x^2\\) na \\([0,2]\\) z \\(n=4\\) deli; spodnja in zgornja vsota sta skriti, integral je \\(\\frac83\\).',
+                    'The graph of \\(f(x)=x^2\\) on \\([0,2]\\) is shown with \\(n=4\\) parts; the lower and the upper sum are hidden, and the integral is \\(\\frac83\\).',
+                ),
+            },
+        },
+        {
+            id: 'darboux-bounds-step', order: 2,
+            title: text('Integral je ujet: \\(1{,}75\\le\\frac83\\le3{,}75\\)', 'The integral is trapped: \\(1.75\\le\\frac83\\le3.75\\)'),
+            purpose: text('Primerjati napoved z vsotama in videti, da integral leži med njima.', 'Comparing the prediction with the sums and seeing that the integral lies between them.'),
+            explanation: text(
+                'Infimumi na delih so \\(0,\\frac14,1,\\frac94\\), supremumi pa \\(\\frac14,1,\\frac94,4\\). Zato je \\(L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74=1{,}75\\) in \\(U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)=\\frac{15}{4}=3{,}75\\), integral pa je \\(\\int_0^2 x^2\\,dx=\\frac83\\approx2{,}6667\\). Torej \\(1{,}75\\le\\frac83\\le3{,}75\\). Polni pravokotniki so spodnja vsota, pravokotniki s črtkanim robom zgornja. Ker \\(x^2\\) na \\([0,2]\\) narašča, sta infimum in supremum v krajiščih delov; pri drugih funkcijah to ne velja (korak 5).',
+                'The infima on the parts are \\(0,\\frac14,1,\\frac94\\) and the suprema are \\(\\frac14,1,\\frac94,4\\). So \\(L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74=1.75\\) and \\(U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)=\\frac{15}{4}=3.75\\), while the integral is \\(\\int_0^2 x^2\\,dx=\\frac83\\approx2.6667\\). Hence \\(1.75\\le\\frac83\\le3.75\\). The filled rectangles are the lower sum and the rectangles with a dashed outline are the upper sum. Because \\(x^2\\) is increasing on \\([0,2]\\), the infimum and the supremum are at the endpoints of the parts; for other functions this does not hold (step 5).',
+            ),
+            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-square-example', learnerInteraction: 'observe',
+            frames: [frame('darboux-bounds-explanation', 'explanation'), frame('darboux-bounds-calculation', 'calculation'), frame('darboux-bounds-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj odčitka \\(L\\) in \\(U\\) z napovedjo. Preveri, da integral leži med njima, in preberi razliko \\(U-L\\).',
+                'Compare the readouts \\(L\\) and \\(U\\) with your prediction. Check that the integral lies between them and read the gap \\(U-L\\).',
+            ),
+            expectedObservations: [text(
+                'Odčitki so \\(L=1{,}75\\), \\(U=3{,}75\\), integral \\(2{,}6667\\) in razlika \\(U-L=2\\); stanje pove, da integral leži med vsotama.',
+                'The readouts are \\(L=1.75\\), \\(U=3.75\\), integral \\(2.6667\\) and gap \\(U-L=2\\); the status says that the integral lies between the sums.',
+            )],
+            scene: {
+                id: 'darboux-bounds-scene', basedOn: 'demonstration-default',
+                actions: [lowerSum(true), upperSum(true)],
+                expectedState: text(
+                    'Pri \\(f(x)=x^2\\) na \\([0,2]\\) z \\(n=4\\) sta prikazani \\(L=1{,}75\\) in \\(U=3{,}75\\), integral je \\(\\frac83\\).',
+                    'For \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=4\\), \\(L=1.75\\) and \\(U=3.75\\) are shown, and the integral is \\(\\frac83\\).',
+                ),
+            },
+        },
+        {
+            id: 'darboux-refine-step', order: 3,
+            title: text('Gostitev razdelitve', 'Refining the partition'),
+            purpose: text('Videti, da se z gostitvijo \\(L\\) veča, \\(U\\) manjša in integral ostane med njima.', 'Seeing that refining makes \\(L\\) increase, \\(U\\) decrease, and the integral stay between them.'),
+            explanation: text(
+                'Gostitev razpolovi vsak del: iz \\(n=4\\) postane \\(n=8\\) in \\(\\Delta x=\\frac14\\). Nove vsote so \\(L=2{,}1875\\) in \\(U=3{,}1875\\), prej pa sta bili \\(1{,}75\\) in \\(3{,}75\\). Spodnja vsota se je povečala, zgornja zmanjšala, integral \\(2{,}6667\\) pa je še vedno med njima. Del, ki je polovica starega, ima infimum večji ali enak in supremum manjši ali enak staremu, zato se \\(L\\) ne zmanjša in \\(U\\) se ne poveča. Pri naraščajoči funkciji je razlika \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac4n\\), torej se pri \\(n=8\\) zmanjša na \\(1\\).',
+                'Refining bisects every part: \\(n=4\\) becomes \\(n=8\\) and \\(\\Delta x=\\frac14\\). The new sums are \\(L=2.1875\\) and \\(U=3.1875\\), whereas before they were \\(1.75\\) and \\(3.75\\). The lower sum increased, the upper sum decreased, and the integral \\(2.6667\\) is still between them. A half of an old part has an infimum greater or equal and a supremum less or equal than the old one, so \\(L\\) does not decrease and \\(U\\) does not increase. For an increasing function the gap is \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac4n\\), so for \\(n=8\\) it shrinks to \\(1\\).',
+            ),
+            formulaIds: ['darboux-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('darboux-refine-explanation', 'explanation'), frame('darboux-refine-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, kaj se zgodi z \\(L\\) in \\(U\\), ko še enkrat pritisneš Zgosti razdelitev (\\(n=16\\)), in nato pritiskaj gumb do omejitve; opazuj, kako se razlika \\(U-L\\) zmanjšuje.',
+                'Predict what happens to \\(L\\) and \\(U\\) when you press Refine the partition once more (\\(n=16\\)), and then keep pressing the button up to the limit; watch the gap \\(U-L\\) shrink.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=8\\) je \\(L=2{,}1875\\), \\(U=3{,}1875\\); pri \\(n=16\\) je \\(L=2{,}4219\\), \\(U=2{,}9219\\); integral \\(2{,}6667\\) ostane med njima.',
+                'At \\(n=8\\), \\(L=2.1875\\) and \\(U=3.1875\\); at \\(n=16\\), \\(L=2.4219\\) and \\(U=2.9219\\); the integral \\(2.6667\\) stays between them.',
+            )],
+            scene: {
+                id: 'darboux-refine-scene', basedOn: 'demonstration-default',
+                actions: [parameter('darboux-n', 8)],
+                expectedState: text(
+                    'Pri \\(f(x)=x^2\\) na \\([0,2]\\) z \\(n=8\\) sta prikazani \\(L=2{,}1875\\) in \\(U=3{,}1875\\); razlika je \\(1\\).',
+                    'For \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=8\\), \\(L=2.1875\\) and \\(U=3.1875\\) are shown; the gap is \\(1\\).',
+                ),
+            },
+        },
+        {
+            id: 'darboux-sine-step', order: 4,
+            title: text('Supremum v notranji točki: \\(\\sin x\\) na \\([0,\\pi]\\)', 'A supremum at an interior point: \\(\\sin x\\) on \\([0,\\pi]\\)'),
+            purpose: text('Napovedati supremum na delu, kjer ni v krajišču.', 'Predicting a supremum on a part where it is not at an endpoint.'),
+            explanation: text(
+                'Zamenjamo primer: \\(f(x)=\\sin x\\) na \\([0,\\pi]\\) z enim samim delom, \\(n=1\\). V obeh krajiščih je \\(\\sin x=0\\), vmes pa je funkcija pozitivna. Infimum je zato \\(0\\), supremum pa ni \\(0\\): funkcija zraste in se spet vrne. Največ doseže v točki, kjer je odvod \\(\\cos x\\) enak \\(0\\), to je pri \\(\\frac{\\pi}{2}\\). Vsoti sta zdaj skriti.',
+                'We switch the example: \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) with a single part, \\(n=1\\). At both endpoints \\(\\sin x=0\\), and in between the function is positive. So the infimum is \\(0\\), but the supremum is not \\(0\\): the function rises and comes back. It attains its maximum at a point where the derivative \\(\\cos x\\) equals \\(0\\), which is \\(\\frac{\\pi}{2}\\). The sums are hidden now.',
+            ),
+            formulaIds: ['darboux-sums'], learnerInteraction: 'observe',
+            frames: [frame('darboux-sine-explanation', 'explanation'), frame('darboux-sine-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej infimum in supremum na celotnem intervalu \\([0,\\pi]\\) ter vsoti \\(L\\) in \\(U\\); šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
+                'Predict the infimum and the supremum on the whole interval \\([0,\\pi]\\) and the sums \\(L\\) and \\(U\\); only then press Show lower sum and Show upper sum.',
+            ),
+            expectedObservations: [text(
+                'Prikazan je en sam del \\([0,\\pi]\\), vsoti sta skriti, natančni integral je \\(2\\).',
+                'A single part \\([0,\\pi]\\) is shown, the sums are hidden, and the exact integral is \\(2\\).',
+            )],
+            scene: {
+                id: 'darboux-sine-scene', basedOn: 'demonstration-default',
+                actions: [darbouxExample('sine'), parameter('darboux-b', Math.PI), parameter('darboux-n', 1), lowerSum(false), upperSum(false)],
+                expectedState: text(
+                    'Prikazan je \\(f(x)=\\sin x\\) na \\([0,\\pi]\\) z \\(n=1\\); vsoti sta skriti, integral je \\(2\\).',
+                    'The graph of \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) is shown with \\(n=1\\); the sums are hidden, and the integral is \\(2\\).',
+                ),
+            },
+        },
+        {
+            id: 'darboux-sine-reveal-step', order: 5,
+            title: text('Supremum \\(1\\) in vrednost v krajišču', 'The supremum \\(1\\) and the value at an endpoint'),
+            purpose: text('Primerjati supremum z vrednostjo v krajišču in videti, zakaj vzorec ni zgornja meja.', 'Comparing the supremum with the value at an endpoint and seeing why a sample is not an upper bound.'),
+            explanation: text(
+                'Spodnja vsota je \\(L=0\\cdot\\pi=0\\), zgornja pa \\(U=1\\cdot\\pi=\\pi\\approx3{,}1416\\), integral je \\(\\int_0^{\\pi}\\sin x\\,dx=2\\), torej \\(0\\le2\\le\\pi\\). Supremum \\(1\\) je dosežen pri \\(\\frac{\\pi}{2}\\), v notranjosti dela. Če bi namesto supremuma vzeli vrednost v levem krajišču, \\(f(0)=0\\), bi dobili \\(0\\cdot\\pi=0\\), kar je manj od integrala \\(2\\) in zato ni zgornja ocena. Vrednost v krajišču torej ni supremum, zato aplikacija vsot ne imenuje levi ali desni vzorec. Supremum izračuna natančno iz vrednosti v krajiščih dela in točk \\(\\frac{\\pi}{2}+k\\pi\\), kjer je \\(\\cos x=0\\), brez vzorčenja.',
+                'The lower sum is \\(L=0\\cdot\\pi=0\\) and the upper sum is \\(U=1\\cdot\\pi=\\pi\\approx3.1416\\), the integral is \\(\\int_0^{\\pi}\\sin x\\,dx=2\\), so \\(0\\le2\\le\\pi\\). The supremum \\(1\\) is attained at \\(\\frac{\\pi}{2}\\), in the interior of the part. If we took the value at the left endpoint, \\(f(0)=0\\), instead of the supremum, we would get \\(0\\cdot\\pi=0\\), which is less than the integral \\(2\\) and so is not an upper estimate. A value at an endpoint is therefore not the supremum, which is why the app does not call these sums left or right samples. It computes the supremum exactly from the values at the endpoints of the part and the points \\(\\frac{\\pi}{2}+k\\pi\\) where \\(\\cos x=0\\), without sampling.',
+            ),
+            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-sine-example', learnerInteraction: 'observe',
+            frames: [frame('darboux-sine-reveal-explanation', 'explanation'), frame('darboux-sine-reveal-calculation', 'calculation'), frame('darboux-sine-reveal-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj odčitka z napovedjo. Nato pritisni Zgosti razdelitev in opazuj, kje v delih je supremum, ko so deli še vedno široki.',
+                'Compare the readouts with your prediction. Then press Refine the partition and watch where the supremum lies in the parts while they are still wide.',
+            ),
+            expectedObservations: [text(
+                'Odčitki so \\(L=0\\), \\(U=3{,}1416\\), integral \\(2\\) in razlika \\(3{,}1416\\); integral leži med vsotama.',
+                'The readouts are \\(L=0\\), \\(U=3.1416\\), integral \\(2\\) and gap \\(3.1416\\); the integral lies between the sums.',
+            )],
+            scene: {
+                id: 'darboux-sine-reveal-scene', basedOn: 'demonstration-default',
+                actions: [darbouxExample('sine'), parameter('darboux-b', Math.PI), parameter('darboux-n', 1), lowerSum(true), upperSum(true)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\) na \\([0,\\pi]\\) z \\(n=1\\) sta prikazani \\(L=0\\) in \\(U=\\pi\\), integral je \\(2\\).',
+                    'For \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) with \\(n=1\\), \\(L=0\\) and \\(U=\\pi\\) are shown, and the integral is \\(2\\).',
+                ),
+            },
+        },
+        {
+            id: 'darboux-free-exploration', order: 6,
+            title: text('Samostojno raziskovanje', 'Free exploration'),
+            purpose: text('Preiti v samostojno raziskovanje z vsotami s predznakom.', 'Handing over to free exploration with signed sums.'),
+            explanation: text(
+                'Pri \\(f(x)=\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\) je \\(\\Delta x=\\frac{\\pi}{2}\\). Infimumi na delih so \\(0,0,-1,-1\\), supremumi \\(1,1,0,0\\), zato je \\(L=-\\pi\\approx-3{,}1416\\), \\(U=\\pi\\approx3{,}1416\\), integral pa \\(0\\). Vsote štejejo s predznakom: pravokotniki pod osjo prispevajo negativno. Zdaj raziskuj sam: zamenjaj primer, premakni \\(a\\) in \\(b\\), spremeni \\(n\\) in zgoščaj, dokler gumb ne postane nedostopen pri \\(n=128\\); preveri, da integral vedno leži med \\(L\\) in \\(U\\).',
+                'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), \\(\\Delta x=\\frac{\\pi}{2}\\). The infima on the parts are \\(0,0,-1,-1\\) and the suprema are \\(1,1,0,0\\), so \\(L=-\\pi\\approx-3.1416\\), \\(U=\\pi\\approx3.1416\\) and the integral is \\(0\\). The sums are signed: rectangles below the axis contribute negatively. Now explore on your own: change the example, move \\(a\\) and \\(b\\), change \\(n\\) and keep refining until the button becomes unavailable at \\(n=128\\); check that the integral always lies between \\(L\\) and \\(U\\).',
+            ),
+            formulaIds: ['darboux-sums', 'darboux-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('darboux-free-explanation', 'explanation'), frame('darboux-free-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej vsoti \\(L\\) in \\(U\\) za \\(\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\), nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto. Nato preizkusi \\(x^2\\) na drugih intervalih.',
+                'Predict the sums \\(L\\) and \\(U\\) for \\(\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), then press Show lower sum and Show upper sum. Then try \\(x^2\\) on other intervals.',
+            ),
+            expectedObservations: [text(
+                'Po pritisku sta \\(L=-3{,}1416\\) in \\(U=3{,}1416\\), integral je \\(0\\), razlika pa \\(6{,}2832\\).',
+                'After the press \\(L=-3.1416\\) and \\(U=3.1416\\), the integral is \\(0\\) and the gap is \\(6.2832\\).',
+            )],
+            scene: {
+                id: 'darboux-free-scene', basedOn: 'demonstration-default',
+                actions: [darbouxExample('sine'), lowerSum(false), upperSum(false)],
+                expectedState: text(
+                    'Prikazan je \\(f(x)=\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\); vsoti sta skriti, integral je \\(0\\).',
+                    'The graph of \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) is shown with \\(n=4\\); the sums are hidden, and the integral is \\(0\\).',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'globevnik-brojan-analiza-1-darboux',
+            citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §5.3 (printed pp. 161–170).',
+            supports: ['lower and upper sums from the infimum and supremum of a bounded function on the parts of a partition', 'the integral lies between every lower sum and every upper sum', 'refining a partition does not decrease lower sums or increase upper sums'],
+        },
+        {
+            id: 'bezeg-darboux-implementation',
+            citation: 'Bezeg source: src/analysis/darboux.ts, src/analysis/darbouxModel.ts and src/graphs/functions/DarbouxGraph.tsx.',
+            supports: ['x^2 on [0, 2] with n = 4 has L = 7/4 and U = 15/4 around the integral 8/3', 'sin x on [0, pi] with n = 1 has infimum 0, supremum 1 at pi/2, L = 0 and U = pi around the integral 2', 'sin x on [0, 2 pi] with n = 4 has L = -pi and U = pi around the integral 0'],
+            implementationCorrespondence: 'The infimum and supremum of every part are the minimum and maximum of f over the endpoint values and the critical points inside the part (0 for x^2, pi/2 + k pi for sin x), listed analytically and never sampled; the exact integral is F(b) - F(a) from an antiderivative; Refine doubles n so the partition is nested; and a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text(
+            'Vrednost \\(a\\) ali \\(b\\) zunaj območja \\([-7,7]\\), krajišči z \\(a\\ge b\\) in število delov, ki ni celo število od \\(1\\) do \\(128\\), aplikacija zavrne in model ostane nespremenjen; datoteka s takšno vrednostjo se ne uvozi in pove, kaj popraviti.',
+            'A value of \\(a\\) or \\(b\\) outside the range \\([-7,7]\\), endpoints with \\(a\\ge b\\), and a number of parts that is not an integer from \\(1\\) to \\(128\\) are rejected by the app and the model stays unchanged; a file with such a value is not imported and says what to correct.',
+        ),
+        text(
+            'Pri \\(n=128\\) gostitve ni mogoče nadaljevati; gumb je nedostopen z razlago, število delov pa lahko še vedno spremeniš v polju.',
+            'At \\(n=128\\) the partition cannot be refined further; the button is unavailable with an explanation, and the number of parts can still be changed in the field.',
+        ),
+        text(
+            'Dokler je vsota skrita, so skriti tudi njen odčitek, njeni pravokotniki in razlika \\(U-L\\), da napoved ni predčasno razkrita; delilne točke in natančni integral ostanejo vidni.',
+            'While a sum is hidden, its readout, its rectangles and the gap \\(U-L\\) are hidden too, so that the prediction is not given away; the dividing points and the exact integral stay visible.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred pregledom za uporabo v razredu je treba potrditi, ali naj lekcija pokaže tudi funkcijo, ki ni integrabilna po Riemannu, pri kateri se spodnji in zgornji integral ne ujemata.',
+            'Before classroom-ready review, confirm whether the lesson should also show a function that is not Riemann integrable, for which the lower and the upper integral differ.',
+        ),
+    ],
+};
+
 /** Lessons of the Analysis family, in teaching order. */
-export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation];
+export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation, darboux];

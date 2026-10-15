@@ -1356,8 +1356,72 @@ const accumulation = {
     stableCounts: async page => ({x: await accumulationReadout(page, 'x')}),
 };
 
+// ---------------------------------------------------------------- Darboux sums
+const darbouxReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const darbouxStatuses = page => page.locator('[data-darboux-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-darboux-status')));
+// Per step: the displayed a, b, n, the exact integral, the statuses on screen and, where both sums are shown, L, U and the gap.
+// While the sums are hidden (steps 1, 4 and 6; the learner presses Show lower sum / Show upper sum after predicting) their readouts are
+// words ("skrito" / "hidden"), so only the language-independent status id is checked there.
+const DARBOUX_STEPS = [
+    {a: '0', b: '2', n: '4', integral: '2.6667', statuses: ['hidden']},
+    {a: '0', b: '2', n: '4', integral: '2.6667', lower: '1.75', upper: '3.75', gap: '2', statuses: ['trapped']},
+    {a: '0', b: '2', n: '8', integral: '2.6667', lower: '2.1875', upper: '3.1875', gap: '1', statuses: ['trapped']},
+    {a: '0', b: '3.1416', n: '1', integral: '2', statuses: ['hidden']},
+    {a: '0', b: '3.1416', n: '1', integral: '2', lower: '0', upper: '3.1416', gap: '3.1416', statuses: ['trapped']},
+    {a: '0', b: '6.2832', n: '4', integral: '0', statuses: ['hidden']},
+];
+
+const darboux = {
+    id: 'darboux',
+    path: `${BASE}/analysis/darboux`,
+    titles: {sl: 'Darbouxove vsote', en: 'Darboux sums'},
+    steps: 6,
+    minFrames: 14, // 2 + 3 + 2 + 2 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = DARBOUX_STEPS[step - 1];
+        await expect.poll(() => darbouxReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => darbouxReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => darbouxReadout(page, 'n'), {message: `n at ${label}`}).toBe(expected.n);
+        await expect.poll(() => darbouxReadout(page, 'integral'), {message: `integral at ${label}`}).toBe(expected.integral);
+        if (expected.lower !== undefined) {
+            await expect.poll(() => darbouxReadout(page, 'lower'), {message: `lower sum at ${label}`}).toBe(expected.lower);
+            await expect.poll(() => darbouxReadout(page, 'upper'), {message: `upper sum at ${label}`}).toBe(expected.upper);
+            await expect.poll(() => darbouxReadout(page, 'gap'), {message: `gap at ${label}`}).toBe(expected.gap);
+        }
+        await expect.poll(() => darbouxStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // a and b are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.a), 0], `a on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/Number of parts n|Število delov n/).fill('16');
+        await expect.poll(() => darbouxReadout(page, 'n')).toBe('16');
+        await page.locator('[data-action="toggle-upper"]').click();
+        await expect.poll(() => darbouxStatuses(page), {message: 'the upper sum is hidden'}).toContain('hidden');
+        await expect.poll(() => darbouxReadout(page, 'lower'), {message: 'L(16) for x^2 on [0, 2]'}).toBe('2.4219');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => darbouxReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('8');
+        await expect.poll(() => darbouxStatuses(page), {message: 'lesson scene showed both sums'}).toEqual(['trapped']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => darbouxReadout(page, 'n'), {message: 'user n restored'}).toBe('16');
+        await expect.poll(() => darbouxStatuses(page), {message: 'user hidden upper sum restored'}).toContain('hidden');
+        await expect.poll(() => darbouxReadout(page, 'lower'), {message: 'user lower sum restored'}).toBe('2.4219');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({n: await darbouxReadout(page, 'n')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

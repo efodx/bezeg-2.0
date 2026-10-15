@@ -24,6 +24,7 @@
 .function-legend li { display: flex; align-items: center; gap: 8px; font-size: .86rem; line-height: 1.35; }
 .function-legend-swatch { flex: none; width: 22px; height: 12px; border-radius: 2px; opacity: .85; }
 .function-legend-line { height: 3px; opacity: 1; }
+.function-legend-dashed { height: 12px; opacity: 1; background: transparent; border: 2px dashed; box-sizing: border-box; }
 /* Bisection iteration controls: Next step, Play/Pause and Reset as native buttons of one group. */
 .bisection-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
 .bisection-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
@@ -50,4 +51,14 @@
 .accumulation-status p + p { margin-top: 6px; }
 @media (pointer: coarse), (max-width: 700px) {
     .accumulation-actions button { min-height: 44px; }
+}
+/* Darboux sums: the Refine and Show/Hide sum buttons and the statuses, styled like the mean value controls. */
+.darboux-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
+.darboux-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.darboux-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.darboux-actions button:disabled { cursor: not-allowed; }
+.darboux-status p { margin: 0; }
+.darboux-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .darboux-actions button { min-height: 44px; }
 }

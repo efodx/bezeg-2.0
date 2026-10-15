@@ -363,3 +363,59 @@ test("the range and function messages are localized and show the supported range
     expect(attempt({...validAccumulation, a: -8})).toContain("med −7 in 7");
     expect(attempt({...validAccumulation, fn: "cos"})).toContain("polje fn mora biti eno od");
 });
+
+const darbouxPreset = (data: unknown) => JSON.stringify({"preset-darboux": {data: [{id: "Osnova", boardState: {boundingBox: [-0.8, 5, 3.6, -1.9]},
+    graphState: {initialized: true, example: "square", a: 0, b: 2, n: 4, lowerVisible: true, upperVisible: true}, data}]}});
+
+test("darboux collection imports a model object with its visibility and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "sine", a: 0, b: 6.283185307179586, n: 8, lowerVisible: false, upperVisible: true};
+    commitPresetImport(preflightPresetImport(darbouxPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-darboux")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validDarboux = {example: "square", a: 0, b: 2, n: 4, lowerVisible: true, upperVisible: true};
+test.each([[[]], [null], [{}], [{...validDarboux, example: "quartic"}], [{...validDarboux, a: 2, b: 0}], [{...validDarboux, a: 1, b: 1}], [{...validDarboux, a: -7.01}],
+    [{...validDarboux, b: 7.01}], [{...validDarboux, a: "0"}], [{...validDarboux, n: 0}], [{...validDarboux, n: 129}], [{...validDarboux, n: 2.5}], [{...validDarboux, n: -4}],
+    [{...validDarboux, n: NaN}], [{...validDarboux, n: "4"}], [{...validDarboux, lowerVisible: "true"}], [{...validDarboux, upperVisible: 1}],
+    [{example: "square", a: 0, b: 2, n: 4}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("darboux collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(darbouxPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validDarboux, a: 2, b: 0}, /a < b/],
+    [{...validDarboux, a: 1, b: 1}, /a < b/],
+    [{...validDarboux, n: 0}, /n.*1.*128/],
+    [{...validDarboux, n: 129}, /n.*1.*128/],
+    [{...validDarboux, n: 2.5}, /n.*1.*128/],
+    [{...validDarboux, a: -7.01}, /−7.*7/],
+    [{...validDarboux, b: 100}, /−7.*7/],
+    [{...validDarboux, example: "cube"}, /square, sine/],
+    [{...validDarboux, lowerVisible: "true"}, /lowerVisible/],
+    [{...validDarboux, upperVisible: 1}, /upperVisible/],
+])("darboux errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(darbouxPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(darbouxPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("darboux data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validDarboux, a: "0"}, {example: "square", a: 0, b: 2, n: 4}]) {
+        expect(() => preflightPresetImport(darbouxPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the darboux messages are localized and show the supported ranges from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(darbouxPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validDarboux, a: 3, b: 1})).toContain("a < b");
+    expect(attempt({...validDarboux, n: 200})).toContain("an integer from 1 to 128");
+    expect(attempt({...validDarboux, b: 9})).toContain("between −7 and 7");
+    setLanguage("sl");
+    expect(attempt({...validDarboux, a: 3, b: 1})).toContain("a < b");
+    expect(attempt({...validDarboux, n: 200})).toContain("celo število od 1 do 128");
+    expect(attempt({...validDarboux, b: 9})).toContain("med −7 in 7");
+});

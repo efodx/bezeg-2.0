@@ -15,6 +15,8 @@ import {isMeanValueExampleId, isMeanValueX, isOrdered, MEAN_VALUE_EXAMPLE_IDS, M
 import {FUNCTION_IDS, isFunctionId} from "../../../analysis/functions";
 import {formatNumber} from "../../../analysis/format";
 import {parseMeanValueModel} from "../../../analysis/meanValueModel";
+import {parseDarbouxModel} from "../../../analysis/darbouxModel";
+import {DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, isDarbouxCount, isDarbouxExampleId, isDarbouxX} from "../../../analysis/darboux";
 import {parseAccumulationModel} from "../../../analysis/accumulationModel";
 import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, isAccumulationBound} from "../../../analysis/accumulation";
 // Existing collection keys and DTO names are a file contract, independent of the graph renderer.
@@ -22,11 +24,11 @@ const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decast
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -67,7 +69,18 @@ const diagnoseAccumulation: Diagnosis = data => {
     if (data.accumulationVisible !== undefined && typeof data.accumulationVisible !== "boolean") return message("invalid_accumulation_visibility");
     return undefined;
 };
-const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation};
+const diagnoseDarboux: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isDarbouxExampleId(data.example)) return message("invalid_darboux_example", {value0: DARBOUX_EXAMPLE_IDS.join(", ")});
+    if ([data.a, data.b].every(finite)) {
+        if (!isDarbouxX(data.a) || !isDarbouxX(data.b)) return message("invalid_darboux_range", {value0: bound(DARBOUX_X_MIN), value1: bound(DARBOUX_X_MAX)});
+        if (!(data.a < data.b)) return message("invalid_darboux_order");
+    }
+    if (data.n !== undefined && !isDarbouxCount(data.n)) return message("invalid_darboux_count", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX});
+    if ((data.lowerVisible !== undefined && typeof data.lowerVisible !== "boolean") || (data.upperVisible !== undefined && typeof data.upperVisible !== "boolean")) return message("invalid_darboux_visibility");
+    return undefined;
+};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));

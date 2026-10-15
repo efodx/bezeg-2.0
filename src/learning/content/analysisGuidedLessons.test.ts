@@ -9,12 +9,13 @@ import {
 import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
 import {accumulation, accumulationPieces, accumulationTangent} from '../../analysis/accumulation';
 import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
+import {DARBOUX_EXAMPLE_IDS, darbouxExample, darbouxSubintervals, darbouxTotals} from '../../analysis/darboux';
 
 const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bisection')!;
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -431,5 +432,156 @@ describe('the accumulation lesson', () => {
         expect(implementation.citation).toContain('src/graphs/functions/AccumulationGraph.tsx');
         expect(implementation.implementationCorrespondence).toMatch(/F\(x\) - F\(a\)/);
         expect(implementation.implementationCorrespondence).toMatch(/x < a/);
+    });
+});
+
+describe('the Darboux lesson', () => {
+    const darbouxLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'darboux')!;
+    const dStep = (id: string) => darbouxLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('darboux')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const square = darbouxExample('square');
+    const sine = darbouxExample('sine');
+    const rounded = (value: number) => Number(value.toFixed(4));
+
+    test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
+        expect(darbouxLesson.steps.map(step => step.id)).toEqual([
+            'darboux-prerequisites-step', 'darboux-bounds-step', 'darboux-refine-step', 'darboux-sine-step', 'darboux-sine-reveal-step', 'darboux-free-exploration',
+        ]);
+        expect(adapted().id).toBe('darboux-guided');
+        expect(adapted().steps).toHaveLength(6);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(getGuidedLesson('darboux')).toBe(darbouxLesson);
+        expect(isGuidedLessonAvailable('darboux')).toBe(true);
+    });
+
+    test('states the prerequisites, the infimum and supremum, the contrast with a left sample, and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => darbouxLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/partition/);
+        expect(prerequisites('en')).toMatch(/infimum/);
+        expect(prerequisites('en')).toMatch(/supremum/);
+        expect(prerequisites('sl')).toMatch(/razdelitve/);
+        expect(prerequisites('sl')).toMatch(/infimuma/);
+        expect(dStep('darboux-prerequisites-step').explanation.en).toMatch(/greatest lower bound/);
+        expect(dStep('darboux-prerequisites-step').explanation.en).toMatch(/least upper bound/);
+        expect(dStep('darboux-prerequisites-step').explanation.sl).toMatch(/največja spodnja meja/);
+        expect(dStep('darboux-sine-step').explanation.en).toMatch(/the supremum is not/);
+        expect(dStep('darboux-sine-reveal-step').explanation.en).toMatch(/interior of the part/);
+        expect(dStep('darboux-sine-reveal-step').explanation.en).toMatch(/value at the left endpoint/);
+        expect(dStep('darboux-sine-reveal-step').explanation.en).toMatch(/not an upper estimate/);
+        expect(dStep('darboux-sine-reveal-step').explanation.sl).toMatch(/levem krajišču/);
+        expect(dStep('darboux-sine-reveal-step').explanation.sl).toMatch(/ni zgornja ocena/);
+        expect(dStep('darboux-refine-step').explanation.en).toMatch(/bisects every part/);
+        expect(dStep('darboux-free-exploration').explanation.en).toMatch(/explore on your own/i);
+        expect(dStep('darboux-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+        // the sums are never named as left or right sums
+        for (const field of [darbouxLesson.summary, ...darbouxLesson.formulaBlocks.map(formula => formula.explanation)]) {
+            expect(field.en).not.toMatch(/left sum|right sum/i);
+        }
+    });
+
+    test('asks for a prediction before the revealing Show lower sum / Show upper sum, and the scene of such a step never reveals them', () => {
+        for (const id of ['darboux-prerequisites-step', 'darboux-sine-step', 'darboux-free-exploration']) {
+            expect(dStep(id).observationPrompt.en, id).toMatch(/Predict/);
+            expect(dStep(id).observationPrompt.en, id).toMatch(/Show lower sum/);
+            expect(dStep(id).observationPrompt.en, id).toMatch(/Show upper sum/);
+            expect(dStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
+            expect(dStep(id).observationPrompt.sl, id).toMatch(/Pokaži spodnjo vsoto/);
+            expect(dStep(id).observationPrompt.sl, id).toMatch(/Pokaži zgornjo vsoto/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual({kind: 'function-visibility', target: 'lower-sum', visible: false});
+            expect(actions).toContainEqual({kind: 'function-visibility', target: 'upper-sum', visible: false});
+        }
+        for (const id of ['darboux-bounds-step', 'darboux-sine-reveal-step']) {
+            expect(adaptedActions(id)).toContainEqual({kind: 'function-visibility', target: 'lower-sum', visible: true});
+            expect(adaptedActions(id)).toContainEqual({kind: 'function-visibility', target: 'upper-sum', visible: true});
+        }
+        // each prediction precedes its reveal
+        const order = (id: string) => darbouxLesson.steps.findIndex(step => step.id === id);
+        expect(order('darboux-prerequisites-step')).toBeLessThan(order('darboux-bounds-step'));
+        expect(order('darboux-sine-step')).toBeLessThan(order('darboux-sine-reveal-step'));
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        expect(adaptedActions('darboux-prerequisites-step')).toEqual([
+            {kind: 'prepared-scene', sceneId: 'darboux-prerequisites-scene', source: 'demonstration-default'},
+            {kind: 'function-visibility', target: 'lower-sum', visible: false}, {kind: 'function-visibility', target: 'upper-sum', visible: false},
+        ]);
+        expect(adaptedActions('darboux-refine-step').slice(1)).toEqual([{kind: 'function-parameter', name: 'darboux-n', value: 8}]);
+        expect(adaptedActions('darboux-sine-step').slice(1)).toEqual([
+            {kind: 'function-choice', name: 'darboux-example', value: 'sine'}, {kind: 'function-parameter', name: 'darboux-b', value: Math.PI},
+            {kind: 'function-parameter', name: 'darboux-n', value: 1}, {kind: 'function-visibility', target: 'lower-sum', visible: false},
+            {kind: 'function-visibility', target: 'upper-sum', visible: false},
+        ]);
+        expect(adaptedActions('darboux-free-exploration').slice(1, 2)).toEqual([{kind: 'function-choice', name: 'darboux-example', value: 'sine'}]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives', () => {
+        const x2 = (n: number) => darbouxTotals(square, 0, 2, n);
+        expect(x2(4)).toMatchObject({lower: 1.75, upper: 3.75});
+        expect(x2(4).integral).toBeCloseTo(8 / 3, 12);
+        expect(x2(4).gap).toBe(2);
+        expect([x2(8).lower, x2(8).upper, x2(8).gap]).toEqual([2.1875, 3.1875, 1]);
+        expect([rounded(x2(16).lower), rounded(x2(16).upper), x2(16).gap]).toEqual([2.4219, 2.9219, 0.5]);
+        expect(rounded(8 / 3)).toBe(2.6667);
+        // the infima and suprema on the four parts of x^2
+        expect(darbouxSubintervals(square, 0, 2, 4).map(part => [part.inf, part.sup])).toEqual([[0, 0.25], [0.25, 1], [1, 2.25], [2.25, 4]]);
+        // sin x on [0, pi] with one part: inf 0, sup 1 at pi/2, L = 0, U = pi, integral 2; the left sample 0 * pi is below the integral
+        const one = darbouxSubintervals(sine, 0, Math.PI, 1)[0];
+        expect([one.inf, one.sup]).toEqual([0, 1]);
+        const sineOne = darbouxTotals(sine, 0, Math.PI, 1);
+        expect(sineOne.lower).toBe(0);
+        expect(sineOne.upper).toBeCloseTo(Math.PI, 12);
+        expect(sineOne.integral).toBeCloseTo(2, 12);
+        expect(rounded(Math.PI)).toBe(3.1416);
+        expect(sine.value(0) * Math.PI).toBeLessThan(sineOne.integral);
+        // sin x on [0, 2 pi] with four parts: L = -pi, U = pi, integral 0, gap 2 pi
+        const full = darbouxTotals(sine, 0, 2 * Math.PI, 4);
+        expect(full.lower).toBeCloseTo(-Math.PI, 12);
+        expect(full.upper).toBeCloseTo(Math.PI, 12);
+        expect(full.integral).toBeCloseTo(0, 12);
+        expect(rounded(full.gap)).toBe(6.2832);
+        expect(darbouxSubintervals(sine, 0, 2 * Math.PI, 4).map(part => [Math.round(part.inf) + 0, Math.round(part.sup) + 0])).toEqual([[0, 1], [0, 1], [-1, 0], [-1, 0]]);
+        // the numbers in the prose
+        expect(dStep('darboux-bounds-step').explanation.en).toContain('1.75');
+        expect(dStep('darboux-bounds-step').explanation.sl).toContain('1{,}75');
+        expect(dStep('darboux-bounds-step').explanation.en).toContain('3.75');
+        expect(dStep('darboux-bounds-step').explanation.en).toContain('2.6667');
+        expect(dStep('darboux-bounds-step').explanation.sl).toContain('2{,}6667');
+        expect(dStep('darboux-bounds-step').title.sl).toContain('1{,}75\\le\\frac83\\le3{,}75');
+        expect(dStep('darboux-refine-step').explanation.en).toContain('2.1875');
+        expect(dStep('darboux-refine-step').explanation.en).toContain('3.1875');
+        expect(dStep('darboux-refine-step').expectedObservations[0].en).toContain('2.4219');
+        expect(dStep('darboux-refine-step').expectedObservations[0].en).toContain('2.9219');
+        expect(dStep('darboux-sine-reveal-step').explanation.en).toContain('3.1416');
+        expect(dStep('darboux-free-exploration').explanation.sl).toContain('-3{,}1416');
+        expect(dStep('darboux-free-exploration').expectedObservations[0].en).toContain('6.2832');
+        const worked = (id: string) => darbouxLesson.workedExamples.find(example => example.id === id)!;
+        expect(worked('darboux-square-example').resultLatex).toBe('\\frac74\\le\\frac83\\le\\frac{15}{4}');
+        expect(worked('darboux-sine-example').resultLatex).toBe('0\\le2\\le\\pi');
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the example choice and the two sum elements', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['darboux-a', 'darboux-b', 'darboux-n', 'accum-a', 'mvt-a', 'a', 'b', 'n']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('darboux-example');
+        expect(FUNCTION_CHOICE_VALUES['darboux-example']).toEqual([...DARBOUX_EXAMPLE_IDS]);
+        expect(FUNCTION_VISIBILITY_TARGETS).toEqual(expect.arrayContaining(['lower-sum', 'upper-sum']));
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'darboux-n', value: 8}})).toEqual({kind: 'function-parameter', name: 'darboux-n', value: 8});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'darboux-example', value: 'sine'}})).toEqual({kind: 'function-choice', name: 'darboux-example', value: 'sine'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'lower-sum', value: false}})).toEqual({kind: 'function-visibility', target: 'lower-sum', visible: false});
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'darboux-example', value: 'cos'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'darboux-c' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'darboux-a', value: Number.NaN}})).toThrow(/finite/);
+        expect(() => sceneAction({name: 'show-function-element', value: {name: 'upper-sum', value: 'yes' as never}})).toThrow(/true or false/);
+    });
+
+    test('the lesson cites the source and says how the implementation corresponds to it', () => {
+        expect(darbouxLesson.sources.some(source => /§5\.3/.test(source.citation))).toBe(true);
+        const implementation = darbouxLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/darboux.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/DarbouxGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/never sampled/);
+        expect(implementation.implementationCorrespondence).toMatch(/nested/);
     });
 });
