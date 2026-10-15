@@ -1,8 +1,8 @@
 import {
-    isInterval, isMeanValueExampleId, isMeanValueX, isOrdered, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample,
+    isDifferentiableOn, isInterval, isMeanValueExampleId, isMeanValueX, isOrdered, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample,
     MVT_X_MAX, MVT_X_MIN, secantLineOf, secantSlope, slopeDifference, tangentLineOf, tangentSlope,
 } from './meanValue';
-import {DEFAULT_MEAN_VALUE_MODEL, parseMeanValueModel} from './meanValueModel';
+import {DEFAULT_MEAN_VALUE_MODEL, MEAN_VALUE_EXAMPLE_MODELS, parseMeanValueModel} from './meanValueModel';
 
 const square = meanValueExample('square');
 const cube = meanValueExample('cube');
@@ -164,22 +164,39 @@ describe('matching points', () => {
     });
 });
 
+describe('the differentiability hypothesis', () => {
+    test('only |x| has a corner, and it breaks the hypothesis only inside the open interval', () => {
+        expect([square.corners, cube.corners, abs.corners]).toEqual([[], [], [0]]);
+        expect(isDifferentiableOn(square, -4, 4) && isDifferentiableOn(cube, -4, 4)).toBe(true);
+        expect(isDifferentiableOn(abs, -1, 1)).toBe(false);
+        expect(isDifferentiableOn(abs, -2, 0.001)).toBe(false);
+        // a corner at an endpoint is not inside (a, b): |x| is differentiable on (0, 1) and on (-1, 0)
+        expect(isDifferentiableOn(abs, 0, 1)).toBe(true);
+        expect(isDifferentiableOn(abs, -1, 0)).toBe(true);
+        expect(() => isDifferentiableOn(abs, 1, 1)).toThrow(RangeError);
+    });
+
+    test('where the hypothesis fails the corner has no derivative', () => {
+        for (const corner of abs.corners) expect(abs.derivative(corner)).toBeUndefined();
+    });
+});
+
 describe('mean value model parser', () => {
     test('accepts the default and the lesson examples, dropping unknown keys', () => {
         expect(parseMeanValueModel(DEFAULT_MEAN_VALUE_MODEL)).toEqual(DEFAULT_MEAN_VALUE_MODEL);
-        expect(DEFAULT_MEAN_VALUE_MODEL).toEqual({example: 'square', a: 0, b: 2, c: 0.5});
-        expect(parseMeanValueModel({example: 'cube', a: -1, b: 1, c: 0.2})).toEqual({example: 'cube', a: -1, b: 1, c: 0.2});
-        expect(parseMeanValueModel({example: 'abs', a: -1, b: 1, c: 0, extra: 1})).toEqual({example: 'abs', a: -1, b: 1, c: 0});
+        expect(DEFAULT_MEAN_VALUE_MODEL).toEqual({example: 'square', a: 0, b: 2, c: 0.5, revealed: false});
+        expect(parseMeanValueModel({example: 'cube', a: -1, b: 1, c: 0.2, revealed: true})).toEqual({example: 'cube', a: -1, b: 1, c: 0.2, revealed: true});
+        expect(parseMeanValueModel({example: 'abs', a: -1, b: 1, c: 0, revealed: false, extra: 1})).toEqual({example: 'abs', a: -1, b: 1, c: 0, revealed: false});
     });
 
     test('accepts the closed boundary of the domain', () => {
-        expect(parseMeanValueModel({example: 'square', a: MVT_X_MIN, b: MVT_X_MAX, c: 0})).toBeDefined();
+        expect(parseMeanValueModel({example: 'square', a: MVT_X_MIN, b: MVT_X_MAX, c: 0, revealed: false})).toBeDefined();
         expect(isMeanValueX(MVT_X_MIN) && isMeanValueX(MVT_X_MAX)).toBe(true);
     });
 
     test('rejects non-objects, unknown examples and missing or non-finite numbers', () => {
         for (const bad of [null, undefined, 3, 'x', [], [1, 2, 3]]) expect(parseMeanValueModel(bad)).toBeUndefined();
-        const ok = {example: 'square', a: 0, b: 2, c: 1};
+        const ok = {example: 'square', a: 0, b: 2, c: 1, revealed: false};
         expect(parseMeanValueModel({...ok, example: 'sin'})).toBeUndefined();
         expect(parseMeanValueModel({...ok, example: undefined})).toBeUndefined();
         for (const key of ['a', 'b', 'c']) {
@@ -190,15 +207,32 @@ describe('mean value model parser', () => {
     });
 
     test('rejects out-of-domain numbers', () => {
-        expect(parseMeanValueModel({example: 'square', a: -5, b: 2, c: 1})).toBeUndefined();
-        expect(parseMeanValueModel({example: 'square', a: 0, b: 5, c: 1})).toBeUndefined();
-        expect(parseMeanValueModel({example: 'square', a: 0, b: 2, c: 4.5})).toBeUndefined();
+        expect(parseMeanValueModel({example: 'square', a: -5, b: 2, c: 1, revealed: false})).toBeUndefined();
+        expect(parseMeanValueModel({example: 'square', a: 0, b: 5, c: 1, revealed: false})).toBeUndefined();
+        expect(parseMeanValueModel({example: 'square', a: 0, b: 2, c: 4.5, revealed: false})).toBeUndefined();
     });
 
     test('rejects any ordering that violates a < c < b', () => {
-        const base = {example: 'square'};
+        const base = {example: 'square', revealed: false};
         for (const [a, b, c] of [[0, 2, 0], [0, 2, 2], [0, 2, -1], [0, 2, 3], [2, 0, 1], [1, 1, 1], [2, 2, 2], [1, 0, 2]]) {
             expect(parseMeanValueModel({...base, a, b, c})).toBeUndefined();
         }
+    });
+    test('requires the reveal flag to be a boolean', () => {
+        const ok = {example: 'square', a: 0, b: 2, c: 1};
+        expect(parseMeanValueModel(ok)).toBeUndefined();
+        for (const revealed of [undefined, null, 0, 1, 'true', {}]) expect(parseMeanValueModel({...ok, revealed})).toBeUndefined();
+        expect(parseMeanValueModel({...ok, revealed: true})).toEqual({...ok, revealed: true});
+    });
+
+    test('every named example starts from a valid, unrevealed model that is not at a matching point or a corner', () => {
+        for (const id of MEAN_VALUE_EXAMPLE_IDS) {
+            const model = MEAN_VALUE_EXAMPLE_MODELS[id];
+            expect(model.example).toBe(id);
+            expect(parseMeanValueModel(model)).toEqual(model);
+            expect(model.revealed).toBe(false);
+            expect(meanValueExample(id).derivative(model.c)).toBeDefined();
+        }
+        expect(MEAN_VALUE_EXAMPLE_MODELS.square).toBe(DEFAULT_MEAN_VALUE_MODEL);
     });
 });

@@ -286,6 +286,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'area-between-curves',
     'arc-length',
     'bisection',
+    'mean-value',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

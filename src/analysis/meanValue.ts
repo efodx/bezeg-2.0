@@ -39,6 +39,8 @@ export interface MeanValueExample {
     readonly derivative: (x: number) => number | undefined;
     /** Exact interior matching points for a < b, computed analytically (callers validate a < b). */
     readonly matches: (a: number, b: number) => MatchSet;
+    /** The points at which f is continuous but not differentiable (corners), ascending. */
+    readonly corners: readonly number[];
 }
 
 export const MEAN_VALUE_EXAMPLE_IDS = ['square', 'cube', 'abs'] as const;
@@ -57,6 +59,7 @@ export const MEAN_VALUE_EXAMPLES: Readonly<Record<MeanValueExampleId, MeanValueE
         plain: 'x^2',
         value: x => x * x,
         derivative: x => 2 * x,
+        corners: [],
         matches: (a, b) => ({kind: 'points', points: [(a + b) / 2]}),
     },
     // The secant slope is a^2 + ab + b^2 (> 0 for a < b); 3c^2 equals it at c = +-sqrt((a^2 + ab + b^2) / 3).
@@ -66,6 +69,7 @@ export const MEAN_VALUE_EXAMPLES: Readonly<Record<MeanValueExampleId, MeanValueE
         plain: 'x^3',
         value: x => x * x * x,
         derivative: x => 3 * x * x,
+        corners: [],
         matches: (a, b) => {
             const root = Math.sqrt((a * a + a * b + b * b) / 3);
             return {kind: 'points', points: [-root, root].filter(inOpenInterval(a, b))};
@@ -80,6 +84,7 @@ export const MEAN_VALUE_EXAMPLES: Readonly<Record<MeanValueExampleId, MeanValueE
         plain: '|x|',
         value: x => Math.abs(x),
         derivative: x => (x > 0 ? 1 : x < 0 ? -1 : undefined),
+        corners: [0],
         matches: (a, b) => (a >= 0 || b <= 0 ? {kind: 'interval', from: a, to: b} : {kind: 'points', points: []}),
     },
 };
@@ -92,6 +97,12 @@ function requireInterval(a: number, b: number): void {
 
 function requireOrdered(a: number, c: number, b: number): void {
     if (!isOrdered(a, c, b)) throw new RangeError('The points must be finite numbers with a < c < b.');
+}
+
+/** True when f is differentiable at every point of the open interval (a, b): the differentiability hypothesis of the theorem. */
+export function isDifferentiableOn(example: MeanValueExample, a: number, b: number): boolean {
+    requireInterval(a, b);
+    return !example.corners.some(corner => corner > a && corner < b);
 }
 
 /** The secant slope (f(b) - f(a)) / (b - a). Throws unless a < b. */

@@ -244,3 +244,34 @@ test.each([[[]], [null], [{}], [{...validBisection, example: "quartic"}], [{...v
     expect(() => preflightPresetImport(bisectionPreset(data))).toThrow(LocalizedError);
     expect(localStorage.length).toBe(0);
 });
+
+const meanValuePreset = (data: unknown) => JSON.stringify({"preset-mean-value": {data: [{id: "Osnova", boardState: {boundingBox: [-2.5, 5, 4, -2.5]},
+    graphState: {initialized: true, example: "square", a: 0, b: 2, c: 0.5, revealed: false}, data}]}});
+
+test("mean value collection imports a model object with its reveal state and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "cube", a: -1, b: 1, c: 0.25, revealed: true};
+    commitPresetImport(preflightPresetImport(meanValuePreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-mean-value")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validMeanValue = {example: "square", a: 0, b: 2, c: 0.5, revealed: false};
+test.each([[[]], [null], [{}], [{...validMeanValue, example: "quartic"}], [{...validMeanValue, c: 0}], [{...validMeanValue, c: 2}], [{...validMeanValue, c: -1}], [{...validMeanValue, c: 3}],
+    [{...validMeanValue, a: 2, b: 0}], [{...validMeanValue, a: 1, b: 1, c: 1}], [{...validMeanValue, a: -4.5}], [{...validMeanValue, b: 4.5}], [{...validMeanValue, a: "0"}],
+    [{...validMeanValue, c: NaN}], [{...validMeanValue, revealed: "true"}], [{example: "cube", a: -1, b: 1, c: 0}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("mean value collection rejects out-of-domain and misordered data without writing: %j", data => {
+    expect(() => preflightPresetImport(meanValuePreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([[{...validMeanValue, c: 0}], [{...validMeanValue, c: 2}], [{...validMeanValue, a: 2, b: 0}], [{...validMeanValue, a: 1, b: 1, c: 1}]])
+("mean value ordering errors say which condition to fix: %j", data => {
+    expect(() => preflightPresetImport(meanValuePreset(data))).toThrow(/a < c < b/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("mean value data that is wrong in another way gets the generic function-data message", () => {
+    expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, example: "quartic"}))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, revealed: 1}))).not.toThrow(/a < c < b/);
+});

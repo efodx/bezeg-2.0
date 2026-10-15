@@ -34,3 +34,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .bisection-actions button { min-height: 44px; }
 }
+/* Mean value theorem: the Show matching point toggle and the statuses, styled like the bisection controls. */
+.mean-value-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
+.mean-value-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.mean-value-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.mean-value-status p { margin: 0; }
+.mean-value-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .mean-value-actions button { min-height: 44px; }
+}

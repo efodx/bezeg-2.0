@@ -400,16 +400,19 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     /**
      * A point that slides along a curve: dragging projects x onto the grid of `step` inside [min, max], writes it with
      * `write` and puts the point back on the curve at y = `position(x)` (the x-axis for a bound, the graph for a point on it).
+     * `min` and `max` may be functions when the allowed range depends on other parts of the model (read on every drag event).
+     * `write` returns false when the model rejected the value; the caller then puts the point back itself and this method does not move it.
      */
     protected slidingPoint(config: {
-        x: number; position: (x: number) => number; min: number; max: number; step: number; attributes: object; write: (x: number) => void;
+        x: number; position: (x: number) => number; min: number | (() => number); max: number | (() => number); step: number; attributes: object; write: (x: number) => void | boolean;
     }): JXG.Point {
         const point = this.own(this.board.create("point", [config.x, config.position(config.x)], config.attributes)) as JXG.Point;
+        const bound = (value: number | (() => number)) => typeof value === "function" ? value() : value;
         point.on("drag", () => {
-            const x = Math.min(config.max, Math.max(config.min, Math.round(point.X() / config.step) * config.step + 0));
+            const x = Math.min(bound(config.max), Math.max(bound(config.min), Math.round(point.X() / config.step) * config.step + 0));
             if (!Number.isFinite(x)) return;
             const rounded = cleanNumber(x);
-            config.write(rounded);
+            if (config.write(rounded) === false) return;
             point.moveTo([rounded, config.position(rounded)]);
         });
         return point;

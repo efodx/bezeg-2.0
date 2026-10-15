@@ -1229,8 +1229,71 @@ const bisection = {
     stableCounts: async page => ({step: await bisectionReadout(page, 'step')}),
 };
 
+// ---------------------------------------------------------------- Mean value theorem
+const meanValueReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const meanValueStatuses = page => page.locator('[data-mean-value-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-mean-value-status')));
+// Per step: the displayed a, b, c, the secant slope, the tangent slope and the slope difference, and the statuses on screen. At the corner (step 5)
+// the tangent slope and the difference are words ("ne obstaja" / "does not exist"), so only the language-independent status ids are checked there.
+// The lesson shows each configuration unrevealed (except step 2, which reveals the prediction of step 1); the learner presses Show matching point.
+const MEAN_VALUE_STEPS = [
+    {a: '0', b: '2', c: '0.5', secant: '2', tangent: '1', difference: '-1', statuses: ['differ']},
+    {a: '0', b: '2', c: '1', secant: '2', tangent: '2', difference: '0', statuses: ['agree', 'matches']},
+    {a: '0', b: '2', c: '1.5', secant: '2', tangent: '3', difference: '1', statuses: ['differ']},
+    {a: '-1', b: '1', c: '0', secant: '1', tangent: '0', difference: '-1', statuses: ['differ']},
+    {a: '-1', b: '1', c: '0', secant: '0', statuses: ['hypothesis', 'corner']},
+    {a: '0', b: '1', c: '0.5', secant: '1', tangent: '1', difference: '0', statuses: ['agree']},
+];
+
+const meanValue = {
+    id: 'mean-value',
+    path: `${BASE}/analysis/mean-value`,
+    titles: {sl: 'Izrek o povprečni vrednosti', en: 'Mean value theorem'},
+    steps: 6,
+    minFrames: 15, // 2 + 3 + 2 + 3 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(6);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = MEAN_VALUE_STEPS[step - 1];
+        await expect.poll(() => meanValueReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => meanValueReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => meanValueReadout(page, 'c'), {message: `c at ${label}`}).toBe(expected.c);
+        await expect.poll(() => meanValueReadout(page, 'secant-slope'), {message: `secant slope at ${label}`}).toBe(expected.secant);
+        if (expected.tangent !== undefined) {
+            await expect.poll(() => meanValueReadout(page, 'tangent-slope'), {message: `tangent slope at ${label}`}).toBe(expected.tangent);
+            await expect.poll(() => meanValueReadout(page, 'difference'), {message: `slope difference at ${label}`}).toBe(expected.difference);
+        }
+        await expect.poll(() => meanValueStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // a, b and c are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.a), 0], `a on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.c), 0], `c on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/Point of tangency c|Točka dotika c/).fill('1.2');
+        await expect.poll(() => meanValueReadout(page, 'c')).toBe('1.2');
+        await expect.poll(() => meanValueReadout(page, 'secant-slope'), {message: 'changing c does not move the secant'}).toBe('2');
+        await page.locator('[data-action="toggle-matches"]').click();
+        await expect.poll(() => meanValueStatuses(page), {message: 'the matching point is revealed'}).toContain('matches');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => meanValueReadout(page, 'c'), {message: 'lesson scene replaced the user c'}).toBe('1.5');
+        await expect.poll(() => meanValueStatuses(page), {message: 'lesson scene hid the user reveal'}).not.toContain('matches');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => meanValueReadout(page, 'c'), {message: 'user c restored'}).toBe('1.2');
+        await expect.poll(() => meanValueStatuses(page), {message: 'user reveal restored'}).toContain('matches');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({c: await meanValueReadout(page, 'c')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
