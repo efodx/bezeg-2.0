@@ -1191,7 +1191,8 @@ const bisection = {
     steps: 6,
     minFrames: 13, // 2 + 2 + 3 + 2 + 2 + 2 frames
     setup: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(6);
+        // At step 0 only a, b, f(a) and f(b) are visible; m and f(m) appear with the first step.
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(4);
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {

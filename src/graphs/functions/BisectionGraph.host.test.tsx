@@ -95,6 +95,23 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
     expect(graph.modelNow().step).toBe(0);
 });
 
+test('the label of the midpoint m follows its point: hidden at step 0, shown after the first step and hidden again after Reset', () => {
+    const frames = manualScheduler();
+    const graph = new ObservedBisectionGraph(frames.scheduler);
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    // jsdom gives the label no screen position, so JSXGraph's computed state is unreliable there; compare what the label asks for (its visible attribute).
+    type Shown = { elType: string; name: string; visPropCalc: { visible: unknown }; label?: { visProp: { visible: unknown } } };
+    const asked = (value: unknown) => typeof value === 'function' ? (value as () => unknown)() : value;
+    const midpoint = () => (graph.liveBoard().objectsList as unknown as Shown[])
+        .filter(object => object.elType === 'point' && object.name.includes('m'))
+        .map(object => ({point: object.visPropCalc.visible, label: asked(object.label?.visProp.visible)}));
+    expect(midpoint()).toEqual([{point: false, label: false}]);
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Naslednji korak'})); });
+    expect(midpoint()).toEqual([{point: true, label: true}]);
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi iteracijo'})); });
+    expect(midpoint()).toEqual([{point: false, label: false}]);
+});
+
 test('a focused control that becomes unavailable keeps keyboard focus (aria-disabled, never disabled) and its click does nothing', () => {
     const frames = manualScheduler();
     const graph = new ObservedBisectionGraph(frames.scheduler);

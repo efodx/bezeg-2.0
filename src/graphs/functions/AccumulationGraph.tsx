@@ -307,7 +307,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
             size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
         }));
         this.own(board.create("point", [() => model().x, () => accumulation(fn(), model().a, model().x)], {
-            ...this.styles.point.fixed, name: "$$A(x)$$", highlight: false, label: this.pointLabel("below-right"),
+            ...this.styles.point.fixed, name: "$$A(x)$$", highlight: false, label: this.pointLabel("below-right", 1, revealed),
             fillColor: GraphPalette.primaryCurve, highlightFillColor: GraphPalette.primaryCurve, visible: revealed,
             size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
         }));

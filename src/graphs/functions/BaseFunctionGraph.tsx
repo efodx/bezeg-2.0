@@ -384,13 +384,18 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     // ---- Points ----------------------------------------------------------------------------------------------------------
 
-    /** The label attributes of a point, placed so that it clears the curves through the point (pass them as the point's `label`). */
-    protected pointLabel(placement: LabelPlacement | (() => LabelPlacement), distance = 1): object {
+    /**
+     * The label attributes of a point, placed so that it clears the curves through the point (pass them as the point's `label`).
+     * JSXGraph keeps a label visible when only its point is hidden, so a point that is sometimes hidden passes the same
+     * `pointVisible` it gives the point and its label then follows the point as well as the point-label display setting.
+     */
+    protected pointLabel(placement: LabelPlacement | (() => LabelPlacement), distance = 1, pointVisible?: () => boolean): object {
         const resolve = () => typeof placement === "function" ? placement() : placement;
         const vertical = () => resolve().startsWith("above") ? 1 : resolve().startsWith("below") ? -1 : 0;
         const horizontal = () => resolve().endsWith("left") ? -1 : resolve().endsWith("right") ? 1 : 0;
         return {
             ...this.styles.point.default.label,
+            ...(pointVisible === undefined ? {} : {visible: () => this.displaySettings.pointLabelsVisible && pointVisible()}),
             anchorX: () => horizontal() < 0 ? "right" : horizontal() > 0 ? "left" : "middle",
             anchorY: () => vertical() > 0 ? "bottom" : vertical() < 0 ? "top" : "middle",
             offset: () => [horizontal() * 6 * distance, vertical() * 0.5 * this.displaySettings.fontSize * distance],

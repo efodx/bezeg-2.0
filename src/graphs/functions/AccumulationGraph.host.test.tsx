@@ -79,6 +79,22 @@ test('a real board hides A until the reveal button is pressed; the inputs move a
     expect(document.querySelector('[data-legend="accumulation"]')?.textContent).toBe('Accumulation A (dashed line)');
 });
 
+test('the label of A(x) follows the point: hidden before the reveal, shown after it and hidden again when A is hidden', () => {
+    const graph = new ObservedAccumulationGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    // jsdom gives the label no screen position, so JSXGraph's computed state is unreliable there; compare what the label asks for (its visible attribute).
+    type Shown = { elType: string; name: string; visPropCalc: { visible: unknown }; label?: { visProp: { visible: unknown } } };
+    const asked = (value: unknown) => typeof value === 'function' ? (value as () => unknown)() : value;
+    const accumulationPoint = () => (graph.liveBoard().objectsList as unknown as Shown[])
+        .filter(object => object.elType === 'point' && object.name.includes('A(x)'))
+        .map(object => ({point: object.visPropCalc.visible, label: asked(object.label?.visProp.visible)}));
+    expect(accumulationPoint()).toEqual([{point: false, label: false}]);
+    act(() => { fireEvent.click(screen.getByRole('button', {name: /akumulacijo A/})); });
+    expect(accumulationPoint()).toEqual([{point: true, label: true}]);
+    act(() => { fireEvent.click(screen.getByRole('button', {name: /akumulacijo A/})); });
+    expect(accumulationPoint()).toEqual([{point: false, label: false}]);
+});
+
 test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
     const graph = new ObservedAccumulationGraph();
     const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);

@@ -368,7 +368,7 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
         // Endpoints a, b and midpoint m on the axis, and their function values on the graph.
         const axisPoint = (name: string, x: () => number, placement: "below-left" | "below-right" | "above", visible: () => boolean, color: string) =>
             this.own(board.create("point", [x, 0], {
-                ...this.styles.point.fixed, name, highlight: false, label: this.pointLabel(placement), fillColor: color, highlightFillColor: color, visible,
+                ...this.styles.point.fixed, name, highlight: false, label: this.pointLabel(placement, 1, visible), fillColor: color, highlightFillColor: color, visible,
             }));
         axisPoint("$$a$$", () => view().a, "below-left", () => true, GraphPalette.comparisonCurve);
         axisPoint("$$b$$", () => view().b, "below-right", () => true, GraphPalette.comparisonCurve);
