@@ -18,10 +18,11 @@ import {GraphPalette} from "../styles/GraphPalette";
 const PRECISE = 4;
 
 /**
- * A slope that rounds to 0 at the displayed precision counts as flat: f(pi) = sin(pi) is 1.2e-16 in floating point, but the readout
- * (and the lesson) say 0, so the status must too.
+ * Only floating-point noise around a genuine zero counts as flat, because the status says f(x) = 0: sin(pi) is 1.2e-16 and sin(2 pi)
+ * is -2.4e-16 in double precision, far below this. A small but genuinely non-zero slope (a value that merely rounds to 0 on the
+ * four-decimal readout) is reported as rising or falling, never as exactly zero.
  */
-export const FLAT_SLOPE = 0.5 * 10 ** -PRECISE;
+export const FLAT_SLOPE = 1e-12;
 
 /** Samples of f along one stretch of the shaded region (a stretch is bounded by a, x and the zeros of f). */
 const SAMPLES_PER_PIECE = 48;

@@ -1,9 +1,10 @@
 import {commitPresetImport, preflightPresetImport} from "./PresetImport";
-import {LocalizedError} from "../../../localization";
+import {LocalizedError, setLanguage} from "../../../localization";
 const collection = {data: [{id: "Učna krivulja", data: [["JSXBezierCurve", {points: [[0, 0], [1, 2], [3, 0]]}]],
     boardState: {boundingBox: [-5, 5, 5, -5]}, graphState: {initialized: true, selectedCurveOption: 0, curveSelected: false}}]};
 const file = () => JSON.stringify({"preset-bezier-curve": collection});
 beforeEach(() => localStorage.clear());
+afterEach(() => setLanguage("sl"));
 
 test("valid existing-format file imports without changing other storage", () => {
     localStorage.setItem("other-app", "keep");
@@ -245,6 +246,28 @@ test.each([[[]], [null], [{}], [{...validBisection, example: "quartic"}], [{...v
     expect(localStorage.length).toBe(0);
 });
 
+test.each([
+    [{...validBisection, example: "quartic"}, /square-minus-two, sign-step, cubic/],
+    [{...validBisection, a: -4.5}, /−4 in 4|between −4 and 4/],
+    [{...validBisection, b: 4.5}, /−4 in 4|between −4 and 4/],
+    [{...validBisection, a: 2}, /a < b/],
+    [{...validBisection, a: 3, b: 2}, /a < b/],
+    [{...validBisection, step: -1}, /0 do 60|0 to 60/],
+    [{...validBisection, step: 61}, /0 do 60|0 to 60/],
+    [{...validBisection, step: 1.5}, /0 do 60|0 to 60/],
+    [{...validBisection, step: "3"}, /step/],
+])("bisection errors name the example, endpoints or step to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(bisectionPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(bisectionPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("bisection data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validBisection, a: "1"}, {example: "cubic", a: null, b: 1, step: 0}]) {
+        expect(() => preflightPresetImport(bisectionPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
 const meanValuePreset = (data: unknown) => JSON.stringify({"preset-mean-value": {data: [{id: "Osnova", boardState: {boundingBox: [-2.5, 5, 4, -2.5]},
     graphState: {initialized: true, example: "square", a: 0, b: 2, c: 0.5, revealed: false}, data}]}});
 
@@ -271,9 +294,23 @@ test.each([[{...validMeanValue, c: 0}], [{...validMeanValue, c: 2}], [{...validM
     expect(localStorage.length).toBe(0);
 });
 
-test("mean value data that is wrong in another way gets the generic function-data message", () => {
-    expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, example: "quartic"}))).toThrow(/invalid function data|neveljavni podatki funkcije/);
-    expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, revealed: 1}))).not.toThrow(/a < c < b/);
+test.each([
+    [{...validMeanValue, example: "quartic"}, /square, cube, abs/],
+    [{...validMeanValue, a: -4.5}, /−4 in 4|between −4 and 4/],
+    [{...validMeanValue, b: 4.5}, /−4 in 4|between −4 and 4/],
+    [{...validMeanValue, a: -5, c: 0, b: 5}, /−4 in 4|between −4 and 4/],
+    [{...validMeanValue, revealed: "true"}, /revealed/],
+    [{...validMeanValue, revealed: 1}, /revealed/],
+])("mean value errors name the example, range or field to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(meanValuePreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(meanValuePreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("mean value data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validMeanValue, a: "0"}, {example: "cube", a: -1, b: 1, c: null}]) {
+        expect(() => preflightPresetImport(meanValuePreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
 });
 
 const accumulationPreset = (data: unknown) => JSON.stringify({"preset-accumulation": {data: [{id: "Osnova", boardState: {boundingBox: [-1.2, 3.1, 6.7, -3.1]},
@@ -301,7 +338,28 @@ test.each([[{...validAccumulation, a: -7.01}], [{...validAccumulation, x: 7.01}]
     expect(localStorage.length).toBe(0);
 });
 
-test("accumulation data that is wrong in another way gets the generic function-data message", () => {
-    expect(() => preflightPresetImport(accumulationPreset({...validAccumulation, fn: "cos"}))).toThrow(/invalid function data|neveljavni podatki funkcije/);
-    expect(() => preflightPresetImport(accumulationPreset({...validAccumulation, accumulationVisible: 1}))).not.toThrow(/−7 in 7|between −7 and 7/);
+test.each([
+    [{...validAccumulation, fn: "cos"}, /square, sin, exp|sin/],
+    [{...validAccumulation, accumulationVisible: "true"}, /accumulationVisible/],
+    [{...validAccumulation, accumulationVisible: 1}, /accumulationVisible/],
+])("accumulation errors name the function or field to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(accumulationPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(accumulationPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije|−7 in 7|between −7 and 7/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("accumulation data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validAccumulation, a: "0"}, {fn: "sin", a: 0, x: null, accumulationVisible: false}]) {
+        expect(() => preflightPresetImport(accumulationPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the range and function messages are localized and show the supported range from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(accumulationPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validAccumulation, a: -8})).toContain("between −7 and 7");
+    expect(attempt({...validAccumulation, fn: "cos"})).toContain("fn must be one of: square, sin, exp");
+    setLanguage("sl");
+    expect(attempt({...validAccumulation, a: -8})).toContain("med −7 in 7");
+    expect(attempt({...validAccumulation, fn: "cos"})).toContain("polje fn mora biti eno od");
 });

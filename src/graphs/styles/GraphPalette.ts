@@ -18,6 +18,8 @@ export const GraphPalette = {
     axis: "#788477",
     tick: "#b7c1b5",
     label: "#4d594f",
+    /** Board text for a warning or unmet condition: about 5:1 against boardSurface, and always paired with words. */
+    warningText: "#9c5d48",
 } as const;
 
 export function constructionLevelColor(level: number): string {

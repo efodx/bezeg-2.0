@@ -57,6 +57,14 @@ test('a value the model rejects shows the rejection hint', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
 });
 
+test('a model rejection can carry its own reason instead of the generic hint', () => {
+    render(<NumberInput label="x" value={1} rejectedHint="x must stay below y." onChange={() => false}/>);
+    const input = screen.getByLabelText('x');
+    fireEvent.change(input, {target: {value: '5'}});
+    expect(screen.getByRole('status')).toHaveTextContent('x must stay below y.');
+    expect(input.getAttribute('aria-describedby')).toBe(screen.getByRole('status').id);
+});
+
 test('the readout shows labelled values and an optional note', () => {
     render(<FunctionReadout title="Odčitki" rows={[{id: 'k', label: 'k', value: '2'}, {id: 'n', label: 'n', value: 'ni določen'}]} note="Opomba"/>);
     expect(screen.getByRole('heading', {name: 'Odčitki'})).toBeInTheDocument();

@@ -134,7 +134,11 @@ export interface BisectionHistory {
     readonly bracket: BisectionBracketKind;
     /** Whether the example is continuous on [a, b]. */
     readonly continuous: boolean;
-    /** Continuity on [a, b] and strictly opposite endpoint signs: the intermediate value theorem then guarantees a root. */
+    /**
+     * True exactly when f is continuous on [a, b] and f(a), f(b) are strictly nonzero with opposite signs (the hypothesis of
+     * the bisection lesson's use of the intermediate value theorem). It is false when an endpoint is itself a root
+     * (`bracket === 'endpoint-root'`): a root is then known without the theorem, but the strict-sign hypothesis does not hold.
+     */
     readonly hypothesisSatisfied: boolean;
     /** The steps taken; at most the requested number (fewer when the iteration terminated earlier). */
     readonly steps: readonly BisectionStep[];

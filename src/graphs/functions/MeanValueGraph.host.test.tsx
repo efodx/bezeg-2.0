@@ -64,7 +64,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
     act(() => { fireEvent.change(inputA, {target: {value: '1'}}); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2, c: 1});
-    expect(screen.getByText('Te vrednosti ni mogoče uporabiti.')).toBeInTheDocument();
+    expect(screen.getByText('Krajišče a mora ostati levo od c (a < c). Najprej premakni c.')).toBeInTheDocument();
     act(() => { fireEvent.change(inputA, {target: {value: '0.5'}}); });
     expect(graph.modelNow()).toMatchObject({a: 0.5, b: 2, c: 1});
     expect(readout('secant-slope')).toBe('2,5');
@@ -79,7 +79,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     expect(readout('difference')).toBe('ne obstaja');
     expect(statusIds()).toEqual(['hypothesis', 'corner']);
     act(() => { fireEvent.click(showButton()); });
-    expect(readout('matches')).toBe('nobene');
+    expect(readout('matches')).toBe('ni');
     expect(statusIds()).toEqual(['hypothesis', 'corner', 'matches-none']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 

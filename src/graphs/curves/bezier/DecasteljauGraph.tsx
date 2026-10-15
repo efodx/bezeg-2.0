@@ -16,6 +16,8 @@ import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
+const isDecasteljauCommand = (command: LessonAnimationCommand): command is DecasteljauAnimationCommand =>
+    DECASTELJAU_ANIMATION_COMMANDS.some(known => known === command);
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -228,8 +230,8 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         });
         // The frame animation has no iteration; `next-step` and `reset` are rejected rather than ignored.
         registry.onDiscriminated('animation', 'decasteljau',
-            action => this.setLessonAnimation(action.command as DecasteljauAnimationCommand),
-            {supports: action => DECASTELJAU_ANIMATION_COMMANDS.includes(action.command as DecasteljauAnimationCommand)});
+            action => { if (isDecasteljauCommand(action.command)) this.setLessonAnimation(action.command); },
+            {supports: action => isDecasteljauCommand(action.command)});
     }
 
 }

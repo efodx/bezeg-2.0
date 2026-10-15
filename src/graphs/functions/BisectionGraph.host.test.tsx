@@ -76,7 +76,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
     expect(graph.playing()).toBe(true);
     expect(screen.getByRole('button', {name: 'Premor'})).toBeInTheDocument();
-    expect(nextButton().disabled).toBe(true);
+    expect(nextButton().getAttribute('aria-disabled')).toBe('true');
     act(() => { frames.frame(0); frames.frame(BISECTION_STEP_INTERVAL_MS); });
     expect(readout('step')).toBe('4');
     expect(readout('mid')).toBe('1,4375');
@@ -93,6 +93,48 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
     act(() => { fireEvent.click(nextButton()); });
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi iteracijo'})); });
     expect(graph.modelNow().step).toBe(0);
+});
+
+test('a focused control that becomes unavailable keeps keyboard focus (aria-disabled, never disabled) and its click does nothing', () => {
+    const frames = manualScheduler();
+    const graph = new ObservedBisectionGraph(frames.scheduler);
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const nextButton = () => screen.getByRole('button', {name: 'Naslednji korak'}) as HTMLButtonElement;
+    const resetButton = () => screen.getByRole('button', {name: 'Ponastavi iteracijo'}) as HTMLButtonElement;
+    expect(resetButton().getAttribute('aria-disabled')).toBe('true');
+    act(() => { fireEvent.click(resetButton()); });
+    expect(graph.modelNow().step).toBe(0);
+
+    // Next step reaches the end of the iteration while it has focus
+    nextButton().focus();
+    for (let guard = 0; guard < 80 && nextButton().getAttribute('aria-disabled') !== 'true'; guard++) act(() => { fireEvent.click(nextButton()); });
+    expect(nextButton().getAttribute('aria-disabled')).toBe('true');
+    expect(nextButton().hasAttribute('disabled')).toBe(false);
+    expect(document.activeElement).toBe(nextButton());
+    const finished = graph.modelNow().step;
+    act(() => { fireEvent.click(nextButton()); });
+    expect(graph.modelNow().step).toBe(finished);
+
+    // Reset returns to the start; Play then runs to the end while the Play button has focus, and keeps it
+    act(() => { fireEvent.click(resetButton()); });
+    expect(graph.modelNow().step).toBe(0);
+    const play = screen.getByRole('button', {name: 'Predvajaj'}) as HTMLButtonElement;
+    play.focus();
+    act(() => { fireEvent.click(play); });
+    expect(graph.playing()).toBe(true);
+    expect(play.hasAttribute('aria-pressed')).toBe(false);
+    expect(nextButton().hasAttribute('disabled')).toBe(false);
+    expect(document.activeElement).toBe(play);
+    for (let guard = 0; guard < 200 && graph.playing(); guard++) act(() => { frames.frame(BISECTION_STEP_INTERVAL_MS); });
+    expect(graph.playing()).toBe(false);
+    const ended = screen.getByRole('button', {name: 'Predvajaj'}) as HTMLButtonElement;
+    expect(ended.getAttribute('aria-disabled')).toBe('true');
+    expect(ended.hasAttribute('disabled')).toBe(false);
+    expect(document.activeElement).toBe(ended);
+    const endStep = graph.modelNow().step;
+    act(() => { fireEvent.click(ended); });
+    expect(graph.playing()).toBe(false);
+    expect(graph.modelNow().step).toBe(endStep);
 });
 
 test('StrictMode mounts, unmounts and mounts again: playback still works on the remounted board and nothing runs after the final unmount', () => {

@@ -8,9 +8,15 @@ import {parseRiemannModel} from "../../../analysis/riemannModel";
 import {parseAreaBetweenModel} from "../../../analysis/areaBetweenModel";
 import {parseArcLengthModel} from "../../../analysis/arcLengthModel";
 import {parseBisectionModel} from "../../../analysis/bisectionModel";
+import {
+    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, isBisectionEndpoint, isBisectionExampleId, isBisectionStepCount,
+} from "../../../analysis/bisection";
+import {isMeanValueExampleId, isMeanValueX, isOrdered, MEAN_VALUE_EXAMPLE_IDS, MVT_X_MAX, MVT_X_MIN} from "../../../analysis/meanValue";
+import {FUNCTION_IDS, isFunctionId} from "../../../analysis/functions";
+import {formatNumber} from "../../../analysis/format";
 import {parseMeanValueModel} from "../../../analysis/meanValueModel";
 import {parseAccumulationModel} from "../../../analysis/accumulationModel";
-import {isAccumulationBound} from "../../../analysis/accumulation";
+import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, isAccumulationBound} from "../../../analysis/accumulation";
 // Existing collection keys and DTO names are a file contract, independent of the graph renderer.
 const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decasteljau2", "subdivision-1", "affine-transform", "elevation-graph",
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
@@ -25,10 +31,43 @@ const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurv
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
 const finite = (value: any) => typeof value === "number" && Number.isFinite(value);
-/** Mean value data with numeric a, b and c that break a < c < b: the one function-data error that deserves its own explanation. */
-const misorderedMeanValue = (data: any) => isObject(data) && [data.a, data.b, data.c].every(finite) && !(data.a < data.c && data.c < data.b);
-/** Accumulation data with numeric a and x outside the supported range: the one function-data error that names the range to use. */
-const outOfRangeAccumulation = (data: any) => isObject(data) && [data.a, data.x].every(finite) && !(isAccumulationBound(data.a) && isAccumulationBound(data.x));
+/** A range bound as the file contract shows it (an integer, so the same text in both languages). */
+const bound = (value: number) => formatNumber(value, "en");
+/**
+ * Function-demonstration data that the collection's parser rejected: the most specific actionable message for the main failure
+ * classes of each collection, or undefined to keep the generic invalid_function_data message (wrong type, missing fields, NaN).
+ */
+type Diagnosis = (data: any) => Message | undefined;
+const diagnoseBisection: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isBisectionExampleId(data.example)) return message("invalid_bisection_example", {value0: BISECTION_EXAMPLE_IDS.join(", ")});
+    if (finite(data.a) && finite(data.b)) {
+        if (!isBisectionEndpoint(data.a) || !isBisectionEndpoint(data.b)) return message("invalid_bisection_endpoints", {value0: bound(BISECTION_BOUND_MIN), value1: bound(BISECTION_BOUND_MAX)});
+        if (!(data.a < data.b)) return message("invalid_bisection_order");
+    }
+    if (data.step !== undefined && !isBisectionStepCount(data.step)) return message("invalid_bisection_step", {value0: BISECTION_MAX_STEPS});
+    return undefined;
+};
+const diagnoseMeanValue: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isMeanValueExampleId(data.example)) return message("invalid_mean_value_example", {value0: MEAN_VALUE_EXAMPLE_IDS.join(", ")});
+    if ([data.a, data.b, data.c].every(finite)) {
+        if (!isOrdered(data.a, data.c, data.b)) return message("invalid_mean_value_order");
+        if (![data.a, data.b, data.c].every(isMeanValueX)) return message("invalid_mean_value_range", {value0: bound(MVT_X_MIN), value1: bound(MVT_X_MAX)});
+    }
+    if (data.revealed !== undefined && typeof data.revealed !== "boolean") return message("invalid_mean_value_revealed");
+    return undefined;
+};
+const diagnoseAccumulation: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isFunctionId(data.fn)) return message("invalid_accumulation_function", {value0: FUNCTION_IDS.join(", ")});
+    if ([data.a, data.x].every(finite) && !(isAccumulationBound(data.a) && isAccumulationBound(data.x))) {
+        return message("invalid_accumulation_range", {value0: bound(ACCUMULATION_BOUND_MIN), value1: bound(ACCUMULATION_BOUND_MAX)});
+    }
+    if (data.accumulationVisible !== undefined && typeof data.accumulationVisible !== "boolean") return message("invalid_accumulation_visibility");
+    return undefined;
+};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));
@@ -83,9 +122,7 @@ export function preflightPresetImport(contents: string, storage: Storage = windo
             if (preset.graphState !== undefined) { state(preset.graphState); }
             if (preset.data !== undefined && functionModelParsers[key]) {
                 if (functionModelParsers[key](preset.data) === undefined) {
-                    if (key === "preset-mean-value" && misorderedMeanValue(preset.data)) { fail(message("invalid_mean_value_order")); }
-                    if (key === "preset-accumulation" && outOfRangeAccumulation(preset.data)) { fail(message("invalid_accumulation_range")); }
-                    fail(message("invalid_function_data"));
+                    fail(functionDataDiagnoses[key]?.(preset.data) ?? message("invalid_function_data"));
                 }
             } else if (preset.data !== undefined) {
                 if (!Array.isArray(preset.data)) { fail(message("invalid_curve_data")); }

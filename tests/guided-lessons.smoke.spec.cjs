@@ -1202,7 +1202,7 @@ const bisection = {
         await expect.poll(() => bisectionReadout(page, 'width'), {message: `interval width at ${label}`}).toBe(expected.width);
         await expect.poll(() => bisectionReadout(page, 'a'), {message: `examined left endpoint at ${label}`}).toBe(expected.a);
         // the lesson never starts playback: the control still offers Play
-        await expect(page.locator('[data-action="play-pause"]'), `playback stopped at ${label}`).toHaveAttribute('aria-pressed', 'false');
+        await expect(page.locator('[data-action="play-pause"]'), `playback stopped at ${label}`).toHaveText(/Predvajaj|Play/);
         if (expected.mid !== '—') await expectPointNear(page, [Number(expected.mid), 0], `midpoint m on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
@@ -1223,7 +1223,7 @@ const bisection = {
     assertUserState: async (page, ctx, before) => {
         await expect.poll(() => bisectionReadout(page, 'step'), {message: 'user step restored'}).toBe('1');
         await expect.poll(() => bisectionReadout(page, 'mid'), {message: 'user midpoint restored'}).toBe('2');
-        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveAttribute('aria-pressed', 'false');
+        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveText(/Predvajaj|Play/);
         expect((await boardStats(page)).total).toBe(before.total);
     },
     stableCounts: async page => ({step: await bisectionReadout(page, 'step')}),

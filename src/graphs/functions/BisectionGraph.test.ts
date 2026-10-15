@@ -258,8 +258,8 @@ test('playback ends at stagnation for x^2 - 2 and the state never calls the midp
     const text = graph.statuses(graph.model, 'sl').map((status: { text: string }) => status.text).join(' ') + graph.captionPlainLines().join(' ');
     expect(text).not.toMatch(/Natančna ničla|natančna ničla pri/);
     expect(text).toMatch(/ne natančna ničla/);
-    expect(controls(graph).next.props.disabled).toBe(true);
-    expect(controls(graph).play.props.disabled).toBe(true);
+    expect(controls(graph).next.props['aria-disabled']).toBe(true);
+    expect(controls(graph).play.props['aria-disabled']).toBe(true);
     expect(() => next(graph)).toThrow(DomainError);
     expect(graph.model.step).toBe(history.steps.length);
     // the width is shown in exponent notation, never as 0
@@ -341,7 +341,7 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     apply(graph, parameter('bisect-a', 2));
     expect(statusIds(graph)).toEqual(['invalid-bracket']);
     expect(graph.captionPlainLines()[2]).toBe('isti predznak: ničla ni zagotovljena');
-    expect(controls(graph).next.props.disabled).toBe(true);
+    expect(controls(graph).next.props['aria-disabled']).toBe(true);
     expect(() => next(graph)).toThrow(DomainError);
 
     // an exact root at an endpoint stops before the first step
@@ -349,7 +349,7 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     apply(graph, parameter('bisect-a', 1));
     expect(statusIds(graph)).toEqual(['endpoint-root']);
     expect(graph.statuses(graph.model, 'sl')[0].text).toContain('Krajišče 1 je natančna ničla');
-    expect(controls(graph).next.props.disabled).toBe(true);
+    expect(controls(graph).next.props['aria-disabled']).toBe(true);
 
     // an exact midpoint root: the midpoint of [0.5, 1.5] is 1 and f(1) = 0 exactly
     apply(graph, parameter('bisect-a', 0.5));
@@ -359,7 +359,7 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     expect(graph.captionPlainLines()[2]).toBe('natančna ničla pri 1');
     expect(rows(graph)).toMatchObject({mid: '1', 'f-mid': '0', retained: 'nobena, m je ničla', interval: '[1; 1]', width: '0'});
     expect(graph.controller.isComplete()).toBe(true);
-    expect(controls(graph).next.props.disabled).toBe(true);
+    expect(controls(graph).next.props['aria-disabled']).toBe(true);
 
     // the iteration limit: the root 0 of x^3 - x is approached but never reached exactly, and the width stays above the double spacing
     apply(graph, parameter('bisect-a', -0.5));
@@ -467,20 +467,21 @@ test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset
     expect(first.found.NumberInput.map((input: any) => [input.props.min, input.props.max, input.props.value])).toEqual([[-4, 4, 1], [-4, 4, 2]]);
     expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Levo krajišče a', 'Desno krajišče b']);
     expect(first.found.button.map((button: any) => button.props['data-action'])).toEqual(['next-step', 'play-pause', 'reset']);
-    expect(first.next.props.disabled).toBe(false);
-    expect(first.play.props.disabled).toBe(false);
-    expect(first.reset.props.disabled).toBe(true);
+    expect(first.next.props['aria-disabled']).toBe(false);
+    expect(first.play.props['aria-disabled']).toBe(false);
+    expect(first.reset.props['aria-disabled']).toBe(true);
     expect(first.play.props.children).toBe('Predvajaj');
 
     first.next.props.onClick();
     expect(graph.model.step).toBe(1);
-    expect(controls(graph).reset.props.disabled).toBe(false);
+    expect(controls(graph).reset.props['aria-disabled']).toBe(false);
     controls(graph).play.props.onClick();
     expect(graph.controller.isPlaying()).toBe(true);
     const playing = controls(graph);
     expect(playing.play.props.children).toBe('Premor');
-    expect(playing.play.props['aria-pressed']).toBe(true);
-    expect(playing.next.props.disabled).toBe(true);
+    // the label swap is the one state cue: a toggle with a swapped label has no aria-pressed (it would be announced twice)
+    expect(playing.play.props['aria-pressed']).toBeUndefined();
+    expect(playing.next.props['aria-disabled']).toBe(true);
     playing.play.props.onClick();
     expect(graph.controller.isPlaying()).toBe(false);
     expect(controls(graph).play.props.children).toBe('Predvajaj');
@@ -520,7 +521,7 @@ test('presets save the model with the step, reopen paused at that step and never
     reopened.importPresetData(JSON.stringify({example: 'cubic', a: 0.5, b: 1.5, step: 30, extra: true}));
     expect(reopened.model).toEqual({example: 'cubic', a: 0.5, b: 1.5, step: 1});
     expect(reopened.controller.isComplete()).toBe(false);
-    expect(controls(reopened).next.props.disabled).toBe(true);
+    expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     reopened.importPresetData({example: 'sign-step', a: -1, b: 1, step: 2});
     expect(reopened.model).toEqual({example: 'sign-step', a: -1, b: 1, step: 2});
 });

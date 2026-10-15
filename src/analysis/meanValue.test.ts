@@ -106,6 +106,28 @@ describe('matching points', () => {
         expect(far.kind === 'points' && far.points[0]).toBeCloseTo(Math.sqrt(7 / 3), 14);
     });
 
+    test('x^3 with a = -2b or b = -2a: the root equal to an endpoint is not interior, exactly one match remains', () => {
+        const cases: [number, number][] = [[-1.98, 0.99], [-0.99, 1.98], [-3.96, 1.98], [-3.4, 1.7], [-1.7, 0.85], [-0.85, 1.7]];
+        for (const [a, b] of cases) {
+            const result = matchingPoints(cube, a, b);
+            expect(result.kind).toBe('points');
+            if (result.kind !== 'points') return;
+            expect(result.points).toHaveLength(1);
+            const [point] = result.points;
+            expect(point).toBeGreaterThan(a + 1e-9);
+            expect(point).toBeLessThan(b - 1e-9);
+            // The remaining point really matches: f'(c) equals the secant slope.
+            expect(cube.derivative(point)).toBeCloseTo(secantSlope(cube, a, b), 12);
+        }
+    });
+
+    test('x^3 genuine two-match cases still give two points', () => {
+        for (const [a, b] of [[-1, 1], [-1.9, 0.99], [-1.97, 0.99], [-0.99, 1.97], [-4, 4], [-2, 1.9]]) {
+            const result = matchingPoints(cube, a, b);
+            expect(result.kind === 'points' && result.points).toHaveLength(2);
+        }
+    });
+
     test('|x| on [-1, 1]: secant slope 0, no interior point has derivative 0, no matches', () => {
         expect(secantSlope(abs, -1, 1)).toBe(0);
         expect(matchingPoints(abs, -1, 1)).toEqual({kind: 'points', points: []});

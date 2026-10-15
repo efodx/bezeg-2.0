@@ -49,7 +49,19 @@ export type MeanValueExampleId = typeof MEAN_VALUE_EXAMPLE_IDS[number];
 export const isMeanValueExampleId = (value: unknown): value is MeanValueExampleId =>
     typeof value === 'string' && (MEAN_VALUE_EXAMPLE_IDS as readonly string[]).includes(value);
 
-const inOpenInterval = (a: number, b: number) => (x: number) => x > a && x < b;
+/**
+ * Relative tolerance that decides when a computed root coincides with an endpoint. For x^3 the exact root
+ * +-sqrt((a^2 + ab + b^2) / 3) equals an endpoint when a = -2b or b = -2a, but rounding can put the computed value a few
+ * ulps inside the open interval. A root closer than this to an endpoint (scaled by the larger of 1 and the endpoint
+ * magnitudes) is treated as that endpoint, which is not interior. The tolerance is far below the 0.01 grid of the
+ * endpoints, so it never hides a genuinely interior root.
+ */
+const ENDPOINT_COINCIDENCE_TOLERANCE = 1e-12;
+
+const inOpenInterval = (a: number, b: number) => {
+    const margin = ENDPOINT_COINCIDENCE_TOLERANCE * Math.max(1, Math.abs(a), Math.abs(b));
+    return (x: number) => x > a + margin && x < b - margin;
+};
 
 export const MEAN_VALUE_EXAMPLES: Readonly<Record<MeanValueExampleId, MeanValueExample>> = {
     // f' = 2x equals the secant slope a + b at c = (a + b) / 2, the only match.

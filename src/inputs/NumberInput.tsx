@@ -16,6 +16,8 @@ interface NumberInputProps {
     disabled?: boolean;
     /** Digits kept when the value is shown (the stored value is not rounded). */
     decimals?: number;
+    /** Why the model rejected a value (for example an ordering rule); replaces the generic rejection hint. */
+    rejectedHint?: string;
 }
 
 const show = (value: number | undefined, decimals: number) =>
@@ -50,7 +52,7 @@ export function NumberInput(props: NumberInputProps) {
     };
     const hintText = hint === "range" && min !== undefined && max !== undefined
         ? t("number_range_hint", {value0: formatNumber(min, currentLanguage()), value1: formatNumber(max, currentLanguage())})
-        : hint ? t("number_rejected_hint") : undefined;
+        : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
     return <div className="number-input">
         <label htmlFor={id}>{props.label}</label>
         <input id={id} type="number" inputMode="decimal" value={draft} disabled={props.disabled}

@@ -188,6 +188,8 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
 
     /** One Next step. It takes over from playback, throws when the iteration cannot advance, and waits while a figure is captured. */
     protected nextStep(): void {
+        // While a figure is captured the step is dropped without an error: a lesson `next-step` that arrives then is not queued
+        // (the export lock is short and ends in a figure, never in a scene change).
         if (this.exportBusy) return;
         if (!this.canAdvance()) throw new DomainError("The iteration cannot advance: it has finished or the bracket is not valid.");
         this.controller.pause();
@@ -387,7 +389,7 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
             {
                 text: () => this.boardStatus(model(), language())?.text ?? "",
                 visible: () => this.boardStatus(model(), language()) !== undefined,
-                color: () => this.boardStatus(model(), language())?.ok ? GraphPalette.primaryCurve : "#9c5d48",
+                color: () => this.boardStatus(model(), language())?.ok ? GraphPalette.primaryCurve : GraphPalette.warningText,
             },
         ]);
     }
@@ -399,6 +401,9 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
         const history = this.historyOf({example, a, b, step});
         const playing = this.controller.isPlaying();
         const canAdvance = history.termination === undefined;
+        const nextUnavailable = !canAdvance || playing;
+        const playUnavailable = !canAdvance && !playing;
+        const resetUnavailable = step === 0 && !playing;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("bisection_example_label")} value={example} help={t("bisection_example_help")}
@@ -407,19 +412,21 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} decimals={9}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                             rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
                 <NumberInput label={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} decimals={9}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+                             rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
             <div className="inspector-group">
+                {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
+                    unavailable at termination or when Play starts must not drop keyboard focus to the page body. */}
                 <div className="bisection-actions" role="group" aria-label={t("bisection_iteration_controls")}>
-                    <button type="button" data-action="next-step" disabled={!canAdvance || playing}
-                            onClick={() => this.ignoreOutOfDomain(() => this.nextStep())}>{t("bisection_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-pressed={playing} disabled={!canAdvance && !playing}
-                            onClick={() => playing ? this.pauseIteration() : this.play()}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" disabled={step === 0 && !playing}
-                            onClick={() => this.resetIteration()}>{t("bisection_reset")}</button>
+                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
+                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("bisection_next_step")}</button>
+                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
+                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
+                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
+                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("bisection_reset")}</button>
                 </div>
                 <p className="inspector-help">{t("bisection_playback_note")}</p>
             </div>

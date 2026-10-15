@@ -769,14 +769,20 @@ test('the legend names the curves and both kinds of shaded region in words, not 
     expect(fills(graph)[NEGATIVE_FILL].attributes.fillColor).toBe(GraphPalette.additionalCurves[1]);
 });
 
-test('the flat-slope tolerance is the display precision', () => {
-    expect(FLAT_SLOPE).toBeCloseTo(0.00005, 12);
+test('the flat-slope tolerance covers floating-point noise only, never a small non-zero slope', () => {
+    expect(FLAT_SLOPE).toBe(1e-12);
+    expect(Math.abs(Math.sin(Math.PI))).toBeLessThan(FLAT_SLOPE);
+    expect(Math.abs(Math.sin(2 * Math.PI))).toBeLessThan(FLAT_SLOPE);
     const graph = makeGraph({asyncState: false});
     apply(graph, reveal(true));
-    // sin(x) = 4e-5 rounds to 0 on the readout, so the status says flat; 6e-5 shows 0,0001 and rises
+    // sin(x) = 4e-5 rounds to 0 on the four-decimal readout but is not zero: the status must not claim f(x) = 0
     apply(graph, parameter('accum-x', Math.asin(4e-5)));
     expect(rows(graph).slope).toBe('0');
-    expect(statusIds(graph)).toEqual(['flat']);
+    expect(statusIds(graph)).toEqual(['rising']);
+    apply(graph, parameter('accum-x', Math.PI - Math.asin(4e-5)));
+    expect(statusIds(graph)).toEqual(['rising']);
+    apply(graph, parameter('accum-x', Math.PI + Math.asin(4e-5)));
+    expect(statusIds(graph)).toEqual(['falling']);
     apply(graph, parameter('accum-x', Math.asin(6e-5)));
     expect(rows(graph).slope).toBe('0,0001');
     expect(statusIds(graph)).toEqual(['rising']);

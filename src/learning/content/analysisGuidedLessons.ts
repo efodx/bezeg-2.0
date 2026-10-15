@@ -245,7 +245,7 @@ const bisection: GuidedLesson = {
             title: text('Več ničel in samostojno raziskovanje', 'Several roots and free exploration'),
             purpose: text('Obstoj ničle brez enoličnosti in prehod v samostojno raziskovanje.', 'Existence of a root without uniqueness, and the handoff to free exploration.'),
             explanation: text(
-                'Funkcija \\(f(x)=x^3-x\\) ima tri ničle \\(-1\\), \\(0\\) in \\(1\\). Na intervalu \\([-1{,}5;\\,2]\\) je \\(f(-1{,}5)=-1{,}875<0\\) in \\(f(2)=6>0\\), zato izrek zagotavlja vsaj eno ničlo, v resnici pa so v njem vse tri. Bisekcija najde le eno od njih; katero, je odvisno od izbire krajišč. Zdaj raziskuj sam: zamenjaj primer ali krajišči, pritisni Naslednji korak ali Predvajaj in preveri, kdaj je interval zaklet in kam se bisekcija stiska.',
+                'Funkcija \\(f(x)=x^3-x\\) ima tri ničle \\(-1\\), \\(0\\) in \\(1\\). Na intervalu \\([-1{,}5;\\,2]\\) je \\(f(-1{,}5)=-1{,}875<0\\) in \\(f(2)=6>0\\), zato izrek zagotavlja vsaj eno ničlo, v resnici pa so v njem vse tri. Bisekcija najde le eno od njih; katero, je odvisno od izbire krajišč. Zdaj raziskuj sam: zamenjaj primer ali krajišči, pritisni Naslednji korak ali Predvajaj in preveri, kdaj interval še vsebuje ničlo (f ima v krajiščih nasprotna predznaka) in kam se bisekcija stiska.',
                 'The function \\(f(x)=x^3-x\\) has three roots \\(-1\\), \\(0\\) and \\(1\\). On the interval \\([-1.5,\\,2]\\) we have \\(f(-1.5)=-1.875<0\\) and \\(f(2)=6>0\\), so the theorem guarantees at least one root, and in fact all three lie in it. Bisection finds only one of them; which one depends on the choice of endpoints. Now explore on your own: change the example or the endpoints, press Next step or Play, and check when the interval is a bracket and where bisection closes in.',
             ),
             formulaIds: ['bisection-sign-invariant'], learnerInteraction: 'adjust-construction-parameter',
@@ -297,7 +297,7 @@ const bisection: GuidedLesson = {
     ],
     unresolvedQuestions: [
         text(
-            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija omeni tudi, da bisekcija pri večkratni ničli sode stopnje ne najde zaklenega intervala.',
+            'Pred classroom-ready pregledom je treba potrditi, ali naj lekcija omeni tudi, da bisekcija pri večkratni ničli sode stopnje ne najde intervala z nasprotnima predznakoma v krajiščih.',
             'Before classroom-ready review, confirm whether the lesson should also mention that bisection finds no bracket at a root of even multiplicity.',
         ),
     ],
@@ -525,7 +525,7 @@ const meanValue: GuidedLesson = {
             title: text('Brez odvedljivosti ni zagotovila: \\(|x|\\) na \\([-1,1]\\)', 'Without differentiability there is no guarantee: \\(|x|\\) on \\([-1,1]\\)'),
             purpose: text('Pokazati, da je odvedljivost potreben pogoj izreka.', 'Showing that differentiability is a necessary condition of the theorem.'),
             explanation: text(
-                'Funkcija \\(f(x)=|x|\\) je zvezna na \\([-1,1]\\), a v točki \\(0\\) ni odvedljiva: graf ima kot. Naklon sekante je \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), odvod pa je \\(-1\\) levo od \\(0\\) in \\(1\\) desno od \\(0\\), nikoli \\(0\\). Nobena točka, v kateri odvod obstaja, torej ne ujame naklona sekante. V točki \\(c=0\\) odvod ne obstaja, zato tangente ni: aplikacija je ne nariše in naklona tangente ne prikaže, ne pa da bi ga izmislila ali pokazala neskončnost. Izrek tu ne trdi nasprotnega, ker predpostavka odvedljivosti na \\((-1,1)\\) ni izpolnjena.',
+                'Funkcija \\(f(x)=|x|\\) je zvezna na \\([-1,1]\\), a v točki \\(0\\) ni odvedljiva: graf ima ostri prelom. Naklon sekante je \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), odvod pa je \\(-1\\) levo od \\(0\\) in \\(1\\) desno od \\(0\\), nikoli \\(0\\). Nobena točka, v kateri odvod obstaja, torej ne ujame naklona sekante. V točki \\(c=0\\) odvod ne obstaja, zato tangente ni: aplikacija je ne nariše in naklona tangente ne prikaže, ne pa da bi ga izmislila ali pokazala neskončnost. Izrek tu ne trdi nasprotnega, ker predpostavka odvedljivosti na \\((-1,1)\\) ni izpolnjena.',
                 'The function \\(f(x)=|x|\\) is continuous on \\([-1,1]\\) but not differentiable at the point \\(0\\): its graph has a corner. The secant slope is \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), while the derivative is \\(-1\\) to the left of \\(0\\) and \\(1\\) to the right of \\(0\\), never \\(0\\). So no point at which the derivative exists achieves the secant slope. At the point \\(c=0\\) the derivative does not exist, so there is no tangent: the app draws none and shows no tangent slope, rather than inventing one or showing infinity. The theorem does not claim the opposite here, because its hypothesis of differentiability on \\((-1,1)\\) is not satisfied.',
             ),
             formulaIds: ['mean-value-statement'], workedExampleId: 'mean-value-abs-example', learnerInteraction: 'adjust-construction-parameter',
@@ -799,8 +799,8 @@ const accumulation: GuidedLesson = {
                 'Predicting the value of the accumulation when the region covers the whole arc of the sine above the axis.',
             ),
             explanation: text(
-                'Pri \\(x=\\pi\\) osenčeno območje zajame cel lok sinusa nad osjo, od \\(0\\) do \\(\\pi\\). Njegova vrednost je \\(A(\\pi)=1-\\cos\\pi=2\\), kar je znani rezultat \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). Akumulacija \\(A\\) je do \\(x=\\pi\\) naraščala, ker je \\(\\sin t>0\\) na \\((0,\\pi)\\); v točki \\(x=\\pi\\) doseže najvišjo vrednost \\(2\\), kjer je \\(f(\\pi)=0\\) in je njena tangenta vodoravna.',
-                'At \\(x=\\pi\\) the shaded region covers the whole arc of the sine above the axis, from \\(0\\) to \\(\\pi\\). Its value is \\(A(\\pi)=1-\\cos\\pi=2\\), the well-known result \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). The accumulation \\(A\\) increased up to \\(x=\\pi\\), because \\(\\sin t>0\\) on \\((0,\\pi)\\); at the point \\(x=\\pi\\) it reaches its highest value \\(2\\), where \\(f(\\pi)=0\\) and its tangent is horizontal.',
+                'Pri \\(x=\\pi\\) osenčeno območje zajame cel lok sinusa nad osjo, od \\(0\\) do \\(\\pi\\). Njegova vrednost je \\(A(\\pi)=1-\\cos\\pi=2\\), kar je znani rezultat \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). Akumulacija \\(A\\) je do \\(x=\\pi\\) naraščala, ker je \\(\\sin t>0\\) na \\((0,\\pi)\\); v točki \\(x=\\pi\\) doseže lokalni maksimum \\(2\\), ki je tudi največja vrednost \\(A\\) na \\([0,2\\pi]\\); tam je \\(f(\\pi)=0\\) in njena tangenta je vodoravna.',
+                'At \\(x=\\pi\\) the shaded region covers the whole arc of the sine above the axis, from \\(0\\) to \\(\\pi\\). Its value is \\(A(\\pi)=1-\\cos\\pi=2\\), the well-known result \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). The accumulation \\(A\\) increased up to \\(x=\\pi\\), because \\(\\sin t>0\\) on \\((0,\\pi)\\); at the point \\(x=\\pi\\) it reaches a local maximum \\(2\\), which is also the largest value of \\(A\\) on \\([0,2\\pi]\\); there \\(f(\\pi)=0\\) and its tangent is horizontal.',
             ),
             formulaIds: ['accumulation-sine'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('accumulation-pi-explanation', 'explanation'), frame('accumulation-pi-observation', 'observation')],

@@ -137,7 +137,11 @@ test('the default readout gives both slopes and their difference, and hides the 
         'secant-slope': '2', 'tangent-slope': '1', 'difference': '−1', 'matches': 'skrite',
     });
     expect(statusIds(graph)).toEqual(['differ']);
-    expect(statusTexts(graph)[0]).toContain('1');
+    // the changing difference lives in the readout row, never in the live status: it would be announced on every drag step
+    expect(statusTexts(graph)[0]).not.toMatch(/\d/);
+    expect(statusTexts(graph, 'en')[0]).not.toMatch(/\d/);
+    apply(graph, parameter('mvt-c', 1.25));
+    expect(statusTexts(graph)).toEqual(['Naklona se razlikujeta. Premakni c, da ju ujameš, ali pokaži ujemajočo točko.']);
 });
 
 test('Show matching point reveals c = 1 for x^2 on [0, 2]: a ring on the graph and a tangent parallel to the secant', () => {
@@ -159,6 +163,26 @@ test('Show matching point reveals c = 1 for x^2 on [0, 2]: a ring on the graph a
     expect(graph.model.revealed).toBe(false);
     expect(resolve(ring1.attributes.visible)).toBe(false);
     expect(rows(graph).matches).toBe('skrite');
+});
+
+test('x^3 with a = -2b: the root that equals an endpoint is not shown as a second match', () => {
+    const graph = makeGraph({asyncState: false});
+    apply(graph, choice('cube'));
+    apply(graph, parameter('mvt-a', -1.98));
+    apply(graph, parameter('mvt-b', 0.99));
+    apply(graph, reveal(true));
+    expect(rows(graph).matches).toBe('−0,99');
+    expect(statusIds(graph)).toContain('matches');
+    expect(statusTexts(graph, 'en').join(' ')).toContain('Matching point: c = −0.99.');
+    expect(statusTexts(graph, 'en').join(' ')).not.toContain('c = 0.99');
+    // the mirror image keeps only the positive root
+    apply(graph, parameter('mvt-b', 1.98));
+    apply(graph, parameter('mvt-a', -0.99));
+    expect(rows(graph).matches).toBe('0,99');
+    // a genuine pair of matches is still two points
+    apply(graph, choice('cube'));
+    apply(graph, reveal(true));
+    expect(rows(graph).matches).toBe('−0,5774; 0,5774');
 });
 
 test('x^3 on [-1, 1] reveals both matches c = +-1/sqrt(3), the same slope at both', () => {
@@ -195,7 +219,7 @@ test('|x| on [-1, 1] has no matching point and says so with its reason; the corn
     apply(graph, reveal(true));
     expect(rows(graph)).toEqual({
         'a': '−1', 'b': '1', 'c': '0', 'f-a': '1', 'f-b': '1', 'f-c': '0',
-        'secant-slope': '0', 'tangent-slope': 'ne obstaja', 'difference': 'ne obstaja', 'matches': 'nobene',
+        'secant-slope': '0', 'tangent-slope': 'ne obstaja', 'difference': 'ne obstaja', 'matches': 'ni',
     });
     expect(statusIds(graph)).toEqual(['hypothesis', 'corner', 'matches-none']);
     expect(statusTexts(graph, 'en')).toEqual([
@@ -208,7 +232,7 @@ test('|x| on [-1, 1] has no matching point and says so with its reason; the corn
     expect(resolve(tangent.attributes.visible)).toBe(false);
     expect(Number.isNaN(tangent.parents[0](1))).toBe(true);
     for (const ring of [points(graph)[RING_1], points(graph)[RING_2]]) expect(resolve(ring.attributes.visible)).toBe(false);
-    expect(caption(graph)).toEqual(['f(x) = |x|', 'naklon sekante 0, tangente v c ni', 'kot v c: tangente ni']);
+    expect(caption(graph)).toEqual(['f(x) = |x|', 'naklon sekante 0, tangente v c ni', 'prelom v c: tangente ni']);
     // moving c off the corner draws the tangent again with slope +-1
     apply(graph, parameter('mvt-c', 0.5));
     expect(resolve(tangent.attributes.visible)).toBe(true);
@@ -242,7 +266,7 @@ test('|x| on one side of the corner matches on the whole open interval, which is
     apply(graph, parameter('mvt-a', -1));
     apply(graph, reveal(true));
     expect(resolve(interval.attributes.visible)).toBe(false);
-    expect(rows(graph).matches).toBe('nobene');
+    expect(rows(graph).matches).toBe('ni');
 });
 
 test('changing c never moves a or b, and the displayed slope difference follows it', () => {
@@ -437,7 +461,7 @@ test('the revealing presses of the cube and corner steps give the numbers the le
     };
     expect(rows(stateAfter('mean-value-cube-step')).matches).toBe('−0,5774; 0,5774');
     const corner = stateAfter('mean-value-abs-step');
-    expect(rows(corner).matches).toBe('nobene');
+    expect(rows(corner).matches).toBe('ni');
     expect(statusIds(corner)).toEqual(['hypothesis', 'corner', 'matches-none']);
     const interval = stateAfter('mean-value-free-exploration');
     expect(rows(interval).matches).toBe('vsaka točka v (0, 1)');
@@ -669,7 +693,7 @@ test('the legend names the curves and the matching markers in words, not by colo
     expect(items.map(item => item.id)).toEqual(['function', 'secant', 'tangent', 'matches']);
     expect(items.map(item => item.label)).toEqual([
         'Graf funkcije f', 'Sekanta skozi (a, f(a)) in (b, f(b))', 'Tangenta v točki c',
-        'Ujemajoče točke (obroči) in njihove tangente, vzporedne sekanti; pri ujemajočem intervalu debela črta na osi x',
+        'Ujemajoče točke (obroči) in njihove tangente',
     ]);
     expect(new Set(items.slice(0, 3).map(item => item.color)).size).toBe(3);
     setLanguage('en');

@@ -268,7 +268,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
             {
                 text: () => this.boardStatus(model(), view()) ?? "",
                 visible: () => this.boardStatus(model(), view()) !== undefined,
-                color: () => view().tangent === undefined ? "#9c5d48" : GraphPalette.primaryCurve,
+                color: () => view().tangent === undefined ? GraphPalette.warningText : GraphPalette.primaryCurve,
             },
         ]);
     }
@@ -303,11 +303,11 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("mean_value_a_label")} value={a} min={MVT_X_MIN} max={c} step={0.1} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                             rejectedHint={t("mean_value_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
                 <NumberInput label={t("mean_value_b_label")} value={b} min={c} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+                             rejectedHint={t("mean_value_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <NumberInput label={t("mean_value_c_label")} value={c} min={a} max={b} step={0.1} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
+                             rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
                 <p className="inspector-help">{t("mean_value_order_help")}</p>
             </div>
             <div className="inspector-group">
@@ -347,7 +347,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         if (!view.differentiable) result.push({id: "hypothesis", text: t("mean_value_status_hypothesis")});
         if (view.difference === undefined) result.push({id: "corner", text: t("mean_value_status_corner")});
         else if (this.agree(view)) result.push({id: "agree", text: t("mean_value_status_agree", {value0: formatNumber(MATCH_TOLERANCE, language, 3)})});
-        else result.push({id: "differ", text: t("mean_value_status_differ", {value0: number(Math.abs(view.difference))})});
+        else result.push({id: "differ", text: t("mean_value_status_differ")});
         if (model.revealed) {
             const {matches} = view;
             if (matches.kind === "interval") {
