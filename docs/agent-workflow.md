@@ -8,7 +8,7 @@ Detect whether Claude or Codex is the active orchestrator before choosing a work
 
 | Task | Claude orchestrator (Opus/Sonnet) | Codex orchestrator |
 | --- | --- | --- |
-| Research and codebase exploration | Haiku 5.5 Max | GPT-6 Luna Max |
+| Research and codebase exploration | Haiku 5.5 XHigh | GPT-6 Luna Max |
 | Coding and implementation | Sonnet 5.5 High | GPT-6 Luna Max |
 | Fixes and tests | Sonnet 5.5 High | GPT-6 Luna Max |
 | Final review and integration | Main agent | Main agent |
@@ -19,7 +19,7 @@ The main agent means the Claude or Codex orchestrator handling the task. Keep fi
 
 1. Read the relevant spec and acceptance criteria. Record the initial working-tree state so existing changes can be distinguished from the assignment.
 2. Delegate substantial tasks that benefit from a separate context or bounded assignment. Handle small or tightly coupled tasks directly. Avoid unnecessary spawning, duplicate research, and overlapping file modifications.
-3. Check the available delegation tool and supported models/efforts, then follow the active orchestrator's row in the model table. In Codex, select `gpt-6-luna` with `max` for research, implementation, and fixes. In Claude, use Haiku 5.5 Max for research and exploration, and Sonnet 5.5 High for implementation and fixes. If model overrides require a fresh or partial history, supply a self-contained assignment rather than a full-history fork.
+3. Check the available delegation tool and supported models/efforts, then follow the active orchestrator's row in the model table. In Codex, select `gpt-6-luna` with `max` for research, implementation, and fixes. In Claude, use Haiku 5.5 XHigh for research and exploration, and Sonnet 5.5 High for implementation and fixes. If model overrides require a fresh or partial history, supply a self-contained assignment rather than a full-history fork.
 4. When practical, keep research and implementation as separate assignments. Research workers investigate and return concise, actionable findings without modifying files: relevant files and symbols, dependencies, risks, and recommended implementation boundaries. Pass these findings to coding workers to prevent repeated exploration. This separation also applies in Codex, even though both roles use the same model.
 5. Give coding workers the goal, source spec, acceptance criteria, owned files or modules, relevant research findings, dependencies, required checks, and existing changes to preserve.
 6. Start with one worker; add workers when assignments are independent and substantial. Run independent slices in parallel within the available capacity. Serialize assignments that share files or depend on unfinished work; reserve integration files for one owner. Workers must not recursively delegate or push. They leave edits available for review. The orchestrator owns Git staging, commits, and any push.
