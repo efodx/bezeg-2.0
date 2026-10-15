@@ -9,6 +9,7 @@ import {DemonstrationPicker} from '../../DemonstrationPicker';
 import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
 import "./DemonstrationWorkspace.css";
 import "./WorkspaceControls.css";
+import "./DemonstrationWorkspaceIdentity.css";
 import {LearningPrompt} from './LearningPrompt';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
@@ -96,12 +97,37 @@ export function DemonstrationWorkspace(props: {
     return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
-            <div><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
+            <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
                 <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={location.state}>{t('demonstrations')}</Link>
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
-                <h1>{props.title}</h1><p>{props.description}</p></div>
+                <h1>{props.title}</h1><p>{props.description}</p>
+                <svg className="workspace-botanical" viewBox="0 0 420 360" aria-hidden="true" focusable="false">
+                    <g className="workspace-botanical-stems">
+                        <path d="M410 358C367 279 327 207 278 157S203 69 170 7"/>
+                        <path d="M278 157C313 120 350 96 402 83M326 207C364 193 391 170 416 137"/>
+                        <path d="M237 108C204 91 164 76 122 42M266 140C265 95 259 51 253 7"/>
+                        <path d="M356 271C386 250 402 226 414 198M205 74C174 68 145 69 111 77"/>
+                    </g>
+                    <g className="workspace-botanical-leaves">
+                        <path d="M331 204C327 164 346 137 387 119C384 162 366 190 331 204Z"/>
+                        <path d="M350 257C343 219 359 192 397 174C398 211 381 240 350 257Z"/>
+                        <path d="M273 151C284 111 312 94 355 96C337 131 309 150 273 151Z"/>
+                        <path d="M232 106C192 105 164 84 146 46C186 53 216 73 232 106Z"/>
+                        <path d="M265 129C239 101 234 68 250 30C273 63 280 96 265 129Z"/>
+                        <path d="M201 76C166 96 134 91 99 66C136 49 170 51 201 76Z"/>
+                        <path d="M380 293C388 263 408 245 437 239C430 269 411 289 380 293Z"/>
+                    </g>
+                    <g className="workspace-botanical-flowers">
+                        <g transform="translate(394 80)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-4" r="4"/><circle cx="9" cy="-7" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-13" r="4"/><circle cx="14" cy="2" r="4"/><circle cx="-15" cy="4" r="4"/></g>
+                        <g transform="translate(416 131)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="8" cy="-8" r="4"/><circle cx="-8" cy="8" r="4"/><circle cx="9" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
+                        <g transform="translate(252 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
+                        <g transform="translate(168 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
+                        <g transform="translate(105 77)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
+                    </g>
+                </svg>
+            </div>
             <div className="workspace-actions">
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
