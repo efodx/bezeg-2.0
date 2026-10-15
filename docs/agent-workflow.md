@@ -9,8 +9,8 @@ Detect whether Claude or Codex is the active orchestrator before choosing a work
 | Task | Claude orchestrator (Opus/Sonnet) | Codex orchestrator |
 | --- | --- | --- |
 | Research and codebase exploration | Haiku 5.5 XHigh | GPT-6 Luna Max |
-| Coding and implementation | Sonnet 5.5 High | GPT-6 Luna Max |
-| Fixes and tests | Sonnet 5.5 High | GPT-6 Luna Max |
+| Coding and implementation | Sonnet 5.5 at normal effort | GPT-6 Luna Max |
+| Fixes and tests | Sonnet 5.5 at normal effort | GPT-6 Luna Max |
 | Final review and integration | Main agent | Main agent |
 
 The main agent means the Claude or Codex orchestrator handling the task. Keep final integration and acceptance with that agent so the implementer does not approve its own work. If the active environment cannot select its preferred worker model and effort, state what is available and continue useful work that does not depend on an unavailable delegation option.
@@ -19,12 +19,12 @@ The main agent means the Claude or Codex orchestrator handling the task. Keep fi
 
 1. Read the relevant spec and acceptance criteria. Record the initial working-tree state so existing changes can be distinguished from the assignment.
 2. Delegate substantial tasks that benefit from a separate context or bounded assignment. Handle small or tightly coupled tasks directly. Avoid unnecessary spawning, duplicate research, and overlapping file modifications.
-3. Check the available delegation tool and supported models/efforts, then follow the active orchestrator's row in the model table. In Codex, select `gpt-6-luna` with `max` for research, implementation, and fixes. In Claude, use Haiku 5.5 XHigh for research and exploration, and Sonnet 5.5 High for implementation and fixes. If model overrides require a fresh or partial history, supply a self-contained assignment rather than a full-history fork.
+3. Check the available delegation tool and supported models/efforts, then follow the active orchestrator's row in the model table. In Codex, select `gpt-6-luna` with `max` for research, implementation, and fixes. In Claude, use Haiku 5.5 XHigh for research and exploration, and Sonnet 5.5 at normal effort for implementation and fixes. Raise Sonnet to High or Max only when the worker is failing on a hyper-specific, multi-constraint sub-problem (for example, a difficult mathematical derivation or deeply nested refactor); the orchestrator should keep the escalation scoped to that slice. If model overrides require a fresh or partial history, supply a self-contained assignment rather than a full-history fork.
 4. When practical, keep research and implementation as separate assignments. Research workers investigate and return concise, actionable findings without modifying files: relevant files and symbols, dependencies, risks, and recommended implementation boundaries. Pass these findings to coding workers to prevent repeated exploration. This separation also applies in Codex, even though both roles use the same model.
-5. Give coding workers the goal, source spec, acceptance criteria, owned files or modules, relevant research findings, dependencies, required checks, and existing changes to preserve.
+5. Give coding workers the goal, source spec, acceptance criteria, owned files or modules, relevant research findings, dependencies, required checks, and existing changes to preserve. For visual or UI work, include the acceptance viewports and interaction cases (such as keyboard focus, touch, or reduced motion) that apply. Ask the worker to return concrete evidence for those cases, such as screenshots, browser observations, or check results, and to identify any cases they could not cover.
 6. Start with one worker; add workers when assignments are independent and substantial. Run independent slices in parallel within the available capacity. Serialize assignments that share files or depend on unfinished work; reserve integration files for one owner. Workers must not recursively delegate or push. They leave edits available for review. The orchestrator owns Git staging, commits, and any push.
 
-Workers return changed files, anything the orchestrator needs to know to review or continue, and whether the assignment is complete. Keep handoffs brief; include check results, blockers, or risky decisions when they affect acceptance or follow-up. The orchestrator inspects the diff and verifies required checks.
+Workers return changed files, anything the orchestrator needs to know to review or continue, and whether the assignment is complete. Keep handoffs brief; include check results, blockers, or risky decisions when they affect acceptance or follow-up. For visual or UI assignments, include the requested viewport and interaction evidence or state what remains unverified. The orchestrator inspects the diff and verifies required checks.
 
 ### Assignment brief
 

@@ -10,6 +10,7 @@ Append one row per completed or blocked implementation task using [`do-log`](../
 
 Set size before dispatch: S is one localized outcome with one clear owner; M has several files or behavior branches with one primary owner; L crosses modules or splits into independently verifiable slices. Keep this initial estimate when reporting the result. Do not pool substantially different task classes or sizes.
 
+
 ## Initial sample (legacy format)
 
 | Date | Task / class and size | Workflow / worker model and count | Elapsed (boundary) | Repair rounds | Review findings / escaped defects | Integration failures | Outcome | Usage (scope) | Notes |

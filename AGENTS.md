@@ -4,9 +4,9 @@ Before editing, read only the spec or document covering the area you change. [do
 
 ## Implementation delegation
 
-- Delegate code implementation and fixes when a worker can make meaningful progress on a bounded, separable slice, using **GPT-6 Luna with Max reasoning** or **Sonnet 5.5 with High reasoning** when Luna Max is unavailable. Small or tightly coupled changes may stay with the handler. This is standing authorization; follow [the delegation workflow](docs/agent-workflow.md).
+- Delegate code implementation and fixes when a worker can make meaningful progress on a bounded, separable slice. Use the worker model prescribed for the active orchestrator in [the delegation workflow](docs/agent-workflow.md): Codex uses **GPT-6 Luna with Max reasoning**; Claude uses **Sonnet 5.5 at normal effort** for implementation and fixes. Raise Claude's Sonnet effort to High or Max only when the worker is failing on a hyper-specific, multi-constraint sub-problem, such as a difficult mathematical derivation or deeply nested refactor. Small or tightly coupled changes may stay with the handler. This is standing authorization.
 - The main chat owns scope, review, verification, and commits. Workers implement their assigned slice, report evidence, and do not delegate further.
-- Check the available spawn tool before dispatch. Use Sonnet 5.5 at High reasoning automatically when Luna Max cannot be selected and Sonnet 5.5 High is available. If neither option is available, report the limitation and continue useful independent work without delegating until an approved model option is available.
+- Check the available delegation tool and supported models/efforts before dispatch. If the active orchestrator's prescribed worker or effort is unavailable, report the limitation and continue useful independent work; do not silently substitute across model families or change effort. Follow the platform-specific assignments in [the delegation workflow](docs/agent-workflow.md).
 
 ## Product constraints
 
