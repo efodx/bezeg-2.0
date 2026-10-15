@@ -14,12 +14,12 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 20px;
-    min-height: 66px;
-    padding: 10px clamp(16px, 4vw, 54px);
-    border-bottom: 1px solid var(--bezeg-rule);
-    background: var(--bezeg-canvas);
-    color: var(--bezeg-ink);
+    gap: 16px;
+    min-height: 72px;
+    padding: 12px clamp(16px, 4vw, 54px);
+    border-bottom: 1px solid #d6dccb;
+    background: #f7f5e9;
+    color: #19372f;
     text-align: left;
     position: relative;
     z-index: 10;
@@ -29,15 +29,16 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    min-height: 44px;
     flex-shrink: 0;
     color: inherit;
     text-decoration: none;
-    font: 750 21px system-ui, sans-serif;
-    letter-spacing: -.05em;
+    font: 700 23px system-ui, sans-serif;
+    letter-spacing: -.04em;
 }
 
-.app-brand:hover { color: var(--bezeg-moss); }
-.app-brand img { width: 30px; height: 30px; object-fit: contain; }
+.app-brand:hover { color: #355c3d; }
+.app-brand img { width: 34px; height: 34px; object-fit: contain; }
 .app-header-actions { display: flex; min-width: 0; max-width: 100%; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 
 .app-header .app-topic-toggle {
@@ -45,13 +46,13 @@
     align-items: center;
     min-width: 0;
     max-width: 100%;
-    min-height: 38px;
-    padding: 7px 12px;
+    min-height: 44px;
+    padding: 10px 16px;
     overflow-wrap: anywhere;
-    border: 1px solid var(--bezeg-rule);
-    border-radius: 3px;
-    background: transparent;
-    color: var(--bezeg-ink);
+    border: 1px solid #d6dccb;
+    border-radius: 8px;
+    background: #fffdf5;
+    color: #244c37;
     font-size: 13px;
     font-weight: 650;
     text-decoration: none;
@@ -59,10 +60,14 @@
 
 .app-header .app-topic-toggle:hover,
 .app-header .app-topic-toggle:active,
-.app-header .app-topic-toggle.show {
-    border-color: #b5bd9f;
-    background: var(--bezeg-canvas-deep);
-    color: var(--bezeg-ink);
+.app-header .app-topic-toggle.active {
+    border-color: #b8c5ac;
+    background: #e8eddd;
+    color: #19372f;
+}
+
+.app-header .app-topic-toggle.active {
+    box-shadow: inset 0 -2px #b88a43;
 }
 
 .app-header .app-topic-menu {
@@ -83,17 +88,18 @@
 .app-topic-menu .dropdown-item.active { border-left: 3px solid var(--bezeg-moss); background: #e2ebcb; color: var(--bezeg-ink); font-weight: 700; }
 
 .app-header .language-selector { margin: 0; }
-.app-header .language-selector select { min-height: 38px; padding: 7px 4px; border: 0; background: transparent; color: inherit; font-weight: 700; }
+.app-header .language-selector select { min-width: 64px; min-height: 44px; padding: 10px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #526152; font-size: 13px; font-weight: 700; }
+.app-header .language-selector select:hover { border-color: #d6dccb; background: #fffdf5; color: #19372f; }
 .app-header .language-selector small { max-width: 220px; font-size: 12px; }
 .app-header :focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; box-shadow: none; }
 .app-header .app-topic-toggle:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; box-shadow: none; }
 
 @media(max-width:700px) {
-    .app-header { min-height: 58px; padding: 8px 12px; gap: 12px; }
+    .app-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
     .app-brand { gap: 6px; font-size: 20px; }
-    .app-brand img { width: 28px; height: 28px; }
+    .app-brand img { width: 30px; height: 30px; }
     .app-header-actions { gap: 8px; }
-    .app-header .app-topic-toggle { min-height: 38px; padding: 7px 8px; font-size: 12px; }
+    .app-header .app-topic-toggle { padding: 10px 12px; font-size: 12px; }
     .app-header .language-selector small { max-width: 120px; overflow-wrap: anywhere; }
 }
 

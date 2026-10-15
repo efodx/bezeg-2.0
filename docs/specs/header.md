@@ -1,5 +1,15 @@
 # Shared header
 
+## Aesthetic alignment — 2026-10-15
+
+Bring the shared header into the current homepage/catalog visual language: warm paper (#f7f5e9), forest green (#19372f / #244c37), soft rounded controls, and restrained botanical gold (#b88a43). Preserve the elderflower brand and existing navigation, localization, and notices. Limit implementation to header styling; do not change global palette tokens used by other components.
+
+Acceptance: the header feels continuous with the home/catalog background; the brand and controls have at least 44px targets, visible keyboard focus, distinct hover/current states, and no header overflow at 390px or at 200% text size. Check home, catalog, and a graph route at desktop/narrow sizes, language switching, and header navigation against a production preview. Build and TypeScript must pass. Physical projector/device review is outside this browser check.
+
+Verification: TypeScript and production build passed (existing Bootstrap Sass and JSXGraph warnings). A delegated Chromium production-preview check covered home, catalog, and `/bezeg-2.0/bezier/curve` at 1440×1000 and 390×844: 44px header targets, no horizontal overflow, visible keyboard focus and Enter navigation, hover/current styling, and SL/EN switching with unchanged graph SVG paths. Doubling header text sizes at 390px retained header fit on all three routes; this was CSS text enlargement, not browser zoom. No console/page/request errors were observed. Handler reviewed desktop home and mobile graph captures. Sandbox dependency-resolution/loopback restrictions required running the build and preview outside the sandbox; package manifests and lockfile are unchanged. Physical-device/projector checks remain outside coverage.
+
+## Original implementation
+
 Status: implemented and browser-verified. Physical-device and projector review remain follow-up evidence.
 
 The owner selected header prototype A on 2026-10-08 for the whole app. Use a quiet, warm off-white header with elderflower + Bezeg at the left, one demonstration menu, and the real language selector at the right.
