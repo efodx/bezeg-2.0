@@ -1,6 +1,16 @@
 # Subagent workflow evaluation log
 
-Append one row per completed or blocked coding task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md). Use `unknown` when the evidence is unavailable and `n/a` when a field does not apply. Keep task summaries concise and non-sensitive. This is observational evidence, not a controlled experiment; compare only similar task classes and workflows.
+Append one row per completed or blocked implementation task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md). Put new entries in the current-format table below; the initial sample keeps its original schema. Use `unknown` when the evidence is unavailable and `n/a` when a field does not apply. Keep task summaries concise and non-sensitive. This is observational evidence, not a controlled experiment; compare only similar task classes, sizes, and workflows.
+
+## Current record format
+
+| Date | Task class, estimated size, and scope | Dispatch reason; handler model/effort | Workers: role, requested/resolved model and effort, count; peak parallel | Brief completeness and pilot variable | Elapsed boundary and repair rounds | Distinct findings, rework, escaped defects | Integration failures and attribution | Acceptance, checks, and coverage gaps | Usage and scope |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| YYYY-MM-DD | UI/math/docs/etc.; S/M/L; spec or concise scope | delegated/handler-only and why; handler settings or unknown | role: model/effort × count; actual/resolved value or unknown; peak count | core fields present/omitted; baseline or hypothesis/variable | handler start or dispatch to acceptance/block; elapsed or unknown; repair rounds or n/a | unique findings by phase/role; severity only if known; repair status; escaped defect or unknown | separate code-caused from environment/tool failures; unknown if unattributed | passed/partial/blocked; checks run and material gaps | value or unknown; handler/worker/total scope |
+
+Set size before dispatch: S is one localized outcome with one clear owner; M has several files or behavior branches with one primary owner; L crosses modules or splits into independently verifiable slices. Keep this initial estimate when reporting the result. Do not pool substantially different task classes or sizes.
+
+## Initial sample (legacy format)
 
 | Date | Task / class and size | Workflow / worker model and count | Elapsed (boundary) | Repair rounds | Review findings / escaped defects | Integration failures | Outcome | Usage (scope) | Notes |
 | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- |

@@ -26,6 +26,27 @@ The main agent means the Claude or Codex orchestrator handling the task. Keep fi
 
 Workers return changed files, anything the orchestrator needs to know to review or continue, and whether the assignment is complete. Keep handoffs brief; include check results, blockers, or risky decisions when they affect acceptance or follow-up. The orchestrator inspects the diff and verifies required checks.
 
+### Assignment brief
+
+Give each worker a self-contained brief with these fields:
+
+- **Role and mode:** research, implementation, review, or smoke; say whether the worker may edit.
+- **Goal and source:** desired outcome and the source spec or acceptance criteria.
+- **Owned scope:** files or modules the worker owns, shared files to leave to another owner, and existing changes to preserve.
+- **Context and dependencies:** relevant research, decisions already made, and work that must finish first.
+- **Checks and evidence:** commands, routes, viewports, interactions, or mathematical checks required for acceptance.
+- **Return:** changed files, checks and observed results, decisions or risks, and anything not verified.
+
+Role-specific returns should stay short. Research reports relevant files and symbols, dependencies, risks, and a recommended boundary without editing. Implementation reports its diff and check evidence. Review reports distinct, actionable findings first with file and line references and the expected behavior; it does not fix them. Smoke reports the route and workflows covered, observations, and gaps.
+
+## Model and effort pilots
+
+Treat the model table and project configuration as the baseline. If a task explicitly pilots another setting, record the reason and setting before dispatch. Vary one primary factor at a time: model, reasoning effort, worker role/count, or brief format. Keep acceptance criteria, checks, and handler review the same. Compare similar task classes and sizes; do not create competing edits to the same task as a model comparison. A pilot does not silently replace the prescribed model or effort.
+
+Record the requested model and effort, and the resolved values when the tool exposes them. If a platform cannot apply or report an override, record that limitation rather than treating the requested setting as actual. Use the platform's exact effort names; for example, record `medium` when that is what Claude Code reports instead of the informal label `normal`.
+
+Begin with at least three comparable tasks per setting before drawing a qualitative signal; aim for five when the work occurs often enough. Report the exact sample size and missing fields. A small or observational sample can motivate another pilot, but does not establish that a model or effort caused a better result. See the [evaluation spec](specs/agent-workflow-evaluation.md), [research note](agent-delegation-research.md), and [evaluation log](agent-workflow/evaluation-log.md).
+
 ## Review and completion
 
 1. The orchestrator derives expected behavior and edge cases from the spec, then inspects the actual diff and relevant surrounding code against those expectations and repository constraints. A worker's completion report is evidence to assess, not acceptance by itself. Keep implementation with the worker so the orchestrator retains an independent review role.
@@ -40,4 +61,4 @@ Codex settings in [`.codex/config.toml`](../.codex/config.toml) set subagent def
 
 ## Evaluate the workflow
 
-Record completed or blocked coding tasks in the [agent workflow evaluation log](agent-workflow/evaluation-log.md) using the [`do-log` and `suggest-subagents-flow-improvements` skill](../tools/skills/subagent-flow-evaluation/SKILL.md). Compare equivalent task types and report sample sizes and missing data; observations are not controlled experiments and do not establish causation. Keep the owner's model and effort preferences unless the owner asks to reconsider them. A successful spawn establishes availability; it does not establish implementation quality or a speed advantage. See the [research note](agent-delegation-research.md) for the limits of external evidence.
+Record completed or blocked implementation tasks in the [agent workflow evaluation log](agent-workflow/evaluation-log.md) using the [`do-log` and `suggest-subagents-flow-improvements` skill](../tools/skills/subagent-flow-evaluation/SKILL.md). Compare equivalent task types and report sample sizes and missing data; observations are not controlled experiments and do not establish causation. Keep the owner's model and effort preferences unless the owner explicitly requests a labeled pilot or asks to change the baseline. A successful spawn establishes availability; it does not establish implementation quality or a speed advantage. See the [evaluation spec](specs/agent-workflow-evaluation.md) and [research note](agent-delegation-research.md) for comparison limits.
