@@ -4,7 +4,7 @@
 
 **Dependencies:** Batch A released ([04](04-batch-a-release.md))
 
-**Status:** implemented, not released
+**Status:** released 2026-10-16 ([09](09-batch-b-release.md))
 
 ## Part A — mathematics (`src/analysis/taylor.ts`, `taylorModel.ts`)
 

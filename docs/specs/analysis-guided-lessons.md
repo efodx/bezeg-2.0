@@ -1,6 +1,6 @@
 # Analysis guided lessons and complex multiplication
 
-**Status:** Batch A (bisection, mean value theorem, accumulated integral) was released on 2026-10-15 after review and production verification ([task 04](../tasks/analysis-guided-lessons/04-batch-a-release.md)). Batches B and C are not started. Batch A adds routes, preset collections and lessons only: no existing route, stored Preset or lesson identity changed, so it is not a breaking change.
+**Status:** Batch A (bisection, mean value theorem, accumulated integral) was released on 2026-10-15 after review and production verification ([task 04](../tasks/analysis-guided-lessons/04-batch-a-release.md)). Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation) was released on 2026-10-16 after the same review and verification ([task 09](../tasks/analysis-guided-lessons/09-batch-b-release.md)). Batch C is not started. Batches A and B add routes, preset collections and lessons only: no existing route, stored Preset or lesson identity changed, so it is not a breaking change.
 **Agreed:** 2026-10-14.
 **Source:** the catalogue research and the subsequent owner interview. The owner approved all eleven topics, separate Demonstrations and Guided lessons, three release batches, named examples, visual arguments, optional reveals, and iterative playback.
 
