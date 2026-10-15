@@ -29,4 +29,3 @@ Edit this narrow-screen Bezeg picker reference while preserving its palette, car
 ```
 
 Selected result: [narrow-screen picker](demonstrations-library-picker-mobile.png).
-
