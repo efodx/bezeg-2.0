@@ -12,7 +12,7 @@ The alternatives were these:
 
 Consequences:
 
-- Existing routes, preset collections and stored presets are unchanged. The catalog still shows seven families and 34 demonstrations until the first analysis demonstration ships; counts asserted by tests change then, not now.
+- Existing routes, preset collections and stored presets are unchanged. The catalog omits a family with no shipped demonstration. With the Batch A demonstrations (bisection, mean value theorem, accumulated integral) it shows eight families and 37 demonstrations; counts asserted by tests changed with them.
 - `DemonstrationsPage` needs an illustration for every family id, so `src/images/demonstrations/family-analysis.svg` ships with the declaration.
 - The coordinate-context policy for previews (`tests/smoke-catalog.cjs`) retains axes and grid for the analysis family, as it does for function graphs.
 - The titles may be revisited for clarity once the family has entries.

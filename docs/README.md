@@ -38,6 +38,7 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [ADR 0010](adr/0010-scheme-driven-bezier-splines.md): accepted scheme-driven Bézier splines (one `BezierSpline`, one `SplineScheme` per kind) replacing the subclass hierarchy.
 - [ADR 0011](adr/0011-analysis-family.md): accepted separate Analysis family, omitted from the catalog until it has a demonstration.
 - [ADR 0012](adr/0012-iterative-playback-controller.md): accepted typed animation ids and commands plus a shared graph-owned iteration controller for iterative lessons.
+- [ADR 0013](adr/0013-iteration-driven-by-scene-actions.md): accepted typed `run-bisection-command` scene action (next-step/reset) for lesson iteration; Play and Pause stay graph controls.
 - [ADR 0001](adr/0001-static-client-only-app.md): accepted static, client-only architecture constraint.
 - [ADR 0002](adr/0002-guided-lessons-static-content-and-graph-capabilities.md): accepted boundary between static lesson content and typed graph capabilities.
 - [Guided lesson runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md): executable feature slice.

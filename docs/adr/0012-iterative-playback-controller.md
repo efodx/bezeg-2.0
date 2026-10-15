@@ -12,7 +12,7 @@ The alternatives were these:
 
 Consequences:
 
-- De Casteljau lesson behavior and content are unchanged. `bisection` is a declared id with no graph yet, so no route, lesson or control is visible, and any graph that has not registered it rejects it.
+- De Casteljau lesson behavior and content are unchanged. `bisection` is registered only by `BisectionGraph` (the route ships with the Batch A release); any graph that has not registered it rejects it. The frame UI offers only play, pause and replay; the bisection lesson drives `next-step` and `reset` through a scene action instead (see ADR 0013).
 - Lesson content that targets an iterative graph must use only the commands the graph registered; the registry, not the UI, is the enforcement point.
 - Adding an animation id or command is a change to the closed unions in `model.ts`, which keeps content, session and registry in lockstep at compile time.
 - Playback is time-based at a fixed interval, so a classroom projector at any refresh rate shows the same sequence of steps.

@@ -4,7 +4,7 @@
 
 **Dependencies:** none
 
-**Status:** not started
+**Status:** implemented (family: ADR 0011; playback vocabulary and iteration controller: ADR 0012)
 
 ## Goal
 

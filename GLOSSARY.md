@@ -10,6 +10,15 @@ The educational app for students and educators exploring Bézier, rational Bézi
 **Function demonstration**:
 A Demonstration of a real function graph `y = f(x)` in the *Functions and calculus* family (linear, exponential and trigonometric functions, continuity, derivative, definite integral, area between curves, arc length), as distinct from a curve demonstration driven by control points.
 
+**Iteration**:
+One revealed step of an iterative Demonstration such as bisection. Next step and playback run the same transition, so k steps by either route give the same state; the iteration index is saved with a Preset, running playback is not.
+
+**Bracket**:
+An interval [a, b] on which a continuous function has opposite signs at its endpoints, so the intermediate value theorem guarantees a root inside. An interval with equal signs is an invalid bracket, not a proof of "no root".
+
+**Accumulation function**:
+The signed accumulated integral A(x) of a function f from a fixed lower bound a to x. It is signed, never the unsigned area, and its slope at x is f(x).
+
 **Demonstration**:
 An interactive mathematical example through which a learner explores a curve concept or construction.
 _Avoid_: Tool (when referring to the whole example)

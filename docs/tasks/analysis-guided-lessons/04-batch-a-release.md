@@ -4,13 +4,15 @@
 
 **Dependencies:** [01](01-bisection.md), [02](02-mean-value-theorem.md), [03](03-accumulation.md)
 
-**Status:** not started
+**Status:** in progress; not released
 
 ## Goal
 
 Expose the three Batch A Demonstrations and lessons together, then publish.
 
 ## Steps
+
+Progress (2026-10-15): step 1 done (routes, catalogue entries, preset collections, allowlist ids and count assertions; the 37-route count is asserted). Step 2 pending: the three Analysis previews are placeholder copies of the continuity capture, and the previews must still be generated and checked for unrelated changes. Step 3 done except for the final check that the documents match the released state. Steps 4 to 6 pending; nothing has been pushed.
 
 1. Register the routes in `src/Routes.tsx`, catalogue entries in `src/demonstrations.ts` under the Analysis family, preset collections, and the three IDs in `GUIDED_LESSON_AVAILABLE_IDS`; update count assertions.
 2. Generate static previews with `scripts/generate-demonstration-previews.cjs` and `scripts/capture-demonstration-previews.cjs`; confirm that no unrelated preview changes.
