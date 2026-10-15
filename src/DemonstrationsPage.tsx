@@ -14,6 +14,7 @@ import familySpline from './images/demonstrations/family-spline.svg';
 import familyPh from './images/demonstrations/family-ph.svg';
 import familyParam from './images/demonstrations/family-param.svg';
 import familyFunctions from './images/demonstrations/family-functions.svg';
+import familyAnalysis from './images/demonstrations/family-analysis.svg';
 
 const familyIllustrations: Record<FamilyId, string> = {
     basics: familyBasics,
@@ -23,6 +24,7 @@ const familyIllustrations: Record<FamilyId, string> = {
     '/bezeg-2.0/ph': familyPh,
     '/bezeg-2.0/param': familyParam,
     '/bezeg-2.0/functions': familyFunctions,
+    analysis: familyAnalysis,
 };
 function demonstrationCount(count: number) {
     const remainder = count % 100;

@@ -73,6 +73,16 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     ]);
 });
 
+test('a family without shipped demonstrations is omitted from the catalog', () => {
+    // `analysis` is declared in lockstep with its titles but appears only once a demonstration belongs to it.
+    const catalog = getDemonstrationCatalog();
+    expect(catalog.families.every(family => family.demonstrations.length > 0)).toBe(true);
+    expect(catalog.families.some(family => family.id === 'analysis'))
+        .toBe(catalog.demonstrations.some(demonstration => demonstration.family === 'analysis'));
+    expect(sl.analysis).toBe('Analiza');
+    expect(en.analysis).toBe('Analysis');
+});
+
 test.each(['/bezeg-2.0', '/bezeg-2.0/demonstrations', '/bezeg-2.0/ph/unknown', '/bezeg-2.0/bezier/curve/', '/bezeg-2.0/bezier/curve?x=1', '/bezeg-2.0/param/alphaparam'])('exact lookup excludes %s', path => {
     expect(findDemonstration(path)).toBeUndefined();
 });

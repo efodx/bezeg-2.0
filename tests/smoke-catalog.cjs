@@ -70,7 +70,7 @@ const familyIds = familyCatalog.map(family => family.id);
 if (new Set(familyIds).size !== familyIds.length) throw new Error('The demonstration family catalog contains duplicate ids.');
 
 function coordinateContextPolicy(demonstration) {
-    return demonstration.family === 'basics' || demonstration.family === '/bezeg-2.0/functions'
+    return demonstration.family === 'basics' || demonstration.family === '/bezeg-2.0/functions' || demonstration.family === 'analysis'
         ? 'retain'
         : 'hide';
 }
@@ -128,7 +128,7 @@ const families = familyCatalog.map(family => {
     const title = messages[family.titleKey];
     if (!title || title.includes('{')) throw new Error(`Missing plain English title for demonstration family ${family.id}: ${family.titleKey}`);
     return {id: family.id, title, demonstrations: demonstrations.filter(demonstration => demonstration.family === family.id)};
-});
+}).filter(family => family.demonstrations.length > 0); // mirrors getDemonstrationCatalog: a family without shipped entries is not rendered
 
 const routePaths = new Set();
 const ids = new Set();

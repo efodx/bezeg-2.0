@@ -264,6 +264,7 @@ export const en: Record<keyof typeof sl, string> = {
     "ph_curves": "PH curves",
     "parametrizations": "Parametrizations",
     "functions_and_calculus": "Functions and calculus",
+    "analysis": "Analysis",
     "linear_function": "Linear function",
     "prompt_linear_function": "Move point P₁ or P₂. How do the slope k and the intercept n change?",
     "function_points": "Points on the line",

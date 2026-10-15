@@ -263,6 +263,7 @@ export const sl = {
     "ph_curves": "PH Krivulje",
     "parametrizations": "Parametrizacije",
     "functions_and_calculus": "Funkcije in analiza",
+    "analysis": "Analiza",
     "linear_function": "Linearna funkcija",
     "prompt_linear_function": "Premakni točko P₁ ali P₂. Kako se spremenita naklon k in začetna vrednost n?",
     "function_points": "Točki na premici",

@@ -12,6 +12,7 @@ const families = [
     {id: '/bezeg-2.0/ph', title: 'ph_curves'},
     {id: '/bezeg-2.0/param', title: 'parametrizations'},
     {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
+    {id: 'analysis', title: 'analysis'},
 ] as const;
 export type FamilyId = typeof families[number]['id'];
 type Definition = {
@@ -88,10 +89,11 @@ export function getDemonstrationCatalog() {
     ] as const;
     return {
         demonstrations,
+        // A family with no shipped demonstration is not part of the catalog, so neither page renders an empty topic.
         families: families.map(family => ({
             id: family.id, title: t(family.title),
             demonstrations: demonstrations.filter(entry => entry.family === family.id),
-        })),
+        })).filter(family => family.demonstrations.length > 0),
         starting: starting.map(entry => ({
             demonstration: demonstrations.find(demonstration => demonstration.id === entry.id)!,
             title: t(entry.title), description: t(entry.description), caption: t(entry.caption),
