@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -11,7 +11,6 @@ import {
     TaylorExampleId, taylorFunctionValue, taylorPolynomial, taylorSignedError,
 } from "../../analysis/taylor";
 import {TAYLOR_EXAMPLE_MODELS, TaylorModel, parseTaylorModel} from "../../analysis/taylorModel";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
@@ -42,10 +41,7 @@ const X_GRID = 0.01;
 /** The arrow keys of the center and x fields add this much (the board drag uses the example's own grid). */
 const FIELD_STEP = 0.1;
 
-const LABEL_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:2px 6px;border-radius:2px;line-height:1.25;white-space:nowrap;pointer-events:none;`;
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-type StatusKind = "hidden" | "revealed" | "inside-convergence" | "outside-convergence" | "no-bound" | "flat";
+type StatusKind = "hidden" | "revealed" | "inside-convergence" | "outside-convergence" | "bound-not-sharp" | "no-bound" | "flat";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -96,7 +92,6 @@ const drawnValue = (example: TaylorExample, x: number): number => example.id ===
 export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     private pointCenter?: JXG.Point;
     private pointX?: JXG.Point;
-    private viewCache?: { model: TaylorModel; view: View };
 
     override presets(): string {
         return "taylor";
@@ -114,37 +109,28 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         return [...EXAMPLE_VIEWS[this.model.example]];
     }
 
-    /** A preset or file whose example differs and which carries no view of its own shows that example's view, like the choice does. */
-    override importPreset(preset: Preset): void {
-        const previous = this.model.example;
-        super.importPreset(preset);
-        if (!preset.boardState && this.model.example !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...EXAMPLE_VIEWS[this.model.example]], true);
-        }
+    protected override exampleView() {
+        return {key: this.model.example, box: EXAMPLE_VIEWS[this.model.example]};
     }
 
     // ---- View --------------------------------------------------------------------------------------------------------
 
-    /** The derived numbers for a model, computed once per model object however many board objects and readouts read them. */
+    /** The derived numbers for a model, computed once per set of model values (see `memoView`). */
     private viewOf(model: TaylorModel): View {
-        if (this.viewCache?.model !== model) {
+        return this.memoView(model, () => {
             const example = taylorExample(model.example);
             const {center, degree, x} = model;
-            this.viewCache = {
-                model,
-                view: {
-                    example,
-                    coefficients: taylorCoefficients(example, center, degree),
-                    polynomial: taylorPolynomial(example, center, degree, x),
-                    value: taylorFunctionValue(example, x),
-                    signedError: taylorSignedError(example, center, degree, x),
-                    absoluteError: taylorAbsoluteError(example, center, degree, x),
-                    bound: taylorErrorBound(example, center, degree, x),
-                    insideConvergence: example.id === "geometric" ? isInsideGeometricConvergence(center, x) : undefined,
-                },
+            return {
+                example,
+                coefficients: taylorCoefficients(example, center, degree),
+                polynomial: taylorPolynomial(example, center, degree, x),
+                value: taylorFunctionValue(example, x),
+                signedError: taylorSignedError(example, center, degree, x),
+                absoluteError: taylorAbsoluteError(example, center, degree, x),
+                bound: taylorErrorBound(example, center, degree, x),
+                insideConvergence: example.id === "geometric" ? isInsideGeometricConvergence(center, x) : undefined,
             };
-        }
-        return this.viewCache.view;
+        });
     }
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
@@ -162,7 +148,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 ? `The center of this example is fixed at ${example.centerMin}.`
                 : `The center c must be a finite number between ${example.centerMin} and ${example.centerMax}.`);
         }
-        if (value !== this.model.center) this.commitModel({...this.model, center: cleanNumber(value)}, options);
+        const next = cleanNumber(value);
+        if (next !== this.model.center) this.commitModel({...this.model, center: next}, options);
     }
 
     protected setDegree(value: number): void {
@@ -173,7 +160,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     protected setX(value: number, options: { syncScene?: boolean } = {}): void {
         const example = taylorExample(this.model.example);
         if (!isTaylorX(example, value)) throw new DomainError(`The point x must be a finite number between ${example.xMin} and ${example.xMax}.`);
-        if (value !== this.model.x) this.commitModel({...this.model, x: cleanNumber(value)}, options);
+        const next = cleanNumber(value);
+        if (next !== this.model.x) this.commitModel({...this.model, x: next}, options);
     }
 
     protected setBoundVisible(visible: boolean): void {
@@ -293,20 +281,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         valuePoint(() => model().x, () => view().polynomial, GraphPalette.comparisonCurve);
 
         // c and x are dragged along the x-axis, projected onto the example's grid and range; a value the model still refuses puts the point back.
-        const dragWrite = (apply: (x: number) => void) => (x: number) => {
-            const accepted = this.ignoreOutOfDomain(() => apply(x));
-            if (!accepted) this.syncSceneToModel();
-            return accepted;
-        };
-        this.pointCenter = this.slidingPoint({
-            x: model().center, position: () => 0, min: () => view().example.centerMin, max: () => view().example.centerMax, step: CENTER_GRID,
-            attributes: {...this.styles.point.default, name: "$$c$$", label: this.pointLabel("below-left", 1.6), fillColor: GraphPalette.primaryCurve, highlightFillColor: GraphPalette.primaryCurve},
-            write: dragWrite(value => this.setCenter(value, {syncScene: false})),
+        this.pointCenter = this.axisPoint({
+            x: model().center, name: "$$c$$", placement: "below-left", color: GraphPalette.primaryCurve, step: CENTER_GRID,
+            min: () => view().example.centerMin, max: () => view().example.centerMax, write: value => this.setCenter(value, {syncScene: false}),
         });
-        this.pointX = this.slidingPoint({
-            x: model().x, position: () => 0, min: () => view().example.xMin, max: () => view().example.xMax, step: X_GRID,
-            attributes: {...this.styles.point.default, name: "$$x$$", label: this.pointLabel("below-right", 1.6), fillColor: GraphPalette.warningText, highlightFillColor: GraphPalette.warningText},
-            write: dragWrite(value => this.setX(value, {syncScene: false})),
+        this.pointX = this.axisPoint({
+            x: model().x, name: "$$x$$", placement: "below-right", color: GraphPalette.warningText, step: X_GRID,
+            min: () => view().example.xMin, max: () => view().example.xMax, write: value => this.setX(value, {syncScene: false}),
         });
 
         // The formula, the numbers, the bound (or the word hidden) and the key stay on the board (projection needs them).
@@ -315,7 +296,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             {text: () => t("taylor_board_parameters", {value0: this.number(model().center), value1: model().degree, value2: this.number(model().x)})},
             {text: () => t("taylor_board_values", {value0: this.number(view().polynomial), value1: this.number(view().value)})},
             {text: () => t("taylor_board_error", {value0: this.small(view().absoluteError)}), color: GraphPalette.warningText},
-            {text: () => this.boardBound(model(), view())},
+            {text: () => this.boardBound(model(), view()), minBoardWidth: 520},
             {text: () => t("taylor_board_key"), minBoardWidth: 520},
         ]);
     }
@@ -329,7 +310,6 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     protected override onSceneRemoved(): void {
         this.pointCenter = undefined;
         this.pointX = undefined;
-        this.viewCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -392,7 +372,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.primaryCurve, label: t("taylor_legend_function"), kind: "line"},
-            {id: "polynomial", color: GraphPalette.comparisonCurve, label: t("taylor_legend_polynomial"), kind: "dashed"},
+            {id: "polynomial", color: GraphPalette.comparisonCurve, label: t("taylor_legend_polynomial"), kind: "dashed-line"},
             {id: "error", color: GraphPalette.warningText, label: t("taylor_legend_error"), kind: "line"},
             {id: "bound", color: GraphPalette.constructionAccent, label: t("taylor_legend_bound"), kind: "area"},
             {id: "convergence", color: GraphPalette.additionalCurves[0], label: t("taylor_legend_convergence"), kind: "area"},
@@ -407,6 +387,10 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             result.push(view.insideConvergence
                 ? {id: "inside-convergence", text: t("taylor_status_inside")}
                 : {id: "outside-convergence", text: t("taylor_status_outside")});
+        }
+        // Inside the convergence interval the error tends to 0 while the Lagrange bound (M grows with n) need not: say so, so the bound is not read as the error.
+        if (model.boundVisible && view.insideConvergence && view.bound.kind === "bound" && model.x > model.center) {
+            result.push({id: "bound-not-sharp", text: t("taylor_status_bound_not_sharp")});
         }
         if (model.example === "flat") {
             if (model.boundVisible) result.push({id: "no-bound", text: t("taylor_status_no_bound")});

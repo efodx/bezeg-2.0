@@ -200,7 +200,7 @@ test('e^x about 0 at x = 1: T_1 = 2, T_3 = 8/3, T_6 = 1957/720 and the revealed 
     expect(Math.E / 5040).toBeCloseTo(0.000539, 6);
     expect(rows(graph)['bound-hypothesis']).toMatch(/max\(e\^c, e\^x\)/);
     expect(statusIds(graph)).toEqual(['revealed']);
-    expect(caption(graph)[4]).toBe('ocena napake ≤ 0,0005393');
+    expect(caption(graph)[4]).toBe('napaka ≤ 0,0005393 (Lagrangeeva ocena)');
     // the band around T_n(x) has half-width equal to the bound
     const band = segments(graph)[BOUND_BAND];
     expect(visible(band)).toBe(true);
@@ -754,7 +754,7 @@ test('the caption follows the language and a language change notifies subscriber
     expect(caption(graph)[4]).toBe('error bound: hidden');
     expect(caption(graph)[5]).toBe('solid line: f; dashed line: Tₙ; vertical line at x: the error');
     apply(graph, reveal(true));
-    expect(caption(graph)[4]).toBe('error bound ≤ 1.359'); // M = e, |x - c|^2 / 2! = 1/2
+    expect(caption(graph)[4]).toBe('error ≤ 1.359 (Lagrange bound)'); // M = e, |x - c|^2 / 2! = 1/2
     expect(rows(graph).convergence).toBe('The series converges to f for every x.');
     expect(rows(graph)['bound-hypothesis']).toMatch(/because e\^t is increasing/);
     unsubscribe();
@@ -767,7 +767,7 @@ test('the legend names f, T_n, the error, the bound band and the convergence int
     expect(items[0].label).toMatch(/polna črta/);
     expect(items[1].label).toMatch(/črtkana črta/);
     expect(items[0].kind).toBe('line');
-    expect(items[1].kind).toBe('dashed');
+    expect(items[1].kind).toBe('dashed-line');
     setLanguage('en');
     expect(graph.renderLegend().props.items.map((item: any) => item.label)).toEqual([
         'Graph of the function f: solid line', 'Taylor polynomial Tₙ: dashed line', 'Error between Tₙ(x) and f(x): vertical line at x',
@@ -788,4 +788,28 @@ test('the example views are the ones the examples need, with the default example
         expect(left).toBeLessThanOrEqual(example.xMin);
         expect(right).toBeGreaterThanOrEqual(example.xMax);
     }
+});
+
+test('1/(1 - x) with the bound shown and x > c inside the interval notes that the bound is valid but not sharp, while the error shrinks', () => {
+    const graph = makeGraph({asyncState: false});
+    apply(graph, choice('geometric'));
+    apply(graph, parameter('taylor-x', 0.5));
+    apply(graph, parameter('taylor-degree', 5));
+    // hidden bound: no note
+    expect(statusIds(graph)).toEqual(['hidden', 'inside-convergence']);
+    apply(graph, reveal(true));
+    expect(statusIds(graph)).toEqual(['revealed', 'inside-convergence', 'bound-not-sharp']);
+    // c = 0, x = 0.5: the bound stays 2 for every n while the error halves
+    const bounds = [1, 5, 10].map(n => {
+        apply(graph, parameter('taylor-degree', n));
+        const bound = graph.viewOf(graph.model).bound;
+        return bound.kind === 'bound' ? bound.value : NaN;
+    });
+    for (const bound of bounds) expect(bound).toBeCloseTo(2, 9);
+    expect(numbers(graph).absoluteError).toBeLessThan(1e-3);
+    // x left of c, or outside the interval: no such note
+    apply(graph, parameter('taylor-x', -0.5));
+    expect(statusIds(graph)).toEqual(['revealed', 'inside-convergence']);
+    apply(graph, parameter('taylor-x', -1.5));
+    expect(statusIds(graph)).toEqual(['revealed', 'outside-convergence']);
 });

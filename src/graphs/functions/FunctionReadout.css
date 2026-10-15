@@ -25,6 +25,11 @@
 .function-legend-swatch { flex: none; width: 22px; height: 12px; border-radius: 2px; opacity: .85; }
 .function-legend-line { height: 3px; opacity: 1; }
 .function-legend-dashed { height: 12px; opacity: 1; background: transparent; border: 2px dashed; box-sizing: border-box; }
+/* A dashed or short-dashed line (not a box): only the top border is drawn. */
+.function-legend-dashed-line { height: 0; opacity: 1; background: transparent; border: 0 dashed; border-top-width: 3px; box-sizing: border-box; border-radius: 0; }
+.function-legend-dotted-line { height: 0; opacity: 1; background: transparent; border: 0 dotted; border-top-width: 3px; box-sizing: border-box; border-radius: 0; }
+/* An open circular marker. */
+.function-legend-ring { width: 12px; height: 12px; margin: 0 5px; opacity: 1; background: transparent; border: 2px solid; border-radius: 50%; box-sizing: border-box; }
 /* Bisection iteration controls: Next step, Play/Pause and Reset as native buttons of one group. */
 .bisection-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
 .bisection-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }

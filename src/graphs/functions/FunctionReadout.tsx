@@ -35,9 +35,13 @@ export interface LegendItem {
     color: string;
     /** The meaning in words: colour is never the only cue. */
     label: string;
-    /** `line` for a curve, `area` (default) for a shaded region, `dashed` for a lightly shaded region with a dashed outline. */
-    kind?: "area" | "line" | "dashed";
+    /** `line` for a curve, `area` (default) for a shaded region, `dashed` for a lightly shaded region with a dashed outline,
+     * `dashed-line` and `dotted-line` for a dashed or short-dashed line, `ring` for an open circular marker. */
+    kind?: "area" | "line" | "dashed" | "dashed-line" | "dotted-line" | "ring";
 }
+
+/** The kinds drawn with a coloured border instead of a filled background. */
+const LINE_BORDER_KINDS: readonly string[] = ["dashed", "dashed-line", "dotted-line", "ring"];
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
 export function FunctionLegend(props: { items: readonly LegendItem[] }) {
@@ -46,7 +50,7 @@ export function FunctionLegend(props: { items: readonly LegendItem[] }) {
         <h3>{t("function_legend")}</h3>
         <ul>
             {props.items.map(item => <li key={item.id} data-legend={item.id}>
-                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={item.kind === "dashed" ? {borderColor: item.color} : {backgroundColor: item.color}} aria-hidden="true"/>
+                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={LINE_BORDER_KINDS.includes(item.kind ?? "area") ? {borderColor: item.color} : {backgroundColor: item.color}} aria-hidden="true"/>
                 <span>{item.label}</span>
             </li>)}
         </ul>

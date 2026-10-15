@@ -114,3 +114,18 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
 });
+
+test('a live language switch re-evaluates the board texts and the numbers the board shows', () => {
+    const graph = new ObservedDarbouxGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const texts = () => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text') as any[];
+    const caption = () => texts().map(text => String(text.plaintext)).join('|');
+    expect(caption()).toContain('n = 4, integral = 2,6667');
+    expect(caption()).toContain('poln: spodnja vsota L');
+    act(() => { setLanguage('en'); });
+    expect(caption()).toContain('n = 4, integral = 2.6667');
+    expect(caption()).toContain('filled: lower sum L');
+    expect(caption()).not.toContain('poln: spodnja vsota L');
+    act(() => { setLanguage('sl'); });
+    expect(caption()).toContain('n = 4, integral = 2,6667');
+});

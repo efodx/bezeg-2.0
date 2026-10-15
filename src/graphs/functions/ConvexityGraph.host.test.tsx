@@ -78,7 +78,7 @@ test('a real board shows chord and tangent: the fields, the example and the Show
     expect(graph.modelNow()).toEqual({example: 'cube', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false});
     expect(readout('inflection')).toBe('skrito');
     act(() => { fireEvent.click(toggle()); });
-    expect(readout('verdict')).toBe("brez trditve: f'' spremeni predznak na [a, b]");
+    expect(readout('verdict')).toBe("brez trditve: f″ spremeni predznak na [a, b]");
     expect(readout('inflection')).toBe('pri x = 0');
     expect(statusIds()).toEqual(['revealed', 'no-claim']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
@@ -88,7 +88,7 @@ test('a real board shows chord and tangent: the fields, the example and the Show
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Hide second derivative'})).toBeInTheDocument();
     expect(screen.getByLabelText('Left endpoint a')).toBeInTheDocument();
-    expect(readout('verdict')).toBe("no claim: f'' changes sign on [a, b]");
+    expect(readout('verdict')).toBe("no claim: f″ changes sign on [a, b]");
     expect(readout('inflection')).toBe('at x = 0');
 });
 

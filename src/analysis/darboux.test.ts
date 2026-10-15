@@ -27,6 +27,17 @@ describe('Darboux sums', () => {
         expect(t.gap).toBeCloseTo(2, 12);
     });
 
+    it('x^2 on [0, 2] has the gap U - L = 8/n for every n (increasing: dx * (f(b) - f(a)) = (2/n) * 4)', () => {
+        for (let n = 1; n <= DARBOUX_N_MAX; n++) {
+            const t = darbouxTotals(square, 0, 2, n);
+            expect(t.upper - t.lower).toBeCloseTo(8 / n, 10);
+            expect(t.gap).toBeCloseTo(8 / n, 10);
+        }
+        // the lesson quotes n = 4 -> 2, n = 8 -> 1
+        expect(darbouxTotals(square, 0, 2, 4).gap).toBeCloseTo(2, 12);
+        expect(darbouxTotals(square, 0, 2, 8).gap).toBeCloseTo(1, 12);
+    });
+
     it('sin x on [0, pi] with n = 1 has supremum 1 at pi/2 and infimum 0', () => {
         const [s] = darbouxSubintervals(sine, 0, Math.PI, 1);
         expect(s.sup).toBe(1);

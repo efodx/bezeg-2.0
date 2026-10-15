@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNoise, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -10,7 +10,6 @@ import {
     DarbouxExampleId, darbouxSubintervals, DarbouxSubinterval, darbouxTotals, DarbouxTotals, isDarbouxCount, isDarbouxExampleId, isDarbouxX, refine,
 } from "../../analysis/darboux";
 import {DARBOUX_EXAMPLE_MODELS, DarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Sums and the integral show four decimals so that 1.75, 3.75 and 8/3 = 2.6667 can be read off. */
@@ -85,7 +84,6 @@ function rectangles(parts: readonly DarbouxSubinterval[], height: (part: Darboux
 export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
-    private viewCache?: { model: DarbouxModel; view: View };
 
     override presets(): string {
         return "darboux";
@@ -103,31 +101,22 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         return [...EXAMPLE_VIEWS[this.model.example]];
     }
 
-    /** A preset or file whose example differs and which carries no view of its own shows that example's view, like the choice does. */
-    override importPreset(preset: Preset): void {
-        const previous = this.model.example;
-        super.importPreset(preset);
-        if (!preset.boardState && this.model.example !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...EXAMPLE_VIEWS[this.model.example]], true);
-        }
+    protected override exampleView() {
+        return {key: this.model.example, box: EXAMPLE_VIEWS[this.model.example]};
     }
 
     // ---- View --------------------------------------------------------------------------------------------------------
 
-    /** The derived numbers for a model, computed once per model object however many board objects and readouts read them. */
+    /** The derived numbers for a model, computed once per set of model values (see `memoView`). */
     private viewOf(model: DarbouxModel): View {
-        if (this.viewCache?.model !== model) {
+        return this.memoView(model, () => {
             const example = darbouxExample(model.example);
-            this.viewCache = {
-                model,
-                view: {
-                    example,
-                    parts: darbouxSubintervals(example, model.a, model.b, model.n),
-                    totals: darbouxTotals(example, model.a, model.b, model.n),
-                },
+            return {
+                example,
+                parts: darbouxSubintervals(example, model.a, model.b, model.n),
+                totals: darbouxTotals(example, model.a, model.b, model.n),
             };
-        }
-        return this.viewCache.view;
+        });
     }
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
@@ -142,13 +131,15 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isDarbouxX(value)) throw new DomainError(`The endpoint a must be a finite number between ${DARBOUX_X_MIN} and ${DARBOUX_X_MAX}.`);
         if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        if (value !== this.model.a) this.commitModel({...this.model, a: value}, options);
+        const next = cleanNoise(value);
+        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
     }
 
     protected setB(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isDarbouxX(value)) throw new DomainError(`The endpoint b must be a finite number between ${DARBOUX_X_MIN} and ${DARBOUX_X_MAX}.`);
         if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        if (value !== this.model.b) this.commitModel({...this.model, b: value}, options);
+        const next = cleanNoise(value);
+        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
     }
 
     protected setCount(value: number): void {
@@ -237,23 +228,12 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         }));
 
         // a and b are dragged along the x-axis, projected onto the grid and onto the range a < b allows; a value the model still refuses puts the point back.
-        const dragWrite = (apply: (x: number) => void) => (x: number) => {
-            const accepted = this.ignoreOutOfDomain(() => apply(x));
-            if (!accepted) this.syncSceneToModel();
-            return accepted;
-        };
-        const axisPoint = (config: { x: number; name: string; placement: "below-left" | "below-right"; min: () => number; max: () => number; write: (x: number) => void }) =>
-            this.slidingPoint({
-                x: config.x, position: () => 0, min: config.min, max: config.max, step: DARBOUX_X_STEP,
-                attributes: {...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6)},
-                write: dragWrite(config.write),
-            });
-        this.pointA = axisPoint({
-            x: model().a, name: "$$a$$", placement: "below-left",
+        this.pointA = this.axisPoint({
+            x: model().a, name: "$$a$$", placement: "below-left", step: DARBOUX_X_STEP,
             min: () => DARBOUX_X_MIN, max: () => cleanNumber(model().b - DARBOUX_X_STEP), write: x => this.setA(x, {syncScene: false}),
         });
-        this.pointB = axisPoint({
-            x: model().b, name: "$$b$$", placement: "below-right",
+        this.pointB = this.axisPoint({
+            x: model().b, name: "$$b$$", placement: "below-right", step: DARBOUX_X_STEP,
             min: () => cleanNumber(model().a + DARBOUX_X_STEP), max: () => DARBOUX_X_MAX, write: x => this.setB(x, {syncScene: false}),
         });
 
@@ -271,7 +251,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                     value1: model().upperVisible ? formatNumber(view().totals.upper, language(), PRECISE) : this.hiddenText(),
                 }),
             },
-            {text: () => t("darboux_board_key")},
+            {text: () => t("darboux_board_key"), minBoardWidth: 520},
         ]);
     }
 
@@ -284,7 +264,6 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
-        this.viewCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

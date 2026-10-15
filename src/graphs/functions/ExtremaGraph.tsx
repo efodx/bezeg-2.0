@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNoise, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -10,7 +10,6 @@ import {
     ExtremaCandidate, ExtremaExample, ExtremaExampleId, isExtremaExampleId, isExtremaX,
 } from "../../analysis/extrema";
 import {EXTREMA_EXAMPLE_MODELS, ExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Values and positions show four decimals so that pi/2 = 1.5708 and sin(4) = -0.7568 can be read off. */
@@ -48,10 +47,6 @@ const FACES: Readonly<Record<CandidateKind, string>> = {endpoint: "[]", stationa
 const KIND_COLORS = (): Readonly<Record<CandidateKind, string>> =>
     ({endpoint: GraphPalette.comparisonCurve, stationary: GraphPalette.constructionAccent, corner: GraphPalette.additionalCurves[1]});
 
-const LABEL_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:2px 6px;border-radius:2px;line-height:1.25;white-space:nowrap;pointer-events:none;`;
-const SIGN_STYLE = `${BOARD_TEXT_STYLE}font-weight:700;pointer-events:none;`;
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 type StatusKind = "hidden" | "revealed" | "corner" | "tie";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
@@ -83,7 +78,6 @@ const SIGN_CHARACTER: Readonly<Record<DerivativeSign, string>> = {[-1]: "−", 0
 export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
-    private viewCache?: { model: ExtremaModel; view: View };
 
     override presets(): string {
         return "extrema";
@@ -101,24 +95,18 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         return [...EXAMPLE_VIEWS[this.model.example]];
     }
 
-    /** A preset or file whose example differs and which carries no view of its own shows that example's view, like the choice does. */
-    override importPreset(preset: Preset): void {
-        const previous = this.model.example;
-        super.importPreset(preset);
-        if (!preset.boardState && this.model.example !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...EXAMPLE_VIEWS[this.model.example]], true);
-        }
+    protected override exampleView() {
+        return {key: this.model.example, box: EXAMPLE_VIEWS[this.model.example]};
     }
 
     // ---- View --------------------------------------------------------------------------------------------------------
 
-    /** The derived numbers for a model, computed once per model object however many board objects and readouts read them. */
+    /** The derived numbers for a model, computed once per set of model values (see `memoView`). */
     private viewOf(model: ExtremaModel): View {
-        if (this.viewCache?.model !== model) {
+        return this.memoView(model, () => {
             const example = extremaExample(model.example);
-            this.viewCache = {model, view: {example, analysis: analyzeExtrema(example, model.a, model.b)}};
-        }
-        return this.viewCache.view;
+            return {example, analysis: analyzeExtrema(example, model.a, model.b)};
+        });
     }
 
     /** The candidates of one kind, ascending: marker slot k shows the k-th of them. */
@@ -137,13 +125,15 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isExtremaX(value)) throw new DomainError(`The endpoint a must be a finite number between ${EXTREMA_X_MIN} and ${EXTREMA_X_MAX}.`);
         if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        if (value !== this.model.a) this.commitModel({...this.model, a: value}, options);
+        const next = cleanNoise(value);
+        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
     }
 
     protected setB(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isExtremaX(value)) throw new DomainError(`The endpoint b must be a finite number between ${EXTREMA_X_MIN} and ${EXTREMA_X_MAX}.`);
         if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        if (value !== this.model.b) this.commitModel({...this.model, b: value}, options);
+        const next = cleanNoise(value);
+        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
     }
 
     protected setRevealed(visible: boolean): void {
@@ -268,23 +258,12 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         }
 
         // a and b are dragged along the x-axis, projected onto the grid and onto the range a < b allows; a value the model still refuses puts the point back.
-        const dragWrite = (apply: (x: number) => void) => (x: number) => {
-            const accepted = this.ignoreOutOfDomain(() => apply(x));
-            if (!accepted) this.syncSceneToModel();
-            return accepted;
-        };
-        const axisPoint = (config: { x: number; name: string; placement: "below-left" | "below-right"; min: () => number; max: () => number; write: (x: number) => void }) =>
-            this.slidingPoint({
-                x: config.x, position: () => 0, min: config.min, max: config.max, step: EXTREMA_X_STEP,
-                attributes: {...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6)},
-                write: dragWrite(config.write),
-            });
-        this.pointA = axisPoint({
-            x: model().a, name: "$$a$$", placement: "below-left",
+        this.pointA = this.axisPoint({
+            x: model().a, name: "$$a$$", placement: "below-left", step: EXTREMA_X_STEP,
             min: () => EXTREMA_X_MIN, max: () => cleanNumber(model().b - EXTREMA_X_STEP), write: x => this.setA(x, {syncScene: false}),
         });
-        this.pointB = axisPoint({
-            x: model().b, name: "$$b$$", placement: "below-right",
+        this.pointB = this.axisPoint({
+            x: model().b, name: "$$b$$", placement: "below-right", step: EXTREMA_X_STEP,
             min: () => cleanNumber(model().a + EXTREMA_X_STEP), max: () => EXTREMA_X_MAX, write: x => this.setB(x, {syncScene: false}),
         });
 
@@ -302,8 +281,8 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
                     });
                 },
             },
-            {text: () => t("extrema_board_key")},
-            {text: () => t("extrema_board_signs_key")},
+            {text: () => t("extrema_board_key"), minBoardWidth: 520},
+            {text: () => t("extrema_board_signs_key"), minBoardWidth: 520},
         ]);
     }
 
@@ -316,7 +295,6 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
-        this.viewCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -358,8 +336,8 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
             {id: "endpoint", color: colors.endpoint, label: t("extrema_legend_endpoint"), kind: "area"},
             {id: "stationary", color: colors.stationary, label: t("extrema_legend_stationary"), kind: "area"},
             {id: "corner", color: colors.corner, label: t("extrema_legend_corner"), kind: "area"},
-            {id: "global", color: GraphPalette.referenceCurve, label: t("extrema_legend_global"), kind: "dashed"},
-            {id: "pieces", color: GraphPalette.referenceCurve, label: t("extrema_legend_pieces"), kind: "dashed"},
+            {id: "global", color: GraphPalette.referenceCurve, label: t("extrema_legend_global"), kind: "dotted-line"},
+            {id: "pieces", color: GraphPalette.referenceCurve, label: t("extrema_legend_pieces"), kind: "dashed-line"},
         ]}/>;
     }
 

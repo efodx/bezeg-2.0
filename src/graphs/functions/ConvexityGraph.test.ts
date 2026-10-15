@@ -125,7 +125,7 @@ test('initialization draws x^2 on [-1, 1.5] with chord, tangent, a, b, t and one
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[-1, 0], [1.5, 0], [0.5, 0]]);
     expect(valuePoints(graph).map(at)).toEqual([[-1, 1], [1.5, 2.25], [0.5, 0.25]]);
     expect(caption(graph)).toEqual([
-        'f(x) = x²', 'a = −1, b = 1,5, t = 0,5', 'sodba: skrita', 'polna črta: tetiva; črtkana črta: tangenta',
+        'f(x) = x²', 'a = −1, b = 1,5, t = 0,5', 'sklep: skrit', 'polna črta: tetiva; črtkana črta: tangenta',
     ]);
 });
 
@@ -154,10 +154,10 @@ test('before the reveal the readout, caption and statuses say hidden and give no
         a: '−1', b: '1,5', t: '0,5', chord: 'y = 0,5x + 1,5', tangent: 'y = x − 0,25',
         'second-derivative-sign': 'skrito', verdict: 'skrito', 'tangent-verdict': 'skrito', inflection: 'skrito',
     });
-    expect(rowLabels(graph).verdict).toBe('Sodba za [a, b]');
+    expect(rowLabels(graph).verdict).toBe('Sklep za [a, b]');
     expect(statusIds(graph)).toEqual(['hidden']);
     expect(statusTexts(graph)[0]).not.toMatch(/\d/);
-    expect(caption(graph)[2]).toBe('sodba: skrita');
+    expect(caption(graph)[2]).toBe('sklep: skrit');
     const text = [...caption(graph), ...Object.values(rows(graph)).filter(value => value !== 'skrito')].join(' ');
     expect(text).not.toMatch(/konveksna|konkavna|brez trditve/);
     expect(signTexts(graph).map(visible)).toEqual([false, false]);
@@ -170,15 +170,15 @@ test('x^2 on [-1, 1.5] revealed: convex, graph on or below the chord and on or a
     apply(graph, reveal(true));
     expect(rows(graph)).toEqual({
         a: '−1', b: '1,5', t: '0,5', chord: 'y = 0,5x + 1,5', tangent: 'y = x − 0,25',
-        'second-derivative-sign': "f'' ≥ 0 na [a, b]", verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo',
+        'second-derivative-sign': "f″ ≥ 0 na [a, b]", verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo',
         'tangent-verdict': 'graf leži na tangenti ali nad njo', inflection: 'ni',
     });
     expect(statusIds(graph)).toEqual(['revealed']);
     expect(caption(graph)).toEqual([
         'f(x) = x²', 'a = −1, b = 1,5, t = 0,5', 'konveksna na [a, b]', 'graf: na tetivi ali pod njo, na tangenti ali nad njo',
-        'polna črta: tetiva; črtkana črta: tangenta', "zgoraj: predznak f'' (+ konveksna, − konkavna)",
+        'polna črta: tetiva; črtkana črta: tangenta', "zgoraj: predznak f″ (+ konveksna, − konkavna)",
     ]);
-    expect(statusTexts(graph, 'en')[0]).toBe('The verdict follows from the sign of f\'\' on [a, b].');
+    expect(statusTexts(graph, 'en')[0]).toBe('The verdict follows from the sign of f″ on [a, b].');
 });
 
 test('-x^2 reverses both comparisons: concave, graph on or above the chord and on or below the tangent', () => {
@@ -186,7 +186,7 @@ test('-x^2 reverses both comparisons: concave, graph on or above the chord and o
     apply(graph, choice('negSquare'));
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({
-        chord: 'y = −0,5x − 1,5', tangent: 'y = −x + 0,25', 'second-derivative-sign': "f'' ≤ 0 na [a, b]",
+        chord: 'y = −0,5x − 1,5', tangent: 'y = −x + 0,25', 'second-derivative-sign': "f″ ≤ 0 na [a, b]",
         verdict: 'konkavna na [a, b]: graf leži na tetivi ali nad njo', 'tangent-verdict': 'graf leži na tangenti ali pod njo', inflection: 'ni',
     });
     expect(caption(graph)[2]).toBe('konkavna na [a, b]');
@@ -218,11 +218,11 @@ test('x^3: f\'\' = 6x changes sign at 0, so [-1, 1.5] gets no claim and names th
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: true});
     expect(rows(graph)).toMatchObject({
-        chord: 'y = 1,75x + 0,75', 'second-derivative-sign': "f'' spremeni predznak na [a, b]", verdict: "brez trditve: f'' spremeni predznak na [a, b]",
-        'tangent-verdict': "brez trditve: f'' spremeni predznak na [a, b]", inflection: 'pri x = 0',
+        chord: 'y = 1,75x + 0,75', 'second-derivative-sign': "f″ spremeni predznak na [a, b]", verdict: "brez trditve: f″ spremeni predznak na [a, b]",
+        'tangent-verdict': "brez trditve: f″ spremeni predznak na [a, b]", inflection: 'pri x = 0',
     });
     expect(statusIds(graph)).toEqual(['revealed', 'no-claim']);
-    expect(caption(graph)[2]).toBe("brez trditve: f'' spremeni predznak na [a, b]");
+    expect(caption(graph)[2]).toBe("brez trditve: f″ spremeni predznak na [a, b]");
     expect(caption(graph)).toHaveLength(5); // no line about the position of the graph
     expect(graph.captionColors()[2]).not.toBe(graph.captionColors()[1]);
     expect(at(inflectionRing(graph))).toEqual([0, 0]);
@@ -247,11 +247,11 @@ test('x^4 on [-1, 1]: convex, f\'\'(0) = 0 yet no inflection point, and the zero
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'quartic', a: -1, b: 1, t: 0.5, secondDerivativeVisible: true});
     expect(rows(graph)).toMatchObject({
-        chord: 'y = 1', tangent: 'y = 0,5x − 0,1875', 'second-derivative-sign': "f'' ≥ 0 na [a, b]",
+        chord: 'y = 1', tangent: 'y = 0,5x − 0,1875', 'second-derivative-sign': "f″ ≥ 0 na [a, b]",
         verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo', inflection: 'ni',
     });
     expect(statusIds(graph)).toEqual(['revealed', 'zero-without-change']);
-    expect(statusTexts(graph, 'en')[1]).toBe("f'' equals 0 at x = 0 but keeps its sign, so this is not an inflection point.");
+    expect(statusTexts(graph, 'en')[1]).toBe("f″ equals 0 at x = 0 but keeps its sign, so this is not an inflection point.");
     expect(visible(inflectionRing(graph))).toBe(false);
     expect(visible(inflectionLabel(graph))).toBe(false);
     expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2]()])).toEqual([[true, '+'], [true, '+']]);
@@ -655,7 +655,8 @@ test('the legend names the function, the chord, the tangent and the inflection r
     expect(items[1].label).toMatch(/polna črta/);
     expect(items[2].label).toMatch(/črtkana črta/);
     expect(items[1].kind).toBe('line');
-    expect(items[2].kind).toBe('dashed');
+    expect(items[2].kind).toBe('dashed-line');
+    expect(items[3].kind).toBe('ring');
     setLanguage('en');
     expect(graph.renderLegend().props.items.map((item: any) => item.label)).toEqual([
         'Graph of the function f', 'Chord between the graph points above a and b: solid line', 'Tangent at t: dashed line',

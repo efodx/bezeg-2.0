@@ -1028,8 +1028,8 @@ const darboux: GuidedLesson = {
             'For \\(f(x)=x^2\\) on \\([0,2]\\) with \\(n=4\\) parts predict the lower and the upper sum, and check \\(1.75\\le\\frac83\\le3.75\\).',
         ),
         text(
-            'Pri gostitvi razdelitve opaziš, da se \\(L\\) veča, \\(U\\) manjša, integral pa ostane med njima.',
-            'When the partition is refined, observe that \\(L\\) increases, \\(U\\) decreases, and the integral stays between them.',
+            'Pri gostitvi razdelitve opaziš, da se \\(L\\) ne zmanjša, \\(U\\) ne poveča, integral pa ostane med njima.',
+            'When the partition is refined, observe that \\(L\\) never decreases, \\(U\\) never increases, and the integral stays between them.',
         ),
         text(
             'Pri \\(\\sin x\\) na \\([0,\\pi]\\) pojasniš, zakaj je supremum \\(1\\) v notranji točki \\(\\frac{\\pi}{2}\\) in zakaj vrednost v levem krajišču ni zgornja meja.',
@@ -1144,8 +1144,8 @@ const darboux: GuidedLesson = {
             title: text('Gostitev razdelitve', 'Refining the partition'),
             purpose: text('Videti, da se z gostitvijo \\(L\\) veča, \\(U\\) manjša in integral ostane med njima.', 'Seeing that refining makes \\(L\\) increase, \\(U\\) decrease, and the integral stay between them.'),
             explanation: text(
-                'Gostitev razpolovi vsak del: iz \\(n=4\\) postane \\(n=8\\) in \\(\\Delta x=\\frac14\\). Nove vsote so \\(L=2{,}1875\\) in \\(U=3{,}1875\\), prej pa sta bili \\(1{,}75\\) in \\(3{,}75\\). Spodnja vsota se je povečala, zgornja zmanjšala, integral \\(2{,}6667\\) pa je še vedno med njima. Del, ki je polovica starega, ima infimum večji ali enak in supremum manjši ali enak staremu, zato se \\(L\\) ne zmanjša in \\(U\\) se ne poveča. Pri naraščajoči funkciji je razlika \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac4n\\), torej se pri \\(n=8\\) zmanjša na \\(1\\).',
-                'Refining bisects every part: \\(n=4\\) becomes \\(n=8\\) and \\(\\Delta x=\\frac14\\). The new sums are \\(L=2.1875\\) and \\(U=3.1875\\), whereas before they were \\(1.75\\) and \\(3.75\\). The lower sum increased, the upper sum decreased, and the integral \\(2.6667\\) is still between them. A half of an old part has an infimum greater or equal and a supremum less or equal than the old one, so \\(L\\) does not decrease and \\(U\\) does not increase. For an increasing function the gap is \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac4n\\), so for \\(n=8\\) it shrinks to \\(1\\).',
+                'Gostitev razpolovi vsak del: iz \\(n=4\\) postane \\(n=8\\) in \\(\\Delta x=\\frac14\\). Nove vsote so \\(L=2{,}1875\\) in \\(U=3{,}1875\\), prej pa sta bili \\(1{,}75\\) in \\(3{,}75\\). Spodnja vsota se je povečala, zgornja zmanjšala, integral \\(2{,}6667\\) pa je še vedno med njima. Del, ki je polovica starega, ima infimum večji ali enak in supremum manjši ali enak staremu, zato se \\(L\\) ne zmanjša in \\(U\\) se ne poveča. Pri naraščajoči funkciji je razlika \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac2n\\cdot4=\\frac8n\\), torej se pri \\(n=8\\) zmanjša na \\(1\\).',
+                'Refining bisects every part: \\(n=4\\) becomes \\(n=8\\) and \\(\\Delta x=\\frac14\\). The new sums are \\(L=2.1875\\) and \\(U=3.1875\\), whereas before they were \\(1.75\\) and \\(3.75\\). The lower sum increased, the upper sum decreased, and the integral \\(2.6667\\) is still between them. A half of an old part has an infimum greater or equal and a supremum less or equal than the old one, so \\(L\\) does not decrease and \\(U\\) does not increase. For an increasing function the gap is \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)=\\frac2n\\cdot4=\\frac8n\\), so for \\(n=8\\) it shrinks to \\(1\\).',
             ),
             formulaIds: ['darboux-bounds'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('darboux-refine-explanation', 'explanation'), frame('darboux-refine-observation', 'observation')],
@@ -1453,16 +1453,16 @@ const extrema: GuidedLesson = {
         },
         {
             id: 'extrema-abs-step', order: 4,
-            title: text('Kot brez odvoda: \\(|x|\\) na \\([-1,1]\\)', 'A corner without a derivative: \\(|x|\\) on \\([-1,1]\\)'),
+            title: text('Ostri vogal brez odvoda: \\(|x|\\) na \\([-1,1]\\)', 'A corner without a derivative: \\(|x|\\) on \\([-1,1]\\)'),
             purpose: text('Napovedati, ali je ekstrem lahko tam, kjer odvod ne obstaja, in kaj se zgodi pri izenačenju.', 'Predicting whether an extremum can lie where the derivative does not exist, and what happens in a tie.'),
             explanation: text(
-                'Prejšnji primer je pokazal, da ničla odvoda še ne pomeni ekstrema: pri \\(x^3\\) je odvod na obeh straneh točke \\(0\\) pozitiven, zato \\(0\\) ni lokalni ekstrem. Zdaj \\(f(x)=|x|\\) na \\([-1,1]\\). V točki \\(0\\) je kot: odvod \\(f^{\\prime}(0)\\) ne obstaja, levo od nje je \\(f^{\\prime}=-1\\), desno pa \\(f^{\\prime}=1\\). Kandidati so še krajišči \\(-1\\) in \\(1\\). Klasifikacija je skrita.',
+                'Prejšnji primer je pokazal, da ničla odvoda še ne pomeni ekstrema: pri \\(x^3\\) je odvod na obeh straneh točke \\(0\\) pozitiven, zato \\(0\\) ni lokalni ekstrem. Zdaj \\(f(x)=|x|\\) na \\([-1,1]\\). V točki \\(0\\) je ostri vogal: odvod \\(f^{\\prime}(0)\\) ne obstaja, levo od nje je \\(f^{\\prime}=-1\\), desno pa \\(f^{\\prime}=1\\). Kandidati so še krajišči \\(-1\\) in \\(1\\). Klasifikacija je skrita.',
                 'The previous example showed that a zero of the derivative does not mean an extremum: for \\(x^3\\) the derivative is positive on both sides of the point \\(0\\), so \\(0\\) is not a local extremum. Now \\(f(x)=|x|\\) on \\([-1,1]\\). At the point \\(0\\) there is a corner: the derivative \\(f^{\\prime}(0)\\) does not exist, to its left \\(f^{\\prime}=-1\\) and to its right \\(f^{\\prime}=1\\). The other candidates are the endpoints \\(-1\\) and \\(1\\). The classification is hidden.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'], learnerInteraction: 'observe',
             frames: [frame('extrema-abs-explanation', 'explanation'), frame('extrema-abs-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali je kot \\(0\\) ekstrem, čeprav odvod ne obstaja, in kateri kandidati so globalni (pazi na izenačenje); šele nato pritisni Pokaži klasifikacijo.',
+                'Napovej, ali je ostri vogal pri \\(0\\) ekstrem, čeprav odvod ne obstaja, in kateri kandidati so globalni (pazi na izenačenje); šele nato pritisni Pokaži klasifikacijo.',
                 'Predict whether the corner \\(0\\) is an extremum although the derivative does not exist, and which candidates are global (watch for a tie); only then press Show classification.',
             ),
             expectedObservations: [text(
@@ -1483,7 +1483,7 @@ const extrema: GuidedLesson = {
             title: text('Več kandidatov: \\(\\sin x\\) na \\([-4,4]\\)', 'Several candidates: \\(\\sin x\\) on \\([-4,4]\\)'),
             purpose: text('Napovedati ekstreme, kadar je več stacionarnih točk in vrednosti v krajiščih vplivajo na izbiro.', 'Predicting extrema when there are several stationary points and the endpoint values matter.'),
             explanation: text(
-                'Pri \\(|x|\\) je ekstrem v kotu, kjer odvod ne obstaja, in krajišči sta se izenačili. Zdaj \\(f(x)=\\sin x\\) na \\([-4,4]\\). Odvod \\(\\cos x\\) je \\(0\\) pri \\(-\\frac{\\pi}{2}\\) in \\(\\frac{\\pi}{2}\\), v krajiščih pa je \\(f(-4)\\approx0{,}7568\\) in \\(f(4)\\approx-0{,}7568\\). Pri globalnih ekstremih je treba primerjati tudi vrednosti v krajiščih. Klasifikacija je skrita.',
+                'Pri \\(|x|\\) je ekstrem v ostrem vogalu, kjer odvod ne obstaja, in krajišči sta se izenačili. Zdaj \\(f(x)=\\sin x\\) na \\([-4,4]\\). Odvod \\(\\cos x\\) je \\(0\\) pri \\(-\\frac{\\pi}{2}\\) in \\(\\frac{\\pi}{2}\\), v krajiščih pa je \\(f(-4)\\approx0{,}7568\\) in \\(f(4)\\approx-0{,}7568\\). Pri globalnih ekstremih je treba primerjati tudi vrednosti v krajiščih. Klasifikacija je skrita.',
                 'For \\(|x|\\) the extremum is at a corner where the derivative does not exist, and the endpoints tied. Now \\(f(x)=\\sin x\\) on \\([-4,4]\\). The derivative \\(\\cos x\\) is \\(0\\) at \\(-\\frac{\\pi}{2}\\) and \\(\\frac{\\pi}{2}\\), and at the endpoints \\(f(-4)\\approx0.7568\\) and \\(f(4)\\approx-0.7568\\). For the global extrema the values at the endpoints must be compared too. The classification is hidden.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'], learnerInteraction: 'observe',
@@ -1579,7 +1579,7 @@ const extrema: GuidedLesson = {
             'A value of \\(a\\) or \\(b\\) outside the range \\([-4,4]\\) and endpoints with \\(a\\ge b\\) are rejected by the app and the model stays unchanged; a file with such a value is not imported and says what to correct.',
         ),
         text(
-            'Če je krajišče hkrati stacionarna točka ali kot (na primer \\(a=0\\) pri \\(x^2\\)), ostane eno samo krajišče in se ne podvoji; njegova klasifikacija upošteva samo stran znotraj intervala.',
+            'Če je krajišče hkrati stacionarna točka ali ostri vogal (na primer \\(a=0\\) pri \\(x^2\\)), ostane eno samo krajišče in se ne podvoji; njegova klasifikacija upošteva samo stran znotraj intervala.',
             'If an endpoint is also a stationary point or a corner (for example \\(a=0\\) for \\(x^2\\)), it stays a single endpoint and is not duplicated; its classification uses only the side inside the interval.',
         ),
         text(
@@ -1606,7 +1606,7 @@ const convexity: GuidedLesson = {
     demonstrationId: 'convexity',
     title: text('Konveksnost in konkavnost', 'Convexity and concavity'),
     summary: text(
-        'Funkcija je konveksna na intervalu, če graf na vsakem podintervalu leži na tetivi ali pod njo, in konkavna, če leži na tetivi ali nad njo. Če je drugi odvod \\(f^{\\prime\\prime}\\) na \\([a,b]\\) nenegativen, je funkcija tam konveksna in graf leži tudi na vsaki tangenti s točko dotika v \\([a,b]\\) ali nad njo; če je nepozitiven, so obe neenakosti obrnjeni. Če \\(f^{\\prime\\prime}\\) na intervalu spremeni predznak, o tetivi in tangenti ne trdimo ničesar, točka spremembe predznaka pa je prevojna točka. Ničla drugega odvoda sama še ni prevoj: \\(x^4\\) ima \\(f^{\\prime\\prime}(0)=0\\), a \\(f^{\\prime\\prime}\\) ostane nenegativen.',
+        'Funkcija je konveksna na intervalu, če graf na vsakem podintervalu leži na tetivi ali pod njo, in konkavna, če leži na tetivi ali nad njo. Če je drugi odvod \\(f^{\\prime\\prime}\\) na \\([a,b]\\) nenegativen, je funkcija tam konveksna in graf leži tudi na vsaki tangenti s točko dotika v \\([a,b]\\) ali nad njo; če je nepozitiven, sta obe neenakosti obrnjeni. Če \\(f^{\\prime\\prime}\\) na intervalu spremeni predznak, o tetivi in tangenti ne trdimo ničesar, točka spremembe predznaka pa je prevojna točka. Ničla drugega odvoda sama še ni prevoj: \\(x^4\\) ima \\(f^{\\prime\\prime}(0)=0\\), a \\(f^{\\prime\\prime}\\) ostane nenegativen.',
         'A function is convex on an interval if on every subinterval the graph lies on or below the chord, and concave if it lies on or above the chord. If the second derivative \\(f^{\\prime\\prime}\\) is nonnegative on \\([a,b]\\), the function is convex there and the graph also lies on or above every tangent whose point of tangency is in \\([a,b]\\); if it is nonpositive, both inequalities are reversed. If \\(f^{\\prime\\prime}\\) changes sign on the interval, nothing is claimed about the chord or the tangent, and a point where the sign changes is an inflection point. A zero of the second derivative alone is not an inflection: \\(x^4\\) has \\(f^{\\prime\\prime}(0)=0\\), yet \\(f^{\\prime\\prime}\\) stays nonnegative.',
     ),
     prerequisites: [
@@ -1721,8 +1721,8 @@ const convexity: GuidedLesson = {
             title: text('Tetiva, tangenta in drugi odvod', 'Chord, tangent and the second derivative'),
             purpose: text('Pripraviti pojme in napoved, preden se drugi odvod pokaže.', 'Preparing the terms and a prediction before the second derivative is shown.'),
             explanation: text(
-                'Funkcija je konveksna na intervalu, če graf na njem nikjer ne leži nad tetivo, ki povezuje dve njegovi točki, in konkavna, če nikjer ne leži pod tetivo. Drugi odvod \\(f^{\\prime\\prime}\\) je odvod odvoda \\(f^{\\prime}\\): pove, kako se spreminja naklon tangente. Opazujemo \\(f(x)=x^2\\) na \\([-1;1{,}5]\\). Modra polna črta je tetiva med točkama grafa nad \\(a=-1\\) in \\(b=1{,}5\\), oranžna črtkana črta pa tangenta v točki \\(t=0{,}5\\). Drugi odvod je skrit, zato sodbe še ni.',
-                'A function is convex on an interval if on it the graph never lies above a chord joining two of its points, and concave if the graph never lies below a chord. The second derivative \\(f^{\\prime\\prime}\\) is the derivative of the derivative \\(f^{\\prime}\\): it tells how the slope of the tangent changes. We look at \\(f(x)=x^2\\) on \\([-1,1.5]\\). The blue solid line is the chord between the points of the graph above \\(a=-1\\) and \\(b=1.5\\), and the orange dashed line is the tangent at \\(t=0.5\\). The second derivative is hidden, so there is no verdict yet.',
+                'Funkcija je konveksna na intervalu, če graf na njem med poljubnima dvema svojima točkama nikjer ne leži nad tetivo, ki ju povezuje, in konkavna, če nikjer ne leži pod njo. Drugi odvod \\(f^{\\prime\\prime}\\) je odvod odvoda \\(f^{\\prime}\\): pove, kako se spreminja naklon tangente. Opazujemo \\(f(x)=x^2\\) na \\([-1;1{,}5]\\). Modra polna črta je tetiva med točkama grafa nad \\(a=-1\\) in \\(b=1{,}5\\), oranžna črtkana črta pa tangenta v točki \\(t=0{,}5\\). Drugi odvod je skrit, zato sklepa še ni.',
+                'A function is convex on an interval if on it the graph never lies above a chord joining two of its points, between those two points, and concave if the graph never lies below a chord. The second derivative \\(f^{\\prime\\prime}\\) is the derivative of the derivative \\(f^{\\prime}\\): it tells how the slope of the tangent changes. We look at \\(f(x)=x^2\\) on \\([-1,1.5]\\). The blue solid line is the chord between the points of the graph above \\(a=-1\\) and \\(b=1.5\\), and the orange dashed line is the tangent at \\(t=0.5\\). The second derivative is hidden, so there is no verdict yet.',
             ),
             formulaIds: ['convexity-chord'], learnerInteraction: 'observe',
             frames: [frame('convexity-prerequisites-explanation', 'explanation'), frame('convexity-prerequisites-observation', 'observation')],
@@ -1731,7 +1731,7 @@ const convexity: GuidedLesson = {
                 'Predict whether the graph on \\([a,b]\\) lies below or above the chord and above or below the tangent; only then press Show second derivative.',
             ),
             expectedObservations: [text(
-                'Narisani sta tetiva in tangenta, drugi odvod in sodba pa sta skrita.',
+                'Narisani sta tetiva in tangenta, drugi odvod in sklep pa sta skrita.',
                 'The chord and the tangent are drawn; the second derivative and the verdict are hidden.',
             )],
             scene: {
@@ -1748,24 +1748,24 @@ const convexity: GuidedLesson = {
             title: text('Tetiva: \\(x^2\\) je konveksna', 'The chord: \\(x^2\\) is convex'),
             purpose: text('Primerjati napoved z neenakostjo in jo povezati z drugim odvodom.', 'Comparing the prediction with the inequality and linking it to the second derivative.'),
             explanation: text(
-                'Tetiva poteka skozi točki \\((-1,1)\\) in \\((1{,}5;\\,2{,}25)\\), zato ima naklon \\(\\frac{2{,}25-1}{2{,}5}=0{,}5\\) in enačbo \\(y=0{,}5x+1{,}5\\). Razlika \\(f(x)-(0{,}5x+1{,}5)=x^2-0{,}5x-1{,}5=(x+1)(x-1{,}5)\\) je na \\([-1;1{,}5]\\) nepozitivna, zato graf leži na tetivi ali pod njo. To se ujema z drugim odvodom: \\(f^{\\prime\\prime}(x)=2\\ge0\\), zato je \\(x^2\\) konveksna. Aplikacija sodbo izpelje iz predznaka \\(f^{\\prime\\prime}\\) na \\([a,b]\\), ne iz vzorčenja grafa.',
-                'The chord passes through the points \\((-1,1)\\) and \\((1.5,\\,2.25)\\), so its slope is \\(\\frac{2.25-1}{2.5}=0.5\\) and its equation is \\(y=0.5x+1.5\\). The difference \\(f(x)-(0.5x+1.5)=x^2-0.5x-1.5=(x+1)(x-1.5)\\) is nonpositive on \\([-1,1.5]\\), so the graph lies on or below the chord. This agrees with the second derivative: \\(f^{\\prime\\prime}(x)=2\\ge0\\), so \\(x^2\\) is convex. The app derives the verdict from the sign of \\(f^{\\prime\\prime}\\) on \\([a,b]\\), not by sampling the graph.',
+                'Tetiva poteka skozi točki \\((-1,1)\\) in \\((1{,}5;\\,2{,}25)\\), zato ima naklon \\(\\frac{2{,}25-1}{2{,}5}=0{,}5\\) in enačbo \\(y=0{,}5x+1{,}5\\). Razlika \\(f(x)-(0{,}5x+1{,}5)\\) je enaka \\(x^2-0{,}5x-1{,}5\\), kar je \\((x+1)(x-1{,}5)\\), in je na \\([-1;1{,}5]\\) nepozitivna, zato graf leži na tetivi ali pod njo. To se ujema z drugim odvodom: \\(f^{\\prime\\prime}(x)=2\\ge0\\), zato je \\(x^2\\) konveksna. Aplikacija sklep izpelje iz predznaka \\(f^{\\prime\\prime}\\) na \\([a,b]\\), ne iz vzorčenja grafa.',
+                'The chord passes through the points \\((-1,1)\\) and \\((1.5,\\,2.25)\\), so its slope is \\(\\frac{2.25-1}{2.5}=0.5\\) and its equation is \\(y=0.5x+1.5\\). The difference \\(f(x)-(0.5x+1.5)\\) equals \\(x^2-0.5x-1.5\\), which is \\((x+1)(x-1.5)\\), and it is nonpositive on \\([-1,1.5]\\), so the graph lies on or below the chord. This agrees with the second derivative: \\(f^{\\prime\\prime}(x)=2\\ge0\\), so \\(x^2\\) is convex. The app derives the verdict from the sign of \\(f^{\\prime\\prime}\\) on \\([a,b]\\), not by sampling the graph.',
             ),
             formulaIds: ['convexity-chord', 'convexity-second-derivative'], workedExampleId: 'convexity-chord-example', learnerInteraction: 'observe',
             frames: [frame('convexity-chord-explanation', 'explanation'), frame('convexity-chord-calculation', 'calculation'), frame('convexity-chord-observation', 'observation')],
             observationPrompt: text(
-                'Primerjaj sodbo z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in vrstico o legi grafa pod podnapisom.',
+                'Primerjaj sklep z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in vrstico o legi grafa pod podnapisom.',
                 'Compare the verdict with your prediction: read the sign of \\(f^{\\prime\\prime}\\) at the top of the graph and the line about the position of the graph in the caption.',
             ),
             expectedObservations: [text(
-                'Zgoraj je znak \\(+\\), sodba je »konveksna na \\([a,b]\\)«: graf leži na tetivi ali pod njo in na tangenti ali nad njo.',
+                'Zgoraj je znak \\(+\\), sklep je »konveksna na \\([a,b]\\)«: graf leži na tetivi ali pod njo in na tangenti ali nad njo.',
                 'The sign \\(+\\) is at the top and the verdict is "convex on \\([a,b]\\)": the graph lies on or below the chord and on or above the tangent.',
             )],
             scene: {
                 id: 'convexity-chord-scene', basedOn: 'demonstration-default',
                 actions: [secondDerivative(true)],
                 expectedState: text(
-                    'Pri \\(f(x)=x^2\\) na \\([-1;1{,}5]\\) je drugi odvod prikazan: znak \\(+\\), sodba »konveksna«.',
+                    'Pri \\(f(x)=x^2\\) na \\([-1;1{,}5]\\) je drugi odvod prikazan: znak \\(+\\), sklep »konveksna«.',
                     'For \\(f(x)=x^2\\) on \\([-1,1.5]\\) the second derivative is shown: the sign \\(+\\) and the verdict "convex".',
                 ),
             },
@@ -1775,8 +1775,8 @@ const convexity: GuidedLesson = {
             title: text('Tangenta in točka zunaj intervala', 'The tangent and a point outside the interval'),
             purpose: text('Primerjati graf s tangento in videti, kdaj trditve ne smemo izreči.', 'Comparing the graph with the tangent and seeing when the claim must not be made.'),
             explanation: text(
-                'Tangenta v \\(t=0{,}5\\) ima naklon \\(f^{\\prime}(0{,}5)=1\\) in enačbo \\(y=x-0{,}25\\). Razlika \\(f(x)-(x-0{,}25)=x^2-x+0{,}25=(x-0{,}5)^2\\) nikjer ni negativna, zato graf leži na tangenti ali nad njo. Pri konveksni funkciji to velja za vsako tangento s točko dotika v \\([a,b]\\). Zdaj premakni \\(t\\) desno od \\(b\\), na primer v \\(1{,}8\\): aplikacija o tangenti ne trdi več ničesar, ker \\(t\\) ni v \\([a,b]\\), čeprav je za \\(x^2\\) razlika \\((x-1{,}8)^2\\) še vedno nenegativna. Trditev smemo izreči le tam, kjer hipoteza to dovoljuje.',
-                'The tangent at \\(t=0.5\\) has slope \\(f^{\\prime}(0.5)=1\\) and equation \\(y=x-0.25\\). The difference \\(f(x)-(x-0.25)=x^2-x+0.25=(x-0.5)^2\\) is never negative, so the graph lies on or above the tangent. For a convex function this holds for every tangent whose point of tangency is in \\([a,b]\\). Now move \\(t\\) to the right of \\(b\\), for example to \\(1.8\\): the app no longer claims anything about the tangent, because \\(t\\) is not in \\([a,b]\\), although for \\(x^2\\) the difference \\((x-1.8)^2\\) is still nonnegative. A claim may be made only where the hypothesis allows it.',
+                'Tangenta v \\(t=0{,}5\\) ima naklon \\(f^{\\prime}(0{,}5)=1\\) in enačbo \\(y=x-0{,}25\\). Razlika \\(f(x)-(x-0{,}25)\\) je enaka \\(x^2-x+0{,}25\\), kar je \\((x-0{,}5)^2\\), in nikjer ni negativna, zato graf leži na tangenti ali nad njo. Pri konveksni funkciji to velja za vsako tangento s točko dotika v \\([a,b]\\). Zdaj premakni \\(t\\) desno od \\(b\\), na primer v \\(1{,}8\\): aplikacija o tangenti ne trdi več ničesar, ker \\(t\\) ni v \\([a,b]\\), čeprav je za \\(x^2\\) razlika \\((x-1{,}8)^2\\) še vedno nenegativna. Trditev smemo izreči le tam, kjer hipoteza to dovoljuje.',
+                'The tangent at \\(t=0.5\\) has slope \\(f^{\\prime}(0.5)=1\\) and equation \\(y=x-0.25\\). The difference \\(f(x)-(x-0.25)\\) equals \\(x^2-x+0.25\\), which is \\((x-0.5)^2\\), and it is never negative, so the graph lies on or above the tangent. For a convex function this holds for every tangent whose point of tangency is in \\([a,b]\\). Now move \\(t\\) to the right of \\(b\\), for example to \\(1.8\\): the app no longer claims anything about the tangent, because \\(t\\) is not in \\([a,b]\\), although for \\(x^2\\) the difference \\((x-1.8)^2\\) is still nonnegative. A claim may be made only where the hypothesis allows it.',
             ),
             formulaIds: ['convexity-tangent'], workedExampleId: 'convexity-tangent-example', learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('convexity-tangent-explanation', 'explanation'), frame('convexity-tangent-calculation', 'calculation'), frame('convexity-tangent-observation', 'observation')],
@@ -1812,7 +1812,7 @@ const convexity: GuidedLesson = {
                 'Predict whether the graph now lies above or below the chord, above or below the tangent, and what the sign of \\(f^{\\prime\\prime}\\) is; only then press Show second derivative.',
             ),
             expectedObservations: [text(
-                'Po pritisku je zgoraj znak \\(-\\), sodba je »konkavna na \\([a,b]\\)«: graf leži na tetivi ali nad njo in na tangenti ali pod njo.',
+                'Po pritisku je zgoraj znak \\(-\\), sklep je »konkavna na \\([a,b]\\)«: graf leži na tetivi ali nad njo in na tangenti ali pod njo.',
                 'After the press the sign \\(-\\) is at the top and the verdict is "concave on \\([a,b]\\)": the graph lies on or above the chord and on or below the tangent.',
             )],
             scene: {
@@ -1829,8 +1829,8 @@ const convexity: GuidedLesson = {
             title: text('Sprememba predznaka: \\(x^3\\)', 'A sign change: \\(x^3\\)'),
             purpose: text('Napovedati, kdaj trditve o tetivi ni, in najti interval, kjer jo je mogoče izreči.', 'Predicting when no claim about the chord exists and finding an interval where one can be made.'),
             explanation: text(
-                'Pri \\(-x^2\\) je \\(f^{\\prime\\prime}=-2\\le0\\), zato je funkcija konkavna: tetiva je \\(y=-0{,}5x-1{,}5\\), razlika \\(f(x)-(-0{,}5x-1{,}5)=-(x+1)(x-1{,}5)\\) je nenegativna, razlika s tangento \\(y=-x+0{,}25\\) pa je \\(-(x-0{,}5)^2\\le0\\). Zdaj \\(f(x)=x^3\\) na \\([-1;1{,}5]\\): drugi odvod \\(f^{\\prime\\prime}(x)=6x\\) je levo od \\(0\\) negativen in desno pozitiven. Drugi odvod je skrit.',
-                'For \\(-x^2\\) we have \\(f^{\\prime\\prime}=-2\\le0\\), so the function is concave: the chord is \\(y=-0.5x-1.5\\), the difference \\(f(x)-(-0.5x-1.5)=-(x+1)(x-1.5)\\) is nonnegative, and the difference with the tangent \\(y=-x+0.25\\) is \\(-(x-0.5)^2\\le0\\). Now \\(f(x)=x^3\\) on \\([-1,1.5]\\): the second derivative \\(f^{\\prime\\prime}(x)=6x\\) is negative to the left of \\(0\\) and positive to the right. The second derivative is hidden.',
+                'Pri \\(-x^2\\) je \\(f^{\\prime\\prime}=-2\\le0\\), zato je funkcija konkavna: tetiva je \\(y=-0{,}5x-1{,}5\\), razlika \\(f(x)-(-0{,}5x-1{,}5)\\) je enaka \\(-(x+1)(x-1{,}5)\\) in je nenegativna, razlika s tangento \\(y=-x+0{,}25\\) pa je \\(-(x-0{,}5)^2\\le0\\). Zdaj \\(f(x)=x^3\\) na \\([-1;1{,}5]\\): drugi odvod \\(f^{\\prime\\prime}(x)=6x\\) je levo od \\(0\\) negativen in desno pozitiven. Drugi odvod je skrit.',
+                'For \\(-x^2\\) we have \\(f^{\\prime\\prime}=-2\\le0\\), so the function is concave: the chord is \\(y=-0.5x-1.5\\), the difference \\(f(x)-(-0.5x-1.5)\\) equals \\(-(x+1)(x-1.5)\\) and is nonnegative, and the difference with the tangent \\(y=-x+0.25\\) is \\(-(x-0.5)^2\\le0\\). Now \\(f(x)=x^3\\) on \\([-1,1.5]\\): the second derivative \\(f^{\\prime\\prime}(x)=6x\\) is negative to the left of \\(0\\) and positive to the right. The second derivative is hidden.',
             ),
             formulaIds: ['convexity-second-derivative', 'convexity-inflection'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('convexity-cube-explanation', 'explanation'), frame('convexity-cube-observation', 'observation')],
@@ -1839,7 +1839,7 @@ const convexity: GuidedLesson = {
                 'Predict whether a claim about the chord can be made for this interval; only then press Show second derivative. Then set \\(a=0\\) and \\(b=2\\), and afterwards \\(a=-2\\) and \\(b=0\\).',
             ),
             expectedObservations: [text(
-                'Po pritisku je zgoraj znak \\(-\\) levo in \\(+\\) desno od \\(0\\), prevojna točka je pri \\(x=0\\) in sodba je »brez trditve: \\(f^{\\prime\\prime}\\) spremeni predznak na \\([a,b]\\)«. Na \\([0,2]\\) je funkcija konveksna, na \\([-2,0]\\) konkavna.',
+                'Po pritisku je zgoraj znak \\(-\\) levo in \\(+\\) desno od \\(0\\), prevojna točka je pri \\(x=0\\) in sklep je »brez trditve: \\(f^{\\prime\\prime}\\) spremeni predznak na \\([a,b]\\)«. Na \\([0,2]\\) je funkcija konveksna, na \\([-2,0]\\) konkavna.',
                 'After the press the sign \\(-\\) is at the top left of \\(0\\) and \\(+\\) to the right, the inflection point is at \\(x=0\\), and the verdict is "no claim: \\(f^{\\prime\\prime}\\) changes sign on \\([a,b]\\)". On \\([0,2]\\) the function is convex, on \\([-2,0]\\) concave.',
             )],
             scene: {
@@ -1856,17 +1856,17 @@ const convexity: GuidedLesson = {
             title: text('Ničla drugega odvoda: \\(x^4\\)', 'A zero of the second derivative: \\(x^4\\)'),
             purpose: text('Napovedati, ali ničla drugega odvoda pomeni prevoj.', 'Predicting whether a zero of the second derivative means an inflection.'),
             explanation: text(
-                'Pri \\(x^3\\) na \\([-1;1{,}5]\\) je tetiva \\(y=1{,}75x+0{,}75\\) in razlika \\(f(x)-(1{,}75x+0{,}75)=(x+1)(x+0{,}5)(x-1{,}5)\\) je pozitivna na \\((-1;-0{,}5)\\) in negativna na \\((-0{,}5;1{,}5)\\): graf je na enem delu nad tetivo in na drugem pod njo, zato trditve ni. Zdaj \\(f(x)=x^4\\) na \\([-1,1]\\): drugi odvod \\(f^{\\prime\\prime}(x)=12x^2\\) je v \\(0\\) enak \\(0\\). Drugi odvod je skrit.',
-                'For \\(x^3\\) on \\([-1,1.5]\\) the chord is \\(y=1.75x+0.75\\) and the difference \\(f(x)-(1.75x+0.75)=(x+1)(x+0.5)(x-1.5)\\) is positive on \\((-1,-0.5)\\) and negative on \\((-0.5,1.5)\\): on one part the graph is above the chord and on another below it, so there is no claim. Now \\(f(x)=x^4\\) on \\([-1,1]\\): the second derivative \\(f^{\\prime\\prime}(x)=12x^2\\) equals \\(0\\) at \\(0\\). The second derivative is hidden.',
+                'Pri \\(x^3\\) na \\([-1;1{,}5]\\) je tetiva \\(y=1{,}75x+0{,}75\\) in razlika \\(f(x)-(1{,}75x+0{,}75)\\) je enaka \\((x+1)(x+0{,}5)(x-1{,}5)\\) in je pozitivna na \\((-1;-0{,}5)\\) in negativna na \\((-0{,}5;1{,}5)\\): graf je na enem delu nad tetivo in na drugem pod njo, zato trditve ni. Zdaj \\(f(x)=x^4\\) na \\([-1,1]\\): drugi odvod \\(f^{\\prime\\prime}(x)=12x^2\\) je v \\(0\\) enak \\(0\\). Drugi odvod je skrit.',
+                'For \\(x^3\\) on \\([-1,1.5]\\) the chord is \\(y=1.75x+0.75\\) and the difference \\(f(x)-(1.75x+0.75)\\) equals \\((x+1)(x+0.5)(x-1.5)\\) and is positive on \\((-1,-0.5)\\) and negative on \\((-0.5,1.5)\\): on one part the graph is above the chord and on another below it, so there is no claim. Now \\(f(x)=x^4\\) on \\([-1,1]\\): the second derivative \\(f^{\\prime\\prime}(x)=12x^2\\) equals \\(0\\) at \\(0\\). The second derivative is hidden.',
             ),
             formulaIds: ['convexity-inflection'], learnerInteraction: 'observe',
             frames: [frame('convexity-quartic-explanation', 'explanation'), frame('convexity-quartic-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali ima \\(x^4\\) v \\(0\\) prevojno točko, čeprav je tam \\(f^{\\prime\\prime}(0)=0\\), in kakšna je sodba za \\([-1,1]\\); šele nato pritisni Pokaži drugi odvod.',
+                'Napovej, ali ima \\(x^4\\) v \\(0\\) prevojno točko, čeprav je tam \\(f^{\\prime\\prime}(0)=0\\), in kakšen je sklep za \\([-1,1]\\); šele nato pritisni Pokaži drugi odvod.',
                 'Predict whether \\(x^4\\) has an inflection point at \\(0\\) although \\(f^{\\prime\\prime}(0)=0\\) there, and what the verdict for \\([-1,1]\\) is; only then press Show second derivative.',
             ),
             expectedObservations: [text(
-                'Po pritisku sta zgoraj znaka \\(+\\) in \\(+\\) z znakom \\(0\\) vmes, prevojne točke ni, sodba je »konveksna na \\([a,b]\\)«.',
+                'Po pritisku sta zgoraj znaka \\(+\\) in \\(+\\) z znakom \\(0\\) vmes, prevojne točke ni, sklep je »konveksna na \\([a,b]\\)«.',
                 'After the press the signs \\(+\\) and \\(+\\) are at the top with a \\(0\\) between them, there is no inflection point, and the verdict is "convex on \\([a,b]\\)".',
             )],
             scene: {
@@ -1889,18 +1889,18 @@ const convexity: GuidedLesson = {
             formulaIds: ['convexity-second-derivative', 'convexity-inflection'], workedExampleId: 'convexity-quartic-example', learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('convexity-free-explanation', 'explanation'), frame('convexity-free-calculation', 'calculation'), frame('convexity-free-observation', 'observation')],
             observationPrompt: text(
-                'Primerjaj sodbo z napovedjo. Nato skrij drugi odvod, izberi drug primer ali interval in napovej, preden ga spet pokažeš.',
+                'Primerjaj sklep z napovedjo. Nato skrij drugi odvod, izberi drug primer ali interval in napovej, preden ga spet pokažeš.',
                 'Compare the verdict with your prediction. Then hide the second derivative, choose another example or interval, and predict before you show it again.',
             ),
             expectedObservations: [text(
-                'Zgoraj sta znaka \\(+\\) in \\(+\\) z znakom \\(0\\) vmes, prevojne točke ni, zapisano je, da je \\(f^{\\prime\\prime}\\) pri \\(x=0\\) enak \\(0\\), a ohrani predznak; sodba je »konveksna«.',
+                'Zgoraj sta znaka \\(+\\) in \\(+\\) z znakom \\(0\\) vmes, prevojne točke ni, zapisano je, da je \\(f^{\\prime\\prime}\\) pri \\(x=0\\) enak \\(0\\), a ohrani predznak; sklep je »konveksna«.',
                 'The signs \\(+\\) and \\(+\\) are at the top with a \\(0\\) between them, there is no inflection point, a note says that \\(f^{\\prime\\prime}\\) equals \\(0\\) at \\(x=0\\) but keeps its sign, and the verdict is "convex".',
             )],
             scene: {
                 id: 'convexity-free-scene', basedOn: 'demonstration-default',
                 actions: [convexityChoice('quartic'), secondDerivative(true)],
                 expectedState: text(
-                    'Pri \\(f(x)=x^4\\) na \\([-1,1]\\) je drugi odvod prikazan: znaka \\(+\\) in \\(+\\), brez prevoja, sodba »konveksna«.',
+                    'Pri \\(f(x)=x^4\\) na \\([-1,1]\\) je drugi odvod prikazan: znaka \\(+\\) in \\(+\\), brez prevoja, sklep »konveksna«.',
                     'For \\(f(x)=x^4\\) on \\([-1,1]\\) the second derivative is shown: the signs \\(+\\) and \\(+\\), no inflection, the verdict "convex".',
                 ),
             },
@@ -1929,7 +1929,7 @@ const convexity: GuidedLesson = {
             'If \\(f^{\\prime\\prime}\\) changes sign on \\([a,b]\\) or \\(t\\) is not in \\([a,b]\\), the app does not make the corresponding claim and gives the reason, even if the graph happens to lie on one side of the line.',
         ),
         text(
-            'Dokler je drugi odvod skrit, so skriti tudi predznaki \\(f^{\\prime\\prime}\\), prevojna točka in sodbe, da napoved ni predčasno razkrita; tetiva in tangenta ostaneta narisani.',
+            'Dokler je drugi odvod skrit, so skriti tudi predznaki \\(f^{\\prime\\prime}\\), prevojna točka in sklepi, da napoved ni predčasno razkrita; tetiva in tangenta ostaneta narisani.',
             'While the second derivative is hidden, the signs of \\(f^{\\prime\\prime}\\), the inflection point and the verdicts are hidden too, so that the prediction is not given away; the chord and the tangent stay drawn.',
         ),
     ],
@@ -1952,8 +1952,8 @@ const taylor: GuidedLesson = {
     demonstrationId: 'taylor',
     title: text('Taylorjev polinom in napaka približka', 'Taylor polynomial and the error of the approximation'),
     summary: text(
-        'Taylorjev polinom \\(T_n\\) stopnje \\(n\\) funkcije \\(f\\) okoli središča \\(c\\) je končna vsota \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); obstaja vedno, kadar ima \\(f\\) v \\(c\\) odvode do stopnje \\(n\\). Napaka \\(f(x)-T_n(x)\\) ima Lagrangeevo obliko \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) za neki \\(\\xi\\) med \\(c\\) in \\(x\\), zato velja ocena \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), če je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\). To je pomembno ločiti od neskončne Taylorjeve vrste: pri \\(e^x\\) in \\(\\sin x\\) vrsta konvergira k \\(f\\) povsod, pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri gladki funkciji \\(e^{-1/x}\\) (za \\(x>0\\), sicer \\(0\\)) pa so vsi koeficienti v \\(0\\) enaki \\(0\\), zato vrsta konvergira k \\(0\\), ne k \\(f\\).',
-        'The Taylor polynomial \\(T_n\\) of degree \\(n\\) of a function \\(f\\) about a center \\(c\\) is the finite sum \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); it exists whenever \\(f\\) has derivatives at \\(c\\) up to order \\(n\\). The error \\(f(x)-T_n(x)\\) has the Lagrange form \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) for some \\(\\xi\\) between \\(c\\) and \\(x\\), hence the bound \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\) when \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\). This must be kept apart from the infinite Taylor series: for \\(e^x\\) and \\(\\sin x\\) the series converges to \\(f\\) everywhere, for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for the smooth function \\(e^{-1/x}\\) (for \\(x>0\\), otherwise \\(0\\)) all coefficients at \\(0\\) equal \\(0\\), so the series converges to \\(0\\), not to \\(f\\).',
+        'Taylorjev polinom \\(T_n\\) stopnje \\(n\\) funkcije \\(f\\) okoli središča \\(c\\) je končna vsota \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); obstaja vedno, kadar ima \\(f\\) v \\(c\\) odvode do stopnje \\(n\\). Če je \\(f\\) med \\(c\\) in \\(x\\) \\((n+1)\\)-krat odvedljiva, ima napaka \\(f(x)-T_n(x)\\) Lagrangeevo obliko \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) za neki \\(\\xi\\) med \\(c\\) in \\(x\\), zato velja ocena \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), če je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\). To je pomembno ločiti od neskončne Taylorjeve vrste: pri \\(e^x\\) in \\(\\sin x\\) vrsta konvergira k \\(f\\) povsod, pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri gladki funkciji \\(e^{-1/x}\\) (za \\(x>0\\), sicer \\(0\\)) pa so vsi koeficienti v \\(0\\) enaki \\(0\\), zato vrsta konvergira k \\(0\\), ne k \\(f\\).',
+        'The Taylor polynomial \\(T_n\\) of degree \\(n\\) of a function \\(f\\) about a center \\(c\\) is the finite sum \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); it exists whenever \\(f\\) has derivatives at \\(c\\) up to order \\(n\\). If \\(f\\) is \\((n+1)\\)-times differentiable between \\(c\\) and \\(x\\), the error \\(f(x)-T_n(x)\\) has the Lagrange form \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) for some \\(\\xi\\) between \\(c\\) and \\(x\\), hence the bound \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\) when \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\). This must be kept apart from the infinite Taylor series: for \\(e^x\\) and \\(\\sin x\\) the series converges to \\(f\\) everywhere, for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for the smooth function \\(e^{-1/x}\\) (for \\(x>0\\), otherwise \\(0\\)) all coefficients at \\(0\\) equal \\(0\\), so the series converges to \\(0\\), not to \\(f\\).',
     ),
     prerequisites: [
         text(
@@ -2135,8 +2135,8 @@ const taylor: GuidedLesson = {
             title: text('Funkcija \\(\\sin x\\): napoved', 'The function \\(\\sin x\\): a prediction'),
             purpose: text('Napovedati oceno napake, preden se pokaže.', 'Predicting the error bound before it is shown.'),
             explanation: text(
-                'Odvodi funkcije \\(\\sin x\\) se ponavljajo: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). V središču \\(c=0\\) so vrednosti \\(0\\), \\(1\\), \\(0\\), \\(-1\\), zato ima \\(T_n\\) le lihe potence. Pri \\(e^x\\) smo videli, da je ocena nad napako, ker je \\(M=e<3\\). Zdaj opazujemo \\(\\sin x\\) v točki \\(x=2\\) pri \\(n=3\\); ocena napake je skrita.',
-                'The derivatives of \\(\\sin x\\) repeat: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). At the center \\(c=0\\) their values are \\(0\\), \\(1\\), \\(0\\), \\(-1\\), so \\(T_n\\) has only odd powers. For \\(e^x\\) we saw that the bound lies above the error because \\(M=e<3\\). Now we look at \\(\\sin x\\) at the point \\(x=2\\) with \\(n=3\\); the error bound is hidden.',
+                'Odvodi funkcije \\(\\sin x\\) se ponavljajo: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). V središču \\(c=0\\) so vrednosti \\(0\\), \\(1\\), \\(0\\), \\(-1\\), zato ima \\(T_n\\) le lihe potence. Pri \\(e^x\\) smo videli, da je ocena nad napako: \\(M=e\\) omejuje vse odvode \\(e^t\\) za \\(t\\) med \\(0\\) in \\(1\\) (Lagrangeeva oblika ostanka). Zdaj opazujemo \\(\\sin x\\) v točki \\(x=2\\) pri \\(n=3\\); ocena napake je skrita.',
+                'The derivatives of \\(\\sin x\\) repeat: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). At the center \\(c=0\\) their values are \\(0\\), \\(1\\), \\(0\\), \\(-1\\), so \\(T_n\\) has only odd powers. For \\(e^x\\) we saw that the bound lies above the error: \\(M=e\\) bounds every derivative \\(e^t\\) for \\(t\\) between \\(0\\) and \\(1\\) (the Lagrange form of the remainder). Now we look at \\(\\sin x\\) at the point \\(x=2\\) with \\(n=3\\); the error bound is hidden.',
             ),
             formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
             frames: [frame('taylor-sine-prediction-explanation', 'explanation'), frame('taylor-sine-prediction-observation', 'observation')],

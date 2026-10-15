@@ -53,6 +53,15 @@ export class DomainError extends Error {
 /** Removes floating-point noise left by rounding or slider arithmetic (and the sign of zero) without changing meaningful digits. */
 export const cleanNumber = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
 
+/**
+ * `cleanNumber` for a value that may legitimately be irrational (an endpoint such as pi): only floating-point noise (below 1e-12)
+ * is removed, so pi stays exact while 0.1 + 0.2 becomes 0.3.
+ */
+export const cleanNoise = (value: number) => {
+    const cleaned = cleanNumber(value);
+    return Math.abs(cleaned - value) < 1e-12 ? cleaned : value;
+};
+
 /** A number for a slider value or label: the current language's decimal separator and a true minus sign. */
 export const localizedSliderValue = (value: number) => formatNumber(value, currentLanguage());
 
@@ -75,7 +84,7 @@ export interface CaptionLine {
 /** Where a point's label sits relative to the point; chosen per point so that the label clears the curves through it. */
 export type LabelPlacement = "above" | "below" | "left" | "right" | "above-left" | "above-right" | "below-left" | "below-right";
 
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+export const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** The serif of the workspace headings and coordinate editor, so plain board text sits with the MathJax labels (SVG export keeps it). */
 export const BOARD_TEXT_STYLE = 'font-family:Georgia,"Times New Roman",serif;font-variant-numeric:lining-nums;';
@@ -85,6 +94,12 @@ export const BOARD_TEXT_STYLE = 'font-family:Georgia,"Times New Roman",serif;fon
  * and Δ is an upright operator (Δy).
  */
 export const mathTextHtml = (text: string) => escapeHtml(text).replace(/(?<!(?!Δ)\p{L})([A-Za-zα-ω])(?!\p{L})/gu, "<i>$1</i>");
+
+/** A small plate for a label on the board (point values, kinds, the convergence interval); it never takes pointer events. */
+export const LABEL_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:2px 6px;border-radius:2px;line-height:1.25;white-space:nowrap;pointer-events:none;`;
+
+/** The bold signs (+, −, 0) of a derivative row at the top of the board. */
+export const SIGN_STYLE = `${BOARD_TEXT_STYLE}font-weight:700;pointer-events:none;`;
 
 /** A soft board-coloured plate so that a curve crossing the caption does not hurt legibility; it never takes pointer events. */
 const CAPTION_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:3px 8px;border-radius:2px;line-height:1.3;white-space:nowrap;pointer-events:none;`;
@@ -101,6 +116,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     private boardStateImported = false;
     private captionLines: CaptionLine[] = [];
     private lastLanguage: Language = currentLanguage();
+    private viewMemo?: { key: readonly unknown[]; view: unknown };
 
     constructor() {
         super();
@@ -137,6 +153,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         // The board is disposed with the session: drop every reference to its objects so nothing can touch them afterwards.
         this.generatedObjects = [];
         this.captionLines = [];
+        this.viewMemo = undefined;
         this.onSceneRemoved();
         super.unmount();
         // A later mount() on this instance starts from the default model, like a new instance.
@@ -209,13 +226,40 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.commitModel(parsed ?? this.defaultModel());
     }
 
+    /**
+     * A graph with per-example board views returns the current example's key and view. A preset or file whose example differs
+     * and which carries no view of its own then shows that example's view, like choosing the example does.
+     */
+    protected exampleView(): { key: string; box: BoundingBox } | undefined {
+        return undefined;
+    }
+
     override importPreset(preset: Preset): void {
+        const previousExample = this.exampleView()?.key;
         // Only a preset applied before the scene exists is followed by the `initialize()` that would reset the view; one
         // applied to a live scene sets its own view directly, and a stale flag would make a later initialize skip the default.
         this.boardStateImported = Boolean(preset.boardState) && this.generatedObjects.length === 0;
         super.importPreset(preset);
         // The model in `data` is authoritative; a preset without it shows the default model.
         if (preset.data === undefined || preset.data === null) this.importPresetData(this.defaultPreset());
+        const example = this.exampleView();
+        if (example && !preset.boardState && example.key !== previousExample && this.generatedObjects.length > 0) {
+            this.board.setBoundingBox([...example.box], true);
+        }
+    }
+
+    /**
+     * The numbers a display is derived from, computed once per set of model values however many board objects and readouts read
+     * them. The key is the model's field values (not the object), so the board (reading `this.model`) and the inspector (reading a
+     * copy made from React state) share one entry while they show the same values, and a new object with equal values reuses it.
+     */
+    protected memoView<V>(model: M, compute: () => V): V {
+        const key = Object.values(model);
+        const memo = this.viewMemo;
+        if (!memo || memo.key.length !== key.length || memo.key.some((value, index) => !Object.is(value, key[index]))) {
+            this.viewMemo = {key, view: compute()};
+        }
+        return this.viewMemo!.view as V;
     }
 
     override defaultPreset(): string {
@@ -400,6 +444,27 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
             anchorY: () => vertical() > 0 ? "bottom" : vertical() < 0 ? "top" : "middle",
             offset: () => [horizontal() * 6 * distance, vertical() * 0.5 * this.displaySettings.fontSize * distance],
         };
+    }
+
+    /**
+     * A point on the x-axis dragged to a grid value of `step` inside [min, max]; `write` applies the value through the model's
+     * setter and a value the model still refuses puts the point back at the model's position (`syncSceneToModel`).
+     */
+    protected axisPoint(config: {
+        x: number; name: string; placement: LabelPlacement; color?: string; min: number | (() => number); max: number | (() => number); step: number; write: (x: number) => void;
+    }): JXG.Point {
+        return this.slidingPoint({
+            x: config.x, position: () => 0, min: config.min, max: config.max, step: config.step,
+            attributes: {
+                ...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6),
+                ...(config.color === undefined ? {} : {fillColor: config.color, highlightFillColor: config.color}),
+            },
+            write: x => {
+                const accepted = this.ignoreOutOfDomain(() => config.write(x));
+                if (!accepted) this.syncSceneToModel();
+                return accepted;
+            },
+        });
     }
 
     /**

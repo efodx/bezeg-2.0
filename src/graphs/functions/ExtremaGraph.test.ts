@@ -123,8 +123,8 @@ test('initialization draws x^2 on [-1, 2] with candidates, signs, a and b, and o
     expect(ofType(graph, 'functiongraph')[0].parents[0](1.5)).toBe(2.25);
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[-1, 0], [2, 0]]);
     expect(caption(graph)).toEqual([
-        'f(x) = x²', 'a = −1, b = 2', 'klasifikacija: skrita', 'kvadrat: krajišče; romb: stacionarna točka; trikotnik: kot',
-        "zgoraj: predznak f' na delu (+ narašča, − pada)",
+        'f(x) = x²', 'a = −1, b = 2', 'klasifikacija: skrita', 'kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal',
+        "zgoraj: predznak f′ na delu (+ narašča, − pada)",
     ]);
 });
 
@@ -139,19 +139,19 @@ test('the candidates are marked by kind-specific shapes at (x, f(x)); unused slo
     apply(graph, choice('abs'));
     expect(markerPoints(graph).map((point: any) => visible(point))).toEqual([true, true, false, false, true]);
     expect(at(markerPoints(graph)[CORNER_0])).toEqual([0, 0]);
-    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f' ne obstaja"]);
+    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f′ ne obstaja"]);
 });
 
 test('before the reveal the labels give value and kind only; after it they add the local and global classification (ties are all global)', () => {
     const graph = makeGraph({asyncState: false});
     const texts = markerTexts(graph);
     expect(labelLines(texts[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče']);
-    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f' = 0"]);
+    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0"]);
     expect(labelLines(texts[ENDPOINT_1])).toEqual(['f(2) = 4', 'krajišče']);
     expect(lines(graph).slice(5).map((line: any) => visible(line))).toEqual([false, false]);
     apply(graph, reveal(true));
     expect(labelLines(texts[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče', 'lokalni maksimum']);
-    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f' = 0", 'lokalni minimum, globalni minimum']);
+    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0", 'lokalni minimum, globalni minimum']);
     expect(labelLines(texts[ENDPOINT_1])).toEqual(['f(2) = 4', 'krajišče', 'lokalni maksimum, globalni maksimum']);
     expect(lines(graph).slice(5).map((line: any) => visible(line))).toEqual([true, true]);
     expect([lines(graph)[GLOBAL_MINIMUM].parents[0][1](), lines(graph)[GLOBAL_MAXIMUM].parents[0][1]()]).toEqual([0, 4]);
@@ -161,7 +161,7 @@ test('before the reveal the labels give value and kind only; after it they add t
     apply(graph, reveal(true));
     expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče', 'lokalni maksimum, globalni maksimum']);
     expect(labelLines(markerTexts(graph)[ENDPOINT_1])).toEqual(['f(1) = 1', 'krajišče', 'lokalni maksimum, globalni maksimum']);
-    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f' ne obstaja", 'lokalni minimum, globalni minimum']);
+    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f′ ne obstaja", 'lokalni minimum, globalni minimum']);
     expect(caption(graph)[2]).toBe('globalni min 0 pri x = 0; globalni maks 1 pri x = −1; 1');
     expect(statusIds(graph)).toEqual(['revealed', 'corner', 'tie']);
 });
@@ -181,8 +181,8 @@ test('the readout lists a, b, every candidate with value, derivative and (once r
     const graph = makeGraph({asyncState: false});
     expect(rows(graph)).toEqual({
         a: '−1', b: '2',
-        'candidate-0': "f = 1, f' = −2", 'candidate-1': "f = 0, f' = 0", 'candidate-2': "f = 4, f' = 4",
-        'piece-0': "− (f' < 0: f pada)", 'piece-1': "+ (f' > 0: f narašča)",
+        'candidate-0': "f = 1, f′ = −2", 'candidate-1': "f = 0, f′ = 0", 'candidate-2': "f = 4, f′ = 4",
+        'piece-0': "− (f′ < 0: f pada)", 'piece-1': "+ (f′ > 0: f narašča)",
         'global-minimum': 'skrito', 'global-maximum': 'skrito',
     });
     expect(rowLabels(graph)['candidate-0']).toBe('Kandidat: krajišče, x = −1');
@@ -191,8 +191,8 @@ test('the readout lists a, b, every candidate with value, derivative and (once r
     expect(statusIds(graph)).toEqual(['hidden']);
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({
-        'candidate-0': "f = 1, f' = −2; lokalni maksimum", 'candidate-1': "f = 0, f' = 0; lokalni minimum, globalni minimum",
-        'candidate-2': "f = 4, f' = 4; lokalni maksimum, globalni maksimum", 'global-minimum': '0 pri x = 0', 'global-maximum': '4 pri x = 2',
+        'candidate-0': "f = 1, f′ = −2; lokalni maksimum", 'candidate-1': "f = 0, f′ = 0; lokalni minimum, globalni minimum",
+        'candidate-2': "f = 4, f′ = 4; lokalni maksimum, globalni maksimum", 'global-minimum': '0 pri x = 0', 'global-maximum': '4 pri x = 2',
     });
     expect(statusIds(graph)).toEqual(['revealed']);
     expect(statusTexts(graph)[0]).not.toMatch(/\d/);
@@ -204,21 +204,21 @@ test('x^3 on [-1, 1]: 0 is stationary and neither a local minimum nor maximum', 
     apply(graph, choice('cube'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, revealed: true});
-    expect(labelLines(markerTexts(graph)[STATIONARY_0])).toEqual(['f(0) = 0', "f' = 0", 'ni lokalni ekstrem']);
+    expect(labelLines(markerTexts(graph)[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0", 'ni lokalni ekstrem']);
     expect(rows(graph)).toMatchObject({
-        'candidate-0': "f = −1, f' = 3; lokalni minimum, globalni minimum", 'candidate-1': "f = 0, f' = 0; ni lokalni ekstrem",
-        'candidate-2': "f = 1, f' = 3; lokalni maksimum, globalni maksimum",
+        'candidate-0': "f = −1, f′ = 3; lokalni minimum, globalni minimum", 'candidate-1': "f = 0, f′ = 0; ni lokalni ekstrem",
+        'candidate-2': "f = 1, f′ = 3; lokalni maksimum, globalni maksimum",
     });
 });
 
 test('|x| on [-1, 1]: 0 is a corner where f\' does not exist and the global minimum', () => {
     const graph = makeGraph({asyncState: false});
     apply(graph, choice('abs'));
-    expect(rows(graph)).toMatchObject({'candidate-1': 'f = 0, f\' = ne obstaja', 'global-minimum': 'skrito'});
-    expect(rowLabels(graph)['candidate-1']).toBe('Kandidat: kot, x = 0');
+    expect(rows(graph)).toMatchObject({'candidate-1': 'f = 0, f′ = ne obstaja', 'global-minimum': 'skrito'});
+    expect(rowLabels(graph)['candidate-1']).toBe('Kandidat: ostri vogal, x = 0');
     expect(statusIds(graph)).toEqual(['hidden', 'corner']);
     apply(graph, reveal(true));
-    expect(rows(graph)).toMatchObject({'candidate-1': 'f = 0, f\' = ne obstaja; lokalni minimum, globalni minimum', 'global-minimum': '0 pri x = 0', 'global-maximum': '1 pri x = −1; 1'});
+    expect(rows(graph)).toMatchObject({'candidate-1': 'f = 0, f′ = ne obstaja; lokalni minimum, globalni minimum', 'global-minimum': '0 pri x = 0', 'global-maximum': '1 pri x = −1; 1'});
 });
 
 test('sin x on [-4, 4]: stationary points at +-pi/2, global values 1 and -1, and the endpoint values take part in the comparison', () => {
@@ -227,8 +227,8 @@ test('sin x on [-4, 4]: stationary points at +-pi/2, global values 1 and -1, and
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'sine', a: -4, b: 4, revealed: true});
     expect(rows(graph)).toMatchObject({
-        'candidate-0': "f = 0,7568, f' = −0,6536; lokalni maksimum", 'candidate-1': "f = −1, f' = 0; lokalni minimum, globalni minimum",
-        'candidate-2': "f = 1, f' = 0; lokalni maksimum, globalni maksimum", 'candidate-3': "f = −0,7568, f' = −0,6536; lokalni minimum",
+        'candidate-0': "f = 0,7568, f′ = −0,6536; lokalni maksimum", 'candidate-1': "f = −1, f′ = 0; lokalni minimum, globalni minimum",
+        'candidate-2': "f = 1, f′ = 0; lokalni maksimum, globalni maksimum", 'candidate-3': "f = −0,7568, f′ = −0,6536; lokalni minimum",
         'global-minimum': '−1 pri x = −1,5708', 'global-maximum': '1 pri x = 1,5708',
     });
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-5.5, 2.4, 5.5, -3.4], true);
@@ -241,8 +241,8 @@ test('sin x on [0, pi]: both endpoints tie as global minima with value 0 and the
     apply(graph, parameter('extrema-b', Math.PI));
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({
-        'candidate-0': "f = 0, f' = 1; lokalni minimum, globalni minimum", 'candidate-1': "f = 1, f' = 0; lokalni maksimum, globalni maksimum",
-        'candidate-2': "f = 0, f' = −1; lokalni minimum, globalni minimum", 'global-minimum': '0 pri x = 0; 3,1416', 'global-maximum': '1 pri x = 1,5708',
+        'candidate-0': "f = 0, f′ = 1; lokalni minimum, globalni minimum", 'candidate-1': "f = 1, f′ = 0; lokalni maksimum, globalni maksimum",
+        'candidate-2': "f = 0, f′ = −1; lokalni minimum, globalni minimum", 'global-minimum': '0 pri x = 0; 3,1416', 'global-maximum': '1 pri x = 1,5708',
     });
     expect(statusIds(graph)).toEqual(['revealed', 'tie']);
     expect(statusTexts(graph, 'en')[1]).toBe('Several candidates attain the same extreme value: all of them are global extrema.');
@@ -251,10 +251,10 @@ test('sin x on [0, pi]: both endpoints tie as global minima with value 0 and the
 test('an endpoint that is also stationary stays one endpoint candidate', () => {
     const graph = makeGraph({asyncState: false});
     apply(graph, parameter('extrema-a', 0));
-    expect(rows(graph)).toMatchObject({'candidate-0': "f = 0, f' = 0"});
+    expect(rows(graph)).toMatchObject({'candidate-0': "f = 0, f′ = 0"});
     expect(rowLabels(graph)['candidate-0']).toBe('Kandidat: krajišče, x = 0');
     expect(Object.keys(rows(graph)).filter(id => id.startsWith('candidate-'))).toEqual(['candidate-0', 'candidate-1']);
-    expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(0) = 0', "krajišče, f' = 0"]);
+    expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(0) = 0', "krajišče, f′ = 0"]);
     expect(visible(markerPoints(graph)[STATIONARY_0])).toBe(false);
 });
 
@@ -572,7 +572,7 @@ test('the caption follows the language and a language change notifies subscriber
     expect(listener).toHaveBeenCalledTimes(1);
     expect(caption(graph)[2]).toBe('classification: hidden');
     expect(caption(graph)[3]).toBe('square: endpoint; diamond: stationary point; triangle: corner');
-    expect(labelLines(markerTexts(graph)[STATIONARY_0])).toEqual(['f(0) = 0', "f' = 0"]);
+    expect(labelLines(markerTexts(graph)[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0"]);
     unsubscribe();
 });
 
@@ -583,8 +583,22 @@ test('the legend names every marker and line in words', () => {
     expect(items[1].label).toMatch(/kvadrat/);
     expect(items[2].label).toMatch(/romb/);
     expect(items[3].label).toMatch(/trikot/);
+    // the global values (dotted) and the piece separators (dashed) are lines with distinct patterns, not boxes
+    expect(items[4].kind).toBe('dotted-line');
+    expect(items[5].kind).toBe('dashed-line');
     setLanguage('en');
     expect(graph.renderLegend().props.items.map((item: any) => item.label).slice(1, 4)).toEqual([
-        'Endpoint: square marker', "Stationary point (f' = 0): diamond marker", "Corner (f' does not exist): triangle marker",
+        'Endpoint: square marker', "Stationary point (f′ = 0): diamond marker", "Corner (f′ does not exist): triangle marker",
     ]);
+});
+
+test('an endpoint carrying floating-point noise is cleaned and compared cleaned; the view is memoised by the model values', () => {
+    const graph = makeGraph({asyncState: false});
+    apply(graph, parameter('extrema-b', 0.1 + 0.2));
+    expect(graph.model.b).toBe(0.3);
+    const before = graph.model;
+    apply(graph, parameter('extrema-b', 0.3 + 1e-15));
+    expect(graph.model).toBe(before);
+    const first = graph.viewOf(graph.model);
+    expect(graph.viewOf({...graph.model})).toBe(first);
 });

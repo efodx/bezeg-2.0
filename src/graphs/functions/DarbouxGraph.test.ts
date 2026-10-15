@@ -576,3 +576,23 @@ test('the examples are drawn from the exact subinterval extrema, not from sample
     // the first third [0, 2 pi/3] contains pi/2, so its supremum is exactly sin(pi/2) = 1
     expect(parts[0].sup).toBe(1);
 });
+
+test('an endpoint carrying floating-point noise is cleaned and compared cleaned; an irrational endpoint such as pi stays exact', () => {
+    const graph = makeGraph({asyncState: false});
+    apply(graph, parameter('darboux-b', 0.1 + 0.2));
+    expect(graph.model.b).toBe(0.3);
+    apply(graph, parameter('darboux-a', 0.1));
+    const before = graph.model;
+    apply(graph, parameter('darboux-a', 0.1 + 1e-15));
+    expect(graph.model).toBe(before);
+    apply(graph, parameter('darboux-b', Math.PI));
+    expect(graph.model.b).toBe(Math.PI);
+});
+
+test('the view is memoised by the model values: a copy of the model (the inspector) reuses the board view', () => {
+    const graph = makeGraph({asyncState: false});
+    const first = graph.viewOf(graph.model);
+    expect(graph.viewOf({...graph.model})).toBe(first);
+    apply(graph, parameter('darboux-n', 8));
+    expect(graph.viewOf(graph.model)).not.toBe(first);
+});

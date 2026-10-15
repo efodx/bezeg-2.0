@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -12,7 +12,6 @@ import {
     secondDerivativePieces, SecondDerivativePiece, SecondDerivativeSign, secondDerivativeSignOn, tangentComparison, tangentLineAt,
 } from "../../analysis/convexity";
 import {CONVEXITY_EXAMPLE_MODELS, ConvexityModel, parseConvexityModel} from "../../analysis/convexityModel";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /** Positions and line coefficients show four decimals, so that 0.25 and 1.5 are read off exactly. */
@@ -45,10 +44,6 @@ const MAX_ZEROS = 1;
 /** Dash styles (JSXGraph numbering): the chord is a solid segment, the tangent a dashed line, so they differ by pattern and not only by colour. */
 const CHORD_DASH = 0;
 const TANGENT_DASH = 3;
-
-const LABEL_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88);padding:2px 6px;border-radius:2px;line-height:1.25;white-space:nowrap;pointer-events:none;`;
-const SIGN_STYLE = `${BOARD_TEXT_STYLE}font-weight:700;pointer-events:none;`;
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 type StatusKind = "hidden" | "revealed" | "no-claim" | "tangent-outside" | "zero-without-change";
 
@@ -96,7 +91,6 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
     private pointT?: JXG.Point;
-    private viewCache?: { model: ConvexityModel; view: View };
 
     override presets(): string {
         return "convexity";
@@ -114,39 +108,30 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         return [...EXAMPLE_VIEWS[this.model.example]];
     }
 
-    /** A preset or file whose example differs and which carries no view of its own shows that example's view, like the choice does. */
-    override importPreset(preset: Preset): void {
-        const previous = this.model.example;
-        super.importPreset(preset);
-        if (!preset.boardState && this.model.example !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...EXAMPLE_VIEWS[this.model.example]], true);
-        }
+    protected override exampleView() {
+        return {key: this.model.example, box: EXAMPLE_VIEWS[this.model.example]};
     }
 
     // ---- View --------------------------------------------------------------------------------------------------------
 
-    /** The derived numbers for a model, computed once per model object however many board objects and readouts read them. */
+    /** The derived numbers for a model, computed once per set of model values (see `memoView`). */
     private viewOf(model: ConvexityModel): View {
-        if (this.viewCache?.model !== model) {
+        return this.memoView(model, () => {
             const example = convexityExample(model.example);
             const {a, b, t} = model;
-            this.viewCache = {
-                model,
-                view: {
-                    example,
-                    chord: chordLineOf(example, a, b),
-                    tangent: tangentLineAt(example, t),
-                    sign: secondDerivativeSignOn(example, a, b),
-                    verdict: convexityVerdict(example, a, b),
-                    chordClaim: chordComparison(example, a, b),
-                    tangentClaim: tangentComparison(example, a, b, t),
-                    flatZeros: example.secondDerivativeZeros.filter(x => !example.inflectionPoints.includes(x)),
-                    inflection: example.inflectionPoints[0],
-                    inflectionsInside: inflectionPointsIn(example, a, b),
-                },
+            return {
+                example,
+                chord: chordLineOf(example, a, b),
+                tangent: tangentLineAt(example, t),
+                sign: secondDerivativeSignOn(example, a, b),
+                verdict: convexityVerdict(example, a, b),
+                chordClaim: chordComparison(example, a, b),
+                tangentClaim: tangentComparison(example, a, b, t),
+                flatZeros: example.secondDerivativeZeros.filter(x => !example.inflectionPoints.includes(x)),
+                inflection: example.inflectionPoints[0],
+                inflectionsInside: inflectionPointsIn(example, a, b),
             };
-        }
-        return this.viewCache.view;
+        });
     }
 
     /** The pieces of the view on which f'' has one strict sign; none while the board has no extent. */
@@ -166,18 +151,21 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isConvexityX(value)) throw new DomainError(`The endpoint a must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
         if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        if (value !== this.model.a) this.commitModel({...this.model, a: cleanNumber(value)}, options);
+        const next = cleanNumber(value);
+        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
     }
 
     protected setB(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isConvexityX(value)) throw new DomainError(`The endpoint b must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
         if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        if (value !== this.model.b) this.commitModel({...this.model, b: cleanNumber(value)}, options);
+        const next = cleanNumber(value);
+        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
     }
 
     protected setT(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isConvexityX(value)) throw new DomainError(`The tangent point t must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
-        if (value !== this.model.t) this.commitModel({...this.model, t: cleanNumber(value)}, options);
+        const next = cleanNumber(value);
+        if (next !== this.model.t) this.commitModel({...this.model, t: next}, options);
     }
 
     protected setSecondDerivativeVisible(visible: boolean): void {
@@ -312,30 +300,16 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         }
 
         // a, b and t are dragged along the x-axis, projected onto the grid and onto the range the model allows; a value the model still refuses puts the point back.
-        const dragWrite = (apply: (x: number) => void) => (x: number) => {
-            const accepted = this.ignoreOutOfDomain(() => apply(x));
-            if (!accepted) this.syncSceneToModel();
-            return accepted;
-        };
-        const axisPoint = (config: { x: number; name: string; placement: "below-left" | "below-right" | "below"; color: string; min: () => number; max: () => number; write: (x: number) => void }) =>
-            this.slidingPoint({
-                x: config.x, position: () => 0, min: config.min, max: config.max, step: CONVEXITY_X_STEP,
-                attributes: {
-                    ...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6),
-                    fillColor: config.color, highlightFillColor: config.color,
-                },
-                write: dragWrite(config.write),
-            });
-        this.pointA = axisPoint({
-            x: model().a, name: "$$a$$", placement: "below-left", color: GraphPalette.comparisonCurve,
+        this.pointA = this.axisPoint({
+            x: model().a, name: "$$a$$", placement: "below-left", color: GraphPalette.comparisonCurve, step: CONVEXITY_X_STEP,
             min: () => CONVEXITY_X_MIN, max: () => cleanNumber(model().b - CONVEXITY_X_STEP), write: x => this.setA(x, {syncScene: false}),
         });
-        this.pointB = axisPoint({
-            x: model().b, name: "$$b$$", placement: "below-right", color: GraphPalette.comparisonCurve,
+        this.pointB = this.axisPoint({
+            x: model().b, name: "$$b$$", placement: "below-right", color: GraphPalette.comparisonCurve, step: CONVEXITY_X_STEP,
             min: () => cleanNumber(model().a + CONVEXITY_X_STEP), max: () => CONVEXITY_X_MAX, write: x => this.setB(x, {syncScene: false}),
         });
-        this.pointT = axisPoint({
-            x: model().t, name: "$$t$$", placement: "below", color: GraphPalette.constructionAccent,
+        this.pointT = this.axisPoint({
+            x: model().t, name: "$$t$$", placement: "below", color: GraphPalette.constructionAccent, step: CONVEXITY_X_STEP,
             min: () => CONVEXITY_X_MIN, max: () => CONVEXITY_X_MAX, write: x => this.setT(x, {syncScene: false}),
         });
 
@@ -350,6 +324,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
             {
                 text: () => this.boardRelations(model(), view()) ?? "",
                 visible: () => this.boardRelations(model(), view()) !== undefined,
+                minBoardWidth: 520,
             },
             {text: () => t("convexity_board_key"), minBoardWidth: 520},
             {text: () => t("convexity_board_signs_key"), visible: revealed, minBoardWidth: 520},
@@ -367,7 +342,6 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         this.pointA = undefined;
         this.pointB = undefined;
         this.pointT = undefined;
-        this.viewCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -411,8 +385,8 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.primaryCurve, label: t("convexity_legend_function"), kind: "line"},
             {id: "chord", color: GraphPalette.comparisonCurve, label: t("convexity_legend_chord"), kind: "line"},
-            {id: "tangent", color: GraphPalette.constructionAccent, label: t("convexity_legend_tangent"), kind: "dashed"},
-            {id: "inflection", color: GraphPalette.additionalCurves[2], label: t("convexity_legend_inflection"), kind: "dashed"},
+            {id: "tangent", color: GraphPalette.constructionAccent, label: t("convexity_legend_tangent"), kind: "dashed-line"},
+            {id: "inflection", color: GraphPalette.additionalCurves[2], label: t("convexity_legend_inflection"), kind: "ring"},
         ]}/>;
     }
 

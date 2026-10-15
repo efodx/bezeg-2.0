@@ -39,7 +39,7 @@ test('a real board shows the candidates: the fields, the example and the Show cl
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
-    expect(readout('candidate-0')).toBe("f = 1, f' = −2");
+    expect(readout('candidate-0')).toBe("f = 1, f′ = −2");
     expect(readout('global-minimum')).toBe('skrito');
     expect(statusIds()).toEqual(['hidden']);
     const baseline = boardObjects(graph);
@@ -50,7 +50,7 @@ test('a real board shows the candidates: the fields, the example and the Show cl
     act(() => { fireEvent.click(toggle()); });
     expect(graph.modelNow()).toMatchObject({revealed: true});
     expect(toggle().textContent).toBe('Skrij klasifikacijo');
-    expect(readout('candidate-0')).toBe("f = 1, f' = −2; lokalni maksimum");
+    expect(readout('candidate-0')).toBe("f = 1, f′ = −2; lokalni maksimum");
     expect(readout('global-minimum')).toBe('0 pri x = 0');
     expect(readout('global-maximum')).toBe('4 pri x = 2');
     expect(statusIds()).toEqual(['revealed']);
@@ -72,7 +72,7 @@ test('a real board shows the candidates: the fields, the example and the Show cl
     const select = screen.getByLabelText('Primer funkcije') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'abs'}}); });
     expect(graph.modelNow()).toEqual({example: 'abs', a: -1, b: 1, revealed: false});
-    expect(readout('candidate-1')).toBe("f = 0, f' = ne obstaja");
+    expect(readout('candidate-1')).toBe("f = 0, f′ = ne obstaja");
     expect(statusIds()).toEqual(['hidden', 'corner']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(boardObjects(graph)).toBe(baseline);
@@ -81,7 +81,7 @@ test('a real board shows the candidates: the fields, the example and the Show cl
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Show classification'})).toBeInTheDocument();
     expect(screen.getByLabelText('Left endpoint a')).toBeInTheDocument();
-    expect(readout('candidate-1')).toBe("f = 0, f' = does not exist");
+    expect(readout('candidate-1')).toBe("f = 0, f′ = does not exist");
 });
 
 test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
