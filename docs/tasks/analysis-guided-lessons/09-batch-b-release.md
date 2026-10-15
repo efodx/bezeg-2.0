@@ -28,6 +28,8 @@ Release (2026-10-16):
   - A scripted pass over all four routes covered desktop (1440 px) and narrow (390 px, touch context). It exercised dragging an axis point, ArrowUp in a number field, the reveal button via Tab focus and Enter, and a live SL→EN→SL switch, with board text and readouts re-rendered in each language. No page errors and no horizontal overflow were found.
   - Board screenshots of every example found caption and label collisions. These were fixed in `8284371` by wider per-example views, outward endpoint labels, compact labels below 520 px and sign marks kept off the y-axis.
 
+- **Hosted CI:** the first push (`7c4ee8f`) failed CI with 181/183: on Linux Chromium the Darboux step 3 and Taylor steps 2 and 4 explanation frames measured 396 to 413 px at 390 px, wider than on the local Windows run. Long inline formula chains were split so they can wrap (`f901516`). That run passed and deployed GitHub Pages.
+
 **Known limits:**
 
 - On narrow boards the extrema sine example is still crowded, though readable. The narrow convexity inflection label overlaps the curve, and the narrow Darboux `a` label touches the y-axis.
