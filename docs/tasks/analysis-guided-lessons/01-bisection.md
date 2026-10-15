@@ -4,7 +4,7 @@
 
 **Dependencies:** [00](00-family-and-playback.md) (family and iterative playback)
 
-**Status:** not started
+**Status:** implemented on the Batch A branch (Parts A–C), awaiting review; not released until task 04
 
 ## Part A — mathematics (`src/analysis/bisection.ts`, `bisectionModel.ts`)
 
@@ -22,6 +22,14 @@
 ## Part C — lesson
 
 5–7 steps with stated prerequisites, a prediction of the retained half before Next step reveals it, the continuity plus opposite-sign hypothesis (existence, not uniqueness), the discontinuous counterexample, and a handoff to free exploration. Add `sl` and `en` content, tests, and a smoke row (not yet enabled in `GUIDED_LESSON_AVAILABLE_IDS` until task 04).
+
+## Implementation notes
+
+- The lesson drives the iteration with scene actions, not with lesson-frame controls. `run-bisection-command` (`next-step` or `reset`) maps to the `animation` action of id `bisection`; a scene repeats `next-step` once per revealed step after the default scene, so a step shows the state after k steps and the learner predicts the next one, then presses the graph's own Next step. `GuidedLesson.tsx` is unchanged and bisection frames carry no `animation`, so De Casteljau behaviour is untouched. Play and pause are deliberately not scene actions: playback is initially stopped and under the learner's control.
+- The graph registers `play`, `pause`, `replay`, `next-step` and `reset` for `bisection`; `stop` is rejected (the iteration has no separate stopped state).
+- New closed names: parameters `bisect-a` and `bisect-b`, the choice `bisection-example` (the three example ids). Choosing an example loads its default bracket and returns to step 0.
+- `BaseGraph` gained the protected hook `beforeFigureCapture()` (called before single-figure SVG and PNG export and figure batches) and a protected `exportBusy`, so a running iteration pauses and a capture shows one settled scene.
+- `src/demonstrationPreviewAssets.ts` is generated and `Record<DemonstrationId, string>` needs an entry per id: `bisection` points at a copy of the continuity preview (`catalog/bisection.png`) as a placeholder; task 04 regenerates the previews and `manifest.json`.
 
 ## Acceptance criteria
 

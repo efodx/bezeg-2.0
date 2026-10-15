@@ -7,7 +7,7 @@
 | Task | Depends on | Status |
 | --- | --- | --- |
 | [00 Analysis family and iterative playback](00-family-and-playback.md) | — | not started |
-| [01 Intermediate value theorem and bisection](01-bisection.md) | 00 | not started |
+| [01 Intermediate value theorem and bisection](01-bisection.md) | 00 | implemented, awaiting review |
 | [02 Mean value theorem](02-mean-value-theorem.md) | 00 (family only) | not started |
 | [03 Accumulated integral and FTC](03-accumulation.md) | 00 (family only) | not started |
 | [04 Batch A release](04-batch-a-release.md) | 01–03 | not started |

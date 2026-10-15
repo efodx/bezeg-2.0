@@ -24,3 +24,13 @@
 .function-legend li { display: flex; align-items: center; gap: 8px; font-size: .86rem; line-height: 1.35; }
 .function-legend-swatch { flex: none; width: 22px; height: 12px; border-radius: 2px; opacity: .85; }
 .function-legend-line { height: 3px; opacity: 1; }
+/* Bisection iteration controls: Next step, Play/Pause and Reset as native buttons of one group. */
+.bisection-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
+.bisection-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.bisection-actions button:disabled { opacity: .45; }
+.bisection-actions button[aria-pressed="true"] { border-color: var(--workspace-green); }
+.bisection-status p { margin: 0; }
+.bisection-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .bisection-actions button { min-height: 44px; }
+}

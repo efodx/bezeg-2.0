@@ -6,6 +6,7 @@ import {constructionGuidedLessons} from './constructionGuidedLessons';
 import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
 import {splineGuidedLessons} from './splineGuidedLessons';
 import {functionGuidedLessons} from './functionGuidedLessons';
+import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
 
 /**
@@ -33,6 +34,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['rationalConstructionGuidedLessons', rationalConstructionGuidedLessons],
     ['splineGuidedLessons', splineGuidedLessons],
     ['functionGuidedLessons', functionGuidedLessons],
+    ['analysisGuidedLessons', analysisGuidedLessons],
 ];
 
 const TEX_FIELDS = new Set(['latex', 'calculationLatex', 'resultLatex']);
@@ -141,7 +143,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'weighted-parameterization',
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
-            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length'].sort(),
+            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection'].sort(),
     );
 });
 

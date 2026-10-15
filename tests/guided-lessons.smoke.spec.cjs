@@ -1170,8 +1170,67 @@ const arcLength = {
     stableCounts: async page => ({n: await arcReadout(page, 'n')}),
 };
 
+// ---------------------------------------------------------------- Bisection
+const bisectionReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+// Per step: the revealed step count, the midpoint (an em dash before the first reveal), f(m), the interval width and the example's endpoint a.
+// Steps: the bracket at step 0, one step, three steps, five steps, the sign step after three steps, the cubic at step 0 with a = -1.5.
+// The lesson shows the state after k revealed steps; the learner presses the graph's own Next step to reveal the next one.
+const BISECTION_STEPS = [
+    {step: '0', mid: '—', fMid: '—', width: '1', a: '1'},
+    {step: '1', mid: '1.5', fMid: '0.25', width: '0.5', a: '1'},
+    {step: '3', mid: '1.375', fMid: '-0.109375', width: '0.125', a: '1.25'},
+    {step: '5', mid: '1.40625', fMid: '-0.0224609375', width: '0.03125', a: '1.375'},
+    {step: '3', mid: '-0.25', fMid: '-1', width: '0.25', a: '-0.5'},
+    {step: '0', mid: '—', fMid: '—', width: '3.5', a: '-1.5'},
+];
+
+const bisection = {
+    id: 'bisection',
+    path: `${BASE}/analysis/bisection`,
+    titles: {sl: 'Bisekcija in izrek o vmesni vrednosti', en: 'Bisection and the intermediate value theorem'},
+    steps: 6,
+    minFrames: 13, // 2 + 2 + 3 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(6);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = BISECTION_STEPS[step - 1];
+        await expect.poll(() => bisectionReadout(page, 'step'), {message: `revealed steps at ${label}`}).toBe(expected.step);
+        await expect.poll(() => bisectionReadout(page, 'mid'), {message: `midpoint at ${label}`}).toBe(expected.mid);
+        await expect.poll(() => bisectionReadout(page, 'f-mid'), {message: `f(m) at ${label}`}).toBe(expected.fMid);
+        await expect.poll(() => bisectionReadout(page, 'width'), {message: `interval width at ${label}`}).toBe(expected.width);
+        await expect.poll(() => bisectionReadout(page, 'a'), {message: `examined left endpoint at ${label}`}).toBe(expected.a);
+        // the lesson never starts playback: the control still offers Play
+        await expect(page.locator('[data-action="play-pause"]'), `playback stopped at ${label}`).toHaveAttribute('aria-pressed', 'false');
+        if (expected.mid !== '—') await expectPointNear(page, [Number(expected.mid), 0], `midpoint m on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.locator('[data-action="next-step"]').click();
+        await expect.poll(() => bisectionReadout(page, 'step')).toBe('1');
+        await page.getByLabel(/Right endpoint b|Desno kraji/).fill('3');
+        await expect.poll(() => bisectionReadout(page, 'step'), {message: 'an endpoint edit restarts the iteration'}).toBe('0');
+        await page.locator('[data-action="next-step"]').click();
+        await expect.poll(() => bisectionReadout(page, 'mid')).toBe('2');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => bisectionReadout(page, 'step'), {message: 'lesson scene replaced the user step'}).toBe('3');
+        await expect.poll(() => bisectionReadout(page, 'width'), {message: 'lesson scene replaced the user bracket'}).toBe('0.125');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => bisectionReadout(page, 'step'), {message: 'user step restored'}).toBe('1');
+        await expect.poll(() => bisectionReadout(page, 'mid'), {message: 'user midpoint restored'}).toBe('2');
+        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveAttribute('aria-pressed', 'false');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({step: await bisectionReadout(page, 'step')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

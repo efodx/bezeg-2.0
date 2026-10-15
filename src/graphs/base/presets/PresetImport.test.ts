@@ -1,4 +1,5 @@
 import {commitPresetImport, preflightPresetImport} from "./PresetImport";
+import {LocalizedError} from "../../../localization";
 const collection = {data: [{id: "Učna krivulja", data: [["JSXBezierCurve", {points: [[0, 0], [1, 2], [3, 0]]}]],
     boardState: {boundingBox: [-5, 5, 5, -5]}, graphState: {initialized: true, selectedCurveOption: 0, curveSelected: false}}]};
 const file = () => JSON.stringify({"preset-bezier-curve": collection});
@@ -221,5 +222,25 @@ test.each([[[]], [null], [{}], [{...validArc, n: 0}], [{...validArc, n: 101}], [
     [{a: 0, b: 3}], [{...validArc, a: NaN}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
 ("arc-length collection rejects out-of-domain data without writing: %j", data => {
     expect(() => preflightPresetImport(arcPreset(data))).toThrow();
+    expect(localStorage.length).toBe(0);
+});
+
+const bisectionPreset = (data: unknown) => JSON.stringify({"preset-bisection": {data: [{id: "Osnova", boardState: {boundingBox: [-2.5, 4, 3.5, -3]},
+    graphState: {initialized: true, example: "square-minus-two", a: 1, b: 2, step: 0}, data}]}});
+
+test("bisection collection imports a model object with its iteration step and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "cubic", a: -1.5, b: 2, step: 7};
+    commitPresetImport(preflightPresetImport(bisectionPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-bisection")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validBisection = {example: "square-minus-two", a: 1, b: 2, step: 3};
+test.each([[[]], [null], [{}], [{...validBisection, example: "quartic"}], [{...validBisection, a: 2}], [{...validBisection, a: 3, b: 2}], [{...validBisection, a: -4.5}],
+    [{...validBisection, b: 4.5}], [{...validBisection, a: "1"}], [{...validBisection, step: -1}], [{...validBisection, step: 61}], [{...validBisection, step: 1.5}],
+    [{...validBisection, step: "3"}], [{example: "cubic", a: 0, b: 1}], [{...validBisection, a: NaN}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("bisection collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(bisectionPreset(data))).toThrow(LocalizedError);
     expect(localStorage.length).toBe(0);
 });

@@ -167,6 +167,10 @@ export function sceneAction(action: SceneAction): LessonAction {
         }
         return {kind: 'function-choice', name: name as FunctionChoiceName, value: choice};
     }
+    if (action.name === 'run-bisection-command') {
+        if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The bisection command must be "next-step" or "reset".');
+        return {kind: 'animation', animationId: 'bisection', command: action.value};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -281,6 +285,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'definite-integral',
     'area-between-curves',
     'arc-length',
+    'bisection',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

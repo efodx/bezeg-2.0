@@ -15,6 +15,7 @@
 import type {DemonstrationId} from '../../demonstrations';
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAnimationId} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
+import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
 import {functionGuidedLessons} from './functionGuidedLessons';
@@ -74,6 +75,7 @@ export type WorkedExample = Readonly<{
  * - show-function-element -> function graphs' optional elements (value {name, value}: name is a FunctionVisibilityTarget, value a boolean)
  * - set-function-choice -> function graphs' named choices, value {name, value} (name is a FunctionChoiceName, value one of the strings allowed for that name; the graph maps it)
  * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
+ * - run-bisection-command -> BisectionGraph's iteration, value 'next-step' (one revealed step) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions: playback is initially stopped and under the learner's control
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
     'show-control-polygon',
@@ -112,6 +114,7 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'set-function-parameter',
     'show-function-element',
     'set-function-choice',
+    'run-bisection-command',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -717,7 +720,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons, ...analysisGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {

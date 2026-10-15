@@ -44,6 +44,7 @@ import { DerivativeGraph } from './graphs/functions/DerivativeGraph';
 import { DefiniteIntegralGraph } from './graphs/functions/DefiniteIntegralGraph';
 import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
+import { BisectionGraph } from './graphs/functions/BisectionGraph';
 import { GraphHost } from './graphs/base/GraphHost';
 import type BaseGraph from './graphs/base/BaseGraph';
 import type { BaseGraphState } from './graphs/base/BaseGraph';
@@ -91,6 +92,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'definite-integral': () => new DefiniteIntegralGraph(),
     'area-between-curves': () => new AreaBetweenCurvesGraph(),
     'arc-length': () => new ArcLengthGraph(),
+    'bisection': () => new BisectionGraph(),
 };
 
 const graphElements = Object.fromEntries(Object.entries(graphFactories).map(([id, create]) =>

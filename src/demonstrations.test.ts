@@ -39,6 +39,7 @@ const expected = [
     ['functions/integral', '/bezeg-2.0/functions', 'definite_integral', 'definite_integral', 'prompt_definite_integral'],
     ['functions/area-between', '/bezeg-2.0/functions', 'area_between_curves', 'area_between_curves', 'prompt_area_between_curves'],
     ['functions/arc-length', '/bezeg-2.0/functions', 'curve_arc_length', 'curve_arc_length', 'prompt_curve_arc_length'],
+    ['analysis/bisection', 'analysis', 'bisection', 'bisection', 'prompt_bisection'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));
@@ -48,7 +49,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(34);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(35);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
@@ -60,11 +61,11 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
             : ['left', 'up', 'down', 'right', 'in', 'out', 'fit']);
         expect(catalog.demonstrations.find(entry => entry.path === demonstration.path)).toEqual(demonstration);
     }
-    expect(catalog.families.map(family => family.id)).toEqual(['basics', '/bezeg-2.0/bezier', '/bezeg-2.0/rational', '/bezeg-2.0/spline', '/bezeg-2.0/ph', '/bezeg-2.0/param', '/bezeg-2.0/functions']);
+    expect(catalog.families.map(family => family.id)).toEqual(['basics', '/bezeg-2.0/bezier', '/bezeg-2.0/rational', '/bezeg-2.0/spline', '/bezeg-2.0/ph', '/bezeg-2.0/param', '/bezeg-2.0/functions', 'analysis']);
     expect(catalog.families.map(family => family.title)).toEqual([
-        messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.functions_and_calculus,
+        messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.functions_and_calculus, messages.analysis,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([1, 8, 7, 5, 2, 3, 8]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([1, 8, 7, 5, 2, 3, 8, 1]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -95,5 +96,5 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(34);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(35);
 });

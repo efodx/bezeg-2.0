@@ -298,7 +298,8 @@ abstract class BaseGraph<S extends BaseGraphState> {
             .catch(error => console.error("The preset could not be loaded.", error));
     }
 
-    private get exportBusy(): boolean {
+    /** True while a single figure or a figure batch is being captured; scene-changing work must wait. */
+    protected get exportBusy(): boolean {
         return this.figureBatchActive || this.activeSingleFigureExports > 0;
     }
 
@@ -409,6 +410,13 @@ abstract class BaseGraph<S extends BaseGraphState> {
 
     /** Hook for graph-owned animation drivers; lesson lifecycle calls it before scene replacement. */
     protected stopLessonAnimations(): void {
+    }
+
+    /**
+     * Hook called before a single-figure SVG/PNG export or a figure batch captures the board, so a graph with running
+     * playback can pause and the export represents one settled scene.
+     */
+    protected beforeFigureCapture(): void {
     }
 
     /** Releases scene objects whose lifetime is owned by a graph subclass. */
@@ -561,6 +569,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         const session = this.getActiveGraphSession();
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
+        this.beforeFigureCapture();
         return downloadSVG(this.getFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
@@ -647,6 +656,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         const session = this.getActiveGraphSession();
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
+        this.beforeFigureCapture();
         return downloadPNG(this.getFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
@@ -669,6 +679,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         const session = this.getActiveGraphSession();
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
 
+        this.beforeFigureCapture();
         const boardContainer = this.board.containerObj as HTMLElement;
         const previousPointerEvents = boardContainer.style.pointerEvents;
         this.figureBatchActive = true;
