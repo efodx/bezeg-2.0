@@ -8,7 +8,7 @@ Read local `.codex/sessions/2026/10/**/*.jsonl` under the user profile. Select s
 
 Starting input is the first available positive `event_msg` / `token_count` value at `payload.info.last_token_usage.input_tokens`; peak is its maximum within the worker rollout. Window is the first reported `payload.info.model_context_window`. These are recorded request-input measurements, not exact live occupancy or cumulative/billed usage. They include runtime context and cannot establish task-brief overhead. Cached input remains input context.
 
-Count top-level `compacted` events more than five seconds after metadata start as during-work compactions; report events at or before that boundary separately as startup records. This is a heuristic, not proof of event provenance. Some transcript content was encrypted and causal attribution is incomplete. Absence of a recorded compaction means none in this recovered rollout, not proof of complete session history. The sample excludes Claude and any unrecovered sessions.
+Count top-level `compacted` events more than five seconds after metadata start as during-work compactions; report events at or before that boundary separately as startup records. This is a heuristic, not proof of event provenance. Some transcript content was encrypted and causal attribution is incomplete. Absence of a recorded compaction means none in this recovered rollout, not proof of complete session history. The sample excludes Claude and any unrecovered sessions; Claude runs are measured separately in [Claude context measurements](claude-context-usage-2026-10-16.md).
 
 ## Summary
 

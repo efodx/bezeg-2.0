@@ -247,6 +247,12 @@ Context: local rollout `token_count` request-input measurements and top-level `c
 
 Context supplement — [demonstrations library redesign](#2026-10-15--demonstrations-library-redesign): playback 33,726 starting / 191,189 peak input; browser tests 33,771 / 173,698; smoke 33,922 / 160,936. Each reported a 258,400-token window and one during-work compaction, first observed at 22.9, 20.9, and 14.5 minutes respectively. Collection and all other recovered workers are included in the linked table. Requested model settings remain as historically recorded; this extraction makes no model-resolution claim.
 
+### 2026-10-16 — Retrospective Claude context backfill
+
+Scope: owner-requested historical context measurements for 97 recovered Bezeg Claude Code workers and 30 handler sessions from October 10–15; [per-worker evidence and method](claude-context-usage-2026-10-16.md). Counterpart to the Codex backfill above; supplements historical records without changing their outcomes.
+
+Context: transcript `usage` request input (uncached + cache creation + cache read) and `compact_boundary` records. Workers started at 20,134–39,174 input (median 36,262) and peaked at median 125,607, maximum 387,751; 26 exceeded 200k. No worker compacted. Handlers recorded three distinct compactions, all manual; none automatic. Claude transcripts report no context-window size, so window is unavailable; peaks are not comparable to Codex's 258,400 window as a capacity fraction. Symptoms or adverse outcomes were not correlated.
+
 ### 2026-10-16 — Context-aware delegation guidance and logging
 
 Roles/class/size/scope: handler-only; workflow documentation; S, one tightly coupled guidance change expanded by owner-requested routine context logging and historical backfill; [source acceptance](../specs/agent-workflow-evaluation.md#context-follow-up--2026-10-16).
