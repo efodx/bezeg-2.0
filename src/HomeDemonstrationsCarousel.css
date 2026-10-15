@@ -1,0 +1,99 @@
+.home-demonstrations-carousel { max-width: 1100px; min-width: 0; }
+.home-demonstrations-carousel a { color: inherit; text-decoration: none; }
+.home-demonstrations-carousel :focus-visible { outline: 3px solid #456db0; outline-offset: 2px; }
+.demonstrations-opening { max-width: 1100px; min-width: 0; }
+.demonstrations-opening-preview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+    max-width: 1100px;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #c4d0bc;
+    border-radius: 16px;
+    background: #fffdf6;
+    box-shadow: 0 18px 42px rgb(35 54 42 / 12%), 0 3px 10px rgb(35 54 42 / 5%);
+}
+@keyframes demonstrations-opening-preview-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.demonstrations-opening-image {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 260px;
+    padding: 12px;
+    border-right: 1px solid #dfe5d7;
+    background: #e8eee2;
+    object-fit: contain;
+    object-position: center;
+    animation: demonstrations-opening-preview-in 220ms ease-out both;
+}
+.demonstrations-opening-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 24px 26px; }
+.demonstrations-opening-copy h3 { margin: 8px 0; font-size: 25px; line-height: 1.25; }
+.demonstrations-opening-copy p { margin: 0 0 18px; color: #526152; font-size: 15px; line-height: 1.5; }
+.demonstrations-opening-family {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: #647557;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.demonstrations-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.demonstrations-opening-actions a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    border: 1px solid #244c37;
+    border-radius: 8px;
+    background: #244c37;
+    color: #fffdf6;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgb(31 62 45 / 12%);
+}
+.home-demonstrations-carousel .demonstrations-opening-actions a + a {
+    border-color: transparent;
+    background: transparent;
+    color: #885512;
+    box-shadow: none;
+}
+.demonstrations-opening-actions a:hover { filter: brightness(1.08); text-decoration: none; }
+.home-demonstrations-carousel .demonstrations-opening-actions a + a:hover { background: #f5edda; text-decoration: none; }
+.demonstrations-opening-controls { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 1100px; margin: 18px 0 8px; color: #647557; font-size: 12px; font-variant-numeric: tabular-nums; }
+.demonstrations-opening-controls button { display: grid; box-sizing: border-box; width: max(44px, 1.25em); height: max(44px, 1.25em); min-width: 44px; min-height: 44px; place-items: center; padding: 0; line-height: 1; border: 1px solid #cbd4c1; border-radius: 50%; background: #fffdf6; color: #29452e; font-size: 21px; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; }
+.demonstrations-opening-controls button:hover { border-color: #9aaa87; background: #eef3e5; }
+.demonstrations-opening-rail { display: flex; max-width: 1100px; min-width: 0; flex-wrap: nowrap; gap: 12px; overflow-x: auto; overflow-y: hidden; padding: 6px 6px 12px; overscroll-behavior-x: contain; scrollbar-color: #a7b69b #e7ebdf; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.demonstrations-opening-choice { display: flex; box-sizing: border-box; min-height: 72px; flex: 0 0 clamp(154px, 19vw, 185px); align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #d6dccb; border-radius: 10px; background: #fffdf6; color: #29452e; text-align: left; font: inherit; cursor: pointer; scroll-snap-align: start; transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
+.demonstrations-opening-choice:hover { border-color: #aab99b; background: #f8f9f4; }
+.demonstrations-opening-choice[aria-pressed="true"] { border-color: #6e895f; background: #edf2e7; box-shadow: inset 0 0 0 1px #6e895f; }
+.demonstrations-opening-choice-number { display: grid; box-sizing: border-box; width: max(30px, 1.7em); height: max(30px, 1.7em); min-width: 30px; min-height: 30px; flex: 0 0 max(30px, 1.7em); place-items: center; line-height: 1; border: 1px solid #d5dfca; border-radius: 50%; background: #fffdf6; color: #59734b; font-size: 11px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.demonstrations-opening-choice[aria-pressed="true"] .demonstrations-opening-choice-number { border-color: #6e895f; background: #5e774d; color: #fffdf5; }
+.demonstrations-opening-choice-copy { display: block; min-width: 0; flex: 1 1 auto; overflow: hidden; white-space: nowrap; }
+.demonstrations-opening-choice .demonstrations-opening-family { font-size: 10px; }
+.demonstrations-opening-choice-title { display: block; max-width: 100%; overflow: hidden; font-size: 14px; font-weight: 750; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 700px) {
+    .home-demonstrations-carousel .demonstrations-opening-preview { grid-template-columns: minmax(0, 1fr); }
+    .home-demonstrations-carousel .demonstrations-opening-image { height: auto; min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; border-right: 0; border-bottom: 1px solid #dfe5d7; }
+    .home-demonstrations-carousel .demonstrations-opening-copy { padding: 16px; }
+    .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 21px; }
+    .home-demonstrations-carousel .demonstrations-opening-controls { margin-top: 12px; }
+    .home-demonstrations-carousel .demonstrations-opening-choice { flex-basis: 154px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home-demonstrations-carousel .demonstrations-opening-image { animation: none; }
+    .home-demonstrations-carousel .demonstrations-opening-controls button,
+    .home-demonstrations-carousel .demonstrations-opening-choice { transition: none; }
+    .home-demonstrations-carousel .demonstrations-opening-rail { scroll-behavior: auto; scroll-snap-type: none; }
+}

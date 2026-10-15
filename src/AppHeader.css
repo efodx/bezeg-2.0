@@ -12,6 +12,7 @@
 
 .app-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 20px;
     min-height: 66px;
@@ -37,13 +38,16 @@
 
 .app-brand:hover { color: var(--bezeg-moss); }
 .app-brand img { width: 30px; height: 30px; object-fit: contain; }
-.app-header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.app-header-actions { display: flex; min-width: 0; max-width: 100%; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 
 .app-header .app-topic-toggle {
     display: flex;
     align-items: center;
+    min-width: 0;
+    max-width: 100%;
     min-height: 38px;
     padding: 7px 12px;
+    overflow-wrap: anywhere;
     border: 1px solid var(--bezeg-rule);
     border-radius: 3px;
     background: transparent;
@@ -94,5 +98,5 @@
 }
 
 @media(max-width:350px) {
-    .app-header { flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; }
+    .app-header { padding-top: 8px; padding-bottom: 8px; }
 }

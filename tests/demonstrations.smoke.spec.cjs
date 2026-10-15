@@ -44,29 +44,18 @@ async function expectRenderedWorkspace(page, demonstration) {
     await expect(inspector).toBeVisible();
 }
 
-test('the demonstrations page exposes its generated route previews and all active catalog destinations', async ({page}) => {
+test('the catalogue page contains only the topic catalogue and exposes every active route and preview', async ({page}) => {
     await openEnglish(page, '/bezeg-2.0/demonstrations');
 
-    const opening = page.locator('.demonstrations-opening-preview');
-    await expect(opening).toBeVisible();
-    const openingImage = opening.locator('.demonstrations-opening-image');
-    await expect(openingImage).toHaveAttribute('alt', '');
-    await expect.poll(() => openingImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-    const openingActions = opening.locator('a');
-    await expect(openingActions.first()).toContainText('Open demonstration');
-    const openingPath = await pathFromLink(openingActions.first(), page);
-    const openingDemonstration = demonstrationByPath.get(openingPath);
-    expect(openingDemonstration, `opening action points to an unknown demonstration: ${openingPath}`).toBeDefined();
-    if (openingDemonstration.hasLesson) {
-        await expect(openingActions).toHaveCount(2);
-        await expect(openingActions.nth(1)).toContainText('Guided lesson');
-        await expect(openingActions.nth(1)).toHaveAttribute('href', `${openingDemonstration.path}?learn=1`);
-    } else {
-        await expect(openingActions).toHaveCount(1);
-    }
-    await expect(openingImage).toHaveAttribute('src', new RegExp(openingDemonstration.id));
+    await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 1})).toHaveCount(1);
+    await expect(page.getByText('Explore by topic. Start with what interests you.')).toBeVisible();
+    await expect(page.getByText(`${demonstrations.families.length} families · ${demonstrations.length} demonstrations`)).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'All demonstrations'})).toHaveCount(0);
+    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toHaveCount(0);
 
-    const catalog = page.locator('section[aria-labelledby="all-demonstrations"]');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
+    await expect(catalog).toBeVisible();
     const topicToggles = catalog.locator('.demonstrations-topic-toggle');
     await expect(topicToggles).toHaveCount(demonstrations.families.length);
     await expect(topicToggles.first()).toHaveAttribute('aria-expanded', 'true');
@@ -138,7 +127,7 @@ test('generated preview mapping and provenance cover the active catalog without 
 
 test('catalog action labels stay localized, focused, touch-sized, and responsive at target widths', async ({page}) => {
     await openEnglish(page, '/bezeg-2.0/demonstrations');
-    const catalog = page.locator('section[aria-labelledby="all-demonstrations"]');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
     await expandCatalog(catalog);
 
     const cards = catalog.locator('.demonstrations-catalog-card');
@@ -147,8 +136,6 @@ test('catalog action labels stay localized, focused, touch-sized, and responsive
     const graph = focusCard.locator('.demonstrations-catalog-graph');
     const lesson = focusCard.locator('.demonstrations-catalog-lesson');
     const focusPreview = focusCard.locator('.demonstrations-catalog-preview');
-    const carouselButtons = page.locator('.demonstrations-opening-controls button');
-    await expect(carouselButtons).toHaveCount(2);
     for (const [width, expectedColumns, minimumPreviewWidth] of [[390, 1, 340], [724, 2, 320], [1440, 3, 340]]) {
         await page.setViewportSize({width, height: 900});
         await expect.poll(() => focusPreview.evaluate(image => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0)).toBe(true);
@@ -176,11 +163,6 @@ test('catalog action labels stay localized, focused, touch-sized, and responsive
         expect(renderedImageWidth * 11 / 360, `estimated captured-label height at ${width}px`).toBeGreaterThanOrEqual(9.5);
         expect(graphBox?.width).toBeGreaterThanOrEqual(44);
         expect(graphBox?.height).toBeGreaterThanOrEqual(44);
-        const carouselButtonBoxes = await Promise.all([0, 1].map(index => carouselButtons.nth(index).boundingBox()));
-        for (const buttonBox of carouselButtonBoxes) {
-            expect(buttonBox?.width, `carousel button width at ${width}px`).toBeGreaterThanOrEqual(44);
-            expect(buttonBox?.height, `carousel button height at ${width}px`).toBeGreaterThanOrEqual(44);
-        }
         if (lessonIndex >= 0) {
             const lessonBox = await lesson.boundingBox();
             expect(lessonBox?.width).toBeGreaterThanOrEqual(44);
@@ -212,7 +194,7 @@ test('catalog action labels stay localized, focused, touch-sized, and responsive
     const slPage = await page.context().newPage();
     try {
         await slPage.goto('/bezeg-2.0/demonstrations', {waitUntil: 'domcontentloaded'});
-        const slCatalog = slPage.locator('section[aria-labelledby="all-demonstrations"]');
+        const slCatalog = slPage.getByRole('region', {name: 'Vse demonstracije'});
         await expandCatalog(slCatalog);
         const slCards = slCatalog.locator('.demonstrations-catalog-card');
         for (let index = 0; index < catalogEntries.length; index += 1) {
