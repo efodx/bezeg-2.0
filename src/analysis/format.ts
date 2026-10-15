@@ -18,3 +18,14 @@ export function formatNumber(value: number, language: NumberLanguage, maxDecimal
     const text = language === 'sl' ? unsigned.replace('.', ',') : unsigned;
     return negative ? `${MINUS_SIGN}${text}` : text;
 }
+
+/** The line y = slope x + intercept as text ("y = 0.5x + 1.5", "y = x − 0.25", "y = 0"), rounded like `formatNumber`. */
+export function formatLineEquation(line: {readonly slope: number; readonly intercept: number}, language: NumberLanguage, maxDecimals = 2): string {
+    const slope = formatNumber(line.slope, language, maxDecimals);
+    const intercept = formatNumber(line.intercept, language, maxDecimals);
+    if (slope === NOT_A_NUMBER_TEXT || intercept === NOT_A_NUMBER_TEXT) return `y = ${NOT_A_NUMBER_TEXT}`;
+    if (slope === '0') return `y = ${intercept}`;
+    const term = slope === '1' ? 'x' : slope === `${MINUS_SIGN}1` ? `${MINUS_SIGN}x` : `${slope}x`;
+    if (intercept === '0') return `y = ${term}`;
+    return intercept.startsWith(MINUS_SIGN) ? `y = ${term} ${MINUS_SIGN} ${intercept.slice(1)}` : `y = ${term} + ${intercept}`;
+}

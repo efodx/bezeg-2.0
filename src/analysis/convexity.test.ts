@@ -10,10 +10,12 @@ import {
     convexityVerdict,
     inflectionPointsIn,
     isConvexityExampleId,
+    secondDerivativePieces,
     secondDerivativeSignOn,
     tangentComparison,
     tangentLineAt,
 } from './convexity';
+import {formatLineEquation} from './format';
 import {CONVEXITY_EXAMPLE_MODELS, DEFAULT_CONVEXITY_MODEL, parseConvexityModel} from './convexityModel';
 
 const square = convexityExample('square');
@@ -201,5 +203,50 @@ describe('model', () => {
             {example: m.example, a: m.a, b: m.b, t: m.t},
         ];
         for (const data of bad) expect(parseConvexityModel(data)).toBeUndefined();
+    });
+});
+
+describe('second-derivative pieces', () => {
+    it('list the zeros of f\'\' and are a superset of the inflection points, where f\'\' really vanishes', () => {
+        for (const id of CONVEXITY_EXAMPLE_IDS) {
+            const e = CONVEXITY_EXAMPLES[id];
+            for (const x of e.secondDerivativeZeros) expect(e.secondDerivative(x)).toBe(0);
+            for (const x of e.inflectionPoints) expect(e.secondDerivativeZeros).toContain(x);
+        }
+        expect(quartic.secondDerivativeZeros).toEqual([0]);
+        expect(quartic.inflectionPoints).toEqual([]);
+    });
+
+    it('cut the interval at the zeros and give each piece its strict sign', () => {
+        expect(secondDerivativePieces(square, -2.6, 2.6)).toEqual([{from: -2.6, to: 2.6, sign: 1}]);
+        expect(secondDerivativePieces(negSquare, -2.6, 2.6)).toEqual([{from: -2.6, to: 2.6, sign: -1}]);
+        expect(secondDerivativePieces(cube, -2.6, 2.6)).toEqual([{from: -2.6, to: 0, sign: -1}, {from: 0, to: 2.6, sign: 1}]);
+        expect(secondDerivativePieces(quartic, -2.6, 2.6)).toEqual([{from: -2.6, to: 0, sign: 1}, {from: 0, to: 2.6, sign: 1}]);
+        // a zero on the boundary does not split
+        expect(secondDerivativePieces(cube, 0, 2)).toEqual([{from: 0, to: 2, sign: 1}]);
+        expect(() => secondDerivativePieces(cube, 1, 1)).toThrow(RangeError);
+    });
+
+    it('agree with the sign of f\'\' at interior points of every piece (independent check)', () => {
+        for (const id of CONVEXITY_EXAMPLE_IDS) {
+            const e = CONVEXITY_EXAMPLES[id];
+            for (const piece of secondDerivativePieces(e, -2.6, 2.6)) {
+                for (const x of grid(piece.from, piece.to, 20).slice(1, -1)) expect(Math.sign(e.secondDerivative(x))).toBe(piece.sign);
+            }
+        }
+    });
+});
+
+describe('line equations', () => {
+    it('are written with the language\'s decimal separator and a true minus', () => {
+        expect(formatLineEquation(chordLineOf(square, -1, 1.5), 'en', 4)).toBe('y = 0.5x + 1.5');
+        expect(formatLineEquation(chordLineOf(square, -1, 1.5), 'sl', 4)).toBe('y = 0,5x + 1,5');
+        expect(formatLineEquation(tangentLineAt(square, 0.5), 'sl', 4)).toBe('y = x − 0,25');
+        expect(formatLineEquation(tangentLineAt(negSquare, 0.5), 'en', 4)).toBe('y = −x + 0.25');
+        expect(formatLineEquation(tangentLineAt(square, 0), 'en', 4)).toBe('y = 0');
+        expect(formatLineEquation(tangentLineAt(cube, 1), 'en', 4)).toBe('y = 3x − 2');
+        expect(formatLineEquation(tangentLineAt(cube, 0.5), 'en', 4)).toBe('y = 0.75x − 0.25');
+        expect(formatLineEquation({slope: 0, intercept: 2}, 'en', 4)).toBe('y = 2');
+        expect(formatLineEquation({slope: 2, intercept: 0}, 'en', 4)).toBe('y = 2x');
     });
 });

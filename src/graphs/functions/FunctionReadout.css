@@ -71,3 +71,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .extrema-actions button { min-height: 44px; }
 }
+/* Convexity: the Show/Hide second derivative button and the statuses, styled like the extrema controls. */
+.convexity-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
+.convexity-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.convexity-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.convexity-status p { margin: 0; }
+.convexity-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .convexity-actions button { min-height: 44px; }
+}

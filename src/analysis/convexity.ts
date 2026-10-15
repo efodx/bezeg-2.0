@@ -33,6 +33,8 @@ export interface ConvexityExample {
     readonly secondDerivativeSign: (a: number, b: number) => SecondDerivativeSign;
     /** Every point where f'' changes sign (not merely vanishes), ascending. */
     readonly inflectionPoints: readonly number[];
+    /** Every point where f'' is zero (a superset of the inflection points, e.g. x^4 at 0), ascending. */
+    readonly secondDerivativeZeros: readonly number[];
 }
 
 export const CONVEXITY_EXAMPLE_IDS = ['square', 'negSquare', 'cube', 'quartic'] as const;
@@ -52,6 +54,7 @@ export const CONVEXITY_EXAMPLES: Readonly<Record<ConvexityExampleId, ConvexityEx
         secondDerivative: () => 2,
         secondDerivativeSign: () => 'nonnegative',
         inflectionPoints: [],
+        secondDerivativeZeros: [],
     },
     // f'' = -2 < 0.
     negSquare: {
@@ -63,6 +66,7 @@ export const CONVEXITY_EXAMPLES: Readonly<Record<ConvexityExampleId, ConvexityEx
         secondDerivative: () => -2,
         secondDerivativeSign: () => 'nonpositive',
         inflectionPoints: [],
+        secondDerivativeZeros: [],
     },
     // f'' = 6x: negative left of 0, positive right of 0.
     cube: {
@@ -74,6 +78,7 @@ export const CONVEXITY_EXAMPLES: Readonly<Record<ConvexityExampleId, ConvexityEx
         secondDerivative: x => 6 * x,
         secondDerivativeSign: (a, b) => (a >= 0 ? 'nonnegative' : b <= 0 ? 'nonpositive' : 'changes'),
         inflectionPoints: [0],
+        secondDerivativeZeros: [0],
     },
     // f'' = 12x^2 >= 0, zero only at 0 without changing sign: convex, no inflection.
     quartic: {
@@ -85,6 +90,7 @@ export const CONVEXITY_EXAMPLES: Readonly<Record<ConvexityExampleId, ConvexityEx
         secondDerivative: x => 12 * x * x,
         secondDerivativeSign: () => 'nonnegative',
         inflectionPoints: [],
+        secondDerivativeZeros: [0],
     },
 };
 
@@ -108,6 +114,28 @@ export function secondDerivativeSignOn(example: ConvexityExample, a: number, b: 
 export function inflectionPointsIn(example: ConvexityExample, a: number, b: number): readonly number[] {
     requireInterval(a, b);
     return example.inflectionPoints.filter(x => x > a && x < b);
+}
+
+/** A stretch of an interval on which f'' has one strict sign (1: f'' > 0, -1: f'' < 0). */
+export interface SecondDerivativePiece {
+    readonly from: number;
+    readonly to: number;
+    readonly sign: 1 | -1;
+}
+
+/**
+ * [from, to] cut at the zeros of f'' strictly inside it, each piece with the strict sign f'' has there. Analytic: the
+ * sign of a piece comes from the example's closed-form sign on it, never from sampling. Throws unless from < to.
+ */
+export function secondDerivativePieces(example: ConvexityExample, from: number, to: number): readonly SecondDerivativePiece[] {
+    requireInterval(from, to);
+    const cuts = [from, ...example.secondDerivativeZeros.filter(x => x > from && x < to), to];
+    return cuts.slice(1).map((end, index) => {
+        const start = cuts[index];
+        const sign = example.secondDerivativeSign(start, end);
+        if (sign === 'changes') throw new Error(`f'' changes sign inside a piece of ${example.plain}; list its zeros.`);
+        return {from: start, to: end, sign: sign === 'nonnegative' ? 1 : -1};
+    });
 }
 
 export type ConvexityVerdict =

@@ -1486,8 +1486,68 @@ const extrema = {
     stableCounts: async page => ({b: await extremaReadout(page, 'b')}),
 };
 
+// ---------------------------------------------------------------- Convexity
+const convexityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const convexityStatuses = page => page.locator('[data-convexity-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-convexity-status')));
+// Per step: the displayed a, b and t, the statuses on screen and, where the second derivative is shown, the chord (and the tangent at step 3).
+// While it is hidden (steps 1, 4, 5 and 6; the learner presses Show second derivative after predicting) the verdict readouts are words
+// ("skrito" / "hidden"), so only the language-independent status ids are checked there.
+const CONVEXITY_STEPS = [
+    {a: '-1', b: '1.5', t: '0.5', statuses: ['hidden']},
+    {a: '-1', b: '1.5', t: '0.5', statuses: ['revealed'], chord: 'y = 0.5x + 1.5'},
+    {a: '-1', b: '1.5', t: '0.5', statuses: ['revealed'], chord: 'y = 0.5x + 1.5', tangent: 'y = x - 0.25'},
+    {a: '-1', b: '1.5', t: '0.5', statuses: ['hidden']},
+    {a: '-1', b: '1.5', t: '0.5', statuses: ['hidden']},
+    {a: '-1', b: '1', t: '0.5', statuses: ['hidden']},
+    {a: '-1', b: '1', t: '0.5', statuses: ['revealed', 'zero-without-change'], chord: 'y = 1', tangent: 'y = 0.5x - 0.1875'},
+];
+
+const convexity = {
+    id: 'convexity',
+    path: `${BASE}/analysis/convexity`,
+    titles: {sl: 'Konveksnost in konkavnost', en: 'Convexity and concavity'},
+    steps: 7,
+    minFrames: 17, // 2 + 3 + 3 + 2 + 2 + 2 + 3 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = CONVEXITY_STEPS[step - 1];
+        await expect.poll(() => convexityReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => convexityReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => convexityReadout(page, 't'), {message: `t at ${label}`}).toBe(expected.t);
+        if (expected.chord !== undefined) await expect.poll(() => convexityReadout(page, 'chord'), {message: `chord at ${label}`}).toBe(expected.chord);
+        if (expected.tangent !== undefined) await expect.poll(() => convexityReadout(page, 'tangent'), {message: `tangent at ${label}`}).toBe(expected.tangent);
+        await expect.poll(() => convexityStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // a, b and t are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.a), 0], `a on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.t), 0], `t on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/Tangent point t|Točka dotika tangente t/).fill('1.8');
+        await expect.poll(() => convexityReadout(page, 't')).toBe('1.8');
+        await page.locator('[data-action="toggle-second-derivative"]').click();
+        await expect.poll(() => convexityStatuses(page), {message: 'the second derivative is shown and the tangent claim withdrawn'}).toEqual(['revealed', 'tangent-outside']);
+        return await boardStats(page);
+    },
+    exitStep: 4,
+    duringLesson: async page => {
+        await expect.poll(() => convexityReadout(page, 't'), {message: 'lesson scene replaced the user t'}).toBe('0.5');
+        await expect.poll(() => convexityStatuses(page), {message: 'lesson scene hid the second derivative'}).toEqual(['hidden']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => convexityReadout(page, 't'), {message: 'user t restored'}).toBe('1.8');
+        await expect.poll(() => convexityStatuses(page), {message: 'user second derivative restored'}).toEqual(['revealed', 'tangent-outside']);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({t: await convexityReadout(page, 't')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

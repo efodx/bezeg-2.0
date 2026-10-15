@@ -471,3 +471,54 @@ test("the extrema messages are localized and show the supported range from the m
     expect(attempt({...validExtrema, b: 9})).toContain("med −4 in 4");
     expect(attempt({...validExtrema, revealed: "yes"})).toContain("true ali false");
 });
+
+const convexityPreset = (data: unknown) => JSON.stringify({"preset-convexity": {data: [{id: "Osnova", boardState: {boundingBox: [-2.6, 4.6, 2.6, -2.2]},
+    graphState: {initialized: true, example: "square", a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false}, data}]}});
+
+test("convexity collection imports a model object with its reveal flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "cube", a: 0, b: 2, t: 1.8, secondDerivativeVisible: true};
+    commitPresetImport(preflightPresetImport(convexityPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-convexity")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validConvexity = {example: "square", a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false};
+test.each([[[]], [null], [{}], [{...validConvexity, example: "sine"}], [{...validConvexity, a: 2, b: -1}], [{...validConvexity, a: 1, b: 1}], [{...validConvexity, a: -2.01}],
+    [{...validConvexity, b: 2.01}], [{...validConvexity, t: 2.5}], [{...validConvexity, t: "0"}], [{...validConvexity, a: "0"}], [{...validConvexity, secondDerivativeVisible: "true"}],
+    [{...validConvexity, secondDerivativeVisible: 1}], [{example: "square", a: -1, b: 1.5, t: 0.5}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("convexity collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(convexityPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validConvexity, a: 2, b: -1}, /a < b/],
+    [{...validConvexity, a: 1, b: 1}, /a < b/],
+    [{...validConvexity, a: -2.01}, /−2.*2/],
+    [{...validConvexity, t: 100}, /−2.*2/],
+    [{...validConvexity, example: "exp"}, /square, negSquare, cube, quartic/],
+    [{...validConvexity, secondDerivativeVisible: "true"}, /secondDerivativeVisible/],
+])("convexity errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(convexityPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(convexityPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("convexity data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validConvexity, a: "0"}, {...validConvexity, t: "0"}, {example: "square", a: -1, b: 1.5, t: 0.5}]) {
+        expect(() => preflightPresetImport(convexityPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the convexity messages are localized and show the supported range from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(convexityPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validConvexity, a: 1.8, b: 1})).toContain("a < b");
+    expect(attempt({...validConvexity, t: 9})).toContain("between −2 and 2");
+    expect(attempt({...validConvexity, secondDerivativeVisible: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validConvexity, a: 1.8, b: 1})).toContain("a < b");
+    expect(attempt({...validConvexity, t: 9})).toContain("med −2 in 2");
+    expect(attempt({...validConvexity, secondDerivativeVisible: "yes"})).toContain("true ali false");
+});

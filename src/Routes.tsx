@@ -49,6 +49,7 @@ import { MeanValueGraph } from './graphs/functions/MeanValueGraph';
 import { AccumulationGraph } from './graphs/functions/AccumulationGraph';
 import { DarbouxGraph } from './graphs/functions/DarbouxGraph';
 import { ExtremaGraph } from './graphs/functions/ExtremaGraph';
+import { ConvexityGraph } from './graphs/functions/ConvexityGraph';
 import { GraphHost } from './graphs/base/GraphHost';
 import type BaseGraph from './graphs/base/BaseGraph';
 import type { BaseGraphState } from './graphs/base/BaseGraph';
@@ -101,6 +102,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'accumulation': () => new AccumulationGraph(),
     'darboux': () => new DarbouxGraph(),
     'extrema': () => new ExtremaGraph(),
+    'convexity': () => new ConvexityGraph(),
 };
 
 const graphElements = Object.fromEntries(Object.entries(graphFactories).map(([id, create]) =>

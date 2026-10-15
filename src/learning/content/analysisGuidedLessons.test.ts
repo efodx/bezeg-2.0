@@ -11,12 +11,15 @@ import {accumulation, accumulationPieces, accumulationTangent} from '../../analy
 import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
 import {DARBOUX_EXAMPLE_IDS, darbouxExample, darbouxSubintervals, darbouxTotals} from '../../analysis/darboux';
 import {analyzeExtrema, EXTREMA_EXAMPLE_IDS, ExtremaExampleId, extremaExample} from '../../analysis/extrema';
+import {
+    chordComparison, chordLineOf, CONVEXITY_EXAMPLE_IDS, convexityExample, ConvexityExampleId, convexityVerdict, inflectionPointsIn, tangentComparison, tangentLineAt,
+} from '../../analysis/convexity';
 
 const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bisection')!;
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -730,5 +733,164 @@ describe('the extrema lesson', () => {
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-c' as never, value: 1}})).toThrow(/must be one of/);
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-a', value: Number.NaN}})).toThrow(/finite/);
         expect(() => sceneAction({name: 'show-function-element', value: {name: 'extrema-classification', value: 'yes' as never}})).toThrow(/true or false/);
+    });
+});
+
+describe('the convexity lesson', () => {
+    const convexityLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'convexity')!;
+    const cStep = (id: string) => convexityLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('convexity')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const example = (id: ConvexityExampleId) => convexityExample(id);
+    const hide = {kind: 'function-visibility', target: 'second-derivative', visible: false};
+    const show = {kind: 'function-visibility', target: 'second-derivative', visible: true};
+    const predictionSteps = ['convexity-prerequisites-step', 'convexity-negative-step', 'convexity-cube-step', 'convexity-quartic-step'];
+    const revealSteps = ['convexity-chord-step', 'convexity-tangent-step', 'convexity-free-exploration'];
+
+    test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
+        expect(convexityLesson.steps.map(step => step.id)).toEqual([
+            'convexity-prerequisites-step', 'convexity-chord-step', 'convexity-tangent-step', 'convexity-negative-step', 'convexity-cube-step',
+            'convexity-quartic-step', 'convexity-free-exploration',
+        ]);
+        expect(adapted().id).toBe('convexity-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(getGuidedLesson('convexity')).toBe(convexityLesson);
+        expect(isGuidedLessonAvailable('convexity')).toBe(true);
+    });
+
+    test('states the prerequisites, the hypothesis behind every claim, the sources and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => convexityLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/second derivative/);
+        expect(prerequisites('en')).toMatch(/chord/);
+        expect(prerequisites('sl')).toMatch(/drugi odvod/);
+        expect(prerequisites('sl')).toMatch(/tetive/);
+        expect(cStep('convexity-tangent-step').explanation.en).toMatch(/not in \\\(\[a,b\]\\\)/);
+        expect(cStep('convexity-tangent-step').explanation.en).toMatch(/only where the hypothesis allows it/);
+        expect(cStep('convexity-tangent-step').explanation.sl).toMatch(/le tam, kjer hipoteza to dovoljuje/);
+        expect(convexityLesson.summary.en).toMatch(/nothing is claimed/);
+        expect(convexityLesson.summary.en).toMatch(/A zero of the second derivative alone is not an inflection/);
+        expect(cStep('convexity-free-exploration').explanation.en).toMatch(/explore on your own/i);
+        expect(cStep('convexity-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+        expect(convexityLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation))).toBe(true);
+        expect(convexityLesson.unresolvedQuestions.map(item => item.en).join(' ')).toMatch(/not checked in the PDF/);
+        const implementation = convexityLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/convexity.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/ConvexityGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/never from sampling/);
+        expect(implementation.implementationCorrespondence).toMatch(/only when t lies in \[a, b\]/);
+    });
+
+    test('asks for a prediction before every second-derivative reveal, and the scene of a prediction step never reveals', () => {
+        for (const id of predictionSteps) {
+            expect(cStep(id).observationPrompt.en, id).toMatch(/Predict/);
+            expect(cStep(id).observationPrompt.en, id).toMatch(/Show second derivative/);
+            expect(cStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
+            expect(cStep(id).observationPrompt.sl, id).toMatch(/Pokaži drugi odvod/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual(hide);
+            // a prediction step shows no calculation frame, which would give the answer away
+            expect(cStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+        }
+        for (const id of revealSteps) {
+            expect(adaptedActions(id)).toContainEqual(show);
+            expect(cStep(id).frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
+        }
+        const order = (id: string) => convexityLesson.steps.findIndex(step => step.id === id);
+        expect(order('convexity-prerequisites-step')).toBeLessThan(order('convexity-chord-step'));
+        expect(order('convexity-quartic-step')).toBeLessThan(order('convexity-free-exploration'));
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        expect(adaptedActions('convexity-prerequisites-step')).toEqual([{kind: 'prepared-scene', sceneId: 'convexity-prerequisites-scene', source: 'demonstration-default'}, hide]);
+        expect(adaptedActions('convexity-chord-step').slice(1)).toEqual([show]);
+        expect(adaptedActions('convexity-tangent-step').slice(1)).toEqual([show]);
+        expect(adaptedActions('convexity-negative-step').slice(1)).toEqual([{kind: 'function-choice', name: 'convexity-example', value: 'negSquare'}, hide]);
+        expect(adaptedActions('convexity-cube-step').slice(1)).toEqual([{kind: 'function-choice', name: 'convexity-example', value: 'cube'}, hide]);
+        expect(adaptedActions('convexity-quartic-step').slice(1)).toEqual([{kind: 'function-choice', name: 'convexity-example', value: 'quartic'}, hide]);
+        expect(adaptedActions('convexity-free-exploration').slice(1)).toEqual([{kind: 'function-choice', name: 'convexity-example', value: 'quartic'}, show]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives (exact identities checked independently)', () => {
+        const square = example('square');
+        const grid = (a: number, b: number, n = 60) => Array.from({length: n + 1}, (_, i) => a + ((b - a) * i) / n);
+        // x^2 on [-1, 1.5]: the chord is y = 0.5x + 1.5 and f - chord = (x + 1)(x - 1.5) <= 0
+        const chord = chordLineOf(square, -1, 1.5);
+        expect([chord.slope, chord.intercept]).toEqual([0.5, 1.5]);
+        for (const x of grid(-1, 1.5)) expect(square.value(x) - (0.5 * x + 1.5)).toBeCloseTo((x + 1) * (x - 1.5), 12);
+        expect(grid(-1, 1.5).every(x => square.value(x) - chord.slope * x - chord.intercept <= 1e-12)).toBe(true);
+        expect(square.secondDerivative(0)).toBe(2);
+        expect(convexityVerdict(square, -1, 1.5)).toEqual({kind: 'convex'});
+        // the tangent at 0.5 is y = x - 0.25 with f - tangent = (x - 0.5)^2; at t = 1.8 the claim is withdrawn although (x - 1.8)^2 >= 0
+        const tangent = tangentLineAt(square, 0.5);
+        expect([tangent.slope, tangent.intercept]).toEqual([1, -0.25]);
+        for (const x of grid(-1, 1.5)) expect(square.value(x) - (x - 0.25)).toBeCloseTo((x - 0.5) ** 2, 12);
+        expect(tangentComparison(square, -1, 1.5, 0.5)).toEqual({kind: 'above'});
+        expect(tangentComparison(square, -1, 1.5, 1.8)).toEqual({kind: 'none', reason: 'tangent-outside-interval'});
+        const outside = tangentLineAt(square, 1.8);
+        for (const x of grid(-1, 1.5)) expect(square.value(x) - (outside.slope * x + outside.intercept)).toBeCloseTo((x - 1.8) ** 2, 12);
+        // -x^2 reverses both: chord y = -0.5x - 1.5, f - chord = -(x + 1)(x - 1.5) >= 0; tangent y = -x + 0.25, f - tangent = -(x - 0.5)^2
+        const negative = example('negSquare');
+        const negativeChord = chordLineOf(negative, -1, 1.5);
+        expect([negativeChord.slope, negativeChord.intercept]).toEqual([-0.5, -1.5]);
+        for (const x of grid(-1, 1.5)) expect(negative.value(x) - (-0.5 * x - 1.5)).toBeCloseTo(-(x + 1) * (x - 1.5), 12);
+        const negativeTangent = tangentLineAt(negative, 0.5);
+        expect([negativeTangent.slope, negativeTangent.intercept]).toEqual([-1, 0.25]);
+        for (const x of grid(-1, 1.5)) expect(negative.value(x) - (-x + 0.25)).toBeCloseTo(-((x - 0.5) ** 2), 12);
+        expect(chordComparison(negative, -1, 1.5)).toEqual({kind: 'above'});
+        expect(tangentComparison(negative, -1, 1.5, 0.5)).toEqual({kind: 'below'});
+        // x^3: f'' = 6x changes sign at 0; the chord on [-1, 1.5] is y = 1.75x + 0.75 and f - chord = (x + 1)(x + 0.5)(x - 1.5)
+        const cube = example('cube');
+        const cubeChord = chordLineOf(cube, -1, 1.5);
+        expect([cubeChord.slope, cubeChord.intercept]).toEqual([1.75, 0.75]);
+        for (const x of grid(-1, 1.5)) expect(cube.value(x) - (1.75 * x + 0.75)).toBeCloseTo((x + 1) * (x + 0.5) * (x - 1.5), 12);
+        expect(grid(-1, 1.5).some(x => cube.value(x) > 1.75 * x + 0.75 + 1e-9) && grid(-1, 1.5).some(x => cube.value(x) < 1.75 * x + 0.75 - 1e-9)).toBe(true);
+        expect(convexityVerdict(cube, -1, 1.5)).toEqual({kind: 'none', reason: 'sign-changes'});
+        expect(inflectionPointsIn(cube, -1, 1.5)).toEqual([0]);
+        expect(convexityVerdict(cube, 0, 2)).toEqual({kind: 'convex'});
+        expect(convexityVerdict(cube, -2, 0)).toEqual({kind: 'concave'});
+        // x^4 on [-1, 1]: chord y = 1, f - 1 = (x^2 - 1)(x^2 + 1); tangent at 0.5 is y = 0.5x - 0.1875 with f - tangent = (x - 0.5)^2 (x^2 + x + 0.75)
+        const quartic = example('quartic');
+        const quarticChord = chordLineOf(quartic, -1, 1);
+        expect([quarticChord.slope, quarticChord.intercept]).toEqual([0, 1]);
+        for (const x of grid(-1, 1)) expect(quartic.value(x) - 1).toBeCloseTo((x * x - 1) * (x * x + 1), 12);
+        const quarticTangent = tangentLineAt(quartic, 0.5);
+        expect([quarticTangent.slope, quarticTangent.intercept]).toEqual([0.5, -0.1875]);
+        for (const x of grid(-1, 1)) expect(quartic.value(x) - (0.5 * x - 0.1875)).toBeCloseTo((x - 0.5) ** 2 * (x * x + x + 0.75), 12);
+        expect(1 - 4 * 0.75).toBeLessThan(0);
+        expect(quartic.secondDerivative(0)).toBe(0);
+        expect(convexityVerdict(quartic, -1, 1)).toEqual({kind: 'convex'});
+        expect(inflectionPointsIn(quartic, -1, 1)).toEqual([]);
+        // the numbers in the prose
+        expect(cStep('convexity-chord-step').explanation.sl).toContain('y=0{,}5x+1{,}5');
+        expect(cStep('convexity-chord-step').explanation.en).toContain('y=0.5x+1.5');
+        expect(cStep('convexity-tangent-step').explanation.en).toContain('y=x-0.25');
+        expect(cStep('convexity-cube-step').explanation.en).toContain('y=-0.5x-1.5');
+        expect(cStep('convexity-cube-step').explanation.en).toContain('y=-x+0.25');
+        expect(cStep('convexity-quartic-step').explanation.en).toContain('y=1.75x+0.75');
+        expect(cStep('convexity-quartic-step').explanation.en).toContain('(x+1)(x+0.5)(x-1.5)');
+        expect(cStep('convexity-free-exploration').explanation.en).toContain('y=0.5x-0.1875');
+        const worked = (id: string) => convexityLesson.workedExamples.find(item => item.id === id)!;
+        expect(worked('convexity-chord-example').resultLatex).toContain('(x+1)\\left(x-\\tfrac32\\right)\\le0');
+        expect(worked('convexity-tangent-example').resultLatex).toContain('\\left(x-\\tfrac12\\right)^2\\ge0');
+        expect(worked('convexity-quartic-example').calculationLatex).toContain('f^{\\prime\\prime}(0)=0');
+        // the handoff and the cube step name the intervals the lesson restricts its claims to
+        expect(cStep('convexity-cube-step').observationPrompt.en).toContain('\\(a=0\\) and \\(b=2\\)');
+        expect(cStep('convexity-cube-step').observationPrompt.en).toContain('\\(a=-2\\) and \\(b=0\\)');
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the example choice and the second-derivative element', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['convexity-a', 'convexity-b', 'convexity-t', 'extrema-a', 'mvt-a', 'a', 'b', 'n']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('convexity-example');
+        expect(FUNCTION_CHOICE_VALUES['convexity-example']).toEqual([...CONVEXITY_EXAMPLE_IDS]);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('second-derivative');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'convexity-t', value: 1.8}})).toEqual({kind: 'function-parameter', name: 'convexity-t', value: 1.8});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'convexity-example', value: 'cube'}})).toEqual({kind: 'function-choice', name: 'convexity-example', value: 'cube'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'second-derivative', value: false}})).toEqual({kind: 'function-visibility', target: 'second-derivative', visible: false});
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'convexity-example', value: 'abs'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'convexity-c' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'convexity-a', value: Number.NaN}})).toThrow(/finite/);
+        expect(() => sceneAction({name: 'show-function-element', value: {name: 'second-derivative', value: 'yes' as never}})).toThrow(/true or false/);
     });
 });
