@@ -44,6 +44,23 @@ The image explores these relationships only. Its generated graph marks, logo, wo
 - Make graph preview/title a clear graph destination while keeping the lesson action a separate link. Avoid nested links or making a whole card containing links into another interactive target.
 - Keep every entry reachable through ordinary scrolling. No pagination is proposed for the current collection size.
 
+## Relationship to the active workspace
+
+**Proposal revision, 2026-10-15:** the owner liked the library direction but identified that its topic sidebar resembles the active demonstration workspace while behaving differently. The deployed Bernstein workspace and its component were inspected. Its permanent family tree expands links that navigate to graphs; the proposed library sidebar filters cards. Retaining both would create similar-looking navigation with different effects.
+
+Recommend a connected overview-to-experiment flow:
+
+- Keep the standalone catalogue as the broad selection surface, with search, topic filters, previews, and graph/lesson entry actions.
+- Remove the permanent global topic tree from the active workspace. Use the released width for the graph, alongside its existing tools. Keep a compact demonstration heading and a breadcrumb identifying the collection, family, and current demonstration. The collection link returns to the previous catalogue filters and position, with a sensible all-topics fallback for direct arrivals.
+- Offer a compact “Zamenjaj demonstracijo” action in the workspace heading. It opens the same selection interface as an accessible overlay, initially oriented to the current family and identifying the current demonstration. Topic selection always filters cards in this picker, just as it does in the standalone catalogue.
+- Keep the active graph mounted and unchanged while the picker is open. Closing or cancelling restores focus to its trigger without selecting another graph. Choosing an explicit graph or lesson destination performs the existing navigation. Preserving edited scenes across an actual demonstration switch is a separate persistence decision and is not promised here.
+- Reuse the collection's metadata, search/filter rules, cards, and entry actions for the full page and overlay. The overlay may adapt its column count to available space. Keep graph tools and lesson controls with the active demonstration, outside the collection picker.
+- Retain addressable catalogue and demonstration routes, including direct graph and lesson arrivals. A classroom link can still open straight into a focused experiment. No route rename is proposed.
+
+A full permanent combination of catalogue, live graph, and tools would keep selection constantly available but would consume graph space and retain the competing browsing/editing tasks. Purely changing page colors or adding an animation would leave the two sidebar behaviours unresolved. The recommended distinction comes from what occupies the screen and when navigation appears; motion is optional and must respect reduced motion.
+
+The revised conversation image shows the catalogue and focused Bernstein workspace side by side. It illustrates the two primary states; it does not show or validate the open picker overlay. Generated mathematics and controls remain placeholders.
+
 ## Visual direction and trade-offs
 
 Retain cream, ivory, sage, dark green, ochre, and the existing elderflower identity. Quiet the page-wide grid so the mathematical previews provide the strongest detail. Use one card surface with a light border, modest corners, and little or no shadow. Keep typography readable for projection and allow long titles to wrap.
@@ -56,7 +73,7 @@ Do not add another featured carousel, a large decorative hero, accounts, progres
 
 ## Boundaries and provisional acceptance criteria
 
-This proposal broadens catalogue design beyond the earlier relocation spec. It does not change the homepage, graph routes, geometry, lesson contents or availability, Presets, storage formats, or the static/client-only product constraint. It is not an instruction to implement the older untracked visual-hierarchy draft.
+This proposal broadens catalogue design beyond the earlier relocation spec and now includes active-workspace navigation presentation and a shared collection picker. It does not change the homepage, graph routes, geometry, lesson contents or availability, Presets, storage formats, or the static/client-only product constraint. It is not an instruction to implement the older untracked visual-hierarchy draft.
 
 Before implementation, confirm or revise this direction and turn the selected behaviour into a bounded approved brief. Proposed acceptance criteria are:
 
@@ -67,7 +84,10 @@ Before implementation, confirm or revise this direction and turn the selected be
 5. Slovenian and English layouts work at representative desktop, tablet, phone, and enlarged-text sizes. Keyboard focus and touch targets remain usable; there is no page-level horizontal overflow.
 6. Production previews retain mathematical meaning and scene provenance. This static image establishes no evidence of responsive behaviour, accessibility, or mathematical correctness.
 7. Implementation verification includes appropriate component tests, TypeScript, production build, and the smoke-tester workflow on the affected catalogue and graph/lesson entry paths.
+8. The active workspace gives its width to the graph and tools without a permanent global topic tree. Its collection breadcrumb and switcher provide clear ways to browse again.
+9. The full catalogue and overlay use consistent filtering and entry behaviour. Opening, filtering, and cancelling the overlay preserve the current graph and lesson state; focus stays in the open picker and returns to its trigger on cancellation. Navigation to a chosen demonstration disposes the previous graph through its existing owner.
+10. Workspace navigation changes require the full shared-workspace browser checklist, including direct arrivals, lesson modes, narrow layouts, presentation mode, picker keyboard/touch operation, and repeated navigation/disposal. This wider coverage supersedes catalogue-only smoke coverage when the revised proposal is implemented.
 
 ## Design evidence
 
-The current deployed page was inspected through the browser on 2026-10-15 and compared with DemonstrationsPage and the route catalogue. The proposed desktop composition is illustrated with a built-in ImageGen mockup in the originating conversation. No runnable prototype, user study, or application changes were made for this proposal.
+The current deployed catalogue and Bernstein workspace were inspected through the browser on 2026-10-15 and compared with DemonstrationsPage, DemonstrationWorkspace, and the route catalogue. The original library and revised overview-to-experiment compositions are illustrated with built-in ImageGen mockups in the originating conversation. No runnable prototype, user study, or application changes were made for this proposal.
