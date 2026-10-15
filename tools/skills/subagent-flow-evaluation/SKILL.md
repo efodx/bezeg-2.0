@@ -14,12 +14,16 @@ After each completed or blocked task, append one compact record to [`evaluation-
 Use current-task context, reports, command results, timestamps, and available usage data. Do not read accumulated history for logging. Set task class and estimated size before dispatch and retain the estimate: S is one localized outcome with one owner; M has several files or behavior branches with one primary owner; L crosses modules or has independently verifiable slices. Record:
 
 - task date, identifier/link if available, role, class/size, and concise scope;
-- dispatch reason, handler model/effort, and each worker's role, requested and resolved model/effort, and count; use `n/a` for handler-only work and `unknown` when resolution is not visible;
+- dispatch reason, worker count (including 0), and each worker's role and requested model/effort; add handler settings and resolved worker settings when exposed by the environment or tool results;
 - accepted outcome, checks, coverage gaps, and attributable integration failures;
 - repair rounds and failure cause, separating code issues from environment or tool failures;
 - elapsed time only with observable start and acceptance/block boundaries, noting external waits; usage only with its scope (handler, worker, or total).
 
-For each worker, add brief handoff evidence: brief revision and decision-bearing wording or saved reference; material omissions or clarifications; the exact or faithful short instruction added/changed; and the observed follow-up outcome with suspected attribution, which may be `unknown`. Record positive outcomes too. Mark unavailable evidence `unknown`, non-applicable fields `n/a`; report facts separately from judgments. Do not infer telemetry, defects, severity, duration, or causation.
+For each worker, add brief handoff evidence: brief revision and decision-bearing wording or saved reference; material omissions or clarifications; the exact or faithful short instruction added/changed; and the observed follow-up outcome. Include suspected attribution only when useful and label it as such. Record positive outcomes too.
+
+Capture size, start/dispatch time, requested settings, and completion time prospectively. Use resolved settings and scoped usage only when tools expose them; defaults and worker self-reports do not establish runtime resolution. Omit unavailable optional telemetry (including exact handler settings, resolved worker settings, usage, severity, and later escaped-defect status) and non-applicable fields. Omission means unavailable or inapplicable, never zero or successful. Keep missing required checks, missed capture that limits a comparison, and material uncertainty explicit. Report facts separately from judgments; do not infer telemetry, defects, severity, duration, or causation.
+
+Use partial acceptance when required criteria remain unmet or unverified; distinguish completed implementation from completed acceptance. Record an owner's explicit revision or deferral of criteria when applicable.
 
 Capture full initial/revised prompts, field-by-field completeness, staffing detail, or finding counts only for a handoff investigation or labeled prompt-format pilot. Keep pilot evidence in a bounded repository-local file. Ordinary records need only short excerpts or references; do not create a file per task or run extra checks to fill fields.
 

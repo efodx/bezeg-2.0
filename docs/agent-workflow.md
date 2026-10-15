@@ -22,15 +22,15 @@ Codex child defaults are in [`.codex/config.toml`](../.codex/config.toml); the h
 1. Read the relevant spec and acceptance criteria, inspect existing changes, and estimate task size before dispatch. Start with one worker; parallelize substantial slices only when their behavior and write ownership are independent. Give shared interfaces and integration files one owner; serialize dependencies.
 2. Use exploration separately when it resolves substantial uncertainty or isolates noisy work. Otherwise let the implementing worker investigate its bounded slice. Pass useful findings forward rather than repeating the same exploration.
 3. Prefer a fresh context when supported. Supply a self-contained brief using the fields below, relevant project constraints, and settled decisions. Workers read only assignment-relevant sources; research history, workflow evaluation, and model-routing rationale stay with the handler. A fresh conversation still needs applicable repository rules.
-4. Capture the dispatch timestamp and identify the brief revision (`handoff-v1` below). Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
+4. Capture the task start/dispatch timestamp, requested worker settings, and brief revision (`handoff-v2` below). Retain resolved settings or scoped usage if tool results expose them; configured defaults describe intent, not runtime resolution. Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
 
-### Assignment brief: handoff-v1
+### Assignment brief: handoff-v2
 
 - **Role:** research, implementation, review, or smoke; edit permission.
 - **Goal:** outcome, source spec, and checkable acceptance.
 - **Scope:** owned paths/modules, shared owners, existing changes to preserve.
 - **Context:** relevant sources, settled decisions, dependencies.
-- **Checks:** required mathematical, test, browser, or other evidence. For UI work, name applicable routes, viewports, and interactions.
+- **Checks:** map each acceptance criterion to worker checks, handler checks, or sufficient existing evidence. For UI work, name applicable routes, viewports, text enlargement, and interactions where required by the spec. Describe presentation goals as visible results, such as a rail visible over child backgrounds or intended headline wrapping at a named viewport.
 - **Return:** changes or findings, observed check results, decisions/risks, and unverified cases. Flag missing or conflicting instructions that affected the work; ordinary implementation details need no narration.
 
 Use only details that affect the assignment. Research returns relevant sources/files/symbols and a recommended boundary; review returns actionable findings with locations and expected behavior, without editing; smoke returns observed coverage and gaps. Implementation returns its diff and check evidence. Save exact initial and revised briefs only when investigating handoffs or running a prompt-format pilot.
@@ -40,6 +40,8 @@ Increment the brief revision when this template changes.
 ## Review and completion
 
 Derive expected behavior from the spec, review the actual diff and surrounding code, and assess worker evidence. Use the specialist reviews and smoke workflow required by `AGENTS.md`; reuse sufficient checks unless integration or corrections invalidate them. Send repairs to the worker with the location, observed failure, and expected behavior. Repeated failure calls for reconsidering scope or approach. Final acceptance remains with the handler.
+
+Account for every acceptance criterion with observed evidence or an explicit gap. Distinguish implementation completion from acceptance completion: report partial acceptance while a required criterion is unmet or unverified, unless the owner explicitly revises or defers it. Preserve that deferral and its impact in the record.
 
 Record accepted/blocked time and complete the [evaluation record](../tools/skills/subagent-flow-evaluation/SKILL.md#do-log) from current-task evidence, then commit and push under the repository Git rules. Research, review, and smoke assignments count too; useful handler-only cases provide comparisons. Keep verification gaps explicit.
 

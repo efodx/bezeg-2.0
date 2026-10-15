@@ -1,21 +1,21 @@
 # Subagent workflow evaluation log
 
-Append one compact record per completed or blocked task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md), covering all its worker roles together. Standalone research, review, and smoke assignments count as tasks; include useful handler-only comparisons. Keep summaries concise and non-sensitive. Use `unknown` for unavailable evidence and `n/a` when a field does not apply. This log is observational; records do not establish causation.
+Append one compact record per completed or blocked task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md), covering all its worker roles together. Standalone research, review, and smoke assignments count as tasks; include useful handler-only comparisons. Keep summaries concise and non-sensitive. This log is observational; records do not establish causation.
 
 ## Current record format
 
-Use this compact core for ordinary tasks, then add one handoff note per worker. Omit fields only when marked `n/a` or `unknown`.
+Use this compact core for ordinary tasks, then add one handoff note per worker. Omit unavailable optional telemetry and non-applicable fields; omission means unavailable or inapplicable, never zero or successful. Keep acceptance gaps and missing evidence that limits a comparison explicit. Historical records retain their original wording; corrections are appended.
 
 ```text
 ### YYYY-MM-DD — task identifier/link
 Roles/class/size/scope: worker roles or handler-only; class; S|M|L; concise scope
-Dispatch: reason; handler model/effort; workers by role with requested → resolved model/effort and count (or 0); unknown settings stay unknown
+Dispatch: reason; worker count (or 0), roles and requested model/effort; handler and resolved worker settings when exposed
 Outcome: accepted/partial/blocked; checks; coverage gaps; integration failures and attribution
-Repairs: handler-to-worker rounds; cause and status; start and acceptance/block timestamps when visible, elapsed measurement boundary and external waits; usage and scope
-Handoff — worker role: brief revision; decision-bearing wording or saved reference; material omission/clarification; exact or faithful short instruction added/changed; observed follow-up outcome; suspected attribution (unknown allowed)
+Repairs/timing: applicable repair rounds, cause and status; observed start and completion timestamps, elapsed boundary and external waits; usage with scope when exposed
+Handoff — worker role: brief revision; decision-bearing wording or saved reference; material omission/clarification; instruction added/changed and observed follow-up outcome when applicable
 ```
 
-For handler-only entries use `n/a` for handoff, repair rounds, and worker settings. Set S/M/L before dispatch and keep it unchanged: S is one localized outcome with one owner; M has several files or behavior branches with one primary owner; L crosses modules or has independently verifiable slices.
+For handler-only entries omit handoff, worker repair rounds, and worker settings. Set S/M/L before dispatch and keep it unchanged: S is one localized outcome with one owner; M has several files or behavior branches with one primary owner; L crosses modules or has independently verifiable slices.
 
 Keep full initial/revised prompts, field-by-field completeness, staffing detail, and expanded finding counts in a bounded repository-local evidence file only for handoff investigations or labeled prompt-format pilots. Ordinary records need a decision-bearing excerpt or saved reference. Preserve this initial sample exactly; new records use the compact format.
 
@@ -57,3 +57,17 @@ Handoff — validation: handoff-v1; “Use ONLY the supplied synthetic evidence 
 - Accepted: focused tests 2 files/12 tests; TypeScript and production build passed. Handler browser review passed both locales at all three widths, keyboard selection/focus, catalog/brand navigation, graph and lesson entry, image loading. Enlarged text, physical touch/projection, comprehensive accessibility, and hosted CI remain unverified.
 - Environment: sandbox Sass resolution and loopback access failed; identical build/preview outside sandbox worked without repository dependency changes. Unrelated PH snapshot and local prototype/spec files preserved.
 - Observable task window: dispatch preparation 15:15:44 UTC to browser acceptance 15:21:21 UTC (5m37s), including tool and environment waits; worker-only elapsed and usage unknown.
+
+### 2026-10-15 — Correction to Homepage visual flair acceptance
+
+The implementation and recorded checks passed, but acceptance was partial: enlarged-text usability was a required criterion in the [source spec](../specs/homepage-visual-flair.md) and was not verified. The earlier “Accepted” label overstated coverage. This correction adds no new browser evidence and preserves the original record.
+
+### 2026-10-15 — Observable delegation records and acceptance coverage
+
+Roles/class/size/scope: handler-only; workflow documentation; S; bounded correction across the [workflow and evaluation contract](../specs/agent-workflow-evaluation.md).
+
+Dispatch: 0 workers; small, tightly coupled wording changes kept with the handler. Owner authorized optional-telemetry omission and the previously proposed handoff/acceptance fixes.
+
+Outcome: content checks passed; packaged skill validation incomplete because bundled Python lacks PyYAML. All 23 local file links resolve, historical task records preserved exactly before append, unchanged skill frontmatter manually checked, and diff whitespace checked. No product behavior changed; app/browser tests do not apply. Missing required acceptance checks remain explicit, while unavailable optional telemetry is omitted. New handoff-v2 behavior has not yet been observed on a product assignment.
+
+Timing: first clock observation 15:30:30 UTC to content-check completion 15:31:48 UTC (1m18s); this excludes earlier analysis and subsequent logging/Git work, so it is not total task elapsed time.
