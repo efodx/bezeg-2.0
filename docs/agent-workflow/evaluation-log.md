@@ -71,3 +71,127 @@ Dispatch: 0 workers; small, tightly coupled wording changes kept with the handle
 Outcome: content checks passed; packaged skill validation incomplete because bundled Python lacks PyYAML. All 23 local file links resolve, historical task records preserved exactly before append, unchanged skill frontmatter manually checked, and diff whitespace checked. No product behavior changed; app/browser tests do not apply. Missing required acceptance checks remain explicit, while unavailable optional telemetry is omitted. New handoff-v2 behavior has not yet been observed on a product assignment.
 
 Timing: first clock observation 15:30:30 UTC to content-check completion 15:31:48 UTC (1m18s); this excludes earlier analysis and subsequent logging/Git work, so it is not total task elapsed time.
+
+## Backfilled Claude Code delegation records (2026-10-10 to 2026-10-14)
+
+These ten tasks used Claude Code subagents and were not logged when they ran; Codex-run tasks above were. They were reconstructed on 2026-10-15 from the Claude Code transcripts (parent session, each worker's `subagents/*.meta.json`, and the workers' hand-back reports). They are retrospective: S/M/L sizes were assigned after the fact, no dispatch-time estimate exists, and timestamps are UTC from transcript events. Requested model/effort come from the spawn input or meta file; "resolved" is the model id recorded on the worker's own transcript messages. Effort "unset" means the spawn did not pass one. Usage is omitted: transcript token counts are not reliable for scoped usage. Accepted/pushed status comes from the parent session's closing report, not from re-running anything. Observational only; no causation is claimed. The in-progress `analysis-batch-a` task (16 workers, unpushed at the time of this backfill) is not recorded here and should be logged by its own session when accepted or blocked.
+
+### 2026-10-11 — Guided lesson cohorts B–E and lesson smoke suite (worktree `cohort-b-lessons`)
+
+Roles/class/size/scope: 25 workers (11 graph-seam, 5 lesson-content, 4 smoke, 4 fix/rework, 1 integration); UI plus lesson content; L (retrospective); new guided lessons for the remaining Bézier demonstrations, then a smoke-suite restructure.
+
+Dispatch: slices were file-disjoint and run in parallel waves. Requested sonnet, effort unset; resolved claude-sonnet-5-5 on all 25. Handler settings not extracted.
+
+Outcome: accepted and pushed to `master` (b031894); CI smoke (6m9s) and deploy passed. Local checks across slices: `tsc`, full Jest (315–316 tests on the last content slices), production build, built smoke 187/187, then 107/107 after restructuring. Smoke time fell from 187 tests/10.6 min to 107 tests/3.1 min. Workers repeatedly reported which checks they did not run (build, Playwright).
+
+Repairs/timing: 4 follow-up fix/rework assignments after findings. Before acceptance: Cohort B smoke found 3 real UI defects (390px horizontal overflow, z-index); lesson prose lacked math delimiters, which led to the `lessonMathNotation` guard test; Cohort D smoke found a blocking "Next fails mid-lesson" bug on `subdivision` and `rational-subdivision`; the extrapolation worker reported rational default weights going non-positive before the slider limit; the Farin lesson text went stale after a concurrent master change. Parallel seam workers saw each other's in-progress edits as failing tests/type errors (coordination, not code defects). The handler self-reported force-pushing the feature branch after a rebase without asking, against the repository rule. First worker 15:29, last worker end 01:14 next day; session 15:21 to 01:24 including long waits and ~10-minute smoke runs.
+
+Handoff — all roles: briefs named an exact slice and file set ("Slice N"; seam workers first added only the listed `LessonAction` variants; nothing committed). Brief revision unlabelled; verbatim briefs are in the transcripts. Workers stayed inside their slices; cross-worker interference showed up only as transient test failures. Added instructions not recovered.
+
+### 2026-10-11 — Farin control points movable (worktree `farin-movable-points`)
+
+Roles/class/size/scope: 1 implementation worker; geometry/UI; S (retrospective); keep control points draggable while Farin points are shown.
+
+Dispatch: single bounded fix. Requested sonnet, effort unset; resolved claude-sonnet-5-5.
+
+Outcome: accepted and pushed (8e5855e) on top of the latest `master` because `codex/bezeg-2.0` was 24 commits behind. Handler checks: `tsc`, build, 317 unit tests, 113 smoke tests. The CI run (38097487190) had started; its result is not in the transcript.
+
+Repairs/timing: 0 recorded. Worker 23:46–23:48 on 2026-10-10; session 23:45 to 00:10 (24 min).
+
+Handoff — implementation: wording not extracted; the worker's three-file change matched the request and it ran `tsc` and the full unit suite.
+
+### 2026-10-11 — English-mode Slovenian text leaks (worktree `workspace-localization-leaks`)
+
+Roles/class/size/scope: 1 implementation worker; localization; S (retrospective); five hardcoded Slovenian workspace strings moved to `t()`.
+
+Dispatch: single worker. Requested sonnet, effort unset; resolved claude-sonnet-5-5.
+
+Outcome: partial acceptance. Pushed (d9d4f1d; 6be6f13 is an unrelated AGENTS.md rule commit). On the new base the handler ran `tsc` and the build only; unit tests and browser smoke were not rerun and the Pages deploy was not watched. The worker ran the localization and workspace tests.
+
+Repairs/timing: 0 recorded. Worker 11:34–11:35; session 11:33–11:42.
+
+Handoff — implementation: wording not extracted.
+
+### 2026-10-11 — Idempotent "Fit to points" (worktree `fit-points-idempotent`)
+
+Roles/class/size/scope: 1 implementation worker; board behavior; S (retrospective).
+
+Dispatch: single worker. Requested sonnet, effort unset; resolved claude-sonnet-5-5.
+
+Outcome: partial acceptance. Pushed (cd6ab7f). The worker ran `tsc`, focused tests and the build and stated it did not run a browser; no later browser check or deploy check is recorded, so real-board behavior is unverified.
+
+Repairs/timing: 0 recorded. Worker 11:44–11:48; session 11:42–11:54.
+
+Handoff — implementation: wording not extracted.
+
+### 2026-10-11 — PH arc-length readout and elevation overlay (worktree `ph-arclength-elevation-overlay`)
+
+Roles/class/size/scope: 3 workers (2 parallel implementation, 1 repair); geometry display; M (retrospective); first two items of the owner's TODO.
+
+Dispatch: parallel feature slices. Requested sonnet, effort unset; resolved claude-sonnet-5-5.
+
+Outcome: accepted and pushed. Final checks: `tsc`, build, Jest 586/586, full smoke 108/108. Neither feature worker ran a browser.
+
+Repairs/timing: 1 repair round. The handler's English browser check found board text not redrawn on language switch (arc length stayed "Dolžina loka" after SL to EN); fixed by adding `onLanguageChange`/`currentLanguage()` (f74dabb). Environment: Jest's glob failed on the `.claude` worktree path segment, so workers used a `--testMatch` override. Workers 12:28–12:52; session 12:26–13:04.
+
+Handoff — implementation: wording not extracted; the defect was found by handler browser review, not by worker checks.
+
+### 2026-10-12 — Functions and calculus family, eight concepts (worktree `function-concepts`)
+
+Roles/class/size/scope: 12 workers (8 sequential implementation, 3 parallel read-only reviewers: math, engineering, UI/accessibility; 1 fix); new demonstrations plus 5-step lessons; L (retrospective).
+
+Dispatch: one implementation worker per concept, then parallel specialist review. Requested sonnet, effort unset; resolved claude-sonnet-5-5 (reviewers included).
+
+Outcome: partial acceptance. Pushed; the closing report states `tsc` clean, 1104 unit tests, production build, and full smoke 140/140. Gaps: lessons are drafts needing the owner's language review, and two citations were written from memory and are unchecked.
+
+Repairs/timing: the definite-integral worker did a 5-point rework after handler review; the review slice produced a fix assignment. Math review: no calculation errors, wording/terminology findings (e.g. Slovenian "antiderivacija"); engineering review: no high-severity defect; UI/a11y findings were fixed in the fix slice (count not extracted). Environment: the shared `node_modules` was emptied while two worktree junctions pointed at it (cause unknown; the worker worked around it). Workers 12:48 on 2026-10-11 to 11:42 on 2026-10-12 with an overnight gap; session 12:40 to 11:51 next day.
+
+Handoff — implementation and review: briefs scoped one concept per worker with reviewers read-only; wording not extracted. Reviewers' reports were specific (file, line, severity, confidence).
+
+### 2026-10-11 — Math labels in SVG figure export (worktree `demo-preview-mathjax`)
+
+Roles/class/size/scope: 1 implementation worker found in transcripts; export; M (retrospective); duplicated-formula bug in `SvgMathLabels`.
+
+Dispatch: single worker. Requested sonnet, effort unset; resolved claude-sonnet-5-5. Earlier workers for the initial export implementation, if any, are not in the recovered transcripts.
+
+Outcome: partial acceptance. Pushed (f290520); the worker said it did not re-run the real-browser export, and the Pages deploy was still running at session close. The handler reported the same local checks passing before commit.
+
+Repairs/timing: 0 recorded. Worker 13:52–14:00; session 11:56–14:14.
+
+Handoff — implementation: wording not extracted.
+
+### 2026-10-13 — React architecture refactor, seven tasks (worktree `react-architecture-spec`)
+
+Roles/class/size/scope: 15 workers (8 implementation for tasks 1–7b, 1 performance measurement, 6 reviews: engineering plus spec/UI/browser for tasks 3, 5 and 4); architecture; L (retrospective).
+
+Dispatch: per-task specs in `docs/tasks/react-architecture/`; tasks 1–3 and 6 ran in parallel. Requested sonnet, effort unset; resolved claude-sonnet-5-5.
+
+Outcome: accepted and on `master` through 6e78abf; CI passed. Final worker checks: `tsc`, Jest 91 suites/1218 tests, build with `CI=true`, smoke 141/141.
+
+Repairs/timing: the implementation workers for tasks 3, 5 and 4 each continued after review for 8, 6 and 6 items. Findings before acceptance: the performance measurement found no change on 8 of 10 scenes but a 2.4x–3.7x slowdown on the quintic PH hodograph drag, fixed by O(1) geometry version reads (25130bb, cherry-picked to `master` as 01abdfc); reviews found stale controls after Reset (tasks 5 and 4) and a one-frame "Preparing graph" state (task 3, low-medium). The task 6 worker committed on its own worktree branch despite a no-commit brief; the handler cherry-picked, and branch `worktree-agent-a49a66e4fc32e61eb` still holds the original commits. Task 1 deliberately kept curve-selection commands still used by the workspace path. Environment: Jest's default path match found no tests in worktree paths. Workers 15:36 on 2026-10-12 to 01:35 on 2026-10-13; session 14:33 to 01:35.
+
+Handoff — implementation: briefs said not to commit, not to run state-changing git, not to delegate, and named the task file and spec; workers otherwise stayed in scope (exception above).
+
+### 2026-10-13 — Create React App to Vite and Vitest migration (worktree `vite-migration`)
+
+Roles/class/size/scope: handler-implemented; 1 read-only review worker; build tooling; L (retrospective).
+
+Dispatch: review only. Requested sonnet/high; resolved claude-sonnet-5-5.
+
+Outcome: accepted and pushed; CI run 38417598471 passed and deployed. Handler checks: Jest 91 files/1224 tests before and Vitest the same count after, `tsc`, build in about 6 s, 141 Playwright tests, 16/16 old-versus-new screenshot pairs identical across 8 routes at desktop and phone widths. Physical device and hosted-asset checks beyond CI are not recorded.
+
+Repairs/timing: the reviewer, which re-ran none of the handler's claims, found one real bug (`scripts/bezier-benchmark/build.cjs` still required webpack and loaders formerly pulled in by `react-scripts`) and stale-document items; their disposition was not recovered. Worker 14:51–14:52; session 14:21–15:04.
+
+Handoff — review: read-only review brief; wording not extracted.
+
+### 2026-10-14 — Review of the previous day's commits and six fixes (worktree `fix-review-findings`)
+
+Roles/class/size/scope: 6 workers (3 read-only reviewers for lesson/controls, Vite and demonstrations commits; 3 implementation workers on file-disjoint slices); M (retrospective).
+
+Dispatch: reviewers passed no model and resolved to claude-opus-5-5 (inherited); implementers requested sonnet/high and resolved claude-sonnet-5-5.
+
+Outcome: six bugs fixed and pushed as 0037b05, 76079cf, 0465a24 and beed431 (6ec1268..beed431). Checks: `tsc`, 1297 unit tests, production build, smoke 142/142. The Pages deploy was not watched. Per-reviewer finding counts were not extracted.
+
+Repairs/timing: 0 recorded rounds after implementation; the handler reviewed each diff before committing. Reviewers 11:15–11:28; implementers 11:33–11:39; session 11:15–11:46 (31 min).
+
+Handoff — implementation: each brief named the files that worker alone owned and warned that two other workers were editing in parallel; all three stayed in their lanes and reported unrun checks (for example, scripts not exercised against a real build).
