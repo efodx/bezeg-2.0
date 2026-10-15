@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "87490135e9045c3f8d733ac4d4bbab9b97250fff",
+  "graphSourceRevision": "629ddf0e1862d74ddf095c0b82faebc4800ac73d",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -18,9 +18,9 @@
     "colorScheme": "light",
     "reducedMotion": "reduce",
     "timezoneId": "Europe/Ljubljana",
-    "baseUrl": "http://127.0.0.1:3012/bezeg-2.0",
-    "browserVersion": "155.0.8059.40",
-    "browserSource": "configured executable",
+    "baseUrl": "http://127.0.0.1:3013/bezeg-2.0",
+    "browserVersion": "156.0.8078.4",
+    "browserSource": "Playwright-managed Chromium",
     "coordinateContextPolicy": "per capture: retain axes, ticks, and grid for basics and function families; hide them for other families",
     "paddingFraction": 0.14,
     "frameAspectRatio": 1.6363636363636365,
@@ -1691,6 +1691,159 @@
         },
         "renderedLabelCount": 3,
         "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "bisection",
+      "path": "/bezeg-2.0/analysis/bisection",
+      "file": "bisection.png",
+      "sha256": "ed5264a3e4aafcb075add0a8310e07b8d4b2f7db6e6cd48597a629ca6fc5c9e7",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -1.8101604278074899,
+          "maxX": 8.1091197829629,
+          "minY": -2.7013969778785083,
+          "maxY": 5.89700170506768
+        },
+        "boardBoundingBox": [
+          -7.770314171122999,
+          7.002581898082387,
+          8.770314171122992,
+          -3.105579866623495
+        ],
+        "framedElementCount": 11,
+        "finalLabelCount": 3,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 25,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 13,
+          "curve": 1,
+          "segment": 3,
+          "point": 4
+        },
+        "renderedLabelCount": 3,
+        "mathJaxLabelCount": 6
+      }
+    },
+    {
+      "id": "mean-value",
+      "path": "/bezeg-2.0/analysis/mean-value",
+      "file": "mean-value.png",
+      "sha256": "a5495931e9b4bf90927f51eb755e5941921101e737ff1730a71bdbee56a50302",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -1.7526737967914454,
+          "maxX": 14.321763764755563,
+          "minY": -4.75637238429343,
+          "maxY": 10.57988713174368
+        },
+        "boardBoundingBox": [
+          -14.001082042644024,
+          12.551819974249913,
+          15.50108204264403,
+          -5.477280300092786
+        ],
+        "framedElementCount": 15,
+        "finalLabelCount": 4,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 21,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 3,
+          "segment": 2,
+          "point": 6
+        },
+        "renderedLabelCount": 4,
+        "mathJaxLabelCount": 6
+      }
+    },
+    {
+      "id": "accumulation",
+      "path": "/bezeg-2.0/analysis/accumulation",
+      "file": "accumulation.png",
+      "sha256": "eed2891ee0eb4a88dabc28fa388ac1daa359dcafee9402a90e60e1b047e4cf9a",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -0.300970457330662,
+          "maxX": 5.609161641228461,
+          "minY": -1.7623499712195492,
+          "maxY": 1.7780617953431377
+        },
+        "boardBoundingBox": [
+          -0.9199669117647087,
+          2.227623836403249,
+          5.881024175579323,
+          -1.9285373836403255
+        ],
+        "framedElementCount": 11,
+        "finalLabelCount": 5,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 10,
+          "curve": 2,
+          "segment": 1,
+          "point": 3
+        },
+        "renderedLabelCount": 5,
+        "mathJaxLabelCount": 8
       }
     }
   ]

@@ -34,11 +34,8 @@ import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
 import preview_area_between_curves from './images/demonstrations/catalog/area-between-curves.png';
 import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
-// Placeholder: a copy of the continuity preview, replaced by the generated bisection preview in the Batch A release task.
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
-// Placeholder: a copy of the continuity preview, replaced by the generated mean value preview in the Batch A release task.
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
-// Placeholder: a copy of the continuity preview, replaced by the generated accumulation preview in the Batch A release task.
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
