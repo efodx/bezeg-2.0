@@ -1,0 +1,155 @@
+import React, {useMemo} from 'react';
+import {Link} from 'react-router-dom';
+import {getDemonstrationCatalog} from './demonstrations';
+import type {Demonstration, FamilyId} from './demonstrations';
+import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
+import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
+import {useT} from './localization';
+import './DemonstrationCollection.css';
+
+export type DemonstrationCollectionProps = {
+    topic: FamilyId | null;
+    query: string;
+    onTopicChange: (topic: FamilyId | null) => void;
+    onQueryChange: (query: string) => void;
+    currentDemonstrationId?: Demonstration['id'];
+    onSelect?: (demonstration: Demonstration, lesson: boolean) => void;
+    onClearQuery?: () => void;
+    mode?: 'catalogue' | 'picker';
+    navigationState?: unknown;
+    getNavigationState?: (demonstration: Demonstration, lesson: boolean) => unknown;
+    searchInputRef?: React.Ref<HTMLInputElement>;
+    className?: string;
+};
+
+function normalize(value: string) {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+}
+
+function investigation(demonstration: Demonstration, t: ReturnType<typeof useT>) {
+    const specific: Partial<Record<Demonstration['id'], 'catalog_investigation_affine' | 'catalog_investigation_extrapolation'
+        | 'catalog_investigation_rational' | 'catalog_investigation_rational_extrapolation'
+        | 'catalog_investigation_farin' | 'catalog_investigation_circle'>> = {
+        affine: 'catalog_investigation_affine',
+        extrapolation: 'catalog_investigation_extrapolation',
+        rational: 'catalog_investigation_rational',
+        'rational-extrapolation': 'catalog_investigation_rational_extrapolation',
+        farin: 'catalog_investigation_farin',
+        circle: 'catalog_investigation_circle',
+    };
+    const key = specific[demonstration.id];
+    return key ? t(key) : demonstration.prompts[0];
+}
+
+export function DemonstrationCollection({topic, query, onTopicChange, onQueryChange, currentDemonstrationId,
+    onSelect, onClearQuery, mode = 'catalogue', navigationState, getNavigationState, searchInputRef, className = ''}: DemonstrationCollectionProps) {
+    const t = useT();
+    const {demonstrations, families} = getDemonstrationCatalog();
+    const filtered = useMemo(() => {
+        const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
+        return demonstrations.filter(entry => {
+            if (topic && entry.family !== topic) return false;
+            const family = families.find(item => item.id === entry.family)!;
+            const haystack = normalize(`${entry.catalogTitle} ${family.title} ${investigation(entry, t)}`);
+            return terms.every(term => haystack.includes(term));
+        });
+    }, [demonstrations, families, query, t, topic]);
+    const labels = {
+        graph: t('open_demonstration'),
+        lesson: t('guided_lesson'),
+        open: t('open'),
+        guided: t('guided_path_short'),
+    };
+
+    const select = (entry: Demonstration, lesson: boolean) => onSelect?.(entry, lesson);
+    const action = (entry: Demonstration, lesson: boolean, children: React.ReactNode) => {
+        const target = lesson ? `${entry.path}?learn=1` : entry.path;
+        const state = getNavigationState ? getNavigationState(entry, lesson) : navigationState;
+        const label = `${lesson ? labels.lesson : labels.graph}: ${entry.catalogTitle}`;
+        const className = `demonstrations-catalog-action ${lesson ? 'demonstrations-catalog-lesson' : 'demonstrations-catalog-graph'}`;
+        const content = <><span className="demonstrations-catalog-action-label">{children}</span></>;
+        return mode === 'picker' && onSelect
+            ? <button id={`demonstration-card-${entry.id}-${lesson ? 'lesson' : 'graph'}`} type="button" className={className} aria-label={label} onClick={() => select(entry, lesson)}>{content}</button>
+            : <Link id={`demonstration-card-${entry.id}-${lesson ? 'lesson' : 'graph'}`} className={className} to={target} state={state}
+                aria-label={label} onClick={event => {
+                    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && onSelect) {
+                        event.preventDefault();
+                        onSelect(entry, lesson);
+                    }
+                }}>{content}</Link>;
+    };
+
+    const graphTarget = (entry: Demonstration, children: React.ReactNode) => mode === 'picker' && onSelect
+        ? <button type="button" className="demonstration-card-open" aria-label={`${labels.graph}: ${entry.catalogTitle}`}
+            onClick={() => select(entry, false)}>{children}</button>
+        : <Link className="demonstration-card-open" to={entry.path}
+            state={getNavigationState ? getNavigationState(entry, false) : navigationState} aria-label={`${labels.graph}: ${entry.catalogTitle}`}
+            onClick={event => {
+                if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && onSelect) {
+                    event.preventDefault();
+                    onSelect(entry, false);
+                }
+            }}>{children}</Link>;
+
+    return <section className={`demonstration-collection ${className}`} aria-label={t('all_demonstrations')}>
+        <div className="demonstration-collection-tools">
+            <label className="demonstration-search-label" htmlFor="demonstration-search">{t('catalog_search_label')}</label>
+            <div className="demonstration-search-row">
+                <input id="demonstration-search" ref={searchInputRef} type="search" value={query}
+                    placeholder={t('catalog_search_placeholder')} onChange={event => onQueryChange(event.currentTarget.value)}/>
+                {query && <button type="button" onClick={() => onClearQuery ? onClearQuery() : onQueryChange('')}>{t('catalog_clear_query')}</button>}
+            </div>
+            <p className="demonstration-result-count" role="status" aria-live="polite">
+                {t('catalog_result_count', {value0: filtered.length, value1: demonstrations.length})}
+            </p>
+            <div className="demonstration-mobile-topic">
+                <label htmlFor="demonstration-topic-select">{t('catalog_topic_label')}</label>
+                <select id="demonstration-topic-select" value={topic ?? ''}
+                    onChange={event => onTopicChange(event.currentTarget.value ? event.currentTarget.value as FamilyId : null)}>
+                    <option value="">{t('catalog_all_topics')}</option>
+                    {families.map(family => <option key={family.id} value={family.id}>{family.title} ({family.demonstrations.length})</option>)}
+                </select>
+            </div>
+        </div>
+        <div className="demonstration-collection-layout">
+            <nav className="demonstration-topics" aria-label={t('catalog_topic_label')}>
+                <button type="button" aria-pressed={topic === null} onClick={() => onTopicChange(null)}>
+                    <span>{t('catalog_all_topics')}</span><span>{demonstrations.length}</span>
+                </button>
+                {families.map(family => <button type="button" key={family.id} aria-pressed={topic === family.id}
+                    onClick={() => onTopicChange(family.id)}>
+                    <span>{family.title}</span><span>{family.demonstrations.length}</span>
+                </button>)}
+            </nav>
+            <div className="demonstration-results">
+                {filtered.length ? <ul className="demonstrations-catalog-grid">
+                    {filtered.map(entry => {
+                        const family = families.find(item => item.id === entry.family)!;
+                        const current = currentDemonstrationId === entry.id;
+                        return <li className="demonstrations-catalog-card" id={`demonstration-card-${entry.id}`} key={entry.id}>
+                            {graphTarget(entry, <img className="demonstrations-catalog-preview" src={demonstrationPreviewAssets[entry.id]}
+                                width="360" height="220" alt="" loading="lazy"/>)}
+                            <div className="demonstrations-catalog-copy">
+                                <span className="demonstrations-catalog-family">{family.title}</span>
+                                <h2 className="demonstrations-catalog-title">{graphTarget(entry, entry.catalogTitle)}</h2>
+                                <p>{investigation(entry, t)}</p>
+                            </div>
+                            {current && <span className="demonstrations-current-marker" aria-label={t('library_current', {value0: entry.catalogTitle})}>
+                                {t('catalog_current')}
+                            </span>}
+                            <div className="demonstrations-catalog-actions">
+                                {action(entry, false, labels.open)}
+                                {isGuidedLessonAvailable(entry.id) && action(entry, true, labels.guided)}
+                            </div>
+                        </li>;
+                    })}
+                </ul> : <div className="demonstrations-no-results">
+                    <h2>{t('catalog_no_results')}</h2>
+                    <p>{t('catalog_no_results_detail', {value0: topic ? families.find(item => item.id === topic)?.title ?? '' : t('catalog_all_topics')})}</p>
+                    {query && <button type="button" onClick={() => onClearQuery ? onClearQuery() : onQueryChange('')}>{t('catalog_clear_query')}</button>}
+                    {topic && <button type="button" onClick={() => onTopicChange(null)}>{t('catalog_broaden_topics')}</button>}
+                </div>}
+            </div>
+        </div>
+    </section>;
+}

@@ -6,192 +6,129 @@ import {getDemonstrationCatalog} from './demonstrations';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {setLanguage, t} from './localization';
 
-// Route checks exercise page navigation without mounting a mathematical board.
 vi.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
+vi.mock('./learning/runtime/lessonCatalog', async () => {
+    const actual = await vi.importActual<typeof import('./learning/runtime/lessonCatalog')>('./learning/runtime/lessonCatalog');
+    return {...actual, isGuidedLessonAvailable: vi.fn(actual.isGuidedLessonAvailable)};
+});
 
 beforeEach(() => {setLanguage('sl');});
-test('the homepage shortcut opens the catalogue, whose topics expand independently and expose every route and preview', async () => {
+
+test('a demonstration without a reviewed lesson retains graph entry and omits lesson entry', () => {
+    vi.mocked(isGuidedLessonAvailable).mockImplementation(id => id !== 'bernstein');
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations?topic=basics']});
+    render(<RouterProvider router={router}/>);
+    const card = document.getElementById('demonstration-card-bernstein')!;
+    expect(card.querySelector('.demonstrations-catalog-graph')).toHaveAttribute('href', '/bezeg-2.0/bernstein');
+    expect(card.querySelector('.demonstrations-catalog-lesson')).toBeNull();
+});
+
+test('the catalogue shows the ordered collection and only supported lesson destinations', async () => {
     const catalog = getDemonstrationCatalog();
-    const catalogDemonstrations = catalog.families.flatMap(family => family.demonstrations);
-    const expectedLessons = catalog.demonstrations.filter(demonstration => isGuidedLessonAvailable(demonstration.id));
-    const initiallyVisibleFamily = catalog.families[0];
-    const initiallyVisibleLinkCount = initiallyVisibleFamily.demonstrations.length
-        + initiallyVisibleFamily.demonstrations.filter(demonstration => isGuidedLessonAvailable(demonstration.id)).length;
-    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
+    const expectedLessons = catalog.demonstrations.filter(entry => isGuidedLessonAvailable(entry.id));
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
     const view = render(<RouterProvider router={router}/>);
-    fireEvent.click(screen.getByRole('link', {name: /Vse demonstracije/}));
-    expect(await screen.findByRole('heading', {level: 1, name: 'Demonstracije'})).toBeVisible();
-    expect(router.state.location.pathname).toBe('/bezeg-2.0/demonstrations');
 
-    const all = screen.getByRole('region', {name: 'Vse demonstracije'});
-    expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1);
-    expect(screen.getByText(t('explore_by_topic'))).toBeVisible();
-    expect(screen.queryByRole('heading', {name: 'Vse demonstracije'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('region', {name: 'Začetne demonstracije'})).not.toBeInTheDocument();
-    const topicButtons = within(all).getAllByRole('button');
-    expect(topicButtons).toHaveLength(catalog.families.length);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
-    topicButtons.forEach(button => {
-        const illustration = button.querySelector('img');
-        expect(illustration).toHaveAttribute('alt', '');
-        expect(illustration).not.toHaveAttribute('tabindex');
-    });
-    const firstTopicIllustration = topicButtons[0].querySelector('img')!;
-    fireEvent.click(firstTopicIllustration);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.click(firstTopicIllustration);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
-    expect(within(all).getAllByRole('link')).toHaveLength(initiallyVisibleLinkCount);
-
-    topicButtons.slice(1).forEach(button => {
-        expect(button).toHaveAttribute('aria-expanded', 'false');
-        const panel = document.getElementById(button.getAttribute('aria-controls')!);
-        expect(panel).toHaveAttribute('hidden');
-        expect(within(panel!).queryByRole('link')).not.toBeInTheDocument();
-    });
-
-    fireEvent.click(topicButtons[1]);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
-    expect(topicButtons[1]).toHaveAttribute('aria-expanded', 'true');
-    fireEvent.click(topicButtons[1]);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
-
-    topicButtons.forEach(button => {
-        if (button.getAttribute('aria-expanded') === 'false') fireEvent.click(button);
-    });
-    expect(within(all).getAllByRole('link')).toHaveLength(catalog.demonstrations.length + expectedLessons.length);
-    expect(within(all).getAllByRole('link', {name: /Vodena učna pot:/})).toHaveLength(expectedLessons.length);
-
+    expect(screen.getByRole('heading', {level: 1, name: 'Demonstracije'})).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent(`Prikazanih ${catalog.demonstrations.length} od ${catalog.demonstrations.length}`);
     const cards = [...view.container.querySelectorAll<HTMLLIElement>('.demonstrations-catalog-card')];
     expect(cards).toHaveLength(catalog.demonstrations.length);
     cards.forEach((card, index) => {
-        const demonstration = catalogDemonstrations[index];
-        const graphLink = card.querySelector<HTMLAnchorElement>('.demonstrations-catalog-graph');
-        const lessonLink = card.querySelector<HTMLAnchorElement>('.demonstrations-catalog-lesson');
-        const preview = card.querySelector<HTMLElement>('.demonstrations-catalog-preview');
-        expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(demonstration.catalogTitle);
-        expect(preview).toBeInTheDocument();
-        expect(preview?.tagName.toLowerCase()).toBe('img');
-        expect(preview).toHaveAttribute('alt', '');
-        expect(preview).toHaveAttribute('loading', 'lazy');
-        expect(graphLink).toHaveAttribute('href', demonstration.path);
-        expect(graphLink).toHaveAttribute('aria-label', `Odpri demonstracijo: ${demonstration.catalogTitle}`);
-        expect(graphLink).toHaveAttribute('data-tooltip', `Preizkusi in opazuj: ${demonstration.catalogTitle}`);
-        expect(lessonLink !== null).toBe(isGuidedLessonAvailable(demonstration.id));
-        if (lessonLink) {
-            expect(lessonLink).toHaveAttribute('href', demonstration.path + '?learn=1');
-            expect(lessonLink).toHaveAttribute('aria-label', `Vodena učna pot: ${demonstration.catalogTitle}`);
-            expect(lessonLink).toHaveAttribute('data-tooltip', `Spoznaj to demonstracijo: ${demonstration.catalogTitle}`);
-        }
+        const entry = catalog.demonstrations[index];
+        expect(card.querySelector('.demonstrations-catalog-family')).toHaveTextContent(
+            catalog.families.find(family => family.id === entry.family)!.title,
+        );
+        expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(entry.catalogTitle);
+        expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
+        expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
+        expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
+        expect(card.querySelector('.demonstrations-catalog-lesson') !== null).toBe(isGuidedLessonAvailable(entry.id));
     });
-    const previews = view.container.querySelectorAll<HTMLElement>('.demonstrations-catalog-preview');
-    expect(previews).toHaveLength(catalog.demonstrations.length);
-    expect(view.container.querySelectorAll('.demonstrations-catalog-svg-preview')).toHaveLength(0);
-    const imagePreviews = view.container.querySelectorAll<HTMLImageElement>('img.demonstrations-catalog-preview');
-    expect(imagePreviews).toHaveLength(catalog.demonstrations.length);
-    expect(new Set(Array.from(imagePreviews, preview => preview.getAttribute('src'))).size).toBe(imagePreviews.length);
-    imagePreviews.forEach(preview => {
-        expect(preview).toHaveAttribute('width', '360');
-        expect(preview).toHaveAttribute('height', '220');
-        expect(preview).toHaveAttribute('alt', '');
-        expect(preview).toHaveAttribute('loading', 'lazy');
-    });
-    expect(screen.queryByText(/Variant [ABC]/)).not.toBeInTheDocument();
+    expect(view.container.querySelectorAll('.demonstrations-catalog-graph')).toHaveLength(catalog.demonstrations.length);
+    expect(expectedLessons.length).toBeGreaterThan(0);
+});
 
-    const firstGraphLink = cards[0].querySelector<HTMLAnchorElement>('.demonstrations-catalog-graph')!;
-    fireEvent.click(firstGraphLink);
+test('family and diacritic-insensitive search filters combine and survive URL history', async () => {
+    const catalog = getDemonstrationCatalog();
+    const family = catalog.families.find(entry => entry.id === '/bezeg-2.0/ph')!;
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations?campaign=class#cards']});
+    render(<RouterProvider router={router}/>);
+
+    const search = screen.getByRole('searchbox', {name: 'Poišči demonstracijo'});
+    fireEvent.change(search, {target: {value: 'krívulja'}});
+    expect(router.state.location.search).toContain('campaign=class');
+    expect(router.state.location.hash).toBe('#cards');
+    expect(router.state.location.search).toContain('q=kr%C3%ADvulja');
+    const searchCount = screen.getByRole('status').textContent;
+    expect(searchCount).toContain('od');
+    expect(document.querySelectorAll('.demonstrations-catalog-graph').length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole('navigation', {name: 'Tema'}).querySelector(`button[aria-pressed="false"]:nth-child(${catalog.families.indexOf(family) + 2})`)!);
+    expect(router.state.location.search).toContain(`topic=${encodeURIComponent(family.id)}`);
+    expect(router.state.location.search).toContain('q=kr%C3%ADvulja');
+    const cards = screen.getAllByRole('listitem');
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) expect(within(card).getByText(family.title)).toBeVisible();
+
+    await act(async () => {await router.navigate(-1);});
+    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('krívulja');
+    expect(router.state.location.search).not.toContain('topic=');
+});
+
+test('whitespace-only input remains visible without adding an empty q parameter', () => {
+    const count = getDemonstrationCatalog().demonstrations.length;
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations?camp=class']});
+    render(<RouterProvider router={router}/>);
+    const search = screen.getByRole('searchbox', {name: 'Poišči demonstracijo'});
+    fireEvent.change(search, {target: {value: '   '}});
+    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('   ');
+    expect(router.state.location.search).toBe('?camp=class');
+    expect(screen.getByRole('status')).toHaveTextContent(`Prikazanih ${count} od ${count}`);
+    fireEvent.click(screen.getByRole('button', {name: t('catalog_clear_query')}));
+    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
+    expect(router.state.location.search).toBe('?camp=class');
+});
+
+test('encoded and malformed topics resolve safely, while zero results offer clear actions', () => {
+    const catalog = getDemonstrationCatalog();
+    const encodedFamily = encodeURIComponent(catalog.families[1].id);
+    const router = createMemoryRouter(routes, {initialEntries: [`/bezeg-2.0/demonstrations?topic=${encodedFamily}`]});
+    render(<RouterProvider router={router}/>);
+    expect(screen.getAllByRole('listitem')).toHaveLength(catalog.families[1].demonstrations.length);
+
+    act(() => {void router.navigate('/bezeg-2.0/demonstrations?topic=%E0%A4%A');});
+    expect(screen.getAllByRole('listitem')).toHaveLength(catalog.demonstrations.length);
+    act(() => {void router.navigate('/bezeg-2.0/demonstrations?topic=not-a-family&q=impossible');});
+    expect(screen.getByRole('heading', {name: t('catalog_no_results')})).toBeVisible();
+    fireEvent.click(screen.getAllByRole('button', {name: t('catalog_clear_query')})[0]);
+    expect(screen.getAllByRole('listitem')).toHaveLength(catalog.demonstrations.length);
+});
+
+test('graph and lesson entry carry a validated return context and unrelated page navigation remains available', async () => {
+    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations?topic=analysis&q=integral&school=west#focus']});
+    render(<RouterProvider router={router}/>);
+    const graphAction = document.querySelector<HTMLAnchorElement>('.demonstrations-catalog-graph')!;
+    fireEvent.click(graphAction);
     expect(await screen.findByText('Opened Bézier graph')).toBeVisible();
+    expect(router.state.location.pathname).toBe('/bezeg-2.0/analysis/accumulation');
+    expect(router.state.location.state.demonstrationReturn).toMatchObject({
+        kind: 'demonstration-return',
+        location: {pathname: '/bezeg-2.0/demonstrations', search: '?topic=analysis&q=integral&school=west', hash: '#focus'},
+        cardId: 'demonstration-card-accumulation',
+        focusTarget: 'demonstration-card-accumulation-graph',
+    });
     await act(async () => {await router.navigate(-1);});
     expect(screen.getByRole('heading', {level: 1, name: 'Demonstracije'})).toBeVisible();
+    expect(router.state.location.search).toBe('?topic=analysis&q=integral&school=west');
+    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('integral');
 });
 
-test('direct catalog entry and header navigation work in both languages', async () => {
-    const catalog = getDemonstrationCatalog();
-    const availableLessonCount = catalog.demonstrations.filter(demonstration => isGuidedLessonAvailable(demonstration.id)).length;
-    const initialFamily = catalog.families[0];
-    const initialLinkCount = initialFamily.demonstrations.length
-        + initialFamily.demonstrations.filter(demonstration => isGuidedLessonAvailable(demonstration.id)).length;
+test('the shared catalogue copy and filters translate with the selected language', () => {
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
     render(<RouterProvider router={router}/>);
-    const all = screen.getByRole('region', {name: 'Vse demonstracije'});
-    expect(all).toBeVisible();
-    expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1);
-    expect(screen.getByRole('heading', {level: 1, name: 'Demonstracije'})).toBeVisible();
-    expect(screen.getByText(t('explore_by_topic'))).toBeVisible();
-    expect(screen.queryByRole('heading', {name: 'Vse demonstracije'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('region', {name: 'Začetne demonstracije'})).not.toBeInTheDocument();
-    expect(screen.getByText(`${catalog.families.length} tem · ${catalog.demonstrations.length} prikazov`)).toBeVisible();
-    expect(within(all).getAllByRole('button')).toHaveLength(catalog.families.length);
-    expect(within(all).getAllByRole('link')).toHaveLength(initialLinkCount);
-    expect(screen.queryByRole('group', {name: /prototype/i})).not.toBeInTheDocument();
-
+    expect(screen.getByRole('searchbox', {name: 'Poišči demonstracijo'})).toBeVisible();
     act(() => setLanguage('en'));
-    expect(screen.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
-    expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1);
-    expect(screen.getByText(t('explore_by_topic'))).toBeVisible();
-    expect(screen.queryByRole('heading', {name: 'All demonstrations'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('region', {name: 'Starting demonstrations'})).not.toBeInTheDocument();
-    const englishCatalog = screen.getByRole('region', {name: 'All demonstrations'});
-    for (const button of within(englishCatalog).getAllByRole('button')) {
-        if (button.getAttribute('aria-expanded') === 'false') fireEvent.click(button);
-    }
-    const englishCatalogData = getDemonstrationCatalog();
-    expect(within(englishCatalog).getAllByRole('link')).toHaveLength(catalog.demonstrations.length + availableLessonCount);
-    expect(within(englishCatalog).getAllByRole('link', {name: /Guided lesson:/})).toHaveLength(availableLessonCount);
-    expect(screen.getByText(`${catalog.families.length} families · ${catalog.demonstrations.length} demonstrations`)).toBeVisible();
-    const firstCatalogCard = englishCatalog.querySelector<HTMLLIElement>('.demonstrations-catalog-card')!;
-    const firstGraphAction = firstCatalogCard.querySelector<HTMLAnchorElement>('.demonstrations-catalog-graph')!;
-    const firstDemonstration = englishCatalogData.families[0].demonstrations[0];
-    const firstTitle = firstDemonstration.catalogTitle;
-    expect(firstGraphAction).toHaveAttribute('aria-label', `Open demonstration: ${firstTitle}`);
-    expect(firstGraphAction).toHaveAttribute('data-tooltip', `Try and observe: ${firstTitle}`);
-    firstGraphAction.focus();
-    expect(document.activeElement).toBe(firstGraphAction);
-    if (isGuidedLessonAvailable(firstDemonstration.id)) {
-        const firstLessonAction = firstCatalogCard.querySelector<HTMLAnchorElement>('.demonstrations-catalog-lesson')!;
-        expect(firstLessonAction).toHaveAttribute('aria-label', `Guided lesson: ${firstTitle}`);
-        expect(firstLessonAction).toHaveAttribute('data-tooltip', `Learn this demonstration: ${firstTitle}`);
-    }
-
-    fireEvent.click(screen.getByRole('link', {name: 'Bezeg · home'}));
-    const shortcut = await screen.findByRole('link', {name: /All demonstrations/});
-    expect(shortcut).toHaveAttribute('href', '/bezeg-2.0/demonstrations');
-    expect(screen.getByRole('region', {name: 'Starting demonstrations'})).toBeVisible();
-    expect(screen.queryByRole('region', {name: 'All demonstrations'})).not.toBeInTheDocument();
-    fireEvent.click(shortcut);
-    expect(await screen.findByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
-    fireEvent.click(screen.getByRole('link', {name: 'Demonstrations', exact: true}));
-    expect(await screen.findByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
-});
-
-test('catalogue disclosure state returns to its default after a fresh mount', async () => {
-    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/demonstrations']});
-    render(<RouterProvider router={router}/>);
-    let all = screen.getByRole('region', {name: 'Vse demonstracije'});
-    let topicButtons = within(all).getAllByRole('button');
-
-    fireEvent.click(topicButtons[0]);
-    fireEvent.click(topicButtons[1]);
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'false');
-    expect(topicButtons[1]).toHaveAttribute('aria-expanded', 'true');
-
-    await act(async () => {await router.navigate('/bezeg-2.0');});
-    expect(screen.queryByRole('region', {name: 'Vse demonstracije'})).not.toBeInTheDocument();
-    await act(async () => {await router.navigate('/bezeg-2.0/demonstrations');});
-
-    all = screen.getByRole('region', {name: 'Vse demonstracije'});
-    topicButtons = within(all).getAllByRole('button');
-    expect(topicButtons[0]).toHaveAttribute('aria-expanded', 'true');
-    topicButtons.slice(1).forEach(button => expect(button).toHaveAttribute('aria-expanded', 'false'));
-});
-
-test('graph entry retains query/hash and unsupported routes retain the error view', async () => {
-    const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0/bezier/curve?example=classroom#figure']});
-    const view = render(<RouterProvider router={router}/>);
-    expect(await screen.findByText('Opened Bézier graph')).toBeVisible();
-    expect(router.state.location).toMatchObject({pathname: '/bezeg-2.0/bezier/curve', search: '?example=classroom', hash: '#figure'});
-    await act(async () => {await router.navigate('/bezeg-2.0/ph/unknown');});
-    expect(screen.getByText(/Strani ni mogoče odpreti/)).toBeVisible();
-    expect(screen.queryByText('Opened Bézier graph')).not.toBeInTheDocument();
-    view.unmount();
+    expect(screen.getByRole('searchbox', {name: 'Find a demonstration'})).toBeVisible();
+    expect(screen.getByRole('button', {name: /All topics/})).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Showing');
 });

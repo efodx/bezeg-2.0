@@ -121,24 +121,43 @@ test("presentation offers controls and exit without hover, and pan is explicit",
     expect(setFullScreen).toHaveBeenCalledWith(false);
 });
 
-test("topic families open for the current route on navigation, and the user can still toggle them", () => {
-    const view = render(<MemoryRouter initialEntries={["/bezeg-2.0/bernstein"]}><DemonstrationWorkspace title="B" description="D" edit={null}
-        display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
-    const families = () => Array.from(view.container.querySelectorAll<HTMLDetailsElement>(".workspace-topics details"));
-    const openTitles = () => families().filter(family => family.open).map(family => family.querySelector("summary")!.textContent);
-    expect(openTitles()).toHaveLength(1);
-    const initiallyOpen = openTitles();
+beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = function () {this.setAttribute('open', '');};
+    HTMLDialogElement.prototype.close = function () {this.removeAttribute('open');};
+});
 
-    // The user opens another family; it stays open until the next navigation.
-    const other = families().find(family => !family.open)!;
-    other.open = true;
-    fireEvent(other, new Event("toggle"));
-    expect(openTitles()).toHaveLength(2);
-    expect(other.open).toBe(true);
+test('picker cancellation and current graph selection retain mounted controls', () => {
+    setLanguage('en');
+    const pausePlayback = vi.fn();
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?other=1#view']}><DemonstrationWorkspace title="Bézier" description=""
+        edit={<input aria-label="draft" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} pausePlayback={pausePlayback}/></MemoryRouter>);
+    const draft = screen.getByLabelText('draft');
+    fireEvent.change(draft, {target: {value: '.9'}});
+    const switcher = screen.getByRole('button', {name: 'Switch demonstration'});
+    fireEvent.click(switcher);
+    expect(pausePlayback).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByRole('searchbox')).toHaveFocus();
+    fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'nonsense'}});
+    fireEvent.click(screen.getByRole('button', {name: 'Close'}));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByLabelText('draft')).toBe(draft);
+    expect(draft).toHaveValue('.9');
+    fireEvent.click(switcher);
+    const current = document.getElementById('demonstration-card-bezier-graph')!;
+    fireEvent.click(current);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByLabelText('draft')).toBe(draft);
+    expect(draft).toHaveValue('.9');
+    expect(document.querySelector('.workspace-topics')).toBeNull();
+    act(() => setLanguage('sl'));
+});
 
-    // Navigating to a route of the other family opens that family and closes the rest.
-    fireEvent.click(other.querySelector("a")!);
-    expect(openTitles()).toHaveLength(1);
-    expect(openTitles()).toEqual([other.querySelector("summary")!.textContent]);
-    expect(openTitles()).not.toEqual(initiallyOpen);
+test('busy workspace exposes unavailable switcher without opening a picker', () => {
+    setLanguage('sl');
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace title="B" description=""
+        edit={null} display={null} save={null} navigate={vi.fn()} pickerUnavailable/></MemoryRouter>);
+    expect(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'})).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'}));
+    expect(screen.queryByRole('dialog')).toBeNull();
 });

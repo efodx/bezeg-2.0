@@ -1,6 +1,6 @@
 # Demonstrations library and focused workspace
 
-**Status:** specification for review, synthesized on 2026-10-15 at the owner's request using to-spec. This document replaces the earlier proposal in place. It specifies the revised overview-to-experiment direction; it does not authorize application implementation or create implementation tasks. The owner confirmed route-level user-flow tests plus real-browser verification as the intended test boundaries.
+**Status:** implemented locally on 2026-10-15; verification and remaining device/hosting gaps are recorded in [the implementation review](../reviews/demonstrations-library-redesign.md). Originally synthesized on 2026-10-15 at the owner's request using to-spec. This document replaces the earlier proposal in place. It specifies the revised overview-to-experiment direction; the subsequent owner request authorizes application implementation. The owner confirmed route-level user-flow tests plus real-browser verification as the intended test boundaries.
 
 ## Problem Statement
 
@@ -152,7 +152,7 @@ For implementation verification:
 
 ## Out of Scope
 
-- Application implementation, executable task breakdown, or a runnable prototype in this request.
+- New prototype design work beyond the supplied visual references.
 - Homepage/carousel redesign, new Demonstrations, new Guided lessons, curriculum paths, or lesson prose changes beyond catalogue investigation copy.
 - A permanent combined catalogue/graph/tools dashboard, a second topic tree in the workspace, pagination, favourites, difficulty labels, invented durations, accounts, progress dashboards, or cross-device synchronization.
 - Recovering unsaved scenes after actual graph navigation, persistent browsing preferences, automatic graph-state backups, or new Preset/file formats.

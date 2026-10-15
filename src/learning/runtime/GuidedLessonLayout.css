@@ -1,6 +1,6 @@
 /* The lesson occupies the graph cell so the graph remains visible beneath it. */
 .demonstration-workspace.lesson-open {
-    grid-template-areas: "heading heading heading" "topics graph inspector" "topics learning inspector";
+    grid-template-areas: "heading heading" "graph inspector" "learning inspector";
 }
 
 .demonstration-workspace.is-presenting.lesson-open {

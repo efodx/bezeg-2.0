@@ -1,5 +1,6 @@
 import React from 'react';
-import {Link, NavLink} from 'react-router-dom';
+import {Link, NavLink, useLocation} from 'react-router-dom';
+import {readDemonstrationReturnContext} from './demonstrationNavigation';
 import Logo from './images/elderflower.png';
 import {LanguageSelector} from './localization/LanguageSelector';
 import {useT} from './localization';
@@ -7,12 +8,14 @@ import './AppHeader.css';
 
 export function AppHeader() {
     const t = useT();
+    const location = useLocation();
+    const returnContext = readDemonstrationReturnContext(location.state);
     return <header className="app-header">
         <Link className="app-brand" to="/bezeg-2.0" aria-label={t('bezeg_home')}>
             <img src={Logo} width="34" height="34" alt=""/><span>Bezeg</span>
         </Link>
         <div className="app-header-actions">
-            <NavLink className="app-topic-toggle" to="/bezeg-2.0/demonstrations">{t('demonstrations')}</NavLink>
+            <NavLink className="app-topic-toggle" to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={location.state}>{t('demonstrations')}</NavLink>
             <LanguageSelector compact/>
         </div>
     </header>;

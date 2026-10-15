@@ -113,11 +113,14 @@ async function jsxGraphBoardCount(page) {
     return page.evaluate(() => Object.keys(window.JXG?.boards || {}).length);
 }
 
-async function navigateTopic(page, familyTitle, linkName) {
-    const topics = page.getByRole('navigation', {name: 'Demonstration topics'});
-    const family = topics.locator('details').filter({has: page.getByText(familyTitle, {exact: true})});
-    if (!(await family.evaluate(element => element.open))) await family.locator('summary').click();
-    await family.getByRole('link', {name: linkName, exact: true}).click();
+async function chooseDemonstration(page, familyTitle, demonstrationTitle) {
+    await page.getByRole('button', {name: 'Switch demonstration'}).click();
+    const picker = page.getByRole('dialog');
+    await expect(picker).toBeVisible();
+    const escapedFamily = familyTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await picker.getByRole('navigation', {name: 'Topic'}).getByRole('button', {name: new RegExp(`^${escapedFamily} \\d+$`)}).click();
+    const card = picker.locator('.demonstrations-catalog-card').filter({hasText: demonstrationTitle}).first();
+    await card.locator('.demonstrations-catalog-graph').click();
 }
 
 async function firstHodographPointPosition(page) {
@@ -346,13 +349,13 @@ test('same-page polynomial and PH navigation disposes main and child boards acro
     await expect.poll(() => jsxGraphBoardCount(page)).toBe(1);
 
     for (let visit = 0; visit < 2; visit++) {
-        await navigateTopic(page, 'PH curves', 'Degree 3');
+        await chooseDemonstration(page, 'PH curves', 'Degree 3');
         await expect(page.getByRole('heading', {name: 'Degree 3 PH curve'})).toBeVisible();
         await expect.poll(() => jsxGraphBoardCount(page)).toBe(1);
         await selectFirstCurve(page);
         await expect.poll(() => jsxGraphBoardCount(page)).toBe(2);
 
-        await navigateTopic(page, 'Bézier curves', 'Bézier curve');
+        await chooseDemonstration(page, 'Bézier curves', 'Bézier curve');
         await expect(page.getByRole('heading', {name: 'Bézier curve'})).toBeVisible();
         await expect.poll(() => jsxGraphBoardCount(page)).toBe(1);
     }

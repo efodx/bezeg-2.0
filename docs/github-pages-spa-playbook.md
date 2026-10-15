@@ -40,6 +40,8 @@ For a new simple SPA with no requirement for history URLs, hash routing is a rea
 
 Bezeg uses the [rafgraph SPA GitHub Pages workaround](https://github.com/rafgraph/spa-github-pages): `public/404.html` keeps one path segment for the project name and encodes the remaining path/query, while `public/index.html` restores them before the router runs. Retain upstream attribution and license when reusing the scripts. The router still needs its own unknown-route view. A missing asset must not be treated as a successful app route.
 
+Bezeg's demonstration library uses the existing `/bezeg-2.0/demonstrations` route with optional URL-encoded `topic` and `q` filters. Changes preserve unrelated query parameters and the hash. Graph and `?learn=1` lesson deep links retain their existing routing. Validate filtered direct entry, refresh, Back/Forward, graph/lesson entry, and return navigation in the production preview and separately on Pages. Catalogue scroll/focus return state lives only in browser navigation state; it is not persistent data or part of a shared URL.
+
 During modernization, select a strategy based on URL requirements and simplicity. Breaking URL changes are permitted but must be communicated.
 
 ## 4. Align the base path across build, router, and fallback

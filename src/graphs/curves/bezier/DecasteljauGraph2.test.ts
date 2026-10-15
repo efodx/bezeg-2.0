@@ -47,9 +47,9 @@ function makeGraph() {
     graph.parameter = 0.5;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({t: 0.5, v: 1, animationStatus: 'ready', initialized: true});
-    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any, callback?: () => void) => { graph.store.setState(patch); callback?.(); });
     graph.boardUpdate = vi.fn();
-    graph.animation = {isRunning: vi.fn(() => false), pause: vi.fn(), stop: vi.fn()};
+    graph.animation = {isRunning: vi.fn(() => false), pause: vi.fn(), play: vi.fn(), stop: vi.fn()};
     return graph;
 }
 
@@ -114,6 +114,26 @@ describe('lesson parameter action', () => {
         graph.applyLessonAction({kind: 'parameter', name: 't', value: 0.3});
         expect(graph.animation.pause).toHaveBeenCalled();
         expect(graph.state).toMatchObject({t: 0.3, animationStatus: 'paused'});
+    });
+
+    test('workspace pause preserves the drawn frame and playback can resume from it', () => {
+        const graph = makeGraph();
+        graph.bindSceneToFirstCurve();
+        graph.parameter = 0.73;
+        graph.store.replaceState({...graph.state, t: 0.71, animationStatus: 'playing'});
+        graph.animation.isRunning.mockReturnValue(true);
+
+        graph.pausePlayback();
+
+        expect(graph.animation.pause).toHaveBeenCalledTimes(1);
+        expect(graph.parameter).toBe(0.73);
+        expect(graph.state).toMatchObject({t: 0.73, animationStatus: 'paused'});
+        expect(graph.jxgCurves[0].setDecasteljauT).toHaveBeenLastCalledWith(0.73);
+
+        graph['playAnimation']();
+        expect(graph.animation.play).toHaveBeenCalledTimes(1);
+        expect(graph.parameter).toBe(0.73);
+        expect(graph.state).toMatchObject({t: 0.73, animationStatus: 'playing'});
     });
 
     test('other parameter names go to the base graph', () => {

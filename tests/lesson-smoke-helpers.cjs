@@ -32,7 +32,28 @@ function boardStats(page) {
     return page.locator('#jgbox').evaluate(container => {
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         if (!board) throw new Error('main board missing');
-        const stats = {curves: 0, visibleCurves: 0, drawnCurves: 0, curveIds: [], points: 0, sliders: 0, labels: 0, total: Object.keys(board.objects).length};
+        // JSXGraph adds default axes, ticks, and axis labels to board.objects. Their
+        // number depends on the viewport scale, so exclude that board infrastructure
+        // from the graph-owned object total used by lesson leak checks.
+        const axisInfrastructure = new Set();
+        const visitAxisObject = object => {
+            if (!object || (typeof object !== 'object' && typeof object !== 'function') || axisInfrastructure.has(object)) return;
+            axisInfrastructure.add(object);
+            for (const key of ['childElements', 'ticks', 'labels']) {
+                const children = object[key];
+                if (children && typeof children === 'object') Object.values(children).forEach(visitAxisObject);
+            }
+            visitAxisObject(object.defaultTicks);
+        };
+        for (const axis of [board.defaultAxes?.x, board.defaultAxes?.y]) {
+            visitAxisObject(axis);
+            if (!axis) continue;
+            for (const ancestor of Object.values(axis.ancestors || {})) visitAxisObject(ancestor);
+            visitAxisObject(axis.point1);
+            visitAxisObject(axis.point2);
+        }
+        const graphOwnedTotal = Object.values(board.objects).filter(object => !axisInfrastructure.has(object)).length;
+        const stats = {curves: 0, visibleCurves: 0, drawnCurves: 0, curveIds: [], points: 0, sliders: 0, labels: 0, total: graphOwnedTotal};
         for (const object of Object.values(board.objects)) {
             const connected = Boolean(object.rendNode?.isConnected);
             const visible = object.visPropCalc?.visible !== false;

@@ -1,0 +1,36 @@
+.demonstration-picker {
+    box-sizing: border-box;
+    width: min(1280px, calc(100vw - 64px));
+    max-width: none;
+    max-height: calc(100dvh - 64px);
+    border: 1px solid #d4d0bc;
+    border-radius: 8px;
+    padding: 24px;
+    background: #f4f0df;
+    color: #20372d;
+    text-align: left;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+.demonstration-picker::backdrop { background: rgb(20 31 27 / 65%); }
+.demonstration-picker[open] { display: flex; flex-direction: column; height: min(900px, calc(100dvh - 64px)); overflow: hidden; }
+.demonstration-picker-heading { flex-shrink: 0; }
+.demonstration-picker .demonstration-collection { display: flex; flex-direction: column; min-height: 0; }
+.demonstration-picker .demonstration-collection-tools { flex-shrink: 0; margin-top: 0; }
+.demonstration-picker .demonstration-collection-layout { min-height: 0; }
+.demonstration-picker .demonstration-results, .demonstration-picker .demonstration-topics { max-height: 100%; overflow: auto; overscroll-behavior: contain; }
+.demonstration-picker-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
+.demonstration-picker-heading h2 { font-family: Georgia, serif; font-size: clamp(1.4rem, 3vw, 2rem); margin: 0 0 8px; }
+.demonstration-picker-heading p { margin: 0; }
+.demonstration-picker-heading button { flex-shrink: 0; min-height: 44px; padding: 8px 14px; color: inherit; border: 1px solid #a2a995; background: transparent; border-radius: 3px; }
+.demonstration-picker :focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
+@media (max-width: 700px) {
+    .demonstration-picker, .demonstration-picker[open] { width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; padding: 16px; border-radius: 0; }
+    .demonstration-picker .demonstration-collection-layout { overflow: auto; }
+    .demonstration-picker-heading { gap: 12px; }
+}
+@media (max-height: 600px) {
+    .demonstration-picker[open] { display: block; overflow: auto; }
+    .demonstration-picker .demonstration-collection { display: block; }
+    .demonstration-picker .demonstration-collection-layout, .demonstration-picker .demonstration-results { overflow: visible; }
+}

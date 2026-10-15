@@ -1,10 +1,12 @@
 import {useT} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
-import {NavLink, useLocation, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
-import {findDemonstration, getDemonstrationCatalog, NavigationAction} from "../../demonstrations";
+import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
+import {DemonstrationPicker} from '../../DemonstrationPicker';
+import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
 import "./DemonstrationWorkspace.css";
 import "./WorkspaceControls.css";
 import {LearningPrompt} from './LearningPrompt';
@@ -19,20 +21,31 @@ type LessonMode = "content" | "explore" | "complete" | "closed";
 export function DemonstrationWorkspace(props: {
     title: React.ReactNode, description: string, edit: React.ReactNode, display: React.ReactNode,
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
-    graphBusy?: boolean, graphContainerRef?: React.Ref<HTMLDivElement>,
+    graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, graphContainerRef?: React.Ref<HTMLDivElement>,
 }) {
     const t = useT();
-    const {pathname, search, hash} = useLocation();
+    const location = useLocation();
+    const {pathname, search, hash} = location;
+    const returnContext = readDemonstrationReturnContext(location.state);
     const navigateRoute = useNavigate();
     const {families} = getDemonstrationCatalog();
     const demonstration = findDemonstration(pathname);
     const lesson = demonstration && getLessonForDemonstration(demonstration.id);
-    // The topic list opens the current family on every navigation; the user can still open and close families.
-    const currentFamily = demonstration?.family;
-    const [openFamilies, setOpenFamilies] = useState<ReadonlySet<string>>(() => new Set(currentFamily ? [currentFamily] : []));
-    useEffect(() => {
-        setOpenFamilies(new Set(currentFamily ? [currentFamily] : []));
-    }, [pathname, currentFamily]);
+    const family = families.find(entry => entry.id === demonstration?.family);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const switchButton = useRef<HTMLButtonElement>(null);
+    const closePicker = (restoreFocus = true) => {
+        setPickerOpen(false);
+        if (restoreFocus) requestAnimationFrame(() => switchButton.current?.focus({preventScroll: true}));
+    };
+    const selectDemonstration = (entry: Demonstration, startLesson: boolean) => {
+        closePicker(entry.path === pathname && (!startLesson || lessonOpen));
+        if (entry.path === pathname) {
+            if (startLesson && !lessonOpen) {setLessonMode('content'); setLessonOpen(true);}
+            return;
+        }
+        navigateRoute(entry.path + (startLesson ? '?learn=1' : ''), {state: location.state});
+    };
     const navigationLabels: Record<Exclude<NavigationAction, 'fit'>, [string, string]> = {
         left: ['←', t('pan_left')], up: ['↑', t('pan_up')], down: ['↓', t('pan_down')],
         right: ['→', t('pan_right')], in: ['+', t('zoom_in')], out: ['−', t('zoom_out')],
@@ -83,9 +96,22 @@ export function DemonstrationWorkspace(props: {
     return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
-            <div><span className="workspace-eyebrow">{t("bezeg_explore_curves")}</span>
+            <div><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
+                <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={location.state}>{t('demonstrations')}</Link>
+                {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
+                {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
+            </nav>
                 <h1>{props.title}</h1><p>{props.description}</p></div>
             <div className="workspace-actions">
+                {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
+                    aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
+                    title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
+                    aria-haspopup="dialog" aria-expanded={pickerOpen} onClick={() => {
+                        if (props.graphBusy || props.pickerUnavailable) return;
+                        props.pausePlayback?.();
+                        setPickerOpen(true);
+                    }}>{t('library_switch')}</button>}
+                {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
                 {lesson && props.lessonCapabilities && <button ref={learnButton} onClick={() => {setLessonMode('content'); setLessonOpen(true);}} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
                 {fullScreen && <button onClick={() => setPresentationControls(!presentationControls)}
                     aria-expanded={presentationControls} aria-controls="workspace-inspector">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
@@ -101,27 +127,10 @@ export function DemonstrationWorkspace(props: {
                 const query = new URLSearchParams(search);
                 if (query.get('learn') === '1') {
                     query.delete('learn');
-                    navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true});
+                    navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true, state: location.state});
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);
             }}/>}
-        <nav className="workspace-topics" aria-label={t("demonstration_topics")}>
-            <h2>{t("explore")}</h2>
-            {families.map(family => {
-                return <details key={family.id} open={openFamilies.has(family.id)} onToggle={event => {
-                    const open = event.currentTarget.open;
-                    setOpenFamilies(current => {
-                        if (current.has(family.id) === open) return current;
-                        const next = new Set(current);
-                        if (open) next.add(family.id); else next.delete(family.id);
-                        return next;
-                    });
-                }}>
-                    <summary>{family.title}</summary>
-                    {family.demonstrations.map(entry => <NavLink key={entry.id} to={entry.path}>{entry.catalogTitle}</NavLink>)}
-                </details>;
-            })}
-        </nav>
         <section className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <JGBox ref={setGraphContainer}/>
@@ -160,5 +169,5 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>
-    </main></PresetLockContext.Provider>;
+    </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PresetLockContext.Provider>;
 }

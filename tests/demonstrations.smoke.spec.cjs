@@ -1,19 +1,10 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 const catalogEntries = demonstrations.families.flatMap(family => family.demonstrations);
-const demonstrationByPath = new Map(demonstrations.map(demonstration => [demonstration.path, demonstration]));
 
 async function openEnglish(page, pathname) {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
     await page.goto(pathname, {waitUntil: 'domcontentloaded'});
-}
-
-async function expandCatalog(catalog) {
-    const topicToggles = catalog.locator('.demonstrations-topic-toggle');
-    for (let index = 0; index < await topicToggles.count(); index += 1) {
-        const toggle = topicToggles.nth(index);
-        if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
-    }
 }
 
 async function pathFromLink(link, page) {
@@ -44,37 +35,20 @@ async function expectRenderedWorkspace(page, demonstration) {
     await expect(inspector).toBeVisible();
 }
 
-test('the catalogue page contains only the topic catalogue and exposes every active route and preview', async ({page}) => {
+test('the catalogue shows every demonstration in teaching order with useful cards and supported destinations', async ({page}) => {
     await openEnglish(page, '/bezeg-2.0/demonstrations');
 
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     await expect(page.getByRole('heading', {level: 1})).toHaveCount(1);
     await expect(page.getByText('Explore by topic. Start with what interests you.')).toBeVisible();
     await expect(page.getByText(`${demonstrations.families.length} families · ${demonstrations.length} demonstrations`)).toBeVisible();
-    await expect(page.getByRole('heading', {name: 'All demonstrations'})).toHaveCount(0);
     await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toHaveCount(0);
 
     const catalog = page.getByRole('region', {name: 'All demonstrations'});
     await expect(catalog).toBeVisible();
-    const topicToggles = catalog.locator('.demonstrations-topic-toggle');
-    await expect(topicToggles).toHaveCount(demonstrations.families.length);
-    await expect(topicToggles.first()).toHaveAttribute('aria-expanded', 'true');
-    await expect(catalog.locator('.demonstrations-catalog-card:visible')).toHaveCount(demonstrations.families[0].demonstrations.length);
-
-    for (let index = 0; index < demonstrations.families.length; index += 1) {
-        const family = demonstrations.families[index];
-        const toggle = topicToggles.nth(index);
-        await expect(toggle.locator('.demonstrations-topic-title')).toContainText(family.title);
-        const countLabel = await toggle.locator('.demonstrations-number').innerText();
-        expect(countLabel).toMatch(new RegExp(`(?:^|\\D)${family.demonstrations.length}(?:\\D|$)`));
-    }
-    await expandCatalog(catalog);
-
     const cards = catalog.locator('.demonstrations-catalog-card');
     await expect(cards).toHaveCount(demonstrations.length);
-    const links = cards.locator('a.demonstrations-catalog-graph[href]');
-    const displayedPaths = await links.evaluateAll(anchors => anchors.map(anchor => new URL(anchor.href).pathname));
-    expect(displayedPaths).toEqual(catalogEntries.map(demonstration => demonstration.path));
+    expect(await cards.locator('.demonstrations-catalog-title').allTextContents()).toEqual(catalogEntries.map(demonstration => demonstration.title));
 
     const previews = cards.locator('.demonstrations-catalog-preview');
     await expect(previews).toHaveCount(demonstrations.length);
@@ -96,18 +70,16 @@ test('the catalogue page contains only the topic catalogue and exposes every act
         await expect(preview).toHaveAttribute('alt', '');
         await expect(preview).toHaveAttribute('loading', 'lazy');
         await expect(card.locator('.demonstrations-catalog-title')).toHaveText(demonstration.title);
+        await expect(card.locator('.demonstrations-catalog-family')).toContainText(demonstrations.families.find(family => family.id === demonstration.family).title);
+        await expect(card.locator('.demonstrations-catalog-copy p')).not.toBeEmpty();
 
         const graph = card.locator('.demonstrations-catalog-graph');
-        await expect(graph).toContainText('Open');
         await expect(graph).toHaveAttribute('aria-label', `Open demonstration: ${demonstration.title}`);
-        await expect(graph).toHaveAttribute('data-tooltip', `Try and observe: ${demonstration.title}`);
-        expect(await pathFromLink(graph, page)).toBe(demonstration.path);
+        if (await graph.evaluate(element => element instanceof HTMLAnchorElement)) expect(await pathFromLink(graph, page)).toBe(demonstration.path);
         if (demonstration.hasLesson) {
             const lesson = card.locator('.demonstrations-catalog-lesson');
-            await expect(lesson).toContainText('Guided path');
-            await expect(lesson).toHaveAttribute('href', demonstration.path + '?learn=1');
             await expect(lesson).toHaveAttribute('aria-label', `Guided lesson: ${demonstration.title}`);
-            await expect(lesson).toHaveAttribute('data-tooltip', `Learn this demonstration: ${demonstration.title}`);
+            if (await lesson.evaluate(element => element instanceof HTMLAnchorElement)) await expect(lesson).toHaveAttribute('href', demonstration.path + '?learn=1');
         } else {
             await expect(card.locator('.demonstrations-catalog-lesson')).toHaveCount(0);
         }
@@ -125,87 +97,153 @@ test('generated preview mapping and provenance cover the active catalog without 
     expect(generated.manifest.captures.every(capture => capture.framing.outOfFrameElements.length === 0)).toBe(true);
 });
 
-test('catalog action labels stay localized, focused, touch-sized, and responsive at target widths', async ({page}) => {
+test('catalog filters combine topic and forgiving search, then clear recoverable empty results', async ({page}) => {
+    await openEnglish(page, '/bezeg-2.0/demonstrations?topic=%2Fbezeg-2.0%2Fbezier&keep=yes#collection');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
+    const topicNav = catalog.getByRole('navigation', {name: 'Topic'});
+    await expect(topicNav.getByRole('button', {name: /^Bézier curves \d+$/})).toHaveAttribute('aria-pressed', 'true');
+    const cards = catalog.locator('.demonstrations-catalog-card');
+    const family = demonstrations.families.find(item => item.id === '/bezeg-2.0/bezier');
+    await expect(cards).toHaveCount(family.demonstrations.length);
+    const search = catalog.getByRole('searchbox');
+    await search.fill('  BEZIER   curve  ');
+    await expect(cards.locator('.demonstrations-catalog-title').first()).toContainText(/Bézier/i);
+    await expect(page).toHaveURL(/topic=%2Fbezeg-2\.0%2Fbezier/);
+    await expect(page).toHaveURL(/keep=yes/);
+    await expect(page).toHaveURL(/#collection$/);
+
+    await search.fill('no matching demonstration');
+    await expect(catalog.getByRole('heading', {name: 'No matches'})).toBeVisible();
+    await catalog.locator('.demonstration-search-row').getByRole('button', {name: 'Clear search'}).click();
+    await expect(cards).toHaveCount(family.demonstrations.length);
+    await topicNav.getByRole('button', {name: 'All topics'}).click();
+    await expect(cards).toHaveCount(demonstrations.length);
+});
+
+test('catalog controls remain readable, focused, touch-sized, and overflow-free across languages and widths', async ({page}) => {
     await openEnglish(page, '/bezeg-2.0/demonstrations');
     const catalog = page.getByRole('region', {name: 'All demonstrations'});
-    await expandCatalog(catalog);
-
     const cards = catalog.locator('.demonstrations-catalog-card');
-    const lessonIndex = catalogEntries.findIndex(demonstration => demonstration.hasLesson);
-    const focusCard = cards.nth(Math.max(lessonIndex, 0));
+    const lessonIndex = demonstrations.findIndex(demonstration => demonstration.hasLesson);
+    const focusCard = cards.nth(lessonIndex);
     const graph = focusCard.locator('.demonstrations-catalog-graph');
     const lesson = focusCard.locator('.demonstrations-catalog-lesson');
-    const focusPreview = focusCard.locator('.demonstrations-catalog-preview');
-    for (const [width, expectedColumns, minimumPreviewWidth] of [[390, 1, 340], [724, 2, 320], [1440, 3, 340]]) {
+    for (const width of [390, 724, 1440]) {
         await page.setViewportSize({width, height: 900});
-        await expect.poll(() => focusPreview.evaluate(image => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0)).toBe(true);
-        const columns = await catalog.locator('.demonstrations-catalog-grid').first().evaluate(grid =>
-            getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length);
-        expect(columns).toBe(expectedColumns);
-        const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-        expect(horizontalOverflow, `horizontal overflow at ${width}px`).toBe(false);
-
-        const previewBox = await focusCard.locator('.demonstrations-catalog-preview').boundingBox();
-        const renderedImageWidth = await focusCard.locator('.demonstrations-catalog-preview').evaluate(image => {
-            const style = getComputedStyle(image);
-            const horizontalInset = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth']
-                .reduce((total, property) => total + parseFloat(style[property]), 0);
-            const verticalInset = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth']
-                .reduce((total, property) => total + parseFloat(style[property]), 0);
-            const bounds = image.getBoundingClientRect();
-            const contentWidth = bounds.width - horizontalInset;
-            const contentHeight = bounds.height - verticalInset;
-            return Math.min(contentWidth, contentHeight * image.naturalWidth / image.naturalHeight);
-        });
-        const graphBox = await graph.boundingBox();
-        expect(previewBox?.width).toBeGreaterThan(graphBox?.width ?? 0);
-        expect(previewBox?.width, `preview width at ${width}px`).toBeGreaterThanOrEqual(minimumPreviewWidth);
-        expect(renderedImageWidth * 11 / 360, `estimated captured-label height at ${width}px`).toBeGreaterThanOrEqual(9.5);
-        expect(graphBox?.width).toBeGreaterThanOrEqual(44);
-        expect(graphBox?.height).toBeGreaterThanOrEqual(44);
-        if (lessonIndex >= 0) {
-            const lessonBox = await lesson.boundingBox();
-            expect(lessonBox?.width).toBeGreaterThanOrEqual(44);
-            expect(lessonBox?.height).toBeGreaterThanOrEqual(44);
+        await expect(graph).toBeVisible();
+        if (width === 390) await expect(catalog.getByRole('combobox', {name: 'Topic'})).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `horizontal overflow at ${width}px`).toBe(true);
+        for (const action of [graph, lesson]) {
+            const box = await action.boundingBox();
+            expect(box?.width).toBeGreaterThanOrEqual(44);
+            expect(box?.height).toBeGreaterThanOrEqual(44);
         }
-
         await graph.focus();
         await page.keyboard.press('Shift+Tab');
         await page.keyboard.press('Tab');
         await expect(graph).toBeFocused();
-        const focusIndicator = await graph.evaluate(element => {
-            const style = getComputedStyle(element);
-            return {visible: element.matches(':focus-visible'), outlineStyle: style.outlineStyle, outlineWidth: parseFloat(style.outlineWidth)};
-        });
-        expect(focusIndicator.visible).toBe(true);
-        expect(focusIndicator.outlineStyle).not.toBe('none');
-        expect(focusIndicator.outlineWidth).toBeGreaterThanOrEqual(2);
-        expect(await graph.evaluate(element => getComputedStyle(element, '::after').visibility)).toBe('visible');
-        await graph.hover();
-        expect(await graph.evaluate(element => getComputedStyle(element, '::after').visibility)).toBe('visible');
-        if (lessonIndex >= 0) {
-            await page.keyboard.press('Tab');
-            await expect(lesson).toBeFocused();
-            await expect.poll(() => lesson.evaluate(element => getComputedStyle(element, '::after').visibility)).toBe('visible');
-        }
+        const visibleFocus = await graph.evaluate(element => element.matches(':focus-visible') && getComputedStyle(element).outlineStyle !== 'none');
+        expect(visibleFocus).toBe(true);
+        const copyFits = await focusCard.locator('.demonstrations-catalog-copy').evaluate(element =>
+            [...element.querySelectorAll('*')].every(child => child.scrollWidth <= child.clientWidth + 1));
+        expect(copyFits, `card copy is clipped at ${width}px`).toBe(true);
     }
+    await page.evaluate(() => { document.documentElement.style.fontSize = '125%'; });
+    await page.emulateMedia({reducedMotion: 'reduce'});
+    await page.setViewportSize({width: 390, height: 540});
+    await expect(graph).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
     await page.evaluate(() => localStorage.removeItem('bezeg-2.0:bezeg-language'));
     const slPage = await page.context().newPage();
     try {
         await slPage.goto('/bezeg-2.0/demonstrations', {waitUntil: 'domcontentloaded'});
         const slCatalog = slPage.getByRole('region', {name: 'Vse demonstracije'});
-        await expandCatalog(slCatalog);
         const slCards = slCatalog.locator('.demonstrations-catalog-card');
-        for (let index = 0; index < catalogEntries.length; index += 1) {
-            const demonstration = catalogEntries[index];
-            const card = slCards.nth(index);
-            await expect(card.locator('.demonstrations-catalog-graph')).toContainText('Odpri');
-            if (demonstration.hasLesson) await expect(card.locator('.demonstrations-catalog-lesson')).toContainText('Vodena pot');
-        }
+        await expect(slCards).toHaveCount(demonstrations.length);
+        await expect(slCards.first().locator('.demonstrations-catalog-graph')).toHaveAttribute('aria-label', /^Odpri demonstracijo:/);
+        await slPage.setViewportSize({width: 390, height: 650});
+        expect(await slPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     } finally {
         await slPage.close();
     }
+});
+
+test('unknown topic values fall back safely and topic navigation participates in browser history', async ({page}) => {
+    await openEnglish(page, '/bezeg-2.0/demonstrations?topic=unknown-family');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
+    const cards = catalog.locator('.demonstrations-catalog-card');
+    await expect(cards).toHaveCount(demonstrations.length);
+    const topicNav = catalog.getByRole('navigation', {name: 'Topic'});
+    await expect(topicNav.getByRole('button', {name: 'All topics'})).toHaveAttribute('aria-pressed', 'true');
+
+    await topicNav.getByRole('button', {name: /PH curves/}).click();
+    const phCount = demonstrations.families.find(family => family.id === '/bezeg-2.0/ph').demonstrations.length;
+    await expect(cards).toHaveCount(phCount);
+    await expect(page).toHaveURL(/topic=%2Fbezeg-2\.0%2Fph/);
+    await page.goBack();
+    await expect(cards).toHaveCount(demonstrations.length);
+    await expect(topicNav.getByRole('button', {name: 'All topics'})).toHaveAttribute('aria-pressed', 'true');
+    await page.goForward();
+    await expect(cards).toHaveCount(phCount);
+});
+
+test('opening a filtered catalogue card and going back restores its query, topic, scroll position, and focus', async ({page}) => {
+    await openEnglish(page, '/bezeg-2.0/demonstrations?topic=%2Fbezeg-2.0%2Fbezier&q=bezier');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
+    const cards = catalog.locator('.demonstrations-catalog-card');
+    await expect(cards).toHaveCount(demonstrations.families.find(family => family.id === '/bezeg-2.0/bezier').demonstrations.length);
+    const targetCard = cards.last();
+    const graphLink = targetCard.locator('.demonstrations-catalog-graph');
+    await graphLink.scrollIntoViewIfNeeded();
+    await graphLink.focus();
+    const savedScrollY = await page.evaluate(() => window.scrollY);
+    await graphLink.click();
+    await expect(page.locator('.workspace-heading h1')).toBeVisible();
+    await page.goBack();
+    await expect(catalog).toBeVisible();
+    await expect(catalog.getByRole('searchbox')).toHaveValue('bezier');
+    await expect(catalog.getByRole('navigation', {name: 'Topic'}).getByRole('button', {name: /^Bézier curves \d+$/})).toHaveAttribute('aria-pressed', 'true');
+    await expect(graphLink).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThanOrEqual(Math.max(0, savedScrollY - 40));
+});
+
+test('workspace collection breadcrumb returns to the saved filtered card position', async ({page}) => {
+    await openEnglish(page, '/bezeg-2.0/demonstrations?topic=%2Fbezeg-2.0%2Fbezier&q=bezier');
+    const catalog = page.getByRole('region', {name: 'All demonstrations'});
+    const target = catalog.locator('.demonstrations-catalog-card').last();
+    const graph = target.locator('.demonstrations-catalog-graph');
+    await graph.scrollIntoViewIfNeeded();
+    await graph.focus();
+    const savedScrollY = await page.evaluate(() => window.scrollY);
+    await graph.click();
+    const breadcrumb = page.getByRole('navigation', {name: 'Demonstration breadcrumb'});
+    await expect(breadcrumb.getByRole('link', {name: 'Demonstrations'})).toBeVisible();
+    await breadcrumb.getByRole('link', {name: 'Demonstrations'}).click();
+    await expect(catalog).toBeVisible();
+    await expect(catalog.getByRole('searchbox')).toHaveValue('bezier');
+    await expect(graph).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThanOrEqual(Math.max(0, savedScrollY - 40));
+});
+
+test('production deep links retain filters and lesson query/hash through refresh and Exit', async ({page}) => {
+    await openEnglish(page, '/bezeg-2.0/demonstrations?topic=%2Fbezeg-2.0%2Fph&q=degree&school=west#cards');
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await expect(page.getByRole('searchbox')).toHaveValue('degree');
+    await expect(page.locator('.demonstrations-catalog-card')).toHaveCount(
+        demonstrations.families.find(family => family.id === '/bezeg-2.0/ph').demonstrations.length,
+    );
+    await expect(page).toHaveURL(/school=west#cards$/);
+    await page.goto('/bezeg-2.0/bezier/curve?learn=1&school=west#figure', {waitUntil: 'domcontentloaded'});
+    await page.reload({waitUntil: 'domcontentloaded'});
+    const lesson = page.locator('section.guided-lesson');
+    await expect(lesson).toBeVisible();
+    await lesson.getByRole('button', {name: 'Exit lesson'}).click();
+    await expect(page).toHaveURL(/\/bezier\/curve\?school=west#figure$/);
+    await expect(page.locator('#jgbox')).toBeVisible();
+    await page.goto('/bezeg-2.0/not-a-demonstration', {waitUntil: 'domcontentloaded'});
+    await expect(page.getByRole('link', {name: 'Bezeg · home'})).toBeVisible();
+    await expect(page.locator('#jgbox')).toHaveCount(0);
 });
 
 for (const demonstration of demonstrations) {

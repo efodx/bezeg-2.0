@@ -25,8 +25,8 @@
     background: var(--workspace-canvas);
     display: grid;
     align-content: start;
-    grid-template-columns: 190px minmax(0, 1fr) 310px;
-    grid-template-areas: "heading heading heading" "topics graph inspector" "topics learning inspector";
+    grid-template-columns: minmax(0, 1fr) 310px;
+    grid-template-areas: "heading heading" "graph inspector" "learning inspector";
     gap: 18px;
     padding: clamp(20px, 4vw, 52px) clamp(14px, 4vw, 54px) 90px;
     text-align: left;
@@ -42,6 +42,7 @@
 }
 
 .workspace-heading h1 {
+    overflow-wrap: anywhere;
     margin: 3px 0 6px;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(2rem, 4vw, 3.65rem);
@@ -50,6 +51,7 @@
     line-height: .98;
 }
 
+.workspace-heading > div:first-child { min-width: 0; }
 .workspace-heading p { margin: 0; color: var(--workspace-ink-soft); font-size: 15px; line-height: 1.5; }
 .workspace-eyebrow { color: var(--workspace-green); font-size: .68rem; letter-spacing: .17em; text-transform: uppercase; }
 .workspace-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -69,38 +71,18 @@
 .demonstration-workspace button:disabled { opacity: .5; }
 .demonstration-workspace :focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
 
-.workspace-topics {
-    grid-area: topics;
-    max-height: calc(100vh - 210px);
-    overflow: auto;
-    border-top: 2px solid var(--workspace-ink);
-    padding: 12px 0 0;
-}
+.workspace-breadcrumb { font-size: .8rem; line-height: 1.7; margin-bottom: 10px; overflow-wrap: anywhere; }
+.workspace-breadcrumb a { color: inherit; text-underline-offset: 3px; }
 
-.workspace-topics details { border-bottom: 1px solid var(--workspace-rule); }
-.workspace-topics summary, .editing-mode summary, .operation-group summary {
+/* Keep the inspector's existing disclosure controls independent of topic navigation. */
+.editing-mode summary, .operation-group summary {
     cursor: pointer;
     min-height: 44px;
     padding: 12px 0;
     font-size: .84rem;
     font-weight: 700;
 }
-.workspace-topics summary:hover { color: var(--workspace-green); }
-.workspace-topics h2, .workspace-inspector h2 { margin: 0; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
-
-.workspace-topics a {
-    display: block;
-    margin: 0;
-    border-left: 2px solid transparent;
-    padding: 10px 8px 10px 22px;
-    color: var(--workspace-ink-soft);
-    font-size: .88rem;
-    text-decoration: none;
-}
-
-.workspace-topics a small { display: block; font-size: .68rem; color: var(--workspace-ink-soft); }
-.workspace-topics a:hover { background: color-mix(in srgb, var(--workspace-canvas-deep) 55%, transparent); color: var(--workspace-ink); }
-.workspace-topics a.active { border-left-color: var(--workspace-pollen); background: color-mix(in srgb, var(--workspace-canvas-deep) 70%, transparent); color: var(--workspace-ink); font-weight: 750; }
+.workspace-inspector h2 { margin: 0; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
 
 .workspace-graph {
     grid-area: graph;
@@ -326,7 +308,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas: "heading" "graph" "learning" "inspector";
     }
-    .workspace-heading { align-items: center; gap: 10px; }
+    .workspace-heading { align-items: stretch; flex-direction: column; gap: 10px; }
     .workspace-heading h1 { font-size: 1.7rem; }
     .workspace-heading p, .workspace-eyebrow { display: none; }
     .workspace-actions button { font-size: .74rem; }

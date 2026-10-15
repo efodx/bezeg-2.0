@@ -64,6 +64,10 @@ export interface GraphWorkspacePanels {
     save: React.ReactNode;
     navigate: (action: string) => void;
     graphBusy: boolean;
+    /** True while an export or scene replacement makes collection navigation unsafe. */
+    pickerUnavailable: boolean;
+    /** Pauses graph-owned playback at its current frame. */
+    pausePlayback: () => void;
     lessonCapabilities: LessonGraphCapabilities | undefined;
 }
 
@@ -96,6 +100,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
     private figureSceneGeneration = 0;
     private figureBatchActive = false;
     private activeSingleFigureExports = 0;
+    private activeSceneReplacements = 0;
     private readonly lessonCapabilityAdapter: LessonGraphCapabilities = {
         captureState: () => this.captureLessonState(),
         restoreState: checkpoint => this.restoreLessonState(checkpoint),
@@ -303,6 +308,11 @@ abstract class BaseGraph<S extends BaseGraphState> {
         return this.figureBatchActive || this.activeSingleFigureExports > 0;
     }
 
+    /** True while an export or scene replacement makes it unsafe to open the demonstration picker. */
+    protected get pickerUnavailable(): boolean {
+        return this.exportBusy || this.activeSceneReplacements > 0;
+    }
+
     /** Runs a reload that an import had to defer until the running export finished. */
     private runPendingReload(): void {
         if (!this.reloadAfterExportPending || this.exportBusy || !this.graphSession?.isAlive) return;
@@ -417,6 +427,11 @@ abstract class BaseGraph<S extends BaseGraphState> {
      * playback can pause and the export represents one settled scene.
      */
     protected beforeFigureCapture(): void {
+    }
+
+    /** Pauses graph-owned playback without replacing its scene or resetting its current frame. */
+    public pausePlayback(): void {
+        this.beforeFigureCapture();
     }
 
     /** Releases scene objects whose lifetime is owned by a graph subclass. */
@@ -570,9 +585,11 @@ abstract class BaseGraph<S extends BaseGraphState> {
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
+        this.requestRender();
         return downloadSVG(this.getFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
+                this.requestRender();
                 this.runPendingReload();
             });
     }
@@ -585,6 +602,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
             edit: this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>,
             display: this.state.initialized ? this.workspaceDisplay() : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureBatchActive,
+            pickerUnavailable: this.pickerUnavailable, pausePlayback: () => this.pausePlayback(),
             // A deep link can request a lesson before JSXGraph has created
             // its board. Do not mount the session until the graph-owned
             // capability is ready; otherwise captureState() fails once
@@ -657,9 +675,11 @@ abstract class BaseGraph<S extends BaseGraphState> {
         if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
+        this.requestRender();
         return downloadPNG(this.getFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
+                this.requestRender();
                 this.runPendingReload();
             });
     }
@@ -744,61 +764,68 @@ abstract class BaseGraph<S extends BaseGraphState> {
         const isCurrent = () => this.graphSession === session && session.isAlive &&
             !operationSignal.aborted && generation === this.figureSceneGeneration;
         if (!isCurrent()) return;
-        const releaseTransition = session.beginTransition();
+        this.activeSceneReplacements++;
+        this.requestRender();
         try {
-            this.stopLessonAnimations();
-            this.board.suspendUpdate();
+            const releaseTransition = session.beginTransition();
             try {
-                this.disposeFigureScene();
-                if (freshScene) this.resetSceneFields();
-                const preservedBoardObjects = this.boardInfrastructureObjectClosure();
-                const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
-                if (remainingObjects.length) this.board.removeObject(remainingObjects);
-                this.importFigurePresetData(preset);
-            } finally {
-                if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
-            }
-
-            this.workspaceRevision++;
-            const nextState = this.figurePresetGraphState(preset.graphState, runtimeState);
-            await new Promise<void>((resolve, reject) => {
-                let finished = false;
-                const finish = (callback: () => void) => {
-                    if (finished) return;
-                    finished = true;
-                    operationSignal.removeEventListener("abort", cancel);
-                    callback();
-                };
-                const cancel = () => {
-                    if (generation === this.figureSceneGeneration) this.figureSceneGeneration++;
-                    finish(resolve);
-                };
-                operationSignal.addEventListener("abort", cancel, {once: true});
+                this.stopLessonAnimations();
+                this.board.suspendUpdate();
                 try {
-                    this.replaceSceneState(() => isCurrent() ? nextState : null, () => {
-                        if (!isCurrent()) {
-                            finish(resolve);
-                            return;
-                        }
-                        try {
-                            this.initialize();
-                            this.restoreFigureRuntimeState(runtimeState);
-                            if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, true);
-                            this.boardUpdate();
-                            session.requestFullUpdate();
-                            finish(resolve);
-                        } catch (error) {
-                            finish(() => reject(error));
-                        }
-                    });
-                } catch (error) {
-                    finish(() => reject(error));
+                    this.disposeFigureScene();
+                    if (freshScene) this.resetSceneFields();
+                    const preservedBoardObjects = this.boardInfrastructureObjectClosure();
+                    const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
+                    if (remainingObjects.length) this.board.removeObject(remainingObjects);
+                    this.importFigurePresetData(preset);
+                } finally {
+                    if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
                 }
-            });
+
+                this.workspaceRevision++;
+                const nextState = this.figurePresetGraphState(preset.graphState, runtimeState);
+                await new Promise<void>((resolve, reject) => {
+                    let finished = false;
+                    const finish = (callback: () => void) => {
+                        if (finished) return;
+                        finished = true;
+                        operationSignal.removeEventListener("abort", cancel);
+                        callback();
+                    };
+                    const cancel = () => {
+                        if (generation === this.figureSceneGeneration) this.figureSceneGeneration++;
+                        finish(resolve);
+                    };
+                    operationSignal.addEventListener("abort", cancel, {once: true});
+                    try {
+                        this.replaceSceneState(() => isCurrent() ? nextState : null, () => {
+                            if (!isCurrent()) {
+                                finish(resolve);
+                                return;
+                            }
+                            try {
+                                this.initialize();
+                                this.restoreFigureRuntimeState(runtimeState);
+                                if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, true);
+                                this.boardUpdate();
+                                session.requestFullUpdate();
+                                finish(resolve);
+                            } catch (error) {
+                                finish(() => reject(error));
+                            }
+                        });
+                    } catch (error) {
+                        finish(() => reject(error));
+                    }
+                });
+            } finally {
+                releaseTransition();
+            }
+            if (!operationSignal.aborted && session.isAlive) await session.waitUntilReady();
         } finally {
-            releaseTransition();
+            this.activeSceneReplacements = Math.max(0, this.activeSceneReplacements - 1);
+            this.requestRender();
         }
-        if (!operationSignal.aborted && session.isAlive) await session.waitUntilReady();
     }
 
     /**

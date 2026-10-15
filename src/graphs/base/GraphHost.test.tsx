@@ -23,6 +23,7 @@ class TestGraph extends BaseGraph<TestState> {
     mounts = 0;
     unmounts = 0;
     containers: HTMLElement[] = [];
+    figureCapturePauses = 0;
 
     override getInitialState(): TestState {
         return {initialized: false, count: 0};
@@ -45,6 +46,10 @@ class TestGraph extends BaseGraph<TestState> {
 
     protected override workspaceEdit() {
         return <output data-testid="count">{this.state.count}</output>;
+    }
+
+    protected override beforeFigureCapture() {
+        this.figureCapturePauses++;
     }
 
     protected override applyLessonAction(action: LessonAction) {
@@ -245,4 +250,19 @@ test('the preset service is created once', () => {
     const graph = new PresetGraph();
     expect(graph.presetService).toBeDefined();
     expect(graph.presetService).toBe(graph.presetService);
+});
+
+test('workspace panels expose graph-owned playback pause and picker availability without changing graphBusy', () => {
+    const graph = new TestGraph();
+    const panels = graph.getWorkspacePanels({});
+    expect(panels.graphBusy).toBe(false);
+    expect(panels.pickerUnavailable).toBe(false);
+
+    panels.pausePlayback();
+    expect(graph.figureCapturePauses).toBe(1);
+
+    (graph as any).activeSingleFigureExports = 1;
+    const exportingPanels = graph.getWorkspacePanels({});
+    expect(exportingPanels.pickerUnavailable).toBe(true);
+    expect(exportingPanels.graphBusy).toBe(false);
 });

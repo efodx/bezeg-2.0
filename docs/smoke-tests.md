@@ -41,6 +41,8 @@ Prefer a fresh browser session/origin for preset checks. Use a uniquely named `s
 
 ## Change-specific additions
 
+- For the demonstration library, combine topic and forgiving text search, clear zero results, refresh a filtered URL, and use Back/Forward. Open a card after scrolling and verify both Back and the workspace collection breadcrumb restore filters, scroll, and card focus. Check the family breadcrumb separately.
+- For the workspace picker, edit/select a curve and record its board identity, points, view, and drafts. Open, filter, cancel, and choose the current graph; those values must persist. During playback verify that entry pauses at the current frame and cancellation leaves it paused. Repeat with a lesson and Presentation mode; verify focus containment, background isolation, current marker, narrow-screen topic selection, reduced height, and deliberate navigation disposal.
 - For persistence changes, use isolated storage to test export/import round-trip and actionable rejection of an invalid file; verify cancellation preserves data.
 - For lesson changes, test the affected lesson action, backward navigation, scene restore, and animation cancellation where applicable.
 - For export changes, download and inspect the affected SVG/PNG output rather than treating a click as success.

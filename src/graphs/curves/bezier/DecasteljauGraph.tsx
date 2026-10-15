@@ -204,6 +204,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.lessonAnimation.stop();
     }
 
+    /** Pauses at the drawn parameter; stopLessonAnimations() resets playback during scene replacement. */
+    override pausePlayback(): void {
+        if (this.lessonAnimation.isRunning() || this.state.animationStatus === "playing") this.pauseAnimation();
+    }
+
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
         const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
         // The loaded scene starts at its own parameter, with no playback value left over from the previous scene.
