@@ -16,7 +16,7 @@ For local setup, install the locked dependencies with `npm ci`, then install Chr
 
 The preview defaults to port 4173; set `SMOKE_PORT` to a free port if another local service owns it. The config and preview server use the same value.
 
-The suite and CI have time limits. CI installs Chromium only, runs one worker, and uploads failure artifacts only. The production build uses `CI=false` to allow the repository's existing lint warnings; build errors still fail and the browser suite runs with normal CI behavior. Review failures rather than adding broad retries or suppressing runtime errors.
+The suite and CI have time limits. CI installs Chromium only, runs three workers, and uploads failure artifacts only. TypeScript, unit tests, build errors, and browser failures block deployment. Documentation-only changes skip application checks and deployment while still completing the `smoke` check; application/configuration changes and manual runs retain full verification. See [the CI scoping policy](specs/ci-change-scoping.md) and [deployment guide](github-pages-spa-playbook.md#bezegs-gated-actions-deployment). Review failures rather than adding broad retries or suppressing runtime errors.
 
 See [initial verification](reviews/automated-smoke-tests.md) for local results, review findings, and coverage limits.
 

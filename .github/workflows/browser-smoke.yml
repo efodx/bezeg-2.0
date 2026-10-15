@@ -17,33 +17,51 @@ jobs:
     concurrency:
       group: browser-smoke-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
+    outputs:
+      full_verification: ${{ steps.scope.outputs.full_verification }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Decide verification scope
+        id: scope
+        run: node scripts/ci-change-scope.cjs
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+      - name: Test verification scope detector
+        run: node --test scripts/ci-change-scope.test.cjs
       - uses: actions/setup-node@v6
+        if: steps.scope.outputs.full_verification == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+        if: steps.scope.outputs.full_verification == 'true'
       - name: Check TypeScript
+        if: steps.scope.outputs.full_verification == 'true'
         run: npx tsc --noEmit --pretty false
       - name: Run unit tests
+        if: steps.scope.outputs.full_verification == 'true'
         run: npm test
         env:
           CI: 'true'
       - run: npx playwright install --with-deps chromium
+        if: steps.scope.outputs.full_verification == 'true'
       - name: Build production app
+        if: steps.scope.outputs.full_verification == 'true'
         run: npm run build
       - name: Run Chromium smoke tests
+        if: steps.scope.outputs.full_verification == 'true'
         run: npm run test:smoke:built
         env:
           CI: 'true'
       - name: Upload verified Pages artifact
-        if: success() && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: success() && steps.scope.outputs.full_verification == 'true' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@v4
         with:
           path: build
       - name: Upload failure evidence
-        if: failure()
+        if: failure() && steps.scope.outputs.full_verification == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: browser-smoke-failure-evidence
@@ -54,7 +72,7 @@ jobs:
 
   deploy:
     needs: smoke
-    if: needs.smoke.result == 'success' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: needs.smoke.result == 'success' && needs.smoke.outputs.full_verification == 'true' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
