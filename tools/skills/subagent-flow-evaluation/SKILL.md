@@ -1,42 +1,32 @@
 ---
 name: subagent-flow-evaluation
-description: Log completed coding-task evidence about Bezeg's handler/subagent workflow with `do-log`, or analyze accumulated entries and suggest evidence-backed workflow edits with `suggest-subagents-flow-improvements`.
+description: Record Bezeg delegation outcomes with `do-log`, or use comparable records to suggest evidence-backed changes to worker routing and assignment wording with `suggest-subagents-flow-improvements`.
 ---
 
 # Subagent flow evaluation
 
-Use this skill only for the project's implementation delegation workflow described in [AGENTS.md](../../../AGENTS.md) and [docs/agent-workflow.md](../../../docs/agent-workflow.md).
+Use for Bezeg's delegation workflow in [AGENTS.md](../../../AGENTS.md) and [agent-workflow.md](../../../docs/agent-workflow.md).
 
 ## `do-log`
 
-At the end of each completed or blocked implementation task, append one entry to [`docs/agent-workflow/evaluation-log.md`](../../../docs/agent-workflow/evaluation-log.md), including handler-only work when it is useful as a comparable case. Use the current record format for new entries and preserve the historical rows. Always commit the log entry: include it in the task's normal commit when that commit is still pending, or make a small follow-up commit if the task work was already committed. Never leave a completed log entry uncommitted. Follow the repository's Git workflow for pushing commits.
+After each completed or blocked task, append one compact record to [`evaluation-log.md`](../../../docs/agent-workflow/evaluation-log.md), covering its research, implementation, review, and smoke workers together. Standalone assignments count as tasks; include useful handler-only comparisons. Commit the record with task work or in a small follow-up commit under the repository's push policy. The handler owns the record; workers return evidence for it.
 
-Use the current task context, agent reports, command results, timestamps, and available usage data. Record unknowns as `unknown`; do not infer durations, token usage, defects, severity, or causation. A concise task summary is enough; avoid copying private or sensitive content into the log.
+Use current-task context, reports, command results, timestamps, and available usage data. Do not read accumulated history for logging. Set task class and estimated size before dispatch and retain the estimate: S is one localized outcome with one owner; M has several files or behavior branches with one primary owner; L crosses modules or has independently verifiable slices. Record:
 
-Capture:
+- task date, identifier/link if available, role, class/size, and concise scope;
+- dispatch reason, handler model/effort, and each worker's role, requested and resolved model/effort, and count; use `n/a` for handler-only work and `unknown` when resolution is not visible;
+- accepted outcome, checks, coverage gaps, and attributable integration failures;
+- repair rounds and failure cause, separating code issues from environment or tool failures;
+- elapsed time only with observable start and acceptance/block boundaries, noting external waits; usage only with its scope (handler, worker, or total).
 
-- date, task identifier/link when available, and a concise task class/size description;
-- workflow mode (handler-only or delegated), worker model/effort and count when applicable;
-- elapsed time only if start and accepted/blocked times are observable, with the measurement boundary stated;
-- number of handler-to-worker repair rounds; for handler-only tasks use `n/a`;
-- actionable findings from handler review, separated by severity where known, and whether any escaped into integration or required a post-acceptance repair;
-- integration/check failures attributable to the task, and whether acceptance criteria passed, partially passed, or were blocked;
-- token/usage data only if available, including what it covers (worker, handler, or total).
+For each worker, add brief handoff evidence: brief revision and decision-bearing wording or saved reference; material omissions or clarifications; the exact or faithful short instruction added/changed; and the observed follow-up outcome with suspected attribution, which may be `unknown`. Record positive outcomes too. Mark unavailable evidence `unknown`, non-applicable fields `n/a`; report facts separately from judgments. Do not infer telemetry, defects, severity, duration, or causation.
 
-Also record task class, estimated size, source spec or concise scope, and why the handler delegated or kept the work. Include the handler model/effort and, for each worker role, requested and resolved model/effort when visible, worker count, and peak parallel count. Note whether the brief covered the goal, acceptance, owned paths, context to preserve, dependencies, checks, and evidence to return; identify omissions or clarifications.
-
-Measure wall-clock elapsed time from first dispatch, or handler start for handler-only work, through acceptance or block. Note external waits that make a duration incomparable. Separate unique findings by phase and reviewer role, state repair status and escaped defects, and distinguish code-caused failures from environment, sandbox, or tool failures. Label any pilot hypothesis and the single changed variable.
-
-Do not turn confidence, apparent effort, or an agent's self-assessment into quality scores. Distinguish observed facts from handler judgments. Keep the handoff brief and do not run extra checks solely to populate the record.
-
-Set task size before dispatch: S is one localized outcome with one clear owner; M has several files or behavior branches with one primary owner; L crosses modules or divides into independently verifiable slices. Use `unknown` for unavailable values and `n/a` only when a field does not apply. Do not infer duration, usage, severity, defects, or causation.
+Capture full initial/revised prompts, field-by-field completeness, staffing detail, or finding counts only for a handoff investigation or labeled prompt-format pilot. Keep pilot evidence in a bounded repository-local file. Ordinary records need only short excerpts or references; do not create a file per task or run extra checks to fill fields.
 
 ## `suggest-subagents-flow-improvements`
 
-Read the evaluation log and the current [delegation workflow](../../../docs/agent-workflow.md) and [repository instructions](../../../AGENTS.md). If the log is absent or too sparse, report that and identify which additional comparable tasks would resolve the uncertainty; do not manufacture a recommendation to satisfy the command.
+When asked to analyze, compare relevant records with the current workflow and repository instructions. Report sample counts, missing data, comparability, and alternative explanations. Separate role-specific quality; research evidence informs research routing only. Observational evidence suggests patterns but does not prove causation.
 
-Group only reasonably comparable task classes, size bands, and workflow modes. Report sample counts and missing data alongside descriptive summaries (prefer medians/ranges for elapsed time and repair rounds; counts/rates for distinct findings, escaped defects, environment failures, and acceptance). Attribute findings to handler, worker, or reviewer where evidence permits. Do not count duplicate reports as separate defects, aggregate incomparable work into one score, claim causality from observational records, or treat worker self-reports as verified outcomes.
+Turn repeated patterns into a narrow proposed routing rule or task/template wording, cite evidence counts and alternatives, and name a comparable future observation that could support or reject it. There is no fixed sample-count gate. Do not delay an owner-authorized provisional choice while waiting to prove it; keep model, effort, staffing, and prompt-format hypotheses distinct. Read the current log and format only as needed for the requested analysis.
 
-Recommend a workflow or default-setting change only when a repeated, meaningful pattern connects to a specific decision rule. For each recommendation, state the observed pattern and sample sizes for each setting, uncertainty and alternative explanations, the narrow proposed wording or setting change, and what future observations would show whether it helped. Separate high-confidence process corrections from hypotheses that need more data. A pilot changes only its labeled variable and does not silently replace the project default. Change model preferences only when the owner explicitly asks and the comparison is sufficiently comparable; otherwise preserve the baseline and propose the next useful pilot.
-
-The owner's model/effort preferences are policy choices, not conclusions implied by small samples. Preserve them unless the user explicitly asks to reconsider them and the evidence is sufficiently comparable.
+Propose edits for the owner's decision; apply them only when authorized. Identify provisional choices based on outside guidance separately from conclusions supported by local observations.

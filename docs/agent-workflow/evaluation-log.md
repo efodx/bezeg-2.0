@@ -1,15 +1,40 @@
 # Subagent workflow evaluation log
 
-Append one row per completed or blocked implementation task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md). Put new entries in the current-format table below; the initial sample keeps its original schema. Use `unknown` when the evidence is unavailable and `n/a` when a field does not apply. Keep task summaries concise and non-sensitive. This is observational evidence, not a controlled experiment; compare only similar task classes, sizes, and workflows.
+Append one compact record per completed or blocked task using [`do-log`](../../tools/skills/subagent-flow-evaluation/SKILL.md), covering all its worker roles together. Standalone research, review, and smoke assignments count as tasks; include useful handler-only comparisons. Keep summaries concise and non-sensitive. Use `unknown` for unavailable evidence and `n/a` when a field does not apply. This log is observational; records do not establish causation.
 
 ## Current record format
 
-| Date | Task class, estimated size, and scope | Dispatch reason; handler model/effort | Workers: role, requested/resolved model and effort, count; peak parallel | Brief completeness and pilot variable | Elapsed boundary and repair rounds | Distinct findings, rework, escaped defects | Integration failures and attribution | Acceptance, checks, and coverage gaps | Usage and scope |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| YYYY-MM-DD | UI/math/docs/etc.; S/M/L; spec or concise scope | delegated/handler-only and why; handler settings or unknown | role: model/effort × count; actual/resolved value or unknown; peak count | core fields present/omitted; baseline or hypothesis/variable | handler start or dispatch to acceptance/block; elapsed or unknown; repair rounds or n/a | unique findings by phase/role; severity only if known; repair status; escaped defect or unknown | separate code-caused from environment/tool failures; unknown if unattributed | passed/partial/blocked; checks run and material gaps | value or unknown; handler/worker/total scope |
+Use this compact core for ordinary tasks, then add one handoff note per worker. Omit fields only when marked `n/a` or `unknown`.
 
-Set size before dispatch: S is one localized outcome with one clear owner; M has several files or behavior branches with one primary owner; L crosses modules or splits into independently verifiable slices. Keep this initial estimate when reporting the result. Do not pool substantially different task classes or sizes.
+```text
+### YYYY-MM-DD — task identifier/link
+Roles/class/size/scope: worker roles or handler-only; class; S|M|L; concise scope
+Dispatch: reason; handler model/effort; workers by role with requested → resolved model/effort and count (or 0); unknown settings stay unknown
+Outcome: accepted/partial/blocked; checks; coverage gaps; integration failures and attribution
+Repairs: handler-to-worker rounds; cause and status; start and acceptance/block timestamps when visible, elapsed measurement boundary and external waits; usage and scope
+Handoff — worker role: brief revision; decision-bearing wording or saved reference; material omission/clarification; exact or faithful short instruction added/changed; observed follow-up outcome; suspected attribution (unknown allowed)
+```
 
+For handler-only entries use `n/a` for handoff, repair rounds, and worker settings. Set S/M/L before dispatch and keep it unchanged: S is one localized outcome with one owner; M has several files or behavior branches with one primary owner; L crosses modules or has independently verifiable slices.
+
+Keep full initial/revised prompts, field-by-field completeness, staffing detail, and expanded finding counts in a bounded repository-local evidence file only for handoff investigations or labeled prompt-format pilots. Ordinary records need a decision-bearing excerpt or saved reference. Preserve this initial sample exactly; new records use the compact format.
+
+
+## Task records
+
+### 2026-10-15 — Compact delegation and handoff feedback
+
+Roles/class/size/scope: documentation implementation and independent validation; workflow; initial overall size unknown (not recorded), validation S; [spec](../specs/agent-workflow-evaluation.md). Authorized policy revision, not a performance pilot.
+
+Dispatch: isolate skill/log edits and independently exercise behavior; handler model/effort unknown; implementation and validation workers each requested GPT-6 Luna/high, resolved settings unknown, count 2.
+
+Outcome: accepted; diff, 36 local links/anchors, TOML defaults, and exact legacy-log preservation checked. Two synthetic exercises produced an honest record and a concrete wording proposal from comparable handoff failures, excluding unrelated research. Product/model performance remains untested. Packaged validator blocked by missing PyYAML; frontmatter checked separately. App/browser tests n/a; runtime model resolution and escaped defects unknown.
+
+Repairs: 0 handler-to-worker rounds; handler corrected per-assignment aggregation and restored owner authorization. Validator failure is tooling-related. First dispatch unknown; first clock observation 15:02:04 UTC, accepted 15:08:00 UTC on 2026-10-15; total elapsed and external waits unknown; handler-plus-worker usage unknown. Missing initial size/timestamp limits comparison.
+
+Handoff — implementation: handoff-v1; “Preserve all historical log entries exactly”; preservation verified. Evidence-file location unspecified; worker kept it flexible, no blocking clarification. Added worker instruction n/a; handler changed logging to one enclosing task record, future effect unknown. Scope compliance observed; causation unknown.
+
+Handoff — validation: handoff-v1; “Use ONLY the supplied synthetic evidence and current format section” and “no live log entries.” Both outputs returned without edits. Worker reported ambiguous model labels and retained unknown settings. Added instruction n/a. Concrete focus-management wording proposed from two comparable fixture records; this demonstrates suggestion behavior only, not better product outcomes.
 
 ## Initial sample (legacy format)
 

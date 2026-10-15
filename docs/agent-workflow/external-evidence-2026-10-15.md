@@ -2,6 +2,8 @@
 
 Sources checked 2026-10-15. This note covers what primary sources establish about task handoffs, context isolation, token cost, coding-agent coordination, and the proposed Claude model/effort choices. None measures performance in Bezeg.
 
+The owner subsequently authorized adopting and simplifying these proposals on 2026-10-15. The assessment below records the review before that implementation; use [the maintained workflow](../agent-workflow.md) and [evaluation spec](../specs/agent-workflow-evaluation.md) for current policy.
+
 ## What delegation evidence supports
 
 Anthropic’s [multi-agent research system report](https://www.anthropic.com/engineering/multi-agent-research-system) reports a 90.2% improvement for an Opus 4 lead with Sonnet 4 workers over a single Opus 4 on an internal research evaluation. The work was breadth-first research: independent agents followed separate leads and returned compressed findings. The same report says multi-agent research used about 15 times the tokens of ordinary chats, and explicitly cautions that coding usually has fewer truly parallelizable tasks, more shared context, and coordination problems. Its 3–5-worker configuration reduced time by up to 90% on complex research queries; that result does not justify a general 3–5-worker coding rule.

@@ -6,21 +6,27 @@ The current delegation guidance sets a single worker model and effort for most d
 
 ## Direction
 
-Keep the current worker assignments as the baseline. Make handoffs easier to execute consistently and record enough evidence to compare similar tasks. Treat model, effort, worker-role, worker-count, and prompt-format changes as separate pilots. Do not turn a small observational sample into a claim of causal improvement.
+Adopt provisional task-fit defaults from the [external evidence assessment](../agent-workflow/external-evidence-2026-10-15.md): Codex uses GPT-6 Luna High for bounded work; Claude uses Haiku 5.5 Medium for narrow exploration and Sonnet 5.5 Medium for implementation. Select higher effort or a stronger model for foreseeable reasoning difficulty or diagnosed reasoning failures. These are starting choices, not measured Bezeg winners. The owner authorized this revision on 2026-10-15.
+
+Keep dispatch guidance concise and separate it from evaluation history. The feedback loop must improve both model/effort routing and the orchestrator's assignment writing. Record enough task-specific brief evidence to connect omissions, clarifications, and repairs to narrow instruction changes without storing whole conversations. Compare one factor at a time; observational records do not establish causation.
 
 ## Acceptance criteria
 
 - The delegation workflow provides a compact brief for research, implementation, review, and smoke assignments, including scope, write access, source criteria, dependencies, checks, and returned evidence.
-- The evaluation record captures task class and estimated size, delegation rationale, handler configuration, each worker role and configured/resolved model and effort, staffing and peak concurrency, brief completeness, elapsed boundary, repair rounds, distinct findings and escapes, integration failures, acceptance and verification coverage, and usage when available.
+- A compact core record covers research, implementation, review, and smoke assignments, plus useful handler-only comparisons: task class/size, dispatch reason, handler and worker settings with observable resolution, acceptance/checks/gaps, repair rounds and failure cause, timestamp boundary, and usage with scope when available. Set size before dispatch and keep it unchanged.
+- Per worker, handoff evidence identifies the brief revision and task-specific wording or a saved reference, material omissions or clarifications, the instruction added or changed, and the observed outcome. Capture successes as well as failures; separate observed facts from suspected causes. Record `none observed` only after inspection, not as a substitute for missing evidence.
+- Full brief capture, field-by-field completeness, staffing/concurrency detail, and detailed finding counts are conditional on a handoff investigation or labeled pilot. Preserve exact initial and revised prompts in a bounded repository-local evidence file for prompt-format pilots; ordinary records need only decision-bearing excerpts or references.
 - Unavailable evidence is marked `unknown`; non-applicable fields are marked `n/a`. No elapsed time, usage, severity, defect, or causal result is inferred.
-- Historical entries remain intact. The new record format is used for future entries.
-- The workflow keeps current model and effort settings as the baseline while allowing an explicitly labeled pilot to vary one primary factor at a time.
+- Historical entries remain intact. New records use the compact format; logging does not require reading the entire history, and workers do not load evaluation or research material for ordinary assignments.
+- The workflow, repository pointer, and Codex configuration agree on the adopted defaults. Model routing has one documented source of truth. Explicit supported escalations and labeled pilots are recorded; unavailable settings are reported without silent cross-family substitution.
 - Pilot comparisons group tasks by similar class and estimated size, keep acceptance and handler review consistent, report sample counts and missing data, and avoid competing writers on the same task.
 - The evaluation instructions state when the evidence is too sparse or incomparable to recommend a default change.
+- Handoff recommendations trace an observed pattern to a concrete brief/template wording change, alternatives, and a subsequent comparable observation that could support or reject it. There is no fixed sample-count gate or requirement to prove an untested starting preference before the owner can choose a new provisional default.
+- Logging remains cheap: use current-task evidence, mark unavailable values, and commit records with normal task work. Model, effort, staffing, and prompt-format pilots retain separate hypotheses; research findings inform research routing only.
 
 ## Scope
 
-This covers repository delegation, model and effort selection, task handoffs, and evidence logging. It does not create permanent model-specific worker personas, change the project defaults, or introduce a benchmark harness.
+This covers repository delegation, the authorized default changes, task handoffs, and evidence logging. It does not create permanent worker personas, install skills globally, introduce a benchmark harness, or change application behavior.
 
 ## Related files
 
