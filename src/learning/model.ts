@@ -3,21 +3,22 @@ import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {MEAN_VALUE_EXAMPLE_IDS} from '../analysis/meanValue';
 import {FUNCTION_IDS} from '../analysis/functions';
 import {DARBOUX_EXAMPLE_IDS} from '../analysis/darboux';
+import {EXTREMA_EXAMPLE_IDS} from '../analysis/extrema';
 
 export type LessonLanguage = 'sl' | 'en';
 
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n';
-export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n'];
+export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n' | 'extrema-a' | 'extrema-b';
+export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b'];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum';
-export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum'];
+export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum' | 'extrema-classification';
+export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification'];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
-export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example';
+export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example' | 'extrema-example';
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
     'trig-function': ['sin', 'cos', 'tan'],
     'derivative-function': ['square', 'sin', 'exp'],
@@ -28,6 +29,7 @@ export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonl
     'mean-value-example': MEAN_VALUE_EXAMPLE_IDS,
     'accumulation-function': FUNCTION_IDS,
     'darboux-example': DARBOUX_EXAMPLE_IDS,
+    'extrema-example': EXTREMA_EXAMPLE_IDS,
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 

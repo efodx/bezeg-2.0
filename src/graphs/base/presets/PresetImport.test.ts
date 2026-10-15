@@ -419,3 +419,55 @@ test("the darboux messages are localized and show the supported ranges from the 
     expect(attempt({...validDarboux, n: 200})).toContain("celo število od 1 do 128");
     expect(attempt({...validDarboux, b: 9})).toContain("med −7 in 7");
 });
+
+const extremaPreset = (data: unknown) => JSON.stringify({"preset-extrema": {data: [{id: "Osnova", boardState: {boundingBox: [-3, 6.5, 4, -3]},
+    graphState: {initialized: true, example: "square", a: -1, b: 2, revealed: false}, data}]}});
+
+test("extrema collection imports a model object with its classification flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "sine", a: 0, b: 3.141592653589793, revealed: true};
+    commitPresetImport(preflightPresetImport(extremaPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-extrema")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validExtrema = {example: "square", a: -1, b: 2, revealed: false};
+test.each([[[]], [null], [{}], [{...validExtrema, example: "quartic"}], [{...validExtrema, a: 2, b: -1}], [{...validExtrema, a: 1, b: 1}], [{...validExtrema, a: -4.01}],
+    [{...validExtrema, b: 4.01}], [{...validExtrema, a: "0"}], [{...validExtrema, revealed: "true"}], [{...validExtrema, revealed: 1}],
+    [{example: "square", a: -1, b: 2}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("extrema collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(extremaPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validExtrema, a: 2, b: -1}, /a < b/],
+    [{...validExtrema, a: 1, b: 1}, /a < b/],
+    [{...validExtrema, a: -4.01}, /−4.*4/],
+    [{...validExtrema, b: 100}, /−4.*4/],
+    [{...validExtrema, example: "exp"}, /square, cube, abs, sine/],
+    [{...validExtrema, revealed: "true"}, /revealed/],
+    [{...validExtrema, revealed: 1}, /revealed/],
+])("extrema errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(extremaPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(extremaPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("extrema data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validExtrema, a: "0"}, {example: "square", a: -1, b: 2}]) {
+        expect(() => preflightPresetImport(extremaPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the extrema messages are localized and show the supported range from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(extremaPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validExtrema, a: 3, b: 1})).toContain("a < b");
+    expect(attempt({...validExtrema, b: 9})).toContain("between −4 and 4");
+    expect(attempt({...validExtrema, revealed: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validExtrema, a: 3, b: 1})).toContain("a < b");
+    expect(attempt({...validExtrema, b: 9})).toContain("med −4 in 4");
+    expect(attempt({...validExtrema, revealed: "yes"})).toContain("true ali false");
+});

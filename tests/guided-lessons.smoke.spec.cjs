@@ -1420,8 +1420,74 @@ const darboux = {
     stableCounts: async page => ({n: await darbouxReadout(page, 'n')}),
 };
 
+// ---------------------------------------------------------------- Extrema
+const extremaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+// The first number of a global-value readout ("0 pri x = 0" / "0 at x = 0"), language independent.
+const extremaGlobal = async (page, id) => (await extremaReadout(page, id)).split(' ')[0];
+const extremaStatuses = page => page.locator('[data-extrema-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-extrema-status')));
+const extremaCandidates = page => page.locator('[data-readout^="candidate-"]').count();
+// Per step: the displayed a and b, the number of candidates, the statuses on screen and, where the classification is shown, the global values.
+// While it is hidden (steps 1, 3, 4, 5 and 6; the learner presses Show classification after predicting) the global readouts are words
+// ("skrito" / "hidden"), so only the language-independent status ids are checked there.
+const EXTREMA_STEPS = [
+    {a: '-1', b: '2', candidates: 3, statuses: ['hidden']},
+    {a: '-1', b: '2', candidates: 3, statuses: ['revealed'], min: '0', max: '4'},
+    {a: '-1', b: '1', candidates: 3, statuses: ['hidden']},
+    {a: '-1', b: '1', candidates: 3, statuses: ['hidden', 'corner']},
+    {a: '-4', b: '4', candidates: 4, statuses: ['hidden']},
+    {a: '0', b: '3.1416', candidates: 3, statuses: ['hidden']},
+    {a: '0', b: '3.1416', candidates: 3, statuses: ['revealed', 'tie'], min: '0', max: '1'},
+];
+
+const extrema = {
+    id: 'extrema',
+    path: `${BASE}/analysis/extrema`,
+    titles: {sl: 'Lokalni in globalni ekstremi', en: 'Local and global extrema'},
+    steps: 7,
+    minFrames: 16, // 2 + 3 + 2 + 2 + 2 + 2 + 3 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = EXTREMA_STEPS[step - 1];
+        await expect.poll(() => extremaReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => extremaReadout(page, 'b'), {message: `b at ${label}`}).toBe(expected.b);
+        await expect.poll(() => extremaCandidates(page), {message: `candidates at ${label}`}).toBe(expected.candidates);
+        if (expected.min !== undefined) {
+            await expect.poll(() => extremaGlobal(page, 'global-minimum'), {message: `global minimum at ${label}`}).toBe(expected.min);
+            await expect.poll(() => extremaGlobal(page, 'global-maximum'), {message: `global maximum at ${label}`}).toBe(expected.max);
+        }
+        await expect.poll(() => extremaStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // a and b are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.a), 0], `a on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/Right endpoint b|Desno krajišče b/).fill('1.5');
+        await expect.poll(() => extremaReadout(page, 'b')).toBe('1.5');
+        await page.locator('[data-action="toggle-classification"]').click();
+        await expect.poll(() => extremaStatuses(page), {message: 'the classification is shown'}).toContain('revealed');
+        await expect.poll(() => extremaGlobal(page, 'global-maximum'), {message: 'maximum of x^2 on [-1, 1.5]'}).toBe('2.25');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => extremaReadout(page, 'b'), {message: 'lesson scene replaced the user b'}).toBe('1');
+        await expect.poll(() => extremaStatuses(page), {message: 'lesson scene hid the classification'}).toEqual(['hidden']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => extremaReadout(page, 'b'), {message: 'user b restored'}).toBe('1.5');
+        await expect.poll(() => extremaStatuses(page), {message: 'user classification restored'}).toContain('revealed');
+        await expect.poll(() => extremaGlobal(page, 'global-maximum'), {message: 'user global maximum restored'}).toBe('2.25');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({b: await extremaReadout(page, 'b')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

@@ -62,3 +62,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .darboux-actions button { min-height: 44px; }
 }
+/* Extrema: the Show/Hide classification button and the statuses, styled like the mean value controls. */
+.extrema-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
+.extrema-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.extrema-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.extrema-status p { margin: 0; }
+.extrema-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .extrema-actions button { min-height: 44px; }
+}

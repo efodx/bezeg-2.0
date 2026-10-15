@@ -11,7 +11,7 @@
 | [02 Mean value theorem](02-mean-value-theorem.md) | 00 (family only) | released 2026-10-15 |
 | [03 Accumulated integral and FTC](03-accumulation.md) | 00 (family only) | released 2026-10-15 |
 | [04 Batch A release](04-batch-a-release.md) | 01–03 | released 2026-10-15 |
-| [05 Extrema](05-extrema.md) | 04 | not started |
+| [05 Extrema](05-extrema.md) | 04 | implemented, not released |
 | [06 Convexity and concavity](06-convexity.md) | 04 | not started |
 | [07 Darboux sums](07-darboux.md) | 04 | implemented, not released |
 | [08 Taylor approximation](08-taylor.md) | 04 | not started |

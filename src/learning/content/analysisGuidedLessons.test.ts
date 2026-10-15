@@ -10,12 +10,13 @@ import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
 import {accumulation, accumulationPieces, accumulationTangent} from '../../analysis/accumulation';
 import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
 import {DARBOUX_EXAMPLE_IDS, darbouxExample, darbouxSubintervals, darbouxTotals} from '../../analysis/darboux';
+import {analyzeExtrema, EXTREMA_EXAMPLE_IDS, ExtremaExampleId, extremaExample} from '../../analysis/extrema';
 
 const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bisection')!;
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -583,5 +584,151 @@ describe('the Darboux lesson', () => {
         expect(implementation.citation).toContain('src/graphs/functions/DarbouxGraph.tsx');
         expect(implementation.implementationCorrespondence).toMatch(/never sampled/);
         expect(implementation.implementationCorrespondence).toMatch(/nested/);
+    });
+});
+
+describe('the extrema lesson', () => {
+    const extremaLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'extrema')!;
+    const eStep = (id: string) => extremaLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('extrema')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const analyze = (id: ExtremaExampleId, a: number, b: number) => analyzeExtrema(extremaExample(id), a, b);
+    const rounded = (value: number) => Number(value.toFixed(4));
+    const predictionSteps = ['extrema-prerequisites-step', 'extrema-cube-step', 'extrema-abs-step', 'extrema-sine-step', 'extrema-tie-step'];
+    const revealSteps = ['extrema-square-step', 'extrema-free-exploration'];
+
+    test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
+        expect(extremaLesson.steps.map(step => step.id)).toEqual([
+            'extrema-prerequisites-step', 'extrema-square-step', 'extrema-cube-step', 'extrema-abs-step', 'extrema-sine-step', 'extrema-tie-step', 'extrema-free-exploration',
+        ]);
+        expect(adapted().id).toBe('extrema-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(getGuidedLesson('extrema')).toBe(extremaLesson);
+        expect(isGuidedLessonAvailable('extrema')).toBe(true);
+    });
+
+    test('states the prerequisites, the convention (local relative to the interval), the sources and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => extremaLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/derivative/);
+        expect(prerequisites('en')).toMatch(/closed interval/);
+        expect(prerequisites('sl')).toMatch(/odvoda/);
+        expect(prerequisites('sl')).toMatch(/zaprtega intervala/);
+        expect(eStep('extrema-prerequisites-step').explanation.en).toMatch(/relative to the selected interval/);
+        expect(eStep('extrema-prerequisites-step').explanation.en).toMatch(/only on the side that lies in the interval/);
+        expect(eStep('extrema-prerequisites-step').explanation.sl).toMatch(/glede na izbrani interval/);
+        expect(eStep('extrema-square-step').explanation.en).toMatch(/relative to the interval/);
+        expect(extremaLesson.summary.en).toMatch(/relative to the selected interval/);
+        expect(extremaLesson.summary.en).toMatch(/every tied candidate is global/);
+        expect(eStep('extrema-free-exploration').explanation.en).toMatch(/explore on your own/i);
+        expect(eStep('extrema-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+        expect(extremaLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation))).toBe(true);
+        const implementation = extremaLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/extrema.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/ExtremaGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/never sampled/);
+        expect(implementation.implementationCorrespondence).toMatch(/relative to the selected interval/);
+        expect(implementation.implementationCorrespondence).toMatch(/tied candidates are all global/);
+    });
+
+    test('asks for a prediction before every classification reveal, and the scene of a prediction step never reveals', () => {
+        for (const id of predictionSteps) {
+            expect(eStep(id).observationPrompt.en, id).toMatch(/Predict/);
+            expect(eStep(id).observationPrompt.en, id).toMatch(/Show classification/);
+            expect(eStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
+            expect(eStep(id).observationPrompt.sl, id).toMatch(/Pokaži klasifikacijo/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual({kind: 'function-visibility', target: 'extrema-classification', visible: false});
+        }
+        for (const id of revealSteps) {
+            expect(adaptedActions(id)).toContainEqual({kind: 'function-visibility', target: 'extrema-classification', visible: true});
+            expect(eStep(id).frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
+        }
+        // the first prediction precedes its reveal, and so does the tie prediction
+        const order = (id: string) => extremaLesson.steps.findIndex(step => step.id === id);
+        expect(order('extrema-prerequisites-step')).toBeLessThan(order('extrema-square-step'));
+        expect(order('extrema-tie-step')).toBeLessThan(order('extrema-free-exploration'));
+        // a prediction step shows no calculation frame, which would give the answer away
+        for (const id of predictionSteps) expect(eStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        expect(adaptedActions('extrema-prerequisites-step')).toEqual([
+            {kind: 'prepared-scene', sceneId: 'extrema-prerequisites-scene', source: 'demonstration-default'},
+            {kind: 'function-visibility', target: 'extrema-classification', visible: false},
+        ]);
+        expect(adaptedActions('extrema-cube-step').slice(1)).toEqual([
+            {kind: 'function-choice', name: 'extrema-example', value: 'cube'}, {kind: 'function-visibility', target: 'extrema-classification', visible: false},
+        ]);
+        expect(adaptedActions('extrema-abs-step').slice(1, 2)).toEqual([{kind: 'function-choice', name: 'extrema-example', value: 'abs'}]);
+        expect(adaptedActions('extrema-sine-step').slice(1, 2)).toEqual([{kind: 'function-choice', name: 'extrema-example', value: 'sine'}]);
+        for (const id of ['extrema-tie-step', 'extrema-free-exploration']) {
+            expect(adaptedActions(id).slice(1, 4)).toEqual([
+                {kind: 'function-choice', name: 'extrema-example', value: 'sine'}, {kind: 'function-parameter', name: 'extrema-a', value: 0},
+                {kind: 'function-parameter', name: 'extrema-b', value: Math.PI},
+            ]);
+        }
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives', () => {
+        // x^2 on [-1, 2]
+        const square = analyze('square', -1, 2);
+        expect(square.candidates.map(candidate => [candidate.x, candidate.value, candidate.local])).toEqual([[-1, 1, 'localMaximum'], [0, 0, 'localMinimum'], [2, 4, 'localMaximum']]);
+        expect([square.globalMinimum, square.globalMinimumAt, square.globalMaximum, square.globalMaximumAt]).toEqual([0, [0], 4, [2]]);
+        expect(square.pieces.map(piece => piece.sign)).toEqual([-1, 1]);
+        expect(square.candidates[0].isGlobalMaximum).toBe(false);
+        expect(extremaExample('square').value(-1.1)).toBeCloseTo(1.21, 12);
+        // x^3 on [-1, 1]: 0 is stationary and neither
+        const cube = analyze('cube', -1, 1);
+        expect(cube.candidates.map(candidate => [candidate.x, candidate.local])).toEqual([[-1, 'localMinimum'], [0, 'neither'], [1, 'localMaximum']]);
+        expect([cube.globalMinimum, cube.globalMaximum]).toEqual([-1, 1]);
+        expect(cube.pieces.map(piece => piece.sign)).toEqual([1, 1]);
+        // |x| on [-1, 1]: corner minimum, endpoints tie
+        const abs = analyze('abs', -1, 1);
+        expect(abs.candidates.map(candidate => [candidate.kind, candidate.derivative, candidate.local])).toEqual([
+            ['endpoint', -1, 'localMaximum'], ['corner', undefined, 'localMinimum'], ['endpoint', 1, 'localMaximum'],
+        ]);
+        expect([abs.globalMinimumAt, abs.globalMaximumAt]).toEqual([[0], [-1, 1]]);
+        // sin x on [-4, 4]
+        const sine = analyze('sine', -4, 4);
+        expect(sine.candidates.map(candidate => [rounded(candidate.x), rounded(candidate.value), candidate.local])).toEqual([
+            [-4, 0.7568, 'localMaximum'], [-1.5708, -1, 'localMinimum'], [1.5708, 1, 'localMaximum'], [4, -0.7568, 'localMinimum'],
+        ]);
+        expect([sine.globalMinimum, sine.globalMaximum]).toEqual([-1, 1]);
+        expect(sine.candidates.filter(candidate => candidate.isGlobalMinimum || candidate.isGlobalMaximum).map(candidate => candidate.kind)).toEqual(['stationary', 'stationary']);
+        // sin x on [0, pi]: the endpoints tie as global minima
+        const tie = analyze('sine', 0, Math.PI);
+        expect(tie.candidates.map(candidate => [candidate.local, candidate.isGlobalMinimum, candidate.isGlobalMaximum])).toEqual([
+            ['localMinimum', true, false], ['localMaximum', false, true], ['localMinimum', true, false],
+        ]);
+        expect(tie.globalMinimumAt).toEqual([0, Math.PI]);
+        expect(rounded(Math.PI)).toBe(3.1416);
+        // the numbers in the prose
+        expect(eStep('extrema-square-step').explanation.sl).toContain('f(-1{,}1)=1{,}21');
+        expect(eStep('extrema-square-step').explanation.en).toContain('f(-1.1)=1.21');
+        expect(eStep('extrema-sine-step').explanation.sl).toContain('0{,}7568');
+        expect(eStep('extrema-sine-step').explanation.en).toContain('-0.7568');
+        expect(eStep('extrema-sine-step').explanation.en).toContain('f(-4)\\approx0.7568');
+        const worked = (id: string) => extremaLesson.workedExamples.find(example => example.id === id)!;
+        expect(worked('extrema-square-example').resultLatex).toBe('\\min f=f(0)=0,\\qquad \\max f=f(2)=4');
+        expect(worked('extrema-sine-tie-example').resultLatex).toContain('f(0)=f(\\pi)=0');
+        // the handoff step explains the tie in words
+        expect(eStep('extrema-free-exploration').explanation.en).toMatch(/both endpoints are local minima/);
+        expect(eStep('extrema-free-exploration').explanation.en).toMatch(/both are global minima/);
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the example choice and the classification element', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['extrema-a', 'extrema-b', 'darboux-a', 'mvt-a', 'a', 'b', 'n']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('extrema-example');
+        expect(FUNCTION_CHOICE_VALUES['extrema-example']).toEqual([...EXTREMA_EXAMPLE_IDS]);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('extrema-classification');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'extrema-a', value: 0}})).toEqual({kind: 'function-parameter', name: 'extrema-a', value: 0});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'extrema-example', value: 'abs'}})).toEqual({kind: 'function-choice', name: 'extrema-example', value: 'abs'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'extrema-classification', value: false}})).toEqual({kind: 'function-visibility', target: 'extrema-classification', visible: false});
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'extrema-example', value: 'cos'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-c' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-a', value: Number.NaN}})).toThrow(/finite/);
+        expect(() => sceneAction({name: 'show-function-element', value: {name: 'extrema-classification', value: 'yes' as never}})).toThrow(/true or false/);
     });
 });

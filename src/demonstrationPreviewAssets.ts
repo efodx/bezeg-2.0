@@ -39,6 +39,8 @@ import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 // Placeholder: a copy of the accumulation preview, replaced by the generated Darboux preview in the Batch B release task.
 import preview_darboux from './images/demonstrations/catalog/darboux.png';
+// Placeholder: a copy of the accumulation preview, replaced by the generated extrema preview in the Batch B release task.
+import preview_extrema from './images/demonstrations/catalog/extrema.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -79,4 +81,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'mean-value': preview_mean_value,
     'accumulation': preview_accumulation,
     'darboux': preview_darboux,
+    'extrema': preview_extrema,
 };
