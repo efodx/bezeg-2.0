@@ -1292,8 +1292,71 @@ const meanValue = {
     stableCounts: async page => ({c: await meanValueReadout(page, 'c')}),
 };
 
+// ---------------------------------------------------------------- Accumulated integral
+const accumulationReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const accumulationStatuses = page => page.locator('[data-accumulation-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-accumulation-status')));
+// Per step: the displayed a, x and f(x), the statuses on screen and, where the accumulation is shown, the signed integral and the tangent slope.
+// While the accumulation is hidden (every step except 2 and 6; the learner presses Show accumulation A after predicting) the readouts for A are
+// words ("skrito" / "hidden"), so only the language-independent status id is checked there.
+const ACCUMULATION_STEPS = [
+    {a: '0', x: '2', fx: '0.9093', statuses: ['hidden']},
+    {a: '0', x: '2', fx: '0.9093', integral: '1.4161', slope: '0.9093', statuses: ['rising']},
+    {a: '0', x: '3.1416', fx: '0', statuses: ['hidden']},
+    {a: '0', x: '6.2832', fx: '0', statuses: ['hidden']},
+    {a: '2', x: '0', fx: '0', statuses: ['hidden']},
+    {a: '0', x: '1.5708', fx: '1', integral: '1', slope: '1', statuses: ['rising']},
+    {a: '0', x: '2', fx: '4', statuses: ['hidden']},
+];
+
+const accumulation = {
+    id: 'accumulation',
+    path: `${BASE}/analysis/accumulation`,
+    titles: {sl: 'Akumulirani integral in osnovni izrek', en: 'The accumulated integral and the fundamental theorem'},
+    steps: 7,
+    minFrames: 17, // 2 + 3 + 2 + 2 + 3 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = ACCUMULATION_STEPS[step - 1];
+        await expect.poll(() => accumulationReadout(page, 'a'), {message: `a at ${label}`}).toBe(expected.a);
+        await expect.poll(() => accumulationReadout(page, 'x'), {message: `x at ${label}`}).toBe(expected.x);
+        await expect.poll(() => accumulationReadout(page, 'f-x'), {message: `f(x) at ${label}`}).toBe(expected.fx);
+        if (expected.integral !== undefined) {
+            await expect.poll(() => accumulationReadout(page, 'signed-integral'), {message: `signed integral at ${label}`}).toBe(expected.integral);
+            await expect.poll(() => accumulationReadout(page, 'slope'), {message: `tangent slope at ${label}`}).toBe(expected.slope);
+        }
+        await expect.poll(() => accumulationStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // a and x are the draggable points on the x-axis
+        await expectPointNear(page, [Number(expected.a), 0], `a on the axis at ${label}`);
+        await expectPointNear(page, [Number(expected.x), 0], `x on the axis at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/Point x|Točka x/).fill('1.2');
+        await expect.poll(() => accumulationReadout(page, 'x')).toBe('1.2');
+        await page.locator('[data-action="toggle-accumulation"]').click();
+        await expect.poll(() => accumulationStatuses(page), {message: 'the accumulation is shown'}).not.toContain('hidden');
+        await expect.poll(() => accumulationReadout(page, 'signed-integral'), {message: 'A(1.2) = 1 - cos 1.2'}).toBe('0.6376');
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => accumulationReadout(page, 'x'), {message: 'lesson scene replaced the user x'}).toBe('3.1416');
+        await expect.poll(() => accumulationStatuses(page), {message: 'lesson scene hid the user reveal'}).toEqual(['hidden']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => accumulationReadout(page, 'x'), {message: 'user x restored'}).toBe('1.2');
+        await expect.poll(() => accumulationStatuses(page), {message: 'user reveal restored'}).not.toContain('hidden');
+        await expect.poll(() => accumulationReadout(page, 'signed-integral'), {message: 'user signed integral restored'}).toBe('0.6376');
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({x: await accumulationReadout(page, 'x')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

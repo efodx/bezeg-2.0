@@ -11,6 +11,7 @@ import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGrap
 import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
 import { BisectionGraph } from './graphs/functions/BisectionGraph';
 import { MeanValueGraph } from './graphs/functions/MeanValueGraph';
+import { AccumulationGraph } from './graphs/functions/AccumulationGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -59,7 +60,7 @@ test('all existing graph URLs retain their graph implementations', () => {
         // GraphHost receives a factory; creating the controller has no side effects.
         return (graph.props as {create: () => object}).create().constructor;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(36);
+    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(37);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau')).toBe(DecasteljauGraph);
@@ -96,4 +97,5 @@ test('all existing graph URLs retain their graph implementations', () => {
     expect(graphFor('/bezeg-2.0/functions/arc-length')).toBe(ArcLengthGraph);
     expect(graphFor('/bezeg-2.0/analysis/bisection')).toBe(BisectionGraph);
     expect(graphFor('/bezeg-2.0/analysis/mean-value')).toBe(MeanValueGraph);
+    expect(graphFor('/bezeg-2.0/analysis/accumulation')).toBe(AccumulationGraph);
 });

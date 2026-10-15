@@ -9,22 +9,26 @@ import {parseAreaBetweenModel} from "../../../analysis/areaBetweenModel";
 import {parseArcLengthModel} from "../../../analysis/arcLengthModel";
 import {parseBisectionModel} from "../../../analysis/bisectionModel";
 import {parseMeanValueModel} from "../../../analysis/meanValueModel";
+import {parseAccumulationModel} from "../../../analysis/accumulationModel";
+import {isAccumulationBound} from "../../../analysis/accumulation";
 // Existing collection keys and DTO names are a file contract, independent of the graph renderer.
 const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decasteljau2", "subdivision-1", "affine-transform", "elevation-graph",
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
 const finite = (value: any) => typeof value === "number" && Number.isFinite(value);
 /** Mean value data with numeric a, b and c that break a < c < b: the one function-data error that deserves its own explanation. */
 const misorderedMeanValue = (data: any) => isObject(data) && [data.a, data.b, data.c].every(finite) && !(data.a < data.c && data.c < data.b);
+/** Accumulation data with numeric a and x outside the supported range: the one function-data error that names the range to use. */
+const outOfRangeAccumulation = (data: any) => isObject(data) && [data.a, data.x].every(finite) && !(isAccumulationBound(data.a) && isAccumulationBound(data.x));
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));
@@ -80,6 +84,7 @@ export function preflightPresetImport(contents: string, storage: Storage = windo
             if (preset.data !== undefined && functionModelParsers[key]) {
                 if (functionModelParsers[key](preset.data) === undefined) {
                     if (key === "preset-mean-value" && misorderedMeanValue(preset.data)) { fail(message("invalid_mean_value_order")); }
+                    if (key === "preset-accumulation" && outOfRangeAccumulation(preset.data)) { fail(message("invalid_accumulation_range")); }
                     fail(message("invalid_function_data"));
                 }
             } else if (preset.data !== undefined) {

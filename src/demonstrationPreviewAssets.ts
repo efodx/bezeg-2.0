@@ -38,6 +38,8 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
 // Placeholder: a copy of the continuity preview, replaced by the generated mean value preview in the Batch A release task.
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
+// Placeholder: a copy of the continuity preview, replaced by the generated accumulation preview in the Batch A release task.
+import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -76,4 +78,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'arc-length': preview_arc_length,
     'bisection': preview_bisection,
     'mean-value': preview_mean_value,
+    'accumulation': preview_accumulation,
 };

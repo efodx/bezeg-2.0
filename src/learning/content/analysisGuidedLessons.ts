@@ -9,10 +9,15 @@
  * The mean value lesson drives its graph with the generic function actions (`set-function-parameter` mvt-a/mvt-b/mvt-c,
  * `set-function-choice` mean-value-example and `show-function-element` matching-points); the learner presses the graph's own
  * Show matching point to reveal a result after predicting it, except in the step that reveals the prediction of the previous one.
+ *
+ * The accumulation lesson uses the same generic actions (`set-function-parameter` accum-a/accum-x, `set-function-choice`
+ * accumulation-function and `show-function-element` accumulation-curve); the learner presses the graph's own Show accumulation A
+ * after predicting, except in the steps whose point is the revealed curve or its tangent.
  */
 import type {FunctionParameterName} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
 import type {MeanValueExampleId} from '../../analysis/meanValue';
+import type {FunctionId} from '../../analysis/functions';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -605,5 +610,369 @@ const meanValue: GuidedLesson = {
     ],
 };
 
+const accumulationFunction = (value: FunctionId): SceneAction => ({
+    name: 'set-function-choice', value: {name: 'accumulation-function', value},
+});
+const accumulationCurve = (visible: boolean): SceneAction => ({
+    name: 'show-function-element', value: {name: 'accumulation-curve', value: visible},
+});
+
+const accumulation: GuidedLesson = {
+    demonstrationId: 'accumulation',
+    title: text('Akumulirani integral in osnovni izrek', 'The accumulated integral and the fundamental theorem'),
+    summary: text(
+        'Akumulacija \\(A(x)=\\int_a^x f(t)\\,dt\\) je določeni integral s predznakom od spodnje meje \\(a\\) do točke \\(x\\). Deli grafa pod osjo \\(x\\) štejejo negativno, pri \\(x<a\\) pa se orientacija obrne. Če je \\(f\\) zvezna v točki \\(x\\), je \\(A^{\\prime}(x)=f(x)\\): naklon tangente na \\(A\\) je višina grafa funkcije \\(f\\).',
+        'The accumulation \\(A(x)=\\int_a^x f(t)\\,dt\\) is the signed definite integral from the lower bound \\(a\\) to the point \\(x\\). Parts of the graph below the \\(x\\)-axis count as negative, and for \\(x<a\\) the orientation reverses. If \\(f\\) is continuous at the point \\(x\\), then \\(A^{\\prime}(x)=f(x)\\): the slope of the tangent to \\(A\\) is the height of the graph of \\(f\\).',
+    ),
+    prerequisites: [
+        text(
+            'Potrebno je razumevanje določenega integrala s predznakom \\(\\int_a^b f(x)\\,dx\\), pri katerem deli grafa pod osjo \\(x\\) štejejo negativno.',
+            'Assumes an understanding of the signed definite integral \\(\\int_a^b f(x)\\,dx\\), in which parts of the graph below the \\(x\\)-axis count as negative.',
+        ),
+        text(
+            'Potrebno je poznavanje odvoda funkcije kot naklona tangente in zvezne funkcije.',
+            'Assumes familiarity with the derivative as the slope of the tangent and with continuous functions.',
+        ),
+    ],
+    learningGoals: [
+        text(
+            'Pri \\(f(x)=\\sin x\\) in \\(a=0\\) iz osenčenega območja napoveš \\(A(2)\\) in napoved preveriš: \\(A(2)=1-\\cos 2\\approx1{,}4161\\); nato odčitaš \\(A(\\pi)=2\\) in \\(A(2\\pi)=0\\).',
+            'For \\(f(x)=\\sin x\\) and \\(a=0\\) predict \\(A(2)\\) from the shaded region and check the prediction: \\(A(2)=1-\\cos 2\\approx1.4161\\); then read off \\(A(\\pi)=2\\) and \\(A(2\\pi)=0\\).',
+        ),
+        text(
+            'Pojasniš, zakaj deli grafa pod osjo \\(x\\) akumulacijo zmanjšujejo in zakaj je pri \\(x<a\\) vrednost \\(A(x)=-\\int_x^a f(t)\\,dt\\).',
+            'Explain why parts of the graph below the \\(x\\)-axis decrease the accumulation and why \\(A(x)=-\\int_x^a f(t)\\,dt\\) for \\(x<a\\).',
+        ),
+        text(
+            'Povežeš naklon tangente na \\(A\\) z vrednostjo \\(f(x)\\) in imenuješ zveznost funkcije \\(f\\) kot zadostni pogoj za \\(A^{\\prime}(x)=f(x)\\).',
+            'Connect the slope of the tangent to \\(A\\) with the value \\(f(x)\\) and name continuity of \\(f\\) as a sufficient condition for \\(A^{\\prime}(x)=f(x)\\).',
+        ),
+    ],
+    formulaBlocks: [
+        {
+            id: 'accumulation-definition',
+            latex: 'A(x)=\\int_a^x f(t)\\,dt=F(x)-F(a)',
+            notation: text(
+                'Funkcija \\(F\\) je poljubna primitivna funkcija funkcije \\(f\\), spodnja meja \\(a\\) je pritrjena, točka \\(x\\) pa se premika.',
+                'The function \\(F\\) is any antiderivative of \\(f\\), the lower bound \\(a\\) is fixed, and the point \\(x\\) moves.',
+            ),
+            explanation: text(
+                'Pri \\(x=a\\) je območje prazno in \\(A(a)=0\\). Aplikacija vrednost izračuna po formuli \\(F(x)-F(a)\\) in ne s seštevanjem pravokotnikov.',
+                'At \\(x=a\\) the region is empty and \\(A(a)=0\\). The app computes the value by the formula \\(F(x)-F(a)\\) and not by adding rectangles.',
+            ),
+        },
+        {
+            id: 'accumulation-signed',
+            latex: 'A(x)=\\int_a^x f(t)\\,dt,\\qquad x<a:\\ A(x)=-\\int_x^a f(t)\\,dt',
+            notation: text(
+                'Integral je usmerjen od \\(a\\) proti \\(x\\): če je \\(x<a\\), je pot obrnjena in integral zamenja predznak.',
+                'The integral is oriented from \\(a\\) towards \\(x\\): if \\(x<a\\) the path is reversed and the integral changes sign.',
+            ),
+            explanation: text(
+                'Deli grafa \\(f\\) pod osjo \\(x\\) prispevajo negativno, ko je \\(x>a\\), in pozitivno, ko je \\(x<a\\). Zato vrednost \\(A(x)\\) ni geometrijska ploščina, ampak ploščina s predznakom.',
+                'Parts of the graph of \\(f\\) below the \\(x\\)-axis contribute negatively when \\(x>a\\) and positively when \\(x<a\\). So the value \\(A(x)\\) is not the geometric area but a signed area.',
+            ),
+        },
+        {
+            id: 'accumulation-derivative',
+            latex: 'A^{\\prime}(x)=\\lim_{h\\to0}\\frac{A(x+h)-A(x)}{h}=\\lim_{h\\to0}\\frac1h\\int_x^{x+h}f(t)\\,dt=f(x)',
+            notation: text(
+                'Količnik \\(\\frac{A(x+h)-A(x)}{h}\\) je povprečna višina grafa \\(f\\) na kratkem odseku od \\(x\\) do \\(x+h\\).',
+                'The quotient \\(\\frac{A(x+h)-A(x)}{h}\\) is the average height of the graph of \\(f\\) over the short stretch from \\(x\\) to \\(x+h\\).',
+            ),
+            explanation: text(
+                'Če je \\(f\\) zvezna v točki \\(x\\), se povprečna višina pri \\(h\\to0\\) približa vrednosti \\(f(x)\\), zato je \\(A^{\\prime}(x)=f(x)\\). Zveznost je zadostni pogoj; pri funkciji s skokom v \\(x\\) zveza lahko odpove.',
+                'If \\(f\\) is continuous at the point \\(x\\), the average height approaches \\(f(x)\\) as \\(h\\to0\\), so \\(A^{\\prime}(x)=f(x)\\). Continuity is a sufficient condition; for a function with a jump at \\(x\\) the relation can fail.',
+            ),
+        },
+        {
+            id: 'accumulation-sine',
+            latex: 'A(x)=\\int_0^x\\sin t\\,dt=1-\\cos x,\\qquad A(0)=0,\\ A(\\pi)=2,\\ A(2\\pi)=0',
+            notation: text(
+                'Primitivna funkcija funkcije \\(\\sin t\\) je \\(-\\cos t\\), zato je \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\).',
+                'An antiderivative of \\(\\sin t\\) is \\(-\\cos t\\), so \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\).',
+            ),
+            explanation: text(
+                'Akumulacija naraste od \\(0\\) do \\(2\\) na \\([0,\\pi]\\), kjer je \\(\\sin t\\ge0\\), in pade nazaj na \\(0\\) na \\([\\pi,2\\pi]\\), kjer je \\(\\sin t\\le0\\).',
+                'The accumulation grows from \\(0\\) to \\(2\\) on \\([0,\\pi]\\), where \\(\\sin t\\ge0\\), and falls back to \\(0\\) on \\([\\pi,2\\pi]\\), where \\(\\sin t\\le0\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'accumulation-sin-example',
+            title: text('Funkcija \\(f(x)=\\sin x\\) in \\(a=0\\)', 'The function \\(f(x)=\\sin x\\) and \\(a=0\\)'),
+            calculationLatex: 'A(x)=-\\cos x+\\cos 0=1-\\cos x,\\qquad A(2)=1-\\cos 2',
+            resultLatex: 'A(0)=0,\\qquad A(\\pi)=1-\\cos\\pi=2,\\qquad A(2\\pi)=1-\\cos 2\\pi=0',
+            check: text(
+                'Na \\([0,\\pi]\\) je \\(\\sin t\\ge0\\), zato \\(A\\) narašča od \\(0\\) do \\(2\\); na \\([\\pi,2\\pi]\\) je \\(\\sin t\\le0\\), zato \\(A\\) pada nazaj na \\(0\\). Aplikacija pri \\(x=2\\) pokaže vrednost \\(1{,}4161\\).',
+                'On \\([0,\\pi]\\) we have \\(\\sin t\\ge0\\), so \\(A\\) increases from \\(0\\) to \\(2\\); on \\([\\pi,2\\pi]\\) we have \\(\\sin t\\le0\\), so \\(A\\) falls back to \\(0\\). At \\(x=2\\) the app shows the value \\(1.4161\\).',
+            ),
+        },
+        {
+            id: 'accumulation-reversed-example',
+            title: text('Obrnjena orientacija: \\(a=2\\) in \\(x=0\\)', 'Reversed orientation: \\(a=2\\) and \\(x=0\\)'),
+            calculationLatex: 'A(0)=-\\int_0^2\\sin t\\,dt=-(1-\\cos 2)',
+            resultLatex: 'A(0)=\\cos 2-1',
+            check: text(
+                'Osenčeno območje je enako kot pri \\(a=0\\) in \\(x=2\\) in leži nad osjo, vrednost \\(A(0)=\\cos 2-1\\approx-1{,}4161\\) pa je negativna, ker je \\(x<a\\). Aplikacija pokaže \\(-1{,}4161\\).',
+                'The shaded region is the same as for \\(a=0\\) and \\(x=2\\) and lies above the axis, while the value \\(A(0)=\\cos 2-1\\approx-1.4161\\) is negative because \\(x<a\\). The app shows \\(-1.4161\\).',
+            ),
+        },
+        {
+            id: 'accumulation-derivative-example',
+            title: text('Naklon tangente v točki \\(x=\\frac{\\pi}{2}\\)', 'The tangent slope at the point \\(x=\\frac{\\pi}{2}\\)'),
+            calculationLatex: 'A^{\\prime}(x)=\\sin x,\\qquad A^{\\prime}\\!\\left(\\frac{\\pi}{2}\\right)=\\sin\\frac{\\pi}{2}=1',
+            resultLatex: 'A\\!\\left(\\frac{\\pi}{2}\\right)=1-\\cos\\frac{\\pi}{2}=1',
+            check: text(
+                'Pri \\(x=\\frac{\\pi}{2}\\approx1{,}5708\\) je \\(f(x)=1\\), tangenta na \\(A\\) ima naklon \\(1\\) in \\(A(x)=1\\); enak naklon da odvod \\(1-\\cos x\\), to je \\(\\sin x\\).',
+                'At \\(x=\\frac{\\pi}{2}\\approx1.5708\\) we have \\(f(x)=1\\), the tangent to \\(A\\) has slope \\(1\\) and \\(A(x)=1\\); the derivative of \\(1-\\cos x\\), which is \\(\\sin x\\), gives the same slope.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'accumulation-prerequisites-step', order: 1,
+            title: text('Osenčeno območje in napoved', 'The shaded region and a prediction'),
+            purpose: text(
+                'Povezati osenčeno območje med \\(a\\) in \\(x\\) z vrednostjo akumulacije, še preden jo vidimo.',
+                'Linking the shaded region between \\(a\\) and \\(x\\) to the value of the accumulation before seeing it.',
+            ),
+            explanation: text(
+                'Funkcija \\(f(x)=\\sin x\\) je zvezna, spodnja meja je \\(a=0\\) in točka je \\(x=2\\). Akumulacija \\(A(x)=\\int_a^x f(t)\\,dt\\) je integral s predznakom od \\(a\\) do \\(x\\): osenčeno območje med grafom in osjo \\(x\\) šteje pozitivno nad osjo (oznaka +) in negativno pod njo (oznaka −). Krivulja \\(A\\) je za zdaj skrita. Pri \\(x=2\\) leži vse območje nad osjo, ker je \\(\\sin t>0\\) za \\(t\\in(0,2)\\), zato mora biti \\(A(2)\\) pozitivna in manjša od \\(2\\), kolikor meri celoten lok sinusa nad \\([0,\\pi]\\).',
+                'The function \\(f(x)=\\sin x\\) is continuous, the lower bound is \\(a=0\\) and the point is \\(x=2\\). The accumulation \\(A(x)=\\int_a^x f(t)\\,dt\\) is the signed integral from \\(a\\) to \\(x\\): the shaded region between the graph and the \\(x\\)-axis counts as positive above the axis (marked +) and as negative below it (marked −). The curve \\(A\\) is hidden for now. At \\(x=2\\) the whole region lies above the axis, because \\(\\sin t>0\\) for \\(t\\in(0,2)\\), so \\(A(2)\\) must be positive and smaller than \\(2\\), the measure of the whole arc of the sine over \\([0,\\pi]\\).',
+            ),
+            formulaIds: ['accumulation-definition', 'accumulation-signed'], learnerInteraction: 'observe',
+            frames: [frame('accumulation-prerequisites-explanation', 'explanation'), frame('accumulation-prerequisites-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej predznak in približno velikost \\(A(2)\\) iz osenčenega območja in šele nato pritisni Pokaži akumulacijo A.',
+                'Predict the sign and approximate size of \\(A(2)\\) from the shaded region, and only then press Show accumulation A.',
+            ),
+            expectedObservations: [text(
+                'Akumulacija je skrita: odčitki za \\(A(x)\\) in \\(A^{\\prime}(x)\\) kažejo, da sta skrita; prikazana je le vrednost \\(f(2)=\\sin 2\\approx0{,}9093\\).',
+                'The accumulation is hidden: the readouts for \\(A(x)\\) and \\(A^{\\prime}(x)\\) say that they are hidden; only the value \\(f(2)=\\sin 2\\approx0.9093\\) is shown.',
+            )],
+            scene: {
+                id: 'accumulation-default', basedOn: 'demonstration-default',
+                actions: [],
+                expectedState: text(
+                    'Prikazan je \\(f(x)=\\sin x\\) z \\(a=0\\) in \\(x=2\\): osenčeno območje je nad osjo, akumulacija \\(A\\) je skrita.',
+                    'The graph of \\(f(x)=\\sin x\\) is shown with \\(a=0\\) and \\(x=2\\): the shaded region is above the axis, and the accumulation \\(A\\) is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-reveal-step', order: 2,
+            title: text('Akumulacija \\(A\\) in \\(A(0)=0\\)', 'The accumulation \\(A\\) and \\(A(0)=0\\)'),
+            purpose: text(
+                'Primerjati napoved z vrednostjo \\(A(2)\\), ki jo da formula.',
+                'Comparing the prediction with the value \\(A(2)\\) that the formula gives.',
+            ),
+            explanation: text(
+                'Primitivna funkcija funkcije \\(\\sin t\\) je \\(-\\cos t\\), zato je \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\) in \\(A(2)=1-\\cos 2\\approx1{,}4161\\). Ko pokažeš akumulacijo, se nariše črtkana krivulja \\(A\\) in njena točka pri \\(x=2\\); tangenta na \\(A\\) ima tam naklon \\(f(2)\\approx0{,}9093\\). Pri \\(x=a\\) je območje prazno in \\(A(a)=0\\), zato se krivulja \\(A\\) začne v točki \\((0,0)\\). Prikazana vrednost je določeni integral s predznakom, ne geometrijska ploščina.',
+                'An antiderivative of \\(\\sin t\\) is \\(-\\cos t\\), so \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\) and \\(A(2)=1-\\cos 2\\approx1.4161\\). When you show the accumulation, the dashed curve \\(A\\) is drawn together with its point at \\(x=2\\); the tangent to \\(A\\) there has slope \\(f(2)\\approx0.9093\\). At \\(x=a\\) the region is empty and \\(A(a)=0\\), so the curve \\(A\\) starts at the point \\((0,0)\\). The displayed value is the signed definite integral, not the geometric area.',
+            ),
+            formulaIds: ['accumulation-definition', 'accumulation-sine'], workedExampleId: 'accumulation-sin-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-reveal-explanation', 'explanation'), frame('accumulation-reveal-calculation', 'calculation'), frame('accumulation-reveal-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj prikazano vrednost \\(A(2)\\) z napovedjo. Nato povleci točko \\(x\\) po osi \\(x\\) in opazuj, kako se točka na krivulji \\(A\\) premika.',
+                'Compare the shown value \\(A(2)\\) with your prediction. Then drag the point \\(x\\) along the \\(x\\)-axis and watch the point on the curve \\(A\\) move.',
+            ),
+            expectedObservations: [text(
+                'Pri \\(x=2\\) je \\(A(2)\\approx1{,}4161\\), naklon tangente na \\(A\\) je \\(0{,}9093\\) in osenčeno območje je nad osjo.',
+                'At \\(x=2\\) we have \\(A(2)\\approx1.4161\\), the slope of the tangent to \\(A\\) is \\(0.9093\\) and the shaded region is above the axis.',
+            )],
+            scene: {
+                id: 'accumulation-reveal-scene', basedOn: 'demonstration-default',
+                actions: [accumulationCurve(true)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\), \\(a=0\\) in \\(x=2\\) je \\(A(2)\\approx1{,}4161\\); akumulacija \\(A\\) je pokazana.',
+                    'For \\(f(x)=\\sin x\\), \\(a=0\\) and \\(x=2\\) we have \\(A(2)\\approx1.4161\\); the accumulation \\(A\\) is shown.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-pi-step', order: 3,
+            title: text('Cel lok sinusa: \\(A(\\pi)=2\\)', 'The whole arc of the sine: \\(A(\\pi)=2\\)'),
+            purpose: text(
+                'Napovedati vrednost akumulacije, ko območje zajame celoten lok sinusa nad osjo.',
+                'Predicting the value of the accumulation when the region covers the whole arc of the sine above the axis.',
+            ),
+            explanation: text(
+                'Pri \\(x=\\pi\\) osenčeno območje zajame cel lok sinusa nad osjo, od \\(0\\) do \\(\\pi\\). Njegova vrednost je \\(A(\\pi)=1-\\cos\\pi=2\\), kar je znani rezultat \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). Akumulacija \\(A\\) je do \\(x=\\pi\\) naraščala, ker je \\(\\sin t>0\\) na \\((0,\\pi)\\); v točki \\(x=\\pi\\) doseže najvišjo vrednost \\(2\\), kjer je \\(f(\\pi)=0\\) in je njena tangenta vodoravna.',
+                'At \\(x=\\pi\\) the shaded region covers the whole arc of the sine above the axis, from \\(0\\) to \\(\\pi\\). Its value is \\(A(\\pi)=1-\\cos\\pi=2\\), the well-known result \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). The accumulation \\(A\\) increased up to \\(x=\\pi\\), because \\(\\sin t>0\\) on \\((0,\\pi)\\); at the point \\(x=\\pi\\) it reaches its highest value \\(2\\), where \\(f(\\pi)=0\\) and its tangent is horizontal.',
+            ),
+            formulaIds: ['accumulation-sine'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-pi-explanation', 'explanation'), frame('accumulation-pi-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej \\(A(\\pi)\\) in šele nato pritisni Pokaži akumulacijo A. Nato preveri, da je tangenta na \\(A\\) v točki \\(x=\\pi\\) vodoravna.',
+                'Predict \\(A(\\pi)\\), and only then press Show accumulation A. Then check that the tangent to \\(A\\) at the point \\(x=\\pi\\) is horizontal.',
+            ),
+            expectedObservations: [text(
+                'Po pritisku je \\(A(\\pi)=2\\), \\(f(\\pi)=0\\) in naklon tangente na \\(A\\) je \\(0\\).',
+                'After the press we have \\(A(\\pi)=2\\), \\(f(\\pi)=0\\) and the slope of the tangent to \\(A\\) is \\(0\\).',
+            )],
+            scene: {
+                id: 'accumulation-pi-scene', basedOn: 'demonstration-default',
+                actions: [parameter('accum-x', Math.PI)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\), \\(a=0\\) in \\(x=\\pi\\) je osenčen cel lok sinusa nad osjo; akumulacija \\(A\\) je skrita.',
+                    'For \\(f(x)=\\sin x\\), \\(a=0\\) and \\(x=\\pi\\) the whole arc of the sine above the axis is shaded; the accumulation \\(A\\) is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-negative-step', order: 4,
+            title: text('Negativen integrand zmanjšuje akumulacijo: \\(A(2\\pi)=0\\)', 'A negative integrand decreases the accumulation: \\(A(2\\pi)=0\\)'),
+            purpose: text(
+                'Videti, da del grafa pod osjo vrednost akumulacije zmanjša.',
+                'Seeing that a part of the graph below the axis decreases the value of the accumulation.',
+            ),
+            explanation: text(
+                'Pri \\(x=2\\pi\\) osenčeno območje obsega dva loka: prvi nad osjo prispeva \\(+2\\), drugi pod osjo pa \\(-2\\). Na \\((\\pi,2\\pi)\\) je \\(\\sin t<0\\), zato akumulacija \\(A\\) pada od \\(2\\) nazaj na \\(A(2\\pi)=1-\\cos 2\\pi=0\\). Ničla ne pomeni, da območja ni: vrednost je integral s predznakom in ne geometrijska ploščina, ki bi bila \\(4\\). Odčitka prispevkov delov nad osjo in pod osjo kažeta \\(2\\) in \\(-2\\).',
+                'At \\(x=2\\pi\\) the shaded region consists of two arcs: the first above the axis contributes \\(+2\\) and the second below the axis contributes \\(-2\\). On \\((\\pi,2\\pi)\\) we have \\(\\sin t<0\\), so the accumulation \\(A\\) falls from \\(2\\) back to \\(A(2\\pi)=1-\\cos 2\\pi=0\\). A zero does not mean that there is no region: the value is a signed integral and not the geometric area, which would be \\(4\\). The readouts for the parts above and below the axis show \\(2\\) and \\(-2\\).',
+            ),
+            formulaIds: ['accumulation-signed', 'accumulation-sine'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-negative-explanation', 'explanation'), frame('accumulation-negative-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej \\(A(2\\pi)\\): koliko prispeva lok nad osjo in koliko lok pod njo? Šele nato pritisni Pokaži akumulacijo A.',
+                'Predict \\(A(2\\pi)\\): how much does the arc above the axis contribute and how much the arc below it? Only then press Show accumulation A.',
+            ),
+            expectedObservations: [text(
+                'Po pritisku je \\(A(2\\pi)=0\\); prispevek dela nad osjo je \\(2\\), dela pod osjo \\(-2\\); krivulja \\(A\\) je med \\(\\pi\\) in \\(2\\pi\\) padala.',
+                'After the press we have \\(A(2\\pi)=0\\); the contribution of the part above the axis is \\(2\\) and of the part below the axis \\(-2\\); the curve \\(A\\) fell between \\(\\pi\\) and \\(2\\pi\\).',
+            )],
+            scene: {
+                id: 'accumulation-negative-scene', basedOn: 'demonstration-default',
+                actions: [parameter('accum-x', 2 * Math.PI)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\), \\(a=0\\) in \\(x=2\\pi\\) sta osenčena lok nad osjo (+) in lok pod osjo (−); akumulacija \\(A\\) je skrita.',
+                    'For \\(f(x)=\\sin x\\), \\(a=0\\) and \\(x=2\\pi\\) the arc above the axis (+) and the arc below the axis (−) are shaded; the accumulation \\(A\\) is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-reversed-step', order: 5,
+            title: text('Točka \\(x\\) levo od \\(a\\)', 'The point \\(x\\) to the left of \\(a\\)'),
+            purpose: text(
+                'Opaziti, da zamenjava smeri integriranja zamenja predznak vrednosti.',
+                'Observing that reversing the direction of integration reverses the sign of the value.',
+            ),
+            explanation: text(
+                'Zdaj je \\(a=2\\) in \\(x=0\\). Integral je usmerjen od \\(a\\) proti \\(x\\), zato je \\(A(x)=-\\int_x^a f(t)\\,dt\\) in \\(A(0)=-\\int_0^2\\sin t\\,dt=-(1-\\cos 2)\\approx-1{,}4161\\). Osenčeno območje je enako kot pri \\(x=2\\) in leži nad osjo, vrednost pa je vseeno negativna, ker je smer obrnjena. To ni protislovje s prejšnjimi koraki: formula \\(F(x)-F(a)\\) velja za vsak \\(x\\), tudi za \\(x<a\\).',
+                'Now \\(a=2\\) and \\(x=0\\). The integral is oriented from \\(a\\) towards \\(x\\), so \\(A(x)=-\\int_x^a f(t)\\,dt\\) and \\(A(0)=-\\int_0^2\\sin t\\,dt=-(1-\\cos 2)\\approx-1.4161\\). The shaded region is the same as for \\(x=2\\) and lies above the axis, yet the value is negative because the direction is reversed. This does not contradict the previous steps: the formula \\(F(x)-F(a)\\) holds for every \\(x\\), also for \\(x<a\\).',
+            ),
+            formulaIds: ['accumulation-signed'], workedExampleId: 'accumulation-reversed-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-reversed-explanation', 'explanation'), frame('accumulation-reversed-calculation', 'calculation'), frame('accumulation-reversed-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej predznak \\(A(0)\\), ko je \\(x<a\\), in šele nato pritisni Pokaži akumulacijo A. Nato povleci \\(x\\) čez \\(a\\) in opazuj, kje se predznak obrne.',
+                'Predict the sign of \\(A(0)\\) when \\(x<a\\), and only then press Show accumulation A. Then drag \\(x\\) across \\(a\\) and watch where the sign reverses.',
+            ),
+            expectedObservations: [text(
+                'Po pritisku je \\(A(0)\\approx-1{,}4161\\); osenčeno območje je nad osjo, stanje pa pove, da \\(x\\) leži levo od \\(a\\).',
+                'After the press we have \\(A(0)\\approx-1.4161\\); the shaded region is above the axis, and the status says that \\(x\\) lies left of \\(a\\).',
+            )],
+            scene: {
+                id: 'accumulation-reversed-scene', basedOn: 'demonstration-default',
+                actions: [parameter('accum-a', 2), parameter('accum-x', 0)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\), \\(a=2\\) in \\(x=0\\) je osenčeno območje nad osjo; akumulacija \\(A\\) je skrita.',
+                    'For \\(f(x)=\\sin x\\), \\(a=2\\) and \\(x=0\\) the shaded region is above the axis; the accumulation \\(A\\) is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-derivative-step', order: 6,
+            title: text('Odvod akumulacije: \\(A^{\\prime}(x)=f(x)\\)', 'The derivative of the accumulation: \\(A^{\\prime}(x)=f(x)\\)'),
+            purpose: text(
+                'Povezati naklon tangente na \\(A\\) z višino grafa \\(f\\) in imenovati zadostni pogoj.',
+                'Linking the tangent slope of \\(A\\) with the height of the graph of \\(f\\) and naming the sufficient condition.',
+            ),
+            explanation: text(
+                'Pri \\(x=\\frac{\\pi}{2}\\) je \\(f(x)=\\sin\\frac{\\pi}{2}=1\\) in tangenta na \\(A\\) ima naklon \\(1\\); res je \\(A(x)=1-\\cos x\\) in \\(A^{\\prime}(x)=\\sin x\\). Zveza velja, ker je integrand \\(f\\) zvezen v točki \\(x\\): zveznost je zadostni pogoj, da je \\(A\\) v točki \\(x\\) odvedljiva z odvodom \\(f(x)\\). Odvod akumulacije ni ploščina, ampak višina grafa \\(f\\): kjer je \\(f>0\\), akumulacija narašča, kjer je \\(f<0\\), pada, in kjer je \\(f=0\\), ima vodoravno tangento. Aplikacija odčitek naklona izračuna po formuli \\(f(x)\\).',
+                'At \\(x=\\frac{\\pi}{2}\\) we have \\(f(x)=\\sin\\frac{\\pi}{2}=1\\) and the tangent to \\(A\\) has slope \\(1\\); indeed \\(A(x)=1-\\cos x\\) and \\(A^{\\prime}(x)=\\sin x\\). The relation holds because the integrand \\(f\\) is continuous at the point \\(x\\): continuity is a sufficient condition for \\(A\\) to be differentiable at \\(x\\) with derivative \\(f(x)\\). The derivative of the accumulation is not an area but the height of the graph of \\(f\\): where \\(f>0\\) the accumulation increases, where \\(f<0\\) it decreases, and where \\(f=0\\) it has a horizontal tangent. The app computes the slope readout by the formula \\(f(x)\\).',
+            ),
+            formulaIds: ['accumulation-derivative', 'accumulation-sine'], workedExampleId: 'accumulation-derivative-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-derivative-explanation', 'explanation'), frame('accumulation-derivative-calculation', 'calculation'), frame('accumulation-derivative-observation', 'observation')],
+            observationPrompt: text(
+                'Povleci \\(x\\) po osi \\(x\\) in primerjaj naklon tangente na \\(A\\) z višino grafa \\(f\\) v isti točki. Kje je naklon pozitiven, kje negativen in kje \\(0\\)?',
+                'Drag \\(x\\) along the \\(x\\)-axis and compare the slope of the tangent to \\(A\\) with the height of the graph of \\(f\\) at the same point. Where is the slope positive, where negative and where \\(0\\)?',
+            ),
+            expectedObservations: [text(
+                'Pri \\(x=\\frac{\\pi}{2}\\) je naklon tangente na \\(A\\) enak \\(f(x)=1\\) in \\(A(x)=1\\); stanje pove, da \\(A\\) narašča.',
+                'At \\(x=\\frac{\\pi}{2}\\) the slope of the tangent to \\(A\\) equals \\(f(x)=1\\) and \\(A(x)=1\\); the status says that \\(A\\) is increasing.',
+            )],
+            scene: {
+                id: 'accumulation-derivative-scene', basedOn: 'demonstration-default',
+                actions: [parameter('accum-x', Math.PI / 2), accumulationCurve(true)],
+                expectedState: text(
+                    'Pri \\(f(x)=\\sin x\\), \\(a=0\\) in \\(x=\\frac{\\pi}{2}\\) je \\(A(x)=1\\) in tangenta na \\(A\\) ima naklon \\(1\\); akumulacija \\(A\\) je pokazana.',
+                    'For \\(f(x)=\\sin x\\), \\(a=0\\) and \\(x=\\frac{\\pi}{2}\\) we have \\(A(x)=1\\) and the tangent to \\(A\\) has slope \\(1\\); the accumulation \\(A\\) is shown.',
+                ),
+            },
+        },
+        {
+            id: 'accumulation-free-exploration', order: 7,
+            title: text('Samostojno raziskovanje: \\(x^2\\) in \\(e^x\\)', 'Free exploration: \\(x^2\\) and \\(e^x\\)'),
+            purpose: text('Preiti v samostojno raziskovanje z drugima funkcijama.', 'The handoff to free exploration with the other two functions.'),
+            explanation: text(
+                'Zdaj raziskuj sam: zamenjaj funkcijo, premakni \\(a\\) in \\(x\\) ter vsakič najprej napovej \\(A(x)\\). Pri \\(f(x)=x^2\\) in \\(a=0\\) je \\(A(x)=\\frac{x^3}{3}\\), zato je \\(A(2)=\\frac{8}{3}\\approx2{,}6667\\), naklon tangente na \\(A\\) pa \\(f(2)=4\\). Poskusi tudi \\(e^x\\), kjer je \\(A(x)=e^x-e^a\\). Funkciji \\(x^2\\) in \\(e^x\\) nista nikoli negativni, zato \\(A\\) pri \\(x>a\\) nikoli ne pada; pri \\(\\sin x\\) pada, kjer je \\(f<0\\).',
+                'Now explore on your own: change the function, move \\(a\\) and \\(x\\), and each time predict \\(A(x)\\) first. For \\(f(x)=x^2\\) and \\(a=0\\) we have \\(A(x)=\\frac{x^3}{3}\\), so \\(A(2)=\\frac{8}{3}\\approx2.6667\\) and the tangent to \\(A\\) has slope \\(f(2)=4\\). Also try \\(e^x\\), where \\(A(x)=e^x-e^a\\). The functions \\(x^2\\) and \\(e^x\\) are never negative, so \\(A\\) never decreases for \\(x>a\\); for \\(\\sin x\\) it decreases where \\(f<0\\).',
+            ),
+            formulaIds: ['accumulation-definition', 'accumulation-derivative'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('accumulation-free-explanation', 'explanation'), frame('accumulation-free-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej \\(A(2)\\) za \\(x^2\\) in šele nato pritisni Pokaži akumulacijo A. Nato zamenjaj funkcijo ter premakni \\(a\\) in \\(x\\), tudi tako, da je \\(x<a\\).',
+                'Predict \\(A(2)\\) for \\(x^2\\), and only then press Show accumulation A. Then change the function and move \\(a\\) and \\(x\\), also so that \\(x<a\\).',
+            ),
+            expectedObservations: [text(
+                'Po pritisku je pri \\(x^2\\) vrednost \\(A(2)\\approx2{,}6667\\) in naklon tangente na \\(A\\) je \\(4\\); stanje pove, da \\(A\\) narašča.',
+                'After the press, for \\(x^2\\) we have \\(A(2)\\approx2.6667\\) and the slope of the tangent to \\(A\\) is \\(4\\); the status says that \\(A\\) is increasing.',
+            )],
+            scene: {
+                id: 'accumulation-free-scene', basedOn: 'demonstration-default',
+                actions: [accumulationFunction('square')],
+                expectedState: text(
+                    'Prikazan je \\(f(x)=x^2\\) z \\(a=0\\) in \\(x=2\\): osenčeno območje je nad osjo, akumulacija \\(A\\) je skrita.',
+                    'The graph of \\(f(x)=x^2\\) is shown with \\(a=0\\) and \\(x=2\\): the shaded region is above the axis, and the accumulation \\(A\\) is hidden.',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'globevnik-brojan-analiza-1-accumulation',
+            citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§5.5–5.6 (printed pp. 175–180).',
+            supports: ['the integral as a function of its upper bound', 'the derivative of the accumulation at a point of continuity of the integrand', 'the oriented definite integral and its change of sign when the bounds are exchanged'],
+        },
+        {
+            id: 'bezeg-accumulation-implementation',
+            citation: 'Bezeg source: src/analysis/accumulation.ts, src/analysis/accumulationModel.ts and src/graphs/functions/AccumulationGraph.tsx.',
+            supports: ['A(0) = 0, A(pi) = 2, A(2 pi) = 0 for sin with a = 0', 'A(2) = 1 - cos 2 for sin with a = 0', 'A(0) = cos 2 - 1 for sin with a = 2', 'the tangent slope of A at x equals f(x)', 'A(2) = 8/3 for x^2 with a = 0'],
+            implementationCorrespondence: 'A(x) is evaluated exactly as F(x) - F(a) from the catalogue antiderivative, so the orientation for x < a follows from the formula; the tangent slope is f(x); the shaded stretches are split at the zeros of sin; and a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text(
+            'Vrednost \\(a\\) ali \\(x\\) zunaj območja \\([-7,7]\\) aplikacija zavrne in model ostane nespremenjen; datoteka s takšno vrednostjo se ne uvozi in sporoči območje, ki ga je treba uporabiti.',
+            'A value of \\(a\\) or \\(x\\) outside the range \\([-7,7]\\) is rejected by the app and the model stays unchanged; a file with such a value is not imported and the error names the range to use.',
+        ),
+        text(
+            'Dokler je akumulacija skrita, so skriti tudi odčitki \\(A(x)\\), \\(A^{\\prime}(x)\\) in prispevkov delov, krivulja \\(A\\) in njena tangenta, da napoved ni predčasno razkrita; osenčeno območje in vrednost \\(f(x)\\) ostaneta vidna.',
+            'While the accumulation is hidden, the readouts for \\(A(x)\\), \\(A^{\\prime}(x)\\) and the contributions of the parts, the curve \\(A\\) and its tangent are hidden too, so that the prediction is not given away early; the shaded region and the value \\(f(x)\\) stay visible.',
+        ),
+        text(
+            'Pri \\(x=a\\) je osenčeno območje prazno in \\(A(x)=0\\); pri \\(x<a\\) je vrednost \\(A(x)=-\\int_x^a f(t)\\,dt\\) in stanje to pove. Odčitek nikoli ne pokaže geometrijske ploščine kot integrala.',
+            'At \\(x=a\\) the shaded region is empty and \\(A(x)=0\\); for \\(x<a\\) the value is \\(A(x)=-\\int_x^a f(t)\\,dt\\) and the status says so. A readout never shows the geometric area as the integral.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred pregledom za uporabo v razredu je treba potrditi, ali naj lekcija pokaže tudi integrand s skokom, pri katerem zveza \\(A^{\\prime}(x)=f(x)\\) v točki skoka odpove.',
+            'Before classroom-ready review, confirm whether the lesson should also show an integrand with a jump, at which the relation \\(A^{\\prime}(x)=f(x)\\) fails at the point of the jump.',
+        ),
+    ],
+};
+
 /** Lessons of the Analysis family, in teaching order. */
-export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue];
+export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation];

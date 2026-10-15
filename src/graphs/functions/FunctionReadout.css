@@ -43,3 +43,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .mean-value-actions button { min-height: 44px; }
 }
+/* Accumulated integral: the Show accumulation toggle and the statuses, styled like the mean value controls. */
+.accumulation-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
+.accumulation-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.accumulation-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.accumulation-status p { margin: 0; }
+.accumulation-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .accumulation-actions button { min-height: 44px; }
+}

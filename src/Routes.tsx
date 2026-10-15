@@ -46,6 +46,7 @@ import { AreaBetweenCurvesGraph } from './graphs/functions/AreaBetweenCurvesGrap
 import { ArcLengthGraph } from './graphs/functions/ArcLengthGraph';
 import { BisectionGraph } from './graphs/functions/BisectionGraph';
 import { MeanValueGraph } from './graphs/functions/MeanValueGraph';
+import { AccumulationGraph } from './graphs/functions/AccumulationGraph';
 import { GraphHost } from './graphs/base/GraphHost';
 import type BaseGraph from './graphs/base/BaseGraph';
 import type { BaseGraphState } from './graphs/base/BaseGraph';
@@ -95,6 +96,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'arc-length': () => new ArcLengthGraph(),
     'bisection': () => new BisectionGraph(),
     'mean-value': () => new MeanValueGraph(),
+    'accumulation': () => new AccumulationGraph(),
 };
 
 const graphElements = Object.fromEntries(Object.entries(graphFactories).map(([id, create]) =>

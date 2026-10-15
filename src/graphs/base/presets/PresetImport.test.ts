@@ -275,3 +275,33 @@ test("mean value data that is wrong in another way gets the generic function-dat
     expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, example: "quartic"}))).toThrow(/invalid function data|neveljavni podatki funkcije/);
     expect(() => preflightPresetImport(meanValuePreset({...validMeanValue, revealed: 1}))).not.toThrow(/a < c < b/);
 });
+
+const accumulationPreset = (data: unknown) => JSON.stringify({"preset-accumulation": {data: [{id: "Osnova", boardState: {boundingBox: [-1.2, 3.1, 6.7, -3.1]},
+    graphState: {initialized: true, fn: "sin", a: 0, x: 2, accumulationVisible: false}, data}]}});
+
+test("accumulation collection imports a model object with its reveal state and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {fn: "exp", a: -1.5, x: 0.25, accumulationVisible: true};
+    commitPresetImport(preflightPresetImport(accumulationPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-accumulation")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+const validAccumulation = {fn: "sin", a: 0, x: 2, accumulationVisible: false};
+test.each([[[]], [null], [{}], [{...validAccumulation, fn: "cos"}], [{...validAccumulation, a: -7.01}], [{...validAccumulation, x: 7.01}], [{...validAccumulation, x: 100}],
+    [{...validAccumulation, a: "0"}], [{...validAccumulation, x: NaN}], [{...validAccumulation, accumulationVisible: "true"}], [{fn: "sin", a: 0, x: 2}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("accumulation collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(accumulationPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([[{...validAccumulation, a: -7.01}], [{...validAccumulation, x: 7.01}], [{...validAccumulation, a: 50, x: 50}]])
+("accumulation range errors name the range to use: %j", data => {
+    expect(() => preflightPresetImport(accumulationPreset(data))).toThrow(/−7 in 7|between −7 and 7/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("accumulation data that is wrong in another way gets the generic function-data message", () => {
+    expect(() => preflightPresetImport(accumulationPreset({...validAccumulation, fn: "cos"}))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(() => preflightPresetImport(accumulationPreset({...validAccumulation, accumulationVisible: 1}))).not.toThrow(/−7 in 7|between −7 and 7/);
+});

@@ -1,18 +1,20 @@
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
 import {getLessonForDemonstration, isGuidedLessonAvailable, sceneAction} from '../runtime/lessonCatalog';
-import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES} from '../model';
+import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
 import {BISECTION_EXAMPLE_IDS, bisectionHistory} from '../../analysis/bisection';
 import {
     isDifferentiableOn, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample, secantSlope, slopeDifference, tangentLineOf, tangentSlope,
 } from '../../analysis/meanValue';
 import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
+import {accumulation, accumulationPieces, accumulationTangent} from '../../analysis/accumulation';
+import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
 
 const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bisection')!;
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -286,5 +288,148 @@ describe('the mean value lesson', () => {
         expect(implementation.citation).toContain('src/graphs/functions/MeanValueGraph.tsx');
         expect(implementation.implementationCorrespondence).toMatch(/computed analytically/);
         expect(implementation.implementationCorrespondence).toMatch(/a < c < b/);
+    });
+});
+
+describe('the accumulation lesson', () => {
+    const accumulationLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'accumulation')!;
+    const accStep = (id: string) => accumulationLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('accumulation')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const sin = catalogFunction('sin');
+    const square = catalogFunction('square');
+
+    test('has the steps the spec asks for, in order, and is adapted under the guided id', () => {
+        expect(accumulationLesson.steps.map(step => step.id)).toEqual([
+            'accumulation-prerequisites-step', 'accumulation-reveal-step', 'accumulation-pi-step', 'accumulation-negative-step', 'accumulation-reversed-step',
+            'accumulation-derivative-step', 'accumulation-free-exploration',
+        ]);
+        expect(adapted().id).toBe('accumulation-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(getGuidedLesson('accumulation')).toBe(accumulationLesson);
+        expect(isGuidedLessonAvailable('accumulation')).toBe(true);
+    });
+
+    test('states the prerequisites, the signed integral, the orientation, the derivative with continuity as the sufficient hypothesis and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => accumulationLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/signed definite integral/);
+        expect(prerequisites('en')).toMatch(/derivative/);
+        expect(prerequisites('sl')).toMatch(/integrala s predznakom/);
+        expect(prerequisites('sl')).toMatch(/odvoda/);
+        expect(accStep('accumulation-prerequisites-step').explanation.en).toMatch(/signed integral/);
+        expect(accStep('accumulation-negative-step').explanation.en).toMatch(/not the geometric area/);
+        expect(accStep('accumulation-negative-step').explanation.sl).toMatch(/ne geometrijska ploščina/);
+        expect(accStep('accumulation-reversed-step').explanation.en).toMatch(/A\(x\)=-\\int_x\^a f\(t\)/);
+        expect(accStep('accumulation-reversed-step').explanation.en).toMatch(/reversed/);
+        expect(accStep('accumulation-derivative-step').explanation.en).toMatch(/continuous at the point/);
+        expect(accStep('accumulation-derivative-step').explanation.en).toMatch(/sufficient condition/);
+        expect(accStep('accumulation-derivative-step').explanation.en).toMatch(/not an area/);
+        expect(accStep('accumulation-derivative-step').explanation.sl).toMatch(/zadostni pogoj/);
+        expect(accStep('accumulation-derivative-step').explanation.sl).toMatch(/ni ploščina/);
+        expect(accumulationLesson.formulaBlocks.find(formula => formula.id === 'accumulation-derivative')!.explanation.en).toMatch(/Continuity is a sufficient condition/);
+        expect(accStep('accumulation-free-exploration').explanation.en).toMatch(/explore on your own/i);
+        expect(accStep('accumulation-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+    });
+
+    test('asks for a prediction before the revealing Show accumulation A, and the scene of such a step never reveals it', () => {
+        for (const id of ['accumulation-prerequisites-step', 'accumulation-pi-step', 'accumulation-negative-step', 'accumulation-reversed-step', 'accumulation-free-exploration']) {
+            expect(accStep(id).observationPrompt.en, id).toMatch(/Predict/);
+            expect(accStep(id).observationPrompt.en, id).toMatch(/Show accumulation A/);
+            expect(accStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
+            expect(accStep(id).observationPrompt.sl, id).toMatch(/Pokaži akumulacijo A/);
+            const revealed = adaptedActions(id).some(action => action.kind === 'function-visibility' && action.visible);
+            expect(revealed, id).toBe(false);
+        }
+        // the first area prediction (step 1) comes before the first reveal (step 2)
+        expect(accStep('accumulation-reveal-step').scene!.actions).toContainEqual({name: 'show-function-element', value: {name: 'accumulation-curve', value: true}});
+        expect(accumulationLesson.steps.findIndex(step => step.id === 'accumulation-prerequisites-step'))
+            .toBeLessThan(accumulationLesson.steps.findIndex(step => step.id === 'accumulation-reveal-step'));
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        expect(adaptedActions('accumulation-prerequisites-step')).toEqual([{kind: 'prepared-scene', sceneId: 'accumulation-default', source: 'demonstration-default'}]);
+        expect(adaptedActions('accumulation-reveal-step').slice(1)).toEqual([{kind: 'function-visibility', target: 'accumulation-curve', visible: true}]);
+        expect(adaptedActions('accumulation-pi-step').slice(1)).toEqual([{kind: 'function-parameter', name: 'accum-x', value: Math.PI}]);
+        expect(adaptedActions('accumulation-negative-step').slice(1)).toEqual([{kind: 'function-parameter', name: 'accum-x', value: 2 * Math.PI}]);
+        expect(adaptedActions('accumulation-reversed-step').slice(1)).toEqual([
+            {kind: 'function-parameter', name: 'accum-a', value: 2}, {kind: 'function-parameter', name: 'accum-x', value: 0},
+        ]);
+        expect(adaptedActions('accumulation-derivative-step').slice(1)).toEqual([
+            {kind: 'function-parameter', name: 'accum-x', value: Math.PI / 2}, {kind: 'function-visibility', target: 'accumulation-curve', visible: true},
+        ]);
+        expect(adaptedActions('accumulation-free-exploration').slice(1)).toEqual([{kind: 'function-choice', name: 'accumulation-function', value: 'square'}]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives', () => {
+        const rounded = (value: number) => Number(value.toFixed(4));
+        // sin with a = 0: A(0) = 0, A(pi) = 2, A(2 pi) = 0; A(2) = 1 - cos 2
+        expect(accumulation(sin, 0, 0)).toBe(0);
+        expect(accumulation(sin, 0, Math.PI)).toBeCloseTo(2, 12);
+        expect(accumulation(sin, 0, 2 * Math.PI)).toBeCloseTo(0, 12);
+        expect(rounded(accumulation(sin, 0, 2))).toBe(1.4161);
+        expect(accumulation(sin, 0, 2)).toBeCloseTo(1 - Math.cos(2), 12);
+        expect(rounded(sin.value(2))).toBe(0.9093);
+        // the parts of 2 pi: +2 and -2, and the geometric area 4 that the integral is not
+        const pieces = accumulationPieces(sin, 0, 2 * Math.PI);
+        expect(pieces.map(piece => [piece.sign, Math.round(piece.contribution * 1e9) / 1e9])).toEqual([['positive', 2], ['negative', -2]]);
+        expect(pieces.reduce((sum, piece) => sum + Math.abs(piece.integral), 0)).toBeCloseTo(4, 12);
+        // the reversed orientation: a = 2, x = 0 gives -(1 - cos 2) = cos 2 - 1
+        expect(accumulation(sin, 2, 0)).toBeCloseTo(Math.cos(2) - 1, 12);
+        expect(rounded(accumulation(sin, 2, 0))).toBe(-1.4161);
+        expect(accumulation(sin, 2, 0)).toBeCloseTo(-accumulation(sin, 0, 2), 12);
+        // the derivative at pi/2: slope f = 1 and A = 1
+        expect(accumulation(sin, 0, Math.PI / 2)).toBeCloseTo(1, 12);
+        expect(accumulationTangent(sin, 0, Math.PI / 2).slope).toBe(1);
+        expect(rounded(Math.PI / 2)).toBe(1.5708);
+        // x^2 with a = 0: A(2) = 8/3, slope f(2) = 4
+        expect(accumulation(square, 0, 2)).toBeCloseTo(8 / 3, 12);
+        expect(rounded(8 / 3)).toBe(2.6667);
+        expect(accumulationTangent(square, 0, 2).slope).toBe(4);
+        // the numbers in the prose and the worked examples
+        const both = (step: string, field: 'explanation' | 'expectedObservations') => {
+            const value = field === 'explanation' ? accStep(step).explanation : accStep(step).expectedObservations[0];
+            return value;
+        };
+        expect(both('accumulation-reveal-step', 'explanation').sl).toContain('1{,}4161');
+        expect(both('accumulation-reveal-step', 'explanation').en).toContain('1.4161');
+        expect(both('accumulation-reveal-step', 'explanation').en).toContain('0.9093');
+        expect(both('accumulation-prerequisites-step', 'expectedObservations').en).toContain('0.9093');
+        expect(both('accumulation-reversed-step', 'explanation').en).toContain('-1.4161');
+        expect(both('accumulation-reversed-step', 'explanation').sl).toContain('-1{,}4161');
+        expect(both('accumulation-free-exploration', 'explanation').en).toContain('2.6667');
+        expect(both('accumulation-free-exploration', 'explanation').sl).toContain('2{,}6667');
+        expect(both('accumulation-derivative-step', 'explanation').en).toContain('A(x)=1-\\cos x');
+        const worked = (id: string) => accumulationLesson.workedExamples.find(example => example.id === id)!;
+        expect(worked('accumulation-sin-example').calculationLatex).toContain('A(x)=-\\cos x+\\cos 0=1-\\cos x');
+        expect(worked('accumulation-sin-example').resultLatex).toContain('A(\\pi)=1-\\cos\\pi=2');
+        expect(worked('accumulation-sin-example').resultLatex).toContain('A(2\\pi)=1-\\cos 2\\pi=0');
+        expect(worked('accumulation-reversed-example').resultLatex).toBe('A(0)=\\cos 2-1');
+        expect(worked('accumulation-derivative-example').calculationLatex).toContain('\\sin\\frac{\\pi}{2}=1');
+        expect(accStep('accumulation-negative-step').explanation.en).toContain('\\(+2\\)');
+        expect(accStep('accumulation-negative-step').explanation.en).toContain('\\(-2\\)');
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the function choice and the accumulation-curve element', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['accum-a', 'accum-x', 'mvt-a', 'bisect-a', 'a', 'b']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('accumulation-function');
+        expect(FUNCTION_CHOICE_VALUES['accumulation-function']).toEqual([...FUNCTION_IDS]);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('accumulation-curve');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'accum-x', value: 1}})).toEqual({kind: 'function-parameter', name: 'accum-x', value: 1});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'accumulation-function', value: 'exp'}})).toEqual({kind: 'function-choice', name: 'accumulation-function', value: 'exp'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'accumulation-curve', value: true}})).toEqual({kind: 'function-visibility', target: 'accumulation-curve', visible: true});
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'accumulation-function', value: 'cos'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'accum-b' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'accum-a', value: Number.NaN}})).toThrow(/finite/);
+        expect(() => sceneAction({name: 'show-function-element', value: {name: 'accumulation-curve', value: 'yes' as never}})).toThrow(/true or false/);
+    });
+
+    test('the lesson cites the source and says how the implementation corresponds to it', () => {
+        expect(accumulationLesson.sources.some(source => /§§5\.5–5\.6/.test(source.citation))).toBe(true);
+        const implementation = accumulationLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/accumulation.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/AccumulationGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/F\(x\) - F\(a\)/);
+        expect(implementation.implementationCorrespondence).toMatch(/x < a/);
     });
 });
