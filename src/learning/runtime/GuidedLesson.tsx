@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, Language, t} from '../../localization';
 import {framesForLessonStep} from '../model';
-import type {LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
+import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
@@ -30,16 +30,17 @@ function frameLabel(frame: LessonFrame) {
     return t('guided_lesson_explanation');
 }
 
-type LessonAnimationCommand = 'play' | 'pause' | 'replay';
+/** The frame controls offered today; iteration commands (`next-step`, `reset`) get controls only when a lesson uses them. */
+type FrameAnimationControl = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay'>;
 
 // Neutral currentColor icons keep playback controls in the workspace's monochrome button style.
-const ANIMATION_ICON_PATHS: Record<LessonAnimationCommand, React.ReactNode> = {
+const ANIMATION_ICON_PATHS: Record<FrameAnimationControl, React.ReactNode> = {
     play: <path d="M5 3.5v9l7.5-4.5z" fill="currentColor"/>,
     pause: <path d="M4.5 3.5h2.5v9H4.5zM9 3.5h2.5v9H9z" fill="currentColor"/>,
     replay: <path d="M12.5 8a4.5 4.5 0 1 1-1.32-3.18M12.5 2.5v3h-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>,
 };
 
-function AnimationIcon(props: {command: LessonAnimationCommand}) {
+function AnimationIcon(props: {command: FrameAnimationControl}) {
     return <svg className="guided-lesson-animation-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
         {ANIMATION_ICON_PATHS[props.command]}
     </svg>;
@@ -89,7 +90,7 @@ export function GuidedLesson(props: {
         }
     };
 
-    const animateFrame = (command: LessonAnimationCommand) => {
+    const animateFrame = (command: FrameAnimationControl) => {
         if (!frame.animation) return;
         session.applyAnimation(frame.animation.animationId, command);
         animationPlaying.current = command !== 'pause';

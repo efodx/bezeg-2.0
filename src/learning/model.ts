@@ -23,6 +23,21 @@ export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonl
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 
+/**
+ * Closed set of animations a lesson can drive. `decasteljau` is the frame animation of the De Casteljau parameter;
+ * `bisection` is the first iterative playback. A graph registers only the ids it owns and the commands each supports;
+ * the registry rejects the rest with `UnsupportedLessonActionError`.
+ */
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection'] as const;
+export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
+
+/**
+ * Closed animation command vocabulary. `next-step` runs one iteration transition and `reset` returns an iterative
+ * playback to its initial state; frame animations such as `decasteljau` use only `play`, `pause`, `replay` and `stop`.
+ */
+export const LESSON_ANIMATION_COMMANDS = ['play', 'pause', 'replay', 'stop', 'next-step', 'reset'] as const;
+export type LessonAnimationCommand = typeof LESSON_ANIMATION_COMMANDS[number];
+
 export type LessonAction =
     | {readonly kind: 'function-parameter'; readonly name: FunctionParameterName; readonly value: number}
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
@@ -52,12 +67,12 @@ export type LessonAction =
     | {readonly kind: 'standard-form'; readonly enabled: boolean}
     | {readonly kind: 'rational-weights'; readonly weights: readonly number[]}
     | {readonly kind: 'circle-pieces'; readonly count: number}
-    | {readonly kind: 'animation'; readonly animationId: 'decasteljau'; readonly command: 'play' | 'pause' | 'replay' | 'stop'};
+    | {readonly kind: 'animation'; readonly animationId: LessonAnimationId; readonly command: LessonAnimationCommand};
 
 export type LessonFrameKind = 'explanation' | 'calculation' | 'observation';
 
 export interface LessonAnimation {
-    readonly animationId: 'decasteljau';
+    readonly animationId: LessonAnimationId;
 }
 
 export interface LessonScene {

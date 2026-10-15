@@ -36,6 +36,8 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Continuous deployment spec](specs/continuous-deployment.md): CI checks and gated native Pages deployment, activated on `master`.
 - [CI/CD verification](reviews/continuous-deployment.md): hosted CI evidence, local checks, and activation limits.
 - [ADR 0010](adr/0010-scheme-driven-bezier-splines.md): accepted scheme-driven Bézier splines (one `BezierSpline`, one `SplineScheme` per kind) replacing the subclass hierarchy.
+- [ADR 0011](adr/0011-analysis-family.md): accepted separate Analysis family, omitted from the catalog until it has a demonstration.
+- [ADR 0012](adr/0012-iterative-playback-controller.md): accepted typed animation ids and commands plus a shared graph-owned iteration controller for iterative lessons.
 - [ADR 0001](adr/0001-static-client-only-app.md): accepted static, client-only architecture constraint.
 - [ADR 0002](adr/0002-guided-lessons-static-content-and-graph-capabilities.md): accepted boundary between static lesson content and typed graph capabilities.
 - [Guided lesson runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md): executable feature slice.

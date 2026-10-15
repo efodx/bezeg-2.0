@@ -94,4 +94,29 @@ describe('lesson actions resolve through each demonstration graph', () => {
         const bernstein = graphFactories['bernstein']() as unknown as { applyLessonAction(action: LessonAction): void };
         expect(() => bernstein.applyLessonAction(polygon)).toThrow(UnsupportedLessonActionError);
     });
+
+    test('rejects animation ids and commands a graph does not support', () => {
+        const registry = new LessonActionRegistry().onDiscriminated('animation', 'decasteljau', () => undefined,
+            {supports: action => action.command === 'play'});
+        expect(registry.handles({kind: 'animation', animationId: 'decasteljau', command: 'play'})).toBe(true);
+        expect(() => registry.apply({kind: 'animation', animationId: 'bisection', command: 'play'})).toThrow(UnsupportedLessonActionError);
+        expect(() => registry.apply({kind: 'animation', animationId: 'decasteljau', command: 'next-step'})).toThrow(UnsupportedLessonActionError);
+        expect(() => registry.apply({kind: 'animation', animationId: 'unknown' as 'bisection', command: 'play'})).toThrow(UnsupportedLessonActionError);
+    });
+
+    test('De Casteljau keeps its frame commands and rejects iteration commands and other animations', () => {
+        const graph = graphFactories['decasteljau']() as unknown as {
+            applyLessonAction(action: LessonAction): void; supportsLessonAction(action: LessonAction): boolean;
+        };
+        for (const command of ['play', 'pause', 'replay', 'stop'] as const) {
+            expect(graph.supportsLessonAction({kind: 'animation', animationId: 'decasteljau', command})).toBe(true);
+        }
+        for (const command of ['next-step', 'reset'] as const) {
+            const action: LessonAction = {kind: 'animation', animationId: 'decasteljau', command};
+            expect(graph.supportsLessonAction(action)).toBe(false);
+            expect(() => graph.applyLessonAction(action)).toThrow(UnsupportedLessonActionError);
+        }
+        const bisection: LessonAction = {kind: 'animation', animationId: 'bisection', command: 'play'};
+        expect(() => graph.applyLessonAction(bisection)).toThrow(UnsupportedLessonActionError);
+    });
 });

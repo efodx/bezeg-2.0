@@ -13,7 +13,7 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAnimationId} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
@@ -155,7 +155,7 @@ export type GuidedLessonFrame = Readonly<{
 }>;
 
 export type GuidedLessonAnimation = Readonly<{
-    animationId: 'decasteljau';
+    animationId: LessonAnimationId;
 }>;
 
 export type GuidedLessonStep = Readonly<{

@@ -1,5 +1,5 @@
 import {framesForLessonStep} from '../model';
-import type {LessonAction, LessonDefinition, LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
+import type {LessonAction, LessonAnimationCommand, LessonAnimationId, LessonDefinition, LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
 
 export type LessonSessionStatus = 'content' | 'explore' | 'complete' | 'closed';
 
@@ -162,7 +162,7 @@ export class LessonSession {
         }
     }
 
-    applyAnimation(animationId: 'decasteljau', command: 'play' | 'pause' | 'replay' | 'stop') {
+    applyAnimation(animationId: LessonAnimationId, command: LessonAnimationCommand) {
         this.graphNeedsRestore = true;
         this.capabilities.apply({kind: 'animation', animationId, command});
     }

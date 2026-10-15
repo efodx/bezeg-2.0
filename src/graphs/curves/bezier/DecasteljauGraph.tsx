@@ -7,12 +7,15 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from '../../../learning/runtime/animation';
-import {LessonAction, LessonSceneCheckpoint} from '../../../learning/model';
+import {LessonAnimationCommand, LessonSceneCheckpoint} from '../../../learning/model';
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS} from "./decasteljauParameter";
 import {Preset} from "../../base/presets/Presets";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
+
+type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
+const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -208,7 +211,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
-    public setLessonAnimation(action: Extract<LessonAction, {kind: 'animation'}>['command']) {
+    public setLessonAnimation(action: DecasteljauAnimationCommand) {
         if (action === 'play') this.playAnimation();
         if (action === 'pause') this.pauseAnimation();
         if (action === 'replay') this.replayAnimation();
@@ -223,7 +226,10 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
             }
             this.setParameter(action.value, this.state.animationStatus);
         });
-        registry.onDiscriminated('animation', 'decasteljau', action => this.setLessonAnimation(action.command));
+        // The frame animation has no iteration; `next-step` and `reset` are rejected rather than ignored.
+        registry.onDiscriminated('animation', 'decasteljau',
+            action => this.setLessonAnimation(action.command as DecasteljauAnimationCommand),
+            {supports: action => DECASTELJAU_ANIMATION_COMMANDS.includes(action.command as DecasteljauAnimationCommand)});
     }
 
 }
