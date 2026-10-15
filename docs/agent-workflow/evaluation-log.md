@@ -12,6 +12,7 @@ Roles/class/size/scope: worker roles or handler-only; class; S|M|L; concise scop
 Dispatch: reason; worker count (or 0), roles and requested model/effort; handler and resolved worker settings when exposed
 Outcome: accepted/partial/blocked; checks; coverage gaps; integration failures and attribution
 Repairs/timing: applicable repair rounds, cause and status; observed start and completion timestamps, elapsed boundary and external waits; usage with scope when exposed
+Context: handler and each worker; starting/peak input tokens, reported window, compactions during work; source/scope and startup exclusions, or unavailable
 Handoff — worker role: brief revision; decision-bearing wording or saved reference; material omission/clarification; instruction added/changed and observed follow-up outcome when applicable
 ```
 
@@ -237,3 +238,23 @@ Handoff — research: handoff-v2; “Distinguish supported settings, this runtim
 - Delegation: one smoke worker, requested GPT-6 Luna / max with fresh history; implementation/review stayed with handler. handoff-v3 specified production preview ownership, home/catalog/graph at desktop/390px, 44px targets, focus/navigation, language retaining graph, 200% text, and screenshots. Worker start/dispatch timestamp was not captured precisely; elapsed-time comparison unavailable.
 - Outcome: accepted. TypeScript/build passed; delegated Chromium checks passed on three routes at 1440×1000 and 390×844, including doubled header text, keyboard focus/navigation, SL/EN graph retention, hover/current states, and no console/page/request errors. Handler inspected home desktop and graph mobile screenshots. Browser zoom and physical device/projector review are outside coverage.
 - Repairs: no code repair rounds. Sandbox Sass resolution, dependency filesystem permissions, and loopback access delayed setup; locked npm ci and escalated build/preview resolved them without tracked dependency changes. Initial smoke brief pointed to an inaccessible sandbox preview; follow-up supplied reachable escalated port4188 and explicit installed Chromium path, after which worker completed checks. No attributable integration failures.
+
+### 2026-10-16 — Retrospective Codex context backfill
+
+Scope: owner-requested historical context measurements for 142 recovered Bezeg Codex workers from October 8–15; [per-worker evidence and method](context-usage-2026-10-16.md). This supplements historical records without changing their outcomes or attributing defects to compaction.
+
+Context: local rollout `token_count` request-input measurements and top-level `compacted` events. Seventeen workers compacted during work; fifteen additional workers had startup-only records under the disclosed five-second heuristic. October 13–15: 4/38; October 15: 3/19. Complete per-worker starting/peak input, reported window, startup counts, compactions, and first-compaction wall time are in the evidence file. These are context measurements, not billed or cumulative usage; handler context and Claude runs are outside this extraction. Encryption and recovered-history coverage limit attribution; symptoms or adverse outcomes were not correlated.
+
+Context supplement — [demonstrations library redesign](#2026-10-15--demonstrations-library-redesign): playback 33,726 starting / 191,189 peak input; browser tests 33,771 / 173,698; smoke 33,922 / 160,936. Each reported a 258,400-token window and one during-work compaction, first observed at 22.9, 20.9, and 14.5 minutes respectively. Collection and all other recovered workers are included in the linked table. Requested model settings remain as historically recorded; this extraction makes no model-resolution claim.
+
+### 2026-10-16 — Context-aware delegation guidance and logging
+
+Roles/class/size/scope: handler-only; workflow documentation; S, one tightly coupled guidance change expanded by owner-requested routine context logging and historical backfill; [source acceptance](../specs/agent-workflow-evaluation.md#context-follow-up--2026-10-16).
+
+Dispatch: 0 workers; handler retained the small documentation slice. Updated brief to handoff-v4 with relevant entry points and stable browser preview ownership/reachability. Task-size and model defaults unchanged; fresh workers between roles remain a hypothesis.
+
+Outcome: documentation acceptance complete; skill validator passed, 35 local links/anchors checked, 142 evidence rows verified, historical task records preserved, and bounded diff reviewed. Documentation-only: no application/browser tests required. Runtime effectiveness remains unmeasured. Unrelated worktree edits preserved; publication targets only these workflow files.
+
+Repairs/timing: initial system Python was inaccessible; bundled Python validated the skill. Corrected a PowerShell extraction quoting error before saving evidence. First clock observation 22:13:43 UTC, documentation acceptance 22:16:54 UTC on October 15 (October 16 locally); task start was not captured, so no whole-task elapsed time asserted. Scoped cumulative usage unavailable.
+
+Context: handler starting/peak input, reported window, and compaction count unavailable in current tool results; no workers dispatched. Historical worker context is recorded separately above, with source and exclusions.

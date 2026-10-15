@@ -47,6 +47,19 @@ Checked on 2026-10-15: [Codex subagents inherit parent sandbox and approval sett
 
 GitHub reported `master` unprotected and no applicable rules before this change. Added active [ruleset 25172820](https://github.com/efodx/bezeg-2.0/rules/25172820), targeting only `refs/heads/master`, with one `non_fast_forward` rule and no bypass actors. This uses GitHub's [force-push restriction](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets#block-force-pushes); ordinary fast-forward pushes remain allowed. This protects remote history and does not distinguish handler from worker or prevent local commits.
 
+## Context follow-up — 2026-10-16
+
+The owner authorized the calibrated recommendations from a local Codex transcript review. The October 8–15 sample contained 142 workers: 17 had compaction events during their work, including 4 of the most recent 38. Fifteen additional workers had startup compaction records excluded using a timing heuristic. Three October 15 workers first compacted after roughly 14–23 minutes. This is local observational evidence, excludes Claude, and does not establish context loss or excessive task size. Some transcript content was encrypted; causes could not be fully reconstructed.
+
+Acceptance for this follow-up:
+
+- Retain current task-size and model defaults. Treat compaction as a continuation mechanism; task splitting or fresh workers for later roles remain hypotheses to test when quality or efficiency suffers.
+- Before delegated browser verification, the handler establishes a stable checkout/build and confirms preview reachability from the worker's verification environment. The brief identifies preview ownership, revision/dirty state, and setup status; access failures return to the handler with dependent coverage blocked.
+- Keep briefs and investigation focused on relevant entry points and sufficient evidence, while allowing expansion needed to verify the outcome.
+- Routine evaluation includes a compact context note for the handler and each worker: starting/peak input tokens, reported context-window size, and compactions during work, with source, scope, and startup exclusions. Unexposed context data is marked unavailable; ordinary logging requires no transcript scan or extra instrumentation. Cumulative usage is not context occupancy. Context investigation correlates these values with observed repeated reading, forgotten requirements, duplicate work, or excessive repairs.
+- Compare one proposed change on similar assignments using completion time, correctness, repairs, and usage when available. Fewer compactions alone do not establish improvement.
+- Preserve historical records, increment the changed brief revision, and verify links, skill structure, and the bounded diff. This changes guidance only; product/browser tests are unnecessary. Runtime effectiveness remains unmeasured until subsequent assignments.
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)
