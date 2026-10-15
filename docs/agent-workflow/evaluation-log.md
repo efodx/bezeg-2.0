@@ -195,3 +195,15 @@ Outcome: six bugs fixed and pushed as 0037b05, 76079cf, 0465a24 and beed431 (6ec
 Repairs/timing: 0 recorded rounds after implementation; the handler reviewed each diff before committing. Reviewers 11:15–11:28; implementers 11:33–11:39; session 11:15–11:46 (31 min).
 
 Handoff — implementation: each brief named the files that worker alone owned and warned that two other workers were editing in parallel; all three stayed in their lanes and reported unrun checks (for example, scripts not exercised against a real build).
+
+### 2026-10-15 — Apply historical workflow findings
+
+Roles/class/size/scope: handler documentation and one read-only research worker; workflow; overall size not captured before dispatch, research S; [historical follow-up](../specs/agent-workflow-evaluation.md#historical-follow-up--2026-10-15). Owner authorized the proposed improvements; historical runs remain evidence for the earlier workflow.
+
+Dispatch: 1 fresh research worker requested GPT-6 Luna/high, handoff-v2; isolate the supported Git-control investigation while the handler owns tightly coupled workflow/spec edits, verification, and Git. Resolved settings and usage unavailable.
+
+Outcome: workflow now uses handoff-v3, checks indirect control/graph transitions, coordinates shared verification resources, requires stable integrated acceptance, and covers migration scripts and finding disposition. GitHub API confirmed active master-only ruleset 25172820 with one non-fast-forward restriction and no bypass actors. Worker-only Git enforcement remains unavailable in this shared dispatch environment and is documented as a limitation. Model defaults and all prior log text preserved. Documentation links/anchors, brief revision, acceptance mapping, and diff reviewed; product/browser tests do not apply. Workflow effectiveness on subsequent product tasks remains unmeasured.
+
+Repairs/timing: 0 handler-to-worker repair rounds. First clock observation 15:57:44 UTC; worker reported completion 15:58:59 UTC. Sandbox blocked initial fetch and GitHub API access; escalated retries succeeded. Integrated content verification and Git occur after this entry; no total elapsed time claimed.
+
+Handoff — research: handoff-v2; “Distinguish supported settings, this runtime's actual capability, and best-effort command matching” and “Do not claim shared Git hooks establish worker identity.” Returned official sources and enforcement limits without edits, commits, or further delegation. No material clarification requested; handler verified the relevant documentation and remote rules through the API. No revised instruction or follow-up assignment.

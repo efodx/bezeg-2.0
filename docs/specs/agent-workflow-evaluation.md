@@ -29,6 +29,24 @@ Keep dispatch guidance concise and separate it from evaluation history. The feed
 
 This covers repository delegation, the authorized default changes, task handoffs, and evidence logging. It does not create permanent worker personas, install skills globally, introduce a benchmark harness, or change application behavior.
 
+## Historical follow-up — 2026-10-15
+
+The owner authorized practical improvements from the ten [backfilled Claude tasks](../agent-workflow/evaluation-log.md#backfilled-claude-code-delegation-records-2026-10-10-to-2026-10-14). These used the earlier workflow; they do not measure today's defaults or handoff format. Repeated findings concern stale controls after indirect state changes, verification against concurrent edits, and migration omissions in auxiliary scripts.
+
+Acceptance for this follow-up:
+
+- Assignment checks include applicable control/graph consistency after Reset, lesson actions, preset restore, and language changes.
+- Dispatch accounts for shared dependencies and verification resources even with file-disjoint workers. Integrated acceptance identifies a stable revision and dirty state; transient failures are reproduced there before attribution.
+- Migration acceptance inventories affected auxiliary scripts and records exercised commands or explicit gaps; review findings have a recorded disposition.
+- Inspect supported Git controls, add a GitHub rule blocking non-fast-forward pushes to `master` while preserving handler commits and fast-forward pushes, and document any worker-isolation gap. Instructions or shell command matching alone do not establish worker isolation.
+- Preserve historical records and model defaults, increment the changed brief revision, and verify documentation links and the bounded diff. No application behavior changes; product/browser tests are unnecessary.
+
+### Git controls
+
+Checked on 2026-10-15: [Codex subagents inherit parent sandbox and approval settings](https://learn.chatgpt.com/docs/agent-configuration/subagents#approvals-and-sandbox-controls); a custom agent cannot replace them. The current dispatch tool exposes no worker-specific permission control. [Claude command rules](https://code.claude.com/docs/en/permissions#tool-specific-permission-rules) match command text and can miss equivalent Git invocations. Shared local hooks cannot establish worker identity. No worker-only restriction was installed; hard isolation requires a separately controlled execution environment and Git access.
+
+GitHub reported `master` unprotected and no applicable rules before this change. Added active [ruleset 25172820](https://github.com/efodx/bezeg-2.0/rules/25172820), targeting only `refs/heads/master`, with one `non_fast_forward` rule and no bypass actors. This uses GitHub's [force-push restriction](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets#block-force-pushes); ordinary fast-forward pushes remain allowed. This protects remote history and does not distinguish handler from worker or prevent local commits.
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)
