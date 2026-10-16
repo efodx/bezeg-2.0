@@ -1,0 +1,2 @@
+# Vitest writes snapshots with LF; checking them out as CRLF makes every test run show them as modified.
+*.snap text eol=lf
