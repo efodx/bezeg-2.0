@@ -1,6 +1,6 @@
 # Standalone learning through study chapters
 
-Status: planning proposal, 2026-10-16. The owner confirmed the learning goal and exclusions below; the chapter structure, pilot, and presentation remain proposals. This document does not authorize application implementation.
+Status: planning proposal, 2026-10-16. The owner confirmed the learning goal, exclusions, and Bézier pilot topic; the chapter structure, detailed outline, and presentation remain proposals. This document does not authorize application implementation.
 
 ## Confirmed owner direction
 
@@ -81,7 +81,7 @@ Keep content static and source-backed, Slovenian first with English counterparts
 
 ## Bounded pilot and acceptance criteria
 
-Choose one higher-concept topic with existing graph support. Candidate directions include pointwise versus uniform convergence, fixed-point iteration, or spline continuity. These are options, not selected work; graph availability and review status must be checked when selecting the pilot.
+The owner selected Bézier curves on 2026-10-16 and supplied their thesis for the motivation. The [first chapter outline](bezier-study-chapter.md) proposes moving from editable shapes through repeated interpolation to the Bézier formula and its design guarantees. The topic is selected; the detailed outline and presentation still need review. This establishes an entry point into the curve families without requiring a complete elementary sequence first.
 
 First deliver a complete chapter outline and content draft, then a representative visual prototype and a working interaction prototype if needed to test the reading/graph transition. Apply the installed prototype skill when design work reaches that stage; do not create implementation task files yet.
 
@@ -101,14 +101,14 @@ Content review and prototype observations must identify what is missing before e
 
 ## Staging and open decisions
 
-1. Select the pilot topic and reader; identify any derivation whose reasoning the graph can make clear under the confirmed editorial rule.
+1. Review the selected Bézier pilot's reader and outline; identify derivations whose reasoning the graph can make clear under the confirmed editorial rule.
 2. Inventory existing explanations and graph capabilities; write the missing conceptual development.
 3. Review the chapter as a readable mathematical account before choosing a UI.
 4. Prototype first-time reading, graph handoff/return, and direct revision access.
 5. Write a bounded implementation spec with routing, scene ownership, accessibility, localization, and verification criteria based on that evidence.
 6. Implement and review one chapter; expand by coherent topics and family reading orders afterward.
 
-Open decisions: pilot topic, Slovenian learner-facing names, chapter/activity layout, route structure, and whether local reading-position persistence is useful. Persistence is optional future scope, separate from understanding or completion tracking.
+Open decisions: the proposed pilot reader and outline, Slovenian learner-facing names, chapter/activity layout, route structure, and whether local reading-position persistence is useful. Persistence is optional future scope, separate from understanding or completion tracking.
 
 ## Constraints and exclusions
 
