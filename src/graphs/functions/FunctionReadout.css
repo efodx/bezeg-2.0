@@ -97,31 +97,15 @@
 @media (pointer: coarse), (max-width: 700px) {
     .taylor-actions button { min-height: 44px; }
 }
-/* Sequence convergence: the iteration controls and the Show/Hide certificate button, styled like the bisection controls. */
-.sequence-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
-.sequence-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
-.sequence-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
-.sequence-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
-.sequence-status p { margin: 0; }
-.sequence-status p + p { margin-top: 6px; }
+/* Batch C demonstrations (sequence, uniform convergence, fixed point, complex multiplication): action buttons and statuses.
+   The compact modifier is for a row of small stepper buttons (n - / n +). */
+.demo-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
+.demo-actions-compact { grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); }
+.demo-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.demo-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
+.demo-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.demo-status p { margin: 0; }
+.demo-status p + p { margin-top: 6px; }
 @media (pointer: coarse), (max-width: 700px) {
-    .sequence-actions button { min-height: 44px; }
-}
-/* Uniform convergence: the n stepper and the Show/Hide supremum button, styled like the Taylor controls. */
-.uniform-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); gap: 6px; }
-.uniform-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
-.uniform-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
-.uniform-status p { margin: 0; }
-.uniform-status p + p { margin-top: 6px; }
-@media (pointer: coarse), (max-width: 700px) {
-    .uniform-actions button { min-height: 44px; }
-}
-/* Complex multiplication: the Show product and Show arguments buttons and the statuses, styled like the uniform convergence controls. */
-.complex-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
-.complex-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
-.complex-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
-.complex-status p { margin: 0; }
-.complex-status p + p { margin-top: 6px; }
-@media (pointer: coarse), (max-width: 700px) {
-    .complex-actions button { min-height: 44px; }
+    .demo-actions button { min-height: 44px; }
 }

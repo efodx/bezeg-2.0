@@ -3,6 +3,9 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import {NumberInput} from './NumberInput';
 import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 
+/** Typing (or pasting) into the field: an input event that carries an inputType, unlike the native spinner. */
+const type = (input: HTMLInputElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
+
 test('commits only finite in-range numbers, keeps partial typing, and follows the model value', () => {
     const onChange = vi.fn();
     const {rerender} = render(<NumberInput label="k" value={2} min={-10} max={10} onChange={onChange}/>);
@@ -76,22 +79,22 @@ test('applyOn="confirm" keeps what is typed until Enter or blur, then applies it
     const onChange = vi.fn((value: number) => value < 5);
     render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
     const input = screen.getByLabelText('r') as HTMLInputElement;
-    fireEvent.change(input, {target: {value: '1.'}});
-    fireEvent.change(input, {target: {value: '1.5'}});
+    type(input, '1.');
+    type(input, '1.5');
     expect(onChange).not.toHaveBeenCalled();
     expect(input.value).toBe('1.5');
     fireEvent.keyDown(input, {key: 'Enter'});
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenLastCalledWith(1.5);
     // blur applies a changed draft; a refusal stays explained although the field reverts to the model value
-    fireEvent.change(input, {target: {value: '9'}});
+    type(input, '9');
     fireEvent.blur(input);
     expect(onChange).toHaveBeenLastCalledWith(9);
     expect(input.value).toBe('1');
     expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
     // an unchanged draft is not applied on blur
     fireEvent.focus(input);
-    fireEvent.change(input, {target: {value: '1'}});
+    type(input, '1');
     fireEvent.blur(input);
     expect(onChange).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('status')).toBeNull();
@@ -99,4 +102,37 @@ test('applyOn="confirm" keeps what is typed until Enter or blur, then applies it
     render(<NumberInput label="s" value={1} step={0.5} applyOn="confirm" onChange={onChange}/>);
     fireEvent.keyDown(screen.getByLabelText('s'), {key: 'ArrowUp'});
     expect(onChange).toHaveBeenLastCalledWith(1.5);
+});
+
+test('applyOn="confirm" applies a native spinner step at once, but keeps typing and pasting until Enter', () => {
+    const onChange = vi.fn();
+    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    const input = screen.getByLabelText('r') as HTMLInputElement;
+    // the spinner dispatches an input event without an inputType (here the plain change event of the test library does the same)
+    fireEvent.change(input, {target: {value: '2'}});
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenLastCalledWith(2);
+    type(input, '3');
+    fireEvent.input(input, {target: {value: '4'}, inputType: 'insertFromPaste'});
+    fireEvent.input(input, {target: {value: '5'}, inputType: 'deleteContentBackward'});
+    expect(onChange).toHaveBeenCalledTimes(1);
+});
+
+test('applyOn="confirm" shows the model value again after Enter when the model snapped the typed value back to the unchanged one', () => {
+    const onChange = vi.fn(() => true);
+    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    const input = screen.getByLabelText('r') as HTMLInputElement;
+    type(input, '1.01');
+    expect(input.value).toBe('1.01');
+    fireEvent.keyDown(input, {key: 'Enter'});
+    expect(onChange).toHaveBeenLastCalledWith(1.01);
+    // the prop stayed 1: the typed text must not stay behind
+    expect(input.value).toBe('1');
+    // a refused value keeps the typed text so that it can be corrected
+    const refuse = vi.fn(() => false);
+    render(<NumberInput label="q" value={1} applyOn="confirm" onChange={refuse}/>);
+    const other = screen.getByLabelText('q') as HTMLInputElement;
+    type(other, '7');
+    fireEvent.keyDown(other, {key: 'Enter'});
+    expect(other.value).toBe('7');
 });

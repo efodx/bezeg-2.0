@@ -35,7 +35,7 @@ import {COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, COMPLEX_EXAMPLE_IDS, isC
 import {parseSequenceModel} from "../../../analysis/sequenceModel";
 import {
     isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
-    SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_TERMS, SEQUENCE_TERMS_MIN, SEQUENCE_THRESHOLD_MAX, SEQUENCE_THRESHOLD_MIN,
+    SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_LIMIT_STEP, SEQUENCE_MAX_TERMS, SEQUENCE_TERMS_MIN, SEQUENCE_THRESHOLD_MAX, SEQUENCE_THRESHOLD_MIN,
 } from "../../../analysis/sequence";
 import {EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, isExtremaExampleId, isExtremaX} from "../../../analysis/extrema";
 import {parseDarbouxModel} from "../../../analysis/darbouxModel";
@@ -143,7 +143,7 @@ const diagnoseSequence: Diagnosis = data => {
     if (finite(data.epsilon) && !isSequenceEpsilon(data.epsilon)) {
         return message("invalid_sequence_epsilon", {value0: bound(SEQUENCE_EPSILON_MIN), value1: bound(SEQUENCE_EPSILON_MAX), value2: bound(SEQUENCE_EPSILON_STEP)});
     }
-    if (finite(data.limit) && !isSequenceLimit(data.limit)) return message("invalid_sequence_limit", {value0: bound(SEQUENCE_LIMIT_MIN), value1: bound(SEQUENCE_LIMIT_MAX)});
+    if (finite(data.limit) && !isSequenceLimit(data.limit)) return message("invalid_sequence_limit", {value0: bound(SEQUENCE_LIMIT_MIN), value1: bound(SEQUENCE_LIMIT_MAX), value2: bound(SEQUENCE_LIMIT_STEP)});
     if (finite(data.threshold) && !isSequenceThreshold(data.threshold)) {
         return message("invalid_sequence_threshold", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX});
     }

@@ -306,7 +306,8 @@ abstract class BaseGraph<S extends BaseGraphState> {
     /**
      * Whether a view set from a bounding box (a preset's stored view, a restored lesson scene, the view of an imported example, the
      * fit button) gives both axes the same unit length. True for the curve and function demonstrations. A graph whose axes mean
-     * different things, such as a sequence index against its value, returns false so that its stored box is applied exactly.
+     * different things, such as a sequence index against its value, returns false so that its stored box is applied exactly; its
+     * fit button restores the graph's own default view (see `fitView`) instead of a canvas-aspect box.
      */
     protected get equalAxisUnits(): boolean {
         return true;
@@ -496,6 +497,14 @@ abstract class BaseGraph<S extends BaseGraphState> {
         this.boardUpdate();
     }
 
+    /**
+     * The box the fit button applies for the visible points and the canvas size, or undefined to leave the view alone. The default is
+     * the equal-unit box of `fitBoundingBox`; a graph without equal axis units returns its own default view instead.
+     */
+    protected fitView(points: readonly [number, number][], width: number, height: number): [number, number, number, number] | undefined {
+        return fitBoundingBox(points, width, height);
+    }
+
     private navigateBoard(action: string) {
         if (action === 'fit') {
             // JSXGraph's zoomAllPoints depends on the current zoom, so fit from the points and canvas size alone.
@@ -505,7 +514,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
             }
             // setBoundingBox re-reads the container size, so fit against the same size.
             const {width, height} = JXG.getDimensions(this.board.container, document);
-            const box = fitBoundingBox(points, parseFloat(String(width)), parseFloat(String(height)));
+            const box = this.fitView(points, parseFloat(String(width)), parseFloat(String(height)));
             if (box) {
                 this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
                 this.board.applyZoom();

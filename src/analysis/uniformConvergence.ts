@@ -219,14 +219,16 @@ export function uniformPointwiseThreshold(
     return leastPowerBelow(x100, 100, e100, cap);
 }
 
-/** The least n with supremum error < epsilon, or `none` when no n has it (power on [0, 1]: the supremum is 1 >= epsilon). */
+/** The least n with the error below epsilon at every x for all later m, or `none` when no n has it (power on [0, 1] with epsilon < 1). */
 export type UniformThreshold = {readonly kind: 'threshold'; readonly n: number} | {readonly kind: 'none'};
 
 /**
- * The shared threshold N(epsilon): the least n with sup |f_m - f| < epsilon (then for every m >= n, the supremum being
- * non-increasing). Needs r on the grid 0.05 in [0.1, 1] and epsilon on the grid 0.01 in [0.01, 1]; throws otherwise.
+ * The shared threshold N(epsilon): the least n such that |f_m(x) - f(x)| < epsilon at every x for all m >= n. When the supremum is
+ * attained this is the same as sup |f_m - f| < epsilon; when it is not attained it is sup <= epsilon, because every error is then
+ * strictly below the supremum. Needs r on the grid 0.05 in [0.1, 1] and epsilon on the grid 0.01 in [0.01, 1]; throws otherwise.
  * - `power`, r < 1: the least n with r^n < epsilon, exact on integers (r20^n * 100 < e100 * 20^n);
- * - `power`, r = 1: `none` for every epsilon <= 1, because the supremum is 1;
+ * - `power`, r = 1: the supremum is 1 and is not attained (every error x^n is below 1, and the error is 0 at x = 1). For epsilon < 1
+ *   no n works (`none`); at epsilon = 1 (the largest allowed) every error is below epsilon, so N = 1;
  * - `scaled`: floor(r / epsilon) + 1, computed as floor(5 r20 / e100) + 1 on integers.
  */
 export function uniformThreshold(example: UniformExample, r: number, epsilon: number): UniformThreshold {
@@ -235,7 +237,7 @@ export function uniformThreshold(example: UniformExample, r: number, epsilon: nu
     requireEpsilon(epsilon);
     const e100 = unitsOfEpsilon(epsilon) as number;
     if (example.id === 'scaled') return {kind: 'threshold', n: integerQuotient(5 * r20, e100) + 1};
-    if (r20 === 20) return {kind: 'none'};
+    if (r20 === 20) return e100 >= 100 ? {kind: 'threshold', n: 1} : {kind: 'none'};
     // r^n decreases to 0 and r^n < epsilon at some n <= 90 on the grids, far below the cap.
     const found = leastPowerBelow(r20, 20, e100, UNIFORM_THRESHOLD_CAP);
     return found.kind === 'threshold' ? found : {kind: 'none'};

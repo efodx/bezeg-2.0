@@ -58,8 +58,9 @@ describe('sequence examples', () => {
         expect([0.01, 0.07, 0.29, 0.58, 1.1, 1.15, 2].every(isSequenceEpsilon)).toBe(true);
         // Zero, negative, off-grid, out-of-range and non-numeric epsilon are rejected, not clamped.
         expect([0, -0.1, -0.01, 0.005, 0.015, 0.1001, 0.001, 2.01, 2.5, 100, NaN, Infinity, -Infinity, '0.1', null, undefined].some(isSequenceEpsilon)).toBe(false);
-        expect([-2, 0, 0.123, 2].every(isSequenceLimit)).toBe(true);
-        expect([-2.01, 2.01, NaN, Infinity, '0', null].some(isSequenceLimit)).toBe(false);
+        expect([-2, 0, 0.12, 0.9, 0.1 + 0.2, 2].every(isSequenceLimit)).toBe(true);
+        // Off-grid limits are rejected, never rounded: 1e-10 is not 0 and 0.995 is not 1.
+        expect([-2.01, 2.01, NaN, Infinity, '0', null, 0.123, 0.005, 1e-10, -1e-10, 0.995, 0.3333].some(isSequenceLimit)).toBe(false);
         expect([1, 11, 1000].every(isSequenceThreshold)).toBe(true);
         expect([0, -1, 1.5, 1001, NaN, '3', null].some(isSequenceThreshold)).toBe(false);
         expect([1, 40].every(isSequenceTerms)).toBe(true);
@@ -160,7 +161,9 @@ describe('certificate for convergent examples with the true limit', () => {
         expect(isTermInBand('reciprocal', 100, 0.5, 0.1)).toBe(false);
         expect(isTermInBand('reciprocal', 3, 0.5, 0.16)).toBe(false);
         expect(isTermInBand('reciprocal', 3, 0.5, 0.17)).toBe(true);
-        expect(isTermInBand('natural', 3, 3, 0.01)).toBe(true);
+        expect(isTermInBand('natural', 2, 2, 0.01)).toBe(true);
+        expect(() => isTermInBand('reciprocal', 2, 0.123, 0.1)).toThrow(RangeError);
+        expect(() => isTermInBand('reciprocal', 2, 1e-10, 0.1)).toThrow(RangeError);
         expect(() => isTermInBand('reciprocal', 2, 0, 0.015)).toThrow(RangeError);
     });
 
@@ -187,7 +190,7 @@ describe('certificate for convergent examples with the true limit', () => {
     test('a candidate other than the limit gets no certificate and says so', () => {
         for (const id of ['reciprocal', 'alternating-reciprocal'] as const) {
             for (const [, eps] of GRID.filter(([k]) => k % 17 === 0)) {
-                for (const limit of [-2, -0.5, -1e-9, 1e-9, 0.1, 1, 2]) {
+                for (const limit of [-2, -0.5, -0.01, 0.01, 0.1, 1, 2]) {
                     for (const threshold of [1, 11, 101, 1000]) {
                         expect(certify(id, eps, limit, threshold)).toMatchObject({kind: 'not-the-limit', actualLimit: 0});
                     }
@@ -195,6 +198,65 @@ describe('certificate for convergent examples with the true limit', () => {
             }
         }
         expect(certify('reciprocal', 0.1, -0, 11).kind).toBe('certified');
+    });
+});
+
+describe('band membership at the boundary is exact', () => {
+    // |a_n - L| = epsilon on the grid must be outside the open band, whatever the doubles say (|1 - 0.9| is 0.0999... in floating point).
+    test('alternating-sign: a term at distance exactly epsilon is outside, one hundredth more is inside', () => {
+        expect(isTermInBand('alternating-sign', 2, 0.9, 0.11)).toBe(true);
+        expect(isTermInBand('alternating-sign', 2, 0.9, 0.1)).toBe(false);
+        for (const [l100, e100] of [[90, 10], [-90, 10], [7, 93], [-7, 93], [30, 70], [55, 45], [-100, 200]]) {
+            const limit = l100 / 100;
+            // a = 1 is at distance |100 - l100| hundredths, a = -1 at |-100 - l100|.
+            expect(isTermInBand('alternating-sign', 2, limit, e100 / 100)).toBe(Math.abs(100 - l100) < e100);
+            expect(isTermInBand('alternating-sign', 1, limit, e100 / 100)).toBe(Math.abs(-100 - l100) < e100);
+        }
+        expect(certify('alternating-sign', 1.01, 0.01, 5).kind).toBe('oscillating');
+        expect(certify('alternating-sign', 1.02, 0.01, 5).kind).toBe('epsilon-satisfied');
+        expect(certify('alternating-sign', 1.1, 0.1, 5)).toMatchObject({kind: 'oscillating', farthestDistance: 1.1});
+        expect(certify('alternating-sign', 1.1, 0.09, 5).kind).toBe('epsilon-satisfied');
+    });
+
+    test('reciprocal and alternating-reciprocal: boundary terms for a limit off the true limit', () => {
+        // 1/n - 0.3 against epsilon: 1/5 is at 0.1 from 0.3, 1/4 at 0.05.
+        expect(isTermInBand('reciprocal', 5, 0.3, 0.1)).toBe(false);
+        expect(isTermInBand('reciprocal', 5, 0.3, 0.11)).toBe(true);
+        expect(isTermInBand('reciprocal', 4, 0.3, 0.05)).toBe(false);
+        expect(isTermInBand('reciprocal', 4, 0.3, 0.06)).toBe(true);
+        // 1/10 - 0.2 = -0.1: distance 0.1.
+        expect(isTermInBand('reciprocal', 10, 0.2, 0.1)).toBe(false);
+        expect(isTermInBand('reciprocal', 10, 0.2, 0.11)).toBe(true);
+        // (-1)^n / n: a_3 = -1/3 and a_4 = 1/4 against L = -0.3 and L = 0.3.
+        expect(isTermInBand('alternating-reciprocal', 4, 0.3, 0.05)).toBe(false);
+        expect(isTermInBand('alternating-reciprocal', 4, 0.3, 0.06)).toBe(true);
+        expect(isTermInBand('alternating-reciprocal', 5, -0.3, 0.1)).toBe(false);
+        expect(isTermInBand('alternating-reciprocal', 5, -0.3, 0.11)).toBe(true);
+        expect(isTermInBand('alternating-reciprocal', 5, 0.3, 0.5)).toBe(false);
+        expect(isTermInBand('alternating-reciprocal', 5, 0.3, 0.51)).toBe(true);
+    });
+
+    test('natural: a_n = L + epsilon is outside, and the exit index is exact on the grid', () => {
+        expect(isTermInBand('natural', 3, 2, 1)).toBe(false);
+        expect(isTermInBand('natural', 3, 2, 1.01)).toBe(true);
+        expect(isTermInBand('natural', 1, 2, 1)).toBe(false);
+        expect(certify('natural', 1, 2, 1)).toMatchObject({kind: 'divergent', exitIndex: 4});
+        expect(certify('natural', 0.99, 2, 1)).toMatchObject({exitIndex: 3});
+        expect(certify('natural', 0.07, 0.93, 1)).toMatchObject({exitIndex: 2});
+        expect(certify('natural', 0.07, 0.92, 1)).toMatchObject({exitIndex: 1});
+    });
+
+    test('the integer rule agrees with exact rational arithmetic for every example over the grid', () => {
+        for (const id of SEQUENCE_EXAMPLE_IDS) {
+            for (const l100 of [-200, -137, -90, -1, 0, 1, 25, 50, 90, 133, 200]) {
+                for (const [e100, eps] of GRID.filter(([k]) => k % 7 === 0)) {
+                    for (const n of [1, 2, 3, 4, 5, 9, 10, 11, 20, 39, 40]) {
+                        const [p, q] = SEQUENCE_EXAMPLES[id].fraction(n);
+                        expect(isTermInBand(id, n, l100 / 100, eps)).toBe(Math.abs(100 * p - l100 * q) < e100 * q);
+                    }
+                }
+            }
+        }
     });
 });
 
@@ -285,7 +347,7 @@ describe('no certificate for natural', () => {
 describe('certificate input validation', () => {
     test('rejects invalid epsilon, limit, threshold and terms instead of clamping', () => {
         for (const eps of [0, -0.1, 0.005, 2.01, NaN, Infinity]) expect(() => certify('reciprocal', eps, 0, 5)).toThrow(RangeError);
-        for (const limit of [-2.5, 2.5, NaN]) expect(() => certify('reciprocal', 0.1, limit, 5)).toThrow(RangeError);
+        for (const limit of [-2.5, 2.5, NaN, 0.123, 1e-10]) expect(() => certify('reciprocal', 0.1, limit, 5)).toThrow(RangeError);
         for (const threshold of [0, 1001, 2.5, NaN, -3]) expect(() => certify('reciprocal', 0.1, 0, threshold)).toThrow(RangeError);
         for (const terms of [0, 41, 1.5]) expect(() => certify('reciprocal', 0.1, 0, 5, terms)).toThrow(RangeError);
         expect(() => certify('nope' as never, 0.1, 0, 5)).toThrow(RangeError);
@@ -327,7 +389,7 @@ describe('sequence model', () => {
             {...model, example: 'nope'}, {...model, example: undefined},
             {...model, epsilon: 0}, {...model, epsilon: -0.5}, {...model, epsilon: 0.015}, {...model, epsilon: 2.01}, {...model, epsilon: '0.1'},
             {...model, epsilon: NaN}, {...model, epsilon: undefined},
-            {...model, limit: 2.01}, {...model, limit: -2.01}, {...model, limit: NaN}, {...model, limit: '0'}, {...model, limit: undefined},
+            {...model, limit: 2.01}, {...model, limit: -2.01}, {...model, limit: 0.123}, {...model, limit: 1e-10}, {...model, limit: NaN}, {...model, limit: '0'}, {...model, limit: undefined},
             {...model, threshold: 0}, {...model, threshold: 1001}, {...model, threshold: 2.5}, {...model, threshold: undefined},
             {...model, terms: 0}, {...model, terms: 41}, {...model, terms: 3.5}, {...model, terms: undefined},
             {...model, certificateVisible: 'yes'}, {...model, certificateVisible: 1}, {...model, certificateVisible: undefined},

@@ -358,8 +358,16 @@ describe('uniform threshold (shared N)', () => {
         expect(uniformThreshold(power, 0.95, 0.01)).toEqual({kind: 'threshold', n: 90}); // 0.95^89 = 0.0104, 0.95^90 = 0.0099
     });
 
-    test('power on [0, 1]: no shared N for any epsilon <= 1', () => {
-        for (const e of epsilonValues) expect(uniformThreshold(power, 1, e)).toEqual({kind: 'none'});
+    test('power on [0, 1]: no shared N for epsilon < 1, and N = 1 at epsilon = 1 (the supremum 1 is not attained, every error is below 1)', () => {
+        for (const e of epsilonValues.filter(value => value < 1)) expect(uniformThreshold(power, 1, e)).toEqual({kind: 'none'});
+        expect(uniformThreshold(power, 1, 1)).toEqual({kind: 'threshold', n: 1});
+        // Independent check of the definition at epsilon = 1: for every n and every grid x the error is below 1.
+        for (let n = 1; n <= 60; n++) {
+            for (let x100 = 0; x100 <= 100; x100++) {
+                const error = x100 === 100 ? 0 : (x100 / 100) ** n;
+                expect(error).toBeLessThan(1);
+            }
+        }
     });
 
     test('scaled: floor(r / epsilon) + 1, checked by integer reasoning over the whole grid', () => {

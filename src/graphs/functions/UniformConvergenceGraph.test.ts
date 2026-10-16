@@ -1,4 +1,5 @@
-import {gridValue, UniformConvergenceGraph} from './UniformConvergenceGraph';
+import {UniformConvergenceGraph} from './UniformConvergenceGraph';
+import {gridValue} from './BaseFunctionGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {UNIFORM_EXAMPLE_MODELS} from '../../analysis/uniformConvergenceModel';
@@ -113,7 +114,7 @@ test('initialization draws x^n on [0, 0.8] with the supremum hidden, from a fixe
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
     expect(functionGraphs(graph)).toHaveLength(1);
     expect(caption(graph)).toEqual([
-        'fₙ(x) = xⁿ na [0, 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'supremum: skrit',
+        'fₙ(x) = xⁿ na [0; 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'supremum: skrit',
         'polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x',
     ]);
     // f_n is drawn on [0, r] only and equals x^n there
@@ -220,7 +221,7 @@ test('readouts and statuses are hidden before Show supremum, then give the supre
     expect(visible(points(graph)[UNATTAINED])).toBe(false);
     expect(at(points(graph)[ATTAINED])).toEqual([0.8, 0.8 ** 5]);
     expect(caption(graph)).toEqual([
-        'fₙ(x) = xⁿ na [0, 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'sup |fₙ − f| = 0,32768, dosežen pri x = 0,8', 'skupni N = 11',
+        'fₙ(x) = xⁿ na [0; 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'sup |fₙ − f| = 0,32768, dosežen pri x = 0,8', 'skupni N = 11',
         'polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x',
     ]);
     // at n = 11 the supremum is below epsilon, at n = 10 it is not
@@ -253,8 +254,13 @@ test('power on [0, 1]: the supremum is 1 for every n, not attained, and there is
     expect(Number(rows(graph)['pointwise-error'].replace(',', '.'))).toBeLessThan(1);
     apply(graph, parameter('uniform-x', 1));
     expect(rows(graph)).toMatchObject({term: '1', limit: '1', 'pointwise-error': '0', 'pointwise-n': '1'});
-    // even at epsilon = 1 the criterion "supremum below epsilon" is not met, and the status says so without claiming a point outside the band
+    // at epsilon = 1 the supremum equals epsilon but is not attained, so every error is below epsilon and N = 1 works; the status does not claim "supremum below epsilon"
     apply(graph, parameter('uniform-epsilon', 1));
+    expect(rows(graph)['shared-n']).toBe('1');
+    expect(statusIds(graph)).toEqual(['not-attained', 'shared-n-boundary', 'covered-boundary', 'jump']);
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text).join(' ')).not.toMatch(/supremum je manjši/);
+    expect(caption(graph)[4]).toBe('skupni N = 1');
+    apply(graph, parameter('uniform-epsilon', 0.99));
     expect(rows(graph)['shared-n']).toBe('ne obstaja');
     expect(statusIds(graph)).toContain('no-shared-n');
 });
@@ -295,7 +301,7 @@ test('x/n: the supremum is r/n attained at x = r and the shared N is floor(r / e
     apply(graph, choice('scaled'));
     expect(graph.model).toEqual({example: 'scaled', r: 1, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false});
     expect(rows(graph)).toMatchObject({term: '0,1', limit: '0', 'pointwise-error': '0,1', 'pointwise-n': '6', supremum: 'skrito'});
-    expect(caption(graph)[0]).toBe('fₙ(x) = x/n na [0, 1]');
+    expect(caption(graph)[0]).toBe('fₙ(x) = x/n na [0; 1]');
     apply(graph, reveal(true));
     // 1 / 0.1 = 10 exactly, so the threshold is 11 (n = 10 gives the error 0.1, which is not below epsilon)
     expect(rows(graph)).toMatchObject({supremum: '0,2', 'supremum-attained': 'da, pri x = 1', 'shared-n': '11'});
@@ -385,10 +391,17 @@ test('controls and lesson actions give equivalent models', () => {
     expect(statusIds(viaControls)).toEqual(statusIds(viaLesson));
     // the buttons clamp nothing: at 1 the decrease is disabled, at 50 the increase is
     controls(viaControls).inputN.props.onChange(1);
-    expect(controls(viaControls).decrease.props.disabled).toBe(true);
+    expect(controls(viaControls).decrease.props['aria-disabled']).toBe(true);
     expect(controls(viaControls).decrease.props['aria-describedby']).toBe('uniform-n-help');
     controls(viaControls).inputN.props.onChange(50);
-    expect(controls(viaControls).increase.props.disabled).toBe(true);
+    expect(controls(viaControls).increase.props['aria-disabled']).toBe(true);
+    // an unavailable button stays focusable and its click does nothing
+    controls(viaControls).increase.props.onClick();
+    expect(viaControls.model.n).toBe(50);
+    controls(viaControls).inputN.props.onChange(1);
+    controls(viaControls).decrease.props.onClick();
+    expect(viaControls.model.n).toBe(1);
+    controls(viaControls).inputN.props.onChange(50);
     expect(controls(viaControls).inputN.props.onChange(51)).toBe(false);
     expect(viaControls.model.n).toBe(50);
     // hide again
@@ -572,4 +585,14 @@ test('no readout, caption or status ever shows NaN, Infinity, -0, 1e-17 noise or
             }
         }
     }
+});
+
+test('Fit restores the default view instead of a canvas-aspect box, because the axes have different units', () => {
+    const graph = makeGraph({asyncState: false});
+    graph.board.container = document.createElement('div');
+    graph.board.applyZoom = vi.fn();
+    graph.board.setBoundingBox.mockClear();
+    graph.navigateBoard('fit');
+    expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+    expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-0.15, 1.45, 1.2, -0.2], false, 'update');
 });

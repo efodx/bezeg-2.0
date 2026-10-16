@@ -413,7 +413,7 @@ test('the largest products stay finite and within |zw| <= 8; those beyond the de
     apply(graph, product(true));
     expect(rows(graph).product).toBe('8i');
     expect(statusIds(graph)).toEqual(['not-reduced', 'off-view']);
-    expect(graph.statuses(graph.model, graph.viewOf(graph.model))[1].text).toBe('Produkt zw (|zw| = 8) leži zunaj privzetega pogleda. Pomanjšaj pogled, da ga vidiš (kolešček miške ali ščipanje).');
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model))[1].text).toBe('Zmnožek zw (|zw| = 8) leži zunaj privzetega pogleda. Pomanjšaj pogled, da ga vidiš (kolešček miške ali ščipanje).');
     expect(caption(graph)).toContain('zw je zunaj pogleda');
     // zooming out until the product is inside removes the board line (the live view decides)
     graph.board.getBoundingBox.mockReturnValue([-10, 10, 10, -10]);
@@ -622,10 +622,10 @@ test('the legend and the inspector name z, w and zw with words, patterns and sha
     const legend = collect(graph.renderLegend()).FunctionLegend[0].props.items;
     expect(legend.map((item: any) => item.id)).toEqual(['z', 'w', 'product', 'arcs']);
     expect(legend.map((item: any) => item.label)).toEqual([
-        'z: polna črta s krogom', 'w: črtkana črta s kvadratom', 'zw (po Pokaži produkt): debela črta z rombom', 'Argumenti (po Pokaži argumente): loki od pozitivne realne osi',
+        'z: polna črta s krogom', 'w: črtkana črta s kvadratom', 'zw (po Pokaži zmnožek): debela črta z rombom', 'Argumenti (po Pokaži argumente): loki od pozitivne realne osi',
     ]);
     expect(new Set(legend.map((item: any) => item.kind)).size).toBeGreaterThan(1);
-    expect(controls(graph).showProduct.props.children).toBe('Pokaži produkt');
+    expect(controls(graph).showProduct.props.children).toBe('Pokaži zmnožek');
     expect(controls(graph).showArguments.props.children).toBe('Pokaži argumente');
     expect(controls(graph).select.props.options.map((option: any) => option.value)).toEqual(['rotation-i', 'identity', 'negation', 'scaling', 'general', 'zero']);
     expect(controls(graph).select.props.options[0].text).toBe('Množenje z i (vrtež za π/2)');
@@ -659,4 +659,18 @@ test('no readout, caption or status ever shows NaN, Infinity, -0 or a raw undefi
             }
         }
     }
+});
+
+test('an argument sum without a pi-multiple form is stated with "≈" alone, never "= ≈"', () => {
+    const graph = makeGraph({asyncState: false});
+    for (const action of [choice('general'), parameter('complex-z-im', 0.5), product(true), arguments_(true)]) apply(graph, action);
+    const text = graph.statuses(graph.model, graph.viewOf(graph.model))[0].text as string;
+    expect(text).toMatch(/^arg z \+ arg w ≈ 1,249 leži v \(−π, π\]/);
+    expect(text).not.toContain('= ≈');
+    // reduced case: 1 + 0.5i squared has argument sum 0.927 (no reduction); z = w = -1 + 0.5i has 2 * 2.678 = 5.356 -> -0.927
+    for (const action of [parameter('complex-z-re', -1), parameter('complex-w-re', -1), parameter('complex-w-im', 0.5)]) apply(graph, action);
+    const reduced = graph.statuses(graph.model, graph.viewOf(graph.model))[0].text as string;
+    expect(reduced).toMatch(/^arg z \+ arg w ≈ 5,356 leži zunaj \(−π, π\]\. Odštejemo ali prištejemo 2π in dobimo arg zw ≈ −0,927\.$/);
+    setLanguage('en');
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model))[0].text).toMatch(/^arg z \+ arg w ≈ 5\.356 lies outside .* arg zw ≈ −0\.927\.$/);
 });

@@ -1,11 +1,11 @@
-import {COMPACT_BOARD_WIDTH, FIXED_POINT_STEP_INTERVAL_MS, FixedPointGraph} from './FixedPointGraph';
+import {FIXED_POINT_STEP_INTERVAL_MS, FixedPointGraph} from './FixedPointGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {FIXED_POINT_MAX_STEPS, fixedPointHistory} from '../../analysis/fixedPoint';
 import {defaultFixedPointModel, FixedPointModel} from '../../analysis/fixedPointModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
-import {DomainError} from './BaseFunctionGraph';
+import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -153,7 +153,7 @@ test('initialization draws the box, the diagonal, the map, the cobweb, the marke
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
     // equal axis units are kept: the cobweb is drawn against the 45 degree diagonal
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(AFFINE_BOX, true);
-    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 0, xₖ = 0', 'ocena napake: skrita', 'krogec: približek; križec: fiksna točka']);
+    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 0, xₖ = 0', 'ocena napake: skrita', 'krogec: približek; križec: negibna točka']);
     // the box is the closed square [a, b] x [a, b], the diagonal runs through its corners, the map is drawn over the interval only
     curves(graph)[BOX].updateDataArray();
     expect(curves(graph)[BOX].dataX).toEqual([0, 2, 2, 0, 0]);
@@ -293,7 +293,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(affine.model.step).toBe(10);
     expect(rows(affine).end).toBe('ocena a posteriori pod pragom');
     expect(statusIds(affine)).toEqual(['threshold', 'bound-hidden']);
-    expect(statusTexts(affine)[0]).toBe('Ustavljeno pri koraku 10: ocena a posteriori je pod pragom 10⁻³. To pove, da je napaka pod pragom, ne da je xₖ natančna fiksna točka.');
+    expect(statusTexts(affine)[0]).toBe('Ustavljeno pri koraku 10: ocena a posteriori je pod pragom 10⁻³. To pove, da je napaka pod pragom, ne da je xₖ natančna negibna točka.');
     expect(caption(affine)).toContain('konec: ocena pod pragom');
     // the same stop for a cosine contraction, where the model agrees with the history
     const cosine = makeGraph({asyncState: false});
@@ -307,7 +307,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     const known = makeGraph({asyncState: false});
     apply(known, parameter('fixed-point-x0', 1));
     expect(statusIds(known)).toEqual(['fixed-point', 'bound-hidden']);
-    expect(rows(known).end).toBe('začetek je znana fiksna točka');
+    expect(rows(known).end).toBe('začetek je znana negibna točka');
     apply(known, command('play'));
     expect(known.controller.isPlaying()).toBe(false);
     expect(() => next(known)).toThrow(DomainError);
@@ -503,7 +503,7 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     expect(rows(graph)).toMatchObject({q: '0,5', 'a-priori': '0,125', 'a-posteriori': '0,125'});
     expect(statusIds(graph)).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
     expect(statusTexts(graph)[0]).toContain('zaprt in omejen');
-    expect(statusTexts(graph)[0]).toContain('T([0, 2]) = [1/2, 3/2]');
+    expect(statusTexts(graph)[0]).toContain('T([0; 2]) = [1/2; 3/2]');
     expect(statusTexts(graph)[0]).toContain('q = 1/2 < 1');
     expect(caption(graph)[2]).toBe('|xₖ − x*| ≤ 0,125');
     // the bound bar on the x-axis is the interval around x_3 clipped to [a, b]
@@ -523,7 +523,7 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     next(cosine, 8);
     apply(cosine, reveal(true));
     expect(rows(cosine)).toMatchObject({current: '0,722102', q: '0,841471', 'a-priori': '1,586', 'a-posteriori': '0,2222'});
-    expect(statusTexts(cosine)[0]).toContain('cos([0, 1]) = [cos 1, 1]');
+    expect(statusTexts(cosine)[0]).toContain('cos([0; 1]) = [cos 1; 1]');
     expect(statusTexts(cosine)[0]).toContain('sin 1 ≈ 0,8415');
     const history = fixedPointHistory('cosine', 0, 22, 3);
     for (const entry of history.points) {
@@ -540,11 +540,12 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     expect(rows(reflection)).toMatchObject({q: 'ni ocene (ni skrčitve)', 'a-priori': 'ni ocene (ni skrčitve)', 'a-posteriori': 'ni ocene (ni skrčitve)'});
     expect(statusIds(reflection)).toEqual(['cycle', 'no-bound']);
     expect(statusTexts(reflection)[1]).toContain('To še ne pomeni, da iteracija divergira');
-    expect(caption(reflection)).toEqual(['T(x) = 1 - x', 'korak k = 4, xₖ = 0,2', 'ni ocene: |T′| = 1, ni skrčitve', 'dvocikel 0,2 ↔ 0,8', 'krogec: približek; križec: fiksna točka']);
+    expect(caption(reflection)).toEqual(['T(x) = 1 - x', 'korak k = 4, xₖ = 0,2', 'ni ocene: |T′| = 1, ni skrčitve', 'dvocikel 0,2 ↔ 0,8', 'krogec: približek; križec: negibna točka']);
     expect(resolve(segments(reflection)[BOUND_BAR].attributes.visible)).toBe(false);
+    expect(statusTexts(reflection)[0]).toContain('Vzrok je T(T(x)) = x.');
     setLanguage('en');
     expect(statusTexts(reflection)[1]).toContain('That does not mean the iteration diverges');
-    expect(statusTexts(reflection)[0]).toBe('Two-cycle: the iterates alternate between 0.2 and 0.8 and do not settle. The reason lies in T: |T′| = 1, so it is not a contraction and the hypothesis of the theorem fails. A failing hypothesis alone does not prove divergence.');
+    expect(statusTexts(reflection)[0]).toBe('Two-cycle: the iterates alternate between 0.2 and 0.8 and do not settle. The cause is T(T(x)) = x. Since |T′| = 1, T is not a contraction, so the theorem does not apply, which by itself does not prove divergence.');
 });
 
 test('a rounded readout equal to the fixed point is no proof: the stop is stated as a bound below the threshold', () => {
@@ -558,7 +559,7 @@ test('a rounded readout equal to the fixed point is no proof: the stop is stated
     apply(graph, reveal(true));
     expect(rows(graph)['a-posteriori']).toBe('7,451·10⁻⁹');
     expect(statusIds(graph)).toEqual(['threshold', 'hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
-    expect(statusTexts(graph)[0]).toContain('ne da je xₖ natančna fiksna točka');
+    expect(statusTexts(graph)[0]).toContain('ne da je xₖ natančna negibna točka');
     expect(rows(graph).end).toBe('ocena a posteriori pod pragom');
     expect(() => next(graph)).toThrow(DomainError);
 });
@@ -813,7 +814,7 @@ test('the board text follows the language and a language change notifies subscri
     const graph = makeGraph({asyncState: false});
     next(graph, 3);
     apply(graph, reveal(true));
-    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 3, xₖ = 0,875', '|xₖ − x*| ≤ 0,125', 'krogec: približek; križec: fiksna točka']);
+    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 3, xₖ = 0,875', '|xₖ − x*| ≤ 0,125', 'krogec: približek; križec: negibna točka']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
@@ -893,4 +894,14 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
             }
         }
     }
+});
+
+test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
+    const graph = makeGraph({asyncState: false});
+    graph.play();
+    expect(graph.controller.isPlaying()).toBe(true);
+    graph.requestRender = vi.fn();
+    graph.onSceneRemoved();
+    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.requestRender).toHaveBeenCalled();
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -12,9 +12,6 @@ import {
 import {COMPLEX_EXAMPLE_MODELS, ComplexModel, complexModelOperands, DEFAULT_COMPLEX_MODEL, parseComplexModel} from "../../analysis/complexModel";
 import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
-
-/** Boards narrower than this many pixels get fewer caption lines. */
-export const COMPACT_BOARD_WIDTH = 520;
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -236,6 +233,12 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         return formatArgument(value, this.language(), t("complex_undefined"));
     }
 
+    /** "= 3π/2 ≈ 4,712", or just "≈ 2,402" when the argument has no pi-multiple form (so "= ≈" never appears). */
+    private argumentEquation(value: number | undefined): string {
+        const text = this.argumentText(value);
+        return text.startsWith("≈") ? text : `= ${text}`;
+    }
+
     /** An angle for the narrow board: the multiple of pi where there is one, else two decimals. */
     private compactAngle(value: number): string {
         return piMultiple(value) ?? formatNumber(value, this.language(), 2);
@@ -290,8 +293,8 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
-        const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.7);
+        const strokeWidth = this.displayStrokeWidth;
+        const thin = this.displayThinWidth(0.7);
         const productShown = () => model().productVisible;
         const colors = {z: GraphPalette.primaryCurve, w: GraphPalette.comparisonCurve, product: GraphPalette.additionalCurves[1]};
 
@@ -395,16 +398,8 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): ComplexModel {
-        const state = this.state;
-        return {
-            example: state.example, zRe: state.zRe, zIm: state.zIm, wRe: state.wRe, wIm: state.wIm,
-            productVisible: state.productVisible, anglesVisible: state.anglesVisible,
-        };
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.stateSnapshot();
         const language = this.language();
         const view = this.viewOf(state);
         const wZero = isZero(view.w);
@@ -419,7 +414,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="complex-actions" role="group" aria-label={t("complex_actions_label")}>
+                <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
                     <button type="button" data-action="toggle-complex-product" data-revealed={state.productVisible}
                             onClick={() => this.setProductVisible(!this.model.productVisible)}>
                         {state.productVisible ? t("complex_hide_product") : t("complex_show_product")}
@@ -477,15 +472,15 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         if (isZero(view.w)) result.push({id: "w-zero", text: t("complex_status_w_zero")});
         if (model.productVisible) {
             if (view.productZero) result.push({id: "product-zero", text: t("complex_status_product_zero")});
-            else if (view.sum?.wasReduced) result.push({id: "reduced", text: t("complex_status_reduced", {value0: this.argumentText(view.sum.sum), value1: this.argumentText(view.sum.reduced)})});
-            else if (view.sum) result.push({id: "not-reduced", text: t("complex_status_not_reduced", {value0: this.argumentText(view.sum.sum)})});
+            else if (view.sum?.wasReduced) result.push({id: "reduced", text: t("complex_status_reduced", {value0: this.argumentEquation(view.sum.sum), value1: this.argumentEquation(view.sum.reduced)})});
+            else if (view.sum) result.push({id: "not-reduced", text: t("complex_status_not_reduced", {value0: this.argumentEquation(view.sum.sum)})});
             if (view.outsideDefaultView) result.push({id: "off-view", text: t("complex_status_off_view", {value0: this.modulusText(view.productModulus)})});
         }
         return result;
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.stateSnapshot();
         const language = this.language();
         const view = this.viewOf(model);
         const shown = model.productVisible;
@@ -505,7 +500,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("complex_note")}/>
-            <div className="inspector-group complex-status" role="status" aria-live="polite">
+            <div className="inspector-group demo-status" role="status" aria-live="polite">
                 {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-complex-status={status.id}>{status.text}</p>)}
             </div>
         </>;

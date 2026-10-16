@@ -231,7 +231,7 @@ test('a live language switch re-evaluates the board texts and the readouts', () 
     const boardText = () => texts().map(text => String(text.plaintext)).join('|');
     expect(boardText()).toContain('korak k = 1, xₖ = 0,5');
     expect(boardText()).toContain('|xₖ − x*| ≤ 0,5');
-    expect(boardText()).toContain('krogec: približek; križec: fiksna točka');
+    expect(boardText()).toContain('krogec: približek; križec: negibna točka');
     expect(readout('q')).toBe('0,5');
     act(() => { setLanguage('en'); });
     expect(boardText()).toContain('step k = 1, xₖ = 0.5');

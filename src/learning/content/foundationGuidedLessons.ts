@@ -415,24 +415,48 @@ const complexMultiplication: GuidedLesson = {
         text('Izračunaš \\((1+i)\\,i=-1+i\\) in to razložiš kot vrtež za \\(\\tfrac\\pi2\\).', 'Compute \\((1+i)\\,i=-1+i\\) and explain it as a rotation by \\(\\tfrac\\pi2\\).'),
         text('Množenje z \\(1\\), z \\(-1\\) in s pozitivnim realnim številom opišeš kot mirovanje, vrtež za \\(\\pi\\) in raztegnitev.', 'Describe multiplication by \\(1\\), by \\(-1\\) and by a positive real number as staying put, a rotation by \\(\\pi\\) and a scaling.'),
         text('Uporabiš pravili \\(|zw|=|z||w|\\) in \\(\\arg zw\\equiv\\arg z+\\arg w\\) ter vsoto argumentov po potrebi zmanjšaš za \\(2\\pi\\).', 'Use the rules \\(|zw|=|z||w|\\) and \\(\\arg zw\\equiv\\arg z+\\arg w\\) and reduce the sum of the arguments by \\(2\\pi\\) when needed.'),
-        text('Razložiš, zakaj je pri \\(0\\) produkt \\(0\\), argument pa ni definiran.', 'Explain why the product with \\(0\\) is \\(0\\) while its argument is undefined.'),
+        text('Razložiš, zakaj je pri \\(0\\) zmnožek \\(0\\), argument pa ni definiran.', 'Explain why the product with \\(0\\) is \\(0\\) while its argument is undefined.'),
     ],
     formulaBlocks: [
         {
             id: 'complex-product-formula',
-            latex: '(a+bi)(c+di)=(ac-bd)+(ad+bc)\\,i,\\qquad i^2=-1',
+            latex: '(a+bi)(c+di)=(ac-bd)+(ad+bc)\\,i',
             notation: text(
-                'Števili \\(z=a+bi\\) in \\(w=c+di\\) imata realna dela \\(a\\), \\(c\\) in imaginarna dela \\(b\\), \\(d\\); število \\(i\\) je točka \\((0,1)\\).',
-                'The numbers \\(z=a+bi\\) and \\(w=c+di\\) have real parts \\(a\\), \\(c\\) and imaginary parts \\(b\\), \\(d\\); the number \\(i\\) is the point \\((0,1)\\).',
+                'Števili \\(z=a+bi\\) in \\(w=c+di\\) imata realna dela \\(a\\), \\(c\\) in imaginarna dela \\(b\\), \\(d\\).',
+                'The numbers \\(z=a+bi\\) and \\(w=c+di\\) have real parts \\(a\\), \\(c\\) and imaginary parts \\(b\\), \\(d\\).',
             ),
             explanation: text(
-                'Produkt dobimo z razpletom oklepajev in lastnostjo \\(i^2=-1\\). Aplikacija ga izračuna natančno iz koordinat na mreži.',
+                'Zmnožek dobimo z razpletom oklepajev in lastnostjo \\(i^2=-1\\). Aplikacija ga izračuna natančno iz koordinat na mreži.',
                 'The product follows by expanding the brackets and using \\(i^2=-1\\). The app computes it exactly from the grid coordinates.',
             ),
         },
         {
+            id: 'complex-imaginary-unit',
+            latex: 'i^2=-1',
+            notation: text(
+                'Število \\(i\\) je točka \\((0,1)\\) in velja \\(i^2=-1\\).',
+                'The number \\(i\\) is the point \\((0,1)\\) and \\(i^2=-1\\).',
+            ),
+            explanation: text(
+                'Lastnost \\(i^2=-1\\) pretvori člen \\(bd\\,i^2\\) v \\(-bd\\).',
+                'The property \\(i^2=-1\\) turns the term \\(bd\\,i^2\\) into \\(-bd\\).',
+            ),
+        },
+        {
             id: 'complex-polar-form',
-            latex: 'z=r(\\cos\\varphi+i\\sin\\varphi),\\qquad r=|z|=\\sqrt{a^2+b^2},\\quad \\varphi=\\arg z',
+            latex: 'z=r(\\cos\\varphi+i\\sin\\varphi)',
+            notation: text(
+                'Število \\(z\\) zapišemo z modulom \\(r\\) in argumentom \\(\\varphi\\).',
+                'The number \\(z\\) is written with the modulus \\(r\\) and the argument \\(\\varphi\\).',
+            ),
+            explanation: text(
+                'To je polarna oblika števila \\(z=a+bi\\).',
+                'This is the polar form of the number \\(z=a+bi\\).',
+            ),
+        },
+        {
+            id: 'complex-polar-modulus',
+            latex: 'r=|z|=\\sqrt{a^2+b^2},\\quad\\varphi=\\arg z',
             notation: text(
                 'Modul \\(r\\) je razdalja točke od izhodišča, argument \\(\\varphi\\) pa kot od pozitivne realne osi, v radianih, v \\((-\\pi,\\pi]\\).',
                 'The modulus \\(r\\) is the distance of the point from the origin and the argument \\(\\varphi\\) is the angle from the positive real axis, in radians, in \\((-\\pi,\\pi]\\).',
@@ -444,7 +468,19 @@ const complexMultiplication: GuidedLesson = {
         },
         {
             id: 'complex-modulus-argument-rule',
-            latex: '|zw|=|z|\\,|w|,\\qquad \\arg(zw)\\equiv\\arg z+\\arg w\\pmod{2\\pi}',
+            latex: '|zw|=|z|\\,|w|',
+            notation: text(
+                'Modul zmnožka je zmnožek modulov.',
+                'The modulus of the product is the product of the moduli.',
+            ),
+            explanation: text(
+                'Moduli se pomnožijo.',
+                'The moduli multiply.',
+            ),
+        },
+        {
+            id: 'complex-argument-rule',
+            latex: '\\arg(zw)\\equiv\\arg z+\\arg w\\pmod{2\\pi}',
             notation: text(
                 'Znak \\(\\equiv\\) pomeni enakost do večkratnika kota \\(2\\pi\\).',
                 'The sign \\(\\equiv\\) means equality up to a multiple of \\(2\\pi\\).',
@@ -456,14 +492,26 @@ const complexMultiplication: GuidedLesson = {
         },
         {
             id: 'complex-argument-reduction',
-            latex: '\\arg(zw)=\\arg z+\\arg w-2\\pi k\\in(-\\pi,\\pi],\\qquad k\\in\\{-1,0,1\\}',
+            latex: '\\arg(zw)=\\arg z+\\arg w-2\\pi k\\in(-\\pi,\\pi]',
+            notation: text(
+                'Glavna vrednost argumenta zmnožka leži v \\((-\\pi,\\pi]\\).',
+                'The principal value of the argument of the product lies in \\((-\\pi,\\pi]\\).',
+            ),
+            explanation: text(
+                'Vsota dveh argumentov lahko preseže \\(\\pi\\) ali pade na \\(-\\pi\\) ali pod. Kot je potem enak kotu, ki se od vsote razlikuje za \\(2\\pi\\), in prav ta leži v \\((-\\pi,\\pi]\\).',
+                'The sum of two arguments can exceed \\(\\pi\\) or fall to \\(-\\pi\\) or below. The angle is then the one that differs from the sum by \\(2\\pi\\), and that one lies in \\((-\\pi,\\pi]\\).',
+            ),
+        },
+        {
+            id: 'complex-argument-reduction-k',
+            latex: 'k\\in\\{-1,0,1\\}',
             notation: text(
                 'Celo število \\(k\\) izbere število polnih obratov, pri katerem je argument spet glavna vrednost.',
                 'The integer \\(k\\) chooses the number of full turns that brings the argument back to its principal value.',
             ),
             explanation: text(
-                'Vsota dveh argumentov lahko preseže \\(\\pi\\) ali pade pod \\(-\\pi\\). Kot je potem enak kotu, ki se od vsote razlikuje za \\(2\\pi\\), in prav ta leži v \\((-\\pi,\\pi]\\).',
-                'The sum of two arguments can exceed \\(\\pi\\) or fall to \\(-\\pi\\) or below. The angle is then the one that differs from the sum by \\(2\\pi\\), and that one lies in \\((-\\pi,\\pi]\\).',
+                'Če vsota argumentov leži v \\((-\\pi,\\pi]\\), je \\(k=0\\); nad \\(\\pi\\) je \\(k=1\\), pri \\(-\\pi\\) ali pod njim pa \\(k=-1\\).',
+                'If the sum of the arguments lies in \\((-\\pi,\\pi]\\), then \\(k=0\\); above \\(\\pi\\) it is \\(k=1\\), and at \\(-\\pi\\) or below it is \\(k=-1\\).',
             ),
         },
         {
@@ -486,7 +534,7 @@ const complexMultiplication: GuidedLesson = {
             calculationLatex: '(-1+i)^2=1-2i+i^2=-2i,\\qquad \\tfrac{3\\pi}{4}+\\tfrac{3\\pi}{4}=\\tfrac{3\\pi}{2},\\quad \\tfrac{3\\pi}{2}-2\\pi=-\\tfrac{\\pi}{2}',
             resultLatex: 'zw=-2i,\\qquad |zw|=\\sqrt2\\cdot\\sqrt2=2,\\qquad \\arg(zw)=-\\tfrac{\\pi}{2}',
             check: text(
-                'Vsota argumentov \\(\\tfrac{3\\pi}{2}\\) je večja od \\(\\pi\\), zato ji odštejemo \\(2\\pi\\) in dobimo \\(-\\tfrac\\pi2\\). To je res argument števila \\(-2i\\), ki leži na negativni imaginarni osi; modul \\(2\\) je produkt modulov.',
+                'Vsota argumentov \\(\\tfrac{3\\pi}{2}\\) je večja od \\(\\pi\\), zato ji odštejemo \\(2\\pi\\) in dobimo \\(-\\tfrac\\pi2\\). To je res argument števila \\(-2i\\), ki leži na negativni imaginarni osi; modul \\(2\\) je zmnožek modulov.',
                 'The sum of the arguments \\(\\tfrac{3\\pi}{2}\\) exceeds \\(\\pi\\), so we subtract \\(2\\pi\\) and get \\(-\\tfrac\\pi2\\). That is indeed the argument of \\(-2i\\), which lies on the negative imaginary axis; the modulus \\(2\\) is the product of the moduli.',
             ),
         },
@@ -497,10 +545,10 @@ const complexMultiplication: GuidedLesson = {
             title: text('Kompleksno število kot točka', 'A complex number as a point'),
             purpose: text('Povezati zapis \\(a+bi\\) s točko, modulom in argumentom.', 'Linking the form \\(a+bi\\) to a point, a modulus and an argument.'),
             explanation: text(
-                'Število \\(a+bi\\) ustreza točki \\((a,b)\\) v ravnini: \\(a\\) je realni, \\(b\\) imaginarni del. Število \\(i\\) je točka \\((0,1)\\) in velja \\(i^2=-1\\). Modul \\(|z|\\) je razdalja od izhodišča, argument \\(\\arg z\\) pa kot od pozitivne realne osi do puščice. Na grafu sta \\(z=1+i\\) (krog) in \\(w=i\\) (kvadrat), loka kažeta njuna argumenta. Produkt je še skrit.',
+                'Število \\(a+bi\\) ustreza točki \\((a,b)\\) v ravnini: \\(a\\) je realni, \\(b\\) imaginarni del. Število \\(i\\) je točka \\((0,1)\\) in velja \\(i^2=-1\\). Modul \\(|z|\\) je razdalja od izhodišča, argument \\(\\arg z\\) pa kot od pozitivne realne osi do puščice. Na grafu sta \\(z=1+i\\) (krog) in \\(w=i\\) (kvadrat), loka kažeta njuna argumenta. Zmnožek je še skrit.',
                 'The number \\(a+bi\\) corresponds to the point \\((a,b)\\) in the plane: \\(a\\) is the real and \\(b\\) the imaginary part. The number \\(i\\) is the point \\((0,1)\\) and \\(i^2=-1\\). The modulus \\(|z|\\) is the distance from the origin and the argument \\(\\arg z\\) is the angle from the positive real axis to the arrow. The graph shows \\(z=1+i\\) (circle) and \\(w=i\\) (square), and the arcs show their arguments. The product is still hidden.',
             ),
-            formulaIds: ['complex-polar-form'],
+            formulaIds: ['complex-polar-form', 'complex-polar-modulus'],
             frames: [frame('complex-point-explanation', 'explanation'), frame('complex-point-observation', 'observation')],
             learnerInteraction: 'observe',
             observationPrompt: text(
@@ -508,14 +556,14 @@ const complexMultiplication: GuidedLesson = {
                 'Read the modulus and the argument of \\(z\\) and \\(w\\) in the readouts. Then drag \\(z\\) and watch how they change.',
             ),
             expectedObservations: [text(
-                '\\(|z|=\\sqrt2\\approx1{,}4142\\) in \\(\\arg z=\\tfrac\\pi4\\); \\(|w|=1\\) in \\(\\arg w=\\tfrac\\pi2\\). Produkt je skrit.',
+                '\\(|z|=\\sqrt2\\approx1{,}4142\\) in \\(\\arg z=\\tfrac\\pi4\\); \\(|w|=1\\) in \\(\\arg w=\\tfrac\\pi2\\). Zmnožek je skrit.',
                 '\\(|z|=\\sqrt2\\approx1.4142\\) and \\(\\arg z=\\tfrac\\pi4\\); \\(|w|=1\\) and \\(\\arg w=\\tfrac\\pi2\\). The product is hidden.',
             )],
             scene: {
                 id: 'complex-point-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('rotation-i'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=i\\) z loki argumentov; produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=i\\) z loki argumentov; zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=i\\) are shown with their argument arcs; the product is hidden.',
                 ),
             },
@@ -523,16 +571,16 @@ const complexMultiplication: GuidedLesson = {
         {
             id: 'complex-rotation-i-step', order: 2,
             title: text('Množenje z \\(i\\): napoved', 'Multiplying by \\(i\\): a prediction'),
-            purpose: text('Napovedati, kam pade \\((1+i)\\,i\\), preden se produkt pokaže.', 'Predicting where \\((1+i)\\,i\\) lands before the product is shown.'),
+            purpose: text('Napovedati, kam pade \\((1+i)\\,i\\), preden se zmnožek pokaže.', 'Predicting where \\((1+i)\\,i\\) lands before the product is shown.'),
             explanation: text(
-                'Število \\(i\\) ima modul \\(1\\) in argument \\(\\tfrac\\pi2\\). Če se moduli množijo in argumenti seštevajo, mora produkt \\(zi\\) imeti enak modul kot \\(z\\) in argument za \\(\\tfrac\\pi2\\) večji. Napovej točko \\(zw\\) za \\(z=1+i\\), \\(w=i\\), nato pritisni Pokaži produkt.',
+                'Število \\(i\\) ima modul \\(1\\) in argument \\(\\tfrac\\pi2\\). Če se moduli množijo in argumenti seštevajo, mora zmnožek \\(zi\\) imeti enak modul kot \\(z\\) in argument za \\(\\tfrac\\pi2\\) večji. Napovej točko \\(zw\\) za \\(z=1+i\\), \\(w=i\\), nato pritisni Pokaži zmnožek.',
                 'The number \\(i\\) has modulus \\(1\\) and argument \\(\\tfrac\\pi2\\). If moduli multiply and arguments add, the product \\(zi\\) must have the same modulus as \\(z\\) and an argument larger by \\(\\tfrac\\pi2\\). Predict the point \\(zw\\) for \\(z=1+i\\), \\(w=i\\), then press Show product.',
             ),
-            formulaIds: ['complex-product-formula', 'complex-modulus-argument-rule'],
+            formulaIds: ['complex-product-formula', 'complex-imaginary-unit', 'complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-rotation-i-explanation', 'explanation'), frame('complex-rotation-i-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
-                'Napovej koordinate, modul in argument števila \\(zw\\); šele nato pritisni Pokaži produkt in primerjaj.',
+                'Napovej koordinate, modul in argument števila \\(zw\\); šele nato pritisni Pokaži zmnožek in primerjaj.',
                 'Predict the coordinates, the modulus and the argument of \\(zw\\); only then press Show product and compare.',
             ),
             expectedObservations: [text(
@@ -543,7 +591,7 @@ const complexMultiplication: GuidedLesson = {
                 id: 'complex-rotation-i-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('rotation-i'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=i\\); produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=i\\); zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=i\\) are shown; the product is hidden.',
                 ),
             },
@@ -556,11 +604,11 @@ const complexMultiplication: GuidedLesson = {
                 'Prejšnji korak je dal \\((1+i)\\,i=-1+i\\). Število \\(1\\) ima modul \\(1\\) in argument \\(0\\), zato \\(z\\cdot1=z\\). Število \\(-1\\) ima modul \\(1\\) in argument \\(\\pi\\), zato \\(z\\cdot(-1)=-z\\): točka se prezrcali čez izhodišče. Na grafu je zdaj \\(w=-1\\). Vsota argumentov \\(\\tfrac{5\\pi}{4}\\) je zunaj \\((-\\pi,\\pi]\\); to razloži šesti korak.',
                 'The previous step gave \\((1+i)\\,i=-1+i\\). The number \\(1\\) has modulus \\(1\\) and argument \\(0\\), so \\(z\\cdot1=z\\). The number \\(-1\\) has modulus \\(1\\) and argument \\(\\pi\\), so \\(z\\cdot(-1)=-z\\): the point is reflected through the origin. The graph now shows \\(w=-1\\). The sum of the arguments \\(\\tfrac{5\\pi}{4}\\) lies outside \\((-\\pi,\\pi]\\); step 6 explains this.',
             ),
-            formulaIds: ['complex-modulus-argument-rule'],
+            formulaIds: ['complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-one-minus-one-explanation', 'explanation'), frame('complex-one-minus-one-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
-                'Napovej \\(zw\\) za \\(w=-1\\) in pritisni Pokaži produkt. Nato izberi primer Množenje z 1 in napovej še ta produkt.',
+                'Napovej \\(zw\\) za \\(w=-1\\) in pritisni Pokaži zmnožek. Nato izberi primer Množenje z 1 in napovej še ta zmnožek.',
                 'Predict \\(zw\\) for \\(w=-1\\) and press Show product. Then choose the example Multiply by 1 and predict that product too.',
             ),
             expectedObservations: [
@@ -571,7 +619,7 @@ const complexMultiplication: GuidedLesson = {
                 id: 'complex-one-minus-one-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('negation'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=-1\\); produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=-1\\); zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=-1\\) are shown; the product is hidden.',
                 ),
             },
@@ -581,14 +629,14 @@ const complexMultiplication: GuidedLesson = {
             title: text('Pozitivno realno število \\(2\\)', 'The positive real number \\(2\\)'),
             purpose: text('Videti raztegnitev brez vrteža.', 'Seeing scaling without rotation.'),
             explanation: text(
-                'Število \\(2\\) leži na pozitivni realni osi: modul je \\(2\\), argument \\(0\\). Argument se zato ne spremeni, modul pa se podvoji: \\(2z\\) kaže v isto smer kot \\(z\\), le dvakrat dlje. Na grafu je \\(w=2\\); produkt je skrit.',
+                'Število \\(2\\) leži na pozitivni realni osi: modul je \\(2\\), argument \\(0\\). Argument se zato ne spremeni, modul pa se podvoji: \\(2z\\) kaže v isto smer kot \\(z\\), le dvakrat dlje. Na grafu je \\(w=2\\); zmnožek je skrit.',
                 'The number \\(2\\) lies on the positive real axis: its modulus is \\(2\\) and its argument is \\(0\\). The argument therefore does not change and the modulus doubles: \\(2z\\) points the same way as \\(z\\), twice as far. The graph shows \\(w=2\\); the product is hidden.',
             ),
-            formulaIds: ['complex-modulus-argument-rule'],
+            formulaIds: ['complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-scaling-explanation', 'explanation'), frame('complex-scaling-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
-                'Napovej koordinate, modul in argument števila \\(zw\\); pritisni Pokaži produkt in primerjaj z argumentom števila \\(z\\).',
+                'Napovej koordinate, modul in argument števila \\(zw\\); pritisni Pokaži zmnožek in primerjaj z argumentom števila \\(z\\).',
                 'Predict the coordinates, the modulus and the argument of \\(zw\\); press Show product and compare with the argument of \\(z\\).',
             ),
             expectedObservations: [text(
@@ -599,7 +647,7 @@ const complexMultiplication: GuidedLesson = {
                 id: 'complex-scaling-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('scaling'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=2\\); produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=2\\); zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=2\\) are shown; the product is hidden.',
                 ),
             },
@@ -609,14 +657,14 @@ const complexMultiplication: GuidedLesson = {
             title: text('Splošno število: vrtež in raztegnitev', 'A general number: rotation and scaling'),
             purpose: text('Združiti vrtež in raztegnitev v enem množenju.', 'Combining rotation and scaling in one multiplication.'),
             explanation: text(
-                'Zdaj je \\(w=1+i\\), tako da imata \\(z\\) in \\(w\\) modul \\(\\sqrt2\\) in argument \\(\\tfrac\\pi4\\). Množenje z \\(w\\) zavrti za \\(\\tfrac\\pi4\\) in raztegne za \\(\\sqrt2\\). Napovej, kam pade \\(zw\\), preden pritisneš Pokaži produkt.',
+                'Zdaj je \\(w=1+i\\), tako da imata \\(z\\) in \\(w\\) modul \\(\\sqrt2\\) in argument \\(\\tfrac\\pi4\\). Množenje z \\(w\\) zavrti za \\(\\tfrac\\pi4\\) in raztegne za \\(\\sqrt2\\). Napovej, kam pade \\(zw\\), preden pritisneš Pokaži zmnožek.',
                 'Now \\(w=1+i\\), so \\(z\\) and \\(w\\) both have modulus \\(\\sqrt2\\) and argument \\(\\tfrac\\pi4\\). Multiplying by \\(w\\) rotates by \\(\\tfrac\\pi4\\) and scales by \\(\\sqrt2\\). Predict where \\(zw\\) lands before you press Show product.',
             ),
-            formulaIds: ['complex-product-formula', 'complex-modulus-argument-rule'],
+            formulaIds: ['complex-product-formula', 'complex-imaginary-unit', 'complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-general-explanation', 'explanation'), frame('complex-general-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
-                'Napovej modul in argument števila \\(zw\\) iz pravil, nato pritisni Pokaži produkt. Preveri še z razpletom \\((1+i)^2\\).',
+                'Napovej modul in argument števila \\(zw\\) iz pravil, nato pritisni Pokaži zmnožek. Preveri še z razpletom \\((1+i)^2\\).',
                 'Predict the modulus and the argument of \\(zw\\) from the rules, then press Show product. Check also by expanding \\((1+i)^2\\).',
             ),
             expectedObservations: [text(
@@ -627,7 +675,7 @@ const complexMultiplication: GuidedLesson = {
                 id: 'complex-general-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('general'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=1+i\\); produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=1+i\\); zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=1+i\\) are shown; the product is hidden.',
                 ),
             },
@@ -637,10 +685,10 @@ const complexMultiplication: GuidedLesson = {
             title: text('Argumenti po modulu \\(2\\pi\\)', 'Arguments modulo \\(2\\pi\\)'),
             purpose: text('Razumeti, zakaj se vsota argumentov včasih zmanjša za \\(2\\pi\\).', 'Understanding why the sum of the arguments is sometimes reduced by \\(2\\pi\\).'),
             explanation: text(
-                'Zdaj je \\(z=w=-1+i\\), oba z modulom \\(\\sqrt2\\) in argumentom \\(\\tfrac{3\\pi}{4}\\). Vsota argumentov je \\(\\tfrac{3\\pi}{2}\\) in leži zunaj \\((-\\pi,\\pi]\\). Argument produkta je glavna vrednost, zato odštejemo \\(2\\pi\\): \\(\\arg zw=-\\tfrac\\pi2\\). Produkt je tu že prikazan, odčitek pa navede zmanjšanje.',
+                'Zdaj je \\(z=w=-1+i\\), oba z modulom \\(\\sqrt2\\) in argumentom \\(\\tfrac{3\\pi}{4}\\). Vsota argumentov je \\(\\tfrac{3\\pi}{2}\\) in leži zunaj \\((-\\pi,\\pi]\\). Argument zmnožka je glavna vrednost, zato odštejemo \\(2\\pi\\): \\(\\arg zw=-\\tfrac\\pi2\\). Zmnožek je tu že prikazan, odčitek pa navede zmanjšanje.',
                 'Now \\(z=w=-1+i\\), both with modulus \\(\\sqrt2\\) and argument \\(\\tfrac{3\\pi}{4}\\). The sum of the arguments is \\(\\tfrac{3\\pi}{2}\\) and lies outside \\((-\\pi,\\pi]\\). The argument of the product is the principal value, so we subtract \\(2\\pi\\): \\(\\arg zw=-\\tfrac\\pi2\\). The product is already shown here, and the readout states the reduction.',
             ),
-            formulaIds: ['complex-argument-reduction'], workedExampleId: 'complex-reduction-example',
+            formulaIds: ['complex-argument-reduction', 'complex-argument-reduction-k'], workedExampleId: 'complex-reduction-example',
             frames: [frame('complex-reduction-explanation', 'explanation'), frame('complex-reduction-calculation', 'calculation'), frame('complex-reduction-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
@@ -658,7 +706,7 @@ const complexMultiplication: GuidedLesson = {
                     complexProduct(true), complexArguments(true),
                 ],
                 expectedState: text(
-                    'Prikazani so \\(z=-1+i\\), \\(w=-1+i\\), produkt \\(-2i\\) in loki argumentov.',
+                    'Prikazani so \\(z=-1+i\\), \\(w=-1+i\\), zmnožek \\(-2i\\) in loki argumentov.',
                     'The numbers \\(z=-1+i\\) and \\(w=-1+i\\), the product \\(-2i\\) and the argument arcs are shown.',
                 ),
             },
@@ -666,16 +714,16 @@ const complexMultiplication: GuidedLesson = {
         {
             id: 'complex-zero-step', order: 7,
             title: text('Množenje z \\(0\\) in samostojno raziskovanje', 'Multiplying by \\(0\\) and exploring on your own'),
-            purpose: text('Razumeti, da je produkt z \\(0\\) izhodišče brez argumenta, in nadaljevati samostojno.', 'Understanding that the product with \\(0\\) is the origin with no argument, and continuing independently.'),
+            purpose: text('Razumeti, da je zmnožek z \\(0\\) izhodišče brez argumenta, in nadaljevati samostojno.', 'Understanding that the product with \\(0\\) is the origin with no argument, and continuing independently.'),
             explanation: text(
-                'Zdaj je \\(w=0\\). Modul se množi, \\(|zw|=|z|\\cdot0=0\\), zato je \\(zw=0\\) za vsak \\(z\\). Izhodišče nima smeri, zato argument števila \\(0\\) ni definiran; aplikacija zato ne piše \\(0\\), ampak da ni definiran, polje za argument števila \\(w\\) pa je onemogočeno. Povzetek: moduli se množijo, argumenti seštevajo po modulu \\(2\\pi\\), število \\(0\\) pa vsako točko preslika v izhodišče. Zdaj raziskuj sam: povleci \\(z\\) in \\(w\\), vnesi koordinate ali polarni modul in argument števila \\(w\\) ter napovej, preden pokažeš produkt.',
+                'Zdaj je \\(w=0\\). Modul se množi, \\(|zw|=|z|\\cdot0=0\\), zato je \\(zw=0\\) za vsak \\(z\\). Izhodišče nima smeri, zato argument števila \\(0\\) ni definiran; aplikacija zato ne piše \\(0\\), ampak da ni definiran, polje za argument števila \\(w\\) pa je onemogočeno. Povzetek: moduli se množijo, argumenti seštevajo po modulu \\(2\\pi\\), število \\(0\\) pa vsako točko preslika v izhodišče. Zdaj raziskuj sam: povleci \\(z\\) in \\(w\\), vnesi koordinate ali polarni modul in argument števila \\(w\\) ter napovej, preden pokažeš zmnožek.',
                 'Now \\(w=0\\). The modulus multiplies, \\(|zw|=|z|\\cdot0=0\\), so \\(zw=0\\) for every \\(z\\). The origin has no direction, so the argument of \\(0\\) is undefined; the app therefore does not write \\(0\\) but says that it is undefined, and the argument field of \\(w\\) is disabled. In summary: moduli multiply, arguments add modulo \\(2\\pi\\), and the number \\(0\\) collapses a point to the origin. Now explore on your own: drag \\(z\\) and \\(w\\), type coordinates or the polar modulus and argument of \\(w\\), and predict before you show the product.',
             ),
             formulaIds: ['complex-zero-product'],
             frames: [frame('complex-zero-explanation', 'explanation'), frame('complex-zero-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
-                'Napovej \\(zw\\) in njegov argument, nato pritisni Pokaži produkt in preberi stanje. Nato vnesi modul števila \\(w\\) nad \\(0\\) in opazuj, kam se postavi \\(w\\).',
+                'Napovej \\(zw\\) in njegov argument, nato pritisni Pokaži zmnožek in preberi stanje. Nato vnesi modul števila \\(w\\) nad \\(0\\) in opazuj, kam se postavi \\(w\\).',
                 'Predict \\(zw\\) and its argument, then press Show product and read the status. Then enter a modulus of \\(w\\) above \\(0\\) and watch where \\(w\\) is placed.',
             ),
             expectedObservations: [text(
@@ -686,7 +734,7 @@ const complexMultiplication: GuidedLesson = {
                 id: 'complex-zero-scene', basedOn: 'demonstration-default',
                 actions: [complexExample('zero'), complexProduct(false), complexArguments(true)],
                 expectedState: text(
-                    'Prikazana sta \\(z=1+i\\) in \\(w=0\\); produkt je skrit.',
+                    'Prikazana sta \\(z=1+i\\) in \\(w=0\\); zmnožek je skrit.',
                     'The numbers \\(z=1+i\\) and \\(w=0\\) are shown; the product is hidden.',
                 ),
             },
@@ -719,7 +767,7 @@ const complexMultiplication: GuidedLesson = {
             'The argument of \\(0\\) is undefined and is never shown as \\(0\\); with \\(w=0\\) the argument field is disabled with an explanation.',
         ),
         text(
-            'Produkt z modulom do \\(8\\) lahko leži zunaj privzetega pogleda; plošča to pove, pogled pa lahko pomanjšaš.',
+            'Zmnožek z modulom do \\(8\\) lahko leži zunaj privzetega pogleda; plošča to pove, pogled pa lahko pomanjšaš.',
             'A product with a modulus up to \\(8\\) can lie outside the default view; the board says so and you can zoom out.',
         ),
     ],

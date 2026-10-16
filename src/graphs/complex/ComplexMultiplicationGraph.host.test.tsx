@@ -47,11 +47,11 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     const baseline = boardObjects(graph);
 
     // Show product reveals (1 + i) i = -1 + i
-    const toggle = () => screen.getByRole('button', {name: /produkt/}) as HTMLButtonElement;
-    expect(toggle().textContent).toBe('Pokaži produkt');
+    const toggle = () => screen.getByRole('button', {name: /zmnožek/}) as HTMLButtonElement;
+    expect(toggle().textContent).toBe('Pokaži zmnožek');
     act(() => { fireEvent.click(toggle()); });
     expect(graph.modelNow()).toMatchObject({productVisible: true});
-    expect(toggle().textContent).toBe('Skrij produkt');
+    expect(toggle().textContent).toBe('Skrij zmnožek');
     expect(readout('product')).toBe('−1 + i');
     expect(readout('product-argument')).toBe('3π/4 ≈ 2,356');
     expect(statusIds()).toEqual(['not-reduced']);
@@ -76,7 +76,7 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(boardObjects(graph)).toBe(baseline);
 
     // the polar fields apply on Enter (not on every keystroke) and then show the polar form of the snapped w
-    act(() => { fireEvent.change(field(/^Modul \|w\|$/), {target: {value: '1.5'}}); });
+    act(() => { fireEvent.input(field(/^Modul \|w\|$/), {target: {value: '1.5'}, inputType: 'insertText'}); });
     expect(graph.modelNow()).toMatchObject({wRe: 1, wIm: 1});
     expect(field(/^Modul \|w\|$/).value).toBe('1.5');
     act(() => { fireEvent.keyDown(field(/^Modul \|w\|$/), {key: 'Enter'}); });
@@ -84,7 +84,7 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(field(/^Modul \|w\|$/).value).toBe('1.4849');
     expect(field(/^Argument arg w \(rad\)$/).value).toBe('0.7854');
     // a rejected polar value explains itself
-    act(() => { fireEvent.change(field(/^Modul \|w\|$/), {target: {value: '3'}}); });
+    act(() => { fireEvent.input(field(/^Modul \|w\|$/), {target: {value: '3'}, inputType: 'insertText'}); });
     act(() => { fireEvent.keyDown(field(/^Modul \|w\|$/), {key: 'Enter'}); });
     expect(graph.modelNow()).toMatchObject({wRe: 1.05, wIm: 1.05});
 
@@ -123,7 +123,7 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     expect(graph.state.initialized).toBe(true);
     const baseline = boardObjects(graph);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži produkt'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži zmnožek'})); });
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži argumente'})); });
     act(() => { fireEvent.change(screen.getByLabelText('Primer množenja'), {target: {value: 'general'}}); });
     expect(graph.modelNow()).toMatchObject({example: 'general', productVisible: false, anglesVisible: false});

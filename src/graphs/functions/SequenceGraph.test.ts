@@ -1,4 +1,4 @@
-import {COMPACT_BOARD_WIDTH, SEQUENCE_STEP_INTERVAL_MS, SequenceGraph} from './SequenceGraph';
+import {SEQUENCE_STEP_INTERVAL_MS, SequenceGraph} from './SequenceGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
@@ -6,7 +6,7 @@ import {SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS} from '../../analysis/sequence';
 import {SEQUENCE_EXAMPLE_MODELS, SequenceModel} from '../../analysis/sequenceModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
-import {DomainError} from './BaseFunctionGraph';
+import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -395,26 +395,26 @@ test('values outside the domain are rejected without changing the model, never c
     next(graph, 2);
     const before = {...graph.model};
     for (const bad of [0, -0.1, 0.005, 0.015, 0.105, 2.01, 3, NaN, Infinity, -Infinity]) expect(() => apply(graph, parameter('sequence-epsilon', bad)), `epsilon ${bad}`).toThrow(DomainError);
-    for (const bad of [-2.01, 2.01, 10, NaN, Infinity, -Infinity]) expect(() => apply(graph, parameter('sequence-limit', bad)), `limit ${bad}`).toThrow(DomainError);
+    for (const bad of [-2.01, 2.01, 10, NaN, Infinity, -Infinity, 0.3333, 0.005, 1e-10, -1e-10]) expect(() => apply(graph, parameter('sequence-limit', bad)), `limit ${bad}`).toThrow(DomainError);
     for (const bad of [0, -1, 1001, 2.5, NaN, Infinity]) expect(() => apply(graph, parameter('sequence-threshold', bad)), `threshold ${bad}`).toThrow(DomainError);
     expect(() => apply(graph, choice('harmonic'))).toThrow(DomainError);
     expect(graph.model).toEqual(before);
     // the boundary values are accepted
     for (const good of [0.01, 2, 0.07]) apply(graph, parameter('sequence-epsilon', good));
-    for (const good of [-2, 2, 0.3333]) apply(graph, parameter('sequence-limit', good));
+    for (const good of [-2, 2, 0.33]) apply(graph, parameter('sequence-limit', good));
     for (const good of [1, 1000, 37]) apply(graph, parameter('sequence-threshold', good));
-    expect(graph.model).toMatchObject({epsilon: 0.07, limit: 0.3333, threshold: 37, terms: 3});
+    expect(graph.model).toMatchObject({epsilon: 0.07, limit: 0.33, threshold: 37, terms: 3});
     // the inspector swallows exactly the domain errors and reports the rejection to the input
     const {inputEpsilon, inputLimit, inputThreshold} = controls(graph);
     expect(inputEpsilon.props.onChange(0.015)).toBe(false);
     expect(inputEpsilon.props.onChange(0.5)).toBe(true);
     expect(inputLimit.props.onChange(7)).toBe(false);
     expect(inputThreshold.props.onChange(1.5)).toBe(false);
-    expect(graph.model).toMatchObject({epsilon: 0.5, limit: 0.3333, threshold: 37});
+    expect(graph.model).toMatchObject({epsilon: 0.5, limit: 0.33, threshold: 37});
     expect([inputEpsilon, inputLimit, inputThreshold].map((input: any) => [input.props.min, input.props.max])).toEqual([[0.01, 2], [-2, 2], [1, 1000]]);
 });
 
-test('floating-point noise in typed epsilon values is cleaned to the grid, and L noise is removed without rounding real digits', () => {
+test('floating-point noise in typed epsilon and L values is cleaned to the grid, and real off-grid digits are rejected, not rounded', () => {
     const graph = makeGraph();
     apply(graph, parameter('sequence-epsilon', 0.07));
     apply(graph, parameter('sequence-epsilon', 0.1 + 0.2 - 0.2));
@@ -871,4 +871,28 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
             }
         }
     }
+});
+
+test('Fit restores the example view instead of a canvas-aspect box, because the axes have different units', () => {
+    const graph = makeGraph({asyncState: false});
+    graph.board.container = document.createElement('div');
+    graph.board.applyZoom = vi.fn();
+    for (const [id, view] of [['reciprocal', [-3, 1.5, 43, -1.5]], ['alternating-sign', [-3, 1.6, 43, -3.1]], ['natural', [-3, 54, 43, -36]]] as const) {
+        apply(graph, choice(id));
+        graph.board.setBoundingBox.mockClear();
+        graph.navigateBoard('fit');
+        expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+        expect(graph.board.setBoundingBox).toHaveBeenCalledWith(view, false, 'update');
+        expect(graph.board.applyZoom).toHaveBeenCalled();
+    }
+});
+
+test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
+    const graph = makeGraph({asyncState: false});
+    controls(graph).play.props.onClick();
+    expect(graph.controller.isPlaying()).toBe(true);
+    graph.requestRender = vi.fn();
+    graph.onSceneRemoved();
+    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.requestRender).toHaveBeenCalled();
 });

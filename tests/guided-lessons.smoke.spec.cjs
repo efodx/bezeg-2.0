@@ -1810,7 +1810,7 @@ const FIXED_POINT_STEPS = [
 const fixedPoint = {
     id: 'fixed-point',
     path: `${BASE}/analysis/fixed-point`,
-    titles: {sl: 'Iteracija s fiksno točko in skrčitve', en: 'Fixed-point iteration and contractions'},
+    titles: {sl: 'Negibna točka in iteracija', en: 'Fixed-point iteration and contractions'},
     steps: 7,
     minFrames: 15, // 2 + 2 + 3 + 2 + 2 + 2 + 2 frames
     setup: async page => {

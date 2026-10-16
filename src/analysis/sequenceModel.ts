@@ -1,6 +1,6 @@
 import {
     isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EXAMPLE_IDS,
-    SEQUENCE_MAX_TERMS, sequenceEpsilonFromHundredths, sequenceEpsilonHundredths, SequenceExampleId,
+    SEQUENCE_MAX_TERMS, sequenceEpsilonFromHundredths, sequenceEpsilonHundredths, SequenceExampleId, sequenceLimitFromHundredths, sequenceLimitHundredths,
 } from './sequence';
 
 /**
@@ -38,8 +38,8 @@ export function defaultSequenceModel(example: SequenceExampleId): SequenceModel 
 
 /**
  * Returns a sanitized model (unknown properties dropped) or undefined unless the data is a valid model: a known example, a grid
- * epsilon in [0.01, 2], a limit in [-2, 2], an integer threshold 1..1000, an integer term count 1..SEQUENCE_MAX_TERMS and a boolean
- * `certificateVisible`. Nothing is clamped. Epsilon is returned as the canonical double of its hundredths.
+ * epsilon in [0.01, 2], a grid limit (multiple of 0.01) in [-2, 2], an integer threshold 1..1000, an integer term count 1..SEQUENCE_MAX_TERMS and a boolean
+ * `certificateVisible`. Nothing is clamped. Epsilon and the limit are returned as the canonical doubles of their hundredths.
  */
 export function parseSequenceModel(data: unknown): SequenceModel | undefined {
     if (data === null || typeof data !== 'object' || Array.isArray(data)) return undefined;
@@ -47,7 +47,7 @@ export function parseSequenceModel(data: unknown): SequenceModel | undefined {
     if (!isSequenceExampleId(example) || !isSequenceEpsilon(epsilon) || !isSequenceLimit(limit)) return undefined;
     if (!isSequenceThreshold(threshold) || !isSequenceTerms(terms) || typeof certificateVisible !== 'boolean') return undefined;
     const hundredths = sequenceEpsilonHundredths(epsilon) as number;
-    return {example, epsilon: sequenceEpsilonFromHundredths(hundredths), limit, threshold, terms, certificateVisible};
+    return {example, epsilon: sequenceEpsilonFromHundredths(hundredths), limit: sequenceLimitFromHundredths(sequenceLimitHundredths(limit) as number), threshold, terms, certificateVisible};
 }
 
 export interface SequenceStep {

@@ -1,5 +1,6 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -10,10 +11,7 @@ import {
     BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep, isBisectionBracket, isBisectionEndpoint, isBisectionExampleId,
 } from "../../analysis/bisection";
 import {BisectionModel, DEFAULT_BISECTION_MODEL, parseBisectionModel} from "../../analysis/bisectionModel";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
-import {AnimationScheduler} from "../../learning/runtime/animation";
-import {LessonAnimationCommand} from "../../learning/model";
-import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /**
@@ -21,9 +19,6 @@ import {GraphPalette} from "../styles/GraphPalette";
  * rate is (see ADR 0012), so a projector shows the same sequence of steps as a laptop screen.
  */
 export const BISECTION_STEP_INTERVAL_MS = 600;
-
-/** The lesson animation commands the bisection handles. `stop` is rejected: the iteration has no separate stopped state (use pause or reset). */
-const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "replay", "next-step", "reset"];
 
 /** The formulas as they are written on the board and in the example selector (the sign step is localized). */
 const PRETTY_FORMULA: Readonly<Record<Exclude<BisectionExampleId, "sign-step">, string>> = {
@@ -99,16 +94,9 @@ type StatusKind = "ready" | "bracket" | "invalid-bracket" | "endpoint-root" | "e
  * the example or an endpoint resets the step to 0 and pauses; so does anything that replaces the scene, exports a figure
  * or unmounts the graph.
  */
-export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
-    private controller: IterationController;
-    private controllerDisposed = false;
+export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     /** A derived value keyed by the identity of the model it was computed from; it can never be stale. */
     private historyCache?: { model: BisectionModel; history: BisectionHistory };
-
-    constructor(private readonly scheduler?: AnimationScheduler) {
-        super();
-        this.controller = this.createController();
-    }
 
     override presets(): string {
         return "bisection";
@@ -129,14 +117,28 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
 
     // ---- Iteration -----------------------------------------------------------------------------------------------
 
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: BISECTION_STEP_INTERVAL_MS,
-            maxIterations: BISECTION_MAX_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+    protected animationId(): string {
+        return "bisection";
+    }
+
+    protected stepIntervalMs(): number {
+        return BISECTION_STEP_INTERVAL_MS;
+    }
+
+    protected maxIterations(): number {
+        return BISECTION_MAX_STEPS;
+    }
+
+    protected iterationIndex(model: BisectionModel): number {
+        return model.step;
+    }
+
+    protected override normalizeIterationModel(model: BisectionModel): BisectionModel {
+        return this.normalized(model);
+    }
+
+    protected cannotAdvanceMessage(): string {
+        return "The iteration cannot advance: it has finished or the bracket is not valid.";
     }
 
     private historyOf(model: BisectionModel): BisectionHistory {
@@ -161,46 +163,16 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
     }
 
     /** True while another step is possible: the bracket is valid and the iteration has not terminated. */
-    private canAdvance(model: BisectionModel = this.model): boolean {
+    protected canAdvance(model: BisectionModel = this.model): boolean {
         return this.historyOf(model).termination === undefined;
     }
 
     /** The one mathematical transition of the iteration: Next step and every playback step run it. */
-    private transition(): IterationOutcome {
+    protected transition(): IterationOutcome {
         if (!this.canAdvance()) return "complete";
         const next = bisectionHistory(this.model.example, this.model.a, this.model.b, this.model.step + 1);
         this.commitModel({...this.model, step: next.steps.length});
         return next.termination === undefined ? "continue" : "complete";
-    }
-
-    /** Replaces the model by an edit: the history restarts as asked and playback stops. */
-    private replaceModel(next: BisectionModel): void {
-        const model = this.normalized(next);
-        this.controller.reset(model.step);
-        this.commitModel(model);
-        this.requestRender();
-    }
-
-    private pauseIteration(): void {
-        this.controller.pause();
-        this.requestRender();
-    }
-
-    /** One Next step. It takes over from playback, throws when the iteration cannot advance, and waits while a figure is captured. */
-    protected nextStep(): void {
-        // While a figure is captured the step is dropped without an error: a lesson `next-step` that arrives then is not queued
-        // (the export lock is short and ends in a figure, never in a scene change).
-        if (this.exportBusy) return;
-        if (!this.canAdvance()) throw new DomainError("The iteration cannot advance: it has finished or the bracket is not valid.");
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
-    }
-
-    protected play(): void {
-        if (this.exportBusy || !this.canAdvance()) return;
-        this.controller.play();
-        this.requestRender();
     }
 
     /** Back to step 0 of the same example and bracket; playback stops. */
@@ -233,61 +205,6 @@ export class BisectionGraph extends BaseFunctionGraph<BisectionModel> {
             parameters: {"bisect-a": value => this.setA(value), "bisect-b": value => this.setB(value)},
             choices: {"bisection-example": value => this.setExample(value)},
         };
-    }
-
-    protected override registerLessonActions(registry: LessonActionRegistry): void {
-        super.registerLessonActions(registry);
-        registry.onDiscriminated("animation", "bisection", action => this.lessonCommand(action.command), {
-            supports: action => LESSON_COMMANDS.includes(action.command),
-        });
-    }
-
-    private lessonCommand(command: LessonAnimationCommand): void {
-        if (command === "next-step") this.nextStep();
-        else if (command === "play") this.play();
-        else if (command === "pause") this.pauseIteration();
-        else if (command === "reset") this.resetIteration();
-        else if (command === "replay") {
-            this.resetIteration();
-            this.play();
-        }
-    }
-
-    // ---- Lifecycle -------------------------------------------------------------------------------------------------
-
-    override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
-        super.mount(container);
-    }
-
-    override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
-        super.unmount();
-    }
-
-    /** A preset or lesson checkpoint never starts playback: the controller returns to the loaded step, paused. */
-    override importPresetData(data: any): void {
-        super.importPresetData(data);
-        this.controller.reset(this.model.step);
-        this.requestRender();
-    }
-
-    protected override stopLessonAnimations(): void {
-        this.pauseIteration();
-    }
-
-    protected override beforeFigureCapture(): void {
-        this.pauseIteration();
-    }
-
-    protected override onSceneRemoved(): void {
-        // A replaced scene must not keep running behind the new one.
-        this.controller?.pause();
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

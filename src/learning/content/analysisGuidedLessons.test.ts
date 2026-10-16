@@ -1102,7 +1102,7 @@ describe('the sequence lesson', () => {
         expect(qStep('sequence-free-exploration').explanation.en).toMatch(/explore on your own/i);
         expect(qStep('sequence-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
         expect(qStep('sequence-free-exploration').explanation.en).toMatch(/not the limit/);
-        expect(sequenceLesson.summary.en).toMatch(/A finite window of terms does not prove convergence/);
+        expect(sequenceLesson.summary.en).toMatch(/a finite window of terms does not prove convergence/);
         expect(sequenceLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation) && /§§2\.4 and 2\.5/.test(source.citation))).toBe(true);
         expect(sequenceLesson.unresolvedQuestions.map(item => item.en).join(' ')).toMatch(/not checked in the PDF/);
         const implementation = sequenceLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
@@ -1189,7 +1189,7 @@ describe('the sequence lesson', () => {
         expect(worked.calculationLatex).toContain('N_{\\min}=\\left\\lfloor10\\right\\rfloor+1=11');
         expect(worked.resultLatex).toContain('\\tfrac1{10}=\\varepsilon');
         expect(worked.resultLatex).toContain('\\tfrac1{11}<\\tfrac1{10}');
-        expect(sequenceLesson.formulaBlocks.find(block => block.id === 'sequence-oscillating')!.latex).toContain('=1+|L|');
+        expect(sequenceLesson.formulaBlocks.find(block => block.id === 'sequence-oscillating-distance')!.latex).toContain('=1+|L|');
     });
 
     test('the lesson-facing vocabulary is closed: the new parameter names, the example choice, the certificate element and the sequence command', () => {
@@ -1478,7 +1478,7 @@ describe('the uniform convergence lesson', () => {
         expect(worked.calculationLatex).toContain('4194304}{48828125}');
         expect(uStep('uniform-whole-interval-step').expectedObservations[1].en).toContain('N(0.99)=230');
         expect(uStep('uniform-domain-change-step').expectedObservations[0].en).toContain('N=45');
-        expect(uniformLesson.formulaBlocks.find(block => block.id === 'uniform-scaled')!.latex).toContain('+1');
+        expect(uniformLesson.formulaBlocks.find(block => block.id === 'uniform-scaled-threshold')!.latex).toContain('+1');
     });
 
     test('the lesson-facing vocabulary is closed', () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, gridValue} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -13,9 +13,6 @@ import {
 } from "../../analysis/uniformConvergence";
 import {changeUniformR, parseUniformConvergenceModel, UNIFORM_EXAMPLE_MODELS, UniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
 import {GraphPalette} from "../styles/GraphPalette";
-
-/** Boards narrower than this many pixels get fewer caption lines. */
-export const COMPACT_BOARD_WIDTH = 520;
 
 /** Errors and the supremum show five significant digits, so 0.8^5 reads 0.32768. */
 const SIGNIFICANT_DIGITS = 5;
@@ -40,7 +37,7 @@ const exampleFormula = (id: UniformExampleId): string => id === "power" ? "fₙ(
 type SegmentPiece = Extract<UniformLimitPiece, { kind: "segment" }>;
 type PointPiece = Extract<UniformLimitPiece, { kind: "point" }>;
 
-type StatusKind = "hidden" | "attained" | "not-attained" | "shared-n" | "no-shared-n" | "shared-n-beyond" | "covered" | "not-covered" | "jump" | "pointwise-beyond";
+type StatusKind = "hidden" | "attained" | "not-attained" | "shared-n" | "shared-n-boundary" | "no-shared-n" | "shared-n-beyond" | "covered" | "covered-boundary" | "not-covered" | "jump" | "pointwise-beyond";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -56,24 +53,6 @@ interface View {
     segment: SegmentPiece | undefined;
     isolated: PointPiece | undefined;
     hasJump: boolean;
-}
-
-/** A closed curve whose data arrays are recomputed on every board update (the shaded band). */
-interface FillCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
-
-/**
- * The grid value that `value` is within arithmetic noise of (1e-9 of a grid step), as an exact decimal, or undefined for a
- * real off-grid value. A number field hands the model exactly what was typed; this only removes the noise of slider and
- * key-step arithmetic (0.8500000000000001), never rounds a real value such as 0.851 to the grid.
- */
-export function gridValue(value: number, step: number): number | undefined {
-    if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
-    const units = Math.round(value / step);
-    return Math.abs(value / step - units) <= 1e-9 ? cleanNumber(units * step) : undefined;
 }
 
 /**
@@ -245,8 +224,8 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
-        const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.6);
+        const strokeWidth = this.displayStrokeWidth;
+        const thin = this.displayThinWidth(0.6);
         const left = () => board.getBoundingBox()[0];
         const segment = () => view().segment;
         const segmentVisible = () => segment() !== undefined;
@@ -360,13 +339,8 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): UniformConvergenceModel {
-        const state = this.state;
-        return {example: state.example, r: state.r, n: state.n, x: state.x, epsilon: state.epsilon, supremumVisible: state.supremumVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.stateSnapshot();
         const language = currentLanguage();
         const atMinimum = state.n <= UNIFORM_N_MIN;
         const atMaximum = state.n >= UNIFORM_MAX_N;
@@ -394,18 +368,19 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                 <NumberInput label={t("uniform_n_label")} value={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} step={1} decimals={0}
                              rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
                              onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                <div className="uniform-actions" role="group" aria-label={t("uniform_n_buttons_label")}>
-                    <button type="button" data-action="n-decrease" disabled={atMinimum} aria-describedby="uniform-n-help"
-                            aria-label={t("uniform_n_decrease")} onClick={() => this.ignoreOutOfDomain(() => this.setN(this.model.n - 1))}>−</button>
-                    <button type="button" data-action="n-increase" disabled={atMaximum} aria-describedby="uniform-n-help"
-                            aria-label={t("uniform_n_increase")} onClick={() => this.ignoreOutOfDomain(() => this.setN(this.model.n + 1))}>+</button>
+                <div className="demo-actions demo-actions-compact" role="group" aria-label={t("uniform_n_buttons_label")}>
+                    {/* aria-disabled, not disabled: a focused button that becomes unavailable at n = 1 or n = 50 must not drop keyboard focus. */}
+                    <button type="button" data-action="n-decrease" aria-disabled={atMinimum} aria-describedby="uniform-n-help"
+                            aria-label={t("uniform_n_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setN(this.model.n - 1)); }}>−</button>
+                    <button type="button" data-action="n-increase" aria-disabled={atMaximum} aria-describedby="uniform-n-help"
+                            aria-label={t("uniform_n_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setN(this.model.n + 1)); }}>+</button>
                 </div>
                 <p id="uniform-n-help" className="inspector-help">
                     {atMinimum ? t("uniform_n_limit_min", {value0: UNIFORM_N_MIN}) : atMaximum ? t("uniform_n_limit_max", {value0: UNIFORM_MAX_N}) : t("uniform_n_help")}
                 </p>
             </div>
             <div className="inspector-group">
-                <div className="uniform-actions" role="group" aria-label={t("uniform_actions_label")}>
+                <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
                     <button type="button" data-action="toggle-uniform-supremum" data-revealed={state.supremumVisible}
                             onClick={() => this.setSupremumVisible(!this.model.supremumVisible)}>
                         {state.supremumVisible ? t("uniform_hide_supremum") : t("uniform_show_supremum")}
@@ -440,17 +415,23 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                 ? {id: "attained", text: t("uniform_status_attained", {value0: this.small(value), value1: this.number(at)})}
                 : {id: "not-attained", text: t("uniform_status_not_attained", {value0: this.small(value), value1: this.number(at)})});
             const epsilon = formatNumber(model.epsilon, currentLanguage(), 2);
+            const boundary = view.threshold.kind === "threshold" && !view.supremum.attained && view.supremum.value >= model.epsilon;
             if (view.threshold.kind === "none") {
                 result.push({id: "no-shared-n", text: t("uniform_status_no_shared_n", {value0: this.small(value), value1: epsilon})});
             } else {
-                result.push({id: "shared-n", text: t("uniform_status_shared_n", {value0: view.threshold.n, value1: epsilon})});
+                // A shared N with the supremum equal to epsilon: the supremum is not attained, so every single error is still below epsilon.
+                result.push(boundary
+                    ? {id: "shared-n-boundary", text: t("uniform_status_shared_n_boundary", {value0: view.threshold.n, value1: epsilon})}
+                    : {id: "shared-n", text: t("uniform_status_shared_n", {value0: view.threshold.n, value1: epsilon})});
                 if (view.threshold.n > UNIFORM_MAX_N) {
                     result.push({id: "shared-n-beyond", text: t("uniform_status_shared_n_beyond", {value0: view.threshold.n, value1: UNIFORM_MAX_N})});
                 }
             }
             const covered = view.threshold.kind === "threshold" && model.n >= view.threshold.n;
             result.push(covered
-                ? {id: "covered", text: t("uniform_status_covered", {value0: model.n})}
+                ? (boundary
+                    ? {id: "covered-boundary", text: t("uniform_status_covered_boundary", {value0: model.n})}
+                    : {id: "covered", text: t("uniform_status_covered", {value0: model.n})})
                 : {id: "not-covered", text: t("uniform_status_not_covered", {value0: model.n})});
         }
         if (view.hasJump) result.push({id: "jump", text: t("uniform_status_jump")});
@@ -461,7 +442,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.stateSnapshot();
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const shown = model.supremumVisible;
@@ -481,7 +462,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("uniform_note")}/>
-            <div className="inspector-group uniform-status" role="status" aria-live="polite">
+            <div className="inspector-group demo-status" role="status" aria-live="polite">
                 {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-uniform-status={status.id}>{status.text}</p>)}
             </div>
         </>;

@@ -62,6 +62,27 @@ export const cleanNoise = (value: number) => {
     return Math.abs(cleaned - value) < 1e-12 ? cleaned : value;
 };
 
+/**
+ * The grid value that `value` is within arithmetic noise of (1e-9 of a grid step), as an exact decimal, or undefined for a
+ * real off-grid value. A number field hands the model exactly what was typed; this only removes the noise of slider and
+ * key-step arithmetic (0.8500000000000001), never rounds a real value such as 0.851 to the grid (reject, never clamp).
+ */
+export function gridValue(value: number, step: number): number | undefined {
+    if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+    const units = Math.round(value / step);
+    return Math.abs(value / step - units) <= 1e-9 ? cleanNumber(units * step) : undefined;
+}
+
+/** Boards narrower than this many pixels get compact labels and fewer caption lines. */
+export const COMPACT_BOARD_WIDTH = 520;
+
+/** A curve whose data arrays are recomputed on every board update (a shaded band, a cobweb). */
+export interface FillCurve {
+    updateDataArray: () => void;
+    dataX: number[];
+    dataY: number[];
+}
+
 /** A number for a slider value or label: the current language's decimal separator and a true minus sign. */
 export const localizedSliderValue = (value: number) => formatNumber(value, currentLanguage());
 
@@ -178,6 +199,30 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     protected abstract defaultBoundingBox(): BoundingBox;
+
+    /**
+     * The model as React state currently shows it (a copy of the state's model fields), for the inspector. Handlers and lesson
+     * actions read `this.model` instead.
+     */
+    protected stateSnapshot(): M {
+        const state = this.state as unknown as Record<string, unknown>;
+        return Object.fromEntries(Object.keys(this.model).map(key => [key, state[key]])) as unknown as M;
+    }
+
+    /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
+    protected readonly displayStrokeWidth = (): number => this.displaySettings.strokeWidth;
+    protected readonly displayFontSize = (): number => this.displaySettings.fontSize;
+
+    /** A thinner stroke (a fraction of the display stroke width, at least 1) for edges, markers and guides. */
+    protected displayThinWidth(factor: number): () => number {
+        return () => Math.max(1, this.displaySettings.strokeWidth * factor);
+    }
+
+    /** Fit on a graph with unequal axis units (a sequence index against its value) restores the example's own view, not a canvas-aspect box. */
+    protected override fitView(points: readonly [number, number][], width: number, height: number): BoundingBox | undefined {
+        if (this.equalAxisUnits) return super.fitView(points, width, height);
+        return [...(this.exampleView()?.box ?? this.defaultBoundingBox())];
+    }
 
     protected abstract renderControls(): React.ReactNode;
 

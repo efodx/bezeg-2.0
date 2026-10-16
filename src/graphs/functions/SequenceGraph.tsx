@@ -1,22 +1,21 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import {COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
-    isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceThreshold, isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
-    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
-    SEQUENCE_THRESHOLD_MIN, sequenceCertificate, SequenceCertificate, sequenceDistance, sequenceEpsilonFromHundredths, sequenceEpsilonHundredths, sequenceExample,
+    isSequenceEpsilon, isSequenceExampleId, isSequenceThreshold, isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
+    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_LIMIT_STEP, SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
+    SEQUENCE_THRESHOLD_MIN, sequenceCertificate, SequenceCertificate, sequenceDistance, sequenceEpsilonFromHundredths, sequenceEpsilonHundredths, sequenceExample, sequenceLimitFromHundredths, sequenceLimitHundredths,
     SequenceExample, SequenceExampleId, sequenceTerm,
 } from "../../analysis/sequence";
 import {
     canAdvanceSequence, defaultSequenceModel, nextSequenceStep, parseSequenceModel, resetSequenceTerms, SequenceModel,
 } from "../../analysis/sequenceModel";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
-import {AnimationScheduler} from "../../learning/runtime/animation";
-import {LessonAnimationCommand} from "../../learning/model";
+import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 
@@ -25,12 +24,6 @@ import {GraphPalette} from "../styles/GraphPalette";
  * is (see ADR 0012), so a projector shows the same sequence of steps as a laptop screen.
  */
 export const SEQUENCE_STEP_INTERVAL_MS = 500;
-
-/** Boards narrower than this many pixels get compact labels and fewer caption lines. */
-export const COMPACT_BOARD_WIDTH = 520;
-
-/** The lesson animation commands the sequence graph handles. `stop` is rejected: the iteration has no separate stopped state (use pause or reset). */
-const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "replay", "next-step", "reset"];
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -75,13 +68,6 @@ interface View {
     lastInBand: boolean;
 }
 
-/** A closed curve whose data arrays are recomputed on every board update (the shaded band). */
-interface FillCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
-
 /**
  * Sequence convergence through the epsilon-N definition. The model is `{example, epsilon, limit, threshold, terms,
  * certificateVisible}` (`src/analysis/sequenceModel`): `terms` is the number of revealed terms, and the verdict for the chosen N is
@@ -95,15 +81,7 @@ interface FillCurve {
  * Rules (reject, never clamp): epsilon is a multiple of 0.01 in [0.01, 2], L is in [-2, 2], N is an integer 1..1000. A setter that
  * would break a rule throws a `DomainError` and leaves the model unchanged. Number fields and lesson actions use the same setters.
  */
-export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-
-    constructor(private readonly scheduler?: AnimationScheduler) {
-        super();
-        this.controller = this.createController();
-    }
-
+export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     override presets(): string {
         return "sequence";
     }
@@ -131,50 +109,36 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
 
     // ---- Iteration -----------------------------------------------------------------------------------------------
 
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: SEQUENCE_STEP_INTERVAL_MS,
-            maxIterations: SEQUENCE_MAX_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+    protected animationId(): string {
+        return "sequence";
+    }
+
+    protected stepIntervalMs(): number {
+        return SEQUENCE_STEP_INTERVAL_MS;
+    }
+
+    protected maxIterations(): number {
+        return SEQUENCE_MAX_STEPS;
+    }
+
+    protected iterationIndex(model: SequenceModel): number {
+        return model.terms - 1;
+    }
+
+    protected canAdvance(): boolean {
+        return canAdvanceSequence(this.model);
+    }
+
+    protected cannotAdvanceMessage(): string {
+        return `All ${SEQUENCE_MAX_TERMS} terms are already shown.`;
     }
 
     /** The one mathematical transition of the iteration: Next step and every playback step reveal one more term. */
-    private transition(): IterationOutcome {
+    protected transition(): IterationOutcome {
         const step = nextSequenceStep(this.model);
         if (!step.advanced) return "complete";
         this.commitModel(step.model);
         return step.outcome;
-    }
-
-    /** Replaces the model by an edit: the controller follows the revealed terms and playback stops. */
-    private replaceModel(next: SequenceModel): void {
-        this.controller.reset(next.terms - 1);
-        this.commitModel(next);
-        this.requestRender();
-    }
-
-    private pauseIteration(): void {
-        this.controller.pause();
-        this.requestRender();
-    }
-
-    /** One Next step. It takes over from playback, throws when all terms are shown, and waits while a figure is captured. */
-    protected nextStep(): void {
-        // While a figure is captured the step is dropped without an error: a lesson `next-step` that arrives then is not queued.
-        if (this.exportBusy) return;
-        if (!canAdvanceSequence(this.model)) throw new DomainError(`All ${SEQUENCE_MAX_TERMS} terms are already shown.`);
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
-    }
-
-    protected play(): void {
-        if (this.exportBusy || !canAdvanceSequence(this.model)) return;
-        this.controller.play();
-        this.requestRender();
     }
 
     /** Back to one revealed term of the same example, epsilon, L and N; playback stops. */
@@ -219,8 +183,11 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
     }
 
     protected setLimit(value: number): void {
-        if (!isSequenceLimit(value)) throw new DomainError(`The candidate limit L must be a finite number between ${SEQUENCE_LIMIT_MIN} and ${SEQUENCE_LIMIT_MAX}.`);
-        const next = cleanNumber(value);
+        const hundredths = sequenceLimitHundredths(value);
+        if (hundredths === undefined) {
+            throw new DomainError(`The candidate limit L must be a multiple of ${SEQUENCE_LIMIT_STEP} between ${SEQUENCE_LIMIT_MIN} and ${SEQUENCE_LIMIT_MAX}.`);
+        }
+        const next = sequenceLimitFromHundredths(hundredths);
         if (next !== this.model.limit) this.replaceModel({...this.model, limit: next});
     }
 
@@ -243,61 +210,6 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
             visibility: {"sequence-certificate": visible => this.setCertificateVisible(visible)},
             choices: {"sequence-example": value => this.setExample(value)},
         };
-    }
-
-    protected override registerLessonActions(registry: LessonActionRegistry): void {
-        super.registerLessonActions(registry);
-        registry.onDiscriminated("animation", "sequence", action => this.lessonCommand(action.command), {
-            supports: action => LESSON_COMMANDS.includes(action.command),
-        });
-    }
-
-    private lessonCommand(command: LessonAnimationCommand): void {
-        if (command === "next-step") this.nextStep();
-        else if (command === "play") this.play();
-        else if (command === "pause") this.pauseIteration();
-        else if (command === "reset") this.resetIteration();
-        else if (command === "replay") {
-            this.resetIteration();
-            this.play();
-        }
-    }
-
-    // ---- Lifecycle -------------------------------------------------------------------------------------------------
-
-    override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
-        super.mount(container);
-    }
-
-    override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
-        super.unmount();
-    }
-
-    /** A preset or lesson checkpoint never starts playback: the controller returns to the loaded number of terms, paused. */
-    override importPresetData(data: unknown): void {
-        super.importPresetData(data);
-        this.controller.reset(this.model.terms - 1);
-        this.requestRender();
-    }
-
-    protected override stopLessonAnimations(): void {
-        this.pauseIteration();
-    }
-
-    protected override beforeFigureCapture(): void {
-        this.pauseIteration();
-    }
-
-    protected override onSceneRemoved(): void {
-        // A replaced scene must not keep running behind the new one.
-        this.controller?.pause();
     }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
@@ -348,9 +260,9 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
-        const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.6);
-        const fontSize = () => this.displaySettings.fontSize;
+        const strokeWidth = this.displayStrokeWidth;
+        const thin = this.displayThinWidth(0.6);
+        const fontSize = this.displayFontSize;
         const compact = () => this.boardWidth() < COMPACT_BOARD_WIDTH;
         const edgeLow = () => model().limit - model().epsilon;
         const edgeHigh = () => model().limit + model().epsilon;
@@ -428,15 +340,8 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): SequenceModel {
-        const state = this.state;
-        return {
-            example: state.example, epsilon: state.epsilon, limit: state.limit, threshold: state.threshold, terms: state.terms, certificateVisible: state.certificateVisible,
-        };
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.stateSnapshot();
         const language = currentLanguage();
         const playing = this.controller.isPlaying();
         const canAdvance = canAdvanceSequence(state);
@@ -453,7 +358,7 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
                 <NumberInput label={t("sequence_epsilon_label")} value={state.epsilon} min={SEQUENCE_EPSILON_MIN} max={SEQUENCE_EPSILON_MAX} step={SEQUENCE_EPSILON_STEP} decimals={2}
                              rejectedHint={t("sequence_epsilon_rejected_hint", {value0: formatNumber(SEQUENCE_EPSILON_MIN, language, 2), value1: formatNumber(SEQUENCE_EPSILON_MAX, language, 2)})}
                              onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
-                <NumberInput label={t("sequence_limit_label")} value={state.limit} min={SEQUENCE_LIMIT_MIN} max={SEQUENCE_LIMIT_MAX} step={0.1} decimals={4}
+                <NumberInput label={t("sequence_limit_label")} value={state.limit} min={SEQUENCE_LIMIT_MIN} max={SEQUENCE_LIMIT_MAX} step={0.1} decimals={2}
                              rejectedHint={t("sequence_limit_rejected_hint", {value0: formatNumber(SEQUENCE_LIMIT_MIN, language), value1: formatNumber(SEQUENCE_LIMIT_MAX, language)})}
                              onChange={next => this.ignoreOutOfDomain(() => this.setLimit(next))}/>
                 <NumberInput label={t("sequence_threshold_label")} value={state.threshold} min={SEQUENCE_THRESHOLD_MIN} max={SEQUENCE_THRESHOLD_MAX} step={1} decimals={0}
@@ -464,7 +369,7 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
             <div className="inspector-group">
                 {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
                     unavailable at the last term or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="sequence-actions" role="group" aria-label={t("sequence_iteration_controls")}>
+                <div className="demo-actions" role="group" aria-label={t("sequence_iteration_controls")}>
                     <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
                             onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("sequence_next_step")}</button>
                     <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
@@ -475,7 +380,7 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
                 <p className="inspector-help">{t("sequence_playback_note", {value0: SEQUENCE_MAX_TERMS})}</p>
             </div>
             <div className="inspector-group">
-                <div className="sequence-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
+                <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
                     <button type="button" data-action="toggle-sequence-certificate" data-revealed={state.certificateVisible}
                             onClick={() => this.setCertificateVisible(!this.model.certificateVisible)}>
                         {state.certificateVisible ? t("sequence_hide_certificate") : t("sequence_show_certificate")}
@@ -541,7 +446,7 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.stateSnapshot();
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const certificate = view.certificate;
@@ -566,7 +471,7 @@ export class SequenceGraph extends BaseFunctionGraph<SequenceModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("sequence_note")}/>
-            <div className="inspector-group sequence-status" role="status" aria-live="polite">
+            <div className="inspector-group demo-status" role="status" aria-live="polite">
                 {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-sequence-status={status.id}>{status.text}</p>)}
             </div>
         </>;

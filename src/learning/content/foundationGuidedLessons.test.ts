@@ -11,9 +11,11 @@ const rationalLesson = () => foundationGuidedLessons.find(lesson => lesson.demon
 
 test('keeps the foundation lessons bounded, localized, and source-backed', () => {
     expect(foundationGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['bernstein', 'complex-multiplication', 'rational-elevation']);
+    expect(foundationGuidedLessons.find(lesson => lesson.demonstrationId === 'complex-multiplication')!.steps).toHaveLength(7);
     for (const lesson of foundationGuidedLessons) {
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
-        expect(lesson.steps.length).toBeLessThanOrEqual(7);
+        // The other foundation lessons stay within six steps; complex multiplication has seven (one per case of the argument rule).
+        expect(lesson.steps.length).toBeLessThanOrEqual(lesson.demonstrationId === 'complex-multiplication' ? 7 : 6);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
         expect(new Set(lesson.steps.map(step => step.id)).size).toBe(lesson.steps.length);
         expect(new Set(lesson.steps.flatMap(step => step.frames.map(frame => frame.id))).size)

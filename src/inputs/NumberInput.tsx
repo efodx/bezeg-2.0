@@ -23,7 +23,9 @@ interface NumberInputProps {
     /**
      * When the typed value is applied: on every change (default) or only on Enter and when the field loses focus ("confirm"), for a
      * value the model rewrites as soon as it is applied (for example a polar input snapped to a grid), which would otherwise replace
-     * the text under the user's hands. The arrow keys apply their step at once in both modes.
+     * the text under the user's hands. The arrow keys and the native spinner (a change that is not typing) apply at once in both modes.
+     * After Enter the field shows the model value again, so a value the model snapped back to the unchanged prop does not leave the
+     * typed text behind.
      */
     applyOn?: "input" | "confirm";
 }
@@ -52,12 +54,15 @@ export function NumberInput(props: NumberInputProps) {
         });
     }, [value, decimals]);
 
-    const commit = (parsed: number) => {
+    /** Applies a parsed value; returns whether it was in range and accepted by the model. */
+    const commit = (parsed: number): boolean => {
         if ((min !== undefined && parsed < min) || (max !== undefined && parsed > max)) {
             setHint("range");
-            return;
+            return false;
         }
-        setHint(props.onChange(parsed) === false ? "rejected" : undefined);
+        const accepted = props.onChange(parsed) !== false;
+        setHint(accepted ? undefined : "rejected");
+        return accepted;
     };
     const hintText = hint === "range" && min !== undefined && max !== undefined
         ? t("number_range_hint", {value0: formatNumber(min, currentLanguage()), value1: formatNumber(max, currentLanguage())})
@@ -69,7 +74,10 @@ export function NumberInput(props: NumberInputProps) {
                aria-describedby={[hintText ? `${id}-hint` : undefined, props.describedBy].filter(Boolean).join(" ") || undefined}
                onChange={event => {
                    setDraft(event.target.value);
-                   if (confirm) {
+                   // Typing, pasting and undo carry an inputType; the spinner and a step from the keyboard-less UI do not, and apply at once.
+                   const inputType = (event.nativeEvent as InputEvent).inputType;
+                   const typing = typeof inputType === "string" && /^(insert|delete|history)/.test(inputType);
+                   if (confirm && typing) {
                        setHint(undefined);
                        return;
                    }
@@ -84,7 +92,8 @@ export function NumberInput(props: NumberInputProps) {
                    if (confirm && event.key === "Enter") {
                        event.preventDefault();
                        const typed = draft.trim() === "" ? NaN : Number(draft);
-                       if (Number.isFinite(typed)) commit(typed);
+                       // An accepted value the model snapped back to the unchanged prop would leave the typed text behind: show the model value.
+                       if (Number.isFinite(typed) && commit(typed)) setDraft(show(value, decimals));
                        return;
                    }
                    if ((event.key !== "ArrowUp" && event.key !== "ArrowDown") || !step || props.disabled) return;

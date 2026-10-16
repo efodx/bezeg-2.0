@@ -1,5 +1,6 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, gridValue, LABEL_STYLE} from "./BaseFunctionGraph";
+import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -12,10 +13,7 @@ import {
 import {
     defaultFixedPointModel, fixedPointCanAdvance, fixedPointHistoryOf, FixedPointModel, fixedPointTransition, normalizeFixedPointModel, parseFixedPointModel,
 } from "../../analysis/fixedPointModel";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
-import {AnimationScheduler} from "../../learning/runtime/animation";
-import {LessonAnimationCommand} from "../../learning/model";
-import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 
 /**
@@ -23,12 +21,6 @@ import {GraphPalette} from "../styles/GraphPalette";
  * is (see ADR 0012), so a projector shows the same sequence of steps as a laptop screen.
  */
 export const FIXED_POINT_STEP_INTERVAL_MS = 600;
-
-/** Boards narrower than this many pixels get compact labels and fewer caption lines. */
-export const COMPACT_BOARD_WIDTH = 520;
-
-/** The lesson animation commands the fixed-point graph handles. `stop` is rejected: the iteration has no separate stopped state (use pause or reset). */
-const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "replay", "next-step", "reset"];
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -71,13 +63,6 @@ interface View {
     location: number;
 }
 
-/** A curve whose data arrays are recomputed on every board update. */
-interface DynamicCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
-
 /**
  * Fixed-point iteration x_{k+1} = T(x_k) of a named map on a closed interval, drawn as a cobweb between y = T(x) and y = x. The
  * model is `{example, x0, step, digits, boundVisible}` (`src/analysis/fixedPointModel`): `step` is the number of iterations taken,
@@ -93,15 +78,7 @@ interface DynamicCurve {
  * 1..8. A setter that would break a rule throws a `DomainError` and leaves the model unchanged. Number fields and lesson actions use
  * the same setters. Error bounds exist only where the map is a contraction; for 1 - x the board and the inspector say why there is none.
  */
-export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-
-    constructor(private readonly scheduler?: AnimationScheduler) {
-        super();
-        this.controller = this.createController();
-    }
-
+export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     override presets(): string {
         return "fixed-point";
     }
@@ -126,50 +103,39 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
 
     // ---- Iteration -----------------------------------------------------------------------------------------------
 
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: FIXED_POINT_STEP_INTERVAL_MS,
-            maxIterations: FIXED_POINT_MAX_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+    protected animationId(): string {
+        return "fixed-point";
+    }
+
+    protected stepIntervalMs(): number {
+        return FIXED_POINT_STEP_INTERVAL_MS;
+    }
+
+    protected maxIterations(): number {
+        return FIXED_POINT_MAX_STEPS;
+    }
+
+    protected iterationIndex(model: FixedPointModel): number {
+        return model.step;
+    }
+
+    protected override normalizeIterationModel(model: FixedPointModel): FixedPointModel {
+        return normalizeFixedPointModel(model);
+    }
+
+    protected canAdvance(): boolean {
+        return fixedPointCanAdvance(this.model);
+    }
+
+    protected cannotAdvanceMessage(): string {
+        return "The iteration has ended; Reset returns it to step 0.";
     }
 
     /** The one mathematical transition of the iteration: Next step and every playback step take one more iterate. */
-    private transition(): IterationOutcome {
+    protected transition(): IterationOutcome {
         const result = fixedPointTransition(this.model);
         if (result.model !== this.model) this.commitModel(result.model);
         return result.outcome;
-    }
-
-    /** Replaces the model by an edit: the controller follows the step and playback stops. */
-    private replaceModel(next: FixedPointModel): void {
-        const model = normalizeFixedPointModel(next);
-        this.controller.reset(model.step);
-        this.commitModel(model);
-        this.requestRender();
-    }
-
-    private pauseIteration(): void {
-        this.controller.pause();
-        this.requestRender();
-    }
-
-    /** One Next step. It takes over from playback, throws when the iteration has ended, and waits while a figure is captured. */
-    protected nextStep(): void {
-        // While a figure is captured the step is dropped without an error: a lesson `next-step` that arrives then is not queued.
-        if (this.exportBusy) return;
-        if (!fixedPointCanAdvance(this.model)) throw new DomainError("The iteration has ended; Reset returns it to step 0.");
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
-    }
-
-    protected play(): void {
-        if (this.exportBusy || !fixedPointCanAdvance(this.model)) return;
-        this.controller.play();
-        this.requestRender();
     }
 
     /** Back to step 0 of the same example, x0, tolerance and reveal; playback stops. */
@@ -199,8 +165,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
     /** x0 is handed to the model as exact hundredths: arithmetic noise such as 0.06 + 0.01 is snapped, a value that is really off the grid is rejected. */
     protected setX0(value: number): void {
         const example = fixedPointExample(this.model.example);
-        const hundredths = Number.isFinite(value) ? Math.round(value * 100) : undefined;
-        const next = hundredths !== undefined && Math.abs(value * 100 - hundredths) < 1e-6 ? hundredths / 100 + 0 : undefined;
+        const next = gridValue(value, 0.01);
         if (next === undefined || fixedPointHundredths(next) === undefined || !isFixedPointStart(example.id, next)) {
             throw new DomainError(`The start x0 must be a multiple of 0.01 between ${example.a} and ${example.b} for this example.`);
         }
@@ -222,61 +187,6 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
             visibility: {"fixed-point-bound": visible => this.setBoundVisible(visible)},
             choices: {"fixed-point-example": value => this.setExample(value)},
         };
-    }
-
-    protected override registerLessonActions(registry: LessonActionRegistry): void {
-        super.registerLessonActions(registry);
-        registry.onDiscriminated("animation", "fixed-point", action => this.lessonCommand(action.command), {
-            supports: action => LESSON_COMMANDS.includes(action.command),
-        });
-    }
-
-    private lessonCommand(command: LessonAnimationCommand): void {
-        if (command === "next-step") this.nextStep();
-        else if (command === "play") this.play();
-        else if (command === "pause") this.pauseIteration();
-        else if (command === "reset") this.resetIteration();
-        else if (command === "replay") {
-            this.resetIteration();
-            this.play();
-        }
-    }
-
-    // ---- Lifecycle -------------------------------------------------------------------------------------------------
-
-    override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
-        super.mount(container);
-    }
-
-    override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
-        super.unmount();
-    }
-
-    /** A preset or lesson checkpoint never starts playback: the controller returns to the loaded step, paused. */
-    override importPresetData(data: unknown): void {
-        super.importPresetData(data);
-        this.controller.reset(this.model.step);
-        this.requestRender();
-    }
-
-    protected override stopLessonAnimations(): void {
-        this.pauseIteration();
-    }
-
-    protected override beforeFigureCapture(): void {
-        this.pauseIteration();
-    }
-
-    protected override onSceneRemoved(): void {
-        // A replaced scene must not keep running behind the new one.
-        this.controller?.pause();
     }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
@@ -328,9 +238,9 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
         const view = () => this.viewOf(this.model);
         const example = () => view().example;
         const history = () => view().history;
-        const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.6);
-        const fontSize = () => this.displaySettings.fontSize;
+        const strokeWidth = this.displayStrokeWidth;
+        const thin = this.displayThinWidth(0.6);
+        const fontSize = this.displayFontSize;
         const left = () => board.getBoundingBox()[0];
         const top = () => board.getBoundingBox()[1];
         const bottom = () => board.getBoundingBox()[3];
@@ -342,7 +252,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
         const box = this.own(board.create("curve", [[0], [0]], {
             fillColor: GraphPalette.referenceCurve, fillOpacity: 0.1, strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, dash: DIAGONAL_DASH,
             highlight: false, fixed: true,
-        })) as unknown as DynamicCurve;
+        })) as unknown as FillCurve;
         box.updateDataArray = () => {
             const {a, b} = example();
             box.dataX = [a, b, b, a, a];
@@ -358,7 +268,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
         // The cobweb: (x_0, x_0), then for every step the vertical segment to (x_k, T(x_k)) and the horizontal one to (x_{k+1}, x_{k+1}).
         const cobweb = this.own(board.create("curve", [[0], [0]], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: thin, highlight: false, fixed: true,
-        })) as unknown as DynamicCurve;
+        })) as unknown as FillCurve;
         cobweb.updateDataArray = () => {
             const {x0} = history();
             const xs = [x0, x0];
@@ -442,13 +352,8 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): FixedPointModel {
-        const state = this.state;
-        return {example: state.example, x0: state.x0, step: state.step, digits: state.digits, boundVisible: state.boundVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.stateSnapshot();
         const language = currentLanguage();
         const example = fixedPointExample(state.example);
         const playing = this.controller.isPlaying();
@@ -474,7 +379,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
             <div className="inspector-group">
                 {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
                     unavailable when the iteration ends or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="sequence-actions" role="group" aria-label={t("fixed_point_iteration_controls")}>
+                <div className="demo-actions" role="group" aria-label={t("fixed_point_iteration_controls")}>
                     <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
                             onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("fixed_point_next_step")}</button>
                     <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
@@ -485,7 +390,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
                 <p className="inspector-help">{t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}</p>
             </div>
             <div className="inspector-group">
-                <div className="sequence-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
+                <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
                     <button type="button" data-action="toggle-fixed-point-bound" data-revealed={state.boundVisible}
                             onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
                         {state.boundVisible ? t("fixed_point_hide_bound") : t("fixed_point_show_bound")}
@@ -560,7 +465,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.stateSnapshot();
         const language = currentLanguage();
         const view = this.viewOf(model);
         const {history} = view;
@@ -581,7 +486,7 @@ export class FixedPointGraph extends BaseFunctionGraph<FixedPointModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fixed_point_note")}/>
-            <div className="inspector-group sequence-status" role="status" aria-live="polite">
+            <div className="inspector-group demo-status" role="status" aria-live="polite">
                 {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-fixed-point-status={status.id}>{status.text}</p>)}
             </div>
         </>;

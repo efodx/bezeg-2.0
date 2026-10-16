@@ -58,10 +58,13 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     act(() => { fireEvent.change(inputN, {target: {value: '2.5'}}); });
     expect(graph.modelNow()).toMatchObject({n: 11});
     act(() => { fireEvent.change(inputN, {target: {value: '1'}}); });
-    expect(decrease().disabled).toBe(true);
+    expect(decrease().getAttribute('aria-disabled')).toBe('true');
+    expect(decrease().disabled).toBe(false);
     expect(document.getElementById('uniform-n-help')?.textContent).toMatch(/najmanjši/);
     act(() => { fireEvent.change(inputN, {target: {value: '50'}}); });
-    expect(increase().disabled).toBe(true);
+    expect(increase().getAttribute('aria-disabled')).toBe('true');
+    act(() => { fireEvent.click(increase()); });
+    expect(graph.modelNow()).toMatchObject({n: 50});
     act(() => { fireEvent.change(inputN, {target: {value: '11'}}); });
 
     // Show supremum names its state and reveals the supremum, whether it is attained and the shared N
