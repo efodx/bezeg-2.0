@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -67,6 +67,33 @@ test('affine provenance rejects a wrong intermediate rotation and shifted camera
     assertMotionEvidence(motion);
     motion.samples[3].state.points[1].x+=0.1;assert.throws(()=>assertMotionEvidence(motion),/rotation/);
     motion.samples[3].state.points[1].x-=0.1;motion.samples[4].state.box[0]-=0.5;assert.throws(()=>assertMotionEvidence(motion));
+});
+test('parameter sweep provenance rejects a moved fixed point, wrong intermediate, a jump at the loop seam and a target mismatch',()=>{
+    const controls=[{id:'c0',x:-4,y:-3},{id:'c1',x:-3,y:2},{id:'c2',x:0,y:3},{id:'c3',x:3,y:2},{id:'c4',x:4,y:-3}];
+    const sample=i=>{
+        const scheduled=sweepValue(i);
+        const levels=deCasteljauLevels(controls,scheduled).flat();
+        const points=[...controls.map(p=>({...p,draggable:true})),...levels.map((p,j)=>({id:'i'+j,name:'',x:p.x,y:p.y,draggable:false}))];
+        return {index:i,time:i/24,scheduled,actual:{input:scheduled,readout:`t = ${scheduled.toFixed(2)}`,steps:0},
+            controls:controls.map(({id,x,y})=>({id,x,y})),points,curvePathHash:`path-${scheduled}`};
+    };
+    const motion=()=>({id:'decasteljau',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0.5);assert.equal(valid.samples[95].scheduled,0.5);
+    assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),1);assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),0);
+    const moved=motion();moved.samples[40].controls[2].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(moved),/Fixed control point moved/);
+    const wrong=motion();wrong.samples[40].points[7].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(wrong),/Intermediate point differs/);
+    const seam=motion();seam.samples[95].curvePathHash='path-jump';
+    assert.throws(()=>assertMotionEvidence(seam),/changed while t held|Last frame|Non-seamless/);
+    const mismatch=motion();mismatch.samples[40].actual.input+=0.01;
+    assert.throws(()=>assertMotionEvidence(mismatch),/Input value differs/);
+    const readout=motion();readout.samples[40].actual.readout='t = 0.40';
+    assert.throws(()=>assertMotionEvidence(readout),/readout differs/);
+    const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
+    assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
 });
 test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
     const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';

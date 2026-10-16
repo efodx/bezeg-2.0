@@ -403,6 +403,7 @@ async function main() {
     const browserVersion = browser.version();
     const captures = [];
     let motions = [];
+    let diagnosticMotions = null;
     const recaptureIds = process.env.PREVIEW_RECAPTURE_IDS?.split(',');
     if(recaptureIds) {
         assert.ok(!process.env.PREVIEW_IDS,'Diagnostic and full-set recapture modes cannot be combined');
@@ -559,13 +560,18 @@ async function main() {
                 await context.close();
             }
         }
-        if (!process.env.PREVIEW_IDS && !recaptureIds) motions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard);
+        // Motion diagnostics run only beside a non-publishing PREVIEW_IDS poster diagnostic.
+        if (process.env.PREVIEW_MOTION_IDS) {
+            assert.ok(process.env.PREVIEW_IDS && !recaptureIds, 'Motion diagnostics require PREVIEW_IDS and cannot publish');
+            diagnosticMotions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard, process.env.PREVIEW_MOTION_IDS.split(','));
+        } else if (!process.env.PREVIEW_IDS && !recaptureIds) motions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard);
     } finally {
         await browser.close();
     }
 
     if (process.env.PREVIEW_IDS) {
         fs.writeFileSync(path.join(output, 'partial-evidence.json'), JSON.stringify(captures, null, 2));
+        if (diagnosticMotions) fs.writeFileSync(path.join(output, 'partial-motions.json'), JSON.stringify(diagnosticMotions, null, 2));
         console.log('Partial diagnostic capture retained in ' + output + '; production assets untouched.');
         return;
     }

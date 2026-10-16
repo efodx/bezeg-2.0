@@ -6,6 +6,7 @@ import motion_bezier from './images/demonstrations/catalog/bezier.webm?no-inline
 import motion_affine from './images/demonstrations/catalog/affine.webm?no-inline';
 import motion_elevation from './images/demonstrations/catalog/elevation.webm?no-inline';
 import motion_rational_elevation from './images/demonstrations/catalog/rational-elevation.webm?no-inline';
+import motion_decasteljau from './images/demonstrations/catalog/decasteljau.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -15,4 +16,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'affine': {src: motion_affine, type: 'video/webm', duration: 4},
     'elevation': {src: motion_elevation, type: 'video/webm', duration: 4},
     'rational-elevation': {src: motion_rational_elevation, type: 'video/webm', duration: 4},
+    'decasteljau': {src: motion_decasteljau, type: 'video/webm', duration: 4},
 };
