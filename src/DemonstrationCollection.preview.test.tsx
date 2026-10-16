@@ -1,6 +1,6 @@
 import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
-import {DemonstrationPreview} from './DemonstrationCollection';
+import {DemonstrationPreview} from './DemonstrationPreview';
 
 const originalDecode = HTMLImageElement.prototype.decode;
 
@@ -32,7 +32,7 @@ test('keeps the reserved preview hidden until its image decodes', async () => {
 
     fireEvent.load(image);
     expect(image).not.toHaveClass('is-ready');
-    expect(view.container.querySelector('.demonstrations-catalog-preview-frame')).toBeInTheDocument();
+    expect(view.container.querySelector('.demonstration-preview-media')).toBeInTheDocument();
     await act(async () => { finishDecode(); });
     expect(image).toHaveClass('is-ready');
 });
@@ -83,7 +83,7 @@ test('keeps the pale frame and hides the broken image after a request failure', 
 
     fireEvent.error(image);
     expect(image).toHaveClass('is-failed');
-    expect(view.container.querySelector('.demonstrations-catalog-preview-frame')).toBeInTheDocument();
+    expect(view.container.querySelector('.demonstration-preview-media')).toBeInTheDocument();
 });
 
 test('ignores a stale decode when the preview source changes', async () => {

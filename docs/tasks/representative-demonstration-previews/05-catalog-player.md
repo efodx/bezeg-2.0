@@ -1,24 +1,9 @@
-# 05 Add the lightweight catalog player
+# 05 Share visible looping previews
 
-Source: [spec](../../specs/representative-demonstration-previews.md), delivery interface, playback/loading policy and acceptance 10. Depends on: [04](04-motion-pilots.md) format/contract acceptance; can proceed while task 03 finishes disjoint poster recipes.
+Source: [spec](../../specs/representative-demonstration-previews.md), owner revision of 2026-10-16 and acceptance 10.
 
-## Goal and scope
+Use one graph-free preview component for catalog, workspace picker and selected homepage carousel layer. Reuse generated poster and motion maps; preserve carousel choices, layout and six-second advancement.
 
-Add one reusable preview player to `DemonstrationCollection` for the catalog and shared workspace picker. Own catalog markup/CSS, focused player tests and exact matching Slovenian/English playback-control keys. Accept a poster and optional media description; keep graph/capture details outside the player.
+Visible eligible clips loop muted and inline without playback controls. Multiple visible clips may run concurrently. Offscreen, hidden-document and reduced-motion previews have no attached video source. Keep the poster until the first video frame is available and on failure. Each visible session owns cleanup and ignores stale events. Preserve decoded-poster loading, first-three eager/native-lazy behavior and navigation.
 
-## Deliverables and acceptance
-
-- Preserve the existing reserved frame, first-three eager loading, native lazy posters, cached/decode/error handling and navigation. Stills work without motion assets. Do not change homepage starting cards or carousel.
-- Request clips only after activation, with at most one active video per collection. Support one-pass hover/focus activation and a separate Play/Stop/Replay button for touch and keyboard. The control is a sibling of image/title navigation, never nested inside interactive markup. Ignore focus moves within the same card.
-- Use muted inline video without looping. Stop and return to the poster on completion, leaving/offscreen, document hide, filter removal, picker close and unmount. Dispose listeners/observers and ignore stale async events/play promises after replacement.
-- Reduced motion suppresses automatic playback; the explicit labeled control may start one pass. A preference change to reduced motion stops current playback. No decorative transitions in this mode.
-- Keep the poster visible until media can display a first frame and on failed/unsupported playback. Titles, actions, filtering and keyboard navigation stay usable during slow or failed loads. Media remains decorative; localize accessible control labels/state without announcing frames.
-- Meet the source spec's request/concurrency budgets and record compressed application-code delta. Add no runtime animation/encoding dependency.
-
-## Checks and evidence
-
-Test activation/cancellation, focus containment, rapid card changes, deferred/failed loading, rejected playback, stale completion, reduced motion, filter/unmount cleanup and poster-only entries through the player's interface. Use browser network evidence to prove zero clip requests before activation and confirm real media playback. Run collection/page tests, localization TypeScript checking and production build. Coordinate the stable preview for catalog and picker browser checks under task 06; capture any focused checks here too.
-
-## Results — 2026-10-16
-
-Implemented in the shared collection with a graph-free activation controller and a separate partial asset map. The 23 focused player/poster tests and TypeScript pass. Production browser checks verify activation-only requests, all three real WebM clips, keyboard and actual touch activation, cancellation, failures and retained navigation. Independent review fixes include stopping automatic passes, preserving explicit-pass identity during contained focus, avoiding touch compatibility events, and 44px controls. See [release verification](release-results.md) for integrated checks, code-size measurements and browser coverage.
+Checks cover intersection and visibility gating, reduced motion, failure/rejection, stale events, resource release, concurrent playback, native decoding and shared carousel URLs. Integrated evidence and coverage limits are recorded in [release verification](release-results.md).

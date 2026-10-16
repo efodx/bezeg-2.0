@@ -4,7 +4,7 @@ Source: [spec](../../specs/representative-demonstration-previews.md), motion sys
 
 ## Goal and scope
 
-Generate three short silent clips from real board captures: repeated subdivision, bisection and one moving Bézier control point. Own capture timelines, offline encoding tooling/instructions, clip output, optional motion mapping and clip provenance. Coordinate generated manifest and capture script ownership with task 03. No encoder runs in the application or normal page load.
+Generate six four-second silent clips from real board captures: repeated subdivision, bisection, one moving Bézier control point, affine rotation and polynomial/rational degree elevation. Elevation uses original/elevated/original full-board holds; affine uses supported rotation steps and exact inverse return. No split-image comparison is delivered. Own capture timelines, offline encoding tooling/instructions, clip output, optional motion mapping and clip provenance. Coordinate generated manifest and capture script ownership with task 03. No encoder runs in the application or normal page load.
 
 ## Deliverables and acceptance
 

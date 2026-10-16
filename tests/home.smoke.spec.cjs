@@ -34,7 +34,7 @@ test('the homepage owns the starting carousel and its actions lead to the select
     expect(pageOrder.carouselBeforeFooter).toBe(true);
 
     await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(startingIds.length);
-    const openingImage = opening.locator('.demonstrations-opening-image[data-selected="true"]');
+    const openingImage = opening.locator('.demonstrations-opening-image[data-selected="true"] img');
     await expect(openingImage).toHaveCount(1);
     await expect(openingImage).toHaveAttribute('src', /bezier/);
     await expect(openingImage).toHaveCSS('opacity', '1');
@@ -94,6 +94,13 @@ test('the homepage fits the target widths in Slovenian and English', async ({pag
                 const selectedImage = opening.locator('.demonstrations-opening-image[data-selected="true"]');
                 await expect(selectedImage).toBeVisible();
                 await expect(selectedImage).toHaveCSS('opacity', '1');
+                const containment = await selectedImage.evaluate(layer => {
+                    const outer = layer.getBoundingClientRect();
+                    const media = layer.querySelector('.demonstration-preview-media').getBoundingClientRect();
+                    return {height: media.height, contained: media.left >= outer.left - 1 && media.right <= outer.right + 1 && media.top >= outer.top - 1 && media.bottom <= outer.bottom + 1};
+                });
+                expect(containment.height).toBeGreaterThan(0);
+                expect(containment.contained).toBe(true);
                 const horizontalOverflow = await currentPage.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
                 expect(horizontalOverflow, `${language} document overflow at ${width}px`).toBe(false);
             }

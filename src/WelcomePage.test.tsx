@@ -11,7 +11,12 @@ import {setLanguage, t} from './localization';
 // Routes only hand a controller factory to GraphHost; mounting a real board is not what this suite checks.
 vi.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
 
-beforeEach(() => {setLanguage('sl');});
+beforeEach(() => {
+    setLanguage('sl');
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+    vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => undefined);
+});
 let restoreMatchMedia: (() => void) | undefined;
 let restoreDocumentHidden: (() => void) | undefined;
 let restoreIntersectionObserver: (() => void) | undefined;
@@ -25,6 +30,7 @@ afterEach(() => {
     restoreIntersectionObserver = undefined;
     restoreLessonAvailability?.();
     restoreLessonAvailability = undefined;
+    vi.restoreAllMocks();
     vi.useRealTimers();
 });
 
@@ -325,7 +331,7 @@ test('reduced-motion users get a manual-only carousel with the matching preview 
     const choices = within(within(opening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
     const first = openingDemonstrations()[0];
 
-    expect(opening.querySelector('.demonstrations-opening-image')).toHaveAttribute('src', demonstrationPreviewAssets[first.id]);
+    expect(opening.querySelector('.demonstrations-opening-image img')).toHaveAttribute('src', demonstrationPreviewAssets[first.id]);
     expect(choices.map(choice => choice.getAttribute('aria-label'))).toEqual(openingDemonstrations().map(demonstration => {
         const family = getDemonstrationCatalog().families.find(entry => entry.id === demonstration.family)!;
         return `${family.title}: ${demonstration.catalogTitle}`;
@@ -406,4 +412,3 @@ test('autoplay pauses for visibility, disposes on navigation, and resets on a fr
     view.unmount();
     expect(currentObserver?.disconnected).toBe(true);
 });
-

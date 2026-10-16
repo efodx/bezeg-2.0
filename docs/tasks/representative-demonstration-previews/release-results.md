@@ -1,44 +1,42 @@
 # Representative preview release verification
 
-Source: [spec](../../specs/representative-demonstration-previews.md), tasks 05–06. Capture details and supported-control limitations are in [capture results](capture-results.md).
+Source: [spec](../../specs/representative-demonstration-previews.md), tasks 05–06. Exact capture provenance, regeneration instructions and scene limitations are in [capture results](capture-results.md).
 
-## Delivered behavior
+## Owner revision and delivered behavior
 
-The catalog and shared picker use 45 genuine 720×440 posters and three optional silent WebM clips. Every clip is three seconds with 72 frames at 24 fps. Encoded sizes are 10,616 bytes for repeated subdivision, 17,802 for bisection, and 25,612 for Bézier movement. Media is imported with `?no-inline`, attached only on activation, muted and inline, and never loops. One collection owns one activation generation. The localized sibling control supports Play, Stop and Replay; reduced motion permits explicit playback while suppressing automatic activation.
+The owner's local visual review superseded the first delivery's one-pass hover/focus activation, playback buttons, single-active-clip policy and homepage exclusion. The current catalog, picker and selected homepage carousel layer share one graph-free player and the same asset maps. No duplicate carousel assets are introduced; carousel choices, layout and six-second advancement remain intact.
 
-The first three filtered posters remain eager, later posters remain native-lazy, and existing decode/cache/error behavior remains covered. Completion, leaving the card, filtering, offscreen removal, document hiding, picker close and unmount return to the poster. Stale media events and play-promise rejections cannot affect a replacement. Homepage assets, route defaults, lessons, presets and mathematical implementations are unchanged.
+All 45 posters are genuine 720×440 route captures. Six silent four-second, 96-frame WebM clips loop automatically while their preview frames are visible. Bézier movement is larger and has endpoint holds; subdivision and bisection have readable discrete holds. Affine rotation returns through supported inverse steps. Polynomial and rational elevation show original/elevated/original representations of the same curve on one board. Their posters use the original representation, replacing split-image compositions.
 
-## Stable checkpoint and checks
+There are no thumbnail playback buttons. Multiple visible clips may run concurrently. Offscreen, hidden-document and reduced-motion previews have no attached video source. Each visible session owns its video instance, source release and stale-event guards. The poster remains visible until a decoded video frame is ready and on failure. Navigation, filtering, decoded-image handling and first-three eager/native-lazy poster loading remain available.
 
-The starting revision was `d4bff5638dcee2da1b6bdaf177b81fda785657a2`, initially clean. The manifest records mathematical-source fingerprint `7f915616d9b973b00d7f93d4f79950d463b23f72364b6821197409ac3f6effd7` and no relevant dirty mathematical files. Capture used the verified `index-CXDMgzcE.js` production module; final integration builds include the player fixes and generated delivery map.
+## Stable checkpoint and evidence
 
-| Check | Observed result |
-| --- | --- |
-| Exhaustive recipes, poster map, dimensions, hashes and motion provenance | Passed for 45 distinct posters and three clips. |
-| Focused capture tooling | Seven Node tests passed, including semantic corruption, fixed cameras and publication/copy/pruning rollback. |
-| Focused player and poster loading | 23 tests passed, including real component lifecycle, touch modality, contained focus, explicit-pass identity, document hiding, failures and stale promises. |
-| TypeScript, all unit tests, production build | `just check` passed: 140 files, 2,444 tests, then production build. |
-| Production Chromium browser suite | 67 tests passed across `demonstrations`, `library-picker` and the new eight-case `demonstration-motion` suite. |
-| Mathematical invariance | Existing Bézier polynomial/rational subdivision and elevation checks plus bisection and metadata checks passed; all mathematical/default/lesson/route source diffs are empty. |
-| Two-speed generation | All 72 Bézier point arrays and curve-path hashes, all discrete checkpoints and every camera agreed. Endpoints and stationary controls are exact. |
-| Independent reviews | Mathematical/engineering and visual/accessibility reviews completed; all actionable findings were corrected and rechecked. All 45 posters were reviewed at 360×220, plus decoded frames 0/35/71 from each clip. |
+The revision starts from first-delivery HEAD d889661. Mathematical-source fingerprint remains 7f915616d9b973b00d7f93d4f79950d463b23f72364b6821197409ac3f6effd7 with no relevant mathematical source edits. Runtime defaults, route registrations, lessons and presets are unchanged.
 
-The browser suite observed zero clip requests before activation, native decoding at 720×440, `video/webm` responses, one active clip, hover/focus/explicit keyboard and actual touch events, reduced-motion cancellation, offscreen/filter/picker cleanup, delayed and failed media, retained navigation and 390px overflow checks. Existing picker tests also exercised edited-scene retention, current-graph selection and lesson entry. Full lesson browser traversal was outside this change; lesson source/runtime stayed unchanged.
+- Generated validation passed for all 45 posters and six clips, including dimensions, hashes, maps, provenance, budgets and exact mathematical samples.
+- Capture tooling: 9/9 Node tests passed, including elevation invariance, affine rotation, corruption rejection and publication rollback.
+- Focused player/poster/homepage tests: 21/21 passed; worker TypeScript check passed.
+- Independent source and mathematical review: no open findings. Lifecycle guards and thumbnail target height were repaired during review. Single-board elevation frames and peak affine/Bézier frames were inspected. Rational elevation intentionally suppresses overlapping central weight annotation under the existing annotation policy; all numerical weights are still validated.
 
-Command logs remain ignored under `.command-logs/`: full check `2026-10-16T17-38-52-168Z-33212-9ea6fc20.log`, build `2026-10-16T17-41-01-011Z-33212-9d25fccf.log`, browser suite `2026-10-16T17-41-16-827Z-50728-5a278964.log`, focused player `2026-10-16T17-30-33-704Z-25780-49b74603.log`. Browser-run warnings concern `NO_COLOR`/`FORCE_COLOR`; build warnings include existing dependency direct-eval diagnostics.
+Integrated unit, build, browser and budget results are recorded below.
 
-Application JavaScript totals 1,369,554 gzip bytes versus the source-verified baseline 1,368,227: **+1,327 bytes** across all JS chunks. The three clips total 54,030 bytes and are separate assets. No application dependency was added. WebM is the delivered pilot format; no observed target-browser failure required MP4.
+## Acceptance limits
 
-## Acceptance scope and remaining limits
+Two existing static targets retain explicit limits: extrapolation controls replace the original representation and cannot fully distinguish its original interval; spline parameterization displays twelve markers but its count is inspector-only. These targets are not claimed fully satisfied. This task adds no mathematical runtime feature to resolve them.
 
-Implementation and local automated acceptance are complete. Two static scene targets retain explicit scope limits: existing extrapolation controls replace the original representation and cannot fully distinguish its original interval; spline parameterization shows twelve markers but its count is inspector-only. These targets are not claimed fully satisfied, and no owner-approved runtime expansion or deferral is inferred. The proposed dispositions are documented in capture results.
+Physical-device/projector, Safari/WebKit, Firefox and screen-reader checks are not performed. Actual hidden-tab behavior and true browser 200% zoom require suitable browser access; simulated visibility tests and narrow-layout checks are separate evidence.
 
-Physical device/projector, Safari/WebKit, Firefox and screen-reader review were not performed.
+## Revised integrated verification
 
-## Independent smoke observations
+The full unit run passed: **139 files, 2,434 tests** (175.4s), log `.command-logs/2026-10-16T18-10-20-444Z-60584-2fa7cb94.log`. Obsolete button/controller tests were replaced by visible-loop lifecycle coverage. The runner's incidental PH snapshot line-ending rewrite was restored; there is no mathematical source diff. TypeScript and production build passed via `just check-localization` (16.7s), log `2026-10-16T18-13-33-794Z-12860-aa7e05a8.log`.
 
-The smoke-tester worker used fresh installed Chrome and Edge contexts against the handler's verified production preview on port 4300, at 1440×1000 and 390×844. It observed all three clips decoding at 720×440 with HTTP 200 `video/webm`, no clip requests before activation, and no console/page errors. Card-size rendering was legible; the narrow catalog had no horizontal overflow. Reduced-motion hover retained the poster, and explicit Play/Stop worked. A real point drag changed graph geometry; picker playback/cancel/reopen retained that edited graph exactly. A keyboard De Casteljau slider change from 0.50 to 0.51 changed the construction. Fresh contexts were closed and shared storage was untouched.
+Application JavaScript totals **1,369,094 gzip bytes**, versus the original source-verified baseline 1,368,227: **+867 bytes**, and 460 bytes smaller than the first player delivery. All six clips total **97,510 bytes**, each below 29 KB and imported as separate assets with `?no-inline`. No runtime dependency was added.
 
-Actual document-hide browser verification was **blocked**: headless Chrome's frozen lifecycle left `document.visibilityState` visible. The component test exercises a hidden visibility state and verifies cancellation/listener removal, but that is not a real hidden-tab browser pass. True 200% browser zoom was **skipped** because headless keyboard zoom did not alter the viewport or pixel ratio. Narrow-screen/keyboard coverage is separate evidence. Screenshots remain ignored in `.command-logs/smoke-worker-2026-10-16/`.
+Two-speed generation produced identical 96 Bézier point arrays, curve path hashes, strokes and cameras at 0ms/125ms extra settling. FFprobe confirmed all six clips are silent, 96 frames and four seconds. Native Chromium decode/play/seek checks passed for all six capture outputs; integrated app browser results follow.
 
-The full unit run rewrote only the line endings of an unchanged PH snapshot. That incidental write was restored, and the final mathematical-source fingerprint again exactly matches the capture manifest. The final rebuild passed (`2026-10-16T17-48-05-914Z-63660-f7f23aed.log`): inputs `5255ca6af7e810df00678eaafbd6273bb919e2d5a3e9311c0794994dbdd4cf73`, output `1ade4e2104aeb1bbe874c28e6ffb2818db16751474a92495e5d70ad22e272386`. The output digest is exactly identical to the build exercised by all browser checks, so no browser rerun was needed for that formatting-only cleanup.
+Production Chromium coverage is complete across **69 cases**: 68 initial passes and the corrected focused loop case, logs `2026-10-16T18-14-11-016Z-26948-e90cfcae.log` and `2026-10-16T18-16-36-210Z-54464-1dfacf5f.log`. Two initial assertions in that case were corrected: the target selector matched thumbnail and title links, and the 1000px viewport legitimately contained multiple motion cards. The corrected check measures the thumbnail link and proves every requested clip corresponds to an actually visible frame. Native playback crosses the four-second boundary and loops. Other cases cover all six decoders, simultaneous loops, hover/focus identity, reduced motion, offscreen/filter/picker/carousel disposal, delayed/failed media, navigation, retained edited scenes and homepage containment at 390/724/1440px in both languages.
+
+Independent smoke used installed Chrome and Edge at 1440×1000 and 390×844 against the verified production preview. Both decoded all six clips at 720×440/four seconds with muted looping and no playback controls. No page/console errors or failed requests were observed. Desktop/mobile screenshots showed single-board affine and elevation scenes, contained home media, usable graph links and no horizontal overflow. Catalog and homepage Bézier used identical poster/video URLs. This delegated lane was selected because the player crosses catalog, picker and homepage workflows; unchanged graph interaction baselines were already exercised in the first delivery, while current automated picker checks cover edited-scene retention.
+
+The final formatting-only rebuild passed, log `2026-10-16T18-19-22-217Z-37028-4d3b7824.log`. Source inputs are `71247f3abb2e7a3248b886fe10d3b8896a7076f17743dac1145558d1302d902e`; output is `72665722d4b21dc1b3fb0061de49900af34df8e1caedd71b4ccf72f240581491`, exactly identical to the production build exercised by all browser checks. The mathematical-source fingerprint remains identical to the manifest.

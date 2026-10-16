@@ -3,6 +3,8 @@ import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
 import type {DemonstrationId} from './demonstrations';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
+import {demonstrationMotionAssets} from './demonstrationMotionAssets';
+import {DemonstrationPreview} from './DemonstrationPreview';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
 import {useT} from './localization';
 import './HomeDemonstrationsCarousel.css';
@@ -158,11 +160,14 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         <article className="demonstrations-opening-preview"
             aria-live={announceManualChanges ? 'polite' : 'off'} aria-atomic="true">
             <div className="demonstrations-opening-image-stage" data-reduced-motion={prefersReducedMotion}>
-                {entries.map((entry, index) => <img key={entry.demonstration.id}
+                {entries.map((entry, index) => <div key={entry.demonstration.id}
                     className="demonstrations-opening-image"
                     data-selected={selectedIndex === index}
-                    src={demonstrationPreviewAssets[entry.demonstration.id]}
-                    alt="" width="360" height="220"/>)}
+                    aria-hidden="true">
+                    <DemonstrationPreview src={demonstrationPreviewAssets[entry.demonstration.id]}
+                        motion={selectedIndex === index ? demonstrationMotionAssets[entry.demonstration.id] : undefined}
+                        loading={index < 3 ? 'eager' : 'lazy'}/>
+                </div>)}
             </div>
             <div className="demonstrations-opening-copy">
                 <span className="demonstrations-opening-family">{selectedEntry.family.title}</span>
