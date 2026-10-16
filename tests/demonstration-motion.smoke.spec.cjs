@@ -1,6 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
-const pilots = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation'];
+const clips = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation', 'decasteljau', 'farin', 'derivative'];
 const card = (page, id) => page.locator('#demonstration-card-' + id);
 test.use({reducedMotion: 'no-preference'});
 
@@ -41,9 +41,9 @@ test('visible previews loop automatically without buttons or offscreen media req
     expect(types.every(type => type?.startsWith('video/webm'))).toBe(true);
 });
 
-test('all six clips decode as they enter view and unload offscreen', async ({page}) => {
+test('every clip decodes as it enters view and unloads offscreen', async ({page}) => {
     await openEnglish(page);
-    for (const id of pilots) {
+    for (const id of clips) {
         const entry = card(page, id);
         await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
         await playing(entry);

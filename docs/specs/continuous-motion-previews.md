@@ -1,6 +1,6 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Not implemented.
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phase 1 (`decasteljau`, `farin`, `derivative`) implemented 2026-10-17; see [Phase 1 record](#phase-1-record). Phase 2 not started; Phase 3 waits for owner review.
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
@@ -98,3 +98,23 @@ The base spec's 300 KiB per-clip ceiling stands. The current `bezier.webm` is ab
 4. Owner review, then Phase 3 for the entries the owner selects.
 
 Stop and report if a candidate needs a missing control, a runtime change, or a bigger budget, rather than working around it.
+
+## Phase 1 record
+
+Implemented 2026-10-17 in `scripts/demonstration-preview-motion.cjs` (`motionSpecs`, `captureSweep`, `captureDrag`, `assertMotionEvidence`). Every clip is 96 frames at 720×440, its last source frame equals its first, and its schedule, invariants and encoder reasoning are in the manifest.
+
+| ID | Mode | Path | Encoder | Size |
+| --- | --- | --- | --- | --- |
+| `decasteljau` | `parameter-sweep` | `t` 0.5 → 1 → 0 → 0.5 | CRF 28 | 295,631 B |
+| `derivative` | `parameter-sweep` | `Korak h` 1 → 0.05 → 1 on f(x) = x², x0 = 1, recipe window camera | CRF 22 | 250,909 B |
+| `farin` | `pointer-drag` | glider of edge p1–p2, v 1/3 → 0.7 → 1/3 (ratio 1/2 → 7/3 → 1/2), exact restore through the weight number fields | CRF 14 | 259,057 B |
+
+Deviations and decisions:
+
+- `decasteljau` keeps the whole curve visible. The Phase 1 table says "whole-curve off", but the recipe and poster show it on, and the clip must start from the poster state.
+- `farin` amplitude is 0.7 rather than about 0.8: 0.8 exceeded 300 KiB at readable CRF (328,205 B at CRF 10), and at 0.75 the curve crossed the `w₂` weight label around frames 39–57 at card size. At 0.7 the curve stays off the label. The static p2–p3 control edge touches the label's left edge in every frame, poster included; that comes from the recipe and JSXGraph's automatic label placement, not the motion, and is left unchanged.
+- `bezier` was moved onto the shared `pointer-drag` path. Its 96 source PNG hashes, path hashes and decoded pixels are identical to the previous capture. WebM bytes differ run to run (libvpx), so reproducibility is checked on source frames and decoded pixels. Its moving-point tolerance of 0.035 is inherited from the original capture and recorded in the script as a known weakness.
+- The farin glider tolerance (1e-6 in edge parameter) has about a 6× margin over the measured 1.6e-7 error.
+- Recipe labels were repaired for the redesigned controls first; regenerated posters differ from the previous ones only by sub-pixel antialiasing.
+
+Out of scope, reported to the owner: `DecasteljauAnimationControls.tsx` renders `t = 0.50` with a decimal point in the Slovenian UI.
