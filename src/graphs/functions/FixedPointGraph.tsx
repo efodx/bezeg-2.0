@@ -33,8 +33,8 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  */
 const EXAMPLE_VIEWS: Readonly<Record<FixedPointExampleId, BoundingBox>> = {
     "affine": [-2.84, 2.9, 4.84, -0.3],
-    "cosine": [-1.72, 1.65, 2.72, -0.2],
-    "reflection": [-1.72, 1.65, 2.72, -0.2],
+    "cosine": [-1.72, 1.75, 2.72, -0.2],
+    "reflection": [-1.72, 1.75, 2.72, -0.2],
 };
 
 /** Dash styles (JSXGraph numbering): the diagonal and the box edge are dashed, the drop line short-dashed. */

@@ -24,7 +24,7 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  * below 0 for the band, the axis labels and the point labels. The two axes are independent (see `equalAxisUnits`), so the
  * domain [0, 1] uses the whole board width at any size.
  */
-const BOARD_VIEW: BoundingBox = [-0.15, 1.45, 1.2, -0.2];
+const BOARD_VIEW: BoundingBox = [-0.15, 1.45, 1.2, -0.35];
 
 /** Dash styles (JSXGraph numbering): the limit is dashed, the band edges medium-dashed, the supremum dotted; f_n is solid. */
 const LIMIT_DASH = 3;
@@ -326,7 +326,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                 visible: supremumShown,
             },
             {text: () => t("uniform_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ]);
+        ], () => 0.01); // just right of the y-axis: the tick labels, which sit left of it, stay uncovered
     }
 
     protected override syncSceneToModel(): void {

@@ -12,7 +12,7 @@ import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
 vi.mock('../base/export/PresetFigureBatch', () => ({downloadPresetFigures: vi.fn(() => Promise.resolve())}));
 
-const BOX = [-3, 1.5, 43, -1.5];
+const BOX = [-4.9, 1.5, 43, -1.5];
 
 function fakeBoard() {
     const board: any = {
@@ -185,7 +185,7 @@ test('terms inside and outside the band differ by shape: a filled circle inside,
 test('the board fits every example: the view of each example holds all forty terms, and the caption corner stays clear of them', () => {
     // the views the graph uses per example, read back through the example choice
     const expected: Record<string, number[]> = {
-        'reciprocal': [-3, 1.5, 43, -1.5], 'alternating-reciprocal': [-3, 1.5, 43, -1.5], 'alternating-sign': [-3, 1.6, 43, -3.1], 'natural': [-3, 54, 43, -36],
+        'reciprocal': [-4.9, 1.5, 43, -1.5], 'alternating-reciprocal': [-4.9, 1.5, 43, -1.5], 'alternating-sign': [-4.9, 1.6, 43, -3.4], 'natural': [-4.9, 54, 43, -36],
     };
     for (const [id, box] of Object.entries(expected)) {
         const graph = makeGraph();
@@ -613,7 +613,7 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     setLanguage('en');
     const english = controls(graph);
     expect(english.next.props.children).toBe('Next step');
-    expect(english.reset.props.children).toBe('Reset to one term');
+    expect(english.reset.props.children).toBe('Reset');
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide certificate');
     expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Band width ε', 'Candidate limit L', 'Threshold N']);
@@ -659,7 +659,7 @@ test('a preset of another example without a view shows that example view, like c
     const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'sequence', data: {...SEQUENCE_EXAMPLE_MODELS.natural}});
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-3, 54, 43, -36], false);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-4.9, 54, 43, -36], false);
 });
 
 test('malformed preset data is rejected to the default model with a warning', () => {
@@ -877,7 +877,7 @@ test('Fit restores the example view instead of a canvas-aspect box, because the 
     const graph = makeGraph({asyncState: false});
     graph.board.container = document.createElement('div');
     graph.board.applyZoom = vi.fn();
-    for (const [id, view] of [['reciprocal', [-3, 1.5, 43, -1.5]], ['alternating-sign', [-3, 1.6, 43, -3.1]], ['natural', [-3, 54, 43, -36]]] as const) {
+    for (const [id, view] of [['reciprocal', [-4.9, 1.5, 43, -1.5]], ['alternating-sign', [-4.9, 1.6, 43, -3.4]], ['natural', [-4.9, 54, 43, -36]]] as const) {
         apply(graph, choice(id));
         graph.board.setBoundingBox.mockClear();
         graph.navigateBoard('fit');

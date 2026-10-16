@@ -109,3 +109,7 @@
 @media (pointer: coarse), (max-width: 700px) {
     .demo-actions button { min-height: 44px; }
 }
+/* Complex multiplication: a tip label is a one-line MathJax block whose vertical margins would lift it off its marker, and the
+   modulus field of the w grid must keep the height of its sibling fields (it would stretch to the taller grid row). */
+.complex-point-label mjx-container[display="true"] { margin: 0 !important; }
+.complex-w-grid .number-input input[type="number"] { align-self: start; }

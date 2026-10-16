@@ -788,7 +788,7 @@ export const en: Record<keyof typeof sl, string> = {
     "sequence_fields_help": "The band is the region between L − ε and L + ε. In the fields the arrow keys step by 0.01 for ε, by 0.1 for L and by 1 for N. A value outside the range is rejected.",
     "sequence_iteration_controls": "Term controls",
     "sequence_next_step": "Next step",
-    "sequence_reset": "Reset to one term",
+    "sequence_reset": "Reset",
     "sequence_playback_note": "Next step and Play reveal one term at a time, up to {value0} in all. Playback stops when the example, ε, L or N changes, before a figure is exported and when a preset is opened.",
     "sequence_certificate_actions_label": "Certificate",
     "sequence_show_certificate": "Show certificate",

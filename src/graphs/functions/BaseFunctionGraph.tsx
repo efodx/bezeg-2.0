@@ -465,12 +465,13 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * The one block of text a function graph writes on its board: stacked lines in one text object (so lines never overlap),
      * in a corner chosen by the graph to avoid its default curves, on a soft plate, with a font that shrinks on narrow boards.
      */
-    protected caption(corner: CaptionCorner, lines: CaptionLine[]): void {
+    protected caption(corner: CaptionCorner, lines: CaptionLine[], leftEdge?: () => number): void {
         const board = this.board;
         this.captionLines = lines;
         const [vertical, horizontal] = corner.split("-") as ["top" | "bottom", "left" | "center" | "right"];
         const x = () => {
             const [left, , right] = board.getBoundingBox();
+            if (horizontal === "left" && leftEdge) return leftEdge();
             return horizontal === "left" ? left + 0.04 * (right - left) : horizontal === "right" ? right - 0.04 * (right - left) : (left + right) / 2;
         };
         const y = () => {

@@ -6,7 +6,7 @@ import {UNIFORM_EXAMPLE_MODELS} from '../../analysis/uniformConvergenceModel';
 import {setLanguage, onLanguageChange} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 
-const BOX = [-0.15, 1.45, 1.2, -0.2];
+const BOX = [-0.15, 1.45, 1.2, -0.35];
 
 function fakeBoard() {
     const board: any = {
@@ -594,5 +594,5 @@ test('Fit restores the default view instead of a canvas-aspect box, because the 
     graph.board.setBoundingBox.mockClear();
     graph.navigateBoard('fit');
     expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
-    expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-0.15, 1.45, 1.2, -0.2], false, 'update');
+    expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-0.15, 1.45, 1.2, -0.35], false, 'update');
 });

@@ -2,7 +2,7 @@ import {t} from "../../localization";
 import React from 'react';
 
 
-import {Board} from "jsxgraph";
+import {AxisAttributes, Board} from "jsxgraph";
 import {fitBoundingBox} from "./fitBoundingBox";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
@@ -552,10 +552,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                 showScreenshot: false,
                 showCopyright: false,
                 showNavigation: false,
-                defaultAxes: {
-                    x: this.styles.axis.defaultX,
-                    y: this.styles.axis.defaultY
-                },
+                defaultAxes: this.defaultAxesAttributes(),
             });
 
             this.setBaseState({initialized: true});
@@ -572,6 +569,11 @@ abstract class BaseGraph<S extends BaseGraphState> {
             session.observeResize(container);
             session.markReady();
         }
+    }
+
+    /** The attributes of the board's default axes (the shared axis styles unless a graph needs its own tick labels). */
+    protected defaultAxesAttributes(): { x: AxisAttributes; y: AxisAttributes } {
+        return {x: this.styles.axis.defaultX, y: this.styles.axis.defaultY};
     }
 
     /** Disposes the board and everything the session owns. Pending state work is dropped; pending callbacks still settle. */

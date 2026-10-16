@@ -14,7 +14,7 @@ vi.mock('../base/export/PresetFigureBatch', () => ({downloadPresetFigures: vi.fn
 /** The reference fixed point of cos on [0, 1] (the Dottie number), not computed by the app. */
 const COS_FIXED_POINT = 0.7390851332151607;
 const AFFINE_BOX = [-2.84, 2.9, 4.84, -0.3];
-const SMALL_BOX = [-1.72, 1.65, 2.72, -0.2];
+const SMALL_BOX = [-1.72, 1.75, 2.72, -0.2];
 
 function fakeBoard() {
     const board: any = {

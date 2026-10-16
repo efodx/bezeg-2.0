@@ -283,6 +283,14 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         return [placement, MIRRORED_PLACEMENT[placement], FLIPPED_PLACEMENT[placement], OPPOSITE_PLACEMENT[placement]][Math.min(crowded, 3)];
     }
 
+    /**
+     * A tip's label: the shared point label, with its MathJax block margins removed (see `complex-point-label` in FunctionReadout.css)
+     * so that the glyph sits next to its marker rather than a line-height above it.
+     */
+    private complexPointLabel(placement: () => LabelPlacement, pointVisible?: () => boolean): object {
+        return {...this.pointLabel(placement, 0.8, pointVisible), cssClass: "complex-point-label"};
+    }
+
     private productOutsideBoard(): boolean {
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const {product} = this.viewOf(this.model);
@@ -335,13 +343,13 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         const markerSize = () => Math.max(5, this.displaySettings.pointSize * 1.1);
         // The product is a fixed diamond; it exists only after Show product (its label follows it).
         this.own(board.create("point", [() => view().product.re, () => view().product.im], {
-            ...this.styles.point.fixed, name: "$$zw$$", label: this.pointLabel(() => this.labelPlacement("product"), 0.8, productShown), face: "<>", size: markerSize,
+            ...this.styles.point.fixed, name: "$$zw$$", label: this.complexPointLabel(() => this.labelPlacement("product"), productShown), face: "<>", size: markerSize,
             fillColor: colors.product, highlightFillColor: colors.product, strokeColor: colors.product, fixed: true, visible: productShown,
         }));
         // z (circle) and w (square) are dragged on the grid inside the square; the model is written once per drag event with both coordinates.
         const operandPoint = (which: OperandName, face: string, color: string) => {
             const point = this.own(board.create("point", [which === "z" ? model().zRe : model().wRe, which === "z" ? model().zIm : model().wIm], {
-                ...this.styles.point.default, name: which === "z" ? "$$z$$" : "$$w$$", label: this.pointLabel(() => this.labelPlacement(which), 0.8), face, size: markerSize,
+                ...this.styles.point.default, name: which === "z" ? "$$z$$" : "$$w$$", label: this.complexPointLabel(() => this.labelPlacement(which)), face, size: markerSize,
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
             })) as JXG.Point;
             point.on("drag", () => {
@@ -437,7 +445,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                 <p className="inspector-help">{t("complex_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid">
+                <div className="function-points-grid complex-w-grid">
                     <NumberInput label={t("complex_w_modulus_label")} value={view.wModulus} min={0} max={COMPLEX_MAX_OPERAND_MODULUS} step={0.05} decimals={4} applyOn="confirm"
                                  rejectedHint={t("complex_modulus_rejected_hint", {value0: formatNumber(COMPLEX_MAX_OPERAND_MODULUS, language, 2)})}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setWModulus(next))}/>

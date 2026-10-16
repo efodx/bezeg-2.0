@@ -787,7 +787,7 @@ export const sl = {
     "sequence_fields_help": "Pas je območje med L − ε in L + ε. V poljih puščici na tipkovnici korakata po 0,01 pri ε, po 0,1 pri L in po 1 pri N. Vrednost zunaj območja aplikacija zavrne.",
     "sequence_iteration_controls": "Kontrole prikaza členov",
     "sequence_next_step": "Naslednji korak",
-    "sequence_reset": "Ponastavi na en člen",
+    "sequence_reset": "Ponastavi",
     "sequence_playback_note": "Naslednji korak in Predvajanje razkrijeta po en člen, skupaj največ {value0}. Predvajanje se ustavi ob spremembi primera, ε, L ali N, pred izvozom slike in ob odpiranju prednastavitve.",
     "sequence_certificate_actions_label": "Certifikat",
     "sequence_show_certificate": "Pokaži certifikat",

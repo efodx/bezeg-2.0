@@ -1,4 +1,5 @@
 import React from "react";
+import {AxisAttributes} from "jsxgraph";
 import {COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -32,11 +33,17 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  * which stays free of terms: the convergent examples end near 0, and the other views leave room below the terms.
  */
 const EXAMPLE_VIEWS: Readonly<Record<SequenceExampleId, BoundingBox>> = {
-    "reciprocal": [-3, 1.5, 43, -1.5],
-    "alternating-reciprocal": [-3, 1.5, 43, -1.5],
-    "alternating-sign": [-3, 1.6, 43, -3.1],
-    "natural": [-3, 54, 43, -36],
+    "reciprocal": [-4.9, 1.5, 43, -1.5],
+    "alternating-reciprocal": [-4.9, 1.5, 43, -1.5],
+    "alternating-sign": [-4.9, 1.6, 43, -3.4],
+    "natural": [-4.9, 54, 43, -36],
 };
+/**
+ * The left margin (about 40 px of a 390 px board) keeps the y tick labels, with their minus signs, inside the board; the y-axis sits
+ * at index 0. It stops short of x = -5, so no negative index tick number lands on the y tick labels. The x tick numbers hang lower
+ * than the default, below the band of width 2 epsilon.
+ */
+const X_TICK_DROP_PX = 26;
 
 /** Dash styles (JSXGraph numbering): the band edges are dashed, the threshold marker short-dashed. */
 const EDGE_DASH = 2;
@@ -101,6 +108,15 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     /** The index n and the value a_n have different scales (forty indices against values of about one), so the stored view is applied exactly. */
     protected override get equalAxisUnits(): boolean {
         return false;
+    }
+
+    /** The x tick numbers are moved below the band, which the default offset would cross for a small epsilon. */
+    protected override defaultAxesAttributes(): { x: AxisAttributes; y: AxisAttributes } {
+        const axis = this.styles.axis;
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, label: {...axis.defaultX.ticks?.label, offset: [0, -X_TICK_DROP_PX]}}},
+            y: axis.defaultY,
+        };
     }
 
     protected override exampleView() {

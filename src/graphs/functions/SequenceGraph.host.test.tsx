@@ -129,7 +129,7 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
     expect(readout('terms')).toBe('13');
 
     // Reset returns to one term, the example select loads another example's model
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi na en člen'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi'})); });
     expect(readout('terms')).toBe('1');
     const select = screen.getByLabelText('Primer zaporedja') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'alternating-sign'}}); });
@@ -149,7 +149,7 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     const graph = new ObservedSequenceGraph(frames.scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const nextButton = () => screen.getByRole('button', {name: 'Naslednji korak'}) as HTMLButtonElement;
-    const resetButton = () => screen.getByRole('button', {name: 'Ponastavi na en člen'}) as HTMLButtonElement;
+    const resetButton = () => screen.getByRole('button', {name: 'Ponastavi'}) as HTMLButtonElement;
     expect(resetButton().getAttribute('aria-disabled')).toBe('true');
     act(() => { fireEvent.click(resetButton()); });
     expect(graph.modelNow().terms).toBe(1);
