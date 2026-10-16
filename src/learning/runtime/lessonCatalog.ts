@@ -175,6 +175,10 @@ export function sceneAction(action: SceneAction): LessonAction {
         if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The sequence command must be "next-step" or "reset".');
         return {kind: 'animation', animationId: 'sequence', command: action.value};
     }
+    if (action.name === 'run-fixed-point-command') {
+        if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The fixed-point command must be "next-step" or "reset".');
+        return {kind: 'animation', animationId: 'fixed-point', command: action.value};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -297,6 +301,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'convexity',
     'taylor',
     'sequence',
+    'fixed-point',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

@@ -35,6 +35,11 @@
  * `set-function-choice` sequence-example and `show-function-element` sequence-certificate) and `run-sequence-command` (one `next-step`
  * per extra term a scene shows). A prediction step hides the certificate and the learner presses the graph's own Show certificate
  * after predicting; only the step that explains the least working threshold shows it.
+ *
+ * The fixed-point lesson uses the generic actions (`set-function-parameter` fixed-point-x0/fixed-point-digits, `set-function-choice`
+ * fixed-point-example and `show-function-element` fixed-point-bound) and `run-fixed-point-command` (one `next-step` per iteration step
+ * a scene shows). A prediction step hides the error bound and the learner presses the graph's own Next step or Show error bound after
+ * predicting; only the step that explains the contraction of the first map shows the bound.
  */
 import type {FunctionParameterName} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
@@ -45,6 +50,7 @@ import type {ExtremaExampleId} from '../../analysis/extrema';
 import type {ConvexityExampleId} from '../../analysis/convexity';
 import type {TaylorExampleId} from '../../analysis/taylor';
 import type {SequenceExampleId} from '../../analysis/sequence';
+import type {FixedPointExampleId} from '../../analysis/fixedPoint';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -2667,5 +2673,377 @@ const sequence: GuidedLesson = {
     ],
 };
 
+const fixedPointChoice = (value: FixedPointExampleId): SceneAction => ({
+    name: 'set-function-choice', value: {name: 'fixed-point-example', value},
+});
+const fixedPointBound = (visible: boolean): SceneAction => ({
+    name: 'show-function-element', value: {name: 'fixed-point-bound', value: visible},
+});
+/** The scene shows the state after `count` iteration steps (a scene starts from the default scene at step 0). */
+const iterates = (count: number): SceneAction[] => Array.from({length: count}, () => ({name: 'run-fixed-point-command', value: 'next-step'}));
+
+const fixedPoint: GuidedLesson = {
+    demonstrationId: 'fixed-point',
+    title: text('Iteracija s fiksno točko in skrčitve', 'Fixed-point iteration and contractions'),
+    summary: text(
+        'Iteracija \\(x_{k+1}=T(x_k)\\) se na grafu kaže kot pajkova mreža med krivuljo \\(y=T(x)\\) in diagonalo \\(y=x\\). Če \\(T\\) zaprt interval \\([a,b]\\) slika vase in je skrčitev s faktorjem \\(q<1\\), ima natanko eno fiksno točko, iteracija iz vsakega začetka konvergira k njej in veljata oceni napake a priori in a posteriori. Ustavitev pri pragu ali enaki zaokroženi vrednosti ne dokažeta, da je približek natančna fiksna točka. Če pogoji ne držijo, izrek ne daje zaključka, kar ni isto kot divergenca: pri \\(1-x\\) vidimo dvocikel.',
+        'The iteration \\(x_{k+1}=T(x_k)\\) appears on the graph as a cobweb between the curve \\(y=T(x)\\) and the diagonal \\(y=x\\). If \\(T\\) maps a closed interval \\([a,b]\\) into itself and is a contraction with factor \\(q<1\\), it has exactly one fixed point, the iteration converges to it from every start, and the a priori and a posteriori error bounds hold. Stopping at a threshold or seeing equal rounded values does not prove that an iterate is an exact fixed point. If the hypotheses fail, the theorem gives no conclusion, which is not the same as divergence: for \\(1-x\\) we see a two-cycle.',
+    ),
+    prerequisites: [
+        text(
+            'Potrebno je razumevanje sestavljanja funkcij, \\(T(T(x))\\), in konvergence zaporedja (lekcija o konvergenci zaporedja).',
+            'Assumes an understanding of composition of functions, \\(T(T(x))\\), and of convergence of a sequence (the sequence convergence lesson).',
+        ),
+        text(
+            'Potrebno je poznavanje izreka o povprečni vrednosti: odvod omejuje razliko \\(|T(x)-T(y)|\\).',
+            'Assumes familiarity with the mean value theorem: the derivative bounds the difference \\(|T(x)-T(y)|\\).',
+        ),
+    ],
+    learningGoals: [
+        text(
+            'Pri \\(T(x)=\\frac{x+1}{2}\\) iz \\(x_0=0\\) napoveš \\(x_2=\\frac34\\) in razložiš pajkovo mrežo kot navpično in nato vodoravno črto.',
+            'For \\(T(x)=\\frac{x+1}{2}\\) from \\(x_0=0\\) predict \\(x_2=\\frac34\\) and explain the cobweb as a vertical and then a horizontal segment.',
+        ),
+        text(
+            'Navedeš pogoje izreka (zaprt interval, \\(T([a,b])\\subseteq[a,b]\\), \\(q<1\\)) in jih preveriš pri \\(\\frac{x+1}{2}\\) in \\(\\cos x\\).',
+            'State the hypotheses of the theorem (a closed interval, \\(T([a,b])\\subseteq[a,b]\\), \\(q<1\\)) and check them for \\(\\frac{x+1}{2}\\) and \\(\\cos x\\).',
+        ),
+        text(
+            'Uporabiš oceni a priori in a posteriori ter pojasniš, zakaj ustavitev pri pragu ali enaki zaokroženi vrednosti ne dokaže natančne fiksne točke.',
+            'Use the a priori and a posteriori bounds and explain why stopping at a threshold or equal rounded values does not prove an exact fixed point.',
+        ),
+        text(
+            'Razložiš dvocikel pri \\(1-x\\) in zakaj nedržanje pogoja izreka ne dokazuje divergence.',
+            'Explain the two-cycle of \\(1-x\\) and why a failing hypothesis does not prove divergence.',
+        ),
+    ],
+    formulaBlocks: [
+        {
+            id: 'fixed-point-iteration',
+            latex: 'x_{k+1}=T(x_k),\\qquad T(x^*)=x^*',
+            notation: text(
+                'Zaporedje \\(x_k\\) je iteracija preslikave \\(T\\) z začetkom \\(x_0\\); točka \\(x^*\\) je fiksna točka, rešitev enačbe \\(T(x)=x\\).',
+                'The sequence \\(x_k\\) is the iteration of the map \\(T\\) from the start \\(x_0\\); the point \\(x^*\\) is a fixed point, a solution of \\(T(x)=x\\).',
+            ),
+            explanation: text(
+                'Fiksna točka je presečišče krivulje \\(y=T(x)\\) z diagonalo \\(y=x\\). Pajkova mreža iz točke \\((x_k,x_k)\\) na diagonali gre navpično do krivulje, v točko \\((x_k,T(x_k))\\), nato vodoravno nazaj do diagonale, v točko \\((x_{k+1},x_{k+1})\\).',
+                'A fixed point is an intersection of the curve \\(y=T(x)\\) with the diagonal \\(y=x\\). The cobweb goes from the point \\((x_k,x_k)\\) on the diagonal vertically to the curve, to \\((x_k,T(x_k))\\), and then horizontally back to the diagonal, to \\((x_{k+1},x_{k+1})\\).',
+            ),
+        },
+        {
+            id: 'fixed-point-contraction',
+            latex: 'T([a,b])\\subseteq[a,b],\\qquad|T(x)-T(y)|\\le q\\,|x-y|,\\quad q<1',
+            notation: text(
+                'Interval \\([a,b]\\) je zaprt, torej poln; prvi pogoj pravi, da \\(T\\) interval slika vase; drugi, da je \\(T\\) skrčitev s faktorjem \\(q\\).',
+                'The interval \\([a,b]\\) is closed, hence complete; the first condition says that \\(T\\) maps the interval into itself; the second that \\(T\\) is a contraction with factor \\(q\\).',
+            ),
+            explanation: text(
+                'Po izreku o povprečni vrednosti drugi pogoj sledi iz \\(|T\'(x)|\\le q\\) na intervalu. Takrat ima \\(T\\) na \\([a,b]\\) natanko eno fiksno točko in iteracija iz vsakega začetka v \\([a,b]\\) konvergira k njej. Pri \\(\\frac{x+1}{2}\\) je \\(q=\\frac12\\), pri \\(\\cos x\\) na \\([0,1]\\) pa \\(q=\\sin 1\\).',
+                'By the mean value theorem the second condition follows from \\(|T\'(x)|\\le q\\) on the interval. Then \\(T\\) has exactly one fixed point in \\([a,b]\\) and the iteration converges to it from every start in \\([a,b]\\). For \\(\\frac{x+1}{2}\\) we have \\(q=\\frac12\\), and for \\(\\cos x\\) on \\([0,1]\\) we have \\(q=\\sin 1\\).',
+            ),
+        },
+        {
+            id: 'fixed-point-bounds',
+            latex: '\\begin{aligned}|x_k-x^*|&\\le\\frac{q^k}{1-q}\\,|x_1-x_0|,\\\\|x_k-x^*|&\\le\\frac{q}{1-q}\\,|x_k-x_{k-1}|\\end{aligned}',
+            notation: text(
+                'Prva ocena je a priori: zadošča začetek in prvi korak. Druga je a posteriori: zadošča zadnji korak. Obe veljata samo, kadar je \\(T\\) skrčitev na zaprtem intervalu, ki ga slika vase.',
+                'The first bound is a priori: the start and the first step are enough. The second is a posteriori: the last step is enough. Both hold only when \\(T\\) is a contraction on a closed interval that it maps into itself.',
+            ),
+            explanation: text(
+                'Ocena je zgornja meja napake in ne njena vrednost: dejanska napaka je lahko veliko manjša. Prag \\(10^{-d}\\) v aplikaciji ustavi iteracijo, ko je ocena a posteriori manjša od njega.',
+                'A bound is an upper limit for the error, not its value: the actual error may be much smaller. The threshold \\(10^{-d}\\) in the app stops the iteration when the a posteriori bound falls below it.',
+            ),
+        },
+        {
+            id: 'fixed-point-reflection',
+            latex: 'T(x)=1-x,\\qquad T(T(x))=x,\\qquad|T\'(x)|=1',
+            notation: text(
+                'Preslikava \\(1-x\\) slika \\([0,1]\\) vase in zamenja krajišči, njena fiksna točka je \\(\\frac12\\).',
+                'The map \\(1-x\\) maps \\([0,1]\\) into itself and swaps the endpoints; its fixed point is \\(\\frac12\\).',
+            ),
+            explanation: text(
+                'Ker je \\(|T\'(x)|=1\\), ni \\(q<1\\) in izrek o skrčitvi ne da zaključka ali ocene. Iz \\(T(T(x))=x\\) pa neposredno vidimo, da iz začetka \\(x_0\\ne\\frac12\\) iteracija izmenično zavzema \\(x_0\\) in \\(1-x_0\\).',
+                'Since \\(|T\'(x)|=1\\), there is no \\(q<1\\) and the contraction theorem gives no conclusion and no bound. From \\(T(T(x))=x\\), however, we see directly that from a start \\(x_0\\ne\\frac12\\) the iteration alternates between \\(x_0\\) and \\(1-x_0\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'fixed-point-affine-example',
+            title: text('Preslikava \\(\\frac{x+1}{2}\\) iz \\(x_0=0\\) pri pragu \\(10^{-3}\\)', 'The map \\(\\frac{x+1}{2}\\) from \\(x_0=0\\) at the threshold \\(10^{-3}\\)'),
+            calculationLatex: 'x_k=1-2^{-k},\\qquad\\frac{q}{1-q}\\,|x_k-x_{k-1}|=2^{-k}',
+            resultLatex: '2^{-10}=\\tfrac1{1024}<10^{-3}\\le\\tfrac1{512}=2^{-9}',
+            check: text(
+                'Pri \\(q=\\frac12\\) je \\(\\frac{q}{1-q}=1\\) in \\(|x_k-x_{k-1}|=2^{-k}\\), zato je ocena a posteriori enaka \\(2^{-k}\\), prav toliko pa je tudi dejanska napaka \\(|x_k-1|\\). Pri \\(k=9\\) je \\(2^{-9}\\approx0{,}00195\\) še nad pragom, pri \\(k=10\\) je \\(2^{-10}\\approx0{,}000977\\) pod njim, zato se iteracija ustavi pri koraku \\(10\\). Pri koraku \\(3\\) je ocena \\(0{,}125\\).',
+                'With \\(q=\\frac12\\) we have \\(\\frac{q}{1-q}=1\\) and \\(|x_k-x_{k-1}|=2^{-k}\\), so the a posteriori bound equals \\(2^{-k}\\), and so does the actual error \\(|x_k-1|\\). At \\(k=9\\), \\(2^{-9}\\approx0.00195\\) is still above the threshold, at \\(k=10\\), \\(2^{-10}\\approx0.000977\\) is below it, so the iteration stops at step \\(10\\). At step \\(3\\) the bound is \\(0.125\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'fixed-point-cobweb-step', order: 1,
+            title: text('Fiksna točka in pajkova mreža', 'A fixed point and the cobweb'),
+            purpose: text('Povezati iteracijo \\(x_{k+1}=T(x_k)\\) s presečiščem krivulje in diagonale ter z risanjem pajkove mreže.', 'Linking the iteration \\(x_{k+1}=T(x_k)\\) to the intersection of the curve and the diagonal and to the way the cobweb is drawn.'),
+            explanation: text(
+                'Preslikava \\(T(x)=\\frac{x+1}{2}\\) slika interval \\([0,2]\\) vase. Fiksna točka \\(x^*\\) reši \\(T(x^*)=x^*\\): na grafu je to presečišče krivulje \\(y=T(x)\\) z diagonalo \\(y=x\\), označeno s križcem, tu \\(x^*=1\\). Iteracija izhaja iz začetka \\(x_0\\) in računa \\(x_{k+1}=T(x_k)\\); vsak približek je vrednost sestavljene preslikave, \\(x_2=T(T(x_0))\\), zaporedje \\(x_k\\) pa je običajno zaporedje, zato je njegova konvergenca isto vprašanje kot v lekciji o zaporedjih. Pajkova mreža iz točke \\((x_k,x_k)\\) na diagonali gre navpično do krivulje, nato vodoravno nazaj do diagonale. Zdaj je prikazan le začetek \\(x_0=0\\) pri koraku \\(0\\); korak \\(0\\) še nima črt.',
+                'The map \\(T(x)=\\frac{x+1}{2}\\) maps the interval \\([0,2]\\) into itself. A fixed point \\(x^*\\) solves \\(T(x^*)=x^*\\): on the graph it is the intersection of the curve \\(y=T(x)\\) with the diagonal \\(y=x\\), marked by a cross, here \\(x^*=1\\). The iteration starts at \\(x_0\\) and computes \\(x_{k+1}=T(x_k)\\); every iterate is a value of a composed map, \\(x_2=T(T(x_0))\\), and the sequence \\(x_k\\) is an ordinary sequence, so its convergence is the same question as in the lesson on sequences. The cobweb goes from the point \\((x_k,x_k)\\) on the diagonal vertically to the curve and then horizontally back to the diagonal. Now only the start \\(x_0=0\\) is shown at step \\(0\\); step \\(0\\) has no segments yet.',
+            ),
+            formulaIds: ['fixed-point-iteration'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-cobweb-explanation', 'explanation'), frame('fixed-point-cobweb-observation', 'observation')],
+            observationPrompt: text(
+                'Poišči križec na diagonali in preberi, kje je fiksna točka. Izračunaj \\(T(0)\\) in napovej, kje bo končala prva navpična črta, nato pritisni Naslednji korak.',
+                'Find the cross on the diagonal and read where the fixed point is. Compute \\(T(0)\\) and predict where the first vertical segment ends, then press Next step.',
+            ),
+            expectedObservations: [
+                text(
+                    'Križec je pri \\(x^*=1\\); začetek je \\(x_0=0\\), korak je \\(0\\), črt mreže še ni.',
+                    'The cross is at \\(x^*=1\\); the start is \\(x_0=0\\), the step is \\(0\\) and there are no cobweb segments yet.',
+                ),
+                text(
+                    'Po pritisku na Naslednji korak je korak \\(1\\) in \\(x_1=T(0)=\\frac12\\): navpična črta od \\((0,0)\\) do \\((0,\\frac12)\\), vodoravna do \\((\\frac12,\\frac12)\\).',
+                    'After Next step the step is \\(1\\) and \\(x_1=T(0)=\\frac12\\): a vertical segment from \\((0,0)\\) to \\((0,\\frac12)\\), a horizontal one to \\((\\frac12,\\frac12)\\).',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-cobweb-scene', basedOn: 'demonstration-default',
+                actions: [fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\frac{x+1}{2}\\) na \\([0,2]\\) z začetkom \\(x_0=0\\), korakom \\(0\\), natančnostjo \\(d=3\\) in skrito oceno napake.',
+                    'The map \\(\\frac{x+1}{2}\\) on \\([0,2]\\) is shown with the start \\(x_0=0\\), step \\(0\\), tolerance \\(d=3\\) and a hidden error bound.',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-next-iterate-step', order: 2,
+            title: text('Napoved naslednjega približka', 'Predicting the next iterate'),
+            purpose: text('Napovedati naslednji približek iz grafa, preden ga aplikacija izračuna.', 'Predicting the next iterate from the graph before the app computes it.'),
+            explanation: text(
+                'Prvi korak je dal \\(x_1=\\frac12\\). Naslednji približek je \\(x_2=T(x_1)\\): iz točke \\((\\frac12,\\frac12)\\) na diagonali gremo navpično do krivulje, nato vodoravno do diagonale. Višina krivulje pri \\(x=\\frac12\\) je \\(T(\\frac12)\\), ta višina pa je tudi novi približek. Napovej ga, preden pritisneš Naslednji korak, nato pritisni še enkrat in napovej \\(x_3\\). Opazuj tudi razdaljo do fiksne točke \\(1\\): pri \\(x_1\\) je \\(\\frac12\\), pri \\(x_2\\) manj.',
+                'The first step gave \\(x_1=\\frac12\\). The next iterate is \\(x_2=T(x_1)\\): from the point \\((\\frac12,\\frac12)\\) on the diagonal we go vertically to the curve and then horizontally to the diagonal. The height of the curve at \\(x=\\frac12\\) is \\(T(\\frac12)\\), and that height is also the new iterate. Predict it before you press Next step, then press again and predict \\(x_3\\). Also watch the distance to the fixed point \\(1\\): at \\(x_1\\) it is \\(\\frac12\\), at \\(x_2\\) it is less.',
+            ),
+            formulaIds: ['fixed-point-iteration'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-next-explanation', 'explanation'), frame('fixed-point-next-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej \\(x_2\\) in to, ali je razdalja do fiksne točke po tem koraku večja ali manjša; šele nato pritisni Naslednji korak. Nato napovej še \\(x_3\\).',
+                'Predict \\(x_2\\) and whether the distance to the fixed point is larger or smaller after this step; only then press Next step. Then predict \\(x_3\\) as well.',
+            ),
+            expectedObservations: [
+                text(
+                    'Prikazan je korak \\(1\\) z \\(x_1=0{,}5\\); ocena napake je skrita.',
+                    'Step \\(1\\) is shown with \\(x_1=0.5\\); the error bound is hidden.',
+                ),
+                text(
+                    'Po prvem pritisku je \\(x_2=T(\\frac12)=0{,}75\\), navpična črta do \\((\\frac12,\\frac34)\\), vodoravna do \\((\\frac34,\\frac34)\\); po drugem je \\(x_3=0{,}875\\). Razdalja do \\(1\\) se vsakič razpolovi: \\(0{,}5\\), \\(0{,}25\\), \\(0{,}125\\).',
+                    'After the first press \\(x_2=T(\\frac12)=0.75\\), a vertical segment to \\((\\frac12,\\frac34)\\), a horizontal one to \\((\\frac34,\\frac34)\\); after the second \\(x_3=0.875\\). The distance to \\(1\\) halves every time: \\(0.5\\), \\(0.25\\), \\(0.125\\).',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-next-scene', basedOn: 'demonstration-default',
+                actions: [...iterates(1), fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\frac{x+1}{2}\\) z začetkom \\(x_0=0\\) pri koraku \\(1\\), \\(x_1=0{,}5\\), z natančnostjo \\(d=3\\) in skrito oceno napake.',
+                    'The map \\(\\frac{x+1}{2}\\) is shown with the start \\(x_0=0\\) at step \\(1\\), \\(x_1=0.5\\), tolerance \\(d=3\\) and a hidden error bound.',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-contraction-step', order: 3,
+            title: text('Skrčitev \\(q=\\frac12\\), ocena in prag', 'The contraction \\(q=\\frac12\\), the bound and the threshold'),
+            purpose: text('Povezati faktor skrčitve z razpolavljanjem napake, z ocenama napake in s pragom, pri katerem se iteracija ustavi.', 'Linking the contraction factor to the halving of the error, to the error bounds and to the threshold at which the iteration stops.'),
+            explanation: text(
+                'Pri \\(T(x)=\\frac{x+1}{2}\\) je \\(|T\'(x)|=\\frac12\\), zato po izreku o povprečni vrednosti razdalja slik \\(|T(x)-T(y)|\\) ni večja od \\(q|x-y|\\) s \\(q=\\frac12\\). Skupaj s tem, da \\(T\\) zaprt interval \\([0,2]\\) slika vase (slika je \\([\\frac12,\\frac32]\\)), je to skrčitev. Zato ima natanko eno fiksno točko in iteracija iz vsakega začetka konvergira k njej. Ocena napake je zdaj prikazana: pri koraku \\(3\\) sta obe oceni enaki \\(0{,}125\\), enako pa je tudi dejanska napaka, ker je \\(x_k=1-2^{-k}\\). Debela črta na osi \\(x\\) je interval okoli \\(x_3\\), ki gotovo vsebuje \\(x^*\\). Pri pragu \\(10^{-3}\\) se iteracija ustavi, ko je ocena a posteriori manjša od njega, to je pri koraku \\(10\\). To pove, da je napaka pod pragom, ne da je približek natančno \\(1\\).',
+                'For \\(T(x)=\\frac{x+1}{2}\\) we have \\(|T\'(x)|=\\frac12\\), so by the mean value theorem the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) with \\(q=\\frac12\\). Together with the fact that \\(T\\) maps the closed interval \\([0,2]\\) into itself (the image is \\([\\frac12,\\frac32]\\)), this is a contraction. So it has exactly one fixed point and the iteration converges to it from every start. The error bound is now shown: at step \\(3\\) both bounds equal \\(0.125\\), and so does the actual error, because \\(x_k=1-2^{-k}\\). The thick line on the \\(x\\)-axis is an interval around \\(x_3\\) that is sure to contain \\(x^*\\). At the threshold \\(10^{-3}\\) the iteration stops when the a posteriori bound falls below it, which is at step \\(10\\). This says the error is below the threshold, not that the iterate is exactly \\(1\\).',
+            ),
+            formulaIds: ['fixed-point-contraction', 'fixed-point-bounds'], workedExampleId: 'fixed-point-affine-example', learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-contraction-explanation', 'explanation'), frame('fixed-point-contraction-calculation', 'calculation'), frame('fixed-point-contraction-observation', 'observation')],
+            observationPrompt: text(
+                'Preberi \\(q\\), pogoje izreka in obe oceni. Napovej, pri katerem koraku se predvajanje ustavi pri pragu \\(10^{-3}\\), pritisni Predvajaj in primerjaj; nato nastavi natančnost \\(d=6\\) in napovej še enkrat.',
+                'Read \\(q\\), the hypotheses of the theorem and both bounds. Predict at which step playback stops at the threshold \\(10^{-3}\\), press Play and compare; then set the tolerance to \\(d=6\\) and predict again.',
+            ),
+            expectedObservations: [
+                text(
+                    'Pri koraku \\(3\\) je \\(q=0{,}5\\), obe oceni sta \\(0{,}125\\), pogoji izreka so našteti (zaprt interval, \\(T\\) slika \\([0,2]\\) vase, \\(|T\'|=\\frac12\\)).',
+                    'At step \\(3\\), \\(q=0.5\\), both bounds are \\(0.125\\), and the hypotheses of the theorem are listed (a closed interval, \\(T\\) maps \\([0,2]\\) into itself, \\(|T\'|=\\frac12\\)).',
+                ),
+                text(
+                    'Predvajanje se pri \\(d=3\\) ustavi pri koraku \\(10\\) z razlogom »ocena a posteriori pod pragom«; pri \\(d=6\\) se ustavi pri koraku \\(20\\), ker je \\(2^{-20}\\approx9{,}5\\cdot10^{-7}\\) pod pragom \\(10^{-6}\\), \\(2^{-19}\\) pa ne.',
+                    'At \\(d=3\\) playback stops at step \\(10\\) with the reason "a posteriori bound below the threshold"; at \\(d=6\\) it stops at step \\(20\\), because \\(2^{-20}\\approx9.5\\cdot10^{-7}\\) is below the threshold \\(10^{-6}\\) and \\(2^{-19}\\) is not.',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-contraction-scene', basedOn: 'demonstration-default',
+                actions: [...iterates(3), fixedPointBound(true)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\frac{x+1}{2}\\) z začetkom \\(x_0=0\\) pri koraku \\(3\\), \\(x_3=0{,}875\\), z natančnostjo \\(d=3\\) in prikazano oceno napake.',
+                    'The map \\(\\frac{x+1}{2}\\) is shown with the start \\(x_0=0\\) at step \\(3\\), \\(x_3=0.875\\), tolerance \\(d=3\\) and the error bound shown.',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-cosine-step', order: 4,
+            title: text('Preslikava \\(\\cos x\\) na \\([0,1]\\)', 'The map \\(\\cos x\\) on \\([0,1]\\)'),
+            purpose: text('Preveriti pogoje izreka pri preslikavi, ki ni linearna, in primerjati oceno z dejansko napako.', 'Checking the hypotheses of the theorem for a map that is not linear and comparing the bound with the actual error.'),
+            explanation: text(
+                'Preslikava \\(T(x)=\\cos x\\) na \\([0,1]\\): \\(\\cos\\) je tu padajoč, zato slika \\([0,1]\\) v \\([\\cos1,1]\\), to je podmnožica intervala. Za odvod velja \\(|T\'(x)|=\\sin x\\) in \\(\\sin x\\le\\sin1\\), zato je \\(q=\\sin1\\), kar je približno \\(0{,}8415\\) in manj od \\(1\\). Vsi pogoji izreka so izpolnjeni, zato je fiksna točka ena sama, \\(x^*\\approx0{,}739085\\), in iteracija konvergira k njej. Ker je \\(q\\) blizu \\(1\\), je konvergenca počasnejša kot pri prejšnji preslikavi. Prikazan je korak \\(8\\) z \\(x_8\\approx0{,}722102\\), dejanska napaka je približno \\(0{,}017\\). Ocena napake je skrita; napovej, ali bo ocena pri tem koraku manjša ali večja od dejanske napake.',
+                'For the map \\(T(x)=\\cos x\\) on \\([0,1]\\): \\(\\cos\\) is decreasing there, so it maps \\([0,1]\\) to \\([\\cos1,1]\\), a subset of the interval. For the derivative we have \\(|T\'(x)|=\\sin x\\) and \\(\\sin x\\le\\sin1\\), so \\(q=\\sin1\\), which is about \\(0.8415\\) and less than \\(1\\). All hypotheses of the theorem hold, so there is exactly one fixed point, \\(x^*\\approx0.739085\\), and the iteration converges to it. Because \\(q\\) is close to \\(1\\), the convergence is slower than for the previous map. Step \\(8\\) is shown with \\(x_8\\approx0.722102\\), and the actual error is about \\(0.017\\). The error bound is hidden; predict whether the bound at this step is smaller or larger than the actual error.',
+            ),
+            formulaIds: ['fixed-point-contraction', 'fixed-point-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-cosine-explanation', 'explanation'), frame('fixed-point-cosine-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali je ocena napake pri koraku \\(8\\) manjša ali večja od dejanske napake \\(0{,}017\\); pritisni Pokaži oceno napake, preberi pogoje izreka in obe oceni. Nato pritisni Predvajaj in preberi, kdaj se ustavi pri pragu \\(10^{-3}\\).',
+                'Predict whether the error bound at step \\(8\\) is smaller or larger than the actual error \\(0.017\\); press Show error bound, read the hypotheses of the theorem and both bounds. Then press Play and read when it stops at the threshold \\(10^{-3}\\).',
+            ),
+            expectedObservations: [
+                text(
+                    'Pri koraku \\(8\\) je \\(x_8\\approx0{,}722102\\); ocena napake je skrita.',
+                    'At step \\(8\\), \\(x_8\\approx0.722102\\); the error bound is hidden.',
+                ),
+                text(
+                    'Po pritisku na Pokaži oceno napake je \\(q\\approx0{,}8415\\), ocena a posteriori je približno \\(0{,}2222\\), ocena a priori približno \\(1{,}586\\); obe sta nad dejansko napako \\(0{,}017\\), torej veljata, a sta ohlapni. Predvajanje se pri \\(d=3\\) ustavi pri koraku \\(22\\).',
+                    'After Show error bound, \\(q\\approx0.8415\\), the a posteriori bound is about \\(0.2222\\) and the a priori bound about \\(1.586\\); both are above the actual error \\(0.017\\), so they hold but are loose. At \\(d=3\\) playback stops at step \\(22\\).',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-cosine-scene', basedOn: 'demonstration-default',
+                actions: [fixedPointChoice('cosine'), ...iterates(8), fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\cos x\\) na \\([0,1]\\) z začetkom \\(x_0=0\\) pri koraku \\(8\\), z natančnostjo \\(d=3\\) in skrito oceno napake.',
+                    'The map \\(\\cos x\\) on \\([0,1]\\) is shown with the start \\(x_0=0\\) at step \\(8\\), tolerance \\(d=3\\) and a hidden error bound.',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-rounding-step', order: 5,
+            title: text('Ustavitev ni dokaz natančne fiksne točke', 'A stop is no proof of an exact fixed point'),
+            purpose: text('Ločiti ustavitev pri pragu in zaokroževanje od natančne fiksne točke.', 'Separating a stop at a threshold, and rounding, from an exact fixed point.'),
+            explanation: text(
+                'Pri natančnosti \\(d=8\\) se iteracija za \\(\\frac{x+1}{2}\\) ustavi pri koraku \\(27\\), ko je ocena a posteriori manjša od \\(10^{-8}\\). Odčitek približka \\(x_{27}\\) je na šest decimalk zaokrožen na \\(1\\), a \\(x_{27}=1-2^{-27}\\) ni enak \\(1\\): napaka je \\(2^{-27}\\approx7{,}45\\cdot10^{-9}\\). Zaokrožena vrednost, ki je enaka \\(1\\), in ustavitev pri pragu torej ne dokažeta, da je približek natančna fiksna točka. Enako velja, če bi v računalniku dva zaporedna približka postala enaka: aplikacija bi to povedala kot zaokroževanje in ne kot dokaz. Natančna fiksna točka je le začetek, ki ga po obrazcu poznamo, na primer \\(x_0=1\\) pri tej preslikavi, saj je \\(T(1)=1\\). Prikazan je korak \\(27\\) in ocena napake je skrita.',
+                'At the tolerance \\(d=8\\) the iteration for \\(\\frac{x+1}{2}\\) stops at step \\(27\\), when the a posteriori bound falls below \\(10^{-8}\\). The readout of the iterate \\(x_{27}\\) is rounded to \\(1\\) at six decimals, but \\(x_{27}=1-2^{-27}\\) is not equal to \\(1\\): the error is \\(2^{-27}\\approx7.45\\cdot10^{-9}\\). A rounded value equal to \\(1\\) and a stop at a threshold therefore do not prove that the iterate is an exact fixed point. The same holds if two consecutive iterates became equal in the computer: the app would report that as rounding, not as a proof. An exact fixed point is only a start that we know from the formula, for example \\(x_0=1\\) for this map, since \\(T(1)=1\\). Step \\(27\\) is shown and the error bound is hidden.',
+            ),
+            formulaIds: ['fixed-point-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-rounding-explanation', 'explanation'), frame('fixed-point-rounding-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato vnesi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
+                'Predict whether \\(x_{27}\\) is exactly \\(1\\) because the readout shows \\(1\\); press Show error bound and read the bound. Then enter \\(x_0=1\\) and read why the iteration does not move.',
+            ),
+            expectedObservations: [
+                text(
+                    'Pri koraku \\(27\\) odčitek približka kaže \\(1\\), konec iteracije pa je »ocena a posteriori pod pragom«.',
+                    'At step \\(27\\) the readout of the iterate shows \\(1\\) and the end of the iteration is "a posteriori bound below the threshold".',
+                ),
+                text(
+                    'Po pritisku na Pokaži oceno napake je ocena približno \\(7{,}451\\cdot10^{-9}\\), torej večja od \\(0\\). Pri \\(x_0=1\\) iteracija ostane pri koraku \\(0\\), ker je začetek znana fiksna točka.',
+                    'After Show error bound the bound is about \\(7.451\\cdot10^{-9}\\), so greater than \\(0\\). For \\(x_0=1\\) the iteration stays at step \\(0\\), because the start is a known fixed point.',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-rounding-scene', basedOn: 'demonstration-default',
+                actions: [parameter('fixed-point-digits', 8), ...iterates(27), fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\frac{x+1}{2}\\) z začetkom \\(x_0=0\\) pri koraku \\(27\\), z natančnostjo \\(d=8\\) in skrito oceno napake; iteracija se je ustavila pri pragu.',
+                    'The map \\(\\frac{x+1}{2}\\) is shown with the start \\(x_0=0\\) at step \\(27\\), tolerance \\(d=8\\) and a hidden error bound; the iteration has stopped at the threshold.',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-reflection-step', order: 6,
+            title: text('Preslikava \\(1-x\\): dvocikel', 'The map \\(1-x\\): a two-cycle'),
+            purpose: text('Videti, da iteracija brez skrčitve ne konvergira in da nedržanje pogoja ni dokaz divergence.', 'Seeing that an iteration without a contraction does not converge, and that a failing hypothesis is not a proof of divergence.'),
+            explanation: text(
+                'Preslikava \\(T(x)=1-x\\) slika \\([0,1]\\) vase, saj zamenja krajišči, in njena fiksna točka je \\(\\frac12\\). Vendar je \\(|T\'(x)|=1\\), zato ni \\(q<1\\) in izrek o skrčitvi ne da zaključka ne ocene napake. Iz \\(x_0=0{,}2\\) dobimo \\(0{,}8\\), \\(0{,}2\\), \\(0{,}8\\), …: dvocikel, ker je \\(T(T(x))=x\\). Iteracija se ne približa \\(\\frac12\\), razen če začnemo natanko v njej. Prikazan je korak \\(4\\) in ocene napake ni. Nedržanje pogoja izreka samo po sebi divergence ne dokazuje: izrek preprosto ne daje zaključka. Pri tej preslikavi dvocikel vidimo neposredno iz \\(T(T(x))=x\\); pri drugi preslikavi z \\(q\\ge1\\) bi iteracija lahko tudi konvergirala. Predvajanje bi se ustavilo šele pri meji \\(60\\) korakov.',
+                'The map \\(T(x)=1-x\\) maps \\([0,1]\\) into itself, because it swaps the endpoints, and its fixed point is \\(\\frac12\\). But \\(|T\'(x)|=1\\), so there is no \\(q<1\\) and the contraction theorem gives neither a conclusion nor an error bound. From \\(x_0=0.2\\) we get \\(0.8\\), \\(0.2\\), \\(0.8\\), …: a two-cycle, because \\(T(T(x))=x\\). The iteration does not approach \\(\\frac12\\) unless it starts exactly there. Step \\(4\\) is shown and there is no error bound. A failing hypothesis does not by itself prove divergence: the theorem simply gives no conclusion. For this map we see the two-cycle directly from \\(T(T(x))=x\\); for another map with \\(q\\ge1\\) the iteration might even converge. Playback would stop only at the limit of \\(60\\) steps.',
+            ),
+            formulaIds: ['fixed-point-reflection'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-reflection-explanation', 'explanation'), frame('fixed-point-reflection-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato vnesi \\(x_0=0{,}5\\) in primerjaj.',
+                'Predict where the iteration from \\(x_0=0.2\\) is heading; press Show error bound and read why there is no bound. Then enter \\(x_0=0.5\\) and compare.',
+            ),
+            expectedObservations: [
+                text(
+                    'Pri koraku \\(4\\) so približki izmenično \\(0{,}2\\) in \\(0{,}8\\) (dvocikel); ocena napake je skrita.',
+                    'At step \\(4\\) the iterates alternate between \\(0.2\\) and \\(0.8\\) (a two-cycle); the error bound is hidden.',
+                ),
+                text(
+                    'Po pritisku na Pokaži oceno napake aplikacija pove, da ocene ni, ker je \\(|T\'|=1\\), in ne trdi, da iteracija divergira. Pri \\(x_0=0{,}5\\) se iteracija ne premakne, ker je začetek znana fiksna točka.',
+                    'After Show error bound the app says there is no bound because \\(|T\'|=1\\), and it does not claim that the iteration diverges. For \\(x_0=0.5\\) the iteration does not move, because the start is a known fixed point.',
+                ),
+            ],
+            scene: {
+                id: 'fixed-point-reflection-scene', basedOn: 'demonstration-default',
+                actions: [fixedPointChoice('reflection'), ...iterates(4), fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(1-x\\) na \\([0,1]\\) z začetkom \\(x_0=0{,}2\\) pri koraku \\(4\\), z natančnostjo \\(d=3\\) in skrito oceno napake; približki izmenjujejo \\(0{,}2\\) in \\(0{,}8\\).',
+                    'The map \\(1-x\\) on \\([0,1]\\) is shown with the start \\(x_0=0.2\\) at step \\(4\\), tolerance \\(d=3\\) and a hidden error bound; the iterates alternate between \\(0.2\\) and \\(0.8\\).',
+                ),
+            },
+        },
+        {
+            id: 'fixed-point-free-exploration', order: 7,
+            title: text('Povzetek in samostojno raziskovanje', 'Summary and free exploration'),
+            purpose: text('Povzeti pogoje izreka in preiti v samostojno raziskovanje.', 'Summarizing the hypotheses of the theorem and handing over to free exploration.'),
+            explanation: text(
+                'Povzetek: če \\(T\\) zaprt interval \\([a,b]\\) slika vase in je skrčitev (razdalja slik \\(|T(x)-T(y)|\\) je največ \\(q|x-y|\\) za nek \\(q<1\\)), ima natanko eno fiksno točko, iteracija iz vsakega začetka konvergira k njej in veljata oceni a priori in a posteriori. Če kateri od pogojev ne drži, izrek ne daje zaključka; to ni isto kot divergenca. Ustavitev pri pragu pove, da je ocena manjša od praga, in ne dokaže natančne fiksne točke. Zdaj je izbran \\(\\cos x\\) z začetkom \\(x_0=1\\). Raziskuj sam: izberi preslikavo, spreminjaj začetek in natančnost, pritisni Naslednji korak ali Predvajaj in napovej, preden pokažeš oceno napake.',
+                'Summary: if \\(T\\) maps a closed interval \\([a,b]\\) into itself and is a contraction (the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) for some \\(q<1\\)), it has exactly one fixed point, the iteration converges to it from every start, and the a priori and a posteriori bounds hold. If one of the hypotheses fails, the theorem gives no conclusion; that is not the same as divergence. A stop at a threshold says the bound is below the threshold and does not prove an exact fixed point. Now \\(\\cos x\\) is chosen with the start \\(x_0=1\\). Explore on your own: choose a map, change the start and the tolerance, press Next step or Play, and predict before you show the error bound.',
+            ),
+            formulaIds: ['fixed-point-contraction'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('fixed-point-free-explanation', 'explanation'), frame('fixed-point-free-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, ali iteracija iz \\(x_0=1\\) konvergira k isti fiksni točki kot iz \\(x_0=0\\); pritisni Predvajaj in preberi razlog ustavitve. Nato izberi drugo preslikavo in napovej, preden pokažeš oceno napake.',
+                'Predict whether the iteration from \\(x_0=1\\) converges to the same fixed point as from \\(x_0=0\\); press Play and read the reason it stops. Then choose another map and predict before you show the error bound.',
+            ),
+            expectedObservations: [text(
+                'Iz \\(x_0=1\\) se iteracija pri \\(d=3\\) ustavi pri koraku \\(21\\) s približkom \\(x_{21}\\approx0{,}739018\\), blizu \\(x^*\\approx0{,}739085\\); razlog je »ocena a posteriori pod pragom«, ocena pa je približno \\(0{,}000882\\).',
+                'From \\(x_0=1\\) the iteration at \\(d=3\\) stops at step \\(21\\) with the iterate \\(x_{21}\\approx0.739018\\), close to \\(x^*\\approx0.739085\\); the reason is "a posteriori bound below the threshold" and the bound is about \\(0.000882\\).',
+            )],
+            scene: {
+                id: 'fixed-point-free-scene', basedOn: 'demonstration-default',
+                actions: [fixedPointChoice('cosine'), parameter('fixed-point-x0', 1), fixedPointBound(false)],
+                expectedState: text(
+                    'Prikazana je preslikava \\(\\cos x\\) na \\([0,1]\\) z začetkom \\(x_0=1\\) pri koraku \\(0\\), z natančnostjo \\(d=3\\) in skrito oceno napake.',
+                    'The map \\(\\cos x\\) on \\([0,1]\\) is shown with the start \\(x_0=1\\) at step \\(0\\), tolerance \\(d=3\\) and a hidden error bound.',
+                ),
+            },
+        },
+    ],
+    sources: [
+        {
+            id: 'globevnik-brojan-analiza-1-fixed-point',
+            citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §8.6 (printed pp. 284–286).',
+            supports: ['a contraction of a complete metric space has exactly one fixed point and the iteration converges to it from every start', 'the iteration x_{k+1} = T(x_k) and its error estimates a priori and a posteriori', 'a map with |T\'| <= q < 1 on a closed interval that it maps into itself is a contraction (mean value theorem)'],
+        },
+        {
+            id: 'bezeg-fixed-point-implementation',
+            citation: 'Bezeg source: src/analysis/fixedPoint.ts, src/analysis/fixedPointModel.ts and src/graphs/functions/FixedPointGraph.tsx.',
+            supports: ['(x + 1)/2 on [0, 2] has the fixed point 1 and q = 1/2, x_k = 1 - 2^-k from x_0 = 0, and the a posteriori bound equals 2^-k, so the threshold 10^-3 stops at step 10 and 10^-6 at step 20', 'cos x on [0, 1] maps into [cos 1, 1] with |T\'| = sin x <= sin 1 = q, fixed point about 0.7390851332', '1 - x on [0, 1] has |T\'| = 1 and no q < 1; from a start other than 1/2 it alternates between x_0 and 1 - x_0', 'at d = 8 the affine iteration stops at step 27 with the error 2^-27, about 7.45e-9, although the six-decimal readout shows 1'],
+            implementationCorrespondence: 'The history is recomputed from the example, the start x_0 (on the 0.01 grid, handed to the model as exact hundredths), the step count and the tolerance digits, never from stored arrays; the error bounds exist only where q < 1; the tolerance compares the a posteriori bound; the reflection example iterates in integer hundredths, so its two-cycle is exact; only a start equal to a known fixed point is called the fixed point, and equal floating-point iterates are reported as stagnation, never as an exact fixed point; a lesson scene applies set-function-parameter, set-function-choice, show-function-element and run-fixed-point-command actions through the same setters as the controls in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text(
+            'Začetek \\(x_0\\) mora biti večkratnik števila \\(0{,}01\\) znotraj intervala primera, število števk \\(d\\) celo število od \\(1\\) do \\(8\\); vrednost zunaj območja se zavrne, model ostane nespremenjen, datoteka s takšno vrednostjo pa se ne uvozi in pove, kaj popraviti.',
+            'The start \\(x_0\\) must be a multiple of \\(0.01\\) inside the interval of the example, the number of digits \\(d\\) an integer from \\(1\\) to \\(8\\); a value outside the range is rejected and the model stays unchanged, and a file with such a value is not imported and says what to correct.',
+        ),
+        text(
+            'Če je začetek znana fiksna točka (\\(1\\) pri \\(\\frac{x+1}{2}\\), \\(\\frac12\\) pri \\(1-x\\)), se iteracija ne premakne; samo takrat aplikacija reče, da je približek fiksna točka.',
+            'If the start is a known fixed point (\\(1\\) for \\(\\frac{x+1}{2}\\), \\(\\frac12\\) for \\(1-x\\)), the iteration does not move; only then does the app say that the iterate is the fixed point.',
+        ),
+        text(
+            'Pri \\(1-x\\) ocen napake ni in predvajanje se ustavi šele pri meji \\(60\\) korakov; dvocikel je zaznan natančno, ker se račun izvaja v celih stotinkah.',
+            'For \\(1-x\\) there are no error bounds and playback stops only at the limit of \\(60\\) steps; the two-cycle is detected exactly because the computation runs in integer hundredths.',
+        ),
+        text(
+            'Pri vseh primerih in natančnosti do \\(d=8\\) se iteracija ustavi pri pragu, preden bi se dva zaporedna približka v računalniku izenačila; zastoj zaradi zaokroževanja je v aplikaciji obravnavan kot pojasnilo in ne kot dokaz.',
+            'For all examples and tolerances up to \\(d=8\\) the iteration stops at the threshold before two consecutive iterates become equal in the computer; stagnation due to rounding is treated in the app as an explanation and never as a proof.',
+        ),
+    ],
+    unresolvedQuestions: [
+        text(
+            'Pred pregledom za uporabo v razredu je treba potrditi razdelek §8.6 in strani v viru (povzeto po poročilu o kandidatih, ne preverjeno v PDF) in ali naj lekcija doda še dokaz enoličnosti fiksne točke, Banachov izrek v splošnem metričnem prostoru in Newtonovo metodo kot iteracijo.',
+            'Before classroom-ready review, confirm the section §8.6 and its pages in the source (taken from the candidate report, not checked in the PDF) and whether the lesson should also add a proof of the uniqueness of the fixed point, the Banach theorem in a general metric space and Newton\'s method as an iteration.',
+        ),
+    ],
+};
+
 /** Lessons of the Analysis family, in teaching order. */
-export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence];
+export const analysisGuidedLessons: readonly GuidedLesson[] = [bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, fixedPoint];

@@ -17,6 +17,7 @@ import { ExtremaGraph } from './graphs/functions/ExtremaGraph';
 import { ConvexityGraph } from './graphs/functions/ConvexityGraph';
 import { TaylorGraph } from './graphs/functions/TaylorGraph';
 import { SequenceGraph } from './graphs/functions/SequenceGraph';
+import { FixedPointGraph } from './graphs/functions/FixedPointGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -65,7 +66,7 @@ test('all existing graph URLs retain their graph implementations', () => {
         // GraphHost receives a factory; creating the controller has no side effects.
         return (graph.props as {create: () => object}).create().constructor;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(42);
+    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(43);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau')).toBe(DecasteljauGraph);
@@ -108,4 +109,5 @@ test('all existing graph URLs retain their graph implementations', () => {
     expect(graphFor('/bezeg-2.0/analysis/convexity')).toBe(ConvexityGraph);
     expect(graphFor('/bezeg-2.0/analysis/taylor')).toBe(TaylorGraph);
     expect(graphFor('/bezeg-2.0/analysis/sequence')).toBe(SequenceGraph);
+    expect(graphFor('/bezeg-2.0/analysis/fixed-point')).toBe(FixedPointGraph);
 });

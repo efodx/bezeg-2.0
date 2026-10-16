@@ -124,6 +124,23 @@ export function fixedPointExample(id: FixedPointExampleId): FixedPointExample {
     return FIXED_POINT_EXAMPLES[id];
 }
 
+/**
+ * The fixed point x* of an example for display: the exact value where one is known (affine 1, reflection 1/2); for cosine the root of
+ * cos x - x in [0, 1], found by bisection to machine precision (cos x - x is decreasing there, so the root is unique).
+ * Used only to mark the intersection of y = T(x) and y = x; the error bounds never use it.
+ */
+export function fixedPointLocation(exampleId: FixedPointExampleId): number {
+    const example = fixedPointExample(exampleId);
+    if (example.exactFixedPoint !== undefined) return example.exactFixedPoint;
+    let low = example.a;
+    let high = example.b;
+    for (let i = 0; i < 80; i++) {
+        const middle = (low + high) / 2;
+        if (example.value(middle) - middle > 0) low = middle; else high = middle;
+    }
+    return (low + high) / 2;
+}
+
 /** The start in integer hundredths when `x0` is a finite number exactly on the 0.01 grid (n / 100 for an integer n), else undefined. */
 export function fixedPointHundredths(x0: unknown): number | undefined {
     if (typeof x0 !== 'number' || !Number.isFinite(x0)) return undefined;

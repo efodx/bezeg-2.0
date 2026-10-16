@@ -20,6 +20,11 @@ import {parseConvexityModel} from "../../../analysis/convexityModel";
 import {CONVEXITY_EXAMPLE_IDS, CONVEXITY_X_MAX, CONVEXITY_X_MIN, isConvexityExampleId, isConvexityInterval, isConvexityX} from "../../../analysis/convexity";
 import {parseTaylorModel} from "../../../analysis/taylorModel";
 import {isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX, TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorExample} from "../../../analysis/taylor";
+import {parseFixedPointModel} from "../../../analysis/fixedPointModel";
+import {
+    FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
+    isFixedPointStepCount,
+} from "../../../analysis/fixedPoint";
 import {parseSequenceModel} from "../../../analysis/sequenceModel";
 import {
     isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
@@ -35,11 +40,11 @@ const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decast
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "fixed-point"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel, "preset-fixed-point": parseFixedPointModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -139,7 +144,19 @@ const diagnoseSequence: Diagnosis = data => {
     if (data.certificateVisible !== undefined && typeof data.certificateVisible !== "boolean") return message("invalid_sequence_visibility");
     return undefined;
 };
-const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
+const diagnoseFixedPoint: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isFixedPointExampleId(data.example)) return message("invalid_fixed_point_example", {value0: FIXED_POINT_EXAMPLE_IDS.join(", ")});
+    const example = fixedPointExample(data.example);
+    if (finite(data.x0) && !isFixedPointStart(data.example, data.x0)) {
+        return message("invalid_fixed_point_x0", {value0: data.example, value1: bound(example.a), value2: bound(example.b)});
+    }
+    if (finite(data.step) && !isFixedPointStepCount(data.step)) return message("invalid_fixed_point_step", {value0: FIXED_POINT_MAX_STEPS});
+    if (finite(data.digits) && !isFixedPointDigits(data.digits)) return message("invalid_fixed_point_digits", {value0: FIXED_POINT_MIN_DIGITS, value1: FIXED_POINT_MAX_DIGITS});
+    if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_fixed_point_visibility");
+    return undefined;
+};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-fixed-point": diagnoseFixedPoint, "preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));

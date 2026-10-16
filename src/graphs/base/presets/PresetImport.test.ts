@@ -651,3 +651,68 @@ test("the sequence messages are localized and show the supported ranges from the
     expect(attempt({...validSequence, terms: 50})).toContain("celo število med 1 in 40");
     expect(attempt({...validSequence, certificateVisible: "yes"})).toContain("true ali false");
 });
+
+const fixedPointPreset = (data: unknown) => JSON.stringify({"preset-fixed-point": {data: [{id: "Osnova", boardState: {boundingBox: [-0.5, 2.4, 3.7, -0.4]},
+    graphState: {initialized: true, example: "affine", x0: 0, step: 0, digits: 3, boundVisible: false}, data}]}});
+
+test("fixed-point collection imports a model object with its step and reveal flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "cosine", x0: 0.75, step: 12, digits: 6, boundVisible: true};
+    commitPresetImport(preflightPresetImport(fixedPointPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-fixed-point")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    // the boundary values of every field are accepted, a step beyond the end of the iteration is cut when the preset is opened
+    for (const boundary of [{example: "affine", x0: 0, step: 0, digits: 1}, {example: "affine", x0: 2, step: 60, digits: 8}, {example: "reflection", x0: 1, step: 60, digits: 8},
+        {example: "cosine", x0: 0.01, step: 0, digits: 1}]) {
+        expect(() => preflightPresetImport(fixedPointPreset({boundVisible: false, ...boundary}))).not.toThrow();
+    }
+});
+
+const validFixedPoint = {example: "affine", x0: 0, step: 0, digits: 3, boundVisible: false};
+test.each([[[]], [null], [{}], [{...validFixedPoint, example: "sine"}], [{...validFixedPoint, x0: -0.01}], [{...validFixedPoint, x0: 2.01}], [{...validFixedPoint, x0: 0.005}],
+    [{...validFixedPoint, x0: 0.1 + 0.2}], [{...validFixedPoint, example: "cosine", x0: 1.5}], [{...validFixedPoint, x0: "0"}], [{...validFixedPoint, step: -1}], [{...validFixedPoint, step: 61}],
+    [{...validFixedPoint, step: 2.5}], [{...validFixedPoint, step: "1"}], [{...validFixedPoint, digits: 0}], [{...validFixedPoint, digits: 9}], [{...validFixedPoint, digits: 2.5}],
+    [{...validFixedPoint, digits: "3"}], [{...validFixedPoint, boundVisible: "true"}], [{...validFixedPoint, boundVisible: 1}], [{example: "affine", x0: 0, step: 0, digits: 3}],
+    [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("fixed-point collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(fixedPointPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validFixedPoint, example: "sine"}, /affine, cosine, reflection/],
+    [{...validFixedPoint, x0: 2.5}, /x0.*affine.*0\.01.*0.*2/],
+    [{...validFixedPoint, x0: 0.015}, /x0.*affine.*0\.01.*0.*2/],
+    [{...validFixedPoint, example: "cosine", x0: 1.5}, /x0.*cosine.*0\.01.*0.*1/],
+    [{...validFixedPoint, example: "reflection", x0: -0.1}, /x0.*reflection.*0\.01.*0.*1/],
+    [{...validFixedPoint, step: 61}, /step.*0.*60/],
+    [{...validFixedPoint, step: 1.5}, /step.*0.*60/],
+    [{...validFixedPoint, digits: 0}, /digits.*1.*8/],
+    [{...validFixedPoint, digits: 9}, /digits.*1.*8/],
+    [{...validFixedPoint, boundVisible: "true"}, /boundVisible/],
+])("fixed-point errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(fixedPointPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(fixedPointPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("fixed-point data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validFixedPoint, x0: "0"}, {...validFixedPoint, step: "1"}, {...validFixedPoint, digits: "3"}, {example: "affine", x0: 0, step: 0, digits: 3}]) {
+        expect(() => preflightPresetImport(fixedPointPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the fixed-point messages are localized and show the supported ranges from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(fixedPointPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validFixedPoint, example: "sine"})).toContain("must be one of: affine, cosine, reflection");
+    expect(attempt({...validFixedPoint, example: "cosine", x0: 3})).toContain("multiple of 0.01 between 0 and 1");
+    expect(attempt({...validFixedPoint, step: 99})).toContain("integer between 0 and 60");
+    expect(attempt({...validFixedPoint, digits: 12})).toContain("integer between 1 and 8");
+    expect(attempt({...validFixedPoint, boundVisible: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validFixedPoint, example: "cosine", x0: 3})).toContain("večkratnik števila 0.01 med 0 in 1");
+    expect(attempt({...validFixedPoint, step: 99})).toContain("celo število med 0 in 60");
+    expect(attempt({...validFixedPoint, digits: 12})).toContain("celo število med 1 in 8");
+    expect(attempt({...validFixedPoint, boundVisible: "yes"})).toContain("true ali false");
+});

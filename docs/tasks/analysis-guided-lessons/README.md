@@ -18,7 +18,7 @@
 | [09 Batch B release](09-batch-b-release.md) | 05–08 | released 2026-10-16 |
 | [10 Sequence convergence](10-sequence-convergence.md) | 09 | implemented |
 | [11 Uniform convergence](11-uniform-convergence.md) | 09 | not started |
-| [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | not started |
+| [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | implemented |
 | [13 Complex multiplication](13-complex-multiplication.md) | 09 | not started |
 | [14 Batch C release](14-batch-c-release.md) | 10–13 | not started |
 

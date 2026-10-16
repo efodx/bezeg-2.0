@@ -19,7 +19,7 @@ const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bi
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'fixed-point']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -1207,5 +1207,174 @@ describe('the sequence lesson', () => {
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-delta' as never, value: 1}})).toThrow(/must be one of/);
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-limit', value: Number.NaN}})).toThrow(/finite/);
         expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-sequence-command');
+    });
+});
+
+describe('the fixed-point lesson', () => {
+    const fixedLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'fixed-point')!;
+    const fStep = (id: string) => fixedLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('fixed-point')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const hide = {kind: 'function-visibility', target: 'fixed-point-bound', visible: false};
+    const show = {kind: 'function-visibility', target: 'fixed-point-bound', visible: true};
+    const advance = {kind: 'animation', animationId: 'fixed-point', command: 'next-step'};
+    const advances = (count: number) => Array(count).fill(advance);
+    const example = (value: string) => ({kind: 'function-choice', name: 'fixed-point-example', value});
+    const param = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+    const ids = ['fixed-point-cobweb-step', 'fixed-point-next-iterate-step', 'fixed-point-contraction-step', 'fixed-point-cosine-step', 'fixed-point-rounding-step',
+        'fixed-point-reflection-step', 'fixed-point-free-exploration'];
+    const predictionSteps = ids.filter(id => id !== 'fixed-point-contraction-step');
+
+    test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
+        expect(fixedLesson.steps.map(step => step.id)).toEqual(ids);
+        expect(adapted().id).toBe('fixed-point-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(fixedLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(15);
+        expect(getGuidedLesson('fixed-point')).toBe(fixedLesson);
+        expect(isGuidedLessonAvailable('fixed-point')).toBe(true);
+    });
+
+    test('states the prerequisites, the hypotheses, the rounding warning, the two-cycle without a divergence claim, the sources and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => fixedLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/composition/);
+        expect(prerequisites('en')).toMatch(/convergence of a sequence/);
+        expect(prerequisites('sl')).toMatch(/sestavljanja/);
+        expect(prerequisites('sl')).toMatch(/konvergence zaporedja/);
+        expect(fStep('fixed-point-cobweb-step').explanation.en).toMatch(/vertically to the curve/);
+        expect(fStep('fixed-point-cobweb-step').explanation.sl).toMatch(/navpično do krivulje/);
+        expect(fStep('fixed-point-contraction-step').explanation.en).toMatch(/maps the closed interval/);
+        expect(fStep('fixed-point-contraction-step').explanation.en).toMatch(/not that the iterate is exactly/);
+        expect(fStep('fixed-point-cosine-step').explanation.en).toMatch(/subset of the interval/);
+        expect(fStep('fixed-point-cosine-step').explanation.sl).toMatch(/podmnožica intervala/);
+        expect(fStep('fixed-point-rounding-step').explanation.en).toMatch(/do not prove that the iterate is an exact fixed point/);
+        expect(fStep('fixed-point-rounding-step').explanation.en).toMatch(/rounding, not as a proof/);
+        expect(fStep('fixed-point-rounding-step').explanation.sl).toMatch(/ne dokažeta/);
+        expect(fStep('fixed-point-reflection-step').explanation.en).toMatch(/does not by itself prove divergence/);
+        expect(fStep('fixed-point-reflection-step').explanation.sl).toMatch(/samo po sebi divergence ne dokazuje/);
+        expect(fStep('fixed-point-reflection-step').explanation.en).toMatch(/two-cycle/);
+        expect(fStep('fixed-point-free-exploration').explanation.en).toMatch(/Explore on your own/);
+        expect(fStep('fixed-point-free-exploration').explanation.sl).toMatch(/Raziskuj sam/);
+        // the lesson never asserts that the reflection diverges (it only says that a failing hypothesis does not prove it)
+        for (const language of ['sl', 'en'] as const) {
+            const reflection = fStep('fixed-point-reflection-step');
+            expect([reflection.explanation[language], ...reflection.expectedObservations.map(item => item[language])].join(' ')).not.toMatch(/is divergent|diverges to|je divergentna|divergira k/);
+        }
+        expect(fixedLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation) && /§8\.6/.test(source.citation))).toBe(true);
+        expect(fixedLesson.unresolvedQuestions.map(item => item.en).join(' ')).toMatch(/not checked in the PDF/);
+        const implementation = fixedLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/fixedPoint.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/FixedPointGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/exact hundredths/);
+        expect(implementation.implementationCorrespondence).toMatch(/never as an exact fixed point/);
+    });
+
+    test('asks for a prediction before every reveal, and the scene of a prediction step never shows the bound', () => {
+        for (const id of predictionSteps) {
+            expect(fStep(id).observationPrompt.en, id).toMatch(/[Pp]redict|Compute/);
+            expect(fStep(id).observationPrompt.sl, id).toMatch(/[Nn]apovej|[Ii]zračunaj/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual(hide);
+            // a prediction step shows no calculation frame, which would give the answer away
+            expect(fStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+        }
+        // the cosine, rounding and reflection steps ask the learner to press the graph's own control
+        for (const id of ['fixed-point-cosine-step', 'fixed-point-rounding-step', 'fixed-point-reflection-step']) {
+            expect(fStep(id).observationPrompt.en, id).toMatch(/Show error bound/);
+            expect(fStep(id).observationPrompt.sl, id).toMatch(/Pokaži oceno napake/);
+        }
+        expect(fStep('fixed-point-next-iterate-step').observationPrompt.en).toMatch(/Next step/);
+        expect(fStep('fixed-point-next-iterate-step').observationPrompt.sl).toMatch(/Naslednji korak/);
+        // the one step that explains the contraction shows the bound, with its calculation
+        expect(adaptedActions('fixed-point-contraction-step')).toContainEqual(show);
+        expect(fStep('fixed-point-contraction-step').frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
+        // the results of the predictions are recapped in the next step
+        expect(fStep('fixed-point-next-iterate-step').expectedObservations[1].en).toContain('0.75');
+        expect(fStep('fixed-point-next-iterate-step').explanation.en).toContain('x_1=\\frac12');
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        const scene = (id: string) => ({kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'});
+        expect(adaptedActions('fixed-point-cobweb-step')).toEqual([scene('fixed-point-cobweb-scene'), hide]);
+        expect(adaptedActions('fixed-point-next-iterate-step').slice(1)).toEqual([...advances(1), hide]);
+        expect(adaptedActions('fixed-point-contraction-step').slice(1)).toEqual([...advances(3), show]);
+        expect(adaptedActions('fixed-point-cosine-step').slice(1)).toEqual([example('cosine'), ...advances(8), hide]);
+        expect(adaptedActions('fixed-point-rounding-step').slice(1)).toEqual([param('fixed-point-digits', 8), ...advances(27), hide]);
+        expect(adaptedActions('fixed-point-reflection-step').slice(1)).toEqual([example('reflection'), ...advances(4), hide]);
+        expect(adaptedActions('fixed-point-free-exploration').slice(1)).toEqual([example('cosine'), param('fixed-point-x0', 1), hide]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives (independent arithmetic)', () => {
+        // affine (x + 1) / 2 from 0: x_k = 1 - 2^-k, the a posteriori bound q/(1 - q) |x_k - x_{k-1}| = 2^-k for q = 1/2
+        const affine = [0];
+        for (let k = 1; k <= 30; k++) affine.push((affine[k - 1] + 1) / 2);
+        expect([affine[1], affine[2], affine[3]]).toEqual([0.5, 0.75, 0.875]);
+        expect(affine[3] - affine[2]).toBe(0.125);
+        const bound = (k: number) => Math.abs(affine[k] - affine[k - 1]);
+        const stop = (tolerance: number) => affine.findIndex((_, k) => k >= 1 && bound(k) < tolerance);
+        expect(stop(1e-3)).toBe(10);
+        expect(bound(9)).toBeGreaterThanOrEqual(1e-3);
+        expect(stop(1e-6)).toBe(20);
+        expect(bound(19)).toBeGreaterThanOrEqual(1e-6);
+        expect(stop(1e-8)).toBe(27);
+        expect(bound(26)).toBeGreaterThanOrEqual(1e-8);
+        expect(2 ** -27).toBeCloseTo(7.45e-9, 11);
+        expect(1 - affine[27]).toBe(2 ** -27);
+        expect(affine[27].toFixed(6)).toBe('1.000000');
+        expect(affine[27]).not.toBe(1);
+        // cosine: q = sin 1, the fixed point is the Dottie number 0.7390851332151607 (reference value, not computed by the app)
+        const q = Math.sin(1);
+        const star = 0.7390851332151607;
+        const cosine = [0];
+        for (let k = 1; k <= 30; k++) cosine.push(Math.cos(cosine[k - 1]));
+        expect(q).toBeCloseTo(0.8415, 4);
+        expect(cosine[8]).toBeCloseTo(0.722102, 6);
+        expect(Math.abs(cosine[8] - star)).toBeCloseTo(0.017, 3);
+        const posteriori = (k: number) => q / (1 - q) * Math.abs(cosine[k] - cosine[k - 1]);
+        const priori = (k: number) => q ** k / (1 - q) * Math.abs(cosine[1] - cosine[0]);
+        expect(posteriori(8)).toBeCloseTo(0.2222, 4);
+        expect(priori(8)).toBeCloseTo(1.586, 3);
+        expect(posteriori(8)).toBeGreaterThan(Math.abs(cosine[8] - star));
+        expect(priori(8)).toBeGreaterThan(Math.abs(cosine[8] - star));
+        expect(cosine.findIndex((_, k) => k >= 1 && posteriori(k) < 1e-3)).toBe(22);
+        const fromOne = [1];
+        for (let k = 1; k <= 30; k++) fromOne.push(Math.cos(fromOne[k - 1]));
+        const fromOneBound = (k: number) => q / (1 - q) * Math.abs(fromOne[k] - fromOne[k - 1]);
+        expect(fromOne.findIndex((_, k) => k >= 1 && fromOneBound(k) < 1e-3)).toBe(21);
+        expect(fromOne[21]).toBeCloseTo(0.739018, 6);
+        expect(fromOneBound(21)).toBeCloseTo(0.000882, 6);
+        // 1 - x: the two-cycle 0.2, 0.8 (T(T(x)) = x) and |T'| = 1
+        expect(1 - 0.2).toBe(0.8);
+        expect(Math.round((1 - 0.8) * 100)).toBe(20);
+        // the numbers in the prose
+        expect(fStep('fixed-point-contraction-step').expectedObservations[1].en).toContain('step \\(10\\)');
+        expect(fStep('fixed-point-contraction-step').expectedObservations[1].en).toContain('step \\(20\\)');
+        expect(fStep('fixed-point-cosine-step').expectedObservations[1].en).toContain('step \\(22\\)');
+        expect(fStep('fixed-point-cosine-step').expectedObservations[1].sl).toContain('0{,}2222');
+        expect(fStep('fixed-point-cosine-step').expectedObservations[1].sl).toContain('1{,}586');
+        expect(fStep('fixed-point-rounding-step').expectedObservations[1].en).toContain('7.451\\cdot10^{-9}');
+        expect(fStep('fixed-point-free-exploration').expectedObservations[0].en).toContain('step \\(21\\)');
+        const worked = fixedLesson.workedExamples[0];
+        expect(worked.calculationLatex).toContain('1-2^{-k}');
+        expect(worked.resultLatex).toContain('2^{-10}=\\tfrac1{1024}<10^{-3}');
+        expect(fixedLesson.formulaBlocks.find(block => block.id === 'fixed-point-reflection')!.latex).toContain('T(T(x))=x');
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the example choice, the bound element and the fixed-point command', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['fixed-point-x0', 'fixed-point-digits', 'sequence-epsilon', 'x0']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('fixed-point-example');
+        expect(FUNCTION_CHOICE_VALUES['fixed-point-example']).toEqual(['affine', 'cosine', 'reflection']);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('fixed-point-bound');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-x0', value: 0.25}})).toEqual({kind: 'function-parameter', name: 'fixed-point-x0', value: 0.25});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'fixed-point-example', value: 'cosine'}})).toEqual({kind: 'function-choice', name: 'fixed-point-example', value: 'cosine'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'fixed-point-bound', value: true}})).toEqual({kind: 'function-visibility', target: 'fixed-point-bound', visible: true});
+        expect(sceneAction({name: 'run-fixed-point-command', value: 'next-step'})).toEqual({kind: 'animation', animationId: 'fixed-point', command: 'next-step'});
+        expect(sceneAction({name: 'run-fixed-point-command', value: 'reset'})).toEqual({kind: 'animation', animationId: 'fixed-point', command: 'reset'});
+        expect(() => sceneAction({name: 'run-fixed-point-command', value: 'play'})).toThrow(/next-step.*reset/);
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'fixed-point-example', value: 'sine'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-y0' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-digits', value: Number.NaN}})).toThrow(/finite/);
+        expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-fixed-point-command');
     });
 });

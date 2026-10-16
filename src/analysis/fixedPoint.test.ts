@@ -1,6 +1,6 @@
 import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_EXAMPLES, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS,
-    fixedPointExample, fixedPointHistory, fixedPointHundredths, fixedPointTolerance, isFixedPointDigits, isFixedPointExampleId,
+    fixedPointExample, fixedPointHistory, fixedPointHundredths, fixedPointLocation, fixedPointTolerance, isFixedPointDigits, isFixedPointExampleId,
     isFixedPointStart, isFixedPointStepCount,
 } from './fixedPoint';
 import {
@@ -470,5 +470,24 @@ describe('fixed-point transition', () => {
         const tight = run({...DEFAULT_FIXED_POINT_MODEL, digits: 6}, 30).model;
         expect(loose.step).toBe(4);
         expect(tight.step).toBe(20);
+    });
+});
+
+describe('fixedPointLocation (display helper)', () => {
+    test('gives the exact fixed points where they are known and the Dottie number for cosine', () => {
+        expect(fixedPointLocation('affine')).toBe(1);
+        expect(fixedPointLocation('reflection')).toBe(0.5);
+        expect(fixedPointLocation('cosine')).toBeCloseTo(DOTTIE, 15);
+        expect(Math.abs(Math.cos(fixedPointLocation('cosine')) - fixedPointLocation('cosine'))).toBeLessThan(1e-15);
+    });
+
+    test('lies inside the interval of every example and is a fixed point of T up to machine precision', () => {
+        for (const id of FIXED_POINT_EXAMPLE_IDS) {
+            const example = fixedPointExample(id);
+            const location = fixedPointLocation(id);
+            expect(location).toBeGreaterThanOrEqual(example.a);
+            expect(location).toBeLessThanOrEqual(example.b);
+            expect(Math.abs(example.value(location) - location)).toBeLessThan(1e-15);
+        }
     });
 });

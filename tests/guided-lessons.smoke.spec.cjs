@@ -1669,8 +1669,72 @@ const sequence = {
     stableCounts: async page => ({terms: await sequenceReadout(page, 'terms'), threshold: await sequenceReadout(page, 'threshold')}),
 };
 
+// ---------------------------------------------------------------- Fixed-point iteration
+const fixedPointReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const fixedPointStatuses = page => page.locator('[data-fixed-point-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-fixed-point-status')));
+// Per step: the displayed iteration step, the current iterate (six decimals), the threshold, the iterate on the board as a point (x_k, x_k), and the statuses
+// on screen. The lesson shows every configuration with the bound hidden (the learner presses Next step or Show error bound after predicting) except step 3,
+// which explains the contraction. Step 5 has stopped at the threshold d = 8, where the six-decimal readout shows 1 although the iterate is not exactly 1.
+const BOUND_STATUSES = ['hypotheses', 'bound-a-priori', 'bound-a-posteriori'];
+const FIXED_POINT_STEPS = [
+    {step: '0', current: '0', tolerance: '10⁻³', point: 0, statuses: ['bound-hidden']},
+    {step: '1', current: '0.5', tolerance: '10⁻³', point: 0.5, statuses: ['bound-hidden']},
+    {step: '3', current: '0.875', tolerance: '10⁻³', point: 0.875, statuses: BOUND_STATUSES},
+    {step: '8', current: '0.722102', tolerance: '10⁻³', point: 0.722102, statuses: ['bound-hidden']},
+    {step: '27', current: '1', tolerance: '10⁻⁸', point: 1, statuses: ['threshold', 'bound-hidden']},
+    {step: '4', current: '0.2', tolerance: '10⁻³', point: 0.2, statuses: ['cycle', 'bound-hidden']},
+    {step: '0', current: '1', tolerance: '10⁻³', point: 1, statuses: ['bound-hidden']},
+];
+
+const fixedPoint = {
+    id: 'fixed-point',
+    path: `${BASE}/analysis/fixed-point`,
+    titles: {sl: 'Iteracija s fiksno točko in skrčitve', en: 'Fixed-point iteration and contractions'},
+    steps: 7,
+    minFrames: 15, // 2 + 2 + 3 + 2 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = FIXED_POINT_STEPS[step - 1];
+        await expect.poll(() => fixedPointReadout(page, 'step'), {message: `iteration step at ${label}`}).toBe(expected.step);
+        await expect.poll(() => fixedPointReadout(page, 'current'), {message: `current iterate at ${label}`}).toBe(expected.current);
+        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: `threshold at ${label}`}).toBe(expected.tolerance);
+        await expect.poll(() => fixedPointStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // the lesson never starts playback: the control still offers Play
+        await expect(page.locator('[data-action="play-pause"]'), `playback stopped at ${label}`).toHaveText(/Predvajaj|Play/);
+        // the current iterate sits on the board at (x_k, x_k)
+        await expectPointNear(page, [expected.point, expected.point], `current iterate at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/^(Tolerance digits d|Natančnost d)/).fill('5');
+        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'tolerance edited'}).toBe('10⁻⁵');
+        await page.locator('[data-action="next-step"]').click();
+        await page.locator('[data-action="next-step"]').click();
+        await expect.poll(() => fixedPointReadout(page, 'step')).toBe('2');
+        await page.locator('[data-action="toggle-fixed-point-bound"]').click();
+        await expect.poll(() => fixedPointStatuses(page), {message: 'the bound is shown'}).toEqual(BOUND_STATUSES);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => fixedPointReadout(page, 'step'), {message: 'lesson scene replaced the user step'}).toBe('3');
+        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'lesson scene replaced the user tolerance'}).toBe('10⁻³');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => fixedPointReadout(page, 'step'), {message: 'user step restored'}).toBe('2');
+        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'user tolerance restored'}).toBe('10⁻⁵');
+        await expect.poll(() => fixedPointStatuses(page), {message: 'user bound restored'}).toEqual(BOUND_STATUSES);
+        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveText(/Predvajaj|Play/);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({step: await fixedPointReadout(page, 'step'), tolerance: await fixedPointReadout(page, 'tolerance')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, fixedPoint];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
