@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,motionSpecs}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -94,6 +94,37 @@ test('parameter sweep provenance rejects a moved fixed point, wrong intermediate
     assert.throws(()=>assertMotionEvidence(readout),/readout differs/);
     const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
     assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
+});
+test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a moved tangent, a non-seamless end, a non-identical end PNG and the excluded band',()=>{
+    const deriv=motionSpecs.derivative,f=x=>x*x,x0=1;
+    const sample=i=>{
+        const h=sweepValue(i,deriv),q=x0+h,slope=(f(q)-f(x0))/h,intercept=f(x0)-slope*x0;
+        return {index:i,time:i/24,scheduled:h,actual:{input:h,readout:deriv.sweep.readout.text(h),steps:0},
+            controls:[{id:'p',x:x0,y:f(x0)}],
+            points:[{id:'p',name:'$$P$$',x:x0,y:f(x0),draggable:true},{id:'q',name:'$$Q$$',x:q,y:f(q),draggable:false}],
+            observed:{P:{x:x0,y:f(x0)},Q:{x:q,y:f(q)},secant:{stdform:[intercept,slope,-1]},tangent:{slope:2,intercept:-1}},
+            curvePathHash:'function-and-tangent',capture:{sha256:'recipe-png'}};
+    };
+    const motion=()=>({id:'derivative',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,1);assert.equal(valid.samples[95].scheduled,1);
+    assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),0.05);assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),1);
+    assert.ok(valid.samples.every(s=>Math.abs(s.scheduled)>=0.01&&s.scheduled>=-2&&s.scheduled<=2));
+    const moved=motion();moved.samples[40].controls[0].x+=0.1;moved.samples[40].observed.P.x+=0.1;
+    assert.throws(()=>assertMotionEvidence(moved),/Fixed control point moved/);
+    const wrongSlope=motion();wrongSlope.samples[40].observed.secant.stdform[1]+=0.1;
+    assert.throws(()=>assertMotionEvidence(wrongSlope),/Secant slope differs/);
+    const tangent=motion();tangent.samples[40].observed.tangent.intercept+=0.1;
+    assert.throws(()=>assertMotionEvidence(tangent),/Tangent moved/);
+    const path=motion();path.samples[40].curvePathHash='changed';
+    assert.throws(()=>assertMotionEvidence(path),/Function or tangent path changed/);
+    const seam=motion();seam.samples[95].points[1].x+=0.01;
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless/);
+    const png=motion();png.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(png),/PNG differs/);
+    const band=sample(40);band.actual.input=0.005;
+    assert.throws(()=>deriv.sweep.check(band,null,valid.samples[0],deriv),/excluded band/);
 });
 test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
     const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';

@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -18,17 +18,24 @@ const holdStart = 12, moveFrames = 71;
 const movePhase = i => Math.max(0, Math.min(1, (i - holdStart) / moveFrames));
 // Pointer drags use sin² out and back: 0 at the start, 1 mid-move, 0 at the end.
 const sin2OutAndBack = i => Math.sin(Math.PI * movePhase(i)) ** 2;
-// Parameter sweeps visit the waypoints in order, each leg with a sin² ease (zero speed at every waypoint).
-const sweepWaypoints = [0.5, 1, 0, 0.5];
-const sweepStep = 0.01;
-const snapToStep = value => Number((Math.round(value / sweepStep) * sweepStep).toFixed(2));
-function sweepValue(i) {
-    const scaled = movePhase(i) * (sweepWaypoints.length - 1);
-    const leg = Math.min(sweepWaypoints.length - 2, Math.floor(scaled));
+// Parameter sweeps visit each spec's waypoints in order, each leg with a sin² ease (zero speed at every waypoint).
+// Waypoints, control step and start live in the spec (motionSpecs[id].sweep); the runner has no route-specific values.
+const snapToStep = (value, step) => {
+    const decimals = (String(step).split('.')[1] || '').length;
+    return Number((Math.round(value / step) * step).toFixed(decimals));
+};
+function sweepValue(i, spec = motionSpecs.decasteljau) {
+    const {waypoints, step} = spec.sweep;
+    const scaled = movePhase(i) * (waypoints.length - 1);
+    const leg = Math.min(waypoints.length - 2, Math.floor(scaled));
     const local = scaled - leg;
     const eased = (1 - Math.cos(Math.PI * local)) / 2;
-    return snapToStep(sweepWaypoints[leg] + (sweepWaypoints[leg + 1] - sweepWaypoints[leg]) * eased);
+    return snapToStep(waypoints[leg] + (waypoints[leg + 1] - waypoints[leg]) * eased, step);
 }
+// Catalog 'square' function f(x) = x² (src/analysis/functions.ts) and its derivative, used by the derivative invariants.
+const squareValue = x => x * x;
+// Slovenian decimal text as formatNumber(value, 'sl', 2) renders it (trailing zeros trimmed, comma separator).
+const slovenianDecimal = value => value.toFixed(2).replace(/0+$/, '').replace(/\.$/, '').replace('.', ',');
 
 /** Pure de Casteljau levels for a control polygon at parameter t (level 1 first, the curve point last). */
 function deCasteljauLevels(controls, t) {
@@ -64,20 +71,97 @@ const motionSpecs = {
     },
     decasteljau: {
         mode: 'parameter-sweep', controlCount: 5,
-        control: {label: 'Parameter t', kind: 'range'}, step: sweepStep, start: 0.5,
+        control: {label: 'Parameter t', kind: 'range'},
+        sweep: {
+            waypoints: [0.5, 1, 0, 0.5], step: 0.01, start: 0.5,
+            readout: {text: value => `t = ${value.toFixed(2)}`,
+                read: ({page}) => page.evaluate(() => document.querySelector('.decasteljau-animation-heading output')?.textContent ?? null)},
+            check(sample, previous) {
+                const {controls, actual: {input: value}} = sample;
+                // Intermediate points and the construction end are compared with pure evaluations at the reported t.
+                const levels = deCasteljauLevels(controls, value).flat();
+                assertPointSet(sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y})), levels, `Intermediate point differs from pure de Casteljau at frame ${sample.index}`);
+                const final = bernsteinPoint(controls, value);
+                assert.ok(Math.abs(levels.at(-1).x - final.x) < 1e-9 && Math.abs(levels.at(-1).y - final.y) < 1e-9, `Final point leaves the full curve at frame ${sample.index}`);
+                if (previous) {
+                    if (previous.scheduled !== sample.scheduled) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Partial-curve path did not change at frame ${sample.index}`);
+                    else assert.equal(sample.curvePathHash, previous.curvePathHash, `Partial-curve path changed while t held at frame ${sample.index}`);
+                }
+            },
+        },
         // Budget order: no point labels are visible to remove, the full 0-1 range is the lesson, so only the encoder
         // quality changes. Measured on the poster-fit camera: CRF 10 gave 451017 bytes (over the 300 KiB ceiling),
         // CRF 24 gave 353457, CRF 26 323167, CRF 28 295631 (limit 307200).
         crf: 28,
         encoderBudget: 'CRF 28 instead of CRF 10: CRF 10 gave about 451 KB, over the 300 KiB ceiling; no point labels are visible to remove; full 0-1 range kept',
-        schedule: {kind: 'piecewise-sin2', waypoints: sweepWaypoints, phase: 'clamp((frame-12)/71)',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0.5, 1, 0, 0.5], phase: 'clamp((frame-12)/71)',
             zeroDisplacementFrames: '0-12 and 83-95 (t holds at 0.5)', movingFrames: '13-82',
-            legs: 'three equal phase thirds, each eased by (1 - cos πx)/2 from one waypoint to the next', step: sweepStep,
+            legs: 'three equal phase thirds, each eased by (1 - cos πx)/2 from one waypoint to the next', step: 0.01,
             input: 'keyboard ArrowRight/ArrowLeft on the Parameter t range, incremental from the previous frame'},
         invariants: ['Control points unchanged (1e-9)', 'Intermediate de Casteljau points equal a pure evaluation at the reported t (1e-9)',
             'Final construction point equals the full-curve Bernstein point at t (1e-9)', 'Input value and graph readout equal the snapped target every frame',
             'Partial-curve path changes whenever t changes and is unchanged while t holds', 'Camera fixed: every frame geometry lies inside the poster-fit window',
             'First and last frames equal the recipe state'],
+    },
+    derivative: {
+        mode: 'parameter-sweep', controlCount: 1,
+        // The point P=(x0, f(x0)) is the only draggable point; the sweep moves the step h, never P.
+        control: {label: 'Korak h', kind: 'range'},
+        sweep: {
+            // Recipe h = 1 (DEFAULT_DERIVATIVE_MODEL, src/analysis/derivativeModel.ts) to 0.05 and back; the excluded band |h| < 0.01 is never reached.
+            waypoints: [1, 0.05, 1], step: 0.01, start: 1,
+            fixed: {x0: 1},
+            readout: {text: slovenianDecimal,
+                read: ({range}) => range.getAttribute('aria-valuetext')},
+            // Board reads (the accepted evidence path, as boardSnapshot does): P, Q, the secant through them and the dashed tangent.
+            observe: page => page.locator('#jgbox').evaluate(container => {
+                const board = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+                const objects = Object.values(board.objects);
+                const named = name => objects.find(o => o.elType === 'point' && o.name === name);
+                const P = named('$$P$$'), Q = named('$$Q$$');
+                const secant = objects.find(o => o.elType === 'line' && o.point1 === P && o.point2 === Q);
+                const tangent = objects.find(o => o.visProp?.visible !== false && o.visProp?.dash === 2 && o.rendNode);
+                // The tangent is a line; two sampled values give its slope and intercept exactly.
+                const at0 = tangent.Y(0), at1 = tangent.Y(1);
+                const {stdform} = secant;
+                return {P: {x: P.X(), y: P.Y()}, Q: {x: Q.X(), y: Q.Y()},
+                    secant: {stdform: [...stdform]}, tangent: {slope: at1 - at0, intercept: at0}};
+            }),
+            check(sample, previous, first, spec) {
+                const x0 = spec.sweep.fixed.x0;
+                const h = sample.actual.input, o = sample.observed, i = sample.index;
+                assert.ok(o, `Derivative frame ${i} has no board observation`);
+                assert.ok(Math.abs(h) >= 0.01 - 1e-9 && h >= -2 && h <= 2, `Step ${h} entered the excluded band or left [-2, 2] at frame ${i}`);
+                assert.ok(Math.abs(o.P.x - x0) < 1e-9 && Math.abs(o.P.y - squareValue(x0)) < 1e-9, `Base point x0 moved at frame ${i}`);
+                assert.ok(Math.abs(o.Q.x - (x0 + h)) < 1e-9, `Q is not at x0 + h at frame ${i}`);
+                assert.ok(Math.abs(o.Q.y - squareValue(o.Q.x)) < 1e-9, `Q is off the graph at frame ${i}`);
+                // The secant stdform a*x + b*y + c = 0 gives slope -a/b; it must equal the difference quotient at the reported h.
+                const [c, a, b] = o.secant.stdform, slope = -a / b, intercept = -c / b;
+                const quotient = (squareValue(x0 + h) - squareValue(x0)) / h;
+                assert.ok(Math.abs(slope - quotient) < 1e-9, `Secant slope differs from the difference quotient at frame ${i}`);
+                assert.ok(Math.abs(slope * x0 + intercept - squareValue(x0)) < 1e-9, `Secant does not pass through P at frame ${i}`);
+                assert.ok(Math.abs(o.tangent.slope - 2 * x0) < 1e-9, `Tangent slope differs from f'(x0) at frame ${i}`);
+                assert.ok(Math.abs(o.tangent.slope - first.observed.tangent.slope) < 1e-9 && Math.abs(o.tangent.intercept - first.observed.tangent.intercept) < 1e-9,
+                    `Tangent moved at frame ${i}`);
+                assert.equal(sample.curvePathHash, first.curvePathHash, `Function or tangent path changed at frame ${i}`);
+                if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Last frame PNG differs from the recipe frame');
+            },
+        },
+        // Budget order: the moving board text (difference quotient) is retained concept text under the recipe's
+        // annotation policy and point names are already hidden, so no label is removed; the 0.05 end of the path is the
+        // specified amplitude, so it is kept. Measured on the same frames: CRF 10 gave 382591 bytes (over 300 KiB),
+        // CRF 22 gave 250909, CRF 28 gave 199124 (limit 307200). CRF 22 is the highest quality under the ceiling.
+        crf: 22,
+        encoderBudget: 'CRF 22 instead of CRF 10: CRF 10 gave 382591 bytes, over the 300 KiB ceiling; the moving quotient text is retained concept text and the 0.05 amplitude is specified, so only the encoder setting changed (CRF 22: 250909 bytes)',
+        schedule: {kind: 'piecewise-sin2', waypoints: [1, 0.05, 1], phase: 'clamp((frame-12)/71)',
+            zeroDisplacementFrames: '0-12 and 83-95 (h holds at the recipe value 1)', movingFrames: '13-82',
+            legs: 'two equal phase halves, each eased by (1 - cos πx)/2 from one waypoint to the next (0.05 at the middle of the move)', step: 0.01,
+            input: 'keyboard ArrowLeft/ArrowRight on the "Korak h" range, incremental from the previous frame; P and the function are never touched',
+            window: 'recipe coordinate window [-0.4, 5, 2.5, -1]'},
+        invariants: ['x0 and the function unchanged: base point P stays at (1, f(1)) and the function/tangent path hash is identical in every frame',
+            'Q = x0 + h lies on the graph (1e-9)', 'Secant slope equals the difference quotient (f(x0+h) - f(x0)) / h at the reported h (1e-9)',
+            'Tangent fixed: same line every frame with slope f\'(x0) (1e-9)', 'Step stays inside [-2, 2] with |h| >= 0.01',
+            'Input value and aria-valuetext equal the snapped target every frame', 'First and last frames equal the recipe state (identical PNG)'],
     },
 };
 
@@ -91,29 +175,28 @@ function assertPointSet(actual, expected, message) {
     }
 }
 
+/** Generic per-frame checks shared by the capture loop and the offline evidence check. Route invariants live in spec.sweep.check. */
+function assertSweepFrame(sample, previous, first, spec) {
+    const scheduled = sweepValue(sample.index, spec);
+    assert.equal(sample.scheduled, scheduled, `Scheduled target differs from the recorded schedule at frame ${sample.index}`);
+    assert.ok(Math.abs(sample.actual.input - scheduled) < 1e-9, `Input value differs from target at frame ${sample.index}`);
+    assert.equal(sample.actual.readout, spec.sweep.readout.text(scheduled), `Graph readout differs from target at frame ${sample.index}`);
+    assert.equal(sample.controls.length, spec.controlCount, 'Wrong control point count');
+    first.controls.forEach((p, j) => {
+        assert.equal(sample.controls[j].id, p.id, `Control point identity changed at frame ${sample.index}`);
+        assert.ok(Math.abs(sample.controls[j].x - p.x) < 1e-9 && Math.abs(sample.controls[j].y - p.y) < 1e-9, `Fixed control point moved at frame ${sample.index}`);
+    });
+    spec.sweep.check(sample, previous, first, spec);
+}
+
 function assertSweepEvidence(motion, spec) {
     assert.equal(motion.samples.length, frameCount, 'Sweep needs one sample per frame');
     const first = motion.samples[0], last = motion.samples[frameCount - 1];
+    assert.equal(first.scheduled, spec.sweep.start, 'Sweep must start at the recipe value');
     let previous = null;
     motion.samples.forEach((sample, i) => {
         assert.equal(sample.index, i);assert.equal(sample.time, i / sampleRate);
-        const scheduled = sweepValue(i);
-        assert.equal(sample.scheduled, scheduled, `Scheduled target differs from the recorded schedule at frame ${i}`);
-        assert.ok(Math.abs(sample.actual.input - scheduled) < 1e-9, `Input value differs from target at frame ${i}`);
-        assert.equal(sample.actual.readout, `t = ${scheduled.toFixed(2)}`, `Graph readout differs from target at frame ${i}`);
-        assert.equal(sample.controls.length, spec.controlCount, 'Wrong control point count');
-        first.controls.forEach((p, j) => {
-            assert.ok(Math.abs(sample.controls[j].x - p.x) < 1e-9 && Math.abs(sample.controls[j].y - p.y) < 1e-9, `Fixed control point moved at frame ${i}`);
-        });
-        const controls = sample.controls;
-        const levels = deCasteljauLevels(controls, sample.actual.input).flat();
-        assertPointSet(sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y})), levels, `Intermediate point differs from pure de Casteljau at frame ${i}`);
-        const final = bernsteinPoint(controls, sample.actual.input);
-        assert.ok(Math.abs(levels.at(-1).x - final.x) < 1e-9 && Math.abs(levels.at(-1).y - final.y) < 1e-9, `Final point leaves the full curve at frame ${i}`);
-        if (previous) {
-            if (previous.scheduled !== scheduled) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Partial-curve path did not change at frame ${i}`);
-            else assert.equal(sample.curvePathHash, previous.curvePathHash, `Partial-curve path changed while t held at frame ${i}`);
-        }
+        assertSweepFrame(sample, previous, first, spec);
         previous = sample;
     });
     assert.equal(last.scheduled, first.scheduled, 'Sweep must end at the recipe parameter');
@@ -336,7 +419,10 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         await applyRecipe(page,recipe);
         // The poster's own fit is the camera for every frame. Presenting once keeps frame 0 identical to the poster
         // framing; re-presenting with a coordinate window changes the fit, so no per-frame refit is applied.
-        const poster=await presentBoard(page.locator('#jgbox'),d,recipe,{});
+        // The recipe's own window (if any) is the camera; presenting once keeps frame 0 identical to the poster
+        // framing. Re-presenting with a different fit would change the camera, so no per-frame refit is applied.
+        const presentation=recipe.framing.kind==='coordinate-window'?{window:recipe.framing.window}:{};
+        const poster=await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
         const initial=await boardSnapshot(page);const fixedBox=initial.box;
         assert.deepEqual(fixedBox,poster.boundingBox,'Poster fit must be the sweep camera');
         const controls0=initial.points.filter(p=>p.draggable);
@@ -347,47 +433,39 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
         const rangeId=await control.getAttribute('id');
         const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
-        const readout=()=>page.evaluate(()=>document.querySelector('.decasteljau-animation-heading output')?.textContent??null);
+        const {sweep}=spec;
         let previousValue=Number(await range.inputValue());
-        assert.ok(Math.abs(previousValue-spec.start)<1e-9 && await readout()===`t = ${spec.start.toFixed(2)}`,'Sweep must start at the recipe parameter');
-        let previous=null;
+        assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && await sweep.readout.read({page,range})===sweep.readout.text(sweep.start),'Sweep must start at the recipe value');
+        let previous=null,first=null;
         for(let i=0;i<frameCount;i++) {
-            const target=sweepValue(i);
-            const steps=Math.round((target-previousValue)/spec.step);
+            const target=sweepValue(i,spec);
+            const steps=Math.round((target-previousValue)/sweep.step);
             if(steps) {
                 await range.focus();
                 for(let k=0;k<Math.abs(steps);k++)await range.press(steps>0?'ArrowRight':'ArrowLeft');
             }
             await settle(page);
             const value=Number(await range.inputValue());
-            const shown=await readout();
+            const shown=await sweep.readout.read({page,range});
             assert.ok(Math.abs(value-target)<1e-9,`Input ${value} differs from scheduled ${target} at frame ${i}`);
-            assert.equal(shown,`t = ${target.toFixed(2)}`,`Graph readout differs from scheduled ${target} at frame ${i}`);
             const state=await boardSnapshot(page);
             assert.deepEqual(state.box,fixedBox,'Camera changed between sweep frames');
             assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
             const controls=state.points.filter(p=>p.draggable);
-            assert.equal(controls.length,spec.controlCount,'Control point count changed');
-            controls.forEach((p,j)=>{assert.equal(p.id,controls0[j].id);assert.ok(Math.abs(p.x-controls0[j].x)<1e-9&&Math.abs(p.y-controls0[j].y)<1e-9,`Control point ${p.id} moved at frame ${i}`);});
-            const intermediate=state.points.filter(p=>!p.draggable).map(({x,y})=>({x,y}));
-            assertPointSet(intermediate,deCasteljauLevels(controls,value).flat(),`Intermediate point differs from pure de Casteljau at frame ${i}`);
-            const final=bernsteinPoint(controls,value);
-            const curveEnd=deCasteljauLevels(controls,value).flat().at(-1);
-            assert.ok(Math.abs(curveEnd.x-final.x)<1e-9&&Math.abs(curveEnd.y-final.y)<1e-9,`Final point leaves the full curve at frame ${i}`);
             for(const p of state.points)assert.ok(p.x>=fixedBox[0]&&p.x<=fixedBox[2]&&p.y<=fixedBox[1]&&p.y>=fixedBox[3],`Point ${p.id} left the fixed camera at frame ${i}`);
+            const observed=sweep.observe?await sweep.observe(page):undefined;
             const hash=pathHash(state.paths);
-            if(previous){
-                if(previous.target!==target)assert.notEqual(hash,previous.curvePathHash,`Partial-curve path did not change at frame ${i}`);
-                else assert.equal(hash,previous.curvePathHash,`Partial-curve path changed while t held at frame ${i}`);
-            }
             const captured=await screenshotBoard(page,path.join(directory,String(i).padStart(3,'0')+'.png'));
-            sampleEvidence.push({index:i,time:i/24,target,scheduled:target,
+            const sample={index:i,time:i/24,target,scheduled:target,
                 actual:{input:value,readout:shown,steps},
                 controls:controls.map(({id,x,y})=>({id,x,y})),
                 fixed:controls.map(({id,x,y})=>({id,x,y})),
                 capture:captured,points:state.points.map(({id,name,x,y,draggable})=>({id,name,x,y,draggable})),
-                strokeWidths:state.strokeWidths,curvePathHash:hash});
-            previous={target,curvePathHash:hash};
+                strokeWidths:state.strokeWidths,curvePathHash:hash,...(observed?{observed}:{})};
+            first??=sample;
+            assertSweepFrame(sample,previous,first,spec);
+            sampleEvidence.push(sample);
+            previous=sample;
             previousValue=value;
         }
         return {camera:fixedBox,samples:sampleEvidence};
