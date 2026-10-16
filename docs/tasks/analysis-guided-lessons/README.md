@@ -19,7 +19,7 @@
 | [10 Sequence convergence](10-sequence-convergence.md) | 09 | implemented |
 | [11 Uniform convergence](11-uniform-convergence.md) | 09 | implemented |
 | [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | implemented |
-| [13 Complex multiplication](13-complex-multiplication.md) | 09 | not started |
+| [13 Complex multiplication](13-complex-multiplication.md) | 09 | implemented |
 | [14 Batch C release](14-batch-c-release.md) | 10–13 | not started |
 
 ## Ordering and delegation

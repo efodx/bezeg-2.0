@@ -71,3 +71,32 @@ test('the readout shows labelled values and an optional note', () => {
     expect(screen.getByText('ni določen')).toBeInTheDocument();
     expect(screen.getByRole('note')).toHaveTextContent('Opomba');
 });
+
+test('applyOn="confirm" keeps what is typed until Enter or blur, then applies it once and explains a refusal', () => {
+    const onChange = vi.fn((value: number) => value < 5);
+    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    const input = screen.getByLabelText('r') as HTMLInputElement;
+    fireEvent.change(input, {target: {value: '1.'}});
+    fireEvent.change(input, {target: {value: '1.5'}});
+    expect(onChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('1.5');
+    fireEvent.keyDown(input, {key: 'Enter'});
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenLastCalledWith(1.5);
+    // blur applies a changed draft; a refusal stays explained although the field reverts to the model value
+    fireEvent.change(input, {target: {value: '9'}});
+    fireEvent.blur(input);
+    expect(onChange).toHaveBeenLastCalledWith(9);
+    expect(input.value).toBe('1');
+    expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
+    // an unchanged draft is not applied on blur
+    fireEvent.focus(input);
+    fireEvent.change(input, {target: {value: '1'}});
+    fireEvent.blur(input);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('status')).toBeNull();
+    // the arrow keys step at once
+    render(<NumberInput label="s" value={1} step={0.5} applyOn="confirm" onChange={onChange}/>);
+    fireEvent.keyDown(screen.getByLabelText('s'), {key: 'ArrowUp'});
+    expect(onChange).toHaveBeenLastCalledWith(1.5);
+});

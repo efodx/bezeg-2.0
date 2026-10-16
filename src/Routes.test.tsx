@@ -1,6 +1,7 @@
 import React from 'react';
 import routes from './Routes';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
+import { ComplexMultiplicationGraph } from './graphs/complex/ComplexMultiplicationGraph';
 import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './graphs/functions/ExponentialFunctionGraph';
 import { TrigonometricFunctionsGraph } from './graphs/functions/TrigonometricFunctionsGraph';
@@ -67,8 +68,9 @@ test('all existing graph URLs retain their graph implementations', () => {
         // GraphHost receives a factory; creating the controller has no side effects.
         return (graph.props as {create: () => object}).create().constructor;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(44);
+    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(45);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
+    expect(graphFor('/bezeg-2.0/complex-multiplication')).toBe(ComplexMultiplicationGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau')).toBe(DecasteljauGraph);
     expect(graphFor('/bezeg-2.0/bezier/decasteljau2')).toBe(DecasteljauGraph2);

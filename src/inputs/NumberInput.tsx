@@ -20,6 +20,12 @@ interface NumberInputProps {
     rejectedHint?: string;
     /** Id of an element that explains the field (for example why it is disabled); joined with the hint in aria-describedby. */
     describedBy?: string;
+    /**
+     * When the typed value is applied: on every change (default) or only on Enter and when the field loses focus ("confirm"), for a
+     * value the model rewrites as soon as it is applied (for example a polar input snapped to a grid), which would otherwise replace
+     * the text under the user's hands. The arrow keys apply their step at once in both modes.
+     */
+    applyOn?: "input" | "confirm";
 }
 
 const show = (value: number | undefined, decimals: number) =>
@@ -35,6 +41,7 @@ type Hint = "range" | "rejected" | undefined;
 export function NumberInput(props: NumberInputProps) {
     const t = useT();
     const {value, decimals = 2, min, max, step} = props;
+    const confirm = props.applyOn === "confirm";
     const id = useId();
     const [draft, setDraft] = useState(show(value, decimals));
     const [hint, setHint] = useState<Hint>(undefined);
@@ -62,6 +69,10 @@ export function NumberInput(props: NumberInputProps) {
                aria-describedby={[hintText ? `${id}-hint` : undefined, props.describedBy].filter(Boolean).join(" ") || undefined}
                onChange={event => {
                    setDraft(event.target.value);
+                   if (confirm) {
+                       setHint(undefined);
+                       return;
+                   }
                    const parsed = event.target.value.trim() === "" ? NaN : Number(event.target.value);
                    if (!Number.isFinite(parsed)) {
                        setHint(undefined);
@@ -70,6 +81,12 @@ export function NumberInput(props: NumberInputProps) {
                    commit(parsed);
                }}
                onKeyDown={event => {
+                   if (confirm && event.key === "Enter") {
+                       event.preventDefault();
+                       const typed = draft.trim() === "" ? NaN : Number(draft);
+                       if (Number.isFinite(typed)) commit(typed);
+                       return;
+                   }
                    if ((event.key !== "ArrowUp" && event.key !== "ArrowDown") || !step || props.disabled) return;
                    event.preventDefault();
                    const typed = draft.trim() === "" ? NaN : Number(draft);
@@ -81,6 +98,15 @@ export function NumberInput(props: NumberInputProps) {
                    commit(next);
                }}
                onBlur={() => {
+                   if (confirm) {
+                       const typed = draft.trim() === "" ? NaN : Number(draft);
+                       const changed = Number.isFinite(typed) && (value === undefined || Math.abs(typed - value) >= 10 ** -(decimals + 1));
+                       // A refusal stays explained after the field reverts to the model value.
+                       if (changed) commit(typed);
+                       else setHint(undefined);
+                       setDraft(show(value, decimals));
+                       return;
+                   }
                    setDraft(show(value, decimals));
                    setHint(undefined);
                }}/>

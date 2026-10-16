@@ -116,3 +116,12 @@
 @media (pointer: coarse), (max-width: 700px) {
     .uniform-actions button { min-height: 44px; }
 }
+/* Complex multiplication: the Show product and Show arguments buttons and the statuses, styled like the uniform convergence controls. */
+.complex-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
+.complex-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.complex-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.complex-status p { margin: 0; }
+.complex-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .complex-actions button { min-height: 44px; }
+}

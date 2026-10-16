@@ -6,6 +6,7 @@ import {en} from './localization/en';
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
     ['bernstein', 'basics', 'bernstein_polynomials', 'bernstein_polynomials', 'prompt_bernstein'],
+    ['complex-multiplication', 'basics', 'complex_multiplication', 'complex_multiplication', 'prompt_complex_multiplication'],
     ['bezier/curve', '/bezeg-2.0/bezier', 'bezier_curve_209', 'bezier_curve', 'prompt_control_points'],
     ['bezier/decasteljau', '/bezeg-2.0/bezier', 'de_casteljau', 'de_casteljau', 'prompt_decasteljau'],
     ['bezier/decasteljau2', '/bezeg-2.0/bezier', 'de_casteljau_alternative', 'de_casteljau_alternative', 'prompt_decasteljau'],
@@ -58,7 +59,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(44);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(45);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
@@ -74,7 +75,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     expect(catalog.families.map(family => family.title)).toEqual([
         messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.functions_and_calculus, messages.analysis,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([1, 8, 7, 5, 2, 3, 8, 10]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 8, 10]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -105,5 +106,5 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(44);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(45);
 });

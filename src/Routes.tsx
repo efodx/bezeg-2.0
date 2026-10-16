@@ -3,6 +3,7 @@ import App from './App';
 import { WelcomePage } from './WelcomePage';
 import { DemonstrationsPage } from './DemonstrationsPage';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
+import { ComplexMultiplicationGraph } from './graphs/complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -68,6 +69,7 @@ import {DemonstrationId, getDemonstrationCatalog} from './demonstrations';
 // The routing adapter owns executable graphs; metadata owns identity and paths.
 export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphState>> = {
     'bernstein': () => new BernsteinGraph(),
+    'complex-multiplication': () => new ComplexMultiplicationGraph(),
     'bezier': () => new BezierCurveGraph(),
     'decasteljau': () => new DecasteljauGraph(),
     'decasteljau-alternative': () => new DecasteljauGraph2(),

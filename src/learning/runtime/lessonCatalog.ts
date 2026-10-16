@@ -302,6 +302,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'taylor',
     'sequence',
     'uniform-convergence',
+    'complex-multiplication',
     'fixed-point',
 ] as const satisfies readonly DemonstrationId[];
 

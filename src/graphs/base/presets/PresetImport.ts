@@ -30,6 +30,8 @@ import {
     isUniformEpsilon, isUniformExampleId, isUniformN, isUniformR, isUniformX, UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N, UNIFORM_N_MIN,
     UNIFORM_R_MAX, UNIFORM_R_MIN,
 } from "../../../analysis/uniformConvergence";
+import {parseComplexModel} from "../../../analysis/complexModel";
+import {COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, COMPLEX_EXAMPLE_IDS, isComplexCoordinate, isComplexExampleId} from "../../../analysis/complex";
 import {parseSequenceModel} from "../../../analysis/sequenceModel";
 import {
     isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
@@ -45,11 +47,11 @@ const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decast
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "fixed-point"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel, "preset-uniform-convergence": parseUniformConvergenceModel, "preset-fixed-point": parseFixedPointModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel, "preset-uniform-convergence": parseUniformConvergenceModel, "preset-complex-multiplication": parseComplexModel, "preset-fixed-point": parseFixedPointModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -159,6 +161,21 @@ const diagnoseUniformConvergence: Diagnosis = data => {
     if (data.supremumVisible !== undefined && typeof data.supremumVisible !== "boolean") return message("invalid_uniform_visibility");
     return undefined;
 };
+const complexCoordinateFields = ["zRe", "zIm", "wRe", "wIm"] as const;
+const complexVisibilityFields = ["productVisible", "anglesVisible"] as const;
+const diagnoseComplex: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isComplexExampleId(data.example)) return message("invalid_complex_example", {value0: COMPLEX_EXAMPLE_IDS.join(", ")});
+    for (const field of complexCoordinateFields) {
+        if (finite(data[field]) && !isComplexCoordinate(data[field])) {
+            return message("invalid_complex_coordinate", {value0: field, value1: bound(COMPLEX_COORDINATE_MIN), value2: bound(COMPLEX_COORDINATE_MAX)});
+        }
+    }
+    for (const field of complexVisibilityFields) {
+        if (typeof data[field] !== "boolean" && data[field] !== undefined) return message("invalid_complex_visibility", {value0: field});
+    }
+    return undefined;
+};
 const diagnoseFixedPoint: Diagnosis = data => {
     if (!isObject(data)) return undefined;
     if (!isFixedPointExampleId(data.example)) return message("invalid_fixed_point_example", {value0: FIXED_POINT_EXAMPLE_IDS.join(", ")});
@@ -171,7 +188,7 @@ const diagnoseFixedPoint: Diagnosis = data => {
     if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_fixed_point_visibility");
     return undefined;
 };
-const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-uniform-convergence": diagnoseUniformConvergence, "preset-fixed-point": diagnoseFixedPoint, "preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-complex-multiplication": diagnoseComplex, "preset-uniform-convergence": diagnoseUniformConvergence, "preset-fixed-point": diagnoseFixedPoint, "preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));

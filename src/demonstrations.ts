@@ -23,6 +23,7 @@ type Definition = {
 // Order is the teaching catalog order, independent of wording and graph imports.
 const definitions = [
     {id: 'bernstein', path: '/bezeg-2.0/bernstein', family: 'basics', title: 'bernstein_polynomials', prompts: ['prompt_bernstein', 'prompt_compare'], fit: false},
+    {id: 'complex-multiplication', path: '/bezeg-2.0/complex-multiplication', family: 'basics', title: 'complex_multiplication', prompts: ['prompt_complex_multiplication', 'prompt_compare']},
     {id: 'bezier', path: '/bezeg-2.0/bezier/curve', family: '/bezeg-2.0/bezier', title: 'bezier_curve_209', heading: 'bezier_curve', prompts: ['prompt_control_points', 'prompt_control_polygon']},
     {id: 'decasteljau', path: '/bezeg-2.0/bezier/decasteljau', family: '/bezeg-2.0/bezier', title: 'de_casteljau', prompts: ['prompt_decasteljau', 'prompt_compare']},
     {id: 'decasteljau-alternative', path: '/bezeg-2.0/bezier/decasteljau2', family: '/bezeg-2.0/bezier', title: 'de_casteljau_alternative', prompts: ['prompt_decasteljau', 'prompt_compare']},

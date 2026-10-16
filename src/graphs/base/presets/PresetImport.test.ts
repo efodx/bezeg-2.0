@@ -786,3 +786,58 @@ test("the uniform-convergence messages are localized and show the supported rang
     expect(attempt({...validUniform, epsilon: 2})).toContain("večkratnik števila 0.01 med 0.01 in 1");
     expect(attempt({...validUniform, supremumVisible: "yes"})).toContain("true ali false");
 });
+
+const complexPreset = (data: unknown) => JSON.stringify({"preset-complex-multiplication": {data: [{id: "Osnova", boardState: {boundingBox: [-4.5, 4.5, 4.5, -4.5]},
+    graphState: {initialized: true, example: "rotation-i", zRe: 1, zIm: 1, wRe: 0, wIm: 1, productVisible: false, anglesVisible: false}, data}]}});
+
+test("complex-multiplication collection imports a model object with its visibility flags and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "general", zRe: -1.35, zIm: 0.05, wRe: 2, wIm: -2, productVisible: true, anglesVisible: true};
+    commitPresetImport(preflightPresetImport(complexPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-complex-multiplication")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    // the corners of the operand square are accepted
+    for (const corner of [{zRe: -2, zIm: -2, wRe: 2, wIm: 2}, {zRe: 2, zIm: 2, wRe: -2, wIm: -2}, {zRe: 0, zIm: 0, wRe: 0, wIm: 0}]) {
+        expect(() => preflightPresetImport(complexPreset({example: "zero", productVisible: false, anglesVisible: false, ...corner}))).not.toThrow();
+    }
+});
+
+const validComplex = {example: "rotation-i", zRe: 1, zIm: 1, wRe: 0, wIm: 1, productVisible: false, anglesVisible: false};
+test.each([[[]], [null], [{}], [{...validComplex, example: "cubic"}], [{...validComplex, zRe: 2.05}], [{...validComplex, zIm: -2.5}], [{...validComplex, wRe: 0.123}],
+    [{...validComplex, wIm: 0.1 + 0.2 + 1e-6}], [{...validComplex, zRe: "1"}], [{...validComplex, wIm: null}], [{...validComplex, productVisible: "yes"}],
+    [{...validComplex, anglesVisible: 1}], [{example: "rotation-i", zRe: 1, zIm: 1, wRe: 0, wIm: 1}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("complex-multiplication collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(complexPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validComplex, example: "cubic"}, /rotation-i, identity, negation, scaling, general, zero/],
+    [{...validComplex, zRe: 2.05}, /zRe.*0\.05.*[-−]2.*2/],
+    [{...validComplex, zIm: -2.05}, /zIm.*0\.05.*[-−]2.*2/],
+    [{...validComplex, wRe: 0.123}, /wRe.*0\.05.*[-−]2.*2/],
+    [{...validComplex, wIm: 3}, /wIm.*0\.05.*[-−]2.*2/],
+    [{...validComplex, productVisible: "true"}, /productVisible.*true/],
+    [{...validComplex, anglesVisible: 0}, /anglesVisible.*true/],
+])("complex-multiplication errors say which field to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(complexPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(complexPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("complex-multiplication data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validComplex, zRe: "1"}, {...validComplex, wIm: null}, {example: "rotation-i", zRe: 1, zIm: 1, wRe: 0, wIm: 1}]) {
+        expect(() => preflightPresetImport(complexPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije|polje example|the field/);
+    }
+});
+
+test("the complex-multiplication messages are localized and show the supported range from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(complexPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validComplex, example: "cubic"})).toContain("must be one of: rotation-i, identity, negation, scaling, general, zero");
+    expect(attempt({...validComplex, wRe: 0.123})).toContain("the field wRe must be a multiple of 0.05 between −2 and 2");
+    expect(attempt({...validComplex, productVisible: "yes"})).toContain("the field productVisible must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validComplex, zIm: 2.5})).toContain("polje zIm mora biti večkratnik števila 0.05 med −2 in 2");
+    expect(attempt({...validComplex, anglesVisible: "yes"})).toContain("polje anglesVisible mora biti true ali false");
+});

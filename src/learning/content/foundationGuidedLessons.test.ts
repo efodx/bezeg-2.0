@@ -3,15 +3,17 @@ import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
 import {sceneAction} from '../runtime/lessonCatalog';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
+import {argumentSum, complexArgument, complexModulus, complexMultiply} from '../../analysis/complex';
+import {COMPLEX_EXAMPLE_MODELS} from '../../analysis/complexModel';
 
 const bernsteinLesson = () => foundationGuidedLessons.find(lesson => lesson.demonstrationId === 'bernstein')!;
 const rationalLesson = () => foundationGuidedLessons.find(lesson => lesson.demonstrationId === 'rational-elevation')!;
 
 test('keeps the foundation lessons bounded, localized, and source-backed', () => {
-    expect(foundationGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['bernstein', 'rational-elevation']);
+    expect(foundationGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['bernstein', 'complex-multiplication', 'rational-elevation']);
     for (const lesson of foundationGuidedLessons) {
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
-        expect(lesson.steps.length).toBeLessThanOrEqual(6);
+        expect(lesson.steps.length).toBeLessThanOrEqual(7);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
         expect(new Set(lesson.steps.map(step => step.id)).size).toBe(lesson.steps.length);
         expect(new Set(lesson.steps.flatMap(step => step.frames.map(frame => frame.id))).size)
@@ -94,4 +96,34 @@ test('the rational elevation worked example matches RationalBezierCurve.elevate(
     });
     const elevateActions = rationalLesson().steps.map(step => step.scene?.actions.filter(action => action.name === 'elevate-degree').length ?? 0);
     expect(elevateActions).toEqual([0, 0, 1, 1, 2]);
+});
+
+test('the complex multiplication lesson matches the complex arithmetic and keeps its prediction steps hidden', () => {
+    const lesson = foundationGuidedLessons.find(entry => entry.demonstrationId === 'complex-multiplication')!;
+    expect(lesson.steps).toHaveLength(7);
+    // (1 + i) i = -1 + i, (1 + i)^2 = 2i and (-1 + i)^2 = -2i, with the reduction of the last one
+    expect(complexMultiply({re: 1, im: 1}, {re: 0, im: 1})).toEqual({re: -1, im: 1});
+    expect(complexMultiply({re: 1, im: 1}, {re: 1, im: 1})).toEqual({re: 0, im: 2});
+    expect(complexMultiply({re: -1, im: 1}, {re: -1, im: 1})).toEqual({re: 0, im: -2});
+    const reduced = argumentSum({re: -1, im: 1}, {re: -1, im: 1})!;
+    expect(reduced.sum).toBeCloseTo(3 * Math.PI / 2, 12);
+    expect(reduced.reduced).toBeCloseTo(-Math.PI / 2, 12);
+    expect(reduced.wasReduced).toBe(true);
+    expect(complexArgument({re: 0, im: -2})).toBeCloseTo(-Math.PI / 2, 12);
+    expect(complexModulus({re: 0, im: -2})).toBe(2);
+    expect(complexMultiply({re: 1, im: 1}, {re: -1, im: 0})).toEqual({re: -1, im: -1});
+    expect(complexMultiply({re: 1, im: 1}, {re: 2, im: 0})).toEqual({re: 2, im: 2});
+    expect(complexMultiply({re: 1, im: 1}, {re: 0, im: 0})).toEqual({re: 0, im: 0});
+    const example = lesson.workedExamples[0];
+    expect(example.calculationLatex).toContain('(-1+i)^2=1-2i+i^2=-2i');
+    expect(example.resultLatex).toContain('zw=-2i');
+    // the scene of every step starts from the default (1 + i) i; only the reduction step reveals the product
+    const showsProduct = lesson.steps.map(step => step.scene!.actions.some(action =>
+        action.name === 'show-function-element' && (action.value as {name: string; value: boolean}).name === 'complex-product' && (action.value as {value: boolean}).value));
+    expect(showsProduct).toEqual([false, false, false, false, false, true, false]);
+    expect(lesson.steps[5].workedExampleId).toBe('complex-reduction-example');
+    // the examples a scene selects set the operands the prose describes
+    expect(COMPLEX_EXAMPLE_MODELS.negation).toMatchObject({wRe: -1, wIm: 0});
+    expect(COMPLEX_EXAMPLE_MODELS.scaling).toMatchObject({wRe: 2, wIm: 0});
+    expect(COMPLEX_EXAMPLE_MODELS.zero).toMatchObject({wRe: 0, wIm: 0});
 });

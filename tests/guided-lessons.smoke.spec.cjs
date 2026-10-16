@@ -1731,6 +1731,65 @@ const uniformConvergence = {
     stableCounts: async page => ({n: await uniformReadout(page, 'n'), epsilon: await uniformReadout(page, 'epsilon')}),
 };
 
+// ---------------------------------------------------------------- Complex multiplication
+const complexReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const complexStatuses = page => page.locator('[data-complex-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-complex-status')));
+// Per step: z, w and the product readouts, the statuses on screen and the points on the board. The lesson shows every configuration with the product
+// hidden (the learner presses Show product after predicting) except step 6, which explains the reduction modulo 2 pi.
+const COMPLEX_STEPS = [
+    {z: '1 + i', w: 'i', product: 'hidden', statuses: ['hidden'], points: [[1, 1], [0, 1]]},
+    {z: '1 + i', w: 'i', product: 'hidden', statuses: ['hidden'], points: [[1, 1], [0, 1]]},
+    {z: '1 + i', w: '-1', product: 'hidden', statuses: ['hidden'], points: [[1, 1], [-1, 0]]},
+    {z: '1 + i', w: '2', product: 'hidden', statuses: ['hidden'], points: [[1, 1], [2, 0]]},
+    {z: '1 + i', w: '1 + i', product: 'hidden', statuses: ['hidden'], points: [[1, 1]]},
+    {z: '-1 + i', w: '-1 + i', product: '-2i', statuses: ['reduced'], points: [[-1, 1], [0, -2]]},
+    {z: '1 + i', w: '0', product: 'hidden', statuses: ['hidden', 'w-zero'], points: [[1, 1]]},
+];
+
+const complexMultiplication = {
+    id: 'complex-multiplication',
+    path: `${BASE}/complex-multiplication`,
+    titles: {sl: 'Kompleksno množenje: vrtež in raztegnitev', en: 'Complex multiplication: rotation and scaling'},
+    steps: 7,
+    minFrames: 15, // 2 + 2 + 2 + 2 + 2 + 3 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = COMPLEX_STEPS[step - 1];
+        await expect.poll(() => complexReadout(page, 'z'), {message: `z at ${label}`}).toBe(expected.z);
+        await expect.poll(() => complexReadout(page, 'w'), {message: `w at ${label}`}).toBe(expected.w);
+        await expect.poll(async () => {
+            const value = await complexReadout(page, 'product');
+            return /^(skrito|hidden)$/.test(value) ? 'hidden' : value;
+        }, {message: `product at ${label}`}).toBe(expected.product);
+        await expect.poll(() => complexStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        for (const point of expected.points) await expectPointNear(page, point, `a point at (${point}) at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/^Re z$/).fill('0.5');
+        await expect.poll(() => complexReadout(page, 'z'), {message: 'Re z edited'}).toBe('0.5 + i');
+        await page.locator('[data-action="toggle-complex-product"]').click();
+        await page.locator('[data-action="toggle-complex-arguments"]').click();
+        await expect.poll(() => complexStatuses(page), {message: 'the product is shown'}).toEqual(['not-reduced']);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => complexReadout(page, 'z'), {message: 'lesson scene replaced the user z'}).toBe('1 + i');
+        await expect.poll(() => complexReadout(page, 'w'), {message: 'lesson scene replaced the user w'}).toBe('-1');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => complexReadout(page, 'z'), {message: 'user z restored'}).toBe('0.5 + i');
+        await expect.poll(() => complexReadout(page, 'product'), {message: 'user product restored'}).toBe('-1 + 0.5i');
+        await expect.poll(() => complexStatuses(page), {message: 'user product visibility restored'}).toEqual(['not-reduced']);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({z: await complexReadout(page, 'z'), product: await complexReadout(page, 'product')}),
+};
+
 // ---------------------------------------------------------------- Fixed-point iteration
 const fixedPointReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
 const fixedPointStatuses = page => page.locator('[data-fixed-point-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-fixed-point-status')));
@@ -1796,7 +1855,7 @@ const fixedPoint = {
 };
 
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, fixedPoint];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
