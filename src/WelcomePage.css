@@ -30,7 +30,7 @@
     z-index: 0;
     top: 0;
     right: max(8px, calc((100vw - 1160px) / 2));
-    width: clamp(210px, 29vw, 360px);
+    width: clamp(280px, 38.67vw, 480px);
     height: auto;
     overflow: visible;
     opacity: .15;
@@ -120,7 +120,7 @@
 }
 @media (max-width: 700px) {
     .welcome-page { padding: 24px 16px 32px; gap: 24px; }
-    .welcome-botanical { top: -8px; right: -36px; width: 230px; opacity: .1; }
+    .welcome-botanical { top: -8px; right: -36px; width: 307px; opacity: .1; }
     .welcome-intro { padding-top: 8px; }
     .welcome-page h1 { margin: 8px 0 10px; font-size: clamp(34px, 9vw, 42px); }
     .welcome-intro p { font-size: 15px; }

@@ -10,12 +10,13 @@ export function WelcomePage() {
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     return <main className="welcome-page">
-        <svg className="welcome-botanical" viewBox="0 0 420 360" aria-hidden="true" focusable="false">
+        <svg className="welcome-botanical" viewBox="0 0 560 680" aria-hidden="true" focusable="false">
             <g className="welcome-botanical-stems">
-                <path d="M410 358C367 279 327 207 278 157S203 69 170 7"/>
+                <path d="M410 358C367 279 327 207 278 157S203 69 170 7M410 358C430 412 455 470 488 525S530 616 546 680"/>
                 <path d="M278 157C313 120 350 96 402 83M326 207C364 193 391 170 416 137"/>
                 <path d="M237 108C204 91 164 76 122 42M266 140C265 95 259 51 253 7"/>
                 <path d="M356 271C386 250 402 226 414 198M205 74C174 68 145 69 111 77"/>
+                <path d="M456 462C424 443 397 419 379 389M489 526C521 504 539 479 550 449M520 603C489 582 469 558 458 532"/>
             </g>
             <g className="welcome-botanical-leaves">
                 <path d="M331 204C327 164 346 137 387 119C384 162 366 190 331 204Z"/>
@@ -25,6 +26,9 @@ export function WelcomePage() {
                 <path d="M265 129C239 101 234 68 250 30C273 63 280 96 265 129Z"/>
                 <path d="M201 76C166 96 134 91 99 66C136 49 170 51 201 76Z"/>
                 <path d="M380 293C388 263 408 245 437 239C430 269 411 289 380 293Z"/>
+                <path d="M423 443C399 430 385 409 379 389C403 395 420 413 423 443Z"/>
+                <path d="M489 526C514 499 536 490 550 449C516 464 496 492 489 526Z"/>
+                <path d="M491 582C475 567 463 550 458 532C481 540 493 557 491 582Z"/>
             </g>
             <g className="welcome-botanical-flowers">
                 <g transform="translate(394 80)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-4" r="4"/><circle cx="9" cy="-7" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-13" r="4"/><circle cx="14" cy="2" r="4"/><circle cx="-15" cy="4" r="4"/></g>
