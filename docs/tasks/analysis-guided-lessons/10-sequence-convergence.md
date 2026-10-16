@@ -14,7 +14,7 @@
   - For a convergent example with `L` equal to its limit: `|a_n - 0| = 1/n <= 1/N` for every `n >= N`, so `N` works exactly when `N epsilon > 1`. The least working threshold is `N_min = floor(1/epsilon) + 1`. Compare without the rounding of `1/epsilon` (for example, check `N_min * epsilon > 1 >= (N_min - 1) * epsilon` in a test across the epsilon grid).
   - If `N` does not work, report the first failing index `n = N` (`|a_N - L| >= epsilon`).
   - For `L` different from the limit of a convergent example, give no certificate and say `L` is not the limit.
-  - For `alternating-sign`, give no certificate. For every `L`, consecutive terms `1` and `-1` are `2` apart, so for `epsilon <= 1` at least one of them is at distance `>= 1 >= epsilon` from `L`, at indices beyond every `N`. For `epsilon > 1`, a band can contain every term; say that this single epsilon is satisfied but convergence requires every `epsilon > 0`.
+  - For `alternating-sign`, give no certificate. The farther of the values `1` and `-1` is at distance `1 + |L|` from `L`, and it recurs beyond every `N`, so the band fails whenever `epsilon <= 1 + |L|` (in particular for every `epsilon <= 1`). Only when `1 + |L| < epsilon` does the band contain every term; say that this single epsilon is satisfied but convergence requires every `epsilon > 0`. (Corrected during Part A: the first draft claimed this for every `epsilon > 1`, which fails for example at `L = 1`, `epsilon = 1.5`.)
   - For `natural`, give no certificate. `a_n > L + epsilon` for every `n > L + epsilon`, so the terms leave every band for good.
 - Bounded domains (document the constants): `epsilon` in `[0.01, 2]` on a `0.01` grid, `L` in `[-2, 2]`, `N` an integer `1..1000`, and revealed terms `terms` an integer `1..SEQUENCE_MAX_TERMS` (for example, `40`).
 - A threshold beyond the revealed or visible index range is reported as such ("N = 101 is beyond the shown terms n <= 40; the bound holds for all n >= N by the formula"). It is never truncated to the window.
@@ -47,6 +47,10 @@ Add `sl`/`en` content, tests and a smoke row.
 - Choice: `sequence-example` with the four ids above.
 - Animation id `sequence` (commands `play`, `pause`, `replay`, `next-step`, `reset`) and scene action `run-sequence-command` (`next-step` | `reset`), following ADR 0013.
 - Preset collection `sequence`, route `/bezeg-2.0/analysis/sequence`, demonstration id `sequence`.
+
+## Implementation notes
+
+- **Part A.** `src/analysis/sequence.ts` and `sequenceModel.ts`: epsilon is handled as integer hundredths, so `N_min = floor(100/k) + 1` and "N works" (`N k > 100`) are exact; off-grid values are rejected, not rounded. The certificate is a discriminated result (`certified`, `threshold-fails`, `not-the-limit`, `oscillating`, `epsilon-satisfied`, `divergent`), each with `thresholdBeyondTerms`. `SEQUENCE_MAX_TERMS = 40`; the iteration controller uses `SEQUENCE_MAX_STEPS = 39` and `nextSequenceStep`. Defaults: `terms = 1`, threshold `5`, epsilon `0.1` (convergent) or `0.5` (others).
 
 ## Acceptance criteria
 

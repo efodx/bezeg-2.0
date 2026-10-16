@@ -52,6 +52,10 @@ Add `sl`/`en` content, tests and a smoke row.
 - Choice: `uniform-example` (`power`, `scaled`).
 - Preset collection `uniform-convergence`, route `/bezeg-2.0/analysis/uniform-convergence`, demonstration id `uniform-convergence`.
 
+## Implementation notes
+
+- **Part A.** `src/analysis/uniformConvergence.ts` and `uniformConvergenceModel.ts`. `x` and `epsilon` lie on a `0.01` grid (the draft fixed no grid), so every threshold is computed exactly with integer (BigInt) arithmetic; a logarithm only proposes a starting candidate. On these grids the pointwise threshold never exceeds `459` (`x = 0.99`, `epsilon = 0.01`), below the cap `1000`. The shared `N` can exceed `UNIFORM_MAX_N = 50` (up to `90` for `power`, `101` for `scaled`); the graph reports that rather than truncating it. `uniformLimitPieces` describes the limit as a half-open segment plus an isolated point, so the graph cannot join the jump. `changeUniformR` rejects an `r` below the current `x` with the reason `x-outside-domain`.
+
 ## Acceptance criteria
 
 - On `[0, r]`, `r < 1`, the supremum error of `x^n` is `r^n` (checked against independent values such as `0.8^5 = 0.32768`).

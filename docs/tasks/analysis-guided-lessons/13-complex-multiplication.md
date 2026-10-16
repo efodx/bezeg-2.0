@@ -56,6 +56,10 @@ Add `sl`/`en` content, tests and a smoke row.
 - Choice: `complex-example` with the six ids above.
 - Preset collection `complex-multiplication`.
 
+## Implementation notes
+
+- **Part A.** `src/analysis/complex.ts` and `complexModel.ts`. Products of grid operands are computed in integer units of `1/20`, so real or zero products have an exactly zero imaginary part (argument exactly `pi`, or undefined for `0`); `-0` is normalised. `snapPolarToGrid` rounds `r(cos t + i sin t)` to the `0.05` grid and rejects results outside `[-2, 2]` or at the origin; the polar fields of an on-grid `w` reproduce it exactly, and the graph re-derives the polar fields from the snapped `w`. Every example uses `z = 1 + i`; `general` (`w = 1 + i`) needs no reduction, so the lesson's reduction scene sets its own operands (for example `z = -1 + i`, `w = i`, sum `5pi/4` reduced to `-3pi/4`). Either operand may be `0`. After a drag the stored `example` is only the last chosen example's label, as in Taylor.
+
 ## Acceptance criteria
 
 - `(1 + i) i = -1 + i`. Multiplication by `1` preserves the point, multiplication by `-1` rotates it by `pi`, and `|zw| = |z||w|` holds (tested across a grid against independent values).

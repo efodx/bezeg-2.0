@@ -56,6 +56,11 @@ Add `sl`/`en` content, tests and a smoke row.
 - Animation id `fixed-point` and scene action `run-fixed-point-command` (`next-step` | `reset`), following ADR 0013.
 - Preset collection `fixed-point`, route `/bezeg-2.0/analysis/fixed-point`, demonstration id `fixed-point`.
 
+## Implementation notes
+
+- **Part A.** `src/analysis/fixedPoint.ts` and `fixedPointModel.ts`. Hypotheses are data per example (`interval`, `selfMap` with its image and reason, `contraction` or `null`). `reflection` iterates in integer hundredths, so its two-cycle is exact. Default tolerance digits `3`; the reflection default start is `0.2`. `fixedPointTransition` is the controller's transition; `normalizeFixedPointModel` cuts a step beyond the history (a start at a known fixed point has step `0`).
+- **Stagnation is not reachable in the app.** With `d <= 8` and the limit `60` the threshold always stops first (affine by step `27`, cosine by step `51`); affine stagnates only at step `55` with the threshold off. Stagnation handling stays in the module and its tests, and the lesson treats it conceptually: a threshold stop or equal rounded values never prove an exact fixed point.
+
 ## Acceptance criteria
 
 - `affine` has fixed point `1` and `q = 1/2`. From `x0 = 0`: `x_k = 1 - 2^-k`.
