@@ -36,6 +36,8 @@ Release (2026-10-16):
   - Board screenshots of every example at both widths before and after the layout round.
   - No inline formula in the Batch C lesson prose reaches the length that overflowed hosted Linux Chromium in Batch B.
 
+- **Hosted CI:** the first push (`feaff50`) failed 198/199. On Linux Chromium, the first frame of Taylor step 1 (a Batch B lesson whose content Batch C did not change) measured 400 px at 390 px. It was marginal: the previous master run had passed it. The unbreakable inline sum in its prose was rewritten as shorter formulas that can wrap.
+
 **Known limits:**
 
 - At `epsilon = 0.5` the sequence band edges still run through the x tick row and the `−0.5` tick; in the complex `zero` example at 390 px the `zw` label hides the `1` tick.
