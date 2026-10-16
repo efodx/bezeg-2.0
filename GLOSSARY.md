@@ -33,6 +33,12 @@ _Avoid_: Fullscreen (unless referring to the browser's fullscreen feature)
 **Guided lesson**:
 An ordered educational sequence attached to one Demonstration, combining explanation with directed graph exploration.
 
+**Study chapter**:
+A readable development of a mathematical topic through motivation, explanation, worked examples, and graph activities, with sections that learners can revisit directly.
+
+**Chapter activity**:
+A focused investigation within a Study chapter that uses a Demonstration to illustrate an idea and connects back to its explanation. A Demonstration can support activities in several chapters.
+
 **Lesson step**:
 One learner-facing unit within a Guided lesson. It may explain a concept, establish a graph scene, invite an observation, or lead to the next step.
 

@@ -7,8 +7,8 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Rendered graph style contracts](specs/rendered-graph-style-contracts.md): real JSXGraph marker/state and downloaded-figure regression checks.
 - [Fail-fast publication gate](specs/fail-fast-publication-gate.md): handler-owned publication that stops at the first failed prerequisite.
 - [Future plan](future-plan.md): confirmed direction, intended outputs, and unresolved decisions.
-- [Standalone learning proposal](specs/standalone-learning.md): confirmed motivation-rich learning direction, proposed study chapters and graph activities, family-specific prerequisites, and a bounded advanced-topic pilot without practice or assessment.
-- [First Bézier study chapter](specs/bezier-study-chapter.md): proposed reading/activity sequence motivated by the owner's thesis, graph-friendly derivation, worked example, and [current capability audit](specs/bezier-study-chapter-source-notes.md).
+- [Standalone learning specification](specs/standalone-learning.md): accepted reading/activity picture examples, shared Demonstrations with two entry points, routes and transient state, and the bounded Bézier pilot without practice or assessment; [ADR 0014](adr/0014-study-chapters-share-demonstrations.md) records the ownership decision.
+- [First Bézier study chapter](specs/bezier-study-chapter.md): reading/activity content outline motivated by the owner's thesis, graph-friendly derivation, worked example, and [current capability audit](specs/bezier-study-chapter-source-notes.md).
 - [SVG export math labels spec](specs/svg-export-math-labels.md): typeset board labels in SVG figure export; [ADR 0008](adr/0008-export-time-mathjax-svg-typesetting.md) records the lazily loaded `mathjax-full` choice.
 - [Guided lessons spec](specs/guided-lessons.md): bounded content-first learning flow, architecture seams, pilot scope, and acceptance evidence.
 - [Current architecture](current-architecture.md): the implementation observed in the repository, including hosting and rendering constraints.

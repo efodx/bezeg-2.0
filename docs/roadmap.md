@@ -44,6 +44,12 @@ Do not expose Guided lessons uniformly across the catalog. Build the [capability
 
 **Done when:** every active route has a reviewed lesson or an explicit no-fit decision, each released cohort passes the mathematical/content/device/accessibility gates, and the Learn entry remains an explicit reviewed-lesson allowlist.
 
+## 3C. Add readable chapters using shared Demonstrations — specified future work
+
+The owner accepted the [standalone learning specification](specs/standalone-learning.md), including reading/activity picture examples and independent Learning and Demonstrations entry points. Start with the [Bézier chapter](specs/bezier-study-chapter.md), supplying motivation and mathematical explanation around activities that use the existing graph implementations. Preserve standalone catalog/search entry and add related-reading links. Keep visit-scoped reading/scene restoration, static client-only hosting, and Slovenian/English content; practice and assessment are excluded. [ADR 0014](adr/0014-study-chapters-share-demonstrations.md) records the ownership decision. Specification publication does not start implementation or supersede the existing guided-lesson release gates.
+
+**Done when:** one reviewed chapter is readable and directly navigable, all specified graph/reading/history round trips work, independent graph discovery and existing functionality remain intact, and the content, mathematical, localization, accessibility, lifecycle, and production-hosting verification in the specification passes. Expand to other families after the pilot provides evidence.
+
 ## 4. Improve interaction speed and ownership
 
 Use the baseline to choose the smallest effective changes to numerical evaluation, cache invalidation, board update scheduling, and auxiliary object lifecycle. This work can accompany phase 3 once measurements exist; performance is not postponed until every screen has been restyled.
