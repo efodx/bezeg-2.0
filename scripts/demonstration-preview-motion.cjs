@@ -16,6 +16,8 @@ const near = (actual, expected, message) => assert.ok(Math.abs(actual-expected)<
 // Shared timing: 12 holds, 71 moving frames (phase 0 to 1), 13 holds. Frames 13..82 move.
 const holdStart = 12, moveFrames = 71;
 const movePhase = i => Math.max(0, Math.min(1, (i - holdStart) / moveFrames));
+// Frame nearest the sin² peak (phase 0.5 falls at frame 47.5, rounded down to a sample).
+const peakFrame = Math.floor(holdStart + moveFrames / 2);
 // Pointer drags use sin² out and back: 0 at the start, 1 mid-move, 0 at the end.
 const sin2OutAndBack = i => Math.sin(Math.PI * movePhase(i)) ** 2;
 // Parameter sweeps visit each spec's waypoints in order, each leg with a sin² ease (zero speed at every waypoint).
@@ -24,7 +26,7 @@ const snapToStep = (value, step) => {
     const decimals = (String(step).split('.')[1] || '').length;
     return Number((Math.round(value / step) * step).toFixed(decimals));
 };
-function sweepValue(i, spec = motionSpecs.decasteljau) {
+function sweepValue(i, spec) {
     const {waypoints, step} = spec.sweep;
     const scaled = movePhase(i) * (waypoints.length - 1);
     const leg = Math.min(waypoints.length - 2, Math.floor(scaled));
@@ -84,7 +86,7 @@ const farinWeightText = (k, weight) => `$$w_{${k}}=${weight.toFixed(2)}$$`;
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
 const motionSpecs = {
     bezier: {
-        mode: 'pointer-drag', controlCount: 4, handle: 1,
+        mode: 'pointer-drag', controlCount: 4,
         start: ctx => ctx.points[1],
         path: (moved, displacement) => ({x: moved.x + 1.8 * displacement, y: moved.y + 2.1 * displacement}),
         // Coordinate editor restore: the moved control point is set back to its exact start coordinates.
@@ -103,10 +105,14 @@ const motionSpecs = {
                 const actual = sample.points.find(p => p.id === original.id);
                 assert.ok(actual);
                 const expected = original.id === moved.id ? sample.target : original;
-                const tolerance = original.id === moved.id && i > 12 && i < 83 ? 0.035 : 1e-9;
+                // Known weakness, inherited from the original Bézier preview: the dragged point may sit up to 0.035 units
+                // from its scheduled target while moving (1e-9 at rest). Tightening it needs re-verification of the drag path.
+                const tolerance = original.id === moved.id && i > holdStart && i < holdStart + moveFrames ? 0.035 : 1e-9;
                 assert.ok(Math.abs(actual.x - expected.x) < tolerance && Math.abs(actual.y - expected.y) < tolerance, `Unexpected control-point position at sample ${i}: ${JSON.stringify({actual, expected})}`);
             }
-            if (i === 47) assert.notEqual(sample.curvePathHash, first.curvePathHash, 'Pointer motion did not recompute the real curve');
+            assert.deepEqual(sample.strokeWidths, first.strokeWidths, `Stroke widths compounded at sample ${i}`);
+            if (i === peakFrame) assert.notEqual(sample.curvePathHash, first.curvePathHash, 'Pointer motion did not recompute the real curve');
+            if (i === frameCount - 1) assert.equal(sample.curvePathHash, first.curvePathHash, 'The original curve must return exactly');
         },
         schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)',
             zeroDisplacementFrames: '0-12 and 83-95', movingFrames: '13-82', press: 13, release: 83,
@@ -121,17 +127,21 @@ const motionSpecs = {
             waypoints: [0.5, 1, 0, 0.5], step: 0.01, start: 0.5,
             readout: {text: value => `t = ${value.toFixed(2)}`,
                 read: ({page}) => page.evaluate(() => document.querySelector('.decasteljau-animation-heading output')?.textContent ?? null)},
-            check(sample, previous) {
+            check(sample, previous, first) {
                 const {controls, actual: {input: value}} = sample;
                 // Intermediate points and the construction end are compared with pure evaluations at the reported t.
                 const levels = deCasteljauLevels(controls, value).flat();
-                assertPointSet(sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y})), levels, `Intermediate point differs from pure de Casteljau at frame ${sample.index}`);
+                const observed = sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y}));
+                // The observed construction end must lie on the full curve (Bernstein evaluation at the reported t).
                 const final = bernsteinPoint(controls, value);
-                assert.ok(Math.abs(levels.at(-1).x - final.x) < 1e-9 && Math.abs(levels.at(-1).y - final.y) < 1e-9, `Final point leaves the full curve at frame ${sample.index}`);
+                assert.ok(observed.some(p => Math.abs(p.x - final.x) < 1e-9 && Math.abs(p.y - final.y) < 1e-9), `Final point leaves the full curve at frame ${sample.index}`);
+                assertPointSet(observed, levels, `Intermediate point differs from pure de Casteljau at frame ${sample.index}`);
                 if (previous) {
                     if (previous.scheduled !== sample.scheduled) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Partial-curve path did not change at frame ${sample.index}`);
                     else assert.equal(sample.curvePathHash, previous.curvePathHash, `Partial-curve path changed while t held at frame ${sample.index}`);
                 }
+                // Seam: the sweep returns to the recipe state, so the last source PNG must equal the first (as for the other clips).
+                if (sample.index === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
             },
         },
         // Budget order: no point labels are visible to remove, the full 0-1 range is the lesson, so only the encoder
@@ -165,7 +175,10 @@ const motionSpecs = {
                 const named = name => objects.find(o => o.elType === 'point' && o.name === name);
                 const P = named('$$P$$'), Q = named('$$Q$$');
                 const secant = objects.find(o => o.elType === 'line' && o.point1 === P && o.point2 === Q);
-                const tangent = objects.find(o => o.visProp?.visible !== false && o.visProp?.dash === 2 && o.rendNode);
+                // Exactly one dashed, visible, rendered line is the tangent; anything else is a board change to review.
+                const dashed = objects.filter(o => o.visProp?.visible !== false && o.visProp?.dash === 2 && o.rendNode);
+                if (dashed.length !== 1) throw new Error(`Expected exactly one dashed tangent, found ${dashed.length}`);
+                const tangent = dashed[0];
                 // The tangent is a line; two sampled values give its slope and intercept exactly.
                 const at0 = tangent.Y(0), at1 = tangent.Y(1);
                 const {stdform} = secant;
@@ -188,6 +201,10 @@ const motionSpecs = {
                 assert.ok(Math.abs(o.tangent.slope - 2 * x0) < 1e-9, `Tangent slope differs from f'(x0) at frame ${i}`);
                 assert.ok(Math.abs(o.tangent.slope - first.observed.tangent.slope) < 1e-9 && Math.abs(o.tangent.intercept - first.observed.tangent.intercept) < 1e-9,
                     `Tangent moved at frame ${i}`);
+                // The tangent of f at x0 touches the graph at P: slope·x0 + intercept = f(x0).
+                assert.ok(Math.abs(o.tangent.slope * x0 + o.tangent.intercept - squareValue(x0)) < 1e-9, `Tangent does not pass through P at frame ${i}`);
+                // The path hash is only meaningful when the snapshot holds the function path; an empty snapshot hashes the same every frame.
+                assert.ok(sample.pathCount > 0, `Function path missing from the snapshot at frame ${i}`);
                 assert.equal(sample.curvePathHash, first.curvePathHash, `Function or tangent path changed at frame ${i}`);
                 if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Last frame PNG differs from the recipe frame');
             },
@@ -213,16 +230,22 @@ const motionSpecs = {
         // The full settle() re-typesets MathJax on every frame; with the moving weight labels that crashed the renderer
         // at about frame 31. Two animation frames are enough here: the labels are plain board text updated by JSXGraph.
         settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
-        // The glider of edge p1-p2 (the interior control edge) starts at v = 1/3 (ratio 1/2, weights [1, 2, 1, 1]) and moves to v = 0.75 (0.8 was 328205 bytes at CRF 10, over the 300 KiB ceiling; see encoderBudget).
+        pressSettle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        // The glider of edge p1-p2 (the interior control edge) starts at v = 1/3 (ratio 1/2, weights [1, 2, 1, 1]) and moves to v = 0.7 (0.8 was 328205 bytes at CRF 10, over the 300 KiB ceiling; 0.75 kept the curve on the w2 label at its peak, see encoderBudget).
         // JSXGraph slider snapWidth is -1 (no snapping), so the glider follows the pointer continuously. The tolerance (1e-6 of the
-        // edge parameter) only covers round-off in the board-to-screen-to-board mapping of the pointer; the capture measures it.
-        glider: {edge: 1, target: 0.75, tolerance: 1e-6},
+        // edge parameter) only covers round-off in the board-to-screen-to-board mapping of the pointer. Measured glider error is
+        // about 1.6e-7, so 1e-6 leaves only a 6x margin; keep it, and tighten only after re-measuring on a new capture.
+        glider: {edge: 1, target: 0.7, tolerance: 1e-6},
         crf: 14,
-        encoderBudget: 'amplitude 0.75 instead of 0.8 and CRF 14 instead of CRF 10: at 0.8 and CRF 10 the clip was 328205 bytes, at 0.75 and CRF 10 321279 bytes (both over 300 KiB), and at 0.75 and CRF 20 210184 bytes; all weight text and labels kept',
+        encoderBudget: 'amplitude 0.7 instead of 0.8 and CRF 14 instead of CRF 10: at 0.8 and CRF 10 the clip was 328205 bytes, at 0.75 and CRF 10 321279 bytes (both over 300 KiB), and at 0.75 and CRF 20 210184 bytes; 0.7 (CRF 14) gave 259057 bytes; 0.7 also keeps the curve off the w2 weight label at its peak (0.75 did not); all weight text and labels kept',
         observe: page => page.locator('#jgbox').evaluate((container, ts) => {
             const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
             const objects = Object.values(b.objects);
-            const sliders = objects.filter(o => o.elType === 'slider').map(s => ({v: s.Value(), p1: {x: s.point1.X(), y: s.point1.Y()}, p2: {x: s.point2.X(), y: s.point2.Y()}}));
+            // Sorted by edge position (p1 along the polygon), not board insertion order, so index j is control edge j.
+            // check() verifies each slider's p1/p2 against controls[j], controls[j+1], so a wrong order fails there.
+            const sliders = objects.filter(o => o.elType === 'slider')
+                .map(s => ({v: s.Value(), p1: {x: s.point1.X(), y: s.point1.Y()}, p2: {x: s.point2.X(), y: s.point2.Y()}}))
+                .sort((a, b) => a.p1.x - b.p1.x || a.p1.y - b.p1.y);
             const weights = [];
             objects.filter(o => o.elType === 'text' && /^\$\$w_\{\d\}=/.test(o.plaintext || '')).forEach(o => {
                 weights[Number(/w_\{(\d)\}/.exec(o.plaintext)[1])] = o.plaintext;
@@ -293,7 +316,7 @@ const motionSpecs = {
         },
         schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)',
             zeroDisplacementFrames: '0-12 and 83-95', movingFrames: '13-82', press: 13, release: 83,
-            target: 'glider of edge p1-p2: v = 1/3 -> 0.75 -> 1/3 (ratio 1/2 -> 3 -> 1/2)',
+            target: 'glider of edge p1-p2: v = 1/3 -> 0.7 -> 1/3 (ratio 1/2 -> 7/3 -> 1/2)',
             input: 'pointer press on the glider at its start position, moved in board coordinates mapped to screen every frame, released',
             restore: 'Farin points off; weight number fields w1, w2, w3 set to exact 2, 1, 1; Farin points on (exact rebuild of the gliders)'},
         invariants: ['Control points unchanged (1e-9)', 'Glider stays on its control edge and at the scheduled ratio (tolerance 1e-6 in edge parameter)',
@@ -369,28 +392,11 @@ function assertMotionEvidence(motion) {
         assertSweepEvidence(motion,spec);
         return;
     }
-    if(motion.mode==='pointer-drag' && motionSpecs[motion.id]?.observe) {
+    if(motion.mode==='pointer-drag' && motionSpecs[motion.id]) {
         assertDragEvidence(motion,motionSpecs[motion.id]);
         return;
     }
-    if(motion.id==='bezier') {
-        assert.equal(motion.samples.length,frameCount);
-        const first=motion.samples[0],last=motion.samples[frameCount-1];
-        assert.equal(first.points.length,4);
-        for(const [i,sample] of motion.samples.entries()) {
-            assert.equal(sample.index,i);assert.equal(sample.time,i/24);
-            assert.deepEqual(sample.strokeWidths,first.strokeWidths);
-            assert.equal(sample.points.length,4);
-            first.points.forEach((p,j)=>{
-                const actual=sample.points[j];assert.equal(actual.id,p.id);
-                const expected=j===1 && i>12 && i<83?sample.target:p;
-                const tolerance=j===1 && i>12 && i<83?0.035:1e-9;
-                assert.ok(Math.abs(actual.x-expected.x)<tolerance&&Math.abs(actual.y-expected.y)<tolerance,'Invalid Bézier control-point sample');
-            });
-        }
-        assert.notEqual(first.curvePathHash,motion.samples[47].curvePathHash);
-        assert.equal(first.curvePathHash,last.curvePathHash,'The original curve must return exactly');
-    } else if(['repeated-subdivision','bisection'].includes(motion.id)) {
+    if(['repeated-subdivision','bisection'].includes(motion.id)) {
         assert.equal(motion.samples.length,3);
         motion.samples.forEach((sample,i)=>{
             assert.equal(sample.checkpoint,motion.id==='bisection'?i+1:i);
@@ -537,7 +543,8 @@ async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
         for(let i=0;i<frameCount;i++) {
             const phase=movePhase(i);const displacement=sin2OutAndBack(i);
             const target=spec.path(moved,displacement,ctx);
-            if(i===spec.schedule.press){await page.mouse.move(start.x,start.y);await page.mouse.down();}
+            // pressSettle (farin only): let JSXGraph process the hover and the press before the first drag move, or the glider can lag one frame.
+            if(i===spec.schedule.press){await page.mouse.move(start.x,start.y);if(spec.pressSettle)await spec.pressSettle(page);await page.mouse.down();if(spec.pressSettle)await spec.pressSettle(page);}
             if(i>spec.schedule.press-1 && i<spec.schedule.release){const at=await screen(target.x,target.y);await page.mouse.move(at.x,at.y);}
             if(i===spec.schedule.release){await page.mouse.up();await spec.restore(page,ctx);}
             await (spec.settle||settle)(page);
@@ -570,10 +577,8 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
     const {page,context}=await openRoute(browser,d,baseUrl);
     try {
         await applyRecipe(page,recipe);
-        // The poster's own fit is the camera for every frame. Presenting once keeps frame 0 identical to the poster
-        // framing; re-presenting with a coordinate window changes the fit, so no per-frame refit is applied.
-        // The recipe's own window (if any) is the camera; presenting once keeps frame 0 identical to the poster
-        // framing. Re-presenting with a different fit would change the camera, so no per-frame refit is applied.
+        // The recipe's own window (if any), else the poster's fit, is the camera for every frame. Presenting once keeps frame 0
+        // identical to the poster framing; re-presenting with a different fit would change the camera, so no per-frame refit.
         const presentation=recipe.framing.kind==='coordinate-window'?{window:recipe.framing.window}:{};
         const poster=await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
         const initial=await boardSnapshot(page);const fixedBox=initial.box;
@@ -584,6 +589,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         let control=page.getByLabel(spec.control.label,{exact:true});
         assert.equal(await control.count(),1,`Unsupported or ambiguous range control: ${spec.control.label}`);
         for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
+        assert.ok(await control.isVisible(),`Range control ${spec.control.label} is still hidden after revealing the inspector tabs`);
         const rangeId=await control.getAttribute('id');
         const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
         const {sweep}=spec;
@@ -614,7 +620,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
                 controls:controls.map(({id,x,y})=>({id,x,y})),
                 fixed:controls.map(({id,x,y})=>({id,x,y})),
                 capture:captured,points:state.points.map(({id,name,x,y,draggable})=>({id,name,x,y,draggable})),
-                strokeWidths:state.strokeWidths,curvePathHash:hash,...(observed?{observed}:{})};
+                strokeWidths:state.strokeWidths,curvePathHash:hash,pathCount:state.paths.length,...(observed?{observed}:{})};
             first??=sample;
             assertSweepFrame(sample,previous,first,spec);
             sampleEvidence.push(sample);

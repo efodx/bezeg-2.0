@@ -36,8 +36,8 @@ test('step provenance requires exact consecutive states and the common camera',(
     motion.samples[1].state.curves=2;motion.samples[2].state.box[0]=-2;assert.throws(()=>assertMotionEvidence(motion));
 });
 test('smooth evidence rejects stroke compounding, stationary-point drift and a failed exact return',()=>{
-    const base=[{id:'p0',x:-4,y:-3},{id:'p1',x:-3,y:2},{id:'p2',x:2,y:2},{id:'p3',x:3,y:-2}];
-    const motion={id:'bezier',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>{
+    const base=[{id:'p0',x:-4,y:-3,draggable:true},{id:'p1',x:-3,y:2,draggable:true},{id:'p2',x:2,y:2,draggable:true},{id:'p3',x:3,y:-2,draggable:true}];
+    const motion={id:'bezier',mode:'pointer-drag',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>{
         const shift=Math.sin(Math.PI*Math.max(0,Math.min(1,(i-12)/71)))**2;
         const target={x:-3+1.25*shift,y:2+1.5*shift};
         return {index:i,time:i/24,target,points:base.map((p,j)=>({...p,...(j===1&&i>12&&i<83?target:{})})),strokeWidths:['2.24px'],curvePathHash:i<=12||i>=83?'original':'moved'};
@@ -71,11 +71,11 @@ test('affine provenance rejects a wrong intermediate rotation and shifted camera
 test('parameter sweep provenance rejects a moved fixed point, wrong intermediate, a jump at the loop seam and a target mismatch',()=>{
     const controls=[{id:'c0',x:-4,y:-3},{id:'c1',x:-3,y:2},{id:'c2',x:0,y:3},{id:'c3',x:3,y:2},{id:'c4',x:4,y:-3}];
     const sample=i=>{
-        const scheduled=sweepValue(i);
+        const scheduled=sweepValue(i,motionSpecs.decasteljau);
         const levels=deCasteljauLevels(controls,scheduled).flat();
         const points=[...controls.map(p=>({...p,draggable:true})),...levels.map((p,j)=>({id:'i'+j,name:'',x:p.x,y:p.y,draggable:false}))];
         return {index:i,time:i/24,scheduled,actual:{input:scheduled,readout:`t = ${scheduled.toFixed(2)}`,steps:0},
-            controls:controls.map(({id,x,y})=>({id,x,y})),points,curvePathHash:`path-${scheduled}`};
+            controls:controls.map(({id,x,y})=>({id,x,y})),points,curvePathHash:`path-${scheduled}`,capture:{sha256:'recipe-png'}};
     };
     const motion=()=>({id:'decasteljau',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
     const valid=motion();
@@ -86,8 +86,13 @@ test('parameter sweep provenance rejects a moved fixed point, wrong intermediate
     assert.throws(()=>assertMotionEvidence(moved),/Fixed control point moved/);
     const wrong=motion();wrong.samples[40].points[7].x+=0.1;
     assert.throws(()=>assertMotionEvidence(wrong),/Intermediate point differs/);
+    // The construction end is the last of the 10 intermediate points (after the 5 controls): moving it off the curve must fail the Bernstein check.
+    const off=motion();off.samples[40].points[14].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(off),/Final point leaves the full curve/);
     const seam=motion();seam.samples[95].curvePathHash='path-jump';
     assert.throws(()=>assertMotionEvidence(seam),/changed while t held|Last frame|Non-seamless/);
+    const seamPng=motion();seamPng.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seamPng),/Non-seamless loop: last PNG/);
     const mismatch=motion();mismatch.samples[40].actual.input+=0.01;
     assert.throws(()=>assertMotionEvidence(mismatch),/Input value differs/);
     const readout=motion();readout.samples[40].actual.readout='t = 0.40';
@@ -103,7 +108,7 @@ test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a mo
             controls:[{id:'p',x:x0,y:f(x0)}],
             points:[{id:'p',name:'$$P$$',x:x0,y:f(x0),draggable:true},{id:'q',name:'$$Q$$',x:q,y:f(q),draggable:false}],
             observed:{P:{x:x0,y:f(x0)},Q:{x:q,y:f(q)},secant:{stdform:[intercept,slope,-1]},tangent:{slope:2,intercept:-1}},
-            curvePathHash:'function-and-tangent',capture:{sha256:'recipe-png'}};
+            curvePathHash:'function-and-tangent',pathCount:1,capture:{sha256:'recipe-png'}};
     };
     const motion=()=>({id:'derivative',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
     const valid=motion();
@@ -125,6 +130,12 @@ test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a mo
     assert.throws(()=>assertMotionEvidence(png),/PNG differs/);
     const band=sample(40);band.actual.input=0.005;
     assert.throws(()=>deriv.sweep.check(band,null,valid.samples[0],deriv),/excluded band/);
+    // Finding 1: the tangent must pass through P. y = 2x has slope 2 = f'(1) but misses P=(1, 1) (2 * 1 + 0 - 1 = 1, not 0).
+    const line=motion();line.samples.forEach(s=>{s.observed.tangent={slope:2,intercept:0};});
+    assert.throws(()=>assertMotionEvidence(line),/Tangent does not pass through P/);
+    // Finding 3: an empty snapshot hashes the same every frame, so the function path must be present.
+    const empty=motion();empty.samples.forEach(s=>{s.pathCount=0;});
+    assert.throws(()=>assertMotionEvidence(empty),/Function path missing/);
 });
 test('Farin pointer-drag provenance rejects a moved control point, a changed non-dragged ratio, a weight text mismatch and a non-seamless end',()=>{
     const {rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack}=require('./demonstration-preview-motion.cjs');
@@ -145,7 +156,7 @@ test('Farin pointer-drag provenance rejects a moved control point, a changed non
     const valid=motion();
     assertMotionEvidence(valid);
     assert.equal(valid.samples[0].scheduled.v,1/3);assert.equal(valid.samples[95].scheduled.v,1/3);
-    assert.ok(Math.abs(Math.max(...valid.samples.map(s=>s.scheduled.v))-0.75)<1e-3);
+    assert.ok(Math.abs(Math.max(...valid.samples.map(s=>s.scheduled.v))-motionSpecs.farin.glider.target)<1e-3);
     const moved=motion();moved.samples[40].points[1].x+=0.1;
     assert.throws(()=>assertMotionEvidence(moved),/Control point moved/);
     const ratio=motion();ratio.samples[40].observed.sliders[2].v+=0.01;
