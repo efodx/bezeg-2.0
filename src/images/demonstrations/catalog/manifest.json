@@ -1,10 +1,10 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
   "version": 2,
-  "graphSourceRevision": "c32a474afb2bb6e11f57258ab2f49f4d215282e9",
+  "graphSourceRevision": "3fe72ec0c0f7a5bb4eb76402dd3eda1494c0c6a8",
   "graphSourceFingerprint": "dbeb37b2f79053fc602d5dbe81d09eca4eec5f8a2c5b3414cd8c3d95a6dfc5a6",
   "graphDirtyFiles": [],
-  "presentationFingerprint": "eaa794eea1487de351b1ff30728f22a372ec60367fa219002cff11e2be9fa306",
+  "presentationFingerprint": "aa813ff4aebed6ef4f2331f9cd57edad647f65f775cb5f4e3b82d405991de518",
   "servedBuild": {
     "file": "assets/index-BUTNcp5i.js",
     "sha256": "763ae96f4748451b6d13cb912cc118828e5c920b5dfda8bfbe5ca764f290a040"
@@ -3186,15 +3186,15 @@
         "paddingFraction": 0.14,
         "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
         "sceneBounds": {
-          "minX": -4.918177430198173,
-          "maxX": 4.913243717978055,
+          "minX": -4.918177430198172,
+          "maxX": 4.913243717978056,
           "minY": -4.676367119749097,
           "maxY": 2.089126777308935
         },
         "boardBoundingBox": [
-          -6.234697197577377,
+          -6.234697197577376,
           2.922435631301526,
-          6.2324690335845085,
+          6.232469033584509,
           -4.696388176630737
         ],
         "framedElementCount": 25,
@@ -9521,7 +9521,7 @@
     {
       "id": "repeated-subdivision",
       "file": "repeated-subdivision.webm",
-      "sha256": "040455523b160a2e49a5ca3c99a718b428a711e48f4cd3d2ec13cdd4cc8ae067",
+      "sha256": "ab28284616909875d3083d61ef0dd8342a4a65fe490d54fc3ea327d95d3352d0",
       "type": "video/webm",
       "duration": 4,
       "bytes": 39483,
@@ -9549,7 +9549,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-repeated-subdivision\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-repeated-subdivision\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -9569,7 +9569,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\repeated-subdivision.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\repeated-subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -10540,12 +10540,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.78
+      "generationSeconds": 5.233
     },
     {
       "id": "bisection",
       "file": "bisection.webm",
-      "sha256": "4d86ab3ef205f30b419775c5ab784614c30e6cb17ba79a3333cecccb7f72110a",
+      "sha256": "3b82d29e6b2edfd78116329033bceaec95637c3bbb694776fe379484fce82ece",
       "type": "video/webm",
       "duration": 4,
       "bytes": 70754,
@@ -10573,7 +10573,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-bisection\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-bisection\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -10593,7 +10593,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\bisection.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\bisection.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11165,12 +11165,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.67
+      "generationSeconds": 5.175
     },
     {
       "id": "bezier",
       "file": "bezier.webm",
-      "sha256": "f2e20fc42d9f6f49daf01d09b29665d78b13af7ab17cde2a7fdbcd1ae9fd4f8d",
+      "sha256": "2f505116eb1ee90acc4f90f9c50ef82ccb85da498e622c52e3c7287aaf79ac74",
       "type": "video/webm",
       "duration": 4,
       "bytes": 261349,
@@ -11198,7 +11198,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-bezier\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-bezier\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11218,7 +11218,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\bezier.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\bezier.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -18832,12 +18832,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 23.059
+      "generationSeconds": 23.832
     },
     {
       "id": "affine",
       "file": "affine.webm",
-      "sha256": "9bf11c2d985b42439176783786290700aa5ba18508a1b58bd7eec8db80f18f20",
+      "sha256": "d984788f902a9520a846954125c4b040a04afc1f8e6802b44cce2d6c6356a55f",
       "type": "video/webm",
       "duration": 4,
       "bytes": 64757,
@@ -18865,7 +18865,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-affine\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-affine\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -18885,7 +18885,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\affine.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\affine.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -20049,12 +20049,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.132
+      "generationSeconds": 4.125
     },
     {
       "id": "elevation",
       "file": "elevation.webm",
-      "sha256": "7569ecb3003445ab8d6eecec68e807e8a88a0cf493b82feb9cb4bee31b37fee3",
+      "sha256": "04ac45097d312e8a83d5f0974db9a2ba0a9a62ee4ad830dd08d7725b02a8bba7",
       "type": "video/webm",
       "duration": 4,
       "bytes": 25190,
@@ -20082,7 +20082,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-elevation\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-elevation\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -20102,7 +20102,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\elevation.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -20609,12 +20609,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.883
+      "generationSeconds": 4.904
     },
     {
       "id": "rational-elevation",
       "file": "rational-elevation.webm",
-      "sha256": "ef955a3934317d5250bf337a0ffb03a77118f346dd722683bf5a4ad836dc9ae1",
+      "sha256": "827d2fba56042b809e91f8030fb1cecc9ee466fd9c3980a3405c7b0446569bd5",
       "type": "video/webm",
       "duration": 4,
       "bytes": 45697,
@@ -20642,7 +20642,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-rational-elevation\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-rational-elevation\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -20662,7 +20662,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\rational-elevation.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\rational-elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -21187,12 +21187,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 6.995
+      "generationSeconds": 6.937
     },
     {
       "id": "decasteljau",
       "file": "decasteljau.webm",
-      "sha256": "3051e0e3cbce16fbfb406508b4580a3254f8d6aa967ffdcfd176158fb8a90caf",
+      "sha256": "6e14339cf509ae035b25c65b39358d41fb0a91fec08b9b0b207373fe946c0cf0",
       "type": "video/webm",
       "duration": 4,
       "bytes": 295631,
@@ -21220,7 +21220,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-decasteljau\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-decasteljau\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -21240,7 +21240,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\decasteljau.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\decasteljau.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -37503,12 +37503,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 17.155
+      "generationSeconds": 17.319
     },
     {
       "id": "derivative",
       "file": "derivative.webm",
-      "sha256": "6a44f369ea189bbcef076b00012cabd185c40087504d046b10e4c2ff1c11fd8e",
+      "sha256": "89c661c861b56c7abf0d907b3170cc58e4be4df7d54af0cfe5dae2c6da9529e4",
       "type": "video/webm",
       "duration": 4,
       "bytes": 250909,
@@ -37536,7 +37536,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-derivative\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-derivative\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -37556,7 +37556,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\derivative.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\derivative.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -45275,12 +45275,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 15.609
+      "generationSeconds": 15.543
     },
     {
       "id": "farin",
       "file": "farin.webm",
-      "sha256": "9a3ebd36edd444205c6a3cc30db777719b8c04857322119cca21b867f06dc318",
+      "sha256": "a97ae32ee987e9d9959872b7dbb3e20acd9ce62b64e0d22617b257c50947cfe8",
       "type": "video/webm",
       "duration": 4,
       "bytes": 259057,
@@ -45308,7 +45308,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-farin\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-farin\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -45328,7 +45328,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\farin.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\farin.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -56980,12 +56980,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 15.039
+      "generationSeconds": 14.72
     },
     {
       "id": "weighted-parameterization",
       "file": "weighted-parameterization.webm",
-      "sha256": "b2e38e3bac07534b35b2c93129a9306aff5a86d11bf5b8549bd5a2c7d14e460b",
+      "sha256": "9eec6d4ab99e9d56cde251d2e96a0145b7acb626f33dbdf8a109abf9f0a08789",
       "type": "video/webm",
       "duration": 4,
       "bytes": 167065,
@@ -57013,7 +57013,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\frames-weighted-parameterization\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-weighted-parameterization\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -57033,7 +57033,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-15172\\weighted-parameterization.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\weighted-parameterization.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -73007,7 +73007,5569 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 12.871
+      "generationSeconds": 12.489
+    },
+    {
+      "id": "complex-multiplication",
+      "file": "complex-multiplication.webm",
+      "sha256": "1f651f23174ebb2560c2bdd9ea660090d049f5eefdd55c025e54090a4615af00",
+      "type": "video/webm",
+      "duration": 4,
+      "bytes": 297310,
+      "width": 720,
+      "height": 440,
+      "codec": "vp9",
+      "pixelFormat": "gbrp",
+      "colorRange": "pc",
+      "colorSpace": "gbr",
+      "colorPrimaries": "bt709",
+      "colorTransfer": "iec61966-2-1",
+      "backgroundPixel": {
+        "rgb": [
+          255,
+          253,
+          245
+        ],
+        "checked": "upper-left pixel of every source and decoded frame"
+      },
+      "encoder": "ffmpeg version N-113482-g36a986d9a1-20240130 Copyright (c) 2000-2024 the FFmpeg developers",
+      "arguments": [
+        "-y",
+        "-loglevel",
+        "error",
+        "-framerate",
+        "24",
+        "-i",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\frames-complex-multiplication\\%03d.png",
+        "-an",
+        "-c:v",
+        "libvpx-vp9",
+        "-crf",
+        "14",
+        "-b:v",
+        "0",
+        "-pix_fmt",
+        "gbrp",
+        "-colorspace",
+        "rgb",
+        "-color_primaries",
+        "bt709",
+        "-color_trc",
+        "iec61966-2-1",
+        "-color_range",
+        "pc",
+        "-row-mt",
+        "1",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-58892\\complex-multiplication.webm"
+      ],
+      "frameCount": 96,
+      "sampleRate": 24,
+      "camera": [
+        -3.560727272727273,
+        2.776,
+        3.560727272727273,
+        -1.5760000000000005
+      ],
+      "mode": "pointer-drag",
+      "schedule": {
+        "kind": "monotone-ease",
+        "phase": "clamp((frame-12)/71)",
+        "progress": "(1 - cos(π·phase))/2",
+        "theta": "π/2 + 2π·progress",
+        "zeroDisplacementFrames": "0-12 (w holds at i)",
+        "settledFrames": "83-95 (w holds at i)",
+        "movingFrames": "13-82",
+        "press": 13,
+        "release": 83,
+        "restore": "number fields Re w = 0 and Im w = 1 after release (exact)",
+        "input": "pointer drag of the w square on the board, one press and one release"
+      },
+      "invariants": [
+        "z unchanged (1e-9)",
+        "w equals the 0.05-grid-rounded circle point at the scheduled theta (1e-9)",
+        "Product point equals z·w from the reported z and w (1e-9)",
+        "Caption operand and product text equal the reported values (argument line checked when shown)",
+        "Final w equals the starting i exactly (restore through the Re w and Im w fields)",
+        "Only w changes; the product follows w",
+        "First and last source frames equal the recipe state"
+      ],
+      "encoderBudget": "CRF 14: 297310 B on the 96 source frames, the lowest CRF under the 307200 B ceiling (CRF 13 309149, CRF 12 324011, CRF 10 350903); no label, amplitude or camera change was made",
+      "samples": [
+        {
+          "index": 0,
+          "time": 0,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "000.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 1,
+          "time": 0.041666666666666664,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "001.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 2,
+          "time": 0.08333333333333333,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "002.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 3,
+          "time": 0.125,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "003.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 4,
+          "time": 0.16666666666666666,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "004.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 5,
+          "time": 0.20833333333333334,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "005.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 6,
+          "time": 0.25,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "006.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 7,
+          "time": 0.2916666666666667,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "007.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 8,
+          "time": 0.3333333333333333,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "008.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 9,
+          "time": 0.375,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "009.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 10,
+          "time": 0.4166666666666667,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "010.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 11,
+          "time": 0.4583333333333333,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "011.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 12,
+          "time": 0.5,
+          "phase": 0,
+          "target": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 6.123233995736766e-17,
+            "y": 1
+          },
+          "observed": {
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "012.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 13,
+          "time": 0.5416666666666666,
+          "phase": 0.014084507042253521,
+          "target": {
+            "x": -0.0030749027288108233,
+            "y": 0.9999952724754294
+          },
+          "scheduled": {
+            "x": -0.0030749027288108233,
+            "y": 0.9999952724754294
+          },
+          "observed": {
+            "text": "(-0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "013.png",
+            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+        },
+        {
+          "index": 14,
+          "time": 0.5833333333333334,
+          "phase": 0.028169014084507043,
+          "target": {
+            "x": -0.012293301362426241,
+            "y": 0.9999244345157351
+          },
+          "scheduled": {
+            "x": -0.012293301362426241,
+            "y": 0.9999244345157351
+          },
+          "observed": {
+            "text": "(-0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "014.png",
+            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+        },
+        {
+          "index": 15,
+          "time": 0.625,
+          "phase": 0.04225352112676056,
+          "target": {
+            "x": -0.02763454581703354,
+            "y": 0.9996180930122694
+          },
+          "scheduled": {
+            "x": -0.02763454581703354,
+            "y": 0.9996180930122694
+          },
+          "observed": {
+            "text": "(-0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "015.png",
+            "sha256": "4e886bf68b1814fa3e6451a6e19ac33b7db2e1bc9635cac5725356cb8fdc0e8a",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.05,
+              "y": 0.95,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.05,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ce739cb5c58749772d1e84d40b3b91c105a39e546e52db1f109ef4443b43d31a"
+        },
+        {
+          "index": 16,
+          "time": 0.6666666666666666,
+          "phase": 0.056338028169014086,
+          "target": {
+            "x": -0.0490585300526166,
+            "y": 0.9987959053926265
+          },
+          "scheduled": {
+            "x": -0.0490585300526166,
+            "y": 0.9987959053926265
+          },
+          "observed": {
+            "text": "(-0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "016.png",
+            "sha256": "4e886bf68b1814fa3e6451a6e19ac33b7db2e1bc9635cac5725356cb8fdc0e8a",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.05,
+              "y": 0.95,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.05,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ce739cb5c58749772d1e84d40b3b91c105a39e546e52db1f109ef4443b43d31a"
+        },
+        {
+          "index": 17,
+          "time": 0.7083333333333334,
+          "phase": 0.07042253521126761,
+          "target": {
+            "x": -0.07649733219874061,
+            "y": 0.9970697860062131
+          },
+          "scheduled": {
+            "x": -0.07649733219874061,
+            "y": 0.9970697860062131
+          },
+          "observed": {
+            "text": "(-0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "017.png",
+            "sha256": "6f5c20bd3109cffa8ae7f2e9a622bdd3167b4c8f0493f048a21800836aeb071d",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.1,
+              "y": 0.9,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "9c949de1d530b54df9f1f4f14dcacae4ecc99d8f793436177b75e46a15abd4cc"
+        },
+        {
+          "index": 18,
+          "time": 0.75,
+          "phase": 0.08450704225352113,
+          "target": {
+            "x": -0.10984386905228762,
+            "y": 0.9939488540320492
+          },
+          "scheduled": {
+            "x": -0.10984386905228762,
+            "y": 0.9939488540320492
+          },
+          "observed": {
+            "text": "(-0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "018.png",
+            "sha256": "6f5c20bd3109cffa8ae7f2e9a622bdd3167b4c8f0493f048a21800836aeb071d",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.1,
+              "y": 0.9,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "9c949de1d530b54df9f1f4f14dcacae4ecc99d8f793436177b75e46a15abd4cc"
+        },
+        {
+          "index": 19,
+          "time": 0.7916666666666666,
+          "phase": 0.09859154929577464,
+          "target": {
+            "x": -0.1489379459184748,
+            "y": 0.988846544346283
+          },
+          "scheduled": {
+            "x": -0.1489379459184748,
+            "y": 0.988846544346283
+          },
+          "observed": {
+            "text": "(-0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,15 + izw = −1,15 + 0,85i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "019.png",
+            "sha256": "3bbcb86c8e1806be061e8928e02c998f5f533f66022e2c3b639ea7df2658c7a5",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.15,
+              "y": 0.85,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.15,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "bd800e0ee60167f6e43c2a889ae234d20ef096a5d6ef4349aac631d5288337a7"
+        },
+        {
+          "index": 20,
+          "time": 0.8333333333333334,
+          "phase": 0.11267605633802817,
+          "target": {
+            "x": -0.19355022004591205,
+            "y": 0.9810903690895039
+          },
+          "scheduled": {
+            "x": -0.19355022004591205,
+            "y": 0.9810903690895039
+          },
+          "observed": {
+            "text": "(-0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 + izw = −1,2 + 0,8i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "020.png",
+            "sha256": "7620ccfdde66ca5d113f7f9747b0f48588625d84ad52122bfed960d360db9847",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.2,
+              "y": 0.8,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.2,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "94cec510d36543b1cc70afd95c257ffb9da760757b56fbf248026a706b40f54b"
+        },
+        {
+          "index": 21,
+          "time": 0.875,
+          "phase": 0.1267605633802817,
+          "target": {
+            "x": -0.2433647477786967,
+            "y": 0.9699348429346227
+          },
+          "scheduled": {
+            "x": -0.2433647477786967,
+            "y": 0.9699348429346227
+          },
+          "observed": {
+            "text": "(-0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,25 + 0,95izw = −1,2 + 0,7i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "021.png",
+            "sha256": "57e57471900656deac24ef1c47904ff4a83d8d199389e39b9010e9b0627c21a0",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.2,
+              "y": 0.7,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.25,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "24af38b1f035a213e0168b72bb816481bb736a0e69a7f8c43de05aca25ce2a90"
+        },
+        {
+          "index": 22,
+          "time": 0.9166666666666666,
+          "phase": 0.14084507042253522,
+          "target": {
+            "x": -0.29796094809624757,
+            "y": 0.9545780604065784
+          },
+          "scheduled": {
+            "x": -0.29796094809624757,
+            "y": 0.9545780604065784
+          },
+          "observed": {
+            "text": "(-0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,3 + 0,95izw = −1,25 + 0,65i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "022.png",
+            "sha256": "ceb35927a4bf638a85c623c8c6ffbec8e3e22c65067881c5bd60c4a29f6e66af",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.25,
+              "y": 0.65,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.3,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "9ec72fba8c39e0265573baea2053ad54ef76a5e1d75ec490b6cf75e371296d1b"
+        },
+        {
+          "index": 23,
+          "time": 0.9583333333333334,
+          "phase": 0.15492957746478872,
+          "target": {
+            "x": -0.3567959807382643,
+            "y": 0.9341823313085194
+          },
+          "scheduled": {
+            "x": -0.3567959807382643,
+            "y": 0.9341823313085194
+          },
+          "observed": {
+            "text": "(-0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 + 0,95izw = −1,3 + 0,6i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "023.png",
+            "sha256": "9f662f11c8e54ea5b1b4b55450af11fa4284ad525ad15ad4a904ee071021800e",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.3,
+              "y": 0.6,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.35,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "06ebc1d853ffb5619f6c29cc6f2b55379e348ed2b7f6aba65cfbcdfdfad44d8f"
+        },
+        {
+          "index": 24,
+          "time": 1,
+          "phase": 0.16901408450704225,
+          "target": {
+            "x": -0.4191886940243817,
+            "y": 0.9078991347072279
+          },
+          "scheduled": {
+            "x": -0.4191886940243817,
+            "y": 0.9078991347072279
+          },
+          "observed": {
+            "text": "(-0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,4 + 0,9izw = −1,3 + 0,5i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "024.png",
+            "sha256": "5d96e99fd9d39edfae22470600da6ffb058d8097ec2cccaf4b5ea6da880f4485",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.3,
+              "y": 0.5,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.4,
+              "y": 0.9,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "b34550474b68a35cefff595c969f5343dabb9b2461c8a19990c0a89d79577ab3"
+        },
+        {
+          "index": 25,
+          "time": 1.0416666666666667,
+          "phase": 0.18309859154929578,
+          "target": {
+            "x": -0.4843064305375239,
+            "y": 0.8748984405861074
+          },
+          "scheduled": {
+            "x": -0.4843064305375239,
+            "y": 0.8748984405861074
+          },
+          "observed": {
+            "text": "(-0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,5 + 0,85izw = −1,35 + 0,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "025.png",
+            "sha256": "73d471f8d61b2fffe5db32b656ed2635dd855cc018ab446d0a930f9ad3ed7cea",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.35,
+              "y": 0.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.5,
+              "y": 0.85,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a16c1d7bf6acf1b892ed7794041f1b68127fd3f3ab05086768e52d163e2d4c9d"
+        },
+        {
+          "index": 26,
+          "time": 1.0833333333333333,
+          "phase": 0.19718309859154928,
+          "target": {
+            "x": -0.5511560698665352,
+            "y": 0.8344021732050289
+          },
+          "scheduled": {
+            "x": -0.5511560698665352,
+            "y": 0.8344021732050289
+          },
+          "observed": {
+            "text": "(-0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,55 + 0,85izw = −1,4 + 0,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "026.png",
+            "sha256": "d3b67a1bda574aa60f1828a777794409dc4cbea9cf015d940420843e58188f88",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.4,
+              "y": 0.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.55,
+              "y": 0.85,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "abad7344f4613ae9f4d2a960a694da932f5183a1f3fc1116651b7330171f3f76"
+        },
+        {
+          "index": 27,
+          "time": 1.125,
+          "phase": 0.2112676056338028,
+          "target": {
+            "x": -0.6185807166858565,
+            "y": 0.7857212590635513
+          },
+          "scheduled": {
+            "x": -0.6185807166858565,
+            "y": 0.7857212590635513
+          },
+          "observed": {
+            "text": "(-0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 + 0,8izw = −1,4 + 0,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "027.png",
+            "sha256": "5368e57b662a91dd2d13dbfb20c48a48f2aade36e6ef04a4fb4baf77ee0e8817",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.4,
+              "y": 0.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.6,
+              "y": 0.8,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "3721141f974440874f878e24ca61eb229a93b4ec38878eb6dcea59d3c4e825a3"
+        },
+        {
+          "index": 28,
+          "time": 1.1666666666666667,
+          "phase": 0.22535211267605634,
+          "target": {
+            "x": -0.6852633896742094,
+            "y": 0.728295329363173
+          },
+          "scheduled": {
+            "x": -0.6852633896742094,
+            "y": 0.728295329363173
+          },
+          "observed": {
+            "text": "(-0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 + 0,75izw = −1,45 + 0,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "028.png",
+            "sha256": "6cdb6d80ed03b3942fe73b12f6565b8a692e3dada003c074c0b9b4ad85fd18f4",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.45,
+              "y": 0.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.7,
+              "y": 0.75,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "e285f24d5564e008c0b992a7ddb071b31d39d4d7c13a09c1b9d73e5ad3c412ab"
+        },
+        {
+          "index": 29,
+          "time": 1.2083333333333333,
+          "phase": 0.23943661971830985,
+          "target": {
+            "x": -0.7497389144204045,
+            "y": 0.6617337532601109
+          },
+          "scheduled": {
+            "x": -0.7497389144204045,
+            "y": 0.6617337532601109
+          },
+          "observed": {
+            "text": "(-0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,75 + 0,65izw = −1,4 − 0,1i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "029.png",
+            "sha256": "5b69a93e5224225376a304114f90eacdad673cd47abe1b3c157b59c17fa6fb62",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.4,
+              "y": -0.1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.75,
+              "y": 0.65,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "11dc429f90bc553fa23a206e3726e8bdd94e884e9d8075fff0cc7915da8ef42c"
+        },
+        {
+          "index": 30,
+          "time": 1.25,
+          "phase": 0.2535211267605634,
+          "target": {
+            "x": -0.8104149585349174,
+            "y": 0.5858562920911988
+          },
+          "scheduled": {
+            "x": -0.8104149585349174,
+            "y": 0.5858562920911988
+          },
+          "observed": {
+            "text": "(-0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 + 0,6izw = −1,4 − 0,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "030.png",
+            "sha256": "74d15e9213f97191936b6c11be04dd15b1a0f407605fe1454e0b3efda3f8ae06",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.4,
+              "y": -0.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.8,
+              "y": 0.6,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "40b92e69b15713aac70a26e8513936051f27476d69f07133f4834a775c8cbc68"
+        },
+        {
+          "index": 31,
+          "time": 1.2916666666666667,
+          "phase": 0.2676056338028169,
+          "target": {
+            "x": -0.8656027640496782,
+            "y": 0.5007313200405555
+          },
+          "scheduled": {
+            "x": -0.8656027640496782,
+            "y": 0.5007313200405555
+          },
+          "observed": {
+            "text": "(-0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 + 0,5izw = −1,35 − 0,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "031.png",
+            "sha256": "5f966cc38f3be7a7572c16d092ebcd27697e3545f16b7669b10ce1c2c2018435",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.35,
+              "y": -0.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.85,
+              "y": 0.5,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "954222aece133e409af737eec27f666076b6ca848f95936ee0766d15c4f9b9dd"
+        },
+        {
+          "index": 32,
+          "time": 1.3333333333333333,
+          "phase": 0.28169014084507044,
+          "target": {
+            "x": -0.9135576350397769,
+            "y": 0.40670929109196624
+          },
+          "scheduled": {
+            "x": -0.9135576350397769,
+            "y": 0.40670929109196624
+          },
+          "observed": {
+            "text": "(-0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 + 0,4izw = −1,3 − 0,5i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "032.png",
+            "sha256": "fde123fad03234f5e3178a51c153514c7e60256ab57b5e799bd30a19507fa24a",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.3,
+              "y": -0.5,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.9,
+              "y": 0.4,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "f4f09f7c45c8e150a6303b6745d61af77f22fce98cbee137818bcaf5e90cd77c"
+        },
+        {
+          "index": 33,
+          "time": 1.375,
+          "phase": 0.29577464788732394,
+          "target": {
+            "x": -0.9525286431747203,
+            "y": 0.30444898412004334
+          },
+          "scheduled": {
+            "x": -0.9525286431747203,
+            "y": 0.30444898412004334
+          },
+          "observed": {
+            "text": "(-0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 + 0,3izw = −1,25 − 0,65i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "033.png",
+            "sha256": "ff9ed2f3c72b92c20f8df59961ea46dc6a0f75a3103a2b82cebe4d5e96eccbbd",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.25,
+              "y": -0.65,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.95,
+              "y": 0.3,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "526102a698ea9896bcec40c9cba5219ab9186464d38d879ef6251eefdd776c63"
+        },
+        {
+          "index": 34,
+          "time": 1.4166666666666667,
+          "phase": 0.30985915492957744,
+          "target": {
+            "x": -0.9808163492729516,
+            "y": 0.19493406320825357
+          },
+          "scheduled": {
+            "x": -0.9808163492729516,
+            "y": 0.19493406320825357
+          },
+          "observed": {
+            "text": "(-0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,2izw = −1,2 − 0,8i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "034.png",
+            "sha256": "cc5750a7e485080510c0b949cdf0d1a212be2c81b6af4eab9112bcd57c16baff",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.2,
+              "y": -0.8,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -1,
+              "y": 0.2,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "1952debf5837b0fe9c9be029bdd6aa8df9c6329a9045f1b471204a416759dea8"
+        },
+        {
+          "index": 35,
+          "time": 1.4583333333333333,
+          "phase": 0.323943661971831,
+          "target": {
+            "x": -0.9968366460188406,
+            "y": 0.0794776770792195
+          },
+          "scheduled": {
+            "x": -0.9968366460188406,
+            "y": 0.0794776770792195
+          },
+          "observed": {
+            "text": "(-1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,1izw = −1,1 − 0,9i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "035.png",
+            "sha256": "88ed668d50660ad1ba95d711e1323489d20988c3eff7ac98d73964754f1f1116",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1.1,
+              "y": -0.9,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -1,
+              "y": 0.1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "c0f5ed9cf359b9b319de1b00cc58f30aa95772f0e06ada2601cdc7965ea12aba"
+        },
+        {
+          "index": 36,
+          "time": 1.5,
+          "phase": 0.3380281690140845,
+          "target": {
+            "x": -0.9991881575922341,
+            "y": -0.04028679346183765
+          },
+          "scheduled": {
+            "x": -0.9991881575922341,
+            "y": -0.04028679346183765
+          },
+          "observed": {
+            "text": "(-1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,05izw = −0,95 − 1,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "036.png",
+            "sha256": "58c8f4791427869f4a43d30ee220aec38dc5b3016d874d7d638821c2ead6d075",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.95,
+              "y": -1.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -1,
+              "y": -0.05,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "5409fbf00db11769f96bdc69237d98369b058b94b78206e5089c07fb6bbfa2cf"
+        },
+        {
+          "index": 37,
+          "time": 1.5416666666666667,
+          "phase": 0.352112676056338,
+          "target": {
+            "x": -0.9867200450830795,
+            "y": -0.1624301469285964
+          },
+          "scheduled": {
+            "x": -0.9867200450830795,
+            "y": -0.1624301469285964
+          },
+          "observed": {
+            "text": "(-0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,15izw = −0,85 − 1,15i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "037.png",
+            "sha256": "4a841791d1fa04abbd580d82cdfa50a7cbcd0cea765cbefb88bdbfe6becbc98c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.85,
+              "y": -1.15,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -1,
+              "y": -0.15,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "35fdcfffd569534d06ecf80142da90324f484677aa61ae943659fe507a952830"
+        },
+        {
+          "index": 38,
+          "time": 1.5833333333333333,
+          "phase": 0.36619718309859156,
+          "target": {
+            "x": -0.9585966235568233,
+            "y": -0.284767472344469
+          },
+          "scheduled": {
+            "x": -0.9585966235568233,
+            "y": -0.284767472344469
+          },
+          "observed": {
+            "text": "(-0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 − 0,3izw = −0,65 − 1,25i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "038.png",
+            "sha256": "9097663285e2b9fc3aa9069bfc4f153a2d10d8dc658d0746076fabc78d4b9661",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.65,
+              "y": -1.25,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.95,
+              "y": -0.3,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "cff6a65ab0349ed2b8360f88a3402c67b2cceffcf15526353c9b932aa679374b"
+        },
+        {
+          "index": 39,
+          "time": 1.625,
+          "phase": 0.38028169014084506,
+          "target": {
+            "x": -0.9143549550638878,
+            "y": -0.4049135909674012
+          },
+          "scheduled": {
+            "x": -0.9143549550638878,
+            "y": -0.4049135909674012
+          },
+          "observed": {
+            "text": "(-0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 − 0,4izw = −0,5 − 1,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "039.png",
+            "sha256": "60384360c0fa0e339d8bd982908fe4dc953f75fca7345ceebd064c267c7e494c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.5,
+              "y": -1.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.9,
+              "y": -0.4,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "8307c6227629d9e1c66b7e1935f2c68e6965f5d01fd3b71c29d2615afe44fb64"
+        },
+        {
+          "index": 40,
+          "time": 1.6666666666666667,
+          "phase": 0.39436619718309857,
+          "target": {
+            "x": -0.8539515888638382,
+            "y": -0.5203524612000276
+          },
+          "scheduled": {
+            "x": -0.8539515888638382,
+            "y": -0.5203524612000276
+          },
+          "observed": {
+            "text": "(-0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 − 0,5izw = −0,35 − 1,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "040.png",
+            "sha256": "704a863046395c0c502367779184ee38f61d5e760990777586df1d74cc41208c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.35,
+              "y": -1.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.85,
+              "y": -0.5,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "1184f8cfe29bd3a3c73dc8f69b5a7a84cd852c740e51da98c3f9f07517c000fa"
+        },
+        {
+          "index": 41,
+          "time": 1.7083333333333333,
+          "phase": 0.4084507042253521,
+          "target": {
+            "x": -0.777794905835592,
+            "y": -0.6285181655737586
+          },
+          "scheduled": {
+            "x": -0.777794905835592,
+            "y": -0.6285181655737586
+          },
+          "observed": {
+            "text": "(-0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 − 0,65izw = −0,15 − 1,45i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "041.png",
+            "sha256": "99fe8da233d2e7238d0391bbc97a39263c38369c89d3be51f3f2e1f397c55c35",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.15,
+              "y": -1.45,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.8,
+              "y": -0.65,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "59403347943350c4e076d071648dfefb3ee088edb551db7bd225ee2aa4a07b36"
+        },
+        {
+          "index": 42,
+          "time": 1.75,
+          "phase": 0.4225352112676056,
+          "target": {
+            "x": -0.6867600962522546,
+            "y": -0.7268841518396132
+          },
+          "scheduled": {
+            "x": -0.6867600962522546,
+            "y": -0.7268841518396132
+          },
+          "observed": {
+            "text": "(-0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 − 0,75izw = 0,05 − 1,45i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "042.png",
+            "sha256": "cfe531e2750b16132b8694f19eddfae6bd49f0117b06d6e2a5e8d94270c64518",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.05,
+              "y": -1.45,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.7,
+              "y": -0.75,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "01ebfeab6de96cc6a2f6a6d958ba3770aef45a2bd2afe0d037b8f6fb4112db35"
+        },
+        {
+          "index": 43,
+          "time": 1.7916666666666667,
+          "phase": 0.43661971830985913,
+          "target": {
+            "x": -0.5821846406501763,
+            "y": -0.8130566057729469
+          },
+          "scheduled": {
+            "x": -0.5821846406501763,
+            "y": -0.8130566057729469
+          },
+          "observed": {
+            "text": "(-0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 − 0,8izw = 0,2 − 1,4i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "043.png",
+            "sha256": "49985665a3340cb0d667df8df75a471f128dca99b4809e9b34d7d8b6e3c1407f",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.2,
+              "y": -1.4,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.6,
+              "y": -0.8,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "bf048860c7b4c093ef67343f1820e51fc7a2a8fa8ca19ff431775c34c0af1171"
+        },
+        {
+          "index": 44,
+          "time": 1.8333333333333333,
+          "phase": 0.4507042253521127,
+          "target": {
+            "x": -0.4658432273486491,
+            "y": -0.8848672711392341
+          },
+          "scheduled": {
+            "x": -0.4658432273486491,
+            "y": -0.8848672711392341
+          },
+          "observed": {
+            "text": "(-0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,45 − 0,9izw = 0,45 − 1,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "044.png",
+            "sha256": "f2fb8a7fd0169afb4e03843202142a395fe51e2c71b7bac9c346ee474fdfed21",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.45,
+              "y": -1.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.45,
+              "y": -0.9,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "271cb7480b6d51c9591c7d58556f0dd40ad6dbf61cae01489c7afd3a2b4899f0"
+        },
+        {
+          "index": 45,
+          "time": 1.875,
+          "phase": 0.4647887323943662,
+          "target": {
+            "x": -0.33990225736892116,
+            "y": -0.9404607676216545
+          },
+          "scheduled": {
+            "x": -0.33990225736892116,
+            "y": -0.9404607676216545
+          },
+          "observed": {
+            "text": "(-0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 − 0,95izw = 0,6 − 1,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "045.png",
+            "sha256": "ea56cf2c76b7ea59d7d18842fa82c6f9af54bced35ddf026ac5f7a4ce872f9da",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.6,
+              "y": -1.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.35,
+              "y": -0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "81a5f4574440d4bf0c06b30332aaf2c5e57342b7967e1fd00363c468ff319145"
+        },
+        {
+          "index": 46,
+          "time": 1.9166666666666667,
+          "phase": 0.4788732394366197,
+          "target": {
+            "x": -0.20685536844287478,
+            "y": -0.9783715329803717
+          },
+          "scheduled": {
+            "x": -0.20685536844287478,
+            "y": -0.9783715329803717
+          },
+          "observed": {
+            "text": "(-0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 − izw = 0,8 − 1,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "046.png",
+            "sha256": "4572380ca6610c7acb19f4044da0c5efa664fb57c16b541331a77927b6ece05b",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.8,
+              "y": -1.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.2,
+              "y": -1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "7aaba897fb3892ab828b3381563efafeb825de857b7f931131ccac1a472480a9"
+        },
+        {
+          "index": 47,
+          "time": 1.9583333333333333,
+          "phase": 0.49295774647887325,
+          "target": {
+            "x": -0.06944265301023604,
+            "y": -0.997585945141019
+          },
+          "scheduled": {
+            "x": -0.06944265301023604,
+            "y": -0.997585945141019
+          },
+          "observed": {
+            "text": "(-0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 − izw = 0,95 − 1,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "047.png",
+            "sha256": "d0f2855d8c58b483661b5150fc0e4d7c85221171f48c864e07e0641b9cdf49a9",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.95,
+              "y": -1.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": -0.05,
+              "y": -1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "fdeceb781c0f4334b0a91893b255a2ef2483f4f463356db1682f84842ab1a162"
+        },
+        {
+          "index": 48,
+          "time": 2,
+          "phase": 0.5070422535211268,
+          "target": {
+            "x": 0.06944265301023567,
+            "y": -0.997585945141019
+          },
+          "scheduled": {
+            "x": 0.06944265301023567,
+            "y": -0.997585945141019
+          },
+          "observed": {
+            "text": "(0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 − izw = 1,05 − 0,95i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "048.png",
+            "sha256": "0e85ffce984bb0f26bef834063de05af5b70366c1b4d192383cb8b7667e05b57",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.05,
+              "y": -0.95,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.05,
+              "y": -1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "4e1b7e04b123c8f32b0ed62f626a5fbf80b5195aae731f662b2023db90349abd"
+        },
+        {
+          "index": 49,
+          "time": 2.0416666666666665,
+          "phase": 0.5211267605633803,
+          "target": {
+            "x": 0.20685536844287356,
+            "y": -0.9783715329803719
+          },
+          "scheduled": {
+            "x": 0.20685536844287356,
+            "y": -0.9783715329803719
+          },
+          "observed": {
+            "text": "(0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 − izw = 1,2 − 0,8i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "049.png",
+            "sha256": "cc4a59abf0a025d1b5692b1529ed7ad66d6237091c15709064e7d0e1fda08e0d",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.2,
+              "y": -0.8,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.2,
+              "y": -1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "e8a0b7e3931b305fe625777a79b7c6937795338aeb63d9982497903e163c11be"
+        },
+        {
+          "index": 50,
+          "time": 2.0833333333333335,
+          "phase": 0.5352112676056338,
+          "target": {
+            "x": 0.33990225736892,
+            "y": -0.940460767621655
+          },
+          "scheduled": {
+            "x": 0.33990225736892,
+            "y": -0.940460767621655
+          },
+          "observed": {
+            "text": "(0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 − 0,95izw = 1,3 − 0,6i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "050.png",
+            "sha256": "25edcb5c2fd8ac838462f1bda5d43aeefe47e374d0e10855269d55057ef56c82",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.3,
+              "y": -0.6,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.35,
+              "y": -0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ca9fea5e327d3618bdcd5bccaa0857fcdbc20757f51078f61807cbcac998a605"
+        },
+        {
+          "index": 51,
+          "time": 2.125,
+          "phase": 0.5492957746478874,
+          "target": {
+            "x": 0.4658432273486496,
+            "y": -0.8848672711392338
+          },
+          "scheduled": {
+            "x": 0.4658432273486496,
+            "y": -0.8848672711392338
+          },
+          "observed": {
+            "text": "(0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,45 − 0,9izw = 1,35 − 0,45i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "051.png",
+            "sha256": "f80768e0beee435368f36ace0803f302425f15ebc781243bd9217083a0071a71",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.35,
+              "y": -0.45,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.45,
+              "y": -0.9,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "0cdbacb66bd0634ed04b7df2dc4c056ef23c5eef2761e272699f02b0644e772e"
+        },
+        {
+          "index": 52,
+          "time": 2.1666666666666665,
+          "phase": 0.5633802816901409,
+          "target": {
+            "x": 0.5821846406501753,
+            "y": -0.8130566057729476
+          },
+          "scheduled": {
+            "x": 0.5821846406501753,
+            "y": -0.8130566057729476
+          },
+          "observed": {
+            "text": "(0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 − 0,8izw = 1,4 − 0,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "052.png",
+            "sha256": "b978a39474a82ae26f9081793d67e9a1262a632fb65e64df21afc300579635a1",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.4,
+              "y": -0.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.6,
+              "y": -0.8,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "e20a72be7eebae7d0a538e9f8c7e3cc712e5d768bc1a8d97e803a9844eef31ca"
+        },
+        {
+          "index": 53,
+          "time": 2.2083333333333335,
+          "phase": 0.5774647887323944,
+          "target": {
+            "x": 0.6867600962522544,
+            "y": -0.7268841518396135
+          },
+          "scheduled": {
+            "x": 0.6867600962522544,
+            "y": -0.7268841518396135
+          },
+          "observed": {
+            "text": "(0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 − 0,75izw = 1,45 − 0,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "053.png",
+            "sha256": "5ead0068fd90908822129a9405df2cec00770c57f59d658d0e93620de1d40635",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.45,
+              "y": -0.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.7,
+              "y": -0.75,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "bdbee236513c04d8a6e39c60bb09e4e3263101f18aed10deaca1df98d1d24167"
+        },
+        {
+          "index": 54,
+          "time": 2.25,
+          "phase": 0.5915492957746479,
+          "target": {
+            "x": 0.7777949058355914,
+            "y": -0.6285181655737593
+          },
+          "scheduled": {
+            "x": 0.7777949058355914,
+            "y": -0.6285181655737593
+          },
+          "observed": {
+            "text": "(0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 − 0,65izw = 1,45 + 0,15i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "054.png",
+            "sha256": "dfac1434fbb228337f66bf3b80ce206b97775126dcd64d8bb4e666bdedb2424c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.45,
+              "y": 0.15,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.8,
+              "y": -0.65,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "be8c5414fb1b749378a539a17431ee859672182ded2f8e96cb16e47ea0794254"
+        },
+        {
+          "index": 55,
+          "time": 2.2916666666666665,
+          "phase": 0.6056338028169014,
+          "target": {
+            "x": 0.8539515888638373,
+            "y": -0.5203524612000291
+          },
+          "scheduled": {
+            "x": 0.8539515888638373,
+            "y": -0.5203524612000291
+          },
+          "observed": {
+            "text": "(0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 − 0,5izw = 1,35 + 0,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "055.png",
+            "sha256": "c2b3eb67bb233008fdcc705bf9de5c4aebc898169a059007302bdedf4837cb35",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.35,
+              "y": 0.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.85,
+              "y": -0.5,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "1806e900377fb39f37b84bad54120a44d4fa585e67a6163e0105bada663e2f08"
+        },
+        {
+          "index": 56,
+          "time": 2.3333333333333335,
+          "phase": 0.6197183098591549,
+          "target": {
+            "x": 0.9143549550638872,
+            "y": -0.40491359096740237
+          },
+          "scheduled": {
+            "x": 0.9143549550638872,
+            "y": -0.40491359096740237
+          },
+          "observed": {
+            "text": "(0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 − 0,4izw = 1,3 + 0,5i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "056.png",
+            "sha256": "39fe33b1cbb503456a51fccb3d2250799defdaf3a270cbd6c8b4ffb951bd29e6",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.3,
+              "y": 0.5,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.9,
+              "y": -0.4,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "bd752a8119e53dee433b809e1463c5d0dec74b3ac45a2ebbedbc666e94fd8730"
+        },
+        {
+          "index": 57,
+          "time": 2.375,
+          "phase": 0.6338028169014085,
+          "target": {
+            "x": 0.9585966235568235,
+            "y": -0.2847674723444685
+          },
+          "scheduled": {
+            "x": 0.9585966235568235,
+            "y": -0.2847674723444685
+          },
+          "observed": {
+            "text": "(0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 − 0,3izw = 1,25 + 0,65i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "057.png",
+            "sha256": "afb1b4860fcaddc1c96443831401549fda5929824054229643d21c7616002f3f",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.25,
+              "y": 0.65,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.95,
+              "y": -0.3,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "95062b8026db0dfd0177c23a10d81687c873fe2072f173dc57f458109a7ce4f0"
+        },
+        {
+          "index": 58,
+          "time": 2.4166666666666665,
+          "phase": 0.647887323943662,
+          "target": {
+            "x": 0.9867200450830795,
+            "y": -0.16243014692859675
+          },
+          "scheduled": {
+            "x": 0.9867200450830795,
+            "y": -0.16243014692859675
+          },
+          "observed": {
+            "text": "(0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,15izw = 1,15 + 0,85i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "058.png",
+            "sha256": "31e2b6672bee6da3624b0956b6a52256c79dc5c0b1eea386a47c5fa8656eef89",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.15,
+              "y": 0.85,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 1,
+              "y": -0.15,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "40fa7dc8b173e7646fb9a94befa7f01dcc7cfdc7814cb826a7e988fe5783a8c3"
+        },
+        {
+          "index": 59,
+          "time": 2.4583333333333335,
+          "phase": 0.6619718309859155,
+          "target": {
+            "x": 0.999188157592234,
+            "y": -0.04028679346183891
+          },
+          "scheduled": {
+            "x": 0.999188157592234,
+            "y": -0.04028679346183891
+          },
+          "observed": {
+            "text": "(1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,05izw = 1,05 + 0,95i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "059.png",
+            "sha256": "03fab02f563af187ec3b48b60f6ea92a437d02150bdff66c4d90182013b5f499",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 1.05,
+              "y": 0.95,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 1,
+              "y": -0.05,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "538322b0f7d52549c67c98d6895ba56fa70c7439a0ef98cd8c3010b32a46a9bb"
+        },
+        {
+          "index": 60,
+          "time": 2.5,
+          "phase": 0.676056338028169,
+          "target": {
+            "x": 0.9968366460188407,
+            "y": 0.07947767707921825
+          },
+          "scheduled": {
+            "x": 0.9968366460188407,
+            "y": 0.07947767707921825
+          },
+          "observed": {
+            "text": "(1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,1izw = 0,9 + 1,1i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "060.png",
+            "sha256": "2b6115d6316aaa063cb02dbbed30ba7e5d7804304db878b776b3f73fdc160fce",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.9,
+              "y": 1.1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 1,
+              "y": 0.1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "c369c75c009c17e1adf6832a80155ff38dfee05d244a89e23a345b4717f210cb"
+        },
+        {
+          "index": 61,
+          "time": 2.5416666666666665,
+          "phase": 0.6901408450704225,
+          "target": {
+            "x": 0.9808163492729518,
+            "y": 0.19493406320825235
+          },
+          "scheduled": {
+            "x": 0.9808163492729518,
+            "y": 0.19493406320825235
+          },
+          "observed": {
+            "text": "(0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,2izw = 0,8 + 1,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "061.png",
+            "sha256": "aefad06503766cbf27e0a119be8d70325d33ee861c515191b7ec400c71e39bb8",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.8,
+              "y": 1.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 1,
+              "y": 0.2,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "da36f80f1b8df75c2687f775581636d3b54772dd19656847efa9406d2833f95d"
+        },
+        {
+          "index": 62,
+          "time": 2.5833333333333335,
+          "phase": 0.704225352112676,
+          "target": {
+            "x": 0.9525286431747204,
+            "y": 0.304448984120043
+          },
+          "scheduled": {
+            "x": 0.9525286431747204,
+            "y": 0.304448984120043
+          },
+          "observed": {
+            "text": "(0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 + 0,3izw = 0,65 + 1,25i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "062.png",
+            "sha256": "a51dd378912ea1887d9a67134fccfcbe5c9628cf6021eaddaf028edf25d3fbeb",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.65,
+              "y": 1.25,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.95,
+              "y": 0.3,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "f2e89421af7aaca84205fcd2c3d2ecf5e5732c0356fe220d158b2b47ac4fdbf3"
+        },
+        {
+          "index": 63,
+          "time": 2.625,
+          "phase": 0.7183098591549296,
+          "target": {
+            "x": 0.913557635039777,
+            "y": 0.4067092910919659
+          },
+          "scheduled": {
+            "x": 0.913557635039777,
+            "y": 0.4067092910919659
+          },
+          "observed": {
+            "text": "(0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 + 0,4izw = 0,5 + 1,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "063.png",
+            "sha256": "70620004ae5d208557d5bc82e0f1433f8b8a7dab365b84c6e7273d66bdca16df",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.5,
+              "y": 1.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.9,
+              "y": 0.4,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "6077a39e20af22da8f23bff4a492d4c520d50a9b71f31686ebd6b7faf6a2bdea"
+        },
+        {
+          "index": 64,
+          "time": 2.6666666666666665,
+          "phase": 0.7323943661971831,
+          "target": {
+            "x": 0.8656027640496785,
+            "y": 0.5007313200405549
+          },
+          "scheduled": {
+            "x": 0.8656027640496785,
+            "y": 0.5007313200405549
+          },
+          "observed": {
+            "text": "(0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 + 0,5izw = 0,35 + 1,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "064.png",
+            "sha256": "de489dd48ab2bb247f395f2125397c44b4f8d55ea90f434576446e38a9e72d32",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.35,
+              "y": 1.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.85,
+              "y": 0.5,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "de94df5e41edea97232831a1747d8af157897235b369229ee89856593374a89a"
+        },
+        {
+          "index": 65,
+          "time": 2.7083333333333335,
+          "phase": 0.7464788732394366,
+          "target": {
+            "x": 0.8104149585349181,
+            "y": 0.5858562920911978
+          },
+          "scheduled": {
+            "x": 0.8104149585349181,
+            "y": 0.5858562920911978
+          },
+          "observed": {
+            "text": "(0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 + 0,6izw = 0,2 + 1,4i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "065.png",
+            "sha256": "666ed9d028960487a96b86f10eb07dc07fab194b9765e82abee277a887bba520",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.2,
+              "y": 1.4,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.8,
+              "y": 0.6,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "bd191d0042b2c8ca390685c625df59c2883f44caf63d5afa3b3a9bf439f72016"
+        },
+        {
+          "index": 66,
+          "time": 2.75,
+          "phase": 0.7605633802816901,
+          "target": {
+            "x": 0.7497389144204047,
+            "y": 0.6617337532601106
+          },
+          "scheduled": {
+            "x": 0.7497389144204047,
+            "y": 0.6617337532601106
+          },
+          "observed": {
+            "text": "(0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,75 + 0,65izw = 0,1 + 1,4i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "066.png",
+            "sha256": "b9eced5f3364150649070055e94f31be4f31b88bc0f7e334c441c7aadb7d4fbd",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": 0.1,
+              "y": 1.4,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.75,
+              "y": 0.65,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "9836c8f7b200eb798c46c295fed65c048ef985f851d55cd9ae07f454986f1738"
+        },
+        {
+          "index": 67,
+          "time": 2.7916666666666665,
+          "phase": 0.7746478873239436,
+          "target": {
+            "x": 0.68526338967421,
+            "y": 0.7282953293631724
+          },
+          "scheduled": {
+            "x": 0.68526338967421,
+            "y": 0.7282953293631724
+          },
+          "observed": {
+            "text": "(0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 + 0,75izw = −0,05 + 1,45i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "067.png",
+            "sha256": "c621ef79d026076893ad7b31518529366431e8c63c86846bde2d9c3d5119ef22",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.05,
+              "y": 1.45,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.7,
+              "y": 0.75,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "c8213cda5eb8f07a564d6cf170f54e19542acbfb382b6ca150e75721ca94bbda"
+        },
+        {
+          "index": 68,
+          "time": 2.8333333333333335,
+          "phase": 0.7887323943661971,
+          "target": {
+            "x": 0.6185807166858575,
+            "y": 0.7857212590635505
+          },
+          "scheduled": {
+            "x": 0.6185807166858575,
+            "y": 0.7857212590635505
+          },
+          "observed": {
+            "text": "(0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 + 0,8izw = −0,2 + 1,4i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "068.png",
+            "sha256": "b10ff7c3e9dac8774858900cd5340336123ac5d5b729e6a636b2531e13b8a268",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.2,
+              "y": 1.4,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.6,
+              "y": 0.8,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "77446bd686182ba9690c24a7971474ace07bb68939a0099a6750f743ffd14f34"
+        },
+        {
+          "index": 69,
+          "time": 2.875,
+          "phase": 0.8028169014084507,
+          "target": {
+            "x": 0.5511560698665359,
+            "y": 0.8344021732050284
+          },
+          "scheduled": {
+            "x": 0.5511560698665359,
+            "y": 0.8344021732050284
+          },
+          "observed": {
+            "text": "(0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,55 + 0,85izw = −0,3 + 1,4i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "069.png",
+            "sha256": "8cae7ab0409650c2efbebf0504304139b9973c962630647c87f9a02f029b3895",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.3,
+              "y": 1.4,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.55,
+              "y": 0.85,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ad00b89919e6253edb16be7a01b04fd09dcfe23fca37f4a45025713b7ac142bc"
+        },
+        {
+          "index": 70,
+          "time": 2.9166666666666665,
+          "phase": 0.8169014084507042,
+          "target": {
+            "x": 0.4843064305375246,
+            "y": 0.874898440586107
+          },
+          "scheduled": {
+            "x": 0.4843064305375246,
+            "y": 0.874898440586107
+          },
+          "observed": {
+            "text": "(0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,5 + 0,85izw = −0,35 + 1,35i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "070.png",
+            "sha256": "43c239e3e134ce04bca6d8f0dad9ed99df1d942cc39c00728ccbdc54e4cfb817",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.35,
+              "y": 1.35,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.5,
+              "y": 0.85,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "8c7ab165660b91c65a891388e2356315099577df901c208115d3c59f5e7f1f6e"
+        },
+        {
+          "index": 71,
+          "time": 2.9583333333333335,
+          "phase": 0.8309859154929577,
+          "target": {
+            "x": 0.41918869402438164,
+            "y": 0.907899134707228
+          },
+          "scheduled": {
+            "x": 0.41918869402438164,
+            "y": 0.907899134707228
+          },
+          "observed": {
+            "text": "(0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,4 + 0,9izw = −0,5 + 1,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "071.png",
+            "sha256": "ecf69cecda0fa835f70966f98abe57f1cad161229e1a42b47874211d4bbfb917",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.5,
+              "y": 1.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.4,
+              "y": 0.9,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "179024a8c7b4af31be9b73d6ed69cf1c87dda6af436a781848e7e2eabb6db3f3"
+        },
+        {
+          "index": 72,
+          "time": 3,
+          "phase": 0.8450704225352113,
+          "target": {
+            "x": 0.356795980738265,
+            "y": 0.934182331308519
+          },
+          "scheduled": {
+            "x": 0.356795980738265,
+            "y": 0.934182331308519
+          },
+          "observed": {
+            "text": "(0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 + 0,95izw = −0,6 + 1,3i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "072.png",
+            "sha256": "af43f19b3eee8354d1cd19bcb10cd2bc160877d16baf8c08a168860bf14f6b67",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.6,
+              "y": 1.3,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.35,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "d20c2c31e34de702594dc376c006c4c267e5471efbb540f4ac031309cadcb541"
+        },
+        {
+          "index": 73,
+          "time": 3.0416666666666665,
+          "phase": 0.8591549295774648,
+          "target": {
+            "x": 0.29796094809624896,
+            "y": 0.954578060406578
+          },
+          "scheduled": {
+            "x": 0.29796094809624896,
+            "y": 0.954578060406578
+          },
+          "observed": {
+            "text": "(0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,3 + 0,95izw = −0,65 + 1,25i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "073.png",
+            "sha256": "7242d44290d51ef22f8488e17f8efd3e41ac899b7e06a4cc56e5766dac3cd6cd",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.65,
+              "y": 1.25,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.3,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "5f012d208b4fb971941d02da37a6c9ebaa726c37eac6f2faa040ff7cdb2b1d40"
+        },
+        {
+          "index": 74,
+          "time": 3.0833333333333335,
+          "phase": 0.8732394366197183,
+          "target": {
+            "x": 0.24336474777869793,
+            "y": 0.9699348429346225
+          },
+          "scheduled": {
+            "x": 0.24336474777869793,
+            "y": 0.9699348429346225
+          },
+          "observed": {
+            "text": "(0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,25 + 0,95izw = −0,7 + 1,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "074.png",
+            "sha256": "1c60f0978f5dd40fbd48e8d6adefc8076498ebeac1fa769468644aa911ad1a11",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.7,
+              "y": 1.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.25,
+              "y": 0.95,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "966d6ba06d993f2e2cb24fe74831b9538bc16441b39df66dc2c4e50bf8962362"
+        },
+        {
+          "index": 75,
+          "time": 3.125,
+          "phase": 0.8873239436619719,
+          "target": {
+            "x": 0.1935502200459122,
+            "y": 0.9810903690895039
+          },
+          "scheduled": {
+            "x": 0.1935502200459122,
+            "y": 0.9810903690895039
+          },
+          "observed": {
+            "text": "(0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 + izw = −0,8 + 1,2i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "075.png",
+            "sha256": "69cc4308633823b56696d8ddb9ebc7b9ebbca5d985ccb51f6dad55cf2bc6421b",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.8,
+              "y": 1.2,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.2,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "5ee73f1d15395c8b7279076a7302b705114d0631739d36049cad0496ef4ac937"
+        },
+        {
+          "index": 76,
+          "time": 3.1666666666666665,
+          "phase": 0.9014084507042254,
+          "target": {
+            "x": 0.1489379459184754,
+            "y": 0.9888465443462829
+          },
+          "scheduled": {
+            "x": 0.1489379459184754,
+            "y": 0.9888465443462829
+          },
+          "observed": {
+            "text": "(0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,15 + izw = −0,85 + 1,15i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "076.png",
+            "sha256": "b47f702419ef09f0f6679431de0bb3fe8ae346a0272e1851dc805c092429f3a2",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.85,
+              "y": 1.15,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.15,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "4e7e4a3b85763bdc47b8b1f13629af1f8183f46bc9e7188a740ce4f6bdd45b28"
+        },
+        {
+          "index": 77,
+          "time": 3.2083333333333335,
+          "phase": 0.9154929577464789,
+          "target": {
+            "x": 0.10984386905228842,
+            "y": 0.9939488540320491
+          },
+          "scheduled": {
+            "x": 0.10984386905228842,
+            "y": 0.9939488540320491
+          },
+          "observed": {
+            "text": "(0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "077.png",
+            "sha256": "72c48be26a441c78ec30a8eecf431b51451da4dff3a29f94e11605607ab8d580",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.9,
+              "y": 1.1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "289dcf1cdbab5e4ecba15481fdc8472930cd1d0c0b041849ddc670c5dbbb7410"
+        },
+        {
+          "index": 78,
+          "time": 3.25,
+          "phase": 0.9295774647887324,
+          "target": {
+            "x": 0.07649733219874143,
+            "y": 0.997069786006213
+          },
+          "scheduled": {
+            "x": 0.07649733219874143,
+            "y": 0.997069786006213
+          },
+          "observed": {
+            "text": "(0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "078.png",
+            "sha256": "72c48be26a441c78ec30a8eecf431b51451da4dff3a29f94e11605607ab8d580",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.9,
+              "y": 1.1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "289dcf1cdbab5e4ecba15481fdc8472930cd1d0c0b041849ddc670c5dbbb7410"
+        },
+        {
+          "index": 79,
+          "time": 3.2916666666666665,
+          "phase": 0.9436619718309859,
+          "target": {
+            "x": 0.049058530052617406,
+            "y": 0.9987959053926264
+          },
+          "scheduled": {
+            "x": 0.049058530052617406,
+            "y": 0.9987959053926264
+          },
+          "observed": {
+            "text": "(0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "079.png",
+            "sha256": "5f0c504e1e2d676b95101c4c0649e8b22fb6d6ad8ffcd190caf886374320311c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.95,
+              "y": 1.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.05,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a5c1490f3f45081ce2a60de00e10d3a0a2d34208b7c74ea5c16a316ee5c12728"
+        },
+        {
+          "index": 80,
+          "time": 3.3333333333333335,
+          "phase": 0.9577464788732394,
+          "target": {
+            "x": 0.02763454581703435,
+            "y": 0.9996180930122694
+          },
+          "scheduled": {
+            "x": 0.02763454581703435,
+            "y": 0.9996180930122694
+          },
+          "observed": {
+            "text": "(0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "080.png",
+            "sha256": "5f0c504e1e2d676b95101c4c0649e8b22fb6d6ad8ffcd190caf886374320311c",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -0.95,
+              "y": 1.05,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0.05,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a5c1490f3f45081ce2a60de00e10d3a0a2d34208b7c74ea5c16a316ee5c12728"
+        },
+        {
+          "index": 81,
+          "time": 3.375,
+          "phase": 0.971830985915493,
+          "target": {
+            "x": 0.01229330136242683,
+            "y": 0.9999244345157351
+          },
+          "scheduled": {
+            "x": 0.01229330136242683,
+            "y": 0.9999244345157351
+          },
+          "observed": {
+            "text": "(0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "081.png",
+            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+        },
+        {
+          "index": 82,
+          "time": 3.4166666666666665,
+          "phase": 0.9859154929577465,
+          "target": {
+            "x": 0.0030749027288107466,
+            "y": 0.9999952724754294
+          },
+          "scheduled": {
+            "x": 0.0030749027288107466,
+            "y": 0.9999952724754294
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "082.png",
+            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+        },
+        {
+          "index": 83,
+          "time": 3.4583333333333335,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "083.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 84,
+          "time": 3.5,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "084.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 85,
+          "time": 3.5416666666666665,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "085.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 86,
+          "time": 3.5833333333333335,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "086.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 87,
+          "time": 3.625,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "087.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 88,
+          "time": 3.6666666666666665,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "088.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 89,
+          "time": 3.7083333333333335,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "089.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 90,
+          "time": 3.75,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "090.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 91,
+          "time": 3.7916666666666665,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "091.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 92,
+          "time": 3.8333333333333335,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "092.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 93,
+          "time": 3.875,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "093.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 94,
+          "time": 3.9166666666666665,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "094.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        },
+        {
+          "index": 95,
+          "time": 3.9583333333333335,
+          "phase": 1,
+          "target": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "scheduled": {
+            "x": 3.061616997868383e-16,
+            "y": 1
+          },
+          "observed": {
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+          },
+          "capture": {
+            "file": "095.png",
+            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "width": 720,
+            "height": 440
+          },
+          "points": [
+            {
+              "id": "jxgBoard1P31",
+              "name": "$$zw$$",
+              "x": -1,
+              "y": 1,
+              "fixed": true,
+              "draggable": false
+            },
+            {
+              "id": "jxgBoard1P33",
+              "name": "$$z$$",
+              "x": 1,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            },
+            {
+              "id": "jxgBoard1P35",
+              "name": "$$w$$",
+              "x": 0,
+              "y": 1,
+              "fixed": false,
+              "draggable": true
+            }
+          ],
+          "strokeWidths": [
+            "2px",
+            "2px",
+            "2px",
+            "2.24px",
+            "2.24px",
+            "3.584px"
+          ],
+          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+        }
+      ],
+      "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
+      "generationSeconds": 14.513
     }
   ]
 }

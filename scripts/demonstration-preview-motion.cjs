@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization','complex-multiplication'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -89,6 +89,31 @@ const alphaParameterizationValue = (alpha, t) => (1 - alpha) * t / (alpha * (1 -
 // The route's markers are the curve at φ_α(k/(count+1)), k = 1..count (generateParamPoints), evaluated with the Bernstein form.
 function weightedParameterizationMarkers(controls, alpha, count) {
     return Array.from({length: count}, (_, k) => bernsteinPoint(controls, alphaParameterizationValue(alpha, (k + 1) / (count + 1))));
+}
+
+// Caption text for the complex board, as src/analysis/complexFormat.ts writes it: a true minus sign, the Slovenian decimal comma,
+// coordinates to four decimals with trailing zeros trimmed, and arguments to three decimals. Independent copy (scripts cannot import TS).
+const complexMinus = '\u2212';
+const complexNumber = (value, decimals) => {
+    if (Math.abs(value) < 0.5 * 10 ** -decimals) return '0';
+    const body = Math.abs(value).toFixed(decimals).replace(/\.?0+$/, '').replace('.', ',');
+    return (value < 0 ? complexMinus : '') + body;
+};
+function complexText({x, y}) {
+    const real = complexNumber(x, 4), imaginary = complexNumber(y, 4);
+    if (imaginary === '0') return real;
+    const negative = imaginary.startsWith(complexMinus), magnitude = negative ? imaginary.slice(1) : imaginary;
+    const part = `${magnitude === '1' ? '' : magnitude}i`;
+    if (real === '0') return negative ? `${complexMinus}${part}` : part;
+    return `${real} ${negative ? complexMinus : '+'} ${part}`;
+}
+/** The caption lines that must appear on the board: the operands and the product. */
+function complexCaptionLines(z, w, product) {
+    return [`z = ${complexText(z)}, w = ${complexText(w)}`, `zw = ${complexText(product)}`];
+}
+/** The 3-decimal arguments of the nonzero values, checked only when the caption's argument line is shown (the narrow-board policy hides it). */
+function complexArgumentLines(z, w, product) {
+    return [z, w, product].filter(c => c.x !== 0 || c.y !== 0).map(c => complexNumber(Math.atan2(c.y, c.x), 3));
 }
 
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
@@ -372,6 +397,71 @@ const motionSpecs = {
             'Reported α (aria-valuetext) equals the input and the snapped target every frame', 'Only α changes; the camera is the poster fit in every frame',
             'First and last frames equal the recipe state (identical PNG)'],
     },
+    'complex-multiplication': {
+        mode: 'pointer-drag', controlCount: 2, presentEachFrame: false,
+        // Two animation frames around the press and each frame, as farin does: JSXGraph must process the press and the drag before the capture.
+        settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        pressSettle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        // Monotone ease 0 -> 1 over the move frames; the w point rides the unit circle from i (theta = pi/2) through one full turn.
+        progress: i => (1 - Math.cos(Math.PI * movePhase(i))) / 2,
+        // The w point (square) is the only operand that moves. Its pointer target is the exact circle point; the board's drag handler
+        // rounds it to the 0.05 grid (snapComplexCoordinate in src/analysis/complex.ts), and the check uses that rounded value.
+        start: ctx => ctx.points.find(p => p.name === '$$w$$'),
+        path: (moved, progress) => {
+            const theta = Math.PI / 2 + 2 * Math.PI * progress;
+            return {x: Math.cos(theta), y: Math.sin(theta)};
+        },
+        // Exact restore after release through the Re w and Im w number fields (the drag already ends on the grid point i).
+        restore: async page => {
+            await applyAction(page,{kind:'number',label:'Re w',value:0});
+            await applyAction(page,{kind:'number',label:'Im w',value:1});
+        },
+        // Board text: the operand, product and argument lines, read from the caption's rendered text.
+        observe: page => page.locator('#jgbox').evaluate(container => {
+            const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+            return {text: Object.values(b.objects).filter(o => o.elType === 'text' && o.rendNode).map(o => o.rendNode.textContent).join('\n')};
+        }),
+        // Recipe's coordinate window (equal units) is the camera; the whole circle, z and the product were checked to lie inside it.
+        schedule: {kind: 'monotone-ease', phase: 'clamp((frame-12)/71)', progress: '(1 - cos(π·phase))/2', theta: 'π/2 + 2π·progress',
+            zeroDisplacementFrames: '0-12 (w holds at i)', settledFrames: '83-95 (w holds at i)', movingFrames: '13-82', press: 13, release: 83,
+            restore: 'number fields Re w = 0 and Im w = 1 after release (exact)',
+            input: 'pointer drag of the w square on the board, one press and one release'},
+        // Encoder: CRF 14 as in farin (see encoderBudget for the measured sizes).
+        crf: 14,
+        encoderBudget: 'CRF 14: 297310 B on the 96 source frames, the lowest CRF under the 307200 B ceiling (CRF 13 309149, CRF 12 324011, CRF 10 350903); no label, amplitude or camera change was made',
+        invariants: ['z unchanged (1e-9)', 'w equals the 0.05-grid-rounded circle point at the scheduled theta (1e-9)',
+            'Product point equals z·w from the reported z and w (1e-9)', 'Caption operand and product text equal the reported values (argument line checked when shown)',
+            'Final w equals the starting i exactly (restore through the Re w and Im w fields)', 'Only w changes; the product follows w',
+            'First and last source frames equal the recipe state'],
+        check(sample, previous, first, spec) {
+            const i = sample.index;
+            const named = (s, name) => {
+                const p = s.points.find(q => q.name === name);
+                assert.ok(p, `Missing ${name} at frame ${s.index}`);
+                return {x: p.x, y: p.y};
+            };
+            assert.equal(sample.points.filter(p => p.draggable).length, spec.controlCount, `Wrong operand count at frame ${i}`);
+            const z = named(sample, '$$z$$'), w = named(sample, '$$w$$'), product = named(sample, '$$zw$$');
+            const z0 = named(first, '$$z$$'), w0 = named(first, '$$w$$');
+            assert.ok(Math.abs(z.x - z0.x) < 1e-9 && Math.abs(z.y - z0.y) < 1e-9, `z moved at frame ${i}`);
+            const snap = value => Math.round(value * 20) / 20 + 0;
+            const expected = {x: snap(sample.target.x), y: snap(sample.target.y)};
+            assert.ok(Math.abs(w.x - expected.x) < 1e-9 && Math.abs(w.y - expected.y) < 1e-9, `w ${JSON.stringify(w)} differs from the snapped target ${JSON.stringify(expected)} at frame ${i}`);
+            const zw = {x: z.x * w.x - z.y * w.y, y: z.x * w.y + z.y * w.x};
+            assert.ok(Math.abs(product.x - zw.x) < 1e-9 && Math.abs(product.y - zw.y) < 1e-9, `Product ${JSON.stringify(product)} differs from z·w ${JSON.stringify(zw)} at frame ${i}`);
+            if (i === peakFrame) assert.ok(Math.abs(w.x - w0.x) + Math.abs(w.y - w0.y) > 0.5, 'w did not move at the peak');
+            assert.ok(sample.observed, `No caption evidence at frame ${i}`);
+            const text = sample.observed.text;
+            for (const line of complexCaptionLines(z, w, product)) assert.ok(text.includes(line), `Caption lacks "${line}" at frame ${i}: ${JSON.stringify(text)}`);
+            // The argument line is hidden below COMPACT_BOARD_WIDTH (existing policy); when shown, its angles must match the reported values.
+            if (text.includes('arg:')) for (const angle of complexArgumentLines(z, w, product)) assert.ok(text.includes(angle), `Argument text lacks ${angle} at frame ${i}`);
+            if (i === frameCount - 1) {
+                assert.ok(w0.x === 0 && w0.y === 1, 'The starting w must be i');
+                assert.ok(w.x === w0.x && w.y === w0.y, `Final w ${JSON.stringify(w)} differs from the starting i`);
+            }
+            if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+        },
+    },
 };
 
 function assertPointSet(actual, expected, message) {
@@ -587,7 +677,7 @@ async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
         const start=await screen(moved.x,moved.y);
         let first=null,previous=null;
         for(let i=0;i<frameCount;i++) {
-            const phase=movePhase(i);const displacement=sin2OutAndBack(i);
+            const phase=movePhase(i);const displacement=spec.progress?spec.progress(i):sin2OutAndBack(i);
             const target=spec.path(moved,displacement,ctx);
             // pressSettle (farin only): let JSXGraph process the hover and the press before the first drag move, or the glider can lag one frame.
             if(i===spec.schedule.press){await page.mouse.move(start.x,start.y);if(spec.pressSettle)await spec.pressSettle(page);await page.mouse.down();if(spec.pressSettle)await spec.pressSettle(page);}
@@ -744,4 +834,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase};
+module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText};

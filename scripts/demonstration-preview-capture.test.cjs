@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -236,4 +236,31 @@ test('pruning failure also restores prior published bytes and obsolete files',()
         assert.throws(()=>publishValidatedSet({staging,destination,files:['one.png'],maps:[],validate:()=>{}}),/locked obsolete/);
         assert.equal(fs.readFileSync(path.join(destination,'one.png'),'utf8'),'old');assert.equal(fs.readFileSync(obsolete,'utf8'),'old-obsolete');
     }finally{fs.unlinkSync=unlink;fs.rmSync(directory,{recursive:true,force:true});}
+});
+
+// complex-multiplication: synthetic evidence in the shape captureDrag records (targets, board points, caption text).
+const complexFixture=(overrides={})=>{
+    const spec=motionSpecs['complex-multiplication'];
+    const snap=value=>Math.round(value*20)/20+0;
+    const z={x:1,y:0.5};
+    const frames=Array.from({length:96},(_,i)=>{
+        const target=overrides[i]?.target??spec.path(null,spec.progress(i));
+        const zi=overrides[i]?.z??z;
+        const w={x:snap(target.x),y:snap(target.y)};
+        const product={x:zi.x*w.x-zi.y*w.y+(overrides[i]?.productError??0),y:zi.x*w.y+zi.y*w.x};
+        const caption=complexCaptionLines(zi,w,{x:zi.x*w.x-zi.y*w.y,y:zi.x*w.y+zi.y*w.x}).join('\n');
+        return {index:i,time:i/24,target,capture:{sha256:'recipe-frame'},
+            points:[{id:'z',name:'$$z$$',x:zi.x,y:zi.y,draggable:true},{id:'w',name:'$$w$$',x:w.x,y:w.y,draggable:true},
+                {id:'zw',name:'$$zw$$',x:product.x,y:product.y,draggable:false}],
+            observed:{text:caption}};
+    });
+    return {id:'complex-multiplication',mode:'pointer-drag',frameCount:96,sampleRate:24,duration:4,samples:frames};
+};
+test('complex multiplication: snapped w, z·w product, caption and exact return pass on consistent evidence',()=>{
+    assertMotionEvidence(complexFixture());
+});
+test('complex multiplication rejects a product off by 1e-6, a moved z and a final w other than i',()=>{
+    assert.throws(()=>assertMotionEvidence(complexFixture({40:{productError:1e-6}})),/differs from z·w/);
+    assert.throws(()=>assertMotionEvidence(complexFixture({40:{z:{x:1.05,y:0.5}}})),/z moved/);
+    assert.throws(()=>assertMotionEvidence(complexFixture({95:{target:{x:1,y:0}}})),/differs from the starting i/);
 });
