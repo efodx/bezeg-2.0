@@ -90,6 +90,7 @@ export const en: Record<keyof typeof sl, string> = {
     "zoom": "Zoom",
     "mouse_wheel": "Mouse wheel",
     "graph_element_size": "Graph element size",
+    "element_sizes": "Element sizes",
     "size_of_points_lines_and_labels_does_not_change_the_viewport_zoom": "Size of points, lines, and labels; does not change the viewport zoom.",
     "presets_in_this_browser": "Presets in this browser",
     "export_figure": "Export figure",

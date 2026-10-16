@@ -34,8 +34,8 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.boardUpdate();
     }
 
-    protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group">
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group">
             <OnOffSwitch checked={this.elevationOverlayOn} label={t("show_elevated_points_on_control_polygon")}
                          onChange={checked => this.setElevationOverlay(checked)}/>
             <p>{t("elevated_points_description")}</p></div></>;

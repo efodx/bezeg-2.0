@@ -12,8 +12,8 @@ interface CubicPhBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
 
 class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveGraphStates> {
     protected override workspaceDescription() { return t("explore_the_hodograph_offsets_and_control_polygon_geometry"); }
-    protected override workspaceDisplay() {
-        return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("ph_curve_geometry")}</h3>
+    protected override workspaceGraphDisplay() {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("ph_curve_geometry")}</h3>
             <OnOffSwitch checked={!this.state.showingCurve} onChange={checked => this.showControlyPolygonGeometry(checked)}
                 label={t("control_polygon_geometry")}/></div></>;
     }

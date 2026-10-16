@@ -10,6 +10,7 @@ import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
 import {SizeRange} from "./SizeRange";
+import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
@@ -354,10 +355,19 @@ abstract class BaseGraph<S extends BaseGraphState> {
     protected workspaceTitle(context: GraphPanelContext): React.ReactNode { return context.title ?? "Bezeg"; }
     protected workspaceDescription(context: GraphPanelContext): string { return context.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
+    /**
+     * The graph-specific Display options (constructions, labels, shaded regions, offsets and their results), shown expanded
+     * before the shared coordinate-system and element-size groups. Null when the graph has none.
+     */
+    protected workspaceGraphDisplay(): React.ReactNode { return null; }
+    /** Display order: graph-specific elements, then the coordinate system, then element sizes (both collapsed initially). */
     protected workspaceDisplay(): React.ReactNode {
-        return <><div className="inspector-control"><AxisSelector selected={this.displaySettings.getAxisSelect()}
-                onChange={selected => this.setAxisSelect(selected)}/></div>
-            <SizeRange size={this.displaySettings.getSize()} onChange={size => this.setElementSize(size)}/></>;
+        const graphDisplay = this.workspaceGraphDisplay();
+        return <>{graphDisplay && <div className="inspector-display-graph">{graphDisplay}</div>}
+            <InspectorDisclosure title={t("coordinate_system")}><div className="inspector-control"><AxisSelector selected={this.displaySettings.getAxisSelect()}
+                onChange={selected => this.setAxisSelect(selected)}/></div></InspectorDisclosure>
+            <InspectorDisclosure title={t("element_sizes")}>
+                <SizeRange size={this.displaySettings.getSize()} onChange={size => this.setElementSize(size)}/></InspectorDisclosure></>;
     }
     protected workspaceSave(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>

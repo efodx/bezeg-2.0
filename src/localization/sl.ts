@@ -89,6 +89,7 @@ export const sl = {
     "zoom": "Povečava",
     "mouse_wheel": "Miškin kolešček",
     "graph_element_size": "Velikost elementov grafa",
+    "element_sizes": "Velikost elementov",
     "size_of_points_lines_and_labels_does_not_change_the_viewport_zoom": "Velikost točk, črt in oznak; ne spreminja povečave pogleda.",
     "presets_in_this_browser": "Prednastavitve v tem brskalniku",
     "export_figure": "Izvoz slike",

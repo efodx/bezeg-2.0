@@ -54,8 +54,8 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             }}/><PointCoordinateEditor key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
                 board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}</>;
     }
-    protected override workspaceDisplay(): React.ReactNode {
-        return <>{super.workspaceDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
             <PhBezierCurveControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>
             <div className="inspector-group"><h3>{t("arc_length")}</h3>
                 <OnOffSwitch checked={this.state.showArcLength !== false}

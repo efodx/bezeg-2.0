@@ -151,8 +151,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         </>;
     }
 
-    protected override workspaceDisplay(): React.ReactNode {
-        return <><div className="inspector-group"><h3>{t("graph_view")}</h3>{super.workspaceDisplay()}
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <><div className="inspector-group"><h3>{t("graph_view")}</h3>
             <OnOffSwitch label={t("point_labels")} checked={this.displaySettings.pointLabelsVisible}
                 onChange={checked => this.setPointLabelsVisible(checked)}/></div>
             {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={i}><h3>{t("curve_display")} {i + 1}</h3>
