@@ -28,7 +28,7 @@ Confirmed with the project owner on 2026-10-08:
 
 The owner extended the long-term direction: Bezeg should teach its concepts with motivation and sufficient mathematical explanation to stand on their own within stated prerequisites. The audience and starting knowledge vary by family, with higher concepts developed first; a complete elementary sequence is not a prerequisite for starting. Practice exercises and assessment are excluded.
 
-The [standalone learning proposal](specs/standalone-learning.md) explores readable study chapters interleaved with focused graph activities, with direct section access for revision. The learning goal is confirmed; chapter structure, pilot topic, proof depth, navigation, and presentation remain proposals. This extends the earlier restriction on curriculum navigation without selecting a course platform or authorizing implementation. Static client-only hosting remains unchanged.
+The [standalone learning proposal](specs/standalone-learning.md) explores readable study chapters interleaved with focused graph activities, with direct section access for revision. Lead with intuition and precise statements; include derivations or proofs only when their reasoning or intuition can be made readily apparent through the graph. The learning goal and editorial depth are confirmed; chapter structure, pilot topic, navigation, and presentation remain proposals. This extends the earlier restriction on curriculum navigation without selecting a course platform or authorizing implementation. Static client-only hosting remains unchanged.
 
 ## Intended documentation
 

@@ -8,6 +8,7 @@ Status: planning proposal, 2026-10-16. The owner confirmed the learning goal and
 - The eventual audience spans ages and levels. Assumed knowledge depends on the mathematical family and topic; there is no single beginner level for the entire app.
 - Start with higher concepts, following the owner's interests and the existing advanced demonstrations. Building a complete elementary prerequisite sequence is not a condition for starting.
 - Include reading, explanation, and graph exploration. Do not include practice exercises or assessment in this direction.
+- Lead with intuition and precise mathematical statements. Include derivations or proofs only when their reasoning or intuition can be made readily apparent through the graph.
 - Guided lessons remain useful, but placing all study material into their sequential frames would make revisiting and studying it cumbersome.
 
 Standalone means self-contained within an explicitly stated prerequisite boundary. It does not mean every chapter starts from elementary mathematics. External sources may offer further reading, but should not supply a missing essential explanation inside that boundary.
@@ -43,7 +44,7 @@ Each chapter should answer:
 
 Use sections appropriate to the subject rather than requiring this list as a rigid template. Author-worked examples are exposition, not exercises for the student to complete. Graph manipulation and observation remain part of learning; do not add answer submissions, quizzes, exercise sets, marks, or mastery checks.
 
-The depth and presentation of proofs and derivations remain an owner decision. Whatever depth is selected, distinguish visual evidence, intuition, definitions, and mathematical justification. A graph must not be presented as proof of a general claim.
+The main account uses intuition and precise statements, including their assumptions. Include a derivation or proof only when its reasoning or intuition can be made readily apparent through the graph; do not promise a separate proof library or add symbolic derivations by default. For each proposed derivation, explain what the graph makes clear and what mathematical argument is still required. Distinguish visual evidence, intuition, definitions, and mathematical justification: a graph must not be presented as proof of a general claim. When a proof is omitted, state the result accurately and explain its meaning without claiming to have established it visually.
 
 ### Reading and revision
 
@@ -100,14 +101,14 @@ Content review and prototype observations must identify what is missing before e
 
 ## Staging and open decisions
 
-1. Select the pilot topic and reader; decide the expected depth of derivation and proof.
+1. Select the pilot topic and reader; identify any derivation whose reasoning the graph can make clear under the confirmed editorial rule.
 2. Inventory existing explanations and graph capabilities; write the missing conceptual development.
 3. Review the chapter as a readable mathematical account before choosing a UI.
 4. Prototype first-time reading, graph handoff/return, and direct revision access.
 5. Write a bounded implementation spec with routing, scene ownership, accessibility, localization, and verification criteria based on that evidence.
 6. Implement and review one chapter; expand by coherent topics and family reading orders afterward.
 
-Open decisions: pilot topic, proof depth, Slovenian learner-facing names, chapter/activity layout, route structure, and whether local reading-position persistence is useful. Persistence is optional future scope, separate from understanding or completion tracking.
+Open decisions: pilot topic, Slovenian learner-facing names, chapter/activity layout, route structure, and whether local reading-position persistence is useful. Persistence is optional future scope, separate from understanding or completion tracking.
 
 ## Constraints and exclusions
 
