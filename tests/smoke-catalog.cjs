@@ -287,8 +287,7 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
 
     const generatedPngNames = fs.readdirSync(catalogDirectory).filter(name => name.endsWith('.png')).sort();
     const expectedPngNames = activeDemonstrations.map(demonstration => `${demonstration.id}.png`).sort();
-    const publishedPngNames = generatedPngNames.filter(name => !options.catalogDirectory || !['affine-before.png', 'affine-after.png'].includes(name));
-    if (JSON.stringify(publishedPngNames) !== JSON.stringify(expectedPngNames)) {
+    if (JSON.stringify(generatedPngNames) !== JSON.stringify(expectedPngNames)) {
         throw new Error(`Generated preview files must match the active Demonstration catalog. Expected ${expectedPngNames.join(', ')}; found ${generatedPngNames.join(', ')}.`);
     }
     const motionSource = parseSource(options.motionMappingPath || 'src/demonstrationMotionAssets.ts');
@@ -317,12 +316,13 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         if (!motion || !src || !ts.isIdentifier(src) || motionImports.get(src.text) !== motion.file || !type || !ts.isStringLiteral(type) || type.text !== motion.type || !duration || !ts.isNumericLiteral(duration) || Number(duration.text) !== motion.duration) throw new Error(`Motion delivery/provenance mismatch: ${id}`);
         if(JSON.stringify(motion.camera)!==JSON.stringify(capturesById.get(id).framing.boardBoundingBox)) throw new Error(`Poster and clip cameras differ: ${id}`);
         require('../scripts/demonstration-preview-motion.cjs').assertMotionEvidence(motion);
-        if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration < 2 || motion.duration > 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 72 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !Array.isArray(motion.camera) || motion.camera.length !== 4 || !motion.camera.every(Number.isFinite)) throw new Error(`Invalid motion budget/provenance: ${id}`);
+        if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration !== 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 96 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !Array.isArray(motion.camera) || motion.camera.length !== 4 || !motion.camera.every(Number.isFinite)) throw new Error(`Invalid motion budget/provenance: ${id}`);
         const file = path.join(catalogDirectory,motion.file);
         if (fs.statSync(file).size !== motion.bytes || crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') !== motion.sha256) throw new Error(`Motion checksum/size mismatch: ${id}`);
         for(const sample of motion.samples) if (!/^[a-f0-9]{64}$/.test(sample.capture?.sha256 || '') || sample.capture.width !== 720 || sample.capture.height !== 440) throw new Error(`Missing lossless frame provenance: ${id}`);
     }
     if(motionIds.size !== motions.length || motionImports.size !== motions.length || new Set(motions.map(m=>m.id)).size !== motions.length) throw new Error('Motion map/imports/manifest coverage mismatch.');
+    if(JSON.stringify([...motionIds].sort()) !== JSON.stringify([...require('../scripts/demonstration-preview-motion.cjs').motionIds].sort())) throw new Error('Motion delivery must cover every configured timeline.');
     const expectedWebm = motions.map(m=>m.file).sort();
     if(JSON.stringify(fs.readdirSync(catalogDirectory).filter(f=>f.endsWith('.webm')).sort()) !== JSON.stringify(expectedWebm)) throw new Error('Generated motion files differ from manifest.');
     return {manifest, map: Object.fromEntries(Array.from(mappedIds.keys(), id => [id, `./images/demonstrations/catalog/${id}.png`]))};

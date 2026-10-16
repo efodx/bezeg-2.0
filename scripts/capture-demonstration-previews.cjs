@@ -11,7 +11,7 @@ const {chromium} = require('playwright');
 const demonstrations = require('../tests/smoke-catalog.cjs');
 const {recipes, validateRecipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 
-const {generateMotions, generateAffineComparison} = require('./demonstration-preview-motion.cjs');
+const {generateMotions} = require('./demonstration-preview-motion.cjs');
 
 const root = path.resolve(__dirname, '..');
 const publishedOutput = path.join(root, 'src/images/demonstrations/catalog');
@@ -364,7 +364,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     frame: configuration.frame || frame,
                     demonstrationId: demonstration.id,
                     window: configuration.window || recipe.framing.window,
-                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine'].includes(demonstration.id),
+                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine', 'elevation', 'rational-elevation'].includes(demonstration.id),
                     paddingFraction,
                     captureTextSize,
                     captureTextLineHeight,
@@ -512,12 +512,6 @@ async function main() {
                 assert.deepEqual([clip.width, clip.height], [frame.width, frame.height],
                     demonstration.id + ' clip does not match the preview frame');
                 await page.screenshot({path: filePath, clip, animations: 'disabled', caret: 'hide', scale: 'device'});
-                if (['affine','rational-elevation'].includes(demonstration.id)) {
-                    evidence.comparison = await generateAffineComparison(browser, demonstration, output, baseUrl, presentBoard);
-                    evidence.singleFullBoardDiagnostic = {boundingBox: scene.boundingBox, sceneBounds: scene.sceneBounds};
-                    scene.boundingBox = evidence.comparison.camera;
-                    scene.sceneBounds = evidence.comparison.sceneBounds;
-                }
                 const dimensions = pngDimensions(filePath);
                 assert.deepEqual(dimensions, {
                     width: frame.width * deviceScaleFactor,
@@ -538,7 +532,6 @@ async function main() {
                     coordinateContextPolicy: demonstrations.coordinateContextPolicy(demonstration),
                     axesAndGrid: scene.axesAndGrid,
                     framing: {
-                        composition: evidence.comparison ? {kind:'two-real-board-panels', panelCssPixels:{width:180,height:220}, camera:evidence.comparison.camera} : undefined,
                         frameCssPixels: frame,
                         aspectRatio: scene.aspectRatio,
                         paddingFraction: scene.paddingFraction,
