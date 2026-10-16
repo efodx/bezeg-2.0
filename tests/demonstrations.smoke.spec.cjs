@@ -68,7 +68,7 @@ test('the catalogue shows every demonstration in teaching order with useful card
         await expect(preview).toHaveAttribute('width', '360');
         await expect(preview).toHaveAttribute('height', '220');
         await expect(preview).toHaveAttribute('alt', '');
-        await expect(preview).toHaveAttribute('loading', 'lazy');
+        await expect(preview).toHaveAttribute('loading', index < 3 ? 'eager' : 'lazy');
         await expect(card.locator('.demonstrations-catalog-title')).toHaveText(demonstration.title);
         await expect(card.locator('.demonstrations-catalog-family')).toContainText(demonstrations.families.find(family => family.id === demonstration.family).title);
         await expect(card.locator('.demonstrations-catalog-copy p')).not.toBeEmpty();

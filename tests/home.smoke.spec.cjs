@@ -33,7 +33,11 @@ test('the homepage owns the starting carousel and its actions lead to the select
     expect(pageOrder.shortcutBeforeCarousel).toBe(true);
     expect(pageOrder.carouselBeforeFooter).toBe(true);
 
-    const openingImage = opening.locator('.demonstrations-opening-image');
+    await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(startingIds.length);
+    const openingImage = opening.locator('.demonstrations-opening-image[data-selected="true"]');
+    await expect(openingImage).toHaveCount(1);
+    await expect(openingImage).toHaveAttribute('src', /bezier/);
+    await expect(openingImage).toHaveCSS('opacity', '1');
     await expect(openingImage).toHaveAttribute('alt', '');
     await expect.poll(() => openingImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
     const first = demonstrationById.get(startingIds[0]);
@@ -52,6 +56,8 @@ test('the homepage owns the starting carousel and its actions lead to the select
     await choices.nth(1).click();
     await expect(choices.nth(1)).toHaveAttribute('aria-pressed', 'true');
     await expect(openingImage).toHaveAttribute('src', new RegExp(selected.id));
+    await expect(openingImage).toHaveCSS('opacity', '1');
+    await expect.poll(() => openingImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
     await expect(opening.getByRole('heading', {level: 3, name: selected.title})).toBeVisible();
     const graph = opening.getByRole('link', {name: `Open demonstration: ${selected.title}`});
     await expect(graph).toHaveAttribute('href', selected.path);
@@ -85,7 +91,9 @@ test('the homepage fits the target widths in Slovenian and English', async ({pag
                 await expect(currentPage.getByRole('link', {name: shortcutName})).toHaveAttribute('href', '/bezeg-2.0/demonstrations');
                 const opening = currentPage.getByRole('region', {name: carouselName});
                 await expect(opening).toBeVisible();
-                await expect(opening.locator('.demonstrations-opening-image')).toBeVisible();
+                const selectedImage = opening.locator('.demonstrations-opening-image[data-selected="true"]');
+                await expect(selectedImage).toBeVisible();
+                await expect(selectedImage).toHaveCSS('opacity', '1');
                 const horizontalOverflow = await currentPage.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
                 expect(horizontalOverflow, `${language} document overflow at ${width}px`).toBe(false);
             }
