@@ -2,7 +2,7 @@
 
 Source: [representative demonstration previews](../../specs/representative-demonstration-previews.md), including the 2026-10-16 request for captured steps and lightweight smooth control-point movement.
 
-Status: planned; no capture, asset regeneration or playback implementation has been performed by this breakdown.
+Status: implemented on 2026-10-16. See [capture results](capture-results.md) and [release verification](release-results.md). All 45 posters and three motion pilots are delivered; extrapolation's original-interval distinction and the spline sampling count retain documented limitations, so those individual scene targets are not claimed fully satisfied.
 
 | Task | Depends on | Outcome |
 | --- | --- | --- |

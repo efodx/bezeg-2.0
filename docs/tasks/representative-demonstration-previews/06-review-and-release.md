@@ -15,3 +15,7 @@ Integrate and accept representative posters plus the three motion pilots at one 
 - Update capture/regeneration instructions and the architecture's preview description for the actual delivered behavior. Record encoder prerequisites, measured budgets and browser/coverage limits. Add an ADR only if the implemented format/delivery choice warrants a consequential decision record.
 - Give each spec criterion observed evidence or an explicit gap. Implementation completion is not full acceptance while a required check remains missing. Record this task's results and delegation evaluation under the current workflow.
 - Commit only task-owned changes in logical slices. Fetch, rebase only new commits onto `origin/master`, recheck against master's code and fast-forward push under repository rules; stop on rebase conflicts. Report commits and verification results. Do not deploy unfinished unrelated route work.
+
+## Results — 2026-10-16
+
+The final set and player passed independent mathematical/engineering and visual/accessibility reviews, full TypeScript/unit/build checks and 67 production Chromium browser checks. [Release verification](release-results.md) accounts for the delivered behavior, checks, measured budgets and remaining coverage. [Capture results](capture-results.md) records all per-scene scope limitations; the two limited targets are not silently accepted as fully met. Git and hosted verification are recorded with the final release evidence.

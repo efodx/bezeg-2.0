@@ -18,3 +18,7 @@ Add one reusable preview player to `DemonstrationCollection` for the catalog and
 ## Checks and evidence
 
 Test activation/cancellation, focus containment, rapid card changes, deferred/failed loading, rejected playback, stale completion, reduced motion, filter/unmount cleanup and poster-only entries through the player's interface. Use browser network evidence to prove zero clip requests before activation and confirm real media playback. Run collection/page tests, localization TypeScript checking and production build. Coordinate the stable preview for catalog and picker browser checks under task 06; capture any focused checks here too.
+
+## Results — 2026-10-16
+
+Implemented in the shared collection with a graph-free activation controller and a separate partial asset map. The 23 focused player/poster tests and TypeScript pass. Production browser checks verify activation-only requests, all three real WebM clips, keyboard and actual touch activation, cancellation, failures and retained navigation. Independent review fixes include stopping automatic passes, preserving explicit-pass identity during contained focus, avoiding touch compatibility events, and 44px controls. See [release verification](release-results.md) for integrated checks, code-size measurements and browser coverage.

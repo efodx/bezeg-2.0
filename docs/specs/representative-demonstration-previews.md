@@ -1,6 +1,6 @@
 # Representative demonstration previews
 
-Status: ready for task planning; implementation starts after the current demonstration work reaches a stable checkpoint. Includes the owner's 2026-10-16 request for captured-state animation and a lightweight Bézier control-point movement pilot.
+Status: implemented on 2026-10-16 with documented capture limitations. See [capture evidence](../tasks/representative-demonstration-previews/capture-results.md) and [release verification](../tasks/representative-demonstration-previews/release-results.md). Includes the owner's request for captured-state animation and a lightweight Bézier control-point movement pilot.
 
 Implementation tasks: [representative demonstration previews](../tasks/representative-demonstration-previews/README.md).
 
@@ -66,9 +66,12 @@ These are visible-result requirements, not a requirement to add missing controls
 
 This table is a planning snapshot, not a fixed catalog count or a claim that all listed routes are shipped. At implementation start, inventory the then-current `src/demonstrations.ts`, route registrations, preview mapping, assets and manifest. Recount shipped demonstrations and genuine previews, identify missing/placeholder assets and in-progress routes, and refresh this table and all verification totals against that checkpoint. Add targets for newly shipped entries and explicitly account for removed or renamed entries. Recheck placeholder descriptions as they may already have been replaced. Record the source revision and refreshed counts in the implementation evidence; derive exhaustive checks from the live catalog rather than hard-coding the planning total. Counts within scene targets (such as four cubic basis functions or four subdivision pieces) describe the intended construction and are not catalog totals.
 
+The implementation checkpoint at `d4bff5638dcee2da1b6bdaf177b81fda785657a2` contained 45 shipped routes and no in-progress routes. Complex multiplication was added to the targets below. Sequence, uniform convergence and fixed point already had genuine captures, so their earlier placeholder descriptions have been removed. The regenerated set contains 45 distinct own-route posters; exhaustive checks continue to derive their inventory from live metadata.
+
 | ID | Preview target |
 | --- | --- |
 | bernstein | Degree 3 basis, all four functions visible, coordinate window focused on the unit interval. |
+| complex-multiplication | Existing multiplication by \(i\), with product and arguments revealed; retain coordinate context and unchanged operands. |
 | bezier | Current asymmetric curve with its control polygon enabled. |
 | decasteljau | Existing interpolation levels at an interior parameter; retain separation between levels and suppress redundant thumbnail labels. |
 | decasteljau-alternative | Existing component curves and interpolation segment at a parameter where they remain visibly distinct. |
@@ -109,9 +112,9 @@ This table is a planning snapshot, not a fixed catalog count or a claim that all
 | extrema | Reveal classification for the existing function and interval; frame around critical points and endpoints. |
 | convexity | Reveal conclusion; chord, curve and comparison point visibly separated in a focused window. |
 | taylor | Existing function and centre, degree 2 or 3, with local agreement and some visible divergence. |
-| sequence | Replace placeholder with the actual starting sequence, enough revealed terms to communicate its behavior, epsilon band and threshold marker. Do not switch examples. |
-| uniform-convergence | Replace placeholder with actual starting function sequence, limit and epsilon band at a representative supported index. Do not switch examples. |
-| fixed-point | Replace placeholder with actual starting iteration, diagonal and several deterministic cobweb steps. Do not switch examples. |
+| sequence | Actual starting sequence, enough revealed terms to communicate its behavior, epsilon band and threshold marker. Do not switch examples. |
+| uniform-convergence | Actual starting function sequence, limit and epsilon band at a representative supported index. Do not switch examples. |
+| fixed-point | Actual starting iteration, diagonal and several deterministic cobweb steps. Do not switch examples. |
 
 ## Acceptance and verification
 

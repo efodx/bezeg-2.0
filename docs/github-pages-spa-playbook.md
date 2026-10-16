@@ -42,6 +42,8 @@ Bezeg uses the [rafgraph SPA GitHub Pages workaround](https://github.com/rafgrap
 
 Bezeg's demonstration library uses the existing `/bezeg-2.0/demonstrations` route with optional URL-encoded `topic` and `q` filters. Changes preserve unrelated query parameters and the hash. Graph and `?learn=1` lesson deep links retain their existing routing. Validate filtered direct entry, refresh, Back/Forward, graph/lesson entry, and return navigation in the production preview and separately on Pages. Catalogue scroll/focus return state lives only in browser navigation state; it is not persistent data or part of a shared URL.
 
+Optional catalog motion previews are ordinary hashed WebM build assets. Serve `.webm` as `video/webm`; the local production smoke server includes that MIME mapping. Verify the deployed response MIME and actual browser decoding after publication. Cards attach a clip source only on activation and fall back to their PNG poster on unsupported or failed playback. Asset existence or a local playback pass alone does not verify the deployed host.
+
 During modernization, select a strategy based on URL requirements and simplicity. Breaking URL changes are permitted but must be communicated.
 
 ## 4. Align the base path across build, router, and fallback
