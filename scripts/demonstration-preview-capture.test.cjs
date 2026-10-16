@@ -126,6 +126,39 @@ test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a mo
     const band=sample(40);band.actual.input=0.005;
     assert.throws(()=>deriv.sweep.check(band,null,valid.samples[0],deriv),/excluded band/);
 });
+test('Farin pointer-drag provenance rejects a moved control point, a changed non-dragged ratio, a weight text mismatch and a non-seamless end',()=>{
+    const {rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack}=require('./demonstration-preview-motion.cjs');
+    const controls=[{id:'p0',x:-4,y:-3},{id:'p1',x:-3,y:3},{id:'p2',x:3,y:3},{id:'p3',x:4,y:-3}];
+    const edges=[[controls[0],controls[1]],[controls[1],controls[2]],[controls[2],controls[3]]];
+    const sample=i=>{
+        const v=farinValue(1/3,sin2OutAndBack(i));
+        const values=[2/3,v,0.5];
+        const sliders=values.map((value,j)=>({v:value,p1:{...edges[j][0]},p2:{...edges[j][1]}}));
+        const weights=farinEffectiveWeights(values);
+        return {index:i,time:i/24,scheduled:{v},target:farinPoint(sliders[1],v),
+            points:controls.map(p=>({...p,draggable:true})),
+            observed:{sliders,weights:weights.map((w,k)=>farinWeightText(k,w)),
+                curve:farinParameterTs.map(t=>rationalPoint(controls,weights,t))},
+            curvePathHash:`path-${v}`,capture:{sha256:'recipe-png'}};
+    };
+    const motion=()=>({id:'farin',mode:'pointer-drag',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled.v,1/3);assert.equal(valid.samples[95].scheduled.v,1/3);
+    assert.ok(Math.abs(Math.max(...valid.samples.map(s=>s.scheduled.v))-0.75)<1e-3);
+    const moved=motion();moved.samples[40].points[1].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(moved),/Control point moved/);
+    const ratio=motion();ratio.samples[40].observed.sliders[2].v+=0.01;
+    assert.throws(()=>assertMotionEvidence(ratio),/Non-dragged ratio changed/);
+    const text=motion();text.samples[40].observed.weights[2]='$$w_{2}=9.00$$';
+    assert.throws(()=>assertMotionEvidence(text),/Weight text differs/);
+    const off=motion();off.samples[40].observed.sliders[1].v+=0.01;
+    assert.throws(()=>assertMotionEvidence(off),/off its scheduled ratio/);
+    const seam=motion();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
+    const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
+    assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
+});
 test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
     const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';
     try {execFileSync(ffmpeg,['-version'],{stdio:'ignore'});execFileSync(ffprobe,['-version'],{stdio:'ignore'});}

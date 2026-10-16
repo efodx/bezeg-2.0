@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -57,12 +57,57 @@ function bernsteinPoint(controls, t) {
     }, {x: 0, y: 0});
 }
 const pathHash = paths => crypto.createHash('sha256').update(paths.join('\n')).digest('hex');
+/** Pure rational Bézier evaluation at t from control points and weights (independent of the runtime's evaluator). */
+function rationalPoint(controls, weights, t) {
+    const n = controls.length - 1;
+    const binomial = (a, b) => { let r = 1; for (let k = 1; k <= b; k++) r = r * (a - b + k) / k; return r; };
+    let x = 0, y = 0, total = 0;
+    controls.forEach((p, k) => {
+        const b = binomial(n, k) * t ** k * (1 - t) ** (n - k) * weights[k];
+        x += b * p.x; y += b * p.y; total += b;
+    });
+    return {x: x / total, y: y / total};
+}
+
+// Farin glider (edge 1, between p1 and p2): its Value v is the position on the edge, v = ratio / (1 + ratio) with ratio = w2 / w1.
+// Effective weights chain as in JXGRationalBezierCurve.showFarinPoints: w0 = 1, w(k+1) = w(k) * v_k / (1 - v_k).
+const farinParameterTs = [0.1, 0.37, 0.5, 0.81, 0.93];
+const farinValue = (v0, displacement) => v0 + displacement * (motionSpecs.farin.glider.target - v0);
+const farinPoint = (slider, v) => ({x: slider.p1.x + v * (slider.p2.x - slider.p1.x), y: slider.p1.y + v * (slider.p2.y - slider.p1.y)});
+function farinEffectiveWeights(values) {
+    const weights = [1];
+    for (const v of values) weights.push(weights.at(-1) * (v / (1 - v)));
+    return weights;
+}
+const farinWeightText = (k, weight) => `$$w_{${k}}=${weight.toFixed(2)}$$`;
 
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
 const motionSpecs = {
     bezier: {
         mode: 'pointer-drag', controlCount: 4, handle: 1,
+        start: ctx => ctx.points[1],
         path: (moved, displacement) => ({x: moved.x + 1.8 * displacement, y: moved.y + 2.1 * displacement}),
+        // Coordinate editor restore: the moved control point is set back to its exact start coordinates.
+        restore: async (page, ctx) => {
+            const moved = ctx.points[1];
+            await applyAction(page,{kind:'button',label:'Krivulja1'});
+            await page.locator('.point-coordinate-editor summary').click();
+            await page.getByLabel('p1 x',{exact:true}).fill(String(moved.x));
+            await page.getByLabel('p1 y',{exact:true}).fill(String(moved.y));
+            await page.getByRole('button',{name:'Uporabi koordinate',exact:true}).click();
+            await applyAction(page,{kind:'button',label:'Prekliči izbiro'});
+        },
+        check(sample, previous, first) {
+            const i = sample.index, originals = first.points.filter(p => p.draggable), moved = originals[1];
+            for (const original of originals) {
+                const actual = sample.points.find(p => p.id === original.id);
+                assert.ok(actual);
+                const expected = original.id === moved.id ? sample.target : original;
+                const tolerance = original.id === moved.id && i > 12 && i < 83 ? 0.035 : 1e-9;
+                assert.ok(Math.abs(actual.x - expected.x) < tolerance && Math.abs(actual.y - expected.y) < tolerance, `Unexpected control-point position at sample ${i}: ${JSON.stringify({actual, expected})}`);
+            }
+            if (i === 47) assert.notEqual(sample.curvePathHash, first.curvePathHash, 'Pointer motion did not recompute the real curve');
+        },
         schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)',
             zeroDisplacementFrames: '0-12 and 83-95', movingFrames: '13-82', press: 13, release: 83,
             restore: 'coordinate editor (exact)'},
@@ -163,6 +208,101 @@ const motionSpecs = {
             'Tangent fixed: same line every frame with slope f\'(x0) (1e-9)', 'Step stays inside [-2, 2] with |h| >= 0.01',
             'Input value and aria-valuetext equal the snapped target every frame', 'First and last frames equal the recipe state (identical PNG)'],
     },
+    farin: {
+        mode: 'pointer-drag', controlCount: 4, presentEachFrame: false,
+        // The full settle() re-typesets MathJax on every frame; with the moving weight labels that crashed the renderer
+        // at about frame 31. Two animation frames are enough here: the labels are plain board text updated by JSXGraph.
+        settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        // The glider of edge p1-p2 (the interior control edge) starts at v = 1/3 (ratio 1/2, weights [1, 2, 1, 1]) and moves to v = 0.75 (0.8 was 328205 bytes at CRF 10, over the 300 KiB ceiling; see encoderBudget).
+        // JSXGraph slider snapWidth is -1 (no snapping), so the glider follows the pointer continuously. The tolerance (1e-6 of the
+        // edge parameter) only covers round-off in the board-to-screen-to-board mapping of the pointer; the capture measures it.
+        glider: {edge: 1, target: 0.75, tolerance: 1e-6},
+        crf: 14,
+        encoderBudget: 'amplitude 0.75 instead of 0.8 and CRF 14 instead of CRF 10: at 0.8 and CRF 10 the clip was 328205 bytes, at 0.75 and CRF 10 321279 bytes (both over 300 KiB), and at 0.75 and CRF 20 210184 bytes; all weight text and labels kept',
+        observe: page => page.locator('#jgbox').evaluate((container, ts) => {
+            const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+            const objects = Object.values(b.objects);
+            const sliders = objects.filter(o => o.elType === 'slider').map(s => ({v: s.Value(), p1: {x: s.point1.X(), y: s.point1.Y()}, p2: {x: s.point2.X(), y: s.point2.Y()}}));
+            const weights = [];
+            objects.filter(o => o.elType === 'text' && /^\$\$w_\{\d\}=/.test(o.plaintext || '')).forEach(o => {
+                weights[Number(/w_\{(\d)\}/.exec(o.plaintext)[1])] = o.plaintext;
+            });
+            const curve = objects.find(o => o.elType === 'curve');
+            return {sliders, weights, curve: ts.map(t => ({x: curve.X(t), y: curve.Y(t)}))};
+        }, farinParameterTs),
+        start: ctx => farinPoint(ctx.observed.sliders[1], ctx.observed.sliders[1].v),
+        path: (moved, displacement, ctx) => {
+            const slider = ctx.observed.sliders[1];
+            return farinPoint(slider, farinValue(slider.v, displacement));
+        },
+        scheduled: (ctx, displacement) => ({v: farinValue(ctx.observed.sliders[1].v, displacement)}),
+        // Restore: Farin points off (weights become plain numbers), weight number fields w1..w3 set to the recipe's exact 2, 1, 1,
+        // then Farin points on again, which rebuilds the three gliders from those weights. The field does not commit a typed value
+        // that equals its rounded display (w2 released at 1.0042 shows "1,00"), so each weight first takes a different value.
+        restore: async page => {
+            const setWeight = async value => {
+                await applyAction(page,{kind:'number',label:'Vrednost uteži',value:value+4});
+                await applyAction(page,{kind:'number',label:'Vrednost uteži',value});
+            };
+            await applyAction(page,{kind:'toggle',label:'Farinove Točke',value:false});
+            await applyAction(page,{kind:'button',label:'Krivulja1'});
+            await setWeight(2);
+            await applyAction(page,{kind:'button',label:'Naslednja utež'});
+            await setWeight(1);
+            await applyAction(page,{kind:'button',label:'Naslednja utež'});
+            await setWeight(1);
+            await applyAction(page,{kind:'button',label:'Prejšnja utež'});
+            await applyAction(page,{kind:'button',label:'Prejšnja utež'});
+            await applyAction(page,{kind:'button',label:'Prekliči izbiro'});
+            await applyAction(page,{kind:'toggle',label:'Farinove Točke',value:true});
+        },
+        check(sample, previous, first, spec) {
+            const i = sample.index, edge = spec.glider.edge, {tolerance} = spec.glider;
+            const v0 = first.observed.sliders[edge].v, scheduledV = farinValue(v0, sin2OutAndBack(i));
+            assert.ok(Math.abs(sample.scheduled.v - scheduledV) < 1e-12, `Scheduled glider differs from the sin² schedule at frame ${i}`);
+            const originals = first.points.filter(p => p.draggable);
+            const controls = originals.map(o => sample.points.find(p => p.id === o.id));
+            assert.equal(sample.points.filter(p => p.draggable).length, spec.controlCount, `Wrong control point count at frame ${i}`);
+            originals.forEach((o, k) => assert.ok(Math.abs(controls[k].x - o.x) < 1e-9 && Math.abs(controls[k].y - o.y) < 1e-9, `Control point moved at frame ${i}`));
+            sample.observed.sliders.forEach((slider, j) => {
+                const fixed = first.observed.sliders[j];
+                // The glider stays attached to its own control edge.
+                assert.ok(['p1', 'p2'].every(key => Math.abs(slider[key].x - controls[j + (key === 'p2' ? 1 : 0)].x) < 1e-9 && Math.abs(slider[key].y - controls[j + (key === 'p2' ? 1 : 0)].y) < 1e-9),
+                    `Glider ${j} detached from its control edge at frame ${i}`);
+                if (j === edge) assert.ok(Math.abs(slider.v - scheduledV) < tolerance, `Glider off its scheduled ratio at frame ${i}: observed ${slider.v}, scheduled ${scheduledV}`);
+                else assert.ok(Math.abs(slider.v - fixed.v) < 1e-9, `Non-dragged ratio changed at frame ${i}`);
+            });
+            const effective = farinEffectiveWeights(sample.observed.sliders.map(s => s.v));
+            effective.forEach((w, k) => assert.equal(sample.observed.weights[k], farinWeightText(k, w), `Weight text differs from the effective weight at frame ${i}`));
+            assert.equal(sample.observed.weights.length, 4, `Wrong weight label count at frame ${i}`);
+            const controlPoints = controls.map(({x, y}) => ({x, y}));
+            farinParameterTs.forEach((t, k) => {
+                const expected = rationalPoint(controlPoints, effective, t), actual = sample.observed.curve[k];
+                assert.ok(Math.abs(actual.x - expected.x) < 1e-9 && Math.abs(actual.y - expected.y) < 1e-9, `Curve differs from the rational evaluation at frame ${i}`);
+            });
+            if (previous) {
+                if (previous.scheduled.v !== sample.scheduled.v) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Curve path did not change while the glider moved at frame ${i}`);
+                else assert.equal(sample.curvePathHash, previous.curvePathHash, `Curve path changed while the glider held at frame ${i}`);
+            }
+            if (i === frameCount - 1) {
+                // The SVG path string keeps float round-off from the restored glider values, so the seam compares the curve samples.
+                sample.observed.curve.forEach((p, k) => assert.ok(Math.abs(p.x - first.observed.curve[k].x) < 1e-9 && Math.abs(p.y - first.observed.curve[k].y) < 1e-9,
+                    'Non-seamless loop: last curve differs from the recipe state'));
+                assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+            }
+        },
+        schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)',
+            zeroDisplacementFrames: '0-12 and 83-95', movingFrames: '13-82', press: 13, release: 83,
+            target: 'glider of edge p1-p2: v = 1/3 -> 0.75 -> 1/3 (ratio 1/2 -> 3 -> 1/2)',
+            input: 'pointer press on the glider at its start position, moved in board coordinates mapped to screen every frame, released',
+            restore: 'Farin points off; weight number fields w1, w2, w3 set to exact 2, 1, 1; Farin points on (exact rebuild of the gliders)'},
+        invariants: ['Control points unchanged (1e-9)', 'Glider stays on its control edge and at the scheduled ratio (tolerance 1e-6 in edge parameter)',
+            'Only the dragged edge ratio changes; the other two ratios stay unchanged (1e-9)',
+            'Each weight label equals the effective weight derived from the glider values, formatted to two decimals (exact string)',
+            'Curve equals the pure rational Bézier evaluation from control points and effective weights (1e-9) at five parameters',
+            'Curve path changes whenever the glider moves and is unchanged while it holds; the last frame path and PNG equal the recipe frame',
+            'First and last frames equal the recipe state'],
+    },
 };
 
 function assertPointSet(actual, expected, message) {
@@ -207,6 +347,18 @@ function assertSweepEvidence(motion, spec) {
     });
 }
 
+/** Observed pointer drags (per-frame board observations): the spec's own per-frame check, run offline over the saved samples. */
+function assertDragEvidence(motion, spec) {
+    assert.equal(motion.samples.length, frameCount, 'Pointer drag needs one sample per frame');
+    const first = motion.samples[0];
+    let previous = null;
+    motion.samples.forEach((sample, i) => {
+        assert.equal(sample.index, i); assert.equal(sample.time, i / sampleRate);
+        spec.check(sample, previous, first, spec);
+        previous = sample;
+    });
+}
+
 function assertMotionEvidence(motion) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
@@ -215,6 +367,10 @@ function assertMotionEvidence(motion) {
         const spec=motionSpecs[motion.id];
         assert.ok(spec && spec.mode==='parameter-sweep','Parameter sweep evidence needs a sweep configuration');
         assertSweepEvidence(motion,spec);
+        return;
+    }
+    if(motion.mode==='pointer-drag' && motionSpecs[motion.id]?.observe) {
+        assertDragEvidence(motion,motionSpecs[motion.id]);
         return;
     }
     if(motion.id==='bezier') {
@@ -357,53 +513,50 @@ async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdF
     return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox};
 }
 
-/** Pointer drag: press the handle once, follow the scheduled path, release, then restore the exact start through the coordinate editor. */
+/**
+ * Pointer drag: press the handle once, follow the scheduled path mapped to screen every frame, release, then restore the
+ * start state through the spec's exact input. Per-frame checks are the spec's own check(), the same one run offline.
+ */
 async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
-    const window=recipes[d.id].framing.window;
+    const recipe=recipes[d.id];
+    // A coordinate-window recipe keeps its window. A finite-geometry recipe keeps the poster fit, applied once (no per-frame refit).
+    const presentation=recipe.framing.kind==='coordinate-window'?{window:recipe.framing.window}:{};
     const sampleEvidence=[];
     const {page,context}=await openRoute(browser,d,baseUrl);
     try {
-        await applyRecipe(page,recipes[d.id]);
-        await presentBoard(page.locator('#jgbox'),d,recipes[d.id],{window});
+        await applyRecipe(page,recipe);
+        await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
         const initial=await boardSnapshot(page); const fixedBox=initial.box;
         const points=initial.points.filter(p=>p.draggable);
         assert.equal(points.length,spec.controlCount,`Expected the original ${spec.controlCount} draggable control points`);
-        const moved=points[spec.handle];
+        const ctx={initial,points,observed:spec.observe?await spec.observe(page):undefined};
+        const moved=spec.start(ctx);
         const screen=async(x,y)=>page.locator('#jgbox').evaluate((e,{x,y})=>{const b=Object.values(window.JXG.boards).find(b=>b.container==='jgbox');const r=e.getBoundingClientRect();return {x:r.left+b.origin.scrCoords[1]+b.unitX*x,y:r.top+b.origin.scrCoords[2]-b.unitY*y};},{x,y});
         const start=await screen(moved.x,moved.y);
+        let first=null,previous=null;
         for(let i=0;i<frameCount;i++) {
             const phase=movePhase(i);const displacement=sin2OutAndBack(i);
-            const target=spec.path(moved,displacement);
+            const target=spec.path(moved,displacement,ctx);
             if(i===spec.schedule.press){await page.mouse.move(start.x,start.y);await page.mouse.down();}
             if(i>spec.schedule.press-1 && i<spec.schedule.release){const at=await screen(target.x,target.y);await page.mouse.move(at.x,at.y);}
-            if(i===spec.schedule.release){
-                await page.mouse.up();
-                await applyAction(page,{kind:'button',label:'Krivulja1'});
-                await page.locator('.point-coordinate-editor summary').click();
-                await page.getByLabel('p1 x',{exact:true}).fill(String(moved.x));
-                await page.getByLabel('p1 y',{exact:true}).fill(String(moved.y));
-                await page.getByRole('button',{name:'Uporabi koordinate',exact:true}).click();
-                await applyAction(page,{kind:'button',label:'Prekliči izbiro'});
-            }
-            await settle(page);
+            if(i===spec.schedule.release){await page.mouse.up();await spec.restore(page,ctx);}
+            await (spec.settle||settle)(page);
             if(process.env.PREVIEW_SAMPLE_DELAY_MS)await page.waitForTimeout(Number(process.env.PREVIEW_SAMPLE_DELAY_MS));
-            await presentBoard(page.locator('#jgbox'),d,recipes[d.id],{window});
+            if(spec.presentEachFrame!==false)await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
             const state=await boardSnapshot(page);
-            assert.deepEqual(state.box,fixedBox);
+            assert.deepEqual(state.box,fixedBox,'Camera changed during the drag');
             assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
-            for(const original of points) {
-                const actual=state.points.find(p=>p.id===original.id);assert.ok(actual);
-                const expected=original.id===moved.id?target:original;
-                const tolerance=original.id===moved.id && i>12 && i<83?0.035:1e-9;
-                assert.ok(Math.abs(actual.x-expected.x)<tolerance&&Math.abs(actual.y-expected.y)<tolerance,`Unexpected control-point position at sample ${i}: ${JSON.stringify({actual,expected})}`);
-            }
-            if(i===47)assert.notDeepEqual(state.paths,initial.paths,'Pointer motion did not recompute the real curve');
+            const observed=spec.observe?await spec.observe(page):undefined;
             const captured=await screenshotBoard(page,path.join(directory,String(i).padStart(3,'0')+'.png'));
-            const actualMoved=state.points.find(p=>p.id===moved.id);
-            sampleEvidence.push({index:i,time:i/24,phase,target,scheduled:target,
-                actual:{id:moved.id,x:actualMoved.x,y:actualMoved.y},
-                fixed:state.points.filter(p=>p.id!==moved.id&&points.some(q=>q.id===p.id)).map(({id,x,y})=>({id,x,y})),
-                capture:captured,points:state.points,strokeWidths:state.strokeWidths,curvePathHash:pathHash(state.paths)});
+            const sample={index:i,time:i/24,phase,target,scheduled:spec.scheduled?spec.scheduled(ctx,displacement):target,
+                ...(observed?{}:{actual:{id:moved.id,...(({x,y})=>({x,y}))(state.points.find(p=>p.id===moved.id))},
+                    fixed:state.points.filter(p=>p.id!==moved.id&&points.some(q=>q.id===p.id)).map(({id,x,y})=>({id,x,y}))}),
+                ...(observed?{observed}:{}),
+                capture:captured,points:state.points,strokeWidths:state.strokeWidths,curvePathHash:pathHash(state.paths)};
+            first??=sample;
+            spec.check(sample,previous,first,spec);
+            sampleEvidence.push(sample);
+            previous=sample;
         }
         await page.mouse.up();
         return {camera:fixedBox,samples:sampleEvidence};
@@ -539,4 +692,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,deCasteljauLevels,bernsteinPoint,sin2OutAndBack,movePhase};
+module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase};
