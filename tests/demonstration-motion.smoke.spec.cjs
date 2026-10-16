@@ -35,8 +35,8 @@ test('visible previews loop automatically without buttons or offscreen media req
     }));
     expect(visibleSources.every(item => item.visible)).toBe(true);
     expect(requests.every(url => visibleSources.some(item => item.src === url))).toBe(true);
-    await expect.poll(() => video.evaluate(v => v.currentTime)).toBeGreaterThan(3.5);
-    await expect.poll(() => video.evaluate(v => v.currentTime), {timeout:3000}).toBeLessThan(1.5);
+    await expect.poll(() => video.evaluate(v => v.currentTime), {intervals:[100]}).toBeGreaterThan(3.5);
+    await expect.poll(() => video.evaluate(v => v.currentTime), {timeout:3000, intervals:[100]}).toBeLessThan(1.5);
     await playing(card(page, 'bezier'));
     expect(types.every(type => type?.startsWith('video/webm'))).toBe(true);
 });
