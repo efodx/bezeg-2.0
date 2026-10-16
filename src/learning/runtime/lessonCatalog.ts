@@ -301,6 +301,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'convexity',
     'taylor',
     'sequence',
+    'uniform-convergence',
     'fixed-point',
 ] as const satisfies readonly DemonstrationId[];
 

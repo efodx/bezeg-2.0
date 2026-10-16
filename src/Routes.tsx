@@ -52,6 +52,7 @@ import { ExtremaGraph } from './graphs/functions/ExtremaGraph';
 import { ConvexityGraph } from './graphs/functions/ConvexityGraph';
 import { TaylorGraph } from './graphs/functions/TaylorGraph';
 import { SequenceGraph } from './graphs/functions/SequenceGraph';
+import { UniformConvergenceGraph } from './graphs/functions/UniformConvergenceGraph';
 import { FixedPointGraph } from './graphs/functions/FixedPointGraph';
 import { GraphHost } from './graphs/base/GraphHost';
 import type BaseGraph from './graphs/base/BaseGraph';
@@ -108,6 +109,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'convexity': () => new ConvexityGraph(),
     'taylor': () => new TaylorGraph(),
     'sequence': () => new SequenceGraph(),
+    'uniform-convergence': () => new UniformConvergenceGraph(),
     'fixed-point': () => new FixedPointGraph(),
 };
 

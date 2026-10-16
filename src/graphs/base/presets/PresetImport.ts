@@ -25,6 +25,11 @@ import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
     isFixedPointStepCount,
 } from "../../../analysis/fixedPoint";
+import {parseUniformConvergenceModel} from "../../../analysis/uniformConvergenceModel";
+import {
+    isUniformEpsilon, isUniformExampleId, isUniformN, isUniformR, isUniformX, UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N, UNIFORM_N_MIN,
+    UNIFORM_R_MAX, UNIFORM_R_MIN,
+} from "../../../analysis/uniformConvergence";
 import {parseSequenceModel} from "../../../analysis/sequenceModel";
 import {
     isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
@@ -40,11 +45,11 @@ const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decast
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "fixed-point"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "fixed-point"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel, "preset-fixed-point": parseFixedPointModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel, "preset-uniform-convergence": parseUniformConvergenceModel, "preset-fixed-point": parseFixedPointModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -144,6 +149,16 @@ const diagnoseSequence: Diagnosis = data => {
     if (data.certificateVisible !== undefined && typeof data.certificateVisible !== "boolean") return message("invalid_sequence_visibility");
     return undefined;
 };
+const diagnoseUniformConvergence: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isUniformExampleId(data.example)) return message("invalid_uniform_example", {value0: UNIFORM_EXAMPLE_IDS.join(", ")});
+    if (finite(data.r) && !isUniformR(data.r)) return message("invalid_uniform_r", {value0: bound(UNIFORM_R_MIN), value1: bound(UNIFORM_R_MAX)});
+    if (finite(data.n) && !isUniformN(data.n)) return message("invalid_uniform_n", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N});
+    if (isUniformR(data.r) && finite(data.x) && !isUniformX(data.r, data.x)) return message("invalid_uniform_x", {value0: bound(data.r)});
+    if (finite(data.epsilon) && !isUniformEpsilon(data.epsilon)) return message("invalid_uniform_epsilon", {value0: bound(UNIFORM_EPSILON_MIN), value1: bound(UNIFORM_EPSILON_MAX)});
+    if (data.supremumVisible !== undefined && typeof data.supremumVisible !== "boolean") return message("invalid_uniform_visibility");
+    return undefined;
+};
 const diagnoseFixedPoint: Diagnosis = data => {
     if (!isObject(data)) return undefined;
     if (!isFixedPointExampleId(data.example)) return message("invalid_fixed_point_example", {value0: FIXED_POINT_EXAMPLE_IDS.join(", ")});
@@ -156,7 +171,7 @@ const diagnoseFixedPoint: Diagnosis = data => {
     if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_fixed_point_visibility");
     return undefined;
 };
-const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-fixed-point": diagnoseFixedPoint, "preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-uniform-convergence": diagnoseUniformConvergence, "preset-fixed-point": diagnoseFixedPoint, "preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));

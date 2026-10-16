@@ -8,21 +8,22 @@ import {CONVEXITY_EXAMPLE_IDS} from '../analysis/convexity';
 import {TAYLOR_EXAMPLE_IDS} from '../analysis/taylor';
 import {SEQUENCE_EXAMPLE_IDS} from '../analysis/sequence';
 import {FIXED_POINT_EXAMPLE_IDS} from '../analysis/fixedPoint';
+import {UNIFORM_EXAMPLE_IDS} from '../analysis/uniformConvergence';
 
 export type LessonLanguage = 'sl' | 'en';
 
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n' | 'extrema-a' | 'extrema-b' | 'convexity-a' | 'convexity-b' | 'convexity-t' | 'taylor-center' | 'taylor-degree' | 'taylor-x' | 'sequence-epsilon' | 'sequence-limit' | 'sequence-threshold' | 'fixed-point-x0' | 'fixed-point-digits';
-export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits'];
+export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n' | 'extrema-a' | 'extrema-b' | 'convexity-a' | 'convexity-b' | 'convexity-t' | 'taylor-center' | 'taylor-degree' | 'taylor-x' | 'sequence-epsilon' | 'sequence-limit' | 'sequence-threshold' | 'fixed-point-x0' | 'fixed-point-digits' | 'uniform-r' | 'uniform-n' | 'uniform-x' | 'uniform-epsilon';
+export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon'];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum' | 'extrema-classification' | 'second-derivative' | 'taylor-bound' | 'sequence-certificate' | 'fixed-point-bound';
-export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound'];
+export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum' | 'extrema-classification' | 'second-derivative' | 'taylor-bound' | 'sequence-certificate' | 'fixed-point-bound' | 'uniform-supremum';
+export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum'];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
-export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example' | 'extrema-example' | 'convexity-example' | 'taylor-example' | 'sequence-example' | 'fixed-point-example';
+export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example' | 'extrema-example' | 'convexity-example' | 'taylor-example' | 'sequence-example' | 'fixed-point-example' | 'uniform-example';
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
     'trig-function': ['sin', 'cos', 'tan'],
     'derivative-function': ['square', 'sin', 'exp'],
@@ -38,6 +39,7 @@ export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonl
     'taylor-example': TAYLOR_EXAMPLE_IDS,
     'sequence-example': SEQUENCE_EXAMPLE_IDS,
     'fixed-point-example': FIXED_POINT_EXAMPLE_IDS,
+    'uniform-example': UNIFORM_EXAMPLE_IDS,
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 

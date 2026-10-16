@@ -716,3 +716,73 @@ test("the fixed-point messages are localized and show the supported ranges from 
     expect(attempt({...validFixedPoint, digits: 12})).toContain("celo število med 1 in 8");
     expect(attempt({...validFixedPoint, boundVisible: "yes"})).toContain("true ali false");
 });
+
+
+const uniformPreset = (data: unknown) => JSON.stringify({"preset-uniform-convergence": {data: [{id: "Osnova", boardState: {boundingBox: [-0.15, 1.45, 1.2, -0.2]},
+    graphState: {initialized: true, example: "power", r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false}, data}]}});
+
+test("uniform-convergence collection imports a model object with its reveal flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "scaled", r: 0.65, n: 17, x: 0.64, epsilon: 0.03, supremumVisible: true};
+    commitPresetImport(preflightPresetImport(uniformPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-uniform-convergence")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    // the boundary values of every field are accepted
+    for (const boundary of [{example: "power", r: 0.1, n: 1, x: 0, epsilon: 0.01}, {example: "power", r: 0.1, n: 1, x: 0.1, epsilon: 0.01},
+        {example: "scaled", r: 1, n: 50, x: 1, epsilon: 1}, {example: "power", r: 1, n: 50, x: 0.99, epsilon: 0.5}]) {
+        expect(() => preflightPresetImport(uniformPreset({supremumVisible: false, ...boundary}))).not.toThrow();
+    }
+});
+
+const validUniform = {example: "power", r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false};
+test.each([[[]], [null], [{}], [{...validUniform, example: "cubic"}], [{...validUniform, r: 0.05}], [{...validUniform, r: 1.05}], [{...validUniform, r: 0.82}],
+    [{...validUniform, r: 0.1 + 0.2}], [{...validUniform, r: "0.8"}], [{...validUniform, n: 0}], [{...validUniform, n: 51}], [{...validUniform, n: 2.5}], [{...validUniform, n: "5"}],
+    [{...validUniform, x: -0.01}], [{...validUniform, x: 0.85}], [{...validUniform, x: 0.505}], [{...validUniform, x: "0.5"}], [{...validUniform, epsilon: 0}],
+    [{...validUniform, epsilon: 0.005}], [{...validUniform, epsilon: 1.01}], [{...validUniform, epsilon: -0.1}], [{...validUniform, supremumVisible: "true"}],
+    [{...validUniform, supremumVisible: 1}], [{example: "power", r: 0.8, n: 5, x: 0.5, epsilon: 0.1}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("uniform-convergence collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(uniformPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validUniform, example: "cubic"}, /power, scaled/],
+    [{...validUniform, r: 0.82}, /\br\b.*0\.05.*0\.1.*1/],
+    [{...validUniform, r: 1.05}, /\br\b.*0\.05.*0\.1.*1/],
+    [{...validUniform, n: 51}, /\bn\b.*1.*50/],
+    [{...validUniform, n: 2.5}, /\bn\b.*1.*50/],
+    [{...validUniform, x: 0.85}, /\bx\b.*0\.01.*0.*r = 0\.8/],
+    [{...validUniform, x: 0.505}, /\bx\b.*0\.01.*0.*r = 0\.8/],
+    [{...validUniform, r: 1, x: 1.5}, /\bx\b.*r = 1/],
+    [{...validUniform, epsilon: 0}, /epsilon.*0\.01.*0\.01.*1/],
+    [{...validUniform, epsilon: 1.01}, /epsilon.*0\.01.*0\.01.*1/],
+    [{...validUniform, supremumVisible: "true"}, /supremumVisible/],
+])("uniform-convergence errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(uniformPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(uniformPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("uniform-convergence data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validUniform, r: "0.8"}, {...validUniform, n: "5"}, {...validUniform, x: "0.5"}, {...validUniform, epsilon: "0.1"},
+        {example: "power", r: 0.8, n: 5, x: 0.5, epsilon: 0.1}]) {
+        expect(() => preflightPresetImport(uniformPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the uniform-convergence messages are localized and show the supported ranges from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(uniformPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validUniform, example: "cubic"})).toContain("must be one of: power, scaled");
+    expect(attempt({...validUniform, r: 0.82})).toContain("multiple of 0.05 between 0.1 and 1");
+    expect(attempt({...validUniform, n: 99})).toContain("integer between 1 and 50");
+    expect(attempt({...validUniform, x: 0.9})).toContain("between 0 and r = 0.8; correct x or r");
+    expect(attempt({...validUniform, epsilon: 2})).toContain("multiple of 0.01 between 0.01 and 1");
+    expect(attempt({...validUniform, supremumVisible: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validUniform, r: 0.82})).toContain("večkratnik števila 0.05 med 0.1 in 1");
+    expect(attempt({...validUniform, n: 99})).toContain("celo število med 1 in 50");
+    expect(attempt({...validUniform, x: 0.9})).toContain("med 0 in r = 0.8; popravi x ali r");
+    expect(attempt({...validUniform, epsilon: 2})).toContain("večkratnik števila 0.01 med 0.01 in 1");
+    expect(attempt({...validUniform, supremumVisible: "yes"})).toContain("true ali false");
+});

@@ -1669,6 +1669,68 @@ const sequence = {
     stableCounts: async page => ({terms: await sequenceReadout(page, 'terms'), threshold: await sequenceReadout(page, 'threshold')}),
 };
 
+// ---------------------------------------------------------------- Uniform convergence
+const uniformReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const uniformStatuses = page => page.locator('[data-uniform-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-uniform-status')));
+// Per step: the index n, the domain end r, the point x, the supremum readout, the point (x, f_n(x)) on the board and the statuses on screen. The lesson
+// shows every configuration with the supremum hidden (the learner presses Show supremum after predicting) except step 3, which explains the shared N.
+const UNIFORM_STEPS = [
+    {n: '2', r: '0.8', x: '0.5', supremum: 'hidden', point: [0.5, 0.25], statuses: ['hidden']},
+    {n: '5', r: '0.8', x: '0.5', supremum: 'hidden', point: [0.5, 0.03125], statuses: ['hidden']},
+    {n: '11', r: '0.8', x: '0.5', supremum: '0.0858', point: [0.5, 0.5 ** 11], statuses: ['attained', 'shared-n', 'covered']},
+    {n: '5', r: '1', x: '0.9', supremum: 'hidden', point: [0.9, 0.59049], statuses: ['hidden', 'jump']},
+    {n: '10', r: '1', x: '0.9', supremum: 'hidden', point: [0.9, 0.9 ** 10], statuses: ['hidden', 'jump']},
+    {n: '44', r: '0.95', x: '0.5', supremum: 'hidden', point: [0.5, 0], statuses: ['hidden']},
+    {n: '5', r: '1', x: '0.5', supremum: 'hidden', point: [0.5, 0.1], statuses: ['hidden']},
+];
+
+const uniformConvergence = {
+    id: 'uniform-convergence',
+    path: `${BASE}/analysis/uniform-convergence`,
+    titles: {sl: 'Enakomerna konvergenca: en skupni prag za vse točke', en: 'Uniform convergence: one shared threshold for all points'},
+    steps: 7,
+    minFrames: 15, // 2 + 2 + 3 + 2 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = UNIFORM_STEPS[step - 1];
+        await expect.poll(() => uniformReadout(page, 'n'), {message: `index n at ${label}`}).toBe(expected.n);
+        await expect.poll(() => uniformReadout(page, 'r'), {message: `domain end r at ${label}`}).toBe(expected.r);
+        await expect.poll(() => uniformReadout(page, 'x'), {message: `point x at ${label}`}).toBe(expected.x);
+        await expect.poll(async () => {
+            const value = await uniformReadout(page, 'supremum');
+            return /^(skrito|hidden)$/.test(value) ? 'hidden' : value.slice(0, 6);
+        }, {message: `supremum at ${label}`}).toBe(expected.supremum);
+        await expect.poll(() => uniformStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // the point (x, f_n(x)) sits on the board
+        await expectPointNear(page, expected.point, `value of f_n at x at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
+    },
+    prepareUserState: async page => {
+        await page.getByLabel(/^(Index n|Indeks n)$/).fill('7');
+        await expect.poll(() => uniformReadout(page, 'n'), {message: 'n edited'}).toBe('7');
+        await page.getByLabel(/^(Tolerance ε|Toleranca ε)$/).fill('0.05');
+        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'epsilon edited'}).toBe('0.05');
+        await page.locator('[data-action="toggle-uniform-supremum"]').click();
+        await expect.poll(() => uniformStatuses(page), {message: 'the supremum is shown'}).toEqual(['attained', 'shared-n', 'not-covered']);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => uniformReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('11');
+        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'lesson scene replaced the user epsilon'}).toBe('0.1');
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => uniformReadout(page, 'n'), {message: 'user n restored'}).toBe('7');
+        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'user epsilon restored'}).toBe('0.05');
+        await expect.poll(() => uniformStatuses(page), {message: 'user supremum restored'}).toEqual(['attained', 'shared-n', 'not-covered']);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({n: await uniformReadout(page, 'n'), epsilon: await uniformReadout(page, 'epsilon')}),
+};
+
 // ---------------------------------------------------------------- Fixed-point iteration
 const fixedPointReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
 const fixedPointStatuses = page => page.locator('[data-fixed-point-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-fixed-point-status')));
@@ -1734,7 +1796,7 @@ const fixedPoint = {
 };
 
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, fixedPoint];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, fixedPoint];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

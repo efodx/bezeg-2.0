@@ -19,7 +19,7 @@ const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bi
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'fixed-point']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -1376,5 +1376,120 @@ describe('the fixed-point lesson', () => {
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-y0' as never, value: 1}})).toThrow(/must be one of/);
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-digits', value: Number.NaN}})).toThrow(/finite/);
         expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-fixed-point-command');
+    });
+});
+
+describe('the uniform convergence lesson', () => {
+    const uniformLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'uniform-convergence')!;
+    const uStep = (id: string) => uniformLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('uniform-convergence')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const hide = {kind: 'function-visibility', target: 'uniform-supremum', visible: false};
+    const show = {kind: 'function-visibility', target: 'uniform-supremum', visible: true};
+    const param = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+    const ids = ['uniform-pointwise-step', 'uniform-supremum-step', 'uniform-shared-n-step', 'uniform-whole-interval-step', 'uniform-supremum-one-step',
+        'uniform-domain-change-step', 'uniform-free-exploration'];
+    const predictionSteps = ids.filter(id => id !== 'uniform-shared-n-step');
+
+    test('has the steps in order and is adapted under the guided id', () => {
+        expect(uniformLesson.steps.map(step => step.id)).toEqual(ids);
+        expect(adapted().id).toBe('uniform-convergence-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(uniformLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(15);
+        expect(getGuidedLesson('uniform-convergence')).toBe(uniformLesson);
+        expect(isGuidedLessonAvailable('uniform-convergence')).toBe(true);
+    });
+
+    test('states the prerequisites, the domain-change rule, the sources and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => uniformLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/supremum/);
+        expect(prerequisites('sl')).toMatch(/supremuma/);
+        expect(uStep('uniform-domain-change-step').explanation.en).toMatch(/new comparison/);
+        expect(uStep('uniform-domain-change-step').explanation.sl).toMatch(/nova primerjava/);
+        expect(uStep('uniform-domain-change-step').explanation.en).toMatch(/not a continuation/);
+        expect(uStep('uniform-supremum-one-step').explanation.en).toMatch(/the jump is not joined/);
+        expect(uStep('uniform-free-exploration').explanation.en).toMatch(/explore on your own/);
+        expect(uStep('uniform-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+        expect(uniformLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation) && /6\.7/.test(source.citation))).toBe(true);
+        expect(uniformLesson.unresolvedQuestions.map(item => item.en).join(' ')).toMatch(/not checked in the PDF/);
+        const implementation = uniformLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/uniformConvergence.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/UniformConvergenceGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/never a maximum over sampled points/);
+        expect(implementation.implementationCorrespondence).toMatch(/never clamped/);
+    });
+
+    test('asks for a prediction before every reveal, and the scene of a prediction step never shows the supremum', () => {
+        for (const id of predictionSteps) {
+            expect(uStep(id).observationPrompt.en, id).toMatch(/Predict/);
+            expect(uStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual(hide);
+            expect(uStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+        }
+        for (const id of ['uniform-supremum-step', 'uniform-supremum-one-step', 'uniform-domain-change-step', 'uniform-free-exploration']) {
+            expect(uStep(id).observationPrompt.en, id).toMatch(/Show supremum/);
+            expect(uStep(id).observationPrompt.sl, id).toMatch(/Pokaži supremum/);
+        }
+        expect(adaptedActions('uniform-shared-n-step')).toContainEqual(show);
+        expect(uStep('uniform-shared-n-step').frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
+        // the prediction's result is in expectedObservations and recapped in the next step
+        expect(uStep('uniform-supremum-step').expectedObservations[0].en).toContain('0.32768');
+        expect(uStep('uniform-shared-n-step').explanation.en).toContain('0.32768');
+        expect(uStep('uniform-shared-n-step').explanation.en).toContain('N=11');
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        const scene = (id: string) => ({kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'});
+        expect(adaptedActions('uniform-pointwise-step')).toEqual([scene('uniform-pointwise-scene'), param('uniform-n', 2), hide]);
+        expect(adaptedActions('uniform-supremum-step')).toEqual([scene('uniform-supremum-scene'), hide]);
+        expect(adaptedActions('uniform-shared-n-step').slice(1)).toEqual([param('uniform-n', 11), show]);
+        expect(adaptedActions('uniform-whole-interval-step').slice(1)).toEqual([param('uniform-r', 1), param('uniform-x', 0.9), hide]);
+        expect(adaptedActions('uniform-supremum-one-step').slice(1)).toEqual([param('uniform-r', 1), param('uniform-x', 0.9), param('uniform-n', 10), hide]);
+        expect(adaptedActions('uniform-domain-change-step').slice(1)).toEqual([param('uniform-r', 0.95), param('uniform-n', 44), hide]);
+        expect(adaptedActions('uniform-free-exploration').slice(1)).toEqual([{kind: 'function-choice', name: 'uniform-example', value: 'scaled'}, hide]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives (independent arithmetic)', () => {
+        const least = (base: number, epsilon: number) => { let n = 1; while (!(base ** n < epsilon)) n++; return n; };
+        expect(least(0.5, 0.1)).toBe(4);
+        expect(least(0.8, 0.1)).toBe(11);
+        expect(least(0.9, 0.1)).toBe(22);
+        expect(least(0.99, 0.1)).toBe(230);
+        expect(least(0.95, 0.1)).toBe(45);
+        expect(0.8 ** 5).toBeCloseTo(0.32768, 12);
+        expect(0.8 ** 10).toBeCloseTo(0.1074, 4);
+        expect(0.8 ** 11).toBeCloseTo(0.0859, 4);
+        expect(0.95 ** 44).toBeCloseTo(0.1047, 4);
+        expect(0.95 ** 45).toBeCloseTo(0.0994, 4);
+        expect(0.9 ** 5).toBeCloseTo(0.59049, 12);
+        expect(0.9 ** 10).toBeCloseTo(0.35, 2);
+        // exact fractions of the worked example: (4/5)^10 > 1/10 > (4/5)^11
+        expect(4 ** 10).toBe(1048576);
+        expect(5 ** 10).toBe(9765625);
+        expect(4 ** 11).toBe(4194304);
+        expect(5 ** 11).toBe(48828125);
+        expect(1048576 * 10).toBeGreaterThan(9765625);
+        expect(4194304 * 10).toBeLessThan(48828125);
+        const worked = uniformLesson.workedExamples[0];
+        expect(worked.calculationLatex).toContain('1048576}{9765625}');
+        expect(worked.calculationLatex).toContain('4194304}{48828125}');
+        expect(uStep('uniform-whole-interval-step').expectedObservations[1].en).toContain('N(0.99)=230');
+        expect(uStep('uniform-domain-change-step').expectedObservations[0].en).toContain('N=45');
+        expect(uniformLesson.formulaBlocks.find(block => block.id === 'uniform-scaled')!.latex).toContain('+1');
+    });
+
+    test('the lesson-facing vocabulary is closed', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('uniform-example');
+        expect(FUNCTION_CHOICE_VALUES['uniform-example']).toEqual(['power', 'scaled']);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('uniform-supremum');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'uniform-r', value: 0.95}})).toEqual({kind: 'function-parameter', name: 'uniform-r', value: 0.95});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'uniform-example', value: 'scaled'}})).toEqual({kind: 'function-choice', name: 'uniform-example', value: 'scaled'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'uniform-supremum', value: true}})).toEqual(show);
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'uniform-example', value: 'cubic'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'uniform-r', value: Number.NaN}})).toThrow(/finite/);
     });
 });
