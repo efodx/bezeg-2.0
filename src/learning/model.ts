@@ -6,21 +6,22 @@ import {DARBOUX_EXAMPLE_IDS} from '../analysis/darboux';
 import {EXTREMA_EXAMPLE_IDS} from '../analysis/extrema';
 import {CONVEXITY_EXAMPLE_IDS} from '../analysis/convexity';
 import {TAYLOR_EXAMPLE_IDS} from '../analysis/taylor';
+import {SEQUENCE_EXAMPLE_IDS} from '../analysis/sequence';
 
 export type LessonLanguage = 'sl' | 'en';
 
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n' | 'extrema-a' | 'extrema-b' | 'convexity-a' | 'convexity-b' | 'convexity-t' | 'taylor-center' | 'taylor-degree' | 'taylor-x';
-export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x'];
+export type FunctionParameterName = 'x1' | 'y1' | 'x2' | 'y2' | 'k' | 'n' | 'a' | 'A' | 'omega' | 'phi' | 'B' | 'x0' | 'h' | 'b' | 'bisect-a' | 'bisect-b' | 'mvt-a' | 'mvt-b' | 'mvt-c' | 'accum-a' | 'accum-x' | 'darboux-a' | 'darboux-b' | 'darboux-n' | 'extrema-a' | 'extrema-b' | 'convexity-a' | 'convexity-b' | 'convexity-t' | 'taylor-center' | 'taylor-degree' | 'taylor-x' | 'sequence-epsilon' | 'sequence-limit' | 'sequence-threshold';
+export const FUNCTION_PARAMETER_NAMES: readonly FunctionParameterName[] = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold'];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum' | 'extrema-classification' | 'second-derivative' | 'taylor-bound';
-export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound'];
+export type FunctionVisibilityTarget = 'mirror' | 'reference' | 'tangent' | 'matching-points' | 'accumulation-curve' | 'lower-sum' | 'upper-sum' | 'extrema-classification' | 'second-derivative' | 'taylor-bound' | 'sequence-certificate';
+export const FUNCTION_VISIBILITY_TARGETS: readonly FunctionVisibilityTarget[] = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate'];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
-export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example' | 'extrema-example' | 'convexity-example' | 'taylor-example';
+export type FunctionChoiceName = 'trig-function' | 'derivative-function' | 'integral-function' | 'sum-method' | 'area-mode' | 'bisection-example' | 'mean-value-example' | 'accumulation-function' | 'darboux-example' | 'extrema-example' | 'convexity-example' | 'taylor-example' | 'sequence-example';
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = {
     'trig-function': ['sin', 'cos', 'tan'],
     'derivative-function': ['square', 'sin', 'exp'],
@@ -34,15 +35,16 @@ export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonl
     'extrema-example': EXTREMA_EXAMPLE_IDS,
     'convexity-example': CONVEXITY_EXAMPLE_IDS,
     'taylor-example': TAYLOR_EXAMPLE_IDS,
+    'sequence-example': SEQUENCE_EXAMPLE_IDS,
 };
 export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as FunctionChoiceName[];
 
 /**
  * Closed set of animations a lesson can drive. `decasteljau` is the frame animation of the De Casteljau parameter;
- * `bisection` is the first iterative playback. A graph registers only the ids it owns and the commands each supports;
+ * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**

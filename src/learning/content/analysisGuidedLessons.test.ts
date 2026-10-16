@@ -19,7 +19,7 @@ const lesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'bi
 const stepById = (id: string) => lesson.steps.find(step => step.id === id)!;
 
 test('the analysis lessons are bounded, localized, source-backed and available', () => {
-    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor']);
+    expect(analysisGuidedLessons.map(entry => entry.demonstrationId)).toEqual(['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence']);
     for (const entry of analysisGuidedLessons) {
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
@@ -1050,5 +1050,162 @@ describe('the taylor lesson', () => {
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'taylor-order' as never, value: 1}})).toThrow(/must be one of/);
         expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'taylor-x', value: Number.NaN}})).toThrow(/finite/);
         expect(() => sceneAction({name: 'show-function-element', value: {name: 'taylor-bound', value: 'yes' as never}})).toThrow(/true or false/);
+    });
+});
+
+describe('the sequence lesson', () => {
+    const sequenceLesson = analysisGuidedLessons.find(entry => entry.demonstrationId === 'sequence')!;
+    const qStep = (id: string) => sequenceLesson.steps.find(step => step.id === id)!;
+    const adapted = () => getLessonForDemonstration('sequence')!;
+    const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
+    const hide = {kind: 'function-visibility', target: 'sequence-certificate', visible: false};
+    const show = {kind: 'function-visibility', target: 'sequence-certificate', visible: true};
+    const advance = {kind: 'animation', animationId: 'sequence', command: 'next-step'};
+    const predictionSteps = ['sequence-definition-step', 'sequence-small-epsilon-step', 'sequence-alternating-step', 'sequence-oscillation-step', 'sequence-unbounded-step', 'sequence-free-exploration'];
+    const param = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+    const example = (value: string) => ({kind: 'function-choice', name: 'sequence-example', value});
+    /** The default scene shows one term, so a scene with `count` terms adds count - 1 steps. */
+    const advances = (count: number) => Array(count - 1).fill(advance);
+
+    test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
+        expect(sequenceLesson.steps.map(step => step.id)).toEqual([
+            'sequence-definition-step', 'sequence-threshold-step', 'sequence-small-epsilon-step', 'sequence-alternating-step', 'sequence-oscillation-step',
+            'sequence-unbounded-step', 'sequence-free-exploration',
+        ]);
+        expect(adapted().id).toBe('sequence-guided');
+        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
+        expect(sequenceLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(15);
+        expect(getGuidedLesson('sequence')).toBe(sequenceLesson);
+        expect(isGuidedLessonAvailable('sequence')).toBe(true);
+    });
+
+    test('states the prerequisites, the quantifiers, the strict inequality, the finite-window warning, the sources and the handoff', () => {
+        const prerequisites = (language: 'sl' | 'en') => sequenceLesson.prerequisites.map(item => item[language]).join(' ');
+        expect(prerequisites('en')).toMatch(/index/);
+        expect(prerequisites('en')).toMatch(/absolute value/);
+        expect(prerequisites('en')).toMatch(/inequalities/);
+        expect(prerequisites('sl')).toMatch(/indeksom/);
+        expect(prerequisites('sl')).toMatch(/absolutne vrednosti/);
+        expect(prerequisites('sl')).toMatch(/neenačbami/);
+        expect(qStep('sequence-definition-step').explanation.en).toMatch(/First .* is chosen, only then/);
+        expect(qStep('sequence-definition-step').explanation.sl).toMatch(/Najprej je izbran/);
+        expect(qStep('sequence-threshold-step').explanation.en).toMatch(/the band is open/);
+        expect(qStep('sequence-threshold-step').explanation.sl).toMatch(/pas pa je odprt/);
+        expect(qStep('sequence-small-epsilon-step').explanation.en).toMatch(/not from the shown terms/);
+        expect(qStep('sequence-small-epsilon-step').explanation.en).toMatch(/never a proof/);
+        expect(qStep('sequence-oscillation-step').explanation.en).toMatch(/this \\\(\\varepsilon\\\) is satisfied/);
+        expect(qStep('sequence-oscillation-step').explanation.en).toMatch(/no proof/);
+        expect(qStep('sequence-oscillation-step').explanation.sl).toMatch(/ni dokaz/);
+        expect(qStep('sequence-oscillation-step').explanation.en).toContain('\\varepsilon\\le1+|L|');
+        expect(qStep('sequence-unbounded-step').explanation.en).toMatch(/for good/);
+        expect(qStep('sequence-free-exploration').explanation.en).toMatch(/explore on your own/i);
+        expect(qStep('sequence-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
+        expect(qStep('sequence-free-exploration').explanation.en).toMatch(/not the limit/);
+        expect(sequenceLesson.summary.en).toMatch(/A finite window of terms does not prove convergence/);
+        expect(sequenceLesson.sources.some(source => /Globevnik/.test(source.citation) && /Analiza I/.test(source.citation) && /§§2\.4 and 2\.5/.test(source.citation))).toBe(true);
+        expect(sequenceLesson.unresolvedQuestions.map(item => item.en).join(' ')).toMatch(/not checked in the PDF/);
+        const implementation = sequenceLesson.sources.find(source => source.citation.startsWith('Bezeg source:'))!;
+        expect(implementation.citation).toContain('src/analysis/sequence.ts');
+        expect(implementation.citation).toContain('src/graphs/functions/SequenceGraph.tsx');
+        expect(implementation.implementationCorrespondence).toMatch(/integer count of hundredths/);
+        expect(implementation.implementationCorrespondence).toMatch(/never from the shown terms/);
+    });
+
+    test('asks for a prediction before every certificate reveal, and the scene of a prediction step never reveals', () => {
+        for (const id of predictionSteps) {
+            expect(qStep(id).observationPrompt.en, id).toMatch(/Predict|Compute/);
+            expect(qStep(id).observationPrompt.sl, id).toMatch(/Napovej|izračunaj/);
+            expect(qStep(id).observationPrompt.en, id).toMatch(/Show certificate/);
+            expect(qStep(id).observationPrompt.sl, id).toMatch(/Pokaži certifikat/);
+            const actions = adaptedActions(id);
+            expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
+            expect(actions).toContainEqual(hide);
+            // a prediction step shows no calculation frame, which would give the answer away
+            expect(qStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+        }
+        // the one step that explains the least working threshold shows the certificate, with its calculation
+        expect(adaptedActions('sequence-threshold-step')).toContainEqual(show);
+        expect(qStep('sequence-threshold-step').frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
+        const order = (id: string) => sequenceLesson.steps.findIndex(step => step.id === id);
+        expect(order('sequence-definition-step')).toBeLessThan(order('sequence-threshold-step'));
+    });
+
+    test('the scenes encode the independently derived configurations', () => {
+        const scene = (id: string) => ({kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'});
+        expect(adaptedActions('sequence-definition-step')).toEqual([scene('sequence-definition-scene'), ...advances(8), hide]);
+        expect(adaptedActions('sequence-threshold-step').slice(1)).toEqual([...advances(12), param('sequence-threshold', 11), show]);
+        expect(adaptedActions('sequence-small-epsilon-step').slice(1)).toEqual([param('sequence-epsilon', 0.01), ...advances(40), hide]);
+        expect(adaptedActions('sequence-alternating-step').slice(1)).toEqual([example('alternating-reciprocal'), ...advances(12), hide]);
+        expect(adaptedActions('sequence-oscillation-step').slice(1)).toEqual([example('alternating-sign'), param('sequence-epsilon', 1.5), ...advances(12), hide]);
+        expect(adaptedActions('sequence-unbounded-step').slice(1)).toEqual([example('natural'), ...advances(12), hide]);
+        expect(adaptedActions('sequence-free-exploration').slice(1)).toEqual([param('sequence-threshold', 11), ...advances(12), hide]);
+    });
+
+    test('the numbers stated in the prose are the ones the mathematics gives (independent integer arithmetic)', () => {
+        // N works exactly when N * epsilon > 1; with epsilon = k / 100 that is the integer test N * k > 100
+        const works = (n: number, hundredths: number) => n * hundredths > 100;
+        const least = (hundredths: number) => { let n = 1; while (!works(n, hundredths)) n++; return n; };
+        expect(least(10)).toBe(11);
+        expect(works(5, 10)).toBe(false);
+        expect(works(10, 10)).toBe(false);
+        expect(works(11, 10)).toBe(true);
+        expect(11 * 10 / 100).toBeCloseTo(1.1, 12);
+        expect(least(1)).toBe(101);
+        expect(works(100, 1)).toBe(false);
+        expect(works(101, 1)).toBe(true);
+        // terms of 1/n: the fifth is 0.2, the eleventh is 0.0909, the fortieth 0.025
+        expect(1 / 5).toBe(0.2);
+        expect(1 / 11).toBeCloseTo(0.0909, 4);
+        expect(1 / 40).toBe(0.025);
+        expect(1 / 101).toBeCloseTo(0.0099, 4);
+        expect(1 / 40).toBeGreaterThan(0.01);
+        // shown terms inside the open band at epsilon = 0.1 (k = 10): those with 1 / n < 0.1, that is 100 < 10 n
+        const inBand = (count: number, hundredths: number) => Array.from({length: count}, (_, index) => index + 1).filter(n => 100 < n * hundredths).length;
+        expect(inBand(8, 10)).toBe(0);
+        expect(inBand(12, 10)).toBe(2);
+        // at epsilon = 0.01 (k = 1) none of the forty terms is inside: 1 / n < 0.01 needs n > 100
+        expect(inBand(40, 1)).toBe(0);
+        // (-1)^n against L = 0: every distance is 1, inside the band for epsilon = 1.5, outside for epsilon = 0.5 and for epsilon = 1 (strict inequality)
+        expect(1 < 1.5).toBe(true);
+        expect(1 < 0.5).toBe(false);
+        expect(1 < 1).toBe(false);
+        // the farther of -1 and 1 from L is at distance 1 + |L|
+        for (const limit of [-2, -0.5, 0, 0.7, 2]) expect(Math.max(Math.abs(1 - limit), Math.abs(-1 - limit))).toBeCloseTo(1 + Math.abs(limit), 12);
+        // a_n = n against L + epsilon: above it from n = 1 for L = 0 and epsilon = 0.5, from n = 3 for L = 2
+        expect(Math.floor(0 + 0.5) + 1).toBe(1);
+        expect(Math.floor(2 + 0.5) + 1).toBe(3);
+        expect(2 > 2.5).toBe(false);
+        expect(3 > 2.5).toBe(true);
+        // the numbers in the prose
+        expect(qStep('sequence-threshold-step').explanation.en).toContain('N\\varepsilon=1.1>1');
+        expect(qStep('sequence-threshold-step').explanation.sl).toContain('N\\varepsilon=1{,}1>1');
+        expect(qStep('sequence-small-epsilon-step').explanation.en).toContain('+1=101\\)');
+        expect(qStep('sequence-small-epsilon-step').explanation.en).toContain('a_{40}=0.025');
+        expect(qStep('sequence-small-epsilon-step').expectedObservations[1].en).toContain('0.0099');
+        expect(qStep('sequence-threshold-step').expectedObservations[0].en).toContain('0.0909');
+        expect(qStep('sequence-threshold-step').expectedObservations[0].sl).toContain('0{,}0909');
+        const worked = sequenceLesson.workedExamples[0];
+        expect(worked.calculationLatex).toContain('N_{\\min}=\\left\\lfloor10\\right\\rfloor+1=11');
+        expect(worked.resultLatex).toContain('\\tfrac1{10}=\\varepsilon');
+        expect(worked.resultLatex).toContain('\\tfrac1{11}<\\tfrac1{10}');
+        expect(sequenceLesson.formulaBlocks.find(block => block.id === 'sequence-oscillating')!.latex).toContain('=1+|L|');
+    });
+
+    test('the lesson-facing vocabulary is closed: the new parameter names, the example choice, the certificate element and the sequence command', () => {
+        expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'taylor-x', 'n']));
+        expect(FUNCTION_CHOICE_NAMES).toContain('sequence-example');
+        expect(FUNCTION_CHOICE_VALUES['sequence-example']).toEqual(['reciprocal', 'alternating-reciprocal', 'alternating-sign', 'natural']);
+        expect(FUNCTION_VISIBILITY_TARGETS).toContain('sequence-certificate');
+        expect(sceneAction({name: 'set-function-parameter', value: {name: 'sequence-epsilon', value: 0.05}})).toEqual({kind: 'function-parameter', name: 'sequence-epsilon', value: 0.05});
+        expect(sceneAction({name: 'set-function-choice', value: {name: 'sequence-example', value: 'natural'}})).toEqual({kind: 'function-choice', name: 'sequence-example', value: 'natural'});
+        expect(sceneAction({name: 'show-function-element', value: {name: 'sequence-certificate', value: true}})).toEqual({kind: 'function-visibility', target: 'sequence-certificate', visible: true});
+        expect(sceneAction({name: 'run-sequence-command', value: 'next-step'})).toEqual({kind: 'animation', animationId: 'sequence', command: 'next-step'});
+        expect(sceneAction({name: 'run-sequence-command', value: 'reset'})).toEqual({kind: 'animation', animationId: 'sequence', command: 'reset'});
+        expect(() => sceneAction({name: 'run-sequence-command', value: 'play'})).toThrow(/next-step.*reset/);
+        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'sequence-example', value: 'harmonic'}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-delta' as never, value: 1}})).toThrow(/must be one of/);
+        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-limit', value: Number.NaN}})).toThrow(/finite/);
+        expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-sequence-command');
     });
 });

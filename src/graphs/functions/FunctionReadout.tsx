@@ -36,12 +36,20 @@ export interface LegendItem {
     /** The meaning in words: colour is never the only cue. */
     label: string;
     /** `line` for a curve, `area` (default) for a shaded region, `dashed` for a lightly shaded region with a dashed outline,
-     * `dashed-line` and `dotted-line` for a dashed or short-dashed line, `ring` for an open circular marker. */
-    kind?: "area" | "line" | "dashed" | "dashed-line" | "dotted-line" | "ring";
+     * `dashed-line` and `dotted-line` for a dashed or short-dashed line, `ring` for an open circular marker, `dot` for a filled
+     * circular marker and `cross` for an x-shaped marker. */
+    kind?: "area" | "line" | "dashed" | "dashed-line" | "dotted-line" | "ring" | "dot" | "cross";
 }
 
 /** The kinds drawn with a coloured border instead of a filled background. */
 const LINE_BORDER_KINDS: readonly string[] = ["dashed", "dashed-line", "dotted-line", "ring"];
+
+/** The swatch colour: a border for the outline kinds, the text colour for the cross (drawn from two strokes), a background otherwise. */
+function swatchStyle(item: LegendItem): React.CSSProperties {
+    const kind = item.kind ?? "area";
+    if (LINE_BORDER_KINDS.includes(kind)) return {borderColor: item.color};
+    return kind === "cross" ? {color: item.color} : {backgroundColor: item.color};
+}
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
 export function FunctionLegend(props: { items: readonly LegendItem[] }) {
@@ -50,7 +58,7 @@ export function FunctionLegend(props: { items: readonly LegendItem[] }) {
         <h3>{t("function_legend")}</h3>
         <ul>
             {props.items.map(item => <li key={item.id} data-legend={item.id}>
-                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={LINE_BORDER_KINDS.includes(item.kind ?? "area") ? {borderColor: item.color} : {backgroundColor: item.color}} aria-hidden="true"/>
+                <span className={`function-legend-swatch function-legend-${item.kind ?? "area"}`} style={swatchStyle(item)} aria-hidden="true"/>
                 <span>{item.label}</span>
             </li>)}
         </ul>

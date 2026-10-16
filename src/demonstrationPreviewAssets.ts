@@ -41,6 +41,8 @@ import preview_darboux from './images/demonstrations/catalog/darboux.png';
 import preview_extrema from './images/demonstrations/catalog/extrema.png';
 import preview_convexity from './images/demonstrations/catalog/convexity.png';
 import preview_taylor from './images/demonstrations/catalog/taylor.png';
+// Placeholder: a copy of the Taylor preview, replaced by the generated sequence preview in the Batch C release task.
+import preview_sequence from './images/demonstrations/catalog/sequence.png';
 
 export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
@@ -84,4 +86,5 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'extrema': preview_extrema,
     'convexity': preview_convexity,
     'taylor': preview_taylor,
+    'sequence': preview_sequence,
 };

@@ -247,7 +247,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         if (preset.data === undefined || preset.data === null) this.importPresetData(this.defaultPreset());
         const example = this.exampleView();
         if (example && !preset.boardState && example.key !== previousExample && this.generatedObjects.length > 0) {
-            this.board.setBoundingBox([...example.box], true);
+            this.board.setBoundingBox([...example.box], this.equalAxisUnits);
         }
     }
 
@@ -312,7 +312,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.generateScene();
         const keepImportedView = this.boardStateImported;
         this.boardStateImported = false;
-        if (!keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), true);
+        if (!keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
         this.board.fullUpdate();
     }
 
@@ -336,7 +336,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     protected override prepareLessonDefaultScene(): void {
         if (!this.graphSession?.isReady) throw new Error("The graph is still preparing. Try again in a moment.");
         this.importPresetData(this.defaultPreset());
-        this.board.setBoundingBox(this.defaultBoundingBox(), true);
+        this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
         this.setState(this.lessonDefaultState());
         this.boardUpdate();
     }

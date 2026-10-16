@@ -76,6 +76,7 @@ export type WorkedExample = Readonly<{
  * - set-function-choice -> function graphs' named choices, value {name, value} (name is a FunctionChoiceName, value one of the strings allowed for that name; the graph maps it)
  * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
  * - run-bisection-command -> BisectionGraph's iteration, value 'next-step' (one revealed step) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions: playback is initially stopped and under the learner's control
+ * - run-sequence-command -> SequenceGraph's revealed terms, value 'next-step' (one more term) or 'reset' (back to one term); a scene repeats 'next-step' once per term it adds. Play and pause are not scene actions
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
     'show-control-polygon',
@@ -115,6 +116,7 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'show-function-element',
     'set-function-choice',
     'run-bisection-command',
+    'run-sequence-command',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];

@@ -585,3 +585,69 @@ test("the taylor messages are localized and show the supported range of the exam
     expect(attempt({...validTaylor, degree: 12})).toContain("celo število med 0 in 10");
     expect(attempt({...validTaylor, boundVisible: "yes"})).toContain("true ali false");
 });
+
+const sequencePreset = (data: unknown) => JSON.stringify({"preset-sequence": {data: [{id: "Osnova", boardState: {boundingBox: [-3, 1.5, 43, -1.5]},
+    graphState: {initialized: true, example: "reciprocal", epsilon: 0.1, limit: 0, threshold: 5, terms: 1, certificateVisible: false}, data}]}});
+
+test("sequence collection imports a model object with its terms and reveal flag and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "alternating-sign", epsilon: 1.5, limit: -1.25, threshold: 1000, terms: 40, certificateVisible: true};
+    commitPresetImport(preflightPresetImport(sequencePreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-sequence")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    // the boundary values of every field are accepted
+    for (const boundary of [{epsilon: 0.01, limit: -2, threshold: 1, terms: 1}, {epsilon: 2, limit: 2, threshold: 1000, terms: 40}]) {
+        expect(() => preflightPresetImport(sequencePreset({example: "natural", certificateVisible: false, ...boundary}))).not.toThrow();
+    }
+});
+
+const validSequence = {example: "reciprocal", epsilon: 0.1, limit: 0, threshold: 5, terms: 1, certificateVisible: false};
+test.each([[[]], [null], [{}], [{...validSequence, example: "harmonic"}], [{...validSequence, epsilon: 0}], [{...validSequence, epsilon: -0.1}], [{...validSequence, epsilon: 0.005}],
+    [{...validSequence, epsilon: 0.015}], [{...validSequence, epsilon: 2.01}], [{...validSequence, epsilon: "0.1"}], [{...validSequence, limit: 2.01}], [{...validSequence, limit: -2.5}],
+    [{...validSequence, limit: "0"}], [{...validSequence, threshold: 0}], [{...validSequence, threshold: 1001}], [{...validSequence, threshold: 2.5}], [{...validSequence, threshold: "5"}],
+    [{...validSequence, terms: 0}], [{...validSequence, terms: 41}], [{...validSequence, terms: 1.5}], [{...validSequence, terms: "1"}], [{...validSequence, certificateVisible: "true"}],
+    [{...validSequence, certificateVisible: 1}], [{example: "reciprocal", epsilon: 0.1, limit: 0, threshold: 5, terms: 1}], [[["JSXBezierCurve", {points: [[0, 0]]}]]]])
+("sequence collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(sequencePreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validSequence, example: "harmonic"}, /reciprocal, alternating-reciprocal, alternating-sign, natural/],
+    [{...validSequence, epsilon: 0}, /epsilon.*0\.01.*2/],
+    [{...validSequence, epsilon: 0.015}, /epsilon.*0\.01.*2/],
+    [{...validSequence, epsilon: 3}, /epsilon.*0\.01.*2/],
+    [{...validSequence, limit: 3}, /limit.*−2.*2/],
+    [{...validSequence, threshold: 0}, /threshold.*1.*1000/],
+    [{...validSequence, threshold: 7.5}, /threshold.*1.*1000/],
+    [{...validSequence, terms: 41}, /terms.*1.*40/],
+    [{...validSequence, terms: 0}, /terms.*1.*40/],
+    [{...validSequence, certificateVisible: "true"}, /certificateVisible/],
+])("sequence errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(sequencePreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(sequencePreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("sequence data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validSequence, epsilon: "0.1"}, {...validSequence, limit: "0"}, {...validSequence, threshold: "5"}, {...validSequence, terms: "1"},
+        {example: "reciprocal", epsilon: 0.1, limit: 0, threshold: 5, terms: 1}]) {
+        expect(() => preflightPresetImport(sequencePreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
+test("the sequence messages are localized and show the supported ranges from the model constants", () => {
+    const attempt = (data: unknown) => { try { preflightPresetImport(sequencePreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validSequence, epsilon: 0.015})).toContain("multiple of 0.01 between 0.01 and 2");
+    expect(attempt({...validSequence, limit: 5})).toContain("between −2 and 2");
+    expect(attempt({...validSequence, threshold: 0})).toContain("integer between 1 and 1000");
+    expect(attempt({...validSequence, terms: 50})).toContain("integer between 1 and 40");
+    expect(attempt({...validSequence, certificateVisible: "yes"})).toContain("must be true or false");
+    setLanguage("sl");
+    expect(attempt({...validSequence, epsilon: 0.015})).toContain("večkratnik števila 0.01 med 0.01 in 2");
+    expect(attempt({...validSequence, limit: 5})).toContain("med −2 in 2");
+    expect(attempt({...validSequence, threshold: 0})).toContain("celo število med 1 in 1000");
+    expect(attempt({...validSequence, terms: 50})).toContain("celo število med 1 in 40");
+    expect(attempt({...validSequence, certificateVisible: "yes"})).toContain("true ali false");
+});

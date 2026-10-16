@@ -51,6 +51,7 @@ import { DarbouxGraph } from './graphs/functions/DarbouxGraph';
 import { ExtremaGraph } from './graphs/functions/ExtremaGraph';
 import { ConvexityGraph } from './graphs/functions/ConvexityGraph';
 import { TaylorGraph } from './graphs/functions/TaylorGraph';
+import { SequenceGraph } from './graphs/functions/SequenceGraph';
 import { GraphHost } from './graphs/base/GraphHost';
 import type BaseGraph from './graphs/base/BaseGraph';
 import type { BaseGraphState } from './graphs/base/BaseGraph';
@@ -105,6 +106,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'extrema': () => new ExtremaGraph(),
     'convexity': () => new ConvexityGraph(),
     'taylor': () => new TaylorGraph(),
+    'sequence': () => new SequenceGraph(),
 };
 
 const graphElements = Object.fromEntries(Object.entries(graphFactories).map(([id, create]) =>

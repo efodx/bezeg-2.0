@@ -1605,8 +1605,72 @@ const taylor = {
     stableCounts: async page => ({degree: await taylorReadout(page, 'degree')}),
 };
 
+// ---------------------------------------------------------------- Sequence convergence
+const sequenceReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const sequenceStatuses = page => page.locator('[data-sequence-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-sequence-status')));
+// Per step: the displayed number of shown terms, epsilon and N, the last shown term a_n on the board, and the statuses on screen. The lesson
+// shows every configuration with the certificate hidden (the learner presses Show certificate after predicting) except step 2, which explains
+// the least working threshold. With all 40 terms shown (step 3) the status list also says so.
+const SEQUENCE_STEPS = [
+    {terms: '8', epsilon: '0.1', threshold: '5', last: [8, 0.125], statuses: ['hidden']},
+    {terms: '12', epsilon: '0.1', threshold: '11', last: [12, 1 / 12], statuses: ['certified']},
+    {terms: '40', epsilon: '0.01', threshold: '5', last: [40, 0.025], statuses: ['hidden', 'complete']},
+    {terms: '12', epsilon: '0.1', threshold: '5', last: [12, 1 / 12], statuses: ['hidden']},
+    {terms: '12', epsilon: '1.5', threshold: '5', last: [12, 1], statuses: ['hidden']},
+    {terms: '12', epsilon: '0.5', threshold: '5', last: [12, 12], statuses: ['hidden']},
+    {terms: '12', epsilon: '0.1', threshold: '11', last: [12, 1 / 12], statuses: ['hidden']},
+];
+
+const sequence = {
+    id: 'sequence',
+    path: `${BASE}/analysis/sequence`,
+    titles: {sl: 'Konvergenca zaporedja: ε in N', en: 'Convergence of a sequence: ε and N'},
+    steps: 7,
+    minFrames: 15, // 2 + 3 + 2 + 2 + 2 + 2 + 2 frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = SEQUENCE_STEPS[step - 1];
+        await expect.poll(() => sequenceReadout(page, 'terms'), {message: `shown terms at ${label}`}).toBe(expected.terms);
+        await expect.poll(() => sequenceReadout(page, 'epsilon'), {message: `epsilon at ${label}`}).toBe(expected.epsilon);
+        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: `N at ${label}`}).toBe(expected.threshold);
+        await expect.poll(() => sequenceStatuses(page), {message: `statuses at ${label}`}).toEqual(expected.statuses);
+        // the lesson never starts playback: the control still offers Play
+        await expect(page.locator('[data-action="play-pause"]'), `playback stopped at ${label}`).toHaveText(/Predvajaj|Play/);
+        // the last shown term sits on the board at (n, a_n)
+        await expectPointNear(page, expected.last, `last shown term at ${label}`);
+        expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
+    },
+    prepareUserState: async page => {
+        await page.locator('[data-action="next-step"]').click();
+        await page.locator('[data-action="next-step"]').click();
+        await expect.poll(() => sequenceReadout(page, 'terms')).toBe('3');
+        await page.getByLabel(/^(Threshold N|Prag N)$/).fill('11');
+        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'N edited'}).toBe('11');
+        await page.locator('[data-action="toggle-sequence-certificate"]').click();
+        await expect.poll(() => sequenceStatuses(page), {message: 'the certificate is shown, N beyond the shown terms'}).toEqual(['certified', 'beyond-terms', 'n-min-beyond-terms']);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => {
+        await expect.poll(() => sequenceReadout(page, 'terms'), {message: 'lesson scene replaced the user terms'}).toBe('40');
+        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'lesson scene replaced the user N'}).toBe('5');
+        await expect.poll(() => sequenceStatuses(page), {message: 'lesson scene hid the certificate'}).toEqual(['hidden', 'complete']);
+    },
+    assertUserState: async (page, ctx, before) => {
+        await expect.poll(() => sequenceReadout(page, 'terms'), {message: 'user terms restored'}).toBe('3');
+        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'user N restored'}).toBe('11');
+        await expect.poll(() => sequenceStatuses(page), {message: 'user certificate restored'}).toEqual(['certified', 'beyond-terms', 'n-min-beyond-terms']);
+        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveText(/Predvajaj|Play/);
+        expect((await boardStats(page)).total).toBe(before.total);
+    },
+    stableCounts: async page => ({terms: await sequenceReadout(page, 'terms'), threshold: await sequenceReadout(page, 'threshold')}),
+};
+
 const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence];
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {

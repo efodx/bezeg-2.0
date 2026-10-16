@@ -20,6 +20,11 @@ import {parseConvexityModel} from "../../../analysis/convexityModel";
 import {CONVEXITY_EXAMPLE_IDS, CONVEXITY_X_MAX, CONVEXITY_X_MIN, isConvexityExampleId, isConvexityInterval, isConvexityX} from "../../../analysis/convexity";
 import {parseTaylorModel} from "../../../analysis/taylorModel";
 import {isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX, TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorExample} from "../../../analysis/taylor";
+import {parseSequenceModel} from "../../../analysis/sequenceModel";
+import {
+    isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
+    SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_TERMS, SEQUENCE_TERMS_MIN, SEQUENCE_THRESHOLD_MAX, SEQUENCE_THRESHOLD_MIN,
+} from "../../../analysis/sequence";
 import {EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, isExtremaExampleId, isExtremaX} from "../../../analysis/extrema";
 import {parseDarbouxModel} from "../../../analysis/darbouxModel";
 import {DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, isDarbouxCount, isDarbouxExampleId, isDarbouxX} from "../../../analysis/darboux";
@@ -30,11 +35,11 @@ const collectionIds = ["bernstein-graph", "bezier-curve", "decasteljau", "decast
     "bezier-extrapolation", "bezier-subdivision", "rational-bezier", "rational-bezier-farin", "rational-decasteljau",
     "rational-bezier-elevation", "rational-bezier-extrapolation", "rational-bezier-subdivision", "cubic-ph",
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
-    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor"];
+    "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function", "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value", "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence"];
 // Function demonstrations store a validated model object, not a list of curves.
 const functionModelParsers: Record<string, (data: unknown) => unknown> = {"preset-linear-function": parseLinearModel, "preset-exponential-function": parseExponentialModel,
     "preset-trigonometric-function": parseTrigonometricModel, "preset-piecewise-continuity": parseContinuityModel, "preset-derivative": parseDerivativeModel,
-    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel};
+    "preset-definite-integral": parseRiemannModel, "preset-area-between-curves": parseAreaBetweenModel, "preset-arc-length": parseArcLengthModel, "preset-bisection": parseBisectionModel, "preset-mean-value": parseMeanValueModel, "preset-accumulation": parseAccumulationModel, "preset-darboux": parseDarbouxModel, "preset-extrema": parseExtremaModel, "preset-convexity": parseConvexityModel, "preset-taylor": parseTaylorModel, "preset-sequence": parseSequenceModel};
 const curveTypes = ["JSXBezierCurve", "JSXRationalBezierCurve", "JSXPHBezierCurve", "JSXGenericSplineCurve",
     "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve", "JSXSymmetricQuadraticG1SplineCurve"];
 const isObject = (value: any): value is Record<string, any> => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -120,7 +125,21 @@ const diagnoseTaylor: Diagnosis = data => {
     if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_taylor_visibility");
     return undefined;
 };
-const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
+const diagnoseSequence: Diagnosis = data => {
+    if (!isObject(data)) return undefined;
+    if (!isSequenceExampleId(data.example)) return message("invalid_sequence_example", {value0: SEQUENCE_EXAMPLE_IDS.join(", ")});
+    if (finite(data.epsilon) && !isSequenceEpsilon(data.epsilon)) {
+        return message("invalid_sequence_epsilon", {value0: bound(SEQUENCE_EPSILON_MIN), value1: bound(SEQUENCE_EPSILON_MAX), value2: bound(SEQUENCE_EPSILON_STEP)});
+    }
+    if (finite(data.limit) && !isSequenceLimit(data.limit)) return message("invalid_sequence_limit", {value0: bound(SEQUENCE_LIMIT_MIN), value1: bound(SEQUENCE_LIMIT_MAX)});
+    if (finite(data.threshold) && !isSequenceThreshold(data.threshold)) {
+        return message("invalid_sequence_threshold", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX});
+    }
+    if (finite(data.terms) && !isSequenceTerms(data.terms)) return message("invalid_sequence_terms", {value0: SEQUENCE_TERMS_MIN, value1: SEQUENCE_MAX_TERMS});
+    if (data.certificateVisible !== undefined && typeof data.certificateVisible !== "boolean") return message("invalid_sequence_visibility");
+    return undefined;
+};
+const functionDataDiagnoses: Record<string, Diagnosis> = {"preset-sequence": diagnoseSequence, "preset-bisection": diagnoseBisection, "preset-mean-value": diagnoseMeanValue, "preset-accumulation": diagnoseAccumulation, "preset-darboux": diagnoseDarboux, "preset-extrema": diagnoseExtrema, "preset-convexity": diagnoseConvexity, "preset-taylor": diagnoseTaylor};
 const fail = (detail: Message): never => { throw new LocalizedError(message("unsupported_file_export_presets_from_bezeg_and_check_the_data", {value0: detail})); };
 function points(value: any) {
     return Array.isArray(value) && value.length > 0 && value.every(point => Array.isArray(point) && point.length === 2 && point.every(finite));

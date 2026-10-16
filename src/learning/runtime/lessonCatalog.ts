@@ -171,6 +171,10 @@ export function sceneAction(action: SceneAction): LessonAction {
         if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The bisection command must be "next-step" or "reset".');
         return {kind: 'animation', animationId: 'bisection', command: action.value};
     }
+    if (action.name === 'run-sequence-command') {
+        if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The sequence command must be "next-step" or "reset".');
+        return {kind: 'animation', animationId: 'sequence', command: action.value};
+    }
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
@@ -292,6 +296,7 @@ export const GUIDED_LESSON_AVAILABLE_IDS = [
     'extrema',
     'convexity',
     'taylor',
+    'sequence',
 ] as const satisfies readonly DemonstrationId[];
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);

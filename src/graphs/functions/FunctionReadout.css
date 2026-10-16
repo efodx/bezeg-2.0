@@ -30,6 +30,9 @@
 .function-legend-dotted-line { height: 0; opacity: 1; background: transparent; border: 0 dotted; border-top-width: 3px; box-sizing: border-box; border-radius: 0; }
 /* An open circular marker. */
 .function-legend-ring { width: 12px; height: 12px; margin: 0 5px; opacity: 1; background: transparent; border: 2px solid; border-radius: 50%; box-sizing: border-box; }
+/* A filled circular marker, and an x-shaped marker drawn from two diagonal strokes in the swatch's text colour. */
+.function-legend-dot { width: 10px; height: 10px; margin: 0 6px; opacity: 1; border-radius: 50%; }
+.function-legend-cross { width: 12px; height: 12px; margin: 0 5px; opacity: 1; border-radius: 0; background: linear-gradient(45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%), linear-gradient(-45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%); }
 /* Bisection iteration controls: Next step, Play/Pause and Reset as native buttons of one group. */
 .bisection-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
 .bisection-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
@@ -93,4 +96,14 @@
 .taylor-status p + p { margin-top: 6px; }
 @media (pointer: coarse), (max-width: 700px) {
     .taylor-actions button { min-height: 44px; }
+}
+/* Sequence convergence: the iteration controls and the Show/Hide certificate button, styled like the bisection controls. */
+.sequence-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
+.sequence-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.sequence-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
+.sequence-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
+.sequence-status p { margin: 0; }
+.sequence-status p + p { margin-top: 6px; }
+@media (pointer: coarse), (max-width: 700px) {
+    .sequence-actions button { min-height: 44px; }
 }

@@ -303,6 +303,15 @@ abstract class BaseGraph<S extends BaseGraphState> {
             .catch(error => console.error("The preset could not be loaded.", error));
     }
 
+    /**
+     * Whether a view set from a bounding box (a preset's stored view, a restored lesson scene, the view of an imported example, the
+     * fit button) gives both axes the same unit length. True for the curve and function demonstrations. A graph whose axes mean
+     * different things, such as a sequence index against its value, returns false so that its stored box is applied exactly.
+     */
+    protected get equalAxisUnits(): boolean {
+        return true;
+    }
+
     /** True while a single figure or a figure batch is being captured; scene-changing work must wait. */
     protected get exportBusy(): boolean {
         return this.figureBatchActive || this.activeSingleFigureExports > 0;
@@ -482,7 +491,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         }
         const state = checkpoint.value;
         if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data));
-        this.board.setBoundingBox(state.boardState.boundingBox, true);
+        this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
         this.setState(cloneLessonValue(state.graphState) as S);
         this.boardUpdate();
     }
@@ -498,7 +507,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
             const {width, height} = JXG.getDimensions(this.board.container, document);
             const box = fitBoundingBox(points, parseFloat(String(width)), parseFloat(String(height)));
             if (box) {
-                this.board.setBoundingBox(box, true, 'update');
+                this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
                 this.board.applyZoom();
             }
             return;
@@ -806,7 +815,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                             try {
                                 this.initialize();
                                 this.restoreFigureRuntimeState(runtimeState);
-                                if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, true);
+                                if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
                                 this.boardUpdate();
                                 session.requestFullUpdate();
                                 finish(resolve);
@@ -872,7 +881,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
     }
 
     private importBoardState(boardState: BoardState) {
-        this.board.setBoundingBox(boardState.boundingBox, true);
+        this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
         this.board.fullUpdate();
     }
 
