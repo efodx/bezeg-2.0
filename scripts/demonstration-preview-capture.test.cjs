@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,motionSpecs}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -169,6 +169,33 @@ test('Farin pointer-drag provenance rejects a moved control point, a changed non
     assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
     const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
     assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
+});
+test('weighted-parameterization sweep: markers equal B(phi_alpha(t_k)) at the reported alpha, with a fixed curve path',()=>{
+    const spec=motionSpecs['weighted-parameterization'];
+    const controls=[{x:-4,y:-3},{x:-3,y:2},{x:2,y:2},{x:3,y:-2}];
+    const sample=i=>{
+        const alpha=sweepValue(i,spec),readout=spec.sweep.readout.text(alpha);
+        const markers=weightedParameterizationMarkers(controls,Number(readout.replace(',','.')),spec.sweep.markerCount);
+        return {index:i,time:i/24,scheduled:alpha,actual:{input:alpha,readout,steps:0},
+            controls:controls.map((p,j)=>({id:'c'+j,...p})),
+            points:[...controls.map((p,j)=>({id:'c'+j,name:'$$P$$',x:p.x,y:p.y,draggable:true})),...markers.map((p,k)=>({id:'m'+k,x:p.x,y:p.y,draggable:false}))],
+            curvePathHash:'bezier-path',pathCount:1,capture:{sha256:'recipe-png'}};
+    };
+    const motion=()=>({id:'weighted-parameterization',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0.25);assert.equal(valid.samples[95].scheduled,0.25);
+    assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),0.75);
+    // phi_alpha(t) is the identity at alpha = 1/2 and maps 0 and 1 to themselves.
+    assert.ok(Math.abs(weightedParameterizationMarkers(controls,0.5,10)[4].x-bernsteinPoint(controls,5/11).x)<1e-12);
+    const off=motion();off.samples[40].points[4].x+=1e-6;
+    assert.throws(()=>assertMotionEvidence(off),/Parameter marker differs/);
+    const path=motion();path.samples[40].curvePathHash='changed';
+    assert.throws(()=>assertMotionEvidence(path),/Curve path changed/);
+    const empty=motion();empty.samples.forEach(s=>{s.pathCount=0;});
+    assert.throws(()=>assertMotionEvidence(empty),/Curve path missing/);
+    const seam=motion();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
 });
 test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
     const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';

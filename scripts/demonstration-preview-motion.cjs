@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -82,6 +82,14 @@ function farinEffectiveWeights(values) {
     return weights;
 }
 const farinWeightText = (k, weight) => `$$w_{${k}}=${weight.toFixed(2)}$$`;
+
+// Alpha reparameterization used by the weighted-parameterization route: φ_α(t) = (1-α) t / (α(1-t) + (1-α) t), α = 1/2 is the identity.
+// Independent copy of alphaParameterization in src/graphs/curves/parametrisations/AlphaParamBezierCurveGraph.tsx (scripts cannot import TS).
+const alphaParameterizationValue = (alpha, t) => (1 - alpha) * t / (alpha * (1 - t) + (1 - alpha) * t);
+// The route's markers are the curve at φ_α(k/(count+1)), k = 1..count (generateParamPoints), evaluated with the Bernstein form.
+function weightedParameterizationMarkers(controls, alpha, count) {
+    return Array.from({length: count}, (_, k) => bernsteinPoint(controls, alphaParameterizationValue(alpha, (k + 1) / (count + 1))));
+}
 
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
 const motionSpecs = {
@@ -325,6 +333,44 @@ const motionSpecs = {
             'Curve equals the pure rational Bézier evaluation from control points and effective weights (1e-9) at five parameters',
             'Curve path changes whenever the glider moves and is unchanged while it holds; the last frame path and PNG equal the recipe frame',
             'First and last frames equal the recipe state'],
+    },
+    'weighted-parameterization': {
+        mode: 'parameter-sweep', controlCount: 4,
+        control: {label: 'Parameter α', kind: 'range'},
+        sweep: {
+            // Recipe α = 0.25 (scripts/demonstration-preview-recipes.cjs) to 0.75 and back: one full cycle.
+            waypoints: [0.25, 0.75, 0.25], step: 0.01, start: 0.25,
+            markerCount: 10,
+            readout: {text: slovenianDecimal,
+                read: ({range}) => range.getAttribute('aria-valuetext')},
+            check(sample, previous, first, spec) {
+                const i = sample.index;
+                // The reported α is read from the slider's own readout (aria-valuetext, Slovenian decimal comma), not from the schedule.
+                const reported = Number(sample.actual.readout.replace(',', '.'));
+                assert.ok(Number.isFinite(reported) && Math.abs(reported - sample.actual.input) < 1e-9, `Reported α differs from the input at frame ${i}`);
+                // The curve path is the same Bézier in every frame; it must be present, or an empty snapshot would hash the same.
+                assert.ok(sample.pathCount > 0, `Curve path missing from the snapshot at frame ${i}`);
+                assert.equal(sample.curvePathHash, first.curvePathHash, `Curve path changed at frame ${i}`);
+                // Markers are the non-draggable board points; each equals B(φ_α(t_k)) at the reported α, t_k = k/(count+1).
+                const markers = sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y}));
+                const expected = weightedParameterizationMarkers(sample.controls.map(({x, y}) => ({x, y})), reported, spec.sweep.markerCount);
+                assertPointSet(markers, expected, `Parameter marker differs from B(φ_α(t_k)) at frame ${i}`);
+                if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+            },
+        },
+        // Budget order not needed: the default encoder setting already fits. Measured on the poster-fit camera: CRF 10 gave 167065 bytes,
+        // CRF 14 143262, CRF 18 124545, CRF 22 110983 (limit 307200). No label is removed and the full 0-1 range of the sweep is kept.
+        crf: 10,
+        encoderBudget: 'CRF 10 (the encoder default): 167065 bytes, under the 300 KiB ceiling, so no label, amplitude or encoder reduction was needed; full 0.25-0.75 cycle kept',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0.25, 0.75, 0.25], phase: 'clamp((frame-12)/71)',
+            zeroDisplacementFrames: '0-12 and 83-95 (α holds at the recipe value 0.25)', movingFrames: '13-82',
+            legs: 'two equal phase halves, each eased by (1 - cos πx)/2 from one waypoint to the next (0.75 at the middle of the move)', step: 0.01,
+            input: 'keyboard ArrowRight/ArrowLeft on the "Parameter α" range, incremental from the previous frame',
+            window: 'none: finite-geometry poster fit, fixed for every frame'},
+        invariants: ['Curve path hash identical in every frame (the snapshot holds the curve path)', 'Control points unchanged (1e-9)',
+            'Each of the 10 parameter markers equals B(φ_α(t_k)) at the reported α, t_k = k/11 (1e-9)',
+            'Reported α (aria-valuetext) equals the input and the snapped target every frame', 'Only α changes; the camera is the poster fit in every frame',
+            'First and last frames equal the recipe state (identical PNG)'],
     },
 };
 
@@ -698,4 +744,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase};
+module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase};

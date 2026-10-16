@@ -9,6 +9,7 @@ import motion_rational_elevation from './images/demonstrations/catalog/rational-
 import motion_decasteljau from './images/demonstrations/catalog/decasteljau.webm?no-inline';
 import motion_derivative from './images/demonstrations/catalog/derivative.webm?no-inline';
 import motion_farin from './images/demonstrations/catalog/farin.webm?no-inline';
+import motion_weighted_parameterization from './images/demonstrations/catalog/weighted-parameterization.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -21,4 +22,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'decasteljau': {src: motion_decasteljau, type: 'video/webm', duration: 4},
     'derivative': {src: motion_derivative, type: 'video/webm', duration: 4},
     'farin': {src: motion_farin, type: 'video/webm', duration: 4},
+    'weighted-parameterization': {src: motion_weighted_parameterization, type: 'video/webm', duration: 4},
 };
