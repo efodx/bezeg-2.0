@@ -1,0 +1,100 @@
+# Continuous motion previews
+
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Not implemented.
+
+Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
+
+## Problem
+
+Six demonstrations have clips. Only the Bézier one is continuous. The pointer drags one control point, and every frame shows the real curve recomputed from the moved point. Repeated subdivision, bisection, affine and the elevations step between held states. Continuous change is what makes the Bézier preview work: viewers see cause and effect, not a before/after pair. Several other demonstrations have a single input whose continuous change *is* the concept: a parameter `t`, a weight, the step `h`, the parameterization `α`, the multiplier `w`, the upper bound `x`. They currently show one still.
+
+## Scope
+
+Add continuous clips (and two stepped clips) to the demonstrations below. Use only existing controls and the existing capture pipeline.
+
+### Change to the base spec's constraints
+
+The base spec allows movement only for "isolated recorded Bézier movement and existing affine transformations". This spec also allows the bounded, capture-only motions listed in the tables below. Each one:
+
+- starts from the demonstration's existing recipe state (the same state as its poster), and the first and last frames match that state, so the loop is seamless;
+- changes only the named input, through a supported control (a range input via keyboard, an on-board point, glider or slider via pointer, or a number field);
+- never changes route defaults, presets, lessons, worked examples, the starting curve or function, or any input other than the named one.
+
+Implementers update the base spec's scope paragraph and pilot list to point here when the first clip ships.
+
+### Out of scope
+
+New runtime controls or mathematical features, runtime animation playback (the de Casteljau Play button is not used), new encoder or application dependencies, carousel choice or timing changes, a bigger clip budget (see Budgets), and stepped clips for discrete counters (circle pieces, spline-cn degree, Bernstein `n`). Mean value, extrema and convexity keep their reveal stills.
+
+## Motion modes
+
+Add two capture modes beside the existing ones in `scripts/demonstration-preview-motion.cjs`. Generalize the Bézier-specific branch rather than copying it. The modes are capture tooling only. No production `window` bridge and no React internals.
+
+1. **Parameter sweep** (`parameter-sweep`): a range or number input follows a deterministic schedule `value(i)` for `i = 0..95` (96 frames at 24 fps, 4 s). Snap each value to the control's step and reach it through the supported control. Keyboard stepping matches the existing `applyAction` range path. Stepping incrementally from the previous frame's value is allowed, provided each frame asserts the input's actual value. After every frame, check that the graph-reported value (readout, `aria-valuetext` or board text) equals the snapped target.
+2. **Pointer drag** (`pointer-drag`): like the Bézier capture. Map board coordinates to screen coordinates every frame, press the pointer on the handle once, move it along the scheduled path, and release. After release, restore the exact start state through a supported exact input (for example a number field or the coordinate editor) when one exists. Otherwise the final frames must be checked against the start state within the control's snap tolerance.
+
+Schedules use the Bézier easing: hold about 12 frames at the start value, ease out and back with `sin²` over about 71 frames, then hold about 13 frames at the start. A demo may use a different symmetric profile (for example a full cycle for `α`) if it is recorded in the manifest. The clip must never jump between its last and first frame.
+
+Evidence for each frame goes into the manifest: index, scheduled target, actual control value, positions of every input that is supposed to stay fixed, and the hash of the curve or function path. Mode name, schedule and invariants are recorded per clip.
+
+## Candidates
+
+### Phase 1: pilot (one mode each)
+
+| ID | Motion | Start / path | What it teaches | Per-frame invariants |
+| --- | --- | --- | --- | --- |
+| `decasteljau` | Sweep **construction parameter `t`** (range 0–1, step 0.01) | Recipe state (whole-curve off, polygon on). `t`: start → 1 → 0 → start, or 0 → 1 → 0 if the poster is moved to `t = 0`; record which. | The interpolation levels slide along the polygon and the curve point traces the curve. | Control points unchanged (1e-9). Intermediate points equal a pure de Casteljau evaluation at the reported `t` (1e-9). The final point lies on the full curve. Partial-curve path changes when `t` changes. |
+| `farin` | **Pointer drag** of one Farin slider glider along its control edge | Recipe state (Farin points and weights on). Move one interior edge's glider from its starting ratio toward about 0.8 of the edge and back. | Changing a weight ratio pulls the curve toward or away from the polygon. | Control points unchanged. Only that edge's weight ratio changes. The other ratios stay unchanged (1e-9). Displayed weight text matches the curve's effective weights. Curve path changes mid-drag. The final state's weights equal the starting weights (within glider snap tolerance, or exactly if restored). |
+| `derivative` | Sweep **step `h`** (range −2 to 2, step 0.01, \|h\| ≥ 0.01) | Recipe state (tangent shown). `h`: start → 0.05 → start. Never cross the excluded band around 0. | The secant becomes the tangent: the limit definition. | `x0` and the function unchanged. `Q = x0 + h` lies on the graph. The secant slope equals the difference quotient at the reported `h` (1e-9). The tangent stays fixed. |
+
+### Phase 2: rest of the strongest matches
+
+| ID | Motion | Start / path | What it teaches | Per-frame invariants |
+| --- | --- | --- | --- | --- |
+| `weighted-parameterization` | Sweep **`α`** (range 0–1, step 0.01) | Recipe value 0.25 → 0.75 → 0.25, one full cycle. | Same curve, different parameterization: the markers bunch and spread. | The **curve path hash is identical in every frame**. Control points unchanged. Each marker equals `B(φ_α(t_k))` for the reported `α` (1e-9). |
+| `complex-multiplication` | **Pointer drag** of `w` once around the unit circle | Recipe state (`rotation-i`, product and arguments shown). Path `w(θ) = e^{iθ}` starting at `θ = π/2` and doing one full revolution, so the loop is seamless. Drag positions snap to the 0.05 grid. | Multiplication rotates: `arg(zw) = arg z + arg w`. | `z` unchanged. `w` equals the grid-snapped target. Product equals `z·w` (1e-9). The final `w` equals the starting `i` exactly. |
+| `accumulation` | **Pointer drag** of `x` along the axis | Recipe state (accumulation revealed). `x`: start → start + about 2.5 (inside the recipe window and [−7, 7]) → start. | The signed area grows while `A(x)` traces the accumulation function. | `a` unchanged. Readout `A(x)` matches the pure accumulation function at the reported `x`. Restore `x` exactly through its number field. |
+
+### Phase 3: further fits (owner review gate)
+
+Start only after the owner has reviewed Phases 1–2 at card size.
+
+| ID | Motion | Notes / invariants |
+| --- | --- | --- |
+| `decasteljau-alternative` | `t` sweep, as in `decasteljau` | Both component-curve points and the connecting segment are recomputed. The curve point lies on the connecting segment at ratio `t`. |
+| `rational-decasteljau` | `t` sweep | Weights unchanged. The curve point equals the rational evaluation at `t`. |
+| `ph-cubic`, `ph-quintic` | Offset distance `d` sweep (range −3 to 3, step 0.01): 0 → recipe value (0.35 / 0.2) → 0 | PH curve path is identical in every frame. Offset count is fixed. Keep `d` small enough that the offsets have no cusps in the framing window. |
+| `spline-g1` | `β₁` sweep inside its range, around the recipe value 0.65 | Shared tangent direction at the join is preserved in every frame (direction check to 1e-9). Only that join's leg changes. |
+| `subdivision` | Split `t` sweep (0.01–0.99) **before** pressing Subdivide | Split point lies on the unchanged curve. Do not press Subdivide during the sweep. |
+| `trigonometric-functions` | `φ` sweep −π…π (step π/12, stepped holds) | `A`, `ω`, `B` unchanged. Optional; drop it if the clip adds little at card size. |
+| `definite-integral`, `darboux` | **Stepped** `n` = 1, 2, 4, 8, 16, 32 (existing discrete-steps mode, equal holds) | Integrand and interval unchanged. Rectangle sums match the pure Riemann/Darboux sums for the reported `n`. |
+
+## Framing and presentation
+
+- Use one camera per clip. Take the recipe's coordinate window when one exists. Otherwise take the union of meaningful geometry across all frames, computed in a measurement pass first. No refit between frames.
+- The poster stays the recipe still. Do not change the poster to an intermediate frame unless the manifest records why.
+- Moving annotations (weight text, readouts) must not overflow the frame or collide with the moving geometry at card size. If they do, apply the existing annotation policy (hide point names). Do not change runtime styling.
+
+## Budgets
+
+The base spec's 300 KiB per-clip ceiling stands. The current `bezier.webm` is about 286 KiB. A continuously changing scene is likely to be the hardest case. When a clip exceeds the ceiling with readable mathematics, try in this order: fewer moving labels through the existing annotation policy, a smaller motion amplitude, then encoder settings within the existing encoder. If it still exceeds, keep the poster, record the limitation, and report it. Do not raise the budget without an explicit owner decision recorded in this spec.
+
+## Acceptance criteria
+
+1. Each shipped clip comes from real settled route states captured through supported controls. Each passes its per-frame invariants above as assertions in the capture script, and `assertMotionEvidence` covers the new modes.
+2. First and last frames equal the recipe state. A loop shows no visible jump.
+3. Route defaults, presets, lessons, worked examples and graph runtime code are unchanged. Review the diff: only capture tooling, generated assets and manifest, `src/demonstrationMotionAssets.ts`, tests and docs change.
+4. Each clip is at most 300 KiB, 4 s, silent, and 720×440. The manifest records mode, schedule, sample evidence, encoder settings and hashes.
+5. The existing player behavior is unchanged and still verified: visible-only loading, reduced motion, poster fallback, catalog/picker/carousel parity.
+6. Each phase: run the focused capture/manifest tests (`scripts/demonstration-preview-capture.test.cjs`), the preview player tests, `npx tsc --noEmit --pretty false`, and the production build. Smoke-test the catalog at desktop and 390px with `$smoke-tester`. Visually review every new clip at actual card size.
+7. Math review (parallel subagent) confirms each invariant tests the right identity. A visual/accessibility review confirms readability and that no explanation is available only through motion.
+8. Update `docs/capabilities.md`, `docs/current-architecture.md`, `docs/ui-functionality.md` and the base spec with the new clip count and list.
+
+## Sequencing
+
+1. Generalize the motion script into `parameter-sweep` and `pointer-drag` modes, keeping the Bézier clip byte-for-byte reproducible or re-verified.
+2. Phase 1 (`decasteljau`, `farin`, `derivative`): capture, review at card size, and commit each clip separately with its evidence.
+3. Phase 2: same process.
+4. Owner review, then Phase 3 for the entries the owner selects.
+
+Stop and report if a candidate needs a missing control, a runtime change, or a bigger budget, rather than working around it.
