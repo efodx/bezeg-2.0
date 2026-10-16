@@ -67,16 +67,73 @@ async function gitState(root) {
     return {revision, dirty};
 }
 
-function gitOutput(root, args, maxOutput = 4096) {
+function commandOutput(executable, root, args, maxOutput = 4096) {
     return new Promise((resolve, reject) => {
-        const child = spawn('git', args, {cwd: root, shell: false, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe']});
+        const child = spawn(executable, args, {cwd: root, shell: false, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe']});
         let stdout = '';
         let stderr = '';
         child.stdout.setEncoding('utf8').on('data', value => { if (stdout.length < maxOutput) stdout += value.slice(0, maxOutput - stdout.length); });
         child.stderr.setEncoding('utf8').on('data', value => { if (stderr.length < 4096) stderr += value.slice(0, 4096 - stderr.length); });
         child.once('error', reject);
-        child.once('close', code => code === 0 ? resolve(stdout.trim()) : reject(new Error(`git ${args[0]} failed: ${stderr.trim()}`)));
+        child.once('close', code => code === 0 ? resolve(stdout.trim()) : reject(new Error(`${executable} ${args[0]} failed: ${stderr.trim()}`)));
     });
+}
+
+function gitOutput(root, args, maxOutput = 4096) {
+    return commandOutput('git', root, args, maxOutput);
+}
+
+const LESSON_SPEC = 'tests/guided-lessons.smoke.spec.cjs';
+
+function lessonGrep(root, ids) {
+    if (!ids.length) throw new Error(`Usage: just smoke-lesson <lesson-id>... [Playwright arguments...]. Ids are the \`id:\` rows of ${LESSON_SPEC}.`);
+    const known = new Set([...fs.readFileSync(path.join(root, LESSON_SPEC), 'utf8').matchAll(/\bid: '([a-z0-9-]+)'/g)].map(match => match[1]));
+    const unknown = ids.filter(id => !known.has(id));
+    if (unknown.length) throw new Error(`Unknown lesson id ${unknown.map(id => JSON.stringify(id)).join(', ')}. Known ids: ${[...known].sort().join(', ')}.`);
+    // Playwright joins describe and test titles with spaces; the trailing space keeps `sequence` from matching `sequence-convergence`.
+    return `(Lesson|on) (${ids.join('|')}) `;
+}
+
+const CATALOG_ENTRY = /^\s*"([^"]+)":\s*"((?:[^"\\]|\\.)*)",?\s*$/;
+
+function readCatalog(root, language) {
+    const entries = new Map();
+    for (const line of fs.readFileSync(path.join(root, 'src/localization', `${language}.ts`), 'utf8').split(/\r?\n/)) {
+        const match = CATALOG_ENTRY.exec(line);
+        if (match) entries.set(match[1], match[2]);
+    }
+    return entries;
+}
+
+function lookupLocalization(root, pattern, limit = 40) {
+    let matcher;
+    try { matcher = new RegExp(pattern, 'iu'); }
+    catch (error) { throw new Error(`Invalid pattern ${JSON.stringify(pattern)}: ${error.message}`); }
+    const sl = readCatalog(root, 'sl');
+    const en = readCatalog(root, 'en');
+    const keys = [...new Set([...sl.keys(), ...en.keys()])].filter(key => matcher.test(key) || matcher.test(sl.get(key) ?? '') || matcher.test(en.get(key) ?? ''));
+    const lines = keys.slice(0, limit).flatMap(key => [key, `  sl: ${sl.has(key) ? sl.get(key) : '(missing)'}`, `  en: ${en.has(key) ? en.get(key) : '(missing)'}`]);
+    lines.push(keys.length > limit ? `${keys.length} keys match; showing the first ${limit}. Narrow the pattern.` : `${keys.length} ${keys.length === 1 ? 'key matches' : 'keys match'}.`);
+    return lines.join('\n');
+}
+
+const CI_FAILURE_LINE = /✘|\b(Error|FAIL|failed|Expected|Received|Timeout)\b|^\s+at .*\.(spec|test)\.[cm]?[jt]sx?:\d+/;
+
+async function ciSummary(root, sha, output = commandOutput) {
+    const fields = 'databaseId,workflowName,status,conclusion,headSha,displayTitle,createdAt,url';
+    const listArgs = ['run', 'list', '--json', fields, '--limit', sha ? '10' : '5', ...(sha ? ['--commit', sha] : ['--branch', 'master'])];
+    const runs = JSON.parse(await output('gh', root, listArgs, 64 * 1024) || '[]');
+    if (!runs.length) return sha ? `No workflow runs found for ${sha}. Push it first, or check the SHA.` : 'No workflow runs found on master.';
+    const lines = runs.map(run => `${run.headSha.slice(0, 7)} ${run.workflowName}: ${run.status === 'completed' ? run.conclusion : run.status} (${run.createdAt}) ${run.url}`);
+    // Runs are newest first; a failure already followed by a newer run of its workflow is history, not current state.
+    const latest = runs.filter((run, index) => runs.findIndex(other => other.workflowName === run.workflowName) === index);
+    const failed = latest.find(run => run.status === 'completed' && run.conclusion === 'failure');
+    if (failed) {
+        const log = await output('gh', root, ['run', 'view', String(failed.databaseId), '--log-failed'], 512 * 1024);
+        const excerpt = log.split(/\r?\n/).filter(line => CI_FAILURE_LINE.test(line)).map(line => line.replace(/^[^\t]*\t[^\t]*\t(\S+Z )?/, '').slice(0, 240));
+        lines.push('', `Failure excerpt from run ${failed.databaseId} (${excerpt.length > 40 ? 'first 40 of ' : ''}${excerpt.length} matching lines; full log: gh run view ${failed.databaseId} --log-failed):`, ...excerpt.slice(0, 40));
+    }
+    return lines.join('\n');
 }
 
 function logPath(root) {
@@ -325,6 +382,23 @@ async function execute(command, rawArgs = [], options = {}) {
     const smokeBuilt = argv => npmStep('test:smoke:built', argv);
     if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs')]}]);
     if (command === 'unit') return run('unit', [unit(args)]);
+    if (command === 'typecheck') return run('typecheck', [tsc()]);
+    if (command === 'loc') {
+        if (args.length !== 1) throw new Error('Usage: just loc <pattern> (a case-insensitive regex matched against keys and both translations).');
+        process.stdout.write(`${lookupLocalization(root, args[0])}\n`);
+        return 0;
+    }
+    if (command === 'ci') {
+        if (args.length > 1 || (args[0] && !/^[0-9a-f]{7,40}$/i.test(args[0]))) throw new Error('Usage: just ci [commit-sha]');
+        let sha;
+        // gh matches only full commit SHAs.
+        if (args[0]) {
+            try { sha = await gitOutput(root, ['rev-parse', '--verify', '--quiet', `${args[0]}^{commit}`]); }
+            catch { throw new Error(`Commit ${args[0]} is not in this checkout. Run \`git fetch origin\` or pass a full SHA.`); }
+        }
+        process.stdout.write(`${await ciSummary(root, sha)}\n`);
+        return 0;
+    }
     const buildWithProvenance = async scope => {
         const before = digestInputs(root);
         fs.rmSync(path.join(root, STAMP_NAME), {force: true});
@@ -362,6 +436,15 @@ async function execute(command, rawArgs = [], options = {}) {
         }
         return run('smoke-built', [smokeBuilt(parsed.args)], env, false, undefined, provenance);
     }
+    if (command === 'smoke-lesson') {
+        const parsed = parsePortArgs(args, Number(process.env.SMOKE_PORT || 4173));
+        const firstOption = parsed.args.findIndex(arg => arg.startsWith('-'));
+        const ids = firstOption === -1 ? parsed.args : parsed.args.slice(0, firstOption);
+        const rest = firstOption === -1 ? [] : parsed.args.slice(firstOption);
+        const grep = lessonGrep(root, ids);
+        const provenance = await assertProvenance(root);
+        return run('smoke-lesson', [smokeBuilt([LESSON_SPEC, '--grep', grep, ...rest])], {...process.env, SMOKE_PORT: String(parsed.port)}, false, undefined, provenance);
+    }
     if (command === 'preview') {
         if (args.length > 1) throw new Error('Usage: just preview [port]');
         const parsed = parsePortArgs(args[0] ? ['--port', args[0]] : [], Number(process.env.SMOKE_PORT || 4173));
@@ -396,4 +479,4 @@ if (require.main === module) {
     cli(process.argv.slice(2));
 }
 
-module.exports = {appendTail, assertProvenance, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, main, parsePortArgs, resolveNpmCli, runChild, runPlan};
+module.exports = {appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};

@@ -31,4 +31,18 @@ Worker implements runner, justfile, focused tests and command guide; handler rev
 - `just preview 4197`: printed handoff metadata, served a production deep link with HTTP 200, and terminated on Ctrl+C with underlying exit 130. Both task-owned ports were confirmed released. Default sandbox loopback checks were blocked (`EACCES`); the initial smoke attempt was stopped by its specific process tree and repeated successfully with loopback access.
 - Two independent reviewers covered platform/CI and runner correctness. Corrections cover real compiler location, downstream argument assertions, log/console sink failure disposal, bounded Git capture, provenance checks, and Linux npm resolution. The existing Browser smoke workflow and deployment gates are unchanged. No app UI/rendering behavior changed, so delegated manual browser smoke was inapplicable.
 
+## Follow-up recipes (2026-10-16)
+
+Source: [Claude session addendum](../research/justfile-session-opportunities-2026-10-16.md#addendum-claude-code-sessions). Adds read-only or verification recipes only; Git publishing, process killing, worktree setup, and preview capture remain excluded.
+
+Acceptance:
+
+- `just typecheck` runs only the local compiler with `--noEmit --pretty false`, with the same log/summary contract and no provenance stamp.
+- `just smoke-lesson <id>... [args...]` validates each id against the `id:` rows of `tests/guided-lessons.smoke.spec.cjs`, failing with the known ids otherwise. It checks build provenance like `smoke-built`, accepts `--port`, forwards `--grep "(Lesson|on) (<ids>) "` plus the arguments from the first option onward, and must not match a longer id that shares a prefix.
+- `just loc <pattern>` reads `sl.ts` and `en.ts` without running a child process, matches keys and both translations case-insensitively, marks a key missing from one catalog, caps output at 40 keys with the total count, and rejects an invalid regex with an actionable message.
+- `just ci [sha]` uses `gh` read-only and lists recent runs for `master` or the commit. A short SHA is resolved to the full SHA locally, because `gh` matches full SHAs only; an unknown commit fails with a fetch hint. When the newest run of a listed workflow failed, it prints at most 40 matching failure lines with the command for the full log; a failure superseded by a newer run of the same workflow is not excerpted.
+- `.gitattributes` checks out `*.snap` with LF, so a passing Vitest run no longer leaves `ph-golden.test.ts.snap` modified by a line-ending rewrite.
+
+Evidence: `just tooling-test` passes with new fixture tests for each recipe. Real runs on Windows: `just typecheck` passed; `just loc taylor_board_bound` listed three keys in both languages; an invalid pattern and an unknown lesson id failed with actionable messages; `just build` then `just smoke-lesson taylor --port 4391 --workers=1` ran exactly the three Taylor rows, all passing; `just ci` listed master runs and `just ci feaff50` excerpted the failed Taylor narrow-viewport assertion from a real failed run. In a fresh worktree, `npx vitest run src/bezeg/impl/curve/ph-golden.test.ts` left the snapshot modified before the attribute and clean after it. Existing checkouts keep their CRLF copy until `git checkout -- src/bezeg/impl/curve/__snapshots__/ph-golden.test.ts.snap` is run once.
+
 Local evidence establishes Windows behavior. Hosted results belong to the separate Developer tools workflow; its configuration alone is not evidence of a passing Linux run. No token-saving measurement or change to the frozen forecast was made during implementation.

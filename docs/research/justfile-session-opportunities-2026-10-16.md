@@ -127,3 +127,26 @@ Illustration only: a baseline task using 100,000 total tokens would use 92,000 a
 ## Source traceability
 
 Session IDs above refer to first-party local Codex command records, not inferred activities from chat summaries. The CI repair was also cross-checked through the app's `read_thread` tool under its exact title. Raw transcripts and mined command bodies are deliberately not committed. Repository links establish the current command contracts; historical examples describe the commands recorded in those sessions, which may predate the current source.
+
+## Addendum: Claude Code sessions
+
+Added 2026-10-16 after the initial recipes landed; the frozen forecast above is unchanged. Scope: 152 local Claude Code transcripts (parent and subagent) for the main checkout and its worktrees, 7,156 shell commands, of which 2,566 ran after the Vite migration (2026-10-13). Counts are commands containing a pattern, with the same caveats as above. Only post-migration counts are used for decisions.
+
+| Candidate pattern (post-migration) | Commands | Sessions |
+| --- | ---: | ---: |
+| TypeScript `tsc --noEmit` alone or before other checks | 198 | 53 |
+| Localization catalog lookups in `sl.ts`/`en.ts` | 183 | 43 |
+| Guided-lesson smoke filtered by lesson id | 137 | 28 |
+| `ph-golden.test.ts.snap` restored after a test run | 42 | 19 |
+| `gh run list/watch/view` | 18 | 3 |
+
+Outcome: `typecheck`, `smoke-lesson`, `loc`, and `ci` recipes, specified in [the command workflow spec](../specs/just-command-workflow.md#follow-up-recipes-2026-10-16).
+
+Several clusters had environmental causes rather than missing recipes:
+
+- The snapshot restores came from line endings: Git checked out the LF-stored snapshot as CRLF (`core.autocrlf=true`, no attributes), Vitest rewrote it as LF, and Git reported it modified with an empty diff. Reproduced in a fresh worktree; fixed with `.gitattributes`, not a recipe.
+- Agent shells could not find `just` until after the initial recipes landed, so later sessions still called `npx tsc`/`vitest` directly.
+- `CI=true`, `react-scripts test`, copying worktrees to temporary folders, and most `node_modules` junction failures belong to the Create React App/Jest era (Jest misread `.claude` in worktree paths).
+- Port inspection and `Stop-Process` calls mostly stopped servers the same session had started in the background.
+
+Fetch/rebase/push recurred (18 pushes in 8 sessions) but stays manual, as recommended above.

@@ -284,6 +284,83 @@ test('check-localization runs the local compiler before build and stamps its out
     }
 });
 
+test('typecheck runs only the local compiler', async () => {
+    const root = fixture();
+    const events = path.join(root, 'events.log');
+    fs.mkdirSync(path.join(root, 'node_modules/typescript/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/typescript/bin/tsc'), `require('node:fs').appendFileSync(${JSON.stringify(events)}, JSON.stringify(process.argv.slice(2)))`);
+    try {
+        assert.equal(await commands.execute('typecheck', [], {root}), 0);
+        assert.deepEqual(JSON.parse(fs.readFileSync(events, 'utf8')), ['--noEmit', '--pretty', 'false']);
+        assert.equal(fs.existsSync(path.join(root, '.bezeg-build-provenance.json')), false);
+    } finally { cleanup(root); }
+});
+
+test('smoke-lesson validates ids and forwards a lesson grep with remaining arguments to the built smoke script', async () => {
+    const root = fixture();
+    const priorNpmExecPath = process.env.npm_execpath;
+    const npmCli = path.join(root, 'npm-cli.js');
+    fs.mkdirSync(path.join(root, 'tests'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'tests/guided-lessons.smoke.spec.cjs'), "const rows = [{\n    id: 'sequence',\n}, {\n    id: 'sequence-convergence',\n}, {\n    id: 'taylor',\n}];");
+    fs.writeFileSync(npmCli, `require('node:fs').writeFileSync('received.json', JSON.stringify({args: process.argv.slice(2), port: process.env.SMOKE_PORT}))`);
+    fs.writeFileSync(path.join(root, '.bezeg-build-provenance.json'), JSON.stringify({version: 1, revision: 'fixture', dirty: false, inputs: commands.digestInputs(root), output: commands.digestBuild(root)}));
+    process.env.npm_execpath = npmCli;
+    try {
+        assert.throws(() => commands.lessonGrep(root, []), /Usage/);
+        assert.throws(() => commands.lessonGrep(root, ['taylr']), /Unknown lesson id "taylr".*sequence, sequence-convergence, taylor/);
+        const grep = commands.lessonGrep(root, ['sequence']);
+        assert.match('Lesson sequence sl: walks every frame', new RegExp(grep));
+        assert.match('Shared lesson runtime on sequence header language switch', new RegExp(grep));
+        assert.doesNotMatch('Lesson sequence-convergence sl: walks every frame', new RegExp(grep));
+        assert.equal(await commands.execute('smoke-lesson', ['taylor', 'sequence', '--port', '4390', '--workers=1'], {root}), 0);
+        assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'received.json'), 'utf8')), {
+            args: ['run', 'test:smoke:built', '--', 'tests/guided-lessons.smoke.spec.cjs', '--grep', '(Lesson|on) (taylor|sequence) ', '--workers=1'],
+            port: '4390',
+        });
+    } finally {
+        if (priorNpmExecPath === undefined) delete process.env.npm_execpath;
+        else process.env.npm_execpath = priorNpmExecPath;
+        cleanup(root);
+    }
+});
+
+test('loc matches keys and both translations and reports missing or truncated entries', () => {
+    const root = fixture();
+    fs.mkdirSync(path.join(root, 'src/localization'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'src/localization/sl.ts'), 'export const sl = {\r\n    "taylor_bound": "napaka \\"ocena\\" ≤ {value0}",\r\n    "only_sl": "Krivulja",\r\n};\r\n');
+    fs.writeFileSync(path.join(root, 'src/localization/en.ts'), 'export const en = {\n    "taylor_bound": "error ≤ {value0}",\n    "only_en": "Curve",\n};\n');
+    try {
+        assert.equal(commands.lookupLocalization(root, 'TAYLOR'), 'taylor_bound\n  sl: napaka \\"ocena\\" ≤ {value0}\n  en: error ≤ {value0}\n1 key matches.');
+        assert.equal(commands.lookupLocalization(root, 'krivulja|curve'), 'only_sl\n  sl: Krivulja\n  en: (missing)\nonly_en\n  sl: (missing)\n  en: Curve\n2 keys match.');
+        assert.match(commands.lookupLocalization(root, '.', 1), /^taylor_bound\n.*\n.*\n3 keys match; showing the first 1/);
+        assert.throws(() => commands.lookupLocalization(root, '('), /Invalid pattern/);
+    } finally { cleanup(root); }
+});
+
+test('ci lists runs and excerpts only failure lines from the first failed run', async () => {
+    const calls = [];
+    const runs = [
+        {databaseId: 2, workflowName: 'Browser smoke', status: 'completed', conclusion: 'failure', headSha: 'abcdef1234567', displayTitle: 'x', createdAt: '2026-10-16T20:00:00Z', url: 'https://example.test/2'},
+        {databaseId: 1, workflowName: 'Browser smoke', status: 'in_progress', conclusion: '', headSha: '1234567abcdef', displayTitle: 'y', createdAt: '2026-10-16T19:00:00Z', url: 'https://example.test/1'},
+    ];
+    const output = async (executable, root, args) => {
+        calls.push([executable, ...args]);
+        if (args[1] === 'list') return JSON.stringify(runs);
+        return 'smoke\tRun tests\t2026-10-16T20:01:00.0000000Z   ✘ 3 [chromium] › Lesson taylor › narrow viewport\nsmoke\tRun tests\t2026-10-16T20:01:01.0000000Z installing browsers\nsmoke\tRun tests\t2026-10-16T20:01:02.0000000Z     Expected: 390';
+    };
+    const summary = await commands.ciSummary('.', 'abcdef1', output);
+    assert.deepEqual(calls[0].slice(-2), ['--commit', 'abcdef1']);
+    assert.deepEqual(calls[1], ['gh', 'run', 'view', '2', '--log-failed']);
+    assert.match(summary, /^abcdef1 Browser smoke: failure .*\n1234567 Browser smoke: in_progress/);
+    assert.match(summary, /2 matching lines.*\n {2}✘ 3 \[chromium\] › Lesson taylor › narrow viewport\n {4}Expected: 390$/);
+    assert.doesNotMatch(summary, /installing browsers/);
+    assert.match(await commands.ciSummary('.', undefined, async () => '[]'), /No workflow runs found on master/);
+    const superseded = [{...runs[1], status: 'completed', conclusion: 'success'}, runs[0]];
+    calls.length = 0;
+    assert.doesNotMatch(await commands.ciSummary('.', undefined, async (...args) => { calls.push(args); return JSON.stringify(superseded); }), /Failure excerpt/);
+    assert.equal(calls.length, 1);
+});
+
 test('real just preserves quoted recipe arguments when available', t => {
     const just = process.env.JUST_BINARY || (spawnSync('just', ['--version'], {encoding: 'utf8'}).status === 0 ? 'just' : undefined);
     if (!just) return t.skip('just is not installed; set JUST_BINARY to run this integration check');
