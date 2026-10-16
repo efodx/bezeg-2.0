@@ -7,6 +7,20 @@ import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 /** Typing (or pasting) into the field: an input event that carries an inputType, unlike the native spinner. */
 const type = (input: HTMLInputElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
 
+test('applyOn="confirm" never commits the rounded display of an untouched value on blur or Enter', () => {
+    const onChange = vi.fn();
+    render(<NumberInput label="r" value={0.123456} decimals={4} applyOn="confirm" onChange={onChange}/>);
+    const input = screen.getByLabelText('r') as HTMLInputElement;
+    expect(input.value).toBe('0,1235');
+    fireEvent.focus(input);
+    fireEvent.keyDown(input, {key: 'Enter'});
+    fireEvent.blur(input);
+    expect(onChange).not.toHaveBeenCalled();
+    type(input, '0,2');
+    fireEvent.blur(input);
+    expect(onChange).toHaveBeenCalledWith(0.2);
+});
+
 test('commits only finite in-range numbers, keeps partial typing, and follows the model value', () => {
     const onChange = vi.fn();
     const {rerender} = render(<NumberInput label="k" value={2} min={-10} max={10} onChange={onChange}/>);

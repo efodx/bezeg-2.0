@@ -70,6 +70,8 @@ export function NumberInput(props: NumberInputProps) {
     const [draft, setDraft] = useState(show(value, decimals, language));
     const [hint, setHint] = useState<Hint>(undefined);
     const lastLanguage = useRef<Language>(language);
+    // Whether the draft holds text the user typed; the shown text is rounded, so committing it unedited would round the model.
+    const edited = useRef(false);
     useEffect(() => {
         const languageChanged = lastLanguage.current !== language;
         lastLanguage.current = language;
@@ -106,6 +108,7 @@ export function NumberInput(props: NumberInputProps) {
                    const inputType = (event.nativeEvent as InputEvent).inputType;
                    const typing = typeof inputType === "string" && /^(insert|delete|history)/.test(inputType);
                    if (confirm && typing) {
+                       edited.current = true;
                        setHint(undefined);
                        return;
                    }
@@ -124,9 +127,13 @@ export function NumberInput(props: NumberInputProps) {
                    }
                    if (confirm && event.key === "Enter") {
                        event.preventDefault();
+                       if (!edited.current) return;
                        const typed = parseDecimal(draft);
                        // An accepted value the model snapped back to the unchanged prop would leave the typed text behind: show the model value.
-                       if (Number.isFinite(typed) && commit(typed)) setDraft(show(value, decimals, language));
+                       if (Number.isFinite(typed) && commit(typed)) {
+                           edited.current = false;
+                           setDraft(show(value, decimals, language));
+                       }
                        return;
                    }
                    if ((event.key !== "ArrowUp" && event.key !== "ArrowDown") || !step || props.disabled) return;
@@ -142,7 +149,8 @@ export function NumberInput(props: NumberInputProps) {
                onBlur={() => {
                    if (confirm) {
                        const typed = parseDecimal(draft);
-                       const changed = Number.isFinite(typed) && (value === undefined || Math.abs(typed - value) >= 10 ** -(decimals + 1));
+                       const changed = edited.current && Number.isFinite(typed) && (value === undefined || Math.abs(typed - value) >= 10 ** -(decimals + 1));
+                       edited.current = false;
                        // A refusal stays explained after the field reverts to the model value.
                        if (changed) commit(typed);
                        else setHint(undefined);
