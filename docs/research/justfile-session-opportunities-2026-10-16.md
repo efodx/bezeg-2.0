@@ -99,6 +99,31 @@ Use simple `npm`/`node` recipe lines where possible. Just defaults to `sh`; Wind
 
 Before implementing, write a bounded spec with acceptance for exact exit-code propagation, argument forwarding, no unintended rebuild in built-only mode, stale-build reporting, preserved logs, and preview ownership. Test the same commands directly and through recipes against a stable revision, then compare command text length, model-visible output length, tool-call count, setup repairs, and available scoped token usage on comparable future tasks. Include installation and command-discovery overhead. Do not claim a percentage token reduction from this retrospective sample.
 
+## Prospective token-saving forecast
+
+Recorded 2026-10-16, before implementation or a measured comparison. These are judgmental predictions informed by the retrospective patterns above, not estimates calculated from a token baseline. Freeze these numbers for later scoring; record revisions separately.
+
+| Intervention | Predicted median reduction in total task tokens | Subjective 80% plausible interval |
+| --- | ---: | ---: |
+| Justfile aliases/bundles only, ordinary tool output retained | 1% | -3% to 5% |
+| Initial recommended package: recipes, concise success output with retained logs, argument handling, and a short discovery pointer | **8%** | **-5% to 20%** |
+
+The primary forecast is **8%** for the initial recommended package on representative Bezeg implementation/fix tasks that require verification, after initial setup. Negative savings mean an increase in tokens. The interval expresses uncertainty about the observed median in a comparable evaluation; it is not a statistically fitted confidence interval. Documentation/research-only tasks and a larger preview-lifecycle implementation are outside this primary population. No forecast of equivalent monetary savings is implied: caching and input/output pricing differ.
+
+Secondary prediction: median newly exposed command/verification text falls **65%**, with a subjective 80% plausible interval of **35% to 85%**. Count generated shell/tool-call text and model-visible command results, including command discovery, summaries, polling, and failure-log reads, once when first exposed. Exclude source/spec reads and implementation edits. Compare what the model actually receives, after existing tool truncation; full on-disk log sizes are not the baseline. This secondary metric isolates the mechanism and must not be reported as a 65% reduction in whole-task tokens.
+
+Rationale: most task context is source, specifications, implementation, review, and reasoning, which recipes do not remove. Repeated verification setup and noisy successful output are a smaller but recurrent share. The 8% prediction implicitly assumes roughly 12% of baseline total token usage is affected and that about two-thirds of that share is removed (12% × 65% ≈ 8%). The 12% share is an explicit unmeasured assumption, not a result of the session scan. Existing output caps, additional discovery, failure-log reads, and helpers that encourage unnecessary checks could erase or reverse savings.
+
+### Measurement and scoring contract
+
+- Evaluate the first 20 eligible matched task pairs selected prospectively across UI/control fixes, localization/content changes, and graph/runtime work, rather than selecting successes afterward. Match the same task/spec, starting revision, model/effort, tools, required checks, and worker policy. Use isolated checkouts and fresh contexts for both arms; randomize arm order where possible. The two arms must not see each other's solution. If paired replay is impractical, label matched observational results as weaker evidence and disclose differences.
+- Primary task tokens are cumulative model input plus output across the handler and all workers, from task start through accepted completion. Count input on every request, including cached input once within that request's input total; do not add the cached subset a second time. Count reported output/reasoning consistently across arms according to the provider's telemetry. Include failed attempts, repairs, tool-result rereads, recipe discovery, and evaluation-record work required in both arms. Missing worker/handler usage makes a pair incomplete for the primary metric; do not treat it as zero.
+- For each pair, savings = `100 × (baseline tokens - intervention tokens) / baseline tokens`. Score the **median of the 20 pair savings**, not the ratio of aggregate totals. Publish all pair results, the median, aggregate savings separately, task mix, and incomplete/blocked pairs. Do not drop failures silently or substitute cheaper incomplete work for accepted results; report acceptance and coverage alongside tokens. If fewer than 20 complete pairs are available, results remain interim.
+- Score the primary forecast by absolute percentage-point error from 8%, and whether the measured median lies within -5% to 20%. A zero/negative median contradicts the practical claim of a typical saving even if it lies within the uncertainty interval. One outcome cannot establish that an 80% interval is calibrated. Score the 1% aliases-only forecast only if that separate arm is actually tested.
+- Report implementation, installation, maintenance, and pilot instrumentation tokens separately, then show net cumulative savings after those costs. The 8% forecast is a steady-state task forecast, not an assertion that adoption pays back immediately. Break-even occurs when cumulative avoided task tokens exceed adoption/maintenance tokens; if savings are nonpositive, no token break-even has been demonstrated.
+
+Illustration only: a baseline task using 100,000 total tokens would use 92,000 at the point prediction. That is not a measured Bezeg baseline.
+
 ## Source traceability
 
 Session IDs above refer to first-party local Codex command records, not inferred activities from chat summaries. The CI repair was also cross-checked through the app's `read_thread` tool under its exact title. Raw transcripts and mined command bodies are deliberately not committed. Repository links establish the current command contracts; historical examples describe the commands recorded in those sessions, which may predate the current source.
