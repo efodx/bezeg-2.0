@@ -368,7 +368,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     }
 
     protected renderControls(): React.ReactNode {
-        const {example, a, b, revealed} = this.stateModel();
+        const {example, a, b} = this.stateModel();
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("extrema_example_label")} value={example} help={t("extrema_example_help")}
@@ -382,13 +382,17 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
                              rejectedHint={t("extrema_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("extrema_order_help")}</p>
             </div>
-            <div className="inspector-group">
-                <div className="extrema-actions" role="group" aria-label={t("extrema_actions_label")}>
-                    <button type="button" data-action="toggle-classification" data-revealed={revealed}
-                            onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("extrema_hide_classification") : t("extrema_show_classification")}</button>
-                </div>
-                <p className="inspector-help">{t("extrema_classification_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const {revealed} = this.stateModel();
+        return <>
+            <div className="extrema-actions" role="group" aria-label={t("extrema_actions_label")}>
+                <button type="button" data-action="toggle-classification" data-revealed={revealed}
+                        onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("extrema_hide_classification") : t("extrema_show_classification")}</button>
             </div>
+            <p className="inspector-help">{t("extrema_classification_help")}</p>
         </>;
     }
 

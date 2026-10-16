@@ -164,7 +164,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
     alphaParamSlider() {
-        return <div><Slider customText="α" min={0} max={1} step={0.01} value={this.state.alpha}
+        return <div><Slider customText={t("parameter_alpha")} min={0} max={1} step={0.01} value={this.state.alpha}
                              onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 

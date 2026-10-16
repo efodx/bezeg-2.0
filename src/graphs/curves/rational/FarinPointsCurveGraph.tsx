@@ -104,15 +104,19 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         this.refreshWorkspace();
     }
 
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
+            <OnOffSwitch checked={this.getFirstJxgCurve().isShowingFarinPoints()}
+                onChange={(checked) => this.showFarinPoints(checked)} label={t("farin_points")}/>
+            <OnOffSwitch checked={this.getFirstJxgCurve().isShowingWeights()}
+                onChange={(checked) => {
+                    this.getFirstJxgCurve().showwWeights(checked);
+                    this.store.notify();
+                }} label={t("weights")}/></div></>;
+    }
+
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat(<OnOffSwitch
-            checked={this.getFirstJxgCurve().isShowingFarinPoints()}
-            onChange={(checked) => this.showFarinPoints(checked)} label={t("farin_points")}/>, <OnOffSwitch
-            checked={this.getFirstJxgCurve().isShowingWeights()}
-            onChange={(checked) => {
-                this.getFirstJxgCurve().showwWeights(checked);
-                this.store.notify();
-            }} label={t("weights")}/>, <OnOffSwitch
             checked={this.getFirstJxgCurve().inStandardForm()}
             onChange={(checked) => {
                 this.getFirstJxgCurve().setStandardForm(checked);

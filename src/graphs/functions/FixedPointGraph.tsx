@@ -379,7 +379,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
             <div className="inspector-group">
                 {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
                     unavailable when the iteration ends or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="demo-actions" role="group" aria-label={t("fixed_point_iteration_controls")}>
+                <div className="demo-actions inspector-playback" role="group" aria-label={t("fixed_point_iteration_controls")}>
                     <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
                             onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("fixed_point_next_step")}</button>
                     <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
@@ -389,15 +389,19 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 </div>
                 <p className="inspector-help">{t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}</p>
             </div>
-            <div className="inspector-group">
-                <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
-                    <button type="button" data-action="toggle-fixed-point-bound" data-revealed={state.boundVisible}
-                            onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
-                        {state.boundVisible ? t("fixed_point_hide_bound") : t("fixed_point_show_bound")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("fixed_point_bound_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateSnapshot();
+        return <>
+            <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
+                <button type="button" data-action="toggle-fixed-point-bound" data-revealed={state.boundVisible}
+                        onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
+                    {state.boundVisible ? t("fixed_point_hide_bound") : t("fixed_point_show_bound")}
+                </button>
             </div>
+            <p className="inspector-help">{t("fixed_point_bound_help")}</p>
         </>;
     }
 

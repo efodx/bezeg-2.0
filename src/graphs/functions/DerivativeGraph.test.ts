@@ -268,7 +268,7 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
         if (name) (found[name] ??= []).push(node);
         walk(node.props?.children);
     };
-    walk(graph.renderControls());
+    walk([graph.renderControls(), graph.renderReveals()]);
     expect(found.ChoiceSelect).toHaveLength(1);
     expect(found.ChoiceSelect[0].props.options.map((option: any) => option.value)).toEqual(['square', 'sin', 'exp']);
     expect(found.ChoiceSelect[0].props.value).toBe('square');
@@ -302,8 +302,10 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
     slider.onChange(0.7);
     expect(graph.model.h).toBe(0.7);
 
-    expect(found.OnOffSwitch).toHaveLength(1);
-    found.OnOffSwitch[0].props.onChange(true);
+    expect(found.OnOffSwitch).toBeUndefined(); // the tangent switch is a Display option
+    const tangentSwitch = (graph.workspaceGraphDisplay() as any).props.children;
+    expect(tangentSwitch.type.name).toBe('OnOffSwitch');
+    tangentSwitch.props.onChange(true);
     expect(graph.model.tangent).toBe(true);
 });
 

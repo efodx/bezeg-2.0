@@ -142,7 +142,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {fn, x0, h, tangent} = this.state;
+        const {fn, x0, h} = this.state;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
@@ -156,11 +156,14 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
                         help={t("derivative_h_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(stepOutOfBand(next, this.model.h)))}/>
             </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={tangent} label={t("derivative_show_tangent")}
-                             onChange={checked => this.setTangentVisible(checked)}/>
-            </div>
         </>;
+    }
+
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <div className="inspector-group">
+            <OnOffSwitch checked={this.state.tangent} label={t("derivative_show_tangent")}
+                         onChange={checked => this.setTangentVisible(checked)}/>
+        </div>;
     }
 
     protected renderReadout(): React.ReactNode {

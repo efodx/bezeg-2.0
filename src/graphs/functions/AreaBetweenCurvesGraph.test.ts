@@ -378,7 +378,7 @@ test('controls: mode select with three correctly labelled options, bound inputs 
         if (name) (found[name] ??= []).push(node);
         walk(node.props?.children);
     };
-    walk(graph.renderControls());
+    walk([graph.renderControls(), graph.renderReveals()]);
     expect(found.ChoiceSelect).toHaveLength(1);
     const select = found.ChoiceSelect[0].props;
     expect(select.value).toBe('between');

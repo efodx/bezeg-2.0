@@ -385,7 +385,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
             <div className="inspector-group">
                 {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
                     unavailable at the last term or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="demo-actions" role="group" aria-label={t("sequence_iteration_controls")}>
+                <div className="demo-actions inspector-playback" role="group" aria-label={t("sequence_iteration_controls")}>
                     <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
                             onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("sequence_next_step")}</button>
                     <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
@@ -395,15 +395,19 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                 </div>
                 <p className="inspector-help">{t("sequence_playback_note", {value0: SEQUENCE_MAX_TERMS})}</p>
             </div>
-            <div className="inspector-group">
-                <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
-                    <button type="button" data-action="toggle-sequence-certificate" data-revealed={state.certificateVisible}
-                            onClick={() => this.setCertificateVisible(!this.model.certificateVisible)}>
-                        {state.certificateVisible ? t("sequence_hide_certificate") : t("sequence_show_certificate")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("sequence_certificate_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateSnapshot();
+        return <>
+            <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
+                <button type="button" data-action="toggle-sequence-certificate" data-revealed={state.certificateVisible}
+                        onClick={() => this.setCertificateVisible(!this.model.certificateVisible)}>
+                    {state.certificateVisible ? t("sequence_hide_certificate") : t("sequence_show_certificate")}
+                </button>
             </div>
+            <p className="inspector-help">{t("sequence_certificate_help")}</p>
         </>;
     }
 

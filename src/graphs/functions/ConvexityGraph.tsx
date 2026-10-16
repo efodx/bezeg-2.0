@@ -387,15 +387,19 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
                              rejectedHint={t("convexity_t_rejected_hint", range)} onChange={next => this.ignoreOutOfDomain(() => this.setT(next))}/>
                 <p className="inspector-help">{t("convexity_order_help")}</p>
             </div>
-            <div className="inspector-group">
-                <div className="convexity-actions" role="group" aria-label={t("convexity_actions_label")}>
-                    <button type="button" data-action="toggle-second-derivative" data-revealed={state.secondDerivativeVisible}
-                            onClick={() => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible)}>
-                        {state.secondDerivativeVisible ? t("convexity_hide_second_derivative") : t("convexity_show_second_derivative")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("convexity_second_derivative_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateModel();
+        return <>
+            <div className="convexity-actions" role="group" aria-label={t("convexity_actions_label")}>
+                <button type="button" data-action="toggle-second-derivative" data-revealed={state.secondDerivativeVisible}
+                        onClick={() => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible)}>
+                    {state.secondDerivativeVisible ? t("convexity_hide_second_derivative") : t("convexity_show_second_derivative")}
+                </button>
             </div>
+            <p className="inspector-help">{t("convexity_second_derivative_help")}</p>
         </>;
     }
 

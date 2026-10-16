@@ -294,7 +294,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     }
 
     protected renderControls(): React.ReactNode {
-        const {example, a, b, c, revealed} = this.stateModel();
+        const {example, a, b, c} = this.stateModel();
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("mean_value_example_label")} value={example} help={t("mean_value_example_help")}
@@ -310,13 +310,17 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
                              rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
                 <p className="inspector-help">{t("mean_value_order_help")}</p>
             </div>
-            <div className="inspector-group">
-                <div className="mean-value-actions" role="group" aria-label={t("mean_value_actions_label")}>
-                    <button type="button" data-action="toggle-matches" data-revealed={revealed}
-                            onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("mean_value_hide_matches") : t("mean_value_show_matches")}</button>
-                </div>
-                <p className="inspector-help">{t("mean_value_matches_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const {revealed} = this.stateModel();
+        return <>
+            <div className="mean-value-actions" role="group" aria-label={t("mean_value_actions_label")}>
+                <button type="button" data-action="toggle-matches" data-revealed={revealed}
+                        onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("mean_value_hide_matches") : t("mean_value_show_matches")}</button>
             </div>
+            <p className="inspector-help">{t("mean_value_matches_help")}</p>
         </>;
     }
 

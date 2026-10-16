@@ -85,7 +85,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [zRe, zIm, wRe, wIm, modulus, argument] = found.NumberInput;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {
@@ -315,7 +315,7 @@ test('the polar controls reject, never clamp: a modulus or argument that leaves 
     expect(argumentField.props.disabled).toBe(true);
     expect(argumentField.props.value).toBeUndefined();
     expect(argumentField.props.describedBy).toBe('complex-w-argument-help');
-    const help = collect(zero.renderControls()).p.find((paragraph: any) => paragraph.props.id === 'complex-w-argument-help');
+    const help = collect([zero.renderControls(), zero.renderReveals()]).p.find((paragraph: any) => paragraph.props.id === 'complex-w-argument-help');
     expect(help.props['data-complex-argument-help']).toBe('zero');
     expect(help.props.children).toBe('Argument števila 0 ni definiran, zato polja ni mogoče urejati. Modul nad 0 postavi w na pozitivno realno os.');
     expect(controls(zero).argument.props.onChange(1)).toBe(false);

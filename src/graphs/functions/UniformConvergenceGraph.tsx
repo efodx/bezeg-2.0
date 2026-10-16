@@ -365,29 +365,36 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("uniform_n_label")} value={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} step={1} decimals={0}
-                             rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                <div className="demo-actions demo-actions-compact" role="group" aria-label={t("uniform_n_buttons_label")}>
+                <div className="count-setter">
+                    <div className="count-setter-label">{t("uniform_n_label")}</div>
                     {/* aria-disabled, not disabled: a focused button that becomes unavailable at n = 1 or n = 50 must not drop keyboard focus. */}
-                    <button type="button" data-action="n-decrease" aria-disabled={atMinimum} aria-describedby="uniform-n-help"
-                            aria-label={t("uniform_n_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setN(this.model.n - 1)); }}>−</button>
-                    <button type="button" data-action="n-increase" aria-disabled={atMaximum} aria-describedby="uniform-n-help"
-                            aria-label={t("uniform_n_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setN(this.model.n + 1)); }}>+</button>
+                    <div className="count-setter-controls">
+                        <button type="button" className="count-setter-button" data-action="n-decrease" aria-disabled={atMinimum} aria-describedby="uniform-n-help"
+                                aria-label={t("uniform_n_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setN(this.model.n - 1)); }}>−</button>
+                        <NumberInput label={t("uniform_n_label")} hideLabel compact value={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} step={1} decimals={0}
+                                     rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
+                                     onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
+                        <button type="button" className="count-setter-button" data-action="n-increase" aria-disabled={atMaximum} aria-describedby="uniform-n-help"
+                                aria-label={t("uniform_n_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setN(this.model.n + 1)); }}>+</button>
+                    </div>
                 </div>
                 <p id="uniform-n-help" className="inspector-help">
                     {atMinimum ? t("uniform_n_limit_min", {value0: UNIFORM_N_MIN}) : atMaximum ? t("uniform_n_limit_max", {value0: UNIFORM_MAX_N}) : t("uniform_n_help")}
                 </p>
             </div>
-            <div className="inspector-group">
-                <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
-                    <button type="button" data-action="toggle-uniform-supremum" data-revealed={state.supremumVisible}
-                            onClick={() => this.setSupremumVisible(!this.model.supremumVisible)}>
-                        {state.supremumVisible ? t("uniform_hide_supremum") : t("uniform_show_supremum")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("uniform_supremum_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateSnapshot();
+        return <>
+            <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
+                <button type="button" data-action="toggle-uniform-supremum" data-revealed={state.supremumVisible}
+                        onClick={() => this.setSupremumVisible(!this.model.supremumVisible)}>
+                    {state.supremumVisible ? t("uniform_hide_supremum") : t("uniform_show_supremum")}
+                </button>
             </div>
+            <p className="inspector-help">{t("uniform_supremum_help")}</p>
         </>;
     }
 

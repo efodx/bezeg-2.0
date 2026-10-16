@@ -139,16 +139,20 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         });
     }
 
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
+            <OnOffSwitch checked={this.getFirstJxgCurve().isShowingDecasteljauScheme() || !!this.state.showDecasteljau}
+                onChange={checked => {
+                    this.getFirstJxgCurve().showCurrentDecasteljauScheme(checked);
+                    this.setState({showDecasteljau: checked});
+                    this.boardUpdate();
+                }}
+                label={t("show_scheme")}/></div></>;
+    }
+
     override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat([<OnOffSwitch
-            checked={this.getFirstJxgCurve().isShowingDecasteljauScheme() || !!this.state.showDecasteljau}
-            onChange={checked => {
-                this.getFirstJxgCurve().showCurrentDecasteljauScheme(checked);
-                this.setState({showDecasteljau: checked});
-                this.boardUpdate();
-            }}
-            label={t("show_scheme")}></OnOffSwitch>,
-            <Slider customText={'t = ' + this.state.t.toFixed(2)} min={0.01} max={0.99}
+        return this.state.initialized ? super.getGraphCommands().concat([
+            <Slider customText={t("subdivision_parameter_t")} min={0.01} max={0.99}
                     value={this.state.t}
                     onChange={(t) => this.setT(t, this.state)}></Slider>,
             <Button onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];

@@ -118,7 +118,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     const [inputEpsilon, inputLimit, inputThreshold] = found.NumberInput;
     return {
@@ -617,7 +617,7 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide certificate');
     expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Band width ε', 'Candidate limit L', 'Threshold N']);
-    expect(collect(graph.renderControls()).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Term controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Term controls')).toBe(true);
 });
 
 test('presets save the model with the terms and the reveal, reopen paused and never start playback', () => {

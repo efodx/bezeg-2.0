@@ -253,6 +253,36 @@
     font-weight: 750;
     padding: 0;
 }
+/* Shared playback group (Next step / Play / Pause / Stop / Replay / Reset): equal buttons, primary action emphasized. */
+.inspector-playback {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+}
+.inspector-playback button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 44px;
+    gap: 5px;
+    padding: 6px 4px;
+    font-size: .78rem;
+    text-align: center;
+}
+.inspector-playback button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
+.inspector-playback .inspector-playback-primary:not(:disabled) {
+    border-color: var(--workspace-green);
+    background: var(--workspace-green);
+    color: white;
+}
+.inspector-playback .inspector-playback-primary:not(:disabled) span { color: white; }
+.inspector-playback button:disabled { opacity: .42; }
+.is-presenting .inspector-playback button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
+.is-presenting .inspector-playback button span { color: #d9b461; }
+.is-presenting .inspector-playback .inspector-playback-primary:not(:disabled) { background: #d9b461; color: var(--bezeg-night); }
+.is-presenting .inspector-playback .inspector-playback-primary:not(:disabled) span { color: var(--bezeg-night); }
+
 .is-presenting .decasteljau-animation-heading { border-color: #50617b; }
 .is-presenting .decasteljau-animation-heading output { color: var(--bezeg-night-panel); }
 .is-presenting .decasteljau-animation-actions button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }

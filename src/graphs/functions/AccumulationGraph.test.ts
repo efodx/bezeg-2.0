@@ -92,7 +92,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputX] = found.NumberInput;
     const toggle = found.button.find((element: any) => element.props['data-action'] === 'toggle-accumulation');
     return {found, inputA, inputX, toggle};
@@ -416,7 +416,7 @@ test('the controls carry the range, label every field, name the reveal state in 
     expect(controls(graph).toggle.props.children).toBe('Hide accumulation A');
     expect(controls(graph).inputA.props.label).toBe('Lower bound a');
     expect(controls(graph).inputX.props.label).toBe('Point x');
-    expect(collect(graph.renderControls()).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Accumulation A')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Accumulation A')).toBe(true);
     // x may be left of a: the fields do not tie one to the other
     expect(controls(graph).inputX.props.onChange(-3)).toBe(true);
     expect(graph.model).toMatchObject({a: 0, x: -3});

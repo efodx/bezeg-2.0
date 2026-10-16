@@ -422,20 +422,6 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
-                    <button type="button" data-action="toggle-complex-product" data-revealed={state.productVisible}
-                            onClick={() => this.setProductVisible(!this.model.productVisible)}>
-                        {state.productVisible ? t("complex_hide_product") : t("complex_show_product")}
-                    </button>
-                    <button type="button" data-action="toggle-complex-arguments" data-revealed={state.anglesVisible}
-                            onClick={() => this.setAnglesVisible(!this.model.anglesVisible)}>
-                        {state.anglesVisible ? t("complex_hide_arguments") : t("complex_show_arguments")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("complex_product_help")}</p>
-                <p className="inspector-help">{t("complex_arguments_help")}</p>
-            </div>
-            <div className="inspector-group">
                 <div className="function-points-grid">
                     {coordinate(t("complex_z_re_label"), state.zRe, value => this.setZRe(value))}
                     {coordinate(t("complex_z_im_label"), state.zIm, value => this.setZIm(value))}
@@ -460,6 +446,24 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                     {wZero ? t("complex_w_argument_zero") : t("complex_polar_help")}
                 </p>
             </div>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateSnapshot();
+        return <>
+            <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
+                <button type="button" data-action="toggle-complex-product" data-revealed={state.productVisible}
+                        onClick={() => this.setProductVisible(!this.model.productVisible)}>
+                    {state.productVisible ? t("complex_hide_product") : t("complex_show_product")}
+                </button>
+                <button type="button" data-action="toggle-complex-arguments" data-revealed={state.anglesVisible}
+                        onClick={() => this.setAnglesVisible(!this.model.anglesVisible)}>
+                    {state.anglesVisible ? t("complex_hide_arguments") : t("complex_show_arguments")}
+                </button>
+            </div>
+            <p className="inspector-help">{t("complex_product_help")}</p>
+            <p className="inspector-help">{t("complex_arguments_help")}</p>
         </>;
     }
 

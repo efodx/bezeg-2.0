@@ -127,7 +127,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     const [inputX0, inputDigits] = found.NumberInput;
     return {
@@ -624,7 +624,7 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide error bound');
     expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Start x₀', 'Tolerance digits d (threshold 10⁻ᵈ)']);
-    expect(collect(graph.renderControls()).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
     // the interval of the start follows the example
     apply(graph, choice('cosine'));
     expect(controls(graph).inputX0.props.max).toBe(1);

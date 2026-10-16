@@ -242,7 +242,7 @@ test('controls: one slider for a from 0 to 3 in steps of 0.05, out-of-domain inp
         if (node.type?.name === 'Slider') sliders.push(node);
         walk(node.props?.children);
     };
-    walk(graph.renderControls());
+    walk([graph.renderControls(), graph.renderReveals()]);
     expect(sliders).toHaveLength(1);
     expect([sliders[0].props.min, sliders[0].props.max, sliders[0].props.step, sliders[0].props.value]).toEqual([0, 3, 0.05, 1]);
     expect(sliders[0].props.customText).toBe('Parameter a');

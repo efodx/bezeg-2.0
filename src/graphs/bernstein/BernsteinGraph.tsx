@@ -215,13 +215,17 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
 
     }
 
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <div className="inspector-group"><h3>{t("representation")}</h3>
+            <OnOffSwitch checked={this.state.isSumGraph} onChange={checked => this.setIsSumGraph(checked)}
+                         label={t("stacked_area_chart")}/></div>;
+    }
+
     override getGraphCommands(): JSX.Element[] {
         return super.getGraphCommands().concat(<CountSetter min={0} max={5} onPlus={() => this.setN(this.state.n + 1)}
                                                             label={t("polynomial_degree_label")} n={this.state.n - 1}
                                                             onSet={degree => this.setN(degree + 1)}
-                                                            onMinus={() => this.setN(this.state.n - 1)}/>,
-            <OnOffSwitch checked={this.state.isSumGraph} onChange={checked => this.setIsSumGraph(checked)}
-                         label={t("stacked_area_chart")}/>);
+                                                            onMinus={() => this.setN(this.state.n - 1)}/>);
     }
 
     defaultPreset(): string {

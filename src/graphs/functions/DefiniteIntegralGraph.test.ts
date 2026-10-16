@@ -1,3 +1,4 @@
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {DefiniteIntegralGraph} from './DefiniteIntegralGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
@@ -345,7 +346,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
         if (name) (found[name] ??= []).push(node);
         walk(node.props?.children);
     };
-    walk(graph.renderControls());
+    walk([graph.renderControls(), graph.renderReveals()]);
     expect(found.ChoiceSelect).toHaveLength(2);
     const [functionSelect, methodSelect] = found.ChoiceSelect.map(node => node.props);
     expect(functionSelect.options.map((option: any) => option.value)).toEqual(['square', 'sin', 'exp']);
@@ -371,7 +372,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
     expect(found.Slider).toHaveLength(1);
     const slider = found.Slider[0].props;
     expect([slider.min, slider.max, slider.step, slider.value]).toEqual([1, 150, 1, 4]);
-    expect(slider.formatValue(12)).toBe('12');
+    expect(slider.formatValue).toBeUndefined(); // integer counts show the slider's integer number field
     slider.onChange(150);
     expect(graph.model.n).toBe(150);
     slider.onChange(1);
@@ -509,7 +510,7 @@ test('changing the function sets the view of that function, from the inspector a
         if (node.type?.name === 'ChoiceSelect') found.push(node);
         walk(node.props?.children);
     };
-    walk(graph.renderControls());
+    walk([graph.renderControls(), graph.renderReveals()]);
     found[0].props.onChange('sin');
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
 });
@@ -537,4 +538,30 @@ test('a view stored in a preset wins over the function view on initialization, a
     graph.importPreset({id: 'definite-integral', data: {fn: 'sin', a: 0, b: 3, n: 6, method: 'left'}});
     graph.initialize();
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(SIN_BOX, true);
+});
+
+test('the n slider shows an integer number field that commits typed whole numbers to the graph and rejects fractions', () => {
+    const graph = makeGraph({asyncState: false});
+    const found: Record<string, any[]> = {};
+    const walk = (node: any) => {
+        if (!node || typeof node !== 'object') return;
+        if (Array.isArray(node)) return node.forEach(walk);
+        const name = node.type?.name;
+        if (name) (found[name] ??= []).push(node);
+        walk(node.props?.children);
+    };
+    walk([graph.renderControls(), graph.renderReveals()]);
+    render(found.Slider[0]);
+    const field = screen.getByRole('spinbutton') as HTMLInputElement;
+    expect(field.value).toBe('4');
+    act(() => { fireEvent.change(field, {target: {value: '12'}}); });
+    expect(graph.model.n).toBe(12);
+    act(() => { fireEvent.change(field, {target: {value: '2.5'}}); });
+    expect(graph.model.n).toBe(12);
+});
+
+test('Edit order: controls, then the readout, then the legend (no reveal area when the graph has no reveals)', () => {
+    const graph = makeGraph({asyncState: false});
+    const children = (graph.workspaceEdit() as any).props.children;
+    expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'FunctionLegend']);
 });

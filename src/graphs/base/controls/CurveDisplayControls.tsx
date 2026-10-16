@@ -2,6 +2,7 @@ import {useT} from "../../../localization";
 import React from "react";
 import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from "../../curves/object/AbstractJXGPointControlledCurve";
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
+import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
 export type DisplayedCurve = AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>;
@@ -12,7 +13,7 @@ export interface CurveControlsProps<C> {
     onChanged: () => void;
 }
 
-export type DisplayToggle = "control-polygon" | "convex-hull" | "control-points";
+export type DisplayToggle = "control-polygon" | "convex-hull" | "control-points" | "weights";
 
 /** The display toggles the adapter's attributes allow, in panel order. */
 export function displayToggles(curve: DisplayedCurve): DisplayToggle[] {
@@ -21,6 +22,7 @@ export function displayToggles(curve: DisplayedCurve): DisplayToggle[] {
     if (allowShowControlPolygon) toggles.push("control-polygon");
     if (allowShowConvexHull) toggles.push("convex-hull");
     if (allowShowPoints) toggles.push("control-points");
+    if (curve instanceof JXGRationalBezierCurve) toggles.push("weights");
     return toggles;
 }
 
@@ -35,11 +37,15 @@ export function CurveDisplayToggle({curve, toggle, onChanged}: CurveControlsProp
         return <OnOffSwitch checked={curve.isShowingConvexHull()} label={t("convex_hull")}
                             onChange={checked => {curve.showConvexHull(checked); onChanged();}}/>;
     }
+    if (toggle === "weights" && curve instanceof JXGRationalBezierCurve) {
+        return <OnOffSwitch checked={curve.isShowingWeights()} label={t("weights")}
+                            onChange={checked => {curve.showwWeights(checked); onChanged();}}/>;
+    }
     return <OnOffSwitch checked={curve.isShowingJxgPoints()} label={t("control_points")}
                         onChange={checked => {curve.showJxgPointss(checked); onChanged();}}/>;
 }
 
-/** Control polygon, convex hull and control point switches of one curve, each in its own inspector row. */
+/** Control polygon, convex hull, control point and (rational curves) weight switches of one curve, each in its own inspector row. */
 export function CurveDisplayControls({curve, onChanged}: CurveControlsProps<DisplayedCurve>) {
     return <>{displayToggles(curve).map(toggle =>
         <div className="inspector-control" key={toggle}><CurveDisplayToggle curve={curve} toggle={toggle} onChanged={onChanged}/></div>)}</>;

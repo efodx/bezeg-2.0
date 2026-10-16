@@ -223,7 +223,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
             </div>
             <div className="inspector-group">
                 <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
-                        help={t("integral_n_help")} formatValue={value => String(Math.round(value))}
+                        help={t("integral_n_help")}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
                 <ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}
                               options={SUM_METHODS.map(id => ({value: id, text: METHOD_LABELS[id]()}))}

@@ -120,7 +120,7 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     alphaParamSlider() {
-        return <div><Slider min={0} max={1} value={this.state.alpha} customText={'α = ' + this.state.alpha}
+        return <div><Slider min={0} max={1} value={this.state.alpha} customText={t("parameter_alpha")}
                             onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 

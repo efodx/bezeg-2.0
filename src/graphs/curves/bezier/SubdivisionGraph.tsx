@@ -116,9 +116,13 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.refreshWorkspace();
     };
 
-    override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat([<Button
-            onClick={() => this.subdivide()}>{t("subdivide")}</Button>,
+    /**
+     * The scheme switch needs a selected curve, so it is offered in Display only while one is selected; its handlers
+     * do not depend on selection, but its checked state reads the selected curve.
+     */
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        const selected = this.getSelectedCurve();
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
             <ShowControlPolygons checked={this.getFirstJxgCurve().isShowingControlPolygon()}
                                  onChange={(checked) => {
                                      if (checked) {
@@ -126,18 +130,21 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
                                      } else {
                                          this.hideControlPolygons();
                                      }
-                                 }}/>]) : [];
+                                 }}/>
+            {selected
+                ? <OnOffSwitch checked={selected.isShowingDecasteljauScheme()} onChange={checked => {
+                    if (checked) {
+                        this.showDecasteljauScheme();
+                    } else {
+                        this.hideDecasteljauScheme();
+                    }
+                }} label={t("de_casteljau_scheme")}/>
+                : <p>{t("select_curve_for_scheme")}</p>}</div></>;
     }
 
-    override getSelectedCurveCommands(): JSX.Element[] {
-        return super.getSelectedCurveCommands().concat([<OnOffSwitch
-            checked={this.getSelectedCurve().isShowingDecasteljauScheme()} onChange={checked => {
-            if (checked) {
-                this.showDecasteljauScheme();
-            } else {
-                this.hideDecasteljauScheme();
-            }
-        }} label={t("de_casteljau_scheme")}/>]);
+    override getGraphCommands(): JSX.Element[] {
+        return this.state.initialized ? super.getGraphCommands().concat([<Button
+            onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];
     }
 
     private hideControlPolygons() {

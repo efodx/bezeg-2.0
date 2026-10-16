@@ -158,7 +158,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {fn, A, omega, phi, B, reference} = this.state;
+        const {fn, A, omega, phi, B} = this.state;
         const language = currentLanguage();
         return <>
             <div className="inspector-group">
@@ -177,11 +177,14 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
                 <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
                         formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
             </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={reference} label={t("trig_show_reference")}
-                             onChange={checked => this.setReferenceVisible(checked)}/>
-            </div>
         </>;
+    }
+
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <div className="inspector-group">
+            <OnOffSwitch checked={this.state.reference} label={t("trig_show_reference")}
+                         onChange={checked => this.setReferenceVisible(checked)}/>
+        </div>;
     }
 
     protected renderReadout(): React.ReactNode {

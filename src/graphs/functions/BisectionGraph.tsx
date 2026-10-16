@@ -337,7 +337,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
             <div className="inspector-group">
                 {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
                     unavailable at termination or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="bisection-actions" role="group" aria-label={t("bisection_iteration_controls")}>
+                <div className="bisection-actions inspector-playback" role="group" aria-label={t("bisection_iteration_controls")}>
                     <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
                             onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("bisection_next_step")}</button>
                     <button type="button" data-action="play-pause" aria-disabled={playUnavailable}

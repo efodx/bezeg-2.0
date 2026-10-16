@@ -180,7 +180,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
             </div>
             <div className="inspector-group">
                 <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
-                        help={t("arc_n_help")} formatValue={value => String(Math.round(value))}
+                        help={t("arc_n_help")}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
             </div>
         </>;

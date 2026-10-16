@@ -1,6 +1,6 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {currentLanguage, Language, onLanguageChange} from "../../localization";
+import {currentLanguage, Language, onLanguageChange, t} from "../../localization";
 import {Preset} from "../base/presets/Presets";
 import {LessonAction, LessonSceneCheckpoint} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
@@ -224,7 +224,13 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return [...(this.exampleView()?.box ?? this.defaultBoundingBox())];
     }
 
+    /** Example or selection, parameters, and actions or playback, in that order. */
     protected abstract renderControls(): React.ReactNode;
+
+    /** Results the reader asks to reveal (hidden until their reveal button is pressed). Shown before the readout; null by default. */
+    protected renderReveals(): React.ReactNode {
+        return null;
+    }
 
     protected abstract renderReadout(): React.ReactNode;
 
@@ -405,9 +411,21 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     // ---- Rendering ------------------------------------------------------------------------------------------------
 
-    /** The key numbers come first so they are visible without scrolling; the controls follow. `display: contents` keeps the groups' layout. */
+    /**
+     * Edit order: controls, then the reveal area (only when the graph has reveals), then the readout with its caveats,
+     * then the legend. The reveal area sits right before the results it reveals.
+     */
     protected override workspaceEdit(): React.ReactNode {
-        return <div className="function-inspector">{this.renderReadout()}{this.renderLegend()}{this.renderControls()}</div>;
+        const reveals = this.renderReveals();
+        return <div className="function-inspector">
+            {this.renderControls()}
+            {reveals && <div className="inspector-reveals">
+                <h3 className="inspector-reveals-title">{t("inspector_reveals")}</h3>
+                {reveals}
+            </div>}
+            {this.renderReadout()}
+            {this.renderLegend()}
+        </div>;
     }
 
     /** Runs an inspector change; swallows only a DomainError (the value is outside the model's domain) and reports whether it applied. */

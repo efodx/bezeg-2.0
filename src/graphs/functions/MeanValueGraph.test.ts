@@ -84,7 +84,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB, inputC] = found.NumberInput;
     const toggle = found.button.find((element: any) => element.props['data-action'] === 'toggle-matches');
     return {found, inputA, inputB, inputC, toggle};
@@ -361,7 +361,7 @@ test('the number fields carry the ordering in their range, report rejection and 
     expect(inputA.props.onChange(0.4)).toBe(true);
     expect(graph.model.a).toBe(0.4);
     expect(controls(graph).inputC.props.min).toBe(0.4);
-    expect(collect(graph.renderControls()).p.some((element: any) => /a < c < b/.test(String(element.props.children)))).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < c < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
     expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
     expect(controls(graph).inputC.props.label).toBe('Point of tangency c');
@@ -379,7 +379,7 @@ test('the Show matching point control toggles the reveal and names its state in 
     expect(controls(graph).toggle.props.children).toBe('Show matching point');
     controls(graph).toggle.props.onClick();
     expect(controls(graph).toggle.props.children).toBe('Hide matching point');
-    expect(collect(graph.renderControls()).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Matching points')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Matching points')).toBe(true);
     expect(controls(graph).found.ChoiceSelect[0].props.options.map((option: any) => [option.value, option.text])).toEqual([
         ['square', 'f(x) = x²'], ['cube', 'f(x) = x³'], ['abs', 'f(x) = |x|'],
     ]);

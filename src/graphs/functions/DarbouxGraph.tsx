@@ -300,15 +300,19 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                 </div>
                 <p id="darboux-refine-help" className="inspector-help">{refinable ? t("darboux_refine_help") : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}</p>
             </div>
-            <div className="inspector-group">
-                <div className="darboux-actions" role="group" aria-label={t("darboux_sums_label")}>
-                    <button type="button" data-action="toggle-lower" data-revealed={lowerVisible}
-                            onClick={() => this.setLowerVisible(!this.model.lowerVisible)}>{lowerVisible ? t("darboux_hide_lower") : t("darboux_show_lower")}</button>
-                    <button type="button" data-action="toggle-upper" data-revealed={upperVisible}
-                            onClick={() => this.setUpperVisible(!this.model.upperVisible)}>{upperVisible ? t("darboux_hide_upper") : t("darboux_show_upper")}</button>
-                </div>
-                <p className="inspector-help">{t("darboux_sums_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const {lowerVisible, upperVisible} = this.stateModel();
+        return <>
+            <div className="darboux-actions" role="group" aria-label={t("darboux_sums_label")}>
+                <button type="button" data-action="toggle-lower" data-revealed={lowerVisible}
+                        onClick={() => this.setLowerVisible(!this.model.lowerVisible)}>{lowerVisible ? t("darboux_hide_lower") : t("darboux_show_lower")}</button>
+                <button type="button" data-action="toggle-upper" data-revealed={upperVisible}
+                        onClick={() => this.setUpperVisible(!this.model.upperVisible)}>{upperVisible ? t("darboux_hide_upper") : t("darboux_show_upper")}</button>
             </div>
+            <p className="inspector-help">{t("darboux_sums_help")}</p>
         </>;
     }
 

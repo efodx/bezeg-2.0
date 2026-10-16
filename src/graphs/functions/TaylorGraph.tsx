@@ -344,28 +344,35 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 <p className="inspector-help">{t("taylor_points_help")}</p>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("taylor_degree_label")} value={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} step={1} decimals={0}
-                             rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
-                <div className="taylor-actions" role="group" aria-label={t("taylor_degree_buttons_label")}>
-                    <button type="button" data-action="degree-decrease" disabled={atMinimum} aria-describedby="taylor-degree-help"
-                            aria-label={t("taylor_degree_decrease")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree - 1))}>−</button>
-                    <button type="button" data-action="degree-increase" disabled={atMaximum} aria-describedby="taylor-degree-help"
-                            aria-label={t("taylor_degree_increase")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree + 1))}>+</button>
+                <div className="count-setter">
+                    <div className="count-setter-label">{t("taylor_degree_label")}</div>
+                    <div className="count-setter-controls">
+                        <button type="button" className="count-setter-button" data-action="degree-decrease" disabled={atMinimum} aria-describedby="taylor-degree-help"
+                                aria-label={t("taylor_degree_decrease")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree - 1))}>−</button>
+                        <NumberInput label={t("taylor_degree_label")} hideLabel compact value={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} step={1} decimals={0}
+                                     rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
+                                     onChange={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
+                        <button type="button" className="count-setter-button" data-action="degree-increase" disabled={atMaximum} aria-describedby="taylor-degree-help"
+                                aria-label={t("taylor_degree_increase")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree + 1))}>+</button>
+                    </div>
                 </div>
                 <p id="taylor-degree-help" className="inspector-help">
                     {atMinimum ? t("taylor_degree_limit_min", {value0: TAYLOR_DEGREE_MIN}) : atMaximum ? t("taylor_degree_limit_max", {value0: TAYLOR_DEGREE_MAX}) : t("taylor_degree_help")}
                 </p>
             </div>
-            <div className="inspector-group">
-                <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
-                    <button type="button" data-action="toggle-taylor-bound" data-revealed={state.boundVisible}
-                            onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
-                        {state.boundVisible ? t("taylor_hide_bound") : t("taylor_show_bound")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("taylor_bound_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const state = this.stateModel();
+        return <>
+            <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
+                <button type="button" data-action="toggle-taylor-bound" data-revealed={state.boundVisible}
+                        onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
+                    {state.boundVisible ? t("taylor_hide_bound") : t("taylor_show_bound")}
+                </button>
             </div>
+            <p className="inspector-help">{t("taylor_bound_help")}</p>
         </>;
     }
 

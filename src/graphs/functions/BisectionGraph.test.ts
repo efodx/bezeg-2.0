@@ -103,7 +103,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {found, next: button('next-step'), play: button('play-pause'), reset: button('reset')};
 };
@@ -492,7 +492,7 @@ test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset
     expect(english.next.props.children).toBe('Next step');
     expect(english.reset.props.children).toBe('Reset iteration');
     expect(english.play.props.children).toBe('Play');
-    expect(collect(graph.renderControls()).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
 });
 
 test('presets save the model with the step, reopen paused at that step and never start playback', () => {

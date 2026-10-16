@@ -345,7 +345,8 @@ test('controls: a labelled native select, four sliders, the reference switch, an
     // an out-of-domain value from a control is ignored instead of throwing
     expect(() => sliders[1].props.onChange(0)).not.toThrow();
     expect(graph.model.omega).toBe(1);
-    named('OnOffSwitch')[0].props.onChange(true);
+    expect(named('OnOffSwitch')).toHaveLength(0); // the reference switch is a Display option
+    (graph.workspaceGraphDisplay() as any).props.children.props.onChange(true);
     expect(graph.model.reference).toBe(true);
 });
 

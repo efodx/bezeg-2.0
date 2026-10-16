@@ -33,8 +33,8 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
             </div>
             <output aria-live="polite">t = {props.parameter.toFixed(2)}</output>
         </div>
-        <div className="decasteljau-animation-actions" role="group" aria-label={t("animation_controls")}>
-            <button type="button" className="decasteljau-animation-play" disabled={props.status === "playing"} onClick={props.onPlay}>
+        <div className="decasteljau-animation-actions inspector-playback" role="group" aria-label={t("animation_controls")}>
+            <button type="button" className="decasteljau-animation-play inspector-playback-primary" disabled={props.status === "playing"} onClick={props.onPlay}>
                 <span aria-hidden="true">▶</span>{t("play")}
             </button>
             <button type="button" disabled={props.status !== "playing"} onClick={props.onPause}>

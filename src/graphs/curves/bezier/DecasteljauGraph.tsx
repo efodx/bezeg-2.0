@@ -165,11 +165,14 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.setState({t, animationStatus}, callback);
     }
 
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
+            <OnOffSwitch checked={this.state.wholeCurve ? this.state.wholeCurve : false}
+                onChange={checked => this.setState({wholeCurve: checked})} label={t("full_curve")}/></div></>;
+    }
+
     override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat([<OnOffSwitch
-            checked={this.state.wholeCurve ? this.state.wholeCurve : false}
-            onChange={checked => this.setState({wholeCurve: checked})}
-            label={t("full_curve")}></OnOffSwitch>,
+        return this.state.initialized ? super.getGraphCommands().concat([
             <DecasteljauAnimationControls status={this.state.animationStatus} parameter={this.state.t} speed={this.state.v}
                 onPlay={() => this.playAnimation()} onPause={() => this.pauseAnimation()}
                 onStop={() => this.stopAnimation()} onReplay={() => this.replayAnimation()}

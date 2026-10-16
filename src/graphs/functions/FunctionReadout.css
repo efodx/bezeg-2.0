@@ -2,8 +2,18 @@
 .function-readout dl { margin: 0; }
 .function-readout-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }
 .function-readout-row dt { font-weight: 600; font-size: .86rem; }
-.function-readout-row dd { margin: 0; font-variant-numeric: tabular-nums; font-size: .95rem; text-align: right; }
+/* Reveal area: the results the reader asks to show, set apart from the parameters and before the readout they reveal. */
+.inspector-reveals { margin-bottom: 12px; padding: 0 0 2px 10px; border-left: 2px solid var(--workspace-green); }
+.inspector-reveals-title { margin: 0 0 8px; font-size: .93rem; font-weight: 750; letter-spacing: -.01em; }
+.inspector-reveals .inspector-help { margin: 6px 0 0; }
+.function-readout-row dd { margin: 0; font-variant-numeric: tabular-nums; font-size: .95rem; font-weight: 600; text-align: right; }
+/* Caveat notes (finite illustration, signed or unsigned, undefined, approximation) are informative: muted ink, never an error colour. */
 .function-readout .inspector-help { margin: 6px 0 0; }
+.function-readout p[role="note"] { color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.5; }
+/* Mathematical status (a jump, a term outside the band, a value not attained): an observation, not an input error. Muted ink
+   with a thin ochre rule for the state; there is no danger or error styling here. */
+.function-inspector [role="status"] > p.inspector-help { margin: 0; padding-left: 8px; border-left: 2px solid var(--workspace-pollen); color: var(--workspace-ink); }
+.function-inspector [role="status"] > p.inspector-help + p.inspector-help { margin-top: 6px; }
 .function-points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
 /* Consecutive inputs and sliders of the function inspector get a gap (the shared slider and number blocks have none). */
 .function-inspector .inspector-group > .number-input ~ .number-input,
@@ -97,10 +107,8 @@
 @media (pointer: coarse), (max-width: 700px) {
     .taylor-actions button { min-height: 44px; }
 }
-/* Batch C demonstrations (sequence, uniform convergence, fixed point, complex multiplication): action buttons and statuses.
-   The compact modifier is for a row of small stepper buttons (n - / n +). */
+/* Batch C demonstrations (sequence, uniform convergence, fixed point, complex multiplication): action buttons and statuses. */
 .demo-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
-.demo-actions-compact { grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); }
 .demo-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
 .demo-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
 .demo-actions button[data-revealed="true"] { border-color: var(--workspace-green); }

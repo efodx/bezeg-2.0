@@ -89,7 +89,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB, inputT] = found.NumberInput;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {found, inputA, inputB, inputT, toggle: button('toggle-second-derivative')};
@@ -346,7 +346,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputA.props.rejectedHint).toMatch(/a < b/);
     expect(inputB.props.rejectedHint).toMatch(/a < b/);
     expect(inputT.props.rejectedHint).toBe('Točka t mora biti število med −2 in 2.');
-    expect(collect(graph.renderControls()).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
     expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
     expect(controls(graph).inputB.props.label).toBe('Right endpoint b');

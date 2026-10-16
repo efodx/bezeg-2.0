@@ -84,7 +84,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputR, inputX, inputEpsilon, inputN] = found.NumberInput;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {found, select: found.ChoiceSelect[0], inputR, inputX, inputEpsilon, inputN, toggle: button('toggle-uniform-supremum'), decrease: button('n-decrease'), increase: button('n-increase')};

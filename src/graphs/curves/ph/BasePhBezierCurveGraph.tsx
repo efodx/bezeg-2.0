@@ -8,7 +8,7 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {PointAttributes} from "jsxgraph";
-import {PhBezierCurveControls} from "../../base/controls/PhBezierCurveControls";
+import {PhOffsetDisplayControls, PhOffsetParameterControls} from "../../base/controls/PhBezierCurveControls";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "../object/ModelPointBinding";
@@ -43,20 +43,25 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
     protected override workspaceDescription() { return t("explore_the_hodograph_offsets_and_their_geometry"); }
+    /** Edit groups that belong before the hodograph board (for example a parametrization choice); none by default. */
+    protected workspaceBeforeHodograph(): React.ReactNode { return null; }
+
     protected override workspaceEdit(): React.ReactNode {
         const parentBoard = this.board;
-        return <>{super.workspaceEdit()}{this.getSelectedCurve() && <div className="inspector-group">
+        return <>{super.workspaceEdit()}{this.workspaceBeforeHodograph()}{this.getSelectedCurve() && <div className="inspector-group">
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
             <HodographInputbox key={`hodograph-${this.workspaceRevision}`} axisStyles={this.styles.axis}
                 setRef={board => this.setHodographBoard(board)}
                 onResize={board => this.handleHodographBoardResize(board)} onDispose={() => {
                 this.disposeHodographBoard(parentBoard);
             }}/><PointCoordinateEditor key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
-                board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}</>;
+                board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}
+            <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+                <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div></>;
     }
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
-            <PhBezierCurveControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>
+            <PhOffsetDisplayControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>
             <div className="inspector-group"><h3>{t("arc_length")}</h3>
                 <OnOffSwitch checked={this.state.showArcLength !== false}
                     onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}

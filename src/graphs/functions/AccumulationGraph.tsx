@@ -357,7 +357,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     }
 
     protected renderControls(): React.ReactNode {
-        const {fn, a, x, accumulationVisible} = this.stateModel();
+        const {fn, a, x} = this.stateModel();
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("accumulation_function_label")} value={fn} help={t("accumulation_function_help")}
@@ -371,15 +371,19 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
                              onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
                 <p className="inspector-help">{t("accumulation_bounds_help")}</p>
             </div>
-            <div className="inspector-group">
-                <div className="accumulation-actions" role="group" aria-label={t("accumulation_actions_label")}>
-                    <button type="button" data-action="toggle-accumulation" data-revealed={accumulationVisible}
-                            onClick={() => this.setAccumulationVisible(!this.model.accumulationVisible)}>
-                        {accumulationVisible ? t("accumulation_hide") : t("accumulation_show")}
-                    </button>
-                </div>
-                <p className="inspector-help">{t("accumulation_toggle_help")}</p>
+        </>;
+    }
+
+    protected override renderReveals(): React.ReactNode {
+        const {accumulationVisible} = this.stateModel();
+        return <>
+            <div className="accumulation-actions" role="group" aria-label={t("accumulation_actions_label")}>
+                <button type="button" data-action="toggle-accumulation" data-revealed={accumulationVisible}
+                        onClick={() => this.setAccumulationVisible(!this.model.accumulationVisible)}>
+                    {accumulationVisible ? t("accumulation_hide") : t("accumulation_show")}
+                </button>
             </div>
+            <p className="inspector-help">{t("accumulation_toggle_help")}</p>
         </>;
     }
 

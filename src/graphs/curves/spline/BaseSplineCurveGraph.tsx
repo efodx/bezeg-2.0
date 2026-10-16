@@ -1,4 +1,5 @@
 import {t} from "../../../localization";
+import React from "react";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
 import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
@@ -49,17 +50,17 @@ export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends Ba
         return super.getFirstJxgCurve() as AbstractJXGSplineCurve<any>;
     }
 
-    override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat(<OnOffSwitch
-            onChange={(checked) => this.setLabelAll(checked)}
-            label={t("label_all_points")}
-            checked={this.getFirstJxgCurve().getLabelAll()}></OnOffSwitch>, <OnOffSwitch
-            onChange={(checked) => {
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("point_visibility")}</h3>
+            <OnOffSwitch onChange={(checked) => this.setLabelAll(checked)}
+                label={t("label_all_points")}
+                checked={this.getFirstJxgCurve().getLabelAll()}/>
+            <OnOffSwitch onChange={(checked) => {
                 this.getFirstJxgCurve().setHideFixed(checked);
                 this.store.notify();
             }}
-            label={t("hide_fixed_points")}
-            checked={this.getFirstJxgCurve().getHideFixed()}></OnOffSwitch>) : [];
+                label={t("hide_fixed_points")}
+                checked={this.getFirstJxgCurve().getHideFixed()}/></div></>;
     }
 
     protected setLabelAll(checked: boolean) {

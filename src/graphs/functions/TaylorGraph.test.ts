@@ -84,7 +84,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputCenter, inputX, inputDegree] = found.NumberInput;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {found, inputCenter, inputX, inputDegree, toggle: button('toggle-taylor-bound'), decrease: button('degree-decrease'), increase: button('degree-increase')};
@@ -391,7 +391,7 @@ test('setting the example, center, degree, x and the bound through the controls 
 
 test('the degree buttons are disabled at 0 and 10 and point at the explanation, which changes with the limit', () => {
     const graph = makeGraph({asyncState: false});
-    const help = () => collect(graph.renderControls()).p.find((element: any) => element.props.id === 'taylor-degree-help').props.children;
+    const help = () => collect([graph.renderControls(), graph.renderReveals()]).p.find((element: any) => element.props.id === 'taylor-degree-help').props.children;
     expect(controls(graph).decrease.props.disabled).toBe(false);
     expect(controls(graph).decrease.props['aria-describedby']).toBe('taylor-degree-help');
     expect(help()).toMatch(/gumboma/);

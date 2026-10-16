@@ -1,3 +1,4 @@
+import React from 'react';
 import {DarbouxGraph} from './DarbouxGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
@@ -91,7 +92,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
     return found;
 }
 const controls = (graph: any) => {
-    const found = collect(graph.renderControls());
+    const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB, inputN] = found.NumberInput;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
     return {found, inputA, inputB, inputN, refine: button('refine'), toggleLower: button('toggle-lower'), toggleUpper: button('toggle-upper')};
@@ -223,7 +224,7 @@ test('Refine doubles n through the button, is the same as the lesson action, and
     const atLimit = controls(viaButton);
     expect(atLimit.refine.props.disabled).toBe(true);
     expect(atLimit.refine.props['aria-describedby']).toBe('darboux-refine-help');
-    const help = collect(viaButton.renderControls()).p.find((element: any) => element.props.id === 'darboux-refine-help');
+    const help = collect([viaButton.renderControls(), viaButton.renderReveals()]).p.find((element: any) => element.props.id === 'darboux-refine-help');
     expect(String(help.props.children)).toContain(String(DARBOUX_N_MAX));
     expect(statusIds(viaButton)).toEqual(['trapped', 'limit']);
     expect(() => atLimit.refine.props.onClick()).not.toThrow();
@@ -311,7 +312,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputA.props.rejectedHint).toMatch(/a < b/);
     expect(inputN.props.rejectedHint).toBe('Število delov n mora biti celo število od 1 do 128.');
     expect(inputA.props.onChange(1.5)).toBe(true);
-    expect(collect(graph.renderControls()).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
     expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
     expect(controls(graph).inputN.props.label).toBe('Number of parts n');
@@ -596,4 +597,17 @@ test('the view is memoised by the model values: a copy of the model (the inspect
     expect(graph.viewOf({...graph.model})).toBe(first);
     apply(graph, parameter('darboux-n', 8));
     expect(graph.viewOf(graph.model)).not.toBe(first);
+});
+
+test('Edit order: the reveal area (lower and upper sums) sits between the controls and the readout it reveals', () => {
+    const graph = makeGraph({asyncState: false});
+    const children = (graph.workspaceEdit() as any).props.children;
+    expect(children).toHaveLength(4);
+    expect(children[0].props?.className).toBeUndefined(); // controls
+    expect(children[1].props.className).toBe('inspector-reveals');
+    const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];
+    expect(heading.props.className).toBe('inspector-reveals-title');
+    expect(reveals.props.children[0].props.className).toBe('darboux-actions');
+    expect(children[2].props.className).toBeUndefined(); // readout
+    expect(children[3].type.name).toBe('FunctionLegend');
 });

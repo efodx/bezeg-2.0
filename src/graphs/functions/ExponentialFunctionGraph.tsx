@@ -93,18 +93,21 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {a, mirror} = this.state;
+        const {a} = this.state;
         return <>
             <div className="inspector-group">
                 <Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
                         step={EXPONENTIAL_BASE_STEP} value={a} help={t("exponential_base_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
             </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={mirror} label={t("exponential_show_mirror")}
-                             onChange={checked => this.setMirrorVisible(checked)}/>
-            </div>
         </>;
+    }
+
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <div className="inspector-group">
+            <OnOffSwitch checked={this.state.mirror} label={t("exponential_show_mirror")}
+                         onChange={checked => this.setMirrorVisible(checked)}/>
+        </div>;
     }
 
     protected renderReadout(): React.ReactNode {

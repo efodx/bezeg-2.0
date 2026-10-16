@@ -1,3 +1,5 @@
+import React from 'react';
+import BaseCurveGraph from '../../base/BaseCurveGraph';
 import CnSplineGraph from './CnSplineGraph';
 import C1SplineGraph from './C1SplineGraph';
 import C2SplineGraph from './C2SplineGraph';
@@ -145,7 +147,15 @@ describe('label and hide-fixed actions', () => {
     test('the switches are controlled by the curve, so they reflect restored state and lesson actions', () => {
         const curve = genericCurve();
         const graph = makeGraph(CnSplineGraph, curve);
-        const checked = () => (graph.getGraphCommands() as any[]).filter(el => el?.props?.checked !== undefined).map(el => el.props.checked);
+        // The point switches live in Display; the base curve display is stubbed out so only the spline options are walked.
+        const baseDisplay = vi.spyOn(BaseCurveGraph.prototype as any, 'workspaceGraphDisplay').mockReturnValue(null);
+        const switchesIn = (node: any): any[] => {
+            if (!node || typeof node !== 'object') return [];
+            if (node.props?.checked !== undefined) return [node];
+            return React.Children.toArray(node.props?.children).flatMap(switchesIn);
+        };
+        const checked = () => switchesIn(graph.workspaceGraphDisplay()).map(el => el.props.checked);
+        expect(switchesIn(graph.getGraphCommands())).toEqual([]);
         expect(checked()).toEqual([true, false]);
         apply(graph, {kind: 'spline-hide-fixed', hidden: true});
         apply(graph, {kind: 'spline-label-points', visible: false});
@@ -154,6 +164,7 @@ describe('label and hide-fixed actions', () => {
         curve.labelAll = true;
         curve.hideFixed = false;
         expect(checked()).toEqual([true, false]);
+        baseDisplay.mockRestore();
     });
 });
 

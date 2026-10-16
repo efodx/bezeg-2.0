@@ -1,8 +1,8 @@
 import {t} from "../../../localization";
-import Form from 'react-bootstrap/Form';
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "../ph/BasePhBezierCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
+import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
@@ -52,10 +52,11 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         return t("compare_weighted_and_uniform_parametrization_of_the_ph_curve");
     }
 
-    protected override workspaceEdit(): React.ReactNode {
-        return <>{super.workspaceEdit()}<div className="inspector-group">
+    /** The sampling group precedes the hodograph board so the parameter choice is reached first. */
+    protected override workspaceBeforeHodograph(): React.ReactNode {
+        return <div className="inspector-group">
             <h3>{t("parametrization")}</h3>{this.paramField()}
-        </div></>;
+        </div>;
     }
 
     protected override onStateChange(prevState: Readonly<UniformParamBezierCurveGraphStates>) {
@@ -124,21 +125,19 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
 
     paramField() {
         return <div>
-            <Form className={'mb-3'}>
-                <Form.Select
-                    value={this.state.isAlphaParam ? "alpha" : "uniform"}
-                    onChange={select => this.selectParam(select)}
-                    aria-label={t("choose_parametrization")}>
-                    <option value="alpha">{t("weighted_parametrization")}</option>
-                    <option value="uniform">{t("uniform_parametrization")}</option>
-                </Form.Select>
-            </Form>
+            <div className="mb-3">
+                <ChoiceSelect label={t("choose_parametrization")}
+                              value={this.state.isAlphaParam ? "alpha" : "uniform"}
+                              options={[{value: "alpha", text: t("weighted_parametrization")},
+                                  {value: "uniform", text: t("uniform_parametrization")}]}
+                              onChange={value => this.selectParam(value)}/>
+            </div>
             <div><Slider customText={t("number_of_points")} min={1} max={40} step={1}
                          value={this.state.numberOfPoints}
                          onChange={(num) => this.setNumberOfPoints(num)}/>
             </div>
             {this.state.isAlphaParam ? <div>
-                <Slider min={0} max={1} value={this.state.alpha} customText={'α'}
+                <Slider min={0} max={1} value={this.state.alpha} customText={t("parameter_alpha")}
                         onChange={(alpha) => this.setAlpha(alpha)}/>
             </div> : null}
 
@@ -179,8 +178,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         return "uniform-graph";
     }
 
-    private selectParam(select: React.ChangeEvent<HTMLSelectElement>) {
-        const param = select.target.value;
+    private selectParam(param: string) {
         this.setState({isAlphaParam: param === "alpha"});
     }
 }
