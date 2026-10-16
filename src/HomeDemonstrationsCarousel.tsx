@@ -157,9 +157,13 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         }}>
         <article className="demonstrations-opening-preview"
             aria-live={announceManualChanges ? 'polite' : 'off'} aria-atomic="true">
-            <img key={selectedEntry.demonstration.id} className="demonstrations-opening-image"
-                src={demonstrationPreviewAssets[selectedEntry.demonstration.id]}
-                alt="" width="360" height="220"/>
+            <div className="demonstrations-opening-image-stage" data-reduced-motion={prefersReducedMotion}>
+                {entries.map((entry, index) => <img key={entry.demonstration.id}
+                    className="demonstrations-opening-image"
+                    data-selected={selectedIndex === index}
+                    src={demonstrationPreviewAssets[entry.demonstration.id]}
+                    alt="" width="360" height="220"/>)}
+            </div>
             <div className="demonstrations-opening-copy">
                 <span className="demonstrations-opening-family">{selectedEntry.family.title}</span>
                 <h3>{selectedEntry.demonstration.catalogTitle}</h3>

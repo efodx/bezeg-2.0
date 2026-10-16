@@ -13,22 +13,30 @@
     background: #fffdf6;
     box-shadow: 0 18px 42px rgb(35 54 42 / 12%), 0 3px 10px rgb(35 54 42 / 5%);
 }
-@keyframes demonstrations-opening-preview-in {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+.demonstrations-opening-image-stage {
+    position: relative;
+    min-height: 260px;
+    overflow: hidden;
+    border-right: 1px solid #dfe5d7;
+    background: #e8eee2;
 }
 .demonstrations-opening-image {
     display: block;
     box-sizing: border-box;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    min-height: 260px;
     padding: 12px;
-    border-right: 1px solid #dfe5d7;
     background: #e8eee2;
     object-fit: contain;
     object-position: center;
-    animation: demonstrations-opening-preview-in 220ms ease-out both;
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+.demonstrations-opening-image[data-selected="true"] {
+    z-index: 1;
+    opacity: 1;
 }
 .demonstrations-opening-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 24px 26px; }
 .demonstrations-opening-copy h3 { margin: 8px 0; font-size: 25px; line-height: 1.25; }
@@ -85,15 +93,16 @@
 
 @media (max-width: 700px) {
     .home-demonstrations-carousel .demonstrations-opening-preview { grid-template-columns: minmax(0, 1fr); }
-    .home-demonstrations-carousel .demonstrations-opening-image { height: auto; min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; border-right: 0; border-bottom: 1px solid #dfe5d7; }
+    .home-demonstrations-carousel .demonstrations-opening-image-stage { min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; border-right: 0; border-bottom: 1px solid #dfe5d7; }
     .home-demonstrations-carousel .demonstrations-opening-copy { padding: 16px; }
     .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 21px; }
     .home-demonstrations-carousel .demonstrations-opening-controls { margin-top: 12px; }
     .home-demonstrations-carousel .demonstrations-opening-choice { flex-basis: 154px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .home-demonstrations-carousel .demonstrations-opening-image { animation: none; }
+    .home-demonstrations-carousel .demonstrations-opening-image { transition: none; }
     .home-demonstrations-carousel .demonstrations-opening-controls button,
     .home-demonstrations-carousel .demonstrations-opening-choice { transition: none; }
     .home-demonstrations-carousel .demonstrations-opening-rail { scroll-behavior: auto; scroll-snap-type: none; }
 }
+.home-demonstrations-carousel .demonstrations-opening-image-stage[data-reduced-motion="true"] .demonstrations-opening-image { transition: none; }
