@@ -60,6 +60,18 @@ Acceptance for this follow-up:
 - Compare one proposed change on similar assignments using completion time, correctness, repairs, and usage when available. Fewer compactions alone do not establish improvement.
 - Preserve historical records, increment the changed brief revision, and verify links, skill structure, and the bounded diff. This changes guidance only; product/browser tests are unnecessary. Runtime effectiveness remains unmeasured until subsequent assignments.
 
+## Proportionate verification follow-up — 2026-10-16
+
+The owner accepted a lighter revision of the recommendations from Batches B and C: optimize total effort to accepted work, retaining independent release review and focused repairs. Their layout findings and mathematical premise errors justify targeted checks, but the records do not measure whether universal extra worker verification would cost less than repair. Batch C's 31-minute review-fix assignment and 15-minute layout assignment include investigation and checks; they are not measurements of avoidable overhead.
+
+Acceptance for this follow-up:
+
+- Preserve required specialist review, smoke checks, and acceptance criteria. Assign each check to a verifier and reuse valid evidence; request extra implementation-worker screenshots for foreseeable layout risk or when needed for the worker's own verification, rather than duplicating full visual review on every assignment.
+- Workers flag mathematical contradictions encountered during their slice; the handler settles them before dependent work. Reserve deeper independent premise checking for difficult mathematics, assumptions shared by dependent slices, or costly downstream rework.
+- Prefer focused repairs for local findings. Compare prevention and repair using total effort through acceptance, including verification, repairs, integration and repeated setup when observable; report escaped defects separately. Fewer repair rounds or first-pass success alone do not establish improvement.
+- Keep model and task-size defaults unchanged. Keep routine logging compact and record unknown costs honestly; add no mandatory instrumentation or per-task proof audit.
+- Increment the brief revision, preserve historical records, and verify the bounded documentation diff and local links. No application behavior changes; product tests and browser smoke do not apply. Runtime effectiveness remains unmeasured.
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)

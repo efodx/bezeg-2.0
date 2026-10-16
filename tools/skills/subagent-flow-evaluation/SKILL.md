@@ -35,6 +35,8 @@ For a context investigation prompted by repeated reading, forgotten requirements
 
 When asked to analyze, compare relevant records with the current workflow and repository instructions. Report sample counts, missing data, comparability, and alternative explanations. Separate role-specific quality; research evidence informs research routing only. Observational evidence suggests patterns but does not prove causation.
 
+Evaluate prevention and repair by total effort through acceptance, including implementation, verification, repairs, integration, and repeated setup when observable; report escaped defects separately. First-pass success or fewer repair rounds alone do not establish efficiency. Keep unknown costs explicit and use existing task evidence without adding routine instrumentation.
+
 Turn repeated patterns into a narrow proposed routing rule or task/template wording, cite evidence counts and alternatives, and name a comparable future observation that could support or reject it. There is no fixed sample-count gate. Do not delay an owner-authorized provisional choice while waiting to prove it; keep model, effort, staffing, and prompt-format hypotheses distinct. Read the current log and format only as needed for the requested analysis.
 
 For context-related proposals, compare one change on similar assignments using completion time, correctness, repairs, and scoped usage when available. Account for repeated setup and lost familiarity when splitting tasks or replacing workers between roles. Fewer compactions alone do not establish improvement; keep observed symptoms separate from proposed causes.

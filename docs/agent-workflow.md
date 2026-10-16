@@ -25,16 +25,16 @@ Codex child defaults are in [`.codex/config.toml`](../.codex/config.toml); the h
 2. Use exploration separately when it resolves substantial uncertainty or isolates noisy work. Otherwise let the implementing worker investigate its bounded slice. Pass useful findings forward rather than repeating the same exploration.
 3. Prefer a fresh context when supported. Supply a self-contained brief using the fields below, relevant project constraints, and settled decisions. Name useful entry files or spec sections; workers start there and expand investigation as needed for acceptance, returning focused excerpts and check results. Research history, workflow evaluation, and model-routing rationale stay with the handler. A fresh conversation still needs applicable repository rules.
 4. Before delegated browser verification, establish a stable checkout/build and confirm the preview is reachable from the worker's verification environment. Supply preview ownership, revision/dirty state, and setup status. If access cannot be confirmed until the worker connects, make that its first bounded check; return access failures to the handler and mark dependent coverage blocked before repeated setup attempts.
-5. Capture the task start/dispatch timestamp, requested worker settings, and brief revision (`handoff-v4` below). Retain resolved settings or scoped usage if tool results expose them; configured defaults describe intent, not runtime resolution. Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
+5. Capture the task start/dispatch timestamp, requested worker settings, and brief revision (`handoff-v5` below). Retain resolved settings or scoped usage if tool results expose them; configured defaults describe intent, not runtime resolution. Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
 
-### Assignment brief: handoff-v4
+### Assignment brief: handoff-v5
 
 - **Role:** research, implementation, review, or smoke; edit permission.
 - **Goal:** outcome, source spec, and checkable acceptance.
 - **Scope:** owned paths/modules, shared owners, existing changes to preserve.
 - **Context:** relevant entry files/spec sections, settled decisions, dependencies, shared verification resources and their owners; for browser checks, preview ownership, revision/dirty state, and reachability/setup status.
 - **Checks:** map each acceptance criterion to worker checks, handler checks, or sufficient existing evidence. For controls or graph state, check control values and the graph/board after applicable indirect changes: Reset, lesson actions, preset restore, and language switch. For UI work, name applicable routes, viewports, text enlargement, and interactions where required by the spec. Describe presentation goals as visible results, such as a rail visible over child backgrounds or intended headline wrapping at a named viewport.
-- **Return:** changes or findings, observed check results, decisions/risks, and unverified cases. Flag missing or conflicting instructions that affected the work; ordinary implementation details need no narration.
+- **Return:** changes or findings, observed check results, decisions/risks, and unverified cases. Flag missing or conflicting instructions and mathematical contradictions encountered in the slice; the handler settles contradictions before dependent work proceeds. Ordinary implementation details need no narration.
 
 Use only details that affect the assignment. Research returns relevant sources/files/symbols and a recommended boundary; review returns actionable findings with locations and expected behavior, without editing; smoke returns observed coverage and gaps. Implementation returns its diff and check evidence. Save exact initial and revised briefs only when investigating handoffs or running a prompt-format pilot.
 
@@ -43,6 +43,8 @@ Increment the brief revision when this template changes.
 ## Review and completion
 
 Derive expected behavior from the spec, review the actual diff and surrounding code, and assess worker evidence. Use the specialist reviews and smoke workflow required by `AGENTS.md`; reuse sufficient checks unless integration or corrections invalidate them. Send repairs to the worker with the location, observed failure, and expected behavior. Repeated failure calls for reconsidering scope or approach. Final acceptance remains with the handler.
+
+Assign extra implementation-worker screenshots where foreseeable layout risk warrants them or the worker needs them for its own verification; let the assigned release reviewer cover the remaining visual acceptance. Reserve deeper independent checking of mathematical premises for difficult mathematics, assumptions shared by dependent slices, or costly downstream rework. Required acceptance checks still apply. Focused repair is an ordinary completion path for local findings; choose preventive work according to the likely total effort through acceptance.
 
 Run integrated acceptance at a stable checkpoint while relevant writers and dependency mutations are idle; record the revision and relevant dirty state. Reproduce failures observed during concurrent edits at that checkpoint before attributing them. Evidence predating relevant edits needs revalidation.
 
@@ -55,6 +57,8 @@ Record accepted/blocked time and complete the [evaluation record](../tools/skill
 ## Improve the workflow
 
 Use [the evaluation skill](../tools/skills/subagent-flow-evaluation/SKILL.md#suggest-subagents-flow-improvements) when assessing accumulated evidence. It connects both routing choices and task wording to outcomes. Load the log and research then, rather than on ordinary worker assignments.
+
+Compare total effort to accepted work, including implementation, verification, repairs, integration, and repeated setup where observable; report escaped defects separately. First-pass success or fewer repair rounds alone do not establish efficiency. Weigh added preventive checks against the repair work they could avoid, keeping unknown costs explicit.
 
 Keep current task sizes unless outcome evidence supports a change. Compaction alone is not a failure or a reason to split work. Investigate context when it coincides with repeated reading, forgotten requirements, duplicate work, or excessive repairs; correlate the evaluation record's context note with observed symptoms. Treat smaller assignments or a fresh worker for a later role as hypotheses, accounting for repeated setup and lost familiarity. Judge comparisons by completion time, correctness, repairs, and scoped usage when available; fewer compactions alone do not establish improvement.
 
