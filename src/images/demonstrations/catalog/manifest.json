@@ -1,6 +1,6 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
-  "graphSourceRevision": "8284371c4c064bc1db96f93989b185d97b7e3664",
+  "graphSourceRevision": "11203547ff6856a731dea2084a0faf0c9c3a5287",
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
     "routeMetadata": "src/demonstrations.ts (validated by tests/smoke-catalog.cjs)",
@@ -82,6 +82,56 @@
         },
         "renderedLabelCount": 0,
         "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "complex-multiplication",
+      "path": "/bezeg-2.0/complex-multiplication",
+      "file": "complex-multiplication.png",
+      "sha256": "6a775a38e2d0696b770a81575eadfd4da032bc8afccb98630624b382572b9eae",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -3.186895137032086,
+          "maxX": 3.3987583556149725,
+          "minY": -1.9340577372994658,
+          "maxY": 2.0904913937165768
+        },
+        "boardBoundingBox": [
+          -3.466935160427808,
+          2.1759324866310155,
+          3.5386263368983952,
+          -2.10524398395722
+        ],
+        "framedElementCount": 11,
+        "finalLabelCount": 5,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 25,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 17,
+          "curve": 2,
+          "point": 2
+        },
+        "renderedLabelCount": 5,
+        "mathJaxLabelCount": 6
       }
     },
     {
@@ -2047,6 +2097,159 @@
         },
         "renderedLabelCount": 3,
         "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "sequence",
+      "path": "/bezeg-2.0/analysis/sequence",
+      "file": "sequence.png",
+      "sha256": "355df61af3531bdfa700b1a9432de45dc46801ee2876e3ac81470d079f98e71b",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": 0.9828874394217909,
+          "maxX": 21.70303669877486,
+          "minY": -6.609553422081281,
+          "maxY": 1.0171122831456803
+        },
+        "boardBoundingBox": [
+          -1.6812676773479307,
+          7.680678607036298,
+          22.676721961689505,
+          -7.204759505708802
+        ],
+        "framedElementCount": 7,
+        "finalLabelCount": 2,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 13,
+          "curve": 1,
+          "segment": 4,
+          "point": 1
+        },
+        "renderedLabelCount": 2,
+        "mathJaxLabelCount": 0
+      }
+    },
+    {
+      "id": "uniform-convergence",
+      "path": "/bezeg-2.0/analysis/uniform-convergence",
+      "file": "uniform-convergence.png",
+      "sha256": "b2371b092680cb618c7116ec2b60491987c9b7f03a7b0c2585536c6659f0abdb",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": 4.559632528941819e-17,
+          "maxX": 1.083976754287475,
+          "minY": -0.26963999756927576,
+          "maxY": 0.9653478579241614
+        },
+        "boardBoundingBox": [
+          -0.662242083826283,
+          1.0175748663101605,
+          1.4750763410643346,
+          -0.28856417112299476
+        ],
+        "framedElementCount": 13,
+        "finalLabelCount": 3,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "segment": 4,
+          "point": 4,
+          "text": 5
+        },
+        "renderedLabelCount": 3,
+        "mathJaxLabelCount": 4
+      }
+    },
+    {
+      "id": "fixed-point",
+      "path": "/bezeg-2.0/analysis/fixed-point",
+      "file": "fixed-point.png",
+      "sha256": "bad75a83d61c13ddaea289dec79b852a6ba9b6a1380effbafa532c3ba2cb77c9",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "coordinateContextPolicy": "retain",
+      "axesAndGrid": "retain",
+      "framing": {
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "aspectRatio": 1.6363636363636365,
+        "paddingFraction": 0.14,
+        "boundsPolicy": "finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport",
+        "sceneBounds": {
+          "minX": -0.034224598930481055,
+          "maxX": 2.942955566358774,
+          "minY": -0.03422459893048095,
+          "maxY": 2.180676130286825
+        },
+        "boardBoundingBox": [
+          -1.147500243072435,
+          2.284791443850267,
+          3.113275644141954,
+          -0.31901604278074835
+        ],
+        "framedElementCount": 9,
+        "finalLabelCount": 2,
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3,
+          "segment": 1,
+          "point": 3,
+          "text": 2
+        },
+        "renderedLabelCount": 2,
+        "mathJaxLabelCount": 0
       }
     }
   ]
