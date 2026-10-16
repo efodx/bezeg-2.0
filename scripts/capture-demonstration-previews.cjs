@@ -1,4 +1,4 @@
-// Regenerate the production catalog's graph previews from unmodified default routes:
+// Regenerate the production catalog's graph previews from explicit capture-only recipes:
 // node scripts/capture-demonstration-previews.cjs
 // The generator opens every route in an empty browser context and captures only
 // its live JSXGraph board. It never imports, mounts, or configures a graph itself.
@@ -9,9 +9,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {chromium} = require('playwright');
 const demonstrations = require('../tests/smoke-catalog.cjs');
+const {recipes, validateRecipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
+
+const {generateMotions, generateAffineComparison} = require('./demonstration-preview-motion.cjs');
 
 const root = path.resolve(__dirname, '..');
-const output = path.join(root, 'src/images/demonstrations/catalog');
+const publishedOutput = path.join(root, 'src/images/demonstrations/catalog');
+const output = path.join(root, '.command-logs', 'preview-staging-' + process.pid);
+const mapPath = path.join(output, 'demonstrationPreviewAssets.ts');
 const baseUrl = process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:3012/bezeg-2.0';
 const viewport = {width: 1440, height: 850};
 const frame = {width: 360, height: 220};
@@ -34,82 +39,34 @@ function hashFile(file) {
     return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
-async function main() {
-    assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
-    assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
-        'Demonstration IDs must be unique');
-    assert.equal(new Set(demonstrations.map(demonstration => demonstration.path)).size, demonstrations.length,
-        'Demonstration paths must be unique');
-    fs.mkdirSync(output, {recursive: true});
+async function servedBuildProvenance() {
+    const localHtml = fs.readFileSync(path.join(root, 'build/index.html'), 'utf8');
+    const servedHtml = await (await fetch(baseUrl + '/')).text();
+    const moduleSource = html => html.match(/<script[^>]+src="([^"]*\/assets\/[^"/]+\.js)"/)[1];
+    const source = moduleSource(localHtml);
+    assert.equal(moduleSource(servedHtml), source, 'Capture server is not serving this production build');
+    const file = source.slice(source.indexOf('/assets/') + 1);
+    const sha256 = hashFile(path.join(root, 'build', file));
+    const response = await fetch(new URL(source, baseUrl));
+    assert.ok(response.ok, 'Production module is unavailable');
+    const actual = crypto.createHash('sha256').update(Buffer.from(await response.arrayBuffer())).digest('hex');
+    assert.equal(actual, sha256, 'Capture server module bytes differ from the local production build');
+    return {file, sha256};
+}
 
-    const graphSourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim();
-    const launchOptions = {headless: true};
-    if (process.env.PREVIEW_BROWSER_EXECUTABLE_PATH) {
-        launchOptions.executablePath = path.resolve(process.env.PREVIEW_BROWSER_EXECUTABLE_PATH);
-    }
-    const browser = await chromium.launch(launchOptions);
-    const browserVersion = browser.version();
-    const captures = [];
-    let expectedDimensions;
-
-    try {
-        for (const demonstration of demonstrations) {
-            const context = await browser.newContext({
-                viewport,
-                deviceScaleFactor,
-                locale,
-                colorScheme,
-                reducedMotion: 'reduce',
-                timezoneId: 'Europe/Ljubljana',
-            });
-            await context.addInitScript(() => {
-                // The default route scene is required; remove any accidental browser preset.
-                localStorage.clear();
-                sessionStorage.clear();
-            });
-            const page = await context.newPage();
-            page.setDefaultNavigationTimeout(90_000);
-            page.setDefaultTimeout(30_000);
-            const pageErrors = [];
-            page.on('pageerror', error => pageErrors.push(error.message));
-
-            try {
-                await page.goto(`${baseUrl}${demonstration.path.slice('/bezeg-2.0'.length)}`, {
-                    waitUntil: 'domcontentloaded',
-                });
-                assert.equal(new URL(page.url()).pathname, demonstration.path,
-                    `${demonstration.id} did not stay on its exact metadata route`);
-                assert.equal(new URL(page.url()).search, '', `${demonstration.id} unexpectedly has query settings`);
-
-                const boardLocator = page.locator('#jgbox');
-                await boardLocator.waitFor({state: 'visible'});
-                await page.waitForFunction(() => {
-                    const container = document.querySelector('#jgbox');
-                    const board = Object.values(window.JXG?.boards || {}).find(candidate =>
-                        candidate.container === container?.id || candidate.containerObj === container);
-                    if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
-                    return Object.values(board.objects || {}).some(object => {
-                        if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
-                        const node = object.rendNode;
-                        if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false;
-                        const style = getComputedStyle(node);
-                        return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
-                    });
-                });
-
-                await page.waitForFunction(() => window.MathJax?.startup?.promise, {timeout: 30_000});
-                await page.evaluate(async () => {
-                    await window.MathJax.startup.promise;
-                    await window.MathJax.typesetPromise();
-                    await document.fonts.ready;
-                });
-
-                const scene = await boardLocator.evaluate(async (container, options) => {
+async function presentBoard(boardLocator, demonstration, recipe, configuration = {}) {
+    return boardLocator.evaluate(async (container, options) => {
                     const board = Object.values(window.JXG.boards).find(candidate =>
                         candidate.container === container.id || candidate.containerObj === container);
                     if (!board) throw new Error('Could not find the route-owned JSXGraph board');
 
                     const keepCoordinateContext = options.keepCoordinateContext;
+                    // Point names collide at card size. Hide only their route-owned label DOM.
+                    Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label?.rendNode).forEach(o => o.label.rendNode.style.setProperty('display', 'none', 'important'));
+                    if (options.window) Object.values(board.objects || {}).filter(o => o.elType === 'text').forEach(o => {
+                        const text = o.rendNode?.textContent || '';
+                        if (text.length > 65) o.rendNode.style.setProperty('display', 'none', 'important');
+                    });
                     const axes = [board.defaultAxes?.x, board.defaultAxes?.y].filter(Boolean);
                     const ticks = axes.map(axis => axis.defaultTicks).filter(Boolean);
                     const gridObjects = Object.values(board.objects || {}).filter(object => object.elType === 'grid');
@@ -131,8 +88,9 @@ async function main() {
                         ticks.forEach(tick => (tick.labels || []).forEach(label => label.setAttribute({visible: false})));
                     }
 
-                    const typography = document.createElement('style');
-                    typography.textContent = `#jgbox .JXGtext, #jgbox .smart-label-point2, #jgbox .smart-label-point2 * { font-size: ${options.captureTextSize}px !important; line-height: ${options.captureTextLineHeight} !important; } #jgbox .JXGtext mjx-container, #jgbox .smart-label-point2 mjx-container { font-size: 100% !important; }`;
+                    const typography = document.querySelector('#preview-capture-style') || document.createElement('style');
+                    typography.id = 'preview-capture-style';
+                    typography.textContent = `#jgbox, #jgbox * { transition:none !important; animation:none !important; } #jgbox .JXGinfobox { display:none !important; } #jgbox .JXGtext, #jgbox .smart-label-point2, #jgbox .smart-label-point2 * { font-size: ${options.captureTextSize}px !important; line-height: ${options.captureTextLineHeight} !important; } #jgbox .JXGtext mjx-container, #jgbox .smart-label-point2 mjx-container { font-size: 100% !important; }`;
                     document.head.appendChild(typography);
 
                     // Resize only the captured board and use equal user-unit scales so geometric
@@ -145,7 +103,7 @@ async function main() {
                     container.style.setProperty('min-height', options.frame.height + 'px', 'important');
                     container.style.setProperty('max-height', options.frame.height + 'px', 'important');
                     board.resizeContainer(options.frame.width, options.frame.height, true, true);
-                    board.setBoundingBox(board.getBoundingBox(), true, 'update');
+                    board.setBoundingBox(board.getBoundingBox(), options.equalUnits, 'update');
                     board.fullUpdate();
                     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -173,13 +131,15 @@ async function main() {
                             ['axis', 'ticks', 'grid'].includes(object.elType) ||
                             !['curve', 'line'].includes(object.elType)) return;
                         const node = object.rendNode;
-                        const currentWidth = Number.parseFloat(getComputedStyle(node).strokeWidth);
+                        if (!node.dataset.previewBaseStroke) node.dataset.previewBaseStroke = getComputedStyle(node).strokeWidth;
+                        if (!node.dataset.previewBaseOpacity) node.dataset.previewBaseOpacity = getComputedStyle(node).opacity || '1';
+                        const currentWidth = Number.parseFloat(node.dataset.previewBaseStroke);
                         if (!Number.isFinite(currentWidth) || currentWidth <= 0) return;
                         const scale = object.elType === 'curve'
                             ? options.captureCurveStrokeScale : options.captureConstructionStrokeScale;
                         const minimum = object.elType === 'curve' ? 2 : 1.25;
                         node.style.setProperty('stroke-width', `${Math.max(minimum, currentWidth * scale)}px`);
-                        const currentOpacity = Number.parseFloat(getComputedStyle(node).opacity);
+                        const currentOpacity = Number.parseFloat(node.dataset.previewBaseOpacity);
                         if (Number.isFinite(currentOpacity)) {
                             node.style.setProperty('opacity', String(Math.min(1, currentOpacity * 1.08)));
                         }
@@ -222,7 +182,7 @@ async function main() {
                     });
 
                     if (!ranges.length) throw new Error('No visible construction bounds found for route capture');
-                    const sceneBounds = {
+                    const sceneBounds = options.window ? {minX: options.window[0], maxY: options.window[1], maxX: options.window[2], minY: options.window[3]} : {
                         minX: Math.min(...ranges.map(range => range.minX)),
                         maxX: Math.max(...ranges.map(range => range.maxX)),
                         minY: Math.min(...ranges.map(range => range.minY)),
@@ -233,6 +193,8 @@ async function main() {
                         const sceneHeight = Math.max(bounds.maxY - bounds.minY, 1e-6);
                         const paddedWidth = sceneWidth * (1 + options.paddingFraction * 2);
                         const paddedHeight = sceneHeight * (1 + options.paddingFraction * 2);
+                        if (!options.equalUnits) return [bounds.minX - sceneWidth * options.paddingFraction, bounds.maxY + sceneHeight * options.paddingFraction,
+                            bounds.maxX + sceneWidth * options.paddingFraction, bounds.minY - sceneHeight * options.paddingFraction];
                         const aspectRatio = options.frame.width / options.frame.height;
                         const frameHeight = Math.max(paddedHeight, paddedWidth / aspectRatio);
                         const frameWidth = frameHeight * aspectRatio;
@@ -298,7 +260,7 @@ async function main() {
                     };
                     const aspectRatio = options.frame.width / options.frame.height;
                     const initialTargetBounds = fitBounds(sceneBounds);
-                    board.setBoundingBox(initialTargetBounds, true, 'update');
+                    board.setBoundingBox(initialTargetBounds, options.equalUnits, 'update');
                     board.fullUpdate();
                     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -307,15 +269,15 @@ async function main() {
                     // This preserves labels without allowing axis ticks or unbounded curves to
                     // drive geometric-route framing.
                     let finalSceneBounds = sceneBounds;
-                    for (let attempt = 0; attempt < 3; attempt++) {
+                    for (let attempt = 0; !options.window && attempt < 3; attempt++) {
                         const renderedTextBounds = measureRenderedTextBounds();
                         finalSceneBounds = unionBounds(sceneBounds, renderedTextBounds);
                         if (isWithinBoard(renderedTextBounds)) break;
-                        board.setBoundingBox(fitBounds(finalSceneBounds), true, 'update');
+                        board.setBoundingBox(fitBounds(finalSceneBounds), options.equalUnits, 'update');
                         board.fullUpdate();
                         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
                     }
-                    finalSceneBounds = unionBounds(sceneBounds, measureRenderedTextBounds());
+                    finalSceneBounds = options.window ? sceneBounds : unionBounds(sceneBounds, measureRenderedTextBounds());
                     const finalRect = container.getBoundingClientRect();
                     const finalStyle = getComputedStyle(container);
                     const frameLeft = finalRect.left + parseFloat(finalStyle.borderLeftWidth);
@@ -323,7 +285,7 @@ async function main() {
                     const frameRight = frameLeft + container.clientWidth;
                     const frameBottom = frameTop + container.clientHeight;
                     const outOfFrameElements = contentObjects.filter(object =>
-                        isVisible(object) && !(keepCoordinateContext && ['curve', 'line'].includes(object.elType))
+                        isVisible(object) && !options.window && !(keepCoordinateContext && ['curve', 'line'].includes(object.elType))
                     ).flatMap(object => {
                         const rect = object.rendNode.getBoundingClientRect();
                         if (rect.width <= 0 && rect.height <= 0) return [];
@@ -333,8 +295,35 @@ async function main() {
                         }
                         return [];
                     });
+                    // Greedily retain noncolliding existing weight labels; no invented labels or geometry.
+                    if (['extrema','convexity'].includes(options.demonstrationId)) {
+                        Object.values(board.objects).filter(o => o.elType === 'text').forEach(o => {
+                            const rows = [...o.rendNode.children].filter(e => e.tagName === 'DIV');
+                            const conclusion = rows.find(e => /globalni min|konveksna na|konkavna na|brez trditve/.test(e.textContent));
+                            if (!conclusion) return;
+                            o.rendNode.style.removeProperty('display');
+                            rows.forEach(row => row.style.setProperty('display', row === conclusion ? 'block' : 'none', 'important'));
+                            o.rendNode.style.cssText += ';position:absolute!important;left:12px!important;top:184px!important;width:336px!important;max-width:336px!important;white-space:normal!important;transform:none!important;clip-path:none!important;right:auto!important;bottom:auto!important;background:#fffdf5!important;opacity:1!important;';
+                            if(options.demonstrationId==='extrema')o.rendNode.style.setProperty('height','36px','important');
+                        });
+                    }
+                    if (['trigonometric-functions','definite-integral'].includes(options.demonstrationId)) {
+                        Object.values(board.objects).filter(o=>o.elType==='text'&&o.rendNode?.textContent.includes('f(x)')).forEach(o=>{
+                            o.rendNode.style.cssText += ';position:absolute!important;left:auto!important;right:10px!important;top:8px!important;bottom:auto!important;clip-path:none!important;transform:none!important;background:#fffdf5!important;opacity:1!important;';
+                        });
+                    }
+                    const keptWeightRects = [];
+                    const omittedAnnotations = [];
+                    contentObjects.filter(o => o.elType === 'text' && isVisible(o) && String(o.visProp?.cssclass).includes('smart-label-point2')).forEach(o => {
+                        const r = o.rendNode.getBoundingClientRect();
+                        if (keptWeightRects.some(k => r.left < k.right + 5 && r.right > k.left - 5 && r.top < k.bottom + 5 && r.bottom > k.top - 5)) {
+                            omittedAnnotations.push({id:o.id,text:o.rendNode.textContent,reason:'weight-label-overlap'});
+                            o.rendNode.style.setProperty('display','none','important');
+                        } else keptWeightRects.push(r);
+                    });
                     const finalLabels = contentObjects.filter(object => object.elType === 'text' && isVisible(object));
                     finalLabels.forEach(label => {
+                        if (options.window) return;
                         const rect = label.rendNode.getBoundingClientRect();
                         if (rect.width <= 0 && rect.height <= 0) return;
                         if (rect.left < frameLeft - 1 || rect.right > frameRight + 1 ||
@@ -363,6 +352,8 @@ async function main() {
                         visibleElementTypes: visibleTypes,
                         framedElementCount: contentObjects.length,
                         finalLabelCount: finalLabels.length,
+                        omittedAnnotations,
+                        selectedConclusions: Object.values(board.objects).filter(o=>o.elType==='text'&&o.rendNode&&getComputedStyle(o.rendNode).display!=='none').flatMap(o=>[...o.rendNode.children].filter(e=>/globalni min|konveksna na|konkavna na|brez trditve/.test(e.textContent)&&getComputedStyle(e).display!=='none').map(e=>({text:e.textContent,clipPath:getComputedStyle(o.rendNode).clipPath,withinFrame:e.getBoundingClientRect().bottom<=container.getBoundingClientRect().bottom&&e.getBoundingClientRect().top>=container.getBoundingClientRect().top}))),
                         outOfFrameElements,
                         renderedLabelCount: contentObjects.filter(object => object.elType === 'text' && isVisible(object)).length,
                         mathJaxLabelCount: container.querySelectorAll('mjx-container').length,
@@ -370,7 +361,10 @@ async function main() {
                         boundsPolicy: 'finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport',
                     };
                 }, {
-                    frame,
+                    frame: configuration.frame || frame,
+                    demonstrationId: demonstration.id,
+                    window: configuration.window || recipe.framing.window,
+                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine'].includes(demonstration.id),
                     paddingFraction,
                     captureTextSize,
                     captureTextLineHeight,
@@ -378,6 +372,114 @@ async function main() {
                     captureConstructionStrokeScale,
                     keepCoordinateContext: demonstrations.coordinateContextPolicy(demonstration) === 'retain',
                 });
+
+}
+
+async function main() {
+    validateRecipes(demonstrations);
+    const started = Date.now();
+    const servedBuild = await servedBuildProvenance();
+    const presentationFingerprint=crypto.createHash('sha256').update(presentBoard.toString())
+        .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
+        .update(JSON.stringify({viewport,frame,deviceScaleFactor,paddingFraction,captureTextSize,captureTextLineHeight,captureCurveStrokeScale,captureConstructionStrokeScale})).digest('hex');
+    assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
+    assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
+        'Demonstration IDs must be unique');
+    assert.equal(new Set(demonstrations.map(demonstration => demonstration.path)).size, demonstrations.length,
+        'Demonstration paths must be unique');
+    fs.mkdirSync(output, {recursive: true});
+
+    const sourceFiles = execFileSync('git', ['ls-files', 'src/graphs', 'src/bezeg', 'src/analysis', 'src/demonstrations.ts', 'src/Routes.tsx'], {cwd: root, encoding: 'utf8'}).trim().split(/\r?\n/);
+    const sourceFingerprint = crypto.createHash('sha256');
+    for (const file of sourceFiles) sourceFingerprint.update(file).update(fs.readFileSync(path.join(root, file)));
+    const graphSourceFingerprint = sourceFingerprint.digest('hex');
+    const graphDirtyFiles = execFileSync('git', ['diff', '--name-only', 'HEAD', '--', ...sourceFiles], {cwd: root, encoding: 'utf8'}).trim().split(/\r?\n/).filter(Boolean);
+    const graphSourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim();
+    const launchOptions = {headless: true};
+    if (process.env.PREVIEW_BROWSER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = path.resolve(process.env.PREVIEW_BROWSER_EXECUTABLE_PATH);
+    }
+    const browser = await chromium.launch(launchOptions);
+    const browserVersion = browser.version();
+    const captures = [];
+    let motions = [];
+    const recaptureIds = process.env.PREVIEW_RECAPTURE_IDS?.split(',');
+    if(recaptureIds) {
+        assert.ok(!process.env.PREVIEW_IDS,'Diagnostic and full-set recapture modes cannot be combined');
+        assert.ok(recaptureIds.length && recaptureIds.every(id=>demonstrations.some(d=>d.id===id)),'Unknown recapture ID');
+        const previous=JSON.parse(fs.readFileSync(path.join(publishedOutput,'manifest.json'),'utf8'));
+        assert.equal(previous.version,2);
+        assert.equal(previous.graphSourceFingerprint,graphSourceFingerprint,'Existing captures have different mathematical source; run full generation');
+        assert.equal(previous.graphSourceRevision,graphSourceRevision,'Existing captures have a different source revision; run full generation');
+        if(previous.presentationFingerprint) assert.equal(previous.presentationFingerprint,presentationFingerprint,'Capture presentation changed; run full generation');
+        else assert.equal(process.env.PREVIEW_RECAPTURE_VERIFIED_PRESENTATION,'1','Legacy manifest recapture requires explicit verification that capture presentation is unchanged');
+        for(const item of [...previous.captures,...previous.motions]) {
+            const file=path.join(publishedOutput,item.file);
+            assert.equal(hashFile(file),item.sha256,'Existing output checksum mismatch; run full generation');
+            fs.copyFileSync(file,path.join(output,item.file));
+        }
+        captures.push(...previous.captures.filter(c=>!recaptureIds.includes(c.id)));
+        motions=previous.motions;
+    }
+    let expectedDimensions;
+
+    try {
+        for (const demonstration of demonstrations.filter(d => recaptureIds ? recaptureIds.includes(d.id) : !process.env.PREVIEW_IDS || process.env.PREVIEW_IDS.split(',').includes(d.id))) {
+            const context = await browser.newContext({
+                viewport,
+                deviceScaleFactor,
+                locale,
+                colorScheme,
+                reducedMotion: 'reduce',
+                timezoneId: 'Europe/Ljubljana',
+            });
+            await context.addInitScript(() => {
+                // The default route scene is required; remove any accidental browser preset.
+                localStorage.clear();
+                sessionStorage.clear();
+            });
+            const page = await context.newPage();
+            page.setDefaultNavigationTimeout(90_000);
+            page.setDefaultTimeout(30_000);
+            const pageErrors = [];
+            page.on('pageerror', error => pageErrors.push(error.message));
+
+            try {
+                await page.goto(`${baseUrl}${demonstration.path.slice('/bezeg-2.0'.length)}`, {
+                    waitUntil: 'domcontentloaded',
+                });
+                assert.equal(new URL(page.url()).pathname, demonstration.path,
+                    `${demonstration.id} did not stay on its exact metadata route`);
+                assert.equal(new URL(page.url()).search, '', `${demonstration.id} unexpectedly has query settings`);
+
+                const boardLocator = page.locator('#jgbox');
+                await boardLocator.waitFor({state: 'visible'});
+                await page.waitForFunction(() => {
+                    const container = document.querySelector('#jgbox');
+                    const board = Object.values(window.JXG?.boards || {}).find(candidate =>
+                        candidate.container === container?.id || candidate.containerObj === container);
+                    if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
+                    return Object.values(board.objects || {}).some(object => {
+                        if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+                        const node = object.rendNode;
+                        if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false;
+                        const style = getComputedStyle(node);
+                        return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+                    });
+                });
+
+                const recipe = recipes[demonstration.id];
+                const evidence = await applyRecipe(page, recipe);
+
+                await page.waitForFunction(() => window.MathJax?.startup?.promise, {timeout: 30_000});
+                await page.evaluate(async () => {
+                    await window.MathJax.startup.promise;
+                    await window.MathJax.typesetPromise();
+                    await document.fonts.ready;
+                });
+
+                const scene = await presentBoard(boardLocator, demonstration, recipe);
+                if (['extrema','convexity'].includes(demonstration.id)) assert.ok(scene.selectedConclusions.some(c=>c.withinFrame&&c.clipPath==='none'), demonstration.id+' must retain its visible defining conclusion');
 
                 assert.deepEqual([scene.width, scene.height], [frame.width, frame.height],
                     demonstration.id + ' did not resize to the 360:220 preview frame');
@@ -391,7 +493,7 @@ async function main() {
                     scene.sceneBounds.minY >= scene.boundingBox[3] - 1e-6 &&
                     scene.sceneBounds.maxY <= scene.boundingBox[1] + 1e-6,
                 demonstration.id + ' fitted board does not enclose the visible scene');
-                assert.ok(Math.abs(scene.unitScale[0] - scene.unitScale[1]) < 1e-8,
+                assert.ok(recipe.framing.window || Math.abs(scene.unitScale[0] - scene.unitScale[1]) < 1e-8,
                     demonstration.id + ' changed equal x/y scale');
                 assert.deepEqual(pageErrors, [], `${demonstration.id} raised a browser error`);
 
@@ -410,6 +512,12 @@ async function main() {
                 assert.deepEqual([clip.width, clip.height], [frame.width, frame.height],
                     demonstration.id + ' clip does not match the preview frame');
                 await page.screenshot({path: filePath, clip, animations: 'disabled', caret: 'hide', scale: 'device'});
+                if (['affine','rational-elevation'].includes(demonstration.id)) {
+                    evidence.comparison = await generateAffineComparison(browser, demonstration, output, baseUrl, presentBoard);
+                    evidence.singleFullBoardDiagnostic = {boundingBox: scene.boundingBox, sceneBounds: scene.sceneBounds};
+                    scene.boundingBox = evidence.comparison.camera;
+                    scene.sceneBounds = evidence.comparison.sceneBounds;
+                }
                 const dimensions = pngDimensions(filePath);
                 assert.deepEqual(dimensions, {
                     width: frame.width * deviceScaleFactor,
@@ -424,9 +532,13 @@ async function main() {
                     file: fileName,
                     sha256: hashFile(filePath),
                     image: dimensions,
+                    recipe,
+                    evidence,
+                    posterCheckpoint: recipe.checkpoint,
                     coordinateContextPolicy: demonstrations.coordinateContextPolicy(demonstration),
                     axesAndGrid: scene.axesAndGrid,
                     framing: {
+                        composition: evidence.comparison ? {kind:'two-real-board-panels', panelCssPixels:{width:180,height:220}, camera:evidence.comparison.camera} : undefined,
                         frameCssPixels: frame,
                         aspectRatio: scene.aspectRatio,
                         paddingFraction: scene.paddingFraction,
@@ -435,6 +547,8 @@ async function main() {
                         boardBoundingBox: scene.boundingBox,
                         framedElementCount: scene.framedElementCount,
                         finalLabelCount: scene.finalLabelCount,
+                        omittedAnnotations: scene.omittedAnnotations,
+                        selectedConclusions: scene.selectedConclusions,
                         outOfFrameElements: scene.outOfFrameElements,
                     },
                     board: {
@@ -452,10 +566,17 @@ async function main() {
                 await context.close();
             }
         }
+        if (!process.env.PREVIEW_IDS && !recaptureIds) motions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard);
     } finally {
         await browser.close();
     }
 
+    if (process.env.PREVIEW_IDS) {
+        fs.writeFileSync(path.join(output, 'partial-evidence.json'), JSON.stringify(captures, null, 2));
+        console.log('Partial diagnostic capture retained in ' + output + '; production assets untouched.');
+        return;
+    }
+    captures.sort((a,b)=>demonstrations.findIndex(d=>d.id===a.id)-demonstrations.findIndex(d=>d.id===b.id));
     assert.deepEqual(captures.map(capture => capture.id), demonstrations.map(demonstration => demonstration.id),
         'Capture order and exhaustive route metadata no longer match');
     const activePreviewFiles = new Set(captures.map(capture => capture.file));
@@ -463,11 +584,16 @@ async function main() {
         .forEach(fileName => fs.unlinkSync(path.join(output, fileName)));
     const manifest = {
         generator: 'scripts/capture-demonstration-previews.cjs',
+        version: 2,
         graphSourceRevision,
+        graphSourceFingerprint,
+        graphDirtyFiles,
+        presentationFingerprint,
+        servedBuild,
         capture: {
             source: 'live #jgbox from each Demonstration metadata route',
             routeMetadata: 'src/demonstrations.ts (validated by tests/smoke-catalog.cjs)',
-            scene: 'fresh browser context with empty local/session storage; exact route without query; route default preset; capture-only board resize, axes/grid visibility, preview legibility treatment, and bounding box; graph state and geometry unchanged',
+            scene: 'fresh browser context with empty local/session storage; exact route without query; route default preset; explicit supported UI recipe setup; capture-only board resize, axes/grid visibility, preview legibility treatment, and bounding box; initial mathematical inputs preserved; supported setup and derived representations recorded per recipe; sole smooth motion exception recorded per sample',
             viewport,
             frameCssPixels: frame,
             deviceScaleFactor,
@@ -481,7 +607,7 @@ async function main() {
             coordinateContextPolicy: 'per capture: retain axes, ticks, and grid for basics and function families; hide them for other families',
             paddingFraction,
             frameAspectRatio: frame.width / frame.height,
-            scalePolicy: 'equal user-unit scale to preserve geometric proportions',
+            scalePolicy: 'equal user-unit scale for geometric constructions; explicit independent coordinate windows for analysis',
             typography: `capture-only ${captureTextSize}px JSXGraph text and rational smart-label font with ${captureTextLineHeight} line-height; source content unchanged`,
             strokeTreatment: `capture-only curve strokes scaled ${captureCurveStrokeScale}× and construction strokes scaled ${captureConstructionStrokeScale}× with modest opacity lift; source content unchanged`,
             containment: 'finite construction objects and their text annotations stay within the board; axis/tick labels are context; unbounded coordinate-route curves are viewport-clipped by JSXGraph',
@@ -489,6 +615,7 @@ async function main() {
         },
         image: expectedDimensions,
         captures,
+        motions,
     };
     fs.writeFileSync(path.join(output, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
     const importEntries = captures.map(({id}) => {
@@ -507,11 +634,30 @@ async function main() {
         '};',
         '',
     ].join('\n');
-    fs.writeFileSync(path.join(root, 'src/demonstrationPreviewAssets.ts'), previewMap);
+    fs.writeFileSync(mapPath, previewMap);
+    const motionMap = [
+        '// Generated by scripts/capture-demonstration-previews.cjs; do not edit by hand.',
+        "import type {DemonstrationId} from './demonstrations';",
+        ...motions.map(m => `import motion_${m.id.replaceAll('-', '_')} from './images/demonstrations/catalog/${m.file}?no-inline';`),
+        '',
+        'export type DemonstrationMotionAsset = {src: string; type: string; duration: number};',
+        'export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {',
+        ...motions.map(m => `    '${m.id}': {src: motion_${m.id.replaceAll('-', '_')}, type: '${m.type}', duration: ${m.duration}},`),
+        '};', '',
+    ].join('\n');
+    fs.writeFileSync(path.join(output, 'demonstrationMotionAssets.ts'), motionMap);
+    require('./publish-demonstration-previews.cjs').publishValidatedSet({
+        staging:output,destination:publishedOutput,
+        files:[...activePreviewFiles,...motions.map(m=>m.file),'manifest.json'],
+        maps:[[mapPath,path.join(root,'src/demonstrationPreviewAssets.ts')],[path.join(output,'demonstrationMotionAssets.ts'),path.join(root,'src/demonstrationMotionAssets.ts')]],
+        validate:()=>demonstrations.validateGeneratedPreviews({catalogDirectory:output,mappingPath:mapPath,motionMappingPath:path.join(output,'demonstrationMotionAssets.ts')}),
+    });
+    console.log('Generation time: ' + ((Date.now() - started) / 1000).toFixed(1) + ' seconds; staging: ' + output);
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-main().catch(error => {
+module.exports = {presentBoard, pngDimensions, hashFile};
+if (require.main === module) main().catch(error => {
     console.error(error);
     process.exitCode = 1;
 });

@@ -44,7 +44,7 @@ function variableInitializer(sourceFile, name) {
 }
 
 function parseSource(relativePath) {
-    const filePath = path.join(root, relativePath);
+    const filePath = path.isAbsolute(relativePath) ? relativePath : path.join(root, relativePath);
     const contents = fs.readFileSync(filePath, 'utf8');
     const sourceFile = ts.createSourceFile(filePath, contents, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     const parseErrors = sourceFile.parseDiagnostics;
@@ -150,9 +150,9 @@ function findVariableDeclaration(sourceFile, name) {
     throw new Error(`Could not find ${name} in ${sourceFile.fileName}`);
 }
 
-function validateGeneratedPreviews(activeDemonstrations) {
-    const catalogDirectory = path.join(root, 'src/images/demonstrations/catalog');
-    const mappingSource = parseSource('src/demonstrationPreviewAssets.ts');
+function validateGeneratedPreviews(activeDemonstrations, options = {}) {
+    const catalogDirectory = options.catalogDirectory || path.join(root, 'src/images/demonstrations/catalog');
+    const mappingSource = parseSource(options.mappingPath || 'src/demonstrationPreviewAssets.ts');
     const mappingDeclaration = findVariableDeclaration(mappingSource, 'demonstrationPreviewAssets');
     if (!mappingDeclaration.type || !ts.isTypeReferenceNode(mappingDeclaration.type) ||
         !ts.isIdentifier(mappingDeclaration.type.typeName) || mappingDeclaration.type.typeName.text !== 'Record' ||
@@ -198,6 +198,11 @@ function validateGeneratedPreviews(activeDemonstrations) {
 
     const manifestPath = path.join(catalogDirectory, 'manifest.json');
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (manifest.version !== 2) throw new Error('Preview manifest must use recipe provenance version 2.');
+    if(!/^[a-f0-9]{64}$/.test(manifest.presentationFingerprint || '')) throw new Error('Missing capture-presentation fingerprint.');
+    if (!/^[a-f0-9]{40}$/.test(manifest.graphSourceRevision || '') || !/^[a-f0-9]{64}$/.test(manifest.graphSourceFingerprint || '') || !Array.isArray(manifest.graphDirtyFiles)) throw new Error('Missing source revision/fingerprint provenance.');
+    const {recipes, validateRecipes, assertOutcomeEvidence} = require('../scripts/demonstration-preview-recipes.cjs');
+    validateRecipes(activeDemonstrations);
     if (manifest.generator !== 'scripts/capture-demonstration-previews.cjs') throw new Error('Preview manifest generator provenance is missing or stale.');
     if (!manifest.capture || manifest.capture.source !== 'live #jgbox from each Demonstration metadata route') {
         throw new Error('Preview manifest must identify live route-default capture provenance.');
@@ -231,6 +236,8 @@ function validateGeneratedPreviews(activeDemonstrations) {
         if (!demonstrationsById.has(capture.id)) throw new Error(`Preview manifest contains inactive Demonstration ${capture.id}.`);
         if (capturesById.has(capture.id)) throw new Error(`Preview manifest contains duplicate capture ${capture.id}.`);
         const demonstration = demonstrationsById.get(capture.id);
+        if (JSON.stringify(capture.recipe) !== JSON.stringify(recipes[capture.id]) || !capture.evidence || !capture.posterCheckpoint) throw new Error(`Missing or stale recipe/outcome provenance for ${capture.id}.`);
+        assertOutcomeEvidence(capture.id,capture.evidence);
         if (capture.path !== demonstration.path || capture.file !== `${capture.id}.png`) {
             throw new Error(`Preview manifest route or filename does not match active metadata for ${capture.id}.`);
         }
@@ -280,9 +287,44 @@ function validateGeneratedPreviews(activeDemonstrations) {
 
     const generatedPngNames = fs.readdirSync(catalogDirectory).filter(name => name.endsWith('.png')).sort();
     const expectedPngNames = activeDemonstrations.map(demonstration => `${demonstration.id}.png`).sort();
-    if (JSON.stringify(generatedPngNames) !== JSON.stringify(expectedPngNames)) {
+    const publishedPngNames = generatedPngNames.filter(name => !options.catalogDirectory || !['affine-before.png', 'affine-after.png'].includes(name));
+    if (JSON.stringify(publishedPngNames) !== JSON.stringify(expectedPngNames)) {
         throw new Error(`Generated preview files must match the active Demonstration catalog. Expected ${expectedPngNames.join(', ')}; found ${generatedPngNames.join(', ')}.`);
     }
+    const motionSource = parseSource(options.motionMappingPath || 'src/demonstrationMotionAssets.ts');
+    const motionMap = variableInitializer(motionSource, 'demonstrationMotionAssets');
+    if (!ts.isObjectLiteralExpression(motionMap)) throw new Error('Motion delivery map must be an object literal.');
+    const motionImports = new Map();
+    for (const statement of motionSource.statements) {
+        if (!ts.isImportDeclaration(statement) || !statement.importClause?.name || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+        const match = /^\.\/images\/demonstrations\/catalog\/(.+\.webm)\?no-inline$/.exec(statement.moduleSpecifier.text);
+        if (!match) throw new Error('Unexpected motion import.');
+        motionImports.set(statement.importClause.name.text, match[1]);
+    }
+    const motions = manifest.motions;
+    if (!Array.isArray(motions)) throw new Error('Missing motion provenance array.');
+    const motionIds = new Set();
+    for (const property of motionMap.properties) {
+        if (!ts.isPropertyAssignment(property)) throw new Error('Unexpected motion mapping property.');
+        const id = propertyName(property.name);
+        if (!demonstrationsById.has(id) || motionIds.has(id)) throw new Error(`Inactive or duplicate motion ID: ${id}`);
+        motionIds.add(id);
+        const fields = unwrapExpression(property.initializer);
+        if (!ts.isObjectLiteralExpression(fields)) throw new Error(`Missing motion delivery fields for ${id}`);
+        const values = new Map(fields.properties.map(p => [propertyName(p.name), unwrapExpression(p.initializer)]));
+        const src = values.get('src'), type = values.get('type'), duration = values.get('duration');
+        const motion = motions.find(m => m.id === id);
+        if (!motion || !src || !ts.isIdentifier(src) || motionImports.get(src.text) !== motion.file || !type || !ts.isStringLiteral(type) || type.text !== motion.type || !duration || !ts.isNumericLiteral(duration) || Number(duration.text) !== motion.duration) throw new Error(`Motion delivery/provenance mismatch: ${id}`);
+        if(JSON.stringify(motion.camera)!==JSON.stringify(capturesById.get(id).framing.boardBoundingBox)) throw new Error(`Poster and clip cameras differ: ${id}`);
+        require('../scripts/demonstration-preview-motion.cjs').assertMotionEvidence(motion);
+        if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration < 2 || motion.duration > 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 72 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !Array.isArray(motion.camera) || motion.camera.length !== 4 || !motion.camera.every(Number.isFinite)) throw new Error(`Invalid motion budget/provenance: ${id}`);
+        const file = path.join(catalogDirectory,motion.file);
+        if (fs.statSync(file).size !== motion.bytes || crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') !== motion.sha256) throw new Error(`Motion checksum/size mismatch: ${id}`);
+        for(const sample of motion.samples) if (!/^[a-f0-9]{64}$/.test(sample.capture?.sha256 || '') || sample.capture.width !== 720 || sample.capture.height !== 440) throw new Error(`Missing lossless frame provenance: ${id}`);
+    }
+    if(motionIds.size !== motions.length || motionImports.size !== motions.length || new Set(motions.map(m=>m.id)).size !== motions.length) throw new Error('Motion map/imports/manifest coverage mismatch.');
+    const expectedWebm = motions.map(m=>m.file).sort();
+    if(JSON.stringify(fs.readdirSync(catalogDirectory).filter(f=>f.endsWith('.webm')).sort()) !== JSON.stringify(expectedWebm)) throw new Error('Generated motion files differ from manifest.');
     return {manifest, map: Object.fromEntries(Array.from(mappedIds.keys(), id => [id, `./images/demonstrations/catalog/${id}.png`]))};
 }
 
@@ -291,4 +333,4 @@ module.exports.familyIds = familyIds;
 module.exports.families = families;
 module.exports.availableLessonIds = [...availableLessonIds];
 module.exports.coordinateContextPolicy = coordinateContextPolicy;
-module.exports.validateGeneratedPreviews = () => validateGeneratedPreviews(demonstrations);
+module.exports.validateGeneratedPreviews = options => validateGeneratedPreviews(demonstrations, options);
