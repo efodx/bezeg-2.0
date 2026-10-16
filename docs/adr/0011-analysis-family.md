@@ -16,3 +16,5 @@ Consequences:
 - `DemonstrationsPage` needs an illustration for every family id, so `src/images/demonstrations/family-analysis.svg` ships with the declaration.
 - The coordinate-context policy for previews (`tests/smoke-catalog.cjs`) retains axes and grid for the analysis family, as it does for function graphs.
 - The titles may be revisited for clarity once the family has entries.
+
+Correction (2026-10-16, Batch C): the Analysis family holds ten of the spec's eleven topics, not all eleven. The spec places complex multiplication in **Foundations** (`basics`, route `/bezeg-2.0/complex-multiplication`), the owner's approved placement, which supersedes the "eleven topics" and "complex multiplication" wording above. The decision recorded here is otherwise unchanged. With Batch C the catalog shows eight families and 45 demonstrations.

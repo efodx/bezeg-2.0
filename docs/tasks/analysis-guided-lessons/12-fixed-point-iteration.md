@@ -4,7 +4,7 @@
 
 **Dependencies:** Batch B released ([09](09-batch-b-release.md)); iterative playback ([00](00-family-and-playback.md), ADR 0012, ADR 0013)
 
-**Status:** implemented (Batch C release pending)
+**Status:** released 2026-10-16 ([14](14-batch-c-release.md))
 
 ## Part A: mathematics (`src/analysis/fixedPoint.ts`, `fixedPointModel.ts`)
 

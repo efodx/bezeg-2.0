@@ -4,7 +4,7 @@
 
 **Dependencies:** Batch B released ([09](09-batch-b-release.md))
 
-**Status:** implemented
+**Status:** released 2026-10-16 ([14](14-batch-c-release.md))
 
 ## Placement
 

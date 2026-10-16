@@ -332,3 +332,36 @@ Timing/context: task start about 2026-10-15T21:55+02:00, acceptance 2026-10-16. 
 - Outcome: accepted at 2026-10-16T14:10:21Z after one repair round. Engineering's two findings specified actual explicit-return Back/Forward behavior and a validated history marker for refresh restart messaging. Learning review corrected 'through control points' to 'using control points' and added non-drag/keyboard/assistive-technology access and text feedback for graph tasks. Both reviewers confirmed closure with no residual issue on their findings. Handler also fixed affine activity scope alignment and selected the initial ordinary Bernstein basis view.
 - Checks: 92 local file/anchor references across eight changed Markdown documents; both reference PNGs are 1536x1024 and byte-identical to the accepted generated originals; staged whitespace check passed. Images are implementation references only and are not loaded by the app. No TypeScript/build/browser run required for documentation-only publication; final learner-facing translation/content, actual route/state behavior, device/accessibility, and production feature acceptance remain implementation gates. No attributed integration failures.
 - Timing/context: dispatch-to-review-acceptance boundary 2m56s, covering both parallel reviews plus handler repairs; whole-task start was not captured. Handler/worker starting and peak input, context windows, compactions, scoped cumulative usage, and resolved runtime model settings were not exposed; no context comparison is asserted. Publication uses a clean master-based checkout and includes only these docs/assets plus this record, preserving unrelated evaluation-log edits in the main checkout.
+
+### 2026-10-16 — Analysis guided lessons Batch C
+
+Roles/class/size/scope: Claude Code handler (Opus 5.5) with Sonnet 5.5 and Haiku 5.5 workers; feature; L, four independently verifiable topics (sequence convergence, uniform convergence, fixed-point iteration, complex multiplication) plus a batch release; [tasks 10–14](../tasks/analysis-guided-lessons/README.md).
+
+Dispatch: 14 workers, brief handoff-v4.
+- Part A: 4 parallel mathematics workers (Sonnet high), each 4–5 min, 0.08–0.10 M subagent tokens.
+- Graph+lesson: 4 sequential workers, each the sole owner of the shared integration files: sequence (Sonnet high), then fixed point, uniform convergence and complex multiplication (Sonnet medium).
+- Release: 3 parallel read-only reviewers (mathematics on Opus; engineering and UI/accessibility on Sonnet medium), 1 review-fix worker (Sonnet medium) and 1 board-layout worker (Haiku medium).
+- Owner-requested pilot (labelled): effort high → medium for graph+lesson and fix workers after the first graph+lesson worker; then model Sonnet → Haiku (medium) for the layout round.
+- New in the briefs: each graph+lesson worker ran its own smoke row, and Batch B's 390 px and caption lessons were stated up front.
+
+Outcome: implementation and release acceptance complete. Commits `010fe87`…`d5c2214` plus the release documentation on `batch-c` were pushed together. tsc clean; vitest passes (138 files, 2428 tests); the build passes; the full production smoke suite passes 199/199; a scripted browser pass covered desktop and 390 px, drag, keyboard, reveals, playback and a live SL/EN switch. Coverage gaps: no physical touch device or projector, Slovenian prose pending owner review, source citations unverified against the book, two partial layout fixes (recorded in task 14).
+
+Repairs: one review round and one layout round.
+- Mathematics: 1 confirmed error (a shared N at epsilon = 1 for x^n on [0, 1]), inherited from the handler's task file. 1 floating-point boundary error in band membership (Part A code, visible through the graph).
+- Wording: 4 mathematical wording errors and 1 Slovenian mistranslation in worker content.
+- Engineering and UI: the rest; 7 board-layout collisions went to the layout round.
+- Part A workers found one handler task-file error (the alternating-sign rule) before implementation.
+- Integration: an API session limit stopped the uniform-convergence worker mid-run; it was resumed with its partial edits. The owner meanwhile committed unrelated work on the branch and published it to master, so the Batch C commits were cherry-picked onto `origin/master` before review. A wiped `node_modules` (probably an owner worktree removal) was repaired by a worker with `npm install`; a garbled test file of unknown cause was restored by the same worker.
+
+Pilot evidence (observational; one batch, n = 1 per cell, topics differ in size and difficulty, later workers had better templates; not a basis for changing defaults):
+- Graph+lesson at high, sequence: 35 min, 0.50 M tokens, 115 tool uses, about 10 later review findings (mostly UI/layout; 2 mathematical display issues).
+- Graph+lesson at medium:
+  - Fixed point: 31 min, 0.42 M tokens, 109 tool uses, about 6 findings (3 mathematical wording).
+  - Uniform convergence: 3 findings, all minor. Its time and usage are incomplete because of the session-limit interruption: the resumed leg was 8 min, 0.40 M tokens, 30 tool uses.
+  - Complex multiplication: 31 min, 0.39 M tokens, 116 tool uses, about 7 findings (mostly labels and input edge cases).
+- All four graph+lesson workers were green at hand-back, including their smoke rows.
+- Fix round at medium: 31 min, 0.34 M tokens, 150 tool uses, all 13 items fixed, one overstated note corrected by the handler.
+- Layout round on Haiku medium: 15 min, 0.21 M tokens, 68 tool uses, 5 of 7 collisions fixed and 2 partly fixed (confirmed by handler screenshots), checks green.
+- Medium effort showed no clear increase in errors and a modest reduction in time and tokens. Haiku completed a bounded layout task with partial results.
+
+Timing/context: task start 2026-10-16T11:02+02:00 and acceptance the same day, with a pause for the API session limit (about 12:00–16:13). Handler and worker context occupancy and compactions were unavailable; usage is from per-worker completion totals in tool results.

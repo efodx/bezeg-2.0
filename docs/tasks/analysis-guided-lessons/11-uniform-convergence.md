@@ -4,7 +4,7 @@
 
 **Dependencies:** Batch B released ([09](09-batch-b-release.md))
 
-**Status:** implemented (Batch C release pending)
+**Status:** released 2026-10-16 ([14](14-batch-c-release.md))
 
 ## Part A: mathematics (`src/analysis/uniformConvergence.ts`, `uniformConvergenceModel.ts`)
 

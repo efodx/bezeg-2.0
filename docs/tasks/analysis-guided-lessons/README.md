@@ -16,11 +16,11 @@
 | [07 Darboux sums](07-darboux.md) | 04 | released 2026-10-16 |
 | [08 Taylor approximation](08-taylor.md) | 04 | released 2026-10-16 |
 | [09 Batch B release](09-batch-b-release.md) | 05–08 | released 2026-10-16 |
-| [10 Sequence convergence](10-sequence-convergence.md) | 09 | implemented |
-| [11 Uniform convergence](11-uniform-convergence.md) | 09 | implemented |
-| [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | implemented |
-| [13 Complex multiplication](13-complex-multiplication.md) | 09 | implemented |
-| [14 Batch C release](14-batch-c-release.md) | 10–13 | not started |
+| [10 Sequence convergence](10-sequence-convergence.md) | 09 | released 2026-10-16 |
+| [11 Uniform convergence](11-uniform-convergence.md) | 09 | released 2026-10-16 |
+| [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | released 2026-10-16 |
+| [13 Complex multiplication](13-complex-multiplication.md) | 09 | released 2026-10-16 |
+| [14 Batch C release](14-batch-c-release.md) | 10–13 | released 2026-10-16 |
 
 ## Ordering and delegation
 
