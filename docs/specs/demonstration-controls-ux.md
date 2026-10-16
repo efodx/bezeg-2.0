@@ -1,6 +1,6 @@
 # Demonstration controls UX redesign
 
-**Status:** specification and visual references authorized for publication by the owner on 2026-10-16. Images remain directional guidance subject to the written requirements. Implementation waits for the ongoing lesson work to reach a stable checkpoint and separate authorization.
+**Status:** specification and visual references authorized for publication by the owner on 2026-10-16. Images remain directional guidance subject to the written requirements. Implementation authorized by the owner on 2026-10-16 and implemented on that date; the control inventory, accepted exceptions and open decisions are in [the task record](../tasks/demonstration-controls-ux/inventory.md).
 **Date:** 2026-10-16.
 **Source:** owner interview following the sequence-convergence and continuity inspector review, the older-family review, and the requested Display ordering.
 
