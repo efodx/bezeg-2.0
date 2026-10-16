@@ -38,6 +38,8 @@ The current stack is React, TypeScript, JSXGraph, and Bootstrap, built with [Vit
 
 ## Check your changes
 
+For concise verification with full logs retained, install [just](https://just.systems/) and run `just --list`. `just check` checks types, runs unit tests once, and builds the app; `just unit <test-file>` runs a focused unit check. See [developer commands](docs/commands.md) for setup, smoke tests, ports, verbose output, and build freshness.
+
 Run the mathematical regression checks:
 
 ```sh

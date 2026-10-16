@@ -13,6 +13,9 @@
 /.benchmark-output
 /playwright-report
 /test-results
+/.command-logs
+/.bezeg-build-provenance.json
+/.just-install
 
 # Idea
 .idea
