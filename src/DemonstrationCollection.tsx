@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
 import type {Demonstration, FamilyId} from './demonstrations';
@@ -39,6 +39,56 @@ function investigation(demonstration: Demonstration, t: ReturnType<typeof useT>)
     };
     const key = specific[demonstration.id];
     return key ? t(key) : demonstration.prompts[0];
+}
+
+type DemonstrationPreviewProps = {src: string; loading: 'eager' | 'lazy'};
+
+export function DemonstrationPreview({src, loading}: DemonstrationPreviewProps) {
+    return <DecodedDemonstrationPreview key={src} src={src} loading={loading}/>;
+}
+
+function DecodedDemonstrationPreview({src, loading}: DemonstrationPreviewProps) {
+    const imageRef = useRef<HTMLImageElement>(null);
+    const activeRef = useRef(true);
+    const settledRef = useRef(false);
+    const [status, setStatus] = useState<'pending' | 'ready' | 'failed'>('pending');
+
+    useEffect(() => {
+        activeRef.current = true;
+        const image = imageRef.current;
+        if (image?.complete) {
+            if (image.naturalWidth > 0) revealAfterDecode(image);
+            else fail();
+        }
+        return () => { activeRef.current = false; };
+    }, []);
+
+    const reveal = () => {
+        if (!activeRef.current || settledRef.current) return;
+        settledRef.current = true;
+        setStatus('ready');
+    };
+    const fail = () => {
+        if (!activeRef.current || settledRef.current) return;
+        settledRef.current = true;
+        setStatus('failed');
+    };
+    const revealAfterDecode = (image: HTMLImageElement) => {
+        if (typeof image.decode !== 'function') {
+            if (image.naturalWidth > 0) reveal();
+            return;
+        }
+        void image.decode().then(reveal, () => {
+            // Some browsers reject decode() for an image that nevertheless loaded successfully.
+            if (image.naturalWidth > 0) reveal();
+        });
+    };
+
+    return <span className="demonstrations-catalog-preview-frame" aria-hidden="true">
+        <img ref={imageRef} className={`demonstrations-catalog-preview${status === 'ready' ? ' is-ready' : ''}${status === 'failed' ? ' is-failed' : ''}`}
+            src={src} width="360" height="220" alt="" loading={loading}
+            onLoad={event => revealAfterDecode(event.currentTarget)} onError={fail}/>
+    </span>;
 }
 
 export function DemonstrationCollection({topic, query, onTopicChange, onQueryChange, currentDemonstrationId,
@@ -123,12 +173,11 @@ export function DemonstrationCollection({topic, query, onTopicChange, onQueryCha
             </nav>
             <div className="demonstration-results">
                 {filtered.length ? <ul className="demonstrations-catalog-grid">
-                    {filtered.map(entry => {
+                    {filtered.map((entry, index) => {
                         const family = families.find(item => item.id === entry.family)!;
                         const current = currentDemonstrationId === entry.id;
                         return <li className="demonstrations-catalog-card" id={`demonstration-card-${entry.id}`} key={entry.id}>
-                            {graphTarget(entry, <img className="demonstrations-catalog-preview" src={demonstrationPreviewAssets[entry.id]}
-                                width="360" height="220" alt="" loading="lazy"/>)}
+                            {graphTarget(entry, <DemonstrationPreview src={demonstrationPreviewAssets[entry.id]} loading={index < 3 ? 'eager' : 'lazy'}/>)}
                             <div className="demonstrations-catalog-copy">
                                 <span className="demonstrations-catalog-family">{family.title}</span>
                                 <h2 className="demonstrations-catalog-title">{graphTarget(entry, entry.catalogTitle)}</h2>

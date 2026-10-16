@@ -10,6 +10,8 @@ The shared workspace gives the main graph and mounted inspector the available wi
 
 `LearningPrompt` retains only its prompt index. `WelcomePage` and `HomeDemonstrationsCarousel` retain their existing homepage composition, metadata choices, and timer/listener ownership. Graph route suffixes, Preset formats, mathematical algorithms, and preview assets remain unchanged.
 
+Collection preview frames reserve their existing aspect ratio with a pale background. Each image reveals after decoding with a 180 ms opacity transition (immediate with reduced motion); failures retain the placeholder. The first three filtered previews load eagerly and the remaining previews use native lazy loading. See [catalog preview loading](specs/catalog-preview-loading.md).
+
 Repository inspection: 2026-10-09. This document describes source observations, rather than a runtime audit or a proposed target architecture.
 
 The [curve architecture deep dive](curve-architecture-deep-dive.md) traces evaluation, drawing, interaction and ownership, defines functionality-preservation requirements, and proposes bounded architectural improvements. [Renderer options](research/curve-renderer-options.md) compares first-party library capabilities and replacement costs; neither document selects a migration.
