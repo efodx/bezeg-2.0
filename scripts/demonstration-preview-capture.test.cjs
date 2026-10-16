@@ -3,8 +3,9 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
+const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -66,6 +67,22 @@ test('affine provenance rejects a wrong intermediate rotation and shifted camera
     assertMotionEvidence(motion);
     motion.samples[3].state.points[1].x+=0.1;assert.throws(()=>assertMotionEvidence(motion),/rotation/);
     motion.samples[3].state.points[1].x-=0.1;motion.samples[4].state.box[0]-=0.5;assert.throws(()=>assertMotionEvidence(motion));
+});
+test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
+    const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';
+    try {execFileSync(ffmpeg,['-version'],{stdio:'ignore'});execFileSync(ffprobe,['-version'],{stdio:'ignore'});}
+    catch {t.skip('requires FFmpeg and FFprobe to exercise the real encoder seam');return;}
+    const directory=fs.mkdtempSync(path.join(os.tmpdir(),'bezeg-preview-rgb-'));
+    try {
+        const frames=path.join(directory,'frames');fs.mkdirSync(frames);
+        const fixture=path.resolve(__dirname,'../src/images/demonstrations/catalog/bezier.png');
+        for(let i=0;i<96;i++)fs.copyFileSync(fixture,path.join(frames,String(i).padStart(3,'0')+'.png'));
+        const result=encode(frames,path.join(directory,'rgb.webm'));
+        assert.equal(result.pixelFormat,'gbrp');assert.equal(result.colorRange,'pc');assert.equal(result.colorSpace,'gbr');
+        assert.equal(result.colorPrimaries,'bt709');assert.equal(result.colorTransfer,'iec61966-2-1');
+        assert.deepEqual(result.backgroundPixel,{rgb:[255,253,245],checked:'upper-left pixel of every source and decoded frame'});
+        assert.ok(result.bytes<=300*1024);
+    } finally {fs.rmSync(directory,{recursive:true,force:true});}
 });
 test('validation or partial-run failure preserves the complete published set and maps',()=>{
     const directory=fs.mkdtempSync(path.join(os.tmpdir(),'bezeg-preview-test-'));

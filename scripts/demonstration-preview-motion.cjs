@@ -8,6 +8,7 @@ const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file))
 const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation'];
 const frameCount = 96;
 const sampleRate = 24;
+const backgroundPixel = [255, 253, 245];
 const affineSteps = [0,1,2,3,2,1,0];
 const affineHolds = [18,10,10,20,10,10,18];
 const near = (actual, expected, message) => assert.ok(Math.abs(actual-expected)<1e-8, message);
@@ -113,18 +114,38 @@ async function openRoute(browser, demonstration, baseUrl) {
 }
 
 function encode(framesDirectory, output, fps = 24) {
-    const settings = ['-y','-loglevel','error','-framerate',String(fps),'-i',path.join(framesDirectory,'%03d.png'),'-an','-c:v','libvpx-vp9','-crf','34','-b:v','0','-pix_fmt','yuv420p','-row-mt','1',output];
-    execFileSync(process.env.PREVIEW_FFMPEG || 'ffmpeg',settings,{timeout:120000});
-    const probe = JSON.parse(execFileSync(process.env.PREVIEW_FFPROBE || 'ffprobe',['-v','error','-show_streams','-show_format','-of','json',output],{encoding:'utf8'}));
+    const ffmpeg = process.env.PREVIEW_FFMPEG || 'ffmpeg';
+    const ffprobe = process.env.PREVIEW_FFPROBE || 'ffprobe';
+    const inputPattern = path.join(framesDirectory,'%03d.png');
+    const settings = ['-y','-loglevel','error','-framerate',String(fps),'-i',inputPattern,'-an','-c:v','libvpx-vp9','-crf','10','-b:v','0','-pix_fmt','gbrp','-colorspace','rgb','-color_primaries','bt709','-color_trc','iec61966-2-1','-color_range','pc','-row-mt','1',output];
+    execFileSync(ffmpeg,settings,{timeout:120000});
+    const probe = JSON.parse(execFileSync(ffprobe,['-v','error','-show_streams','-show_format','-of','json',output],{encoding:'utf8'}));
     const video = probe.streams.find(s => s.codec_type === 'video');
     assert.equal(video.width,720); assert.equal(video.height,440);
+    assert.equal(video.pix_fmt,'gbrp','Preserve RGB channels in VP9');
+    assert.equal(video.color_range,'pc');
+    assert.equal(video.color_space,'gbr');
+    assert.equal(video.color_primaries,'bt709');
+    assert.equal(video.color_transfer,'iec61966-2-1');
     assert.equal(probe.streams.length,1,'Motion must be silent');
     const duration = Number(probe.format.duration);
     assert.ok(duration >= 2 && duration <= 4);
     const bytes = fs.statSync(output).size;
     assert.ok(bytes <= 300*1024,`Motion over 300KiB: ${bytes}`);
+    // Decode one real background pixel from every input and output frame. This runs at
+    // the encoder seam so metadata alone cannot make a color-fidelity regression pass.
+    const sourcePixels = execFileSync(ffmpeg,['-v','error','-framerate',String(fps),'-i',inputPattern,'-vf','crop=1:1:0:0','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
+    const decodedPixels = execFileSync(ffmpeg,['-v','error','-i',output,'-vf','crop=1:1:0:0','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
+    assert.equal(sourcePixels.length,frameCount*3,'Expected one source background pixel for every frame');
+    assert.equal(decodedPixels.length,sourcePixels.length,'Decoded background sample count changed');
+    for(let i=0;i<sourcePixels.length;i+=3) {
+        assert.deepEqual([...decodedPixels.subarray(i,i+3)],backgroundPixel,`Decoded background changed at frame ${i/3}`);
+        assert.deepEqual([...sourcePixels.subarray(i,i+3)],backgroundPixel,`Source background changed at frame ${i/3}`);
+    }
     return {file:path.basename(output),sha256:digest(output),type:'video/webm',duration,bytes,width:video.width,height:video.height,codec:video.codec_name,
-        encoder:execFileSync(process.env.PREVIEW_FFMPEG || 'ffmpeg',['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
+        pixelFormat:video.pix_fmt,colorRange:video.color_range,colorSpace:video.color_space,colorPrimaries:video.color_primaries,colorTransfer:video.color_transfer,
+        backgroundPixel:{rgb:backgroundPixel,checked:'upper-left pixel of every source and decoded frame'},
+        encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
 }
 
 async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdFrames) {
