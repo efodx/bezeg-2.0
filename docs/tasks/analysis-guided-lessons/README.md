@@ -1,8 +1,8 @@
-# Analysis guided lessons — Batch A and B tasks
+# Analysis guided lessons — Batch A, B and C tasks
 
 **Source spec:** [Analysis guided lessons and complex multiplication](../../specs/analysis-guided-lessons.md)
 
-**Scope of this breakdown:** Batch A (intermediate value theorem and bisection, mean value theorem, accumulated integral and FTC) and Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation). Batch C gets its own task files when Batch B is released.
+**Scope of this breakdown:** Batch A (intermediate value theorem and bisection, mean value theorem, accumulated integral and FTC), Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation) and Batch C (sequence convergence, uniform convergence, fixed-point iteration, complex multiplication).
 
 | Task | Depends on | Status |
 | --- | --- | --- |
@@ -16,6 +16,11 @@
 | [07 Darboux sums](07-darboux.md) | 04 | released 2026-10-16 |
 | [08 Taylor approximation](08-taylor.md) | 04 | released 2026-10-16 |
 | [09 Batch B release](09-batch-b-release.md) | 05–08 | released 2026-10-16 |
+| [10 Sequence convergence](10-sequence-convergence.md) | 09 | not started |
+| [11 Uniform convergence](11-uniform-convergence.md) | 09 | not started |
+| [12 Fixed-point iteration](12-fixed-point-iteration.md) | 09 | not started |
+| [13 Complex multiplication](13-complex-multiplication.md) | 09 | not started |
+| [14 Batch C release](14-batch-c-release.md) | 10–13 | not started |
 
 ## Ordering and delegation
 
@@ -29,7 +34,7 @@
 The spec forbids exposing unimplemented Demonstrations, and pushing to `master` deploys. Therefore:
 
 - Task 00 changes that are invisible to learners (action vocabulary, playback contract, an empty family that the catalogue does not render) may be pushed after review and verification.
-- Topic commits that register routes, catalogue entries, previews, or lesson availability stay on the batch branch until the batch release task (04, 09) passes, then reach `master` together as a fast-forward.
+- Topic commits that register routes, catalogue entries, previews, or lesson availability stay on the batch branch until the batch release task (04, 09, 14) passes, then reach `master` together as a fast-forward.
 
 ## Shared conventions
 
