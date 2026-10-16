@@ -63,14 +63,12 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
             <div>
-                <div>{t("continuity_order")}</div>
-                <CountSetter onPlus={() => this.increaseContinuity()} onCenter={() => 1}
+                <CountSetter label={t("continuity_order")} onPlus={() => this.increaseContinuity()}
                              n={this.getFirstJxgCurve().getCurve().getContinuity()}
                              onMinus={() => this.decreaseContinuity()} min={0}
                              max={() => this.getFirstJxgCurve().getCurve().getDegree() - 1}></CountSetter>
             </div>, <div>
-                <div>{t("spline_degree")}</div>
-                <CountSetter onPlus={() => this.increaseDegree()} onCenter={() => 1}
+                <CountSetter label={t("spline_degree")} onPlus={() => this.increaseDegree()}
                              n={this.getFirstJxgCurve().getCurve().getDegree()}
                              onMinus={() => this.decreaseDegree()}
                              min={() => this.getFirstJxgCurve().getCurve().getContinuity() + 1}

@@ -292,6 +292,8 @@ export const sl = {
     "function_readouts": "Odčitki",
     "function_legend": "Legenda",
     "number_range_hint": "Vnesi vrednost med {value0} in {value1}.",
+    "polynomial_degree_label": "Stopnja polinomov",
+    "number_field_label": "{value0}, vrednost",
     "number_rejected_hint": "Te vrednosti ni mogoče uporabiti.",
     "integral_legend_positive": "Nad osjo x: šteje pozitivno (+)",
     "integral_legend_negative": "Pod osjo x: šteje negativno (−)",

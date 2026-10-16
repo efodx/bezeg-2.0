@@ -1,0 +1,13 @@
+/* Stepper in the order − / value / +; every button keeps a 44px hit area while the desktop look stays compact. */
+.count-setter { display: grid; gap: 4px; }
+.count-setter-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.1; }
+.count-setter-controls { display: flex; align-items: stretch; gap: 6px; }
+.count-setter-controls .count-setter-button { min-width: 44px; min-height: 44px; padding: 0 12px; font-size: 1.1rem; line-height: 1; }
+.count-setter-controls .count-setter-button:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
+.count-setter-controls .number-input { width: 6.5ch; }
+.count-setter-value {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 8px;
+    border: 1px solid var(--workspace-rule); border-radius: 2px; background: var(--workspace-canvas-deep);
+    color: var(--workspace-ink); font-variant-numeric: tabular-nums; font-weight: 700;
+}
+.count-setter-controls .number-input input { min-height: 44px; }

@@ -2,6 +2,7 @@ import React from "react";
 import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import Slider from "../../../inputs/Slider";
+import {t} from "../../../localization";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
 
@@ -46,7 +47,7 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
     private getBiSetters() {
         return this.getFirstCurve().getBs().map(
             (b, i) => <div key={i}>
-                <Slider value={b} min={G1_SYMMETRIC_BETA_MIN} max={G1_SYMMETRIC_BETA_MAX}
+                <Slider customText={`${t('spline_parameter_b')} ${i + 1}`} value={b} min={G1_SYMMETRIC_BETA_MIN} max={G1_SYMMETRIC_BETA_MAX}
                         onChange={(val) => this.changeBi(i, val)}/></div>
         );
     }

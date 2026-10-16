@@ -45,8 +45,8 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         // and the middle control point r / cos(alpha) lies at about 1e16 (a point at infinity).
         return this.state.initialized ? super.getGraphCommands().concat(
             <div>
-                <div>{t("number_of_curves")}</div>
-                <CountSetter onPlus={() => this.setN(this.jxgCurves.length + 1)} onCenter={() => 1}
+                <CountSetter label={t("number_of_curves")} onPlus={() => this.setN(this.jxgCurves.length + 1)}
+                             onSet={count => this.setN(count)}
                              n={this.jxgCurves.length}
                              onMinus={() => this.setN(this.jxgCurves.length - 1)}
                              min={MIN_CIRCLE_PIECES} max={MAX_CIRCLE_PIECES}></CountSetter></div>

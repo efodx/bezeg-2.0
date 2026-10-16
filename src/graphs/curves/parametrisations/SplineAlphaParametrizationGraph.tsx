@@ -164,14 +164,14 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
     alphaParamSlider() {
-        return <div>α<Slider min={0} max={1} step={0.01} value={this.state.alpha}
+        return <div><Slider customText="α" min={0} max={1} step={0.01} value={this.state.alpha}
                              onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 
     numberOfPointsSlider() {
-        return <div>{t("number_of_points")}<Slider min={0} max={SPLINE_ALPHA_MAX_SAMPLES} step={1}
-                                         value={this.state.numberOfPoints}
-                                         onChange={(num) => this.setNumberOfPoints(num)}/>
+        return <div><Slider customText={t("number_of_points")} min={0} max={SPLINE_ALPHA_MAX_SAMPLES} step={1}
+                            value={this.state.numberOfPoints}
+                            onChange={(num) => this.setNumberOfPoints(num)}/>
         </div>;
     }
 

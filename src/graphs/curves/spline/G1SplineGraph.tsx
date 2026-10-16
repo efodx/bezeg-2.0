@@ -51,7 +51,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
             <div>{t('spline_parameter_b')}</div>
             {bs.map(
                 (b, i) => <div key={i}>
-                    <Slider value={b} min={G1_BETA_MIN} max={G1_BETA_MAX}
+                    <Slider customText={`${t('spline_parameter_b')} ${i + 1}`} value={b} min={G1_BETA_MIN} max={G1_BETA_MAX}
                             onChange={(val) => this.changeBi(i, val)}/></div>
             )}</div>;
     }

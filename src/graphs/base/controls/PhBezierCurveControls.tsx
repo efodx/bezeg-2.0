@@ -25,11 +25,10 @@ export function PhBezierCurveControls({curve, onChanged}: CurveControlsProps<JXG
             label={t("curve_offsets")}/>
         {showOffsetCurve && <div>
           <div>
-            <div>{t("number_of_offsets")}</div>
-            <CountSetter onPlus={() => {
+            <CountSetter label={t("number_of_offsets")} onPlus={() => {
                 curve.addOffsetCurve();
                 onChanged();
-            }} onCenter={() => 1} n={curve.getNumberOfOffsetCurves()}
+            }} n={curve.getNumberOfOffsetCurves()}
                          onMinus={() => {
                              curve.removeOffsetCurve();
                              onChanged();

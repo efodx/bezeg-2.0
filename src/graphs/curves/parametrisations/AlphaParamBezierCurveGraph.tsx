@@ -125,9 +125,9 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     numberOfPointsSlider() {
-        return <div>{t("number_of_points")}<Slider min={1} max={40} step={1}
-                                         value={this.state.numberOfPoints}
-                                         onChange={(num) => this.setNumberOfPoints(num)}/>
+        return <div><Slider customText={t("number_of_points")} min={1} max={40} step={1}
+                            value={this.state.numberOfPoints}
+                            onChange={(num) => this.setNumberOfPoints(num)}/>
         </div>;
     }
 

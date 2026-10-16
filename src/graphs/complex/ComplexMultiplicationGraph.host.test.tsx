@@ -81,8 +81,8 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(field(/^Modul \|w\|$/).value).toBe('1.5');
     act(() => { fireEvent.keyDown(field(/^Modul \|w\|$/), {key: 'Enter'}); });
     expect(graph.modelNow()).toMatchObject({wRe: 1.05, wIm: 1.05});
-    expect(field(/^Modul \|w\|$/).value).toBe('1.4849');
-    expect(field(/^Argument arg w \(rad\)$/).value).toBe('0.7854');
+    expect(field(/^Modul \|w\|$/).value).toBe('1,4849');
+    expect(field(/^Argument arg w \(rad\)$/).value).toBe('0,7854');
     // a rejected polar value explains itself
     act(() => { fireEvent.input(field(/^Modul \|w\|$/), {target: {value: '3'}, inputType: 'insertText'}); });
     act(() => { fireEvent.keyDown(field(/^Modul \|w\|$/), {key: 'Enter'}); });

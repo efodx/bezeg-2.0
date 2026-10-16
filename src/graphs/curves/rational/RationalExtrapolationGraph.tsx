@@ -49,7 +49,7 @@ class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<div>
-            <Slider min={1} max={1.5}
+            <Slider customText={t("extrapolation_parameter_t")} min={1} max={1.5}
                     value={this.getFirstJxgCurve().getExtrapolationT()}
                     onChange={(t) => {
                         this.getFirstJxgCurve().setExtrapolationT(t);

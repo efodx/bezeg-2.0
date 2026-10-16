@@ -293,6 +293,8 @@ export const en: Record<keyof typeof sl, string> = {
     "function_readouts": "Readouts",
     "function_legend": "Legend",
     "number_range_hint": "Enter a value between {value0} and {value1}.",
+    "polynomial_degree_label": "Polynomial degree",
+    "number_field_label": "{value0}, value",
     "number_rejected_hint": "This value cannot be used.",
     "integral_legend_positive": "Above the x-axis: counts as positive (+)",
     "integral_legend_negative": "Below the x-axis: counts as negative (−)",

@@ -1,6 +1,7 @@
 import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
-import {NumberInput} from './NumberInput';
+import {NumberInput, parseDecimal} from './NumberInput';
+import {setLanguage} from '../localization';
 import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 
 /** Typing (or pasting) into the field: an input event that carries an inputType, unlike the native spinner. */
@@ -17,20 +18,20 @@ test('commits only finite in-range numbers, keeps partial typing, and follows th
     fireEvent.change(input, {target: {value: ''}});
     expect(onChange).toHaveBeenCalledTimes(1);
     rerender(<NumberInput label="k" value={-1.25} min={-10} max={10} onChange={onChange}/>);
-    expect(input.value).toBe('-1.25');
+    expect(input.value).toBe('−1,25');
     rerender(<NumberInput label="k" value={undefined} disabled min={-10} max={10} onChange={onChange}/>);
     expect(input.value).toBe('');
     expect(input).toBeDisabled();
 });
 
-test('arrow keys step by the step prop, clamp to the range, and any typed number is valid for the browser (no step attribute)', () => {
+test('arrow keys step by the step prop and clamp to the range; typed values are not restricted to multiples of it', () => {
     const onChange = vi.fn();
     render(<NumberInput label="x" value={1} min={-4} max={4} step={0.01} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
-    expect(input.step).toBe('any');
+    expect(input.type).toBe('text');
     fireEvent.change(input, {target: {value: '1.005'}});
     expect(onChange).toHaveBeenLastCalledWith(1.005);
-    expect(input.validity.stepMismatch).toBe(false);
+    expect(input).toHaveAttribute('role', 'spinbutton');
     fireEvent.keyDown(input, {key: 'ArrowUp'});
     expect(onChange).toHaveBeenLastCalledWith(1.015);
     fireEvent.keyDown(input, {key: 'ArrowDown'});
@@ -135,4 +136,84 @@ test('applyOn="confirm" shows the model value again after Enter when the model s
     type(other, '7');
     fireEvent.keyDown(other, {key: 'Enter'});
     expect(other.value).toBe('7');
+});
+
+describe('decimal entry', () => {
+    afterEach(() => setLanguage('sl'));
+
+    test('parseDecimal accepts both decimal conventions, signs and the Unicode minus, and rejects incomplete drafts', () => {
+        expect(parseDecimal('1,5')).toBe(1.5);
+        expect(parseDecimal('1.5')).toBe(1.5);
+        expect(parseDecimal(' -2,25 ')).toBe(-2.25);
+        expect(parseDecimal('−0,5')).toBe(-0.5);
+        expect(parseDecimal('3')).toBe(3);
+        expect(parseDecimal('-')).toBeNaN();
+        expect(parseDecimal('')).toBeNaN();
+        expect(parseDecimal('1,')).toBeNaN();
+        expect(parseDecimal('1.')).toBeNaN();
+        expect(parseDecimal('1e5')).toBeNaN();
+        expect(parseDecimal('abc')).toBeNaN();
+    });
+
+    test('Slovenian entry accepts a decimal comma and displays the value with a decimal comma', () => {
+        const onChange = vi.fn();
+        render(<NumberInput label="k" value={1} min={-4} max={4} onChange={onChange}/>);
+        const input = screen.getByLabelText('k') as HTMLInputElement;
+        expect(input.value).toBe('1');
+        type(input, '1,5');
+        expect(onChange).toHaveBeenLastCalledWith(1.5);
+        expect(input.value).toBe('1,5');
+        type(input, '1.25');
+        expect(onChange).toHaveBeenLastCalledWith(1.25);
+    });
+
+    test('English entry accepts a decimal point and displays the value with a decimal point', () => {
+        setLanguage('en');
+        const onChange = vi.fn();
+        const {rerender} = render(<NumberInput label="k" value={1} min={-4} max={4} onChange={onChange}/>);
+        const input = screen.getByLabelText('k') as HTMLInputElement;
+        type(input, '-2.5');
+        expect(onChange).toHaveBeenLastCalledWith(-2.5);
+        rerender(<NumberInput label="k" value={-0.75} min={-4} max={4} onChange={onChange}/>);
+        expect(input.value).toBe('−0.75');
+    });
+
+    test('an incomplete draft such as "1," is kept, does not commit, and leaves the graph value unchanged', () => {
+        const onChange = vi.fn();
+        render(<NumberInput label="k" value={2} onChange={onChange}/>);
+        const input = screen.getByLabelText('k') as HTMLInputElement;
+        fireEvent.change(input, {target: {value: '1,'}});
+        expect(onChange).not.toHaveBeenCalled();
+        expect(input.value).toBe('1,');
+        expect(screen.queryByRole('status')).toBeNull();
+    });
+
+    test('the field follows a language change and keeps its value', () => {
+        const onChange = vi.fn();
+        const {rerender} = render(<NumberInput label="k" value={1.5} onChange={onChange}/>);
+        const input = screen.getByLabelText('k') as HTMLInputElement;
+        expect(input.value).toBe('1,5');
+        setLanguage('en');
+        rerender(<NumberInput label="k" value={1.5} onChange={onChange}/>);
+        expect(input.value).toBe('1.5');
+    });
+
+    test('the field exposes spinbutton bounds and the current value', () => {
+        render(<NumberInput label="k" value={2} min={-3} max={7} onChange={() => true}/>);
+        const input = screen.getByRole('spinbutton', {name: 'k'});
+        expect(input).toHaveAttribute('aria-valuemin', '-3');
+        expect(input).toHaveAttribute('aria-valuemax', '7');
+        expect(input).toHaveAttribute('aria-valuenow', '2');
+    });
+
+    test('integer fields reject a non-integer with the range hint and accept whole numbers', () => {
+        const onChange = vi.fn();
+        render(<NumberInput label="n" value={3} min={1} max={9} integer decimals={0} onChange={onChange}/>);
+        const input = screen.getByLabelText('n');
+        fireEvent.change(input, {target: {value: '2,5'}});
+        expect(onChange).not.toHaveBeenCalled();
+        expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 1 in 9.');
+        fireEvent.change(input, {target: {value: '5'}});
+        expect(onChange).toHaveBeenLastCalledWith(5);
+    });
 });

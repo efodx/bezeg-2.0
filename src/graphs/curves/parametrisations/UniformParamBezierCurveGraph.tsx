@@ -133,9 +133,9 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
                     <option value="uniform">{t("uniform_parametrization")}</option>
                 </Form.Select>
             </Form>
-            <div>{t("number_of_points")}<Slider min={1} max={40} step={1}
-                                      value={this.state.numberOfPoints}
-                                      onChange={(num) => this.setNumberOfPoints(num)}/>
+            <div><Slider customText={t("number_of_points")} min={1} max={40} step={1}
+                         value={this.state.numberOfPoints}
+                         onChange={(num) => this.setNumberOfPoints(num)}/>
             </div>
             {this.state.isAlphaParam ? <div>
                 <Slider min={0} max={1} value={this.state.alpha} customText={'α'}

@@ -90,15 +90,15 @@ describe('inspector controls show the restored scene after a reset', () => {
         const graph = new ExtrapolationGraph();
         const view = renderGraph(graph);
         const slider = () => view.container.querySelector<HTMLInputElement>('.tools input[type="range"]')!;
-        const shown = () => slider().closest('form')!.querySelector('output')!.textContent;
-        expect(shown()).toBe('1.20');
+        const shown = () => slider().closest('form')!.querySelector<HTMLInputElement>('input[role="spinbutton"]')!.value;
+        expect(shown()).toBe('1,2');
 
         fireEvent.change(slider(), {target: {value: '1.4'}});
-        expect(shown()).toBe('1.40');
+        expect(shown()).toBe('1,4');
 
         await settle(() => graph.reset());
 
-        expect(shown()).toBe('1.20');
+        expect(shown()).toBe('1,2');
         expect(slider().value).toBe('1.2');
         view.unmount();
     });
