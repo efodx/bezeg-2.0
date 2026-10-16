@@ -26,7 +26,7 @@
     display: grid;
     align-content: start;
     grid-template-columns: minmax(0, 1fr) 310px;
-    grid-template-areas: "heading heading" "graph inspector" "learning inspector";
+    grid-template-areas: "heading heading" "graph inspector" "learning learning";
     gap: 18px;
     padding: clamp(20px, 4vw, 52px) clamp(14px, 4vw, 54px) 90px;
     text-align: left;
@@ -116,19 +116,34 @@
 .workspace-navigation button { min-width: 36px; }
 .workspace-gesture-hint { margin: 8px 14px; color: var(--workspace-ink-soft); font-size: .72rem; }
 
+/* Desktop: the card's top and bottom follow the graph row, including its navigation footer. The zero height with
+   min-height: 100% takes the row's height without letting expanded content stretch the row. The card never scrolls:
+   the heading and tabs stay fixed and only #inspector-content scrolls. */
 .workspace-inspector {
     grid-area: inspector;
-    align-self: start;
-    max-height: calc(100vh - 210px);
-    overflow: auto;
+    align-self: stretch;
+    box-sizing: border-box;
+    height: 0;
+    min-height: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border: 1px solid var(--workspace-rule);
     border-top: 4px solid var(--workspace-ink);
     background: var(--workspace-panel);
     color: var(--workspace-ink);
-    scrollbar-gutter: auto;
 }
+.workspace-inspector[hidden] { display: none; }
 
-.inspector-toolbar { position: sticky; top: 0; z-index: 2; background: var(--workspace-panel); }
+.inspector-toolbar { flex: 0 0 auto; background: var(--workspace-panel); }
+#inspector-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.workspace-inspector .tools { max-height: none; overflow: visible; }
 .inspector-heading { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; }
 .inspector-heading button { font-size: .78rem; }
 .inspector-tabs { display: flex; gap: 0; padding: 8px 12px 10px; border-bottom: 1px solid var(--workspace-rule); background: var(--workspace-panel); }
@@ -259,6 +274,42 @@
 .point-coordinate-add legend { float: none; line-height: 1.2; margin-bottom: 1px; }
 .point-coordinate-editor [role="alert"] { margin: 0; padding: 8px 9px; border-left: 3px solid var(--workspace-pollen); background: color-mix(in srgb, var(--workspace-canvas-deep) 58%, transparent); color: var(--workspace-ink); font-size: .76rem; }
 
+/* Shared inspector disclosures (InspectorDisclosure): a 44px summary with a chevron that turns when open, and a rule
+   separating each group. The Display tab's graph-specific options sit above the shared groups with even spacing. */
+.inspector-display-graph { display: grid; gap: 14px; padding-bottom: 4px; }
+.inspector-disclosure { border-top: 1px solid var(--workspace-rule); }
+.inspector-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 0;
+    color: var(--workspace-ink);
+    cursor: pointer;
+    font-size: .84rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    list-style: none;
+}
+.inspector-disclosure > summary::-webkit-details-marker { display: none; }
+.inspector-disclosure > summary::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg) translateY(-1px);
+    transition: transform .15s ease;
+}
+.inspector-disclosure[open] > summary::before { transform: rotate(45deg) translate(-1px, -1px); }
+.inspector-disclosure > summary:hover { color: var(--workspace-green); }
+.inspector-disclosure > summary:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+.inspector-disclosure-body { padding: 2px 0 12px; }
+.is-presenting .inspector-disclosure { border-color: #50617b; }
+.is-presenting .inspector-disclosure > summary { color: var(--bezeg-night-panel); }
+.is-presenting .inspector-disclosure > summary:hover { color: #d9b461; }
+
 /* The projection mode is a dark stage with a warm graph surface and explicit controls. */
 body:has(.demonstration-workspace.is-presenting) { background: var(--bezeg-night); }
 body:has(.demonstration-workspace.is-presenting) .app-header { border-color: #42516a; background: var(--bezeg-night); color: var(--bezeg-night-panel); }
@@ -295,7 +346,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting:has(.workspace-inspector[hidden]) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "graph"; }
 
 @media (max-width: 1100px) {
-    .demonstration-workspace { grid-template-columns: minmax(0, 1fr) 310px; grid-template-areas: "heading heading" "graph inspector" "learning inspector"; }
+    .demonstration-workspace { grid-template-columns: minmax(0, 1fr) 310px; grid-template-areas: "heading heading" "graph inspector" "learning learning"; }
     .is-presenting { grid-template-areas: "heading heading" "graph inspector"; }
     .workspace-topics { display: none; }
 }
@@ -313,7 +364,9 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
     .workspace-heading p, .workspace-eyebrow { display: none; }
     .workspace-actions button { font-size: .74rem; }
     .workspace-graph #jgbox, .is-presenting .workspace-graph #jgbox { height: 35vh !important; min-height: 260px; }
-    .workspace-inspector { width: 100%; max-height: 45vh; }
+    /* Phone: the inspector flows in the page, with no fixed height and no inner scroller. */
+    .workspace-inspector { width: 100%; height: auto; min-height: 0; display: block; overflow: visible; }
+    #inspector-content { flex: none; overflow: visible; }
     .workspace-learning { gap: 8px; flex-wrap: wrap; }
     .workspace-learning > span { width: 100%; }
     .workspace-learning p { font-size: .82rem; }

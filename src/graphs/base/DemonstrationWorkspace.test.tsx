@@ -35,6 +35,33 @@ test("inspector sections remain mounted and retain values when switched or colla
     expect(parameter).toBeVisible();
 });
 
+test('the inspector heading has no introductory paragraph and tab hints stay available to assistive technology', () => {
+    setLanguage('sl');
+    render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<p>Urejanje</p>}
+        display={<p>Pogled</p>} save={<p>Shrani</p>} navigate={vi.fn()}/></MemoryRouter>);
+    expect(screen.queryByText('Vsa dejanja na enem mestu. Najprej izberi, kaj želiš opazovati.')).not.toBeInTheDocument();
+    const display = screen.getByRole('button', {name: 'Prikaz'});
+    expect(display).toHaveAccessibleDescription('pogled');
+    expect(display).toHaveAttribute('title', 'pogled');
+    expect(screen.getByRole('button', {name: 'Uredi'})).toHaveAccessibleDescription('krivulja');
+    expect(screen.getByRole('button', {name: 'Shrani'})).toHaveAccessibleDescription('primer');
+});
+
+test('switching tabs resets the inspector content scroll owner and keeps hidden sections mounted', () => {
+    setLanguage('sl');
+    render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
+        display={<p>Koordinatni sistem</p>} save={null} navigate={vi.fn()}/></MemoryRouter>);
+    const content = document.getElementById('inspector-content')!;
+    Object.defineProperty(content, 'scrollTop', {value: 120, writable: true, configurable: true});
+    fireEvent.click(screen.getByRole('button', {name: 'Prikaz'}));
+    expect(content.scrollTop).toBe(0);
+    fireEvent.click(screen.getByRole('button', {name: 'Strni'}));
+    expect(content).toHaveAttribute('hidden');
+    expect(screen.getByRole('button', {name: 'Odpri'})).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByText('Koordinatni sistem')).toBeInTheDocument();
+    expect(screen.getByLabelText('Parameter')).toBeInTheDocument();
+});
+
 test('learning prompts switch without remounting controls and fit delegates to the board', () => {
     setLanguage('sl');
     const navigate = vi.fn();

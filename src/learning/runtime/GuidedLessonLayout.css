@@ -1,6 +1,6 @@
 /* The lesson occupies the graph cell so the graph remains visible beneath it. */
 .demonstration-workspace.lesson-open {
-    grid-template-areas: "heading heading" "graph inspector" "learning inspector";
+    grid-template-areas: "heading heading" "graph inspector" "learning learning";
 }
 
 .demonstration-workspace.is-presenting.lesson-open {
@@ -40,7 +40,7 @@
 
 @media (max-width: 1100px) {
     .demonstration-workspace.lesson-open {
-        grid-template-areas: "heading heading" "graph inspector" "learning inspector";
+        grid-template-areas: "heading heading" "graph inspector" "learning learning";
     }
 }
 

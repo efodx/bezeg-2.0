@@ -64,6 +64,8 @@ export function DemonstrationWorkspace(props: {
     const [lessonOpen, setLessonOpen] = useState(() => new URLSearchParams(search).get('learn') === '1');
     const [lessonMode, setLessonMode] = useState<LessonMode>(() => new URLSearchParams(search).get('learn') === '1' ? 'content' : 'closed');
     const inspector = useRef<HTMLElement>(null);
+    // The content region is the inspector's only scroll owner; tab changes return it to the top.
+    const inspectorContent = useRef<HTMLDivElement>(null);
     const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
     // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
@@ -181,16 +183,19 @@ export function DemonstrationWorkspace(props: {
                         <path d={expanded ? 'M4 10 L8 6 L12 10' : 'M4 6 L8 10 L12 6'}/>
                     </svg>
                 </button>
-                <p>{t("inspector_intro")}</p>
             </div>
             <div className="inspector-tabs" role="group" aria-label={t("tool_groups")}>
                 {sections.map(tab => <button key={tab.id} aria-label={tab.label} aria-pressed={section === tab.id}
-                    aria-controls={`inspector-${tab.id}`} onClick={() => {setSection(tab.id); setExpanded(true); if (inspector.current) {inspector.current.scrollTop = 0;}}}>
-                    <span>{tab.label}</span><small>{tab.hint}</small>
+                    aria-describedby={`inspector-tab-hint-${tab.id}`} aria-controls={`inspector-${tab.id}`} title={tab.hint} onClick={() => {
+                        setSection(tab.id); setExpanded(true);
+                        if (inspectorContent.current) inspectorContent.current.scrollTop = 0;
+                    }}>
+                    <span>{tab.label}</span>
                 </button>)}
+                {sections.map(tab => <span key={tab.id} id={`inspector-tab-hint-${tab.id}`} className="visually-hidden">{tab.hint}</span>)}
             </div>
             </div>
-            <div id="inspector-content" hidden={!expanded}>
+            <div id="inspector-content" ref={inspectorContent} hidden={!expanded}>
                 {sections.map(tab => <section key={tab.id} id={`inspector-${tab.id}`} hidden={section !== tab.id}
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
