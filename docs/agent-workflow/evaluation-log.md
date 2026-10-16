@@ -365,3 +365,10 @@ Pilot evidence (observational; one batch, n = 1 per cell, topics differ in size 
 - Medium effort showed no clear increase in errors and a modest reduction in time and tokens. Haiku completed a bounded layout task with partial results.
 
 Timing/context: task start 2026-10-16T11:02+02:00 and acceptance the same day, with a pause for the API session limit (about 12:00–16:13). Handler and worker context occupancy and compactions were unavailable; usage is from per-worker completion totals in tool results.
+
+### 2026-10-16 — Justfile session opportunity research
+
+- Scope: S, research; inspect past Bezeg command records and current command contracts; save docs/research/justfile-session-opportunities-2026-10-16.md. One read-only research worker for separable official just documentation and repository command mapping; handler owned session mining, synthesis, review, and Git.
+- Dispatch: requested GPT-6 Luna high, fresh context, handoff-v4. Brief required official sources, cross-platform concerns, recipes beyond redundant npm aliases, and no invented savings. Worker returned source links and recommendations without edits or further delegation; no repairs or material clarifications.
+- Outcome: accepted report. Sample covers 113 prior local Codex session records, 69 with 1,613 distinct completed command IDs. Pattern counts are explicitly heuristic candidates, not invocation counts or measured savings. Representative command/output evidence reviewed; current npm, Playwright, server and capture contracts checked. All relative report links resolve; diff whitespace check passed. Documentation only, so app tests and smoke were not required. No justfile or application behavior changed.
+- Limits: Claude sessions and dates outside October 14–16 were not analyzed; no tokenizer-based counterfactual or measured savings. Requested worker settings are not runtime-resolution evidence. Handler/worker context occupancy, window size, compaction counts, and scoped usage unavailable. Exact start/dispatch boundaries were not prospectively captured, so elapsed duration is unavailable. Unrelated working-tree changes preserved.
