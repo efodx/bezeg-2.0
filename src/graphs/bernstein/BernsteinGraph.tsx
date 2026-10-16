@@ -139,14 +139,17 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
             }
             if (isSumGraph) {
                 if (i === 0) {
-                    const c1: ParametricCurve = [(t: number) => t, (t: number) => polynoms[i](t), 0, 1];
+                    // Trace the lower edge in reverse so it meets the baseline
+                    // at (1, 0) instead of drawing a diagonal across the region.
+                    const c1: ParametricCurve = [(t: number) => 1 - t, (t: number) => polynoms[i](1 - t), 0, 1];
                     const c2: ParametricCurve = [(t: number) => 0, (t: number) => 1 - t, 0, 1];
                     const c3: ParametricCurve = [(t: number) => t, (t: number) => 0, 0, 1];
 
                     let c = connectCurves(connectCurves(c2, c3), c1);
                     if (n === 1) {
                         const c4: ParametricCurve = [(t: number) => 1, (t: number) => 1 - t, 0, 1];
-                        c = connectCurves(c, c4);
+                        const c5: ParametricCurve = [(t: number) => 1 - t, (t: number) => 1, 0, 1];
+                        c = connectCurves(connectCurves(c2, c3), connectCurves(c4, c5));
                     }
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,
@@ -172,7 +175,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
                 } else {
                     let prevPolynom = polynoms[i - 1];
                     const c1: ParametricCurve = [(t: number) => t, (t: number) => prevPolynom(t)];
-                    const c2: ParametricCurve = [(t: number) => t, (t: number) => polynoms[i](t)];
+                    const c2: ParametricCurve = [(t: number) => 1 - t, (t: number) => polynoms[i](1 - t)];
                     let c = connectCurves(c1, c2);
                     let curve = board.create("curve", [(t: number) => c[0](t), (t: number) => c[1](t), 0, 1], {
                         strokeWidth: 0,

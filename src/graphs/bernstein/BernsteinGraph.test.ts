@@ -62,6 +62,23 @@ test('stacked-area action toggles the sum graph and keeps degree', () => {
     expect(graph.state.isSumGraph).toBe(false);
 });
 
+test('stacked Bernstein area boundaries join without diagonal jumps', () => {
+    const graph = makeGraph({n: 4, isSumGraph: true, showLabels: false});
+    graph.generateBernsteinPolynomials(graph.board, 4, true);
+    const curves = graph.board.create.mock.calls
+        .filter(([type]: [string]) => type === 'curve')
+        .map(([, data]: [string, [(t: number) => number, (t: number) => number]]) => data);
+
+    for (const [x, y] of curves) {
+        // connectCurves joins its two halves at .5. Nested paths add a .25 join.
+        for (const join of [0.25, 0.5]) {
+            const before = [x(join - 1e-7), y(join - 1e-7)];
+            const after = [x(join + 1e-7), y(join + 1e-7)];
+            expect(Math.hypot(before[0] - after[0], before[1] - after[1])).toBeLessThan(1e-5);
+        }
+    }
+});
+
 test('default scene preparation resets to degree 1, stacked area off', () => {
     const graph = makeGraph({n: 6, isSumGraph: true, showLabels: true});
     graph.applyLessonAction({kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});
