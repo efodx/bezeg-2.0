@@ -6,6 +6,13 @@ function inspector(page) {
     return page.locator('.workspace-inspector');
 }
 
+// Hidden inspector sections stay mounted, so their controls are reachable by role only after their tab is pressed.
+async function openInspectorTab(page, name) {
+    await inspector(page).locator('.inspector-tabs').getByRole('button', {name, exact: true}).click();
+}
+const openDisplayTab = page => openInspectorTab(page, 'Display');
+const openEditTab = page => openInspectorTab(page, 'Edit');
+
 async function openSaveTools(page) {
     const panel = inspector(page);
     await panel.locator('.inspector-tabs').getByRole('button', {name: 'Save', exact: true}).click();
@@ -214,9 +221,10 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
     await createPreset(page, 'ownership-rational-default');
 
     const selection = await selectFirstCurve(page);
-    await inspector(page).getByRole('button', {name: '<', exact: true}).click();
-    await inspector(page).getByRole('button', {name: '+', exact: true}).first().click();
+    await inspector(page).getByRole('button', {name: 'Previous weight', exact: true}).click();
+    await inspector(page).getByRole('button', {name: 'Increase weight', exact: true}).first().click();
     await selection.getByRole('button', {name: 'Clear selection', exact: true}).click();
+    await openDisplayTab(page);
     const farinSwitch = inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true});
     await farinSwitch.check();
 
@@ -249,7 +257,9 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
 
     const restoredSelection = inspector(page).locator('.curve-selection');
     await restoredSelection.getByRole('button', {name: 'Clear selection', exact: true}).click();
+    await openDisplayTab(page);
     await expect(inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true})).toBeChecked();
+    await openEditTab(page);
     await expect(inspector(page).getByRole('checkbox', {name: 'Standard form', exact: true})).toBeChecked();
 });
 
@@ -277,7 +287,9 @@ async function farinGeometry(page) {
 
 test('Farin sliders follow dragged control points without changing their ratios', async ({page}) => {
     await page.goto('/bezeg-2.0/rational/farin-points', {waitUntil: 'domcontentloaded'});
+    await openDisplayTab(page);
     await inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true}).check();
+    await openEditTab(page);
     const before = await farinGeometry(page);
     expect(before.sliders).toHaveLength(3);
     const p1 = before.controlPoints[1];

@@ -93,6 +93,23 @@ function visiblePoints(page) {
     });
 }
 
+// The inspector's tab buttons are addressed by the section they open, so the lookup works in either language.
+// Hidden tab sections stay mounted, so their controls are invisible to getByRole until the tab is pressed.
+async function openInspectorTab(page, section) {
+    const tab = page.locator(`.inspector-tabs button[aria-controls="inspector-${section}"]`);
+    if ((await tab.getAttribute('aria-pressed')) !== 'true') await tab.click();
+    await expect(tab).toHaveAttribute('aria-pressed', 'true');
+}
+
+// The integer value of the Nth count stepper (CountSetter): an editable field when the graph sets the count directly, else an output.
+async function countSetterValue(page, index) {
+    const text = await page.locator('.count-setter').nth(index).evaluate(root => {
+        const field = root.querySelector('input');
+        return field ? field.value : root.querySelector('output')?.textContent ?? '';
+    });
+    return Number(text.replace(/\D+/g, ''));
+}
+
 // The runtime animates overlay hand-offs (about 220ms) unless reduced motion is set (playwright.config.cjs does); wait until the panel is steady.
 async function settle(page) {
     await expect(lessonPanel(page)).toHaveClass(/guided-lesson-handoff-visible|guided-lesson-hidden/);
@@ -186,4 +203,5 @@ module.exports = {
     lessonPanel, nextButton, backButton, exitButton, learnButton, lessonHeading,
     failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
+    openInspectorTab, countSetterValue,
 };

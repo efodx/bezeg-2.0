@@ -53,12 +53,10 @@ const expectWeights = (page, expected, message) => expect.poll(
     async () => (await h.boardWeights(page)).slice(0, expected.length).map(value => Number(value.toFixed(2))), {message}).toEqual(expected);
 
 // ---------------------------------------------------------------- Bernstein
-const stackedSwitch = page => page.getByRole('checkbox', {name: /Stacked area chart/});
+// The stacked switch lives on the Display tab; reads go through the label so hidden tab sections are still reachable.
+const stackedSwitch = page => page.getByLabel('Stacked area chart', {exact: true});
 
-async function degree(page) {
-    const label = await page.getByRole('button', {name: /^Current count: \d+$/}).getAttribute('aria-label');
-    return Number(label.replace(/\D+/g, ''));
-}
+const degree = page => h.countSetterValue(page, 0);
 
 const bernstein = {
     id: 'bernstein',
@@ -442,8 +440,7 @@ async function setRange(page, index, target) {
     }, target);
     await input.fill(value);
 }
-const countButtons = page => page.locator('button[aria-label^="Current count"], button[aria-label^="Trenutno število"]');
-const countValue = async (page, index) => Number((await countButtons(page).nth(index).getAttribute('aria-label')).replace(/\D+/g, ''));
+const countValue = (page, index) => h.countSetterValue(page, index);
 const expectCount = (page, index, expected, message) => expect.poll(() => countValue(page, index), {message}).toBe(expected);
 
 const alternativeDeCasteljau = {
@@ -1104,7 +1101,7 @@ const areaBetween = {
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
     prepareUserState: async page => {
-        await page.locator('input[type="number"]').nth(1).fill('2.5');
+        await page.getByRole('spinbutton', {name: /^(Bound b|Meja b)$/}).fill('2.5');
         await expect.poll(() => areaReadout(page, 'b')).toBe('2.5');
         return await boardStats(page);
     },
@@ -2189,7 +2186,9 @@ test.describe('Rational elevation outside lessons', () => {
         await page.goto(RATIONAL, {waitUntil: 'domcontentloaded'});
         await expect.poll(async () => (await boardStats(page)).points).toBe(4);
         await selectCurve(page);
-        await page.getByRole('checkbox', {name: 'Weights'}).check();
+        await h.openInspectorTab(page, 'display');
+        await page.getByRole('checkbox', {name: 'Weights', exact: true}).check();
+        await h.openInspectorTab(page, 'edit');
         await expect.poll(async () => (await boardStats(page)).labels).toBeGreaterThanOrEqual(4);
         // Graph commands (Elevate degree) are only offered while no curve is selected.
         await page.getByRole('button', {name: 'Clear selection'}).click();
