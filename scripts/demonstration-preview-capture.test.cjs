@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
@@ -263,4 +263,47 @@ test('complex multiplication rejects a product off by 1e-6, a moved z and a fina
     assert.throws(()=>assertMotionEvidence(complexFixture({40:{productError:1e-6}})),/differs from z·w/);
     assert.throws(()=>assertMotionEvidence(complexFixture({40:{z:{x:1.05,y:0.5}}})),/z moved/);
     assert.throws(()=>assertMotionEvidence(complexFixture({95:{target:{x:1,y:0}}})),/differs from the starting i/);
+});
+// accumulation: synthetic evidence in the shape captureDrag records (a and x points, target, caption text, function and region path hashes).
+const accumulationFixture=(overrides={})=>{
+    const spec=motionSpecs.accumulation;
+    const {accumulationSnap,formatSlNumber,accumulationReference}=require('./demonstration-preview-motion.cjs');
+    const frames=Array.from({length:96},(_,i)=>{
+        const o=overrides[i]??{};
+        const target=o.target??spec.path({x:spec.startX,y:0},spec.progress?spec.progress(i):sinFixture(i));
+        const x=accumulationSnap(target.x), a=o.a??0;
+        const value=accumulationReference(a,x)+(o.readoutOffset??0);
+        const text=`f(x) = sin x\nA: črtkana črta\nA(x) = ${formatSlNumber(value)} (s predznakom)`;
+        return {index:i,time:i/24,target,capture:{sha256:'recipe-frame'},
+            points:[{id:'a',name:'$$a$$',x:a,y:0,draggable:true},{id:'x',name:'$$x$$',x:o.xPoint??x,y:0,draggable:true},
+                {id:'fx',name:'$$f(x)$$',x,y:Math.sin(x),draggable:false},
+                {id:'Ax',name:'$$A(x)$$',x,y:Math.cos(a)-Math.cos(x)+(o.accumulatedOffset??0),draggable:false}],
+            observed:{text:o.text??text,functionPathLength:38633,functionPathHash:o.functionPathHash??'f-path',functionVertices:257,functionMaxDeviation:o.functionMaxDeviation??0,functionMinX:o.functionMinX??-3.8942780748663113,functionMaxX:9.39427807486631,
+                regionPathLength:80,regionPathHash:`region-${x}`}};
+    });
+    return {id:'accumulation',mode:'pointer-drag',frameCount:96,sampleRate:24,duration:4,samples:frames};
+};
+// sin² out-and-back used by the fixture when spec.progress is unset (the accumulation spec uses the default profile).
+function sinFixture(i){return Math.sin(Math.PI*Math.max(0,Math.min(1,(i-12)/71)))**2;}
+test('accumulation: x snapped to the 0.01 grid, A(x) caption equal to the Simpson integral, function path fixed and exact return pass',()=>{
+    assertMotionEvidence(accumulationFixture());
+});
+test('accumulation rejects a readout off by one display unit, a moved a, a changed function path and a final x other than the start',()=>{
+    const {formatSlNumber,accumulationReference}=require('./demonstration-preview-motion.cjs');
+    const offByOne=accumulationFixture({40:{readoutOffset:1e-4}});
+    assert.throws(()=>assertMotionEvidence(offByOne),/Readout lacks/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{a:0.1}})),/a moved/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{accumulatedOffset:1e-6}})),/A\(x\) point differs/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{functionMaxDeviation:0.01}})),/leaves y = sin x/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{functionMinX:-3.5}})),/x extent changed/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({90:{functionPathHash:'changed'}})),/\(at rest\) changed/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({95:{target:{x:2.5,y:0}}})),/Final x/);
+    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{xPoint:2.03}})),/differs from the snapped target/);
+    const unchangedRegion=accumulationFixture();unchangedRegion.samples[40].observed.regionPathHash=unchangedRegion.samples[39].observed.regionPathHash;
+    assert.throws(()=>assertMotionEvidence(unchangedRegion),/Signed-area region did not change/);
+    const seam=accumulationFixture();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop/);
+    assert.equal(formatSlNumber(accumulationReference(0,2)),'1,4161');
+    assert.equal(formatSlNumber(accumulationReference(2,0)),'−1,4161');
+    assert.equal(formatSlNumber(-0.00001),'0');
 });

@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization','complex-multiplication'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization','complex-multiplication','accumulation'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -115,6 +115,34 @@ function complexCaptionLines(z, w, product) {
 function complexArgumentLines(z, w, product) {
     return [z, w, product].filter(c => c.x !== 0 || c.y !== 0).map(c => complexNumber(Math.atan2(c.y, c.x), 3));
 }
+
+// accumulation: A(x) = integral from a to x of f(t) dt for the catalog 'sin' (f = sin, F = -cos, src/analysis/functions.ts).
+// The drag handler rounds x to the 0.01 grid and clamps it to [-7, 7], then cleanNumber (src/graphs/functions/BaseFunctionGraph.tsx,
+// slidingPoint and cleanNumber). The reference integral below uses composite Simpson's rule on sin, not F, so it is independent of the route.
+const accumulationStartX = 2, accumulationAmplitude = 2.5;
+const accumulationSnap = value => {
+    const grid = Math.max(-7, Math.min(7, Math.round(value / 0.01) * 0.01 + 0));
+    return Math.round(grid * 1e9) / 1e9 + 0;
+};
+function accumulationReference(a, x, n = 2000) {
+    const h = (x - a) / n;
+    let sum = Math.sin(a) + Math.sin(x);
+    for (let k = 1; k < n; k++) sum += Math.sin(a + k * h) * (k % 2 ? 4 : 2);
+    return sum * h / 3;
+}
+/** formatNumber(value, 'sl', 4) from src/analysis/format.ts: 4 decimals, trailing zeros dropped, decimal comma, true minus sign. */
+function formatSlNumber(value) {
+    if (!Number.isFinite(value)) return '—';
+    const fixed = value.toFixed(4);
+    const trimmed = fixed.includes('.') ? fixed.replace(/0+$/, '').replace(/\.$/, '') : fixed;
+    const negative = trimmed.startsWith('-');
+    const unsigned = negative ? trimmed.slice(1) : trimmed;
+    if (/^0(\.0*)?$/.test(unsigned)) return '0';
+    const text = unsigned.replace('.', ',');
+    return negative ? `−${text}` : text;
+}
+/** The board caption line that shows A(x) (accumulation_board_value in sl.ts). */
+const accumulationReadoutLine = (a, x) => `A(x) = ${formatSlNumber(accumulationReference(a, x))} (s predznakom)`;
 
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
 const motionSpecs = {
@@ -397,6 +425,106 @@ const motionSpecs = {
             'Reported α (aria-valuetext) equals the input and the snapped target every frame', 'Only α changes; the camera is the poster fit in every frame',
             'First and last frames equal the recipe state (identical PNG)'],
     },
+    accumulation: {
+        mode: 'pointer-drag', controlCount: 2,
+        // Re-presented every frame: presentBoard sets the curve stroke inline once, and JSXGraph updates (the signed-area fill has a 1px stroke function) drop it; re-presenting keeps every frame at the poster stroke widths.
+        settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        pressSettle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        // Recipe state: a = 0, x = 2 (model default). x moves out and back by 2.5 with the shared sin² profile: its peak is x = 4.5,
+        // inside the recipe window (x from -0.5 to 6.5) and [-7, 7], so no smaller amplitude was needed.
+        startX: accumulationStartX, amplitude: accumulationAmplitude,
+        start: ctx => ctx.points.find(p => p.name === '$$x$$'),
+        path: (moved, displacement) => ({x: moved.x + accumulationAmplitude * displacement, y: moved.y}),
+        // Exact restore after release through the "Točka x" number field (the drag already ends on the grid point 2).
+        restore: async page => {
+            await applyAction(page,{kind:'number',label:'Točka x',value:accumulationStartX});
+        },
+        // Board text (A(x) caption), the function graph f and the signed-area fill paths. Paths are reduced here so the manifest stays small.
+        // JSXGraph draws function graphs more coarsely while a pointer is held (measured: 257 vertices during the drag, 1025 at rest), so the
+        // f path is checked geometrically in every frame (each rendered vertex lies on y = sin x, same x extent) and by exact path hash at rest.
+        observe: async page => {
+            const raw = await page.locator('#jgbox').evaluate(container => {
+                const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+                const visible = Object.values(b.objects).filter(o => o.visProp?.visible !== false && o.rendNode);
+                const curves = visible.filter(o => o.elType === 'curve');
+                // Filled curves are the signed-area stretches (the only curves with their own updateDataArray; every function graph has fillopacity 1 by default, so opacity cannot tell them apart); the function graph is the unfilled curve through (1, sin 1).
+                const filled = o => Object.prototype.hasOwnProperty.call(o, 'updateDataArray');
+                const fn = curves.find(o => !filled(o) && Math.abs(o.Y(1) - Math.sin(1)) < 1e-9);
+                const d = fn ? fn.rendNode.getAttribute('d') || '' : '';
+                const sx = b.unitX, sy = b.unitY, ox = b.origin.scrCoords[1], oy = b.origin.scrCoords[2];
+                const board = [...d.matchAll(/(-?[\d.]+(?:e-?\d+)?) (-?[\d.]+(?:e-?\d+)?)/g)].map(m => [(+m[1] - ox) / sx, (oy - +m[2]) / sy]);
+                return {
+                    text: visible.filter(o => o.elType === 'text').map(o => o.rendNode.textContent).join('\n'),
+                    functionPath: d,
+                    functionVertices: board.length,
+                    functionMaxDeviation: board.reduce((m, [x, y]) => Math.max(m, Math.abs(y - Math.sin(x))), 0),
+                    functionMinX: board.reduce((m, [x]) => Math.min(m, x), Infinity),
+                    functionMaxX: board.reduce((m, [x]) => Math.max(m, x), -Infinity),
+                    regionPath: curves.filter(filled).map(o => o.rendNode.getAttribute('d') || '').join('\n'),
+                };
+            });
+            return {text: raw.text, functionPathLength: raw.functionPath.length, functionPathHash: pathHash([raw.functionPath]),
+                functionVertices: raw.functionVertices, functionMaxDeviation: raw.functionMaxDeviation,
+                functionMinX: raw.functionMinX, functionMaxX: raw.functionMaxX,
+                regionPathLength: raw.regionPath.length, regionPathHash: pathHash([raw.regionPath])};
+        },
+        schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)', target: 'x = 2 + 2.5·displacement, y = 0',
+            snapping: 'drag rounds x to 0.01 and clamps to [-7, 7] (slidingPoint, cleanNumber); the check uses the same rule on the scheduled target',
+            zeroDisplacementFrames: '0-12 (x holds at 2)', settledFrames: '83-95 (x holds at 2)', movingFrames: '13-82', peakFrame: 47, press: 13, release: 83,
+            restore: 'number field "Točka x" = 2 after release (exact)',
+            input: 'pointer drag of the x point along the axis (y = 0), one press and one release; a and f are never touched'},
+        // The tangent to A crosses the upper-left corner at frame 31 (the corner is not background there), so the background sample is (40,40), which is background in all 96 source frames (checked on the frames).
+        backgroundSample: {x: 40, y: 40},
+        // The negative signed-area fill appears once x passes π, so strokes are compared per element (assertStrokesUnchanged).
+        newStrokesAllowed: true,
+        crf: 25,
+        encoderBudget: 'CRF 25: 301595 B on the 96 source frames, the lowest CRF under the 307200 B ceiling (CRF 24 317061, CRF 23 324339, CRF 22 332143, CRF 18 370680, CRF 14 419425); no label, amplitude or camera change was made (point names are hidden by the existing capture policy, the caption is the only text)',
+        invariants: ['a unchanged (1e-9)', 'x equals the 0.01-grid-snapped scheduled target (1e-9) and stays on the axis',
+            'A(x) caption equals the composite-Simpson integral of sin from a to the reported x, formatted to the 4-decimal display (sl); the caption lies outside the recipe camera, as in the poster',
+            'Visible A(x) point equals (x, cos a − cos x) and the f(x) point equals (x, sin x) (1e-9)',
+            'Function graph of f present in every frame: every rendered vertex on y = sin x (1e-9) with the recipe x extent, and the path hash equal to the recipe at rest (frames 0 and 83-95)', 'Signed-area region path changes in every frame where x changes',
+            'Final x equals the starting 2 exactly (restore through the number field); final PNG equals the recipe PNG'],
+        check(sample, previous, first, spec) {
+            const i = sample.index;
+            const named = (s, name) => {
+                const p = s.points.find(q => q.name === name);
+                assert.ok(p, `Missing ${name} at frame ${s.index}`);
+                return {x: p.x, y: p.y};
+            };
+            assert.equal(sample.points.filter(p => p.draggable).length, spec.controlCount, `Wrong operand count at frame ${i}`);
+            const a = named(sample, '$$a$$'), x = named(sample, '$$x$$');
+            const a0 = named(first, '$$a$$'), x0 = named(first, '$$x$$');
+            assert.ok(Math.abs(a.x - a0.x) < 1e-9 && Math.abs(a.y - a0.y) < 1e-9, `a moved at frame ${i}`);
+            assert.ok(Math.abs(x.y) < 1e-9, `x left the axis at frame ${i}`);
+            assert.ok(Math.abs(x0.x - spec.startX) < 1e-9, `The recipe must start at x = ${spec.startX}, found ${x0.x}`);
+            const expected = accumulationSnap(sample.target.x);
+            assert.ok(Math.abs(x.x - expected) < 1e-9, `x ${x.x} differs from the snapped target ${expected} at frame ${i}`);
+            // The caption lies outside the recipe camera, so the visible A(x) is the point on the accumulation graph:
+            // (x, A(x)) with A(x) = ∫_a^x sin t dt = cos a − cos x, and the integrand point (x, sin x).
+            const accumulated = named(sample, '$$A(x)$$'), integrand = named(sample, '$$f(x)$$');
+            assert.ok(Math.abs(accumulated.x - x.x) < 1e-9 && Math.abs(accumulated.y - (Math.cos(a.x) - Math.cos(x.x))) < 1e-9, `A(x) point differs from cos a − cos x at frame ${i}`);
+            assert.ok(Math.abs(integrand.x - x.x) < 1e-9 && Math.abs(integrand.y - Math.sin(x.x)) < 1e-9, `f(x) point differs from sin x at frame ${i}`);
+            const [left, , right] = recipes.accumulation.framing.window;
+            assert.ok(x.x >= left && x.x <= right, `x ${x.x} leaves the recipe window at frame ${i}`);
+            assert.ok(sample.observed, `No observed board evidence at frame ${i}`);
+            const line = accumulationReadoutLine(a.x, x.x);
+            assert.ok(sample.observed.text.includes(line), `Readout lacks "${line}" at frame ${i}: ${JSON.stringify(sample.observed.text)}`);
+            const f = sample.observed, f0 = first.observed;
+            assert.ok(f.functionVertices > 0, `Function graph path missing at frame ${i}`);
+            assert.ok(f.functionMaxDeviation < 1e-9, `Function graph vertex leaves y = sin x by ${f.functionMaxDeviation} at frame ${i}`);
+            assert.ok(Math.abs(f.functionMinX - f0.functionMinX) < 1e-9 && Math.abs(f.functionMaxX - f0.functionMaxX) < 1e-9, `Function graph x extent changed at frame ${i}`);
+            if (i === 0 || i >= spec.schedule.release) assert.equal(f.functionPathHash, f0.functionPathHash, `Function graph path (at rest) changed at frame ${i}`);
+            assert.ok(sample.observed.regionPathLength > 0, `Signed-area region missing at frame ${i}`);
+            if (previous && named(previous, '$$x$$').x !== x.x) {
+                assert.notEqual(sample.observed.regionPathHash, previous.observed.regionPathHash, `Signed-area region did not change when x changed at frame ${i}`);
+            }
+            if (i === peakFrame) assert.ok(x.x - x0.x > 2, `x did not move out at the peak (frame ${i})`);
+            if (i === frameCount - 1) {
+                assert.ok(x.x === x0.x, `Final x ${x.x} differs from the starting x ${x0.x}`);
+                assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+            }
+        },
+    },
     'complex-multiplication': {
         mode: 'pointer-drag', controlCount: 2, presentEachFrame: false,
         // Two animation frames around the press and each frame, as farin does: JSXGraph must process the press and the drag before the capture.
@@ -590,6 +718,7 @@ async function boardSnapshot(page) {
             paths: visible.filter(o => o.elType === 'curve').map(o => o.rendNode.getAttribute('d')),
             curveSamples: visible.filter(o => o.elType === 'curve').map(o => Array.from({length:21},(_,i)=>[o.X(i/20),o.Y(i/20)])),
             strokeWidths: visible.filter(o => ['curve','line'].includes(o.elType)).map(o => getComputedStyle(o.rendNode).strokeWidth),
+            strokesById: visible.filter(o => ['curve','line'].includes(o.elType)).map(o => [o.id, getComputedStyle(o.rendNode).strokeWidth]),
             readouts: Object.fromEntries([...document.querySelectorAll('[data-readout]')].map(e => [e.dataset.readout, e.querySelector('dd')?.textContent]))};
     });
 }
@@ -611,7 +740,7 @@ async function openRoute(browser, demonstration, baseUrl) {
     return {page,context};
 }
 
-function encode(framesDirectory, output, fps = 24, crf = 10) {
+function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 0}) {
     const ffmpeg = process.env.PREVIEW_FFMPEG || 'ffmpeg';
     const ffprobe = process.env.PREVIEW_FFPROBE || 'ffprobe';
     const inputPattern = path.join(framesDirectory,'%03d.png');
@@ -632,8 +761,9 @@ function encode(framesDirectory, output, fps = 24, crf = 10) {
     assert.ok(bytes <= 300*1024,`Motion over 300KiB: ${bytes}`);
     // Decode one real background pixel from every input and output frame. This runs at
     // the encoder seam so metadata alone cannot make a color-fidelity regression pass.
-    const sourcePixels = execFileSync(ffmpeg,['-v','error','-framerate',String(fps),'-i',inputPattern,'-vf','crop=1:1:0:0','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
-    const decodedPixels = execFileSync(ffmpeg,['-v','error','-i',output,'-vf','crop=1:1:0:0','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
+    const crop = `crop=1:1:${sample.x}:${sample.y}`;
+    const sourcePixels = execFileSync(ffmpeg,['-v','error','-framerate',String(fps),'-i',inputPattern,'-vf',crop,'-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
+    const decodedPixels = execFileSync(ffmpeg,['-v','error','-i',output,'-vf',crop,'-f','rawvideo','-pix_fmt','rgb24','pipe:1'],{timeout:120000});
     assert.equal(sourcePixels.length,frameCount*3,'Expected one source background pixel for every frame');
     assert.equal(decodedPixels.length,sourcePixels.length,'Decoded background sample count changed');
     for(let i=0;i<sourcePixels.length;i+=3) {
@@ -642,7 +772,7 @@ function encode(framesDirectory, output, fps = 24, crf = 10) {
     }
     return {file:path.basename(output),sha256:digest(output),type:'video/webm',duration,bytes,width:video.width,height:video.height,codec:video.codec_name,
         pixelFormat:video.pix_fmt,colorRange:video.color_range,colorSpace:video.color_space,colorPrimaries:video.color_primaries,colorTransfer:video.color_transfer,
-        backgroundPixel:{rgb:backgroundPixel,checked:'upper-left pixel of every source and decoded frame'},
+        backgroundPixel:{rgb:backgroundPixel,checked:sample.x===0&&sample.y===0?'upper-left pixel of every source and decoded frame':`pixel (${sample.x},${sample.y}) of every source and decoded frame`,...(sample.x||sample.y?{x:sample.x,y:sample.y}:{})},
         encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
 }
 
@@ -653,6 +783,18 @@ async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdF
     const captured=await screenshotBoard(page,path.join(directory,String(firstFrame).padStart(3,'0')+'.png'));
     for(let hold=1;hold<holdFrames;hold++)fs.copyFileSync(path.join(directory,captured.file),path.join(directory,String(firstFrame+hold).padStart(3,'0')+'.png'));
     return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox};
+}
+
+/**
+ * Stroke widths by element: every curve or line visible at the start must keep its width, and none may disappear. Elements that become
+ * visible during the drag (the accumulation's negative fill appears once x passes pi) are new geometry, not compounding, so they are not compared.
+ */
+function assertStrokesUnchanged(state, initial) {
+    const now = new Map(state.strokesById);
+    for (const [id, width] of initial.strokesById) {
+        assert.ok(now.has(id), 'A curve or line visible at the start left the board during the drag');
+        assert.equal(now.get(id), width, 'Capture presentation compounded stroke widths');
+    }
 }
 
 /**
@@ -688,7 +830,7 @@ async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
             if(spec.presentEachFrame!==false)await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
             const state=await boardSnapshot(page);
             assert.deepEqual(state.box,fixedBox,'Camera changed during the drag');
-            assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
+            if(spec.newStrokesAllowed)assertStrokesUnchanged(state,initial);else assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
             const observed=spec.observe?await spec.observe(page):undefined;
             const captured=await screenshotBoard(page,path.join(directory,String(i).padStart(3,'0')+'.png'));
             const sample={index:i,time:i/24,phase,target,scheduled:spec.scheduled?spec.scheduled(ctx,displacement):target,
@@ -823,7 +965,7 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                 : await captureSweep(browser,d,spec,directory,baseUrl,presentBoard);
             fixedBox=result.camera;sampleEvidence=result.samples;
         }
-        const encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf);
+        const encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf,spec?.backgroundSample);
         const mode=spec?.mode ?? (id==='affine'?'supported-rotation-steps':id.endsWith('elevation')?'exact-degree-elevation':'discrete-exact-steps');
         motions.push({id,...encoded,frameCount,sampleRate,camera:fixedBox,mode,
             ...(spec?{schedule:spec.schedule,invariants:spec.invariants,encoderBudget:spec.encoderBudget}:{}),
@@ -834,4 +976,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText};
+module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber};
