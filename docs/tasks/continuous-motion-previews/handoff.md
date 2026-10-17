@@ -2,6 +2,8 @@
 
 Source spec: [continuous-motion-previews](../../specs/continuous-motion-previews.md). Written 2026-10-17 by the orchestrating handler at a clean checkpoint, for the next handler.
 
+> **Update 2026-10-17 02:35 (second handler):** Phase 1 findings 1–9 closed and Phase 1 pushed (cc924cd, c32a474, plus the smoke-test polling fix 8fd4ac8). Phase 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented, reviewed (math and visual), smoke-tested and recorded in the spec's Phase 2 record. The motion smoke failure listed below was not machine-specific; see the spec. **Next: owner review of Phases 1–2 at card size before Phase 3.** The sections below describe the state at the first handoff.
+
 ## Owner instruction for this run
 
 The owner asked to implement the spec using **Haiku 5.5 `medium` workers as a pilot** in place of the routing table in [agent-workflow](../../agent-workflow.md) (all subagents, including reviewers, use Haiku 5.5 medium). Handlers hand off near 150k context at an easy step.

@@ -1,6 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
-const clips = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation', 'decasteljau', 'farin', 'derivative'];
+const clips = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation', 'decasteljau', 'farin', 'derivative', 'weighted-parameterization', 'complex-multiplication', 'accumulation'];
 const card = (page, id) => page.locator('#demonstration-card-' + id);
 test.use({reducedMotion: 'no-preference'});
 

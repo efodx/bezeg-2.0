@@ -1,6 +1,6 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phase 1 (`decasteljau`, `farin`, `derivative`) implemented 2026-10-17; see [Phase 1 record](#phase-1-record). Phase 2 not started; Phase 3 waits for owner review.
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. Phase 3 waits for owner review at card size.
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
@@ -118,3 +118,23 @@ Deviations and decisions:
 - Recipe labels were repaired for the redesigned controls first; regenerated posters differ from the previous ones only by sub-pixel antialiasing.
 
 Out of scope, reported to the owner: `DecasteljauAnimationControls.tsx` renders `t = 0.50` with a decimal point in the Slovenian UI.
+
+## Phase 2 record
+
+Implemented 2026-10-17. Same shared modes and evidence as Phase 1; the base and Phase 1 clips keep identical source frames.
+
+| ID | Mode | Path | Encoder | Size |
+| --- | --- | --- | --- | --- |
+| `weighted-parameterization` | `parameter-sweep` | `Parameter α` 0.25 → 0.75 → 0.25 | CRF 10 | 167,065 B |
+| `complex-multiplication` | `pointer-drag` | `w = e^{iθ}`, θ from π/2 through one full turn with a monotone `(1 − cos πx)/2` ease, snapped to the route's 0.05 grid, exact restore through Re w / Im w | CRF 14 | 287,913 B |
+| `accumulation` | `pointer-drag` | `x` 2 → 4.5 → 2 (sin² out and back), snapped to 0.01, exact restore through Točka x | CRF 25 | 301,595 B |
+
+Deviations and decisions:
+
+- `complex-multiplication` recipe window bottom moved from −1.1 to −1.6. With z = 1 + i the product reaches Im(zw) = −√2, which the old window clipped for about ten frames. The poster reframes accordingly. The capture asserts that z, w and the product stay inside the window every frame. The `w` square briefly crosses the axis tick labels near frames 24 and 47; the annotation policy covers only point names and the clip must make a full turn, so this is left as is.
+- `accumulation`: the `A(x)` caption lies outside the recipe window, as in its poster. The capture still asserts the caption text against an independent integral, and asserts the visible point on the accumulation graph equals `(x, cos a − cos x)`. While the pointer is held, JSXGraph samples the function graph more coarsely, so the integrand path is checked geometrically (every vertex on `y = sin x`) during the drag and by exact hash at rest. Its negative-area fill appears past π, so only this clip compares strokes per element. The clip is 98% of the 300 KiB ceiling at CRF 25.
+- `weighted-parameterization`: at α = 0.75 the first marker sits close to the start control point at card size; they do not overlap.
+- Path-present checks count only curves with non-empty path data (math review).
+- Review dispositions: the math review confirmed each identity against the runtime source (φ_α, marker parameters, complex snapping and product, accumulation snapping and integral). Its notes on snap margins and the SVG path parser are covered by captures passing at 1e-9. The visual review found no loop jumps and no motion-only explanation.
+
+The `tests/demonstration-motion.smoke.spec.cjs` loop check now polls every 100 ms. With 1 s polling against the 4 s clips it could sample only whole seconds and fail by phase; this failed CI on the Phase 1 push.
