@@ -1,6 +1,6 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. Phase 3 waits for owner review at card size.
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17; Phase 3 starts only when the owner asks.
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
