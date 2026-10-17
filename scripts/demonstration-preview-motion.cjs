@@ -18,6 +18,8 @@ const holdStart = 12, moveFrames = 71;
 const movePhase = i => Math.max(0, Math.min(1, (i - holdStart) / moveFrames));
 // Frame nearest the sin² peak (phase 0.5 falls at frame 47.5, rounded down to a sample).
 const peakFrame = Math.floor(holdStart + moveFrames / 2);
+// Rendered curves with path data; a curve whose d attribute is missing or empty hashes as '' and must not count as present.
+const countPaths = paths => paths.filter(d => typeof d === 'string' && d.length > 0).length;
 // Pointer drags use sin² out and back: 0 at the start, 1 mid-move, 0 at the end.
 const sin2OutAndBack = i => Math.sin(Math.PI * movePhase(i)) ** 2;
 // Parameter sweeps visit each spec's waypoints in order, each leg with a sin² ease (zero speed at every waypoint).
@@ -549,14 +551,15 @@ const motionSpecs = {
             const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
             return {text: Object.values(b.objects).filter(o => o.elType === 'text' && o.rendNode).map(o => o.rendNode.textContent).join('\n')};
         }),
-        // Recipe's coordinate window (equal units) is the camera; the whole circle, z and the product were checked to lie inside it.
+        // Recipe's coordinate window (equal units) is the camera. Its bottom is -1.6 (was -1.1) because Im(zw) reaches -√2 for z = 1 + i;
+        // check() asserts z, w and the product inside it every frame.
         schedule: {kind: 'monotone-ease', phase: 'clamp((frame-12)/71)', progress: '(1 - cos(π·phase))/2', theta: 'π/2 + 2π·progress',
             zeroDisplacementFrames: '0-12 (w holds at i)', settledFrames: '83-95 (w holds at i)', movingFrames: '13-82', press: 13, release: 83,
             restore: 'number fields Re w = 0 and Im w = 1 after release (exact)',
             input: 'pointer drag of the w square on the board, one press and one release'},
         // Encoder: CRF 14 as in farin (see encoderBudget for the measured sizes).
         crf: 14,
-        encoderBudget: 'CRF 14: 297310 B on the 96 source frames, the lowest CRF under the 307200 B ceiling (CRF 13 309149, CRF 12 324011, CRF 10 350903); no label, amplitude or camera change was made',
+        encoderBudget: 'CRF 14: 287913 B with the recipe window bottom at -1.6 (297310 B at -1.1, where the product left the frame; there CRF 13 was 309149, CRF 12 324011, CRF 10 350903, all over the 307200 B ceiling); no label or amplitude change was made',
         invariants: ['z unchanged (1e-9)', 'w equals the 0.05-grid-rounded circle point at the scheduled theta (1e-9)',
             'Product point equals z·w from the reported z and w (1e-9)', 'Caption operand and product text equal the reported values (argument line checked when shown)',
             'Final w equals the starting i exactly (restore through the Re w and Im w fields)', 'Only w changes; the product follows w',
@@ -577,6 +580,10 @@ const motionSpecs = {
             assert.ok(Math.abs(w.x - expected.x) < 1e-9 && Math.abs(w.y - expected.y) < 1e-9, `w ${JSON.stringify(w)} differs from the snapped target ${JSON.stringify(expected)} at frame ${i}`);
             const zw = {x: z.x * w.x - z.y * w.y, y: z.x * w.y + z.y * w.x};
             assert.ok(Math.abs(product.x - zw.x) < 1e-9 && Math.abs(product.y - zw.y) < 1e-9, `Product ${JSON.stringify(product)} differs from z·w ${JSON.stringify(zw)} at frame ${i}`);
+            // |zw| = |z| = √2 sweeps a full circle, so z, w and the product must stay inside the recipe window with room for their markers.
+            const [left, top, right, bottom] = recipes['complex-multiplication'].framing.window, margin = 0.15;
+            for (const [name, p] of [['z', z], ['w', w], ['zw', product]])
+                assert.ok(p.x > left + margin && p.x < right - margin && p.y < top - margin && p.y > bottom + margin, `${name} ${JSON.stringify(p)} leaves the recipe window at frame ${i}`);
             if (i === peakFrame) assert.ok(Math.abs(w.x - w0.x) + Math.abs(w.y - w0.y) > 0.5, 'w did not move at the peak');
             assert.ok(sample.observed, `No caption evidence at frame ${i}`);
             const text = sample.observed.text;
@@ -898,7 +905,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
                 controls:controls.map(({id,x,y})=>({id,x,y})),
                 fixed:controls.map(({id,x,y})=>({id,x,y})),
                 capture:captured,points:state.points.map(({id,name,x,y,draggable})=>({id,name,x,y,draggable})),
-                strokeWidths:state.strokeWidths,curvePathHash:hash,pathCount:state.paths.length,...(observed?{observed}:{})};
+                strokeWidths:state.strokeWidths,curvePathHash:hash,pathCount:countPaths(state.paths),...(observed?{observed}:{})};
             first??=sample;
             assertSweepFrame(sample,previous,first,spec);
             sampleEvidence.push(sample);
@@ -976,4 +983,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber};
+module.exports={countPaths,generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber};

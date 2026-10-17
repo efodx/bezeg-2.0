@@ -6,7 +6,7 @@ const field = (label, value, kind = 'range', index = 0) => ({kind, label, value,
 const polygon = toggle('Kontrolni poligon');
 const targets = {
     bernstein: ['Four cubic Bernstein functions over the unit interval', [button('Povečaj število', 2)], [-0.12, 1.12, 1.12, -0.12]],
-    'complex-multiplication': ['The unchanged multiplication by i, product and arguments revealed', [button('Pokaži zmnožek'), button('Pokaži argumente')], [-2, 2.3, 2, -1.1]],
+    'complex-multiplication': ['The unchanged multiplication by i, product and arguments revealed', [button('Pokaži zmnožek'), button('Pokaži argumente')], [-2, 2.3, 2, -1.6]],
     bezier: ['Asymmetric original cubic with its control polygon', [polygon], [-5, 4.5, 4.5, -4]],
     decasteljau: ['Separated interpolation levels at the original interior parameter', [toggle('Celotna krivulja'), polygon]],
     'decasteljau-alternative': ['Component curves and interpolation at t=0.5', []],

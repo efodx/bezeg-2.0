@@ -1,10 +1,10 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
   "version": 2,
-  "graphSourceRevision": "3ce8794a4afd85b9f4825b92234780689f796d83",
+  "graphSourceRevision": "2bc5224c6efbc3cd3d74265fa768090bd8cb9441",
   "graphSourceFingerprint": "dbeb37b2f79053fc602d5dbe81d09eca4eec5f8a2c5b3414cd8c3d95a6dfc5a6",
   "graphDirtyFiles": [],
-  "presentationFingerprint": "b3b64029da7b9f27aba90e4727df1d74f205830ec7b17f35155c442b0987c67a",
+  "presentationFingerprint": "3f0594ee26f0bc34b8cf3c63d409d6c1dcc9e76b490ca6b5c12a4956a1af19c5",
   "servedBuild": {
     "file": "assets/index-BUTNcp5i.js",
     "sha256": "763ae96f4748451b6d13cb912cc118828e5c920b5dfda8bfbe5ca764f290a040"
@@ -176,7 +176,7 @@
       "id": "complex-multiplication",
       "path": "/bezeg-2.0/complex-multiplication",
       "file": "complex-multiplication.png",
-      "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+      "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
       "image": {
         "width": 720,
         "height": 440
@@ -203,7 +203,7 @@
             -2,
             2.3,
             2,
-            -1.1
+            -1.6
           ]
         },
         "annotations": "hide-point-names-retain-concept-text"
@@ -343,13 +343,13 @@
           "minX": -2,
           "maxY": 2.3,
           "maxX": 2,
-          "minY": -1.1
+          "minY": -1.6
         },
         "boardBoundingBox": [
-          -3.560727272727273,
-          2.776,
-          3.560727272727273,
-          -1.5760000000000005
+          -4.084363636363635,
+          2.846,
+          4.084363636363638,
+          -2.146
         ],
         "framedElementCount": 13,
         "finalLabelCount": 2,
@@ -360,11 +360,11 @@
       "board": {
         "width": 360,
         "height": 220,
-        "visibleElementCount": 27,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 14,
+          "text": 15,
           "curve": 6,
           "point": 3
         },
@@ -5835,10 +5835,10 @@
           "−2",
           "−3",
           "−4",
-          "p0",
-          "p1",
-          "p2",
-          "p3",
+          "$$p_{0}$$",
+          "$$p_{1}$$",
+          "$$p_{2}$$",
+          "$$p_{3}$$",
           "",
           "",
           "",
@@ -5948,7 +5948,7 @@
           "curve": 1
         },
         "renderedLabelCount": 0,
-        "mathJaxLabelCount": 12
+        "mathJaxLabelCount": 8
       }
     },
     {
@@ -9521,7 +9521,7 @@
     {
       "id": "repeated-subdivision",
       "file": "repeated-subdivision.webm",
-      "sha256": "c0cf63bbb43ae88710334a795159ad29db4d1fc53207e57cfb4260c08abf7ba0",
+      "sha256": "184b80be5f8066de456700eb6aa0cdffb08b11a714d8eff1b1f15543878a1dab",
       "type": "video/webm",
       "duration": 4,
       "bytes": 39483,
@@ -9549,7 +9549,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-repeated-subdivision\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-repeated-subdivision\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -9569,7 +9569,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\repeated-subdivision.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\repeated-subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -10574,12 +10574,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.676
+      "generationSeconds": 4.961
     },
     {
       "id": "bisection",
       "file": "bisection.webm",
-      "sha256": "c128a45d92877f80e8d824f482d58cb6d17f5bef65670be3c728b47f2ee7746a",
+      "sha256": "285c15ad6104774121cafdade86c0ea696fdb422456bdba83be18b35b20854af",
       "type": "video/webm",
       "duration": 4,
       "bytes": 70754,
@@ -10607,7 +10607,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-bisection\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-bisection\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -10627,7 +10627,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\bisection.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\bisection.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11217,12 +11217,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.865
+      "generationSeconds": 4.598
     },
     {
       "id": "bezier",
       "file": "bezier.webm",
-      "sha256": "f40e169727fdf8b0f794b13f11e9ea2fc7328788d712dae6dc6e106f1199ca69",
+      "sha256": "e54f609b36a29a8a42f91c7649f69d4b1ac67e02c99bb061bdcb0f638e9483cb",
       "type": "video/webm",
       "duration": 4,
       "bytes": 261349,
@@ -11250,7 +11250,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-bezier\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-bezier\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11270,7 +11270,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\bezier.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\bezier.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -18884,12 +18884,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 22.462
+      "generationSeconds": 22.383
     },
     {
       "id": "affine",
       "file": "affine.webm",
-      "sha256": "b4f2333cf779e50594af676e9948b4e42baa7d5fb36651e062ee982b465e2133",
+      "sha256": "53845ab65022ee915fcec4e56f9a36f8f17c32bd2f4ee7903e337c95c718e362",
       "type": "video/webm",
       "duration": 4,
       "bytes": 64757,
@@ -18917,7 +18917,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-affine\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-affine\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -18937,7 +18937,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\affine.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\affine.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -20143,12 +20143,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.144
+      "generationSeconds": 4.18
     },
     {
       "id": "elevation",
       "file": "elevation.webm",
-      "sha256": "5b2d1a146adb5372b626736c127e28f41635742b75cd325416318dc15b383d5a",
+      "sha256": "b51c7664502aa509e65599fdd6b994cf95d055f33fe0c97f0dd93109415f843c",
       "type": "video/webm",
       "duration": 4,
       "bytes": 25190,
@@ -20176,7 +20176,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-elevation\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-elevation\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -20196,7 +20196,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\elevation.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -20721,12 +20721,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 4.987
+      "generationSeconds": 4.665
     },
     {
       "id": "rational-elevation",
       "file": "rational-elevation.webm",
-      "sha256": "cd8de07100f349ffe2f4e528d065186653e73b28501a1c592f4d5c6ddbf5a3f6",
+      "sha256": "2f61384b9441eecc3dfcc3061e09407f8e28ecab753a8776895e45050d6e782e",
       "type": "video/webm",
       "duration": 4,
       "bytes": 45697,
@@ -20754,7 +20754,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-rational-elevation\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-rational-elevation\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -20774,7 +20774,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\rational-elevation.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\rational-elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -21317,12 +21317,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 7.016
+      "generationSeconds": 6.992
     },
     {
       "id": "decasteljau",
       "file": "decasteljau.webm",
-      "sha256": "aaf7a181b6c0a6649bd4710a4c1ec0139674d60635eda17bc509c1ae3e5b0c12",
+      "sha256": "86b9ba5b57c1568bacbf582a903ff9d2e343f649754d0f386e18018c256b7afc",
       "type": "video/webm",
       "duration": 4,
       "bytes": 295631,
@@ -21350,7 +21350,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-decasteljau\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-decasteljau\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -21370,7 +21370,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\decasteljau.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\decasteljau.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -37633,12 +37633,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 17.567
+      "generationSeconds": 17.396
     },
     {
       "id": "derivative",
       "file": "derivative.webm",
-      "sha256": "e49e66d72717b26d2eb2574e291c5ca76bc873f8c1df230f2d9d42f1cf9c99d9",
+      "sha256": "d3c0ac51c904fc222e1d13c5596a1c4b028f7f7597948d7f68974cab9b23d791",
       "type": "video/webm",
       "duration": 4,
       "bytes": 250909,
@@ -37666,7 +37666,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-derivative\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-derivative\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -37686,7 +37686,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\derivative.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\derivative.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -45405,12 +45405,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 15.574
+      "generationSeconds": 15.538
     },
     {
       "id": "farin",
       "file": "farin.webm",
-      "sha256": "6e9fcbca15fe35df3a2510529204f38e7d262d77552de0998b81f15035d3818b",
+      "sha256": "894f670d312de181fe7b32c79b4af941151354b57e86178ad6ccb11521e9ae07",
       "type": "video/webm",
       "duration": 4,
       "bytes": 259057,
@@ -45438,7 +45438,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-farin\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-farin\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -45458,7 +45458,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\farin.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\farin.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -57110,12 +57110,12 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 14.951
+      "generationSeconds": 14.927
     },
     {
       "id": "weighted-parameterization",
       "file": "weighted-parameterization.webm",
-      "sha256": "d98419b45725600e18130a22357e8cff6267ac542b77590131d2011524592b74",
+      "sha256": "44fd0f7195bd315a227a0d3a61ebd48a1b632c32e9b8e143572d484ce4d13f7a",
       "type": "video/webm",
       "duration": 4,
       "bytes": 167065,
@@ -57143,7 +57143,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-weighted-parameterization\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-weighted-parameterization\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -57163,7 +57163,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\weighted-parameterization.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\weighted-parameterization.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -73137,15 +73137,15 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 12.458
+      "generationSeconds": 12.189
     },
     {
       "id": "complex-multiplication",
       "file": "complex-multiplication.webm",
-      "sha256": "b6ae7554d5a6b753110b60a1f560e3245767d2a73ac7a8758590bfb8c80f5340",
+      "sha256": "eadc3d7777dd48eda55b1e9059faaabebf8ca55a630a8e6875f8a9ad750d50d1",
       "type": "video/webm",
       "duration": 4,
-      "bytes": 297310,
+      "bytes": 287913,
       "width": 720,
       "height": 440,
       "codec": "vp9",
@@ -73170,7 +73170,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-complex-multiplication\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-complex-multiplication\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -73190,15 +73190,15 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\complex-multiplication.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\complex-multiplication.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
       "camera": [
-        -3.560727272727273,
-        2.776,
-        3.560727272727273,
-        -1.5760000000000005
+        -4.084363636363635,
+        2.846,
+        4.084363636363638,
+        -2.146
       ],
       "mode": "pointer-drag",
       "schedule": {
@@ -73223,7 +73223,7 @@
         "Only w changes; the product follows w",
         "First and last source frames equal the recipe state"
       ],
-      "encoderBudget": "CRF 14: 297310 B on the 96 source frames, the lowest CRF under the 307200 B ceiling (CRF 13 309149, CRF 12 324011, CRF 10 350903); no label, amplitude or camera change was made",
+      "encoderBudget": "CRF 14: 287913 B with the recipe window bottom at -1.6 (297310 B at -1.1, where the product left the frame; there CRF 13 was 309149, CRF 12 324011, CRF 10 350903, all over the 307200 B ceiling); no label or amplitude change was made",
       "samples": [
         {
           "index": 0,
@@ -73238,11 +73238,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "000.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73280,7 +73280,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 1,
@@ -73295,11 +73295,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "001.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73337,7 +73337,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 2,
@@ -73352,11 +73352,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "002.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73394,7 +73394,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 3,
@@ -73409,11 +73409,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "003.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73451,7 +73451,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 4,
@@ -73466,11 +73466,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "004.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73508,7 +73508,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 5,
@@ -73523,11 +73523,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "005.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73565,7 +73565,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 6,
@@ -73580,11 +73580,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "006.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73622,7 +73622,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 7,
@@ -73637,11 +73637,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "007.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73679,7 +73679,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 8,
@@ -73694,11 +73694,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "008.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73736,7 +73736,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 9,
@@ -73751,11 +73751,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "009.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73793,7 +73793,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 10,
@@ -73808,11 +73808,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "010.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73850,7 +73850,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 11,
@@ -73865,11 +73865,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "011.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73907,7 +73907,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 12,
@@ -73922,11 +73922,11 @@
             "y": 1
           },
           "observed": {
-            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "0,0\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "012.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -73964,7 +73964,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 13,
@@ -73979,11 +73979,11 @@
             "y": 0.9999952724754294
           },
           "observed": {
-            "text": "(-0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(-0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "013.png",
-            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "sha256": "cb7fa20c424b0f22f9417b147449b78132ee7260c4ae29c23aa82255011eaefc",
             "width": 720,
             "height": 440
           },
@@ -74021,7 +74021,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+          "curvePathHash": "c9025a76dd3dad3a12596a4e57c6de088e88b29920719314b85fda1b330f0630"
         },
         {
           "index": 14,
@@ -74036,11 +74036,11 @@
             "y": 0.9999244345157351
           },
           "observed": {
-            "text": "(-0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(-0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "014.png",
-            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "sha256": "cb7fa20c424b0f22f9417b147449b78132ee7260c4ae29c23aa82255011eaefc",
             "width": 720,
             "height": 440
           },
@@ -74078,7 +74078,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+          "curvePathHash": "c9025a76dd3dad3a12596a4e57c6de088e88b29920719314b85fda1b330f0630"
         },
         {
           "index": 15,
@@ -74093,11 +74093,11 @@
             "y": 0.9996180930122694
           },
           "observed": {
-            "text": "(-0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5"
+            "text": "(-0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "015.png",
-            "sha256": "4e886bf68b1814fa3e6451a6e19ac33b7db2e1bc9635cac5725356cb8fdc0e8a",
+            "sha256": "cb05e5a18fedad989f6911305cab7edb34077da0965003141f7d1bcf710b8298",
             "width": 720,
             "height": 440
           },
@@ -74135,7 +74135,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ce739cb5c58749772d1e84d40b3b91c105a39e546e52db1f109ef4443b43d31a"
+          "curvePathHash": "9c14f7eacf6fd9e223d1adfe996f287c3424bd8674b724d820b153e3b2e81599"
         },
         {
           "index": 16,
@@ -74150,11 +74150,11 @@
             "y": 0.9987959053926265
           },
           "observed": {
-            "text": "(-0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5"
+            "text": "(-0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 + izw = −1,05 + 0,95i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "016.png",
-            "sha256": "4e886bf68b1814fa3e6451a6e19ac33b7db2e1bc9635cac5725356cb8fdc0e8a",
+            "sha256": "cb05e5a18fedad989f6911305cab7edb34077da0965003141f7d1bcf710b8298",
             "width": 720,
             "height": 440
           },
@@ -74192,7 +74192,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ce739cb5c58749772d1e84d40b3b91c105a39e546e52db1f109ef4443b43d31a"
+          "curvePathHash": "9c14f7eacf6fd9e223d1adfe996f287c3424bd8674b724d820b153e3b2e81599"
         },
         {
           "index": 17,
@@ -74207,11 +74207,11 @@
             "y": 0.9970697860062131
           },
           "observed": {
-            "text": "(-0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5"
+            "text": "(-0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "017.png",
-            "sha256": "6f5c20bd3109cffa8ae7f2e9a622bdd3167b4c8f0493f048a21800836aeb071d",
+            "sha256": "067c8c63355b5f28f9cca4003e7e4944b95d4d11b97a86eee6880193e8b52eea",
             "width": 720,
             "height": 440
           },
@@ -74249,7 +74249,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "9c949de1d530b54df9f1f4f14dcacae4ecc99d8f793436177b75e46a15abd4cc"
+          "curvePathHash": "853fa59a6c5257561947097aaa8bea40c78b385470559dca4ad71ed27ca620d2"
         },
         {
           "index": 18,
@@ -74264,11 +74264,11 @@
             "y": 0.9939488540320492
           },
           "observed": {
-            "text": "(-0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5"
+            "text": "(-0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,1 + izw = −1,1 + 0,9i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "018.png",
-            "sha256": "6f5c20bd3109cffa8ae7f2e9a622bdd3167b4c8f0493f048a21800836aeb071d",
+            "sha256": "067c8c63355b5f28f9cca4003e7e4944b95d4d11b97a86eee6880193e8b52eea",
             "width": 720,
             "height": 440
           },
@@ -74306,7 +74306,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "9c949de1d530b54df9f1f4f14dcacae4ecc99d8f793436177b75e46a15abd4cc"
+          "curvePathHash": "853fa59a6c5257561947097aaa8bea40c78b385470559dca4ad71ed27ca620d2"
         },
         {
           "index": 19,
@@ -74321,11 +74321,11 @@
             "y": 0.988846544346283
           },
           "observed": {
-            "text": "(-0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,15 + izw = −1,15 + 0,85i\n−2\n−2.5"
+            "text": "(-0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,15 + izw = −1,15 + 0,85i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "019.png",
-            "sha256": "3bbcb86c8e1806be061e8928e02c998f5f533f66022e2c3b639ea7df2658c7a5",
+            "sha256": "aac71939316a407726f4baa7db56848a592141714d5f8555fb304c7c0e2e4b4c",
             "width": 720,
             "height": 440
           },
@@ -74363,7 +74363,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "bd800e0ee60167f6e43c2a889ae234d20ef096a5d6ef4349aac631d5288337a7"
+          "curvePathHash": "9a7a9ff7f7e27c776860f67f8fe12f41dbbcbf0f0d986f3514fbdbd937de7be5"
         },
         {
           "index": 20,
@@ -74378,11 +74378,11 @@
             "y": 0.9810903690895039
           },
           "observed": {
-            "text": "(-0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 + izw = −1,2 + 0,8i\n−2\n−2.5"
+            "text": "(-0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 + izw = −1,2 + 0,8i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "020.png",
-            "sha256": "7620ccfdde66ca5d113f7f9747b0f48588625d84ad52122bfed960d360db9847",
+            "sha256": "2b0e2c2e5d59794eda412889633ea774a67372b8f0dcdb8374464e864a8b267f",
             "width": 720,
             "height": 440
           },
@@ -74420,7 +74420,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "94cec510d36543b1cc70afd95c257ffb9da760757b56fbf248026a706b40f54b"
+          "curvePathHash": "5cdb4d36c69c6e9d1ed0e943ad00cadcc22582ef65a9d3942c474743153c4541"
         },
         {
           "index": 21,
@@ -74435,11 +74435,11 @@
             "y": 0.9699348429346227
           },
           "observed": {
-            "text": "(-0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,25 + 0,95izw = −1,2 + 0,7i\n−2\n−2.5"
+            "text": "(-0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,25 + 0,95izw = −1,2 + 0,7i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "021.png",
-            "sha256": "57e57471900656deac24ef1c47904ff4a83d8d199389e39b9010e9b0627c21a0",
+            "sha256": "f3438678f1226554beba06363c0cd3cdc74cbc684044f0fae5613ff713953e0f",
             "width": 720,
             "height": 440
           },
@@ -74477,7 +74477,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "24af38b1f035a213e0168b72bb816481bb736a0e69a7f8c43de05aca25ce2a90"
+          "curvePathHash": "1304436eec5c8d10a34b6355932d1150edb4d0b888636cd94dac9c89e8690917"
         },
         {
           "index": 22,
@@ -74492,11 +74492,11 @@
             "y": 0.9545780604065784
           },
           "observed": {
-            "text": "(-0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,3 + 0,95izw = −1,25 + 0,65i\n−2\n−2.5"
+            "text": "(-0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,3 + 0,95izw = −1,25 + 0,65i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "022.png",
-            "sha256": "ceb35927a4bf638a85c623c8c6ffbec8e3e22c65067881c5bd60c4a29f6e66af",
+            "sha256": "51074c217d654258753ec193ed5485b468d8a50326676435374c9587854b0b56",
             "width": 720,
             "height": 440
           },
@@ -74534,7 +74534,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "9ec72fba8c39e0265573baea2053ad54ef76a5e1d75ec490b6cf75e371296d1b"
+          "curvePathHash": "28291dea40fc83e1fdb893da33d0769373bfd5fe2ea3288d97870fdd0c0921c2"
         },
         {
           "index": 23,
@@ -74549,11 +74549,11 @@
             "y": 0.9341823313085194
           },
           "observed": {
-            "text": "(-0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 + 0,95izw = −1,3 + 0,6i\n−2\n−2.5"
+            "text": "(-0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 + 0,95izw = −1,3 + 0,6i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "023.png",
-            "sha256": "9f662f11c8e54ea5b1b4b55450af11fa4284ad525ad15ad4a904ee071021800e",
+            "sha256": "f73f1c245754d734a2d3d86976c6ad600cc60474a42381e7ac813b7cf8e8cb75",
             "width": 720,
             "height": 440
           },
@@ -74591,7 +74591,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "06ebc1d853ffb5619f6c29cc6f2b55379e348ed2b7f6aba65cfbcdfdfad44d8f"
+          "curvePathHash": "18cc51ea8045792ff4946e13fe6c1cd19b707bf4ab7a4da990a512632b6ea65d"
         },
         {
           "index": 24,
@@ -74606,11 +74606,11 @@
             "y": 0.9078991347072279
           },
           "observed": {
-            "text": "(-0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,4 + 0,9izw = −1,3 + 0,5i\n−2\n−2.5"
+            "text": "(-0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,4 + 0,9izw = −1,3 + 0,5i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "024.png",
-            "sha256": "5d96e99fd9d39edfae22470600da6ffb058d8097ec2cccaf4b5ea6da880f4485",
+            "sha256": "4ec4d00eeb57ae7668f18306d10fe6ae468e5fd32b50eb19430f1a60d0711272",
             "width": 720,
             "height": 440
           },
@@ -74648,7 +74648,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "b34550474b68a35cefff595c969f5343dabb9b2461c8a19990c0a89d79577ab3"
+          "curvePathHash": "4621c438b6cd7a27fb90f42963933692b96c22d111514f22363f0412796829dc"
         },
         {
           "index": 25,
@@ -74663,11 +74663,11 @@
             "y": 0.8748984405861074
           },
           "observed": {
-            "text": "(-0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,5 + 0,85izw = −1,35 + 0,35i\n−2\n−2.5"
+            "text": "(-0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,5 + 0,85izw = −1,35 + 0,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "025.png",
-            "sha256": "73d471f8d61b2fffe5db32b656ed2635dd855cc018ab446d0a930f9ad3ed7cea",
+            "sha256": "5e4cb6551858f995d6aa66c431e28495d3dcabcbbf6d7f72022c03171c4e7516",
             "width": 720,
             "height": 440
           },
@@ -74705,7 +74705,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a16c1d7bf6acf1b892ed7794041f1b68127fd3f3ab05086768e52d163e2d4c9d"
+          "curvePathHash": "df703dab2e633df02076739835bbb4c3ed29ce85866bdf914ba4a672a84c93fb"
         },
         {
           "index": 26,
@@ -74720,11 +74720,11 @@
             "y": 0.8344021732050289
           },
           "observed": {
-            "text": "(-0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,55 + 0,85izw = −1,4 + 0,3i\n−2\n−2.5"
+            "text": "(-0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,55 + 0,85izw = −1,4 + 0,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "026.png",
-            "sha256": "d3b67a1bda574aa60f1828a777794409dc4cbea9cf015d940420843e58188f88",
+            "sha256": "a5926f3907a2e176a63a2fb4f737d652bb113e4afe3b419a11388c5ab85e8bd2",
             "width": 720,
             "height": 440
           },
@@ -74762,7 +74762,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "abad7344f4613ae9f4d2a960a694da932f5183a1f3fc1116651b7330171f3f76"
+          "curvePathHash": "fc333a9d6d24160a87e19eada7206fed333ea3faeb00deadd87c6ae953a4572e"
         },
         {
           "index": 27,
@@ -74777,11 +74777,11 @@
             "y": 0.7857212590635513
           },
           "observed": {
-            "text": "(-0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 + 0,8izw = −1,4 + 0,2i\n−2\n−2.5"
+            "text": "(-0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 + 0,8izw = −1,4 + 0,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "027.png",
-            "sha256": "5368e57b662a91dd2d13dbfb20c48a48f2aade36e6ef04a4fb4baf77ee0e8817",
+            "sha256": "43ae98260b7968270be1403d7ba2463478e7bc45bdd4e5ea759a3c408e5e1813",
             "width": 720,
             "height": 440
           },
@@ -74819,7 +74819,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "3721141f974440874f878e24ca61eb229a93b4ec38878eb6dcea59d3c4e825a3"
+          "curvePathHash": "afb8751e3dd7cf5051945eb3c359eff669092a454612472a26ac582d2740df60"
         },
         {
           "index": 28,
@@ -74834,11 +74834,11 @@
             "y": 0.728295329363173
           },
           "observed": {
-            "text": "(-0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 + 0,75izw = −1,45 + 0,05i\n−2\n−2.5"
+            "text": "(-0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 + 0,75izw = −1,45 + 0,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "028.png",
-            "sha256": "6cdb6d80ed03b3942fe73b12f6565b8a692e3dada003c074c0b9b4ad85fd18f4",
+            "sha256": "5a31a4b4c4c5da110d4a9967a4f9cda251beccfe5465b7da4bdac35100f284dc",
             "width": 720,
             "height": 440
           },
@@ -74876,7 +74876,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "e285f24d5564e008c0b992a7ddb071b31d39d4d7c13a09c1b9d73e5ad3c412ab"
+          "curvePathHash": "b24ea6dfd91cdc5bf6ec8143fe609de2ceec1e495fd415ec1c617259f8e422c9"
         },
         {
           "index": 29,
@@ -74891,11 +74891,11 @@
             "y": 0.6617337532601109
           },
           "observed": {
-            "text": "(-0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,75 + 0,65izw = −1,4 − 0,1i\n−2\n−2.5"
+            "text": "(-0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,75 + 0,65izw = −1,4 − 0,1i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "029.png",
-            "sha256": "5b69a93e5224225376a304114f90eacdad673cd47abe1b3c157b59c17fa6fb62",
+            "sha256": "6c87c1611ac977f3b9a14d24b7afbb03bd8e76584152dc42985eac57b629b403",
             "width": 720,
             "height": 440
           },
@@ -74933,7 +74933,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "11dc429f90bc553fa23a206e3726e8bdd94e884e9d8075fff0cc7915da8ef42c"
+          "curvePathHash": "322f5de4a52d8860a624b4a0401817ff720782505c0db3e0f22f27356f4d20a4"
         },
         {
           "index": 30,
@@ -74948,11 +74948,11 @@
             "y": 0.5858562920911988
           },
           "observed": {
-            "text": "(-0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 + 0,6izw = −1,4 − 0,2i\n−2\n−2.5"
+            "text": "(-0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 + 0,6izw = −1,4 − 0,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "030.png",
-            "sha256": "74d15e9213f97191936b6c11be04dd15b1a0f407605fe1454e0b3efda3f8ae06",
+            "sha256": "14b06c43d10b9501511539b929b4b5809a03720e42c878fa6b03ba21326e1345",
             "width": 720,
             "height": 440
           },
@@ -74990,7 +74990,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "40b92e69b15713aac70a26e8513936051f27476d69f07133f4834a775c8cbc68"
+          "curvePathHash": "ca8b12961df612a9993ffd4c8cc35be31050bb857ca593155815f1f4631e4b27"
         },
         {
           "index": 31,
@@ -75005,11 +75005,11 @@
             "y": 0.5007313200405555
           },
           "observed": {
-            "text": "(-0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 + 0,5izw = −1,35 − 0,35i\n−2\n−2.5"
+            "text": "(-0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 + 0,5izw = −1,35 − 0,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "031.png",
-            "sha256": "5f966cc38f3be7a7572c16d092ebcd27697e3545f16b7669b10ce1c2c2018435",
+            "sha256": "6fef8ccb56b026fdec7fae7a3ebf721e61093acd96c2a4602867f787b1d7bd5a",
             "width": 720,
             "height": 440
           },
@@ -75047,7 +75047,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "954222aece133e409af737eec27f666076b6ca848f95936ee0766d15c4f9b9dd"
+          "curvePathHash": "cf0414fa31b098d497e104904bb9ac535a838563a8c4155fab382fb62337fbe6"
         },
         {
           "index": 32,
@@ -75062,11 +75062,11 @@
             "y": 0.40670929109196624
           },
           "observed": {
-            "text": "(-0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 + 0,4izw = −1,3 − 0,5i\n−2\n−2.5"
+            "text": "(-0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 + 0,4izw = −1,3 − 0,5i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "032.png",
-            "sha256": "fde123fad03234f5e3178a51c153514c7e60256ab57b5e799bd30a19507fa24a",
+            "sha256": "1780983b87c323ee3c7fc35b9f5554921dd57361bf8c02f5743072bcbe17e8cb",
             "width": 720,
             "height": 440
           },
@@ -75104,7 +75104,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "f4f09f7c45c8e150a6303b6745d61af77f22fce98cbee137818bcaf5e90cd77c"
+          "curvePathHash": "dda17e6a1ef792c6c76e2e3acd3ff0cfe3d538ce9fef469ac1b15111ad150848"
         },
         {
           "index": 33,
@@ -75119,11 +75119,11 @@
             "y": 0.30444898412004334
           },
           "observed": {
-            "text": "(-0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 + 0,3izw = −1,25 − 0,65i\n−2\n−2.5"
+            "text": "(-0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 + 0,3izw = −1,25 − 0,65i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "033.png",
-            "sha256": "ff9ed2f3c72b92c20f8df59961ea46dc6a0f75a3103a2b82cebe4d5e96eccbbd",
+            "sha256": "1d3d9a17bc258396f35eaf10f9accb0763fa10adf6a3a06bfc688511a0047031",
             "width": 720,
             "height": 440
           },
@@ -75161,7 +75161,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "526102a698ea9896bcec40c9cba5219ab9186464d38d879ef6251eefdd776c63"
+          "curvePathHash": "78bdfa4ba7b343e15282c5a2555230c53577478aba1b0f19207ba34d29a24b49"
         },
         {
           "index": 34,
@@ -75176,11 +75176,11 @@
             "y": 0.19493406320825357
           },
           "observed": {
-            "text": "(-0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,2izw = −1,2 − 0,8i\n−2\n−2.5"
+            "text": "(-0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,2izw = −1,2 − 0,8i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "034.png",
-            "sha256": "cc5750a7e485080510c0b949cdf0d1a212be2c81b6af4eab9112bcd57c16baff",
+            "sha256": "aca0869ad0d9bbbf31aac93dd1bf73ac034b7739e96ff1c4444ea93c6e4a5a59",
             "width": 720,
             "height": 440
           },
@@ -75218,7 +75218,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "1952debf5837b0fe9c9be029bdd6aa8df9c6329a9045f1b471204a416759dea8"
+          "curvePathHash": "523a3e6c045573be2434506bcf59251ccdc3b84a5563b4f2913a4ef1b4adfbe7"
         },
         {
           "index": 35,
@@ -75233,11 +75233,11 @@
             "y": 0.0794776770792195
           },
           "observed": {
-            "text": "(-1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,1izw = −1,1 − 0,9i\n−2\n−2.5"
+            "text": "(-1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 + 0,1izw = −1,1 − 0,9i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "035.png",
-            "sha256": "88ed668d50660ad1ba95d711e1323489d20988c3eff7ac98d73964754f1f1116",
+            "sha256": "498224899e4e7d5ee6039d1899e427036679b5f8865f08b96df7d6cd33896924",
             "width": 720,
             "height": 440
           },
@@ -75275,7 +75275,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "c0f5ed9cf359b9b319de1b00cc58f30aa95772f0e06ada2601cdc7965ea12aba"
+          "curvePathHash": "b82d081dcbe6757cae8a6eebcecc243baa292c613be1fcfb91945de1d24f8e00"
         },
         {
           "index": 36,
@@ -75290,11 +75290,11 @@
             "y": -0.04028679346183765
           },
           "observed": {
-            "text": "(-1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,05izw = −0,95 − 1,05i\n−2\n−2.5"
+            "text": "(-1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,05izw = −0,95 − 1,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "036.png",
-            "sha256": "58c8f4791427869f4a43d30ee220aec38dc5b3016d874d7d638821c2ead6d075",
+            "sha256": "f9e947c45deda996f7a5e823bd4a26007d715f4f052b4505d8799adc91cefdd4",
             "width": 720,
             "height": 440
           },
@@ -75332,7 +75332,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "5409fbf00db11769f96bdc69237d98369b058b94b78206e5089c07fb6bbfa2cf"
+          "curvePathHash": "93215fb063405236a912393ffed36cb785f0a64b518146ed52e3e29a5a3e0c76"
         },
         {
           "index": 37,
@@ -75347,11 +75347,11 @@
             "y": -0.1624301469285964
           },
           "observed": {
-            "text": "(-0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,15izw = −0,85 − 1,15i\n−2\n−2.5"
+            "text": "(-0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −1 − 0,15izw = −0,85 − 1,15i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "037.png",
-            "sha256": "4a841791d1fa04abbd580d82cdfa50a7cbcd0cea765cbefb88bdbfe6becbc98c",
+            "sha256": "a9dff9f0d6d4ce8b818890602c5b33cf95afad387db7def9835f470d82869371",
             "width": 720,
             "height": 440
           },
@@ -75389,7 +75389,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "35fdcfffd569534d06ecf80142da90324f484677aa61ae943659fe507a952830"
+          "curvePathHash": "1b289d79b16c7867966797a73f00b5d4ec1a818a4edfdb09ecd4bee1205c41a6"
         },
         {
           "index": 38,
@@ -75404,11 +75404,11 @@
             "y": -0.284767472344469
           },
           "observed": {
-            "text": "(-0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 − 0,3izw = −0,65 − 1,25i\n−2\n−2.5"
+            "text": "(-0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,95 − 0,3izw = −0,65 − 1,25i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "038.png",
-            "sha256": "9097663285e2b9fc3aa9069bfc4f153a2d10d8dc658d0746076fabc78d4b9661",
+            "sha256": "7ee9d2edc12705a6f55913c3b6a4a21cfdd55b749586b0966fd6404b8c94f644",
             "width": 720,
             "height": 440
           },
@@ -75446,7 +75446,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "cff6a65ab0349ed2b8360f88a3402c67b2cceffcf15526353c9b932aa679374b"
+          "curvePathHash": "9352699643d2fec8c0133c7242422982e7da01bb70ef34c4f6820afe34b575b9"
         },
         {
           "index": 39,
@@ -75461,11 +75461,11 @@
             "y": -0.4049135909674012
           },
           "observed": {
-            "text": "(-0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 − 0,4izw = −0,5 − 1,3i\n−2\n−2.5"
+            "text": "(-0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,9 − 0,4izw = −0,5 − 1,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "039.png",
-            "sha256": "60384360c0fa0e339d8bd982908fe4dc953f75fca7345ceebd064c267c7e494c",
+            "sha256": "ec2c092d05805d241db6b87686b2970cd29133fd8ee8042ade227789d31d6204",
             "width": 720,
             "height": 440
           },
@@ -75503,7 +75503,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "8307c6227629d9e1c66b7e1935f2c68e6965f5d01fd3b71c29d2615afe44fb64"
+          "curvePathHash": "0d7bc01fc3a4e58894ff98a709ce3aa79628bf57cdaccc20f11b36cb468b6cbc"
         },
         {
           "index": 40,
@@ -75518,11 +75518,11 @@
             "y": -0.5203524612000276
           },
           "observed": {
-            "text": "(-0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 − 0,5izw = −0,35 − 1,35i\n−2\n−2.5"
+            "text": "(-0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,85 − 0,5izw = −0,35 − 1,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "040.png",
-            "sha256": "704a863046395c0c502367779184ee38f61d5e760990777586df1d74cc41208c",
+            "sha256": "3ccfb97c11fde4edc7f024e57f474e6685d773955ab82b926173a4145653f714",
             "width": 720,
             "height": 440
           },
@@ -75560,7 +75560,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "1184f8cfe29bd3a3c73dc8f69b5a7a84cd852c740e51da98c3f9f07517c000fa"
+          "curvePathHash": "4be294afedf8a84bb78ad4b30565965236f114388fa32b95967293f0b54795c5"
         },
         {
           "index": 41,
@@ -75575,11 +75575,11 @@
             "y": -0.6285181655737586
           },
           "observed": {
-            "text": "(-0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 − 0,65izw = −0,15 − 1,45i\n−2\n−2.5"
+            "text": "(-0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,8 − 0,65izw = −0,15 − 1,45i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "041.png",
-            "sha256": "99fe8da233d2e7238d0391bbc97a39263c38369c89d3be51f3f2e1f397c55c35",
+            "sha256": "63bd34a61df430a35919c7f0280a07a826ab6385ed8853cecfdd1811e6361ae8",
             "width": 720,
             "height": 440
           },
@@ -75617,7 +75617,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "59403347943350c4e076d071648dfefb3ee088edb551db7bd225ee2aa4a07b36"
+          "curvePathHash": "84fb314fdda075b696dbae7dea80b9d08e8ace18aab64e15a67df35555e3307e"
         },
         {
           "index": 42,
@@ -75632,11 +75632,11 @@
             "y": -0.7268841518396132
           },
           "observed": {
-            "text": "(-0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 − 0,75izw = 0,05 − 1,45i\n−2\n−2.5"
+            "text": "(-0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,7 − 0,75izw = 0,05 − 1,45i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "042.png",
-            "sha256": "cfe531e2750b16132b8694f19eddfae6bd49f0117b06d6e2a5e8d94270c64518",
+            "sha256": "f5cb2c9f87f7a11d2a6266b30bc593abe30be7f8ab9a13eec8c0fb8050681680",
             "width": 720,
             "height": 440
           },
@@ -75674,7 +75674,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "01ebfeab6de96cc6a2f6a6d958ba3770aef45a2bd2afe0d037b8f6fb4112db35"
+          "curvePathHash": "c7e41f79b41a0c427571bec4b96a7ed932860f0cbf85b2a16098336d9ffb0bde"
         },
         {
           "index": 43,
@@ -75689,11 +75689,11 @@
             "y": -0.8130566057729469
           },
           "observed": {
-            "text": "(-0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 − 0,8izw = 0,2 − 1,4i\n−2\n−2.5"
+            "text": "(-0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,6 − 0,8izw = 0,2 − 1,4i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "043.png",
-            "sha256": "49985665a3340cb0d667df8df75a471f128dca99b4809e9b34d7d8b6e3c1407f",
+            "sha256": "66c695f2eba38e0ca6fb7509fc98220a8fbd7b7b834e2fd3adc30772656224fe",
             "width": 720,
             "height": 440
           },
@@ -75731,7 +75731,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "bf048860c7b4c093ef67343f1820e51fc7a2a8fa8ca19ff431775c34c0af1171"
+          "curvePathHash": "6a681c61936b664ee7620877aded25712c36cd8815bbb190f0248927ac5bac69"
         },
         {
           "index": 44,
@@ -75746,11 +75746,11 @@
             "y": -0.8848672711392341
           },
           "observed": {
-            "text": "(-0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,45 − 0,9izw = 0,45 − 1,35i\n−2\n−2.5"
+            "text": "(-0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,45 − 0,9izw = 0,45 − 1,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "044.png",
-            "sha256": "f2fb8a7fd0169afb4e03843202142a395fe51e2c71b7bac9c346ee474fdfed21",
+            "sha256": "a3f5c1c316eb8d2d26561e62771a9b193ae8ce85848de78d6d0a7100f97a0978",
             "width": 720,
             "height": 440
           },
@@ -75788,7 +75788,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "271cb7480b6d51c9591c7d58556f0dd40ad6dbf61cae01489c7afd3a2b4899f0"
+          "curvePathHash": "cc95c57031cf6f88cc01f2ecf9a6038aeda534f234ced5ffbd513258a46f97f9"
         },
         {
           "index": 45,
@@ -75803,11 +75803,11 @@
             "y": -0.9404607676216545
           },
           "observed": {
-            "text": "(-0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 − 0,95izw = 0,6 − 1,3i\n−2\n−2.5"
+            "text": "(-0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,35 − 0,95izw = 0,6 − 1,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "045.png",
-            "sha256": "ea56cf2c76b7ea59d7d18842fa82c6f9af54bced35ddf026ac5f7a4ce872f9da",
+            "sha256": "95d29a4d81288833c31d6ea254968c55c591768c49d6fee6e284cb78e496f038",
             "width": 720,
             "height": 440
           },
@@ -75845,7 +75845,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "81a5f4574440d4bf0c06b30332aaf2c5e57342b7967e1fd00363c468ff319145"
+          "curvePathHash": "1de22145e68e57f7e11609b5985919b8f596ba1cc6cf41b30da507e4559043c9"
         },
         {
           "index": 46,
@@ -75860,11 +75860,11 @@
             "y": -0.9783715329803717
           },
           "observed": {
-            "text": "(-0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 − izw = 0,8 − 1,2i\n−2\n−2.5"
+            "text": "(-0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,2 − izw = 0,8 − 1,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "046.png",
-            "sha256": "4572380ca6610c7acb19f4044da0c5efa664fb57c16b541331a77927b6ece05b",
+            "sha256": "93247d9d06bc53e33a412c2595caa9f856eba37c7ce5737d2299d36be18af3be",
             "width": 720,
             "height": 440
           },
@@ -75902,7 +75902,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "7aaba897fb3892ab828b3381563efafeb825de857b7f931131ccac1a472480a9"
+          "curvePathHash": "85e04996d02ddea539de1419902af786ee19cf79c9c08e6c78025ced6b8bc767"
         },
         {
           "index": 47,
@@ -75917,11 +75917,11 @@
             "y": -0.997585945141019
           },
           "observed": {
-            "text": "(-0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 − izw = 0,95 − 1,05i\n−2\n−2.5"
+            "text": "(-0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = −0,05 − izw = 0,95 − 1,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "047.png",
-            "sha256": "d0f2855d8c58b483661b5150fc0e4d7c85221171f48c864e07e0641b9cdf49a9",
+            "sha256": "bb347ab1de133fca0867bf16298790d2314995f4932b756055676de414547993",
             "width": 720,
             "height": 440
           },
@@ -75959,7 +75959,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "fdeceb781c0f4334b0a91893b255a2ef2483f4f463356db1682f84842ab1a162"
+          "curvePathHash": "af856a30c77dca2e382af79a887e5bbbbc3eb52b871835391ef6aa1fdb75c4ba"
         },
         {
           "index": 48,
@@ -75974,11 +75974,11 @@
             "y": -0.997585945141019
           },
           "observed": {
-            "text": "(0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 − izw = 1,05 − 0,95i\n−2\n−2.5"
+            "text": "(0.0694, -1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 − izw = 1,05 − 0,95i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "048.png",
-            "sha256": "0e85ffce984bb0f26bef834063de05af5b70366c1b4d192383cb8b7667e05b57",
+            "sha256": "38328bcb62ef72c2e2850fe70694dccb47436a42bdf1a093f9e86d43cac83378",
             "width": 720,
             "height": 440
           },
@@ -76016,7 +76016,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "4e1b7e04b123c8f32b0ed62f626a5fbf80b5195aae731f662b2023db90349abd"
+          "curvePathHash": "80086c25fab66631a4994f91d3ee63b60aa1b506e3e71abe56bf36fc8f1cbec0"
         },
         {
           "index": 49,
@@ -76031,11 +76031,11 @@
             "y": -0.9783715329803719
           },
           "observed": {
-            "text": "(0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 − izw = 1,2 − 0,8i\n−2\n−2.5"
+            "text": "(0.21, -0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 − izw = 1,2 − 0,8i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "049.png",
-            "sha256": "cc4a59abf0a025d1b5692b1529ed7ad66d6237091c15709064e7d0e1fda08e0d",
+            "sha256": "de3b8379a0c1aead0cc39a4192d3466bee326560f0469d66c019f0d1d859fa9c",
             "width": 720,
             "height": 440
           },
@@ -76073,7 +76073,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "e8a0b7e3931b305fe625777a79b7c6937795338aeb63d9982497903e163c11be"
+          "curvePathHash": "3c62163eaaab9f98051083db951a6452781662cda3fdbc9668bfd4a2419c1732"
         },
         {
           "index": 50,
@@ -76088,11 +76088,11 @@
             "y": -0.940460767621655
           },
           "observed": {
-            "text": "(0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 − 0,95izw = 1,3 − 0,6i\n−2\n−2.5"
+            "text": "(0.34, -0.94)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 − 0,95izw = 1,3 − 0,6i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "050.png",
-            "sha256": "25edcb5c2fd8ac838462f1bda5d43aeefe47e374d0e10855269d55057ef56c82",
+            "sha256": "f3fc7864b8cca94088a3cc726af0403c607a67e449744fdc2f5b754933210881",
             "width": 720,
             "height": 440
           },
@@ -76130,7 +76130,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ca9fea5e327d3618bdcd5bccaa0857fcdbc20757f51078f61807cbcac998a605"
+          "curvePathHash": "4cc5f24e8422a3d4c8e8a341653ebca2b7a3547d4092d193dec681fc15fec91c"
         },
         {
           "index": 51,
@@ -76145,11 +76145,11 @@
             "y": -0.8848672711392338
           },
           "observed": {
-            "text": "(0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,45 − 0,9izw = 1,35 − 0,45i\n−2\n−2.5"
+            "text": "(0.47, -0.88)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,45 − 0,9izw = 1,35 − 0,45i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "051.png",
-            "sha256": "f80768e0beee435368f36ace0803f302425f15ebc781243bd9217083a0071a71",
+            "sha256": "b465dcf1fa46ba0c6cca5429c42f40309cf48578cfbd09dd7149ab5643569dfa",
             "width": 720,
             "height": 440
           },
@@ -76187,7 +76187,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "0cdbacb66bd0634ed04b7df2dc4c056ef23c5eef2761e272699f02b0644e772e"
+          "curvePathHash": "c0d828091b1cfe2a8d576569960d1128c7d51dc4f15665e1e87649d35112ebea"
         },
         {
           "index": 52,
@@ -76202,11 +76202,11 @@
             "y": -0.8130566057729476
           },
           "observed": {
-            "text": "(0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 − 0,8izw = 1,4 − 0,2i\n−2\n−2.5"
+            "text": "(0.58, -0.81)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 − 0,8izw = 1,4 − 0,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "052.png",
-            "sha256": "b978a39474a82ae26f9081793d67e9a1262a632fb65e64df21afc300579635a1",
+            "sha256": "9290b7dec40b00fdca708abd12140aad7048c20cd781daa88c6e93b56cf8b333",
             "width": 720,
             "height": 440
           },
@@ -76244,7 +76244,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "e20a72be7eebae7d0a538e9f8c7e3cc712e5d768bc1a8d97e803a9844eef31ca"
+          "curvePathHash": "ce619bf24cd83df847b9dff36025f154cdcd8a65360c4bc6d0300cff25536dbe"
         },
         {
           "index": 53,
@@ -76259,11 +76259,11 @@
             "y": -0.7268841518396135
           },
           "observed": {
-            "text": "(0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 − 0,75izw = 1,45 − 0,05i\n−2\n−2.5"
+            "text": "(0.69, -0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 − 0,75izw = 1,45 − 0,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "053.png",
-            "sha256": "5ead0068fd90908822129a9405df2cec00770c57f59d658d0e93620de1d40635",
+            "sha256": "2af7dc2e72d050fea4e37ce8feef86a2fe0c9f054ef68d9f78c83f72cdd094f1",
             "width": 720,
             "height": 440
           },
@@ -76301,7 +76301,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "bdbee236513c04d8a6e39c60bb09e4e3263101f18aed10deaca1df98d1d24167"
+          "curvePathHash": "7b2cf93d054df9a19ea45da4898b079af86d26101e86503ae72b44b05a596c38"
         },
         {
           "index": 54,
@@ -76316,11 +76316,11 @@
             "y": -0.6285181655737593
           },
           "observed": {
-            "text": "(0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 − 0,65izw = 1,45 + 0,15i\n−2\n−2.5"
+            "text": "(0.78, -0.63)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 − 0,65izw = 1,45 + 0,15i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "054.png",
-            "sha256": "dfac1434fbb228337f66bf3b80ce206b97775126dcd64d8bb4e666bdedb2424c",
+            "sha256": "058c8bc1c64ac163a9097c1731afe887c257a964f27371ffa68044e9bcdb9164",
             "width": 720,
             "height": 440
           },
@@ -76358,7 +76358,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "be8c5414fb1b749378a539a17431ee859672182ded2f8e96cb16e47ea0794254"
+          "curvePathHash": "17149ddbb03348e6bff4eda0e35a9919100ffd1850cc38581527da68d17c31a9"
         },
         {
           "index": 55,
@@ -76373,11 +76373,11 @@
             "y": -0.5203524612000291
           },
           "observed": {
-            "text": "(0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 − 0,5izw = 1,35 + 0,35i\n−2\n−2.5"
+            "text": "(0.85, -0.52)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 − 0,5izw = 1,35 + 0,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "055.png",
-            "sha256": "c2b3eb67bb233008fdcc705bf9de5c4aebc898169a059007302bdedf4837cb35",
+            "sha256": "44200e6f30eca18b194ffa91941939256e386192c6e670938ea67512e8b42309",
             "width": 720,
             "height": 440
           },
@@ -76415,7 +76415,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "1806e900377fb39f37b84bad54120a44d4fa585e67a6163e0105bada663e2f08"
+          "curvePathHash": "1180ac7158f24aea0434d0ec9c0d7fc11ccc7e5f3cebb9c2e688ee3627c0ee26"
         },
         {
           "index": 56,
@@ -76430,11 +76430,11 @@
             "y": -0.40491359096740237
           },
           "observed": {
-            "text": "(0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 − 0,4izw = 1,3 + 0,5i\n−2\n−2.5"
+            "text": "(0.91, -0.40)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 − 0,4izw = 1,3 + 0,5i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "056.png",
-            "sha256": "39fe33b1cbb503456a51fccb3d2250799defdaf3a270cbd6c8b4ffb951bd29e6",
+            "sha256": "e64c4e013e18d89996a3cef7368628ed2375d545b5f7c6b30ab00220e4b757e1",
             "width": 720,
             "height": 440
           },
@@ -76472,7 +76472,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "bd752a8119e53dee433b809e1463c5d0dec74b3ac45a2ebbedbc666e94fd8730"
+          "curvePathHash": "ca4e9fa1bf7e143915668376ebb3354ad2fce39a6ad6ea6933d77a5b946dd975"
         },
         {
           "index": 57,
@@ -76487,11 +76487,11 @@
             "y": -0.2847674723444685
           },
           "observed": {
-            "text": "(0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 − 0,3izw = 1,25 + 0,65i\n−2\n−2.5"
+            "text": "(0.96, -0.28)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 − 0,3izw = 1,25 + 0,65i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "057.png",
-            "sha256": "afb1b4860fcaddc1c96443831401549fda5929824054229643d21c7616002f3f",
+            "sha256": "0c5ff942f992c1ad2960b69843d70cf2b3461c3cb5a71b2fb6d5643dbb4a0bad",
             "width": 720,
             "height": 440
           },
@@ -76529,7 +76529,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "95062b8026db0dfd0177c23a10d81687c873fe2072f173dc57f458109a7ce4f0"
+          "curvePathHash": "47e6e04e987e1c58bf214fe68ca4c0d7f487de44b0ea8b65815a6fb4c4e4d236"
         },
         {
           "index": 58,
@@ -76544,11 +76544,11 @@
             "y": -0.16243014692859675
           },
           "observed": {
-            "text": "(0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,15izw = 1,15 + 0,85i\n−2\n−2.5"
+            "text": "(0.99, -0.16)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,15izw = 1,15 + 0,85i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "058.png",
-            "sha256": "31e2b6672bee6da3624b0956b6a52256c79dc5c0b1eea386a47c5fa8656eef89",
+            "sha256": "aa7d5508726e23434f97be6c60c69225b6c13f265899e77904f1b2cfaf90a1f2",
             "width": 720,
             "height": 440
           },
@@ -76586,7 +76586,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "40fa7dc8b173e7646fb9a94befa7f01dcc7cfdc7814cb826a7e988fe5783a8c3"
+          "curvePathHash": "922374a96549f24a6d344351e6d30501916f9f15ef8bf08325939b1b8bb8e429"
         },
         {
           "index": 59,
@@ -76601,11 +76601,11 @@
             "y": -0.04028679346183891
           },
           "observed": {
-            "text": "(1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,05izw = 1,05 + 0,95i\n−2\n−2.5"
+            "text": "(1.00, -0.0403)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 − 0,05izw = 1,05 + 0,95i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "059.png",
-            "sha256": "03fab02f563af187ec3b48b60f6ea92a437d02150bdff66c4d90182013b5f499",
+            "sha256": "2cef9b176cd3872377f4fb6cea3853be3ff065d51ae3e742079edaba2ebf8938",
             "width": 720,
             "height": 440
           },
@@ -76643,7 +76643,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "538322b0f7d52549c67c98d6895ba56fa70c7439a0ef98cd8c3010b32a46a9bb"
+          "curvePathHash": "1ebb1f765b6e602cec27ac936b77851cb0aa38bc1cc0f2a1c3ce6e5241f6eee2"
         },
         {
           "index": 60,
@@ -76658,11 +76658,11 @@
             "y": 0.07947767707921825
           },
           "observed": {
-            "text": "(1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,1izw = 0,9 + 1,1i\n−2\n−2.5"
+            "text": "(1.00, 0.0795)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,1izw = 0,9 + 1,1i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "060.png",
-            "sha256": "2b6115d6316aaa063cb02dbbed30ba7e5d7804304db878b776b3f73fdc160fce",
+            "sha256": "12d0be92d31d50345ab8e7b54342d5fe888bce6ffb057f05aa209e71f3cae8a3",
             "width": 720,
             "height": 440
           },
@@ -76700,7 +76700,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "c369c75c009c17e1adf6832a80155ff38dfee05d244a89e23a345b4717f210cb"
+          "curvePathHash": "04fd9996107981c81de1924ca0d2fc4a161e8f43a480d0eb5f31a7dae312d223"
         },
         {
           "index": 61,
@@ -76715,11 +76715,11 @@
             "y": 0.19493406320825235
           },
           "observed": {
-            "text": "(0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,2izw = 0,8 + 1,2i\n−2\n−2.5"
+            "text": "(0.98, 0.19)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 1 + 0,2izw = 0,8 + 1,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "061.png",
-            "sha256": "aefad06503766cbf27e0a119be8d70325d33ee861c515191b7ec400c71e39bb8",
+            "sha256": "4d284f656261ea6909a9ef76324700def5a5bb154dc03ad42c2d1f9f54463e97",
             "width": 720,
             "height": 440
           },
@@ -76757,7 +76757,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "da36f80f1b8df75c2687f775581636d3b54772dd19656847efa9406d2833f95d"
+          "curvePathHash": "2b50dcc33c848bbacfce6ce18b2cae6e4726414cd61e51611473b4a890ee2991"
         },
         {
           "index": 62,
@@ -76772,11 +76772,11 @@
             "y": 0.304448984120043
           },
           "observed": {
-            "text": "(0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 + 0,3izw = 0,65 + 1,25i\n−2\n−2.5"
+            "text": "(0.95, 0.30)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,95 + 0,3izw = 0,65 + 1,25i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "062.png",
-            "sha256": "a51dd378912ea1887d9a67134fccfcbe5c9628cf6021eaddaf028edf25d3fbeb",
+            "sha256": "f20ab7bb3e37e4bb275323cd400ec539658b202c30a99ab7d2b83aa3b6c56d98",
             "width": 720,
             "height": 440
           },
@@ -76814,7 +76814,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "f2e89421af7aaca84205fcd2c3d2ecf5e5732c0356fe220d158b2b47ac4fdbf3"
+          "curvePathHash": "2f792d8f07fd15f2ecae706f39cc3c98d9e5822a55203e36044eb7992b5734a6"
         },
         {
           "index": 63,
@@ -76829,11 +76829,11 @@
             "y": 0.4067092910919659
           },
           "observed": {
-            "text": "(0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 + 0,4izw = 0,5 + 1,3i\n−2\n−2.5"
+            "text": "(0.91, 0.41)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,9 + 0,4izw = 0,5 + 1,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "063.png",
-            "sha256": "70620004ae5d208557d5bc82e0f1433f8b8a7dab365b84c6e7273d66bdca16df",
+            "sha256": "4f504e0910b3edba852d73f1ed63785c42cd91c6cfcbd6e56290ffdfc14aa1d3",
             "width": 720,
             "height": 440
           },
@@ -76871,7 +76871,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "6077a39e20af22da8f23bff4a492d4c520d50a9b71f31686ebd6b7faf6a2bdea"
+          "curvePathHash": "8fe2c65e29407e9fdd24641ca9fbea38f436e2760a8e986dbce28d0fdb3c0471"
         },
         {
           "index": 64,
@@ -76886,11 +76886,11 @@
             "y": 0.5007313200405549
           },
           "observed": {
-            "text": "(0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 + 0,5izw = 0,35 + 1,35i\n−2\n−2.5"
+            "text": "(0.87, 0.50)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,85 + 0,5izw = 0,35 + 1,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "064.png",
-            "sha256": "de489dd48ab2bb247f395f2125397c44b4f8d55ea90f434576446e38a9e72d32",
+            "sha256": "97680a6a4aca07a5d0bab773e9644f8adb3c424e17815d8cc5706c2d0e6a4552",
             "width": 720,
             "height": 440
           },
@@ -76928,7 +76928,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "de94df5e41edea97232831a1747d8af157897235b369229ee89856593374a89a"
+          "curvePathHash": "a11f6c90492b8d5b7f13e34349767642aba2bcfa518712d1cf4ba5864eef149b"
         },
         {
           "index": 65,
@@ -76943,11 +76943,11 @@
             "y": 0.5858562920911978
           },
           "observed": {
-            "text": "(0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 + 0,6izw = 0,2 + 1,4i\n−2\n−2.5"
+            "text": "(0.81, 0.59)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,8 + 0,6izw = 0,2 + 1,4i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "065.png",
-            "sha256": "666ed9d028960487a96b86f10eb07dc07fab194b9765e82abee277a887bba520",
+            "sha256": "7df20ab8d5a2693d8f3edc7b941e2fee5842127eb4faeedd1c99252e994c4343",
             "width": 720,
             "height": 440
           },
@@ -76985,7 +76985,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "bd191d0042b2c8ca390685c625df59c2883f44caf63d5afa3b3a9bf439f72016"
+          "curvePathHash": "dcf02551d9897f60bc57ee4bcbc24209579a1bfdc6b4ca6977b7a6e5aa6305ed"
         },
         {
           "index": 66,
@@ -77000,11 +77000,11 @@
             "y": 0.6617337532601106
           },
           "observed": {
-            "text": "(0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,75 + 0,65izw = 0,1 + 1,4i\n−2\n−2.5"
+            "text": "(0.75, 0.66)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,75 + 0,65izw = 0,1 + 1,4i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "066.png",
-            "sha256": "b9eced5f3364150649070055e94f31be4f31b88bc0f7e334c441c7aadb7d4fbd",
+            "sha256": "206cf6aba5d5e0df7c1015427cf62b35bf94f6447a2a6fbfd373df18be562ed3",
             "width": 720,
             "height": 440
           },
@@ -77042,7 +77042,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "9836c8f7b200eb798c46c295fed65c048ef985f851d55cd9ae07f454986f1738"
+          "curvePathHash": "9dadfb8bbf03489c0e3b92485dc0e67c0d8fe650e39881c0b9059aa7a3a4ad50"
         },
         {
           "index": 67,
@@ -77057,11 +77057,11 @@
             "y": 0.7282953293631724
           },
           "observed": {
-            "text": "(0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 + 0,75izw = −0,05 + 1,45i\n−2\n−2.5"
+            "text": "(0.69, 0.73)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,7 + 0,75izw = −0,05 + 1,45i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "067.png",
-            "sha256": "c621ef79d026076893ad7b31518529366431e8c63c86846bde2d9c3d5119ef22",
+            "sha256": "2c2d2d55aaf481ce2dddadef7a0cc5844a05c00c3f3eb6dc2c21fb57e1b39f72",
             "width": 720,
             "height": 440
           },
@@ -77099,7 +77099,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "c8213cda5eb8f07a564d6cf170f54e19542acbfb382b6ca150e75721ca94bbda"
+          "curvePathHash": "2547861c557fcf35af5f71e5e51f4e796599d958e195678c47823de687cd3665"
         },
         {
           "index": 68,
@@ -77114,11 +77114,11 @@
             "y": 0.7857212590635505
           },
           "observed": {
-            "text": "(0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 + 0,8izw = −0,2 + 1,4i\n−2\n−2.5"
+            "text": "(0.62, 0.79)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,6 + 0,8izw = −0,2 + 1,4i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "068.png",
-            "sha256": "b10ff7c3e9dac8774858900cd5340336123ac5d5b729e6a636b2531e13b8a268",
+            "sha256": "902c6ea689a144b43c227dcff9f508fb0ffed06b75aab2a02f649dbba2cf3142",
             "width": 720,
             "height": 440
           },
@@ -77156,7 +77156,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "77446bd686182ba9690c24a7971474ace07bb68939a0099a6750f743ffd14f34"
+          "curvePathHash": "2307a87e1bbb9f2a6462103024c4a234e0e6ba9d658882da05be49bb775714d4"
         },
         {
           "index": 69,
@@ -77171,11 +77171,11 @@
             "y": 0.8344021732050284
           },
           "observed": {
-            "text": "(0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,55 + 0,85izw = −0,3 + 1,4i\n−2\n−2.5"
+            "text": "(0.55, 0.83)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,55 + 0,85izw = −0,3 + 1,4i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "069.png",
-            "sha256": "8cae7ab0409650c2efbebf0504304139b9973c962630647c87f9a02f029b3895",
+            "sha256": "6231100c6824617feb2c391c903e25904e46a53b369b9264916ebbb7e927529a",
             "width": 720,
             "height": 440
           },
@@ -77213,7 +77213,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ad00b89919e6253edb16be7a01b04fd09dcfe23fca37f4a45025713b7ac142bc"
+          "curvePathHash": "dc40b9634886aee1ff70c49f9e1a9f1198297256bc11810122d19ce52dbaaa6d"
         },
         {
           "index": 70,
@@ -77228,11 +77228,11 @@
             "y": 0.874898440586107
           },
           "observed": {
-            "text": "(0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,5 + 0,85izw = −0,35 + 1,35i\n−2\n−2.5"
+            "text": "(0.48, 0.87)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,5 + 0,85izw = −0,35 + 1,35i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "070.png",
-            "sha256": "43c239e3e134ce04bca6d8f0dad9ed99df1d942cc39c00728ccbdc54e4cfb817",
+            "sha256": "7bda4349a19ae8b37cdb657aea2e6e739451cf91a65cac5a8c96a0938ce72f7d",
             "width": 720,
             "height": 440
           },
@@ -77270,7 +77270,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "8c7ab165660b91c65a891388e2356315099577df901c208115d3c59f5e7f1f6e"
+          "curvePathHash": "c3f61cc170513ed9355d2ccd92ea9264292e517ed1815092f7265c63f7fbb851"
         },
         {
           "index": 71,
@@ -77285,11 +77285,11 @@
             "y": 0.907899134707228
           },
           "observed": {
-            "text": "(0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,4 + 0,9izw = −0,5 + 1,3i\n−2\n−2.5"
+            "text": "(0.42, 0.91)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,4 + 0,9izw = −0,5 + 1,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "071.png",
-            "sha256": "ecf69cecda0fa835f70966f98abe57f1cad161229e1a42b47874211d4bbfb917",
+            "sha256": "04e2b8e9bf4286486bd592dad4a14dda2f2c98ad6f03544e1676a7365b7f206a",
             "width": 720,
             "height": 440
           },
@@ -77327,7 +77327,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "179024a8c7b4af31be9b73d6ed69cf1c87dda6af436a781848e7e2eabb6db3f3"
+          "curvePathHash": "3a4cd67f7bf0afb1dda33a5c381810eb41ea424e8259fa36311203e75252cc79"
         },
         {
           "index": 72,
@@ -77342,11 +77342,11 @@
             "y": 0.934182331308519
           },
           "observed": {
-            "text": "(0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 + 0,95izw = −0,6 + 1,3i\n−2\n−2.5"
+            "text": "(0.36, 0.93)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,35 + 0,95izw = −0,6 + 1,3i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "072.png",
-            "sha256": "af43f19b3eee8354d1cd19bcb10cd2bc160877d16baf8c08a168860bf14f6b67",
+            "sha256": "1a57e56db727654f4dad0837af2ecb5fd84b060bac91f462b30b1a2a969c31d7",
             "width": 720,
             "height": 440
           },
@@ -77384,7 +77384,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "d20c2c31e34de702594dc376c006c4c267e5471efbb540f4ac031309cadcb541"
+          "curvePathHash": "d088e518acdb821bb83060ade217e908bed49c33fec8bc33129fa0e246e16aa6"
         },
         {
           "index": 73,
@@ -77399,11 +77399,11 @@
             "y": 0.954578060406578
           },
           "observed": {
-            "text": "(0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,3 + 0,95izw = −0,65 + 1,25i\n−2\n−2.5"
+            "text": "(0.30, 0.95)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,3 + 0,95izw = −0,65 + 1,25i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "073.png",
-            "sha256": "7242d44290d51ef22f8488e17f8efd3e41ac899b7e06a4cc56e5766dac3cd6cd",
+            "sha256": "f53f30532c00eb13629ab2ff5b6cc963b70390b87d2f188e6829ef149415632b",
             "width": 720,
             "height": 440
           },
@@ -77441,7 +77441,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "5f012d208b4fb971941d02da37a6c9ebaa726c37eac6f2faa040ff7cdb2b1d40"
+          "curvePathHash": "40958f5c35f64704ace2204686fed89bff0115f5e0d6c10617ea747f7bf1deef"
         },
         {
           "index": 74,
@@ -77456,11 +77456,11 @@
             "y": 0.9699348429346225
           },
           "observed": {
-            "text": "(0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,25 + 0,95izw = −0,7 + 1,2i\n−2\n−2.5"
+            "text": "(0.24, 0.97)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,25 + 0,95izw = −0,7 + 1,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "074.png",
-            "sha256": "1c60f0978f5dd40fbd48e8d6adefc8076498ebeac1fa769468644aa911ad1a11",
+            "sha256": "3fafe5a656e28e8cbf13e906b96cf3fe9970ef3d3655ba048f82138e41197f31",
             "width": 720,
             "height": 440
           },
@@ -77498,7 +77498,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "966d6ba06d993f2e2cb24fe74831b9538bc16441b39df66dc2c4e50bf8962362"
+          "curvePathHash": "b70af4cdf50e267f9f16325e330480fb9843aad97ee9c296481aad88d6f601fc"
         },
         {
           "index": 75,
@@ -77513,11 +77513,11 @@
             "y": 0.9810903690895039
           },
           "observed": {
-            "text": "(0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 + izw = −0,8 + 1,2i\n−2\n−2.5"
+            "text": "(0.19, 0.98)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,2 + izw = −0,8 + 1,2i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "075.png",
-            "sha256": "69cc4308633823b56696d8ddb9ebc7b9ebbca5d985ccb51f6dad55cf2bc6421b",
+            "sha256": "ebb857ea660ed4953ab56fe85cebb1b0d8ca7484276fbb6f2f8e4ef9f83632e7",
             "width": 720,
             "height": 440
           },
@@ -77555,7 +77555,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "5ee73f1d15395c8b7279076a7302b705114d0631739d36049cad0496ef4ac937"
+          "curvePathHash": "07a55a192c0c7af355014e134db7a50f3ed3e5cb16573db5a7794009935bbea8"
         },
         {
           "index": 76,
@@ -77570,11 +77570,11 @@
             "y": 0.9888465443462829
           },
           "observed": {
-            "text": "(0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,15 + izw = −0,85 + 1,15i\n−2\n−2.5"
+            "text": "(0.15, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,15 + izw = −0,85 + 1,15i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "076.png",
-            "sha256": "b47f702419ef09f0f6679431de0bb3fe8ae346a0272e1851dc805c092429f3a2",
+            "sha256": "28fb6da7f9e4085a418585d5a2069923f6b560585f350a9b10b8911da8249bfd",
             "width": 720,
             "height": 440
           },
@@ -77612,7 +77612,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "4e7e4a3b85763bdc47b8b1f13629af1f8183f46bc9e7188a740ce4f6bdd45b28"
+          "curvePathHash": "b36d17cb7c13f41026143997bac342c8b73648bad70ff1f306a1817afc559491"
         },
         {
           "index": 77,
@@ -77627,11 +77627,11 @@
             "y": 0.9939488540320491
           },
           "observed": {
-            "text": "(0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5"
+            "text": "(0.11, 0.99)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "077.png",
-            "sha256": "72c48be26a441c78ec30a8eecf431b51451da4dff3a29f94e11605607ab8d580",
+            "sha256": "3aa79945b0df3dc05b6529da2662d1ce70224d9b55bf897349591910d6f2ee9a",
             "width": 720,
             "height": 440
           },
@@ -77669,7 +77669,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "289dcf1cdbab5e4ecba15481fdc8472930cd1d0c0b041849ddc670c5dbbb7410"
+          "curvePathHash": "d47665a16b77163db6c080fa7c463ba30986160ea3b8093a2bc6fb83ba75aa5d"
         },
         {
           "index": 78,
@@ -77684,11 +77684,11 @@
             "y": 0.997069786006213
           },
           "observed": {
-            "text": "(0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5"
+            "text": "(0.0765, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,1 + izw = −0,9 + 1,1i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "078.png",
-            "sha256": "72c48be26a441c78ec30a8eecf431b51451da4dff3a29f94e11605607ab8d580",
+            "sha256": "3aa79945b0df3dc05b6529da2662d1ce70224d9b55bf897349591910d6f2ee9a",
             "width": 720,
             "height": 440
           },
@@ -77726,7 +77726,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "289dcf1cdbab5e4ecba15481fdc8472930cd1d0c0b041849ddc670c5dbbb7410"
+          "curvePathHash": "d47665a16b77163db6c080fa7c463ba30986160ea3b8093a2bc6fb83ba75aa5d"
         },
         {
           "index": 79,
@@ -77741,11 +77741,11 @@
             "y": 0.9987959053926264
           },
           "observed": {
-            "text": "(0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5"
+            "text": "(0.0491, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "079.png",
-            "sha256": "5f0c504e1e2d676b95101c4c0649e8b22fb6d6ad8ffcd190caf886374320311c",
+            "sha256": "737d16d73915f88c8638f62ae28ba9e69e23f168e435d8bf548a9828b0b93bf6",
             "width": 720,
             "height": 440
           },
@@ -77783,7 +77783,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a5c1490f3f45081ce2a60de00e10d3a0a2d34208b7c74ea5c16a316ee5c12728"
+          "curvePathHash": "5ca25dfc82ae9ce380d6580021a6ce099cad8c52b47e96b8013110710f795c97"
         },
         {
           "index": 80,
@@ -77798,11 +77798,11 @@
             "y": 0.9996180930122694
           },
           "observed": {
-            "text": "(0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5"
+            "text": "(0.0276, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = 0,05 + izw = −0,95 + 1,05i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "080.png",
-            "sha256": "5f0c504e1e2d676b95101c4c0649e8b22fb6d6ad8ffcd190caf886374320311c",
+            "sha256": "737d16d73915f88c8638f62ae28ba9e69e23f168e435d8bf548a9828b0b93bf6",
             "width": 720,
             "height": 440
           },
@@ -77840,7 +77840,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a5c1490f3f45081ce2a60de00e10d3a0a2d34208b7c74ea5c16a316ee5c12728"
+          "curvePathHash": "5ca25dfc82ae9ce380d6580021a6ce099cad8c52b47e96b8013110710f795c97"
         },
         {
           "index": 81,
@@ -77855,11 +77855,11 @@
             "y": 0.9999244345157351
           },
           "observed": {
-            "text": "(0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.0123, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "081.png",
-            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "sha256": "cb7fa20c424b0f22f9417b147449b78132ee7260c4ae29c23aa82255011eaefc",
             "width": 720,
             "height": 440
           },
@@ -77897,7 +77897,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+          "curvePathHash": "c9025a76dd3dad3a12596a4e57c6de088e88b29920719314b85fda1b330f0630"
         },
         {
           "index": 82,
@@ -77912,11 +77912,11 @@
             "y": 0.9999952724754294
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "082.png",
-            "sha256": "50a4e7f2518933ca8214f4ebf8931f68062d0abee716893111d67c21f9046572",
+            "sha256": "cb7fa20c424b0f22f9417b147449b78132ee7260c4ae29c23aa82255011eaefc",
             "width": 720,
             "height": 440
           },
@@ -77954,7 +77954,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "a3f4807e49e98f5408ec9c8819f39368dc3812f2b365667c989480a52174cb79"
+          "curvePathHash": "c9025a76dd3dad3a12596a4e57c6de088e88b29920719314b85fda1b330f0630"
         },
         {
           "index": 83,
@@ -77969,11 +77969,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "083.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78011,7 +78011,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 84,
@@ -78026,11 +78026,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "084.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78068,7 +78068,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 85,
@@ -78083,11 +78083,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "085.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78125,7 +78125,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 86,
@@ -78140,11 +78140,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "086.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78182,7 +78182,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 87,
@@ -78197,11 +78197,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "087.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78239,7 +78239,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 88,
@@ -78254,11 +78254,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "088.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78296,7 +78296,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 89,
@@ -78311,11 +78311,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "089.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78353,7 +78353,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 90,
@@ -78368,11 +78368,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "090.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78410,7 +78410,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 91,
@@ -78425,11 +78425,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "091.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78467,7 +78467,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 92,
@@ -78482,11 +78482,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "092.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78524,7 +78524,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 93,
@@ -78539,11 +78539,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "093.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78581,7 +78581,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 94,
@@ -78596,11 +78596,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "094.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78638,7 +78638,7 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         },
         {
           "index": 95,
@@ -78653,11 +78653,11 @@
             "y": 1
           },
           "observed": {
-            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−4\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5"
+            "text": "(0.003075, 1.00)\n1\n2\n3\n−1\n−2\n−3\n−1\n−1.5\n0.5\n1\n1.5\n2\n2.5\n−0.5\n−1\n−1.5\nzw\nz\nw\nRe\nIm\nz = 1 + i, w = izw = −1 + i\n−2\n−2.5\n−2"
           },
           "capture": {
             "file": "095.png",
-            "sha256": "0c8e628ea6b6a462916a64bba0d384f4679e7efddecbd58e79d0f65119ba8324",
+            "sha256": "97380810d1622eb3e39cb77965c6a758777454070d183fcccfc7e77cbc1d1a80",
             "width": 720,
             "height": 440
           },
@@ -78695,16 +78695,16 @@
             "2.24px",
             "3.584px"
           ],
-          "curvePathHash": "ba3a994aeb807b689f3cbc27ab40b2169b4ef04e6f04e93292e30389e3482a30"
+          "curvePathHash": "1bbfda1631f891d0ae185436e1ddda87bbcdc961dcd58de167310c6171325c5b"
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 14.203
+      "generationSeconds": 14.162
     },
     {
       "id": "accumulation",
       "file": "accumulation.webm",
-      "sha256": "45570b75cad40b2dd671b411522059ac4e3a10b4a9e9a7fec001c7dd56fd0dc8",
+      "sha256": "f84664a673ea8364bc4d911f034efc2a39d33c5772cbae6c55a6c6fec204befb",
       "type": "video/webm",
       "duration": 4,
       "bytes": 301595,
@@ -78734,7 +78734,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\frames-accumulation\\%03d.png",
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\frames-accumulation\\%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -78754,7 +78754,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-78760\\accumulation.webm"
+        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-8824\\accumulation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -85676,7 +85676,7 @@
         }
       ],
       "sourceFrameHashMeaning": "SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical",
-      "generationSeconds": 21.274
+      "generationSeconds": 21.237
     }
   ]
 }

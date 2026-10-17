@@ -307,3 +307,8 @@ test('accumulation rejects a readout off by one display unit, a moved a, a chang
     assert.equal(formatSlNumber(accumulationReference(2,0)),'−1,4161');
     assert.equal(formatSlNumber(-0.00001),'0');
 });
+test('path counts ignore curves without path data, so an empty snapshot cannot pass the path-present checks',()=>{
+    const {countPaths}=require('./demonstration-preview-motion.cjs');
+    assert.equal(countPaths([null,'',undefined]),0);
+    assert.equal(countPaths(['M 0 0 L 1 1',null]),1);
+});
