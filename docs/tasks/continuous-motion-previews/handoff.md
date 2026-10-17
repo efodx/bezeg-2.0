@@ -2,6 +2,8 @@
 
 Source spec: [continuous-motion-previews](../../specs/continuous-motion-previews.md). Written 2026-10-17 by the orchestrating handler at a clean checkpoint, for the next handler.
 
+> **Update 2026-10-17, Phase 3:** six Phase 3 clips shipped (see the spec's Phase 3 record). `rational-decasteljau` and `ph-quintic` were dropped after review, and `subdivision` waits for an owner decision (its poster shows the state after Subdivide). Nothing remains open without an owner decision.
+>
 > **Update 2026-10-17 02:35 (second handler):** Phase 1 findings 1–9 closed and Phase 1 pushed (cc924cd, c32a474, plus the smoke-test polling fix 8fd4ac8). Phase 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented, reviewed (math and visual), smoke-tested and recorded in the spec's Phase 2 record. The motion smoke failure listed below was not machine-specific; see the spec. **Next: owner review of Phases 1–2 at card size before Phase 3.** The sections below describe the state at the first handoff.
 
 ## Owner instruction for this run

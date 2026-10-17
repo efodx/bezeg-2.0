@@ -1,6 +1,6 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17; Phase 3 starts only when the owner asks.
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17 and asked for Phase 3 the same day without selecting entries. Six Phase 3 clips shipped; two were dropped after review, and `subdivision` waits for an owner decision. See the [Phase 3 record](#phase-3-record).
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
@@ -138,3 +138,27 @@ Deviations and decisions:
 - Review dispositions: the math review confirmed each identity against the runtime source (φ_α, marker parameters, complex snapping and product, accumulation snapping and integral). Its notes on snap margins and the SVG path parser are covered by captures passing at 1e-9. The visual review found no loop jumps and no motion-only explanation.
 
 The `tests/demonstration-motion.smoke.spec.cjs` loop check now polls every 100 ms. With 1 s polling against the 4 s clips it could sample only whole seconds and fail by phase; this failed CI on the Phase 1 push.
+
+## Phase 3 record
+
+Implemented 2026-10-17. The owner asked for Phase 3 without naming entries, so every table entry was attempted. Existing clips keep identical source frames; only the `spline-g1` poster changes (reframed, below).
+
+| ID | Mode | Path | Encoder | Size |
+| --- | --- | --- | --- | --- |
+| `decasteljau-alternative` | `parameter-sweep` | `Parameter t` 0.5 → 1 → 0 → 0.5 | CRF 10 | 230,508 B |
+| `ph-cubic` | `parameter-sweep` | `Razdalja odmika d` 0.35 → −0.35 → 0.35 | CRF 10 | 236,353 B |
+| `spline-g1` | `parameter-sweep` | `Parameter b 1` 0.6379 → 1.5349 → 0.2492 → 0.6379 on the slider grid 0.01 + k·0.0299 | CRF 10 | 178,611 B |
+| `trigonometric-functions` | `parameter-sweep` | `Faza φ` 0 → π → 0 on the π/12 grid | CRF 10 | 283,552 B |
+| `definite-integral` | `discrete-exact-steps` | n 6, 12, 24, 48, 24, 12, 6 (holds 18/10/10/20/10/10/18) | CRF 10 | 90,071 B |
+| `darboux` | `discrete-exact-steps` | n 4, 8, 16, 32, 16, 8, 4 through "Zgosti razdelitev", a fresh route per checkpoint | CRF 10 | 90,975 B |
+
+Deviations and decisions:
+
+- Start values: the table's `ph-*` path (0 → recipe → 0), stepped n = 1, 2, 4, … and φ −π…π do not start at the recipe state, which acceptance criterion 2 requires. The clips start and end at the recipe values instead. `ph-cubic` passes through the curve to the other side because its curvature never limits the d < 0 side (cusp where d·κ = −1); the capture asserts that rule.
+- `spline-g1`: `b 1` moves N2 and, through the chain N3 = P3 + b2(P3 − N2), also N3 (`G1QuadraticBezierSpline.ts`), so "only that join's leg changes" was wrong; both computed points and G1 collinearity at both joins are asserted. The recipe gained the window [−6.5, 4, 5.5, −5] (the union over the sweep), so poster and clip share one camera. The slider's aria-valuetext shows float noise (`0,637900000000000023`); the capture compares it numerically.
+- `darboux` has no n input and cannot decrease n, so each checkpoint is a fresh route with k presses of the refine button. Its reference sums take endpoint inf/sup, exact only because x² is monotone on [0, 2].
+- Dropped after review: `rational-decasteljau` (the recipe shows no interpolation levels, so its sweep only moved a colour split along a static curve) and `ph-quintic` (an offset of 0.2 is about 10 px at card size and repeats `ph-cubic`). A larger `ph-quintic` amplitude is possible on owner request.
+- Not implemented, owner decision needed: `subdivision`. The recipe and poster show the state after Subdivide, which resets the split parameter to 1 (`SubdivisionGraph1.tsx`); the table's sweep before Subdivide therefore cannot start or end at the poster state.
+- Accepted limitations at card size: `definite-integral`'s board caption "integral 2,6667" is crossed by the static curve in every frame, poster included, and n = 48 renders as a stripe texture; `darboux` n = 32 is dense; the trigonometric curve crosses the −0.5 tick label, as in its poster. The phase shift and the offset side flip are illustrated only in motion, but the posters and route controls carry each concept.
+- Workers needed a lightweight two-frame settle for sweeps whose full MathJax re-typeset crashed the renderer, as `farin` did.
+- Reviews: the math review confirmed every identity against the runtime (PH offset side and cusp rule, G1 chain, Riemann/Darboux sums and formatting, π/12 snapping) and found no vacuous checks. The visual review found no loop jumps.
