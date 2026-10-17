@@ -25,7 +25,7 @@ const targets = {
     'spline-cn': ['Original spline and supporting join polygons', [polygon]],
     'spline-c1': ['Midpoint construction and supporting polygon at the joins', [polygon]],
     'spline-c2': ['Construction points and adjacent supporting polygons', [polygon]],
-    'spline-g1': ['Non-neutral continuity parameter and shared tangent direction', [polygon, field('Parameter b 1', 0.65)]],
+    'spline-g1': ['Non-neutral continuity parameter and shared tangent direction', [polygon, field('Parameter b 1', 0.65)], [-6.5, 4, 5.5, -5]],
     'spline-g1-symmetric': ['All three joins use non-midpoint parameters and unequal join legs', [polygon, field('Parameter b 1', 0.2), field('Parameter b 2', 0.2), field('Parameter b 3', 0.2)]],
     'ph-cubic': ['Original PH curve with one moderate offset', [toggle('Odmiki krivulje'), field('Razdalja odmika d', 0.35)]],
     'ph-quintic': ['Original PH curve with one small offset at its tight bend', [toggle('Odmiki krivulje'), field('Razdalja odmika d', 0.2)]],

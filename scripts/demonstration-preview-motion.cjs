@@ -5,12 +5,22 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','derivative','farin','weighted-parameterization','complex-multiplication','accumulation'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','spline-g1','trigonometric-functions','darboux','definite-integral'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
-const affineSteps = [0,1,2,3,2,1,0];
-const affineHolds = [18,10,10,20,10,10,18];
+// Stepped clips: one fixed recipe-window camera, one hold per checkpoint, 96 frames in total. Each checkpoint is one settled route state.
+// `checkpoints` are the values the evidence records (affine: supported rotation steps; darboux: n; definite-integral: n).
+const steppedHolds = [18,10,10,20,10,10,18];
+const steppedClips = {
+    affine: {checkpoints: [0,1,2,3,2,1,0], holds: steppedHolds},
+    darboux: {checkpoints: [4,8,16,32,16,8,4], holds: steppedHolds},
+    'definite-integral': {checkpoints: [6,12,24,48,24,12,6], holds: steppedHolds},
+};
+const affineSteps = steppedClips.affine.checkpoints;
+const affineHolds = steppedClips.affine.holds;
+// Catalog square function f(x) = x² on [0, 2] (the darboux and definite-integral recipes).
+const squareOnInterval = x => x * x;
 const near = (actual, expected, message) => assert.ok(Math.abs(actual-expected)<1e-8, message);
 
 // Shared timing: 12 holds, 71 moving frames (phase 0 to 1), 13 holds. Frames 13..82 move.
@@ -24,17 +34,19 @@ const countPaths = paths => paths.filter(d => typeof d === 'string' && d.length 
 const sin2OutAndBack = i => Math.sin(Math.PI * movePhase(i)) ** 2;
 // Parameter sweeps visit each spec's waypoints in order, each leg with a sin² ease (zero speed at every waypoint).
 // Waypoints, control step and start live in the spec (motionSpecs[id].sweep); the runner has no route-specific values.
-const snapToStep = (value, step) => {
-    const decimals = (String(step).split('.')[1] || '').length;
-    return Number((Math.round(value / step) * step).toFixed(decimals));
+// Grid values are origin + k·step (origin defaults to 0, so every existing clip snaps to multiples of its step as before).
+// Ranges whose minimum is off the multiples of the step (spline-g1 starts at 0.01 with step 0.0299) set sweep.origin to that minimum.
+const snapToStep = (value, step, origin = 0) => {
+    const decimals = Math.max((String(step).split('.')[1] || '').length, (String(origin).split('.')[1] || '').length);
+    return Number((origin + Math.round((value - origin) / step) * step).toFixed(decimals));
 };
 function sweepValue(i, spec) {
-    const {waypoints, step} = spec.sweep;
+    const {waypoints, step, origin = 0} = spec.sweep;
     const scaled = movePhase(i) * (waypoints.length - 1);
     const leg = Math.min(waypoints.length - 2, Math.floor(scaled));
     const local = scaled - leg;
     const eased = (1 - Math.cos(Math.PI * local)) / 2;
-    return snapToStep(waypoints[leg] + (waypoints[leg + 1] - waypoints[leg]) * eased, step);
+    return snapToStep(waypoints[leg] + (waypoints[leg + 1] - waypoints[leg]) * eased, step, origin);
 }
 // Catalog 'square' function f(x) = x² (src/analysis/functions.ts) and its derivative, used by the derivative invariants.
 const squareValue = x => x * x;
@@ -93,6 +105,223 @@ function weightedParameterizationMarkers(controls, alpha, count) {
     return Array.from({length: count}, (_, k) => bernsteinPoint(controls, alphaParameterizationValue(alpha, (k + 1) / (count + 1))));
 }
 
+// PH offset clips. The PH curve is the polynomial Bézier of its visible control points (p0..p3 cubic, p0..p5 quintic). Its offset at
+// signed distance d is the rational Bézier phOffsetRational(p, sigmas, d) of src/bezeg/impl/curve/ph-math.ts, built on the same parameter t,
+// so the offset point O(t) lies over B(t) at distance |d| along the right normal (sign conventions are checked, not assumed, in the sweep).
+// Independent copies below (scripts cannot import TS): Bernstein derivative and signed curvature of the polynomial Bézier.
+const bernsteinDerivativePoint = (controls, t) => {
+    const n = controls.length - 1;
+    return bernsteinPoint(controls.slice(1).map((p, k) => ({x: n * (p.x - controls[k].x), y: n * (p.y - controls[k].y)})), t);
+};
+/** Signed curvature κ(t) = (B' × B'') / |B'|³ of the polynomial Bézier at t. */
+function bernsteinCurvature(controls, t) {
+    const n = controls.length - 1;
+    const d1 = controls.slice(1).map((p, k) => ({x: n * (p.x - controls[k].x), y: n * (p.y - controls[k].y)}));
+    const d2 = d1.slice(1).map((p, k) => ({x: (n - 1) * (p.x - d1[k].x), y: (n - 1) * (p.y - d1[k].y)}));
+    const a = bernsteinPoint(d1, t), b = bernsteinPoint(d2, t);
+    return (a.x * b.y - a.y * b.x) / Math.hypot(a.x, a.y) ** 3;
+}
+/**
+ * Minimum radius of curvature on each offset side over t in [0, 1] (4000 samples). The offset at signed distance d along the right
+ * normal has a cusp where d·κ(t) = -1, so the d < 0 side is limited by positive curvature and the d > 0 side by negative curvature.
+ * A side with no such curvature has radius Infinity. The 4000-sample grid can miss a sharp curvature peak, so a radius can be overestimated.
+ * That is immaterial for ph-cubic: its d < 0 side has no positive curvature (R = Infinity) and κ on its d > 0 side is far below 1/0.35
+ * (R = 3.644, which 4000 and 40000 samples agree on to 1e-7).
+ */
+function phOffsetRadii(controls, samples = 4000) {
+    let negative = Infinity, positive = Infinity;
+    for (let i = 0; i <= samples; i++) {
+        const k = bernsteinCurvature(controls, i / samples);
+        if (k > 0) negative = Math.min(negative, 1 / k);
+        else if (k < 0) positive = Math.min(positive, -1 / k);
+    }
+    return {negative, positive};
+}
+/**
+ * Offset waypoints for the d sweep from the recipe value d0. If the radius on the d < 0 side stays at least 1.5·d0, the offset passes through
+ * the curve to the other side: [d0, -d0, d0]. Otherwise it stops at the curve: [d0, 0, d0].
+ */
+function phOffsetWaypoints(controls, d0) {
+    return phOffsetRadii(controls).negative >= 1.5 * d0 ? [d0, -d0, d0] : [d0, 0, d0];
+}
+/** Board reads for the PH offset clips: every visible curve, sampled at 41 parameters over its own interval (the check tells the two apart). */
+const phOffsetObserve = page => page.locator('#jgbox').evaluate(container => {
+    const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+    const curves = Object.values(b.objects).filter(o => o.elType === 'curve' && o.visProp?.visible !== false && o.rendNode);
+    return {curves: curves.map(o => {
+        const min = o.minX(), max = o.maxX();
+        const samples = Array.from({length: 41}, (_, k) => { const s = min + (max - min) * k / 40; return {x: o.X(s), y: o.Y(s)}; });
+        return {min, max, d: o.rendNode.getAttribute('d') || '', samples};
+    })};
+});
+// The offset readout writes negatives with a true minus sign (U+2212), as the complex formatter does, and a decimal comma.
+const phReadoutText = value => slovenianDecimal(value).replace('-', '−');
+/** Offset distance from the range's aria-valuetext (U+2212 sign, Slovenian decimal comma), which must equal the input. */
+function phReportedDistance(sample) {
+    const d = Number(sample.actual.readout.replace('−', '-').replace(',', '.'));
+    assert.ok(Number.isFinite(d) && Math.abs(d - sample.actual.input) < 1e-9, `Reported d differs from the input at frame ${sample.index}`);
+    return d;
+}
+/** Indices of the board curves that lie on the PH polynomial (all 41 parameters within 1e-9). The offset never does for d != 0. */
+function phCurveCandidates(sample, controls) {
+    return sample.observed.curves.map((_, k) => k).filter(k => sample.observed.curves[k].samples.every((p, j) => {
+        const q = bernsteinPoint(controls, j / 40);
+        return Math.hypot(p.x - q.x, p.y - q.y) < 1e-9;
+    }));
+}
+/** Side sign sign(B' × (O − B)) · sign(d) of the offset; it must be the same at all 41 parameters of a frame with d != 0. */
+function phOffsetSide(sample, controls, offsetIndex) {
+    const d = phReportedDistance(sample);
+    const sides = sample.observed.curves[offsetIndex].samples.map((p, k) => {
+        const B = bernsteinPoint(controls, k / 40), D = bernsteinDerivativePoint(controls, k / 40);
+        return Math.sign(D.x * (p.y - B.y) - D.y * (p.x - B.x)) * Math.sign(d);
+    });
+    assert.ok(sides.every(s => s !== 0 && s === sides[0]), `Offset side is not constant over the parameter at frame ${sample.index}`);
+    return sides[0];
+}
+/**
+ * Per-frame check of a PH offset sweep. Control points: every board point (none is draggable) equals frame 0 in identity and position.
+ * The PH curve is the board curve on the polynomial Bézier, identified at frame 0 and asserted unchanged; the offset is the other curve.
+ */
+function phOffsetSweepCheck(sample, previous, first, spec) {
+    const i = sample.index, d = phReportedDistance(sample), abs = Math.abs(d);
+    assert.ok(sample.pathCount > 0, `Curve paths missing from the snapshot at frame ${i}`);
+    assert.equal(sample.points.length, first.points.length, `Point count changed at frame ${i}`);
+    sample.points.forEach((p, j) => {
+        assert.equal(p.id, first.points[j].id, `Point identity changed at frame ${i}`);
+        assert.ok(Math.abs(p.x - first.points[j].x) < 1e-9 && Math.abs(p.y - first.points[j].y) < 1e-9, `Control point moved at frame ${i}`);
+    });
+    const controls = sample.points.map(({x, y}) => ({x, y}));
+    const firstControls = first.points.map(({x, y}) => ({x, y}));
+    assert.equal(sample.observed.curves.length, 2, `Expected one PH curve and one offset curve at frame ${i}`);
+    sample.observed.curves.forEach(c => assert.ok(c.min === 0 && c.max === 1, `Curve interval differs from [0,1] at frame ${i}`));
+    const firstOn = phCurveCandidates(first, firstControls);
+    assert.equal(firstOn.length, 1, 'Exactly one board curve must be the PH polynomial at the recipe frame');
+    const ph = firstOn[0], off = 1 - ph;
+    const on = phCurveCandidates(sample, controls);
+    assert.ok(on.includes(ph), `PH curve differs from its Bezier at frame ${i}`);
+    if (abs > 1e-12) assert.deepEqual(on, [ph], `Offset curve coincides with the PH curve at frame ${i}`);
+    assert.equal(sample.observed.curves[ph].d, first.observed.curves[ph].d, `PH curve path changed at frame ${i}`);
+    if (previous) {
+        const changed = sample.observed.curves[off].d !== previous.observed.curves[off].d;
+        if (previous.scheduled !== sample.scheduled) assert.ok(changed, `Offset path did not change at frame ${i}`);
+        else assert.ok(!changed, `Offset path changed while d held at frame ${i}`);
+    }
+    // No cusp at the reported d, and the schedule is the radius rule applied to these control points.
+    const radius = phOffsetRadii(controls);
+    const limit = d < 0 ? radius.negative : radius.positive;
+    assert.ok(abs < limit, `Offset reaches a cusp: |d| = ${abs} is not below the radius ${limit} at frame ${i}`);
+    assert.deepEqual(spec.sweep.waypoints, phOffsetWaypoints(controls, spec.sweep.start), `Schedule differs from the radius rule at frame ${i}`);
+    // Offset points at 41 parameters: |O - B| = |d| (this includes O = B at d = 0), O - B perpendicular to B', and a fixed side.
+    const side = abs > 1e-12 ? phOffsetSide(first, firstControls, off) : null;
+    sample.observed.curves[off].samples.forEach((p, k) => {
+        const B = bernsteinPoint(controls, k / 40), D = bernsteinDerivativePoint(controls, k / 40);
+        const v = {x: p.x - B.x, y: p.y - B.y}, speed = Math.hypot(D.x, D.y);
+        assert.ok(Math.abs(Math.hypot(v.x, v.y) - abs) < 1e-9, `Offset distance differs from |d| at frame ${i}, parameter ${k}`);
+        assert.ok(Math.abs(v.x * D.x + v.y * D.y) / speed < 1e-9, `Offset is not perpendicular to B' at frame ${i}, parameter ${k}`);
+        if (side !== null) assert.equal(Math.sign(D.x * v.y - D.y * v.x) * Math.sign(d), side, `Offset side differs at frame ${i}, parameter ${k}`);
+    });
+    if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+}
+
+// Quadratic G1 spline (src/bezeg/impl/curve/G1QuadraticBezierSpline.ts): N2 = P2 + b1·(P2 − P1), N3 = P3 + b2·(P3 − N2). Independent copy.
+function g1ComputedPoints(P, b1, b2) {
+    const N2 = {x: P[2].x + b1 * (P[2].x - P[1].x), y: P[2].y + b1 * (P[2].y - P[1].y)};
+    const N3 = {x: P[3].x + b2 * (P[3].x - N2.x), y: P[3].y + b2 * (P[3].y - N2.y)};
+    return {N2, N3};
+}
+/** G1 at a join: next − joint = ratio·(joint − prev) with ratio > 0, so the tangent direction is shared (1e-9). */
+function assertG1Join(prev, joint, next, ratio, message) {
+    assert.ok(ratio > 0, `${message}: ratio must be positive`);
+    assert.ok(Math.abs((next.x - joint.x) - ratio * (joint.x - prev.x)) < 1e-9 && Math.abs((next.y - joint.y) - ratio * (joint.y - prev.y)) < 1e-9, message);
+}
+/**
+ * Per-frame check of the G1 spline sweep. Controls P0..P4 are the draggable points in index order (assertSweepFrame checks identity and
+ * position against frame 0). b1 is the reported aria-valuetext (decimal comma, float noise) and must equal the input; b2 is the second
+ * range's readout, unchanged from frame 0. The two computed points are compared as a set, so the board order does not matter.
+ */
+function g1SplineSweepCheck(sample, previous, first, spec) {
+    const i = sample.index;
+    const b1 = Number(String(sample.actual.readout).replace(',', '.'));
+    assert.ok(Number.isFinite(b1) && Math.abs(b1 - sample.actual.input) < 1e-9, `Reported b1 differs from the input at frame ${i}`);
+    assert.equal(sample.observed.b2, first.observed.b2, `b2 changed from frame 0 at frame ${i}`);
+    const b2 = Number(String(sample.observed.b2).replace(',', '.'));
+    assert.ok(Number.isFinite(b2), `b2 readout is not a number at frame ${i}`);
+    const P = sample.controls.map(({x, y}) => ({x, y}));
+    assert.equal(P.length, 5, `Expected P0..P4 at frame ${i}`);
+    const {N2, N3} = g1ComputedPoints(P, b1, b2);
+    const computed = sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y}));
+    assertPointSet(computed, [N2, N3], `Computed control points differ from {N2, N3} at frame ${i}`);
+    assertG1Join(P[1], P[2], N2, b1, `G1 fails at join P2 at frame ${i}`);
+    assertG1Join(N2, P[3], N3, b2, `G1 fails at join P3 at frame ${i}`);
+    assert.ok(sample.pathCount > 0, `Curve path missing from the snapshot at frame ${i}`);
+    if (previous) {
+        if (previous.scheduled !== sample.scheduled) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Curve path did not change while b1 moved at frame ${i}`);
+        else assert.equal(sample.curvePathHash, previous.curvePathHash, `Curve path changed while b1 held at frame ${i}`);
+    }
+    if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+}
+
+// Trigonometric clip (src/analysis/trigonometric.ts): f(x) = A·sin(ω·x + φ) + B. The phase φ is inside the argument, so the phase shift is −φ/ω.
+// phaseAsPi and formatWithPi are independent copies of the runtime's phaseAsPi and formatWithPi (src/graphs/functions readouts).
+const trigMinus = '−';
+/** The phase's aria-valuetext: a multiple of π/12 written as a multiple of π ("π/2", "−π/4", "0", "π"). */
+function phaseAsPiText(phi) {
+    const step = Math.PI / 12, steps = Math.round(phi / step);
+    assert.ok(Math.abs(phi - steps * step) < 1e-9, `Phase ${phi} is not a multiple of pi/12`);
+    if (steps === 0) return '0';
+    const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b)), divisor = gcd(Math.abs(steps), 12);
+    const numerator = Math.abs(steps) / divisor, denominator = 12 / divisor;
+    return `${steps < 0 ? trigMinus : ''}${numerator === 1 ? '' : numerator}π${denominator === 1 ? '' : `/${denominator}`}`;
+}
+/** The φ readout (dl "phi"): the number with two decimals and a decimal comma, plus the exact multiple of π when it has one. */
+function phiReadoutText(phi) {
+    const fixed = phi.toFixed(2), trimmed = fixed.includes('.') ? fixed.replace(/0+$/, '').replace(/\.$/, '') : fixed;
+    const number = /^-?0(\.0*)?$/.test(trimmed) ? '0' : (trimmed.startsWith('-') ? trigMinus + trimmed.slice(1) : trimmed).replace('.', ',');
+    const pi = Math.abs(phi / (Math.PI / 12) - Math.round(phi / (Math.PI / 12))) < 1e-9 ? phaseAsPiText(phi) : null;
+    return pi === null || pi === '0' ? number : `${number} (${pi})`;
+}
+/** Board reads for the trigonometric clip: A, ω, B from their range inputs, the equation and φ readouts, and 81 samples of every curve. */
+const trigObserve = async page => {
+    const number = async label => Number(await page.getByLabel(label, {exact: true}).inputValue());
+    const values = {A: await number('Amplituda A'), omega: await number('Frekvenca ω'), B: await number('Srednja črta B')};
+    const equation = await page.locator('[data-readout="equation"] dd').textContent();
+    const phi = await page.locator('[data-readout="phi"] dd').textContent();
+    const curves = await page.locator('#jgbox').evaluate(container => {
+        const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+        const finite = v => Number.isFinite(v) ? v : null;
+        return Object.values(b.objects).filter(o => o.elType === 'curve' && o.rendNode).map(o => {
+            const min = o.minX(), max = o.maxX();
+            return {id: o.id, dash: o.visProp?.dash, samples: Array.from({length: 81}, (_, k) => {
+                const s = min + (max - min) * k / 80;
+                return {x: finite(o.X(s)), y: finite(o.Y(s))};
+            })};
+        });
+    });
+    return {values, equation, phi, curves};
+};
+/**
+ * Per-frame check of the trigonometric sweep. A, ω, B and the equation are the frame-0 values; the φ readout is the text of the input;
+ * the one solid function curve (dash 0, all samples finite, the others are dashed or empty) equals A·sin(ω·x + φ) + B at every sample
+ * in the recipe window (1e-9), with at least 21 of them.
+ */
+function trigSweepCheck(sample, previous, first, spec) {
+    const i = sample.index, phi = sample.actual.input;
+    assert.deepEqual(sample.observed.values, first.observed.values, `A, omega or B changed at frame ${i}`);
+    // The equation readout carries φ (f(x) = sin(x + π/12) and so on); with A = 1, ω = 1 and B = 0 it is the only part that may change.
+    const phiPart = Math.abs(phi) < 1e-9 ? '' : ` ${phi < 0 ? trigMinus : '+'} ${phaseAsPiText(Math.abs(phi))}`;
+    assert.equal(sample.observed.equation, `f(x) = sin(x${phiPart})`, `Equation readout differs from the input at frame ${i}`);
+    assert.equal(sample.observed.phi, phiReadoutText(phi), `Phi readout differs from the input at frame ${i}`);
+    const {A, omega, B} = sample.observed.values;
+    const solid = sample.observed.curves.filter(c => c.dash === 0 && c.samples.every(p => p.x !== null && p.y !== null));
+    assert.equal(solid.length, 1, `Expected one solid function curve at frame ${i}`);
+    const inWindow = solid[0].samples.filter(p => p.x >= -0.6 && p.x <= 6.8);
+    assert.ok(inWindow.length >= 21, `Too few curve samples in the window at frame ${i}`);
+    inWindow.forEach(p => assert.ok(Math.abs(p.y - (A * Math.sin(omega * p.x + phi) + B)) < 1e-9, `Curve differs from A·sin(ωx + φ) + B at x = ${p.x}, frame ${i}`));
+    assert.ok(sample.pathCount > 0, `Curve paths missing from the snapshot at frame ${i}`);
+    if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+}
+
 // Caption text for the complex board, as src/analysis/complexFormat.ts writes it: a true minus sign, the Slovenian decimal comma,
 // coordinates to four decimals with trailing zeros trimmed, and arguments to three decimals. Independent copy (scripts cannot import TS).
 const complexMinus = '\u2212';
@@ -145,6 +374,49 @@ function formatSlNumber(value) {
 }
 /** The board caption line that shows A(x) (accumulation_board_value in sl.ts). */
 const accumulationReadoutLine = (a, x) => `A(x) = ${formatSlNumber(accumulationReference(a, x))} (s predznakom)`;
+
+/**
+ * Pure Darboux sums of f on n equal parts of [a, b]. Mirrors darbouxSubintervals and darbouxTotals in src/analysis/darboux.ts, which take
+ * the infimum and supremum of each part. Here the min and max of f at the part's two endpoints are used. The endpoint inf/sup is exact
+ * only because x² is monotone on [0, 2] (its critical point 0 is the left endpoint of the interval). The runtime (src/analysis/darboux.ts)
+ * also adds interior critical points, so this reference must change if the function or the interval changes.
+ */
+function darbouxReferenceSums(f, a, b, n) {
+    const h = (b - a) / n;
+    let lower = 0, upper = 0;
+    for (let k = 0; k < n; k++) {
+        const x0 = a + k * h, x1 = a + (k + 1) * h;
+        const values = [f(x0), f(x1)];
+        lower += Math.min(...values) * h;
+        upper += Math.max(...values) * h;
+    }
+    return {lower, upper};
+}
+/** Pure left Riemann sum h·Σ f(a + k·h) for k = 0..n-1. Mirrors riemannSum with method 'left' in src/analysis/riemann.ts. */
+function leftRiemannReference(f, a, b, n) {
+    const h = (b - a) / n;
+    let sum = 0;
+    for (let k = 0; k < n; k++) sum += f(a + k * h);
+    return sum * h;
+}
+/** Darboux readouts the board must show at partition count n, formatted with the runtime's 4-decimal Slovenian text. */
+function darbouxReadoutExpectation(n) {
+    const {lower, upper} = darbouxReferenceSums(squareOnInterval, 0, 2, n);
+    return {n: String(n), a: formatSlNumber(0), b: formatSlNumber(2), lower: formatSlNumber(lower), upper: formatSlNumber(upper),
+        integral: formatSlNumber(8 / 3), gap: formatSlNumber(upper - lower)};
+}
+/** Definite-integral readouts the board must show at n subintervals with the left rule. The difference is sum − exact. */
+function integralReadoutExpectation(n) {
+    const sum = leftRiemannReference(squareOnInterval, 0, 2, n), exact = 8 / 3;
+    return {n: String(n), a: formatSlNumber(0), b: formatSlNumber(2), h: formatSlNumber(2 / n), sum: formatSlNumber(sum),
+        exact: formatSlNumber(exact), difference: formatSlNumber(sum - exact)};
+}
+/** Number of supported 2n presses that take the Darboux recipe n = 4 to checkpoint n (the button cannot lower n). */
+const darbouxPressCount = n => Math.round(Math.log2(n / 4));
+/** Every expected readout must equal the text the board shows, key by key. */
+function assertReadouts(actual, expected, label) {
+    for (const [key, value] of Object.entries(expected)) assert.equal(actual?.[key], value, `${label}: readout ${key} differs`);
+}
 
 /** One config row per continuous clip. Bézier stays the pointer-drag reference; decasteljau is a parameter sweep. */
 const motionSpecs = {
@@ -220,6 +492,54 @@ const motionSpecs = {
             'Final construction point equals the full-curve Bernstein point at t (1e-9)', 'Input value and graph readout equal the snapped target every frame',
             'Partial-curve path changes whenever t changes and is unchanged while t holds', 'Camera fixed: every frame geometry lies inside the poster-fit window',
             'First and last frames equal the recipe state'],
+    },
+    'decasteljau-alternative': {
+        mode: 'parameter-sweep', controlCount: 5,
+        control: {label: 'Parameter t', kind: 'range'},
+        sweep: {
+            waypoints: [0.5, 1, 0, 0.5], step: 0.01, start: 0.5,
+            readout: {text: slovenianDecimal,
+                read: ({range}) => range.getAttribute('aria-valuetext')},
+            // Board reads: the one visible segment (the connecting segment AB, named e) and its endpoints.
+            observe: page => page.locator('#jgbox').evaluate(container => {
+                const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+                const segments = Object.values(b.objects).filter(o => o.elType === 'segment' && o.visProp?.visible !== false && o.rendNode);
+                if (segments.length !== 1) throw new Error(`Expected exactly one connecting segment, found ${segments.length}`);
+                const s = segments[0];
+                return {segment: {p1: {x: s.point1.X(), y: s.point1.Y()}, p2: {x: s.point2.X(), y: s.point2.Y()}}};
+            }),
+            check(sample, previous, first) {
+                const i = sample.index, t = sample.actual.input;
+                const controls = sample.controls.map(({x, y}) => ({x, y}));
+                // Independent evaluations: A and B are the cubic Bernstein points of the two sub-polygons, C the quartic one.
+                const A = bernsteinPoint(controls.slice(0, 4), t), B = bernsteinPoint(controls.slice(1), t), C = bernsteinPoint(controls, t);
+                assertPointSet(sample.points.filter(p => !p.draggable).map(({x, y}) => ({x, y})), [A, B, C], `Non-draggable points differ from {A, B, C} at frame ${i}`);
+                const seg = sample.observed.segment;
+                assert.ok(Math.abs(seg.p1.x - A.x) < 1e-9 && Math.abs(seg.p1.y - A.y) < 1e-9, `Segment start differs from A at frame ${i}`);
+                assert.ok(Math.abs(seg.p2.x - B.x) < 1e-9 && Math.abs(seg.p2.y - B.y) < 1e-9, `Segment end differs from B at frame ${i}`);
+                // C lies on AB at ratio t: (1 - t) A + t B equals the curve point.
+                const onSegment = {x: (1 - t) * seg.p1.x + t * seg.p2.x, y: (1 - t) * seg.p1.y + t * seg.p2.y};
+                assert.ok(Math.abs(onSegment.x - C.x) < 1e-9 && Math.abs(onSegment.y - C.y) < 1e-9, `Curve point is not at ratio t on segment AB at frame ${i}`);
+                if (previous) {
+                    if (previous.scheduled !== sample.scheduled) assert.notEqual(sample.curvePathHash, previous.curvePathHash, `Component or partial curve path did not change at frame ${i}`);
+                    else assert.equal(sample.curvePathHash, previous.curvePathHash, `Curve path changed while t held at frame ${i}`);
+                }
+                assert.ok(sample.pathCount > 0, `Curve paths missing from the snapshot at frame ${i}`);
+                if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+            },
+        },
+        // Measured on the diagnostic capture: CRF 10 gave 230508 bytes, under the 307200 B ceiling, so the encoder default is kept.
+        crf: 10,
+        encoderBudget: 'CRF 10 (encoder default): 230508 bytes measured on the diagnostic capture, under the 300 KiB ceiling, so no encoder reduction was needed',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0.5, 1, 0, 0.5], phase: 'clamp((frame-12)/71)',
+            zeroDisplacementFrames: '0-12 and 83-95 (t holds at 0.5)', movingFrames: '13-82',
+            legs: 'three equal phase thirds, each eased by (1 - cos πx)/2 from one waypoint to the next', step: 0.01,
+            input: 'keyboard ArrowRight/ArrowLeft on the Parameter t range, incremental from the previous frame'},
+        invariants: ['Control points unchanged (1e-9)', 'A and B equal the cubic Bernstein points of p0..p3 and p1..p4 at the reported t (1e-9)',
+            'C equals the quartic Bernstein point of p0..p4 at t (1e-9) and lies on segment AB at ratio t', 'Non-draggable points are exactly {A, B, C}',
+            'Segment endpoints equal A and B every frame (exactly one visible connecting segment)',
+            'Curve paths change whenever t changes and are unchanged while t holds', 'Input value and aria-valuetext equal the snapped target every frame',
+            'First and last frames equal the recipe state (identical PNG)'],
     },
     derivative: {
         mode: 'parameter-sweep', controlCount: 1,
@@ -427,6 +747,93 @@ const motionSpecs = {
             'Reported α (aria-valuetext) equals the input and the snapped target every frame', 'Only α changes; the camera is the poster fit in every frame',
             'First and last frames equal the recipe state (identical PNG)'],
     },
+    // PH offset clip (Phase 3). The PH curve's control points are visible but not draggable, so controlCount is 0 and the check compares
+    // every board point with frame 0. Radii from the control points (phOffsetRadii, 4000 samples): cubic d < 0 side R = Infinity (no positive
+    // curvature), which is at least 1.5·0.35 = 0.525, so [d0, -d0, d0]. The grid caveat and the d > 0 side radius are in phOffsetRadii.
+    'ph-cubic': {
+        mode: 'parameter-sweep', controlCount: 0,
+        control: {label: 'Razdalja odmika d', kind: 'range'},
+        sweep: {
+            waypoints: [0.35, -0.35, 0.35], step: 0.01, start: 0.35,
+            readout: {text: phReadoutText, read: ({range}) => range.getAttribute('aria-valuetext')},
+            observe: phOffsetObserve,
+            check: phOffsetSweepCheck,
+        },
+        // The full settle crashed the renderer during the sweep (as farin did); two animation frames are enough for this board.
+        settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+        crf: 10,
+        encoderBudget: 'CRF 10 (the encoder default): 236353 bytes measured on the diagnostic capture, under the 300 KiB ceiling, so no label, amplitude or encoder reduction was needed',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0.35, -0.35, 0.35], phase: 'clamp((frame-12)/71)',
+            deviation: 'spec table says 0 → recipe → 0; the clip must start and end at the recipe value (poster), so it runs recipe → −recipe → recipe',
+            zeroDisplacementFrames: '0-12 and 83-95 (d holds at the recipe value 0.35)', movingFrames: '13-82',
+            legs: 'two equal phase halves, each eased by (1 - cos πx)/2 from one waypoint to the next (d = -0.35 at the middle of the move)', step: 0.01,
+            input: 'keyboard ArrowRight/ArrowLeft on the "Razdalja odmika d" range, incremental from the previous frame'},
+        invariants: ['PH curve path identical in every frame (the polynomial Bézier of the visible points, identified by its evaluation)',
+            'Exactly one offset curve; control points unchanged (1e-9)',
+            'Offset at 41 parameters: |O - B| = |d| (1e-9), (O - B)·B\' = 0 (1e-9 relative to |B\'|), fixed side sign from frame 0',
+            'Offset path changes whenever d changes and is unchanged while d holds; O = B at d = 0',
+            'No cusp: |d| below the radius on its side; schedule equals the radius rule', 'Input and aria-valuetext equal the snapped target every frame',
+            'First and last frames equal the recipe state (identical PNG)'],
+    },
+    // Quadratic G1 spline (Phase 3). Independent copy of G1_QUADRATIC_SCHEME in src/bezeg/impl/curve/G1QuadraticBezierSpline.ts:
+    // N2 = P2 + b1·(P2 − P1) and N3 = P3 + b2·(P3 − N2). Changing b1 moves N2 and, through the chain, N3 (a deviation from the spec's
+    // "only that join's leg changes"; recorded in the Phase 3 table). The second range "Parameter b 2" reads 1 at the recipe (aria-valuetext "1"), not 0.9967.
+    'spline-g1': {
+        mode: 'parameter-sweep', controlCount: 5,
+        control: {label: 'Parameter b 1', kind: 'range'},
+        sweep: {
+            // Recipe b1 = 0.65 is snapped by the slider to its grid 0.01 + k·0.0299 (the runtime step is (max−min)/100): 0.6379 = 0.01 + 21·0.0299.
+            waypoints: [0.6379, 1.5349, 0.2492, 0.6379], origin: 0.01, step: 0.0299, start: 0.6379,
+            // Measured union over the schedule (b1 in [0.2492, 1.5349], b2 = 1): N2 = (−2.5 + 1.5·b1, −2.5 − b1) reaches y = −4.04 and
+            // N3 reaches y = 2.04; the free points span x −4..3. The poster fit of the recipe state is too small for the whole sweep, and
+            // b1 above about 2.5 would push N2 past y = −5. This union window [-6.5, 4, 5.5, -5] is the recipe's coordinate window
+            // (scripts/demonstration-preview-recipes.cjs), so the poster and every frame share one camera (no refit).
+            readout: {
+                text: value => value.toFixed(4).replace('.', ','),
+                // The runtime writes float noise into aria-valuetext (for example "0,637900000000000023"); the check parses it and compares to the input at 1e-9.
+                matches: (shown, value) => Math.abs(Number(String(shown).replace(',', '.')) - value) < 1e-9,
+                read: ({range}) => range.getAttribute('aria-valuetext')},
+            observe: page => page.getByLabel('Parameter b 2', {exact: true}).getAttribute('aria-valuetext').then(b2 => ({b2})),
+            check: g1SplineSweepCheck,
+        },
+        crf: 10,
+        // CRF 10 (the encoder default) on the final capture with the recipe window: 178611 bytes, under the 300 KiB ceiling, so no label, amplitude or encoder reduction was needed.
+        encoderBudget: 'CRF 10 (the encoder default): 178611 bytes measured on the final capture with the recipe window, under the 300 KiB ceiling, so no label, amplitude or encoder reduction was needed',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0.6379, 1.5349, 0.2492, 0.6379], origin: 0.01, step: 0.0299, phase: 'clamp((frame-12)/71)',
+            zeroDisplacementFrames: '0-12 and 83-95 (b1 holds at the recipe value 0.6379)', movingFrames: '13-82',
+            legs: 'three equal phase thirds, each eased by (1 - cos πx)/2 from one waypoint to the next',
+            input: 'keyboard ArrowRight/ArrowLeft on the "Parameter b 1" range, incremental from the previous frame',
+            window: 'recipe coordinate window [-6.5, 4, 5.5, -5]'},
+        invariants: ['Free points P0..P4 unchanged (1e-9)', 'The two computed points equal {N2, N3} from the reported b1 and the b2 readout (1e-9)',
+            'G1 at both joins: N2 − P2 = b1·(P2 − P1) and N3 − P3 = b2·(P3 − N2), with b1, b2 > 0 (1e-9)',
+            'b2 readout unchanged from frame 0; reported b1 (aria-valuetext, decimal comma, float noise) equals the input (1e-9)',
+            'Curve path changes whenever b1 changes and is unchanged while it holds; the last PNG equals the recipe frame'],
+    },
+    // Trigonometric clip (Phase 3, optional in the spec). The phase φ is the argument's constant term: f(x) = A·sin(ωx + φ) + B, so the
+    // shift is −φ/ω. The sweep 0 → π → 0 moves the curve half a period right and back; A = 1, ω = 1, B = 0 hold at the recipe values.
+    'trigonometric-functions': {
+        mode: 'parameter-sweep', controlCount: 0,
+        control: {label: 'Faza φ', kind: 'range'},
+        sweep: {
+            // Slider grid −π + k·π/12 (the runtime step), so every scheduled value is exact to 1e-15 and the recipe φ = 0 is k = 12.
+            waypoints: [0, Math.PI, 0], origin: -Math.PI, step: Math.PI / 12, start: 0,
+            readout: {text: phaseAsPiText, read: ({range}) => range.getAttribute('aria-valuetext')},
+            observe: trigObserve,
+            check: trigSweepCheck,
+        },
+        // CRF 10 (the encoder default) on the diagnostic capture: 283552 bytes, under the 300 KiB ceiling (307200 B), so no reduction was needed.
+        crf: 10,
+        encoderBudget: 'CRF 10 (the encoder default): 283552 bytes measured on the diagnostic capture, under the 300 KiB ceiling; no label or amplitude reduction was needed',
+        schedule: {kind: 'piecewise-sin2', waypoints: [0, Math.PI, 0], origin: -Math.PI, step: Math.PI / 12, phase: 'clamp((frame-12)/71)',
+            deviation: 'spec says −π…π with stepped holds; the recipe value is φ = 0 and the clip must start there, so it runs 0 → π → 0 with sin² legs on the π/12 grid',
+            zeroDisplacementFrames: '0-12 and 83-95 (φ holds at the recipe value 0)', movingFrames: '13-82',
+            legs: 'two equal phase halves, each eased by (1 - cos πx)/2 from one waypoint to the next (φ = π at the middle of the move)',
+            input: 'keyboard ArrowRight/ArrowLeft on the "Faza φ" range, incremental from the previous frame',
+            window: 'recipe coordinate window [-0.6, 1.8, 6.8, -1.8]'},
+        invariants: ['A, ω, B inputs unchanged (exact); equation readout equals f(x) = sin(x + φ) for the input', 'Phi readout (dl "phi") is the text of the input, with the decimal comma and π multiple',
+            'The solid function curve equals A·sin(ωx + φ) + B at the reported φ at every sample in the window (1e-9, at least 21 samples)',
+            'Input and aria-valuetext equal the snapped target every frame', 'First and last frames equal the recipe state (identical PNG)'],
+    },
     accumulation: {
         mode: 'pointer-drag', controlCount: 2,
         // Re-presented every frame: presentBoard sets the curve stroke inline once, and JSXGraph updates (the signed-area fill has a 1px stroke function) drop it; re-presenting keeps every frame at the poster stroke widths.
@@ -597,6 +1004,34 @@ const motionSpecs = {
             if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
         },
     },
+    // Stepped clips (no sweep): each checkpoint is a settled route state, captured by captureHold; see steppedClips and assertMotionEvidence.
+    darboux: {
+        mode: 'discrete-exact-steps',
+        // The only control is the button that doubles n (n → 2n). No control lowers n, so every checkpoint opens a fresh route, applies the recipe and presses the button k times.
+        control: {label: 'Zgosti razdelitev (n → 2n)', kind: 'button'},
+        // Measured on the diagnostic capture: CRF 10 (encoder default) gave 90975 bytes, under the 300 KiB ceiling, so no encoder change was needed.
+        encoderBudget: 'CRF 10 (encoder default): 90975 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
+        schedule: {kind: 'discrete-steps', checkpoints: steppedClips.darboux.checkpoints, presses: steppedClips.darboux.checkpoints.map(darbouxPressCount),
+            holds: steppedHolds, camera: 'recipe coordinate window [-0.3, 4.8, 2.4, -0.5]', bounds: 'a = 0 and b = 2 unchanged'},
+        invariants: ['Readouts n, lower, upper, integral and gap equal the pure Darboux sums of x² on [0, 2] for the reported n (4-decimal text, Slovenian comma, true minus sign)',
+            'Each checkpoint has exactly log2(n/4) button presses from a fresh route; a and b readouts stay 0 and 2',
+            'Integral readout equals 8/3 at every checkpoint; gap equals upper − lower',
+            'Checkpoints 4, 8, 16, 32, 16, 8, 4 with holds 18, 10, 10, 20, 10, 10, 18 cover 96 frames with one fixed camera',
+            'First and last checkpoint PNGs are identical (seam)'],
+    },
+    'definite-integral': {
+        mode: 'discrete-exact-steps',
+        // The range "Število podintervalov n" (1..150) is set on a fresh route per checkpoint with a keyboard range action; the recipe's n = 6 is the first checkpoint.
+        control: {label: 'Število podintervalov n', kind: 'range'},
+        // Measured on the diagnostic capture: CRF 10 (encoder default) gave 90071 bytes, under the 300 KiB ceiling, so no encoder change was needed.
+        encoderBudget: 'CRF 10 (encoder default): 90071 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
+        schedule: {kind: 'discrete-steps', checkpoints: steppedClips['definite-integral'].checkpoints, holds: steppedHolds,
+            camera: 'recipe coordinate window [-0.3, 4.8, 2.4, -0.5]', bounds: 'a = 0, b = 2, function x² and the left rule unchanged'},
+        invariants: ['Readouts n, h, sum, exact and difference equal the pure left Riemann sum of x² on [0, 2] for the reported n, with h = 2/n and exact = 8/3 (4-decimal text)',
+            'difference equals sum − exact (sign included); a and b readouts stay 0 and 2',
+            'Checkpoints 6, 12, 24, 48, 24, 12, 6 with holds 18, 10, 10, 20, 10, 10, 18 cover 96 frames with one fixed camera',
+            'First and last checkpoint PNGs are identical (seam)'],
+    },
 };
 
 function assertPointSet(actual, expected, message) {
@@ -609,12 +1044,14 @@ function assertPointSet(actual, expected, message) {
     }
 }
 
+/** Readout equality for a sweep: exact text by default; a spec may supply readout.matches(shown, value) when the runtime's text is not the nominal text. */
+const readoutShows = (sweep, shown, value) => sweep.readout.matches ? sweep.readout.matches(shown, value) : shown === sweep.readout.text(value);
 /** Generic per-frame checks shared by the capture loop and the offline evidence check. Route invariants live in spec.sweep.check. */
 function assertSweepFrame(sample, previous, first, spec) {
     const scheduled = sweepValue(sample.index, spec);
     assert.equal(sample.scheduled, scheduled, `Scheduled target differs from the recorded schedule at frame ${sample.index}`);
     assert.ok(Math.abs(sample.actual.input - scheduled) < 1e-9, `Input value differs from target at frame ${sample.index}`);
-    assert.equal(sample.actual.readout, spec.sweep.readout.text(scheduled), `Graph readout differs from target at frame ${sample.index}`);
+    assert.ok(readoutShows(spec.sweep, sample.actual.readout, scheduled), `Graph readout differs from target at frame ${sample.index}`);
     assert.equal(sample.controls.length, spec.controlCount, 'Wrong control point count');
     first.controls.forEach((p, j) => {
         assert.equal(sample.controls[j].id, p.id, `Control point identity changed at frame ${sample.index}`);
@@ -653,6 +1090,20 @@ function assertDragEvidence(motion, spec) {
     });
 }
 
+/** Stepped clips: the samples cover the 96 frames in order, each with its checkpoint, first frame and hold, and all share one camera. */
+function assertSteppedSequence(motion, stepped) {
+    assert.equal(motion.samples.length,stepped.checkpoints.length,`${motion.id}: wrong number of checkpoints`);
+    let firstFrame=0;
+    motion.samples.forEach((sample,i)=>{
+        assert.equal(sample.checkpoint,stepped.checkpoints[i],`${motion.id}: checkpoint ${i} differs`);
+        assert.equal(sample.firstFrame,firstFrame,`${motion.id}: first frame of checkpoint ${i} differs`);
+        assert.equal(sample.holdFrames,stepped.holds[i],`${motion.id}: hold of checkpoint ${i} differs`);
+        firstFrame+=sample.holdFrames;
+        assert.deepEqual(sample.state.box,motion.camera,'Camera changed between exact checkpoints');
+    });
+    assert.equal(firstFrame,frameCount,`${motion.id}: holds must cover every frame`);
+}
+
 function assertMotionEvidence(motion) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
@@ -677,14 +1128,12 @@ function assertMotionEvidence(motion) {
             else assert.equal(sample.state.curves,2**i);
         });
     } else if(motion.id==='affine') {
-        assert.equal(motion.samples.length,affineSteps.length);
+        assertSteppedSequence(motion,steppedClips.affine);
         const original=motion.samples[0].state.points;
         assert.equal(original.length,4);
         const center=original.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0});
-        let firstFrame=0;
         motion.samples.forEach((sample,i)=>{
-            assert.equal(sample.checkpoint,affineSteps[i]);assert.equal(sample.firstFrame,firstFrame);assert.equal(sample.holdFrames,affineHolds[i]);firstFrame+=sample.holdFrames;
-            assert.deepEqual(sample.state.box,motion.camera);assert.equal(sample.state.points.length,4);
+            assert.equal(sample.state.points.length,4);
             const theta=affineSteps[i]*Math.PI/10;
             original.forEach((p,j)=>{
                 near(sample.state.points[j].x,center.x+(p.x-center.x)*Math.cos(theta)-(p.y-center.y)*Math.sin(theta),'Incorrect supported affine rotation');
@@ -692,6 +1141,19 @@ function assertMotionEvidence(motion) {
             });
         });
         assert.notDeepEqual(motion.samples[0].state.paths,motion.samples[3].state.paths);
+    } else if(motion.id==='darboux'||motion.id==='definite-integral') {
+        assertSteppedSequence(motion,steppedClips[motion.id]);
+        motion.samples.forEach(sample=>{
+            const label=`${motion.id} checkpoint ${sample.checkpoint}`;
+            if(motion.id==='darboux') {
+                assert.equal(sample.actions?.length,darbouxPressCount(sample.checkpoint),`${label}: wrong number of 2n presses`);
+                assertReadouts(sample.state.readouts,darbouxReadoutExpectation(sample.checkpoint),label);
+            } else {
+                assert.equal(sample.actions?.at(-1)?.value,sample.checkpoint,`${label}: range did not reach n`);
+                assertReadouts(sample.state.readouts,integralReadoutExpectation(sample.checkpoint),label);
+            }
+        });
+        assert.equal(motion.samples.at(-1).capture.sha256,motion.samples[0].capture.sha256,`${motion.id}: last checkpoint PNG differs from the first (seam)`);
     } else {
         assert.ok(['elevation','rational-elevation'].includes(motion.id));
         assert.equal(motion.samples.length,3);
@@ -786,7 +1248,8 @@ function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 
 async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdFrames) {
     const scene=await presentBoard(page.locator('#jgbox'),d,recipes[d.id],{window});
     const state=await boardSnapshot(page);
-    assert.ok(Math.abs(state.scale[0]-state.scale[1])<1e-8 || d.id==='bisection','Geometric motion must preserve equal unit scales');
+    // Function graphs in the recipe's coordinate window (darboux, definite-integral) keep that window's unequal unit scales; their camera is checked by box.
+    assert.ok(Math.abs(state.scale[0]-state.scale[1])<1e-8 || d.id==='bisection' || ['darboux','definite-integral'].includes(d.id),'Geometric motion must preserve equal unit scales');
     const captured=await screenshotBoard(page,path.join(directory,String(firstFrame).padStart(3,'0')+'.png'));
     for(let hold=1;hold<holdFrames;hold++)fs.copyFileSync(path.join(directory,captured.file),path.join(directory,String(firstFrame+hold).padStart(3,'0')+'.png'));
     return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox};
@@ -879,7 +1342,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
         const {sweep}=spec;
         let previousValue=Number(await range.inputValue());
-        assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && await sweep.readout.read({page,range})===sweep.readout.text(sweep.start),'Sweep must start at the recipe value');
+        assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && readoutShows(sweep,await sweep.readout.read({page,range}),sweep.start),'Sweep must start at the recipe value');
         let previous=null,first=null;
         for(let i=0;i<frameCount;i++) {
             const target=sweepValue(i,spec);
@@ -888,7 +1351,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
                 await range.focus();
                 for(let k=0;k<Math.abs(steps);k++)await range.press(steps>0?'ArrowRight':'ArrowLeft');
             }
-            await settle(page);
+            await (spec.settle||settle)(page);
             const value=Number(await range.inputValue());
             const shown=await sweep.readout.read({page,range});
             assert.ok(Math.abs(value-target)<1e-9,`Input ${value} differs from scheduled ${target} at frame ${i}`);
@@ -951,6 +1414,25 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                     firstFrame+=affineHolds[i];
                 }
             }finally{await context.close();}
+        } else if(id==='darboux'||id==='definite-integral') {
+            // No supported control lowers n, so every checkpoint opens a fresh route, applies the recipe and then reaches its n through supported controls.
+            const stepped=steppedClips[id];
+            let firstFrame=0;
+            for(let i=0;i<stepped.checkpoints.length;i++) {
+                const n=stepped.checkpoints[i];
+                const {page,context}=await openRoute(browser,d,baseUrl);
+                try {
+                    await applyRecipe(page,recipes[id]);
+                    const actions=[];
+                    if(id==='darboux') {
+                        for(let press=0;press<darbouxPressCount(n);press++){const action={kind:'button',label:'Zgosti razdelitev (n → 2n)'};await applyAction(page,action);actions.push(action);}
+                    } else {
+                        const action={kind:'range',label:'Število podintervalov n',value:n};await applyAction(page,action);actions.push(action);
+                    }
+                    record({checkpoint:n,actions,...await captureHold(page,d,recipes[id].framing.window,presentBoard,directory,firstFrame,stepped.holds[i])});
+                    firstFrame+=stepped.holds[i];
+                }finally{await context.close();}
+            }
         } else if(['elevation','rational-elevation'].includes(id)) {
             for(let checkpoint=0;checkpoint<3;checkpoint++) {
                 const {page,context}=await openRoute(browser,d,baseUrl);
@@ -983,4 +1465,4 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={countPaths,generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber};
+module.exports={countPaths,generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,snapToStep,g1ComputedPoints,assertG1Join,phaseAsPiText,phiReadoutText,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,bernsteinDerivativePoint,phOffsetRadii,phOffsetWaypoints,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber,steppedClips,darbouxReferenceSums,leftRiemannReference,darbouxReadoutExpectation,integralReadoutExpectation,darbouxPressCount};

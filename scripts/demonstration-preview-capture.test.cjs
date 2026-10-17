@@ -100,6 +100,48 @@ test('parameter sweep provenance rejects a moved fixed point, wrong intermediate
     const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
     assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
 });
+test('decasteljau-alternative sweep: A, B, C and the connecting segment match pure evaluations at the reported t, with the seam checked',()=>{
+    const controls=[{x:-4,y:-3},{x:-3,y:2},{x:0,y:3},{x:3,y:2},{x:4,y:-3}];
+    const spec=motionSpecs['decasteljau-alternative'];
+    const sample=i=>{
+        const t=sweepValue(i,spec);
+        const A=bernsteinPoint(controls.slice(0,4),t),B=bernsteinPoint(controls.slice(1),t),C=bernsteinPoint(controls,t);
+        const points=[...controls.map((p,j)=>({id:'c'+j,name:'$$p_{'+j+'}$$',x:p.x,y:p.y,draggable:true})),
+            ...[A,B,C].map((p,j)=>({id:'i'+j,name:'',x:p.x,y:p.y,draggable:false}))];
+        return {index:i,time:i/24,scheduled:t,actual:{input:t,readout:spec.sweep.readout.text(t),steps:0},
+            controls:controls.map((p,j)=>({id:'c'+j,...p})),points,
+            observed:{segment:{p1:A,p2:B}},curvePathHash:'path-'+t,pathCount:3,capture:{sha256:'recipe-png'}};
+    };
+    const motion=()=>({id:'decasteljau-alternative',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0.5);assert.equal(valid.samples[95].scheduled,0.5);
+    assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),1);assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),0);
+    const moved=motion();moved.samples[40].controls[2].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(moved),/Fixed control point moved/);
+    // A extra or displaced non-draggable point breaks the exact {A, B, C} set.
+    const extra=motion();extra.samples[40].points.push({id:'x',name:'',x:0,y:0,draggable:false});
+    assert.throws(()=>assertMotionEvidence(extra),/Non-draggable points differ/);
+    const wrongA=motion();wrongA.samples[40].points[5].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(wrongA),/Non-draggable points differ/);
+    // The segment drawn from a wrong B (for example the cubic of p0..p3 instead of p1..p4 at t).
+    const segB=motion();segB.samples[40].observed.segment.p2.y+=0.05;
+    assert.throws(()=>assertMotionEvidence(segB),/Segment end differs from B/);
+    // A segment whose endpoints are both correct but whose C is moved: the point-set check fails.
+    const curveOff=motion();const s40=curveOff.samples[40];
+    s40.points[7]={...s40.points[7],x:s40.points[7].x+0.01};
+    assert.throws(()=>assertMotionEvidence(curveOff),/Non-draggable points differ/);
+    const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
+    assert.throws(()=>assertMotionEvidence(stalled),/did not change/);
+    const held=motion();held.samples[60].curvePathHash='changed-while-held';
+    assert.throws(()=>assertMotionEvidence(held),/changed while t held/);
+    const seamPng=motion();seamPng.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seamPng),/Non-seamless loop: last PNG/);
+    const mismatch=motion();mismatch.samples[40].actual.input+=0.01;
+    assert.throws(()=>assertMotionEvidence(mismatch),/Input value differs/);
+    const noPath=motion();noPath.samples.forEach(s=>{s.pathCount=0;});
+    assert.throws(()=>assertMotionEvidence(noPath),/Curve paths missing/);
+});
 test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a moved tangent, a non-seamless end, a non-identical end PNG and the excluded band',()=>{
     const deriv=motionSpecs.derivative,f=x=>x*x,x0=1;
     const sample=i=>{
@@ -197,6 +239,127 @@ test('weighted-parameterization sweep: markers equal B(phi_alpha(t_k)) at the re
     const seam=motion();seam.samples[95].capture.sha256='other-png';
     assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
 });
+// PH offset fixtures: the offset is built as B + d·(D_y, -D_x)/|D| (the right normal of the independent Bernstein derivative).
+// The board curves are listed offset first, PH second, so the PH identification by evaluation is exercised.
+const phFixtureMotion=(id,controls)=>{
+    const {bernsteinDerivativePoint,bernsteinPoint}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs[id];
+    const sample=i=>{
+        const d=sweepValue(i,spec),readout=spec.sweep.readout.text(d);
+        const ph=Array.from({length:41},(_,k)=>bernsteinPoint(controls,k/40));
+        const offset=Array.from({length:41},(_,k)=>{
+            const B=ph[k],D=bernsteinDerivativePoint(controls,k/40),n=Math.hypot(D.x,D.y);
+            return {x:B.x+d*D.y/n,y:B.y-d*D.x/n};
+        });
+        return {index:i,time:i/24,scheduled:d,actual:{input:d,readout,steps:0},controls:[],
+            points:controls.map((p,j)=>({id:'c'+j,name:'$$p_{'+j+'}$$',x:p.x,y:p.y,draggable:false})),
+            observed:{curves:[{min:0,max:1,d:'offset-'+d,samples:offset},{min:0,max:1,d:'ph-path',samples:ph}]},
+            curvePathHash:'paths-'+d,pathCount:2,capture:{sha256:'recipe-png'}};
+    };
+    return ()=>({id,mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+};
+// Rotate the offset point of one parameter by theta about the PH point: the distance stays |d| but the offset leaves the normal.
+const rotateOffset=(sample,k,theta)=>{
+    const {bernsteinPoint}=require('./demonstration-preview-motion.cjs');
+    const o=sample.observed.curves[0].samples[k];
+    const B=bernsteinPoint(sample.points.map(({x,y})=>({x,y})),k/40);
+    const vx=o.x-B.x,vy=o.y-B.y;
+    o.x=B.x+Math.cos(theta)*vx-Math.sin(theta)*vy;o.y=B.y+Math.sin(theta)*vx+Math.cos(theta)*vy;
+};
+const phCubicControls=[{x:-4.2,y:-2},{x:-1.08,y:1.9667},{x:2.9167,y:1.4567},{x:4.2067,y:-1.49}];
+test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on one side, schedule passes through the curve, seam checked',()=>{
+    const {phOffsetWaypoints}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs['ph-cubic'];
+    const motion=phFixtureMotion('ph-cubic',phCubicControls);
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0.35);assert.equal(valid.samples[95].scheduled,0.35);
+    assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),-0.35);assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),0.35);
+    assert.deepEqual(phOffsetWaypoints(phCubicControls,0.35),[0.35,-0.35,0.35]);
+    assert.deepEqual(spec.sweep.waypoints,[0.35,-0.35,0.35]);
+    const distance=motion();distance.samples[40].observed.curves[0].samples[10].x+=1e-3;
+    assert.throws(()=>assertMotionEvidence(distance),/Offset distance differs/);
+    const perp=motion();rotateOffset(perp.samples[40],10,0.01);
+    assert.throws(()=>assertMotionEvidence(perp),/not perpendicular/);
+    const side=motion();const s=side.samples[40].observed.curves[0].samples[10],B=bernsteinPoint(phCubicControls,0.25);
+    // Mirror the offset point through the PH point: distance and perpendicularity hold, the side flips.
+    s.x=2*B.x-s.x;s.y=2*B.y-s.y;
+    assert.throws(()=>assertMotionEvidence(side),/Offset side differs/);
+    const phPath=motion();phPath.samples[40].observed.curves[1].d='changed';
+    assert.throws(()=>assertMotionEvidence(phPath),/PH curve path changed/);
+    const phMoved=motion();phMoved.samples[40].observed.curves[1].samples[8].y+=0.01;
+    assert.throws(()=>assertMotionEvidence(phMoved),/PH curve differs from its Bezier/);
+    const count=motion();count.samples[40].observed.curves.push({min:0,max:1,d:'third',samples:count.samples[40].observed.curves[0].samples});
+    assert.throws(()=>assertMotionEvidence(count),/Expected one PH curve and one offset curve/);
+    const stalled=motion();stalled.samples[30].observed.curves[0].d=stalled.samples[29].observed.curves[0].d;
+    assert.throws(()=>assertMotionEvidence(stalled),/Offset path did not change/);
+    const held=motion();held.samples[90].observed.curves[0].d='changed-while-held';
+    assert.throws(()=>assertMotionEvidence(held),/Offset path changed while d held/);
+    const moved=motion();moved.samples[40].points[2].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(moved),/Control point moved/);
+    const mismatch=motion();mismatch.samples[40].actual.input+=0.01;
+    assert.throws(()=>assertMotionEvidence(mismatch),/Input value differs from target/);
+    const readoutOff=motion();readoutOff.samples[40].actual.readout='0,36';
+    assert.throws(()=>assertMotionEvidence(readoutOff),/Graph readout differs from target/);
+    const seam=motion();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
+    const noPath=motion();noPath.samples.forEach(x=>{x.pathCount=0;});
+    assert.throws(()=>assertMotionEvidence(noPath),/Curve paths missing/);
+});
+/** A stepped fixture: checkpoints, holds and the camera come from steppedClips; readouts, actions and PNG hashes are supplied per checkpoint. */
+function steppedFixture(id, readoutsFor, actionsFor) {
+    const {steppedClips}=require('./demonstration-preview-motion.cjs');
+    const stepped=steppedClips[id], camera=[-0.3,4.8,2.4,-0.5];
+    let firstFrame=0;
+    const samples=stepped.checkpoints.map((checkpoint,i)=>{
+        const sample={checkpoint,firstFrame,holdFrames:stepped.holds[i],actions:actionsFor(checkpoint),capture:{sha256:'seam-png'},state:{box:[...camera],readouts:readoutsFor(checkpoint)}};
+        firstFrame+=stepped.holds[i];return sample;
+    });
+    return {id,mode:'discrete-exact-steps',frameCount:96,sampleRate:24,duration:4,camera,samples};
+}
+const darbouxButtons=n=>Array.from({length:Math.round(Math.log2(n/4))},()=>({kind:'button',label:'Zgosti razdelitev (n → 2n)'}));
+const integralRange=n=>[{kind:'range',label:'Število podintervalov n',value:n}];
+
+test('darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees with closed forms at every checkpoint',()=>{
+    const {darbouxReferenceSums,leftRiemannReference,darbouxReadoutExpectation,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    assert.deepEqual(darbouxReadoutExpectation(4),{n:'4',a:'0',b:'2',lower:'1,75',upper:'3,75',integral:'2,6667',gap:'2'});
+    assert.deepEqual(integralReadoutExpectation(6),{n:'6',a:'0',b:'2',h:'0,3333',sum:'2,037',exact:'2,6667',difference:'−0,6296'});
+    const f=x=>x*x;
+    for(const n of [4,8,16,32,48]) {
+        const h=2/n, {lower,upper}=darbouxReferenceSums(f,0,2,n);
+        // Closed forms for the left and right endpoint sums of x²: lower = h³·(n−1)n(2n−1)/6, upper = h³·n(n+1)(2n+1)/6.
+        assert.ok(Math.abs(lower-h**3*(n-1)*n*(2*n-1)/6)<1e-9,`lower sum at n=${n}`);
+        assert.ok(Math.abs(upper-h**3*n*(n+1)*(2*n+1)/6)<1e-9,`upper sum at n=${n}`);
+        assert.ok(Math.abs(leftRiemannReference(f,0,2,n)-lower)<1e-9,`left Riemann equals lower for increasing x² at n=${n}`);
+    }
+});
+
+test('darboux stepped clip: readouts equal the pure sums at each checkpoint, press counts, camera and seam are enforced',()=>{
+    const {assertMotionEvidence,darbouxReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    const make=()=>steppedFixture('darboux',darbouxReadoutExpectation,darbouxButtons);
+    assertMotionEvidence(make());
+    const wrongSum=make();wrongSum.samples[1].state.readouts.lower='2,1876';assert.throws(()=>assertMotionEvidence(wrongSum),/lower/);
+    const wrongUpper=make();wrongUpper.samples[2].state.readouts.upper='3,75';assert.throws(()=>assertMotionEvidence(wrongUpper),/upper/);
+    const wrongN=make();wrongN.samples[3].state.readouts.n='16';assert.throws(()=>assertMotionEvidence(wrongN),/n differs/);
+    const wrongPresses=make();wrongPresses.samples[1].actions=[];assert.throws(()=>assertMotionEvidence(wrongPresses),/presses/);
+    const wrongHold=make();wrongHold.samples[3].holdFrames=19;assert.throws(()=>assertMotionEvidence(wrongHold),/hold/);
+    const wrongSequence=make();wrongSequence.samples[4].checkpoint=8;assert.throws(()=>assertMotionEvidence(wrongSequence),/checkpoint 4/);
+    const seam=make();seam.samples.at(-1).capture.sha256='other-png';assert.throws(()=>assertMotionEvidence(seam),/seam/);
+    const moved=make();moved.samples[5].state.box[1]=5;assert.throws(()=>assertMotionEvidence(moved),/Camera changed/);
+});
+
+test('definite-integral stepped clip: readouts equal the left sum, h, exact and sum − exact at each checkpoint; range, holds and seam are enforced',()=>{
+    const {assertMotionEvidence,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    const make=()=>steppedFixture('definite-integral',integralReadoutExpectation,integralRange);
+    assertMotionEvidence(make());
+    const wrongSum=make();wrongSum.samples[1].state.readouts.sum='2,038';assert.throws(()=>assertMotionEvidence(wrongSum),/sum/);
+    const wrongSign=make();wrongSign.samples[2].state.readouts.difference='0,6296';assert.throws(()=>assertMotionEvidence(wrongSign),/difference/);
+    const wrongN=make();wrongN.samples[3].state.readouts.n='50';assert.throws(()=>assertMotionEvidence(wrongN),/n differs/);
+    const wrongRange=make();wrongRange.samples[2].actions=[{kind:'range',label:'Število podintervalov n',value:11}];assert.throws(()=>assertMotionEvidence(wrongRange),/range/);
+    const wrongHolds=make();wrongHolds.samples[0].holdFrames=17;assert.throws(()=>assertMotionEvidence(wrongHolds),/hold/);
+    const seam=make();seam.samples.at(-1).capture.sha256='other-png';assert.throws(()=>assertMotionEvidence(seam),/seam/);
+});
+
 test('real VP9 encoding retains exact RGB background samples and declares its color metadata',t=>{
     const ffmpeg=process.env.PREVIEW_FFMPEG||'ffmpeg',ffprobe=process.env.PREVIEW_FFPROBE||'ffprobe';
     try {execFileSync(ffmpeg,['-version'],{stdio:'ignore'});execFileSync(ffprobe,['-version'],{stdio:'ignore'});}
@@ -311,4 +474,142 @@ test('path counts ignore curves without path data, so an empty snapshot cannot p
     const {countPaths}=require('./demonstration-preview-motion.cjs');
     assert.equal(countPaths([null,'',undefined]),0);
     assert.equal(countPaths(['M 0 0 L 1 1',null]),1);
+});
+// Trigonometric fixtures: f(x) = A·sin(ωx + φ) + B with A = ω = 1, B = 0 (recipe values); the board's solid curve is listed after a dashed reference and an empty curve.
+const trigFixtureMotion=()=>{
+    const {sweepValue,motionSpecs,phaseAsPiText,phiReadoutText}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs['trigonometric-functions'];
+    const xs=Array.from({length:81},(_,k)=>-1.5+9*k/80);
+    const sample=i=>{
+        const phi=sweepValue(i,spec);
+        const phiPart=Math.abs(phi)<1e-9?'':` ${phi<0?'−':'+'} ${phaseAsPiText(Math.abs(phi))}`;
+        const curve=f=>xs.map(x=>({x,y:f(x)}));
+        return {index:i,time:i/24,scheduled:phi,target:phi,actual:{input:phi,readout:phaseAsPiText(phi),steps:0},
+            observed:{values:{A:1,omega:1,B:0},equation:`f(x) = sin(x${phiPart})`,phi:phiReadoutText(phi),
+                curves:[{id:'ref',dash:3,samples:curve(Math.sin)},{id:'main',dash:0,samples:curve(x=>Math.sin(x+phi))},{id:'empty',dash:0,samples:xs.map(()=>({x:null,y:null}))}]},
+            controls:[],points:[],curvePathHash:'paths-'+phi,pathCount:1,capture:{sha256:'recipe-png'}};
+    };
+    return ()=>({id:'trigonometric-functions',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+};
+test('trigonometric sweep: the solid curve equals A·sin(ωx + φ) + B at the reported φ, A, ω, B fixed, phi readout and equation match the input, seam checked',()=>{
+    const {assertMotionEvidence,phaseAsPiText,phiReadoutText,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const motion=trigFixtureMotion();
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0);assert.equal(valid.samples[95].scheduled,0);
+    assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),Math.PI);assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),0);
+    assert.deepEqual(motionSpecs['trigonometric-functions'].sweep.waypoints,[0,Math.PI,0]);
+    // Readout texts as the runtime writes them (src/analysis/trigonometric.ts): exact multiples of π/12, decimal comma, true minus sign.
+    assert.equal(phaseAsPiText(Math.PI/2),'π/2');assert.equal(phaseAsPiText(-Math.PI/4),'−π/4');assert.equal(phaseAsPiText(0),'0');assert.equal(phaseAsPiText(5*Math.PI/12),'5π/12');
+    assert.equal(phiReadoutText(-2e-16),'0');assert.equal(phiReadoutText(Math.PI/2),'1,57 (π/2)');assert.equal(phiReadoutText(-Math.PI/4),'−0,79 (−π/4)');
+    assert.equal(phiReadoutText(Math.PI/12),'0,26 (π/12)');
+    // The function family: a point of the solid curve off A·sin(ωx + φ) by 1e-6 fails.
+    const curve=motion();curve.samples[40].observed.curves[1].samples[30].y+=1e-6;
+    assert.throws(()=>assertMotionEvidence(curve),/Curve differs from A·sin\(ωx \+ φ\) \+ B at x = /);
+    // The sign of the argument: sin(x − φ) instead of sin(x + φ) at the reported φ must fail.
+    const sign=motion();sign.samples[40].observed.curves[1].samples.forEach(p=>{p.y=Math.sin(p.x-sign.samples[40].scheduled);});
+    assert.throws(()=>assertMotionEvidence(sign),/Curve differs from A·sin/);
+    // A, ω or B changed.
+    const amplitude=motion();amplitude.samples[40].observed.values.A=1.1;
+    assert.throws(()=>assertMotionEvidence(amplitude),/A, omega or B changed at frame 40/);
+    // The phi readout is the text of the input.
+    const readout=motion();readout.samples[40].observed.phi='0,26 (π/12)';
+    assert.throws(()=>assertMotionEvidence(readout),/Phi readout differs from the input at frame 40/);
+    // Stale equation after a φ change.
+    const equation=motion();equation.samples[40].observed.equation='f(x) = sin(x)';
+    assert.throws(()=>assertMotionEvidence(equation),/Equation readout differs from the input at frame 40/);
+    // Two solid function curves: the main curve is ambiguous.
+    const twice=motion();twice.samples[40].observed.curves.push({id:'extra',dash:0,samples:twice.samples[40].observed.curves[1].samples});
+    assert.throws(()=>assertMotionEvidence(twice),/Expected one solid function curve at frame 40/);
+    // Too few samples inside the recipe window.
+    const window=motion();window.samples[40].observed.curves[1].samples.forEach(p=>{p.x=20;});
+    assert.throws(()=>assertMotionEvidence(window),/Too few curve samples in the window at frame 40/);
+    // Readout off the schedule (aria-valuetext).
+    const readoutOff=motion();readoutOff.samples[40].actual.readout='π/2';
+    assert.throws(()=>assertMotionEvidence(readoutOff),/Graph readout differs from target at frame 40/);
+    const seam=motion();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
+});
+test('sweepValue snaps every existing clip exactly as before the origin option (bit-identical over the 96 frames)',()=>{
+    const {sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    // Reference: the pre-origin schedule (phase clamp((i-12)/71), sin² legs, snap to multiples of the step with the step's decimals).
+    const legacy=(i,spec)=>{
+        const {waypoints,step}=spec.sweep;
+        const phase=Math.max(0,Math.min(1,(i-12)/71)),scaled=phase*(waypoints.length-1);
+        const leg=Math.min(waypoints.length-2,Math.floor(scaled)),local=scaled-leg,eased=(1-Math.cos(Math.PI*local))/2;
+        const v=waypoints[leg]+(waypoints[leg+1]-waypoints[leg])*eased;
+        const decimals=(String(step).split('.')[1]||'').length;
+        return Number((Math.round(v/step)*step).toFixed(decimals));
+    };
+    const existing=Object.entries(motionSpecs).filter(([,spec])=>spec.mode==='parameter-sweep'&&spec.sweep.origin===undefined);
+    assert.deepEqual(existing.map(([id])=>id).sort(),['decasteljau','decasteljau-alternative','derivative','ph-cubic','weighted-parameterization']);
+    for(const [id,spec] of existing)for(let i=0;i<96;i++)assert.equal(sweepValue(i,spec),legacy(i,spec),`${id} schedule changed at frame ${i}`);
+});
+test('spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly',()=>{
+    const {sweepValue,motionSpecs,snapToStep}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs['spline-g1'];
+    assert.equal(snapToStep(0.65,0.0299,0.01),0.6379);
+    assert.equal(snapToStep(1.53,0.0299,0.01),1.5349);
+    assert.equal(snapToStep(0.01,0.0299,0.01),0.01);
+    for(let i=0;i<96;i++){
+        const v=sweepValue(i,spec),k=Math.round((v-0.01)/0.0299);
+        assert.ok(Math.abs(v-(0.01+k*0.0299))<1e-12,`Off-grid value ${v} at frame ${i}`);
+        assert.ok(v>=0.1&&v<=3,`Value ${v} outside the range at frame ${i}`);
+    }
+    assert.equal(sweepValue(0,spec),0.6379);assert.equal(sweepValue(95,spec),0.6379);
+});
+// G1 spline fixtures: the free points of the recipe (probe on the production build), b2 = 1 (the runtime readout), computed N2 and N3 from the formula.
+const splineControls=[{x:-2.5,y:1},{x:-4,y:-1.5},{x:-2.5,y:-2.5},{x:0,y:-1},{x:3,y:1}];
+const splineFixtureMotion=()=>{
+    const {g1ComputedPoints,sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs['spline-g1'];
+    const sample=i=>{
+        const b1=sweepValue(i,spec),{N2,N3}=g1ComputedPoints(splineControls,b1,1);
+        const controls=splineControls.map((p,j)=>({id:'c'+j,x:p.x,y:p.y}));
+        return {index:i,time:i/24,scheduled:b1,target:b1,actual:{input:b1,readout:(b1+2e-16).toFixed(18).replace('.',','),steps:0},
+            controls,fixed:controls,observed:{b2:'1'},
+            points:[...controls.map(p=>({...p,name:'$$P$$',draggable:true})),{id:'n2',name:'',x:N2.x,y:N2.y,draggable:false},{id:'n3',name:'',x:N3.x,y:N3.y,draggable:false}],
+            curvePathHash:'path-'+b1,pathCount:1,capture:{sha256:'recipe-png'}};
+    };
+    return ()=>({id:'spline-g1',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
+};
+test('spline-g1 sweep: N2 and N3 follow the reported b1 and the b2 readout, G1 holds at both joins, the path follows b1, seam checked',()=>{
+    const {assertMotionEvidence,assertG1Join,g1ComputedPoints,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const motion=splineFixtureMotion();
+    const valid=motion();
+    assertMotionEvidence(valid);
+    assert.equal(valid.samples[0].scheduled,0.6379);assert.equal(valid.samples[95].scheduled,0.6379);
+    assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),1.5349);
+    assert.deepEqual(motionSpecs['spline-g1'].sweep.waypoints,[0.6379,1.5349,0.2492,0.6379]);
+    // G1 family: a joint off the tangent line, or a non-positive ratio, must throw.
+    const {N2}=g1ComputedPoints(splineControls,0.6379,1);
+    assert.doesNotThrow(()=>assertG1Join(splineControls[1],splineControls[2],N2,0.6379,'G1'));
+    assert.throws(()=>assertG1Join(splineControls[1],splineControls[2],{x:N2.x,y:N2.y+0.01},0.6379,'G1 fails at join P2'),/G1 fails at join P2/);
+    assert.throws(()=>assertG1Join(splineControls[1],splineControls[2],N2,-0.6379,'G1 ratio'),/ratio must be positive/);
+    // Computed points: N2 moved off the formula, or N3 stale (not following the chain).
+    const n2=motion();n2.samples[40].points[5].x+=0.01;
+    assert.throws(()=>assertMotionEvidence(n2),/Computed control points differ from \{N2, N3\} at frame 40/);
+    const n3=motion();n3.samples[40].points[6].y+=0.01;
+    assert.throws(()=>assertMotionEvidence(n3),/Computed control points differ/);
+    // b2 readout changed during the sweep.
+    const b2=motion();b2.samples[40].observed.b2='0,9967';
+    assert.throws(()=>assertMotionEvidence(b2),/b2 changed from frame 0 at frame 40/);
+    // A free point moved.
+    const free=motion();free.samples[40].controls[2].x+=0.1;
+    assert.throws(()=>assertMotionEvidence(free),/Fixed control point moved/);
+    // Readout off by one display unit (0,6380 for 0.6379) fails the numeric readout check.
+    const readout=motion();readout.samples[40].actual.readout='0,6380';
+    assert.throws(()=>assertMotionEvidence(readout),/Graph readout differs from target/);
+    // Input off the schedule.
+    const input=motion();input.samples[40].actual.input+=0.0299;
+    assert.throws(()=>assertMotionEvidence(input),/Input value differs from target/);
+    // The path must change when b1 changes, and must not change while it holds.
+    const stalled=motion();stalled.samples[30].curvePathHash=stalled.samples[29].curvePathHash;
+    assert.throws(()=>assertMotionEvidence(stalled),/Curve path did not change while b1 moved at frame 30/);
+    const held=motion();held.samples[90].curvePathHash='changed-while-held';
+    assert.throws(()=>assertMotionEvidence(held),/Curve path changed while b1 held at frame 90/);
+    const empty=motion();empty.samples.forEach(s=>{s.pathCount=0;});
+    assert.throws(()=>assertMotionEvidence(empty),/Curve path missing/);
+    const seam=motion();seam.samples[95].capture.sha256='other-png';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
 });

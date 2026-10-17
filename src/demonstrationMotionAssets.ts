@@ -7,11 +7,17 @@ import motion_affine from './images/demonstrations/catalog/affine.webm?no-inline
 import motion_elevation from './images/demonstrations/catalog/elevation.webm?no-inline';
 import motion_rational_elevation from './images/demonstrations/catalog/rational-elevation.webm?no-inline';
 import motion_decasteljau from './images/demonstrations/catalog/decasteljau.webm?no-inline';
+import motion_decasteljau_alternative from './images/demonstrations/catalog/decasteljau-alternative.webm?no-inline';
 import motion_derivative from './images/demonstrations/catalog/derivative.webm?no-inline';
 import motion_farin from './images/demonstrations/catalog/farin.webm?no-inline';
 import motion_weighted_parameterization from './images/demonstrations/catalog/weighted-parameterization.webm?no-inline';
 import motion_complex_multiplication from './images/demonstrations/catalog/complex-multiplication.webm?no-inline';
 import motion_accumulation from './images/demonstrations/catalog/accumulation.webm?no-inline';
+import motion_ph_cubic from './images/demonstrations/catalog/ph-cubic.webm?no-inline';
+import motion_spline_g1 from './images/demonstrations/catalog/spline-g1.webm?no-inline';
+import motion_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.webm?no-inline';
+import motion_darboux from './images/demonstrations/catalog/darboux.webm?no-inline';
+import motion_definite_integral from './images/demonstrations/catalog/definite-integral.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -22,9 +28,15 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'elevation': {src: motion_elevation, type: 'video/webm', duration: 4},
     'rational-elevation': {src: motion_rational_elevation, type: 'video/webm', duration: 4},
     'decasteljau': {src: motion_decasteljau, type: 'video/webm', duration: 4},
+    'decasteljau-alternative': {src: motion_decasteljau_alternative, type: 'video/webm', duration: 4},
     'derivative': {src: motion_derivative, type: 'video/webm', duration: 4},
     'farin': {src: motion_farin, type: 'video/webm', duration: 4},
     'weighted-parameterization': {src: motion_weighted_parameterization, type: 'video/webm', duration: 4},
     'complex-multiplication': {src: motion_complex_multiplication, type: 'video/webm', duration: 4},
     'accumulation': {src: motion_accumulation, type: 'video/webm', duration: 4},
+    'ph-cubic': {src: motion_ph_cubic, type: 'video/webm', duration: 4},
+    'spline-g1': {src: motion_spline_g1, type: 'video/webm', duration: 4},
+    'trigonometric-functions': {src: motion_trigonometric_functions, type: 'video/webm', duration: 4},
+    'darboux': {src: motion_darboux, type: 'video/webm', duration: 4},
+    'definite-integral': {src: motion_definite_integral, type: 'video/webm', duration: 4},
 };
