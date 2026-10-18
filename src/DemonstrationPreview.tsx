@@ -2,20 +2,23 @@ import React, {useEffect, useRef, useState} from 'react';
 import type {DemonstrationMotionAsset} from './demonstrationMotionAssets';
 import './DemonstrationPreview.css';
 
-export function DemonstrationPreview({src, motion, loading = 'lazy', className = ''}: {
+export function DemonstrationPreview({src, motion, loading = 'lazy', className = '', focusTargetRef}: {
     src: string;
     motion?: DemonstrationMotionAsset;
     loading?: 'eager' | 'lazy';
     className?: string;
+    focusTargetRef?: React.RefObject<HTMLElement | null>;
 }) {
     const frameRef = useRef<HTMLSpanElement>(null);
     const imageGeneration = useRef(0);
     const [imageState, setImageState] = useState<'pending' | 'ready' | 'failed'>('pending');
     const [intersecting, setIntersecting] = useState(false);
+    const [hovered, setHovered] = useState(false);
+    const [focused, setFocused] = useState(false);
     const [documentVisible, setDocumentVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
     const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined'
         && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true);
-    const shouldPlay = Boolean(motion) && intersecting && documentVisible && !reducedMotion;
+    const shouldPlay = Boolean(motion) && (hovered || focused) && intersecting && documentVisible && !reducedMotion;
 
     useEffect(() => {
         const frame = frameRef.current;
@@ -27,6 +30,21 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
         observer.observe(frame);
         return () => observer.disconnect();
     }, []);
+
+    useEffect(() => {
+        const frame = frameRef.current;
+        const target = focusTargetRef?.current ?? frame?.parentElement?.closest<HTMLElement>('a, button') ?? null;
+        if (!target) return;
+        const activate = () => setFocused(true);
+        const deactivate = () => setFocused(false);
+        target.addEventListener('focus', activate);
+        target.addEventListener('blur', deactivate);
+        if (document.activeElement === target) activate();
+        return () => {
+            target.removeEventListener('focus', activate);
+            target.removeEventListener('blur', deactivate);
+        };
+    }, [focusTargetRef]);
 
     useEffect(() => {
         const update = () => setDocumentVisible(!document.hidden);
@@ -59,7 +77,9 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
         return () => { if (imageGeneration.current === currentGeneration) imageGeneration.current++; };
     }, [src]);
 
-    return <span ref={frameRef} className={`demonstration-preview-media demonstrations-catalog-preview-frame ${className}`} aria-hidden="true">
+    return <span ref={frameRef} className={`demonstration-preview-media demonstrations-catalog-preview-frame ${className}`} aria-hidden="true"
+        onPointerEnter={event => { if (event.pointerType !== 'touch') setHovered(true); }}
+        onPointerLeave={event => { if (event.pointerType !== 'touch') setHovered(false); }}>
         <img className={`demonstration-preview-poster demonstrations-catalog-preview${imageState === 'ready' ? ' is-ready' : ''}${imageState === 'failed' ? ' is-failed' : ''}`}
             src={src} width="360" height="220" alt="" loading={loading}
             onLoad={event => {

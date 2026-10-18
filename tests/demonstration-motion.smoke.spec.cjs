@@ -1,7 +1,7 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 const clips = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation', 'decasteljau', 'farin', 'derivative', 'weighted-parameterization', 'complex-multiplication', 'accumulation',
-    'decasteljau-alternative', 'ph-cubic', 'spline-g1', 'trigonometric-functions', 'definite-integral', 'darboux'];
+    'decasteljau-alternative', 'ph-cubic', 'ph-quintic', 'subdivision', 'spline-g1', 'trigonometric-functions', 'definite-integral', 'darboux'];
 const card = (page, id) => page.locator('#demonstration-card-' + id);
 test.use({reducedMotion: 'no-preference'});
 
@@ -9,7 +9,8 @@ async function openEnglish(page, pathname = '/bezeg-2.0/demonstrations') {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
     await page.goto(pathname, {waitUntil: 'domcontentloaded'});
 }
-async function playing(entry) {
+async function playing(entry, hover = true) {
+    if (hover) await entry.locator('.demonstration-preview-media').hover();
     const video = entry.locator('video[src]');
     await expect(video).toHaveCount(1);
     await expect.poll(() => video.evaluate(v => ({ready:v.readyState >= 2, playing:!v.paused, width:v.videoWidth, height:v.videoHeight})))
@@ -19,7 +20,7 @@ async function playing(entry) {
     return video;
 }
 
-test('visible previews loop automatically without buttons or offscreen media requests', async ({page}) => {
+test('visible previews wait for hover and loop without buttons or unhovered media requests', async ({page}) => {
     const requests = [], types = [];
     page.on('request', r => {if (/\.webm(?:\?|$)/.test(r.url())) requests.push(r.url());});
     page.on('response', r => {if (/\.webm(?:\?|$)/.test(r.url())) types.push(r.headers()['content-type']);});
@@ -27,6 +28,8 @@ test('visible previews loop automatically without buttons or offscreen media req
     await openEnglish(page);
     await expect(page.locator('.demonstrations-catalog-card')).toHaveCount(demonstrations.length);
     await expect(page.locator('.demonstration-preview-control')).toHaveCount(0);
+    await expect(page.locator('video[src]')).toHaveCount(0);
+    expect(requests).toHaveLength(0);
     expect(await card(page, 'bezier').locator('.demonstration-preview-stage > .demonstration-card-open').evaluate(a => a.getBoundingClientRect().height)).toBeGreaterThan(0);
     const video = await playing(card(page, 'bezier'));
     expect(requests.length).toBeGreaterThan(0);
@@ -53,16 +56,39 @@ test('every clip decodes as it enters view and unloads offscreen', async ({page}
     await expect(page.locator('video[src]')).toHaveCount(0);
 });
 
-test('multiple visible clips loop together without hover or focus restarts', async ({page}) => {
+for (const width of [1440, 390]) {
+    test(`restored previews play and retain reduced-motion posters at ${width}px`, async ({page}) => {
+        await page.setViewportSize({width, height: 900});
+        await openEnglish(page);
+        for (const id of ['ph-quintic', 'subdivision']) {
+            const entry = card(page, id);
+            await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+            const video = await playing(entry);
+            await expect.poll(() => video.evaluate(v => v.currentTime), {intervals:[100]}).toBeGreaterThan(0.5);
+            await page.emulateMedia({reducedMotion:'reduce'});
+            await expect(entry.locator('video[src]')).toHaveCount(0);
+            await expect(entry.locator('img')).toBeVisible();
+            await page.emulateMedia({reducedMotion:'no-preference'});
+            await playing(entry);
+        }
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    });
+}
+
+test('hover and keyboard focus activate previews and leaving both restores posters', async ({page}) => {
     await page.setViewportSize({width:1440, height:1800});
     await openEnglish(page, '/bezeg-2.0/demonstrations?topic=%2Fbezeg-2.0%2Fbezier');
     const first = card(page, 'bezier'), video = await playing(first);
-    await playing(card(page, 'affine'));
-    await playing(card(page, 'elevation'));
     await video.evaluate(v => {v.dataset.smokeIdentity = 'same-loop';});
-    await first.hover();
-    await first.locator('.demonstrations-catalog-title a').focus();
+    const previewLink = first.locator('.demonstration-preview-stage > .demonstration-card-open');
+    await previewLink.focus();
     await expect(video).toHaveAttribute('data-smoke-identity', 'same-loop');
+    await page.mouse.move(0, 0);
+    await playing(first, false);
+    await expect(video).toHaveAttribute('data-smoke-identity', 'same-loop');
+    await page.getByRole('searchbox').focus();
+    await expect(first.locator('video[src]')).toHaveCount(0);
+    await playing(card(page, 'affine'));
     await page.getByRole('searchbox').fill('not-a-demonstration');
     await expect(page.locator('video[src]')).toHaveCount(0);
 });
@@ -88,6 +114,7 @@ test('failed media retains a usable poster and navigation at 390px', async ({pag
     await openEnglish(page);
     const entry = card(page, 'bezier');
     await entry.scrollIntoViewIfNeeded();
+    await entry.locator('.demonstration-preview-media').hover();
     await expect(entry.locator('video[src]')).toHaveCount(0);
     await expect(entry.locator('img')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -97,7 +124,7 @@ test('failed media retains a usable poster and navigation at 390px', async ({pag
     await expect(page.locator('#jgbox')).toBeVisible();
 });
 
-test('picker starts visible loops automatically and disposes them on close', async ({page}) => {
+test('picker starts hovered loops and disposes them on close', async ({page}) => {
     await page.setViewportSize({width:390, height:844});
     await openEnglish(page, '/bezeg-2.0/bezier/curve');
     await page.getByRole('button', {name:'Switch demonstration', exact:true}).click();
@@ -118,6 +145,7 @@ test('delayed media retains the poster and cannot revive a filtered card', async
     try {
         await openEnglish(page);
         const entry = card(page, 'bezier');
+        await entry.locator('.demonstration-preview-media').hover();
         await expect.poll(() => requested).toBe(true);
         await expect(entry.locator('img')).toBeVisible();
         await expect(entry.locator('video')).not.toHaveClass(/is-frame-ready/);

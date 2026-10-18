@@ -7,6 +7,7 @@ const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
 const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
+const {mergeRecapturedMotions}=require('./capture-demonstration-previews.cjs');
 const catalog=require('../tests/smoke-catalog.cjs');
 
 test('registry exhaustively matches the live catalog and rejects missing/unknown recipes',()=>{
@@ -306,6 +307,54 @@ test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on o
     const noPath=motion();noPath.samples.forEach(x=>{x.pathCount=0;});
     assert.throws(()=>assertMotionEvidence(noPath),/Curve paths missing/);
 });
+const phQuinticControls=[{x:1,y:-1},{x:3.178,y:-1},{x:3.046,y:1.64},{x:0.478,y:2.1306666666666665},{x:-2.002,y:0.4026666666666663},{x:-3.25,y:-2.1573333333333338}];
+test('ph-quintic sweep: larger signed-normal offset stays cusp-free and keeps its fixed quintic curve',()=>{
+    const {phOffsetRadii,phOffsetWaypoints}=require('./demonstration-preview-motion.cjs');
+    const spec=motionSpecs['ph-quintic'],motion=phFixtureMotion('ph-quintic',phQuinticControls),valid=motion();
+    assertMotionEvidence(valid);
+    assert.deepEqual(spec.sweep.waypoints,[0.5,-0.5,0.5]);
+    assert.deepEqual(phOffsetWaypoints(phQuinticControls,0.5),[0.5,-0.5,0.5]);
+    assert.ok(phOffsetRadii(phQuinticControls).negative>0.75,'The cusp margin must exceed 1.5× recipe distance');
+    assert.equal(valid.samples[0].scheduled,0.5);assert.equal(valid.samples[95].scheduled,0.5);
+    assert.ok(Math.max(...valid.samples.map(s=>Math.abs(s.scheduled)))>0.49);
+});
+const subdivisionControls=[{x:-4,y:-3},{x:-3,y:3},{x:3,y:3},{x:4,y:-3}];
+const subdivisionFixture=()=>{
+    const spec=motionSpecs.subdivision;
+    const sample=i=>{
+        const t=sweepValue(i,spec),controls=subdivisionControls.map((p,j)=>({id:'c'+j,...p})),levels=deCasteljauLevels(subdivisionControls,t);
+        const split=bernsteinPoint(subdivisionControls,t),readout=spec.sweep.readout.text(t);
+        const curveSamples=part=>Array.from({length:21},(_,j)=>bernsteinPoint(subdivisionControls,part===0?t*j/20:t+(1-t)*j/20));
+        return {index:i,time:i/24,scheduled:t,actual:{input:t,readout,steps:0},controls,
+            points:[...controls.map(p=>({...p,name:'P',draggable:true})),...levels.flat().map((p,j)=>({id:'i'+j,...p,draggable:false}))],
+            observed:{curves:[{start:subdivisionControls[0],end:split,samples:curveSamples(0),stroke:'blue',d:'left-'+t},{start:split,end:subdivisionControls.at(-1),samples:curveSamples(1),stroke:'orange',d:'right-'+t}]},
+            curvePathHash:'paths-'+t,pathCount:2,capture:{sha256:'recipe-png'}};
+    };
+    return {id:'subdivision',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))};
+};
+test('subdivision sweep: pre-Subdivide portions meet at B(t), exact interpolation construction and controls stay fixed',()=>{
+    const motion=subdivisionFixture();assertMotionEvidence(motion);
+    assert.deepEqual(motionSpecs.subdivision.sweep.waypoints,[0.5,0.745,0.255,0.5]);
+    assert.equal(motion.samples[0].scheduled,0.5);assert.equal(motion.samples[95].scheduled,0.5);
+    const construction=subdivisionFixture();construction.samples[40].points[8].x+=1e-5;
+    assert.throws(()=>assertMotionEvidence(construction),/interpolation construction differs/);
+    const split=subdivisionFixture();split.samples[40].observed.curves[0].end.y+=0.01;split.samples[40].observed.curves[1].start.y+=0.01;
+    assert.throws(()=>assertMotionEvidence(split),/First portion does not run/);
+    const interior=subdivisionFixture();interior.samples[40].observed.curves[1].samples[10].y+=0.01;
+    assert.throws(()=>assertMotionEvidence(interior),/leaves the unchanged base curve/);
+    const subdivision=subdivisionFixture();subdivision.samples[40].controls[0].x+=0.01;
+    assert.throws(()=>assertMotionEvidence(subdivision),/Fixed control point moved/);
+    const readout=subdivisionFixture();readout.samples[40].actual.readout=(Number(readout.samples[40].actual.readout.replace(',','.'))+0.01).toFixed(2).replace('.',',');
+    assert.throws(()=>assertMotionEvidence(readout),/Graph readout differs/);
+    const seam=subdivisionFixture();seam.samples[95].capture.sha256='different-poster-frame';
+    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop/);
+});
+test('selective motion recapture replaces only selected clips and keeps the other evidence in order',()=>{
+    const old=[{id:'first',sha256:'keep-1',samples:[1]},{id:'second',sha256:'old-2',samples:[2]},{id:'third',sha256:'keep-3',samples:[3]}];
+    const replacement={id:'second',sha256:'new-2',samples:[22]};
+    assert.deepEqual(mergeRecapturedMotions(old,[replacement],['second']),[old[0],replacement,old[2]]);
+    assert.deepEqual(mergeRecapturedMotions(old,[{id:'fourth',sha256:'new-4'}],['fourth']),[...old,{id:'fourth',sha256:'new-4'}]);
+});
 /** A stepped fixture: checkpoints, holds and the camera come from steppedClips; readouts, actions and PNG hashes are supplied per checkpoint. */
 function steppedFixture(id, readoutsFor, actionsFor) {
     const {steppedClips}=require('./demonstration-preview-motion.cjs');
@@ -542,7 +591,7 @@ test('sweepValue snaps every existing clip exactly as before the origin option (
         return Number((Math.round(v/step)*step).toFixed(decimals));
     };
     const existing=Object.entries(motionSpecs).filter(([,spec])=>spec.mode==='parameter-sweep'&&spec.sweep.origin===undefined);
-    assert.deepEqual(existing.map(([id])=>id).sort(),['decasteljau','decasteljau-alternative','derivative','ph-cubic','weighted-parameterization']);
+    assert.deepEqual(existing.map(([id])=>id).sort(),['decasteljau','decasteljau-alternative','derivative','ph-cubic','ph-quintic','weighted-parameterization']);
     for(const [id,spec] of existing)for(let i=0;i<96;i++)assert.equal(sweepValue(i,spec),legacy(i,spec),`${id} schedule changed at frame ${i}`);
 });
 test('spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly',()=>{

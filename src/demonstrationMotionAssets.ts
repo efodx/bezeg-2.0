@@ -18,6 +18,8 @@ import motion_spline_g1 from './images/demonstrations/catalog/spline-g1.webm?no-
 import motion_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.webm?no-inline';
 import motion_darboux from './images/demonstrations/catalog/darboux.webm?no-inline';
 import motion_definite_integral from './images/demonstrations/catalog/definite-integral.webm?no-inline';
+import motion_ph_quintic from './images/demonstrations/catalog/ph-quintic.webm?no-inline';
+import motion_subdivision from './images/demonstrations/catalog/subdivision.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -39,4 +41,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'trigonometric-functions': {src: motion_trigonometric_functions, type: 'video/webm', duration: 4},
     'darboux': {src: motion_darboux, type: 'video/webm', duration: 4},
     'definite-integral': {src: motion_definite_integral, type: 'video/webm', duration: 4},
+    'ph-quintic': {src: motion_ph_quintic, type: 'video/webm', duration: 4},
+    'subdivision': {src: motion_subdivision, type: 'video/webm', duration: 4},
 };

@@ -166,7 +166,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                     aria-hidden="true">
                     <DemonstrationPreview src={demonstrationPreviewAssets[entry.demonstration.id]}
                         motion={selectedIndex === index ? demonstrationMotionAssets[entry.demonstration.id] : undefined}
-                        loading={index < 3 ? 'eager' : 'lazy'}/>
+                        loading={index < 3 ? 'eager' : 'lazy'} focusTargetRef={graphActionRef}/>
                 </div>)}
             </div>
             <div className="demonstrations-opening-copy">

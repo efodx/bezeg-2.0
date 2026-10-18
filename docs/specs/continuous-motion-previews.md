@@ -1,10 +1,35 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17 and asked for Phase 3 the same day without selecting entries. Six Phase 3 clips shipped; two were dropped after review, and the owner dropped `subdivision` on 2026-10-17. The spec is complete. See the [Phase 3 record](#phase-3-record).
+Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17 and asked for Phase 3 the same day without selecting entries. Six Phase 3 clips shipped; two were dropped after review, and the owner dropped `subdivision` on 2026-10-17. The owner reopened `ph-quintic` and `subdivision` on 2026-10-18; see [reopened clips](#reopened-clips-owner-decision-2026-10-18) and the historical [Phase 3 record](#phase-3-record).
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
-## Problem
+## Reopened clips (owner decision 2026-10-18)
+
+The owner reversed the 2026-10-17 decision recorded in `b8d48b8`: ship motion previews for `ph-quintic` and `subdivision`. `rational-decasteljau` remains dropped. The historical Phase 3 record below describes the earlier decision.
+
+The same day's [hover-only playback request](hover-motion-previews.md) supersedes automatic visible playback for all clips. Existing loading, cleanup and fallback requirements still apply behind hover/focus activation.
+
+- `ph-quintic`: retain the exact PH curve and one offset, but choose a visibly useful cusp-free distance sweep, with a measured fixed camera. Its capture-only recipe/poster may change to match the start/end distance and framing. Verify the signed normal offset, fixed base curve/control points and cusp margin throughout.
+- `subdivision`: change the capture-only recipe/poster to the pre-Subdivide construction, with supporting polygon, interpolation construction and both coloured portions visible. Sweep the split parameter away from and back to its recipe value without pressing Subdivide. Verify the split point equals B(t), the interpolation construction, and unchanged control points/base geometry.
+- Acceptance: both clips satisfy criteria 1–8 below, including identical first/last recipe frames, 4 s at 720×440, ≤300 KiB each, recorded provenance, card-size review and desktop/390px smoke. Changes to these two capture-only recipes/posters are explicitly allowed; runtime routes, defaults, presets and lessons stay unchanged. Existing clips retain their source-frame evidence.
+
+### Capture and verification record
+
+Implemented 2026-10-18. Both clips are 96 frames at 24 fps, silent, 720×440; each poster's SHA-256 equals its first and last source PNG hashes. The library now has 20 clips. The 43 untouched poster records/files and all 18 existing motion records/files are identical to the previous published set.
+
+| ID | Path | Encoder | Size |
+| --- | --- | --- | --- |
+| `ph-quintic` | `d`: 0.5 → −0.5 → 0.5 | CRF 10 | 247,040 B |
+| `subdivision` | `t`: 0.5 → 0.745 → 0.255 → 0.5, pre-Subdivide | CRF 16 | 279,977 B |
+
+The PH quintic poster now uses `d = 0.5` so the offset separation is useful at card size. The signed-side cusp radius converges to 0.800357422 at 4k/40k/400k curvature samples, leaving about 0.30036 clearance; signed-normal distance/perpendicularity and the fixed base curve are asserted at 41 parameters each frame. Subdivision's poster now shows the original polygon and interpolation construction, with the two coloured portions meeting at B(t), rather than committed split pieces. Its native slider grid is 0.01 + k·0.0098; the two-decimal accessible readout is checked within half a display unit while the input and geometry are checked at their full values. Each portion is checked at 21 parameters against the original cubic; construction points and fixed controls are checked independently. The moderate sweep and CRF 16 keep the clip readable within budget (CRF 10 measured 382,499 B). No route, preset or lesson behavior changed.
+
+Selective recapture retains unchanged assets and source-frame evidence, verifies their mathematical-source fingerprint and file checksums, and records old graph/presentation provenance and retained groups. Its explicit presentation-verification flag was used after reviewing that the shared presentation and existing clip specifications were unchanged; the motion-script hash changes when new specifications are added.
+
+Focused capture tests pass 31/31, including real VP9 encoding. Player/image tests, the App test, TypeScript and the production build pass. The production Chromium smoke run passes 65 checks across motion playback, homepage, catalog and all 45 demonstration mounts, including both new clips at desktop/390px, hover/focus, reduced motion, offscreen cleanup, failed/delayed media, picker and carousel parity. Independent mathematical and player engineering reviews found no remaining blockers. The build retains the existing Sass deprecations, large-chunk and JSXGraph eval warnings. Independent card-size browser review is recorded on completion in [hover playback](hover-motion-previews.md).
+
+## Original problem
 
 Six demonstrations have clips. Only the Bézier one is continuous. The pointer drags one control point, and every frame shows the real curve recomputed from the moved point. Repeated subdivision, bisection, affine and the elevations step between held states. Continuous change is what makes the Bézier preview work: viewers see cause and effect, not a before/after pair. Several other demonstrations have a single input whose continuous change *is* the concept: a parameter `t`, a weight, the step `h`, the parameterization `α`, the multiplier `w`, the upper bound `x`. They currently show one still.
 

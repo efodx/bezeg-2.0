@@ -5,7 +5,7 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','spline-g1','trigonometric-functions','darboux','definite-integral'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral'];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -222,6 +222,43 @@ function phOffsetSweepCheck(sample, previous, first, spec) {
         if (side !== null) assert.equal(Math.sign(D.x * v.y - D.y * v.x) * Math.sign(d), side, `Offset side differs at frame ${i}, parameter ${k}`);
     });
     if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
+}
+
+/** Capture the two live coloured pieces and their shared split point in the pre-Subdivide scene. */
+const subdivisionObserve = page => page.locator('#jgbox').evaluate(container => {
+    const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+    const curves = Object.values(b.objects).filter(o => o.elType === 'curve' && o.visProp?.visible !== false && o.rendNode && getComputedStyle(o.rendNode).display !== 'none');
+    return {curves: curves.map(o => {
+        const min = o.minX(), max = o.maxX();
+        return {min,max,start:{x:o.X(min),y:o.Y(min)},end:{x:o.X(max),y:o.Y(max)},
+            samples:Array.from({length:21},(_,j)=>{const s=min+(max-min)*j/20;return {x:o.X(s),y:o.Y(s)};}),stroke:getComputedStyle(o.rendNode).stroke,
+            d:o.rendNode.getAttribute('d') || ''};
+    })};
+});
+function subdivisionSweepCheck(sample, previous, first, spec) {
+    const i=sample.index, t=sample.actual.input;
+    assert.equal(sample.points.length,first.points.length,`Point count changed at frame ${i}`);
+    const controls=sample.controls.map(({x,y})=>({x,y}));
+    const levels=deCasteljauLevels(controls,t);
+    const construction=sample.points.filter(p=>!p.draggable).map(({x,y})=>({x,y}));
+    assertPointSet(construction,levels.flat(),`De Casteljau interpolation construction differs at frame ${i}`);
+    const split=bernsteinPoint(controls,t);
+    assert.ok(levels.at(-1).every(p=>Math.hypot(p.x-split.x,p.y-split.y)<1e-9),`Split point differs from B(t) at frame ${i}`);
+    const portions=sample.observed.curves;
+    assert.equal(portions.length,2,`Expected two coloured portions before Subdivide at frame ${i}`);
+    assert.notEqual(portions[0].stroke,portions[1].stroke,`Both portions must retain distinct colours at frame ${i}`);
+    const matches=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y)<1e-8;
+    assert.ok(matches(portions[0].start,controls[0])&&matches(portions[0].end,split),`First portion does not run from P0 to B(t) at frame ${i}`);
+    assert.ok(matches(portions[1].start,split)&&matches(portions[1].end,controls.at(-1)),`Second portion does not run from B(t) to Pn at frame ${i}`);
+    portions.forEach((portion,part)=>portion.samples.forEach((p,j)=>{
+        const s=j/20,u=part===0?t*s:t+(1-t)*s,expected=bernsteinPoint(controls,u);
+        assert.ok(matches(p,expected),`Portion ${part+1} leaves the unchanged base curve at frame ${i}, local parameter ${s}`);
+    }));
+    if(previous&&previous.scheduled!==sample.scheduled) {
+        assert.notEqual(sample.observed.curves[0].d,previous.observed.curves[0].d,`First portion did not change at frame ${i}`);
+        assert.notEqual(sample.observed.curves[1].d,previous.observed.curves[1].d,`Second portion did not change at frame ${i}`);
+    }
+    if(i===frameCount-1)assert.equal(sample.capture.sha256,first.capture.sha256,'Non-seamless loop: last pre-Subdivide PNG differs from the recipe frame');
 }
 
 // Quadratic G1 spline (src/bezeg/impl/curve/G1QuadraticBezierSpline.ts): N2 = P2 + b1·(P2 − P1), N3 = P3 + b2·(P3 − N2). Independent copy.
@@ -774,6 +811,44 @@ const motionSpecs = {
             'Offset path changes whenever d changes and is unchanged while d holds; O = B at d = 0',
             'No cusp: |d| below the radius on its side; schedule equals the radius rule', 'Input and aria-valuetext equal the snapped target every frame',
             'First and last frames equal the recipe state (identical PNG)'],
+    },
+    // Reopened Phase 3: the quintic keeps its original PH curve and one useful offset. The 0.5 recipe distance remains below
+    // the measured 0.8004 minimum radius on the negative-distance side; the same measured control points drive every signed-normal check.
+    'ph-quintic': {
+        mode:'parameter-sweep',controlCount:0,
+        control:{label:'Razdalja odmika d',kind:'range'},
+        sweep:{waypoints:[0.5,-0.5,0.5],step:0.01,start:0.5,
+            readout:{text:phReadoutText,read:({range})=>range.getAttribute('aria-valuetext')},observe:phOffsetObserve,check:phOffsetSweepCheck},
+        settle:page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))),
+        crf:10,
+        encoderBudget:'CRF 10 (the encoder default); 247040 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
+        schedule:{kind:'piecewise-sin2',waypoints:[0.5,-0.5,0.5],phase:'clamp((frame-12)/71)',zeroDisplacementFrames:'0-12 and 83-95',movingFrames:'13-82',
+            legs:'two equal phase halves, each eased by (1 - cos πx)/2; d reaches −0.5 at the midpoint',step:0.01,
+            input:'keyboard ArrowRight/ArrowLeft on the "Razdalja odmika d" range, incremental from the previous frame'},
+        invariants:['PH quintic curve path identical in every frame; the six fixed Bezier control points do not move (1e-9)',
+            'Exactly one offset curve; at 41 parameters |O - B| = |d| and (O - B)·B′ = 0 (1e-9 relative to |B′|), with a fixed signed-normal side',
+            'Cusp-free throughout: |d| remains below the sampled minimum radius of curvature on its signed side',
+            'Input and graph aria-valuetext equal the snapped target every frame', 'First and last frames equal the recipe state (identical PNG)'],
+    },
+    // Pre-Subdivide scene: both live curve portions, the de Casteljau construction, and the supporting polygon remain visible as t moves.
+    subdivision:{
+        mode:'parameter-sweep',controlCount:4,
+        control:{label:'Parameter subdivizije t',kind:'range'},
+        sweep:{waypoints:[0.5,0.745,0.255,0.5],step:0.0098,origin:0.01,start:0.5,
+            // The supported Slider exposes aria-valuetext rounded to two decimals; its inputValue remains checked exactly at the native 0.0098 grid.
+            readout:{text:value=>value.toFixed(2).replace('.',','),matches:(shown,value)=>Math.abs(Number(String(shown).replace(',','.'))-value)<0.0050000001,
+                read:({range})=>range.getAttribute('aria-valuetext')},observe:subdivisionObserve,check:subdivisionSweepCheck},
+        schedule:{kind:'piecewise-sin2',waypoints:[0.5,0.745,0.255,0.5],origin:0.01,step:0.0098,phase:'clamp((frame-12)/71)',
+            zeroDisplacementFrames:'0-12 and 83-95 (t holds at 0.50)',movingFrames:'13-82',
+            legs:'three equal phase thirds, each eased by (1 - cos πx)/2',
+            input:'keyboard ArrowRight/ArrowLeft on the "Parameter subdivizije t" range, snapped exactly to the native 0.0098 step beginning at 0.01; aria-valuetext reports the same value rounded to 0.01'},
+        crf:16,
+        encoderBudget:'After hiding point names and reducing the split range from 0.01–0.99 to 0.255–0.745, CRF 10 encoded to 382499 bytes; CRF 16 encoded to 279977 bytes and remains readable at card size',
+        invariants:['Split point equals pure Bernstein B(t) (1e-9); all six interpolated points match the pure de Casteljau levels (1e-9)',
+            'The blue and orange curve portions meet at B(t), run from P0 to B(t) and B(t) to P3, and retain distinct colours',
+            'The four original control points stay fixed and no Subdivide action is pressed',
+            'Input equals the snapped target every frame; aria-valuetext equals its two-decimal display to within half a display unit',
+            'First and last frames equal the pre-Subdivide recipe state (identical PNG)'],
     },
     // Quadratic G1 spline (Phase 3). Independent copy of G1_QUADRATIC_SCHEME in src/bezeg/impl/curve/G1QuadraticBezierSpline.ts:
     // N2 = P2 + b1·(P2 − P1) and N3 = P3 + b2·(P3 − N2). Changing b1 moves N2 and, through the chain, N3 (a deviation from the spec's
@@ -1342,7 +1417,8 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
         const {sweep}=spec;
         let previousValue=Number(await range.inputValue());
-        assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && readoutShows(sweep,await sweep.readout.read({page,range}),sweep.start),'Sweep must start at the recipe value');
+        const initialReadout=await sweep.readout.read({page,range});
+        assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && readoutShows(sweep,initialReadout,sweep.start),`Sweep must start at recipe value ${sweep.start}: input=${previousValue}, readout=${initialReadout}`);
         let previous=null,first=null;
         for(let i=0;i<frameCount;i++) {
             const target=sweepValue(i,spec);

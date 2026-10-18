@@ -29,6 +29,24 @@ const captureTextLineHeight = 1.2;
 const captureCurveStrokeScale = 1.12;
 const captureConstructionStrokeScale = 1.16;
 
+/** Replace only requested clips while retaining source-frame evidence for every existing clip. */
+function mergeRecapturedMotions(previous, replacements, replacementIds) {
+    const replacementById=new Map(replacements.map(motion=>[motion.id,motion]));
+    const ids=new Set(replacementIds);
+    assert.equal(replacementById.size,replacements.length,'Duplicate recaptured motion ID');
+    assert.ok([...replacementById.keys()].every(id=>ids.has(id)),'Unexpected replacement motion ID');
+    const replacementIdsPresent=new Set();
+    const merged=previous.map(motion=>{
+        if(!ids.has(motion.id))return motion;
+        const replacement=replacementById.get(motion.id);
+        if(!replacement)return undefined;
+        replacementIdsPresent.add(motion.id);
+        return replacement;
+    }).filter(Boolean);
+    for(const replacement of replacements)if(!replacementIdsPresent.has(replacement.id))merged.push(replacement);
+    return merged;
+}
+
 function pngDimensions(file) {
     const data = fs.readFileSync(file);
     assert.equal(data.toString('hex', 0, 8), '89504e470d0a1a0a', `${path.basename(file)} is not a PNG`);
@@ -404,6 +422,11 @@ async function main() {
     const captures = [];
     let motions = [];
     let diagnosticMotions = null;
+    let previousGraphSourceRevision=null;
+    let previousPresentationFingerprint=null;
+    let previousSelectiveRecapture=null;
+    let previousCaptureIds=[];
+    let previousMotionIds=[];
     const recaptureIds = process.env.PREVIEW_RECAPTURE_IDS?.split(',');
     if(recaptureIds) {
         assert.ok(!process.env.PREVIEW_IDS,'Diagnostic and full-set recapture modes cannot be combined');
@@ -411,8 +434,13 @@ async function main() {
         const previous=JSON.parse(fs.readFileSync(path.join(publishedOutput,'manifest.json'),'utf8'));
         assert.equal(previous.version,2);
         assert.equal(previous.graphSourceFingerprint,graphSourceFingerprint,'Existing captures have different mathematical source; run full generation');
-        assert.equal(previous.graphSourceRevision,graphSourceRevision,'Existing captures have a different source revision; run full generation');
-        if(previous.presentationFingerprint) assert.equal(previous.presentationFingerprint,presentationFingerprint,'Capture presentation changed; run full generation');
+        previousGraphSourceRevision=previous.graphSourceRevision;
+        previousPresentationFingerprint=previous.presentationFingerprint ?? null;
+        previousSelectiveRecapture=previous.selectiveRecapture ?? null;
+        previousCaptureIds=previous.captures.map(c=>c.id);
+        previousMotionIds=previous.motions.map(m=>m.id);
+        if(previous.presentationFingerprint) assert.ok(previous.presentationFingerprint===presentationFingerprint||process.env.PREVIEW_RECAPTURE_VERIFIED_PRESENTATION==='1',
+            'Capture presentation fingerprint changed; run full generation or explicitly verify the selective recapture presentation');
         else assert.equal(process.env.PREVIEW_RECAPTURE_VERIFIED_PRESENTATION,'1','Legacy manifest recapture requires explicit verification that capture presentation is unchanged');
         for(const item of [...previous.captures,...previous.motions]) {
             const file=path.join(publishedOutput,item.file);
@@ -564,7 +592,13 @@ async function main() {
         if (process.env.PREVIEW_MOTION_IDS) {
             assert.ok(process.env.PREVIEW_IDS && !recaptureIds, 'Motion diagnostics require PREVIEW_IDS and cannot publish');
             diagnosticMotions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard, process.env.PREVIEW_MOTION_IDS.split(','));
-        } else if (!process.env.PREVIEW_IDS && !recaptureIds) motions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard);
+        } else if (recaptureIds) {
+            const motionRecaptureIds=recaptureIds.filter(id=>require('./demonstration-preview-motion.cjs').motionIds.includes(id));
+            if(motionRecaptureIds.length) {
+                const replacements=await generateMotions(browser,demonstrations,output,baseUrl,presentBoard,motionRecaptureIds);
+                motions=mergeRecapturedMotions(motions,replacements,motionRecaptureIds);
+            }
+        } else if (!process.env.PREVIEW_IDS) motions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard);
     } finally {
         await browser.close();
     }
@@ -615,6 +649,9 @@ async function main() {
         image: expectedDimensions,
         captures,
         motions,
+        ...(recaptureIds?{selectiveRecapture:{previousGraphSourceRevision,previousPresentationFingerprint,priorSelectiveRecapture:previousSelectiveRecapture,
+            preservedCaptureIds:previousCaptureIds.filter(id=>!recaptureIds.includes(id)),
+            preservedMotionIds:previousMotionIds.filter(id=>!recaptureIds.includes(id))}}:{}),
     };
     fs.writeFileSync(path.join(output, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
     const importEntries = captures.map(({id}) => {
@@ -655,7 +692,7 @@ async function main() {
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-module.exports = {presentBoard, pngDimensions, hashFile};
+module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions};
 if (require.main === module) main().catch(error => {
     console.error(error);
     process.exitCode = 1;
