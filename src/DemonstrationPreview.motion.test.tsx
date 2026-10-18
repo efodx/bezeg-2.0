@@ -7,8 +7,9 @@ import {HomeDemonstrationsCarousel} from './HomeDemonstrationsCarousel';
 import {MemoryRouter} from 'react-router-dom';
 
 let reduced = false;
+let hoverNone = false;
 let observerList: TestObserver[];
-let motionListeners: Set<() => void>;
+let mediaListeners: Map<string, Set<() => void>>;
 let play: ReturnType<typeof vi.fn<() => Promise<void>>>;
 let pause: ReturnType<typeof vi.fn<() => void>>;
 let load: ReturnType<typeof vi.fn<() => void>>;
@@ -20,17 +21,25 @@ class TestObserver {
     unobserve = vi.fn();
     callback: IntersectionObserverCallback;
     constructor(callback: IntersectionObserverCallback) { this.callback = callback; observerList.push(this); }
-    enter() { this.callback([{target: this.target!, isIntersecting: true} as IntersectionObserverEntry], this as unknown as IntersectionObserver); }
-    exit() { this.callback([{target: this.target!, isIntersecting: false} as IntersectionObserverEntry], this as unknown as IntersectionObserver); }
+    enter(intersectionRatio = 1) { this.callback([{target: this.target!, isIntersecting: intersectionRatio > 0, intersectionRatio} as IntersectionObserverEntry], this as unknown as IntersectionObserver); }
+    exit() { this.enter(0); }
+}
+
+function updateMedia(query: string, matches: boolean) {
+    if (query === '(hover: none)') hoverNone = matches;
+    if (query === '(prefers-reduced-motion: reduce)') reduced = matches;
+    act(() => mediaListeners.get(query)?.forEach(listener => listener()));
 }
 
 beforeEach(() => {
     reduced = false;
+    hoverNone = false;
     observerList = [];
-    motionListeners = new Set();
+    mediaListeners = new Map();
     vi.stubGlobal('IntersectionObserver', TestObserver);
-    vi.stubGlobal('matchMedia', vi.fn(() => ({get matches() { return reduced; }, addEventListener: (_: string, listener: () => void) => motionListeners.add(listener),
-        removeEventListener: (_: string, listener: () => void) => motionListeners.delete(listener)})));
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({get matches() { return query === '(hover: none)' ? hoverNone : query === '(prefers-reduced-motion: reduce)' && reduced; },
+        addEventListener: (_: string, listener: () => void) => { const listeners = mediaListeners.get(query) ?? new Set(); listeners.add(listener); mediaListeners.set(query, listeners); },
+        removeEventListener: (_: string, listener: () => void) => mediaListeners.get(query)?.delete(listener)})));
     play = vi.fn<() => Promise<void>>(() => Promise.resolve());
     pause = vi.fn<() => void>();
     load = vi.fn<() => void>();
@@ -69,6 +78,76 @@ test('visibility alone does not request a clip; hovering starts playback and lea
     expect(view.container.querySelector('.demonstration-preview-poster')).toBeInTheDocument();
 });
 
+test('desktop hover still activates when any part of the preview intersects', () => {
+    const view = render(<DemonstrationPreview src="/curve.png" motion={{src: '/curve.webm', type: 'video/webm', duration: 3}}/>);
+    const frame = view.container.querySelector('.demonstration-preview-media')!;
+    act(() => observerList[0].enter(0.2));
+    expect(view.container.querySelector('video')).toBeNull();
+    fireEvent.pointerEnter(frame, {pointerType: 'mouse'});
+    expect(view.container.querySelector('video')).not.toBeNull();
+    expect(play).toHaveBeenCalledOnce();
+});
+
+test('touch autoplay starts at 50 percent visibility, stops below it, and restarts on re-entry', () => {
+    hoverNone = true;
+    const view = render(<DemonstrationPreview src="/curve.png" motion={{src: '/curve.webm', type: 'video/webm', duration: 3}}/>);
+    const observer = observerList[0];
+    act(() => observer.enter(0.49));
+    expect(view.container.querySelector('video')).toBeNull();
+    act(() => observer.enter(0.5));
+    const firstVideo = view.container.querySelector('video')!;
+    expect(firstVideo.src).toContain('/curve.webm');
+    expect(play).toHaveBeenCalledOnce();
+
+    act(() => observer.enter(0.49));
+    expect(view.container.querySelector('video')).toBeNull();
+    expect(firstVideo).not.toHaveAttribute('src');
+    act(() => observer.enter(0.5));
+    expect(view.container.querySelector('video')).not.toBe(firstVideo);
+    expect(play).toHaveBeenCalledTimes(2);
+});
+
+test('touch autoplay follows live input capability changes and keeps the visibility threshold for focus', () => {
+    const view = render(<a href="/graph"><DemonstrationPreview src="/curve.png" motion={{src: '/curve.webm', type: 'video/webm', duration: 3}}/></a>);
+    const observer = observerList[0];
+    act(() => observer.enter(0.49));
+    updateMedia('(hover: none)', true);
+    expect(view.container.querySelector('video')).toBeNull();
+    fireEvent.focus(view.getByRole('link'));
+    expect(view.container.querySelector('video')).toBeNull();
+
+    act(() => observer.enter(0.5));
+    expect(view.container.querySelector('video')).not.toBeNull();
+    updateMedia('(hover: none)', false);
+    expect(view.container.querySelector('video')).not.toBeNull();
+    fireEvent.blur(view.getByRole('link'));
+    expect(view.container.querySelector('video')).toBeNull();
+});
+
+test('touch autoplay remains suppressed while hidden or reduced motion is enabled', () => {
+    hoverNone = true;
+    const hiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
+    const view = render(<DemonstrationPreview src="/curve.png" motion={{src: '/curve.webm', type: 'video/webm', duration: 3}}/>);
+    const observer = observerList[0];
+    try {
+        Object.defineProperty(document, 'hidden', {configurable: true, value: true});
+        act(() => document.dispatchEvent(new Event('visibilitychange')));
+        act(() => observer.enter(0.5));
+        expect(view.container.querySelector('video')).toBeNull();
+
+        Object.defineProperty(document, 'hidden', {configurable: true, value: false});
+        act(() => document.dispatchEvent(new Event('visibilitychange')));
+        expect(view.container.querySelector('video')).not.toBeNull();
+        updateMedia('(prefers-reduced-motion: reduce)', true);
+        expect(view.container.querySelector('video')).toBeNull();
+        updateMedia('(prefers-reduced-motion: reduce)', false);
+        expect(view.container.querySelector('video')).not.toBeNull();
+    } finally {
+        if (hiddenDescriptor) Object.defineProperty(document, 'hidden', hiddenDescriptor);
+        else Reflect.deleteProperty(document, 'hidden');
+    }
+});
+
 test('focus activates through an existing link and hidden documents and reduced motion stop playback', () => {
     const hiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     const view = render(<a href="/graph"><DemonstrationPreview src="/curve.png" motion={{src: '/curve.webm', type: 'video/webm', duration: 3}}/></a>);
@@ -91,8 +170,7 @@ test('focus activates through an existing link and hidden documents and reduced 
         else Reflect.deleteProperty(document, 'hidden');
     }
 
-    reduced = true;
-    act(() => motionListeners.forEach(listener => listener()));
+    updateMedia('(prefers-reduced-motion: reduce)', true);
     expect(view.container.querySelector('video')).toBeNull();
     view.unmount();
 });

@@ -12,21 +12,25 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
     const frameRef = useRef<HTMLSpanElement>(null);
     const imageGeneration = useRef(0);
     const [imageState, setImageState] = useState<'pending' | 'ready' | 'failed'>('pending');
-    const [intersecting, setIntersecting] = useState(false);
+    const [intersectionRatio, setIntersectionRatio] = useState(0);
     const [hovered, setHovered] = useState(false);
     const [focused, setFocused] = useState(false);
     const [documentVisible, setDocumentVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
+    const [hoverUnavailable, setHoverUnavailable] = useState(() => typeof window !== 'undefined'
+        && window.matchMedia?.('(hover: none)').matches === true);
     const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined'
         && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true);
-    const shouldPlay = Boolean(motion) && (hovered || focused) && intersecting && documentVisible && !reducedMotion;
+    const shouldPlay = Boolean(motion) && (hoverUnavailable
+        ? intersectionRatio >= 0.5
+        : (hovered || focused) && intersectionRatio > 0) && documentVisible && !reducedMotion;
 
     useEffect(() => {
         const frame = frameRef.current;
         if (!frame || typeof IntersectionObserver === 'undefined') return;
         const observer = new IntersectionObserver(entries => {
             const entry = entries.find(item => item.target === frame);
-            setIntersecting(Boolean(entry?.isIntersecting));
-        }, {threshold: 0});
+            setIntersectionRatio(entry?.isIntersecting ? entry.intersectionRatio : 0);
+        }, {threshold: [0, 0.5]});
         observer.observe(frame);
         return () => observer.disconnect();
     }, []);
@@ -56,6 +60,15 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
         const query = window.matchMedia?.('(prefers-reduced-motion: reduce)');
         if (!query) return;
         const update = () => setReducedMotion(query.matches);
+        update();
+        query.addEventListener?.('change', update);
+        return () => query.removeEventListener?.('change', update);
+    }, []);
+
+    useEffect(() => {
+        const query = window.matchMedia?.('(hover: none)');
+        if (!query) return;
+        const update = () => setHoverUnavailable(query.matches);
         update();
         query.addEventListener?.('change', update);
         return () => query.removeEventListener?.('change', update);

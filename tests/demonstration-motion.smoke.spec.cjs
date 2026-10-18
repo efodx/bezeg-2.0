@@ -186,3 +186,59 @@ test('carousel shares the catalog clip and disposes it when its slide changes', 
     await choices.first().click();
     await playing(opening.locator('.demonstrations-opening-image[data-selected="true"]'));
 });
+
+test.describe('touch viewport playback', () => {
+    test.use({hasTouch: true, isMobile: true, viewport: {width: 390, height: 844}});
+
+    test('catalog plays on visibility, unloads below half, and taps navigate immediately', async ({page}) => {
+        await openEnglish(page);
+        expect(await page.evaluate(() => matchMedia('(hover: none)').matches)).toBe(true);
+        const entry = card(page, 'bezier');
+        const frame = entry.locator('.demonstration-preview-media');
+        await frame.scrollIntoViewIfNeeded();
+        const first = await playing(entry, false);
+        await expect.poll(() => first.evaluate(v => v.currentTime)).toBeGreaterThan(0.2);
+        await frame.evaluate(e => window.scrollBy(0, e.getBoundingClientRect().top + e.getBoundingClientRect().height * 0.65));
+        await expect(entry.locator('video[src]')).toHaveCount(0);
+        await frame.scrollIntoViewIfNeeded();
+        await playing(entry, false);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await entry.locator('.demonstration-preview-stage > .demonstration-card-open').tap();
+        await expect(page).toHaveURL(/\/bezier\/curve$/);
+        await expect(page.locator('#jgbox')).toBeVisible();
+    });
+
+    test('touch reduced motion suppresses requests and restores autoplay when disabled', async ({page}) => {
+        const requests = [];
+        page.on('request', r => {if (/\.webm(?:\?|$)/.test(r.url())) requests.push(r.url());});
+        await page.emulateMedia({reducedMotion: 'reduce'});
+        await openEnglish(page);
+        const entry = card(page, 'bezier');
+        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+        await expect(page.locator('video[src]')).toHaveCount(0);
+        expect(requests).toHaveLength(0);
+        await page.emulateMedia({reducedMotion: 'no-preference'});
+        await playing(entry, false);
+        await page.emulateMedia({reducedMotion: 'reduce'});
+        await expect(page.locator('video[src]')).toHaveCount(0);
+        await expect(entry.locator('img')).toBeVisible();
+    });
+
+    test('touch homepage and picker autoplay without hover and dispose on navigation or close', async ({page}) => {
+        await openEnglish(page, '/bezeg-2.0');
+        const opening = page.locator('.demonstrations-opening');
+        const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
+        await selected.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+        await playing(selected, false);
+        await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
+        await expect(page.locator('video[src]')).toHaveCount(0);
+        await page.getByRole('button', {name: 'Switch demonstration', exact: true}).tap();
+        const dialog = page.getByRole('dialog', {name: 'Switch demonstration', exact: true});
+        const entry = card(dialog, 'bezier');
+        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+        await playing(entry, false);
+        await dialog.getByRole('button', {name: 'Close', exact: true}).tap();
+        await expect(page.locator('video[src]')).toHaveCount(0);
+        await expect(page.locator('#jgbox')).toBeVisible();
+    });
+});
