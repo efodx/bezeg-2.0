@@ -1,5 +1,7 @@
 # Continuous motion previews
 
+Editorial follow-up: [concept-led demonstration previews](concept-led-demonstration-previews.md) specifies the owner's 2026-10-18 full-set review recommendations, including revised choreography and per-demonstration acceptance criteria. It is documentation only; the implementation records below describe the currently shipped clips.
+
 Status: implemented for all 45 previews on 2026-10-18; see the [all-preview expansion](#all-preview-expansion-owner-request-2026-10-18). Proposed 2026-10-16 after the owner singled out the Bézier control-point clip. The phase records below preserve earlier scope decisions; the all-preview request supersedes their exclusions.
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.

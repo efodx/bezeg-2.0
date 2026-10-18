@@ -1,5 +1,7 @@
 # Representative demonstration previews
 
+Editorial follow-up: [concept-led demonstration previews](concept-led-demonstration-previews.md) records the full-set content revision specified on 2026-10-18. Its choreography overrides apply when revised clips are implemented; no implementation is claimed by that document.
+
 Status: implementation revised after the owner's 2026-10-16 visual review and 2026-10-18 hover-only request. The current direction is hover/focus looping without thumbnail playback controls, shared with the homepage carousel, plus animated affine/elevation comparisons. See [capture evidence](../tasks/representative-demonstration-previews/capture-results.md) and [release verification](../tasks/representative-demonstration-previews/release-results.md).
 
 Implementation tasks: [representative demonstration previews](../tasks/representative-demonstration-previews/README.md).
