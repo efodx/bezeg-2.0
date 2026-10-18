@@ -1,6 +1,6 @@
 # Continuous motion previews
 
-Status: proposed 2026-10-16, after the owner singled out the Bézier control-point clip as the most effective preview. Phases 1 (`decasteljau`, `farin`, `derivative`) and 2 (`weighted-parameterization`, `complex-multiplication`, `accumulation`) implemented 2026-10-17; see the [Phase 1](#phase-1-record) and [Phase 2](#phase-2-record) records. The owner reviewed and approved Phases 1–2 on 2026-10-17 and asked for Phase 3 the same day without selecting entries. Six Phase 3 clips shipped; two were dropped after review, and the owner dropped `subdivision` on 2026-10-17. The owner reopened `ph-quintic` and `subdivision` on 2026-10-18; see [reopened clips](#reopened-clips-owner-decision-2026-10-18) and the historical [Phase 3 record](#phase-3-record).
+Status: implemented for all 45 previews on 2026-10-18; see the [all-preview expansion](#all-preview-expansion-owner-request-2026-10-18). Proposed 2026-10-16 after the owner singled out the Bézier control-point clip. The phase records below preserve earlier scope decisions; the all-preview request supersedes their exclusions.
 
 Extends [representative demonstration previews](representative-demonstration-previews.md) (the base spec). Everything in the base spec still applies unless this document says otherwise: capture approach, single camera per clip, poster fallback, shared graph-free player, visible-only loading, reduced motion, manifest provenance, and the 300 KiB per-clip budget.
 
@@ -28,6 +28,64 @@ The PH quintic poster now uses `d = 0.5` so the offset separation is useful at c
 Selective recapture retains unchanged assets and source-frame evidence, verifies their mathematical-source fingerprint and file checksums, and records old graph/presentation provenance and retained groups. Its explicit presentation-verification flag was used after reviewing that the shared presentation and existing clip specifications were unchanged; the motion-script hash changes when new specifications are added.
 
 Focused capture tests pass 31/31, including real VP9 encoding. Player/image tests, the App test, TypeScript and the production build pass. The production Chromium smoke run passes 65 checks across motion playback, homepage, catalog and all 45 demonstration mounts, including both new clips at desktop/390px, hover/focus, reduced motion, offscreen cleanup, failed/delayed media, picker and carousel parity. Independent mathematical and player engineering reviews found no remaining blockers. The build retains the existing Sass deprecations, large-chunk and JSXGraph eval warnings. Independent card-size browser review is recorded on completion in [hover playback](hover-motion-previews.md).
+
+## All-preview expansion (owner request 2026-10-18)
+
+The owner requested motion for every preview unless there is a concrete reason to retain a still. This supersedes the earlier candidate restrictions, dropped-clip decisions and exclusions for discrete counters and reveal demonstrations. Inventory all 45 shipped demonstrations, including the 25 without clips at the start of this expansion. Use continuous supported-input changes where they explain the concept, and exact stepped states for inherently discrete constructions. Retain a still only when motion would misrepresent the mathematics, obscure the defining result, lack a supported control, or fail the existing readability/size budget; record the individual reason and evidence.
+
+The existing acceptance criteria 1–8 apply to every added clip. Capture-only recipe and fixed-camera changes are allowed where necessary to make the concept visible, with the corresponding poster updated. Runtime routes, defaults, presets, lessons and graph code remain unchanged. Existing clips and their source-frame evidence are retained. Hover/focus activation and reduced-motion posters remain the playback contract. Completion requires accounting for all 45 entries with a verified clip or an individually justified still.
+
+### All-preview capture record
+
+The expansion covers all 45 demonstrations, with no still-only exceptions. The 25 additions use the following supported controls; the existing 20 clips retain their files and source-frame evidence. Every addition has 96 frames at 24 fps, a four-second silent 720×440 WebM, one fixed camera, and identical first/last source PNGs matching its poster. The manifest records the individual byte counts, encoder arguments, schedules and mathematical observations.
+
+| Added ID | Input and path |
+| --- | --- |
+| `bernstein` | Degree 3 → 4 → 3, exact held states |
+| `extrapolation` | Extension parameter 1.2 → 1.3 → 1.2 |
+| `rational` | Control point p1 moves by (+0.55, +0.65) and returns |
+| `rational-decasteljau` | Prefix parameter 0.5 → 0.7 → 0.3 → 0.5 |
+| `rational-extrapolation` | Extension parameter 1.2 → 1.3 → 1.2 |
+| `rational-subdivision` | Pre-Subdivide parameter 0.5 → 0.745 → 0.5 on the native grid |
+| `circle` | Arc count 3 → 4 → 3, exact held states |
+| `spline-cn` | Continuity order 1 → 0 → 1, degree 2 fixed |
+| `spline-c1` | Endpoint p0 moves by (+0.55, +0.45) and returns |
+| `spline-c2` | Endpoint p0 moves by (+0.45, +0.35) and returns |
+| `spline-g1-symmetric` | First join parameter 0.1962 → 0.8038 → 0.1962 on the native grid |
+| `spline-parameterization` | α: 0.7 → 0.3 → 0.7 |
+| `uniform-parameterization` | Uniform PH sample count 10 → 22 → 10 |
+| `linear-function` | Slope 2 → −0.5 → 2, intercept fixed |
+| `exponential-function` | Base 2 → 0.5 → 2 |
+| `continuity` | Join parameter 1 → 1.5 → 1 |
+| `area-between-curves` | Right bound 3.2 → 2 → 3.2 |
+| `arc-length` | Polyline segment count 2 → 12 → 2 |
+| `mean-value` | Tangency point 1 → 1.8 → 1 |
+| `extrema` | Left bound −1 → 1 → −1 |
+| `convexity` | Tangency/comparison point 0.5 → 1.4 → 0.5 |
+| `taylor` | Polynomial degree 2 → 8 → 2 |
+| `sequence` | ε: 0.1 → 0.3 → 0.1 |
+| `uniform-convergence` | Index 5 → 25 → 5 |
+| `fixed-point` | Initial value 0 → 0.8 → 0, with five supported iteration steps reapplied after each change |
+
+Decisions and mathematical checks:
+
+- Rational de Casteljau's observed board does not expose intermediate construction points. Its capture explicitly sets the supported parameter and shows the growing rational prefix, independently checked over the entire interval `[0,t]`, ending at the rational Bernstein evaluation `R(t)`. Its metadata makes no interpolation-level claim. This replaces the earlier dropped decision with a visible parameter-tracing concept.
+- The two extrapolation recipes retain the original control representation instead of pressing Extrapolate. Showing the extrapolation point already extends the rendered interval to `[0,t]`. Both the complete rendered interval and its endpoint are checked independently. The moderate sweep and measured fixed windows preserve geometric proportions and keep the extension visible. Rational subdivision uses its live pre-Subdivide construction; no pieces are committed.
+- Spline α changes knot-dependent C2 construction points and the spline shape, as well as the markers. The independent C2 construction/evaluator agrees with runtime geometry on 2,005 reference evaluations at five α values, with maximum error `6.72e-15`. The clip checks the curve and each marker against that reference; only the free points remain fixed. Uniform parameterization uses a PH curve with no main-board draggable controls, so its existing sample-count slider demonstrates equal arc-length spacing at different densities instead.
+- Bernstein checks every basis formula and partition of unity over the full domain. Circle checks radius, shared endpoints, each signed arc angle and total winding of one turn. Negative fixtures reject constant basis partitions and collapsed circular arcs. Cn records the actual continuity counter and rejects a stationary middle state. Spline continuity is checked at exact join parameters: position limits use a parameter displacement of `1e-8` and tolerance `1e-5` (measured maximum gap `3.20e-7`); first-derivative differences use `h = 1e-4` and tolerance `0.03` (measured maximum `0.01257`). C2 second derivatives are checked too.
+- Pointer clips verify the intended control's excursion, unchanged other controls, changing rendered SVG paths and exact return through supported pointer dragging. Number inputs parse Slovenian decimal commas. The area recipe uses an exactly editable bound of 3.2 instead of the default irrational intersection, whose two-decimal field cannot restore the original value exactly. The linear capture window adds lower-axis context. These are capture-only changes.
+- New captures reapply presentation through an exact fixed camera. Repeated JSXGraph camera application can round a bound by one ULP; the numeric camera tolerance is `1e-10`, far below a pixel, while poster/loop PNG hashes remain exact. Extrema's legitimately conditional objects are checked by stable object ID for unchanged stroke widths. Source/decoded background checks use a clear `(40,40)` pixel for analysis clips to avoid a one-level lossy edge discrepancy at the corner.
+- The default CRF is 10. Rational dragging and spline α use CRF 16; extrema uses CRF 26 after CRF 10 and 18 exceeded the existing size limit. No clip budget or application dependency changed. Independent review of all 25 additions at 360×220, using five frames per clip, found no actionable clipping, annotation collisions or loop jumps.
+
+The selective capture's presentation-verification flag is justified by unchanged presentation for the retained 20 clips: exact-camera handling is optional or restricted to the additions, and the geometric-window whitelist additions affect only the two new extrapolation clips. Both family specification modules now participate in the presentation fingerprint. Runtime routes, defaults, presets, lessons and graph code are unchanged.
+
+Validation confirms all 45 clips are within 300 KiB (largest 301,595 bytes), totaling 7,996,099 bytes. The existing 20 motion records/files and their poster records are unchanged. The manifest retains every numeric sample and source/path hash; unused duplicated SVG path strings are omitted for the additions. Equivalent cameras within `1e-10` are canonicalized to the poster metadata after verification. Production entry JavaScript grows by 3,697 bytes (3,828 bytes gzip) for the asset mapping; video remains loaded only on activation.
+
+Focused capture tests pass 44/44, including real VP9 encoding. TypeScript, the production build and focused app/player tests pass. Mathematical and engineering reviews found no remaining blockers. The build retains existing Sass deprecations, large-chunk and JSXGraph eval warnings.
+
+The production Chromium smoke suite passes 66/66 checks: all 45 desktop clips and all 25 additions at 390px decode; hover/focus, reduced-motion posters, offscreen cleanup, delayed/failed media, picker/carousel parity, catalog navigation and every demonstration mount pass. Its offscreen test now scrolls back to the top of the document and verifies that the final card unloads: the previous bottom-of-document assumption stopped being valid when the last card gained motion.
+
+Manual production-browser review confirms visible playback for linear, rational de Casteljau, circle, spline α, uniform parameterization and PH previews at 1440×900, keyboard focus/blur poster restoration, and fitting linear/circle cards in the one-column 390×900 catalog. The console was clean. Manual reduced-motion emulation was unavailable, covered by the automated suite; graph dragging was skipped because graph code is unchanged. The temporary browser tab was closed and its filters/viewport restored.
 
 ## Original problem
 

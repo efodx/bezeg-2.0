@@ -47,6 +47,41 @@ function mergeRecapturedMotions(previous, replacements, replacementIds) {
     return merged;
 }
 
+/** Record the intended poster camera after checking JSXGraph's one-ULP roundoff. */
+function alignMotionCameras(captures, motions) {
+    for (const motion of motions) {
+        const poster = captures.find(capture => capture.id === motion.id);
+        assert.ok(poster, `Missing poster camera for ${motion.id}`);
+        const camera = poster.framing.boardBoundingBox;
+        assert.ok(Array.isArray(motion.camera) && motion.camera.length === 4 && camera.length === 4 &&
+            motion.camera.every((value, index) => Number.isFinite(value) && Number.isFinite(camera[index]) && Math.abs(value - camera[index]) < 1e-10),
+        `Poster and clip cameras differ: ${motion.id}`);
+        // Leave retained records byte-for-byte equivalent when they already match.
+        if (motion.camera.some((value, index) => value !== camera[index])) motion.camera = [...camera];
+    }
+    return motions;
+}
+
+/** Keep numeric evidence intact without duplicating SVG paths already covered by hashes. */
+function serializeManifest(manifest, compactMotionIds = []) {
+    const compact = new Set(compactMotionIds), evidence = [];
+    const value = {...manifest, motions: manifest.motions.map(motion => compact.has(motion.id) ? {
+        ...motion, samples: motion.samples.map(sample => !sample.observed?.curves ? sample : {
+            ...sample, observed: {...sample.observed, curves: sample.observed.curves.map(({d, ...curve}) => curve)},
+        }),
+    } : motion)};
+    // One evidence array per line keeps metadata readable and avoids millions of
+    // indentation-only lines. Old records retain every field and numeric sample.
+    let json = JSON.stringify(value, (key, item) => {
+        if (key !== 'samples' || !Array.isArray(item) || !item[0]?.capture) return item;
+        const token = `__BEZEG_FRAME_EVIDENCE_${evidence.length}__`;
+        evidence.push([JSON.stringify(token), JSON.stringify(item)]);
+        return token;
+    }, 2);
+    for (const [token, raw] of evidence) json = json.replace(token, () => raw);
+    return json + '\n';
+}
+
 function pngDimensions(file) {
     const data = fs.readFileSync(file);
     assert.equal(data.toString('hex', 0, 8), '89504e470d0a1a0a', `${path.basename(file)} is not a PNG`);
@@ -277,7 +312,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                             bounds.maxY <= currentBox[1] + 1e-6;
                     };
                     const aspectRatio = options.frame.width / options.frame.height;
-                    const initialTargetBounds = fitBounds(sceneBounds);
+                    const initialTargetBounds = options.camera || fitBounds(sceneBounds);
                     board.setBoundingBox(initialTargetBounds, options.equalUnits, 'update');
                     board.fullUpdate();
                     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -287,7 +322,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     // This preserves labels without allowing axis ticks or unbounded curves to
                     // drive geometric-route framing.
                     let finalSceneBounds = sceneBounds;
-                    for (let attempt = 0; !options.window && attempt < 3; attempt++) {
+                    for (let attempt = 0; !options.window && !options.camera && attempt < 3; attempt++) {
                         const renderedTextBounds = measureRenderedTextBounds();
                         finalSceneBounds = unionBounds(sceneBounds, renderedTextBounds);
                         if (isWithinBoard(renderedTextBounds)) break;
@@ -382,7 +417,8 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     frame: configuration.frame || frame,
                     demonstrationId: demonstration.id,
                     window: configuration.window || recipe.framing.window,
-                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine', 'elevation', 'rational-elevation'].includes(demonstration.id),
+                    camera: configuration.camera,
+                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine', 'elevation', 'rational-elevation', 'extrapolation', 'rational-extrapolation'].includes(demonstration.id),
                     paddingFraction,
                     captureTextSize,
                     captureTextLineHeight,
@@ -399,6 +435,8 @@ async function main() {
     const servedBuild = await servedBuildProvenance();
     const presentationFingerprint=crypto.createHash('sha256').update(presentBoard.toString())
         .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
         .update(JSON.stringify({viewport,frame,deviceScaleFactor,paddingFraction,captureTextSize,captureTextLineHeight,captureCurveStrokeScale,captureConstructionStrokeScale})).digest('hex');
     assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
@@ -603,6 +641,16 @@ async function main() {
         await browser.close();
     }
 
+    for (const motion of diagnosticMotions || motions) {
+        if (!require('./demonstration-preview-motion.cjs').motionSpecs[motion.id]?.recipeAligned) continue;
+        const poster = captures.find(capture => capture.id === motion.id);
+        assert.ok(poster, `Missing recipe poster for ${motion.id}`);
+        assert.equal(motion.samples[0].capture.sha256, poster.sha256, `${motion.id}: first frame differs from recipe poster`);
+        assert.equal(motion.samples.at(-1).capture.sha256, poster.sha256, `${motion.id}: last frame differs from recipe poster`);
+    }
+
+    alignMotionCameras(captures, diagnosticMotions || motions);
+
     if (process.env.PREVIEW_IDS) {
         fs.writeFileSync(path.join(output, 'partial-evidence.json'), JSON.stringify(captures, null, 2));
         if (diagnosticMotions) fs.writeFileSync(path.join(output, 'partial-motions.json'), JSON.stringify(diagnosticMotions, null, 2));
@@ -653,7 +701,9 @@ async function main() {
             preservedCaptureIds:previousCaptureIds.filter(id=>!recaptureIds.includes(id)),
             preservedMotionIds:previousMotionIds.filter(id=>!recaptureIds.includes(id))}}:{}),
     };
-    fs.writeFileSync(path.join(output, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    const compactMotionIds = Object.entries(require('./demonstration-preview-motion.cjs').motionSpecs)
+        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id);
+    fs.writeFileSync(path.join(output, 'manifest.json'), serializeManifest(manifest, compactMotionIds));
     const importEntries = captures.map(({id}) => {
         const localName = `preview_${id.replace(/[^a-zA-Z0-9_$]/g, '_')}`;
         return {id, localName};
@@ -692,7 +742,7 @@ async function main() {
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions};
+module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions, alignMotionCameras, serializeManifest};
 if (require.main === module) main().catch(error => {
     console.error(error);
     process.exitCode = 1;

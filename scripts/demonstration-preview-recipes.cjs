@@ -13,13 +13,13 @@ const targets = {
     affine: ['Original curve and polygon; supported rotations are shown in motion', [polygon], [-4.2, 3.8, 4.2, -3.8]],
     subdivision: ['Pre-Subdivide construction at the split parameter, with both coloured portions and supporting polygon', [polygon]],
     'repeated-subdivision': ['Two rounds, four covering pieces and their refined polygons', [button('Subdiviziraj', 2)], [-5, 4.5, 4.5, -4]],
-    extrapolation: ['Moderate existing t=1.2 extension', [polygon, button('Ekstrapoliraj')]],
+    extrapolation: ['Original curve and live t=1.2 extrapolation point', [polygon], [-5, 4.5, 4.5, -6]],
     elevation: ['Original cubic polygon; exact one-degree elevation is shown in motion', [toggle('Pokaži nove točke na kontrolnem poligonu', false), polygon], [-5, 4.3, 5, -3.5]],
     rational: ['Unequal original weights and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
-    'rational-decasteljau': ['Rational interpolation levels with original unequal weights', [toggle('Celotna krivulja'), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
+    'rational-decasteljau': ['Rational Bézier prefix and original unequal weights at t=0.5', [field('Parameter t', 0.5), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
     'rational-elevation': ['Original rational cubic with weights; exact one-degree elevation is shown in motion', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.3, 5, -3.5]],
-    'rational-extrapolation': ['Moderate rational t=1.2 extension', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro'), button('Ekstrapoliraj')]],
-    'rational-subdivision': ['Two rational pieces with supporting polygons', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro'), button('Subdiviziraj'), {...polygon,index:1}]],
+    'rational-extrapolation': ['Original rational curve and live t=1.2 extrapolation point', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
+    'rational-subdivision': ['Pre-Subdivide rational construction with both live portions, interpolation points and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
     farin: ['Original unequal weights divide the control edges at Farin points', [polygon, toggle('Farinove Točke'), toggle('Uteži')]],
     circle: ['Complete three-arc circle with supporting polygons', [polygon, {...polygon,index:1}, {...polygon,index:2}]],
     'spline-cn': ['Original spline and supporting join polygons', [polygon]],
@@ -32,13 +32,13 @@ const targets = {
     'spline-parameterization': ['Original interpolation points and modest sampling count', [field('Parameter α', 0.7), field('Število točk', 12)]],
     'weighted-parameterization': ['Non-neutral alpha exposes uneven sample density', [field('Parameter α', 0.25)]],
     'uniform-parameterization': ['Equal-arc-length sampling with ten interior markers', [field('Izberi parametrizacijo', 'uniform', 'select')]],
-    'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -0.8]],
+    'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
     derivative: ['Distinct tangent and nearby secant on the original quadratic', [toggle('Prikaži tangento (natančna mejna premica)')], [-0.4, 5, 2.5, -1]],
     'definite-integral': ['Six coarse left rectangles distinguish approximation from integrand', [field('Število podintervalov n', 6)], [-0.3, 4.8, 2.4, -0.5]],
-    'area-between-curves': ['Both intersections and the genuine shaded region', [], [0.1, 5, 3.9, -0.5]],
+    'area-between-curves': ['Both intersections and the genuine shaded region', [field('Meja b', 3.2, 'number')], [0.1, 5, 3.9, -0.5]],
     'arc-length': ['Original arc and visibly coarse two-segment approximation', [], [-0.4, 2, 3.6, -0.7]],
     bisection: ['Three exact bisection steps with current bracket and midpoint', [button('Naslednji korak', 3)], [0.85, 2.3, 2.15, -1.25]],
     'mean-value': ['Matching tangent parallel to the interval secant', [field('Točka dotika c', 1, 'number'), button('Pokaži ujemajočo točko')], [-0.3, 4.8, 2.4, -0.5]],
@@ -78,7 +78,9 @@ async function settle(page) {
 }
 
 async function applyAction(page, action) {
-    let control = action.kind === 'button' ? page.getByRole('button', {name: action.label, exact: true, includeHidden: true})
+    let control = action.kind === 'button' ? (action.group
+        ? page.getByRole('group',{name:action.group,exact:true,includeHidden:true}).getByRole('button',{name:action.label,exact:true,includeHidden:true})
+        : page.getByRole('button', {name: action.label, exact: true, includeHidden: true}))
         : page.getByLabel(action.label, {exact: true}).nth(action.index || 0);
     assert.equal(await control.count(), 1, `Unsupported or ambiguous ${action.kind} control: ${action.label}`);
     if (!await control.isVisible()) {
@@ -108,7 +110,7 @@ async function applyAction(page, action) {
     } else if (action.kind === 'number') {
         await control.fill(String(action.value));
         await control.press('Tab');
-        assert.equal(Number(await control.inputValue()), action.value);
+        assert.equal(readLocalizedNumber(await control.inputValue()), action.value);
     } else {
         // Native range keyboard handling is the same supported UI path as pointer dragging.
         const config = await control.evaluate(e => ({min: Number(e.min), max: Number(e.max), step: Number(e.step) || 1}));
@@ -121,6 +123,12 @@ async function applyAction(page, action) {
         assert.ok(Math.abs(Number(await control.inputValue()) - action.value) <= config.step / 2 + 1e-9, `${action.label} failed to reach ${action.value}`);
     }
     await settle(page);
+}
+
+function readLocalizedNumber(value) {
+    const normalized = String(value).trim().replace(/\u2212/g, '-').replace(',', '.');
+    assert.match(normalized, /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/, `Invalid localized number: ${value}`);
+    return Number(normalized);
 }
 
 async function outcome(page, id) {

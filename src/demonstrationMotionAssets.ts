@@ -20,6 +20,31 @@ import motion_darboux from './images/demonstrations/catalog/darboux.webm?no-inli
 import motion_definite_integral from './images/demonstrations/catalog/definite-integral.webm?no-inline';
 import motion_ph_quintic from './images/demonstrations/catalog/ph-quintic.webm?no-inline';
 import motion_subdivision from './images/demonstrations/catalog/subdivision.webm?no-inline';
+import motion_spline_parameterization from './images/demonstrations/catalog/spline-parameterization.webm?no-inline';
+import motion_extrema from './images/demonstrations/catalog/extrema.webm?no-inline';
+import motion_linear_function from './images/demonstrations/catalog/linear-function.webm?no-inline';
+import motion_exponential_function from './images/demonstrations/catalog/exponential-function.webm?no-inline';
+import motion_bernstein from './images/demonstrations/catalog/bernstein.webm?no-inline';
+import motion_extrapolation from './images/demonstrations/catalog/extrapolation.webm?no-inline';
+import motion_rational from './images/demonstrations/catalog/rational.webm?no-inline';
+import motion_rational_decasteljau from './images/demonstrations/catalog/rational-decasteljau.webm?no-inline';
+import motion_rational_extrapolation from './images/demonstrations/catalog/rational-extrapolation.webm?no-inline';
+import motion_rational_subdivision from './images/demonstrations/catalog/rational-subdivision.webm?no-inline';
+import motion_circle from './images/demonstrations/catalog/circle.webm?no-inline';
+import motion_spline_cn from './images/demonstrations/catalog/spline-cn.webm?no-inline';
+import motion_spline_c1 from './images/demonstrations/catalog/spline-c1.webm?no-inline';
+import motion_spline_c2 from './images/demonstrations/catalog/spline-c2.webm?no-inline';
+import motion_spline_g1_symmetric from './images/demonstrations/catalog/spline-g1-symmetric.webm?no-inline';
+import motion_uniform_parameterization from './images/demonstrations/catalog/uniform-parameterization.webm?no-inline';
+import motion_continuity from './images/demonstrations/catalog/continuity.webm?no-inline';
+import motion_area_between_curves from './images/demonstrations/catalog/area-between-curves.webm?no-inline';
+import motion_arc_length from './images/demonstrations/catalog/arc-length.webm?no-inline';
+import motion_mean_value from './images/demonstrations/catalog/mean-value.webm?no-inline';
+import motion_convexity from './images/demonstrations/catalog/convexity.webm?no-inline';
+import motion_taylor from './images/demonstrations/catalog/taylor.webm?no-inline';
+import motion_sequence from './images/demonstrations/catalog/sequence.webm?no-inline';
+import motion_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.webm?no-inline';
+import motion_fixed_point from './images/demonstrations/catalog/fixed-point.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -43,4 +68,29 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'definite-integral': {src: motion_definite_integral, type: 'video/webm', duration: 4},
     'ph-quintic': {src: motion_ph_quintic, type: 'video/webm', duration: 4},
     'subdivision': {src: motion_subdivision, type: 'video/webm', duration: 4},
+    'spline-parameterization': {src: motion_spline_parameterization, type: 'video/webm', duration: 4},
+    'extrema': {src: motion_extrema, type: 'video/webm', duration: 4},
+    'linear-function': {src: motion_linear_function, type: 'video/webm', duration: 4},
+    'exponential-function': {src: motion_exponential_function, type: 'video/webm', duration: 4},
+    'bernstein': {src: motion_bernstein, type: 'video/webm', duration: 4},
+    'extrapolation': {src: motion_extrapolation, type: 'video/webm', duration: 4},
+    'rational': {src: motion_rational, type: 'video/webm', duration: 4},
+    'rational-decasteljau': {src: motion_rational_decasteljau, type: 'video/webm', duration: 4},
+    'rational-extrapolation': {src: motion_rational_extrapolation, type: 'video/webm', duration: 4},
+    'rational-subdivision': {src: motion_rational_subdivision, type: 'video/webm', duration: 4},
+    'circle': {src: motion_circle, type: 'video/webm', duration: 4},
+    'spline-cn': {src: motion_spline_cn, type: 'video/webm', duration: 4},
+    'spline-c1': {src: motion_spline_c1, type: 'video/webm', duration: 4},
+    'spline-c2': {src: motion_spline_c2, type: 'video/webm', duration: 4},
+    'spline-g1-symmetric': {src: motion_spline_g1_symmetric, type: 'video/webm', duration: 4},
+    'uniform-parameterization': {src: motion_uniform_parameterization, type: 'video/webm', duration: 4},
+    'continuity': {src: motion_continuity, type: 'video/webm', duration: 4},
+    'area-between-curves': {src: motion_area_between_curves, type: 'video/webm', duration: 4},
+    'arc-length': {src: motion_arc_length, type: 'video/webm', duration: 4},
+    'mean-value': {src: motion_mean_value, type: 'video/webm', duration: 4},
+    'convexity': {src: motion_convexity, type: 'video/webm', duration: 4},
+    'taylor': {src: motion_taylor, type: 'video/webm', duration: 4},
+    'sequence': {src: motion_sequence, type: 'video/webm', duration: 4},
+    'uniform-convergence': {src: motion_uniform_convergence, type: 'video/webm', duration: 4},
+    'fixed-point': {src: motion_fixed_point, type: 'video/webm', duration: 4},
 };

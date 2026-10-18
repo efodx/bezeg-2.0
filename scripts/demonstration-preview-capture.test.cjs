@@ -7,7 +7,29 @@ const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
 const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
-const {mergeRecapturedMotions}=require('./capture-demonstration-previews.cjs');
+const {mergeRecapturedMotions,alignMotionCameras,serializeManifest}=require('./capture-demonstration-previews.cjs');
+
+test('compact evidence preserves numeric observations and retained records without repeated new SVG strings',()=>{
+    const sample={capture:{sha256:'hash'},curvePathHash:'path-hash',observed:{curves:[{d:'large-svg-path',samples:[{x:1/3,y:-2}],min:0,max:1}]}};
+    const manifest={version:2,motions:[{id:'old',samples:[sample]},{id:'new',samples:[sample]}]};
+    const parsed=JSON.parse(serializeManifest(manifest,['new']));
+    assert.deepEqual(parsed.motions[0],manifest.motions[0]);
+    assert.deepEqual(parsed.motions[1].samples[0].observed.curves[0],{samples:[{x:1/3,y:-2}],min:0,max:1});
+    assert.equal(parsed.motions[1].samples[0].curvePathHash,'path-hash');
+    assert.equal(manifest.motions[1].samples[0].observed.curves[0].d,'large-svg-path');
+});
+
+test('camera provenance canonicalizes only numerical roundoff and rejects a real camera change',()=>{
+    const camera=[-1,2,3,-4],captures=[{id:'test',framing:{boardBoundingBox:camera}}];
+    const exact={id:'test',camera:[...camera]},retained=exact.camera;
+    alignMotionCameras(captures,[exact]);
+    assert.equal(exact.camera,retained);
+    const rounded={id:'test',camera:[-1+1e-14,2,3,-4]};
+    alignMotionCameras(captures,[rounded]);
+    assert.deepEqual(rounded.camera,camera);
+    assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[-1.001,2,3,-4]}]),/cameras differ/);
+    assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[NaN,2,3,-4]}]),/cameras differ/);
+});
 const catalog=require('../tests/smoke-catalog.cjs');
 
 test('registry exhaustively matches the live catalog and rejects missing/unknown recipes',()=>{
@@ -590,7 +612,8 @@ test('sweepValue snaps every existing clip exactly as before the origin option (
         const decimals=(String(step).split('.')[1]||'').length;
         return Number((Math.round(v/step)*step).toFixed(decimals));
     };
-    const existing=Object.entries(motionSpecs).filter(([,spec])=>spec.mode==='parameter-sweep'&&spec.sweep.origin===undefined);
+    const legacyIds = ['decasteljau','decasteljau-alternative','derivative','ph-cubic','ph-quintic','weighted-parameterization'];
+    const existing=Object.entries(motionSpecs).filter(([id])=>legacyIds.includes(id));
     assert.deepEqual(existing.map(([id])=>id).sort(),['decasteljau','decasteljau-alternative','derivative','ph-cubic','ph-quintic','weighted-parameterization']);
     for(const [id,spec] of existing)for(let i=0;i<96;i++)assert.equal(sweepValue(i,spec),legacy(i,spec),`${id} schedule changed at frame ${i}`);
 });

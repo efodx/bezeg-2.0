@@ -1,7 +1,8 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
-const clips = ['bezier', 'repeated-subdivision', 'bisection', 'affine', 'elevation', 'rational-elevation', 'decasteljau', 'farin', 'derivative', 'weighted-parameterization', 'complex-multiplication', 'accumulation',
-    'decasteljau-alternative', 'ph-cubic', 'ph-quintic', 'subdivision', 'spline-g1', 'trigonometric-functions', 'definite-integral', 'darboux'];
+const clips = demonstrations.map(demonstration => demonstration.id);
+const expandedClips = Object.entries(require('../scripts/demonstration-preview-motion.cjs').motionSpecs)
+    .filter(([, spec]) => spec.recipeAligned).map(([id]) => id);
 const card = (page, id) => page.locator('#demonstration-card-' + id);
 test.use({reducedMotion: 'no-preference'});
 
@@ -52,8 +53,22 @@ test('every clip decodes as it enters view and unloads offscreen', async ({page}
         await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
         await playing(entry);
     }
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(page.locator('video[src]')).toHaveCount(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const lastEntry = card(page, clips.at(-1));
+    await expect.poll(() => lastEntry.evaluate(entry => entry.getBoundingClientRect().top > innerHeight)).toBe(true);
+    await expect(lastEntry.locator('video[src]')).toHaveCount(0);
+});
+
+test('all added previews decode at 390px without horizontal overflow', async ({page}) => {
+    await page.setViewportSize({width:390, height:900});
+    await openEnglish(page);
+    expect(expandedClips).toHaveLength(25);
+    for (const id of expandedClips) {
+        const entry = card(page, id);
+        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+        await playing(entry);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 for (const width of [1440, 390]) {

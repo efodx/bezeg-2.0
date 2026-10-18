@@ -22,6 +22,13 @@ const affineHolds = steppedClips.affine.holds;
 // Catalog square function f(x) = x² on [0, 2] (the darboux and definite-integral recipes).
 const squareOnInterval = x => x * x;
 const near = (actual, expected, message) => assert.ok(Math.abs(actual-expected)<1e-8, message);
+// Reapplying a fixed JSXGraph camera can round its bounds by one ULP. This is
+// far below a screen pixel; still reject any visible refit or non-finite bound.
+function assertCamera(actual, expected, message = 'Camera changed') {
+    assert.equal(actual.length, 4, message);
+    assert.equal(expected.length, 4, message);
+    actual.forEach((value, index) => assert.ok(Number.isFinite(value) && Number.isFinite(expected[index]) && Math.abs(value - expected[index]) < 1e-10, message));
+}
 
 // Shared timing: 12 holds, 71 moving frames (phase 0 to 1), 13 holds. Frames 13..82 move.
 const holdStart = 12, moveFrames = 71;
@@ -1119,6 +1126,21 @@ function assertPointSet(actual, expected, message) {
     }
 }
 
+// Keep family-specific capture mathematics separate from the shared player/capture lifecycle.
+const expansionHelpers = {assert, applyAction, settle, bernsteinPoint, rationalPoint, deCasteljauLevels,
+    assertPointSet, pathHash, snapToStep, movePhase, sin2OutAndBack};
+for (const additional of [
+    require('./demonstration-preview-analysis-motion.cjs').createAnalysisMotionSpecs(expansionHelpers),
+    require('./demonstration-preview-curve-motion.cjs').createCurveMotionSpecs(expansionHelpers),
+]) {
+    for (const [id, spec] of Object.entries(additional)) {
+        assert.ok(!motionIds.includes(id), `Duplicate motion specification: ${id}`);
+        motionSpecs[id] = spec;
+        motionSpecs[id].recipeAligned = true;
+        motionIds.push(id);
+    }
+}
+
 /** Readout equality for a sweep: exact text by default; a spec may supply readout.matches(shown, value) when the runtime's text is not the nominal text. */
 const readoutShows = (sweep, shown, value) => sweep.readout.matches ? sweep.readout.matches(shown, value) : shown === sweep.readout.text(value);
 /** Generic per-frame checks shared by the capture loop and the offline evidence check. Route invariants live in spec.sweep.check. */
@@ -1128,7 +1150,8 @@ function assertSweepFrame(sample, previous, first, spec) {
     assert.ok(Math.abs(sample.actual.input - scheduled) < 1e-9, `Input value differs from target at frame ${sample.index}`);
     assert.ok(readoutShows(spec.sweep, sample.actual.readout, scheduled), `Graph readout differs from target at frame ${sample.index}`);
     assert.equal(sample.controls.length, spec.controlCount, 'Wrong control point count');
-    first.controls.forEach((p, j) => {
+    if (spec.sweep.checkControls) spec.sweep.checkControls(sample, first, spec);
+    else first.controls.forEach((p, j) => {
         assert.equal(sample.controls[j].id, p.id, `Control point identity changed at frame ${sample.index}`);
         assert.ok(Math.abs(sample.controls[j].x - p.x) < 1e-9 && Math.abs(sample.controls[j].y - p.y) < 1e-9, `Fixed control point moved at frame ${sample.index}`);
     });
@@ -1174,7 +1197,7 @@ function assertSteppedSequence(motion, stepped) {
         assert.equal(sample.firstFrame,firstFrame,`${motion.id}: first frame of checkpoint ${i} differs`);
         assert.equal(sample.holdFrames,stepped.holds[i],`${motion.id}: hold of checkpoint ${i} differs`);
         firstFrame+=sample.holdFrames;
-        assert.deepEqual(sample.state.box,motion.camera,'Camera changed between exact checkpoints');
+        assertCamera(sample.state.box,motion.camera,'Camera changed between exact checkpoints');
     });
     assert.equal(firstFrame,frameCount,`${motion.id}: holds must cover every frame`);
 }
@@ -1183,6 +1206,19 @@ function assertMotionEvidence(motion) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
     assert.equal(motion.duration,4);
+    const checkpointSpec = motionSpecs[motion.id];
+    if (checkpointSpec?.recipeAligned) {
+        assert.ok(motion.schedule && typeof motion.schedule.kind === 'string', `${motion.id}: missing manifest schedule`);
+        assert.ok(Array.isArray(motion.invariants) && motion.invariants.length > 0, `${motion.id}: missing manifest invariants`);
+    }
+    if (checkpointSpec?.checkpoints) {
+        const checkpoints = checkpointSpec.checkpoints.map(checkpoint => checkpoint.value);
+        assertSteppedSequence(motion, {checkpoints, holds: checkpointSpec.holds});
+        const first = motion.samples[0], last = motion.samples.at(-1);
+        motion.samples.forEach(sample => checkpointSpec.checkStep(sample, first, checkpointSpec));
+        assert.equal(last.capture.sha256, first.capture.sha256, 'Checkpoint loop must return to the recipe PNG');
+        return;
+    }
     if(motion.mode==='parameter-sweep') {
         const spec=motionSpecs[motion.id];
         assert.ok(spec && spec.mode==='parameter-sweep','Parameter sweep evidence needs a sweep configuration');
@@ -1279,7 +1315,7 @@ async function openRoute(browser, demonstration, baseUrl) {
     const page = await context.newPage();
     page.setDefaultTimeout(20000);
     await page.goto(baseUrl + demonstration.path.slice('/bezeg-2.0'.length));
-    await page.waitForFunction(() => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve')));
+    await page.waitForFunction(id => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve' || id === 'linear-function' && o.elType === 'line')), demonstration.id);
     await settle(page);
     return {page,context};
 }
@@ -1320,11 +1356,11 @@ function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 
         encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
 }
 
-async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdFrames) {
-    const scene=await presentBoard(page.locator('#jgbox'),d,recipes[d.id],{window});
+async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdFrames,camera) {
+    const scene=await presentBoard(page.locator('#jgbox'),d,recipes[d.id],{window,...(camera ? {camera} : {})});
     const state=await boardSnapshot(page);
     // Function graphs in the recipe's coordinate window (darboux, definite-integral) keep that window's unequal unit scales; their camera is checked by box.
-    assert.ok(Math.abs(state.scale[0]-state.scale[1])<1e-8 || d.id==='bisection' || ['darboux','definite-integral'].includes(d.id),'Geometric motion must preserve equal unit scales');
+    assert.ok(Math.abs(state.scale[0]-state.scale[1])<1e-8 || recipes[d.id].framing.kind==='coordinate-window','Geometric motion must preserve equal unit scales');
     const captured=await screenshotBoard(page,path.join(directory,String(firstFrame).padStart(3,'0')+'.png'));
     for(let hold=1;hold<holdFrames;hold++)fs.copyFileSync(path.join(directory,captured.file),path.join(directory,String(firstFrame+hold).padStart(3,'0')+'.png'));
     return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox};
@@ -1372,9 +1408,14 @@ async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
             if(i===spec.schedule.release){await page.mouse.up();await spec.restore(page,ctx);}
             await (spec.settle||settle)(page);
             if(process.env.PREVIEW_SAMPLE_DELAY_MS)await page.waitForTimeout(Number(process.env.PREVIEW_SAMPLE_DELAY_MS));
-            if(spec.presentEachFrame!==false)await presentBoard(page.locator('#jgbox'),d,recipe,presentation);
+            if(spec.presentEachFrame!==false)await presentBoard(page.locator('#jgbox'),d,recipe,
+                spec.recipeAligned ? {...presentation, camera:fixedBox} : presentation);
             const state=await boardSnapshot(page);
-            assert.deepEqual(state.box,fixedBox,'Camera changed during the drag');
+            assertCamera(state.box,fixedBox,'Camera changed during the drag');
+            if (spec.recipeAligned) for (const point of state.points) {
+                assert.ok(point.x >= fixedBox[0] && point.x <= fixedBox[2] && point.y <= fixedBox[1] && point.y >= fixedBox[3],
+                    `Point ${point.id} left the fixed camera at frame ${i}`);
+            }
             if(spec.newStrokesAllowed)assertStrokesUnchanged(state,initial);else assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
             const observed=spec.observe?await spec.observe(page):undefined;
             const captured=await screenshotBoard(page,path.join(directory,String(i).padStart(3,'0')+'.png'));
@@ -1416,24 +1457,36 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         const rangeId=await control.getAttribute('id');
         const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
         const {sweep}=spec;
-        let previousValue=Number(await range.inputValue());
+        const parseInput = value => Number(String(value).replace('−', '-').replace(',', '.'));
+        let previousValue=parseInput(await range.inputValue());
         const initialReadout=await sweep.readout.read({page,range});
         assert.ok(Math.abs(previousValue-sweep.start)<1e-9 && readoutShows(sweep,initialReadout,sweep.start),`Sweep must start at recipe value ${sweep.start}: input=${previousValue}, readout=${initialReadout}`);
         let previous=null,first=null;
+        const knownStrokeWidths = new Map(initial.strokesById);
         for(let i=0;i<frameCount;i++) {
             const target=sweepValue(i,spec);
             const steps=Math.round((target-previousValue)/sweep.step);
-            if(steps) {
+            if (spec.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) {
+                await range.fill(String(target));
+                await range.press('Tab');
+            } else if(steps) {
                 await range.focus();
                 for(let k=0;k<Math.abs(steps);k++)await range.press(steps>0?'ArrowRight':'ArrowLeft');
             }
+            if (Math.abs(target - previousValue) > 1e-12 && sweep.afterChange) await sweep.afterChange(page, target);
             await (spec.settle||settle)(page);
-            const value=Number(await range.inputValue());
+            if (spec.recipeAligned) await presentBoard(page.locator('#jgbox'), d, recipe, {...presentation, camera:fixedBox});
+            const value=parseInput(await range.inputValue());
             const shown=await sweep.readout.read({page,range});
             assert.ok(Math.abs(value-target)<1e-9,`Input ${value} differs from scheduled ${target} at frame ${i}`);
             const state=await boardSnapshot(page);
-            assert.deepEqual(state.box,fixedBox,'Camera changed between sweep frames');
-            assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
+            assertCamera(state.box,fixedBox,'Camera changed between sweep frames');
+            if (spec.variableStrokes) {
+                for (const [id, width] of state.strokesById) {
+                    if (knownStrokeWidths.has(id)) assert.equal(width, knownStrokeWidths.get(id), `Capture stroke width changed for ${id}`);
+                    else knownStrokeWidths.set(id, width);
+                }
+            } else assert.deepEqual(state.strokeWidths,initial.strokeWidths,'Capture presentation compounded stroke widths');
             const controls=state.points.filter(p=>p.draggable);
             for(const p of state.points)assert.ok(p.x>=fixedBox[0]&&p.x<=fixedBox[2]&&p.y<=fixedBox[1]&&p.y>=fixedBox[3],`Point ${p.id} left the fixed camera at frame ${i}`);
             const observed=sweep.observe?await sweep.observe(page):undefined;
@@ -1463,10 +1516,35 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
         const d=demonstrations.find(d=>d.id===id);
         const directory=path.join(output,'frames-'+id); fs.mkdirSync(directory,{recursive:true});
         const spec=motionSpecs[id];
+        if (spec?.recipeAligned) {
+            assert.ok(spec.schedule && typeof spec.schedule.kind === 'string', `${id}: missing recorded schedule`);
+            assert.ok(Array.isArray(spec.invariants) && spec.invariants.length > 0, `${id}: missing recorded mathematical invariants`);
+            if (spec.mode === 'pointer-drag') {
+                assert.ok(Number.isInteger(spec.schedule.press) && Number.isInteger(spec.schedule.release), `${id}: missing pointer timing`);
+                assert.equal(typeof spec.restore, 'function', `${id}: missing supported exact restore`);
+            }
+        }
         let fixedBox;
         let sampleEvidence=[];
-        const record=sample=>{fixedBox ||=sample.state.box;assert.deepEqual(sample.state.box,fixedBox,'Camera changed between exact checkpoints');sampleEvidence.push(sample);};
-        if (['repeated-subdivision','bisection'].includes(id)) {
+        const record=sample=>{fixedBox ||=sample.state.box;assertCamera(sample.state.box,fixedBox,'Camera changed between exact checkpoints');sampleEvidence.push(sample);};
+        if (spec?.checkpoints) {
+            assert.equal(spec.checkpoints.length, spec.holds.length, 'Every checkpoint needs a hold');
+            assert.equal(spec.holds.reduce((sum, hold) => sum + hold, 0), frameCount, 'Checkpoint holds must cover 96 frames');
+            let firstFrame = 0;
+            for (let i = 0; i < spec.checkpoints.length; i++) {
+                const checkpoint = spec.checkpoints[i];
+                const {page, context} = await openRoute(browser, d, baseUrl);
+                try {
+                    await applyRecipe(page, recipes[id]);
+                    for (const action of checkpoint.actions) await applyAction(page, action);
+                    const sample = await captureHold(page, d, recipes[id].framing.window, presentBoard, directory, firstFrame, spec.holds[i], fixedBox);
+                    const observed = spec.observe ? await spec.observe(page) : undefined;
+                    record({checkpoint: checkpoint.value, actions: checkpoint.actions, ...sample, ...(observed ? {observed} : {})});
+                    spec.checkStep(sampleEvidence.at(-1), sampleEvidence[0], spec);
+                    firstFrame += spec.holds[i];
+                } finally {await context.close();}
+            }
+        } else if (['repeated-subdivision','bisection'].includes(id)) {
             for(let checkpoint=0;checkpoint<3;checkpoint++) {
                 const {page,context}=await openRoute(browser,d,baseUrl);
                 try {

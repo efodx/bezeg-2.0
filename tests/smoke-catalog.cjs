@@ -315,6 +315,10 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         const motion = motions.find(m => m.id === id);
         if (!motion || !src || !ts.isIdentifier(src) || motionImports.get(src.text) !== motion.file || !type || !ts.isStringLiteral(type) || type.text !== motion.type || !duration || !ts.isNumericLiteral(duration) || Number(duration.text) !== motion.duration) throw new Error(`Motion delivery/provenance mismatch: ${id}`);
         if(JSON.stringify(motion.camera)!==JSON.stringify(capturesById.get(id).framing.boardBoundingBox)) throw new Error(`Poster and clip cameras differ: ${id}`);
+        if (require('../scripts/demonstration-preview-motion.cjs').motionSpecs[id]?.recipeAligned &&
+            (motion.samples?.[0]?.capture?.sha256 !== capturesById.get(id).sha256 || motion.samples?.at(-1)?.capture?.sha256 !== capturesById.get(id).sha256)) {
+            throw new Error(`Motion loop does not return to its recipe poster: ${id}`);
+        }
         require('../scripts/demonstration-preview-motion.cjs').assertMotionEvidence(motion);
         if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration !== 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 96 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !Array.isArray(motion.camera) || motion.camera.length !== 4 || !motion.camera.every(Number.isFinite)) throw new Error(`Invalid motion budget/provenance: ${id}`);
         const file = path.join(catalogDirectory,motion.file);
