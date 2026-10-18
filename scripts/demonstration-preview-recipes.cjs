@@ -12,26 +12,26 @@ const targets = {
     'decasteljau-alternative': ['Component curves and interpolation at t=0.5', []],
     affine: ['Original curve and polygon; supported rotations are shown in motion', [polygon], [-4.2, 3.8, 4.2, -3.8]],
     subdivision: ['Pre-Subdivide construction at the split parameter, with both coloured portions and supporting polygon', [polygon]],
-    'repeated-subdivision': ['Two rounds, four covering pieces and their refined polygons', [button('Subdiviziraj', 2)], [-5, 4.5, 4.5, -4]],
-    extrapolation: ['Original curve and live t=1.2 extrapolation point', [polygon], [-5, 4.5, 4.5, -6]],
+    'repeated-subdivision': ['Original curve and coarse polygon before exact successive refinement', [], [-5, 4.5, 4.5, -4]],
+    extrapolation: ['Polynomial curve at the interval boundary t=1, with its control polygon', [field('Parameter ekstrapolacije t', 1), polygon], [-5, 4.5, 4.5, -6]],
     elevation: ['Original cubic polygon; exact one-degree elevation is shown in motion', [toggle('Pokaži nove točke na kontrolnem poligonu', false), polygon], [-5, 4.3, 5, -3.5]],
-    rational: ['Unequal original weights and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
+    rational: ['Selected weight w₁=2, all four fixed controls and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), field('Vrednost uteži', 2, 'number')]],
     'rational-decasteljau': ['Rational Bézier prefix and original unequal weights at t=0.5', [field('Parameter t', 0.5), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
     'rational-elevation': ['Original rational cubic with weights; exact one-degree elevation is shown in motion', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.3, 5, -3.5]],
-    'rational-extrapolation': ['Original rational curve and live t=1.2 extrapolation point', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
-    'rational-subdivision': ['Pre-Subdivide rational construction with both live portions, interpolation points and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
+    'rational-extrapolation': ['Rational curve at the interval boundary t=1, with its control polygon and weights', [field('Parameter ekstrapolacije t', 1), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
+    'rational-subdivision': ['Original rational curve at t=0.5 with supporting polygons and weights before one exact Subdiviziraj action', [field('Parameter subdivizije t', 0.5), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')]],
     farin: ['Original unequal weights divide the control edges at Farin points', [polygon, toggle('Farinove Točke'), toggle('Uteži')]],
     circle: ['Complete three-arc circle with supporting polygons', [polygon, {...polygon,index:1}, {...polygon,index:2}]],
     'spline-cn': ['Original spline and supporting join polygons', [polygon]],
-    'spline-c1': ['Midpoint construction and supporting polygon at the joins', [polygon]],
-    'spline-c2': ['Construction points and adjacent supporting polygons', [polygon]],
+    'spline-c1': ['Central join, midpoint construction and supporting polygon', [polygon], [-4.6, 4.2, 4.6, -4.2]],
+    'spline-c2': ['Central C2 join, computed construction points and adjacent supporting polygon', [polygon], [-5.1, 3, 5.2, -3.8]],
     'spline-g1': ['Non-neutral continuity parameter and shared tangent direction', [polygon, field('Parameter b 1', 0.65)], [-6.5, 4, 5.5, -5]],
     'spline-g1-symmetric': ['All three joins use non-midpoint parameters and unequal join legs', [polygon, field('Parameter b 1', 0.2), field('Parameter b 2', 0.2), field('Parameter b 3', 0.2)]],
     'ph-cubic': ['Original PH curve with one moderate offset', [toggle('Odmiki krivulje'), field('Razdalja odmika d', 0.35)]],
     'ph-quintic': ['Original PH curve with one useful cusp-free offset', [toggle('Odmiki krivulje'), field('Razdalja odmika d', 0.5)]],
     'spline-parameterization': ['Original interpolation points and modest sampling count', [field('Parameter α', 0.7), field('Število točk', 12)]],
     'weighted-parameterization': ['Non-neutral alpha exposes uneven sample density', [field('Parameter α', 0.25)]],
-    'uniform-parameterization': ['Equal-arc-length sampling with ten interior markers', [field('Izberi parametrizacijo', 'uniform', 'select')]],
+    'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10)]],
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
@@ -40,16 +40,16 @@ const targets = {
     'definite-integral': ['Six coarse left rectangles distinguish approximation from integrand', [field('Število podintervalov n', 6)], [-0.3, 4.8, 2.4, -0.5]],
     'area-between-curves': ['Both intersections and the genuine shaded region', [field('Meja b', 3.2, 'number')], [0.1, 5, 3.9, -0.5]],
     'arc-length': ['Original arc and visibly coarse two-segment approximation', [], [-0.4, 2, 3.6, -0.7]],
-    bisection: ['Three exact bisection steps with current bracket and midpoint', [button('Naslednji korak', 3)], [0.85, 2.3, 2.15, -1.25]],
-    'mean-value': ['Matching tangent parallel to the interval secant', [field('Točka dotika c', 1, 'number'), button('Pokaži ujemajočo točko')], [-0.3, 4.8, 2.4, -0.5]],
+    bisection: ['First exact halving with midpoint and discarded half before further narrowing', [button('Naslednji korak')], [0.85, 2.3, 2.15, -1.25]],
+    'mean-value': ['Shallower tangent and fixed secant before the matching-point discovery', [field('Točka dotika c', 0.5, 'number')], [-0.3, 4.8, 2.4, -0.5]],
     accumulation: ['Accumulation function revealed beside integrand and signed area', [button('Pokaži akumulacijo A')], [-0.5, 2.6, 6.5, -1.4]],
     darboux: ['Coarse lower and upper sums on the unchanged interval', [], [-0.3, 4.8, 2.4, -0.5]],
     extrema: ['Classification revealed for the original quadratic interval', [button('Pokaži klasifikacijo')], [-1.4, 4.8, 2.4, -1.8]],
-    convexity: ['Second derivative conclusion, chord, curve and comparison point', [button('Pokaži drugi odvod')], [-1.4, 3, 1.9, -1]],
-    taylor: ['Original exponential and quadratic Taylor polynomial near zero', [field('Stopnja n', 2, 'number')], [-1.5, 5, 2.2, -0.5]],
-    sequence: ['Original reciprocal sequence, epsilon band and threshold', [button('Naslednji korak', 15), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
+    convexity: ['Chord, tangent and convex curve before revealing the second-derivative conclusion', [], [-1.4, 3, 1.9, -1]],
+    taylor: ['Exponential and quadratic Taylor polynomial with visible error away from the fixed center', [field('Stopnja n', 2, 'number')], [-2.6, 5, 2.2, -1.4]],
+    sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
-    'fixed-point': ['Several exact cobweb steps of the original affine mapping', [button('Naslednji korak', 5)], [-0.15, 1.2, 1.2, -0.15]],
+    'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
@@ -110,7 +110,11 @@ async function applyAction(page, action) {
     } else if (action.kind === 'number') {
         await control.fill(String(action.value));
         await control.press('Tab');
-        assert.equal(readLocalizedNumber(await control.inputValue()), action.value);
+        // NumberInput retains the typed model value but may format its blurred draft.
+        // A declared display precision checks that draft; the concept's board check
+        // must independently verify the full-precision mathematical coordinate.
+        const displayed = action.displayDecimals === undefined ? action.value : Number(action.value.toFixed(action.displayDecimals));
+        assert.equal(readLocalizedNumber(await control.inputValue()), displayed);
     } else {
         // Native range keyboard handling is the same supported UI path as pointer dragging.
         const config = await control.evaluate(e => ({min: Number(e.min), max: Number(e.max), step: Number(e.step) || 1}));
@@ -153,17 +157,17 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'bernstein') {
         assert.equal(evidence.curves, 4, 'Cubic Bernstein must show four functions');
     }
-    if (id === 'repeated-subdivision') assert.equal(evidence.curves, 4, 'Two subdivision rounds must show four pieces');
+    if (id === 'repeated-subdivision') assert.equal(evidence.curves, 1, 'Initial subdivision checkpoint must show the original curve');
     if (id === 'farin') {
         assert.ok(evidence.controls.some(c=>c.label==='Farinove Točke' && c.checked));
         for (const [x,y] of [[-10/3,1],[-1,3],[3.5,0]]) assert.ok(evidence.points.some(p => Math.abs(p.x-x)<1e-8 && Math.abs(p.y-y)<1e-8), `Missing exact Farin division (${x},${y}): ${JSON.stringify(evidence.points)}`);
     }
-    if (id === 'bisection') assert.equal(evidence.readouts.step, '3', 'Three supported steps required');
-    if (id === 'fixed-point') assert.equal(evidence.readouts.step, '5', 'Five exact cobweb steps required');
-    if (id === 'mean-value') assert.equal(evidence.readouts.c, '1', 'Matching tangent must touch at c=1');
+    if (id === 'bisection') assert.equal(evidence.readouts.step, '1', 'First exact bisection step required');
+    if (id === 'fixed-point') assert.equal(evidence.readouts.step, '1', 'First exact cobweb step required');
+    if (id === 'mean-value') assert.equal(evidence.readouts.c, '0,5', 'Initial tangent must be shallower than the secant');
     if (id === 'taylor') assert.equal(evidence.readouts.degree, '2');
-    const reveals = {accumulation: 'toggle-accumulation', extrema: 'toggle-classification', convexity: 'toggle-second-derivative',
-        'uniform-convergence': 'toggle-uniform-supremum', sequence: 'toggle-sequence-certificate', 'mean-value': 'toggle-matches'};
+    const reveals = {accumulation: 'toggle-accumulation', extrema: 'toggle-classification',
+        'uniform-convergence': 'toggle-uniform-supremum', sequence: 'toggle-sequence-certificate'};
     if (reveals[id]) assert.equal(evidence.reveals[reveals[id]], 'true', `${id} must reveal its defining result`);
     if (id === 'sequence') assert.equal(evidence.readouts.terms, '16', 'Sixteen reciprocal sequence terms required');
     return evidence;

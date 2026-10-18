@@ -12,10 +12,11 @@ const backgroundPixel = [255, 253, 245];
 // Stepped clips: one fixed recipe-window camera, one hold per checkpoint, 96 frames in total. Each checkpoint is one settled route state.
 // `checkpoints` are the values the evidence records (affine: supported rotation steps; darboux: n; definite-integral: n).
 const steppedHolds = [18,10,10,20,10,10,18];
+const refinementHolds = [18, 14, 14, 38, 12];
 const steppedClips = {
     affine: {checkpoints: [0,1,2,3,2,1,0], holds: steppedHolds},
-    darboux: {checkpoints: [4,8,16,32,16,8,4], holds: steppedHolds},
-    'definite-integral': {checkpoints: [6,12,24,48,24,12,6], holds: steppedHolds},
+    darboux: {checkpoints: [4,8,16,32,4], holds: refinementHolds},
+    'definite-integral': {checkpoints: [6,12,24,48,6], holds: refinementHolds},
 };
 const affineSteps = steppedClips.affine.checkpoints;
 const affineHolds = steppedClips.affine.holds;
@@ -235,7 +236,9 @@ function phOffsetSweepCheck(sample, previous, first, spec) {
 const subdivisionObserve = page => page.locator('#jgbox').evaluate(container => {
     const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
     const curves = Object.values(b.objects).filter(o => o.elType === 'curve' && o.visProp?.visible !== false && o.rendNode && getComputedStyle(o.rendNode).display !== 'none');
-    return {curves: curves.map(o => {
+    const segments = Object.values(b.objects).filter(o => ['line','segment'].includes(o.elType) && o.point1 && o.point2 && o.visProp?.visible !== false && o.rendNode && getComputedStyle(o.rendNode).display !== 'none')
+        .map(o => [o.point1,o.point2].map(p => ({x:p.X(),y:p.Y()})));
+    return {segments, curves: curves.map(o => {
         const min = o.minX(), max = o.maxX();
         return {min,max,start:{x:o.X(min),y:o.Y(min)},end:{x:o.X(max),y:o.Y(max)},
             samples:Array.from({length:21},(_,j)=>{const s=min+(max-min)*j/20;return {x:o.X(s),y:o.Y(s)};}),stroke:getComputedStyle(o.rendNode).stroke,
@@ -1094,11 +1097,11 @@ const motionSpecs = {
         // Measured on the diagnostic capture: CRF 10 (encoder default) gave 90975 bytes, under the 300 KiB ceiling, so no encoder change was needed.
         encoderBudget: 'CRF 10 (encoder default): 90975 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
         schedule: {kind: 'discrete-steps', checkpoints: steppedClips.darboux.checkpoints, presses: steppedClips.darboux.checkpoints.map(darbouxPressCount),
-            holds: steppedHolds, camera: 'recipe coordinate window [-0.3, 4.8, 2.4, -0.5]', bounds: 'a = 0 and b = 2 unchanged'},
+            holds: refinementHolds, resetFrame: 84, camera: 'recipe coordinate window [-0.3, 4.8, 2.4, -0.5]', bounds: 'a = 0 and b = 2 unchanged'},
         invariants: ['Readouts n, lower, upper, integral and gap equal the pure Darboux sums of x² on [0, 2] for the reported n (4-decimal text, Slovenian comma, true minus sign)',
             'Each checkpoint has exactly log2(n/4) button presses from a fresh route; a and b readouts stay 0 and 2',
             'Integral readout equals 8/3 at every checkpoint; gap equals upper − lower',
-            'Checkpoints 4, 8, 16, 32, 16, 8, 4 with holds 18, 10, 10, 20, 10, 10, 18 cover 96 frames with one fixed camera',
+            'Exact forward refinements 4, 8, 16, 32; hold the close bounds for 38 frames, then restart at frame 84',
             'First and last checkpoint PNGs are identical (seam)'],
     },
     'definite-integral': {
@@ -1107,11 +1110,11 @@ const motionSpecs = {
         control: {label: 'Število podintervalov n', kind: 'range'},
         // Measured on the diagnostic capture: CRF 10 (encoder default) gave 90071 bytes, under the 300 KiB ceiling, so no encoder change was needed.
         encoderBudget: 'CRF 10 (encoder default): 90071 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
-        schedule: {kind: 'discrete-steps', checkpoints: steppedClips['definite-integral'].checkpoints, holds: steppedHolds,
+        schedule: {kind: 'discrete-steps', checkpoints: steppedClips['definite-integral'].checkpoints, holds: refinementHolds, resetFrame: 84,
             camera: 'recipe coordinate window [-0.3, 4.8, 2.4, -0.5]', bounds: 'a = 0, b = 2, function x² and the left rule unchanged'},
         invariants: ['Readouts n, h, sum, exact and difference equal the pure left Riemann sum of x² on [0, 2] for the reported n, with h = 2/n and exact = 8/3 (4-decimal text)',
             'difference equals sum − exact (sign included); a and b readouts stay 0 and 2',
-            'Checkpoints 6, 12, 24, 48, 24, 12, 6 with holds 18, 10, 10, 20, 10, 10, 18 cover 96 frames with one fixed camera',
+            'Exact forward refinements 6, 12, 24, 48; hold the approximation for 38 frames, then restart at frame 84',
             'First and last checkpoint PNGs are identical (seam)'],
     },
 };
@@ -1139,6 +1142,10 @@ for (const additional of [
         motionSpecs[id].recipeAligned = true;
         motionIds.push(id);
     }
+}
+for (const [id, spec] of Object.entries(require('./demonstration-preview-concept-motion.cjs').createConceptMotionSpecs(expansionHelpers))) {
+    assert.ok(motionIds.includes(id), `Concept override must target an existing demonstration: ${id}`);
+    motionSpecs[id] = {...spec, recipeAligned: true};
 }
 
 /** Readout equality for a sweep: exact text by default; a spec may supply readout.matches(shown, value) when the runtime's text is not the nominal text. */
@@ -1202,6 +1209,83 @@ function assertSteppedSequence(motion, stepped) {
     assert.equal(firstFrame,frameCount,`${motion.id}: holds must cover every frame`);
 }
 
+// Exact algorithm checkpoints are forward discoveries followed by an explicit restart.
+// All actions are replayed through supported UI controls, never synthetic geometry.
+for (const [id, values, holds] of [
+    ['bisection', [1, 2, 3, 4, 1], [18, 12, 12, 42, 12]],
+    ['repeated-subdivision', [0, 1, 2, 0], [20, 18, 46, 12]],
+]) {
+    motionSpecs[id] = {
+        mode: 'discrete-exact-steps', recipeAligned: true,
+        checkpoints: values.map((value, i) => ({value,
+            phase: i === values.length - 1 ? 'reset' : i === values.length - 2 ? 'discovery' : 'progress',
+            actions: value - values[0] > 0 ? [{kind: 'button', label: id === 'bisection' ? 'Naslednji korak' : 'Subdiviziraj', count: value - values[0]}] : []})),
+        holds,
+        schedule: {kind: 'forward-exact-steps', checkpoints: values, holds, resetFrame: 84},
+        invariants: id === 'bisection'
+            ? ['Independent x²−2 brackets retain √2 and halve width at every exact step (1e-9); midpoint and function readouts agree (1e-6)', 'Hold step 4, then restart at frame 84; fixed camera and identical poster endpoints']
+            : ['Each exact round yields 2^k polynomial pieces covering B(t) at corresponding parameters (1e-8)', 'Hold refined control polygons, then restart at frame 84; identical poster endpoints'],
+        checkStep(sample, first) {
+            if (id === 'bisection') {
+                let a = 1, b = 2, mid;
+                for (let k = 0; k < sample.checkpoint; k++) {
+                    mid = (a + b) / 2;
+                    if (mid * mid < 2) a = mid; else b = mid;
+                }
+                const number = s => Number(String(s).replace('−', '-').replace(',', '.'));
+                const r = sample.state.readouts;
+                assert.equal(number(r.step), sample.checkpoint);
+                near(number(r.width), b - a, 'Bisection bracket width must halve');
+                assert.ok(a < Math.SQRT2 && b > Math.SQRT2, 'Bisection bracket lost the root');
+                assert.ok(Math.abs(number(r.mid) - mid) < 1e-6 && Math.abs(number(r['f-mid']) - (mid * mid - 2)) < 1e-6, 'Bisection midpoint differs from exact iteration');
+            } else {
+                const count = 2 ** sample.checkpoint;
+                assert.equal(sample.state.curves, count);
+                const P = first.state.points.filter(p => p.draggable);
+                assert.equal(P.length, 4, 'Original control polygon missing');
+                const used = new Set();
+                for (let piece = 0; piece < count; piece++) {
+                    const match = sample.state.curveSamples.findIndex((samples, index) => !used.has(index) && samples.every((p, j) => {
+                        const q = bernsteinPoint(P, (piece + j / 20) / count);
+                        return Math.hypot(p[0] - q.x, p[1] - q.y) < 1e-8;
+                    }));
+                    assert.ok(match >= 0, 'Refined piece must cover the original curve');
+                    used.add(match);
+                }
+            }
+        },
+    };
+}
+
+motionSpecs.subdivision = {
+    mode: 'discrete-exact-steps', recipeAligned: true,
+    checkpoints: [
+        {value: 0, phase: 'setup', actions: []},
+        {value: 1, phase: 'discovery', actions: [{kind: 'button', label: 'Subdiviziraj'}, {kind:'toggle',label:'Kontrolni poligon',value:true,index:1}]},
+        {value: 0, phase: 'reset', actions: []},
+    ],
+    holds: [24, 60, 12], observe: subdivisionObserve,
+    schedule: {kind: 'exact-subdivision', checkpoints: [0, 1, 0], holds: [24, 60, 12], resetFrame: 84},
+    invariants: ['Both exact child curves cover the parent intervals [0,.5] and [.5,1] (1e-8); original outline stays fixed', 'Child controls equal de Casteljau subdivision controls; fixed camera, 60-frame discovery hold and deliberate reset'],
+    checkStep(sample, first) {
+        const P = first.state.points.filter(p => p.draggable), levels = deCasteljauLevels(P, .5);
+        assert.equal(P.length, 4);
+        for (const half of [0, 1]) {
+            assert.ok(sample.observed.curves.some(c => c.samples.every((p, j) => {
+                const q = bernsteinPoint(P, (half + j / (c.samples.length - 1)) / 2);
+                return Math.hypot(p.x - q.x, p.y - q.y) < 1e-8;
+            })), 'Both children must exactly reconstruct the original curve');
+        }
+        if (sample.checkpoint === 1) {
+            const children = [[P[0], ...levels.map(l => l[0])], [...levels.map(l => l.at(-1)).reverse(), P.at(-1)]];
+            for (const p of children.flat()) assert.ok(sample.state.points.some(q => Math.hypot(p.x - q.x, p.y - q.y) < 1e-8), 'Child control polygon missing');
+            const close = (p,q) => Math.hypot(p.x-q.x,p.y-q.y)<1e-8;
+            for (const child of children) for (let i=1;i<child.length;i++) assert.ok(sample.observed.segments.some(([a,b]) =>
+                (close(a,child[i-1])&&close(b,child[i]))||(close(b,child[i-1])&&close(a,child[i]))), 'Both child polygon edges must be visible');
+        }
+    },
+};
+
 function assertMotionEvidence(motion) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
@@ -1215,7 +1299,12 @@ function assertMotionEvidence(motion) {
         const checkpoints = checkpointSpec.checkpoints.map(checkpoint => checkpoint.value);
         assertSteppedSequence(motion, {checkpoints, holds: checkpointSpec.holds});
         const first = motion.samples[0], last = motion.samples.at(-1);
-        motion.samples.forEach(sample => checkpointSpec.checkStep(sample, first, checkpointSpec));
+        motion.samples.forEach((sample, index) => {
+            const expected = checkpointSpec.checkpoints[index];
+            if (expected.phase) assert.equal(sample.phase, expected.phase, 'Checkpoint phase differs');
+            if (expected.actions) assert.deepEqual(sample.actions, expected.actions, 'Checkpoint actions differ');
+            checkpointSpec.checkStep(sample, first, checkpointSpec);
+        });
         assert.equal(last.capture.sha256, first.capture.sha256, 'Checkpoint loop must return to the recipe PNG');
         return;
     }
@@ -1363,7 +1452,8 @@ async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdF
     assert.ok(Math.abs(state.scale[0]-state.scale[1])<1e-8 || recipes[d.id].framing.kind==='coordinate-window','Geometric motion must preserve equal unit scales');
     const captured=await screenshotBoard(page,path.join(directory,String(firstFrame).padStart(3,'0')+'.png'));
     for(let hold=1;hold<holdFrames;hold++)fs.copyFileSync(path.join(directory,captured.file),path.join(directory,String(firstFrame+hold).padStart(3,'0')+'.png'));
-    return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox};
+    return {firstFrame,holdFrames,capture:captured,state,camera:scene.boundingBox,
+        presentation:{selectedConclusions:scene.selectedConclusions}};
 }
 
 /**
@@ -1539,7 +1629,10 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                     for (const action of checkpoint.actions) await applyAction(page, action);
                     const sample = await captureHold(page, d, recipes[id].framing.window, presentBoard, directory, firstFrame, spec.holds[i], fixedBox);
                     const observed = spec.observe ? await spec.observe(page) : undefined;
-                    record({checkpoint: checkpoint.value, actions: checkpoint.actions, ...sample, ...(observed ? {observed} : {})});
+                    record({checkpoint: checkpoint.value, ...(checkpoint.phase ? {phase: checkpoint.phase} : {}), actions: checkpoint.actions, ...sample,
+                        points: sample.state.points, controls: sample.state.points.filter(p => p.draggable),
+                        curvePathHash: pathHash(sample.state.paths), pathCount: countPaths(sample.state.paths),
+                        ...(observed ? {observed} : {})});
                     spec.checkStep(sampleEvidence.at(-1), sampleEvidence[0], spec);
                     firstFrame += spec.holds[i];
                 } finally {await context.close();}

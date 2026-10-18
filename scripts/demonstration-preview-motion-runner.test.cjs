@@ -9,6 +9,10 @@ test('every shipped demonstration has a configured motion timeline', () => {
     for (const [id, spec] of Object.entries(motionSpecs).filter(([, spec]) => spec.recipeAligned)) {
         assert.equal(typeof spec.schedule?.kind, 'string', `${id} needs a manifest schedule`);
         assert.ok(spec.invariants?.length, `${id} needs documented mathematical invariants`);
+        if (spec.checkpoints && spec.conceptStatus !== 'blocked') {
+            assert.ok(spec.holds.at(-2)>spec.holds.at(-1),`${id} must emphasize its discovery longer than its reset`);
+            assert.equal(spec.schedule.resetFrame,spec.holds.slice(0,-1).reduce((sum,hold)=>sum+hold,0),`${id} must record the real reset frame`);
+        }
         if (spec.mode === 'pointer-drag') {
             assert.ok(Number.isInteger(spec.schedule.press) && Number.isInteger(spec.schedule.release), `${id} needs pointer timing`);
             assert.equal(typeof spec.restore, 'function', `${id} needs a supported restore action`);

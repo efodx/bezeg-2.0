@@ -60,6 +60,8 @@ The Analysis family ([ADR 0011](adr/0011-analysis-family.md), [spec](specs/analy
 
 The repeated `/param/param/` segment is present in the source. Treat any route cleanup as a compatibility decision.
 
+The [concept-led preview revision](specs/concept-led-demonstration-previews.md) replaces 22 preview pairs with concept-specific comparisons and forward algorithm progressions. All 45 IDs are accounted for in the [acceptance record](reviews/concept-led-demonstration-previews.md); Bernstein’s shared probe and rational de Casteljau’s weighted interpolation levels remain explicit capability dependencies, with their existing media retained. Routes, presets, graph defaults and playback activation do not change.
+
 ## Shared user workflows
 
 | Workflow | Current implementation | Review focus |

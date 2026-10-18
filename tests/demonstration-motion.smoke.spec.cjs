@@ -1,8 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 const clips = demonstrations.map(demonstration => demonstration.id);
-const expandedClips = Object.entries(require('../scripts/demonstration-preview-motion.cjs').motionSpecs)
-    .filter(([, spec]) => spec.recipeAligned).map(([id]) => id);
 const card = (page, id) => page.locator('#demonstration-card-' + id);
 test.use({reducedMotion: 'no-preference'});
 
@@ -59,11 +57,10 @@ test('every clip decodes as it enters view and unloads offscreen', async ({page}
     await expect(lastEntry.locator('video[src]')).toHaveCount(0);
 });
 
-test('all added previews decode at 390px without horizontal overflow', async ({page}) => {
+test('every preview decodes at 390px without horizontal overflow', async ({page}) => {
     await page.setViewportSize({width:390, height:900});
     await openEnglish(page);
-    expect(expandedClips).toHaveLength(25);
-    for (const id of expandedClips) {
+    for (const id of clips) {
         const entry = card(page, id);
         await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
         await playing(entry);

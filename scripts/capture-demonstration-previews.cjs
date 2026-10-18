@@ -437,6 +437,8 @@ async function main() {
         .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'demonstration-preview-concept-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'demonstration-preview-recipes.cjs')))
         .update(JSON.stringify({viewport,frame,deviceScaleFactor,paddingFraction,captureTextSize,captureTextLineHeight,captureCurveStrokeScale,captureConstructionStrokeScale})).digest('hex');
     assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
@@ -546,7 +548,9 @@ async function main() {
                 });
 
                 const scene = await presentBoard(boardLocator, demonstration, recipe);
-                if (['extrema','convexity'].includes(demonstration.id)) assert.ok(scene.selectedConclusions.some(c=>c.withinFrame&&c.clipPath==='none'), demonstration.id+' must retain its visible defining conclusion');
+                // Convexity deliberately reveals the derivative conclusion at the motion payoff;
+                // its poster shows the geometric comparison first.
+                if (demonstration.id === 'extrema') assert.ok(scene.selectedConclusions.some(c=>c.withinFrame&&c.clipPath==='none'), demonstration.id+' must retain its visible defining conclusion');
 
                 assert.deepEqual([scene.width, scene.height], [frame.width, frame.height],
                     demonstration.id + ' did not resize to the 360:220 preview frame');

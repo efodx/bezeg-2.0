@@ -42,18 +42,39 @@ test('registry exhaustively matches the live catalog and rejects missing/unknown
 test('unsupported controls fail instead of silently capturing a default',async()=>{
     await assert.rejects(applyAction({getByRole:()=>({count:async()=>0})},{kind:'button',label:'missing'}),/Unsupported/);
 });
+
+test('number actions distinguish a rounded input draft from a full-precision graph value',async()=>{
+    let shown='3,1416';
+    const control={count:async()=>1,isVisible:async()=>true,getAttribute:async()=>null,fill:async()=>{},press:async()=>{},inputValue:async()=>shown};
+    const page={getByLabel:()=>({nth:()=>control}),evaluate:async()=>{}};
+    await applyAction(page,{kind:'number',label:'Točka x',value:Math.PI,displayDecimals:4});
+    await assert.rejects(applyAction(page,{kind:'number',label:'Točka x',value:Math.PI}));
+    shown='3,1415';
+    await assert.rejects(applyAction(page,{kind:'number',label:'Točka x',value:Math.PI,displayDecimals:4}));
+});
 test('semantic assertions reject empty, wrong-degree, missing-Farin and unrevealed evidence',()=>{
     assert.throws(()=>assertOutcomeEvidence('bernstein',{}),/semantic/);
     const evidence={curves:2,points:[],readouts:{},reveals:{},controls:[]};
     assert.throws(()=>assertOutcomeEvidence('bernstein',evidence),/four/);
-    assert.throws(()=>assertOutcomeEvidence('repeated-subdivision',evidence),/four/);
+    assert.throws(()=>assertOutcomeEvidence('repeated-subdivision',evidence),/original curve/);
     assert.throws(()=>assertOutcomeEvidence('farin',evidence));
     assert.throws(()=>assertOutcomeEvidence('extrema',evidence),/reveal/);
-    assert.throws(()=>assertOutcomeEvidence('bisection',evidence),/Three/);
+    assert.throws(()=>assertOutcomeEvidence('bisection',evidence),/First/);
 });
 test('step provenance requires exact consecutive states and the common camera',()=>{
     const camera=[-1,2,3,-2];
-    const motion={id:'repeated-subdivision',frameCount:96,sampleRate:24,duration:4,camera,samples:[0,1,2].map(i=>({checkpoint:i,firstFrame:i*32,holdFrames:32,state:{box:[...camera],curves:2**i}}))};
+    const spec=motionSpecs['repeated-subdivision'];
+    const P=[{x:0,y:0},{x:0,y:1},{x:1,y:1},{x:1,y:0}];
+    let firstFrame=0;
+    const motion={id:'repeated-subdivision',frameCount:96,sampleRate:24,duration:4,camera,schedule:spec.schedule,invariants:spec.invariants,
+        samples:spec.checkpoints.map((c,i)=>{
+            const curves=2**c.value;
+            const result={checkpoint:c.value,phase:c.phase,actions:c.actions,firstFrame,holdFrames:spec.holds[i],capture:{sha256:c.value===0?'poster':'refined'},
+                state:{box:[...camera],curves,points:P.map(p=>({...p,draggable:true})),curveSamples:Array.from({length:curves},(_,piece)=>Array.from({length:21},(_,j)=>{
+                    const p=bernsteinPoint(P,(piece+j/20)/curves);return [p.x,p.y];
+                }))}};
+            firstFrame+=spec.holds[i];return result;
+        })};
     assertMotionEvidence(motion);
     motion.samples[1].state.curves=3;assert.throws(()=>assertMotionEvidence(motion));
     motion.samples[1].state.curves=2;motion.samples[2].state.box[0]=-2;assert.throws(()=>assertMotionEvidence(motion));
@@ -342,34 +363,24 @@ test('ph-quintic sweep: larger signed-normal offset stays cusp-free and keeps it
 });
 const subdivisionControls=[{x:-4,y:-3},{x:-3,y:3},{x:3,y:3},{x:4,y:-3}];
 const subdivisionFixture=()=>{
-    const spec=motionSpecs.subdivision;
-    const sample=i=>{
-        const t=sweepValue(i,spec),controls=subdivisionControls.map((p,j)=>({id:'c'+j,...p})),levels=deCasteljauLevels(subdivisionControls,t);
-        const split=bernsteinPoint(subdivisionControls,t),readout=spec.sweep.readout.text(t);
-        const curveSamples=part=>Array.from({length:21},(_,j)=>bernsteinPoint(subdivisionControls,part===0?t*j/20:t+(1-t)*j/20));
-        return {index:i,time:i/24,scheduled:t,actual:{input:t,readout,steps:0},controls,
-            points:[...controls.map(p=>({...p,name:'P',draggable:true})),...levels.flat().map((p,j)=>({id:'i'+j,...p,draggable:false}))],
-            observed:{curves:[{start:subdivisionControls[0],end:split,samples:curveSamples(0),stroke:'blue',d:'left-'+t},{start:split,end:subdivisionControls.at(-1),samples:curveSamples(1),stroke:'orange',d:'right-'+t}]},
-            curvePathHash:'paths-'+t,pathCount:2,capture:{sha256:'recipe-png'}};
-    };
-    return {id:'subdivision',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))};
+    const spec=motionSpecs.subdivision,camera=[-5,5,5,-4];
+    const controls=subdivisionControls.map((p,j)=>({id:'c'+j,...p,draggable:true})),levels=deCasteljauLevels(controls,.5).flat();
+    let firstFrame=0;
+    return {id:'subdivision',mode:spec.mode,frameCount:96,sampleRate:24,duration:4,camera,schedule:spec.schedule,invariants:spec.invariants,
+        samples:spec.checkpoints.map((c,i)=>{
+            const result={checkpoint:c.value,phase:c.phase,actions:c.actions,firstFrame,holdFrames:spec.holds[i],capture:{sha256:c.value?'split':'poster'},
+                state:{box:camera,points:[...controls,...(c.value?levels:[])]},observed:{segments:[[controls[0],...deCasteljauLevels(controls,.5).map(l=>l[0])],[...deCasteljauLevels(controls,.5).map(l=>l.at(-1)).reverse(),controls.at(-1)]].flatMap(child=>child.slice(1).map((p,i)=>[child[i],p])),curves:[0,1].map(half=>({samples:Array.from({length:21},(_,j)=>bernsteinPoint(controls,(half+j/20)/2))}))}};
+            firstFrame+=spec.holds[i];return result;
+        })};
 };
-test('subdivision sweep: pre-Subdivide portions meet at B(t), exact interpolation construction and controls stay fixed',()=>{
-    const motion=subdivisionFixture();assertMotionEvidence(motion);
-    assert.deepEqual(motionSpecs.subdivision.sweep.waypoints,[0.5,0.745,0.255,0.5]);
-    assert.equal(motion.samples[0].scheduled,0.5);assert.equal(motion.samples[95].scheduled,0.5);
-    const construction=subdivisionFixture();construction.samples[40].points[8].x+=1e-5;
-    assert.throws(()=>assertMotionEvidence(construction),/interpolation construction differs/);
-    const split=subdivisionFixture();split.samples[40].observed.curves[0].end.y+=0.01;split.samples[40].observed.curves[1].start.y+=0.01;
-    assert.throws(()=>assertMotionEvidence(split),/First portion does not run/);
-    const interior=subdivisionFixture();interior.samples[40].observed.curves[1].samples[10].y+=0.01;
-    assert.throws(()=>assertMotionEvidence(interior),/leaves the unchanged base curve/);
-    const subdivision=subdivisionFixture();subdivision.samples[40].controls[0].x+=0.01;
-    assert.throws(()=>assertMotionEvidence(subdivision),/Fixed control point moved/);
-    const readout=subdivisionFixture();readout.samples[40].actual.readout=(Number(readout.samples[40].actual.readout.replace(',','.'))+0.01).toFixed(2).replace('.',',');
-    assert.throws(()=>assertMotionEvidence(readout),/Graph readout differs/);
-    const seam=subdivisionFixture();seam.samples[95].capture.sha256='different-poster-frame';
-    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop/);
+test('exact subdivision holds both child representations on the unchanged parent and resets to its poster',()=>{
+    assertMotionEvidence(subdivisionFixture());
+    const missing=subdivisionFixture();missing.samples[1].state.points=missing.samples[1].state.points.slice(0,4);
+    assert.throws(()=>assertMotionEvidence(missing),/Child control polygon missing/);
+    const wrong=subdivisionFixture();wrong.samples[1].observed.curves[1].samples[10].y+=.01;
+    assert.throws(()=>assertMotionEvidence(wrong),/reconstruct/);
+    const phase=subdivisionFixture();phase.samples[2].phase='discovery';assert.throws(()=>assertMotionEvidence(phase),/phase/);
+    const seam=subdivisionFixture();seam.samples[2].capture.sha256='different';assert.throws(()=>assertMotionEvidence(seam),/recipe PNG/);
 });
 test('selective motion recapture replaces only selected clips and keeps the other evidence in order',()=>{
     const old=[{id:'first',sha256:'keep-1',samples:[1]},{id:'second',sha256:'old-2',samples:[2]},{id:'third',sha256:'keep-3',samples:[3]}];
@@ -416,7 +427,7 @@ test('darboux stepped clip: readouts equal the pure sums at each checkpoint, pre
     const wrongHold=make();wrongHold.samples[3].holdFrames=19;assert.throws(()=>assertMotionEvidence(wrongHold),/hold/);
     const wrongSequence=make();wrongSequence.samples[4].checkpoint=8;assert.throws(()=>assertMotionEvidence(wrongSequence),/checkpoint 4/);
     const seam=make();seam.samples.at(-1).capture.sha256='other-png';assert.throws(()=>assertMotionEvidence(seam),/seam/);
-    const moved=make();moved.samples[5].state.box[1]=5;assert.throws(()=>assertMotionEvidence(moved),/Camera changed/);
+    const moved=make();moved.samples[4].state.box[1]=5;assert.throws(()=>assertMotionEvidence(moved),/Camera changed/);
 });
 
 test('definite-integral stepped clip: readouts equal the left sum, h, exact and sum − exact at each checkpoint; range, holds and seam are enforced',()=>{
@@ -498,48 +509,10 @@ test('complex multiplication rejects a product off by 1e-6, a moved z and a fina
     assert.throws(()=>assertMotionEvidence(complexFixture({40:{z:{x:1.05,y:0.5}}})),/z moved/);
     assert.throws(()=>assertMotionEvidence(complexFixture({95:{target:{x:1,y:0}}})),/differs from the starting i/);
 });
-// accumulation: synthetic evidence in the shape captureDrag records (a and x points, target, caption text, function and region path hashes).
-const accumulationFixture=(overrides={})=>{
-    const spec=motionSpecs.accumulation;
-    const {accumulationSnap,formatSlNumber,accumulationReference}=require('./demonstration-preview-motion.cjs');
-    const frames=Array.from({length:96},(_,i)=>{
-        const o=overrides[i]??{};
-        const target=o.target??spec.path({x:spec.startX,y:0},spec.progress?spec.progress(i):sinFixture(i));
-        const x=accumulationSnap(target.x), a=o.a??0;
-        const value=accumulationReference(a,x)+(o.readoutOffset??0);
-        const text=`f(x) = sin x\nA: črtkana črta\nA(x) = ${formatSlNumber(value)} (s predznakom)`;
-        return {index:i,time:i/24,target,capture:{sha256:'recipe-frame'},
-            points:[{id:'a',name:'$$a$$',x:a,y:0,draggable:true},{id:'x',name:'$$x$$',x:o.xPoint??x,y:0,draggable:true},
-                {id:'fx',name:'$$f(x)$$',x,y:Math.sin(x),draggable:false},
-                {id:'Ax',name:'$$A(x)$$',x,y:Math.cos(a)-Math.cos(x)+(o.accumulatedOffset??0),draggable:false}],
-            observed:{text:o.text??text,functionPathLength:38633,functionPathHash:o.functionPathHash??'f-path',functionVertices:257,functionMaxDeviation:o.functionMaxDeviation??0,functionMinX:o.functionMinX??-3.8942780748663113,functionMaxX:9.39427807486631,
-                regionPathLength:80,regionPathHash:`region-${x}`}};
-    });
-    return {id:'accumulation',mode:'pointer-drag',frameCount:96,sampleRate:24,duration:4,samples:frames};
-};
-// sin² out-and-back used by the fixture when spec.progress is unset (the accumulation spec uses the default profile).
-function sinFixture(i){return Math.sin(Math.PI*Math.max(0,Math.min(1,(i-12)/71)))**2;}
-test('accumulation: x snapped to the 0.01 grid, A(x) caption equal to the Simpson integral, function path fixed and exact return pass',()=>{
-    assertMotionEvidence(accumulationFixture());
-});
-test('accumulation rejects a readout off by one display unit, a moved a, a changed function path and a final x other than the start',()=>{
-    const {formatSlNumber,accumulationReference}=require('./demonstration-preview-motion.cjs');
-    const offByOne=accumulationFixture({40:{readoutOffset:1e-4}});
-    assert.throws(()=>assertMotionEvidence(offByOne),/Readout lacks/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{a:0.1}})),/a moved/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{accumulatedOffset:1e-6}})),/A\(x\) point differs/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{functionMaxDeviation:0.01}})),/leaves y = sin x/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{functionMinX:-3.5}})),/x extent changed/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({90:{functionPathHash:'changed'}})),/\(at rest\) changed/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({95:{target:{x:2.5,y:0}}})),/Final x/);
-    assert.throws(()=>assertMotionEvidence(accumulationFixture({40:{xPoint:2.03}})),/differs from the snapped target/);
-    const unchangedRegion=accumulationFixture();unchangedRegion.samples[40].observed.regionPathHash=unchangedRegion.samples[39].observed.regionPathHash;
-    assert.throws(()=>assertMotionEvidence(unchangedRegion),/Signed-area region did not change/);
-    const seam=accumulationFixture();seam.samples[95].capture.sha256='other-png';
-    assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop/);
-    assert.equal(formatSlNumber(accumulationReference(0,2)),'1,4161');
-    assert.equal(formatSlNumber(accumulationReference(2,0)),'−1,4161');
-    assert.equal(formatSlNumber(-0.00001),'0');
+test('accumulation reference integral agrees with the antiderivative on both signed stretches',()=>{
+    const {accumulationReference,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
+    for(const a of [-.5,0,1])for(const x of [-1,0,2,Math.PI,4])assert.ok(Math.abs(accumulationReference(a,x)-(Math.cos(a)-Math.cos(x)))<1e-10);
+    assert.match(accumulationReadoutLine(0,Math.PI),/A\(x\) = 2/);
 });
 test('path counts ignore curves without path data, so an empty snapshot cannot pass the path-present checks',()=>{
     const {countPaths}=require('./demonstration-preview-motion.cjs');

@@ -1,6 +1,6 @@
 # Concept-led demonstration previews
 
-Status: specified on 2026-10-18 at the owner's request following review of all 45 current motion previews. This document records the complete recommendation set; implementation has not started. The current request authorizes documentation, not code, asset regeneration, or runtime changes.
+Status: implementation authorized on 2026-10-18 after the initial specification and review of all 45 motion previews. The capture/media revision covers the full inventory; [the per-ID acceptance record](../reviews/concept-led-demonstration-previews.md) distinguishes revised, retained, and capability-blocked concepts. Runtime feature additions remain outside this scope.
 
 ## Problem and intended outcome
 
