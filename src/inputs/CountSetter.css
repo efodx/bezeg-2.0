@@ -4,7 +4,8 @@
 .count-setter-controls { display: flex; align-items: stretch; gap: 6px; }
 .count-setter-controls .count-setter-button { min-width: 44px; min-height: 44px; padding: 0 12px; font-size: 1.1rem; line-height: 1; }
 .count-setter-controls .count-setter-button:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
-.count-setter-controls .number-input { width: 6.5ch; }
+/* Match the compact input's minimum width so right-aligned digits cannot slip under the plus button. */
+.count-setter-controls .number-input { width: max(6.5ch, 5.5em); flex-shrink: 0; }
 .count-setter-value {
     display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 8px;
     border: 1px solid var(--workspace-rule); border-radius: 2px; background: var(--workspace-canvas-deep);
