@@ -12,6 +12,7 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Bézier chapter copy](content/bezier-curves.sl.md): complete Slovenian implementation draft with [English counterpart](content/bezier-curves.en.md), [six-activity script](specs/bezier-study-chapter-activities.md), [content review](reviews/bezier-study-chapter-content.md), and [pilot implementation handoff](tasks/standalone-learning/implement-bezier-pilot.md).
 - [SVG export math labels spec](specs/svg-export-math-labels.md): typeset board labels in SVG figure export; [ADR 0008](adr/0008-export-time-mathjax-svg-typesetting.md) records the lazily loaded `mathjax-full` choice.
 - [Guided lessons spec](specs/guided-lessons.md): bounded content-first learning flow, architecture seams, pilot scope, and acceptance evidence.
+- [Lesson example improvements](specs/lesson-example-improvements.md): simpler starting scenes and clearer comparisons, with [batched tasks covering all 45 reviewed lessons](tasks/lesson-example-improvements/README.md).
 - [Current architecture](current-architecture.md): the implementation observed in the repository, including hosting and rendering constraints.
 - [Curve architecture assessment](curve-architecture-deep-dive.md): drawing data flow, functionality preservation and decomposition recommendations.
 - [Curve ownership spec](specs/curve-ownership-refactor.md): the first bounded implementation of numeric inputs, runtime ownership and figure capture.
