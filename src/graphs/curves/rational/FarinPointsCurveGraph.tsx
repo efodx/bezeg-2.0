@@ -3,7 +3,6 @@ import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import React from "react";
 import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import {LessonSceneCheckpoint} from "../../../learning/model";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 
@@ -29,12 +28,6 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         this.inputsDisabled = curve.isShowingFarinPoints();
     }
 
-    protected override prepareLessonDefaultScene(): void {
-        super.prepareLessonDefaultScene();
-        this.syncFarinInteraction();
-        this.refreshWorkspace();
-    }
-
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
         registry.on('farin-points', action => {
@@ -56,52 +49,10 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
                 || !weights.every(w => typeof w === 'number' && Number.isFinite(w) && w > 0)) {
                 throw new Error(`Provide exactly ${count} finite weights greater than zero.`);
             }
-            this.setEffectiveWeights(weights.slice());
+            this.getFirstJxgCurve().setEffectiveWeights(weights.slice());
             this.boardUpdate();
             this.refreshWorkspace();
         });
-    }
-
-    /** Farin sliders are sized from the weights, so rebuild them around a weight change. */
-    private setEffectiveWeights(weights: number[]) {
-        const curve = this.getFirstJxgCurve();
-        const farin = curve.isShowingFarinPoints();
-        if (farin) curve.showFarinPoints(false);
-        curve.getCurve().setWeights(weights);
-        if (farin) curve.showFarinPoints(true);
-    }
-
-    protected override captureLessonState(): LessonSceneCheckpoint {
-        const checkpoint = super.captureLessonState();
-        const curve = this.getFirstJxgCurve();
-        return {
-            ...checkpoint,
-            value: {
-                ...(checkpoint.value as object),
-                farin: {
-                    effectiveWeights: curve.getCurve().getEffectiveWeights().slice(),
-                    showingFarinPoints: curve.isShowingFarinPoints(),
-                    standardForm: curve.inStandardForm(),
-                },
-            },
-        } as LessonSceneCheckpoint;
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        const farin = (checkpoint.value as {farin?: {effectiveWeights?: unknown, showingFarinPoints?: unknown, standardForm?: unknown}} | undefined)?.farin;
-        super.restoreLessonState(checkpoint);
-        const curve = this.getFirstJxgCurve();
-        if (curve && farin && Array.isArray(farin.effectiveWeights)
-            && farin.effectiveWeights.length === curve.getJxgPoints().length) {
-            // The exported weights are display-normalized in standard form, so restore the effective ones.
-            curve.showFarinPoints(false);
-            curve.getCurve().setWeights((farin.effectiveWeights as number[]).slice());
-            if (farin.showingFarinPoints === true) curve.showFarinPoints(true);
-            curve.setStandardForm(farin.standardForm === true);
-        }
-        this.syncFarinInteraction();
-        this.boardUpdate();
-        this.refreshWorkspace();
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {

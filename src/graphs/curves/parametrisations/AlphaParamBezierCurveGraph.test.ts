@@ -26,7 +26,7 @@ function makeGraph(initial = {alpha: 0.5, numberOfPoints: 10}) {
     graph.controlPoints = [graph.board.create('point', [0, 0]), graph.board.create('point', [1, 1])];
     graph.sampleMarkers = [];
     graph.graphJXGPoints = [];
-    graph.jxgCurves = [{getCurve: () => ({eval: (t: number) => ({X: () => t, Y: () => 2 * t})})}];
+    graph.jxgCurves = [{getCurve: () => ({eval: (t: number) => ({X: () => t, Y: () => 2 * t})}), isSelected: () => false}];
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...initial, initialized: true});
     graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });

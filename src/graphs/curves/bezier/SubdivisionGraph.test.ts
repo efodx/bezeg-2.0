@@ -1,7 +1,8 @@
-import SubdivisionGraph from './SubdivisionGraph';
+import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from './SubdivisionGraph';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 import {GraphPalette} from '../../styles/GraphPalette';
+import {Attributes} from '../../attributes/Attributes';
 
 const DEFAULT_POINTS = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
 const makeCurve = () => new PolynomialBezierCurve(DEFAULT_POINTS.map(([x, y]) => new PointImpl(x, y)));
@@ -19,6 +20,7 @@ function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
         setSubdivisionResultConsumer: vi.fn(),
         isShowingControlPolygon: () => false,
         showControlPolygon: vi.fn(),
+        setAttributes: vi.fn(),
         dispose: vi.fn(() => { jxg.disposed = true; }),
         board: undefined,
         subdivide: vi.fn((t: number) => {
@@ -36,7 +38,6 @@ function makeGraph() {
     const graph = Object.create(SubdivisionGraph.prototype) as any;
     const log: any[] = [];
     graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), fullUpdate: vi.fn(), setBoundingBox: vi.fn()};
-    graph.stepsDone = 0;
     graph.workspaceRevision = 0;
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(makeCurve(), log)];
@@ -53,7 +54,6 @@ function makeGraph() {
         graph.jxgCurves.forEach((c: any) => c.dispose());
         graph.jxgCurves = data.map((d: any) => fakeJxgCurve(
             new PolynomialBezierCurve(d[1].points.map(([x, y]: number[]) => new PointImpl(x, y))), log));
-        graph.jxgCurves[0].setAttributes = vi.fn();
     });
     return graph;
 }
@@ -106,13 +106,19 @@ test('lesson checkpoint round-trips curve set and stepsDone', () => {
     lesson(graph, subdivide);
     lesson(graph, subdivide);
     const checkpoint = graph.captureLessonState();
-    expect((checkpoint.value as any).stepsDone).toBe(2);
+    // The step count follows from the saved pieces; it is not saved anywhere itself.
+    expect(graph.stepsDone).toBe(2);
+    expect((checkpoint.value as any).transientState).not.toHaveProperty('stepsDone');
+    expect((checkpoint.value as any).graphState).not.toHaveProperty('stepsDone');
+    expect(checkpoint.value).not.toHaveProperty('stepsDone');
     lesson(graph, subdivide);
     lesson(graph, subdivide);
     expect(graph.jxgCurves.length).toBe(16);
     graph.restoreLessonState(checkpoint);
     expect(graph.stepsDone).toBe(2);
     expect(graph.jxgCurves.length).toBe(4);
+    // Every restored piece keeps the operations its subdivided parent had disabled.
+    graph.jxgCurves.forEach((piece: any) => expect(piece.setAttributes).toHaveBeenCalledWith(Attributes.bezierDisabled));
     // A checkpoint taken at step 0 restores a single curve even after subdividing.
     const fresh = makeGraph();
     const start = fresh.captureLessonState();
@@ -120,6 +126,26 @@ test('lesson checkpoint round-trips curve set and stepsDone', () => {
     fresh.restoreLessonState(start);
     expect(fresh.stepsDone).toBe(0);
     expect(fresh.jxgCurves.length).toBe(1);
+});
+
+test('a Preset that already has subdivided pieces counts their steps toward the cap', () => {
+    const source = makeGraph();
+    for (let k = 0; k < 3; k++) lesson(source, subdivide);
+    const graph = makeGraph();
+    graph.importPresetData(source.exportPresetData());
+    expect(graph.jxgCurves.length).toBe(8);
+    expect(graph.stepsDone).toBe(3);
+    lesson(graph, subdivide);
+    lesson(graph, subdivide);
+    expect(graph.jxgCurves.length).toBe(2 ** MAX_SUBDIVISION_STEPS);
+    expect(() => lesson(graph, subdivide)).toThrow(/At most 5 subdivision steps/);
+    // A piece count that no number of halvings gives rounds up, so the cap still bounds the pieces.
+    const odd = makeGraph();
+    odd.importPresetData(source.exportPresetData().slice(0, 3));
+    expect(odd.stepsDone).toBe(2);
+    for (let k = 0; k < 3; k++) lesson(odd, subdivide);
+    expect(odd.jxgCurves.length).toBe(24);
+    expect(() => lesson(odd, subdivide)).toThrow();
 });
 
 describe('subdivision mathematics on the default curve', () => {

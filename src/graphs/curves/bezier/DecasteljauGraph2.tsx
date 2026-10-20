@@ -2,18 +2,16 @@ import React from 'react';
 
 
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {BaseGraphState} from "../../base/BaseGraph";
+import {TransientState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
-import {LessonSceneCheckpoint} from "../../../learning/model";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Point} from "../../../bezeg/api/point/point";
-import {Preset} from "../../base/presets/Presets";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
-import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS} from "./decasteljauParameter";
+import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -22,7 +20,11 @@ interface DecasteljauGraphStates extends BaseGraphStates {
 }
 
 class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
-    /** The drawn parameter; during playback React state follows it at a display cadence. */
+    /**
+     * Deliberate drawing cache of the scene-store `t`: playback draws every frame but publishes `t` at a display
+     * cadence, so this runs ahead of the store while playing. Saved scenes use it (`sceneGraphState`), and every scene
+     * replacement resets it from the restored `t` (`syncReplacedScene`).
+     */
     private parameter = 0.5;
     private publishedParameter?: number;
     private lastPublishTime = -Infinity;
@@ -56,16 +58,27 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         }
     }
 
-    override exportPreset(): Preset {
-        const preset = super.exportPreset();
-        const graphState: DecasteljauGraphStates = {...preset.graphState as DecasteljauGraphStates, t: this.parameter};
-        return {...preset, graphState};
+    protected override sceneGraphState(): DecasteljauGraphStates {
+        return {...super.sceneGraphState(), t: this.parameter};
     }
 
-    protected override captureLessonState(): LessonSceneCheckpoint {
-        const checkpoint = super.captureLessonState();
-        const value = checkpoint.value as {graphState: DecasteljauGraphStates};
-        return {...checkpoint, value: {...value, graphState: {...value.graphState, t: this.parameter}}};
+    /**
+     * Playback is transient: every scene replacement ends it. A scene saved during playback (a checkpoint, a Preset or a
+     * batch entry scene) is shown paused at its parameter, never as playing without a running driver.
+     */
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        this.animation.stop();
+        const animationStatus = statusAfterSceneReplacement(this.state.animationStatus);
+        if (animationStatus !== this.state.animationStatus) this.setState({animationStatus});
+    }
+
+    /** A replaced scene is drawn at its own parameter, with no playback value left over from the previous scene. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.publishedParameter = undefined;
+        this.lastPublishTime = -Infinity;
+        this.drawParameter(this.state.t);
     }
 
     /** Draws a parameter-only change with an ordinary board update. */
@@ -149,26 +162,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         jxgCurve.setDecasteljauT(this.parameter);
     }
 
-    protected override lessonDefaultState(): DecasteljauGraphStates {
-        return {...super.lessonDefaultState(), t: 0.5, v: 1, animationStatus: "ready"};
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        this.animation.stop();
-        this.parameter = 0.5;
-        this.publishedParameter = undefined;
-        super.prepareLessonDefaultScene();
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        const t = (checkpoint.value as any)?.graphState?.t;
-        if (typeof t === 'number' && Number.isFinite(t)) {
-            this.parameter = t;
-            this.publishedParameter = undefined;
-        }
-        super.restoreLessonState(checkpoint);
-    }
-
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
         registry.onDiscriminated('parameter', 't', action => {
@@ -194,15 +187,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     /** Publishes the drawn parameter and pauses without resetting it. */
     override pausePlayback(): void {
         if (this.animation.isRunning() || this.state.animationStatus === "playing") this.pauseAnimation();
-    }
-
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
-        const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
-        // The loaded scene starts at its own parameter, with no playback value left over from the previous scene.
-        this.parameter = state.t;
-        this.publishedParameter = undefined;
-        this.lastPublishTime = -Infinity;
-        return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
     override getGraphCommands(): JSX.Element[] {

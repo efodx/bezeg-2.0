@@ -7,7 +7,6 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
-import {LessonSceneCheckpoint} from "../../../learning/model";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 export const MAX_SUBDIVISION_STEPS = 5;
@@ -18,26 +17,19 @@ function ShowControlPolygons(props: { checked: boolean, onChange: (checked: bool
 }
 
 class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
-    private stepsDone: number = 0;
-
-    protected override captureFigureRuntimeState(): unknown {
-        return {...super.captureFigureRuntimeState() as object, stepsDone: this.stepsDone};
+    /**
+     * Subdivision steps the scene has taken, derived from its pieces rather than kept as transient state: every step
+     * splits every piece at 1/2 and the pieces offer no other subdivision, so k steps give 2^k pieces. An imported
+     * Preset with n pieces counts as ceil(log2 n) steps, so the scene never exceeds 2^MAX_SUBDIVISION_STEPS pieces.
+     */
+    private get stepsDone(): number {
+        return Math.min(MAX_SUBDIVISION_STEPS, Math.ceil(Math.log2(Math.max(1, this.jxgCurves.length))));
     }
 
-    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
-        super.restoreFigureRuntimeState(runtimeState);
-        const stepsDone = (runtimeState as {stepsDone?: number} | undefined)?.stepsDone;
-        if (typeof stepsDone === "number" && Number.isFinite(stepsDone)) this.stepsDone = stepsDone;
-    }
-
-    protected override resetSceneFields(): void {
-        super.resetSceneFields();
-        this.stepsDone = 0;
-    }
-
-    override initialize() {
-        super.initialize();
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+    /** Every piece inherits the disabled curve operations, so an imported scene needs them on all pieces again. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.jxgCurves.forEach(curve => curve.setAttributes(Attributes.bezierDisabled));
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -48,26 +40,6 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
             }
             this.subdivide();
         });
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        // The default preset import disposes every generated piece and its control polygon / de Casteljau points.
-        super.prepareLessonDefaultScene();
-        this.stepsDone = 0;
-        this.getFirstJxgCurve()?.setAttributes(Attributes.bezierDisabled);
-        this.refreshWorkspace();
-    }
-
-    protected override captureLessonState(): LessonSceneCheckpoint {
-        const checkpoint = super.captureLessonState();
-        return {...checkpoint, value: {...(checkpoint.value as object), stepsDone: this.stepsDone}} as LessonSceneCheckpoint;
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        const stepsDone = (checkpoint.value as {stepsDone?: unknown} | undefined)?.stepsDone;
-        super.restoreLessonState(checkpoint);
-        if (typeof stepsDone === "number" && Number.isInteger(stepsDone) && stepsDone >= 0) this.stepsDone = stepsDone;
-        this.refreshWorkspace();
     }
 
     defaultPreset(): any {
@@ -96,7 +68,6 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         if (this.stepsDone >= MAX_SUBDIVISION_STEPS) {
             return;
         }
-        this.stepsDone = this.stepsDone + 1;
         this.board.suspendUpdate();
         try {
             let oldJsxBezierCurves = this.jxgCurves.map(c => c as JXGBezierCurve);

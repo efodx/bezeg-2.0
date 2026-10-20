@@ -10,15 +10,10 @@ import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 
 class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
-    override initialize() {
-        super.initialize();
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        super.prepareLessonDefaultScene();
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-        this.boardUpdate();
+    /** The curve operations stay disabled on every imported curve; the adapter attributes are not in its DTO. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.getFirstJxgCurve()?.setAttributes(Attributes.bezierDisabled);
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

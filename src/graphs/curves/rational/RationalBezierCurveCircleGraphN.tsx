@@ -13,20 +13,12 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         return [];
     }
 
-    override initialize() {
+    /** The default preset is empty: a scene without pieces gets the three default pieces, generated on a clean board. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
         if (this.jxgCurves.length === 0) {
             this.generateCurves(3);
         }
-        this.boardUpdate();
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        // Importing [] disposes every piece and its points, so the three default pieces are generated from a clean board.
-        super.prepareLessonDefaultScene();
-        if (this.jxgCurves.length === 0) {
-            this.generateCurves(3);
-        }
-        this.refreshWorkspace();
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

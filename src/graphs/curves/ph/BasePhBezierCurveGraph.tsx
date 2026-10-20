@@ -4,6 +4,7 @@ import React from "react";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {TransientState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
@@ -69,11 +70,6 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
                 <p>{t("arc_length_description")}</p></div></>;
     }
 
-    protected override resetSceneFields(): void {
-        super.resetSceneFields();
-        this.pendingHodographBoundingBox = undefined;
-    }
-
     override initialize() {
         super.initialize();
         this.ensureArcLengthText();
@@ -134,17 +130,22 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         };
     }
 
-    protected override captureFigureRuntimeState(): unknown {
+    /** The hodograph view: the child board's, or the one waiting for the board the inspector creates next. */
+    protected override captureTransientState(): TransientState {
         return {
-            ...(super.captureFigureRuntimeState() as Record<string, unknown>),
-            hodographBoundingBox: this.pendingHodographBoundingBox ?? this.validHodographBoundingBox(),
+            ...super.captureTransientState(),
+            hodographBoundingBox: this.pendingHodographBoundingBox ?? this.validHodographBoundingBox() ?? null,
         };
     }
 
-    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
-        super.restoreFigureRuntimeState(runtimeState);
-        const boundingBox = (runtimeState as {hodographBoundingBox?: [number, number, number, number]} | undefined)?.hodographBoundingBox;
-        if (boundingBox?.every(Number.isFinite)) {
+    /** A fresh scene shows the hodograph at its default view. */
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        const box = saved?.hodographBoundingBox;
+        const boundingBox = Array.isArray(box) && box.length === 4 && box.every(value => typeof value === 'number' && Number.isFinite(value))
+            ? box as [number, number, number, number]
+            : undefined;
+        if (boundingBox) {
             if (this.hodographBoard && this.hasUsableHodographSize(this.hodographBoard)) {
                 this.hodographBoard.setBoundingBox(boundingBox, true);
                 this.pendingHodographBoundingBox = undefined;

@@ -74,3 +74,24 @@ test("rational control point deletion ignores invalid and final-point indices", 
         removePoint.mockRestore();
     }
 });
+
+test("setting effective weights rebuilds Farin sliders around the change", () => {
+    const {curve, setWeights} = createCurve([1, 2, 1, 1]);
+    const calls: string[] = [];
+    const showFarin = vi.spyOn(curve, "showFarinPoints").mockImplementation(function (this: any, show: boolean) {
+        calls.push(`farin:${show}`);
+        this.showingFarinPoints = show;
+    });
+    setWeights.mockImplementation(() => { calls.push("weights"); });
+
+    curve.setEffectiveWeights([1, 3, 9, 27]);
+    expect(calls).toEqual(["weights"]);
+    expect(setWeights).toHaveBeenLastCalledWith([1, 3, 9, 27]);
+
+    calls.length = 0;
+    (curve as any).showingFarinPoints = true;
+    curve.setEffectiveWeights([1, 2, 4, 8]);
+    expect(calls).toEqual(["farin:false", "weights", "farin:true"]);
+    expect(curve.isShowingFarinPoints()).toBe(true);
+    showFarin.mockRestore();
+});

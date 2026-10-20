@@ -33,6 +33,17 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
 
     protected override onStateChange(prevState: Readonly<AlphaParamGraphStates>) {
         if (prevState === this.state) { return; }
+        this.syncSamplesToState();
+    }
+
+    /** The sample markers are rebuilt on an imported curve before the host commits. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.syncSamplesToState();
+    }
+
+    /** Idempotent: brings the sample markers in line with the scene state. */
+    private syncSamplesToState() {
         if (!this.board || !this.graphSession?.isAlive || !this.getFirstJxgCurve()) { return; }
         if (this.samplesAreCurrent(this.state.numberOfPoints)) {
             // Alpha is read lazily by the marker coordinates, so markers only need a refresh.
@@ -48,15 +59,6 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     private samplesAreCurrent(count: number): boolean {
         return this.sampleMarkers.length === count
             && this.sampleMarkers.every(point => this.board.objectsList.includes(point));
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        // Imports the route's default preset (disposing old samples) and resets alpha/count state.
-        super.prepareLessonDefaultScene();
-        const state = this.lessonDefaultState();
-        this.clearPoints();
-        this.generateParamPoints(state.numberOfPoints);
-        this.boardUpdate();
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

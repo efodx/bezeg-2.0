@@ -28,6 +28,7 @@ function fakeJxgCurve(curve: any) {
     return {
         getCurve: () => curve,
         getAttributes: () => ({}),
+        isSelected: () => false,
         getJxgPoints: () => [],
         setIntervalEnd: vi.fn(),
         setAttributes: vi.fn(),

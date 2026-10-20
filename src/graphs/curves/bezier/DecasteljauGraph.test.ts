@@ -87,16 +87,12 @@ test('keeps the full refresh for other graph state changes', () => {
     expect(graph.unsuspendBoardUpdate).toHaveBeenCalledTimes(1);
 });
 
-test('exports the drawn parameter rather than the lagging display state', () => {
+test('saves the drawn parameter rather than the lagging display state', () => {
     const {graph} = graphWithParameter(0.3);
     graph.parameter = 0.42;
-    const exportPreset = vi.spyOn(BaseCurveGraph.prototype, 'exportPreset')
-        .mockImplementation(() => ({id: 'decasteljau', graphState: {t: 0.3}, data: []} as any));
-    try {
-        expect(graph.exportPreset().graphState.t).toBe(0.42);
-    } finally {
-        exportPreset.mockRestore();
-    }
+    // Presets and lesson checkpoints both save `sceneGraphState()`.
+    expect(graph.sceneGraphState().t).toBe(0.42);
+    expect(graph.state.t).toBe(0.3);
 });
 
 test('the typed full-curve visibility action updates the owned graph state', () => {

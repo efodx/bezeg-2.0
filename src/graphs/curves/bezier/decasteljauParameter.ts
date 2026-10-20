@@ -1,3 +1,5 @@
+import type {DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
+
 /**
  * While an animation draws the De Casteljau parameter on every frame, React state follows it at
  * this display cadence. Playback, pause, finish and stop publish the exact drawn value.
@@ -16,4 +18,9 @@ export function onlyParameterStateChanged(previous: object, next: object, handle
         if (!handled.has(key) && before[key] !== after[key]) return false;
     }
     return true;
+}
+
+/** After a scene replacement nothing plays, so a scene saved while playing is shown paused at its parameter. */
+export function statusAfterSceneReplacement(status: DecasteljauAnimationStatus): DecasteljauAnimationStatus {
+    return status === "playing" ? "paused" : status;
 }

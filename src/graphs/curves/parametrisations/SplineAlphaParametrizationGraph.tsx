@@ -4,8 +4,6 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
-import {Preset} from "../../base/presets/Presets";
-import {LessonSceneCheckpoint} from "../../../learning/model";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 
 export const SPLINE_ALPHA_MAX_SAMPLES = 50;
@@ -19,20 +17,19 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     /** Sample markers owned by this graph; control points belong to the curve objects and are never listed here. */
     private sampleMarkers: JXG.Point[] = [];
 
-    override initialize() {
-        super.initialize();
-        this.getFirstCurve()?.setAlpha(this.state.alpha);
-        this.boardUpdate();
-    }
-
-    /** Presets, lesson scenes and checkpoints replace the curve without calling initialize(): reapply α to it. */
-    override importPresetData(data: any) {
-        super.importPresetData(data);
-        this.getFirstCurve()?.setAlpha(this.state.alpha);
-    }
-
     protected override onStateChange(prevState: Readonly<SplineAlphaParamGraphStates>) {
         if (prevState === this.state) { return; }
+        this.syncCurveToState();
+    }
+
+    /** An imported curve takes α from the scene state, and its sample markers are rebuilt on it. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.syncCurveToState();
+    }
+
+    /** Idempotent: brings the curve's α and the sample markers in line with the scene state. */
+    private syncCurveToState() {
         if (!this.board || !this.graphSession?.isAlive || !this.getFirstJxgCurve()) { return; }
         if (this.getFirstCurve().getAlpha() !== this.state.alpha) {
             this.getFirstCurve().setAlpha(this.state.alpha);
@@ -55,27 +52,6 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
             this.generateParamPoints(count);
         } finally {
             this.unsuspendBoardUpdate();
-        }
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        const state = this.lessonDefaultState();
-        // The replacement curve takes alpha from state when the default preset is imported, so write it first.
-        this.setState({alpha: state.alpha});
-        super.prepareLessonDefaultScene();
-        this.regenerateSamples(state.numberOfPoints);
-    }
-
-    protected override lessonDefaultState(): SplineAlphaParamGraphStates {
-        return {...super.lessonDefaultState(), numberOfPoints: 25, alpha: 0.5};
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        const saved = (checkpoint.value as any)?.graphState;
-        if (typeof saved?.alpha === 'number' && Number.isFinite(saved.alpha)) { this.setState({alpha: saved.alpha}); }
-        super.restoreLessonState(checkpoint);
-        if (this.graphSession?.isReady && typeof saved?.numberOfPoints === 'number') {
-            this.regenerateSamples(saved.numberOfPoints);
         }
     }
 
@@ -116,26 +92,6 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
     override presets(): string {
         return "alfaparametrizacije";
-    }
-
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        const presetState = preset.graphState as SplineAlphaParamGraphStates | undefined;
-        if (presetState && typeof presetState.numberOfPoints === "number") {
-            this.board.suspendUpdate();
-            const alpha = typeof presetState.alpha === "number" ? presetState.alpha : this.state.alpha;
-            this.getFirstCurve().setAlpha(alpha);
-            this.setState({alpha, numberOfPoints: presetState.numberOfPoints});
-            this.clearPoints();
-            this.generateParamPoints(presetState.numberOfPoints);
-            this.unsuspendBoardUpdate();
-        }
-    }
-
-    protected override importFigurePresetData(preset: Preset): void {
-        super.importFigurePresetData(preset);
-        const alpha = (preset.graphState as Partial<SplineAlphaParamGraphStates> | undefined)?.alpha;
-        if (typeof alpha === "number" && Number.isFinite(alpha)) this.getFirstCurve().setAlpha(alpha);
     }
 
 

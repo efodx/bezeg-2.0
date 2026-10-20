@@ -7,7 +7,7 @@ import {Select} from "../../inputs/Select";
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {Commands} from "./Commands";
-import BaseGraph, {BaseGraphState} from "./BaseGraph";
+import BaseGraph, {BaseGraphState, TransientState} from "./BaseGraph";
 import {Preset} from "./presets/Presets";
 import {
     AbstractJXGPointControlledCurve,
@@ -32,6 +32,27 @@ export {SelectedCurveOption};
 interface BaseGraphStates extends BaseGraphState {
     selectedCurveOption: SelectedCurveOption;
     curveSelected: boolean;
+}
+
+/** A rational curve's entry in the captured transient state, read back without trusting its shape. */
+interface SavedRationalCurve {
+    standardForm?: boolean;
+    effectiveWeights?: number[];
+}
+
+function savedRationalCurve(value: unknown): SavedRationalCurve | undefined {
+    if (typeof value !== 'object' || value === null) return undefined;
+    const {standardForm, effectiveWeights} = value as Record<string, unknown>;
+    return {
+        standardForm: typeof standardForm === 'boolean' ? standardForm : undefined,
+        effectiveWeights: Array.isArray(effectiveWeights) && effectiveWeights.every((weight): weight is number => typeof weight === 'number')
+            ? effectiveWeights : undefined,
+    };
+}
+
+/** Numeric members only: a numeric enum's object also maps its member names, which are not editing modes. */
+function isSelectedCurveOption(value: unknown): value is SelectedCurveOption {
+    return typeof value === 'number' && SelectedCurveOption[value] !== undefined;
 }
 
 /** Serialized curves of a preset: `[class name, curve DTO]` pairs, see `ClassMapper`. */
@@ -230,67 +251,45 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
     protected disposeFigureSceneResources(): void {
     }
 
-    protected override captureFigureRuntimeState(): unknown {
+    /**
+     * The selected curve lives on the curve adapters, and so do a rational curve's standard form and its effective
+     * weights: Preset DTOs store display-normalized weights in standard form, which would change the curve's
+     * parametrization on restore. The editing mode is scene state and is restored with it.
+     */
+    protected override captureTransientState(): TransientState {
         return {
+            ...super.captureTransientState(),
             selectedCurveIndex: this.jxgCurves.findIndex(curve => curve.isSelected()),
-            selectedCurveOption: this.state.selectedCurveOption,
-            rationalStandardForms: this.jxgCurves.map(curve => curve instanceof JXGRationalBezierCurve
-                ? curve.inStandardForm()
-                : undefined),
+            rationalCurves: this.jxgCurves.map(curve => curve instanceof JXGRationalBezierCurve
+                ? {standardForm: curve.inStandardForm(), effectiveWeights: curve.getCurve().getEffectiveWeights().slice()}
+                : null),
         };
     }
 
-    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
-        const state = runtimeState as {selectedCurveIndex?: number; selectedCurveOption?: SelectedCurveOption; rationalStandardForms?: Array<boolean | undefined>} | undefined;
-        this.jxgCurves.forEach(curve => { if (curve.isSelected()) curve.deselect(); });
-        const selectedIndex = state?.selectedCurveIndex;
-        const selectedCurve = typeof selectedIndex === 'number' ? this.jxgCurves[selectedIndex] : undefined;
-        if (selectedCurve) selectedCurve.select();
-        this.setState({
-            curveSelected: Boolean(selectedCurve),
-            selectedCurveOption: selectedCurve ? state?.selectedCurveOption ?? SelectedCurveOption.MOVE_CURVE : SelectedCurveOption.MOVE_CURVE,
-        } as Partial<S>);
-        state?.rationalStandardForms?.forEach((standardForm, index) => {
-            const curve = this.jxgCurves[index];
-            if (curve instanceof JXGRationalBezierCurve && typeof standardForm === 'boolean') curve.setStandardForm(standardForm);
-        });
-    }
-
-    protected override captureFigureEntryPreset(): Preset {
-        const preset = super.captureFigureEntryPreset();
-        const data = preset.data === undefined ? undefined : JSON.parse(JSON.stringify(preset.data));
+    /**
+     * A fresh scene has no selection and the imported weights in their imported form. Without a selected curve the
+     * editing mode returns to moving, whatever the restored scene state says.
+     */
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        const rationalCurves = Array.isArray(saved?.rationalCurves) ? saved.rationalCurves : [];
         this.jxgCurves.forEach((curve, index) => {
-            if (curve instanceof JXGRationalBezierCurve && data?.[index]?.[1]) {
-                // Existing preset DTOs use display-normalized weights in
-                // standard form. The batch entry snapshot must retain the
-                // effective weights so restoring the live scene is lossless.
-                data[index][1].weights = curve.getCurve().getEffectiveWeights().slice();
+            const entry = savedRationalCurve(rationalCurves[index]);
+            if (!(curve instanceof JXGRationalBezierCurve) || !entry) return;
+            const weights = entry.effectiveWeights;
+            // The same domain as the rational-weights lesson action: finite and greater than zero.
+            if (weights && weights.length === curve.getJxgPoints().length && weights.every(weight => Number.isFinite(weight) && weight > 0)) {
+                curve.setEffectiveWeights(weights.slice());
             }
+            if (entry.standardForm !== undefined) curve.setStandardForm(entry.standardForm);
         });
-        return {...preset, data};
-    }
-
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): S {
-        const state = super.figurePresetGraphState(graphState, runtimeState);
-        const rationalStandardForms = (runtimeState as {rationalStandardForms?: Array<boolean | undefined>} | undefined)?.rationalStandardForms;
-        if (rationalStandardForms) {
-            this.jxgCurves.forEach((curve, index) => {
-                const standardForm = rationalStandardForms[index];
-                if (curve instanceof JXGRationalBezierCurve && typeof standardForm === "boolean") {
-                    // Restore before React renders controls that read this flag.
-                    curve.setStandardForm(standardForm);
-                }
-            });
-        }
-        const selectedCurveIndex = (runtimeState as {selectedCurveIndex?: number} | undefined)?.selectedCurveIndex;
-        const selectedCurve = typeof selectedCurveIndex === "number" ? this.jxgCurves[selectedCurveIndex] : undefined;
+        this.jxgCurves.forEach(curve => { if (curve.isSelected()) curve.deselect(); });
+        const index = saved?.selectedCurveIndex;
+        const selectedCurve = typeof index === 'number' && Number.isInteger(index) ? this.jxgCurves[index] : undefined;
         selectedCurve?.select();
-        const selectedCurveOption = (runtimeState as {selectedCurveOption?: SelectedCurveOption} | undefined)?.selectedCurveOption;
-        return {
-            ...state,
-            curveSelected: Boolean(selectedCurve),
-            selectedCurveOption: selectedCurve ? selectedCurveOption ?? SelectedCurveOption.MOVE_CURVE : SelectedCurveOption.MOVE_CURVE,
-        } as S;
+        const option: unknown = this.state.selectedCurveOption;
+        const selectedCurveOption = selectedCurve && isSelectedCurveOption(option) ? option : SelectedCurveOption.MOVE_CURVE;
+        this.setCurveState({curveSelected: Boolean(selectedCurve), selectedCurveOption});
     }
 
     createRationalJSXBezierCurve(points: number[][], weights: number[]): JXGRationalBezierCurve {

@@ -308,6 +308,14 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
         this.showingFarinPoints = show;
     }
 
+    /** Sets the weights evaluation uses; Farin sliders are sized from the weights, so they are rebuilt around them. */
+    setEffectiveWeights(weights: number[]) {
+        const farin = this.showingFarinPoints;
+        if (farin) this.showFarinPoints(false);
+        this.pointControlledCurve.setWeights(weights);
+        if (farin) this.showFarinPoints(true);
+    }
+
     setStandardForm(standard: boolean) {
         this.pointControlledCurve.setStandardForm(standard);
         this.board.update();

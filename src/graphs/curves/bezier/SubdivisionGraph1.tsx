@@ -30,6 +30,12 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.unsuspendBoardUpdate();
     }
 
+    /** The imported curve's scheme stands at its stored value; draw the restored parameter before the host commits. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.getFirstJxgCurve()?.setDecasteljauT(this.state.t);
+    }
+
     private setT(value: number, extra?: Partial<DecasteljauGraphStates>) {
         this.setState({...extra, t: value});
     }
@@ -55,13 +61,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     /** Orange remainder [t, 1] of the first curve; owned by this graph and rebuilt whenever the curve set is replaced. */
     private remainderCurve?: JXG.Curve;
 
-    override initialize() {
-        super.initialize();
-        this.bindSceneToFirstCurve();
-        this.boardUpdate();
-    }
-
-    /** Presets, lesson scenes and checkpoints replace the curve objects without calling initialize(). */
+    /** Every scene replacement imports its curves through here, so the scene is bound to the imported curves. */
     override importPresetData(data: any) {
         super.importPresetData(data);
         this.bindSceneToFirstCurve();
@@ -96,7 +96,8 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         });
         this.graphJXGPoints = jxgCurve.getJxgPoints();
         jxgCurve.setIntervalEnd(() => this.state.showDecasteljau ? 1 : this.state.t);
-        jxgCurve.setAttributes(Attributes.bezierDisabled);
+        // Pieces inherit the disabled operations from the curve they were subdivided from.
+        this.jxgCurves.forEach(piece => piece.setAttributes(Attributes.bezierDisabled));
         // The subdivision lesson describes the retained left piece as blue.
         jxgCurve.showDecasteljauPoints();
 

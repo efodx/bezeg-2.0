@@ -43,6 +43,8 @@ function fakeJxgCurve(curve: any) {
         setSubdivisionT: vi.fn(),
         subdivide: vi.fn(() => ({getJxgCurve: () => ({setAttribute: vi.fn()})})),
         isShowingDecasteljauScheme: () => false,
+        isSelected: () => false,
+        setDecasteljauT: vi.fn(),
         dispose: vi.fn(),
         board: undefined as any,
     };
@@ -157,9 +159,9 @@ describe('orange remainder ownership', () => {
         });
     }
 
-    test('initialize creates one orange curve bound to the first curve', () => {
+    test('binding the imported scene creates one orange curve bound to the first curve', () => {
         const graph = makeGraph();
-        graph.initialize();
+        graph.bindSceneToFirstCurve();
         expect(orange(graph)).toHaveLength(1);
         const [fx] = orange(graph)[0].parents;
         expect(fx(0)).toBe(-4);

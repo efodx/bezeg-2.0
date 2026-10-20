@@ -2,16 +2,15 @@ import {t} from "../../../localization";
 import React from 'react';
 
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {BaseGraphState} from "../../base/BaseGraph";
+import {TransientState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from '../../../learning/runtime/animation';
-import {LessonAnimationCommand, LessonSceneCheckpoint} from '../../../learning/model';
+import {LessonAnimationCommand} from '../../../learning/model';
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
-import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS} from "./decasteljauParameter";
-import {Preset} from "../../base/presets/Presets";
+import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
@@ -27,7 +26,11 @@ interface DecasteljauGraphStates extends BaseGraphStates {
 }
 
 class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
-    /** The drawn parameter; during playback React state follows it at a display cadence. */
+    /**
+     * Deliberate drawing cache of the scene-store `t`: playback draws every frame but publishes `t` at a display
+     * cadence, so this runs ahead of the store while playing. Saved scenes use it (`sceneGraphState`), and every scene
+     * replacement resets it from the restored `t` (`syncReplacedScene`).
+     */
     protected parameter = 0.5;
     private publishedParameter?: number;
     private lastPublishTime = -Infinity;
@@ -65,10 +68,39 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         }
     }
 
-    protected override resetSceneFields(): void {
-        super.resetSceneFields();
-        // The previous scene element was removed with the board objects.
+    /**
+     * The whole-curve plot evaluates the first curve, so it goes before an import disposes that curve; JSXGraph could
+     * otherwise sample it while the replacement curve is not registered yet.
+     */
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        const element = this.wholeCurveElement;
         this.wholeCurveElement = undefined;
+        if (element && this.board?.objectsList.includes(element)) this.board.removeObject(element);
+    }
+
+    /**
+     * Playback is transient: every scene replacement ends it. A scene saved during playback (a checkpoint, a Preset or a
+     * batch entry scene) is shown paused at its parameter, never as playing without a running driver.
+     */
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        this.lessonAnimation.stop();
+        const animationStatus = statusAfterSceneReplacement(this.state.animationStatus);
+        if (animationStatus !== this.state.animationStatus) this.setState({animationStatus});
+    }
+
+    /** A replaced scene is drawn at its own parameter, with no playback value left over from the previous scene. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.publishedParameter = undefined;
+        this.lastPublishTime = -Infinity;
+        this.drawParameter(this.state.t);
+        this.syncWholeCurve();
+    }
+
+    protected override sceneGraphState(): DecasteljauGraphStates {
+        return {...super.sceneGraphState(), t: this.parameter};
     }
 
     override unmount() {
@@ -102,58 +134,10 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         curve.showDecasteljauPoints();
     }
 
-    protected override prepareLessonDefaultScene(): void {
-        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
-        // Hide the auxiliary whole-curve plot before replacing its source curve. JSXGraph can
-        // evaluate the plot during preset import, when the replacement curve is not registered yet.
-        this.setState({wholeCurve: false});
-        this.syncWholeCurve();
-        super.prepareLessonDefaultScene();
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        if (!this.graphSession?.isReady) return;
-        // Checkpoint import rebuilds the source curve. Defer the auxiliary plot until the restored
-        // wholeCurve option is committed against that new source curve.
-        this.setState({wholeCurve: false});
-        this.syncWholeCurve();
-        super.restoreLessonState(checkpoint);
-        // A failed synchronous scene can return t to its pre-commit value. The host
-        // then sees no parameter change, so reconcile the drawn value here too.
-        this.publishedParameter = undefined;
-        this.drawParameter(this.state.t);
-        // State writes are synchronous, while onStateChange runs at the host commit. If the
-        // checkpoint also says true, that commit can observe true -> true after the temporary
-        // false write and skip the change callback. Reconcile the auxiliary curve explicitly
-        // after the source curve has been rebuilt.
-        this.syncWholeCurve();
-    }
-
-    override exportPreset(): Preset {
-        const preset = super.exportPreset();
-        const graphState: DecasteljauGraphStates = {...preset.graphState as DecasteljauGraphStates, t: this.parameter};
-        return {...preset, graphState};
-    }
-
-    protected override captureLessonState(): LessonSceneCheckpoint {
-        const checkpoint = super.captureLessonState();
-        const value = checkpoint.value as {graphState: DecasteljauGraphStates};
-        return {...checkpoint, value: {...value, graphState: {...value.graphState, t: this.parameter}}};
-    }
-
     override initialize() {
         super.initialize();
         skipRedundantHtmlTextClipping(this.board);
         this.graphJXGPoints = this.getFirstJxgCurve().getJxgPoints();
-        this.getFirstJxgCurve().setIntervalEnd(() => this.state.wholeCurve ? 1 : this.parameter);
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-        this.getFirstJxgCurve().showDecasteljauPoints();
-        this.getFirstJxgCurve().setDecasteljauT(this.parameter);
-
-        // Figure scene restores remove board objects before initializing again.
-        this.wholeCurveElement = undefined;
-        this.syncWholeCurve();
-        this.boardUpdate();
     }
 
     /**
@@ -237,15 +221,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     /** Pauses at the drawn parameter; stopLessonAnimations() resets playback during scene replacement. */
     override pausePlayback(): void {
         if (this.lessonAnimation.isRunning() || this.state.animationStatus === "playing") this.pauseAnimation();
-    }
-
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): DecasteljauGraphStates {
-        const state = super.figurePresetGraphState(graphState, runtimeState) as DecasteljauGraphStates;
-        // The loaded scene starts at its own parameter, with no playback value left over from the previous scene.
-        this.parameter = state.t;
-        this.publishedParameter = undefined;
-        this.lastPublishTime = -Infinity;
-        return state.animationStatus === "playing" ? {...state, animationStatus: "paused"} : state;
     }
 
     public setLessonAnimation(action: DecasteljauAnimationCommand) {

@@ -8,30 +8,32 @@ import {Attributes} from "../../attributes/Attributes";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
+import {TransientState} from "../../base/BaseGraph";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
-    /** Runtime-only switch; the overlay is on by default and is not stored in presets. */
+    /** Transient switch; the overlay is on in a fresh scene and is not stored in presets. */
     private elevationOverlayOn = true;
-    private polygonShownBeforeOverlay = false;
+    /**
+     * The control polygon visibility the overlay replaced, restored when the overlay is turned off. Undefined until the
+     * overlay is applied to a fresh scene, which then reads it from the imported curve.
+     */
+    private polygonShownBeforeOverlay?: boolean;
 
-    protected override resetSceneFields(): void {
-        super.resetSceneFields();
-        this.elevationOverlayOn = true;
-        this.polygonShownBeforeOverlay = false;
+    protected override captureTransientState(): TransientState {
+        return {...super.captureTransientState(), elevationOverlayOn: this.elevationOverlayOn,
+            polygonShownBeforeOverlay: this.polygonShownBeforeOverlay ?? null};
     }
 
-    override initialize() {
-        super.initialize();
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
-        this.applyElevationOverlay();
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        this.elevationOverlayOn = typeof saved?.elevationOverlayOn === "boolean" ? saved.elevationOverlayOn : true;
+        this.polygonShownBeforeOverlay = typeof saved?.polygonShownBeforeOverlay === "boolean" ? saved.polygonShownBeforeOverlay : undefined;
     }
 
-    protected override prepareLessonDefaultScene(): void {
-        this.elevationOverlayOn = true;
-        super.prepareLessonDefaultScene();
-        this.getFirstJxgCurve().setAttributes(Attributes.bezierDisabled);
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.getFirstJxgCurve()?.setAttributes(Attributes.bezierDisabled);
         this.applyElevationOverlay();
-        this.boardUpdate();
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
@@ -42,6 +44,8 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     private setElevationOverlay(on: boolean) {
+        // Turning the overlay on records the polygon visibility it replaces.
+        if (on && !this.elevationOverlayOn) this.polygonShownBeforeOverlay = undefined;
         this.elevationOverlayOn = on;
         this.applyElevationOverlay();
         this.boardUpdate();
@@ -54,13 +58,13 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         if (!curve) return;
         if (this.elevationOverlayOn) {
             if (!curve.isShowingElevatePoints()) {
-                this.polygonShownBeforeOverlay = curve.isShowingControlPolygon();
+                this.polygonShownBeforeOverlay ??= curve.isShowingControlPolygon();
             }
             curve.showControlPolygon();
             curve.showElevatePoints();
         } else if (curve.isShowingElevatePoints()) {
             curve.hideElevatePoints();
-            curve.showControllPolygon(this.polygonShownBeforeOverlay);
+            curve.showControllPolygon(this.polygonShownBeforeOverlay ?? false);
         }
     }
 

@@ -26,10 +26,34 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
         return {...super.getInitialState(), showingCurve: true};
     }
 
-    override initialize() {
-        super.initialize();
-        this.getFirstJxgCurve().getJxgCurve().setAttribute({visible: () => this.state.showingCurve});
+    /** Control polygon geometry built on the current curve's points; owned here and replaced with the scene. */
+    private geometryObjects: unknown[] = [];
+
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        this.removeGeometry();
+    }
+
+    private removeGeometry() {
+        const objects = this.geometryObjects;
+        this.geometryObjects = [];
+        const board = this.board;
+        if (!board) return;
+        objects.reverse().forEach(object => {
+            if (board.objectsList.includes(object)) board.removeObject(object as JXG.GeometryElement);
+        });
+    }
+
+    /** The construction depends on the imported control points, so every replaced scene builds it again. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.removeGeometry();
+        const curve = this.getFirstJxgCurve();
+        if (!curve) return;
+        curve.getJxgCurve().setAttribute({visible: () => this.state.showingCurve});
         const points = this.getAllJxgPoints();
+        if (points.length < 4) return;
+        const own = <T, >(object: T): T => { this.geometryObjects.push(object); return object; };
 
         const label = dynamicAttributes<LabelOptions>({...this.styles.point.default.label, visible: () => false});
         let attr = {
@@ -40,28 +64,28 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
             visible: () => !this.state.showingCurve
         };
 
-        this.board.create('angle', [points[0], points[1], points[2]], attr);
-        this.board.create('angle', [points[1], points[2], points[3]], attr);
-        this.createLLabel(points, 0);
-        this.createLLabel(points, 1);
-        this.createLLabel(points, 2);
-        this.board.create('segment', [points[0], points[2]], {
+        own(this.board.create('angle', [points[0], points[1], points[2]], attr));
+        own(this.board.create('angle', [points[1], points[2], points[3]], attr));
+        own(this.createLLabel(points, 0));
+        own(this.createLLabel(points, 1));
+        own(this.createLLabel(points, 2));
+        own(this.board.create('segment', [points[0], points[2]], {
             ...this.styles.segment.controlPolygon,
             visible: () => !this.state.showingCurve
-        });
-        this.board.create('segment', [points[1], points[3]], {
+        }));
+        own(this.board.create('segment', [points[1], points[3]], {
             ...this.styles.segment.controlPolygon,
             visible: () => !this.state.showingCurve
-        });
+        }));
 
-        this.board.create('polygon', [points[1], points[2], points[3]], {
+        own(this.board.create('polygon', [points[1], points[2], points[3]], {
             ...this.styles.segment.controlPolygon,
             visible: () => !this.state.showingCurve
-        });
-        this.board.create('polygon', [points[0], points[1], points[2]], {
+        }));
+        own(this.board.create('polygon', [points[0], points[1], points[2]], {
             ...this.styles.segment.controlPolygon,
             visible: () => !this.state.showingCurve
-        });
+        }));
     }
 
     defaultPreset(): any {
@@ -91,7 +115,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
             visible: () => !this.state.showingCurve
         };
 
-        this.board.create('text',
+        return this.board.create('text',
             [() => {
                 var dx = (points[i].X() - points[i + 1].X());
                 var dy = (points[i].Y() - points[i + 1].Y());

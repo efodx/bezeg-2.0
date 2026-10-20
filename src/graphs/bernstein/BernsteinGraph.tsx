@@ -51,6 +51,17 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
     private generatedFor: {n: number, isSumGraph: boolean} | null = null;
 
     protected override onStateChange(prevState: Readonly<BernsteinGraphState>) {
+        this.syncPolynomialsToState();
+    }
+
+    /** The scene is fully described by the scene state (the default preset is empty), so a restore regenerates from it. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.syncPolynomialsToState();
+    }
+
+    /** Idempotent: generates the polynomials for the scene state unless they already are. */
+    private syncPolynomialsToState() {
         if (!this.board || !this.graphSession?.isAlive) { return; }
         const {n, isSumGraph} = this.state;
         if (this.generatedFor !== null && this.generatedFor.n === n && this.generatedFor.isSumGraph === isSumGraph) { return; }
@@ -59,15 +70,6 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
 
     protected override lessonDefaultState(): BernsteinGraphState {
         return {initialized: true, n: 2, isSumGraph: false, showLabels: false};
-    }
-
-    protected override prepareLessonDefaultScene(): void {
-        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
-        // The Bernstein default preset is empty, so the scene is fully described by the graph state.
-        const state = this.lessonDefaultState();
-        this.setState(state);
-        this.generateBernsteinPolynomials(this.board, state.n, state.isSumGraph);
-        this.boardUpdate();
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

@@ -2,7 +2,7 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, onLanguageChange, t} from "../../localization";
 import {Preset} from "../base/presets/Presets";
-import {LessonAction, LessonSceneCheckpoint} from "../../learning/model";
+import {LessonAction} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -384,29 +384,28 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return {initialized: true, ...this.defaultModel()};
     }
 
+    /** The model is the source of truth, so a saved scene state carries the model even if the mirror were behind. */
+    protected override sceneGraphState(): FunctionGraphState<M> {
+        return {...super.sceneGraphState(), ...this.model};
+    }
+
+    /** The scene state mirrors the model, and the model imported from the Preset data wins over a restored scene state. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        if (this.graphSession?.isAlive) this.setState({...this.model} as unknown as FunctionGraphState<M>);
+    }
+
+    /** A function graph's default scene also returns to its default view. */
     protected override prepareLessonDefaultScene(): void {
-        if (!this.graphSession?.isReady) throw new Error("The graph is still preparing. Try again in a moment.");
-        this.importPresetData(this.defaultPreset());
+        super.prepareLessonDefaultScene();
         this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
-        this.setState(this.lessonDefaultState());
+        // Curves are sampled for the view on update; draw the default view before the host commits.
         this.boardUpdate();
     }
 
-    protected override captureLessonState(): LessonSceneCheckpoint {
-        const checkpoint = super.captureLessonState();
-        // React state may lag the synchronous model within one tick; the checkpoint must describe the model.
-        const value = checkpoint.value as { graphState: object };
-        value.graphState = {...value.graphState, ...this.model};
-        return checkpoint;
-    }
-
-    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
-        super.restoreLessonState(checkpoint);
-        if (this.graphSession?.isReady) this.setState({...this.model} as unknown as FunctionGraphState<M>);
-    }
-
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, runtimeState?: unknown): FunctionGraphState<M> {
-        return {...super.figurePresetGraphState(graphState, runtimeState), ...this.model};
+    /** The model imported from the Preset data is authoritative over model keys in the stored scene state. */
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): FunctionGraphState<M> {
+        return {...super.figurePresetGraphState(graphState), ...this.model};
     }
 
     // ---- Rendering ------------------------------------------------------------------------------------------------

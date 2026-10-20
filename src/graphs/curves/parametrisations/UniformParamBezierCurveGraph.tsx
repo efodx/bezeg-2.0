@@ -62,7 +62,18 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     protected override onStateChange(prevState: Readonly<UniformParamBezierCurveGraphStates>) {
         if (prevState === this.state) { return; }
         super.onStateChange(prevState);
-        if (!this.getFirstJxgCurve()) { return; }
+        this.syncSamplesToState();
+    }
+
+    /** The parameter values and sample markers are rebuilt on an imported curve before the host commits. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.syncSamplesToState();
+    }
+
+    /** Idempotent: recomputes the sample parameters and brings the markers in line with the scene state. */
+    private syncSamplesToState() {
+        if (!this.getFirstJxgCurve() || !this.graphSession?.isAlive) { return; }
         this.board.suspendUpdate();
         this.refreshTs();
         if (this.sampleJxgPoints.length !== this.state.numberOfPoints) {

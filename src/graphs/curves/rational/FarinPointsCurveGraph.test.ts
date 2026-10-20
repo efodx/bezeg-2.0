@@ -21,6 +21,7 @@ function fakeCurve(count = 4) {
             setWeights: vi.fn((w: number[]) => { fake.calls.push('weights'); fake.weights = w; }),
             getEffectiveWeights: () => fake.weights,
         }),
+        setEffectiveWeights: vi.fn((w: number[]) => { fake.calls.push('effective-weights'); fake.weights = w; }),
     };
     return fake;
 }
@@ -55,13 +56,14 @@ test('standard-form action sets the form', () => {
     expect(c.standard).toBe(true);
 });
 
-test('rational-weights rebuilds Farin sliders around the change', () => {
+// The adapter rebuilds Farin sliders around the change; see JXGRationalBezierCurve.test.ts.
+test('rational-weights sets the effective weights through the curve adapter', () => {
     const c = fakeCurve();
     c.farin = true;
     const graph = graphWith(c);
     graph.applyLessonAction({kind: 'rational-weights', weights: [1, 3, 9, 27]});
     expect(c.weights).toEqual([1, 3, 9, 27]);
-    expect(c.calls).toEqual(['farin:false', 'weights', 'farin:true']);
+    expect(c.calls).toEqual(['effective-weights']);
     expect(graph.refreshWorkspace).toHaveBeenCalled();
 });
 
