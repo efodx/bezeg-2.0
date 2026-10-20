@@ -72,6 +72,19 @@ Acceptance for this follow-up:
 - Keep model and task-size defaults unchanged. Keep routine logging compact and record unknown costs honestly; add no mandatory instrumentation or per-task proof audit.
 - Increment the brief revision, preserve historical records, and verify the bounded documentation diff and local links. No application behavior changes; product tests and browser smoke do not apply. Runtime effectiveness remains unmeasured.
 
+## Version assessment follow-up — 2026-10-20
+
+Review the numbered handoffs against Git history and recorded assignment outcomes. The owner requested a version-by-version assessment and revisions supported by the evidence.
+
+Acceptance for this follow-up:
+
+- Identify the introducing commit and substantive change for v1–v6; count explicitly versioned task records separately from individual workers, policy announcements, and unversioned historical assignments.
+- Trace each verdict to recorded observations, including negative and contradictory evidence. Separate reporting/compliance improvements from delivered quality and total effort; disclose missing timings, usage, and comparable controls.
+- Preserve historical records and model/task-size defaults. Apply only a narrow, evidence-backed template revision, marking its future effect unmeasured; name an observation that could support or reject it.
+- Verify local links, historical-log preservation, and the bounded documentation diff. No application behavior changes; app tests and browser smoke do not apply.
+
+Assessment and version inventory: [handoff versions](../agent-workflow/handoff-versions-2026-10-20.md).
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)

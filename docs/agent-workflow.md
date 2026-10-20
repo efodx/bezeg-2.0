@@ -25,9 +25,9 @@ Codex child defaults are in [`.codex/config.toml`](../.codex/config.toml); the h
 2. Use exploration separately when it resolves substantial uncertainty or isolates noisy work. Otherwise let the implementing worker investigate its bounded slice. Pass useful findings forward rather than repeating the same exploration.
 3. Prefer a fresh context when supported. Supply a self-contained brief using the fields below, relevant project constraints, and settled decisions. Name useful entry files or spec sections; workers start there and expand investigation as needed for acceptance, returning focused excerpts and check results. Research history, workflow evaluation, and model-routing rationale stay with the handler. A fresh conversation still needs applicable repository rules.
 4. Before delegated browser verification, establish a stable checkout/build and confirm the preview is reachable from the worker's verification environment. Supply preview ownership, revision/dirty state, and setup status. If access cannot be confirmed until the worker connects, make that its first bounded check; return access failures to the handler and mark dependent coverage blocked before repeated setup attempts.
-5. Capture the task start/dispatch timestamp, requested worker settings, and brief revision (`handoff-v6` below). Retain resolved settings or scoped usage if tool results expose them; configured defaults describe intent, not runtime resolution. Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
+5. Capture the task start/dispatch timestamp, requested worker settings, and brief revision (`handoff-v7` below). Retain resolved settings or scoped usage if tool results expose them; configured defaults describe intent, not runtime resolution. Keep a source reference or short excerpt of the task-specific acceptance, context, and checks for later feedback; whole conversations are unnecessary.
 
-### Assignment brief: handoff-v6
+### Assignment brief: handoff-v7
 
 - **Role:** research, implementation, review, or smoke; edit permission.
 - **Goal:** outcome, source spec, and checkable acceptance.
@@ -37,6 +37,8 @@ Codex child defaults are in [`.codex/config.toml`](../.codex/config.toml); the h
 - **Return:** changes or findings, observed check results, decisions/risks, and unverified cases, within a stated cap (≤N words or lines, flags with `file:line`). Write bulky evidence (inventories, full logs, raw reports) to a named file path and summarize it in the reply. Flag missing or conflicting instructions and mathematical contradictions encountered in the slice; the handler settles contradictions before dependent work proceeds. Ordinary implementation details need no narration.
 
 Use only details that affect the assignment. Research returns relevant sources/files/symbols and a recommended boundary; review returns actionable findings with locations and expected behavior, without editing; smoke returns observed coverage and gaps. Implementation returns its diff and check evidence. Save exact initial and revised briefs only when investigating handoffs or running a prompt-format pilot.
+
+For mathematical or visual assertions, identify the actual board object or rendered element and the expected relationship; missing or empty data must fail the check. Preserve existing shared checks when adding a case-specific assertion.
 
 Increment the brief revision when this template changes.
 
@@ -57,6 +59,8 @@ Record accepted/blocked time and complete the [evaluation record](../tools/skill
 ## Improve the workflow
 
 Use [the evaluation skill](../tools/skills/subagent-flow-evaluation/SKILL.md#suggest-subagents-flow-improvements) when assessing accumulated evidence. It connects both routing choices and task wording to outcomes. Load the log and research then, rather than on ordinary worker assignments.
+
+The [v1–v6 assessment](agent-workflow/handoff-versions-2026-10-20.md) finds useful local instruction responses and clearer acceptance reporting, with no measured overall efficiency gain. The v7 assertion guidance addresses repeated review findings; its effect remains unmeasured.
 
 Compare total effort to accepted work, including implementation, verification, repairs, integration, and repeated setup where observable; report escaped defects separately. First-pass success or fewer repair rounds alone do not establish efficiency. Weigh added preventive checks against the repair work they could avoid, keeping unknown costs explicit.
 
