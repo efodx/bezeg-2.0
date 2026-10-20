@@ -38,5 +38,8 @@ describe('support is precise', () => {
         expect(supports('spline-cn', scheme)).toBe(false);
         expect(supports('spline-cn', weights)).toBe(false);
         expect(supports('bezier', {kind: 'curve-visibility', target: 'control-polygon', visible: true})).toBe(true);
+        const fullCurve: LessonAction = {kind: 'curve-visibility', target: 'decasteljau-full-curve', visible: true};
+        expect(supports('decasteljau', fullCurve)).toBe(true);
+        expect(supports('bezier', fullCurve)).toBe(false);
     });
 });

@@ -240,6 +240,22 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         };
     }
 
+    protected override restoreFigureRuntimeState(runtimeState: unknown): void {
+        const state = runtimeState as {selectedCurveIndex?: number; selectedCurveOption?: SelectedCurveOption; rationalStandardForms?: Array<boolean | undefined>} | undefined;
+        this.jxgCurves.forEach(curve => { if (curve.isSelected()) curve.deselect(); });
+        const selectedIndex = state?.selectedCurveIndex;
+        const selectedCurve = typeof selectedIndex === 'number' ? this.jxgCurves[selectedIndex] : undefined;
+        if (selectedCurve) selectedCurve.select();
+        this.setState({
+            curveSelected: Boolean(selectedCurve),
+            selectedCurveOption: selectedCurve ? state?.selectedCurveOption ?? SelectedCurveOption.MOVE_CURVE : SelectedCurveOption.MOVE_CURVE,
+        } as Partial<S>);
+        state?.rationalStandardForms?.forEach((standardForm, index) => {
+            const curve = this.jxgCurves[index];
+            if (curve instanceof JXGRationalBezierCurve && typeof standardForm === 'boolean') curve.setStandardForm(standardForm);
+        });
+    }
+
     protected override captureFigureEntryPreset(): Preset {
         const preset = super.captureFigureEntryPreset();
         const data = preset.data === undefined ? undefined : JSON.parse(JSON.stringify(preset.data));

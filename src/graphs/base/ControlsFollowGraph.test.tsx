@@ -10,6 +10,10 @@ import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {SelectedCurveOption} from './CurveEditingFeature';
 import {appStorage} from '../../storage/appStorage';
+import DecasteljauGraph from '../curves/bezier/DecasteljauGraph';
+import {ActivitySession} from '../../learning/chapter/ActivitySession';
+import {findActivity} from '../../learning/chapter/activities';
+import {AxisSelect} from './DisplaySettings';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -37,10 +41,21 @@ class TwoCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     selectWith(index: number, selectedCurveOption: SelectedCurveOption) {
         this.selectCurve(this.jxgCurves[index], {selectedCurveOption});
     }
+    curveAt(index: number) { return this.jxgCurves[index]; }
+    selectedCurve() { return this.getSelectedCurve(); }
+    movePoint(curveIndex: number, pointIndex: number, x: number, y: number) {
+        this.jxgCurves[curveIndex].getJxgPoints()[pointIndex].moveTo([x, y], 0);
+    }
+    setView(box: [number, number, number, number]) { this.board.setBoundingBox(box); }
 }
 
 class SelectableBezierGraph extends BezierCurveGraph {
     selectFirst() { this.selectCurve(this.getFirstJxgCurve()); }
+}
+
+class CountableDecasteljauGraph extends DecasteljauGraph {
+    drawnCurveCount() { return this.board.objectsList.filter(object => object !== null && typeof object === 'object'
+        && 'elType' in object && object.elType === 'curve').length; }
 }
 
 test('the editing-mode dropdown follows the graph when another curve is picked in move mode', () => {
@@ -60,6 +75,60 @@ test('the editing-mode dropdown follows the graph when another curve is picked i
     fireEvent.change(dropdown(), {target: {value: String(SelectedCurveOption.DELETE_POINTS)}});
     expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
     expect(dropdown().value).toBe(String(SelectedCurveOption.DELETE_POINTS));
+    view.unmount();
+});
+
+test('lesson checkpoints restore curve geometry, viewport, and selected editing mode', () => {
+    const graph = new TwoCurveGraph();
+    const view = renderGraph(graph);
+    act(() => graph.selectWith(1, SelectedCurveOption.DELETE_POINTS));
+    const selectedCurve = graph.curveAt(1);
+    const savedPoints = selectedCurve.getCurve().getPoints().map(point => [point.X(), point.Y()]);
+    const savedView = graph.boardState().boundingBox;
+    act(() => { graph.setElementSize(2); graph.setAxisSelect(AxisSelect.NONE); graph.setPointLabelsVisible(false); });
+    const checkpoint = graph.getLessonCapabilities().captureState();
+
+    act(() => graph.selectWith(0, SelectedCurveOption.MOVE_CURVE));
+    act(() => graph.movePoint(1, 0, 10, 10));
+    graph.setView([-2, 2, 2, -2]);
+    act(() => { graph.setElementSize(0); graph.setAxisSelect(AxisSelect.EVERYTHING); graph.setPointLabelsVisible(true); });
+    act(() => graph.getLessonCapabilities().restoreState(checkpoint));
+
+    expect(graph.selectedCurve()).toBe(graph.curveAt(1));
+    expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
+    expect(graph.curveAt(1).getCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(savedPoints);
+    expect(graph.boardState().boundingBox).toEqual(savedView);
+    expect(graph.displaySettings.getSize()).toBe(2);
+    expect(graph.displaySettings.getAxisSelect()).toBe(AxisSelect.NONE);
+    expect(graph.displaySettings.pointLabelsVisible).toBe(false);
+    view.unmount();
+});
+
+test('Reset restores the authored De Casteljau parameter after reopening an edited activity snapshot', () => {
+    const activity = findActivity('curve-parameter')!;
+    const firstGraph = new CountableDecasteljauGraph();
+    const firstView = renderGraph(firstGraph as unknown as BaseGraph<BaseGraphState>);
+    const firstSession = new ActivitySession(activity, firstGraph.getLessonCapabilities());
+
+    act(() => firstSession.start());
+    expect(firstGraph.state.t).toBe(0.5);
+    expect(firstGraph.drawnCurveCount()).toBe(2);
+    act(() => firstGraph.getLessonCapabilities().apply({kind: 'parameter', name: 't', value: 0.75}));
+    expect(firstGraph.state.t).toBe(0.75);
+    const edited = firstSession.capture();
+    firstView.unmount();
+
+    const graph = new CountableDecasteljauGraph();
+    const view = renderGraph(graph as unknown as BaseGraph<BaseGraphState>);
+    const session = new ActivitySession(activity, graph.getLessonCapabilities());
+    act(() => session.start(edited));
+    expect(graph.state.t).toBe(0.75);
+    expect(graph.drawnCurveCount()).toBe(2);
+
+    act(() => session.reset());
+    expect(graph.state.t).toBe(0.5);
+    expect(graph.drawnCurveCount()).toBe(2);
+    expect(view.container.querySelector('.decasteljau-animation-heading output')?.textContent).toContain('t = 0.50');
     view.unmount();
 });
 

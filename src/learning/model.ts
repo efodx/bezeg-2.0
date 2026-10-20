@@ -65,7 +65,7 @@ export type LessonAction =
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
     | {readonly kind: 'function-choice'; readonly name: FunctionChoiceName; readonly value: string}
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'}
-    | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}
+    | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'decasteljau-full-curve' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}
     | {readonly kind: 'curve-evaluation'; readonly parameter: number}
     | {readonly kind: 'degree-elevation'}
     | {readonly kind: 'affine-transform'; readonly operation: 'translate-x' | 'translate-y' | 'scale' | 'rotate'; readonly value: number}
@@ -172,6 +172,8 @@ export interface LessonGraphCapabilities {
     apply(action: LessonAction): void;
     /** Cancels graph-owned transient work before lesson state is restored or replaced. */
     stopAnimations?(): void;
+    /** Pauses transient playback at its current value when a settled snapshot is required. */
+    pauseAnimations?(): void;
     /** Returns false when the owning graph has already been disposed. */
     isAvailable?(): boolean;
 }

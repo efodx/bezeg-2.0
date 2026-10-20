@@ -117,7 +117,17 @@ function fakeBoard() {
 }
 
 function fakeJxgCurve(board: any, spline: C2CubicBezierSpline) {
-    return {board, getCurve: () => spline, dispose: vi.fn(), getJxgPoints: () => [], setAttributes: vi.fn()};
+    let selected = false;
+    return {
+        board,
+        getCurve: () => spline,
+        dispose: vi.fn(),
+        getJxgPoints: () => [],
+        setAttributes: vi.fn(),
+        isSelected: () => selected,
+        select: vi.fn(() => { selected = true; }),
+        deselect: vi.fn(() => { selected = false; }),
+    };
 }
 
 function makeGraph(initial = {alpha: 0.5, numberOfPoints: 25}) {

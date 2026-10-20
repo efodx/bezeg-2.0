@@ -8,8 +8,12 @@ const makeCurve = () => new PolynomialBezierCurve(DEFAULT_POINTS.map(([x, y]) =>
 
 function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
     const jsxCurve = {setAttribute: vi.fn()};
+    let selected = false;
     const jxg: any = {
         curve, disposed: false,
+        isSelected: () => selected,
+        select: vi.fn(() => { selected = true; }),
+        deselect: vi.fn(() => { selected = false; }),
         getJxgCurve: () => jsxCurve,
         jsxCurve,
         setSubdivisionResultConsumer: vi.fn(),
@@ -31,7 +35,7 @@ function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
 function makeGraph() {
     const graph = Object.create(SubdivisionGraph.prototype) as any;
     const log: any[] = [];
-    graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), setBoundingBox: vi.fn()};
+    graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), fullUpdate: vi.fn(), setBoundingBox: vi.fn()};
     graph.stepsDone = 0;
     graph.workspaceRevision = 0;
     graph.graphJXGPoints = [];

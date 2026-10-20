@@ -102,6 +102,28 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         curve.showDecasteljauPoints();
     }
 
+    protected override prepareLessonDefaultScene(): void {
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        // Hide the auxiliary whole-curve plot before replacing its source curve. JSXGraph can
+        // evaluate the plot during preset import, when the replacement curve is not registered yet.
+        this.setState({wholeCurve: false});
+        this.syncWholeCurve();
+        super.prepareLessonDefaultScene();
+    }
+
+    protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
+        // Checkpoint import rebuilds the source curve. Defer the auxiliary plot until the restored
+        // wholeCurve option is committed against that new source curve.
+        this.setState({wholeCurve: false});
+        this.syncWholeCurve();
+        super.restoreLessonState(checkpoint);
+        // State writes are synchronous, while onStateChange runs at the host commit. If the
+        // checkpoint also says true, that commit can observe true -> true after the temporary
+        // false write and skip the change callback. Reconcile the auxiliary curve explicitly
+        // after the source curve has been rebuilt.
+        this.syncWholeCurve();
+    }
+
     override exportPreset(): Preset {
         const preset = super.exportPreset();
         const graphState: DecasteljauGraphStates = {...preset.graphState as DecasteljauGraphStates, t: this.parameter};
@@ -235,6 +257,13 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 throw new Error('The De Casteljau parameter must be between 0 and 1.');
             }
             this.setParameter(action.value, this.state.animationStatus);
+        });
+        registry.onDiscriminated('curve-visibility', 'decasteljau-full-curve', action => {
+            this.setState({wholeCurve: action.visible});
+            // Multiple lesson actions can be applied in one tick, so the host may coalesce
+            // state notifications. Keep the JSXGraph auxiliary curve in step with each action.
+            this.syncWholeCurve();
+            this.boardUpdate();
         });
         // The frame animation has no iteration; `next-step` and `reset` are rejected rather than ignored.
         registry.onDiscriminated('animation', 'decasteljau',

@@ -98,3 +98,15 @@ test('exports the drawn parameter rather than the lagging display state', () => 
         exportPreset.mockRestore();
     }
 });
+
+test('the typed full-curve visibility action updates the owned graph state', () => {
+    const graph = Object.create(DecasteljauGraph.prototype) as any;
+    graph.store.replaceState({t: 0.5, v: 1, animationStatus: 'paused', wholeCurve: false});
+    graph.boardUpdate = vi.fn();
+
+    expect(graph.supportsLessonAction({kind: 'curve-visibility', target: 'decasteljau-full-curve', visible: true})).toBe(true);
+    graph.applyLessonAction({kind: 'curve-visibility', target: 'decasteljau-full-curve', visible: true});
+
+    expect(graph.state.wholeCurve).toBe(true);
+    expect(graph.boardUpdate).toHaveBeenCalledTimes(1);
+});

@@ -26,7 +26,8 @@ function cloneLessonValue<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function isLessonState(value: unknown): value is {boardState: BoardState; graphState: unknown; data: unknown} {
+function isLessonState(value: unknown): value is {boardState: BoardState; graphState: unknown; data: unknown; runtimeState?: unknown;
+    displayState?: {size: number; axis: AxisSelect; pointLabelsVisible: boolean}} {
     if (!value || typeof value !== 'object') return false;
     const candidate = value as {boardState?: {boundingBox?: unknown}};
     const boundingBox = candidate.boardState?.boundingBox;
@@ -107,6 +108,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
         restoreState: checkpoint => this.restoreLessonState(checkpoint),
         apply: action => this.applyLessonAction(action),
         stopAnimations: () => this.stopLessonAnimations(),
+        pauseAnimations: () => this.pausePlayback(),
         isAvailable: () => this.graphSession?.isReady === true,
     };
 
@@ -491,6 +493,9 @@ abstract class BaseGraph<S extends BaseGraphState> {
                 boardState: this.boardState(),
                 graphState: this.state,
                 data: this.exportPresetData(),
+                runtimeState: this.captureFigureRuntimeState(),
+                displayState: {size: this.displaySettings.getSize(), axis: this.displaySettings.getAxisSelect(),
+                    pointLabelsVisible: this.displaySettings.pointLabelsVisible},
             }),
         };
     }
@@ -504,6 +509,13 @@ abstract class BaseGraph<S extends BaseGraphState> {
         if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data));
         this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
         this.setState(cloneLessonValue(state.graphState) as S);
+        this.restoreFigureRuntimeState(cloneLessonValue(state.runtimeState));
+        if (state.displayState) {
+            this.displaySettings.setSize(state.displayState.size);
+            this.displaySettings.setAxisSelect(state.displayState.axis);
+            this.displaySettings.pointLabelsVisible = state.displayState.pointLabelsVisible;
+            this.board.fullUpdate();
+        }
         this.boardUpdate();
     }
 
