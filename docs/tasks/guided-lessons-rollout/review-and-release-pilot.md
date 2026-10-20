@@ -4,7 +4,11 @@
 
 **Dependencies:** [Build the capability matrix](build-capability-matrix.md), [runtime task](../guided-lessons/implement-guided-lesson-runtime.md), [pilot content task](../guided-lessons/study-and-fill-pilot-content.md)
 
-**Status:** ready after capability-matrix review
+**Status:** open review gate for already implemented and available pilot drafts (reconciled 2026-10-20); not an unstarted implementation task.
+
+`bezier`, `decasteljau`, and `ph-cubic` are already in `GUIDED_LESSON_AVAILABLE_IDS`. Runtime/content tasks and later regression records provide implementation and some automated-browser evidence, but these three pilots have no per-lesson row in the current shared smoke table. Restore that coverage before claiming current route-level acceptance. Availability does not establish owner/subject-matter approval or physical-device/classroom acceptance; those gates remain open. The reported graph-obstructing prompt also has a separate [future usability task](../lesson-graph-access/restore-graph-access.md).
+
+The allowlist criterion below is the original release target, not a description of current enforcement. Later [blueprint cohort contracts](../../specs/guided-lessons-content-expansion.md#cohort-b-implementation-contract) explicitly record draft availability with owner/classroom review pending. Keep that distinction visible rather than claiming all pilot release criteria passed. See the [reconciliation record](../../reviews/guided-lessons-status-reconciliation.md).
 
 ## Goal
 

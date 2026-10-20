@@ -2,7 +2,11 @@
 
 **Source spec:** [Guided lesson rollout](../../specs/guided-lessons-rollout.md)
 
-**Status:** ready; prerequisite for new lesson implementation
+**Status:** partially fulfilled; consolidate existing evidence, not a fresh implementation prerequisite (reconciled 2026-10-20).
+
+The [rollout matrix](../../specs/guided-lessons-rollout.md#capability-matrix), [content blueprint](../../specs/guided-lessons-content-expansion.md), and Cohort B–E task evidence already describe implemented actions, scenes, mathematical checks, and historical browser coverage. All original 26 lessons are present in the runtime catalog; current shared smoke rows cover Cohorts B–E but omit eight earlier lessons (see the reconciliation record). Do not repeat capability discovery or block already implemented cohorts on this task's old status.
+
+Still open: consolidate those records into evidence-linked rows with named owners and explicit content/device review status. The original 26-route scope is historical; the current runtime catalog contains later function and analysis lessons too. Inventory the current routes and agree any scope extension before claiming this matrix covers every active demonstration. No consolidated, fully owned matrix or completed owner review was established by this reconciliation. See the [reconciliation record](../../reviews/guided-lessons-status-reconciliation.md).
 
 ## Goal
 

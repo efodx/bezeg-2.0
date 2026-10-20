@@ -1,6 +1,6 @@
 # Guided lesson rollout
 
-**Status:** accepted planning spec
+**Status:** original 26-route rollout implemented as available drafts; consolidated capability ownership and owner/classroom review remain incomplete (reconciled 2026-10-20).
 
 **Source:** [Guided lessons](guided-lessons.md), [ADR 0002](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), and [ADR 0004](../adr/0004-staged-guided-lesson-rollout.md)
 
@@ -20,7 +20,7 @@ Expand the implemented Guided lesson pilot and capability-aligned drafts across 
 
 Within a cohort, a route receives a lesson only when its capability row and content review are complete. Shared content fragments are allowed, but each route keeps its own lesson identity when its scene or expected observation differs.
 
-The current implementation includes five capability-aligned expansion drafts ahead of the full cohort sequence: `rational-decasteljau` reuses the existing rational De Casteljau graph seam, `elevation` adds one graph-owned degree-elevation action, `rational` uses weighted evaluation and weight-label actions, `ph-quintic` uses offset actions, and `affine` uses translation and scale actions. They remain draft content and are not classroom-ready; the remaining routes stay behind the same capability, mathematical, localization, and device-review gates.
+The original 26 routes below now have available draft lessons, including the early expansion (`rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`) and subsequent Cohorts B–E. The [content blueprint](guided-lessons-content-expansion.md) and cohort tasks record implemented action seams and verification. Later function and analysis lessons extend beyond this original inventory. Availability is not evidence of classroom readiness: owner language/content approval and device/classroom gates remain explicit follow-ups. See the [status reconciliation](../reviews/guided-lessons-status-reconciliation.md) for task dispositions and the availability/review wording discrepancy.
 
 ## Capability matrix
 
@@ -55,7 +55,7 @@ This matrix is the gate between route inventory and implementation. “Discovery
 | `weighted-parameterization` | Parameterization | Cohort C draft | `parameterization-alpha`/`-samples`; rational reparameterization, symmetry, unchanged curve |
 | `uniform-parameterization` | Parameterization | Cohort C draft | adds `parameterization-mode`; polynomial PH arc length and approximately equal-arc-length samples |
 
-Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decision, supported typed actions, prepared scene description, expected observation, mathematical checks, Slovenian and English review status, and browser/device evidence.
+Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decision, supported typed actions, prepared scene description, expected observation, mathematical checks, Slovenian and English review status, and browser/device evidence. Existing cohort records supply much of the implementation evidence; consolidation, named ownership, and outstanding review evidence remain open. The references to 26 active demonstrations in the original criteria below describe this rollout's historical scope, not today's full route count.
 
 ## Acceptance criteria
 
