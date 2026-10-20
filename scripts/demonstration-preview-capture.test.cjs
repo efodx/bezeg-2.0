@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {recipes,validateRecipes,applyAction,assertOutcomeEvidence}=require('./demonstration-preview-recipes.cjs');
-const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
+const {assertMotionEvidence,encode,sweepValue,deCasteljauLevels,bernsteinPoint,motionSpecs,weightedParameterizationMarkers,complexCaptionLines,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs').testSupport;
 const {publishValidatedSet}=require('./publish-demonstration-previews.cjs');
 const {mergeRecapturedMotions,alignMotionCameras,serializeManifest}=require('./capture-demonstration-previews.cjs');
 
@@ -224,7 +224,7 @@ test('derivative sweep provenance rejects a moved x0, a wrong secant slope, a mo
     assert.throws(()=>assertMotionEvidence(empty),/Function path missing/);
 });
 test('Farin pointer-drag provenance rejects a moved control point, a changed non-dragged ratio, a weight text mismatch and a non-seamless end',()=>{
-    const {rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack}=require('./demonstration-preview-motion.cjs');
+    const {rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack}=require('./demonstration-preview-motion.cjs').testSupport;
     const controls=[{id:'p0',x:-4,y:-3},{id:'p1',x:-3,y:3},{id:'p2',x:3,y:3},{id:'p3',x:4,y:-3}];
     const edges=[[controls[0],controls[1]],[controls[1],controls[2]],[controls[2],controls[3]]];
     const sample=i=>{
@@ -286,7 +286,7 @@ test('weighted-parameterization sweep: markers equal B(phi_alpha(t_k)) at the re
 // PH offset fixtures: the offset is built as B + d·(D_y, -D_x)/|D| (the right normal of the independent Bernstein derivative).
 // The board curves are listed offset first, PH second, so the PH identification by evaluation is exercised.
 const phFixtureMotion=(id,controls)=>{
-    const {bernsteinDerivativePoint,bernsteinPoint}=require('./demonstration-preview-motion.cjs');
+    const {bernsteinDerivativePoint,bernsteinPoint}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs[id];
     const sample=i=>{
         const d=sweepValue(i,spec),readout=spec.sweep.readout.text(d);
@@ -304,7 +304,7 @@ const phFixtureMotion=(id,controls)=>{
 };
 // Rotate the offset point of one parameter by theta about the PH point: the distance stays |d| but the offset leaves the normal.
 const rotateOffset=(sample,k,theta)=>{
-    const {bernsteinPoint}=require('./demonstration-preview-motion.cjs');
+    const {bernsteinPoint}=require('./demonstration-preview-motion.cjs').testSupport;
     const o=sample.observed.curves[0].samples[k];
     const B=bernsteinPoint(sample.points.map(({x,y})=>({x,y})),k/40);
     const vx=o.x-B.x,vy=o.y-B.y;
@@ -312,7 +312,7 @@ const rotateOffset=(sample,k,theta)=>{
 };
 const phCubicControls=[{x:-4.2,y:-2},{x:-1.08,y:1.9667},{x:2.9167,y:1.4567},{x:4.2067,y:-1.49}];
 test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on one side, schedule passes through the curve, seam checked',()=>{
-    const {phOffsetWaypoints}=require('./demonstration-preview-motion.cjs');
+    const {phOffsetWaypoints}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['ph-cubic'];
     const motion=phFixtureMotion('ph-cubic',phCubicControls);
     const valid=motion();
@@ -352,7 +352,7 @@ test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on o
 });
 const phQuinticControls=[{x:1,y:-1},{x:3.178,y:-1},{x:3.046,y:1.64},{x:0.478,y:2.1306666666666665},{x:-2.002,y:0.4026666666666663},{x:-3.25,y:-2.1573333333333338}];
 test('ph-quintic sweep: larger signed-normal offset stays cusp-free and keeps its fixed quintic curve',()=>{
-    const {phOffsetRadii,phOffsetWaypoints}=require('./demonstration-preview-motion.cjs');
+    const {phOffsetRadii,phOffsetWaypoints}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['ph-quintic'],motion=phFixtureMotion('ph-quintic',phQuinticControls),valid=motion();
     assertMotionEvidence(valid);
     assert.deepEqual(spec.sweep.waypoints,[0.5,-0.5,0.5]);
@@ -390,7 +390,7 @@ test('selective motion recapture replaces only selected clips and keeps the othe
 });
 /** A stepped fixture: checkpoints, holds and the camera come from steppedClips; readouts, actions and PNG hashes are supplied per checkpoint. */
 function steppedFixture(id, readoutsFor, actionsFor) {
-    const {steppedClips}=require('./demonstration-preview-motion.cjs');
+    const {steppedClips}=require('./demonstration-preview-motion.cjs').testSupport;
     const stepped=steppedClips[id], camera=[-0.3,4.8,2.4,-0.5];
     let firstFrame=0;
     const samples=stepped.checkpoints.map((checkpoint,i)=>{
@@ -403,7 +403,7 @@ const darbouxButtons=n=>Array.from({length:Math.round(Math.log2(n/4))},()=>({kin
 const integralRange=n=>[{kind:'range',label:'Število podintervalov n',value:n}];
 
 test('darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees with closed forms at every checkpoint',()=>{
-    const {darbouxReferenceSums,leftRiemannReference,darbouxReadoutExpectation,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    const {darbouxReferenceSums,leftRiemannReference,darbouxReadoutExpectation,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs').testSupport;
     assert.deepEqual(darbouxReadoutExpectation(4),{n:'4',a:'0',b:'2',lower:'1,75',upper:'3,75',integral:'2,6667',gap:'2'});
     assert.deepEqual(integralReadoutExpectation(6),{n:'6',a:'0',b:'2',h:'0,3333',sum:'2,037',exact:'2,6667',difference:'−0,6296'});
     const f=x=>x*x;
@@ -417,7 +417,7 @@ test('darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees
 });
 
 test('darboux stepped clip: readouts equal the pure sums at each checkpoint, press counts, camera and seam are enforced',()=>{
-    const {assertMotionEvidence,darbouxReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    const {assertMotionEvidence,darbouxReadoutExpectation}=require('./demonstration-preview-motion.cjs').testSupport;
     const make=()=>steppedFixture('darboux',darbouxReadoutExpectation,darbouxButtons);
     assertMotionEvidence(make());
     const wrongSum=make();wrongSum.samples[1].state.readouts.lower='2,1876';assert.throws(()=>assertMotionEvidence(wrongSum),/lower/);
@@ -431,7 +431,7 @@ test('darboux stepped clip: readouts equal the pure sums at each checkpoint, pre
 });
 
 test('definite-integral stepped clip: readouts equal the left sum, h, exact and sum − exact at each checkpoint; range, holds and seam are enforced',()=>{
-    const {assertMotionEvidence,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs');
+    const {assertMotionEvidence,integralReadoutExpectation}=require('./demonstration-preview-motion.cjs').testSupport;
     const make=()=>steppedFixture('definite-integral',integralReadoutExpectation,integralRange);
     assertMotionEvidence(make());
     const wrongSum=make();wrongSum.samples[1].state.readouts.sum='2,038';assert.throws(()=>assertMotionEvidence(wrongSum),/sum/);
@@ -510,18 +510,18 @@ test('complex multiplication rejects a product off by 1e-6, a moved z and a fina
     assert.throws(()=>assertMotionEvidence(complexFixture({95:{target:{x:1,y:0}}})),/differs from the starting i/);
 });
 test('accumulation reference integral agrees with the antiderivative on both signed stretches',()=>{
-    const {accumulationReference,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs');
+    const {accumulationReference,accumulationReadoutLine}=require('./demonstration-preview-motion.cjs').testSupport;
     for(const a of [-.5,0,1])for(const x of [-1,0,2,Math.PI,4])assert.ok(Math.abs(accumulationReference(a,x)-(Math.cos(a)-Math.cos(x)))<1e-10);
     assert.match(accumulationReadoutLine(0,Math.PI),/A\(x\) = 2/);
 });
 test('path counts ignore curves without path data, so an empty snapshot cannot pass the path-present checks',()=>{
-    const {countPaths}=require('./demonstration-preview-motion.cjs');
+    const {countPaths}=require('./demonstration-preview-motion.cjs').testSupport;
     assert.equal(countPaths([null,'',undefined]),0);
     assert.equal(countPaths(['M 0 0 L 1 1',null]),1);
 });
 // Trigonometric fixtures: f(x) = A·sin(ωx + φ) + B with A = ω = 1, B = 0 (recipe values); the board's solid curve is listed after a dashed reference and an empty curve.
 const trigFixtureMotion=()=>{
-    const {sweepValue,motionSpecs,phaseAsPiText,phiReadoutText}=require('./demonstration-preview-motion.cjs');
+    const {sweepValue,motionSpecs,phaseAsPiText,phiReadoutText}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['trigonometric-functions'];
     const xs=Array.from({length:81},(_,k)=>-1.5+9*k/80);
     const sample=i=>{
@@ -536,7 +536,7 @@ const trigFixtureMotion=()=>{
     return ()=>({id:'trigonometric-functions',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
 };
 test('trigonometric sweep: the solid curve equals A·sin(ωx + φ) + B at the reported φ, A, ω, B fixed, phi readout and equation match the input, seam checked',()=>{
-    const {assertMotionEvidence,phaseAsPiText,phiReadoutText,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const {assertMotionEvidence,phaseAsPiText,phiReadoutText,motionSpecs}=require('./demonstration-preview-motion.cjs').testSupport;
     const motion=trigFixtureMotion();
     const valid=motion();
     assertMotionEvidence(valid);
@@ -575,7 +575,7 @@ test('trigonometric sweep: the solid curve equals A·sin(ωx + φ) + B at the re
     assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
 });
 test('sweepValue snaps every existing clip exactly as before the origin option (bit-identical over the 96 frames)',()=>{
-    const {sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const {sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs').testSupport;
     // Reference: the pre-origin schedule (phase clamp((i-12)/71), sin² legs, snap to multiples of the step with the step's decimals).
     const legacy=(i,spec)=>{
         const {waypoints,step}=spec.sweep;
@@ -591,7 +591,7 @@ test('sweepValue snaps every existing clip exactly as before the origin option (
     for(const [id,spec] of existing)for(let i=0;i<96;i++)assert.equal(sweepValue(i,spec),legacy(i,spec),`${id} schedule changed at frame ${i}`);
 });
 test('spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly',()=>{
-    const {sweepValue,motionSpecs,snapToStep}=require('./demonstration-preview-motion.cjs');
+    const {sweepValue,motionSpecs,snapToStep}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['spline-g1'];
     assert.equal(snapToStep(0.65,0.0299,0.01),0.6379);
     assert.equal(snapToStep(1.53,0.0299,0.01),1.5349);
@@ -606,7 +606,7 @@ test('spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the 
 // G1 spline fixtures: the free points of the recipe (probe on the production build), b2 = 1 (the runtime readout), computed N2 and N3 from the formula.
 const splineControls=[{x:-2.5,y:1},{x:-4,y:-1.5},{x:-2.5,y:-2.5},{x:0,y:-1},{x:3,y:1}];
 const splineFixtureMotion=()=>{
-    const {g1ComputedPoints,sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const {g1ComputedPoints,sweepValue,motionSpecs}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['spline-g1'];
     const sample=i=>{
         const b1=sweepValue(i,spec),{N2,N3}=g1ComputedPoints(splineControls,b1,1);
@@ -619,7 +619,7 @@ const splineFixtureMotion=()=>{
     return ()=>({id:'spline-g1',mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
 };
 test('spline-g1 sweep: N2 and N3 follow the reported b1 and the b2 readout, G1 holds at both joins, the path follows b1, seam checked',()=>{
-    const {assertMotionEvidence,assertG1Join,g1ComputedPoints,motionSpecs}=require('./demonstration-preview-motion.cjs');
+    const {assertMotionEvidence,assertG1Join,g1ComputedPoints,motionSpecs}=require('./demonstration-preview-motion.cjs').testSupport;
     const motion=splineFixtureMotion();
     const valid=motion();
     assertMotionEvidence(valid);

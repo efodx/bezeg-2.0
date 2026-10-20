@@ -34,6 +34,8 @@ Use one generated asset description per demonstration: a required PNG `poster` a
 
 Generate motion offline from real settled board captures, then encode a short silent clip. Start by evaluating WebM for the supported browser set; verify actual playback and deployed MIME handling. Add an MP4 alternative only if target-browser evidence requires it. Unsupported or failed media always falls back to the poster. Do not ship raw frame stacks, GIFs, a browser encoder, or graph instances in cards. No new application dependency is needed for video playback.
 
+The offline generator and published-evidence validator consume `demonstration-preview-capture-api.cjs`, which owns the capture interface: motion generation, configured IDs, recipe-alignment lookup and shared evidence validation. Timeline mathematics stays in the motion modules. Tests use the named `testSupport` surface; evidence fixtures go through `createMotionEvidenceValidator(fixtures)`, which snapshots isolated fixture specifications for one validator without changing the deeply frozen production registry. The same evidence assertions run in the live capture path and offline checks.
+
 The existing `FigureCapture` export code is a useful reference for board readiness, MathJax and lifecycle. Reuse it only where the current capture runner can access its supported interface without a new production bridge. The existing route-owned board screenshot pipeline is a valid frame source and already handles thumbnail presentation. SVG export is another possible intermediate, not a requirement: independently animating SVG paths could lose control-point constraints, rational constructions or mathematical labels. Let the graph recompute every sampled state instead.
 
 ### Two recipe modes, one player

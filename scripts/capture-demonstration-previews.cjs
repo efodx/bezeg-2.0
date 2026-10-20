@@ -11,7 +11,8 @@ const {chromium} = require('playwright');
 const demonstrations = require('../tests/smoke-catalog.cjs');
 const {recipes, validateRecipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 
-const {generateMotions} = require('./demonstration-preview-motion.cjs');
+const previewCapture = require('./demonstration-preview-capture-api.cjs');
+const {generateMotions} = previewCapture;
 
 const root = path.resolve(__dirname, '..');
 const publishedOutput = path.join(root, 'src/images/demonstrations/catalog');
@@ -435,6 +436,7 @@ async function main() {
     const servedBuild = await servedBuildProvenance();
     const presentationFingerprint=crypto.createHash('sha256').update(presentBoard.toString())
         .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'demonstration-preview-capture-api.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-concept-motion.cjs')))
@@ -635,7 +637,7 @@ async function main() {
             assert.ok(process.env.PREVIEW_IDS && !recaptureIds, 'Motion diagnostics require PREVIEW_IDS and cannot publish');
             diagnosticMotions = await generateMotions(browser, demonstrations, output, baseUrl, presentBoard, process.env.PREVIEW_MOTION_IDS.split(','));
         } else if (recaptureIds) {
-            const motionRecaptureIds=recaptureIds.filter(id=>require('./demonstration-preview-motion.cjs').motionIds.includes(id));
+            const motionRecaptureIds=recaptureIds.filter(id=>previewCapture.motionIds.includes(id));
             if(motionRecaptureIds.length) {
                 const replacements=await generateMotions(browser,demonstrations,output,baseUrl,presentBoard,motionRecaptureIds);
                 motions=mergeRecapturedMotions(motions,replacements,motionRecaptureIds);
@@ -646,7 +648,7 @@ async function main() {
     }
 
     for (const motion of diagnosticMotions || motions) {
-        if (!require('./demonstration-preview-motion.cjs').motionSpecs[motion.id]?.recipeAligned) continue;
+        if (!previewCapture.isRecipeAligned(motion.id)) continue;
         const poster = captures.find(capture => capture.id === motion.id);
         assert.ok(poster, `Missing recipe poster for ${motion.id}`);
         assert.equal(motion.samples[0].capture.sha256, poster.sha256, `${motion.id}: first frame differs from recipe poster`);
@@ -705,8 +707,7 @@ async function main() {
             preservedCaptureIds:previousCaptureIds.filter(id=>!recaptureIds.includes(id)),
             preservedMotionIds:previousMotionIds.filter(id=>!recaptureIds.includes(id))}}:{}),
     };
-    const compactMotionIds = Object.entries(require('./demonstration-preview-motion.cjs').motionSpecs)
-        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id);
+    const compactMotionIds = previewCapture.recipeAlignedMotionIds();
     fs.writeFileSync(path.join(output, 'manifest.json'), serializeManifest(manifest, compactMotionIds));
     const importEntries = captures.map(({id}) => {
         const localName = `preview_${id.replace(/[^a-zA-Z0-9_$]/g, '_')}`;

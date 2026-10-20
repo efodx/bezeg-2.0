@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {assertMotionEvidence, motionSpecs, motionIds} = require('./demonstration-preview-motion.cjs');
+const {createMotionEvidenceValidator, motionSpecs, motionIds} = require('./demonstration-preview-motion.cjs').testSupport;
+const captureApi = require('./demonstration-preview-capture-api.cjs');
 
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');
@@ -20,12 +21,32 @@ test('every shipped demonstration has a configured motion timeline', () => {
     }
 });
 
+test('capture consumers receive only motion generation and coverage queries', () => {
+    assert.deepEqual(Object.keys(captureApi).sort(), ['assertMotionEvidence', 'generateMotions', 'isRecipeAligned', 'motionIds', 'recipeAlignedMotionIds']);
+    assert.equal(captureApi.motionIds.length, 45);
+    assert.equal(captureApi.motionIds.length, new Set(captureApi.motionIds).size);
+    assert.equal(typeof captureApi.generateMotions, 'function');
+    assert.equal(typeof captureApi.assertMotionEvidence, 'function');
+    assert.equal('bernsteinPoint' in captureApi, false);
+    assert.deepEqual([...captureApi.recipeAlignedMotionIds()].sort(), Object.entries(motionSpecs)
+        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id).sort());
+    const start = motionSpecs.decasteljau.sweep.start;
+    assert.equal(Object.isFrozen(motionSpecs.decasteljau.sweep), true);
+    assert.equal(Object.isFrozen(motionSpecs.decasteljau.sweep.waypoints), true);
+    assert.equal(Reflect.set(motionSpecs.decasteljau.sweep, 'start', start + 0.1), false);
+    assert.equal(motionSpecs.decasteljau.sweep.start, start, 'Nested production timeline data must be immutable');
+    assert.throws(() => captureApi.assertMotionEvidence({id: 'not-a-motion', samples: []}), /undefined !== 96/);
+});
+
 test('generic checkpoint evidence rejects camera drift, missing holds, wrong math and a nonseamless loop', () => {
     const id = 'checkpoint-runner-test';
-    motionSpecs[id] = {
+    const fixtureSpec = {
         checkpoints: [{value: 2}, {value: 4}, {value: 2}], holds: [24, 48, 24],
         checkStep(sample) {assert.equal(sample.observed.square, sample.checkpoint ** 2);},
     };
+    const validateFixture = createMotionEvidenceValidator({[id]: fixtureSpec});
+    fixtureSpec.checkpoints[1].value = 9;
+    assert.equal(Object.hasOwn(motionSpecs, id), false, 'Fixture must not be added to the production registry');
     const fixture = () => ({
         id, mode: 'discrete-exact-steps', frameCount: 96, sampleRate: 24, duration: 4, camera: [-1, 1, 1, -1],
         samples: [2, 4, 2].map((value, index) => ({
@@ -34,17 +55,16 @@ test('generic checkpoint evidence rejects camera drift, missing holds, wrong mat
             observed: {square: value ** 2},
         })),
     });
-    try {
-        assert.doesNotThrow(() => assertMotionEvidence(fixture()));
-        const rounded = fixture(); rounded.samples[1].state.box[0] += 1e-14;
-        assert.doesNotThrow(() => assertMotionEvidence(rounded));
-        let motion = fixture(); motion.samples[1].state.box[0] = -2;
-        assert.throws(() => assertMotionEvidence(motion), /Camera/);
-        motion = fixture(); motion.samples[1].holdFrames = 47;
-        assert.throws(() => assertMotionEvidence(motion), /hold/);
-        motion = fixture(); motion.samples[1].observed.square = 15;
-        assert.throws(() => assertMotionEvidence(motion));
-        motion = fixture(); motion.samples[2].capture.sha256 = 'different';
-        assert.throws(() => assertMotionEvidence(motion), /recipe PNG/);
-    } finally {delete motionSpecs[id];}
+    assert.doesNotThrow(() => validateFixture(fixture()));
+    const rounded = fixture(); rounded.samples[1].state.box[0] += 1e-14;
+    assert.doesNotThrow(() => validateFixture(rounded));
+    let motion = fixture(); motion.samples[1].state.box[0] = -2;
+    assert.throws(() => validateFixture(motion), /Camera/);
+    motion = fixture(); motion.samples[1].holdFrames = 47;
+    assert.throws(() => validateFixture(motion), /hold/);
+    motion = fixture(); motion.samples[1].observed.square = 15;
+    assert.throws(() => validateFixture(motion));
+    motion = fixture(); motion.samples[2].capture.sha256 = 'different';
+    assert.throws(() => validateFixture(motion), /recipe PNG/);
+    assert.equal(Object.hasOwn(motionSpecs, id), false, 'Evidence validation must leave the production registry intact');
 });

@@ -1,7 +1,7 @@
 # Deepen Demonstration preview capture and evidence
 
 **Source spec:** [Architecture deepening, section 2](../../specs/architecture-deepening.md#2-demonstration-preview-capture-and-evidence)
-**Status:** planned; task requested on 2026-10-20, implementation not started.
+**Status:** complete; implemented and verified on 2026-10-20.
 **Priority:** worth exploring; independent of visit ownership.
 
 ## Goal
@@ -25,4 +25,4 @@ Reduce the knowledge exposed by the preview capture module's interface while pre
 
 ## Completion evidence
 
-Pending. Existing tests were inspected during the architecture review, not rerun.
+See [the interface and acceptance record](../../reviews/preview-capture-interface.md) for the consumer inventory, depth gains, all six acceptance criteria, independent reviews and verification limits. The narrow capture/evidence API replaces consumer registry access; fixture validators snapshot local specifications without mutating the deeply frozen production registry. All 45 focused Node tests and 15 player tests pass, as do TypeScript, the production build and retained-asset validation. Representative sweep, pointer drag and exact-step real captures pass with decoded-media evidence; the published 45-entry asset set is unchanged.

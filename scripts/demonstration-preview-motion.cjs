@@ -1286,11 +1286,35 @@ motionSpecs.subdivision = {
     },
 };
 
-function assertMotionEvidence(motion) {
+function deepFreeze(value, seen = new WeakSet()) {
+    if ((typeof value !== 'object' && typeof value !== 'function') || value === null || seen.has(value)) return value;
+    seen.add(value);
+    for (const key of Reflect.ownKeys(value)) deepFreeze(value[key], seen);
+    return Object.freeze(value);
+}
+
+function cloneAndFreeze(value, seen = new Map()) {
+    if ((typeof value !== 'object' && typeof value !== 'function') || value === null) return value;
+    if (typeof value === 'function') return value;
+    if (seen.has(value)) return seen.get(value);
+    const clone = Array.isArray(value) ? [] : Object.create(Object.getPrototypeOf(value));
+    seen.set(value, clone);
+    for (const key of Reflect.ownKeys(value)) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        if ('value' in descriptor) descriptor.value = cloneAndFreeze(descriptor.value, seen);
+        Object.defineProperty(clone, key, descriptor);
+    }
+    return Object.freeze(clone);
+}
+
+// Registry construction is complete; freeze its data before any consumer can observe it.
+deepFreeze(motionSpecs);
+
+function assertMotionEvidence(motion, specifications = motionSpecs) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
     assert.equal(motion.duration,4);
-    const checkpointSpec = motionSpecs[motion.id];
+    const checkpointSpec = specifications[motion.id];
     if (checkpointSpec?.recipeAligned) {
         assert.ok(motion.schedule && typeof motion.schedule.kind === 'string', `${motion.id}: missing manifest schedule`);
         assert.ok(Array.isArray(motion.invariants) && motion.invariants.length > 0, `${motion.id}: missing manifest invariants`);
@@ -1309,13 +1333,13 @@ function assertMotionEvidence(motion) {
         return;
     }
     if(motion.mode==='parameter-sweep') {
-        const spec=motionSpecs[motion.id];
+        const spec=specifications[motion.id];
         assert.ok(spec && spec.mode==='parameter-sweep','Parameter sweep evidence needs a sweep configuration');
         assertSweepEvidence(motion,spec);
         return;
     }
-    if(motion.mode==='pointer-drag' && motionSpecs[motion.id]) {
-        assertDragEvidence(motion,motionSpecs[motion.id]);
+    if(motion.mode==='pointer-drag' && specifications[motion.id]) {
+        assertDragEvidence(motion,specifications[motion.id]);
         return;
     }
     if(['repeated-subdivision','bisection'].includes(motion.id)) {
@@ -1712,4 +1736,36 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
     return motions;
 }
 
-module.exports={countPaths,generateMotions,boardSnapshot,screenshotBoard,openRoute,encode,assertMotionEvidence,motionIds,motionSpecs,sweepValue,snapToStep,g1ComputedPoints,assertG1Join,phaseAsPiText,phiReadoutText,alphaParameterizationValue,weightedParameterizationMarkers,deCasteljauLevels,bernsteinPoint,bernsteinDerivativePoint,phOffsetRadii,phOffsetWaypoints,rationalPoint,farinEffectiveWeights,farinWeightText,farinValue,farinPoint,farinParameterTs,sin2OutAndBack,movePhase,complexCaptionLines,complexText,accumulationReference,accumulationReadoutLine,accumulationSnap,formatSlNumber,steppedClips,darbouxReferenceSums,leftRiemannReference,darbouxReadoutExpectation,integralReadoutExpectation,darbouxPressCount};
+function createMotionEvidenceValidator(fixtures = {}) {
+    assert.ok(fixtures && typeof fixtures === 'object' && !Array.isArray(fixtures), 'Evidence fixtures must be an ID-to-specification object');
+    const isolatedFixtures = Object.fromEntries(Object.entries(fixtures).map(([id, spec]) => [id, cloneAndFreeze(spec)]));
+    const specifications = Object.freeze({...motionSpecs, ...isolatedFixtures});
+    return motion => assertMotionEvidence(motion, specifications);
+}
+
+const captureInterface = Object.freeze({
+    generateMotions,
+    motionIds: Object.freeze([...motionIds]),
+    isRecipeAligned: id => motionSpecs[id]?.recipeAligned === true,
+    recipeAlignedMotionIds: () => Object.freeze(Object.entries(motionSpecs)
+        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id)),
+    assertMotionEvidence: motion => assertMotionEvidence(motion),
+});
+
+// Tests use a named support surface. Production capture callers use the smaller capture interface above.
+const testSupport = Object.freeze({
+    countPaths, boardSnapshot, screenshotBoard, openRoute, encode, assertMotionEvidence,
+    createMotionEvidenceValidator,
+    motionIds: Object.freeze([...motionIds]),
+    motionSpecs: Object.freeze({...motionSpecs}),
+    sweepValue, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
+    alphaParameterizationValue, weightedParameterizationMarkers, deCasteljauLevels,
+    bernsteinPoint, bernsteinDerivativePoint, phOffsetRadii, phOffsetWaypoints,
+    rationalPoint, farinEffectiveWeights, farinWeightText, farinValue, farinPoint,
+    farinParameterTs, sin2OutAndBack, movePhase, complexCaptionLines, complexText,
+    accumulationReference, accumulationReadoutLine, accumulationSnap, formatSlNumber,
+    steppedClips, darbouxReferenceSums, leftRiemannReference,
+    darbouxReadoutExpectation, integralReadoutExpectation, darbouxPressCount,
+});
+
+module.exports = Object.freeze({capture: captureInterface, testSupport});
