@@ -1,7 +1,7 @@
 # Make lesson instructions hideable without ending the lesson
 
 **Source spec:** [Keep the graph usable during Guided lessons](../../specs/lesson-graph-access.md)
-**Status:** implemented and locally accepted on 2026-10-20; small lesson tab selected in the source spec. Publication gate pending.
+**Status:** completed, published and verified on 2026-10-20; small lesson tab selected in the source spec.
 
 ## Goal
 
@@ -38,3 +38,5 @@ Independent engineering/mathematical and UI/accessibility source reviews found n
 The full local browser batch passed 231/233. One convexity initial-load resource error (`ERR_ADDRESS_IN_USE`) passed on the unchanged-build retry. A rational-elevation extras test accidentally treated the newly exposed Continue button as a graph action; both broad scene-action selectors were corrected. The affected cases, Observation/focus/playback, enlarged-text and touch regressions passed 13/13 (`.command-logs/2026-10-20T17-50-14-103Z-30648-dcde509f.log`), followed by all three rational-elevation lesson rows (`.command-logs/2026-10-20T17-51-58-142Z-35752-db628c79.log`). This is complete case coverage across runs, not a claim of a clean full local batch. The unchanged mathematical/runtime source passed the unit suite, and browser evidence covers every source acceptance criterion and the full checklist. A clean full CI batch remains the deployment gate.
 
 Before/after images and detailed observations are in [the browser report](../../reviews/lesson-graph-access/browser-smoke.md). No physical-device or comprehensive screen-reader review is claimed.
+
+Publication: app commit `194343fcfe0e520bf849979b202fb1d23649957a` was pushed as a fast-forward to `origin/master`. [Browser smoke run 39470115686](https://github.com/efodx/bezeg-2.0/actions/runs/39470115686) passed typecheck, all 2,511 unit tests and a clean 233/233 Chromium batch, then deployed Pages successfully. The live `/bezeg-2.0/analysis/taylor?learn=1` check reached Step 2 / Frame 3, hid instructions, changed degree 6 → 7, reopened the same frame with degree 7 retained, advanced to Step 3 with Continue, and restored degree 1 on explicit Exit. The route stayed on Taylor, and hiding retained the lesson query. Local previews and test contexts were cleaned up.

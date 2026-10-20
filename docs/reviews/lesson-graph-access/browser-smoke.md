@@ -58,3 +58,11 @@ The full browser checklist is covered by the final-preview probes above and pass
 | Narrow viewport and keyboard | Passed | 390px, 844×390, Presentation, SL/EN, 200% root font, inspector/language keyboard controls, Escape/focus, and touch-emulated Continue passed. |
 
 The two later HEAD changes (`3112c56`, `7c2f097`) contained unrelated planning documents only; app source stayed frozen after the wrapping correction. No preset-format, route, mathematical, persistent-progress or chapter-entry changes were introduced. Physical-device and comprehensive assistive-technology testing remain outside this reported coverage. Publication results are recorded after the CI gate completes.
+
+## Published verification
+
+[CI run 39470115686](https://github.com/efodx/bezeg-2.0/actions/runs/39470115686) for app commit `194343fcfe0e520bf849979b202fb1d23649957a` passed typecheck, **2,511 unit tests** and a clean **233/233 Chromium batch**, then deployed GitHub Pages successfully on 2026-10-20. The source and acceptance criteria are fully verified within the browser/emulation limits above.
+
+The handler then checked the real hosted route in the in-app browser: `/bezeg-2.0/analysis/taylor?learn=1`, Step 2 / Frame 3 “Višja stopnja in Lagrangeeva ocena”. Hide removed the lesson card and kept the query/session; degree increased 6 → 7 while the graph was available. Reopen showed the same Step 2 / Frame 3 and the graph still displayed degree 7. Continue advanced to Step 3 / Frame 1. Explicit Exit restored degree 1, removed the lesson query and returned focus to Learn. The graph SVG/container remained in place through the visible interaction. This hosted check complements the stricter local board/view snapshots, not a claim of hosted internal-state instrumentation. The handler-owned local preview was stopped.
+
+Final parallel mathematical-preservation and engineering reviews of the wrapping/scene-action test repairs found no actionable issue. No unverified source acceptance criterion remains; physical devices and comprehensive screen-reader coverage were not part of this evidence.

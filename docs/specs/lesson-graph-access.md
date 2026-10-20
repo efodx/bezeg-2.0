@@ -1,6 +1,6 @@
 # Keep the graph usable during Guided lessons
 
-**Status:** implemented and locally verified on 2026-10-20 after owner authorization; small lesson tab selected. Acceptance and publication evidence is recorded in the linked task.
+**Status:** implemented, published and verified on 2026-10-20 after owner authorization; small lesson tab selected. Acceptance and publication evidence is recorded in the linked task.
 **Implementation task:** [Restore graph access](../tasks/lesson-graph-access/restore-graph-access.md)
 **Reported:** 2026-10-20
 **Related contracts:** [Guided lessons](guided-lessons.md), especially Learner experience; [Standalone learning](standalone-learning.md), especially activity context and narrow screens; [guardrails](../guardrails.md).
