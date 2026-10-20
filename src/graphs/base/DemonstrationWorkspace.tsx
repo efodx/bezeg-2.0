@@ -15,7 +15,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
 import type {LessonGraphCapabilities} from '../../learning/model';
 import {useChapterActivity} from '../../learning/chapter/useChapterActivity';
-import {readingReturnPath, hasChapterReturn} from '../../learning/chapter/navigationMemory';
+import {chapterActivityVisit} from '../../learning/chapter/ChapterActivityVisit';
 import {bezierActivityCopy} from '../../learning/content/bezierChapter';
 import {useLanguage} from '../../localization';
 import '../../learning/chapter/ActivityContext.css';
@@ -157,7 +157,7 @@ export function DemonstrationWorkspace(props: {
             </div>
             <div className="workspace-actions">
                 {chapter.readAbout && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
-                {!chapter.activity && hasChapterReturn() && <Link to={readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
+                {!chapter.activity && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
                     title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
@@ -184,12 +184,12 @@ export function DemonstrationWorkspace(props: {
             {chapter.error ? t('chapter_scene_error') : chapter.invalidNotice ? t('chapter_invalid_context') : t('chapter_restarted')}
             {chapter.error && <>
                 {!chapter.fatal && <button onClick={chapter.retry}>{t('chapter_retry')}</button>}
-                <Link to={readingReturnPath()}>{t('chapter_return')}</Link>
+                <Link to={chapterActivityVisit.readingReturnPath()}>{t('chapter_return')}</Link>
                 <a href={pathname}>{t('chapter_free_exploration')}</a>
             </>}
         </p>}
         {chapter.activity && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
-            <div><Link to={chapter.returnPath ?? readingReturnPath()} state={location.state}
+            <div><Link to={chapter.returnPath ?? chapterActivityVisit.readingReturnPath()} state={location.state}
                 onClick={event => { event.preventDefault(); setLessonOpen(false); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
                 <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
                 <p>{bezierActivityCopy[chapter.activity.id][language].prompt}</p>

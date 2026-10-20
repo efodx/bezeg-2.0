@@ -3,7 +3,7 @@ import {Link, useLocation, useNavigate} from 'react-router-dom';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {useLanguage} from '../localization';
 import type {Language} from '../localization';
-import {ordinaryReturnPath, rememberActivityLaunch, rememberReading, restoreReading, activityEntryState} from './chapter/navigationMemory';
+import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
 import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
 import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
@@ -102,7 +102,7 @@ function ActivityCard({id, sectionId, language}: {id: BezierActivityId; sectionI
             <h3>{copy.title}</h3>
             <p>{copy.prompt}</p>
             <p className="chapter-activity-return"><span>{language === 'sl' ? 'Vrni se k:' : 'Return to:'}</span> <a href={`#${sectionId}`}>{sectionId === 'control-points' ? (language === 'sl' ? 'razlagi kontrolnih točk' : 'the control-point explanation') : bezierChapter[language].sections.find(section => section.id === sectionId)?.title}</a></p>
-            <Link id={linkId} className="chapter-open-activity" to={copy.demoHref} state={activityEntryState(location.state, id, location.key)} onClick={() => { rememberReading(sectionId, linkId); rememberActivityLaunch(id, location.key); }}>{language === 'sl' ? 'Odpri raziskovanje' : 'Open exploration'}<span aria-hidden="true"> →</span></Link>
+            <Link id={linkId} className="chapter-open-activity" to={copy.demoHref} state={chapterActivityVisit.activityEntryState(location.state, id, location.key)} onClick={() => chapterActivityVisit.prepareActivityLaunch(id, sectionId, linkId, location.key)}>{language === 'sl' ? 'Odpri raziskovanje' : 'Open exploration'}<span aria-hidden="true"> →</span></Link>
         </div>
     </aside>;
 }
@@ -125,7 +125,7 @@ export function ChapterPage() {
     const [contentsOpen, setContentsOpen] = useState(false);
 
     useEffect(() => {
-        const restored = restoreReading('motivation');
+        const restored = chapterActivityVisit.restoreReading('motivation');
         const hash = location.hash.slice(1);
         const invocation = location.state && typeof location.state === 'object' ? location.state.chapterReadingInvocation : undefined;
         const sourceActivity = invocation && typeof invocation === 'object' && invocation.v === 1
@@ -216,8 +216,8 @@ export function ChapterPage() {
     const relatedDemo = typeof requestedGraphId === 'string' && supportedGraphIds.includes(requestedGraphId)
         ? getDemonstrationCatalog().demonstrations.find(demo => demo.id === requestedGraphId)
         : undefined;
-    const graphReturnPath = ordinaryReturnPath() ?? relatedDemo?.path;
-    const graphReturnIsMemory = Boolean(ordinaryReturnPath());
+    const graphReturnPath = chapterActivityVisit.ordinaryReturnPath() ?? relatedDemo?.path;
+    const graphReturnIsMemory = Boolean(chapterActivityVisit.ordinaryReturnPath());
 
     return <main className="chapter-page">
         <div className="chapter-layout">

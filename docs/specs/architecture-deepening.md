@@ -1,6 +1,6 @@
 # Deepen visit, preview capture, and scene recovery modules
 
-**Status:** tasks requested by the owner on 2026-10-20; implementation not started. Interface designs remain open.
+**Status:** tasks requested by the owner on 2026-10-20. Task 01 is implemented; see its [acceptance evidence](../reviews/chapter-activity-visit.md). Tasks 02 and 03 remain planned with interface designs open.
 **Source:** architecture review of 65 recent commits and focused source/test inspection, initially presented as a temporary HTML report on 2026-10-20. The durable scope and evidence are recorded here.
 **Contracts:** [guardrails](../guardrails.md), [standalone learning](standalone-learning.md), [Guided lessons](guided-lessons.md), [representative previews](representative-demonstration-previews.md), and [continuous motion previews](continuous-motion-previews.md).
 

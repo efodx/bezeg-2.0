@@ -1,7 +1,7 @@
 # Give the Chapter activity visit one owner
 
 **Source spec:** [Architecture deepening, section 1](../../specs/architecture-deepening.md#1-chapter-activity-visit-ownership)
-**Status:** planned; task requested on 2026-10-20, implementation not started.
+**Status:** implemented on 2026-10-20; acceptance evidence below.
 **Priority:** first recommendation.
 
 ## Goal
@@ -25,4 +25,6 @@ Deepen the visit module so its interface hides snapshot and transition coordinat
 
 ## Completion evidence
 
-Pending. No implementation or verification results are claimed.
+`ChapterActivityVisit` now owns private activity/ordinary snapshots, reading and predecessor state, launch/return policy, retry targets and departure cleanup. `navigationMemory.ts` retains explicit browser history/reading effects and pure marker encoding/validation. `ActivitySession` and the Pages bridge retain their separate responsibilities. Chapter/workspace callers no longer coordinate mutable scene maps or reading-launch write ordering.
+
+See the [criterion-by-criterion implementation and verification record](../../reviews/chapter-activity-visit.md), including independent review, failure/retry regression tests and actual browser coverage. No routes, Preset formats or persistent storage changed.
