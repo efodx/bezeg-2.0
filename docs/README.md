@@ -17,6 +17,8 @@ This documentation supports planning Bezeg's future and extracting a reusable pr
 - [Curve architecture assessment](curve-architecture-deep-dive.md): drawing data flow, functionality preservation and decomposition recommendations.
 - [Curve ownership spec](specs/curve-ownership-refactor.md): the first bounded implementation of numeric inputs, runtime ownership and figure capture.
 - [React architecture refactor spec](specs/react-architecture-refactor.md): proposed React-layer findings (singleton state, remounts, forceUpdate, inheritance) and a staged scene-store migration.
+- [Architecture deepening](specs/architecture-deepening.md): chapter activity visit ownership, preview capture and scene recovery tasks.
+- [Graph contract deepening](specs/graph-contract-deepening.md): planned tasks for graph transient state, Preset collection ownership and scene-action limits.
 - [Curve ownership verification](reviews/curve-ownership-refactor.md): implementation boundaries, review repairs and verification evidence.
 - [ADR 0006](adr/0006-model-input-ownership-before-renderer-migration.md): numeric model ownership and a staged renderer decision.
 - [Capability map](capabilities.md): active demonstrations and shared user workflows.
