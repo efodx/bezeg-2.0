@@ -36,6 +36,11 @@ export function DemonstrationWorkspace(props: {
     const {language} = useLanguage();
     const closeLesson = useRef<(() => void) | undefined>();
     const registerLessonClose = useCallback((close: (() => void) | undefined) => { closeLesson.current = close; }, []);
+    const showLessonInstructions = useRef<(() => void) | undefined>();
+    const registerShowLessonInstructions = useCallback((show: (() => void) | undefined) => { showLessonInstructions.current = show; }, []);
+    const exitLesson = useRef<(() => void) | undefined>();
+    const registerLessonExit = useCallback((exit: (() => void) | undefined) => { exitLesson.current = exit; }, []);
+    const [lessonGraphActions, setLessonGraphActions] = useState<{continueLesson?: () => void; animationControls?: React.ReactNode}>();
     const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph);
     const activityContext = useRef<HTMLElement>(null);
     useTypesetMath(activityContext, `${chapter.activity?.id ?? ''}-${language}`);
@@ -84,6 +89,7 @@ export function DemonstrationWorkspace(props: {
     const inspectorContent = useRef<HTMLDivElement>(null);
     const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
+    const reopenLessonButton = useRef<HTMLButtonElement>(null);
     // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
     // keeps its prompt inside it).
     const graphContainer = useRef<HTMLDivElement | null>(null);
@@ -107,6 +113,9 @@ export function DemonstrationWorkspace(props: {
     useEffect(() => {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
+    }, [lessonActive, lessonMode]);
+    useEffect(() => {
+        if (lessonActive && lessonMode === 'explore') reopenLessonButton.current?.focus({preventScroll: true});
     }, [lessonActive, lessonMode]);
     useLayoutEffect(() => {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
@@ -158,7 +167,13 @@ export function DemonstrationWorkspace(props: {
                         setPickerOpen(true);
                     }}>{t('library_switch')}</button>}
                 {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
-                {lesson && props.lessonCapabilities && <button ref={learnButton} onClick={() => {setLessonMode('content'); setLessonOpen(true);}} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
+                {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} onClick={() => {setLessonMode('content'); setLessonOpen(true);}} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
+                {lessonActive && lessonMode === 'explore' && <>
+                    <button ref={reopenLessonButton} onClick={() => showLessonInstructions.current?.()}>{t('back_to_instructions')}</button>
+                    {lessonGraphActions?.continueLesson && <button onClick={() => lessonGraphActions.continueLesson?.()}>{t('continue_lesson')}</button>}
+                    {lessonGraphActions?.animationControls}
+                    <button onClick={() => exitLesson.current?.()}>{t('exit_lesson')}</button>
+                </>}
                 {fullScreen && <button onClick={() => setPresentationControls(!presentationControls)}
                     aria-expanded={presentationControls} aria-controls="workspace-inspector">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
                 <button onClick={() => presentation.setFullScreen(!fullScreen)} aria-pressed={fullScreen}>
@@ -190,7 +205,9 @@ export function DemonstrationWorkspace(props: {
         </section>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
             registerClose={registerLessonClose}
-            onModeChange={setLessonMode} graphContainer={graphContainer}
+            registerShowInstructions={registerShowLessonInstructions} registerExit={registerLessonExit}
+            registerGraphActions={setLessonGraphActions}
+            onModeChange={setLessonMode}
             onClose={() => {
                 setLessonMode('closed');
                 setLessonOpen(false);

@@ -1134,6 +1134,7 @@ export const en: Record<keyof typeof sl, string> = {
     "open_navigation": "Open navigation",
     "guided_lesson": "Guided lesson",
     "observe_on_graph": "Observe on the graph",
+    "hide_lesson_instructions": "Hide lesson instructions",
     "back_to_instructions": "Back to the instructions",
     "continue_lesson": "Continue lesson",
     "move_lesson_prompt": "Move observation prompt",

@@ -29,7 +29,7 @@
     opacity: .7;
 }
 
-/* Make the board's own stacking context sit below the lesson so JSXGraph HTML labels cannot cover the compact prompt. */
+/* Keep the instruction panel above JSXGraph HTML labels while it is open. */
 .demonstration-workspace.lesson-open .workspace-graph {
     z-index: 0;
 }

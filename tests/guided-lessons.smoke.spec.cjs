@@ -97,7 +97,7 @@ async function runElevationActions(page, until) {
     const lesson = lessonPanel(page);
     for (let guard = 0; guard < 30; guard += 1) {
         await h.reveal(page);
-        const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe)');
+        const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe):not(.guided-lesson-continue)');
         if (await action.count()) { await action.first().click(); await settle(page); }
         if (until && await until()) return;
         await advance(page);
@@ -1886,10 +1886,10 @@ for (const row of LESSONS) {
                 const finishing = await isFinishing(page);
                 const observe = lessonPanel(page).locator('.guided-lesson-observe');
                 if (await observe.count()) {
-                    // Real observation flow: collapse to the compact prompt, graph must be unlocked, Continue must be reachable.
+                    // Real observation flow: hide instructions, then use the header Continue action while the graph is free.
                     await pressOn(page, observe);
                     expect(await page.locator('section.workspace-graph').getAttribute('data-lesson-locked'), `graph unlocked while observing at ${label}`).not.toBe('true');
-                    const cont = lessonPanel(page).locator('.guided-lesson-continue');
+                    const cont = page.getByRole('button', {name: /Continue lesson|Nadaljuj učno pot/});
                     await expect(cont).toBeVisible();
                     const blocker = await cont.evaluate(button => {
                         const r = button.getBoundingClientRect();
@@ -2144,7 +2144,7 @@ test.describe('Rational elevation extras', () => {
         // Frame-level walk. Elevation is applied by the lesson's action button or scene entry.
         for (let guard = 0; guard < 40; guard += 1) {
             const label = await progress(page);
-            const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe)');
+            const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe):not(.guided-lesson-continue)');
             if (await action.count()) {
                 await action.first().click();
                 await settle(page);
@@ -2228,15 +2228,14 @@ test.describe('Rational elevation outside lessons', () => {
 });
 
 // ---------------------------------------------------------------- Extras: observation flow
-// Observation frames open in the full overlay (graph locked); "Observe on the graph" collapses to the compact prompt
-// (graph unlocked); the compact prompt's "Continue lesson" advances one frame, "Back to the instructions" reopens the same frame.
+// Observation frames are read in the full panel (graph locked). Hiding it exposes workspace header actions outside the plot.
 test.describe('Observation flow', () => {
     test.setTimeout(150_000);
     const graph = page => page.locator('section.workspace-graph');
     const locked = async page => (await graph(page).getAttribute('data-lesson-locked')) === 'true';
     const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
     const panelFocused = page => page.evaluate(() => document.activeElement?.matches('section.guided-lesson'));
-    const compactFocused = page => page.evaluate(() => document.activeElement?.matches('.guided-lesson-hidden-content'));
+    const reopenFocused = page => page.evaluate(() => document.activeElement?.textContent?.includes('Back to the instructions'));
     async function toFirstObservation(page) {
         for (let guard = 0; guard < 10; guard += 1) {
             if (await lessonPanel(page).locator('.guided-lesson-observe').count()) return;
@@ -2245,7 +2244,7 @@ test.describe('Observation flow', () => {
         throw new Error('no observation frame reached');
     }
 
-    test('overlay locks the graph, compact prompt unlocks it, Back reopens and Continue advances; focus follows', async ({page}) => {
+    test('visible instructions lock the graph, hide unlocks it, reopen preserves the frame and Continue advances; focus follows', async ({page}) => {
         await openLesson(page, extrapolation, 'en');
         await toFirstObservation(page);
         const observationLabel = await progress(page);
@@ -2253,24 +2252,38 @@ test.describe('Observation flow', () => {
         expect(await panelFocused(page), 'overlay keeps focus').toBe(true);
 
         await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
-        await expect(lessonPanel(page)).toHaveClass(/guided-lesson-hidden/);
-        expect(await locked(page), 'graph unlocked in the compact prompt').toBe(false);
-        expect(await compactFocused(page), 'compact prompt takes focus').toBe(true);
+        await expect(lessonPanel(page)).toHaveCount(0);
+        expect(await locked(page), 'graph unlocked while instructions are hidden').toBe(false);
+        expect(await reopenFocused(page), 'header reopen action takes focus').toBe(true);
         // The graph accepts input now: a slider change reaches the board.
         const slider = rangeSlider(page, '1.5');
         await slider.fill('1.4');
         await expect.poll(async () => Number(await slider.inputValue())).toBeCloseTo(1.4, 1);
 
-        // Back to the instructions: same frame, graph locked again, focus on the panel.
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-instructions'));
+        // Reopen before testing Escape: dismissal should only run while the panel is visible.
+        await pressOn(page, page.getByRole('button', {name: 'Back to the instructions'}));
+        await expect(lessonPanel(page)).toBeVisible();
+        expect(await progress(page)).toBe(observationLabel);
+        expect(await locked(page), 'graph locked while reopened instructions are visible').toBe(true);
+        expect(await panelFocused(page), 'focus returns to the reopened overlay').toBe(true);
+
+        // Escape from a header control hides the panel visually and focuses the surviving reopen action.
+        await page.getByRole('button', {name: 'Presentation mode'}).focus();
+        await page.keyboard.press('Escape');
+        await settle(page);
+        await expect(lessonPanel(page)).toHaveCount(0);
+        expect(await reopenFocused(page), 'Escape returns focus to the header reopen action').toBe(true);
+        expect(await locked(page), 'Escape leaves the graph available').toBe(false);
+
+        // Reopen instructions: same frame, graph locked again, focus on the panel.
+        await pressOn(page, page.getByRole('button', {name: 'Back to the instructions'}));
         await expect(nextButton(page)).toBeVisible();
         expect(await progress(page)).toBe(observationLabel);
-        expect(await locked(page), 'graph locked after Back to the instructions').toBe(true);
+        expect(await locked(page), 'graph locked after reopening instructions').toBe(true);
         expect(await panelFocused(page), 'focus returns to the overlay').toBe(true);
 
         // Continue advances to the next frame (the explanation of the next step) with the overlay open.
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        await pressOn(page, page.getByRole('button', {name: 'Continue lesson'}));
         await expect(nextButton(page)).toBeVisible();
         const after = await progress(page);
         expect(after, 'Continue advanced past the observation frame').not.toBe(observationLabel);
@@ -2289,30 +2302,30 @@ test.describe('Observation flow', () => {
             if (await lessonPanel(page).locator('.guided-lesson-observe').count() && /Finish/.test(await nextButton(page).getAttribute('aria-label'))) break;
         }
         await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        await pressOn(page, page.getByRole('button', {name: 'Continue lesson'}));
         await expect(page.locator('section.guided-lesson.guided-lesson-complete')).toBeVisible();
         expect(await locked(page), 'graph free after completion').toBe(false);
     });
 
-    test('playback stops when the overlay reopens and when Continue advances', async ({page}) => {
+    test('playback pauses when instructions reopen and Continue advances', async ({page}) => {
         await openLesson(page, {path: `${BASE}/bezier/decasteljau`}, 'en');
         await toFirstObservation(page);
         await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
-        const play = lessonPanel(page).locator('.guided-lesson-animation-controls button').first();
-        await expect(play, 'compact prompt offers playback on an animated frame').toBeVisible();
+        const play = page.locator('.workspace-actions .guided-lesson-animation-controls button').first();
+        await expect(play, 'workspace header offers playback on an animated frame').toBeVisible();
         const t = () => rangeSlider(page, '1').first().inputValue();
         await play.click();
         const first = await t();
         await expect.poll(t, {message: 'playback moves the t slider'}).not.toBe(first);
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-instructions'));
+        await pressOn(page, page.getByRole('button', {name: 'Back to the instructions'}));
         const frozen = await t();
         await page.waitForTimeout(700);
         expect(await t(), 'playback paused behind the overlay').toBe(frozen);
 
         await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
-        await lessonPanel(page).locator('.guided-lesson-animation-controls button').first().click();
+        await page.locator('.workspace-actions .guided-lesson-animation-controls button').first().click();
         await page.waitForTimeout(250);
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-continue'));
+        await pressOn(page, page.getByRole('button', {name: 'Continue lesson'}));
         const afterContinue = await t();
         await page.waitForTimeout(700);
         expect(await t(), 'no playback behind the next overlay').toBe(afterContinue);

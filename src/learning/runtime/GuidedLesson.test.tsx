@@ -82,7 +82,7 @@ test('offers content-first navigation and preserves step identity when language 
     render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={close}/>);
     expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Korak 1 od 2');
-    expect(screen.getByRole('button', {name: 'Končaj učno pot'})).toHaveClass('guided-lesson-close');
+    expect(screen.getByRole('button', {name: 'Končaj učno pot'})).toHaveClass('guided-lesson-exit');
     const backButton = screen.getByRole('button', {name: 'Nazaj'});
     const nextButton = screen.getByRole('button', {name: 'Naprej'});
     expect(backButton).toHaveClass('guided-lesson-nav-back');
@@ -103,51 +103,117 @@ test('offers content-first navigation and preserves step identity when language 
     act(() => setLanguage('sl'));
 });
 
-test('shows the observation in the full overlay first and collapses it only on request', () => {
+test('hides instructions without ending the session and reopens the same frame', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const caps = capabilities();
+        let showInstructions: (() => void) | undefined;
+        const started = vi.spyOn(LessonSession.prototype, 'start');
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         act(() => vi.advanceTimersByTime(250));
 
-        expect(document.querySelector('.guided-lesson-hidden-content')).not.toBeInTheDocument();
         expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
         expect(screen.getByRole('button', {name: 'Nazaj'})).toBeVisible();
-        expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toBeVisible();
 
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
         act(() => vi.advanceTimersByTime(250));
-        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toHaveClass('guided-lesson-continue');
-        expect(screen.getByText('Učna pot je skrita med raziskovanjem grafa.')).toBeVisible();
+        expect(container.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(started).toHaveBeenCalledTimes(1);
 
-        fireEvent.click(screen.getByRole('button', {name: 'Nazaj na navodila'}));
+        act(() => showInstructions?.());
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('button', {name: 'Nadaljuj učno pot'})).toBeVisible();
+        expect(started).toHaveBeenCalledTimes(1);
+    } finally {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
+test('rapidly reopening during the closing handoff restores panel focus without changing the lesson scene', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', vi.fn(() => ({matches: false, media: '(prefers-reduced-motion: reduce)', addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    setLanguage('sl');
+    try {
+        const caps = capabilities();
+        const started = vi.spyOn(LessonSession.prototype, 'start');
+        let showInstructions: (() => void) | undefined;
+        render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
+        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
+        act(() => showInstructions?.());
+
+        const panel = document.querySelector('.guided-lesson');
+        expect(panel).toBeInTheDocument();
+        expect(panel).toHaveClass('guided-lesson-handoff-opening');
+        expect(panel).toHaveFocus();
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
+        expect(started).toHaveBeenCalledTimes(1);
+        expect(caps.apply).not.toHaveBeenCalled();
+    } finally {
+        vi.unstubAllGlobals();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
+test('keeps the graph locked while instructions are visible and unlocks it only when hidden', () => {
+    vi.useFakeTimers();
+    setLanguage('sl');
+    try {
+        const onModeChange = vi.fn();
+        let showInstructions: (() => void) | undefined;
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
+        expect(onModeChange).toHaveBeenLastCalledWith('content');
+        observe();
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        act(() => showInstructions?.());
+        act(() => vi.advanceTimersByTime(250));
+        expect(onModeChange).toHaveBeenLastCalledWith('content');
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        act(() => vi.advanceTimersByTime(250));
+        expect(onModeChange).toHaveBeenLastCalledWith('complete');
     } finally {
         vi.useRealTimers();
         act(() => setLanguage('sl'));
     }
 });
 
-test('reports the graph as locked in the observation overlay and unlocked in the compact prompt', () => {
+test('Escape from outside the panel hides instructions without exiting the lesson', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
+        const onClose = vi.fn();
         const onModeChange = vi.fn();
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        expect(onModeChange).toHaveBeenLastCalledWith('content');
-        observe();
-        expect(onModeChange).toHaveBeenLastCalledWith('explore');
-        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={onClose} onModeChange={onModeChange}/>);
+        const event = new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true});
+        document.dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(true);
         act(() => vi.advanceTimersByTime(250));
-        expect(onModeChange).toHaveBeenLastCalledWith('complete');
+        expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        expect(onClose).not.toHaveBeenCalled();
     } finally {
         vi.useRealTimers();
         act(() => setLanguage('sl'));
@@ -158,10 +224,14 @@ test('Continue advances to the next frame and opens its overlay', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        let showInstructions: (() => void) | undefined;
+        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         observe();
+        act(() => showInstructions?.());
+        act(() => vi.advanceTimersByTime(250));
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('heading', {name: 'Zaključek'})).toBeVisible();
@@ -178,10 +248,14 @@ test('Continue on the last observation frame completes the lesson', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        let showInstructions: (() => void) | undefined;
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         observe();
+        act(() => showInstructions?.());
+        act(() => vi.advanceTimersByTime(250));
         fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
@@ -203,136 +277,33 @@ test('Back from an observation overlay returns to the previous frame', () => {
     expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
 });
 
-test('allows the compact observation prompt to move with keyboard arrows', () => {
-    vi.useFakeTimers();
-    setLanguage('sl');
-    try {
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        observe();
-
-        const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
-        expect(prompt).toHaveAttribute('tabindex', '0');
-        fireEvent.keyDown(prompt, {key: 'ArrowRight'});
-        expect(prompt.parentElement).toHaveStyle({left: '12px'});
-    } finally {
-        vi.useRealTimers();
-        act(() => setLanguage('sl'));
-    }
-});
-
-test('keeps the compact observation prompt inside the coordinate system rectangle', () => {
-    vi.useFakeTimers();
-    setLanguage('sl');
-    try {
-        const graphRef = React.createRef<HTMLDivElement>();
-        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={vi.fn()}/></div>);
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        observe();
-
-        const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
-        const lessonElement = prompt.parentElement as HTMLElement;
-        const graphElement = graphRef.current as HTMLElement;
-        Object.defineProperty(graphElement, 'getBoundingClientRect', {configurable: true, value: () => ({left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300})});
-        Object.defineProperty(lessonElement, 'getBoundingClientRect', {
-            configurable: true,
-            value: () => {
-                const left = 200 + Number.parseFloat(lessonElement.style.left || '0');
-                const top = 150 + Number.parseFloat(lessonElement.style.top || '0');
-                return {left, top, right: left + 400, bottom: top + 100, width: 400, height: 100};
-            },
-        });
-        Object.defineProperty(prompt, 'getBoundingClientRect', {
-            configurable: true,
-            value: () => {
-                const left = 200 + Number.parseFloat(lessonElement.style.left || '0');
-                const top = 150 + Number.parseFloat(lessonElement.style.top || '0');
-                return {left, top, right: left + 200, bottom: top + 100, width: 200, height: 100};
-            },
-        });
-
-        for (let index = 0; index < 20; index += 1) fireEvent.keyDown(prompt, {key: 'ArrowLeft'});
-        expect(lessonElement).toHaveStyle({left: '-92px'});
-    } finally {
-        vi.useRealTimers();
-        act(() => setLanguage('sl'));
-    }
-});
-
-test('allows a pointer drag to move the compact observation prompt toward the right edge', () => {
-    vi.useFakeTimers();
-    setLanguage('sl');
-    try {
-        const graphRef = React.createRef<HTMLDivElement>();
-        render(<div className="demonstration-workspace"><div ref={graphRef}/><GuidedLesson lesson={denseLesson} capabilities={capabilities()} graphContainer={graphRef} onClose={vi.fn()}/></div>);
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        observe();
-
-        const prompt = document.querySelector('.guided-lesson-hidden-content') as HTMLElement;
-        const lessonElement = prompt.parentElement as HTMLElement;
-        const graphElement = graphRef.current as HTMLElement;
-        Object.defineProperty(graphElement, 'getBoundingClientRect', {configurable: true, value: () => ({left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300})});
-        Object.defineProperty(lessonElement, 'getBoundingClientRect', {
-            configurable: true,
-            value: () => {
-                const left = 200 + Number.parseFloat(lessonElement.style.left || '0');
-                const top = 150 + Number.parseFloat(lessonElement.style.top || '0');
-                return {left, top, right: left + 400, bottom: top + 100, width: 400, height: 100};
-            },
-        });
-        Object.defineProperty(prompt, 'getBoundingClientRect', {
-            configurable: true,
-            value: () => {
-                const left = 200 + Number.parseFloat(lessonElement.style.left || '0');
-                const top = 150 + Number.parseFloat(lessonElement.style.top || '0');
-                return {left, top, right: left + 200, bottom: top + 100, width: 200, height: 100};
-            },
-        });
-        Object.defineProperty(prompt, 'setPointerCapture', {configurable: true, value: vi.fn()});
-        Object.defineProperty(prompt, 'hasPointerCapture', {configurable: true, value: () => true});
-        Object.defineProperty(prompt, 'releasePointerCapture', {configurable: true, value: vi.fn()});
-
-        const dispatchPointer = (type: string, values: Record<string, unknown>) => {
-            const event = new Event(type, {bubbles: true});
-            Object.entries(values).forEach(([key, value]) => Object.defineProperty(event, key, {configurable: true, value}));
-            prompt.dispatchEvent(event);
-        };
-        act(() => {
-            dispatchPointer('pointerdown', {pointerId: 1, pointerType: 'mouse', button: 0, clientX: 300, clientY: 200});
-            dispatchPointer('pointermove', {pointerId: 1, clientX: 450, clientY: 200});
-            dispatchPointer('pointerup', {pointerId: 1});
-        });
-        expect(lessonElement).toHaveStyle({left: '92px'});
-    } finally {
-        vi.useRealTimers();
-        act(() => setLanguage('sl'));
-    }
-});
-
-test('offers observation playback only beside the visible graph and pauses it when the lesson returns', () => {
+test('pauses graph animation when hiding instructions and reopening does not restart it', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
         const apply = vi.fn();
-        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
+        let showInstructions: (() => void) | undefined;
+        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        observe();
         const controls = screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'});
-        expect(controls.closest('.guided-lesson-hidden-content')).not.toBeNull();
+        expect(controls.closest('.guided-lesson-exploration')).not.toBeNull();
         expect(controls.querySelectorAll('svg.guided-lesson-animation-icon')).toHaveLength(3);
         fireEvent.click(screen.getByRole('button', {name: /Predvajaj/}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'play'});
 
-        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila učne poti'}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
         act(() => vi.advanceTimersByTime(250));
+        expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        act(() => showInstructions?.());
+        act(() => vi.advanceTimersByTime(250));
+        expect(screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'})).toBeVisible();
+        expect(apply.mock.calls.filter(([command]) => command?.kind === 'animation' && command.command === 'play')).toHaveLength(1);
+        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
-        expect(screen.queryByRole('button', {name: /Predvajaj/})).not.toBeInTheDocument();
-        expect(screen.queryByRole('group', {name: 'Kontrole animacije konstrukcije'})).not.toBeInTheDocument();
     } finally {
         vi.useRealTimers();
         act(() => setLanguage('sl'));
@@ -347,8 +318,8 @@ test('does not pause playback that the observation never started', () => {
         render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
-        observe();
-        fireEvent.click(screen.getByRole('button', {name: 'Nadaljuj učno pot'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila učne poti'}));
+        act(() => vi.advanceTimersByTime(250));
         expect(apply).not.toHaveBeenCalledWith(expect.objectContaining({kind: 'animation'}));
     } finally {
         vi.useRealTimers();
@@ -434,11 +405,12 @@ describe('session subscription', () => {
     });
 });
 
-test('typesets mathematics in the observation overlay and after the prompt collapses the overlay', async () => {
+test('typesets mathematics again when hidden observation instructions reopen', async () => {
     setLanguage('sl');
     const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: Mock; typesetPromise: Mock}};
     const previousMathJax = win.MathJax;
     const typesetPromise = vi.fn((..._args: unknown[]) => Promise.resolve());
+    let showInstructions: (() => void) | undefined;
     win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise};
     const mathLesson: LessonDefinition = {
         id: 'math-observation-test', demonstrationId: 'bezier', title: {sl: 'Matematika', en: 'Mathematics'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -449,12 +421,19 @@ test('typesets mathematics in the observation overlay and after the prompt colla
     };
 
     try {
-        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={vi.fn()}
+            registerShowInstructions={show => { showInstructions = show; }}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej'}));
         await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-exploration'))).toBe(true));
-        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
-        await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-hidden-content'))).toBe(true));
+        const initialTypesetCount = typesetPromise.mock.calls.length;
+        vi.useFakeTimers();
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila učne poti'}));
+        act(() => vi.advanceTimersByTime(250));
+        act(() => showInstructions?.());
+        vi.useRealTimers();
+        await waitFor(() => expect(typesetPromise.mock.calls.length).toBeGreaterThan(initialTypesetCount));
     } finally {
+        vi.useRealTimers();
         if (previousMathJax) win.MathJax = previousMathJax;
         else delete win.MathJax;
         act(() => setLanguage('sl'));

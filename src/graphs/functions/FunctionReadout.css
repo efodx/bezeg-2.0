@@ -1,6 +1,7 @@
 .function-inspector { display: contents; }
 .function-readout dl { margin: 0; }
 .function-readout-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }
+.function-readout-row > * { min-width: 0; overflow-wrap: anywhere; }
 .function-readout-row dt { font-weight: 600; font-size: .86rem; }
 /* Reveal area: the results the reader asks to show, set apart from the parameters and before the readout they reveal. */
 .inspector-reveals { margin-bottom: 12px; padding: 0 0 2px 10px; border-left: 2px solid var(--workspace-green); }

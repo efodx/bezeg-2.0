@@ -6,6 +6,7 @@ const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
 const exitButton = page => lessonPanel(page).getByRole('button', {name: 'Exit lesson'});
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
+const reopenButton = page => page.getByRole('button', {name: /Back to the instructions|Nazaj na navodila/});
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
 
 // Uncaught page errors and console errors fail every test. Call once at file level.
@@ -110,21 +111,20 @@ async function countSetterValue(page, index) {
     return Number(text.replace(/\D+/g, ''));
 }
 
-// The runtime animates overlay hand-offs (about 220ms) unless reduced motion is set (playwright.config.cjs does); wait until the panel is steady.
+// Wait until either the instruction panel or its outside-the-graph reopen action is available.
 async function settle(page) {
-    await expect(lessonPanel(page)).toHaveClass(/guided-lesson-handoff-visible|guided-lesson-hidden/);
+    await expect.poll(async () => {
+        if (await reopenButton(page).isVisible() && !(await nextButton(page).isVisible())) return true;
+        return /guided-lesson-handoff-visible/.test((await lessonPanel(page).getAttribute('class')) || '');
+    }).toBe(true);
     await page.waitForTimeout(20);
 }
 
-// Reveals the full lesson panel. Observation frames now open in the full overlay first, so this is a no-op
-// unless a test collapsed the panel to the compact prompt; then "Back to the instructions" (not Continue,
-// which now advances a frame) re-opens the overlay for the same frame.
+// Reopens instructions from the workspace header. Continue remains a separate frame-advancing action.
 async function reveal(page) {
     await settle(page);
     if (!(await nextButton(page).isVisible())) {
-        // Keyboard activation: a pointer click can be intercepted by board labels (see the pointer test).
-        const back = lessonPanel(page).getByRole('button', {name: /Back to the instructions|Nazaj na navodila/});
-        await back.focus();
+        await reopenButton(page).focus();
         await page.keyboard.press('Enter');
         await settle(page);
     }
@@ -200,7 +200,7 @@ async function pressNextWithKeyboard(page) {
 }
 
 module.exports = {
-    lessonPanel, nextButton, backButton, exitButton, learnButton, lessonHeading,
+    lessonPanel, nextButton, backButton, exitButton, learnButton, reopenButton, lessonHeading,
     failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
     openInspectorTab, countSetterValue,

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, useSyncExternalStore} from 'react';
-import {useLanguage, Language, t} from '../../localization';
+import {useLanguage, useT, Language, t} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
@@ -18,11 +18,7 @@ type MathJaxApi = {
 
 type LessonMode = 'content' | 'explore' | 'complete' | 'closed';
 type LessonOverlayPhase = 'visible' | 'closing' | 'hidden' | 'opening';
-type PromptPosition = {x: number; y: number};
-type PromptDragState = PromptPosition & {pointerId: number; startX: number; startY: number; minX: number; maxX: number; minY: number; maxY: number};
-
 const LESSON_HANDOFF_DURATION_MS = 220;
-const PROMPT_MOVE_STEP = 12;
 
 function frameLabel(frame: LessonFrame) {
     if (frame.kind === 'calculation') return t('guided_lesson_calculation');
@@ -52,16 +48,16 @@ export function GuidedLesson(props: {
     onClose: () => void;
     onModeChange?: (mode: LessonMode) => void;
     registerClose?: (close: (() => void) | undefined) => void;
-    /** The element holding the graph board; its bounds limit the movable prompt. */
-    graphContainer?: React.RefObject<HTMLElement>;
+    registerShowInstructions?: (show: (() => void) | undefined) => void;
+    registerExit?: (exit: (() => void) | undefined) => void;
+    registerGraphActions?: (actions: {continueLesson?: () => void; animationControls?: React.ReactNode} | undefined) => void;
 }) {
     const {language} = useLanguage();
+    const t = useT();
     const [startupError, setStartupError] = useState<string>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
-    const [promptPosition, setPromptPosition] = useState<PromptPosition>({x: 0, y: 0});
     const lessonRef = useRef<HTMLElement>(null);
     const handoffTimer = useRef<number>();
-    const promptDrag = useRef<PromptDragState>();
     const animationPlaying = useRef(false);
     // The session is kept in state with the inputs it was built from and replaced when either prop changes.
     // Creating it is side-effect free; starting and closing it belong to the effect below.
@@ -83,9 +79,10 @@ export function GuidedLesson(props: {
     const isComplete = snapshot.status === 'complete';
     const isExploring = snapshot.status === 'explore';
     const overlayVisible = overlayPhase !== 'hidden';
-    // The graph is locked ('content') while the overlay is shown, including the overlay of an observation frame;
-    // only the compact prompt ('explore') unlocks it.
-    const mode: LessonMode = isComplete ? 'complete' : isExploring && !overlayVisible ? 'explore' : 'content';
+    // A visible instruction panel locks graph edits; hiding the panel unlocks the current scene.
+    const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening'
+        ? isComplete ? 'complete' : 'content'
+        : 'explore';
     const onModeChange = props.onModeChange;
 
     const clearHandoffTimer = () => {
@@ -100,6 +97,7 @@ export function GuidedLesson(props: {
         session.applyAnimation(frame.animation.animationId, command);
         animationPlaying.current = command !== 'pause';
     };
+
 
     const scheduleOverlayPhase = (phase: LessonOverlayPhase) => {
         clearHandoffTimer();
@@ -116,6 +114,14 @@ export function GuidedLesson(props: {
 
     const hideOverlay = () => {
         clearHandoffTimer();
+        props.onModeChange?.('explore');
+        if (frame.animation && animationPlaying.current) {
+            try {
+                animateFrame('pause');
+            } catch (error) {
+                setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            }
+        }
         setOverlayPhase('closing');
         scheduleOverlayPhase('hidden');
     };
@@ -123,7 +129,8 @@ export function GuidedLesson(props: {
     const showOverlay = () => {
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
-        // Playback controls live only in the compact prompt; never keep animating behind the overlay.
+        props.onModeChange?.(isComplete ? 'complete' : 'content');
+        // Playback controls are outside the graph while instructions are hidden; reopening pauses playback.
         if (frame.animation && animationPlaying.current) {
             try {
                 animateFrame('pause');
@@ -135,76 +142,6 @@ export function GuidedLesson(props: {
         scheduleOverlayPhase('visible');
     };
 
-    const promptBounds = (position: PromptPosition) => {
-        const lessonElement = lessonRef.current;
-        const workspace = lessonElement?.closest('.demonstration-workspace');
-        const graphElement = props.graphContainer?.current ?? workspace?.querySelector('.workspace-graph');
-        if (!(lessonElement instanceof HTMLElement) || !(graphElement instanceof HTMLElement)) return undefined;
-        const promptElement = lessonElement.querySelector<HTMLElement>('.guided-lesson-hidden-content') ?? lessonElement;
-        const promptRect = promptElement.getBoundingClientRect();
-        const graphRect = graphElement.getBoundingClientRect();
-        const baseLeft = promptRect.left - position.x;
-        const baseTop = promptRect.top - position.y;
-        const minX = graphRect.left + 8 - baseLeft;
-        const minY = graphRect.top + 8 - baseTop;
-        return {
-            minX,
-            maxX: Math.max(minX, graphRect.right - promptRect.width - 8 - baseLeft),
-            minY,
-            maxY: Math.max(minY, graphRect.bottom - promptRect.height - 8 - baseTop),
-        };
-    };
-
-    const movePromptBy = (deltaX: number, deltaY: number) => {
-        setPromptPosition(current => {
-            const next = {x: current.x + deltaX, y: current.y + deltaY};
-            const bounds = promptBounds(current);
-            if (!bounds) return next;
-            return {
-                x: Math.min(Math.max(next.x, bounds.minX), bounds.maxX),
-                y: Math.min(Math.max(next.y, bounds.minY), bounds.maxY),
-            };
-        });
-    };
-
-    const beginPromptDrag = (event: React.PointerEvent<HTMLElement>) => {
-        if (event.pointerType !== 'touch' && event.button !== 0) return;
-        if ((event.target as HTMLElement).closest('button')) return;
-        const bounds = promptBounds(promptPosition);
-        if (!bounds) return;
-        promptDrag.current = {...promptPosition, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, ...bounds};
-        event.currentTarget.setPointerCapture(event.pointerId);
-        event.preventDefault();
-    };
-
-    const movePromptDrag = (event: React.PointerEvent<HTMLElement>) => {
-        const drag = promptDrag.current;
-        if (!drag || drag.pointerId !== event.pointerId) return;
-        const nextX = Math.min(Math.max(drag.x + event.clientX - drag.startX, drag.minX), drag.maxX);
-        const nextY = Math.min(Math.max(drag.y + event.clientY - drag.startY, drag.minY), drag.maxY);
-        setPromptPosition({x: nextX, y: nextY});
-    };
-
-    const endPromptDrag = (event: React.PointerEvent<HTMLElement>) => {
-        if (promptDrag.current?.pointerId !== event.pointerId) return;
-        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-        promptDrag.current = undefined;
-    };
-
-    const handlePromptKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-        if ((event.target as HTMLElement).closest('button')) return;
-        const step = event.shiftKey ? PROMPT_MOVE_STEP * 4 : PROMPT_MOVE_STEP;
-        const deltas: Record<string, PromptPosition> = {
-            ArrowLeft: {x: -step, y: 0},
-            ArrowRight: {x: step, y: 0},
-            ArrowUp: {x: 0, y: -step},
-            ArrowDown: {x: 0, y: step},
-        };
-        const delta = deltas[event.key];
-        if (!delta) return;
-        event.preventDefault();
-        movePromptBy(delta.x, delta.y);
-    };
 
     useEffect(() => {
         try {
@@ -223,12 +160,23 @@ export function GuidedLesson(props: {
     useEffect(() => {
         clearHandoffTimer();
         setOverlayPhase('visible');
-        setPromptPosition({x: 0, y: 0});
-        promptDrag.current = undefined;
         return clearHandoffTimer;
     }, [props.lesson]);
 
     useEffect(() => () => clearHandoffTimer(), []);
+
+    useEffect(() => {
+        if (!overlayVisible) return undefined;
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[role="dialog"]')) return;
+            const target = event.target;
+            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) return;
+            event.preventDefault();
+            hideOverlay();
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [overlayVisible, hideOverlay]);
 
     useEffect(() => {
         const element = lessonRef.current;
@@ -266,12 +214,13 @@ export function GuidedLesson(props: {
     useEffect(() => {
         const element = lessonRef.current;
         if (!element) return;
-        if (overlayVisible) {
+        // While closing, the host owns focus on its persistent reopen control. A
+        // rapid reopen changes the phase to opening while visibility stays true,
+        // so track the phase to return focus to the panel in that transition.
+        if (overlayPhase === 'opening' || overlayPhase === 'visible') {
             element.focus({preventScroll: true});
-        } else {
-            (element.querySelector('.guided-lesson-hidden-content') as HTMLElement | null)?.focus();
         }
-    }, [overlayVisible]);
+    }, [overlayPhase]);
 
     const refresh = (operation: () => void) => {
         try {
@@ -282,7 +231,7 @@ export function GuidedLesson(props: {
         }
     };
 
-    // The compact prompt's Continue advances past the observation and opens the overlay for the next frame.
+    // Continue advances past the observation and opens the overlay for the next frame.
     const continueAfterObservation = () => {
         if (frame.animation && animationPlaying.current) {
             // Never keep animating behind the overlay.
@@ -304,9 +253,37 @@ export function GuidedLesson(props: {
         props.onClose();
     };
 
-    const closeButton = <button type="button" className="guided-lesson-close" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={close}>
-        <span aria-hidden="true">×</span>
-    </button>;
+    const animationControls = frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
+        {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
+            <AnimationIcon command={command}/>{t(command)}
+        </button>)}
+    </div>;
+
+    const showInstructionsRef = useRef(showOverlay);
+    const exitRef = useRef(close);
+    const continueRef = useRef(continueAfterObservation);
+    showInstructionsRef.current = showOverlay;
+    exitRef.current = close;
+    continueRef.current = continueAfterObservation;
+
+    useEffect(() => {
+        props.registerShowInstructions?.(() => showInstructionsRef.current());
+        props.registerExit?.(() => exitRef.current());
+        return () => {
+            props.registerShowInstructions?.(undefined);
+            props.registerExit?.(undefined);
+        };
+    }, [session, props.registerShowInstructions, props.registerExit]);
+
+    useEffect(() => {
+        props.registerGraphActions?.(isExploring ? {
+            continueLesson: () => continueRef.current(),
+            animationControls,
+        } : undefined);
+        return () => props.registerGraphActions?.(undefined);
+    }, [session, props.registerGraphActions, isExploring, frame.id, frame.animation?.animationId, language]);
+
+    const closeButton = <button type="button" className="guided-lesson-exit" onClick={close}>{t('exit_lesson')}</button>;
 
     if (startupError) {
         return <section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
@@ -316,26 +293,7 @@ export function GuidedLesson(props: {
         </section>;
     }
 
-    // Keep exploration lightweight: the graph owns the interaction while this
-    // affordance preserves the current observation and the path back to content.
-    if (!overlayVisible && isExploring) {
-        return <section ref={lessonRef} className="guided-lesson guided-lesson-hidden" aria-label={t('guided_lesson')} style={{left: promptPosition.x, top: promptPosition.y}}>
-            <div className="guided-lesson-hidden-content" role="status" aria-live="polite" tabIndex={0} title={t('move_lesson_prompt')} aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown" onPointerDown={beginPromptDrag} onPointerMove={movePromptDrag} onPointerUp={endPromptDrag} onPointerCancel={endPromptDrag} onKeyDown={handlePromptKeyDown}>
-                <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
-                <strong>{localized(frame.title, language)}</strong>
-                {frame.prompt && <span>{localized(frame.prompt, language)}</span>}
-                {frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
-                    {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
-                        <AnimationIcon command={command}/>{t(command)}
-                    </button>)}
-                </div>}
-                <span className="guided-lesson-hidden-hint">{t('guided_lesson_hidden_hint')}</span>
-                <button type="button" className="guided-lesson-continue" onClick={continueAfterObservation}>{t('continue_lesson')}</button>
-                <button type="button" className="guided-lesson-instructions" onClick={showOverlay}>{t('back_to_instructions')}</button>
-                {closeButton}
-            </div>
-        </section>;
-    }
+    if (!overlayVisible) return null;
 
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
@@ -344,6 +302,7 @@ export function GuidedLesson(props: {
         <div className="guided-lesson-heading">
             <div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
                 {!isExploring && !isComplete && <p>{localized(props.lesson.summary, language)}</p>}</div>
+            <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>
             {closeButton}
         </div>
         {!isComplete && <>
@@ -373,11 +332,13 @@ export function GuidedLesson(props: {
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <strong>{localized(frame.title, language)}</strong>
             {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
+            {animationControls}
         </div>}
         {isComplete && <p role="status">{t('guided_lesson_free_exploration')}</p>}
         {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}
         {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
             {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
+            {isExploring && <button type="button" className="guided-lesson-continue" onClick={continueAfterObservation}>{t('continue_lesson')}</button>}
             {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
         </div>}
     </section>;

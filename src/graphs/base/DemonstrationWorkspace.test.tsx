@@ -6,6 +6,7 @@ import {SiteContext} from "../context/react/SiteContext";
 import {setLanguage} from '../../localization';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {MockedFunction} from 'vitest';
+import type {LessonDefinition} from '../../learning/model';
 
 // Every active route now has a reviewed lesson, so the "no lesson" branch is exercised by letting the allowlist
 // seam report an unavailable route for one test.
@@ -102,6 +103,53 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
 
     expect(await screen.findByRole('heading', {level: 2, name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
+});
+
+test('lesson header preserves the frame through hide, supports Continue, and exits with focus restored', async () => {
+    setLanguage('en');
+    const lesson: LessonDefinition = {
+        id: 'workspace-hide-test', demonstrationId: 'bezier', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
+        steps: [{id: 'step', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'}, frames: [
+            {id: 'read', kind: 'explanation', title: {sl: 'Uvod', en: 'Introduction'}, body: {sl: 'Besedilo', en: 'Reading'}},
+            {id: 'observe', kind: 'observation', title: {sl: 'Opazovanje', en: 'Observation'}, prompt: {sl: 'Preveri graf.', en: 'Inspect the graph.'}},
+        ]}],
+    };
+    lessonLookup.mockReturnValue(lesson);
+    const capabilities = {captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()};
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Explore"
+        edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} lessonCapabilities={capabilities}/></MemoryRouter>);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
+    await screen.findByRole('heading', {name: 'Introduction'});
+    fireEvent.click(screen.getByRole('button', {name: 'Next'}));
+    expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
+    expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
+    const progress = document.querySelector('.guided-lesson-progress')?.textContent;
+
+    fireEvent.click(screen.getByRole('button', {name: 'Hide lesson instructions'}));
+    await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
+    const reopen = screen.getByRole('button', {name: 'Back to the instructions'});
+    await waitFor(() => expect(reopen).toHaveFocus());
+    expect(screen.queryByRole('button', {name: 'Learn this demonstration'})).not.toBeInTheDocument();
+    expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
+    expect(capabilities.restoreState).not.toHaveBeenCalled();
+
+    const parameter = screen.getByLabelText('Parameter');
+    fireEvent.change(parameter, {target: {value: '.8'}});
+    fireEvent.click(reopen);
+    expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
+    expect(document.querySelector('.guided-lesson-progress')?.textContent).toBe(progress);
+    expect(parameter).toHaveValue('.8');
+    expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
+
+    fireEvent.click(screen.getByRole('button', {name: 'Hide lesson instructions'}));
+    await waitFor(() => expect(screen.getByRole('button', {name: 'Continue lesson'})).toBeVisible());
+    fireEvent.click(screen.getByRole('button', {name: 'Continue lesson'}));
+    expect(await screen.findByText('Lesson complete')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', {name: 'Exit lesson'}));
+    await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
+    act(() => setLanguage('sl'));
 });
 
 test('Bernstein exploration does not instruct students to drag control points', () => {

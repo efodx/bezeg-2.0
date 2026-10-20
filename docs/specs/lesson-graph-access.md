@@ -1,6 +1,7 @@
 # Keep the graph usable during Guided lessons
 
-**Status:** proposed follow-up; planning only, no app implementation authorized by this task preparation.
+**Status:** implemented and locally verified on 2026-10-20 after owner authorization; small lesson tab selected. Acceptance and publication evidence is recorded in the linked task.
+**Implementation task:** [Restore graph access](../tasks/lesson-graph-access/restore-graph-access.md)
 **Reported:** 2026-10-20
 **Related contracts:** [Guided lessons](guided-lessons.md), especially Learner experience; [Standalone learning](standalone-learning.md), especially activity context and narrow screens; [guardrails](../guardrails.md).
 
@@ -14,7 +15,7 @@ After handing control to graph exploration, the supposedly compact Observation p
 
 The owner reports that X closes the demonstration. Inspection of the current working tree shows the prompt's shared close button calls `session.close()` and the host close callback: it exits the lesson, rather than providing a reversible way to hide instructions. Confirm the exact host/navigation effect during reproduction; do not assume the screenshot proves a route change.
 
-Relevant implementation starting points: `src/learning/runtime/GuidedLesson.tsx`, `GuidedLesson.css`, and the host in `src/graphs/base/DemonstrationWorkspace.tsx`. These files currently contain unrelated in-progress work; inspect the implementation that exists when the task begins.
+Relevant implementation starting points: `src/learning/runtime/GuidedLesson.tsx`, `GuidedLesson.css`, and the host in `src/graphs/base/DemonstrationWorkspace.tsx`. Implementation started from `c2c3fcc`; the only existing working-tree change was the unrelated untracked `debug.log`.
 
 ## Options to evaluate
 
@@ -24,7 +25,13 @@ Relevant implementation starting points: `src/learning/runtime/GuidedLesson.tsx`
 | Responsive dock | Instructions sit beside the graph on wide screens and in a collapsible section below it on narrow screens. The collapsed header opens the current frame. | Keeps text available without covering geometry, but can shrink the board or require page scrolling. Avoid a permanent large prompt column. |
 | Separate reading and exploration views | Read the full instruction, enter a graph-focused view with a small return action, and deliberately reopen reading when needed. | Strongest separation for long explanations, but adds switching and overlaps with the chapter/activity direction; coordinate with that work before a broader redesign. |
 
-Prefer the lesson tab as the bounded first candidate, with responsive docking if simultaneous reading is demonstrably useful. The owner has requested suggestions, not selected an option. Do not treat this recommendation as approval of a full lesson redesign. Preserve content-first reading before exploration; shorten the chrome rather than silently remove essential instructions.
+## Layout decision — 2026-10-20
+
+The owner authorized implementation and selected the recommended small lesson tab as the starting layout. Place the labeled reopen tab in the workspace heading, outside the plotting area, where it remains available in Presentation mode. Hide instructions in the reading panel removes the card and observation prompt from the graph; reopening restores the same frame. Keep Continue lesson and explicit Exit lesson distinct from visibility controls. Preserve content-first observation reading and the complete prompt when instructions are open.
+
+Visibility belongs to the mounted lesson UI, independently of `LessonSession` progression and graph ownership. Hide/reopen must not invoke scene preparation, checkpoint restoration, navigation, or board replacement. Escape dismisses visible instructions without exiting; only explicit Exit restores the entry checkpoint. Pause active lesson playback when hiding or returning to reading; reopening never starts or restarts it. Continue advances through the existing session operation and completion retains final-scene exploration.
+
+This replaces the movable full-prompt card with an action outside the plot. The trade-off is that reading and graph exploration alternate; the learner can reopen the complete instruction deliberately. A responsive dock or separate reading view would add layout and navigation complexity beyond this fix. Long reading content may scroll within its bounded card so actions remain reachable at reduced height and enlarged text. No routes, preset data, mathematics, or chapter activity entry behavior change.
 
 ## Bounded outcome and acceptance criteria
 
@@ -46,4 +53,4 @@ Because this changes shared lesson interaction, use `$smoke-tester` and the full
 
 ## Exclusions
 
-No implementation now; no lesson-content rewrite, mathematical changes, renderer migration, persistent progress, or curriculum redesign. A wider reading/activity redesign requires a separately agreed scope.
+No lesson-content rewrite, mathematical changes, renderer migration, persistent progress, or curriculum redesign. A wider reading/activity redesign requires a separately agreed scope.

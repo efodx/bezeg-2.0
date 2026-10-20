@@ -1133,6 +1133,7 @@ export const sl = {
     "open_navigation": "Odpri navigacijo",
     "guided_lesson": "Vodena učna pot",
     "observe_on_graph": "Opazuj na grafu",
+    "hide_lesson_instructions": "Skrij navodila učne poti",
     "back_to_instructions": "Nazaj na navodila",
     "continue_lesson": "Nadaljuj učno pot",
     "move_lesson_prompt": "Premakni opazovalni namig",
