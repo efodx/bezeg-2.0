@@ -1,6 +1,7 @@
 import {ChapterActivityVisit} from './ChapterActivityVisit';
 import {findActivity} from './activities';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
+import {ActivitySessionRollbackError} from './ActivitySession';
 
 function graph(): LessonGraphCapabilities {
     return {
@@ -68,4 +69,47 @@ test('throwing lesson cleanup skips capture but clears the old session and prese
     const secondGraph = makeGraph();
     visit.enterActivity(activity, secondGraph, 'next-entry');
     expect(value).toBe(24);
+});
+
+test('ordinary return rolls a partial restore back to the current scene and retries the saved reading scene', () => {
+    const visit = new ChapterActivityVisit();
+    let value = 12;
+    const capabilities: LessonGraphCapabilities = {
+        captureState: vi.fn((): LessonSceneCheckpoint => ({version: 1, value})),
+        restoreState: vi.fn(saved => { value = saved.value as number; }),
+        apply: vi.fn(), pauseAnimations: vi.fn(),
+    };
+    visit.readAbout('bezier', capabilities, '/bezeg-2.0/bezier/curve', 'entry', vi.fn());
+    value = 27;
+    vi.mocked(capabilities.restoreState).mockImplementationOnce(() => {
+        value = -1;
+        throw new Error('partial ordinary restore');
+    });
+    expect(() => visit.restoreOrdinary('bezier', capabilities)).toThrow('partial ordinary restore');
+    expect(value).toBe(27);
+    visit.retry();
+    expect(value).toBe(12);
+});
+
+test('ordinary return leaves the current scene intact on capture failure and reports impossible rollback', () => {
+    const visit = new ChapterActivityVisit();
+    let value = 12;
+    const capabilities: LessonGraphCapabilities = {
+        captureState: vi.fn((): LessonSceneCheckpoint => ({version: 1, value})),
+        restoreState: vi.fn(saved => { value = saved.value as number; }),
+        apply: vi.fn(),
+    };
+    visit.readAbout('bezier', capabilities, '/bezeg-2.0/bezier/curve', 'entry', vi.fn());
+    value = 27;
+    vi.mocked(capabilities.captureState).mockImplementationOnce(() => { throw new Error('capture failed'); });
+    expect(() => visit.restoreOrdinary('bezier', capabilities)).toThrow('capture failed');
+    expect(value).toBe(27);
+    expect(capabilities.restoreState).not.toHaveBeenCalled();
+
+    vi.mocked(capabilities.restoreState).mockImplementation(() => {
+        value = -1;
+        throw new Error('restore unavailable');
+    });
+    expect(() => visit.retry()).toThrow(ActivitySessionRollbackError);
+    expect(value).toBe(-1);
 });

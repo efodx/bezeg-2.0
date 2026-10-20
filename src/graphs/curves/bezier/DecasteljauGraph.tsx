@@ -112,11 +112,16 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     protected override restoreLessonState(checkpoint: LessonSceneCheckpoint): void {
+        if (!this.graphSession?.isReady) return;
         // Checkpoint import rebuilds the source curve. Defer the auxiliary plot until the restored
         // wholeCurve option is committed against that new source curve.
         this.setState({wholeCurve: false});
         this.syncWholeCurve();
         super.restoreLessonState(checkpoint);
+        // A failed synchronous scene can return t to its pre-commit value. The host
+        // then sees no parameter change, so reconcile the drawn value here too.
+        this.publishedParameter = undefined;
+        this.drawParameter(this.state.t);
         // State writes are synchronous, while onStateChange runs at the host commit. If the
         // checkpoint also says true, that commit can observe true -> true after the temporary
         // false write and skip the change callback. Reconcile the auxiliary curve explicitly

@@ -90,15 +90,127 @@ test('moves through explicit frames before changing steps and cancels transient 
 
 test('exit restores the captured state and completion leaves the final scene available', () => {
     const fake = fakeCapabilities();
-    const session = new LessonSession(lesson, fake.capabilities);
+    const finalSceneAction: LessonAction = {kind: 'curve-visibility', target: 'control-polygon', visible: true};
+    const completionLesson: LessonDefinition = {
+        ...lesson,
+        steps: [lesson.steps[0], {...lesson.steps[1], scene: {actions: [finalSceneAction]}}],
+    };
+    const session = new LessonSession(completionLesson, fake.capabilities);
     session.start();
     session.next();
+    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
     session.next();
     expect(session.snapshot().status).toBe('complete');
+    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
     session.close();
     expect(session.snapshot().status).toBe('closed');
     expect(fake.getValue()).toBe('original');
     expect(fake.capabilities.restoreState).toHaveBeenCalled();
+});
+
+test('synchronous scene actions read earlier writes and a later failure restores lesson entry', () => {
+    const state = {t: 0.1, observedT: 0.1};
+    const observedValues: number[] = [];
+    const capabilities: LessonGraphCapabilities = {
+        captureState: vi.fn((): LessonSceneCheckpoint => ({version: 1, value: {...state}})),
+        restoreState: vi.fn(saved => Object.assign(state, saved.value as object)),
+        apply: vi.fn(action => {
+            if (action.kind === 'parameter' && action.name === 't') state.t = action.value;
+            else if (action.kind === 'animation' && action.animationId === 'bisection' && action.command === 'next-step') observedValues.push(state.t);
+            else throw new Error('later action failed');
+        }),
+        stopAnimations: vi.fn(),
+    };
+    const dependentSceneLesson: LessonDefinition = {
+        ...lesson,
+        steps: [{...lesson.steps[0], scene: {actions: [
+            {kind: 'parameter', name: 't', value: 0.75},
+            {kind: 'animation', animationId: 'bisection', command: 'next-step'},
+            {kind: 'curve-visibility', target: 'control-polygon', visible: true},
+        ]}}],
+    };
+    const session = new LessonSession(dependentSceneLesson, capabilities);
+
+    expect(() => session.start()).toThrow('later action failed');
+    expect(observedValues).toEqual([0.75]);
+    expect(state).toEqual({t: 0.1, observedT: 0.1});
+    expect(capabilities.apply).toHaveBeenCalledTimes(3);
+    expect(capabilities.restoreState).toHaveBeenCalledWith({version: 1, value: {t: 0.1, observedT: 0.1}});
+});
+
+test('surfaces lesson rollback failure after a later action fails', () => {
+    const state = {t: 0.1};
+    const capabilities: LessonGraphCapabilities = {
+        captureState: vi.fn((): LessonSceneCheckpoint => ({version: 1, value: {...state}})),
+        restoreState: vi.fn(() => {throw new Error('rollback unavailable');}),
+        apply: vi.fn(action => {
+            if (action.kind === 'parameter' && action.name === 't') state.t = action.value;
+            else throw new Error('later action failed');
+        }),
+        stopAnimations: vi.fn(),
+    };
+    const failingLesson: LessonDefinition = {
+        ...lesson,
+        steps: [{...lesson.steps[0], scene: {actions: [
+            {kind: 'parameter', name: 't', value: 0.75},
+            {kind: 'curve-visibility', target: 'control-polygon', visible: true},
+        ]}}],
+    };
+
+    expect(() => new LessonSession(failingLesson, capabilities).start()).toThrow('rollback unavailable');
+    expect(state.t).toBe(0.75);
+    expect(capabilities.restoreState).toHaveBeenCalledTimes(1);
+});
+
+test('an absent scene restores lesson entry when navigation crosses into that step', () => {
+    const fake = fakeCapabilities();
+    const sceneThenNoScene: LessonDefinition = {
+        ...lesson,
+        steps: [lesson.steps[0], {...lesson.steps[1], scene: undefined}],
+    };
+    const session = new LessonSession(sceneThenNoScene, fake.capabilities);
+
+    session.start();
+    expect(fake.getValue()).not.toBe('original');
+    session.next();
+
+    expect(fake.getValue()).toBe('original');
+    expect(session.snapshot()).toMatchObject({status: 'content', stepIndex: 1});
+});
+
+test('an explicit empty scene restores lesson entry on navigation', () => {
+    const fake = fakeCapabilities();
+    const sceneThenEmptyScene: LessonDefinition = {
+        ...lesson,
+        steps: [lesson.steps[0], {...lesson.steps[1], scene: {actions: []}}],
+    };
+    const session = new LessonSession(sceneThenEmptyScene, fake.capabilities);
+
+    session.start();
+    session.next();
+
+    expect(fake.getValue()).toBe('original');
+    expect(session.snapshot()).toMatchObject({status: 'content', stepIndex: 1});
+});
+
+test('entry capture failure leaves the graph unchanged and does not apply a scene', () => {
+    const fake = fakeCapabilities();
+    (fake.capabilities.captureState as Mock).mockImplementation(() => {throw new Error('capture failed');});
+    const session = new LessonSession(lesson, fake.capabilities);
+
+    expect(() => session.start()).toThrow('capture failed');
+    expect(fake.getValue()).toBe('original');
+    expect(fake.capabilities.apply).not.toHaveBeenCalled();
+});
+
+test('a scene restore failure is surfaced instead of applying the next scene', () => {
+    const fake = fakeCapabilities();
+    const session = new LessonSession(lesson, fake.capabilities);
+    session.start();
+    (fake.capabilities.restoreState as Mock).mockImplementation(() => {throw new Error('restore failed');});
+
+    expect(() => session.next()).toThrow('restore failed');
+    expect(fake.capabilities.apply).toHaveBeenCalledTimes(1);
 });
 
 test('unsupported or failed actions restore the checkpoint before reporting an error', () => {
