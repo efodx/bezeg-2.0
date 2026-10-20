@@ -20,6 +20,7 @@
     <!-- Add MathJax -->
     <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Start Single Page Apps for GitHub Pages -->
+    <script src="%BASE_URL%history-entry-bridge.js" type="text/javascript"></script>
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
       // MIT License
@@ -32,10 +33,17 @@
       // the correct url will be waiting in the browser's history for
       // the single page app to route accordingly.
       (function (l) {
-        if (l.search[1] === '/') {
-          var decoded = l.search.slice(1).split('&').map(function (s) {
-            return s.replace(/~and~/g, '&')
-          }).join('?')
+        if (window.BezegHistoryEntryBridge) window.BezegHistoryEntryBridge.restoreRedirect();
+        else if (l.search[1] === '/') {
+          var redirect = l.search.slice(1)
+          var decoded
+          if (redirect.indexOf('/~v2~') === 0) {
+            try { decoded = decodeURIComponent(redirect.slice(5)) } catch (_) { decoded = '' }
+          } else {
+            decoded = redirect.split('&').map(function (s) {
+              return s.replace(/~and~/g, '&')
+            }).join('?')
+          }
           window.history.replaceState(null, null,
             l.pathname.slice(0, -1) + decoded + l.hash,
           )

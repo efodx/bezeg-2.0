@@ -6,6 +6,7 @@ import type {Language} from '../localization';
 import {ordinaryReturnPath, rememberActivityLaunch, rememberReading, restoreReading, activityEntryState} from './chapter/navigationMemory';
 import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
 import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
+import {findActivity} from './chapter/activities';
 import './ChapterPage.css';
 
 type MathJaxApi = {startup?: {promise?: Promise<unknown>}; typesetClear?: (elements?: Element[]) => void; typesetPromise?: (elements?: Element[]) => Promise<void>};
@@ -126,7 +127,18 @@ export function ChapterPage() {
     useEffect(() => {
         const restored = restoreReading('motivation');
         const hash = location.hash.slice(1);
-        if (!restored && hash && copy.sections.some(section => section.id === hash)) {
+        const invocation = location.state && typeof location.state === 'object' ? location.state.chapterReadingInvocation : undefined;
+        const sourceActivity = invocation && typeof invocation === 'object' && invocation.v === 1
+            && typeof invocation.activityId === 'string' && invocation.readingKey === location.key
+            && copy.sections.some(section => section.id === invocation.sectionId) ? findActivity(invocation.activityId) : undefined;
+        if (!restored && sourceActivity) {
+            setCurrentSection(invocation.sectionId);
+            requestAnimationFrame(() => {
+                document.getElementById(invocation.sectionId)?.scrollIntoView();
+                (document.getElementById(`activity-${sourceActivity.id}`)
+                    ?? document.getElementById(`${invocation.sectionId}-heading`))?.focus({preventScroll: true});
+            });
+        } else if (!restored && hash && copy.sections.some(section => section.id === hash)) {
             setCurrentSection(hash);
             requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
         } else if (!restored && hash) {

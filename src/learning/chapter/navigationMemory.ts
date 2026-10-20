@@ -44,6 +44,21 @@ export function readActivityEntry(state: unknown, id: ActivityId): ActivityEntry
 export function rememberActivityLaunch(id: string, readingKey: string) {
     launched = {id, readingKey};
     if (reading) readingLocations.set(id, reading);
+    const activity = findActivity(id);
+    if (activity && typeof window !== 'undefined') {
+        const current = window.history.state;
+        const state = current && typeof current === 'object' ? current as {usr?: unknown; key?: unknown; idx?: unknown} : {};
+        const initialEntry = state.key === undefined && readingKey === 'default'
+            && (state.idx === undefined || state.idx === 0);
+        const entryKey = initialEntry ? readingKey : state.key;
+        const entryIndex = initialEntry ? state.idx ?? 0 : state.idx;
+        if (entryKey === readingKey && Number.isInteger(entryIndex) && (entryIndex as number) >= 0) {
+            const usr = state.usr && typeof state.usr === 'object' ? state.usr : {};
+            window.history.replaceState({...state, key: readingKey, idx: entryIndex, usr: {...usr, chapterReadingInvocation: {
+                v: 1, activityId: id, sectionId: reading?.sectionId ?? activity.sectionId, readingKey,
+            }}}, '');
+        }
+    }
 }
 export function registerActivityEntry(id: string, entryKey: string) {
     if (launched?.id === id) {

@@ -52,6 +52,16 @@ Browser verification found and repaired:
 
 Screenshots and independent browser details are linked from [the browser report](browser-smoke.md). Local production preview results do not establish deployed GitHub Pages behavior.
 
+## Hosted verification and redirect repair
+
+The first publication through `7f6dc30` passed [Browser smoke run 39449383116](https://github.com/efodx/bezeg-2.0/actions/runs/39449383116) and deployed Pages. Live verification passed Learning discovery, all eight sections, section deep links, all six direct activity links and refreshes, invalid-context normalization and unknown-chapter recovery, without JavaScript or asset failures. The separate hosted history probe exposed a gap hidden by the local preview's HTTP 200 fallback: Pages' real 404 redirect discarded `history.state` on activity refresh, losing the original entry and its known reading predecessor.
+
+The correction transports only bounded, validated router/chapter navigation metadata through a one-use same-tab handoff, with an exact URL match and 60-second expiry. It never stores graph geometry, pixel offsets, commands, presets or progress. Source reading entries retain only the invoking activity/section identities for meaningful focus recovery after a document reload. Blocked storage falls back to canonical navigation without inventing a predecessor. Redirect encoding also preserves literal `~and~` query values, while decoding existing legacy redirect links remains supported.
+
+The true-404 browser regression additionally caught React Router's initial `default` key having no matching native history key. Normalizing only that initial source entry allows the reading invocation to survive document navigation. Its unit regression covers both null native state and `{idx:0}`; the production browser regression now checks exact entry identity, unrelated query/hash values, restart notice, consumed handoff and invoking-link focus on the original no-hash chapter URL. Independent engineering review closed the corrected bridge without further findings.
+
+Final correction verification at a stable checkout: `just check` passed **148 files / 2,511 tests**, TypeScript and production build (`.command-logs/2026-10-20T15-56-07-302Z-25896-d9728cfe.log`, build `.command-logs/2026-10-20T15-56-45-502Z-25896-8ff61370.log`). The combined chapter and real-404 production suite passed **14/14** (`.command-logs/2026-10-20T15-56-59-729Z-252-777208d8.log`). The correction still requires its deployed-host check after publication.
+
 ## Remaining release gates
 
 Implementation is an educational pilot draft. Owner/subject-matter approval of Slovenian terminology, English copy and classroom suitability remains open. Physical touch devices, an actual projector and screen-reader use have not been established by browser viewport/keyboard tests. Hosted Pages deep links, refresh and deployed assets must be checked separately after publication. No completion or mastery claim follows from reading or opening an activity. Review this pilot's evidence before extending to another chapter.

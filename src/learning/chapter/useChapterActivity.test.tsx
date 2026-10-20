@@ -16,6 +16,21 @@ test('validates chapter and activity together, rejects duplicates and graph mism
     expect(resolveActivityContext('?other=kept', 'bezier')).toEqual({activity: undefined, invalid: false});
 });
 
+test('persists a reading invocation on the initial native history entry with the default router key', () => {
+    for (const initial of [null, {idx: 0}]) {
+        window.history.replaceState(initial, '', '/bezeg-2.0/learn/bezier-curves');
+        rememberActivityLaunch('curve-parameter', 'default');
+        expect(window.history.state).toEqual({
+            ...(initial ?? {}),
+            key: 'default', idx: 0,
+            usr: {chapterReadingInvocation: {
+                v: 1, activityId: 'curve-parameter', sectionId: 'parameter', readingKey: 'default',
+            }},
+        });
+    }
+    window.history.replaceState(null, '', '/');
+});
+
 function fixture(initialEntries: string[], failPreparation = false) {
     let value = 10;
     let playing = false;

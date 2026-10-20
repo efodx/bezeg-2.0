@@ -65,9 +65,7 @@ export function useChapterActivity(capabilities: LessonGraphCapabilities | undef
                 active.current = true;
                 registerActivityEntry(activity.id, location.key);
                 // Reload cannot retain visit memory. The notice is informational and never persists progress.
-                setRestarted(Boolean(marker?.started) && !activitySnapshots.has(activity.id)
-                    && window.performance.getEntriesByType('navigation').some(entry =>
-                        'type' in entry && entry.type === 'reload'));
+                setRestarted(Boolean(marker?.started) && !activitySnapshots.has(activity.id));
             } else {
                 const explicitReturn = location.state && typeof location.state === 'object' && location.state.chapterRestore === true;
                 const saved = explicitReturn || isOrdinaryReturn(location.key, demo.id) ? ordinarySnapshots.get(demo.id) : undefined;
