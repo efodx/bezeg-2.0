@@ -1,5 +1,6 @@
 import React from 'react';
 import routes from './Routes';
+import {GraphHost} from './graphs/base/GraphHost';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './graphs/complex/ComplexMultiplicationGraph';
 import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
@@ -68,7 +69,7 @@ test('all existing graph URLs retain their graph implementations', () => {
         // GraphHost receives a factory; creating the controller has no side effects.
         return (graph.props as {create: () => object}).create().constructor;
     };
-    expect(children.filter(route => route.path && route.path !== '/bezeg-2.0/demonstrations')).toHaveLength(45);
+    expect(children.filter(route => React.isValidElement(route.element) && route.element.type === GraphHost)).toHaveLength(45);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/complex-multiplication')).toBe(ComplexMultiplicationGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);

@@ -15,6 +15,7 @@ export function AppHeader() {
             <img src={Logo} width="34" height="34" alt=""/><span>Bezeg</span>
         </Link>
         <div className="app-header-actions">
+            <NavLink className="app-topic-toggle" to="/bezeg-2.0/learn">{t('learning')}</NavLink>
             <NavLink className="app-topic-toggle" to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={location.state}>{t('demonstrations')}</NavLink>
             <LanguageSelector compact/>
         </div>

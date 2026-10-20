@@ -14,6 +14,12 @@ import {LearningPrompt} from './LearningPrompt';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
 import type {LessonGraphCapabilities} from '../../learning/model';
+import {useChapterActivity} from '../../learning/chapter/useChapterActivity';
+import {readingReturnPath, hasChapterReturn} from '../../learning/chapter/navigationMemory';
+import {bezierActivityCopy} from '../../learning/content/bezierChapter';
+import {useLanguage} from '../../localization';
+import '../../learning/chapter/ActivityContext.css';
+import {useTypesetMath} from '../../learning/useTypesetMath';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -23,8 +29,16 @@ export function DemonstrationWorkspace(props: {
     title: React.ReactNode, description: string, edit: React.ReactNode, display: React.ReactNode,
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
     graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, graphContainerRef?: React.Ref<HTMLDivElement>,
+    beforeDispose?: React.MutableRefObject<(() => void) | undefined>,
+    disposeFailedGraph?: () => void,
 }) {
     const t = useT();
+    const {language} = useLanguage();
+    const closeLesson = useRef<(() => void) | undefined>();
+    const registerLessonClose = useCallback((close: (() => void) | undefined) => { closeLesson.current = close; }, []);
+    const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph);
+    const activityContext = useRef<HTMLElement>(null);
+    useTypesetMath(activityContext, `${chapter.activity?.id ?? ''}-${language}`);
     const location = useLocation();
     const {pathname, search, hash} = location;
     const returnContext = readDemonstrationReturnContext(location.state);
@@ -42,9 +56,11 @@ export function DemonstrationWorkspace(props: {
     const selectDemonstration = (entry: Demonstration, startLesson: boolean) => {
         closePicker(entry.path === pathname && (!startLesson || lessonOpen));
         if (entry.path === pathname) {
+            if (chapter.activity && !startLesson) { chapter.freeExplore(); return; }
             if (startLesson && !lessonOpen) {setLessonMode('content'); setLessonOpen(true);}
             return;
         }
+        closeLesson.current?.();
         navigateRoute(entry.path + (startLesson ? '?learn=1' : ''), {state: location.state});
     };
     const navigationLabels: Record<Exclude<NavigationAction, 'fit'>, [string, string]> = {
@@ -131,6 +147,8 @@ export function DemonstrationWorkspace(props: {
                 </svg>
             </div>
             <div className="workspace-actions">
+                {chapter.readAbout && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
+                {!chapter.activity && hasChapterReturn() && <Link to={readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
                     title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
@@ -147,7 +165,31 @@ export function DemonstrationWorkspace(props: {
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
             </div>
         </header>
+        {(chapter.invalidNotice || chapter.error || chapter.restarted) && <p className="activity-notice" role="status">
+            {chapter.error ? t('chapter_scene_error') : chapter.invalidNotice ? t('chapter_invalid_context') : t('chapter_restarted')}
+            {chapter.error && <>
+                {!chapter.fatal && <button onClick={chapter.retry}>{t('chapter_retry')}</button>}
+                <Link to={readingReturnPath()}>{t('chapter_return')}</Link>
+                <a href={pathname}>{t('chapter_free_exploration')}</a>
+            </>}
+        </p>}
+        {chapter.activity && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
+            <div><Link to={chapter.returnPath ?? readingReturnPath()} state={location.state}
+                onClick={event => { event.preventDefault(); setLessonOpen(false); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
+                <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
+                <p>{bezierActivityCopy[chapter.activity.id][language].prompt}</p>
+                {(chapter.activity.demonstrationId === 'decasteljau' || chapter.activity.demonstrationId === 'affine') &&
+                    <p>{chapter.activity.demonstrationId === 'decasteljau' ? t('chapter_quartic_example') : t('chapter_affine_example')}</p>}
+            </div>
+            <div className="activity-context-actions">
+                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_return')}</button>
+                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
+                <button onClick={() => {setLessonOpen(false); chapter.reset();}} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
+                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.freeExplore();}}>{t('chapter_free_exploration')}</button>
+            </div>
+        </section>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
+            registerClose={registerLessonClose}
             onModeChange={setLessonMode} graphContainer={graphContainer}
             onClose={() => {
                 setLessonMode('closed');

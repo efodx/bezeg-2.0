@@ -2,6 +2,8 @@ import { ErrorPage } from './ErrorPage';
 import App from './App';
 import { WelcomePage } from './WelcomePage';
 import { DemonstrationsPage } from './DemonstrationsPage';
+import {ChapterPage} from './learning/ChapterPage';
+import {LearningPage} from './learning/LearningPage';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './graphs/complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
@@ -123,6 +125,9 @@ const routes = [{
     children: [
         {index: true, element: <WelcomePage/>},
         {path: '/bezeg-2.0/demonstrations', element: <DemonstrationsPage/>},
+        {path: '/bezeg-2.0/learn', element: <LearningPage/>},
+        {path: '/bezeg-2.0/learn/bezier-curves', element: <ChapterPage/>},
+        {path: '/bezeg-2.0/learn/*', element: <ErrorPage embedded/>},
         ...getDemonstrationCatalog().demonstrations.map(({id, path}) => ({
             path, element: graphElements[id],
         })),

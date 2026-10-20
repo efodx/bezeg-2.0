@@ -1,0 +1,172 @@
+const {test, expect} = require('@playwright/test');
+const h = require('./lesson-smoke-helpers.cjs');
+h.failOnRuntimeErrors();
+const chapter = '/bezeg-2.0/learn/bezier-curves';
+const rows = [
+    ['shape-control', 'bezier/curve', 'control-points'],
+    ['curve-parameter', 'bezier/decasteljau', 'parameter'],
+    ['repeated-interpolation', 'bezier/decasteljau', 'interpolation'],
+    ['blending-coefficients', 'bernstein', 'bernstein-form'],
+    ['geometric-bounds', 'bezier/curve', 'geometric-properties'],
+    ['transform-shape', 'bezier/affine', 'affine-transformations'],
+];
+const context = page => page.locator('.chapter-activity-context');
+test.describe.configure({mode: 'parallel'});
+
+for (const [id, route, section] of rows) {
+    test(`${id}: authored scene, reading round trip, Forward, reset and fresh refresh`, async ({page}) => {
+        await h.useLanguage(page, 'en');
+        await page.goto(`${chapter}#${section}`);
+        await expect(page.locator('.chapter-section')).toHaveCount(8);
+        expect(await page.locator('#jgbox').count()).toBe(0);
+        await page.locator(`#activity-${id}`).click();
+        await expect(context(page)).toBeVisible();
+        await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);
+        const initial = await h.boardStats(page);
+        if (route === 'bezier/decasteljau') {
+            await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.50');
+            await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[0, 1.75]]));
+            const slider = page.locator('.decasteljau-animation-slider input[type="range"]').first();
+            await slider.fill('0.75');
+            await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
+            await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[2.38, 0.61]]));
+        }
+        if (id === 'blending-coefficients') expect(await h.countSetterValue(page, 0)).toBe(2);
+        if (id === 'shape-control' || id === 'geometric-bounds') {
+            const points = await h.visiblePoints(page);
+            expect(points).toEqual(expect.arrayContaining([[-4, -3], [-3, 2], [2, 2], [3, -2]]));
+        }
+        if (id === 'transform-shape') expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
+        await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+        await expect(page).toHaveURL(new RegExp(`/learn/bezier-curves#${section}$`));
+        await expect(page.locator(`#activity-${id}`)).toBeFocused();
+        expect(await page.locator('#jgbox').count()).toBe(0);
+        await page.goForward();
+        await expect(context(page)).toBeVisible();
+        if (route === 'bezier/decasteljau') await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
+        await context(page).getByRole('button', {name: 'Reset example'}).click();
+        if (route === 'bezier/decasteljau') await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.50');
+        expect((await h.boardStats(page)).curves).toBe(initial.curves);
+        await page.reload();
+        await expect(context(page)).toBeVisible();
+        await expect(page.locator('.activity-notice')).toContainText('Refreshing restarted');
+        expect(await page.locator('#jgbox').count()).toBe(1);
+    });
+}
+
+test('validated activity context preserves unrelated URL values and fresh return history', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/bernstein?chapter=bezier-curves&activity=shape-control&other=kept#anchor');
+    await expect(page).toHaveURL(/bernstein\?other=kept#anchor$/);
+    await expect(page.locator('.activity-notice')).toContainText('valid activity');
+    await expect(context(page)).toHaveCount(0);
+    await page.goto('/bezeg-2.0/bernstein?chapter=bezier-curves&activity=blending-coefficients&other=kept#anchor');
+    await expect(context(page)).toBeVisible();
+    await context(page).getByRole('button', {name: 'Free exploration', exact: true}).click();
+    await expect(page).toHaveURL(/bernstein\?other=kept#anchor$/);
+    expect(await h.countSetterValue(page, 0)).toBe(2);
+});
+
+test('unknown chapters offer accessible Learning and Demonstrations recovery; unknown sections return to the chapter start', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/learn');
+    await expect(page.getByRole('heading', {level: 2, name: 'Bézier curves', exact: true})).toBeVisible();
+    await page.goto('/bezeg-2.0/learn/unknown-chapter');
+    await expect(page.getByRole('heading', {level: 1})).toBeVisible();
+    await expect(page.locator('main').getByRole('link', {name: 'Learning', exact: true})).toBeVisible();
+    await expect(page.locator('#bezeg-language')).toHaveCount(1);
+    await page.goto(`${chapter}?other=kept#unknown-section`);
+    await expect(page).toHaveURL(/learn\/bezier-curves\?other=kept$/);
+    await expect(page.locator('#chapter-title')).toBeFocused();
+});
+
+test('reading at 390px and enlarged text retains local formula overflow and direct section access', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 844});
+    await page.goto(chapter);
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    for (const language of ['sl', 'en']) {
+        await page.locator('#bezeg-language').selectOption(language);
+        await page.evaluate(async () => {
+            await window.MathJax?.startup?.promise;
+            await window.MathJax?.typesetPromise?.([document.querySelector('.chapter-article')]);
+            window.scrollTo(0, 0);
+        });
+        await h.noHorizontalOverflow(page, `${language} chapter top at 390px and 200% text`);
+    }
+    await page.getByRole('button', {name: 'Chapter contents', exact: true}).click();
+    await page.locator('.chapter-contents-mobile').getByRole('link', {name: /A parameter selects/}).click();
+    await expect(page).toHaveURL(/#parameter$/);
+    expect(await page.locator('#jgbox').count()).toBe(0);
+});
+
+async function editFirstPoint(page, x) {
+    const editor = page.locator('.point-coordinate-editor').first();
+    if ((await editor.count()) === 0) await page.locator('.workspace-curve-picker button').first().click();
+    if ((await editor.getAttribute('open')) === null) await editor.locator('summary').click();
+    await editor.locator('input[name="x-0"]').fill(String(x));
+    await editor.locator('.point-coordinate-form button[type="submit"]').click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[x, -3]]));
+}
+
+test('ordinary scene survives reading and independent activity edits; keyboard editing and language agree with the board', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/bezier/curve');
+    await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);
+    await editFirstPoint(page, -5);
+    await page.getByRole('button', {name: 'Read about this', exact: true}).click();
+    await page.locator('#activity-shape-control').click();
+    await editFirstPoint(page, -6);
+    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await page.getByRole('link', {name: 'Back to your graph'}).click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-5, -3]]));
+    await page.getByRole('button', {name: 'Read about this', exact: true}).click();
+    await page.locator('#activity-shape-control').click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-6, -3]]));
+    await page.locator('#bezeg-language').selectOption('sl');
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-6, -3]]));
+    await context(page).getByRole('button', {name: 'Ponastavi primer'}).click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-4, -3]]));
+});
+
+test('activity yields scene ownership to Guided lesson and restores it paused on Exit', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/bezier/decasteljau?chapter=bezier-curves&activity=curve-parameter');
+    const slider = page.locator('.decasteljau-animation-slider input[type="range"]').first();
+    await slider.fill('0.75');
+    await page.getByRole('button', {name: 'Learn this demonstration', exact: true}).click();
+    await expect(h.lessonPanel(page)).toBeVisible();
+    await h.exitButton(page).click();
+    await expect(h.lessonPanel(page)).toHaveCount(0);
+    await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
+    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await page.locator('#activity-curve-parameter').click();
+    await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
+});
+
+test('chapter launch without a hash retains named return and focus after activity refresh', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto(chapter);
+    await page.locator('#activity-geometric-bounds').click();
+    await page.reload();
+    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await expect(page).toHaveURL(new RegExp('/learn/bezier-curves$'));
+    await expect(page.locator('#activity-geometric-bounds')).toBeFocused();
+    await page.goForward();
+    await expect(context(page)).toBeVisible();
+});
+
+test('Bernstein stacked view and affine translation retain their exact authored meanings', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/bernstein?chapter=bezier-curves&activity=blending-coefficients');
+    await h.openInspectorTab(page, 'display');
+    const stacked = page.getByLabel('Stacked area chart', {exact: true});
+    await stacked.check();
+    await expect(stacked).toBeChecked();
+    await context(page).getByRole('button', {name: 'Reset example'}).click();
+    await expect(stacked).not.toBeChecked();
+    await page.goto('/bezeg-2.0/bezier/affine?chapter=bezier-curves&activity=transform-shape');
+    await page.getByRole('button', {name: 'Right: +0.5', exact: true}).click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-2.5, 2], [0.5, -2], [1.5, 2], [3.5, -2]]));
+    await context(page).getByRole('button', {name: 'Reset example'}).click();
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
+});

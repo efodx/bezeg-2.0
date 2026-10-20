@@ -1,0 +1,10 @@
+.chapter-activity-context { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; padding: 18px; border: 1px solid var(--bezeg-rule); border-left: 4px solid var(--bezeg-pollen); background: var(--bezeg-panel); min-width: 0; }
+.chapter-activity-context > div { min-width: 0; max-width: 72ch; }
+.chapter-activity-context h2 { font: 500 1.4rem Georgia, serif; margin: 8px 0; }
+.chapter-activity-context p { margin: 6px 0; line-height: 1.6; overflow-wrap: anywhere; }
+.chapter-activity-context a { color: var(--bezeg-moss); }
+.activity-context-actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+.activity-notice { grid-column: 1 / -1; padding: 12px; border: 1px solid var(--bezeg-pollen); }
+.demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading heading' 'context context' 'graph inspector' 'learning learning'; }
+.chapter-activity-context { grid-area: context; }
+@media (max-width: 760px) { .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading' 'context' 'graph' 'inspector' 'learning'; } }

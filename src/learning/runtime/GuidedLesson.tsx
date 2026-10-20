@@ -51,6 +51,7 @@ export function GuidedLesson(props: {
     capabilities: LessonGraphCapabilities;
     onClose: () => void;
     onModeChange?: (mode: LessonMode) => void;
+    registerClose?: (close: (() => void) | undefined) => void;
     /** The element holding the graph board; its bounds limit the movable prompt. */
     graphContainer?: React.RefObject<HTMLElement>;
 }) {
@@ -71,6 +72,10 @@ export function GuidedLesson(props: {
         setHeld(current);
     }
     const session = current.session;
+    useEffect(() => {
+        props.registerClose?.(() => session.close());
+        return () => props.registerClose?.(undefined);
+    }, [session, props.registerClose]);
     const snapshot: LessonSessionSnapshot = useSyncExternalStore(session.subscribe, session.getSnapshot);
     const step = props.lesson.steps[snapshot.stepIndex];
     const frames = framesForLessonStep(step);
