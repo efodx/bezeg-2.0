@@ -1,5 +1,7 @@
 # Current capabilities
 
+The **Learning / Učenje** destination offers the bilingual Bézier chapter with eight directly linked sections and six optional graph activities. These reuse the ordinary Bézier, De Casteljau, Bernstein and affine Demonstrations, including their full inspector, presets, exports, Presentation mode and existing Guided lessons. **Read about this** links these four graphs to related sections; **Back to your graph** restores ordinary exploration independently of activity edits. Reset restores an activity's authored scene; Free exploration adopts its current scene. Snapshots are visit-scoped and are lost on reload. The independent Demonstrations catalog remains available. This is an implementation draft awaiting owner terminology/content and physical classroom/device review; see [evidence](reviews/standalone-learning/implementation.md).
+
 Source inventory as of 2026-10-15. Routes below come from the ordered [`Demonstration metadata`](../src/demonstrations.ts), bound to graphs by [`src/Routes.tsx`](../src/Routes.tsx); unexposed implementations are excluded. The table identifies topics and components, not a claim that every interaction has passed runtime validation.
 
 The 2026-10-09 [curve architecture deep dive](curve-architecture-deep-dive.md) adds the drawing/update path, dependency findings, and preservation requirements for future refactoring. The route inventory remains here; proposed library changes are compared in [renderer options](research/curve-renderer-options.md).

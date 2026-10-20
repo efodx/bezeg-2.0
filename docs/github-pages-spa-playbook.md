@@ -1,5 +1,7 @@
 # A repeatable process for GitHub Pages SPAs
 
+The standalone learning pilot adds `/bezeg-2.0/learn`, `/bezeg-2.0/learn/bezier-curves` and stable section fragments. Activity links retain canonical graph routes and add validated `chapter=bezier-curves&activity=<id>` context. The existing project-base build and 404 fallback serve these additive routes. Invalid activity context is removed with history replacement while unrelated query/hash values are retained. Scene snapshots and reading offsets are visit-only; refresh starts the authored scene. Verify local production deep links separately from deployed Pages refresh/asset behavior; [pilot evidence](reviews/standalone-learning/implementation.md) records coverage.
+
 This playbook applies to static client-only apps. Bezeg supplies a concrete example, but its geometry, controls, and language choices are not requirements for another SPA. A browser app can keep local state and exchange files without a backend.
 
 Guidance checked against official documentation on 2026-10-08. Tool versions and remote repository settings must be checked when a new project is created. This release copy targets `https://efodx.github.io/bezeg-2.0/`; the original Bezeg site remains at `/bezeg/` in its separate repository.

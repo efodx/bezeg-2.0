@@ -1,0 +1,29 @@
+# Standalone learning browser smoke
+
+The supplied production preview became reachable at http://127.0.0.1:4302/bezeg-2.0 after the handler restarted it. The first attempt against port 4300 timed out, and this subagent had no CUA in-app browser. With the handler's authorization, I used direct, headless Playwright against port 4302. The preview was left running.
+
+The tested checkout was C:\Users\1337Hacker\Desktop\bezeg-2.0 at HEAD d29cd32814c53534f86f450ff25f5f1b7bf39255, with the pilot changes dirty. The initial bounded run used the production build completed at 17:16. Unrelated staged docs/debug.log were preserved. The run used Chromium at 1365×900 and 390×844; narrow reading used 200% root text size. A focused repair recheck against the 17:28 production build is recorded below.
+
+| Check | Status | Evidence |
+|---|---|---|
+| Chapter entry, header discovery, language | Passed | Direct Slovenian chapter route showed the expected title and eight sections. Switching to English showed the English title. |
+| Desktop reading contrast | Passed after rebuild | The first build had navy main background rgb(32, 41, 64) with forest text rgb(36, 59, 43). Build17:16 changed the reading background to warm rgb(244, 240, 223); the normal viewport screenshot shows the corrected palette. |
+| 390px / 200% chapter reading | Failed in build 17:16; passed focused recheck in build 17:28 | The initial settled top-of-chapter view clipped the title and documentElement.scrollWidth was 417px. After the title wrapping fix, both Slovenian and English at 390×844 and 200% root text measured document/body width 390px; the heading fit its 358px box (scrollWidth 358px; bounds x=16..374). Formula overflow stayed inside `.chapter-formula` (`overflow-x:auto`; first wrapper 358px wide / 968px scroll width) around the intentionally wide `.chapter-math` child (940px). The Slovenian heading now fits, though its long word breaks mid-word at this size; see the refreshed screenshot. |
+| 390px activity workspace | Passed for page overflow/reachability | At 390×844 and 200%, the Bernstein activity retained its context, graph, and inspector with document width equal to the viewport. This does not establish every control's touch target or physical touch behavior. |
+| Direct graph-family routes | Passed | Bézier, rational Bézier, symmetric C¹ spline, and cubic PH routes each showed a heading, one main board, and a visible curve. |
+| Non-drag coordinate editing and language retention | Passed | Editing Bézier p0 to (-5.25, -3.2) changed the rendered curve. SL→EN retained both entered coordinates and the selected curve. |
+| Rational weight control | Passed | After selecting the curve, the inspector changed w₁ from 2 to 2.25; the curve path changed. |
+| PH generating-point editing | Passed | Selecting the PH curve opened the auxiliary board (two live boards). Editing w₀ x from -3.5 to -3.25 changed the curve and kept both boards live. |
+| Catalog, search, and direct entry | Passed | The Bézier topic/search returned eight cards; an unmatched query showed zero results; Clear restored eight cards; opening the Bézier card reached /bezier/curve. |
+| Activity graph switching | Passed, same family | From De Casteljau activity, Switch demonstration opened the picker; choosing the Bézier curve cleared the chapter/activity query, showed the ordinary inspector, and retained a Return to chapter link. Switching to a different family was not covered. |
+| Return to chapter during Guided lesson | Passed | While a lesson was open over curve-parameter activity, Return to chapter went to /learn/bezier-curves#parameter and closed the lesson panel. |
+| Presentation mode | Passed, basic behavior | The graph stayed visible, the inspector hid, Open tools restored it, and Exit presentation returned to the same activity URL. Focus containment and background isolation were not audited. |
+| Six pilot activity flows | Passed by handler-run focused suite | The handler reported 12/12 production Playwright checks passing, including all six authored activities, De Casteljau t/readout and board-point change/reopen/reset, Bernstein and affine controls, activity return/focus, and Guided lesson suspension/exit. This is separate automated evidence; I did not duplicate those flows manually. |
+| Preset save/reopen, import/export, downloads, remaining baseline families, unknown routes, catalog browser-history behavior | Skipped in this worker run | The handler was running the existing full smoke suite; I did not receive its result before the bounded browser window ended. Do not infer a pass from this report. |
+| Physical touch, projector, screen-reader behavior | Skipped | Headless browser evidence only. |
+
+No page or console errors were observed in the recorded coordinate-edit and catalog workflows. Each Playwright context was isolated and closed, so its temporary state was discarded. The handler-owned preview was not stopped.
+
+Screenshots: browser-smoke-desktop.png, browser-smoke-narrow-reading.png, and browser-smoke-narrow-activity.png. The narrow-reading screenshot was recaptured at the settled top of the Slovenian chapter on build 17:28 after the title fix; the original 17:16 clipping remains documented above.
+
+Focused repair verification (build 17:28): refreshed the production preview and checked the chapter top in separate Slovenian and English Chromium pages at 390×844 with root text size 200%, after MathJax typesetting. Both languages had no page-level horizontal overflow and the heading fit inside the viewport. Wide formulas were locally scrollable within `.chapter-formula`; their `.chapter-math` children remained wider by design. The refreshed screenshot is the final Slovenian state. The handler reported 13/13 focused pilot browser checks passing on this build; this worker independently rechecked only the repaired narrow-reading path.

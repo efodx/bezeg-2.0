@@ -1,6 +1,6 @@
 # Implement the standalone Bézier chapter pilot
 
-Status: prepared handoff, 2026-10-20; application implementation has not started. Source: [standalone learning specification](../../specs/standalone-learning.md). Content inputs: [chapter outline/source map](../../specs/bezier-study-chapter.md), [Slovenian chapter](../../content/bezier-curves.sl.md), [English chapter](../../content/bezier-curves.en.md), and [six-activity script](../../specs/bezier-study-chapter-activities.md).
+Status: implemented pilot draft, 2026-10-20. See [implementation evidence and remaining owner/device gates](../../reviews/standalone-learning/implementation.md). Source: [standalone learning specification](../../specs/standalone-learning.md). Content inputs: [chapter outline/source map](../../specs/bezier-study-chapter.md), [Slovenian chapter](../../content/bezier-curves.sl.md), [English chapter](../../content/bezier-curves.en.md), and [six-activity script](../../specs/bezier-study-chapter-activities.md).
 
 ## Outcome and boundaries
 

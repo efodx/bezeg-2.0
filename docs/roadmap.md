@@ -44,9 +44,9 @@ Do not expose Guided lessons uniformly across the catalog. Build the [capability
 
 **Done when:** every active route has a reviewed lesson or an explicit no-fit decision, each released cohort passes the mathematical/content/device/accessibility gates, and the Learn entry remains an explicit reviewed-lesson allowlist.
 
-## 3C. Add readable chapters using shared Demonstrations — specified future work
+## 3C. Add readable chapters using shared Demonstrations — implemented pilot draft
 
-Content checkpoint, 2026-10-20: the first Bézier chapter now has [Slovenian](content/bezier-curves.sl.md) and [English](content/bezier-curves.en.md) implementation drafts, a [six-activity script](specs/bezier-study-chapter-activities.md), and a [bounded implementation handoff](tasks/standalone-learning/implement-bezier-pilot.md). See [content review and remaining gates](reviews/bezier-study-chapter-content.md). Runtime implementation, owner content/terminology approval, and browser/device/classroom acceptance remain open.
+Implementation checkpoint, 2026-10-20: the bilingual Bézier chapter, Learning index and six activities now reuse the four existing graph implementations. Visit-scoped reading/activity/ordinary-scene memory and typed scene actions implement the [bounded handoff](tasks/standalone-learning/implement-bezier-pilot.md). See [implementation evidence and remaining gates](reviews/standalone-learning/implementation.md); owner terminology/content approval and physical device/classroom review remain open. Do not expand to other chapters before reviewing this pilot's evidence.
 
 The owner accepted the [standalone learning specification](specs/standalone-learning.md), including reading/activity picture examples and independent Learning and Demonstrations entry points. Start with the [Bézier chapter](specs/bezier-study-chapter.md), supplying motivation and mathematical explanation around activities that use the existing graph implementations. Preserve standalone catalog/search entry and add related-reading links. Keep visit-scoped reading/scene restoration, static client-only hosting, and Slovenian/English content; practice and assessment are excluded. [ADR 0014](adr/0014-study-chapters-share-demonstrations.md) records the ownership decision. Specification publication does not start implementation or supersede the existing guided-lesson release gates.
 
