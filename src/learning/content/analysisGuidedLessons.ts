@@ -1970,8 +1970,8 @@ const taylor: GuidedLesson = {
     demonstrationId: 'taylor',
     title: text('Taylorjev polinom in napaka približka', 'Taylor polynomial and the error of the approximation'),
     summary: text(
-        'Taylorjev polinom \\(T_n\\) stopnje \\(n\\) funkcije \\(f\\) okoli središča \\(c\\) je končna vsota \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); obstaja vedno, kadar ima \\(f\\) v \\(c\\) odvode do stopnje \\(n\\). Če je \\(f\\) med \\(c\\) in \\(x\\) \\((n+1)\\)-krat odvedljiva, ima napaka \\(f(x)-T_n(x)\\) Lagrangeevo obliko \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) za neki \\(\\xi\\) med \\(c\\) in \\(x\\), zato velja ocena \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), če je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\). To je pomembno ločiti od neskončne Taylorjeve vrste: pri \\(e^x\\) in \\(\\sin x\\) vrsta konvergira k \\(f\\) povsod, pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri gladki funkciji \\(e^{-1/x}\\) (za \\(x>0\\), sicer \\(0\\)) pa so vsi koeficienti v \\(0\\) enaki \\(0\\), zato vrsta konvergira k \\(0\\), ne k \\(f\\).',
-        'The Taylor polynomial \\(T_n\\) of degree \\(n\\) of a function \\(f\\) about a center \\(c\\) is the finite sum \\(\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}(x-c)^k\\); it exists whenever \\(f\\) has derivatives at \\(c\\) up to order \\(n\\). If \\(f\\) is \\((n+1)\\)-times differentiable between \\(c\\) and \\(x\\), the error \\(f(x)-T_n(x)\\) has the Lagrange form \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\) for some \\(\\xi\\) between \\(c\\) and \\(x\\), hence the bound \\(|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\) when \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\). This must be kept apart from the infinite Taylor series: for \\(e^x\\) and \\(\\sin x\\) the series converges to \\(f\\) everywhere, for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for the smooth function \\(e^{-1/x}\\) (for \\(x>0\\), otherwise \\(0\\)) all coefficients at \\(0\\) equal \\(0\\), so the series converges to \\(0\\), not to \\(f\\).',
+        'Ali več členov vedno pomeni boljši približek? Primerjaj napako pri različnih stopnjah in jo šele nato primerjaj z zgornjo mejo. Končni polinom moramo ločiti od neskončne Taylorjeve vrste.',
+        'Do more terms always give a better approximation? Compare errors at different degrees, then compare them with an upper bound. The finite polynomial must be kept apart from the infinite Taylor series.',
     ),
     prerequisites: [
         text(
@@ -2006,8 +2006,8 @@ const taylor: GuidedLesson = {
             id: 'taylor-polynomial',
             latex: 'T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(c)}{k!}\\,(x-c)^k',
             notation: text(
-                'Število \\(c\\) je središče, \\(n\\) stopnja, \\(f^{(k)}(c)\\) odvod stopnje \\(k\\) v \\(c\\), \\(k!\\) fakulteta; člen z \\(k=0\\) je \\(f(c)\\).',
-                'The number \\(c\\) is the center, \\(n\\) the degree, \\(f^{(k)}(c)\\) the derivative of order \\(k\\) at \\(c\\) and \\(k!\\) a factorial; the term with \\(k=0\\) is \\(f(c)\\).',
+                'Število \\(c\\) je središče, \\(n\\) stopnja, \\(f^{(k)}(c)\\) odvod stopnje \\(k\\) v \\(c\\), \\(k!\\) fakulteta; člen z \\(k=0\\) je \\(f(c)\\). Polinom obstaja, kadar ima funkcija v središču odvode do stopnje \\(n\\).',
+                'The number \\(c\\) is the center, \\(n\\) the degree, \\(f^{(k)}(c)\\) the derivative of order \\(k\\) at \\(c\\) and \\(k!\\) a factorial; the term with \\(k=0\\) is \\(f(c)\\). The polynomial exists when the function has derivatives at the center through order \\(n\\).',
             ),
             explanation: text(
                 '\\(T_n\\) je polinom stopnje največ \\(n\\), ki se v \\(c\\) z \\(f\\) ujema v vrednosti in vseh odvodih do stopnje \\(n\\). Je končna vsota in obstaja pri vsakem \\(n\\), ne glede na to, ali neskončna vrsta konvergira.',
@@ -2018,8 +2018,8 @@ const taylor: GuidedLesson = {
             id: 'taylor-lagrange',
             latex: '|f(x)-T_n(x)|\\le\\frac{M\\,|x-c|^{n+1}}{(n+1)!},\\qquad M\\ge\\left|f^{(n+1)}(t)\\right|\\ \\text{for all}\\ t\\ \\text{between}\\ c\\ \\text{and}\\ x',
             notation: text(
-                'Število \\(M\\) je zgornja meja za absolutno vrednost odvoda stopnje \\(n+1\\) na daljici med \\(c\\) in \\(x\\).',
-                'The number \\(M\\) is an upper bound for the absolute value of the derivative of order \\(n+1\\) on the segment between \\(c\\) and \\(x\\).',
+                'Za Lagrangeev ostanek predpostavimo, da je funkcija med \\(c\\) in \\(x\\) \\((n+1)\\)-krat odvedljiva. Število \\(M\\) je zgornja meja za absolutno vrednost odvoda stopnje \\(n+1\\) na tej daljici.',
+                'For the Lagrange remainder, assume the function is \\((n+1)\\)-times differentiable between \\(c\\) and \\(x\\). The number \\(M\\) is an upper bound for the absolute value of the derivative of order \\(n+1\\) on that segment.',
             ),
             explanation: text(
                 'Ocena sledi iz Lagrangeeve oblike ostanka \\(\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-c)^{n+1}\\). Velja le ob predpostavki o \\(M\\): pri \\(e^x\\) je \\(M=\\max(e^c,e^x)\\), ker je \\(e^t\\) naraščajoča, pri \\(\\sin x\\) je \\(M=1\\), ker je vsak odvod enak \\(\\pm\\sin x\\) ali \\(\\pm\\cos x\\).',
@@ -2052,6 +2052,16 @@ const taylor: GuidedLesson = {
         },
     ],
     workedExamples: [
+        {
+            id: 'taylor-opening-example',
+            title: text('Začetni približek', 'The starting approximation'),
+            calculationLatex: 'T_1(1)=1+1=2,\\qquad f(1)=e',
+            resultLatex: '|f(1)-T_1(1)|=e-2',
+            check: text(
+                'Začetna stopnja je \\(n=1\\): dejanska napaka je približno \\(0{,}7183\\). Polna črta je funkcija, črtkana polinom, navpična črta pri \\(x\\) pa napaka. Ocena ostaja skrita. Napovej, kaj se bo zgodilo pri večji stopnji.',
+                'The starting degree is \\(n=1\\): the actual error is about \\(0.7183\\). The solid line is the function, the dashed line is the polynomial, and the vertical line at \\(x\\) is the error. The bound stays hidden. Predict what will happen at a higher degree.',
+            ),
+        },
         {
             id: 'taylor-exp-example',
             title: text('Funkcija \\(e^x\\) okoli \\(0\\) v točki \\(x=1\\)', 'The function \\(e^x\\) about \\(0\\) at \\(x=1\\)'),
@@ -2096,14 +2106,14 @@ const taylor: GuidedLesson = {
     steps: [
         {
             id: 'taylor-prerequisites-step', order: 1,
-            title: text('Višji odvodi in polinom \\(T_n\\)', 'Higher derivatives and the polynomial \\(T_n\\)'),
+            title: text('Ali višja stopnja izboljša približek?', 'Does a higher degree improve the approximation?'),
             purpose: text('Pripraviti pojme in napoved, preden se ocena napake pokaže.', 'Preparing the terms and a prediction before the error bound is shown.'),
             explanation: text(
-                'Taylorjev polinom \\(T_n(x)\\) je vsota členov \\(\\frac{f^{(k)}(c)}{k!}(x-c)^k\\) za \\(k=0,\\dots,n\\). Sestavimo ga iz višjih odvodov \\(f^{(k)}(c)\\) in fakultet \\(k!\\). Pri \\(f(x)=e^x\\) je vsak odvod enak \\(e^x\\), zato so koeficienti okoli \\(c=0\\) enaki \\(\\frac{1}{k!}\\). Opazujemo točko \\(x=1\\) in stopnjo \\(n=1\\): \\(T_1(1)=1+1=2\\), prava vrednost pa je \\(e\\approx2{,}7183\\), torej je napaka približno \\(0{,}7183\\). Polna črta je \\(f\\), črtkana \\(T_n\\), navpična črta pri \\(x\\) pa napaka. Ocena napake je skrita.',
-                'The Taylor polynomial \\(T_n(x)\\) is the sum of the terms \\(\\frac{f^{(k)}(c)}{k!}(x-c)^k\\) for \\(k=0,\\dots,n\\). It is built from higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). For \\(f(x)=e^x\\) every derivative equals \\(e^x\\), so the coefficients about \\(c=0\\) are \\(\\frac{1}{k!}\\). We look at the point \\(x=1\\) and degree \\(n=1\\): \\(T_1(1)=1+1=2\\), while the true value is \\(e\\approx2.7183\\), so the error is about \\(0.7183\\). The solid line is \\(f\\), the dashed line is \\(T_n\\) and the vertical line at \\(x\\) is the error. The error bound is hidden.',
+                'Kako blizu lahko polinom pride funkciji \\(e^x\\)? Potrebuješ višje odvode \\(f^{(k)}(c)\\) in fakultete \\(k!\\). Središče \\(c\\) pove, kje se polinom ujema s funkcijo in njenimi odvodi; stopnja \\(n\\) določa, koliko členov uporabimo. Pri \\(e^x\\) okoli \\(c=0\\) je vsak odvod v središču enak \\(1\\). V točki \\(x=1\\) boš primerjal stopnji \\(3\\) in \\(6\\), preden razkriješ oceno napake.',
+                'How closely can a polynomial follow \\(e^x\\)? You need higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). The center \\(c\\) tells us where the polynomial matches the function and its derivatives; the degree \\(n\\) determines how many terms we use. For \\(e^x\\) about \\(c=0\\), every derivative at the center equals \\(1\\). At \\(x=1\\) you will compare degrees \\(3\\) and \\(6\\) before revealing the error bound.',
             ),
-            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
-            frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-observation', 'observation')],
+            formulaIds: ['taylor-polynomial'], workedExampleId: 'taylor-opening-example', learnerInteraction: 'observe',
+            frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-calculation', 'calculation'), frame('taylor-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(3\\) in na \\(6\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
                 'Predict how the error at \\(x=1\\) changes when you raise the degree \\(n\\) to \\(3\\) and to \\(6\\) (the + button); only then press Show error bound.',

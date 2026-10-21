@@ -915,7 +915,7 @@ describe('the taylor lesson', () => {
         expect(adapted().id).toBe('taylor-guided');
         expect(adapted().steps).toHaveLength(7);
         expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
-        expect(taylorLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(17);
+        expect(taylorLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(18);
         expect(getGuidedLesson('taylor')).toBe(taylorLesson);
         expect(isGuidedLessonAvailable('taylor')).toBe(true);
     });
@@ -952,14 +952,23 @@ describe('the taylor lesson', () => {
             const actions = adaptedActions(id);
             expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
             expect(actions).toContainEqual(hide);
-            // a prediction step shows no calculation frame, which would give the answer away
-            expect(tStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
+            // The opening calculation only teaches the initial readout; later predictions reveal no answer.
+            expect(tStep(id).frames.map(frame => frame.kind), id).toEqual(id === 'taylor-prerequisites-step'
+                ? ['explanation', 'calculation', 'observation'] : ['explanation', 'observation']);
         }
         for (const id of ['taylor-prerequisites-step', 'taylor-sine-prediction-step', 'taylor-flat-prediction-step']) {
             expect(tStep(id).observationPrompt.en, id).toMatch(/Show error bound/);
             expect(tStep(id).observationPrompt.sl, id).toMatch(/Pokaži oceno napake/);
         }
         expect(tStep('taylor-geometric-step').observationPrompt.en).toMatch(/\+ button/);
+        const opening = adapted().steps[0].frames!;
+        expect(opening[0].body!.en).toContain('higher derivatives');
+        expect(opening[0].body!.en).toContain('factorials');
+        expect(opening[0].notation!.map(item => item.en).join(' ')).toContain('has derivatives at the center through order');
+        expect(adapted().steps[1].frames![0].notation!.map(item => item.en).join(' ')).toContain('times differentiable between');
+        expect(opening[1].workedExample!.calculation.en).toContain('T_1(1)=1+1=2');
+        expect(opening[1].workedExample!.calculation.en).not.toMatch(/T_[36]|5040/);
+        expect(opening[1].workedExample!.check.en).toContain('bound stays hidden');
         for (const id of revealSteps) {
             expect(adaptedActions(id)).toContainEqual(show);
             expect(tStep(id).frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
