@@ -5,6 +5,7 @@ import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 export const SPLINE_ALPHA_MAX_SAMPLES = 50;
 
@@ -90,8 +91,8 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
 
-    override presets(): string {
-        return "alfaparametrizacije";
+    override presetCollection() {
+        return curvePresetCollections["spline-parameterization"];
     }
 
 
@@ -131,7 +132,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
         </div>;
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXQubicC2SplineCurve", {
             "points": [[-3.2, 0], [-4.2, -1], [-1.7, -1], [1.3, 1.8], [3.5, 1.9], [4.3, 0.5], [3.8, -1], [-0.5, -4], [-3.7, -4]],
             "state": {

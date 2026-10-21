@@ -8,8 +8,9 @@ import {
     CONTINUITY_A_MAX, CONTINUITY_A_MIN, CONTINUITY_A_STEP, isContinuous, JOIN_X, jump, leftLimit, leftSlope, rightLimit, rightSlope, sampleLeftPiece,
     sampleRightPiece, SampledPiece, valueAtJoin,
 } from "../../analysis/continuity";
-import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter, parseContinuityModel} from "../../analysis/continuityModel";
+import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter} from "../../analysis/continuityModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Removes floating-point noise left by slider arithmetic (30 * 0.05) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -34,16 +35,12 @@ const MISMATCH_TEXT_COLOR = "#9c5d48";
  * The model is `{a}`; the mathematics comes from `src/analysis/continuity`.
  */
 export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
-    override presets(): string {
-        return "piecewise-continuity";
+    override presetCollection() {
+        return functionPresetCollections.continuity;
     }
 
     protected defaultModel(): ContinuityModel {
         return {...DEFAULT_CONTINUITY_MODEL};
-    }
-
-    protected parseModel(data: unknown): ContinuityModel | undefined {
-        return parseContinuityModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

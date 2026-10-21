@@ -425,7 +425,7 @@ test('dragging a and b on the axis projects onto the grid and the range a < b al
 
 test('a drag next to the other endpoint is clamped to one grid step short of it and never leaves a point on a rejected position', () => {
     const graph = makeGraph();
-    graph.importPresetData({example: 'square', a: 0.499, b: 0.5, revealed: false});
+    graph.importPreset({id: 'stored', data: {example: 'square', a: 0.499, b: 0.5, revealed: false}});
     const [a, b] = axisPoints(graph);
     b.moveTo.mockClear();
     b.x = 0.4;
@@ -470,8 +470,8 @@ test('presets save the model with the classification flag and reopen the same sc
     expect(rows(reopened)).toMatchObject({'global-minimum': '0 pri x = 0; 3,1416'});
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([0, Math.PI]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a string and extra properties are sanitized
-    reopened.importPresetData(JSON.stringify({example: 'cube', a: -2, b: 3, revealed: false, extra: true}));
+    // extra properties are sanitized
+    reopened.importPreset({id: 'stored', data: {example: 'cube', a: -2, b: 3, revealed: false, extra: true}});
     expect(reopened.model).toEqual({example: 'cube', a: -2, b: 3, revealed: false});
 });
 
@@ -490,10 +490,11 @@ test('malformed or misordered preset data is rejected to the default model with 
     const bad = [undefined, null, 'not json', {}, [], {...valid, example: 'quartic'}, {...valid, a: 2, b: -1}, {...valid, a: 1, b: 1}, {...valid, a: -4.5}, {...valid, b: 4.5},
         {...valid, a: '0'}, {...valid, revealed: 'yes'}, {...valid, revealed: 1}, {example: 'square', a: -1, b: 2}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

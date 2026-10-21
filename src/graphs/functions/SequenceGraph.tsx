@@ -14,11 +14,12 @@ import {
     SequenceExample, SequenceExampleId, sequenceTerm,
 } from "../../analysis/sequence";
 import {
-    canAdvanceSequence, defaultSequenceModel, nextSequenceStep, parseSequenceModel, resetSequenceTerms, SequenceModel,
+    canAdvanceSequence, defaultSequenceModel, nextSequenceStep, resetSequenceTerms, SequenceModel,
 } from "../../analysis/sequenceModel";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /**
  * Time between two playback steps. One term per interval, never more than one per frame, whatever the display refresh rate
@@ -89,16 +90,12 @@ interface View {
  * would break a rule throws a `DomainError` and leaves the model unchanged. Number fields and lesson actions use the same setters.
  */
 export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
-    override presets(): string {
-        return "sequence";
+    override presetCollection() {
+        return functionPresetCollections.sequence;
     }
 
     protected defaultModel(): SequenceModel {
         return defaultSequenceModel("reciprocal");
-    }
-
-    protected parseModel(data: unknown): SequenceModel | undefined {
-        return parseSequenceModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

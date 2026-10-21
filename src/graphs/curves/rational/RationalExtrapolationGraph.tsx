@@ -4,10 +4,11 @@ import React from 'react';
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {Button} from "react-bootstrap";
 import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
-import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
+import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {extrapolationActions} from "../../base/lesson/curveLessonActions";
 import Slider from '../../../inputs/Slider';
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
     override initialize() {
@@ -60,7 +61,7 @@ class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
         </div>]) : [];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -1]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -75,8 +76,8 @@ class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "rational-bezier-extrapolation";
+    override presetCollection() {
+        return curvePresetCollections["rational-extrapolation"];
     }
 
     override deselectSelectedCurve() {

@@ -12,6 +12,7 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Point} from "../../../bezeg/api/point/point";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -97,7 +98,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.setState({t, animationStatus}, callback);
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]], "state": {
                 "showingJxgPoints": true,
@@ -112,8 +113,8 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
 
-    override presets(): string {
-        return "decasteljau2";
+    override presetCollection() {
+        return curvePresetCollections["decasteljau-alternative"];
     }
 
     override initialize() {
@@ -124,7 +125,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     /** Presets, lesson scenes and checkpoints replace the curve objects without calling initialize(). */
-    override importPresetData(data: any) {
+    override importPresetData(data: CurveCollectionPresetData) {
         super.importPresetData(data);
         this.bindSceneToFirstCurve();
     }

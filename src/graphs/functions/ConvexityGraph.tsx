@@ -11,8 +11,9 @@ import {
     ConvexityExampleId, ConvexityVerdict, convexityVerdict, ComparisonClaim, inflectionPointsIn, isConvexityExampleId, isConvexityX,
     secondDerivativePieces, SecondDerivativePiece, SecondDerivativeSign, secondDerivativeSignOn, tangentComparison, tangentLineAt,
 } from "../../analysis/convexity";
-import {CONVEXITY_EXAMPLE_MODELS, ConvexityModel, parseConvexityModel} from "../../analysis/convexityModel";
+import {CONVEXITY_EXAMPLE_MODELS, ConvexityModel} from "../../analysis/convexityModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Positions and line coefficients show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -97,16 +98,12 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     private pointB?: JXG.Point;
     private pointT?: JXG.Point;
 
-    override presets(): string {
-        return "convexity";
+    override presetCollection() {
+        return functionPresetCollections.convexity;
     }
 
     protected defaultModel(): ConvexityModel {
         return {...CONVEXITY_EXAMPLE_MODELS.square};
-    }
-
-    protected parseModel(data: unknown): ConvexityModel | undefined {
-        return parseConvexityModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

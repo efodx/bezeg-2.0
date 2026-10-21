@@ -11,8 +11,9 @@ import {
     uniformLimitPieces, UniformLimitPiece, uniformPointwiseError, uniformPointwiseThreshold, UniformPointwiseThreshold, uniformSupremum, UniformSupremum, uniformTerm,
     uniformThreshold, UniformThreshold,
 } from "../../analysis/uniformConvergence";
-import {changeUniformR, parseUniformConvergenceModel, UNIFORM_EXAMPLE_MODELS, UniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
+import {changeUniformR, UNIFORM_EXAMPLE_MODELS, UniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Errors and the supremum show five significant digits, so 0.8^5 reads 0.32768. */
 const SIGNIFICANT_DIGITS = 5;
@@ -74,16 +75,12 @@ interface View {
 export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenceModel> {
     private pointX?: JXG.Point;
 
-    override presets(): string {
-        return "uniform-convergence";
+    override presetCollection() {
+        return functionPresetCollections["uniform-convergence"];
     }
 
     protected defaultModel(): UniformConvergenceModel {
         return {...UNIFORM_EXAMPLE_MODELS.power};
-    }
-
-    protected parseModel(data: unknown): UniformConvergenceModel | undefined {
-        return parseUniformConvergenceModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

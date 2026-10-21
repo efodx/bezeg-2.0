@@ -12,6 +12,7 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -108,7 +109,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         super.unmount();
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]], "state": {
                 "showingJxgPoints": true,
@@ -122,11 +123,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "decasteljau";
+    override presetCollection() {
+        return curvePresetCollections.decasteljau;
     }
 
-    override importPresetData(data: any) {
+    override importPresetData(data: CurveCollectionPresetData) {
         super.importPresetData(data);
         const curve = this.getFirstJxgCurve();
         curve.setIntervalEnd(() => this.state.wholeCurve ? 1 : this.parameter);

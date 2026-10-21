@@ -10,9 +10,10 @@ import {
     ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationPieces, accumulationTangent,
     isAccumulationBound,
 } from "../../analysis/accumulation";
-import {AccumulationModel, DEFAULT_ACCUMULATION_MODEL, parseAccumulationModel} from "../../analysis/accumulationModel";
+import {AccumulationModel, DEFAULT_ACCUMULATION_MODEL} from "../../analysis/accumulationModel";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Values show four decimals so that the lesson's 1.4161 can be read off. */
 const PRECISE = 4;
@@ -131,16 +132,12 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     private pointX?: JXG.Point;
     private piecesCache?: { model: AccumulationModel; pieces: AccumulationPiece[] };
 
-    override presets(): string {
-        return "accumulation";
+    override presetCollection() {
+        return functionPresetCollections.accumulation;
     }
 
     protected defaultModel(): AccumulationModel {
         return {...DEFAULT_ACCUMULATION_MODEL};
-    }
-
-    protected parseModel(data: unknown): AccumulationModel | undefined {
-        return parseAccumulationModel(data);
     }
 
     /** The view of the current function; the default model (sin) gives the default scene's view. */

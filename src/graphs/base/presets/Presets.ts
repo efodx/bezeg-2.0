@@ -5,9 +5,10 @@ import {appStorage} from "../../../storage/appStorage";
 
 const PRESETS_PREFIX = "preset-";
 
-export interface Preset {
+/** A stored Preset. `data` is the graph family's Preset data; stored data is `unknown` until its collection checks it. */
+export interface Preset<D = unknown> {
     id: string,
-    data?: any,
+    data?: D,
     boardState?: BoardState,
     graphState?: BaseGraphState
 }

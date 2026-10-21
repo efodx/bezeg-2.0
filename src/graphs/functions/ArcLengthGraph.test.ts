@@ -307,19 +307,20 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('arc-length');
     expect(exported.data).toEqual({a: 1, b: -1, n: 20});
-    graph.importPresetData({a: -2, b: 3, n: 10, extra: true});
+    graph.importPreset({id: 'stored', data: {a: -2, b: 3, n: 10, extra: true}});
     expect(graph.model).toEqual({a: -2, b: 3, n: 10});
     expect(pointA(graph).x).toBe(-2);
     expect(pointB(graph).x).toBe(3);
-    graph.importPresetData(JSON.stringify({a: 0, b: 1, n: 5}));
+    graph.importPreset({id: 'stored', data: {a: 0, b: 1, n: 5}});
     expect(graph.model).toEqual({a: 0, b: 1, n: 5});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {a: 8, b: 0, n: 2}, {a: 0, b: -8, n: 2}, {a: 0, b: 1, n: 0}, {a: 0, b: 1, n: 101}, {a: 0, b: 1, n: 2.5}, {a: 0, b: 1}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(DEFAULT);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'arc-length', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 3, n: 6}});
     expect(graph.model).toEqual({a: 0, b: 3, n: 6});

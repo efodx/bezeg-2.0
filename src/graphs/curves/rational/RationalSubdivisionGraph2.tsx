@@ -1,9 +1,10 @@
 import SubdivisionGraph1 from "../bezier/SubdivisionGraph1";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class Graph extends SubdivisionGraph1 {
 
 
-    override defaultPreset(): any {
+    override defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -19,8 +20,8 @@ class Graph extends SubdivisionGraph1 {
         }]];
     }
 
-    override presets(): string {
-        return "rational-bezier-subdivision";
+    override presetCollection() {
+        return curvePresetCollections["rational-subdivision"];
     }
 
 

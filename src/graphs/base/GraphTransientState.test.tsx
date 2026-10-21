@@ -53,7 +53,6 @@ type Internals = {
     exportPresetFigures(presets: Preset[]): Promise<void>;
     captureTransientState?: () => unknown;
     lessonFunctionActions?: () => {visibility?: Record<string, unknown>};
-    parseModel?: (data: unknown) => Record<string, unknown> | undefined;
     exportPresetData(): unknown;
     importPresetData(data: unknown): void;
 };
@@ -96,12 +95,16 @@ function mainScene({hodographView: view, transient: observed, ...main}: SceneVie
 /** Edits a function graph's model the way its controls would: each numeric field the graph accepts a nearby value for. */
 function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
     const g = internals(graph);
-    if (typeof g.parseModel !== 'function') return;
-    let model = {...g.exportPresetData() as Record<string, unknown>};
+    // Function graphs only: their Preset data is a model object, which their Preset collection checks.
+    const collection = graph.presetCollection();
+    const exported = g.exportPresetData();
+    if (!collection || exported === null || typeof exported !== 'object' || Array.isArray(exported)) return;
+    let model = {...exported as Record<string, unknown>};
     for (const [key, value] of Object.entries(model)) {
         if (typeof value !== 'number') continue;
         for (const delta of variant === 'a' ? [0.5, 1, -0.5, -1] : [-1, -2, 1, 2]) {
-            const parsed = g.parseModel({...model, [key]: value + delta});
+            const checked = collection.check({...model, [key]: value + delta});
+            const parsed = 'data' in checked ? checked.data as Record<string, unknown> : undefined;
             if (parsed && parsed[key] === value + delta) { model = parsed; break; }
         }
     }
@@ -193,6 +196,9 @@ function storedPreset(id: DemonstrationId, presetId: string): Preset {
     source.view.unmount();
     if (!NO_PRESET_DATA.has(id)) expect(preset.data).toBeDefined();
     expect(preset.graphState).toBeDefined();
+    // A changed scene stored as a Preset passes the graph's own collection check, so loading it shows it, not the default.
+    const stored = preset.data === undefined ? undefined : JSON.parse(JSON.stringify(preset.data));
+    if (stored !== undefined && !NO_PRESET_COLLECTION.has(id)) expect(source.graph.presetCollection()?.check(stored)).toEqual({data: stored});
     return preset;
 }
 

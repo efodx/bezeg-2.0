@@ -11,10 +11,10 @@ import {
     FixedPointExampleId, FixedPointHistory, fixedPointHundredths, fixedPointLocation, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
 } from "../../analysis/fixedPoint";
 import {
-    defaultFixedPointModel, fixedPointCanAdvance, fixedPointHistoryOf, FixedPointModel, fixedPointTransition, normalizeFixedPointModel, parseFixedPointModel,
-} from "../../analysis/fixedPointModel";
+    defaultFixedPointModel, fixedPointCanAdvance, fixedPointHistoryOf, FixedPointModel, fixedPointTransition, normalizeFixedPointModel, } from "../../analysis/fixedPointModel";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /**
  * Time between two playback steps. One iterate per interval, never more than one per frame, whatever the display refresh rate
@@ -79,18 +79,12 @@ interface View {
  * the same setters. Error bounds exist only where the map is a contraction; for 1 - x the board and the inspector say why there is none.
  */
 export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
-    override presets(): string {
-        return "fixed-point";
+    override presetCollection() {
+        return functionPresetCollections["fixed-point"];
     }
 
     protected defaultModel(): FixedPointModel {
         return defaultFixedPointModel("affine");
-    }
-
-    /** A stored step beyond the point where the iteration terminated is cut to the steps the history can take. */
-    protected parseModel(data: unknown): FixedPointModel | undefined {
-        const parsed = parseFixedPointModel(data);
-        return parsed && normalizeFixedPointModel(parsed);
     }
 
     protected defaultBoundingBox(): BoundingBox {

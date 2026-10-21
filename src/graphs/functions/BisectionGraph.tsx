@@ -10,9 +10,10 @@ import {
     BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_EXAMPLES, BISECTION_MAX_STEPS, bisectionExample, BisectionExample,
     BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep, isBisectionBracket, isBisectionEndpoint, isBisectionExampleId,
 } from "../../analysis/bisection";
-import {BisectionModel, DEFAULT_BISECTION_MODEL, parseBisectionModel} from "../../analysis/bisectionModel";
+import {BisectionModel, DEFAULT_BISECTION_MODEL} from "../../analysis/bisectionModel";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /**
  * Time between two playback steps. One step per interval, never more than one per frame, whatever the display refresh
@@ -98,17 +99,12 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     /** A derived value keyed by the identity of the model it was computed from; it can never be stale. */
     private historyCache?: { model: BisectionModel; history: BisectionHistory };
 
-    override presets(): string {
-        return "bisection";
+    override presetCollection() {
+        return functionPresetCollections.bisection;
     }
 
     protected defaultModel(): BisectionModel {
         return {...DEFAULT_BISECTION_MODEL};
-    }
-
-    protected parseModel(data: unknown): BisectionModel | undefined {
-        const parsed = parseBisectionModel(data);
-        return parsed && this.normalized(parsed);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

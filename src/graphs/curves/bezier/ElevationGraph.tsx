@@ -9,6 +9,7 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {TransientState} from "../../base/BaseGraph";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     /** Transient switch; the overlay is on in a fresh scene and is not stored in presets. */
@@ -73,7 +74,7 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         registry.use(degreeElevationAction(() => this.elevate()));
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -2], [-3, 3], [2, 3], [3, -2]], "state": {
                 "showingJxgPoints": true,
@@ -94,8 +95,8 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.unsuspendBoardUpdate();
     }
 
-    override presets(): string {
-        return "elevation-graph";
+    override presetCollection() {
+        return curvePresetCollections.elevation;
     }
 
     override getGraphCommands(): JSX.Element[] {

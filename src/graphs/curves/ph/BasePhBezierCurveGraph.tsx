@@ -15,6 +15,7 @@ import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "../object/ModelPointBinding";
 import {PointCoordinateEditor} from "../../base/PointCoordinateEditor";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
 
 function formatArcLength(value: number): string {
     const locale = currentLanguage() === 'en' ? 'en-US' : 'sl-SI';
@@ -76,7 +77,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     }
 
     /** Preset, figure and lesson imports dispose the scene first, so the readout is recreated here. */
-    override importPresetData(data: any) {
+    override importPresetData(data: CurveCollectionPresetData) {
         super.importPresetData(data);
         this.ensureArcLengthText();
     }

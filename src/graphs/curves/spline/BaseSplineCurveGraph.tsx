@@ -5,6 +5,7 @@ import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
 import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
 
 export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends BaseCurveGraph<S> {
     override mount(container: HTMLElement) {
@@ -13,7 +14,7 @@ export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends Ba
     }
 
     /** Presets, lesson scenes and checkpoints replace the curve objects without calling mount(). */
-    override importPresetData(data: any) {
+    override importPresetData(data: CurveCollectionPresetData) {
         super.importPresetData(data);
         this.getFirstJxgCurve()?.setAttributes({allowShowPoints: true});
     }

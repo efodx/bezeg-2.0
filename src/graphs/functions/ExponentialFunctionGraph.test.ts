@@ -183,16 +183,17 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.data).toEqual({a: 3, mirror: true});
     expect(exported.id).toBe('exponential-function');
-    graph.importPresetData({a: 0.25, mirror: false});
+    graph.importPreset({id: 'stored', data: {a: 0.25, mirror: false}});
     expect(graph.model).toEqual({a: 0.25, mirror: false});
-    graph.importPresetData(JSON.stringify({a: 4}));
+    graph.importPreset({id: 'stored', data: {a: 4}});
     expect(graph.model).toEqual({a: 4, mirror: false});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     for (const bad of [undefined, null, 'not json', {}, {a: 0}, {a: -3}, {a: 1e9}, {a: NaN}, {a: 2, mirror: 'yes'}, []]) {
-        graph.importPresetData(bad);
+        graph.importPreset({id: 'stored', data: bad});
         expect(graph.model).toEqual({a: 2, mirror: false});
     }
-    expect(warn).toHaveBeenCalledTimes(10);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(8);
     warn.mockRestore();
     graph.importPreset({id: 'exponential-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1.5, mirror: true}});
     expect(graph.model).toEqual({a: 1.5, mirror: true});

@@ -655,19 +655,19 @@ test('presets save the model with the step and the reveal, reopen paused and nev
     next(graph);
     expect(reopened.model).toEqual(graph.model);
 
-    // a string, extra properties and a step beyond the end of the iteration: the step is cut to what the history can take
-    reopened.importPresetData(JSON.stringify({example: 'affine', x0: 0, step: 60, digits: 3, boundVisible: false, extra: true}));
+    // extra properties and a step beyond the end of the iteration: the step is cut to what the history can take
+    reopened.importPreset({id: 'stored', data: {example: 'affine', x0: 0, step: 60, digits: 3, boundVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'affine', x0: 0, step: 10, digits: 3, boundVisible: false});
     expect(reopened.controller.isPlaying()).toBe(false);
     expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     expect(() => next(reopened)).toThrow(DomainError);
     // a start at a known fixed point has step 0
-    reopened.importPresetData({example: 'affine', x0: 1, step: 5, digits: 3, boundVisible: false});
+    reopened.importPreset({id: 'stored', data: {example: 'affine', x0: 1, step: 5, digits: 3, boundVisible: false}});
     expect(reopened.model.step).toBe(0);
     // a finished reflection reopens as a finished iteration
-    reopened.importPresetData({example: 'reflection', x0: 0.2, step: 60, digits: 3, boundVisible: false});
+    reopened.importPreset({id: 'stored', data: {example: 'reflection', x0: 0.2, step: 60, digits: 3, boundVisible: false}});
     expect(reopened.controller.isComplete()).toBe(true);
-    reopened.importPresetData({...exported.data, step: 3});
+    reopened.importPreset({id: 'stored', data: {...exported.data, step: 3}});
     expect(reopened.controller.isComplete()).toBe(false);
     next(reopened);
     expect(reopened.model.step).toBe(4);
@@ -689,11 +689,12 @@ test('malformed preset data is rejected to the default model with a warning', ()
         {...valid, example: 'cosine', x0: 1.5}, {...valid, step: -1}, {...valid, step: 61}, {...valid, step: 1.5}, {...valid, step: '1'}, {...valid, digits: 0}, {...valid, digits: 9},
         {...valid, digits: 2.5}, {...valid, boundVisible: 'true'}, {...valid, boundVisible: undefined}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model, JSON.stringify(entry)).toEqual(valid);
         expect(graph.controller.isPlaying()).toBe(false);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

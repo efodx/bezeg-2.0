@@ -566,20 +566,21 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
     const exported = graph.exportPresetData();
     expect(exported).toEqual({example: 'scaling', zRe: -1.35, zIm: 1, wRe: 2, wIm: 0.65, productVisible: true, anglesVisible: true});
     const other = makeGraph();
-    other.importPresetData(JSON.parse(JSON.stringify(exported)));
+    other.importPreset({id: 'stored', data: JSON.parse(JSON.stringify(exported))});
     expect(other.model).toEqual(exported);
-    other.importPresetData(JSON.stringify(exported));
+    other.importPreset({id: 'stored', data: exported});
     expect(other.model).toEqual(exported);
-    expect(graph.defaultPreset()).toBe(JSON.stringify(DEFAULT_COMPLEX_MODEL));
+    expect(graph.defaultPreset()).toEqual((DEFAULT_COMPLEX_MODEL));
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {...DEFAULT_COMPLEX_MODEL};
     const bad = [null, [], {}, {...valid, example: 'cubic'}, {...valid, zRe: 2.05}, {...valid, zIm: -2.5}, {...valid, wRe: 0.123}, {...valid, wIm: '1'}, {...valid, wIm: Number.NaN},
         {...valid, productVisible: 'yes'}, {...valid, anglesVisible: 1}, {example: 'zero', zRe: 1, zIm: 1, wRe: 0, wIm: 0}];
     for (const entry of bad) {
-        other.importPresetData(entry);
+        other.importPreset({id: 'stored', data: entry});
         expect(other.model, JSON.stringify(entry)).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     // capture and restore
     const checkpoint = graph.captureLessonState();

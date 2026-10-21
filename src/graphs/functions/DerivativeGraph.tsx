@@ -11,8 +11,9 @@ import {catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functi
 import {
     differenceQuotient, H_MAX, H_MIN, H_MIN_ABS, H_STEP, isStep, isX0, lineValue, stepOutOfBand, tangentLine, X0_MAX, X0_MIN, X0_STEP,
 } from "../../analysis/derivative";
-import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel, parseDerivativeModel} from "../../analysis/derivativeModel";
+import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel} from "../../analysis/derivativeModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Removes floating-point noise left by slider arithmetic (-2 + 150 * 0.01) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -30,16 +31,12 @@ const PRECISE = 4;
 export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     private pointP?: JXG.Point;
 
-    override presets(): string {
-        return "derivative";
+    override presetCollection() {
+        return functionPresetCollections.derivative;
     }
 
     protected defaultModel(): DerivativeModel {
         return {...DEFAULT_DERIVATIVE_MODEL};
-    }
-
-    protected parseModel(data: unknown): DerivativeModel | undefined {
-        return parseDerivativeModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

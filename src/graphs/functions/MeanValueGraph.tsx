@@ -10,8 +10,9 @@ import {
     isDifferentiableOn, isMeanValueExampleId, isMeanValueX, isOrdered, MatchSet, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample, MeanValueExample,
     MeanValueExampleId, MVT_X_MAX, MVT_X_MIN, MVT_X_STEP, secantLineOf, secantSlope, tangentLineOf, tangentSlope,
 } from "../../analysis/meanValue";
-import {MEAN_VALUE_EXAMPLE_MODELS, MeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
+import {MEAN_VALUE_EXAMPLE_MODELS, MeanValueModel} from "../../analysis/meanValueModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /**
  * Two slopes closer than this are shown as "agreeing". It is a numerical comparison of the displayed numbers, not a proof
@@ -67,16 +68,12 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     private pointB?: JXG.Point;
     private pointC?: JXG.Point;
 
-    override presets(): string {
-        return "mean-value";
+    override presetCollection() {
+        return functionPresetCollections["mean-value"];
     }
 
     protected defaultModel(): MeanValueModel {
         return {...MEAN_VALUE_EXAMPLE_MODELS.square};
-    }
-
-    protected parseModel(data: unknown): MeanValueModel | undefined {
-        return parseMeanValueModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

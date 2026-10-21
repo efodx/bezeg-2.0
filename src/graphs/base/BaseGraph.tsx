@@ -6,6 +6,7 @@ import {AxisAttributes, Board} from "jsxgraph";
 import {fitBoundingBox} from "./fitBoundingBox";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
+import type {PresetCollection} from "./presets/PresetCollection";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
@@ -50,8 +51,9 @@ export interface BoardState {
     boundingBox: [number, number, number, number]
 }
 
-interface FigureBatchScene {
-    preset: Preset;
+/** A figure batch's entry scene: this graph's own export, restored without a stored-data check. */
+interface FigureBatchScene<D> {
+    preset: Preset<D>;
     transientState: TransientState;
 }
 
@@ -86,9 +88,10 @@ export interface GraphWorkspacePanels {
  * `SceneStore`, and `GraphHost` renders its panels, mounts it on a container element and flushes its deferred
  * `onStateChange`/callback work after every commit.
  *
- * `P` is the historical props type parameter; graphs take no props any more.
+ * `S` is the scene state; `D` is the Preset data of the graph's family (curve entries, a function model), which the
+ * graph's Preset collection checks whenever stored data enters the graph.
  */
-abstract class BaseGraph<S extends BaseGraphState> {
+abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private sceneStore?: SceneStore<S>;
     private presetServiceInstance?: PresetService;
     private lessonActionRegistry?: LessonActionRegistry;
@@ -511,7 +514,21 @@ abstract class BaseGraph<S extends BaseGraphState> {
 
     /** Imports preset data without replacing the board or its lifetime resources. */
     protected importFigurePresetData(preset: Preset): void {
-        this.importPresetData(preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(preset.data));
+        this.importPresetData(this.storedPresetData(preset.data));
+    }
+
+    /**
+     * Stored Preset data as this graph imports it: checked by the graph's Preset collection, the same definition the
+     * file importer uses. Missing data, data the collection rejects, and data for a graph without a collection (which
+     * stores no Presets) give the default scene's data.
+     */
+    protected storedPresetData(data: unknown): D {
+        const collection = this.presetCollection();
+        if (data === undefined || data === null || !collection) return cloneLessonValue(this.defaultPreset());
+        const checked = collection.check(cloneLessonValue(data));
+        if ("data" in checked) return checked.data;
+        console.warn(`Ignoring invalid Preset data of the ${collection.key} collection; using the default scene.`);
+        return cloneLessonValue(this.defaultPreset());
     }
 
     /** The scene state a figure scene starts with: the graph's initial state with the Preset's stored state over it. */
@@ -549,7 +566,8 @@ abstract class BaseGraph<S extends BaseGraphState> {
             throw new Error('This lesson scene is no longer compatible with the graph.');
         }
         const state = checkpoint.value;
-        if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data));
+        // A checkpoint holds this graph's own exported Preset data, captured in memory by `captureLessonState`.
+        if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D);
         this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
         // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
         this.replaceState({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true});
@@ -719,11 +737,17 @@ abstract class BaseGraph<S extends BaseGraphState> {
             <Commands commands={this.getGraphCommands()} title={t("graph_commands")}/> : null;
     }
 
-    presets(): undefined | string {
+    /** The static definition of this Demonstration's browser-local Preset collection; undefined when it has none. */
+    presetCollection(): PresetCollection<D> | undefined {
         return undefined;
     }
 
-    exportPreset(): Preset {
+    /** Key of the Preset collection (stored as `preset-<key>`); undefined when the graph has none. */
+    presets(): undefined | string {
+        return this.presetCollection()?.key;
+    }
+
+    exportPreset(): Preset<D> {
         return {
             id: this.presets()!,
             boardState: this.boardState(),
@@ -740,7 +764,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
             this.setBaseState({...preset.graphState, initialized: true});
         }
         if (preset.data) {
-            this.importPresetData(preset.data);
+            this.importPresetData(this.storedPresetData(preset.data));
         }
     }
 
@@ -748,15 +772,15 @@ abstract class BaseGraph<S extends BaseGraphState> {
         return {boundingBox: this.board.getBoundingBox()};
     }
 
-    exportPresetData(): undefined | any {
+    exportPresetData(): D | undefined {
         return undefined;
     }
 
-    importPresetData(data: any) {
-        // throw "NOT IMPLEMENTED"
+    /** Replaces the scene with Preset data of this graph's family: the default scene, a checkpoint, or checked stored data. */
+    importPresetData(_data: D): void {
     }
 
-    abstract defaultPreset(): string
+    abstract defaultPreset(): D
 
     private saveAsPNG2(fileName: string): Promise<void> {
         const session = this.getActiveGraphSession();
@@ -814,7 +838,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                     finish();
                     return;
                 }
-                const owner: FigureBatchOwner<Preset, FigureBatchScene> = {
+                const owner: FigureBatchOwner<Preset, FigureBatchScene<D>> = {
                     isAlive: () => this.graphSession === session && session.isAlive,
                     signal: session.signal,
                     waitUntilReady: () => session.waitUntilReady(),
@@ -825,7 +849,7 @@ abstract class BaseGraph<S extends BaseGraphState> {
                     }),
                     // Each Preset figure shows the Preset as loading it would: with fresh transient state.
                     applyPreset: (preset, operationSignal) => this.applyFigurePreset(session, preset, operationSignal),
-                    restoreEntryState: (scene, operationSignal) => this.applyFigurePreset(session, scene.preset, operationSignal, scene.transientState),
+                    restoreEntryState: (scene, operationSignal) => this.applyFigurePreset(session, scene.preset, operationSignal, scene),
                 };
                 void downloadPresetFigures(owner, presets).finally(() => {
                     if (this.graphSession !== session || !session.isAlive) {
@@ -851,8 +875,9 @@ abstract class BaseGraph<S extends BaseGraphState> {
         session: GraphSession,
         preset: Preset,
         operationSignal: AbortSignal,
-        transientState?: TransientState,
+        entry?: FigureBatchScene<D>,
     ): Promise<void> {
+        const transientState = entry?.transientState;
         const generation = ++this.figureSceneGeneration;
         const isCurrent = () => this.graphSession === session && session.isAlive &&
             !operationSignal.aborted && generation === this.figureSceneGeneration;
@@ -869,7 +894,8 @@ abstract class BaseGraph<S extends BaseGraphState> {
                     const preservedBoardObjects = this.boardInfrastructureObjectClosure();
                     const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
                     if (remainingObjects.length) this.board.removeObject(remainingObjects);
-                    this.importFigurePresetData(preset);
+                    if (!entry) this.importFigurePresetData(preset);
+                    else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
                 } finally {
                     if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
                 }

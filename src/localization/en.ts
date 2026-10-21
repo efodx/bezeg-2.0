@@ -199,6 +199,7 @@ export const en: Record<keyof typeof sl, string> = {
     "weights_do_not_match_the_points": "weights do not match the points",
     "invalid_ph_curve_hodograph": "invalid PH curve hodograph",
     "invalid_spline_degree_or_continuity": "invalid spline degree or continuity",
+    "invalid_g1_spline_parameters": "G1 spline parameters b must be positive numbers, one for each junction",
     "incomplete_curve_state": "incomplete curve state",
     "invalid_json": "invalid JSON",
     "missing_preset_collections": "missing preset collections",

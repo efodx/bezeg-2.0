@@ -16,6 +16,7 @@ import {
 } from "../curves/object/AbstractJXGPointControlledCurve";
 import {JXGRationalBezierCurve} from "../curves/object/JXGRationalBezierCurve";
 import {ClassMapper} from "../curves/object/ClassMapper";
+import {CurveCollectionPresetData} from "../curves/curvePresetCollections";
 import {AbstractJXGBezierCurve} from "../curves/object/AbstractJXGBezierCurve";
 import {JXGPointWrapper} from "../curves/object/JXGPointWrapper";
 import {CurveWorkspaceOperations} from "./CurveWorkspaceControls";
@@ -55,15 +56,14 @@ function isSelectedCurveOption(value: unknown): value is SelectedCurveOption {
     return typeof value === 'number' && SelectedCurveOption[value] !== undefined;
 }
 
-/** Serialized curves of a preset: `[class name, curve DTO]` pairs, see `ClassMapper`. */
-export type CurveCollectionPresetData = ReadonlyArray<readonly [string, unknown]>;
+export type {CurveCollectionPresetData} from "../curves/curvePresetCollections";
 
 JXG.extend(JXG.Point.prototype, {});
 
 /**
  * Abstract class for creating graphs.
  */
-abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
+abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, CurveCollectionPresetData> {
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
@@ -99,9 +99,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
                 // A live curve is authoritative; before the board exists the default scene says which adapter the graph uses.
                 const live: unknown = this.getFirstJxgCurve();
                 if (live) return (live as { constructor: new (...args: any[]) => unknown }).constructor;
-                const preset: unknown = this.defaultPreset();
-                const className = Array.isArray(preset) && Array.isArray(preset[0]) ? preset[0][0] : undefined;
-                return typeof className === 'string' ? ClassMapper.getClass(className) : undefined;
+                const className = this.defaultPreset()[0]?.[0];
+                return className === undefined ? undefined : ClassMapper.getClass(className);
             },
             boardUpdate: () => this.boardUpdate(),
         }));
@@ -363,7 +362,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S> {
         return <Commands commands={commands} title={t("selected_curve_25")}></Commands>;
     }
 
-    override exportPresetData() {
+    override exportPresetData(): CurveCollectionPresetData {
         return this.jxgCurves.map(curve => {
             return [ClassMapper.getClassName(curve.constructor), ClassMapper.getToDto(curve.constructor)(curve)];
         });

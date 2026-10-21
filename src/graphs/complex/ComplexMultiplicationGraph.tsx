@@ -9,9 +9,10 @@ import {
     ArgumentSum, argumentSum, Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, COMPLEX_EXAMPLE_IDS, COMPLEX_MAX_OPERAND_MODULUS, complexArgument, ComplexExampleId,
     complexModulus, complexMultiply, isComplexCoordinate, isComplexExampleId, isZero, snapComplexCoordinate, snapPolarToGrid,
 } from "../../analysis/complex";
-import {COMPLEX_EXAMPLE_MODELS, ComplexModel, complexModelOperands, DEFAULT_COMPLEX_MODEL, parseComplexModel} from "../../analysis/complexModel";
+import {COMPLEX_EXAMPLE_MODELS, ComplexModel, complexModelOperands, DEFAULT_COMPLEX_MODEL} from "../../analysis/complexModel";
 import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "../functions/functionPresetCollections";
 
 type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -105,16 +106,12 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     private pointZ?: JXG.Point;
     private pointW?: JXG.Point;
 
-    override presets(): string {
-        return "complex-multiplication";
+    override presetCollection() {
+        return functionPresetCollections["complex-multiplication"];
     }
 
     protected defaultModel(): ComplexModel {
         return {...DEFAULT_COMPLEX_MODEL};
-    }
-
-    protected parseModel(data: unknown): ComplexModel | undefined {
-        return parseComplexModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

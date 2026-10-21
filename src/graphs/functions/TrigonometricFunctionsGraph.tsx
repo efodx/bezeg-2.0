@@ -12,9 +12,10 @@ import {
     tangentBranches, TRIG_FUNCTIONS, trigValue, valueRange,
 } from "../../analysis/trigonometric";
 import {
-    DEFAULT_TRIGONOMETRIC_MODEL, isAmplitude, isMidline, isOmega, isPhase, isTrigFunction, parseTrigonometricModel, TrigonometricModel,
+    DEFAULT_TRIGONOMETRIC_MODEL, isAmplitude, isMidline, isOmega, isPhase, isTrigFunction, TrigonometricModel,
 } from "../../analysis/trigonometricModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -29,16 +30,12 @@ const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
  * `{fn, A, omega, phi, B, reference}`; the mathematics comes from `src/analysis/trigonometric`.
  */
 export class TrigonometricFunctionsGraph extends BaseFunctionGraph<TrigonometricModel> {
-    override presets(): string {
-        return "trigonometric-function";
+    override presetCollection() {
+        return functionPresetCollections["trigonometric-functions"];
     }
 
     protected defaultModel(): TrigonometricModel {
         return {...DEFAULT_TRIGONOMETRIC_MODEL};
-    }
-
-    protected parseModel(data: unknown): TrigonometricModel | undefined {
-        return parseTrigonometricModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

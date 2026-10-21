@@ -125,8 +125,9 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
     }
 
     /** A preset or lesson checkpoint never starts playback: the controller returns to the loaded step, paused. */
-    override importPresetData(data: any): void {
-        super.importPresetData(data);
+    /** An imported model is normalized like any other entry into the iteration (a stored step cut to the steps it can take). */
+    override importPresetData(data: M): void {
+        super.importPresetData(this.normalizeIterationModel(data));
         this.controller.reset(this.iterationIndex(this.model));
         this.requestRender();
     }

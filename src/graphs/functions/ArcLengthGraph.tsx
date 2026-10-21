@@ -8,8 +8,9 @@ import {formatNumber} from "../../analysis/format";
 import {
     arcLength, arcValue, BOUND_MAX, BOUND_MIN, BOUND_STEP, isBound, isSegmentCount, lengthDifference, N_MAX, N_MIN, N_STEP, polylineLength, polylineVertices,
 } from "../../analysis/arcLength";
-import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL, parseArcLengthModel} from "../../analysis/arcLengthModel";
+import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL} from "../../analysis/arcLengthModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
 const PRECISE = 4;
@@ -42,16 +43,12 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     private pointB?: JXG.Point;
     private verticesCache?: { model: ArcLengthModel; vertices: [number, number][] };
 
-    override presets(): string {
-        return "arc-length";
+    override presetCollection() {
+        return functionPresetCollections["arc-length"];
     }
 
     protected defaultModel(): ArcLengthModel {
         return {...DEFAULT_ARC_LENGTH_MODEL};
-    }
-
-    protected parseModel(data: unknown): ArcLengthModel | undefined {
-        return parseArcLengthModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

@@ -198,6 +198,7 @@ export const sl = {
     "weights_do_not_match_the_points": "uteži se ne ujemajo s točkami",
     "invalid_ph_curve_hodograph": "neveljaven hodograf PH krivulje",
     "invalid_spline_degree_or_continuity": "neveljavna stopnja ali zveznost zlepka",
+    "invalid_g1_spline_parameters": "parametri b zlepka G1 morajo biti pozitivna števila, po eno za vsak stik",
     "incomplete_curve_state": "nepopolno stanje krivulje",
     "invalid_json": "neveljaven JSON",
     "missing_preset_collections": "manjkajo zbirke prednastavitev",

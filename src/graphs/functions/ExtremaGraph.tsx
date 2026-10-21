@@ -9,8 +9,9 @@ import {
     analyzeExtrema, CandidateKind, DerivativeSign, EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, EXTREMA_X_STEP, extremaExample, ExtremaAnalysis,
     ExtremaCandidate, ExtremaExample, ExtremaExampleId, isExtremaExampleId, isExtremaX,
 } from "../../analysis/extrema";
-import {EXTREMA_EXAMPLE_MODELS, ExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
+import {EXTREMA_EXAMPLE_MODELS, ExtremaModel} from "../../analysis/extremaModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Values and positions show four decimals so that pi/2 = 1.5708 and sin(4) = -0.7568 can be read off. */
 const PRECISE = 4;
@@ -92,16 +93,12 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
 
-    override presets(): string {
-        return "extrema";
+    override presetCollection() {
+        return functionPresetCollections.extrema;
     }
 
     protected defaultModel(): ExtremaModel {
         return {...EXTREMA_EXAMPLE_MODELS.square};
-    }
-
-    protected parseModel(data: unknown): ExtremaModel | undefined {
-        return parseExtremaModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

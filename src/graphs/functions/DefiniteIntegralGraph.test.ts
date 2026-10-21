@@ -391,21 +391,22 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('definite-integral');
     expect(exported.data).toEqual({fn: 'exp', a: 1, b: -1, n: 20, method: 'midpoint'});
-    graph.importPresetData({fn: 'sin', a: -2, b: 3, n: 10, method: 'right', extra: true});
+    graph.importPreset({id: 'stored', data: {fn: 'sin', a: -2, b: 3, n: 10, method: 'right', extra: true}});
     expect(graph.model).toEqual({fn: 'sin', a: -2, b: 3, n: 10, method: 'right'});
     expect(pointA(graph).x).toBe(-2);
     expect(pointB(graph).x).toBe(3);
-    graph.importPresetData(JSON.stringify({fn: 'square', a: 0, b: 1, n: 5, method: 'left'}));
+    graph.importPreset({id: 'stored', data: {fn: 'square', a: 0, b: 1, n: 5, method: 'left'}});
     expect(graph.model).toEqual({fn: 'square', a: 0, b: 1, n: 5, method: 'left'});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {fn: 'square', a: 0, b: 2, n: 4, method: 'left'};
     const bad = [undefined, null, 'not json', {}, [], {...good, fn: 'cos'}, {...good, a: 8}, {...good, b: -8}, {...good, n: 0}, {...good, n: 200}, {...good, n: 2.5},
         {...good, method: 'upper'}, {fn: 'square', a: 0, b: 2, n: 4}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(good);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'definite-integral', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', a: 0, b: 3, n: 6, method: 'trapezoid'}});
     expect(graph.model).toEqual({fn: 'sin', a: 0, b: 3, n: 6, method: 'trapezoid'});

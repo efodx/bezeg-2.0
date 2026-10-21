@@ -614,8 +614,8 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
     expect(statusIds(reopened)).toEqual(['revealed', 'outside-convergence']);
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([0.25, -1.5]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a string and extra properties are sanitized
-    reopened.importPresetData(JSON.stringify({example: 'sine', center: 1, degree: 2, x: 3, boundVisible: false, extra: true}));
+    // extra properties are sanitized
+    reopened.importPreset({id: 'stored', data: {example: 'sine', center: 1, degree: 2, x: 3, boundVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'sine', center: 1, degree: 2, x: 3, boundVisible: false});
 });
 
@@ -640,10 +640,11 @@ test('malformed or out-of-domain preset data is rejected to the default model wi
         {example: 'exp', center: 0, degree: 1, x: 1}, {...valid, example: 'flat', center: 0.5}, {...valid, example: 'geometric', x: 1},
         {...valid, example: 'geometric', center: 1}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

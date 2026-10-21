@@ -9,8 +9,9 @@ import {
     canRefine, DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_X_STEP, darbouxExample, DarbouxExample,
     DarbouxExampleId, darbouxSubintervals, DarbouxSubinterval, darbouxTotals, DarbouxTotals, isDarbouxCount, isDarbouxExampleId, isDarbouxX, refine,
 } from "../../analysis/darboux";
-import {DARBOUX_EXAMPLE_MODELS, DarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
+import {DARBOUX_EXAMPLE_MODELS, DarbouxModel} from "../../analysis/darbouxModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Sums and the integral show four decimals so that 1.75, 3.75 and 8/3 = 2.6667 can be read off. */
 const PRECISE = 4;
@@ -86,16 +87,12 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
 
-    override presets(): string {
-        return "darboux";
+    override presetCollection() {
+        return functionPresetCollections.darboux;
     }
 
     protected defaultModel(): DarbouxModel {
         return {...DARBOUX_EXAMPLE_MODELS.square};
-    }
-
-    protected parseModel(data: unknown): DarbouxModel | undefined {
-        return parseDarbouxModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

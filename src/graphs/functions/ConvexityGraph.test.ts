@@ -484,7 +484,7 @@ test('dragging a, b and t on the axis projects onto the grid and the range the m
 
 test('a drag next to the other endpoint is clamped to one grid step short of it and never leaves a point on a rejected position', () => {
     const graph = makeGraph();
-    graph.importPresetData({example: 'square', a: 0.499, b: 0.5, t: 0.5, secondDerivativeVisible: false});
+    graph.importPreset({id: 'stored', data: {example: 'square', a: 0.499, b: 0.5, t: 0.5, secondDerivativeVisible: false}});
     const [a, b] = axisPoints(graph);
     b.moveTo.mockClear();
     b.x = 0.4;
@@ -530,8 +530,8 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
     expect(rows(reopened)).toMatchObject({chord: 'y = 4x', verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo', 'tangent-verdict': 'graf leži na tangenti ali nad njo'});
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([0, 2, 1.8]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a string and extra properties are sanitized
-    reopened.importPresetData(JSON.stringify({example: 'quartic', a: -2, b: 1, t: 2, secondDerivativeVisible: false, extra: true}));
+    // extra properties are sanitized
+    reopened.importPreset({id: 'stored', data: {example: 'quartic', a: -2, b: 1, t: 2, secondDerivativeVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'quartic', a: -2, b: 1, t: 2, secondDerivativeVisible: false});
 });
 
@@ -555,10 +555,11 @@ test('malformed or misordered preset data is rejected to the default model with 
         {...valid, t: 2.5}, {...valid, t: '0'}, {...valid, a: '0'}, {...valid, secondDerivativeVisible: 'yes'}, {...valid, secondDerivativeVisible: 1},
         {example: 'square', a: -1, b: 1.5, t: 0.5}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

@@ -1,9 +1,10 @@
 import {t} from "../../../localization";
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import React from "react";
-import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
+import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
@@ -76,7 +77,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
             label={t("standard_form")}/>) : [];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -91,8 +92,8 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "rational-bezier-farin";
+    override presetCollection() {
+        return curvePresetCollections.farin;
     }
 
     private showFarinPoints(checked: boolean) {

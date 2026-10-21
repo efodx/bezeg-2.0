@@ -7,6 +7,7 @@ import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
@@ -31,7 +32,7 @@ class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
         return super.getGraphCommands().concat([<Button onClick={() => this.elevate()}>{t("elevate_degree")}</Button>]);
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -46,8 +47,8 @@ class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "rational-bezier-elevation";
+    override presetCollection() {
+        return curvePresetCollections["rational-elevation"];
     }
 }
 

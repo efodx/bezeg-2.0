@@ -425,20 +425,21 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('area-between-curves');
     expect(exported.data).toEqual({a: 1, b: -1, mode: 'under-f'});
-    graph.importPresetData({a: -1, b: 3, mode: 'under-g', extra: true});
+    graph.importPreset({id: 'stored', data: {a: -1, b: 3, mode: 'under-g', extra: true}});
     expect(graph.model).toEqual({a: -1, b: 3, mode: 'under-g'});
     expect(pointA(graph).x).toBe(-1);
     expect(pointB(graph).x).toBe(3);
-    graph.importPresetData(JSON.stringify({a: 0, b: 4, mode: 'between'}));
+    graph.importPreset({id: 'stored', data: {a: 0, b: 4, mode: 'between'}});
     expect(graph.model).toEqual({a: 0, b: 4, mode: 'between'});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {a: 2 - S, b: 2 + S, mode: 'between'};
     const bad = [undefined, null, 'not json', {}, [], {a: 0, b: 4, mode: 'under'}, {a: 5.5, b: 0, mode: 'between'}, {a: 0, b: -2, mode: 'between'}, {a: '0', b: 4, mode: 'between'}, {a: 0, b: 4}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(good);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'area-between-curves', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 3, mode: 'under-g'}});
     expect(graph.model).toEqual({a: 0, b: 3, mode: 'under-g'});

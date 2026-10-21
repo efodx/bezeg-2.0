@@ -2,6 +2,7 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, onLanguageChange, t} from "../../localization";
 import {Preset} from "../base/presets/Presets";
+import type {PresetCollection} from "../base/presets/PresetCollection";
 import {LessonAction} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -18,8 +19,9 @@ import {GraphPalette} from "../styles/GraphPalette";
  *   handlers and inspector inputs must read and write `this.model` (through `commitModel`), never `this.state`;
  * - generated JSXGraph objects: everything a scene creates is registered with `own()` and removed, children first, by
  *   `removeGeneratedObjects()` (also from `disposeFigureScene()` and before every regeneration);
- * - preset export/import of the model with sanitizing (`parseModel`), the lesson default scene, and lesson
- *   capture/restore that also restores the synchronous model.
+ * - preset export/import of the model: the subclass's Preset collection (`presetCollection()`) parses and sanitizes stored
+ *   models for the file importer and for this graph alike; the lesson default scene, and lesson capture/restore that
+ *   also restores the synchronous model.
  *
  * The mathematics lives in `src/analysis/` and must not be imported back from here into that module.
  */
@@ -132,7 +134,7 @@ const CAPTION_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88
 const CAPTION_MIN_FONT = 11;
 const CAPTION_FULL_WIDTH = 700;
 
-export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<FunctionGraphState<M>> {
+export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<FunctionGraphState<M>, M> {
     /** Synchronous source of truth for the graph; `this.state` mirrors it for rendering. */
     protected model: M;
     private generatedObjects: any[] = [];
@@ -188,8 +190,11 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     protected abstract defaultModel(): M;
 
-    /** Returns a sanitized model, or undefined when `data` is not a valid model (wrong shape, non-finite, out of domain). */
-    protected abstract parseModel(data: unknown): M | undefined;
+    /**
+     * The Demonstration's Preset collection: its model parser returns a sanitized model, or rejects data that is not a
+     * valid model (wrong shape, non-finite, out of domain) with a diagnosis.
+     */
+    abstract override presetCollection(): PresetCollection<M>;
 
     /** Creates the JSXGraph objects for the current model; register each one with `own()`. Called with no generated objects present. */
     protected abstract createScene(): void;
@@ -266,18 +271,9 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return {...this.model};
     }
 
-    override importPresetData(data: any): void {
-        let source: unknown = data;
-        if (typeof data === "string") {
-            try {
-                source = JSON.parse(data);
-            } catch {
-                source = undefined;
-            }
-        }
-        const parsed = this.parseModel(source);
-        if (!parsed) console.warn("Ignoring invalid function preset data; using the default model.");
-        this.commitModel(parsed ?? this.defaultModel());
+    /** Shows a model: the default model, a checkpoint's, or a stored one the Preset collection checked (`storedPresetData`). */
+    override importPresetData(data: M): void {
+        this.commitModel({...data});
     }
 
     /**
@@ -316,8 +312,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return this.viewMemo!.view as V;
     }
 
-    override defaultPreset(): string {
-        return JSON.stringify(this.defaultModel());
+    override defaultPreset(): M {
+        return this.defaultModel();
     }
 
     // ---- Generated objects ---------------------------------------------------------------------------------------

@@ -4,8 +4,8 @@ import {C2CubicBezierSpline} from '../../../bezeg/impl/curve/C2CubicBezierSpline
 import {BezierSpline} from '../../../bezeg/impl/curve/bezier-spline';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
-// Route defaults. The importer reads only the first two numbers of a point, so the
-// three-number entries [-1.5, -2, 5] (Cn) and [1, -2, 5] (C2) render as [-1.5, -2] and [1, -2].
+// Route defaults. The Cn and C2 defaults once held three-number entries [-1.5, -2, 5] and [1, -2, 5]; the importer read only
+// the first two numbers, so dropping the stray third number left these points unchanged.
 const CN = [[-3, 2], [-4, 0.5], [-3.5, -1], [-1.5, -2], [0.5, 0], [2.5, 1.5], [4, -2]];
 const C1 = [[-4, 3], [-4, -3], [-1, -3], [-1, 3], [3, 3], [4, -3]];
 const C2 = [[-2.7, 1.8], [-4.7, 0.35], [-4.3, -3], [1, -2], [0.2, 1.8], [4, 1], [4.5, -2.3]];

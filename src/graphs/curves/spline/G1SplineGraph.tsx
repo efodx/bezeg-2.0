@@ -5,6 +5,7 @@ import Slider from "../../../inputs/Slider";
 import {t} from "../../../localization";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 export const G1_BETA_MIN = 0.01;
 export const G1_BETA_MAX = 3;
@@ -21,7 +22,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
         ) : [];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXQuadraticG1SplineCurve", {
             "points": [[-2.5, 1], [-4, -1.5], [-2.5, -2.5], [0, -1], [3, 1]], "state": {
                 "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
@@ -29,8 +30,8 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "g1-spline-graph";
+    override presetCollection() {
+        return curvePresetCollections["spline-g1"];
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

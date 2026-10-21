@@ -4,13 +4,14 @@ import React from 'react';
 import {Button} from "react-bootstrap";
 import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
-import {BaseGraphStates, CurveCollectionPresetData} from "../../base/BaseCurveGraph";
+import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {extrapolationActions} from "../../base/lesson/curveLessonActions";
 import Slider from "../../../inputs/Slider";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -2], [-3, 3], [2, 3], [3, -1]], "state": {
                 "showingJxgPoints": true,
@@ -24,8 +25,8 @@ class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
         }]];
     }
 
-    override presets() {
-        return "bezier-extrapolation";
+    override presetCollection() {
+        return curvePresetCollections.extrapolation;
     }
 
     override initialize() {

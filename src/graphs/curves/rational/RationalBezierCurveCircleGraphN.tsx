@@ -3,13 +3,14 @@ import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
 
 export const MIN_CIRCLE_PIECES = 3;
 export const MAX_CIRCLE_PIECES = 12;
 
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [];
     }
 

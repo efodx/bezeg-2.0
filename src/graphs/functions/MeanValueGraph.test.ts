@@ -478,7 +478,7 @@ test('no readout, caption or status ever shows NaN, Infinity or a raw undefined,
         setLanguage(language);
         for (const [example, a, c, b] of cases) {
             for (const revealed of [false, true]) {
-                graph.importPresetData({example, a, b, c, revealed});
+                graph.importPreset({id: 'stored', data: {example, a, b, c, revealed}});
                 expect(graph.model).toEqual({example, a, b, c, revealed});
                 const text = [...Object.values(rows(graph)), ...caption(graph), ...statusTexts(graph, language)].join(' | ');
                 expect(text, `${example} ${a} ${c} ${b} ${revealed}`).not.toMatch(/NaN|Infinity|undefined/);
@@ -545,7 +545,7 @@ test('dragging a, b and c on the axis projects onto the grid and the range the o
 
 test('a drag the model still refuses puts the point back instead of leaving it on the rejected position', () => {
     const graph = makeGraph();
-    graph.importPresetData({example: 'square', a: 0.499, b: 0.5, c: 0.4995, revealed: false});
+    graph.importPreset({id: 'stored', data: {example: 'square', a: 0.499, b: 0.5, c: 0.4995, revealed: false}});
     const [a, , c] = axisPoints(graph);
     c.moveTo.mockClear();
     a.moveTo.mockClear();
@@ -599,8 +599,8 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(resolve(points(reopened)[RING_1].attributes.visible)).toBe(true);
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([-1, 1, 0.25]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a string and extra properties are sanitized
-    reopened.importPresetData(JSON.stringify({example: 'abs', a: -2, b: 3, c: 0, revealed: false, extra: true}));
+    // extra properties are sanitized
+    reopened.importPreset({id: 'stored', data: {example: 'abs', a: -2, b: 3, c: 0, revealed: false, extra: true}});
     expect(reopened.model).toEqual({example: 'abs', a: -2, b: 3, c: 0, revealed: false});
 });
 
@@ -613,10 +613,11 @@ test('malformed or misordered preset data is rejected to the default model with 
         {...valid, a: 2, b: 0}, {...valid, a: 1, b: 1, c: 1}, {...valid, a: -5}, {...valid, b: 4.5}, {...valid, a: '0'}, {...valid, c: NaN}, {...valid, revealed: 'yes'},
         {example: 'square', a: 0, b: 2, c: 1}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual({example: 'square', a: 0, b: 2, c: 0.5, revealed: false});
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

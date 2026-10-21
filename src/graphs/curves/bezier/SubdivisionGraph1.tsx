@@ -10,6 +10,7 @@ import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -40,7 +41,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.setState({...extra, t: value});
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "state": {
                 "showingJxgPoints": true,
@@ -54,15 +55,15 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "subdivision-1";
+    override presetCollection() {
+        return curvePresetCollections.subdivision;
     }
 
     /** Orange remainder [t, 1] of the first curve; owned by this graph and rebuilt whenever the curve set is replaced. */
     private remainderCurve?: JXG.Curve;
 
     /** Every scene replacement imports its curves through here, so the scene is bound to the imported curves. */
-    override importPresetData(data: any) {
+    override importPresetData(data: CurveCollectionPresetData) {
         super.importPresetData(data);
         this.bindSceneToFirstCurve();
     }

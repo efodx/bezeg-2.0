@@ -1,8 +1,9 @@
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraphStates> {
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXPHBezierCurve", {
             "points": [[1, -1]], "hodographs": [[-3.3, 0], [0.2, -4], [2, -3.2]], "state": {
                 "showingJxgPoints": true,
@@ -18,8 +19,8 @@ class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraph
         }]];
     }
 
-    override presets(): string {
-        return "quintic-ph-graph";
+    override presetCollection() {
+        return curvePresetCollections["ph-quintic"];
     }
 
 }

@@ -6,6 +6,7 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 function AffineActionButton(props: {
     label: string;
@@ -48,11 +49,11 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
     }
 
 
-    override presets(): string {
-        return "affine-transform";
+    override presetCollection() {
+        return curvePresetCollections.affine;
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-3, 2], [0, -2], [1, 2], [3, -2]], "state": {
                 "showingJxgPoints": true,

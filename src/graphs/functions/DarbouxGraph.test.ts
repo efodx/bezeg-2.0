@@ -417,7 +417,7 @@ test('dragging a and b on the axis projects onto the grid and the range a < b al
 
 test('a drag next to the other endpoint is clamped to one grid step short of it and never leaves a point on a rejected position', () => {
     const graph = makeGraph();
-    graph.importPresetData({example: 'square', a: 0.499, b: 0.5, n: 4, lowerVisible: true, upperVisible: true});
+    graph.importPreset({id: 'stored', data: {example: 'square', a: 0.499, b: 0.5, n: 4, lowerVisible: true, upperVisible: true}});
     const [a, b] = axisPoints(graph);
     b.moveTo.mockClear();
     b.x = 0.4;
@@ -463,8 +463,8 @@ test('presets save the model with the visibility and reopen the same scene', () 
     expect(resolve(curves(reopened)[UPPER].attributes.visible)).toBe(false);
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([0, 2 * Math.PI]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a string and extra properties are sanitized
-    reopened.importPresetData(JSON.stringify({example: 'square', a: -1, b: 3, n: 5, lowerVisible: false, upperVisible: true, extra: true}));
+    // extra properties are sanitized
+    reopened.importPreset({id: 'stored', data: {example: 'square', a: -1, b: 3, n: 5, lowerVisible: false, upperVisible: true, extra: true}});
     expect(reopened.model).toEqual({example: 'square', a: -1, b: 3, n: 5, lowerVisible: false, upperVisible: true});
 });
 
@@ -484,10 +484,11 @@ test('malformed or misordered preset data is rejected to the default model with 
         {...valid, a: '0'}, {...valid, n: 0}, {...valid, n: 129}, {...valid, n: 2.5}, {...valid, n: NaN}, {...valid, lowerVisible: 'yes'}, {...valid, upperVisible: 1},
         {example: 'square', a: 0, b: 2, n: 4}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

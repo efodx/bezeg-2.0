@@ -1,8 +1,9 @@
 import DecasteljauGraph from "../bezier/DecasteljauGraph";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class RationalDecasteljauGraph extends DecasteljauGraph {
 
-    override defaultPreset(): any {
+    override defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -18,8 +19,8 @@ class RationalDecasteljauGraph extends DecasteljauGraph {
         }]];
     }
 
-    override presets(): string {
-        return "rational-decasteljau";
+    override presetCollection() {
+        return curvePresetCollections["rational-decasteljau"];
     }
 
 }

@@ -5,6 +5,7 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 interface CubicPhBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     showingCurve: boolean
@@ -88,7 +89,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
         }));
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXPHBezierCurve", {
             "points": [[-4.2, -2]], "hodographs": [[-3.5, -1.7], [-2.6, 1.7]], "state": {
                 "showingJxgPoints": true,
@@ -104,8 +105,8 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
         }]];
     }
 
-    override presets(): string | undefined {
-        return "cubic-ph";
+    override presetCollection() {
+        return curvePresetCollections["ph-cubic"];
     }
 
     private createLLabel(points: JXG.Point[], i: number) {

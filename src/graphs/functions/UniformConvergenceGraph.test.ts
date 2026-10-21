@@ -509,20 +509,21 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
     const exported = graph.exportPresetData();
     expect(exported).toEqual({example: 'scaled', r: 0.75, n: 17, x: 0.7, epsilon: 0.03, supremumVisible: true});
     const other = makeGraph();
-    other.importPresetData(JSON.parse(JSON.stringify(exported)));
+    other.importPreset({id: 'stored', data: JSON.parse(JSON.stringify(exported))});
     expect(other.model).toEqual(exported);
-    other.importPresetData(JSON.stringify(exported));
+    other.importPreset({id: 'stored', data: exported});
     expect(other.model).toEqual(exported);
-    expect(graph.defaultPreset()).toBe(JSON.stringify({example: 'power', r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false}));
+    expect(graph.defaultPreset()).toEqual(({example: 'power', r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false}));
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {example: 'power', r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false};
     const bad = [null, [], {}, {...valid, example: 'cubic'}, {...valid, r: 0.82}, {...valid, r: 1.05}, {...valid, n: 0}, {...valid, n: 51}, {...valid, n: 2.5}, {...valid, x: 0.85},
         {...valid, x: -0.01}, {...valid, x: 0.505}, {...valid, epsilon: 0}, {...valid, epsilon: 1.5}, {...valid, epsilon: 0.005}, {...valid, supremumVisible: 'yes'}, {...valid, x: '0.5'}];
     for (const entry of bad) {
-        other.importPresetData(entry);
+        other.importPreset({id: 'stored', data: entry});
         expect(other.model, JSON.stringify(entry)).toEqual(valid);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     // capture and restore
     const checkpoint = graph.captureLessonState();

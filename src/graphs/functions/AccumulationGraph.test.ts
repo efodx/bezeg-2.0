@@ -552,7 +552,7 @@ test('no readout, caption or status ever shows NaN, Infinity or a raw undefined,
             for (const a of bounds) {
                 for (const x of [-7, -2, 0, a, 3.5, 7]) {
                     for (const accumulationVisible of [false, true]) {
-                        graph.importPresetData({fn, a, x, accumulationVisible});
+                        graph.importPreset({id: 'stored', data: {fn, a, x, accumulationVisible}});
                         expect(graph.model).toEqual({fn, a, x, accumulationVisible});
                         const text = [...Object.values(rows(graph)), ...caption(graph), ...statusTexts(graph, language)].join(' | ');
                         expect(text, `${fn} ${a} ${x} ${accumulationVisible}`).not.toMatch(/NaN|Infinity|undefined/);
@@ -567,7 +567,7 @@ test('the contributions of the parts always add up to the signed integral', () =
     const graph = makeGraph({asyncState: false});
     for (const fn of FUNCTION_IDS) {
         for (const [a, x] of [[0, 2 * Math.PI], [-7, 7], [2, -1], [1, 1], [-6, 0.5], [6.5, -6.5]]) {
-            graph.importPresetData({fn, a, x, accumulationVisible: true});
+            graph.importPreset({id: 'stored', data: {fn, a, x, accumulationVisible: true}});
             const view = graph.viewOf(graph.model);
             expect(view.above + view.below, `${fn} ${a} ${x}`).toBeCloseTo(view.value, 9);
             expect(view.value).toBeCloseTo(accumulation(catalogFunction(fn), a, x), 12);
@@ -656,8 +656,8 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(resolve(curves(reopened)[A_CURVE].attributes.visible)).toBe(true);
     expect(axisPoints(reopened).map((point: any) => point.x)).toEqual([-1, 0.5]);
     expect(reopened.exportPreset().data).toEqual(exported.data);
-    // a hidden state round-trips as hidden, and a string with extra properties is sanitized
-    reopened.importPresetData(JSON.stringify({fn: 'square', a: 1, x: -2, accumulationVisible: false, extra: true}));
+    // a hidden state round-trips as hidden, and a stored model with extra properties is sanitized
+    reopened.importPreset({id: 'stored', data: {fn: 'square', a: 1, x: -2, accumulationVisible: false, extra: true}});
     expect(reopened.model).toEqual({fn: 'square', a: 1, x: -2, accumulationVisible: false});
     expect(rows(reopened)['signed-integral']).toBe('skrito');
     // a preset without a view of its own for another function shows that function's view
@@ -675,10 +675,11 @@ test('malformed, out-of-domain or incomplete preset data is rejected to the defa
     const bad = [undefined, null, 'not json', {}, [], {...valid, fn: 'cos'}, {...valid, a: -7.01}, {...valid, x: 7.01}, {...valid, x: 100}, {...valid, a: '0'}, {...valid, x: NaN},
         {...valid, x: Infinity}, {...valid, accumulationVisible: 'yes'}, {...valid, accumulationVisible: 1}, {fn: 'sin', a: 0, x: 2}, {fn: 'sin', x: 2, accumulationVisible: true}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual({fn: 'sin', a: 0, x: 2, accumulationVisible: false});
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

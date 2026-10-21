@@ -358,18 +358,19 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('trigonometric-function');
     expect(exported.data).toEqual({fn: 'tan', A: 1, omega: 2, phi: 0, B: 0, reference: true});
-    graph.importPresetData({fn: 'cos', A: -2, omega: 0.5, phi: -Math.PI / 3, B: 1});
+    graph.importPreset({id: 'stored', data: {fn: 'cos', A: -2, omega: 0.5, phi: -Math.PI / 3, B: 1}});
     expect(graph.model).toEqual({fn: 'cos', A: -2, omega: 0.5, phi: -Math.PI / 3, B: 1, reference: false});
-    graph.importPresetData(JSON.stringify({fn: 'sin', A: 1, omega: 4, phi: 0, B: 0, reference: true}));
+    graph.importPreset({id: 'stored', data: {fn: 'sin', A: 1, omega: 4, phi: 0, B: 0, reference: true}});
     expect(graph.model).toMatchObject({fn: 'sin', omega: 4, reference: true});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const base = {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0};
     const bad = [undefined, null, 'not json', {}, [], {...base, fn: 'sec'}, {...base, omega: 0}, {...base, omega: -2}, {...base, A: 4}, {...base, phi: 4}, {...base, B: NaN}, {...base, reference: 'yes'}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual({fn: 'sin', A: 1, omega: 1, phi: 0, B: 0, reference: false});
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'trigonometric-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'cos', A: 1, omega: 1, phi: 0, B: 0, reference: true}});
     expect(graph.model.fn).toBe('cos');

@@ -4,16 +4,17 @@ import {JXGGenericSplineCurve} from "../object/JXGGenericSplineCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
 
-    override presets(): string {
-        return "cn-spline";
+    override presetCollection() {
+        return curvePresetCollections["spline-cn"];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXGenericSplineCurve", {
-            "points": [[-3, 2], [-4, 0.5], [-3.5, -1], [-1.5, -2, 5], [0.5, 0], [2.5, 1.5], [4, -2]],
+            "points": [[-3, 2], [-4, 0.5], [-3.5, -1], [-1.5, -2], [0.5, 0], [2.5, 1.5], [4, -2]],
             "degree": 2,
             "continuity": 1,
             "state": {

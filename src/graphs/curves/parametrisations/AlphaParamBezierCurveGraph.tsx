@@ -5,6 +5,7 @@ import React from "react";
 import Slider from "../../../inputs/Slider";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 export const ALPHA_PARAM_MAX_SAMPLES = 40;
 
@@ -93,7 +94,7 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
         this.sampleMarkers = [];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -3], [-3, 2], [2, 2], [3, -2]], "state": {
                 "showingJxgPoints": true,
@@ -155,8 +156,8 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
         }
     }
 
-    override presets(): string | undefined {
-        return "alpha-param";
+    override presetCollection() {
+        return curvePresetCollections["weighted-parameterization"];
     }
 }
 

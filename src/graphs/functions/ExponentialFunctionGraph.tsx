@@ -8,8 +8,9 @@ import {formatNumber} from "../../analysis/format";
 import {
     classifyBase, EXPONENTIAL_BASE_MAX, EXPONENTIAL_BASE_MIN, EXPONENTIAL_BASE_STEP, exponentialValue, mirrorBase,
 } from "../../analysis/exponential";
-import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase, parseExponentialModel} from "../../analysis/exponentialModel";
+import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase} from "../../analysis/exponentialModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -19,16 +20,12 @@ const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
  * `(1/a)^x = a^(-x)`. The model is `{a, mirror}`; values and the classification come from `src/analysis/exponential`.
  */
 export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel> {
-    override presets(): string {
-        return "exponential-function";
+    override presetCollection() {
+        return functionPresetCollections["exponential-function"];
     }
 
     protected defaultModel(): ExponentialModel {
         return {...DEFAULT_EXPONENTIAL_MODEL};
-    }
-
-    protected parseModel(data: unknown): ExponentialModel | undefined {
-        return parseExponentialModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

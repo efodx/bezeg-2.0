@@ -9,8 +9,9 @@ import {
     AREA_MODES, AreaFill, areaFill, AreaMode, BOUND_MAX, BOUND_MIN, BOUND_STEP, f, g, INTERSECTION_HEIGHT, INTERSECTIONS, integralF, integralG,
     isAreaMode, isBound, shadedQuantity, signedBetween, unsignedBetween,
 } from "../../analysis/areaBetween";
-import {AreaBetweenModel, DEFAULT_AREA_BETWEEN_MODEL, parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
+import {AreaBetweenModel, DEFAULT_AREA_BETWEEN_MODEL} from "../../analysis/areaBetweenModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
 const PRECISE = 4;
@@ -58,16 +59,12 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     private pointB?: JXG.Point;
     private fillCache?: { model: AreaBetweenModel; data: AreaFill };
 
-    override presets(): string {
-        return "area-between-curves";
+    override presetCollection() {
+        return functionPresetCollections["area-between-curves"];
     }
 
     protected defaultModel(): AreaBetweenModel {
         return {...DEFAULT_AREA_BETWEEN_MODEL};
-    }
-
-    protected parseModel(data: unknown): AreaBetweenModel | undefined {
-        return parseAreaBetweenModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

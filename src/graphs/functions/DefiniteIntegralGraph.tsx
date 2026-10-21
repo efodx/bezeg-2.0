@@ -11,9 +11,10 @@ import {
     BOUND_MAX, BOUND_MIN, BOUND_STEP, exactIntegral, FillData, fillData, isBound, isSubintervalCount, isSumMethod, N_MAX, N_MIN, N_STEP,
     riemannSum, SUM_METHODS, SumMethod, subintervalWidth,
 } from "../../analysis/riemann";
-import {DEFAULT_RIEMANN_MODEL, parseRiemannModel, RiemannModel} from "../../analysis/riemannModel";
+import {DEFAULT_RIEMANN_MODEL, RiemannModel} from "../../analysis/riemannModel";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
 const PRECISE = 4;
@@ -60,16 +61,12 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     private pointB?: JXG.Point;
     private fillCache?: { model: RiemannModel; data: FillData };
 
-    override presets(): string {
-        return "definite-integral";
+    override presetCollection() {
+        return functionPresetCollections["definite-integral"];
     }
 
     protected defaultModel(): RiemannModel {
         return {...DEFAULT_RIEMANN_MODEL};
-    }
-
-    protected parseModel(data: unknown): RiemannModel | undefined {
-        return parseRiemannModel(data);
     }
 
     /** The view of the current function; the default model (x^2) gives the default scene's view. */

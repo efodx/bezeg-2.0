@@ -258,17 +258,18 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('piecewise-continuity');
     expect(exported.data).toEqual({a: 2.25});
-    graph.importPresetData({a: 0.5, extra: true});
+    graph.importPreset({id: 'stored', data: {a: 0.5, extra: true}});
     expect(graph.model).toEqual({a: 0.5});
-    graph.importPresetData(JSON.stringify({a: 3}));
+    graph.importPreset({id: 'stored', data: {a: 3}});
     expect(graph.model).toEqual({a: 3});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {a: -1}, {a: 3.1}, {a: '1'}, {a: NaN}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual({a: 1});
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'piecewise-continuity', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1.5}});
     expect(graph.model).toEqual({a: 1.5});

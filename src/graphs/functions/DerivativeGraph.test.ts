@@ -318,19 +318,20 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.id).toBe('derivative');
     expect(exported.data).toEqual({fn: 'exp', x0: 0.5, h: -0.25, tangent: true});
-    graph.importPresetData({fn: 'sin', x0: -2, h: 0.5, tangent: false, extra: true});
+    graph.importPreset({id: 'stored', data: {fn: 'sin', x0: -2, h: 0.5, tangent: false, extra: true}});
     expect(graph.model).toEqual({fn: 'sin', x0: -2, h: 0.5, tangent: false});
     expect(pointP(graph).y).toBeCloseTo(Math.sin(-2), 12);
-    graph.importPresetData(JSON.stringify({fn: 'square', x0: 3, h: 2}));
+    graph.importPreset({id: 'stored', data: {fn: 'square', x0: 3, h: 2}});
     expect(graph.model).toEqual({fn: 'square', x0: 3, h: 2, tangent: false});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {fn: 'cos', x0: 1, h: 1}, {fn: 'square', x0: 5, h: 1}, {fn: 'square', x0: 1, h: 0},
         {fn: 'square', x0: 1, h: 0.001}, {fn: 'square', x0: 1, h: 1, tangent: 1}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual({fn: 'square', x0: 1, h: 1, tangent: false});
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
     graph.importPreset({id: 'derivative', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', x0: 1, h: 0.2, tangent: true}});
     expect(graph.model).toEqual({fn: 'sin', x0: 1, h: 0.2, tangent: true});

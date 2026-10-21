@@ -200,17 +200,18 @@ test('presets export the model, import it again, and sanitize bad data to the de
     const exported = graph.exportPreset();
     expect(exported.data).toEqual({x1: 0, y1: 1, x2: 4, y2: 5});
     expect(exported.id).toBe('linear-function');
-    graph.importPresetData({x1: 5, y1: 6, x2: 7, y2: 8});
+    graph.importPreset({id: 'stored', data: {x1: 5, y1: 6, x2: 7, y2: 8}});
     expect(graph.model).toEqual({x1: 5, y1: 6, x2: 7, y2: 8});
     expect(points(graph)).toEqual([[5, 6], [7, 8]]);
-    graph.importPresetData(JSON.stringify({x1: 1, y1: 2, x2: 3, y2: 4}));
+    graph.importPreset({id: 'stored', data: {x1: 1, y1: 2, x2: 3, y2: 4}});
     expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 4});
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     for (const bad of [undefined, null, 'not json', {x1: 1}, {x1: 1, y1: 2, x2: 3, y2: NaN}, [], {x1: 1e12, y1: 0, x2: 0, y2: 0}]) {
-        graph.importPresetData(bad);
+        graph.importPreset({id: 'stored', data: bad});
         expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
     }
-    expect(warn).toHaveBeenCalledTimes(7);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(5);
     warn.mockRestore();
     graph.importPreset({id: 'linear-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {x1: 2, y1: 2, x2: 4, y2: 8}});
     expect(graph.model).toEqual({x1: 2, y1: 2, x2: 4, y2: 8});

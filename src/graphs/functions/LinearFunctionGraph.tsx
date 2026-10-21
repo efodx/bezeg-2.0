@@ -7,6 +7,7 @@ import {formatNumber} from "../../analysis/format";
 import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, slopeTriangle} from "../../analysis/linear";
 import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, LinearModel, parseLinearModel} from "../../analysis/linearModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
 export const LINEAR_SNAP_SIZE = 0.1;
@@ -24,16 +25,12 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     private p1?: JXG.Point;
     private p2?: JXG.Point;
 
-    override presets(): string {
-        return "linear-function";
+    override presetCollection() {
+        return functionPresetCollections["linear-function"];
     }
 
     protected defaultModel(): LinearModel {
         return {...DEFAULT_LINEAR_MODEL};
-    }
-
-    protected parseModel(data: unknown): LinearModel | undefined {
-        return parseLinearModel(data);
     }
 
     protected defaultBoundingBox(): [number, number, number, number] {

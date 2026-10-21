@@ -10,8 +10,9 @@ import {
     TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorAbsoluteError, taylorCoefficients, taylorErrorBound, taylorExample, TaylorBound, TaylorExample,
     TaylorExampleId, taylorFunctionValue, taylorPolynomial, taylorSignedError,
 } from "../../analysis/taylor";
-import {TAYLOR_EXAMPLE_MODELS, TaylorModel, parseTaylorModel} from "../../analysis/taylorModel";
+import {TAYLOR_EXAMPLE_MODELS, TaylorModel} from "../../analysis/taylorModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {functionPresetCollections} from "./functionPresetCollections";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
@@ -93,16 +94,12 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     private pointCenter?: JXG.Point;
     private pointX?: JXG.Point;
 
-    override presets(): string {
-        return "taylor";
+    override presetCollection() {
+        return functionPresetCollections.taylor;
     }
 
     protected defaultModel(): TaylorModel {
         return {...TAYLOR_EXAMPLE_MODELS.exp};
-    }
-
-    protected parseModel(data: unknown): TaylorModel | undefined {
-        return parseTaylorModel(data);
     }
 
     protected defaultBoundingBox(): BoundingBox {

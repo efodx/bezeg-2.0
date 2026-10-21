@@ -7,6 +7,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
 import {CountSetter} from "../../inputs/CountSetter";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curves/curvePresetCollections";
 
 export const BERNSTEIN_MAX_DEGREE = 5;
 
@@ -41,7 +42,7 @@ interface BernsteinGraphState extends BaseGraphState {
     showLabels: boolean;
 }
 
-export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
+export class BernsteinGraph extends BaseGraph<BernsteinGraphState, CurveCollectionPresetData> {
     override getInitialState(): BernsteinGraphState {
         return {initialized: false, n: 2, isSumGraph: false, showLabels: false};
     }
@@ -96,8 +97,8 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
         this.jxgObjects = [];
     }
 
-    override presets() {
-        return "bernstein-graph";
+    override presetCollection() {
+        return curvePresetCollections.bernstein;
     }
 
     protected override disposeFigureScene(): void {
@@ -230,8 +231,9 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState> {
                                                             onMinus={() => this.setN(this.state.n - 1)}/>);
     }
 
-    defaultPreset(): string {
-        return "[]";
+    /** The scene is described by its scene state alone: no curves. */
+    defaultPreset(): CurveCollectionPresetData {
+        return [];
     }
 
     private setIsSumGraph(checked: boolean) {

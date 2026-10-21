@@ -1,9 +1,10 @@
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {
                 "showingJxgPoints": true,
@@ -18,8 +19,8 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "rational-bezier";
+    override presetCollection() {
+        return curvePresetCollections.rational;
     }
 
 }

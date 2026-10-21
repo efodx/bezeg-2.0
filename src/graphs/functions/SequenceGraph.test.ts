@@ -643,13 +643,13 @@ test('presets save the model with the terms and the reveal, reopen paused and ne
     next(graph);
     expect(reopened.model).toEqual(graph.model);
 
-    // a string, a missing optional property and extra properties are sanitized; a full set of terms reopens as a finished iteration
-    reopened.importPresetData(JSON.stringify({example: 'natural', epsilon: 1.25, limit: -0.5, threshold: 40, terms: 40, certificateVisible: false, extra: true}));
+    // a missing optional property and extra properties are sanitized; a full set of terms reopens as a finished iteration
+    reopened.importPreset({id: 'stored', data: {example: 'natural', epsilon: 1.25, limit: -0.5, threshold: 40, terms: 40, certificateVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'natural', epsilon: 1.25, limit: -0.5, threshold: 40, terms: 40, certificateVisible: false});
     expect(reopened.controller.isComplete()).toBe(true);
     expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     expect(() => next(reopened)).toThrow(DomainError);
-    reopened.importPresetData({...exported.data, terms: 3});
+    reopened.importPreset({id: 'stored', data: {...exported.data, terms: 3}});
     expect(reopened.controller.isComplete()).toBe(false);
     next(reopened);
     expect(reopened.model.terms).toBe(4);
@@ -671,11 +671,12 @@ test('malformed preset data is rejected to the default model with a warning', ()
         {...valid, limit: 2.5}, {...valid, limit: '0'}, {...valid, threshold: 0}, {...valid, threshold: 1001}, {...valid, threshold: 1.5}, {...valid, terms: 0}, {...valid, terms: 41},
         {...valid, terms: 1.5}, {...valid, terms: '2'}, {...valid, certificateVisible: 'true'}, {...valid, certificateVisible: undefined}];
     for (const entry of bad) {
-        graph.importPresetData(entry);
+        graph.importPreset({id: 'stored', data: entry});
         expect(graph.model, JSON.stringify(entry)).toEqual(valid);
         expect(graph.controller.isPlaying()).toBe(false);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
+    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
     warn.mockRestore();
 });
 

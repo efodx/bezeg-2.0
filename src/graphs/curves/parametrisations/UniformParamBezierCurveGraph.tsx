@@ -7,6 +7,7 @@ import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     isAlphaParam: boolean
@@ -83,7 +84,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         this.unsuspendBoardUpdate();
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXPHBezierCurve", {
             "points": [[-3, -4]], "hodographs": [[-4.5, -4], [-1, 0], [-4.5, 4]], "state": {
                 "showingJxgPoints": true,
@@ -185,8 +186,8 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         }
     }
 
-    override presets(): string | undefined {
-        return "uniform-graph";
+    override presetCollection() {
+        return curvePresetCollections["uniform-parameterization"];
     }
 
     private selectParam(param: string) {

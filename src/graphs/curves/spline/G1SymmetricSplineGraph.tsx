@@ -5,6 +5,7 @@ import Slider from "../../../inputs/Slider";
 import {t} from "../../../localization";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
+import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 export const G1_SYMMETRIC_BETA_MIN = 0.01;
 export const G1_SYMMETRIC_BETA_MAX = 0.99;
@@ -21,7 +22,7 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
         ) : [];
     }
 
-    defaultPreset(): any {
+    defaultPreset(): CurveCollectionPresetData {
         return [["JSXSymmetricQuadraticG1SplineCurve", {
             "points": [[-4, 3], [-4, -3], [-1, -3], [-1, 3], [3, 3], [4, -3]], "state": {
                 "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
@@ -29,8 +30,8 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
         }]];
     }
 
-    override presets(): string {
-        return "g1-symmetric-spline-graph";
+    override presetCollection() {
+        return curvePresetCollections["spline-g1-symmetric"];
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
