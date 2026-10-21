@@ -8,6 +8,12 @@ import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {
+    ALPHA_PARAM_MAX_SAMPLES,
+    ALPHA_PARAM_MIN_SAMPLES,
+    PARAMETERIZATION_ALPHA_MAX,
+    PARAMETERIZATION_ALPHA_MIN,
+} from "./parametrisationLimits";
 
 interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     isAlphaParam: boolean
@@ -30,14 +36,14 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
         registry.on('parameterization-alpha', action => {
-            if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) {
-                throw new Error('The parametrization alpha must be between 0 and 1.');
+            if (!Number.isFinite(action.value) || action.value < PARAMETERIZATION_ALPHA_MIN || action.value > PARAMETERIZATION_ALPHA_MAX) {
+                throw new Error(`The parametrization alpha must be between ${PARAMETERIZATION_ALPHA_MIN} and ${PARAMETERIZATION_ALPHA_MAX}.`);
             }
             this.setState({alpha: action.value});
         });
         registry.on('parameterization-samples', action => {
-            if (!Number.isInteger(action.count) || action.count < 1 || action.count > 40) {
-                throw new Error('The number of sample points must be an integer between 1 and 40.');
+            if (!Number.isInteger(action.count) || action.count < ALPHA_PARAM_MIN_SAMPLES || action.count > ALPHA_PARAM_MAX_SAMPLES) {
+                throw new Error(`The number of sample points must be an integer between ${ALPHA_PARAM_MIN_SAMPLES} and ${ALPHA_PARAM_MAX_SAMPLES}.`);
             }
             this.setState({numberOfPoints: action.count});
         });
@@ -144,12 +150,12 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
                                   {value: "uniform", text: t("uniform_parametrization")}]}
                               onChange={value => this.selectParam(value)}/>
             </div>
-            <div><Slider customText={t("number_of_points")} min={1} max={40} step={1}
+            <div><Slider customText={t("number_of_points")} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES} step={1}
                          value={this.state.numberOfPoints}
                          onChange={(num) => this.setNumberOfPoints(num)}/>
             </div>
             {this.state.isAlphaParam ? <div>
-                <Slider min={0} max={1} value={this.state.alpha} customText={t("parameter_alpha")}
+                <Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")}
                         onChange={(alpha) => this.setAlpha(alpha)}/>
             </div> : null}
 

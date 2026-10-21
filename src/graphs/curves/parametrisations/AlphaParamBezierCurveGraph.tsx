@@ -7,7 +7,12 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
-export const ALPHA_PARAM_MAX_SAMPLES = 40;
+import {
+    ALPHA_PARAM_MAX_SAMPLES,
+    ALPHA_PARAM_MIN_SAMPLES,
+    PARAMETERIZATION_ALPHA_MAX,
+    PARAMETERIZATION_ALPHA_MIN,
+} from "./parametrisationLimits";
 
 interface AlphaParamGraphStates extends BaseGraphStates {
     numberOfPoints: number;
@@ -66,16 +71,16 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
         super.registerLessonActions(registry);
         registry.on('parameterization-alpha', action => {
             const value = action.value;
-            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
-                throw new Error('The parameter α must be a number from 0 to 1.');
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < PARAMETERIZATION_ALPHA_MIN || value > PARAMETERIZATION_ALPHA_MAX) {
+                throw new Error(`The parameter α must be a number from ${PARAMETERIZATION_ALPHA_MIN} to ${PARAMETERIZATION_ALPHA_MAX}.`);
             }
             this.setState({alpha: value});
             this.boardUpdate();
         });
         registry.on('parameterization-samples', action => {
             const count = action.count;
-            if (!Number.isInteger(count) || count < 1 || count > ALPHA_PARAM_MAX_SAMPLES) {
-                throw new Error(`The number of sample points must be an integer from 1 to ${ALPHA_PARAM_MAX_SAMPLES}.`);
+            if (!Number.isInteger(count) || count < ALPHA_PARAM_MIN_SAMPLES || count > ALPHA_PARAM_MAX_SAMPLES) {
+                throw new Error(`The number of sample points must be an integer from ${ALPHA_PARAM_MIN_SAMPLES} to ${ALPHA_PARAM_MAX_SAMPLES}.`);
             }
             this.setState({numberOfPoints: count});
             this.board.suspendUpdate();
@@ -123,12 +128,12 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     alphaParamSlider() {
-        return <div><Slider min={0} max={1} value={this.state.alpha} customText={t("parameter_alpha")}
+        return <div><Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")}
                             onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 
     numberOfPointsSlider() {
-        return <div><Slider customText={t("number_of_points")} min={1} max={40} step={1}
+        return <div><Slider customText={t("number_of_points")} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES} step={1}
                             value={this.state.numberOfPoints}
                             onChange={(num) => this.setNumberOfPoints(num)}/>
         </div>;

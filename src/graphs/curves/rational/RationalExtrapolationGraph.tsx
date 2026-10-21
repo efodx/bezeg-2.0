@@ -3,7 +3,7 @@ import React from 'react';
 
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {Button} from "react-bootstrap";
-import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
+import {BezierCurveAttributes, EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from "../object/AbstractJXGBezierCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {extrapolationActions} from "../../base/lesson/curveLessonActions";
@@ -50,7 +50,7 @@ class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([<div>
-            <Slider customText={t("extrapolation_parameter_t")} min={1} max={1.5}
+            <Slider customText={t("extrapolation_parameter_t")} min={EXTRAPOLATION_T_MIN} max={EXTRAPOLATION_T_MAX}
                     value={this.getFirstJxgCurve().getExtrapolationT()}
                     onChange={(t) => {
                         this.getFirstJxgCurve().setExtrapolationT(t);

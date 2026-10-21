@@ -1,6 +1,6 @@
 # Deepen graph transient state, Preset collections, and scene-action limits
 
-**Status:** tasks requested by the owner on 2026-10-20. All three are planned; interface designs are open.
+**Status:** implemented on 2026-10-21. Task 01 is recorded in [ADR 0015](../adr/0015-graph-transient-state-declaration.md), task 02 in [ADR 0016](../adr/0016-preset-collections-owned-by-graph-families.md), and task 03 in its task file.
 **Source:** a second architecture review on 2026-10-20 covering the hot spots of the last 150 commits, excluding the completed [visit, preview capture and scene recovery tasks](architecture-deepening.md). It was presented as a temporary HTML report; the durable scope and evidence are recorded here.
 **Contracts:** [guardrails](../guardrails.md), [Guided lessons](guided-lessons.md), [standalone learning](standalone-learning.md), [curve ownership](curve-ownership-refactor.md), and [React architecture refactor](react-architecture-refactor.md).
 

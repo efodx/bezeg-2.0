@@ -1,6 +1,6 @@
 import {useT} from "../../../localization";
 import React from "react";
-import {JXGPHBezierCurve} from "../../curves/object/JXGPHBezierCurve";
+import {JXGPHBezierCurve, OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "../../curves/object/JXGPHBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
@@ -67,9 +67,9 @@ export function PhOffsetParameterControls({curve, onChanged}: CurveControlsProps
                          }}
                          min={1}
             ></CountSetter></div>
-        <Slider min={-3}
+        <Slider min={OFFSET_DISTANCE_MIN}
                 customText={t("offset_distance_d")} help={t("the_sign_selects_the_side_of_the_offset_zero_means_the_original_curve")}
-                max={3}
+                max={OFFSET_DISTANCE_MAX}
                 value={curve.getCurve().getOffsetCurveDistance()}
                 step={0.01}
                 onChange={value => {curve.setOffsetCurveDistance(value); onChanged();}}/>

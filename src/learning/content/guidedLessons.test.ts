@@ -110,19 +110,14 @@ test('declares only scene actions supported by the content adapter contract', ()
     }
 });
 
-test('keeps the exact pilot scene values within graph control ranges', () => {
-    const decasteljau = getPilotGuidedLesson('decasteljau')!;
-    const parameters = decasteljau.steps.flatMap(step => step.scene?.actions ?? [])
-        .filter(sceneAction => sceneAction.name === 'set-decasteljau-parameter')
-        .map(sceneAction => sceneAction.value);
-    expect(parameters.every(value => typeof value === 'number' && value >= 0 && value <= 1)).toBe(true);
-
+// Whether scene values are inside the graphs' ranges is checked by applying every scene to its real graph
+// (sceneContentAgainstGraphs.test.tsx); this test pins the exact PH offsets the pilot lesson shows.
+test('keeps the exact pilot scene values', () => {
     const ph = getPilotGuidedLesson('ph-cubic')!;
     const distances = ph.steps.flatMap(step => step.scene?.actions ?? [])
         .filter(sceneAction => sceneAction.name === 'set-offset-distance')
         .map(sceneAction => sceneAction.value);
     expect(distances).toEqual([0.2, -0.2]);
-    expect(distances.every(value => typeof value === 'number' && value >= -3 && value <= 3)).toBe(true);
 });
 
 test('records the thesis-consistent cubic PH mixed control-point coefficient', () => {

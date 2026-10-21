@@ -12,6 +12,10 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
+/** The subdivision parameter t stays strictly inside (0, 1) so both pieces are real curves. The lesson action, the slider and subdivide all use these. */
+export const SUBDIVISION_T_MIN = 0.01;
+export const SUBDIVISION_T_MAX = 0.99;
+
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
     v: number,
@@ -122,15 +126,15 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         super.registerLessonActions(registry);
         registry.on('subdivision-parameter', action => {
             const value = action.value;
-            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0.01 || value > 0.99) {
-                throw new Error('The subdivision parameter t must be a number from 0.01 to 0.99.');
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < SUBDIVISION_T_MIN || value > SUBDIVISION_T_MAX) {
+                throw new Error(`The subdivision parameter t must be a number from ${SUBDIVISION_T_MIN} to ${SUBDIVISION_T_MAX}.`);
             }
             this.setT(value);
         });
         registry.on('subdivide', () => {
             const t = this.state.t;
-            if (!this.getFirstJxgCurve() || !(t >= 0.01 && t <= 0.99)) {
-                throw new Error('Set the subdivision parameter t between 0.01 and 0.99 before subdividing.');
+            if (!this.getFirstJxgCurve() || !(t >= SUBDIVISION_T_MIN && t <= SUBDIVISION_T_MAX)) {
+                throw new Error(`Set the subdivision parameter t between ${SUBDIVISION_T_MIN} and ${SUBDIVISION_T_MAX} before subdividing.`);
             }
             this.subdivide();
         });
@@ -154,7 +158,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
-            <Slider customText={t("subdivision_parameter_t")} min={0.01} max={0.99}
+            <Slider customText={t("subdivision_parameter_t")} min={SUBDIVISION_T_MIN} max={SUBDIVISION_T_MAX}
                     value={this.state.t}
                     onChange={(t) => this.setT(t, this.state)}></Slider>,
             <Button onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];

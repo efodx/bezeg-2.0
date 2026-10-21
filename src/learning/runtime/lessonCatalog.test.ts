@@ -126,8 +126,8 @@ test('adapts the foundation cohort to typed graph actions', () => {
     ]);
 });
 
-test.each([-1, 6, 1.5, Number.NaN, Number.POSITIVE_INFINITY])('rejects the Bernstein degree %p before it reaches the graph', degree => {
-    expect(() => sceneAction({name: 'set-bernstein-degree', value: degree})).toThrow('Bernstein degree');
+test.each([1.5, Number.NaN, Number.POSITIVE_INFINITY, 'x', true])('rejects the malformed Bernstein degree %p before it reaches the graph', degree => {
+    expect(() => sceneAction({name: 'set-bernstein-degree', value: degree as number})).toThrow(/“set-bernstein-degree” needs an integer value/);
 });
 
 test.each([0, 1, 3, 5])('maps the valid Bernstein degree %p and the stacked-area switch', degree => {
@@ -142,11 +142,11 @@ test('adapts parameterization scene actions and rejects invalid values with clea
     expect(sceneAction({name: 'set-parameterization-samples', value: 40})).toEqual({kind: 'parameterization-samples', count: 40});
     expect(sceneAction({name: 'set-parameterization-mode', value: 'uniform'})).toEqual({kind: 'parameterization-mode', mode: 'uniform'});
     expect(sceneAction({name: 'set-parameterization-mode', value: 'weighted'})).toEqual({kind: 'parameterization-mode', mode: 'weighted'});
-    for (const value of [-0.1, 1.1, Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
-        expect(() => sceneAction({name: 'set-parameterization-alpha', value: value as number})).toThrow(/alpha.*between 0 and 1/);
+    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
+        expect(() => sceneAction({name: 'set-parameterization-alpha', value: value as number})).toThrow(/“set-parameterization-alpha” needs a finite number/);
     }
-    for (const value of [-1, 51, 2.5, Number.NaN, '3', false]) {
-        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/integer between 0 and 50/);
+    for (const value of [2.5, Number.NaN, '3', false]) {
+        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/“set-parameterization-samples” needs an integer/);
     }
     for (const value of ['arc', 'Weighted', 1, true]) {
         expect(() => sceneAction({name: 'set-parameterization-mode', value: value as string})).toThrow(/weighted.*uniform/);
@@ -173,11 +173,11 @@ test('adapts subdivision and extrapolation scene actions and rejects invalid val
     expect(sceneAction({name: 'set-extrapolation-parameter', value: 1})).toEqual({kind: 'extrapolation-parameter', value: 1});
     expect(sceneAction({name: 'set-extrapolation-parameter', value: 1.5})).toEqual({kind: 'extrapolation-parameter', value: 1.5});
     expect(sceneAction({name: 'extrapolate', value: true})).toEqual({kind: 'extrapolate'});
-    for (const value of [0, 0.009, 1, 1.01, Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
-        expect(() => sceneAction({name: 'set-subdivision-parameter', value: value as number})).toThrow(/subdivision parameter.*0\.01 and 0\.99/);
+    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
+        expect(() => sceneAction({name: 'set-subdivision-parameter', value: value as number})).toThrow(/“set-subdivision-parameter” needs a finite number/);
     }
-    for (const value of [0.99, 1.51, 2, Number.NaN, Number.POSITIVE_INFINITY, '1.2', true]) {
-        expect(() => sceneAction({name: 'set-extrapolation-parameter', value: value as number})).toThrow(/extrapolation parameter.*1 and 1\.5/);
+    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, '1.2', true]) {
+        expect(() => sceneAction({name: 'set-extrapolation-parameter', value: value as number})).toThrow(/“set-extrapolation-parameter” needs a finite number/);
     }
     for (const name of ['subdivide', 'extrapolate'] as const) {
         for (const value of [false, 1, 'true']) {
@@ -234,6 +234,18 @@ test('rejects structurally invalid spline, Farin and circle scene actions', () =
     expect(() => sceneAction({name: 'set-rational-weights', value: [1, 0, 2]})).toThrow('weights');
     expect(() => sceneAction({name: 'set-rational-weights', value: [1, Number.POSITIVE_INFINITY]})).toThrow('weights');
     expect(() => sceneAction({name: 'set-rational-weights', value: 3})).toThrow('weights');
-    expect(() => sceneAction({name: 'set-parameterization-samples', value: 51})).toThrow('between 0 and 50');
-    expect(() => sceneAction({name: 'set-parameterization-samples', value: 2.5})).toThrow('between 0 and 50');
+    expect(() => sceneAction({name: 'set-parameterization-samples', value: 2.5})).toThrow('needs an integer');
+});
+
+test('leaves numeric ranges to the graph that applies the action', () => {
+    // Each of these is out of range for its graph; the graph rejects it when applied (see sceneContentAgainstGraphs.test.tsx),
+    // so the content translation does not restate the limit.
+    expect(sceneAction({name: 'set-bernstein-degree', value: 6})).toEqual({kind: 'bernstein-degree', degree: 6});
+    expect(sceneAction({name: 'set-parameterization-samples', value: 51})).toEqual({kind: 'parameterization-samples', count: 51});
+    expect(sceneAction({name: 'set-parameterization-alpha', value: 1.1})).toEqual({kind: 'parameterization-alpha', value: 1.1});
+    expect(sceneAction({name: 'set-subdivision-parameter', value: 1})).toEqual({kind: 'subdivision-parameter', value: 1});
+    expect(sceneAction({name: 'set-extrapolation-parameter', value: 2})).toEqual({kind: 'extrapolation-parameter', value: 2});
+    expect(sceneAction({name: 'set-offset-distance', value: 4})).toEqual({kind: 'parameter', name: 'offset-distance', value: 4});
+    expect(sceneAction({name: 'set-decasteljau-parameter', value: 2})).toEqual({kind: 'parameter', name: 't', value: 2});
+    expect(sceneAction({name: 'show-evaluation-point', value: -1})).toEqual({kind: 'curve-evaluation', parameter: -1});
 });

@@ -29,6 +29,10 @@ export function elevatedControlPoints(points: ReadonlyArray<{ X(): number, Y(): 
     return result;
 }
 
+/** The extrapolation parameter t extends the curve past its end (t = 1) by at most half its parameter interval. Sliders and the lesson action use these. */
+export const EXTRAPOLATION_T_MIN = 1;
+export const EXTRAPOLATION_T_MAX = 1.5;
+
 export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends BezierCurveAttributes> extends AbstractJXGPointControlledCurve<T, Attr> {
     subdivisionT: number = 0.5;
     extrapolationT: number = 1.2;

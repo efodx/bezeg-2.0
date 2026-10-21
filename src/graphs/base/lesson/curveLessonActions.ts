@@ -1,6 +1,6 @@
 import {UnsupportedLessonActionError} from "../../../learning/model";
 import {AbstractJXGPointControlledCurve} from "../../curves/object/AbstractJXGPointControlledCurve";
-import {AbstractJXGBezierCurve} from "../../curves/object/AbstractJXGBezierCurve";
+import {AbstractJXGBezierCurve, EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from "../../curves/object/AbstractJXGBezierCurve";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {LessonActionFeature} from "./LessonActionRegistry";
 
@@ -64,8 +64,8 @@ export function extrapolationActions(host: {
     return registry => {
         registry.on('extrapolation-parameter', action => {
             const value = action.value;
-            if (typeof value !== 'number' || !Number.isFinite(value) || value < 1 || value > 1.5) {
-                throw new Error('The extrapolation parameter must be a number from 1 to 1.5.');
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < EXTRAPOLATION_T_MIN || value > EXTRAPOLATION_T_MAX) {
+                throw new Error(`The extrapolation parameter must be a number from ${EXTRAPOLATION_T_MIN} to ${EXTRAPOLATION_T_MAX}.`);
             }
             host.setParameter(value);
         });

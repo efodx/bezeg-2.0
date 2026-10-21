@@ -7,7 +7,12 @@ import Slider from "../../../inputs/Slider";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
-export const SPLINE_ALPHA_MAX_SAMPLES = 50;
+import {
+    PARAMETERIZATION_ALPHA_MAX,
+    PARAMETERIZATION_ALPHA_MIN,
+    SPLINE_ALPHA_MAX_SAMPLES,
+    SPLINE_ALPHA_MIN_SAMPLES,
+} from "./parametrisationLimits";
 
 interface SplineAlphaParamGraphStates extends BaseGraphStates {
     numberOfPoints: number;
@@ -60,8 +65,8 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
         super.registerLessonActions(registry);
         registry.on('parameterization-alpha', action => {
             const value = action.value;
-            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
-                throw new Error('The parameter α must be a number from 0 to 1.');
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < PARAMETERIZATION_ALPHA_MIN || value > PARAMETERIZATION_ALPHA_MAX) {
+                throw new Error(`The parameter α must be a number from ${PARAMETERIZATION_ALPHA_MIN} to ${PARAMETERIZATION_ALPHA_MAX}.`);
             }
             this.getFirstCurve().setAlpha(value);
             this.setState({alpha: value});
@@ -69,8 +74,8 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
         });
         registry.on('parameterization-samples', action => {
             const count = action.count;
-            if (!Number.isInteger(count) || count < 0 || count > SPLINE_ALPHA_MAX_SAMPLES) {
-                throw new Error(`The number of sample points must be an integer from 0 to ${SPLINE_ALPHA_MAX_SAMPLES}.`);
+            if (!Number.isInteger(count) || count < SPLINE_ALPHA_MIN_SAMPLES || count > SPLINE_ALPHA_MAX_SAMPLES) {
+                throw new Error(`The number of sample points must be an integer from ${SPLINE_ALPHA_MIN_SAMPLES} to ${SPLINE_ALPHA_MAX_SAMPLES}.`);
             }
             this.setState({numberOfPoints: count});
             this.regenerateSamples(count);
@@ -121,12 +126,12 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
     alphaParamSlider() {
-        return <div><Slider customText={t("parameter_alpha")} min={0} max={1} step={0.01} value={this.state.alpha}
+        return <div><Slider customText={t("parameter_alpha")} min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} step={0.01} value={this.state.alpha}
                              onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 
     numberOfPointsSlider() {
-        return <div><Slider customText={t("number_of_points")} min={0} max={SPLINE_ALPHA_MAX_SAMPLES} step={1}
+        return <div><Slider customText={t("number_of_points")} min={SPLINE_ALPHA_MIN_SAMPLES} max={SPLINE_ALPHA_MAX_SAMPLES} step={1}
                             value={this.state.numberOfPoints}
                             onChange={(num) => this.setNumberOfPoints(num)}/>
         </div>;

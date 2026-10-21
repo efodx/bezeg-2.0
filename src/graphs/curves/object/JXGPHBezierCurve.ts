@@ -27,6 +27,10 @@ interface JSXPHBezierCurveState extends JXGBezierCurveState {
 }
 
 // TODO this one shouldn't extend JXGBezierCurve... but we needed it cause we don't have an interface for the JXG curves..
+/** The signed offset distance d of a PH curve's offset curves. The offset slider and the lesson action use this range. */
+export const OFFSET_DISTANCE_MIN = -3;
+export const OFFSET_DISTANCE_MAX = 3;
+
 export class JXGPHBezierCurve extends JXGBezierCurve {
 
     private showOffsetCurve: boolean = false;

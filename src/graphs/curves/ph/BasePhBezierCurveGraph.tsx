@@ -2,7 +2,7 @@ import {currentLanguage, onLanguageChange, t} from "../../../localization";
 import {HodographInputbox} from "./HodographInputBox";
 import React from "react";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
-import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
+import {JXGPHBezierCurve, OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "../object/JXGPHBezierCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {TransientState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -202,8 +202,8 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             this.boardUpdate();
         });
         registry.onDiscriminated('parameter', 'offset-distance', action => {
-            if (!Number.isFinite(action.value) || action.value < -3 || action.value > 3) {
-                throw new Error('The PH offset distance must be between -3 and 3.');
+            if (!Number.isFinite(action.value) || action.value < OFFSET_DISTANCE_MIN || action.value > OFFSET_DISTANCE_MAX) {
+                throw new Error(`The PH offset distance must be between ${OFFSET_DISTANCE_MIN} and ${OFFSET_DISTANCE_MAX}.`);
             }
             this.setOffsetCurveDistance(action.value);
         });

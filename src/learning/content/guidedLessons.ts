@@ -50,7 +50,10 @@ export type WorkedExample = Readonly<{
 }>;
 
 /**
- * These names correspond to existing graph-wrapper methods:
+ * These names correspond to existing graph-wrapper methods. The list is closed (ADR 0013): content and runtime stay in
+ * lockstep at compile time. Value ranges are not stated here or in `sceneAction()`: the graph that applies an action
+ * defines and enforces its limits, and `sceneContentAgainstGraphs.test.tsx` applies every scene and Chapter activity
+ * to the real graph of its Demonstration, so out-of-range content fails a test.
  *
  * - show-control-polygon -> AbstractJXGPointControlledCurve.showControllPolygon
  * - show-convex-hull -> AbstractJXGPointControlledCurve.showConvexHull
@@ -61,11 +64,11 @@ export type WorkedExample = Readonly<{
  * - elevate-degree -> ElevationGraph's graph-owned degree elevation operation
  * - show-offset-curve -> JXGPHBezierCurve.setShowOffsetCurve
  * - set-offset-distance -> JXGPHBezierCurve.setOffsetCurveDistance
- * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (integer 0-5)
+ * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (an integer; BERNSTEIN_MAX_DEGREE bounds it)
  * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
- * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (alpha in [0,1], integer samples 0-50, route bounds enforced by the graph, mode weighted|uniform)
- * - set-subdivision-parameter / subdivide -> SubdivisionGraph1 (and rational) parameter t in [0.01,0.99] and one split; on repeated-subdivision, subdivide is one halving step (at most 5)
- * - set-extrapolation-parameter / extrapolate -> ExtrapolationGraph (and rational) parameter t in [1,1.5] and one extrapolation
+ * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (a number alpha, an integer sample count whose bounds differ by route, mode weighted|uniform; the target graph enforces the bounds, see parametrisationLimits.ts)
+ * - set-subdivision-parameter / subdivide -> SubdivisionGraph1 (and rational) parameter t (SUBDIVISION_T_MIN..MAX) and one split; on repeated-subdivision, subdivide is one halving step (at most 5)
+ * - set-extrapolation-parameter / extrapolate -> ExtrapolationGraph (and rational) parameter t (EXTRAPOLATION_T_MIN..MAX) and one extrapolation
  * - show-spline-labels / hide-spline-fixed-points -> spline graphs' point-label and fixed-point display switches (boolean)
  * - set-spline-continuity / set-spline-degree -> OneSidedCnSplineGraph continuity r and degree n (integers; route bounds enforced by the graph)
  * - set-spline-beta -> G1 spline graphs' b/beta slider, value {index, value} (index is a non-negative integer; range enforced by the graph)

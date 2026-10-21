@@ -2,6 +2,7 @@ import {useT} from "../../localization";
 import React, {useEffect, useReducer, useRef, useState} from "react";
 import Slider from "../../inputs/Slider";
 import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
+import {EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from "../curves/object/AbstractJXGBezierCurve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 
 function OperationGroup({title, children}: {title: string, children: React.ReactNode}) {
@@ -66,7 +67,7 @@ export function CurveWorkspaceOperations({curve, onChanged}: {curve: JXGBezierCu
             <button aria-pressed={operationPreview === "subdivision"} onClick={() => togglePreview("subdivision")}>{t("preview_subdivision")}</button>
             <button onClick={() => operate(() => {curve.setSubdivisionT(subdivision); curve.subdivide();})}>{t("subdivide")}</button></OperationGroup>}
         {attributes.allowExtrapolation && <OperationGroup title={t('extrapolate')}>
-            <Slider customText={t("extrapolation_parameter_t")} min={1} max={1.5} value={extrapolation}
+            <Slider customText={t("extrapolation_parameter_t")} min={EXTRAPOLATION_T_MIN} max={EXTRAPOLATION_T_MAX} value={extrapolation}
                 help={t("extend_the_curve_beyond_its_end_parameter")}
                 onChange={t => {curve.setExtrapolationT(t); rerender();}}/>
             <button aria-pressed={operationPreview === "extrapolation"} onClick={() => togglePreview("extrapolation")}>{t("preview_extrapolation")}</button>

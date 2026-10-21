@@ -2,6 +2,7 @@ import {useT} from "../../../localization";
 import {Button} from "react-bootstrap";
 import React, {useEffect, useReducer, useRef, useState} from "react";
 import {JXGBezierCurve} from "../../curves/object/JXGBezierCurve";
+import {EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from "../../curves/object/AbstractJXGBezierCurve";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import Slider from "../../../inputs/Slider";
 import {InspectorDisclosure} from "../../../inputs/InspectorDisclosure";
@@ -111,7 +112,7 @@ export function BezierCurveControls({curve, onChanged}: CurveControlsProps<Bezie
         }
         if (tool === "extrapolation") {
             return <InspectorDisclosure key={tool} title={t("extrapolate")}>
-                <Slider min={1} max={1.5} value={curve.getExtrapolationT()} customText={t("extrapolation_parameter_t")}
+                <Slider min={EXTRAPOLATION_T_MIN} max={EXTRAPOLATION_T_MAX} value={curve.getExtrapolationT()} customText={t("extrapolation_parameter_t")}
                         onChange={value => {curve.setExtrapolationT(value); onChanged();}}/>
                 {previewButton("extrapolation", t("preview_extrapolation"))}
                 <Button onClick={() => apply(() => curve.extrapolate(curve.getExtrapolationT()))}>{t("extrapolate")}</Button>

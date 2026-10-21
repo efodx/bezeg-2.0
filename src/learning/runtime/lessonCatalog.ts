@@ -4,6 +4,26 @@ import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 
+/**
+ * The value of a scene action that carries a number. Only the shape is checked here: the range belongs to the graph that
+ * applies the action, and `sceneContentAgainstGraphs.test.tsx` applies all authored content to the real graphs, so the
+ * limits are defined once, by the module that enforces them.
+ */
+function finiteNumber(action: SceneAction): number {
+    if (typeof action.value !== 'number' || !Number.isFinite(action.value)) {
+        throw new Error(`The scene action “${action.name}” needs a finite number value.`);
+    }
+    return action.value;
+}
+
+function integerValue(action: SceneAction): number {
+    if (typeof action.value !== 'number' || !Number.isInteger(action.value)) {
+        throw new Error(`The scene action “${action.name}” needs an integer value.`);
+    }
+    return action.value;
+}
+
+/** Translates a content scene action into the typed action a graph applies, checking the value's type and shape. */
 export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-control-polygon' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'control-polygon', visible: action.value};
@@ -14,13 +34,11 @@ export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-decasteljau-construction' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'decasteljau-scheme', visible: action.value};
     }
-    if (action.name === 'set-decasteljau-parameter' && typeof action.value === 'number') {
-        if (action.value < 0 || action.value > 1 || !Number.isFinite(action.value)) throw new Error('The De Casteljau parameter must be between 0 and 1.');
-        return {kind: 'parameter', name: 't', value: action.value};
+    if (action.name === 'set-decasteljau-parameter') {
+        return {kind: 'parameter', name: 't', value: finiteNumber(action)};
     }
-    if (action.name === 'show-evaluation-point' && typeof action.value === 'number') {
-        if (action.value < 0 || action.value > 1 || !Number.isFinite(action.value)) throw new Error('The curve evaluation parameter must be between 0 and 1.');
-        return {kind: 'curve-evaluation', parameter: action.value};
+    if (action.name === 'show-evaluation-point') {
+        return {kind: 'curve-evaluation', parameter: finiteNumber(action)};
     }
     if (action.name === 'show-weights' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'weights', visible: action.value};
@@ -49,28 +67,21 @@ export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-offset-curve' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'offset-curve', visible: action.value};
     }
-    if (action.name === 'set-offset-distance' && typeof action.value === 'number') {
-        if (action.value < -3 || action.value > 3 || !Number.isFinite(action.value)) throw new Error('The PH offset distance must be between -3 and 3.');
-        return {kind: 'parameter', name: 'offset-distance', value: action.value};
+    if (action.name === 'set-offset-distance') {
+        return {kind: 'parameter', name: 'offset-distance', value: finiteNumber(action)};
     }
-    if (action.name === 'set-bernstein-degree' && typeof action.value === 'number') {
-        if (!Number.isInteger(action.value) || action.value < 0 || action.value > 5) throw new Error('The Bernstein degree must be an integer between 0 and 5.');
-        return {kind: 'bernstein-degree', degree: action.value};
+    if (action.name === 'set-bernstein-degree') {
+        return {kind: 'bernstein-degree', degree: integerValue(action)};
     }
     if (action.name === 'show-bernstein-stacked-area' && typeof action.value === 'boolean') {
         return {kind: 'bernstein-stacked-area', visible: action.value};
     }
     if (action.name === 'set-parameterization-alpha') {
-        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 0 || action.value > 1) {
-            throw new Error('The parameterization alpha must be a finite number between 0 and 1.');
-        }
-        return {kind: 'parameterization-alpha', value: action.value};
+        return {kind: 'parameterization-alpha', value: finiteNumber(action)};
     }
     if (action.name === 'set-parameterization-samples') {
-        if (typeof action.value !== 'number' || !Number.isInteger(action.value) || action.value < 0 || action.value > 50) {
-            throw new Error('The number of parameterization samples must be an integer between 0 and 50.');
-        }
-        return {kind: 'parameterization-samples', count: action.value};
+        // The sample limits differ by Demonstration, so only the target graph can say which counts it accepts.
+        return {kind: 'parameterization-samples', count: integerValue(action)};
     }
     if (action.name === 'set-parameterization-mode') {
         if (action.value !== 'weighted' && action.value !== 'uniform') {
@@ -79,19 +90,13 @@ export function sceneAction(action: SceneAction): LessonAction {
         return {kind: 'parameterization-mode', mode: action.value};
     }
     if (action.name === 'set-subdivision-parameter') {
-        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 0.01 || action.value > 0.99) {
-            throw new Error('The subdivision parameter t must be a finite number between 0.01 and 0.99.');
-        }
-        return {kind: 'subdivision-parameter', value: action.value};
+        return {kind: 'subdivision-parameter', value: finiteNumber(action)};
     }
     if (action.name === 'subdivide' && action.value === true) {
         return {kind: 'subdivide'};
     }
     if (action.name === 'set-extrapolation-parameter') {
-        if (typeof action.value !== 'number' || !Number.isFinite(action.value) || action.value < 1 || action.value > 1.5) {
-            throw new Error('The extrapolation parameter t must be a finite number between 1 and 1.5.');
-        }
-        return {kind: 'extrapolation-parameter', value: action.value};
+        return {kind: 'extrapolation-parameter', value: finiteNumber(action)};
     }
     if (action.name === 'extrapolate' && action.value === true) {
         return {kind: 'extrapolate'};

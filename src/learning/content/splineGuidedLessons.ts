@@ -6,10 +6,11 @@ import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKi
  * Subject source: K. Štampar, Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, master's thesis, University of
  * Ljubljana (FMF/FRI), 2024, section 4 (thesis pages 20-28).
  *
- * Scene actions used here are not yet in SUPPORTED_SCENE_ACTION_NAMES; the integration worker maps them:
+ * Scene actions used here are all in SUPPORTED_SCENE_ACTION_NAMES and translated by sceneAction() in lessonCatalog.ts:
  * show-spline-labels (boolean), hide-spline-fixed-points (boolean), show-control-polygon (boolean),
  * set-spline-continuity (integer), set-spline-degree (integer), set-spline-beta ({index, value} object),
- * set-parameterization-alpha (number 0..1), set-parameterization-samples (integer 0..50).
+ * set-parameterization-alpha (number), set-parameterization-samples (integer). Their ranges are enforced by the
+ * spline graphs and checked against this content by sceneContentAgainstGraphs.test.tsx.
  */
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
