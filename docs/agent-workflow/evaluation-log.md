@@ -590,3 +590,30 @@ Timing/context: task start 2026-10-16T11:02+02:00 and acceptance the same day, w
 - Repair: one test-worker follow-up added an observation outside rollback state (the original assertion could not prove the intermediate read), edited pre-operation activity rollback, explicit lesson rollback failure, and disposed-graph pause rejection. Worker corrected a checkpoint version literal return-type inference error. Handler replaced assertions inside an expected-throw path with captured observations asserted afterward. Real-board failure was an existing adapter defect revealed by new coverage, not a worker regression.
 - Environment: build provenance was first invalidated by concurrent test edits; rebuilt after stable handoff. Sandbox loopback prevented initial browser access; network-enabled Playwright passed. Delegated IAB retry had no available browser. Handler browser fallback used existing Playwright suites; manual/physical-device and full-checklist coverage remains unperformed, as documented in the task. No shared lesson-runtime change.
 - Context: handler and all four workers' starting/peak input occupancy, context-window size and compaction telemetry unavailable. Runtime resolved worker settings and scoped usage unavailable. No workflow-efficiency inference from this task.
+
+## 2026-10-21 — Graph transient state declaration (task 01)
+
+- Task: [01-graph-transient-state](../tasks/graph-contract-deepening/01-graph-transient-state.md), implementation/verification, estimated L (crosses BaseGraph and ~15 graph modules, lesson/figure paths). Dispatch 2026-10-20T23:15+02:00; worker report about 55 minutes later; accepted and pushed as 13e54a6 on 2026-10-21 after one repair round.
+- Dispatch reason: open interface design across all Demonstrations with suspected state defects; Opus 5.5/high chosen over the Sonnet default for that ambiguity. Workers: implementation Opus 5.5/high; state-correctness review Sonnet 5.5/medium; engineering review Sonnet 5.5/medium. No smoke worker: the routing table's Codex smoke model is unavailable to a Claude handler, so the handler ran `just smoke-built` and manual in-app browser checks.
+- Outcome: accepted. Baseline test confirmed Elevation overlay and several other restore defects before the change; Farin suspicion ruled out. Full unit 2899 passed, typecheck and build passed, `just smoke-built` 233 passed, handler browser checks of rational standard-form weights and De Casteljau playback through lesson entry/Back/Exit passed. ADR 0015 written on review request.
+- Repair: one round from reviews (vacuous tests, De Casteljau playing status restore, Subdivision step count, restore validation, an `any`, missing ADR and impact notes). Code issues, not environment. The stronger test exposed a pre-existing stale-region drawing defect in six function graphs, recorded as a follow-up.
+- Environment: Playwright Chromium was not installed; first smoke run failed at browser launch, owner approved install. Worker reported sed edits converting files to LF; no content diff resulted.
+- Context: handler and worker context occupancy, compactions and resolved settings unavailable. Worker usage from tool notification: 434k then 549k subagent tokens across the two rounds.
+- Handoff: handoff-v7. Brief required test-first baseline, two shapes with deletion test, and real board assertions; the repair message added explicit non-vacuity and hidden-state checks, which the first round lacked.
+
+## 2026-10-21 — Preset collection ownership (task 02)
+
+- Task: [02-preset-collection-ownership](../tasks/graph-contract-deepening/02-preset-collection-ownership.md), implementation/verification, estimated L (importer, ~45 graphs, localization). Accepted and pushed as 6083854 on 2026-10-21 after one repair round; worker run was interrupted once by an account session limit and resumed.
+- Dispatch reason: same seam as task 01, serialized after it. Workers: implementation Opus 5.5/high; validation/compatibility review Sonnet 5.5/medium; engineering review Sonnet 5.5/medium. Smoke by handler.
+- Outcome: accepted. Full unit 3026 passed, typecheck and build passed, `just smoke-built` 239 passed including a temporary uncommitted handler spec doing file export, invalid-file rejection and import round trips on bezier, rational, spline-c1, spline-g1, ph-cubic and taylor. G1 spline file import, previously always rejected, fixed. ADR 0016.
+- Repair: one round. Browser smoke (not unit tests or reviews) caught a regression: a seeded stored rational Preset was rejected by required display-state fields and fell back to the default scene. Fixed by relaxing the shared definition and auditing authored scenes; also cast removal, typing and locality wording from reviews.
+- Context: occupancy and compaction telemetry unavailable. Worker usage from notifications: 288k then 343k subagent tokens.
+- Handoff: handoff-v7. The brief did not state that stored data loading at HEAD must keep loading; the repair message stated that principle explicitly.
+
+## 2026-10-21 — Scene-action limits (task 03)
+
+- Task: [03-scene-action-limits](../tasks/graph-contract-deepening/03-scene-action-limits.md), implementation, estimated M (content translation plus limit homes in several graph modules). Worker about 9.5 minutes; accepted first pass and pushed as 579a5ea.
+- Dispatch reason: bounded slice after tasks 01/02, reusing the task 01 harness. One worker: Sonnet 5.5/high (raised from medium for the option design). Reviewed in the main chat: limit values unchanged and handlers throw on rejection, so the content-wide test is non-vacuous.
+- Outcome: accepted with no repairs. Content-wide test found no out-of-range content. Handler reran full unit, typecheck and build (passed). No browser smoke: no learner-visible or content change.
+- Context: occupancy and compaction telemetry unavailable. Worker usage from notification: 205k subagent tokens.
+- Handoff: handoff-v7; worker named the reuse of the task 01 harness and chose removal of restated content ranges, an outcome the brief allowed.
