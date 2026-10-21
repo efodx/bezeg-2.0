@@ -1,6 +1,6 @@
 # Improve the Guided lesson experience
 
-**Status:** ready-for-agent specification, 2026-10-21. Specification publication only; application implementation has not started.
+**Status:** implemented, with acceptance evidence and open formative/physical-device gates recorded in [implementation evidence](../reviews/lesson-experience-improvements/implementation.md), 2026-10-21.
 **Source:** [Taylor UX review](../reviews/lesson-graph-access/ux-review-2026-10-21.md).
 **Related contracts:** [Guided lessons](guided-lessons.md), [graph access](lesson-graph-access.md), [standalone learning](standalone-learning.md), and [guardrails](../guardrails.md).
 
@@ -140,4 +140,4 @@ User-visible changes are horizontal navigation, persistent actions, opaque readi
 
 This specification is the repository-local equivalent of a ready-for-agent issue. Project instructions require repository-local planning with no external issue tracker, so no external issue or triage label is created. Testing seams were explicitly confirmed by the owner. Publishing the specification does not implement the feature or close UX/content/classroom review gates.
 
-For this documentation change, validate local links, template structure, source consistency, and the diff. Application and browser tests are reserved for implementation. The source report's unknown deployed revision and limited sampling remain evidence constraints.
+The original specification publication was documentation-only. Implementation evidence now records application/browser checks separately from remaining formative and physical-device gates. The source report's unknown deployed revision and limited sampling remain evidence constraints; the implementation baseline uses a known local production revision.
