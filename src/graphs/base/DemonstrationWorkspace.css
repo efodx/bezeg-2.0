@@ -55,6 +55,7 @@
 .workspace-heading p { margin: 0; color: var(--workspace-ink-soft); font-size: 15px; line-height: 1.5; }
 .workspace-eyebrow { color: var(--workspace-green); font-size: .68rem; letter-spacing: .17em; text-transform: uppercase; }
 .workspace-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.demonstration-workspace.lesson-open .workspace-actions .workspace-lesson-action { min-height: 44px; }
 
 .demonstration-workspace button, .demonstration-workspace .workspace-actions > a {
     min-height: 44px;

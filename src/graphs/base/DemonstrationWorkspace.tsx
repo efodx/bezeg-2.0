@@ -114,9 +114,13 @@ export function DemonstrationWorkspace(props: {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
     }, [lessonActive, lessonMode]);
-    useEffect(() => {
-        if (lessonActive && lessonMode === 'explore') reopenLessonButton.current?.focus({preventScroll: true});
-    }, [lessonActive, lessonMode]);
+    const focusWorkspaceAfterLessonHide = useCallback(() => {
+        requestAnimationFrame(() => {
+            const actions = reopenLessonButton.current?.closest<HTMLElement>('.workspace-actions');
+            actions?.scrollIntoView?.({block: 'center', inline: 'nearest'});
+            reopenLessonButton.current?.focus({preventScroll: true});
+        });
+    }, []);
     useLayoutEffect(() => {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
@@ -169,10 +173,10 @@ export function DemonstrationWorkspace(props: {
                 {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
                 {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} onClick={() => {setLessonMode('content'); setLessonOpen(true);}} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
                 {lessonActive && lessonMode === 'explore' && <>
-                    <button ref={reopenLessonButton} onClick={() => showLessonInstructions.current?.()}>{t('back_to_instructions')}</button>
-                    {lessonGraphActions?.continueLesson && <button onClick={() => lessonGraphActions.continueLesson?.()}>{t('continue_lesson')}</button>}
+                    <button className="workspace-lesson-action" ref={reopenLessonButton} onClick={() => showLessonInstructions.current?.()}>{t('back_to_instructions')}</button>
+                    {lessonGraphActions?.continueLesson && <button className="workspace-lesson-action" onClick={() => lessonGraphActions.continueLesson?.()}>{t('continue_lesson')}</button>}
                     {lessonGraphActions?.animationControls}
-                    <button onClick={() => exitLesson.current?.()}>{t('exit_lesson')}</button>
+                    <button className="workspace-lesson-action" onClick={() => exitLesson.current?.()}>{t('exit_lesson')}</button>
                 </>}
                 {fullScreen && <button onClick={() => setPresentationControls(!presentationControls)}
                     aria-expanded={presentationControls} aria-controls="workspace-inspector">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
@@ -208,6 +212,7 @@ export function DemonstrationWorkspace(props: {
             registerShowInstructions={registerShowLessonInstructions} registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}
             onModeChange={setLessonMode}
+            onInstructionsHidden={focusWorkspaceAfterLessonHide}
             onClose={() => {
                 setLessonMode('closed');
                 setLessonOpen(false);

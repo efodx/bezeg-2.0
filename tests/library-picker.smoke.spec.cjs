@@ -1,5 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
+const h = require('./lesson-smoke-helpers.cjs');
 
 async function openEnglish(page, path) {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
@@ -139,7 +140,7 @@ test('choosing the current graph continues the same board and preserves its less
     await expect(progress).toHaveText(advancedProgress);
     expect(await boardState(page)).toEqual(activeLessonState);
 
-    await lesson.getByRole('button', {name: 'Exit lesson'}).click();
+    await h.exitAndConfirm(page);
     await expect(lesson).toBeHidden();
     const restoredState = await boardState(page);
     expect(restoredState.identity).toBe(editedEntryState.identity);

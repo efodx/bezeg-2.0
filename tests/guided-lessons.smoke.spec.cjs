@@ -36,7 +36,7 @@
 const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
-const {lessonPanel, nextButton, backButton, exitButton, learnButton, lessonHeading, boardStats, settle, progress,
+const {lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, lessonHeading, boardStats, settle, progress,
     stepNumber, isFinishing, advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow} = h;
 
 h.failOnRuntimeErrors();
@@ -1862,7 +1862,6 @@ async function openLesson(page, row, language) {
 }
 
 const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
-
 // Shared runtime behaviour (GuidedLesson.tsx) is identical for every lesson, so it is tested once on these rows.
 const SHARED_RUNTIME_ROWS = [bernstein, farin, splineG1];
 
@@ -1894,7 +1893,7 @@ for (const row of LESSONS) {
                     const blocker = await cont.evaluate(button => {
                         const r = button.getBoundingClientRect();
                         const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-                        return top === button || button.contains(top) ? null : `${top.tagName}.${top.className?.baseVal ?? top.className}`;
+                        return top === button || button.contains(top) ? null : top ? `${top.tagName}.${top.className?.baseVal ?? top.className}` : 'outside viewport';
                     });
                     if (blocker) blocked.push(`at "${label}": ${blocker}`);
                     // Keyboard activation: board labels can intercept pointer clicks; the hit-test above asserts reach.
@@ -1933,7 +1932,14 @@ for (const row of LESSONS) {
             expect(await progress(page), 'the opposite move returns to the same frame').toBe(here);
             await probe(here);
             if (row.prepareUserState && row.duringLesson) await row.duringLesson(page, ctx, saved);
+            const beforeExit = await progress(page);
             await exitButton(page).click();
+            await expect(page.getByRole('dialog')).toBeVisible();
+            await expect(page.getByRole('button', {name: /Continue lesson|Nadaljuj učno pot/})).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(page.getByRole('dialog')).toHaveCount(0);
+            expect(await progress(page)).toBe(beforeExit);
+            await exitAndConfirm(page);
             await expect(lessonPanel(page)).toHaveCount(0);
             if (row.prepareUserState) await row.assertUserState(page, ctx, saved);
             const snapshot = async () => {
@@ -1947,7 +1953,7 @@ for (const row of LESSONS) {
                 await expect(lessonPanel(page)).toBeVisible();
                 await advanceToStep(page, step);
                 if (row.stepProbe) await row.stepProbe(page, ctx, step, `round ${round} step ${step}`);
-                await exitButton(page).click();
+                await exitAndConfirm(page);
                 await expect(lessonPanel(page)).toHaveCount(0);
                 await expect.poll(snapshot, {message: `board counts after round ${round}`}).toEqual(baseline);
             }
@@ -1969,7 +1975,7 @@ for (const row of LESSONS) {
                 for (let guard = 0; guard < 60; guard += 1) {
                     const label = await progress(page);
                     const hasMath = await lesson.locator('.guided-lesson-worked-example, .guided-lesson-notation').count() > 0;
-                    const finishing = (await nextButton(page).getAttribute('aria-label')) === 'Finish';
+                    const finishing = await isFinishing(page);
                     if (hasMath) {
                         const {scrollWidth, innerWidth} = await page.evaluate(() => ({
                             scrollWidth: document.scrollingElement.scrollWidth, innerWidth: window.innerWidth}));
@@ -2110,7 +2116,7 @@ test.describe('Bernstein extras', () => {
             if (/Step 4 of 5/.test(await progress(page))) break;
             await advance(page);
         }
-        await exitButton(page).click();
+        await exitAndConfirm(page);
         await expect(lessonPanel(page)).toHaveCount(0);
         await expect.poll(() => degree(page)).toBe(1);
         await expect.poll(async () => (await stackedSwitch(page)).isChecked()).toBe(false);
@@ -2119,7 +2125,7 @@ test.describe('Bernstein extras', () => {
             await learnButton(page).click();
             await expect(lessonPanel(page)).toBeVisible();
             await advance(page); await advance(page); await advance(page);
-            await exitButton(page).click();
+            await exitAndConfirm(page);
             await expect(lessonPanel(page)).toHaveCount(0);
         }
         await expect.poll(() => degree(page)).toBe(1);
@@ -2133,7 +2139,7 @@ test.describe('Bernstein extras', () => {
 test.describe('Rational elevation extras', () => {
     test.setTimeout(150_000);
 
-    test('?learn=1 steps through to completion; point count rises to 5 then 6; Exit restores 4; weight labels show', async ({page}) => {
+    test('?learn=1 steps through to completion; point count rises to 5 then 6; completed scene and labels remain', async ({page}) => {
         await openLesson(page, rationalElevation, 'en');
         const lesson = lessonPanel(page);
         await expect.poll(async () => (await boardStats(page)).points).toBe(4);
@@ -2154,7 +2160,7 @@ test.describe('Rational elevation extras', () => {
             if (stats.points === 5) sawFive = true;
             if (stats.points === 6) sawSix = true;
             maxLabels = Math.max(maxLabels, stats.labels);
-            const finishing = (await nextButton(page).getAttribute('aria-label')) === 'Finish';
+            const finishing = await isFinishing(page);
             await nextButton(page).click();
             await settle(page);
             if (finishing) break;
@@ -2165,9 +2171,11 @@ test.describe('Rational elevation extras', () => {
         expect(sawSix, `6 control points seen:\n${pointsByLabel.join('\n')}`).toBe(true);
         expect(maxLabels, `weight labels visible on some step:\n${pointsByLabel.join('\n')}`).toBeGreaterThan(0);
 
+        const completed = await boardStats(page);
         await exitButton(page).click();
+        await expect(page.getByRole('dialog')).toHaveCount(0);
         await expect(lessonPanel(page)).toHaveCount(0);
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'points restored after exit'}).toBe(4);
+        expect(await boardStats(page), 'closing completion retains the final scene').toEqual(completed);
     });
 });
 
@@ -2282,8 +2290,8 @@ test.describe('Observation flow', () => {
         expect(await locked(page), 'graph locked after reopening instructions').toBe(true);
         expect(await panelFocused(page), 'focus returns to the overlay').toBe(true);
 
-        // Continue advances to the next frame (the explanation of the next step) with the overlay open.
-        await pressOn(page, page.getByRole('button', {name: 'Continue lesson'}));
+        // Reading has one forward action; workspace Continue is reserved for hidden instructions.
+        await pressOn(page, nextButton(page));
         await expect(nextButton(page)).toBeVisible();
         const after = await progress(page);
         expect(after, 'Continue advanced past the observation frame').not.toBe(observationLabel);
@@ -2299,7 +2307,7 @@ test.describe('Observation flow', () => {
         await openLesson(page, extrapolation, 'en');
         for (let guard = 0; guard < 40; guard += 1) {
             await advance(page);
-            if (await lessonPanel(page).locator('.guided-lesson-observe').count() && /Finish/.test(await nextButton(page).getAttribute('aria-label'))) break;
+            if (await lessonPanel(page).locator('.guided-lesson-observe').count() && await isFinishing(page)) break;
         }
         await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
         await pressOn(page, page.getByRole('button', {name: 'Continue lesson'}));
@@ -2331,3 +2339,5 @@ test.describe('Observation flow', () => {
         expect(await t(), 'no playback behind the next overlay').toBe(afterContinue);
     });
 });
+
+require('./lesson-experience-checks.cjs')();

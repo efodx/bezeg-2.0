@@ -1,5 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
+const h = require('./lesson-smoke-helpers.cjs');
 const catalogEntries = demonstrations.families.flatMap(family => family.demonstrations);
 
 async function openEnglish(page, pathname) {
@@ -238,7 +239,7 @@ test('production deep links retain filters and lesson query/hash through refresh
     await page.reload({waitUntil: 'domcontentloaded'});
     const lesson = page.locator('section.guided-lesson');
     await expect(lesson).toBeVisible();
-    await lesson.getByRole('button', {name: 'Exit lesson'}).click();
+    await h.exitAndConfirm(page);
     await expect(page).toHaveURL(/\/bezier\/curve\?school=west#figure$/);
     await expect(page.locator('#jgbox')).toBeVisible();
     await page.goto('/bezeg-2.0/not-a-demonstration', {waitUntil: 'domcontentloaded'});

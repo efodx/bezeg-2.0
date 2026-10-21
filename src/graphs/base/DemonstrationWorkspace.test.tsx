@@ -121,12 +121,12 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
 
     fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
     await screen.findByRole('heading', {name: 'Introduction'});
-    fireEvent.click(screen.getByRole('button', {name: 'Next'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
     const progress = document.querySelector('.guided-lesson-progress')?.textContent;
 
-    fireEvent.click(screen.getByRole('button', {name: 'Hide lesson instructions'}));
+    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-hide')!);
     await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
     const reopen = screen.getByRole('button', {name: 'Back to the instructions'});
     await waitFor(() => expect(reopen).toHaveFocus());
@@ -142,11 +142,31 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
     expect(parameter).toHaveValue('.8');
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
 
-    fireEvent.click(screen.getByRole('button', {name: 'Hide lesson instructions'}));
+    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    const safeChoice = screen.getByRole('button', {name: 'Continue lesson'});
+    expect(safeChoice).toHaveFocus();
+    fireEvent.click(safeChoice);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelector('.guided-lesson-progress')?.textContent).toBe(progress);
+    expect(capabilities.restoreState).not.toHaveBeenCalled();
+
+    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-hide')!);
     await waitFor(() => expect(screen.getByRole('button', {name: 'Continue lesson'})).toBeVisible());
     fireEvent.click(screen.getByRole('button', {name: 'Continue lesson'}));
     expect(await screen.findByText('Lesson complete')).toBeVisible();
-    fireEvent.click(screen.getByRole('button', {name: 'Exit lesson'}));
+    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(capabilities.restoreState).not.toHaveBeenCalled();
+    const learnAgain = screen.getByRole('button', {name: 'Learn this demonstration'});
+    await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
+
+    fireEvent.click(learnAgain);
+    await screen.findByRole('heading', {name: 'Introduction'});
+    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
+    expect(screen.getByRole('dialog')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
     await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
     act(() => setLanguage('sl'));

@@ -73,13 +73,13 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     const reopenedBoard = await boardSnapshot(page);
     expect(reopenedBoard, 'board identity, view, size and objects survive reopening').toEqual(editedBoard);
 
-    await page.getByRole('button', {name: 'Continue lesson', exact: true}).click();
+    await h.nextButton(page).click();
     await h.settle(page);
     const afterContinue = await h.progress(page);
     expect(afterContinue, 'Continue advances from the observation frame').not.toBe(observationProgress);
     expect(h.stepNumber(afterContinue)).toBe(h.stepNumber(observationProgress) + 1);
 
-    await h.exitButton(page).click();
+    await h.exitAndConfirm(page);
     await expect(h.lessonPanel(page)).toHaveCount(0);
     await expect.poll(() => readout(page, 'degree')).toBe('7');
     expect(await boundStatuses(page), 'Exit restores the entry error-bound state').toEqual(entryBound);
@@ -105,11 +105,11 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await h.settle(page);
     await h.noHorizontalOverflow(page);
     const panel = h.lessonPanel(page);
-    const scrollMetrics = await panel.evaluate(element => ({client: element.clientHeight, scroll: element.scrollHeight}));
-    expect(scrollMetrics.scroll).toBeGreaterThan(scrollMetrics.client);
+    expect(await panel.locator('.guided-lesson-reading').evaluate(element => getComputedStyle(element).overflowY)).toBe('visible');
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
     const hide = panel.getByRole('button', {name: 'Hide lesson instructions', exact: true});
     await expect(hide).toBeVisible();
-    await panel.evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await panel.evaluate(element => window.scrollTo(0, element.getBoundingClientRect().bottom + window.scrollY - innerHeight));
     const observe = panel.getByRole('button', {name: 'Observe on the graph', exact: true});
     await expect(observe).toBeVisible();
     const actionFitsPanel = await observe.evaluate(button => {
@@ -117,8 +117,11 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
         const container = button.closest('.guided-lesson').getBoundingClientRect();
         return action.top >= container.top && action.bottom <= container.bottom;
     });
-    expect(actionFitsPanel, 'last action fits within the bounded reading panel after scrolling').toBe(true);
-    await panel.evaluate(element => { element.scrollTop = 0; });
+    expect(actionFitsPanel, 'last action fits within document-flow reading after scrolling').toBe(true);
+    const actionBox = await observe.boundingBox();
+    expect(actionBox.y).toBeGreaterThanOrEqual(0);
+    expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
+    expect(await panel.evaluate(element => element.scrollTop), 'the overlay is not a second prose scroller').toBe(0);
     await expect(hide).toBeVisible();
 
     await observe.click();
@@ -176,6 +179,9 @@ test('touch learners can hide, reopen by touch, and explicitly exit', async ({br
         await expect(panel).toBeVisible();
         expect((await boardSnapshot(page)).id).toBe(before.id);
         await panel.getByRole('button', {name: 'Exit lesson', exact: true}).tap();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await page.getByRole('button', {name: 'Exit and restore graph', exact: true}).tap();
+        await expect(page.getByRole('dialog')).toHaveCount(0);
         await expect(panel).toHaveCount(0);
         await expect(h.learnButton(page)).toBeVisible();
     } finally {

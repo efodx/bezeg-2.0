@@ -31,6 +31,16 @@ Rejected because it competes with reading, is unsuitable for reduced-motion user
 
 ## Consequences
 
+### Reading and exit refinement — 2026-10-21
+
+The owner authorized implementation of [lesson experience improvements](../specs/lesson-experience-improvements.md). This supersedes the earlier translucent surface, vertical navigation rails, and narrow internally scrolling overlay. Reading and graph exploration still alternate over the same mounted board.
+
+Use an opaque elderflower reading surface, horizontal Previous/Next text buttons, and persistent progress and actions. Desktop prose scrolls between header and footer; narrow and short-height reading uses document flow with persistent actions and reserved content space. Preserve the same frame and reading position on hide/reopen, and start each newly selected frame at its heading. This trades simultaneous visibility of graph labels for readable mathematics; Hide/Observe immediately returns useful graph space.
+
+Explicit early exit now pauses playback and asks for confirmation explaining checkpoint restoration and transient progress. Cancel leaves the frame, scene, URL, visibility, and paused playback intact. Confirm restores the graph before closing; restoration errors keep a recovery path visible. Completion retains the final scene without this warning. Browser navigation and Chapter activity cleanup retain their existing ownership rules.
+
+The alternatives were retaining rails/translucency (lower discoverability and competing graph labels in the Taylor review), or a permanent reading dock (less graph space and a wider layout change). The adopted refinement preserves explicit graph handoff and the existing frame/session/graph seams. No route, Preset, or saved-progress migration is introduced.
+
 - The content contract must represent frames without turning every frame into a separate conceptual progress step.
 - Desktop and projection layouts can show lesson and graph together; narrow layouts may alternate emphasis between them.
 - The runtime needs focus movement, live step/frame announcements, keyboard and touch-sized arrow controls, and restoration of focus on exit.

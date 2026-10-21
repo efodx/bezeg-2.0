@@ -88,7 +88,7 @@ test('moves through explicit frames before changing steps and cancels transient 
     expect(fake.capabilities.restoreState).toHaveBeenCalled();
 });
 
-test('exit restores the captured state and completion leaves the final scene available', () => {
+test('exit restores the captured state while completion retains the final scene', () => {
     const fake = fakeCapabilities();
     const finalSceneAction: LessonAction = {kind: 'curve-visibility', target: 'control-polygon', visible: true};
     const completionLesson: LessonDefinition = {
@@ -104,8 +104,8 @@ test('exit restores the captured state and completion leaves the final scene ava
     expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
     session.close();
     expect(session.snapshot().status).toBe('closed');
-    expect(fake.getValue()).toBe('original');
-    expect(fake.capabilities.restoreState).toHaveBeenCalled();
+    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
+    expect(fake.capabilities.restoreState).toHaveBeenCalledTimes(1);
 });
 
 test('synchronous scene actions read earlier writes and a later failure restores lesson entry', () => {

@@ -135,7 +135,7 @@ test('activity yields scene ownership to Guided lesson and restores it paused on
     await slider.fill('0.75');
     await page.getByRole('button', {name: 'Learn this demonstration', exact: true}).click();
     await expect(h.lessonPanel(page)).toBeVisible();
-    await h.exitButton(page).click();
+    await h.exitAndConfirm(page);
     await expect(h.lessonPanel(page)).toHaveCount(0);
     await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
     await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();

@@ -47,6 +47,7 @@ export function GuidedLesson(props: {
     capabilities: LessonGraphCapabilities;
     onClose: () => void;
     onModeChange?: (mode: LessonMode) => void;
+    onInstructionsHidden?: () => void;
     registerClose?: (close: (() => void) | undefined) => void;
     registerShowInstructions?: (show: (() => void) | undefined) => void;
     registerExit?: (exit: (() => void) | undefined) => void;
@@ -56,7 +57,15 @@ export function GuidedLesson(props: {
     const t = useT();
     const [startupError, setStartupError] = useState<string>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
+    const [exitRequested, setExitRequested] = useState(false);
+    const [exitError, setExitError] = useState(false);
     const lessonRef = useRef<HTMLElement>(null);
+    const readingRef = useRef<HTMLDivElement>(null);
+    const readingPosition = useRef({panel: 0, page: 0});
+    const frameNeedsScrollReset = useRef(true);
+    const hasSavedReadingPosition = useRef(false);
+    const exitInvoker = useRef<HTMLElement | null>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
     const handoffTimer = useRef<number>();
     const animationPlaying = useRef(false);
     // The session is kept in state with the inputs it was built from and replaced when either prop changes.
@@ -113,15 +122,12 @@ export function GuidedLesson(props: {
     };
 
     const hideOverlay = () => {
+        if (readingRef.current) readingPosition.current.panel = readingRef.current.scrollTop;
+        readingPosition.current.page = window.scrollY;
+        hasSavedReadingPosition.current = true;
         clearHandoffTimer();
         props.onModeChange?.('explore');
-        if (frame.animation && animationPlaying.current) {
-            try {
-                animateFrame('pause');
-            } catch (error) {
-                setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
-            }
-        }
+        pausePlayback();
         setOverlayPhase('closing');
         scheduleOverlayPhase('hidden');
     };
@@ -130,16 +136,50 @@ export function GuidedLesson(props: {
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
         props.onModeChange?.(isComplete ? 'complete' : 'content');
-        // Playback controls are outside the graph while instructions are hidden; reopening pauses playback.
-        if (frame.animation && animationPlaying.current) {
-            try {
-                animateFrame('pause');
-            } catch (error) {
-                setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
-            }
-        }
+        // Stop graph-owned playback too, including controls started in the inspector.
+        pausePlayback();
         setOverlayPhase('opening');
         scheduleOverlayPhase('visible');
+    };
+
+    const pausePlayback = () => {
+        try {
+            if (frame.animation && animationPlaying.current) animateFrame('pause');
+            props.capabilities.stopAnimations?.();
+        } catch (error) {
+            setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+        }
+    };
+
+    const requestExit = (invoker?: HTMLElement | null) => {
+        pausePlayback();
+        if (isComplete) {
+            close();
+            return;
+        }
+        if (exitRequested) return;
+        exitInvoker.current = invoker ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+        setExitError(false);
+        setExitRequested(true);
+    };
+
+    const cancelExit = () => {
+        setExitRequested(false);
+        setExitError(false);
+        requestAnimationFrame(() => exitInvoker.current?.focus({preventScroll: true}));
+    };
+
+    const confirmExit = () => {
+        if (!exitRequested) return;
+        try {
+            session.close();
+            setExitRequested(false);
+            props.onModeChange?.('closed');
+            props.onClose();
+        } catch {
+            setExitError(true);
+            dialogRef.current?.querySelector<HTMLElement>('[data-exit-safe]')?.focus({preventScroll: true});
+        }
     };
 
 
@@ -150,12 +190,18 @@ export function GuidedLesson(props: {
         } catch (error) {
             setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
         }
-        return () => session.close();
+        return () => {
+            try { session.close(); } catch { /* A failed restoration remains recoverable while the host is mounted. */ }
+        };
     }, [session]);
 
     useEffect(() => {
         onModeChange?.(mode);
     }, [mode, onModeChange]);
+
+    useEffect(() => {
+        if (overlayPhase === 'hidden') props.onInstructionsHidden?.();
+    }, [overlayPhase, props.onInstructionsHidden]);
 
     useEffect(() => {
         clearHandoffTimer();
@@ -177,6 +223,54 @@ export function GuidedLesson(props: {
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
     }, [overlayVisible, hideOverlay]);
+
+    useEffect(() => {
+        if (!exitRequested) return;
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        const changed: Array<{element: HTMLElement; wasInert: boolean}> = [];
+        let branch: HTMLElement = dialog;
+        while (branch.parentElement && branch.parentElement !== document.body) {
+            const parent = branch.parentElement;
+            for (const sibling of Array.from(parent.children)) {
+                if (sibling !== branch && sibling instanceof HTMLElement) {
+                    changed.push({element: sibling, wasInert: sibling.inert === true});
+                    sibling.inert = true;
+                }
+            }
+            branch = parent;
+        }
+        const bodySiblings = Array.from(document.body.children);
+        for (const sibling of bodySiblings) {
+            if (sibling !== branch && sibling instanceof HTMLElement) {
+                changed.push({element: sibling, wasInert: sibling.inert === true});
+                sibling.inert = true;
+            }
+        }
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
+                cancelExit();
+            } else if (event.key === 'Tab' && dialog) {
+                const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), [tabindex]:not([tabindex="-1"])'));
+                if (focusable.length === 0) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+                    event.preventDefault(); last.focus();
+                } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+                    event.preventDefault(); first.focus();
+                }
+            }
+        };
+        document.addEventListener('keydown', onKeyDown, true);
+        dialog.querySelector<HTMLElement>('[data-exit-safe]')?.focus({preventScroll: true});
+        return () => {
+            document.removeEventListener('keydown', onKeyDown, true);
+            changed.forEach(({element, wasInert}) => { element.inert = wasInert; });
+        };
+    }, [exitRequested]);
 
     useEffect(() => {
         const element = lessonRef.current;
@@ -208,7 +302,15 @@ export function GuidedLesson(props: {
     useEffect(() => {
         // Lesson navigation stops scene animations, so playback must be restarted explicitly.
         animationPlaying.current = false;
+        readingPosition.current = {panel: 0, page: 0};
+        frameNeedsScrollReset.current = true;
+        hasSavedReadingPosition.current = false;
+        if (readingRef.current) readingRef.current.scrollTop = 0;
         lessonRef.current?.focus({preventScroll: true});
+        if (lessonRef.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
+            lessonRef.current.scrollIntoView?.({block: 'start'});
+            frameNeedsScrollReset.current = false;
+        }
     }, [snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
     useEffect(() => {
@@ -219,6 +321,19 @@ export function GuidedLesson(props: {
         // so track the phase to return focus to the panel in that transition.
         if (overlayPhase === 'opening' || overlayPhase === 'visible') {
             element.focus({preventScroll: true});
+        }
+    }, [overlayPhase]);
+
+    useEffect(() => {
+        if (overlayPhase === 'visible' && readingRef.current) {
+            readingRef.current.scrollTop = readingPosition.current.panel;
+            if (frameNeedsScrollReset.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
+                lessonRef.current?.scrollIntoView?.({block: 'start'});
+                frameNeedsScrollReset.current = false;
+            } else if (hasSavedReadingPosition.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
+                window.scrollTo({top: readingPosition.current.page});
+            }
+            hasSavedReadingPosition.current = false;
         }
     }, [overlayPhase]);
 
@@ -263,7 +378,7 @@ export function GuidedLesson(props: {
     const exitRef = useRef(close);
     const continueRef = useRef(continueAfterObservation);
     showInstructionsRef.current = showOverlay;
-    exitRef.current = close;
+    exitRef.current = requestExit;
     continueRef.current = continueAfterObservation;
 
     useEffect(() => {
@@ -283,48 +398,49 @@ export function GuidedLesson(props: {
         return () => props.registerGraphActions?.(undefined);
     }, [session, props.registerGraphActions, isExploring, frame.id, frame.animation?.animationId, language]);
 
-    const closeButton = <button type="button" className="guided-lesson-exit" onClick={close}>{t('exit_lesson')}</button>;
+    const closeButton = <button type="button" className="guided-lesson-exit" onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson')}</button>;
+    const hideButton = <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>;
+    const exitDialog = exitRequested && <div className="guided-lesson-exit-backdrop"><div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="guided-lesson-exit-title" aria-describedby="guided-lesson-exit-message" className="guided-lesson-exit-dialog">
+        <h2 id="guided-lesson-exit-title">{t('guided_lesson_exit_title')}</h2>
+        <p id="guided-lesson-exit-message">{t('guided_lesson_exit_warning')}</p>
+        {exitError && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
+        <div className="guided-lesson-exit-actions">
+            <button type="button" data-exit-safe onClick={cancelExit}>{t('guided_lesson_continue_reading')}</button>
+            <button type="button" onClick={confirmExit}>{t('guided_lesson_exit_restore')}</button>
+        </div>
+    </div></div>;
 
     if (startupError) {
-        return <section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
+        return <><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
             <div className="guided-lesson-heading"><div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2></div>
                 {closeButton}</div>
             <p role="alert">{t('guided_lesson_scene_error')} {startupError}</p>
-        </section>;
+        </section>{exitDialog}</>;
     }
 
-    if (!overlayVisible) return null;
+    if (!overlayVisible && !exitRequested) return null;
 
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
-    return <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
+    return <>
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
         <div className="guided-lesson-heading">
-            <div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
-                {!isExploring && !isComplete && <p>{localized(props.lesson.summary, language)}</p>}</div>
-            <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>
+            <div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2></div>
+            {hideButton}
             {closeButton}
         </div>
-        {!isComplete && <>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('back')} title={t('back')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>
-                <span>{t('back')}</span>
-            </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson') : t('next')} title={atLastFrame ? t('finish_lesson') : t('next')} onClick={() => refresh(() => session.next())}>
-                <span>{atLastFrame ? t('finish_lesson') : t('next')}</span>
-            </button>
-        </>}
-        <div className="guided-lesson-progress" role="status" aria-live="polite">
-            {isComplete ? t('guided_lesson_complete') : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
-        </div>
+        <div className="guided-lesson-reading" ref={readingRef}>
+        {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary">{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <h3>{localized(frame.title, language)}</h3>
             {frame.body && <p>{localized(frame.body, language)}</p>}
-            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index}>{localized(formula, language)}</div>)}
+            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
             {frame.kind === 'calculation' && frame.workedExample && <div className="guided-lesson-worked-example">
                 <h4>{localized(frame.workedExample.title, language)}</h4>
-                <div className="guided-lesson-notation">{localized(frame.workedExample.calculation, language)}</div>
-                <div className="guided-lesson-notation">{localized(frame.workedExample.result, language)}</div>
+                <div className="guided-lesson-notation" role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.calculation, language)}</div>
+                <div className="guided-lesson-notation" role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
                 <p>{localized(frame.workedExample.check, language)}</p>
             </div>}
         </div>}
@@ -334,12 +450,24 @@ export function GuidedLesson(props: {
             {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
             {animationControls}
         </div>}
-        {isComplete && <p role="status">{t('guided_lesson_free_exploration')}</p>}
+        {isComplete && <p>{t('guided_lesson_free_exploration')}</p>}
         {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}
-        {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
-            {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
-            {isExploring && <button type="button" className="guided-lesson-continue" onClick={continueAfterObservation}>{t('continue_lesson')}</button>}
-            {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
-        </div>}
-    </section>;
+        </div>
+        <footer className="guided-lesson-footer">
+            <div className="guided-lesson-persistent-actions">{hideButton}{closeButton}</div>
+            <div className="guided-lesson-progress" role="status" aria-live="polite">
+                {isComplete ? t('guided_lesson_complete') : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
+            </div>
+            {!isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
+                <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>{t('guided_lesson_previous_frame')}</button>
+                <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')} onClick={() => refresh(() => session.next())}>{atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')}</button>
+            </nav>}
+            {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
+                {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
+                {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
+            </div>}
+        </footer>
+    </section>}
+    {exitDialog}
+    </>;
 }

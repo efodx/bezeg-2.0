@@ -170,7 +170,7 @@ export class LessonSession {
     close() {
         this.stopAnimations();
         const graphIsAvailable = this.capabilities.isAvailable?.() ?? true;
-        if (this.snapshotValue.status !== 'closed' && this.checkpoint && graphIsAvailable) {
+        if (this.snapshotValue.status !== 'closed' && this.snapshotValue.status !== 'complete' && this.checkpoint && graphIsAvailable) {
             this.capabilities.restoreState(this.checkpoint);
         }
         this.snapshotValue = {...this.snapshotValue, status: 'closed'};

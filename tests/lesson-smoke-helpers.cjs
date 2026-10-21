@@ -4,7 +4,7 @@ const {test, expect} = require('@playwright/test');
 const lessonPanel = page => page.locator('section.guided-lesson');
 const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
-const exitButton = page => lessonPanel(page).getByRole('button', {name: 'Exit lesson'});
+const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit lesson|Končaj učno pot/});
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
 const reopenButton = page => page.getByRole('button', {name: /Back to the instructions|Nazaj na navodila/});
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
@@ -142,7 +142,7 @@ function stepNumber(label) {
 }
 
 async function isFinishing(page) {
-    return /^(Finish|Dokončaj)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
+    return /^(Complete lesson|Zaključi učno pot)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
 }
 
 async function advance(page) {
@@ -155,6 +155,13 @@ async function back(page) {
     await reveal(page);
     await backButton(page).click();
     await settle(page);
+}
+
+async function exitAndConfirm(page) {
+    await exitButton(page).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('button', {name: /Exit and restore graph|Zapusti in povrni graf/}).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
 }
 
 async function advanceToStep(page, step) {
@@ -200,7 +207,7 @@ async function pressNextWithKeyboard(page) {
 }
 
 module.exports = {
-    lessonPanel, nextButton, backButton, exitButton, learnButton, reopenButton, lessonHeading,
+    lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, reopenButton, lessonHeading,
     failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
     openInspectorTab, countSetterValue,
