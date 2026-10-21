@@ -170,3 +170,58 @@ test('Bernstein stacked view and affine translation retain their exact authored 
     await context(page).getByRole('button', {name: 'Reset example'}).click();
     await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
 });
+test('chapter return in the demonstration header keeps shared action styling after picker switching', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto(`${chapter}#control-points`);
+    await page.locator('#activity-shape-control').click();
+    await expect(context(page)).toBeVisible();
+    await page.getByRole('button', {name: 'Switch demonstration'}).click();
+    await page.locator('#demonstration-card-decasteljau-alternative-graph').click();
+    await expect(page).toHaveURL(/\/bezier\/decasteljau2$/);
+
+    const returnLink = page.locator('.workspace-actions a[href*="/learn/"]');
+    const switchButton = page.getByRole('button', {name: 'Switch demonstration'});
+    await expect(returnLink).toHaveCount(1);
+    await expect(returnLink).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#control-points');
+    expect(await returnLink.evaluate(el => el.tagName)).toBe('A');
+    const actionStyle = async element => element.evaluate(el => {
+        const s = getComputedStyle(el);
+        return Object.fromEntries(['fontFamily', 'fontSize', 'fontWeight', 'color', 'borderTopWidth',
+            'borderTopStyle', 'borderTopColor', 'borderRadius', 'paddingTop', 'paddingRight',
+            'paddingBottom', 'paddingLeft', 'minHeight', 'textDecorationLine'].map(property => [property, s[property]]));
+    });
+    expect(await actionStyle(returnLink)).toEqual(await actionStyle(switchButton));
+    await returnLink.hover();
+    const linkHover = await returnLink.evaluate(el => getComputedStyle(el).backgroundColor);
+    await switchButton.hover();
+    expect(await switchButton.evaluate(el => getComputedStyle(el).backgroundColor)).toBe(linkHover);
+
+    await page.getByRole('button', {name: 'Presentation mode'}).click();
+    await expect(page.locator('.demonstration-workspace.is-presenting')).toBeVisible();
+    expect(await actionStyle(returnLink)).toEqual(await actionStyle(switchButton));
+    await page.getByRole('button', {name: 'Exit presentation'}).click();
+
+    await page.setViewportSize({width: 390, height: 844});
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const chapterPageWidth = await page.evaluate(() => document.scrollingElement.scrollWidth);
+    const headerBounds = await page.locator('.workspace-actions').evaluate(el => {
+        const {left, right} = el.getBoundingClientRect();
+        return {left, right};
+    });
+    expect(headerBounds.left).toBeGreaterThanOrEqual(0);
+    expect(headerBounds.right).toBeLessThanOrEqual(390);
+    expect(await returnLink.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+
+    await switchButton.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(returnLink).toBeFocused();
+    expect(await returnLink.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/learn\/bezier-curves#control-points$/);
+
+    await page.goto('/bezeg-2.0/bezier/decasteljau2');
+    await expect(page.locator('.workspace-actions a[href*="/learn/"]')).toHaveCount(0);
+    await page.setViewportSize({width: 390, height: 844});
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollWidth)).toBe(chapterPageWidth);
+});

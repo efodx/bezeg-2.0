@@ -1,5 +1,5 @@
 /* Compact desktop controls retain the workspace's visible panels and active states. */
-.demonstration-workspace button { min-height:34px; padding:5px 10px; border-radius:2px; font-size:.84rem; line-height:1.4; font-weight:550; }
+.demonstration-workspace button, .demonstration-workspace .workspace-actions > a { min-height:34px; padding:5px 10px; border-radius:2px; font-size:.84rem; line-height:1.4; font-weight:550; }
 .workspace-navigation { gap:6px; padding-top:10px; }
 .workspace-navigation button { min-width:34px; }
 .inspector-heading { padding:10px 12px 2px; }
@@ -303,7 +303,7 @@
 
 /* Readable type and generous activation areas for narrow screens and touch. */
 @media(pointer:coarse), (max-width:700px) {
-    .demonstration-workspace button, .inspector-heading button,
+    .demonstration-workspace button, .demonstration-workspace .workspace-actions > a, .inspector-heading button,
     .workspace-inspector .form-select, .point-coordinate-editor input { min-height:44px; }
     .workspace-navigation button { min-width:44px; }
     #inspector-display .form-check { min-height:44px; }

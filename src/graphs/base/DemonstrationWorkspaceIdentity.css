@@ -63,7 +63,7 @@
 }
 
 .workspace-actions { flex: 0 1 420px; min-width: 0; max-width: 440px; }
-.workspace-actions > button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.workspace-actions > button, .workspace-actions > a { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 
 .workspace-graph {
     border-top-color: var(--workspace-green);
