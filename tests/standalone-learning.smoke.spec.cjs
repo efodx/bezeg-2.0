@@ -11,6 +11,76 @@ const rows = [
     ['transform-shape', 'bezier/affine', 'affine-transformations'],
 ];
 const context = page => page.locator('.chapter-activity-context');
+
+test('chapter exploration opens with its return controls in view and keyboard focus', async ({page}) => {
+    await page.setViewportSize({width: 1440, height: 900});
+    await h.useLanguage(page, 'en');
+    await page.goto(`${chapter}#parameter`);
+    await page.locator('#activity-curve-parameter').click();
+    const back = context(page).getByRole('button', {name: 'Return to chapter', exact: true});
+    await expect(back).toBeInViewport({ratio: 1});
+    await expect(back).toBeFocused();
+    const slider = page.locator('.decasteljau-animation-slider input[type="range"]').first();
+    await slider.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(slider).toBeFocused();
+    await expect(page.locator('.decasteljau-animation-heading output')).not.toHaveText('t = 0.50');
+    await page.locator('#bezeg-language').focus();
+    await page.locator('#bezeg-language').selectOption('sl');
+    await expect(context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true})).toBeInViewport({ratio: 1});
+    await expect(page.locator('#bezeg-language')).toBeFocused();
+    // Return remains a native keyboard action after entry.
+    await context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true}).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#activity-curve-parameter')).toBeFocused();
+    await page.goForward();
+    await expect(context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true})).toBeFocused();
+});
+
+test('activity reading actions remain reachable on narrow screens and enlarged text', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 844});
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/bezier/decasteljau');
+    await expect(page.locator('#jgbox')).toBeVisible();
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const standaloneWidth = await page.evaluate(() => document.scrollingElement.scrollWidth);
+    await page.goto(`${chapter}#parameter`);
+    await page.locator('#activity-curve-parameter').click();
+    const back = context(page).getByRole('button', {name: 'Return to chapter', exact: true});
+    await expect(back).toBeInViewport({ratio: 1});
+    await expect(back).toBeFocused();
+    for (const size of ['100%', '200%']) {
+        await page.evaluate(size => { document.documentElement.style.fontSize = size; }, size);
+        if (size === '100%') await h.noHorizontalOverflow(page, 'activity at normal text size');
+        else {
+            // Existing inspector fields overflow by 5px at enlarged text on this route.
+            // Activity context must fit and must not worsen the standalone width.
+            expect(await page.evaluate(() => document.scrollingElement.scrollWidth)).toBeLessThanOrEqual(standaloneWidth);
+            const bounds = await context(page).boundingBox();
+            expect(bounds.x).toBeGreaterThanOrEqual(0);
+            expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+        }
+        for (const name of ['Return to chapter', 'Continue reading', 'Reset example', 'Free exploration']) {
+            const action = context(page).getByRole('button', {name, exact: true});
+            await action.scrollIntoViewIfNeeded();
+            await expect(action).toBeInViewport({ratio: 1});
+            expect((await action.boundingBox()).height).toBeGreaterThanOrEqual(44);
+        }
+    }
+    await back.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#activity-curve-parameter')).toBeFocused();
+});
+
+test('activity actions wrap without squeezing the explanation at intermediate widths', async ({page}) => {
+    await page.setViewportSize({width: 800, height: 900});
+    await page.goto(`${chapter}#parameter`);
+    await page.locator('#activity-curve-parameter').click();
+    await expect(context(page).getByRole('button').first()).toBeInViewport({ratio: 1});
+    const prompt = await page.locator('.activity-context-prompt').boundingBox();
+    expect(prompt.width).toBeGreaterThanOrEqual(300);
+    await h.noHorizontalOverflow(page, 'activity at 800px');
+});
 test.describe.configure({mode: 'parallel'});
 
 for (const [id, route, section] of rows) {

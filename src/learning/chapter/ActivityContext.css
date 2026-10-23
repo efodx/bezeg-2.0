@@ -1,10 +1,52 @@
-.chapter-activity-context { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; padding: 18px; border: 1px solid var(--bezeg-rule); border-left: 4px solid var(--bezeg-pollen); background: var(--bezeg-panel); min-width: 0; }
-.chapter-activity-context > div { min-width: 0; max-width: 72ch; }
+.chapter-activity-context {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "heading actions" "prompt actions";
+    gap: 8px 24px;
+    align-items: start;
+    padding: 18px;
+    border: 1px solid var(--bezeg-rule);
+    border-left: 4px solid var(--bezeg-pollen);
+    background: var(--bezeg-panel);
+    min-width: 0;
+}
+.activity-context-heading { grid-area: heading; min-width: 0; max-width: 72ch; }
+.activity-context-prompt { grid-area: prompt; min-width: 0; max-width: 72ch; }
 .chapter-activity-context h2 { font: 500 1.4rem Georgia, serif; margin: 8px 0; }
 .chapter-activity-context p { margin: 6px 0; line-height: 1.6; overflow-wrap: anywhere; }
 .chapter-activity-context a { color: var(--bezeg-moss); }
-.activity-context-actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+.activity-context-actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+}
+.activity-context-actions button { min-height: 44px; }
+.activity-context-actions .activity-context-primary {
+    border-color: var(--bezeg-moss);
+    background: var(--bezeg-moss);
+    color: #fff;
+    font-weight: 650;
+}
+.activity-context-actions .activity-context-primary:hover { background: #2e5103; }
+.activity-context-actions button:not(.activity-context-primary) {
+    border-color: var(--bezeg-rule);
+    color: var(--workspace-ink);
+    background: transparent;
+}
+.activity-context-actions button:focus-visible { outline: 3px solid var(--bezeg-pollen); outline-offset: 2px; }
 .activity-notice { grid-column: 1 / -1; padding: 12px; border: 1px solid var(--bezeg-pollen); }
 .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading heading' 'context context' 'graph inspector' 'learning learning'; }
 .chapter-activity-context { grid-area: context; }
-@media (max-width: 760px) { .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading' 'context' 'graph' 'inspector' 'learning'; } }
+@media (max-width: 760px) {
+    .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading' 'context' 'graph' 'inspector' 'learning'; }
+    .chapter-activity-context {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "heading" "actions" "prompt";
+        gap: 12px;
+        padding: 14px;
+    }
+}

@@ -1,6 +1,6 @@
 import {useT} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate, useNavigationType} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
@@ -43,8 +43,11 @@ export function DemonstrationWorkspace(props: {
     const [lessonGraphActions, setLessonGraphActions] = useState<{continueLesson?: () => void; animationControls?: React.ReactNode}>();
     const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph);
     const activityContext = useRef<HTMLElement>(null);
+    const chapterReturnButton = useRef<HTMLButtonElement>(null);
+    const focusedActivity = useRef<{id: string; key: string; focused: boolean}>();
     useTypesetMath(activityContext, `${chapter.activity?.id ?? ''}-${language}`);
     const location = useLocation();
+    const navigationType = useNavigationType();
     const {pathname, search, hash} = location;
     const returnContext = readDemonstrationReturnContext(location.state);
     const navigateRoute = useNavigate();
@@ -125,6 +128,26 @@ export function DemonstrationWorkspace(props: {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
+    useLayoutEffect(() => {
+        const activityId = chapter.activity?.id;
+        if (!activityId) {
+            focusedActivity.current = undefined;
+            return;
+        }
+        if (props.graphBusy) return;
+        const previous = focusedActivity.current;
+        const newEntry = previous?.id !== activityId || (previous.key !== location.key && navigationType !== 'REPLACE');
+        const shouldFocus = newEntry || !previous?.focused;
+        if (!shouldFocus) {
+            focusedActivity.current = {id: activityId, key: location.key, focused: previous?.focused ?? false};
+            return;
+        }
+        const button = chapterReturnButton.current;
+        if (!button) return;
+        focusedActivity.current = {id: activityId, key: location.key, focused: true};
+        button.scrollIntoView?.({block: 'center', inline: 'nearest'});
+        button.focus({preventScroll: true});
+    }, [chapter.activity?.id, location.key, navigationType, props.graphBusy]);
     return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
@@ -193,18 +216,20 @@ export function DemonstrationWorkspace(props: {
             </>}
         </p>}
         {chapter.activity && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
-            <div><Link to={chapter.returnPath ?? chapterActivityVisit.readingReturnPath()} state={location.state}
+            <div className="activity-context-heading"><Link to={chapter.returnPath ?? chapterActivityVisit.readingReturnPath()} state={location.state}
                 onClick={event => { event.preventDefault(); setLessonOpen(false); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
                 <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
+            </div>
+            <div className="activity-context-actions">
+                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_return')}</button>
+                <button className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
+                <button onClick={() => {setLessonOpen(false); chapter.reset();}} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
+                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.freeExplore();}}>{t('chapter_free_exploration')}</button>
+            </div>
+            <div className="activity-context-prompt">
                 <p>{bezierActivityCopy[chapter.activity.id][language].prompt}</p>
                 {(chapter.activity.demonstrationId === 'decasteljau' || chapter.activity.demonstrationId === 'affine') &&
                     <p>{chapter.activity.demonstrationId === 'decasteljau' ? t('chapter_quartic_example') : t('chapter_affine_example')}</p>}
-            </div>
-            <div className="activity-context-actions">
-                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_return')}</button>
-                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
-                <button onClick={() => {setLessonOpen(false); chapter.reset();}} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
-                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.freeExplore();}}>{t('chapter_free_exploration')}</button>
             </div>
         </section>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
