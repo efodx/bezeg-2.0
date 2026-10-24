@@ -1,6 +1,6 @@
 # Lesson example improvements
 
-**Status:** planned; task authoring requested 2026-10-20. Application implementation has not started under this plan.
+**Status:** tasks 00–08 implemented and unit-verified 2026-10-25; browser acceptance (task 09) pending. See the [handoff](../reviews/lesson-example-improvements/handoff-2026-10-25.md).
 
 **Source:** owner's request to study demonstration lesson examples, the resulting review, and the request to create repository-local tasks for all recommendations.
 
