@@ -4,7 +4,7 @@
 
 **Dependencies:** [Build the capability matrix](build-capability-matrix.md), [Review and release the pilots](review-and-release-pilot.md)
 
-**Status:** implementation superseded by later cohort work; content/classroom review remains open (reconciled 2026-10-20). Do not start a duplicate implementation.
+**Status:** closed as superseded by later released cohorts. The [2026-10-24 owner policy](../../guardrails.md#release-policy--owner-decision-2026-10-24) removes separate language and physical-device/projector/classroom gates, superseding conflicting historical criteria below. Do not start a duplicate implementation; track concrete defects and missing smoke coverage separately.
 
 All seven listed routes are already available in the runtime lesson catalog:
 

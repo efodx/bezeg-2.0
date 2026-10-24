@@ -1,6 +1,6 @@
 # Guided lessons
 
-**Status:** runtime and pilot content draft implemented; owner/subject-matter and classroom review pending
+**Status:** runtime and available pilots released. The [2026-10-24 owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24) removes separate language and physical-device/projector/classroom approval gates; concrete missing checks and UX findings remain follow-ups. This policy supersedes conflicting historical release criteria below.
 **Agreed:** 2026-10-09
 **Owner direction:** guide students through selected mathematical demonstrations without turning Bezeg into a course platform.
 

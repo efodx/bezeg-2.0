@@ -1,6 +1,8 @@
 # Implement the standalone Bézier chapter pilot
 
-Status: implemented pilot draft, 2026-10-20. See [implementation evidence and remaining owner/device gates](../../reviews/standalone-learning/implementation.md). Source: [standalone learning specification](../../specs/standalone-learning.md). Content inputs: [chapter outline/source map](../../specs/bezier-study-chapter.md), [Slovenian chapter](../../content/bezier-curves.sl.md), [English chapter](../../content/bezier-curves.en.md), and [six-activity script](../../specs/bezier-study-chapter-activities.md).
+**Status:** released under the [owner decision, 2026-10-24](../../guardrails.md#release-policy--owner-decision-2026-10-24). Existing wording is approved; separate language and physical-device/projector/classroom gates are removed. Concrete missing functionality, defects and verification gaps remain follow-ups. This supersedes conflicting historical release criteria below.
+
+Source: [standalone learning specification](../../specs/standalone-learning.md). Content inputs: [chapter outline/source map](../../specs/bezier-study-chapter.md), [Slovenian chapter](../../content/bezier-curves.sl.md), [English chapter](../../content/bezier-curves.en.md), and [six-activity script](../../specs/bezier-study-chapter-activities.md). See [implementation and hosted evidence](../../reviews/standalone-learning/implementation.md).
 
 ## Outcome and boundaries
 

@@ -1,6 +1,6 @@
 # Bézier chapter activity script
 
-Status: activity script implemented in the published [standalone learning pilot](standalone-learning.md) on 2026-10-20. [Implementation evidence](../reviews/standalone-learning/implementation.md) records real-board, browser and hosted checks; owner terminology/content approval and physical-device/classroom review remain open. Bilingual reading source copy is in [Slovenian](../content/bezier-curves.sl.md) and [English](../content/bezier-curves.en.md).
+Status: activity script released in the [standalone learning pilot](standalone-learning.md). [Implementation evidence](../reviews/standalone-learning/implementation.md) records real-board, browser and hosted checks. Existing wording is approved and physical-device/projector/classroom gates are removed under the [2026-10-24 owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24), superseding conflicting historical criteria below. Bilingual source copy is in [Slovenian](../content/bezier-curves.sl.md) and [English](../content/bezier-curves.en.md).
 
 ## Identity and entry
 

@@ -1,6 +1,6 @@
 # Guided lesson content expansion blueprint
 
-**Status:** accepted implementation blueprint
+**Status:** implemented cohorts are released under the [owner decision, 2026-10-24](../guardrails.md#release-policy--owner-decision-2026-10-24). Separate language and physical-device/projector/classroom sign-offs are removed as gates, superseding conflicting historical cohort contracts below. Concrete mathematical, functionality and verification gaps remain follow-ups.
 
 **Source:** [Guided lesson rollout](guided-lessons-rollout.md), [current capability map](../capabilities.md), [ADR 0002](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), and the graph implementations under `src/graphs`.
 

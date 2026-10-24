@@ -21,9 +21,9 @@ Numbers retain decimal points and existing precision in both languages. Figure e
 
 The static document initially declares Slovenian, and runtime selection updates its language. The JavaScript-disabled notice includes both languages; it cannot use the runtime selector. Route paths and preset contracts are unchanged. No backend, language URL parameter, or automatic browser-language detection is introduced.
 
-## Mathematical terminology for owner review
+## Approved mathematical terminology
 
-| Slovenian wording | English draft |
+| Slovenian wording | English wording |
 | --- | --- |
 | Bézierjeva krivulja | Bézier curve |
 | racionalna Bézierjeva krivulja | rational Bézier curve |
@@ -45,7 +45,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | odmik krivulje | curve offset |
 | prednastavitev | preset |
 
-Existing Slovenian wording is retained, including its mixed capitalization and Bézier spelling variants. The route error now provides an actionable Slovenian message and English equivalent. The generic parametrization selector accessible label is translated. No mathematical terminology correction has been declared approved; owner review is required before classroom readiness.
+The owner approved the existing Slovenian terminology and English wording on 2026-10-24. Separate owner language sign-off is no longer a standing gate; see the [release policy](guardrails.md#release-policy--owner-decision-2026-10-24). Keep catalog counterparts and mathematical meaning consistent, and fix concrete wording issues when identified. Existing spelling/capitalization variants may be refined through ordinary changes.
 
 See [verification evidence and remaining checks](reviews/localization.md).
 

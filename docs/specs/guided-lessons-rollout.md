@@ -1,6 +1,6 @@
 # Guided lesson rollout
 
-**Status:** original 26-route rollout implemented as available drafts; consolidated capability ownership and owner/classroom review remain incomplete (reconciled 2026-10-20).
+**Status:** original 26-route rollout released under the [owner's 2026-10-24 release policy](../guardrails.md#release-policy--owner-decision-2026-10-24). Consolidated capability ownership and eight missing smoke rows remain concrete follow-ups; owner language and physical-device/classroom sign-offs are removed as gates.
 
 **Source:** [Guided lessons](guided-lessons.md), [ADR 0002](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), and [ADR 0004](../adr/0004-staged-guided-lesson-rollout.md)
 
@@ -20,7 +20,7 @@ Expand the implemented Guided lesson pilot and capability-aligned drafts across 
 
 Within a cohort, a route receives a lesson only when its capability row and content review are complete. Shared content fragments are allowed, but each route keeps its own lesson identity when its scene or expected observation differs.
 
-The original 26 routes below now have available draft lessons, including the early expansion (`rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`) and subsequent Cohorts B–E. The [content blueprint](guided-lessons-content-expansion.md) and cohort tasks record implemented action seams and verification. Later function and analysis lessons extend beyond this original inventory. Availability is not evidence of classroom readiness: owner language/content approval and device/classroom gates remain explicit follow-ups. See the [status reconciliation](../reviews/guided-lessons-status-reconciliation.md) for task dispositions and the availability/review wording discrepancy.
+The original 26 routes below have released lessons, including the early expansion (`rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`) and Cohorts B–E. The [content blueprint](guided-lessons-content-expansion.md) and cohort tasks record implemented action seams and verification. Later function and analysis lessons extend beyond this inventory. In the historical matrix, “draft” identifies the original cohort record, not a current release blocker. The [owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24) resolves the earlier availability/review discrepancy and removes general language and physical-device/projector/classroom gates. Concrete defects and missing checks remain follow-ups.
 
 ## Capability matrix
 
@@ -60,7 +60,7 @@ Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decisi
 ## Acceptance criteria
 
 - The matrix covers all 26 active Demonstrations and records an owner for every unresolved row.
-- The Learn entry is allowlisted by reviewed lesson ID; unreviewed or no-fit routes retain their existing exploration experience.
+- The Learn entry lists supported released lesson IDs. Available implemented drafts count as released; unsupported or no-fit routes retain their existing exploration experience. Separate owner review is not an availability gate.
 - Each released lesson has bounded linear frames, complete Slovenian and English copy, source-backed mathematics, supported scenes, and no hidden control simulation.
 - Each released scene has construction-specific or numerical checks and restores the pre-lesson in-memory state without changing Presets.
 - Each cohort passes desktop, projection, narrow-screen, keyboard, touch, localization, animation, route-transition, and repeated entry/exit review.

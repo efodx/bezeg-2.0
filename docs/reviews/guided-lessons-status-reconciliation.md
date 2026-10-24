@@ -1,5 +1,7 @@
 # Guided lesson backlog status reconciliation
 
+Current disposition, 2026-10-24: the [owner's release policy](../guardrails.md#release-policy--owner-decision-2026-10-24) resolves the availability/review discrepancy below. Available implemented lessons count as released; terminology and physical-device/projector/classroom sign-offs are removed as gates. The eight missing smoke rows and evidence consolidation remain concrete follow-ups. The 2026-10-20 record below is historical.
+
 Date: 2026-10-20. Scope: reconcile older rollout task statuses against later repository evidence; no application changes, new implementation, or educational approval.
 
 ## Disposition

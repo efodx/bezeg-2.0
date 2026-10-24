@@ -1,6 +1,6 @@
 # Planning cleanup and next work
 
-Date: 2026-10-24. Reviewed local revision `7d5ff38`, initially clean. Scope: specs, task indexes/statuses, relevant acceptance records, recent history and targeted source checks. This is a planning reconciliation, not a new app acceptance pass. No application behavior or release policy changes.
+Date: 2026-10-24. Initial review: local revision `7d5ff38`, initially clean. Scope: specs, task indexes/statuses, relevant acceptance records, recent history and targeted source checks. Follow-up owner decisions below update release policy; no application behavior changes or new app acceptance pass.
 
 ## Recommended next work
 
@@ -18,24 +18,30 @@ This ordering is a recommendation, not authorization to start all five items. No
 | --- | --- |
 | [Architecture deepening](../specs/architecture-deepening.md) | All three tasks complete; parent status corrected using visit, preview-interface and scene-recovery acceptance records. No new architecture implementation needed. |
 | [React architecture refactor](../specs/react-architecture-refactor.md) | Seven tasks already complete in its index; parent status corrected. Original findings are historical. Prototype gating stays deferred. |
-| [Standalone learning](../specs/standalone-learning.md), chapter outline and activity script | Corrected from future/unshipped to published pilot draft. [Recorded hosted verification](standalone-learning/implementation.md) already closes publication, deep-link, refresh and history-return checks. Educational approval remains open. |
+| [Standalone learning](../specs/standalone-learning.md), chapter outline and activity script | Released pilot. [Recorded hosted verification](standalone-learning/implementation.md) already closes publication, deep-link, refresh and history-return checks. Separate language and classroom/physical-device gates removed by owner decision. |
 | [Just workflow](../specs/just-command-workflow.md) | Hosted Linux/Windows gap closed by inspecting both successful jobs and their steps in [Developer tools run 40083016329](https://github.com/efodx/bezeg-2.0/actions/runs/40083016329). Efficiency savings remain unmeasured. |
 | [CI change scoping](../specs/ci-change-scoping.md) | Hosted gap closed: [documentation-only run](https://github.com/efodx/bezeg-2.0/actions/runs/40082167546) skips app checks/artifact/deploy; [full run](https://github.com/efodx/bezeg-2.0/actions/runs/40083016319) passes those checks and deploys. |
 | [Old visual refinement task](../tasks/demonstrations-visual-refinement/implement.md) | Retired as superseded by later composition/library/preview work. Original blocked checks preserved as historical evidence, not upgraded to passes. |
 | [Historical TODO](../../TODO.md) | Removed completed global-cache work from the active list: the module is absent, there are no `geometryCache` imports in the core, and per-curve versioning is present. Narrowed JGBox work: thesis sizing is already gone; the fixed id still has documented consumers. Vite evaluation is complete. |
 | [Roadmap](../roadmap.md) and localization status | Removed unstarted/working-tree descriptions of committed lesson, language and deployment work; preserved unresolved acceptance gates. |
 
-## Decisions the owner can settle
+## Owner decisions recorded after the cleanup
+
+The owner approved existing Slovenian terminology and English wording, removed separate language sign-off as a standing gate, and removed physical-device/projector/classroom gates. Available implemented drafts count as released unless a concrete requirement is missing. [Guardrails](../guardrails.md#release-policy--owner-decision-2026-10-24) owns the current policy and supersedes conflicting historical records. No unperformed check is relabeled as passed.
+
+## Remaining decisions and proposals
 
 | Decision | What confirmation would close | What would still remain |
 | --- | --- | --- |
-| Approve Slovenian terminology and English counterparts | Owner wording/terminology gate in [localization](../localization.md), pilot lessons, cohorts, function lessons and Bézier chapter, for the content actually reviewed | Formula/scene review where not performed, physical-device/classroom evidence and known UX defects. A blanket yes without reviewing the named content is not evidence. |
-| Define draft availability versus reviewed release | The [allowlist contract discrepancy](guided-lessons-status-reconciliation.md#unresolved-contract-discrepancy): drafts are already available while original wording promises reviewed lessons | Update the agreed contract and label evidence accordingly; this decision cannot retroactively approve all lessons. |
-| Explicitly defer classroom/physical-device/assistive-technology gates | Their status can become accepted deferrals with named scope, impact and follow-up | They must remain unverified; browser emulation cannot establish a physical test pass. |
 | Rational weight domain | [Controls inventory](../tasks/demonstration-controls-ux/inventory.md) records exact input rejecting nonpositive weights while step buttons permit them | A consistent mathematical/domain policy still needs a bounded implementation and relevant pole/invalid-input checks. Confirmation alone does not fix it. |
 | Keep proposed test/publication tooling in the backlog? | Priority or cancellation of [rendered graph contracts](../specs/rendered-graph-style-contracts.md) and [fail-fast publication gate](../specs/fail-fast-publication-gate.md) | Both specs explicitly lack implementation authorization. Existing unit checks/command runner are not evidence that their complete acceptance contracts are implemented. |
 
-The OnePlus performance check, formative student/educator observation, physical touch/projector review, missing smoke rows and untested export/dialog cases require evidence or explicit deferral. They cannot be marked passed by routine confirmation.
+Missing smoke rows, concrete untested export/dialog cases and observed accessibility defects remain follow-ups. Physical phone, actual projector and formative/classroom observations are optional evidence, not standing gates. The unresolved phone performance result remains a measurement limitation rather than a blanket release blocker.
+
+The two tooling proposals are independent:
+
+- **[Fail-fast publication command](../specs/fail-fast-publication-gate.md):** automate the handler's existing fetch → reconcile new commits → check the resulting revision → fast-forward push sequence. Any failed command stops before push. It tests failure paths with temporary local Git remotes, including conflicts and a remote advancing during checks. Existing `just` verification and hosted CI already provide part of this protection; this adds a reliable local publish command. Recommendation: retain as lower-priority automation after learner-facing defects; no implementation is authorized by this clarification.
+- **[Rendered graph style tests](../specs/rendered-graph-style-contracts.md):** extend the existing actual-renderer point test to derived/construction/result/spline/PH roles, hover and rational selection, plus downloaded SVG/PNG figures and math labels. This catches the demonstrated failure where JSXGraph color precedence changed visible marker styling despite correct input style objects. Recommendation: retain ahead of publication automation, especially before another graph-style rollout; it is regression coverage, not a visual redesign. No implementation is authorized by this clarification.
 
 ## Retain, retire and delete
 

@@ -1,5 +1,7 @@
 # The future of Bezeg
 
+Release-policy update, 2026-10-24: existing Slovenian terminology and English wording are approved; separate language and physical-device/projector/classroom sign-offs are no longer standing gates. Implemented available drafts count as released unless a concrete requirement is missing. The [current policy](guardrails.md#release-policy--owner-decision-2026-10-24) supersedes conflicting historical approval wording below. The Bézier pilot is implemented and released; further chapters remain separate work.
+
 ## Purpose
 
 Create a practical plan for improving Bezeg as an educational app for students and educators. In parallel, document a reusable process for building and publishing a stateless SPA on GitHub Pages, using Bezeg as a concrete case study.

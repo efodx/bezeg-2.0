@@ -4,7 +4,7 @@
 
 **Dependencies:** [Trigonometric functions](03-trigonometric-functions.md) (shared foundation and integration files)
 
-**Status:** implemented
+**Status:** released under the [owner decision, 2026-10-24](../../guardrails.md#release-policy--owner-decision-2026-10-24). Existing wording is approved; separate language and physical-device/projector/classroom gates are removed. Concrete missing functionality, defects and verification gaps remain follow-ups. This supersedes conflicting historical release criteria below.
 
 ## Goal
 

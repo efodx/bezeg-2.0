@@ -2,7 +2,7 @@
 
 **Source spec:** [Guided lessons](../../specs/guided-lessons.md)
 **Architecture decision:** [ADR 0002](../../adr/0002-guided-lessons-static-content-and-graph-capabilities.md)
-**Status:** implemented; interaction and classroom review pending
+**Status:** released under the [owner decision, 2026-10-24](../../guardrails.md#release-policy--owner-decision-2026-10-24). Existing wording is approved; separate language and physical-device/projector/classroom gates are removed. Concrete missing functionality, defects and verification gaps remain follow-ups. This supersedes conflicting historical release criteria below.
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # Slovenian and English localization
 
-Status: implemented and committed. The [original implementation review](../reviews/localization.md) records the initial evidence and gaps; later [chapter verification](../reviews/standalone-learning/implementation.md) and [lesson experience verification](../reviews/lesson-experience-improvements/implementation.md) add bilingual browser coverage. These do not close every original export/dialog/device case or owner terminology approval. See the [2026-10-24 planning cleanup](../reviews/planning-cleanup-2026-10-24.md) for remaining decisions.
+Status: released; existing Slovenian terminology and English wording approved by the owner on 2026-10-24. Separate language and physical-device/projector/classroom sign-offs are no longer gates under the [release policy](../guardrails.md#release-policy--owner-decision-2026-10-24), which supersedes conflicting historical criteria below. The [original review](../reviews/localization.md), [chapter verification](../reviews/standalone-learning/implementation.md) and [lesson experience verification](../reviews/lesson-experience-improvements/implementation.md) record evidence; concrete uncovered export/dialog cases remain verification follow-ups.
 
 ## Purpose
 

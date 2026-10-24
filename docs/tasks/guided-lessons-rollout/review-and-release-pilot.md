@@ -4,19 +4,19 @@
 
 **Dependencies:** [Build the capability matrix](build-capability-matrix.md), [runtime task](../guided-lessons/implement-guided-lesson-runtime.md), [pilot content task](../guided-lessons/study-and-fill-pilot-content.md)
 
-**Status:** open review gate for already implemented and available pilot drafts (reconciled 2026-10-20); not an unstarted implementation task.
+**Status:** pilots released under the [owner's 2026-10-24 release policy](../../guardrails.md#release-policy--owner-decision-2026-10-24). The owner language and physical-device/projector/classroom gates are removed. Missing pilot smoke rows remain a concrete verification follow-up; this task is not fully verified. The original release brief below is historical where it requires those removed sign-offs. The linked graph-access repair is complete; the later [UX audit](../../reviews/guided-lessons-ux-audit-2026-10-24.md) owns the current findings.
 
-`bezier`, `decasteljau`, and `ph-cubic` are already in `GUIDED_LESSON_AVAILABLE_IDS`. Runtime/content tasks and later regression records provide implementation and some automated-browser evidence, but these three pilots have no per-lesson row in the current shared smoke table. Restore that coverage before claiming current route-level acceptance. Availability does not establish owner/subject-matter approval or physical-device/classroom acceptance; those gates remain open. The reported graph-obstructing prompt also has a separate [future usability task](../lesson-graph-access/restore-graph-access.md).
+`bezier`, `decasteljau`, and `ph-cubic` are released and already in `GUIDED_LESSON_AVAILABLE_IDS`. Their three missing per-lesson smoke rows remain a specific verification gap. The [graph-access repair](../lesson-graph-access/restore-graph-access.md) is complete; current UX defects are recorded in the later audit.
 
-The allowlist criterion below is the original release target, not a description of current enforcement. Later [blueprint cohort contracts](../../specs/guided-lessons-content-expansion.md#cohort-b-implementation-contract) explicitly record draft availability with owner/classroom review pending. Keep that distinction visible rather than claiming all pilot release criteria passed. See the [reconciliation record](../../reviews/guided-lessons-status-reconciliation.md).
+The availability list identifies supported released lessons. The [reconciliation record](../../reviews/guided-lessons-status-reconciliation.md) preserves the earlier contract discrepancy and its resolution.
 
 ## Goal
 
-Turn the `bezier`, `decasteljau`, and `ph-cubic` implementation drafts into reviewed lessons or record the specific follow-up that prevents release.
+Close concrete pilot verification gaps and track defects in the already released lessons.
 
 ## Acceptance criteria
 
-- The owner or subject-matter reviewer checks every formula, worked example, Slovenian phrase, English counterpart, prepared scene, and expected observation.
+- Verify formulas, worked examples, prepared scenes and expected observations through appropriate mathematical/content checks. Separate owner language approval is not required.
 - Production-browser review covers direct entry, Back/Next, Continue lesson, Exit, completion, scene restore, language switching, animation cancellation, projection, narrow-screen, keyboard, and touch-sized controls.
 - Mathematical and focused runtime suites pass, and the unrelated starter-test baseline is either fixed or separately documented as a release blocker.
-- The reviewed-lesson allowlist changes only after all three lessons satisfy the gate.
+- Keep supported lesson availability accurate and name concrete unsupported or missing requirements.

@@ -1,6 +1,6 @@
 # Function and calculus concepts
 
-**Status:** implemented 2026-10-11/12 — all eight concepts with draft lessons (see [tasks](../tasks/function-concepts/)); owner language and classroom review pending
+**Status:** all eight concepts and available lessons released (implementation 2026-10-11/12; [tasks](../tasks/function-concepts/)). Separate owner language and physical-device/projector/classroom gates are removed by the [2026-10-24 policy](../guardrails.md#release-policy--owner-decision-2026-10-24), superseding conflicting historical criteria below. Concrete defects and missing requirements remain follow-ups.
 
 **Source:** the owner's earlier app, [efodx.github.io `src/graphs`](https://github.com/efodx/efodx.github.io/tree/main/src/graphs) (studied 2026-10-11); the owner's request to bring its non-Bézier concepts to Bezeg; [ADR 0007](../adr/0007-function-concepts-family.md); [guided lessons spec](guided-lessons.md) and [content expansion blueprint](guided-lessons-content-expansion.md).
 

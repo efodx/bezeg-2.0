@@ -2,7 +2,7 @@
 
 **Source spec:** [Guided lessons](../../specs/guided-lessons.md)
 **Architecture decision:** [ADR 0002](../../adr/0002-guided-lessons-static-content-and-graph-capabilities.md)
-**Status:** implemented draft; owner/subject-matter and classroom review pending
+**Status:** released under the [owner decision, 2026-10-24](../../guardrails.md#release-policy--owner-decision-2026-10-24). Existing wording is approved; separate language and physical-device/projector/classroom gates are removed. Concrete missing functionality, defects and verification gaps remain follow-ups. This supersedes conflicting historical release criteria below.
 
 ## Goal
 
@@ -74,4 +74,4 @@ The owner supplied Kevin Štampar's 2024 master's thesis, *Orodje za grafični p
 
 ## Implementation note
 
-The three six-step pilot lessons are encoded in [`src/learning/content/guidedLessons.ts`](../../src/learning/content/guidedLessons.ts), with schema/content tests in the adjacent test file. The content cites the owner-supplied Štampar thesis for the Bézier, De Casteljau, and PH claims and records the implementation correspondence. It is an implementation-ready draft, not yet classroom-ready: owner/subject-matter wording review and browser/projection/touch review remain open.
+The three six-step pilot lessons are encoded in [`src/learning/content/guidedLessons.ts`](../../../src/learning/content/guidedLessons.ts), with schema/content tests in the adjacent test file. The content cites the owner-supplied Štampar thesis for the Bézier, De Casteljau, and PH claims and records the implementation correspondence. The lessons are released under the current owner policy; concrete missing checks remain follow-ups rather than general language or classroom approval gates.

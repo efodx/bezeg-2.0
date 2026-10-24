@@ -1,6 +1,6 @@
 # Standalone learning through study chapters
 
-Status: Bézier pilot implemented and published on 2026-10-20 following subsequent implementation authorization. [Implementation and hosted acceptance evidence](../reviews/standalone-learning/implementation.md) records the delivered chapter, six activities, and remaining owner/content, physical-device, projector and screen-reader gates. The original 2026-10-16 request authorized specification publication only; it is no longer the implementation status. Review this pilot before expanding to another chapter.
+Status: Bézier pilot released; implemented and published on 2026-10-20. [Implementation and hosted evidence](../reviews/standalone-learning/implementation.md) records the chapter and six activities. The [2026-10-24 owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24) approves existing language, counts available drafts as released, and removes physical-device/projector/classroom gates, superseding conflicting criteria below. Concrete missing requirements and accessibility findings remain follow-ups. Expansion to another chapter remains separate work.
 
 ## Confirmed owner direction
 

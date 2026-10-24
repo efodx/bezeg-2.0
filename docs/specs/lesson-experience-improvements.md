@@ -1,6 +1,6 @@
 # Improve the Guided lesson experience
 
-**Status:** implemented, with acceptance evidence and open formative/physical-device gates recorded in [implementation evidence](../reviews/lesson-experience-improvements/implementation.md), 2026-10-21.
+**Status:** released; [implementation evidence](../reviews/lesson-experience-improvements/implementation.md) recorded on 2026-10-21. The [2026-10-24 owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24) removes language, formative/classroom and physical-device/projector gates, superseding conflicting historical criteria below. The [later UX audit](../reviews/guided-lessons-ux-audit-2026-10-24.md) records concrete follow-ups.
 **Source:** [Taylor UX review](../reviews/lesson-graph-access/ux-review-2026-10-21.md).
 **Related contracts:** [Guided lessons](guided-lessons.md), [graph access](lesson-graph-access.md), [standalone learning](standalone-learning.md), and [guardrails](../guardrails.md).
 

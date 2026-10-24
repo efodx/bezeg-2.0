@@ -4,7 +4,7 @@
 
 **Dependencies:** [Linear function](01-linear-function.md) (shared foundation and integration files)
 
-**Status:** implemented on 2026-10-11; owner language and classroom review pending
+**Status:** released under the [owner decision, 2026-10-24](../../guardrails.md#release-policy--owner-decision-2026-10-24). Existing wording is approved; separate language and physical-device/projector/classroom gates are removed. Concrete missing functionality, defects and verification gaps remain follow-ups. This supersedes conflicting historical release criteria below.
 
 ## Goal
 
