@@ -55,6 +55,8 @@ Scale verification to the change. Cosmetic documentation edits do not require a 
 
 ## Documentation and review
 
+When closing implementation or cleaning up specs, tasks and evidence, follow the [documentation retention policy](specs/documentation-lifecycle.md). Remove completed handoffs from the active queue after preserving unique decisions, acceptance results and remaining gaps.
+
 Update the capability map when demonstrations are added, removed, or renamed. Update architecture and the SPA playbook when ownership or hosting changes. Record resolved domain vocabulary in the glossary. Use ADRs for consequential choices with alternatives and meaningful trade-offs, not every routine implementation detail.
 
 Before implementation, write a bounded spec with acceptance criteria and verification. Use the installed flow as useful: `grill-with-docs → to-spec → to-tickets → implement → code-review → retro`. Keep the spec in `docs/specs/` and create task files under `docs/tasks/<feature>/` only for implementation slices intended to be carried out. Keep decisions and reference-only findings in the spec or planning document; Bezeg uses repository-local documents rather than an external issue tracker.
