@@ -26,6 +26,7 @@ import {CurveDisplayControls} from "./controls/CurveDisplayControls";
 import {selectedCurveControls} from "./controls/SelectedCurveControls";
 import {CurveEditingFeature, SelectedCurveOption} from "./CurveEditingFeature";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
+import type {LessonCurveFixture} from "../../learning/model";
 import {curveVisibilityActions} from "./lesson/curveLessonActions";
 
 export {SelectedCurveOption};
@@ -104,6 +105,27 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             },
             boardUpdate: () => this.boardUpdate(),
         }));
+    }
+
+    /**
+     * The default scene's single curve with the fixture's inputs: same curve type and display state, fixture geometry.
+     * G1 junction ratios are reset unless given, since the default's ratios fit only its own point count.
+     */
+    protected override lessonFixtureData(curve: LessonCurveFixture): CurveCollectionPresetData | undefined {
+        const defaults = this.defaultPreset();
+        if (defaults.length !== 1) return undefined;
+        const [type, dto] = defaults[0];
+        const {b: _ratios, ...state} = dto.state ?? {};
+        const ratios = curve.splineRatios ? {b: [...curve.splineRatios]} : {};
+        return [[type, {
+            ...dto,
+            points: curve.points.map(point => [...point]),
+            ...(curve.weights ? {weights: [...curve.weights]} : {}),
+            ...(curve.hodographs ? {hodographs: curve.hodographs.map(point => [...point])} : {}),
+            ...(curve.degree !== undefined ? {degree: curve.degree} : {}),
+            ...(curve.continuity !== undefined ? {continuity: curve.continuity} : {}),
+            ...(dto.state || curve.splineRatios ? {state: {...state, ...ratios}} : {}),
+        }]];
     }
 
     private registerSubdivisionResultConsumer<T extends AbstractJXGBezierCurve<any, any>>(curve: T) {
