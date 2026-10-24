@@ -1,6 +1,8 @@
 const {defineConfig} = require('@playwright/test');
 const os = require('os');
 const port = Number(process.env.SMOKE_PORT || 4173);
+// Concurrent runs on other ports must not share or clean each other's artifacts.
+const outputSuffix = port === 4173 ? '' : `-${port}`;
 
 module.exports = defineConfig({
     testDir: './tests',
@@ -14,9 +16,9 @@ module.exports = defineConfig({
     globalTimeout: 30 * 60 * 1000,
     reporter: [
         ['list'],
-        ['html', {outputFolder: 'playwright-report', open: 'never'}],
+        ['html', {outputFolder: `playwright-report${outputSuffix}`, open: 'never'}],
     ],
-    outputDir: 'test-results',
+    outputDir: `test-results${outputSuffix}`,
     use: {
         baseURL: `http://127.0.0.1:${port}`,
         screenshot: 'only-on-failure',

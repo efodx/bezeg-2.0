@@ -14,7 +14,7 @@ GitHub Actions runs this focused suite on pull requests targeting `master`, push
 
 For local setup, install the locked dependencies with `npm ci`, then install Chromium with `npx playwright install chromium` (Linux may need `--with-deps`). Run `npm run test:smoke` to build and test, or `npm run test:smoke:built` to test a production build you just generated. The latter command does not rebuild, so record build provenance when using it as verification. The test runner starts and disposes its own loopback preview; an occupied test port must fail rather than silently reuse a different checkout. Inspect the local HTML report with `npx playwright show-report`.
 
-The preview defaults to port 4173; set `SMOKE_PORT` to a free port if another local service owns it. The config and preview server use the same value.
+The preview defaults to port 4173; set `SMOKE_PORT` to a free port if another local service owns it. The config and preview server use the same value. Other ports write `test-results-<port>/` and `playwright-report-<port>/`, so concurrent runs on separate ports keep separate artifacts.
 
 The suite and CI have time limits. CI installs Chromium only, runs three workers, and uploads failure artifacts only. TypeScript, unit tests, build errors, and browser failures block deployment. Documentation-only changes skip application checks and deployment while still completing the `smoke` check; application/configuration changes and manual runs retain full verification. See [the CI scoping policy](specs/ci-change-scoping.md) and [deployment guide](github-pages-spa-playbook.md#bezegs-gated-actions-deployment). Review failures rather than adding broad retries or suppressing runtime errors.
 
