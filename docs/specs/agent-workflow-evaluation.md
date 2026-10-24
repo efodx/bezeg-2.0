@@ -110,6 +110,10 @@ Acceptance for this follow-up:
 - Record per-turn usage with `tools/agent-usage/claude_turn_usage.py` before and after the trial. Keep the budget only if worker usage falls without more repairs, escaped defects, or longer completion; otherwise revert it.
 - Guidance change only; verify links and the bounded diff.
 
+### Codex monitoring implementation — 2026-10-24
+
+The owner authorized implementation after the [Codex control probe](../agent-workflow/codex-handoff-probe-2026-10-24.md). The [monitoring spec](codex-worker-monitoring.md) defines automatic threshold detection and a handler-delivered cooperative handoff, including failure handling and live verification. It supersedes the guidance-only scope for this bounded tooling follow-up; model defaults and the trial budget stay unchanged. A hard token ceiling and efficiency improvement remain unproven.
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)
