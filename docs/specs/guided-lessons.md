@@ -75,19 +75,23 @@ There is no branching, quiz, adaptive path, assessment engine, or lesson-authori
 
 Content is localized through stable content IDs. Slovenian is the default; every shipped pilot step has an English counterpart. Formulas, symbols, route IDs, action IDs, and user-authored preset names are independent of translated wording.
 
-## Task split
+## Completed implementation slices
 
-### Feature task
+The historical handoff details are consolidated in the [lesson implementation history](../reviews/lesson-implementation-history.md#guided-lesson-runtime-and-pilot-content). The current implementation evidence and UX audit are linked below.
+
+### Runtime
 
 Implement the reusable lesson runtime, typed graph-capability seam, in-memory lesson scenes, accessible navigation, and lifecycle-safe optional animation. Prove the contract with the three pilot content definitions and adapters where existing graph behavior is sufficient. Do not add new mathematical constructions.
 
-### Content task
+### Pilot content
 
 Study and fill the three pilot lessons. Produce a reviewable brief for each with learning goals, prerequisites, exact mathematical claims and formulas, worked examples, expected graph observations, Slovenian copy, English draft, sources, and unresolved questions. Then encode the reviewed content against the feature contract.
 
-The tasks were implemented in parallel. The runtime now consumes the static pilot content through the adapter seam; the content is available for review but is not yet declared classroom-ready.
+The two slices were implemented in parallel. The runtime consumes static pilot content through the adapter seam. The [current release policy](../guardrails.md#release-policy--owner-decision-2026-10-24) governs availability; the UX audit records concrete follow-ups.
 
 ## Current implementation evidence
+
+Historical cohort findings and exact residual coverage limits are consolidated in the [lesson implementation history](../reviews/lesson-implementation-history.md#guided-lesson-runtime-and-pilot-content).
 
 - Runtime model, session/checkpoint handling, animation driver, and UI live under [`src/learning`](../../src/learning).
 - Pilot content is stored separately in [`src/learning/content/guidedLessons.ts`](../../src/learning/content/guidedLessons.ts) and is covered by schema/content tests.
@@ -151,5 +155,4 @@ This plan adds static application content and session-only lesson state. It does
 - [ADR 0001: Keep Bezeg as a static client-only app](../adr/0001-static-client-only-app.md)
 - [ADR 0002: Static guided lessons and typed graph capabilities](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md)
 - [ADR 0003: Frame-based graph-anchored lesson overlay](../adr/0003-frame-based-graph-anchored-lesson-overlay.md)
-- [Feature task](../tasks/guided-lessons/implement-guided-lesson-runtime.md)
-- [Content task](../tasks/guided-lessons/study-and-fill-pilot-content.md)
+- [Completed implementation and pilot history](../reviews/lesson-implementation-history.md#guided-lesson-runtime-and-pilot-content)

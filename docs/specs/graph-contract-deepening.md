@@ -1,6 +1,6 @@
 # Deepen graph transient state, Preset collections, and scene-action limits
 
-**Status:** implemented on 2026-10-21. Task 01 is recorded in [ADR 0015](../adr/0015-graph-transient-state-declaration.md), task 02 in [ADR 0016](../adr/0016-preset-collections-owned-by-graph-families.md), and task 03 in its task file.
+**Status:** implemented on 2026-10-21. The transient-state and Preset-collection decisions are recorded in [ADR 0015](../adr/0015-graph-transient-state-declaration.md) and [ADR 0016](../adr/0016-preset-collections-owned-by-graph-families.md); scene-action limits and the 51-case content check are summarized in the [engineering implementation history](../reviews/engineering-implementation-history.md#graph-contracts).
 **Source:** a second architecture review on 2026-10-20 covering the hot spots of the last 150 commits, excluding the completed [visit, preview capture and scene recovery tasks](architecture-deepening.md). It was presented as a temporary HTML report; the durable scope and evidence are recorded here.
 **Contracts:** [guardrails](../guardrails.md), [Guided lessons](guided-lessons.md), [standalone learning](standalone-learning.md), [curve ownership](curve-ownership-refactor.md), and [React architecture refactor](react-architecture-refactor.md).
 
@@ -12,9 +12,9 @@ Do not prescribe method names or introduce a generic framework in advance. Apply
 
 | Task | Recommendation | Primary outcome |
 | --- | --- | --- |
-| [Graph transient state](../tasks/graph-contract-deepening/01-graph-transient-state.md) | Strong; first choice | A graph declares its transient state once, and every capture, restore and reset path uses that declaration. |
-| [Preset collection ownership](../tasks/graph-contract-deepening/02-preset-collection-ownership.md) | Strong | Each Demonstration owns its Preset collection rules; file import keeps only the file envelope and storage writes. |
-| [Scene-action limits](../tasks/graph-contract-deepening/03-scene-action-limits.md) | Worth exploring | Value limits for each scene action are defined once, by the graph or analysis module that enforces them. |
+| Graph transient state | Strong; first choice | A graph declares its transient state once, and every capture, restore and reset path uses that declaration. Completed; see ADR 0015. |
+| Preset collection ownership | Strong | Each Demonstration owns its Preset collection rules; file import keeps only the file envelope and storage writes. Completed; see ADR 0016. |
+| Scene-action limits | Worth exploring | Value limits for each scene action are defined once, by the graph or analysis module that enforces them. Completed; see the engineering implementation history. |
 
 ## 1. Graph transient state
 
@@ -85,7 +85,7 @@ Keep the closed scene-action name list (ADR 0013). Concentrate each action's lim
 
 ## Sequencing, decisions and verification
 
-Start with task 01; it carries suspected learner-visible defects and the latest bug fix was of its kind. Task 02 touches `importPresetData` and the Preset data type at the same seam, so serialize it after task 01 or coordinate the `BaseGraph` changes. Task 03 has separate source ownership and may proceed independently, but its content-wide test should reuse any real-graph harness task 01 introduces.
+Implementation sequencing: task 01 established the real-graph baseline, task 02 followed at the shared Preset seam, and task 03 proceeded independently using the real-graph harness. All three are complete.
 
 Respect ADRs [0002](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), [0006](../adr/0006-model-input-ownership-before-renderer-migration.md), [0012](../adr/0012-iterative-playback-controller.md), [0013](../adr/0013-iteration-driven-by-scene-actions.md) and [0014](../adr/0014-study-chapters-share-demonstrations.md). No reversal is proposed. Record consequential choices with real alternatives in an ADR; use the glossary only for domain vocabulary.
 

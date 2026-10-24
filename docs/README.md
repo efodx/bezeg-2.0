@@ -12,6 +12,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Agent workflow](agent-workflow.md): delegation and evidence requirements when assigning work.
 - [Domain glossary](../GLOSSARY.md) and [architecture decisions](adr/): vocabulary and durable decisions.
 - [Documentation retention](specs/documentation-lifecycle.md): completing tasks, retaining contracts and cleaning up records.
+- [Completed record cleanup](reviews/planning-record-cleanup-2026-10-24.md): what was consolidated or removed, retained work and verification limits.
 
 ## Direction and work queue
 

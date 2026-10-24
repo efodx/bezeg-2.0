@@ -87,9 +87,9 @@ Routes and stored data do not change. The user-visible change is where discovery
 
 This confirmed brief takes precedence for homepage/catalogue composition and carousel placement over:
 
-- [Dedicated demonstrations view](demonstrations-view.md): the homepage now owns featured starting demonstrations rather than only an introduction and standalone illustration; the dedicated catalogue remains.
+- [Dedicated demonstrations view](../reviews/interface-implementation-history.md#dedicated-catalogue-and-topic-presentation): the homepage now owns featured starting demonstrations rather than only an introduction and standalone illustration; the dedicated catalogue remains.
 - [Opening carousel](demonstrations-opening-carousel.md): the homepage becomes its host; its detailed interaction contract remains in force.
-- [Selector and topic refinement](demonstrations-selector-and-topic-refinement.md): preserve its compact choice tiles and thumbnail/title grouping, while replacing its old placement-preservation requirement.
+- [Selector and topic refinement](../reviews/interface-implementation-history.md#dedicated-catalogue-and-topic-presentation): preserve its compact choice tiles and thumbnail/title grouping, while replacing its old placement-preservation requirement.
 - The existing local `demonstrations-visual-hierarchy.md` draft: its requirement to preserve the old section order is superseded. Its broader preview/surface refinement is separate work; the draft is left untouched by this specification.
 
 The independently expandable catalogue and faithful route-default preview decisions remain in force. Earlier route prefixes, family counts, and demo counts in historical acceptance evidence are not current implementation inputs.

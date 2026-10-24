@@ -20,6 +20,6 @@ These items continue the [curve ownership refactor](docs/specs/curve-ownership-r
 ## Dropped or superseded
 
 - *Own script/build setup*: completed by the [Vite migration](docs/specs/vite-migration.md).
-- *Move cache state out of the geometry core*: completed by [per-curve geometry versions](docs/tasks/react-architecture/06-per-curve-cache.md); `src/bezeg/cache/GeometryCache.ts` and graph-global cache imports are gone.
+- *Move cache state out of the geometry core*: completed by [per-curve geometry versions](docs/reviews/engineering-implementation-history.md); `src/bezeg/cache/GeometryCache.ts` and graph-global cache imports are gone.
 - *Use JavaScript `get`/`set` accessors instead of `getX()`/`setX()`*: low value with broad churn. The original note already doubted it was worth doing. Reconsider only as part of an API redesign.
 - *De Casteljau without the full scheme, drawing the two interpolated lower-degree curves*: implemented as `DecasteljauGraph2` (`/bezier/decasteljau2`). Its helper curves follow the live control points, so the old "add points in De Casteljau 2" request is covered too.

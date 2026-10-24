@@ -2,7 +2,7 @@
 
 ## Owner request and source
 
-The owner liked the illustrated Variant C prototype and wants the actual interactive graphs to adopt its visual language. They explicitly rejected illustrations whose geometry did not match the demonstration: improve presentation while preserving mathematical meaning. Production catalog C is commit `d0ca083`; its per-demonstration images now capture real starting scenes. This task is the separate follow-up to [the catalog implementation](expandable-demonstration-catalog.md).
+The owner liked the illustrated Variant C prototype and wants the actual interactive graphs to adopt its visual language. They explicitly rejected illustrations whose geometry did not match the demonstration: improve presentation while preserving mathematical meaning. Production catalog C is commit `d0ca083`; its per-demonstration images now capture real starting scenes. This task is the separate follow-up to [the catalog implementation](../reviews/interface-implementation-history.md#dedicated-catalogue-and-topic-presentation).
 
 The visual reference is the original illustrated C at commit `c6a2155` on `codex/prototype-demonstration-motion`, especially `src/DemonstrationPreview.prototype.tsx` and the `.dcp-svg-*` rules in `src/DemonstrationsCatalog.prototype.css`. The prototype is an archived design source, not production code to import. Its hand-picked curves/settings are illustrative and must not replace graph defaults or evaluation.
 

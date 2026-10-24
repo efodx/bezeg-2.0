@@ -4,8 +4,6 @@ Editorial follow-up: [concept-led demonstration previews](concept-led-demonstrat
 
 Status: implementation revised after the owner's 2026-10-16 visual review and 2026-10-18 hover-only request. The current direction is hover/focus looping without thumbnail playback controls, shared with the homepage carousel, plus animated affine/elevation comparisons. See [capture evidence](../tasks/representative-demonstration-previews/capture-results.md) and [release verification](../tasks/representative-demonstration-previews/release-results.md).
 
-Implementation tasks: [representative demonstration previews](../tasks/representative-demonstration-previews/README.md).
-
 ## Problem and scope
 
 The catalog captures fresh route defaults. Some defaults intentionally precede the defining construction: Bernstein starts with straight basis functions, repeated subdivision starts before subdivision, and Farin points start hidden. Several coordinate plots give too much space to irrelevant ranges. Preview framing alone cannot resolve hidden content.
@@ -14,7 +12,7 @@ Curate static preview scenes for every shipped demonstration using its existing 
 
 The owner's reviews supersede the earlier one-pass, sibling Play/Stop/Replay button, one-active-clip-per-collection and homepage-exclusion policies. Motion previews now loop only while hovered or the corresponding graph link is keyboard-focused, without playback buttons; see [hover activation](hover-motion-previews.md). Affine and both degree-elevation demonstrations use single-board posters plus animated comparisons, replacing split-image compositions. Inactive and offscreen media stays unloaded.
 
-This spec supersedes the untouched-default-scene restriction in [closer demonstration previews](closer-demonstration-previews.md) for catalog captures only. Preserve that spec's static assets, aspect ratio, mathematical proportions, and coordinate-context rules.
+This spec supersedes the untouched-default-scene restriction in [closer demonstration previews](../reviews/interface-implementation-history.md#preview-panel-and-smoke-corrections) for catalog captures only. Preserve that spec's static assets, aspect ratio, mathematical proportions, and coordinate-context rules.
 
 ## Capture approach
 

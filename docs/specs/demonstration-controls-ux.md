@@ -16,7 +16,7 @@ Improve discoverability, precise input, and the relationship between a control a
 - Cover both free exploration and the same controls used inside Guided lessons. Individual lesson names are not required to define shared behavior. Inventory all active routes and relevant lesson states before implementation; record any exception explicitly.
 - Prepare and review this specification and image examples now. Implement only after the ongoing lesson work reaches a stable checkpoint and implementation is authorized. Publication of the spec is a separate, owner-controlled step.
 - Preserve unrelated working-tree changes. No application code, localization catalogs, lesson content, routes, or presets change during this specification stage.
-- This follows the implemented [tools usability redesign](tools-usability-redesign.md), [learning workspace](learning-workspace.md), [calm controls](calm-tools-prototype.md), and [scrollbar spacing](inspector-scrollbar-spacing.md). The new desktop height and phone scrolling decisions below supersede their conflicting layout provisions only when implemented.
+- This follows the implemented [tools usability redesign](tools-usability-redesign.md), [learning workspace](../reviews/interface-implementation-history.md#workspace-selections-and-tool-controls), [calm controls](../reviews/interface-implementation-history.md#workspace-selections-and-tool-controls), and [scrollbar spacing](../reviews/interface-implementation-history.md#preview-panel-and-smoke-corrections). The new desktop height and phone scrolling decisions below supersede their conflicting layout provisions only when implemented.
 
 ## Agreed visual direction
 

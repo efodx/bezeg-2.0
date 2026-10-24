@@ -1,6 +1,6 @@
 # Demonstrations opening carousel
 
-Status: implemented; current homepage placement and verification are recorded in [the page-composition review](../reviews/homepage-carousel-and-demonstrations-catalogue.md). Variant C of the [opening prototype](demonstrations-opening-prototype.md) is the chosen direction; the prototype remains review evidence, not production code.
+Status: implemented; current homepage placement and verification are recorded in [the page-composition review](../reviews/homepage-carousel-and-demonstrations-catalogue.md). Variant C of the [opening prototype](../reviews/interface-implementation-history.md#demonstrations-opening-comparison) is the chosen direction; the prototype remains review evidence, not production code.
 
 Placement update (2026-10-15): the confirmed [homepage-carousel and catalogue brief](homepage-carousel-and-demonstrations-catalogue.md) moves this carousel to the homepage and makes Demonstrations catalogue-only. It supersedes placement above the catalogue; the interaction, timing, accessibility, and lifecycle contract below remains authoritative. The relocation is implemented under that brief; its review records current verification.
 
@@ -76,5 +76,5 @@ Show one prominent, route-specific preview above a single horizontal row of six 
 
 ## Further Notes
 
-- The [prototype comparison](demonstrations-opening-prototype.md) records the original A/B/C exploration and the manual Variant C interaction. This spec supersedes its "do not autoplay" prototype decision for the production opening.
+- The [prototype comparison](../reviews/interface-implementation-history.md#demonstrations-opening-comparison) records the original A/B/C exploration and the manual Variant C interaction. This spec supersedes its "do not autoplay" prototype decision for the production opening.
 - Automatic carousel motion is separate from Guided lesson graph animation. The latter remains explicit and learner controlled under the existing lesson decisions.

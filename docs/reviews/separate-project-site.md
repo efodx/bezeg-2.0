@@ -1,5 +1,9 @@
 # Separate Bezeg 2.0 release verification
 
+## Historical local checkout transition
+
+The original local `bezeg` directory was retained after the 2.0 move so existing chats kept their working directory. At that migration, `legacy-bezeg` preserved the old remote with pushing disabled, and `.migration-backups/` held a Git bundle and `original-state.json`; those are local ignored backups, not portable release artifacts. The stash named `Preserve original Bezeg checkout before switching local project to Bezeg 2.0` contains edits already included in the 2.0 baseline and must not be automatically reapplied. This records the migration checkpoint, not a claim about another contributor's current local refs or backups. Current checkout/publishing instructions live in the README and hosting playbook.
+
 Source: [release specification](../specs/separate-project-site.md).
 
 The release starts from original Bezeg HEAD `d409cd0` plus the current working-tree app and documentation changes captured on 2026-10-09. The separate repository baseline snapshot is `5030c5e`. The original checkout was not staged, committed, or pushed by this release task.

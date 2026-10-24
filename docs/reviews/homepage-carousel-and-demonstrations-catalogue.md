@@ -1,6 +1,6 @@
 # Homepage carousel and dedicated catalogue verification
 
-Implemented on 2026-10-15 from the owner-approved [page-composition brief](../specs/homepage-carousel-and-demonstrations-catalogue.md), preserving the [carousel interaction contract](../specs/demonstrations-opening-carousel.md) and [compact selector/topic grouping](../specs/demonstrations-selector-and-topic-refinement.md).
+Implemented on 2026-10-15 from the owner-approved [page-composition brief](../specs/homepage-carousel-and-demonstrations-catalogue.md), preserving the [carousel interaction contract](../specs/demonstrations-opening-carousel.md) and [compact selector/topic grouping](interface-implementation-history.md#dedicated-catalogue-and-topic-presentation).
 
 `WelcomePage` now owns the compact introduction, explicit catalogue shortcut, extracted `HomeDemonstrationsCarousel`, and existing localized attribution/contact footer. `DemonstrationsPage` starts directly with its title, topic instruction, metadata-derived count, and independently expandable families. Family headings are H2 under the page H1; the catalogue region retains its accessible name without a second visible introduction. Existing previews, six starter IDs/order, graph destinations, lesson availability, mathematical scenes, and storage contracts are unchanged. No route aliases or data migration are needed.
 

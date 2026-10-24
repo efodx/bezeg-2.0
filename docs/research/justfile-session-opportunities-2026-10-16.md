@@ -57,7 +57,7 @@ Proposed interface:
 - `just smoke-built [Playwright arguments...]`: reuse a known current build and report its provenance.
 - Accept a port override without requiring agents to reconstruct PowerShell environment syntax. Retain arbitrary file/grep arguments; add named subsets only when their membership is stable and owned.
 
-The existing npm scripts already provide both build-and-test and built-only execution. Just's additional value must come from consistent parameters, provenance, and output handling. Playwright already launches and disposes its own server; a smoke recipe must not start another preview first. Preserve occupied-port failure and `reuseExistingServer: false`. Automated coverage still does not replace change-specific manual interaction checks. Sources: [Playwright config](../../playwright.config.cjs), [smoke guidance](../smoke-tests.md), and [the historical repair results](../specs/preview-smoke-assertions.md).
+The existing npm scripts already provide both build-and-test and built-only execution. Just's additional value must come from consistent parameters, provenance, and output handling. Playwright already launches and disposes its own server; a smoke recipe must not start another preview first. Preserve occupied-port failure and `reuseExistingServer: false`. Automated coverage still does not replace change-specific manual interaction checks. Sources: [Playwright config](../../playwright.config.cjs), [smoke guidance](../smoke-tests.md), and [the historical repair results](../reviews/interface-implementation-history.md#preview-panel-and-smoke-corrections).
 
 ### 3. Compact output with complete failure evidence — highest priority alongside recipes
 

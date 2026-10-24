@@ -1,6 +1,6 @@
 # Analysis guided lessons and complex multiplication
 
-**Status:** Batch A (bisection, mean value theorem, accumulated integral) was released on 2026-10-15 after review and production verification ([task 04](../tasks/analysis-guided-lessons/04-batch-a-release.md)). Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation) was released on 2026-10-16 after the same review and verification ([task 09](../tasks/analysis-guided-lessons/09-batch-b-release.md)). Batch C (sequence convergence, uniform convergence, fixed-point iteration, complex multiplication) was released on 2026-10-16 after the same review and verification ([task 14](../tasks/analysis-guided-lessons/14-batch-c-release.md)); complex multiplication is in Foundations. All three batches add routes, preset collections and lessons only: no existing route, stored Preset or lesson identity changed, so it is not a breaking change.
+**Status:** Batch A (bisection, mean value theorem, accumulated integral) was released on 2026-10-15; Batch B (extrema, convexity and concavity, Darboux sums, Taylor approximation) and Batch C (sequence convergence, uniform convergence, fixed-point iteration, complex multiplication) were released on 2026-10-16. Complex multiplication is in Foundations. The [lesson implementation history](../reviews/lesson-implementation-history.md#analysis-guided-lessons) preserves historical verification limits and visual observations. All three batches add routes, preset collections and lessons only: no existing route, stored Preset or lesson identity changed, so it is not a breaking change.
 **Agreed:** 2026-10-14.
 **Source:** the catalogue research and the subsequent owner interview. The owner approved all eleven topics, separate Demonstrations and Guided lessons, three release batches, named examples, visual arguments, optional reveals, and iterative playback.
 
@@ -54,9 +54,11 @@ The examples below are implementation defaults chosen to make the agreed scope c
 #### A3. Accumulated integral and FTC
 
 - Prerequisites: signed definite integral and derivative.
-- Show \(f\) and \(A(x)=\int_a^x f(t)\,dt\) with distinguishable labels; coordinate graph views so both remain readable. Control \(a\) and \(x\), shade oriented signed area, and display a tangent to \(A\) and its slope.
+- Show \(f\) and \(A(x)=\int_a^x f(t)\,dt\) with distinguishable labels on one shared board and y-scale, so tangent slope and function height are not presented on independent scales. Control \(a\) and \(x\), shade oriented signed area, and display a tangent to \(A\) and its slope.
 - Start with \(f(x)=\sin x\), \(a=0\); offer \(x^2\) and \(e^x\) as further named examples. Reveal the accumulation curve after an initial area prediction.
 - Acceptance: \(A(0)=0\), \(A(\pi)=2\), \(A(2\pi)=0\) in the default example; \(A'(x)=f(x)\). Moving \(x<a\) preserves the orientation of the integral. Negative integrand values decrease accumulation. Explain continuity of the integrand as sufficient for the displayed derivative relation; the area is not unsigned geometric area.
+
+The implemented shared-board choice, per-function view bounds, reveal-state rules and original real-board initialization finding are retained in the [accumulation evidence](../reviews/lesson-implementation-history.md#accumulation-graph-decisions).
 
 #### B1. Extrema
 

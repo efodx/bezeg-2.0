@@ -31,10 +31,10 @@ The runtime remains responsible for checkpoint capture/restore, animation cancel
 | Cohort | Routes | Status | Entry gate |
 | --- | --- | --- | --- |
 | A — Weighted, PH, and transformation exploration | `rational`, `ph-quintic`, `affine` | Implemented draft; review pending | Deterministic defaults, existing or one narrow graph-owned action family, direct formula/invariant checks |
-| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-b.md)) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
-| C — Parameter distributions | `weighted-parameterization`, `uniform-parameterization` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-c.md)) | Typed alpha/sample/mode actions and ownership for generated sample points |
-| D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-d.md)) | Generated-curve ownership, valid parameter domains, and restoration tests |
-| E — Continuity and circle constructions | spline routes, `spline-parameterization`, `farin`, `circle`, `decasteljau-alternative` | Implemented draft; review pending ([task](../tasks/guided-lessons-rollout/implement-cohort-e.md)); subject source is the owner's thesis | Continuity/weight semantics and route-specific visual claims reviewed by a subject-matter owner |
+| B — Foundations and degree variants | `bernstein`, `rational-elevation` | Implemented and released under current policy; historical findings ([history](../reviews/lesson-implementation-history.md#rollout-cohorts-be)) | Rebuild Bernstein’s generated default scene; reuse degree elevation with rational-specific lifecycle checks |
+| C — Parameter distributions | `weighted-parameterization`, `uniform-parameterization` | Implemented and released under current policy; historical findings ([history](../reviews/lesson-implementation-history.md#rollout-cohorts-be)) | Typed alpha/sample/mode actions and ownership for generated sample points |
+| D — Generated constructions | `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation` | Implemented and released under current policy; historical findings ([history](../reviews/lesson-implementation-history.md#rollout-cohorts-be)) | Generated-curve ownership, valid parameter domains, and restoration tests |
+| E — Continuity and circle constructions | spline routes, `spline-parameterization`, `farin`, `circle`, `decasteljau-alternative` | Implemented and released under current policy; historical findings ([history](../reviews/lesson-implementation-history.md#rollout-cohorts-be)); subject source is the owner's thesis | Continuity/weight semantics and route-specific visual claims |
 
 All 26 active routes are available: `bezier`, `decasteljau`, `ph-cubic`, `rational-decasteljau`, `elevation`, `rational`, `ph-quintic`, `affine`, `bernstein`, `rational-elevation`, `weighted-parameterization`, `uniform-parameterization`, `subdivision`, `repeated-subdivision`, `rational-subdivision`, `extrapolation`, `rational-extrapolation`, `decasteljau-alternative`, `farin`, `circle`, `spline-cn`, `spline-c1`, `spline-c2`, `spline-g1`, `spline-g1-symmetric`, and `spline-parameterization`. The product allowlist must be updated only when a cohort’s route-level gates pass.
 
@@ -166,6 +166,8 @@ Checks:
 - the lesson states the computed length $L$ of the default curve, taken from the implementation and checked by the content test.
 
 ## Cohort D implementation contract
+
+Historical scene-rebinding, synchronous scene-action, rational split-label, and extrapolation findings are summarized in the [lesson implementation history](../reviews/lesson-implementation-history.md#rollout-cohorts-be). The mathematical rationale for negative extrapolation weights remains specified below.
 
 Cohort D teaches that De Casteljau's construction splits a Bézier curve into exactly representing pieces and extends it beyond its interval. The graphs create new curves, so generated-curve ownership and restoration are the entry gate. Cohort A's allowlist rule applies.
 

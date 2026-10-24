@@ -1,6 +1,6 @@
 # Standalone Bézier pilot implementation evidence
 
-Date: 2026-10-20. Source: [implementation handoff](../../tasks/standalone-learning/implement-bezier-pilot.md) and [parent specification](../../specs/standalone-learning.md). Implementation base: `d29cd32814c53534f86f450ff25f5f1b7bf39255`; checks below exercised the dirty pilot checkout. Unrelated staged planning documents and `debug.log` were preserved.
+Date: 2026-10-20. Source: [implementation handoff](../lesson-implementation-history.md#standalone-learning-pilot) and [parent specification](../../specs/standalone-learning.md). Implementation base: `d29cd32814c53534f86f450ff25f5f1b7bf39255`; checks below exercised the dirty pilot checkout. Unrelated staged planning documents and `debug.log` were preserved.
 
 Code commits: `400091c` (graph/session seam) and `3f9f074` (chapter/navigation/UI). The fetched `origin/master` remained the implementation base, so the commits already form a fast-forward history without rebasing unrelated work.
 
@@ -72,6 +72,6 @@ A subsequent planning/status push cancelled that rerun. Its documentation image 
 
 That run passed **148 unit files / 2,511 tests**, TypeScript, production build and **230/230 Chromium tests** (7.2 minutes), then successfully deployed Pages at approximately 18:31 Europe/Ljubljana. Live probes on the deployed site passed Learning discovery/eight sections, chapter-section deep link and refresh, all six activity direct links and refreshes, invalid-context query/hash normalization and unknown-chapter recovery, with no JavaScript or asset failures. The real-host history probe passed unchanged router key/index and activity entry/predecessor metadata across refresh, the restart notice, exact query/hash preservation including literal `~and~`, original no-hash Return URL and focus on the invoking activity link. Supplemental local harnesses: `.command-logs/verify-hosted-pilot.cjs` and `.command-logs/probe-hosted-history.cjs` (exit 0). Publication/hosted verification is complete; other pushes may resume.
 
-## Remaining release gates
+## Coverage limits and current release policy
 
-Implementation is an educational pilot draft. Owner/subject-matter approval of Slovenian terminology, English copy and classroom suitability remains open. Physical touch devices, an actual projector and screen-reader use have not been established by browser viewport/keyboard tests. Hosted Pages deep links, refresh, history return and deployed assets passed the separate post-publication checks above. No completion or mastery claim follows from reading or opening an activity. Review this pilot's evidence before extending to another chapter.
+The implemented pilot is released under the [2026-10-24 policy](../../guardrails.md#release-policy--owner-decision-2026-10-24); language and classroom sign-offs are no longer gates. Physical touch devices, an actual projector and screen-reader use have not been established by browser viewport/keyboard tests. Hosted Pages deep links, refresh, history return and deployed assets passed the separate post-publication checks above. No completion or mastery claim follows from reading or opening an activity. Review this pilot's evidence before extending to another chapter.

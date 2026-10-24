@@ -181,6 +181,8 @@ Keep content static and source-backed, Slovenian first with English counterparts
 
 ## Bounded pilot and acceptance criteria
 
+Historical implementation and hosted verification are retained in the [standalone implementation report](../reviews/standalone-learning/implementation.md); handoff history is summarized in the [lesson implementation history](../reviews/lesson-implementation-history.md#standalone-learning-pilot).
+
 The owner selected Bézier curves on 2026-10-16 and supplied their thesis for the motivation. The [first chapter outline](bezier-study-chapter.md) develops editable shapes through repeated interpolation to the Bézier formula and its design guarantees. The product/visual direction is accepted; final content, source/translation review, and interaction evidence remain release gates. This establishes an entry point into the curve families without requiring a complete elementary sequence first.
 
 The picture examples establish the selected presentation direction. Next write and review the complete learner-facing content, then exercise the reading/graph round trip in a bounded implementation or interaction prototype. Do not add executable task files under this documentation-only request.

@@ -1,6 +1,6 @@
 # Lesson experience implementation — 2026-10-21
 
-Source: [accepted specification](../../specs/lesson-experience-improvements.md). Implementation and automated acceptance are distinct from the open formative/classroom gates below.
+Source: [accepted specification](../../specs/lesson-experience-improvements.md). Historical coverage limits below remain recorded under the current release policy.
 
 ## Baseline and adopted layout
 
@@ -46,11 +46,11 @@ Final command results and independent browser observations are recorded with the
 | 32–35: Taylor pacing and mathematics | Stable scenes and step identities, separate initial-degree calculation, prediction/reveal assertions, numeric/model and real-graph scene checks, independent mathematical review. Polynomial existence and Lagrange differentiability assumptions are in rendered notation, with adapter assertions. |
 | 36: unsupported actions and restore failure | Existing capability validation/scene rollback tests plus new visible failed-exit recovery test. Failure leaves the session/dialog active with retry/continue actions. |
 
-## Open acceptance gates
+## Coverage limits
 
 - Formative student/educator observation has not been performed. Hesitation, accidental navigation, and understanding of actual error versus estimate remain unmeasured.
 - Browser viewport/touch emulation and projection dimensions do not establish physical-touch or classroom-projector acceptance.
 - Automated names, status semantics, focus and keyboard checks are not a full assistive-technology evaluation.
-- The Taylor content remains an implementation-ready draft with its existing source/classroom-review questions; this work does not declare it classroom-ready.
+- Taylor source questions remain recorded; the available lesson is released under the current policy. Classroom observations remain optional evidence.
 
-These are explicit acceptance gaps, not passes or owner-approved deferrals. Implementation can be reviewed independently of those external gates.
+These observations remain unperformed. Under the [2026-10-24 policy](../../guardrails.md#release-policy--owner-decision-2026-10-24), formative, physical-device and projector observations are optional evidence; specific accessibility defects and unverified concrete requirements remain follow-ups.

@@ -364,7 +364,7 @@ before/after check remains outstanding.
 
 ## Per-curve geometry versions — 2026-10-12
 
-[Task 6](tasks/react-architecture/06-per-curve-cache.md) of the [React architecture refactor](specs/react-architecture-refactor.md) replaced the global geometry revision with per-point and per-curve version stamps (`src/bezeg/impl/versioning.ts`).
+[Task 6](reviews/engineering-implementation-history.md) of the [React architecture refactor](specs/react-architecture-refactor.md) replaced the global geometry revision with per-point and per-curve version stamps (`src/bezeg/impl/versioning.ts`).
 
 ### Method
 
@@ -389,7 +389,7 @@ The PH regression is resolved within run-to-run noise. No speed-up is claimed fo
 
 ## Controlled inspector sliders — 2026-10-13
 
-[Task 4](tasks/react-architecture/04-composition-and-lesson-registry.md) made inspector inputs controlled: a slider backed by a curve adapter notifies the graph's scene store on every input, which re-renders the inspector. Measured as the synchronous `input` handler time (including React's render and the JSXGraph update), headless Chromium, 1600×1000, six alternating runs per build, 366 samples per run (pooled n = 2196), against the `e35075f` master build:
+[Task 4](reviews/engineering-implementation-history.md) made inspector inputs controlled: a slider backed by a curve adapter notifies the graph's scene store on every input, which re-renders the inspector. Measured as the synchronous `input` handler time (including React's render and the JSXGraph update), headless Chromium, 1600×1000, six alternating runs per build, 366 samples per run (pooled n = 2196), against the `e35075f` master build:
 
 | Slider | Median master → task 4 (ms) | p95 master → task 4 (ms) |
 |---|---|---|

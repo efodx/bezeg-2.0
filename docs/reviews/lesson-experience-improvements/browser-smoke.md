@@ -1,6 +1,6 @@
 # Browser smoke
 
-Target: http://127.0.0.1:4390/bezeg-2.0 (handler-owned local production preview). Checkout C:\Users\1337Hacker\Desktop\bezeg-2.0, HEAD 42c7d88e767726b2fac5063fbaa3e5766b5cd80f; dirty lesson/runtime/docs/localization changes and debug.log were preserved. Preview build provenance: [build log](../../../.command-logs/2026-10-21T17-34-51-681Z-53088-f55e59f3.log). The handler made a later Taylor prose-only edit; it is rebuilding and refreshing Taylor evidence. This run took about 9 minutes. Playwright 1.64 Chromium, headless, isolated storage; desktop 1440×1000, narrow 390×844, 150% CSS zoom simulation at 1024×768, projection 1920×1080.
+Target: http://127.0.0.1:4390/bezeg-2.0 (handler-owned local production preview). Checkout C:\Users\1337Hacker\Desktop\bezeg-2.0, HEAD 42c7d88e767726b2fac5063fbaa3e5766b5cd80f; dirty lesson/runtime/docs/localization changes and debug.log were preserved. Preview build provenance was recorded in local log `.command-logs/2026-10-21T17-34-51-681Z-53088-f55e59f3.log` (not a portable repository artifact); retained final-build evidence is in the [implementation report](implementation.md). The handler made a later Taylor prose-only edit; it is rebuilding and refreshing Taylor evidence. This run took about 9 minutes. Playwright 1.64 Chromium, headless, isolated storage; desktop 1440×1000, narrow 390×844, 150% CSS zoom simulation at 1024×768, projection 1920×1080.
 
 | Check | Status | Observed evidence |
 |---|---|---|

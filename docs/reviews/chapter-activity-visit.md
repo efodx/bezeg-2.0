@@ -1,6 +1,6 @@
 # Chapter activity visit ownership
 
-Implementation evidence for [task 01](../tasks/architecture-deepening/01-chapter-activity-visit.md), from [architecture deepening, section 1](../specs/architecture-deepening.md#1-chapter-activity-visit-ownership).
+Implementation evidence for [task 01](chapter-activity-visit.md), from [architecture deepening, section 1](../specs/architecture-deepening.md#1-chapter-activity-visit-ownership).
 
 ## Ownership and compatibility
 

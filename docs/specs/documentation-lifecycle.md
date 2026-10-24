@@ -42,4 +42,6 @@ During feature closeout or a requested cleanup, inspect the affected records and
 
 This cleanup reorganizes navigation and establishes the closeout procedure. Existing feature specs, task files and acceptance records remain in place. Their removal or consolidation requires the targeted evidence and link checks above; this change does not certify every historical task's acceptance.
 
+The subsequent [record cleanup](../reviews/planning-record-cleanup-2026-10-24.md) applies that procedure after the owner's explicit authorization, consolidating completed handoffs and superseded comparisons. The paragraph above describes this policy's initial adoption, not a requirement to retain those files indefinitely.
+
 Acceptance recorded 2026-10-24: reviewed the home/catalog separation and all retention categories; checked 98 local Markdown link targets across the four changed documents and confirmed every previous home-index link remains in the catalog. Whitespace checks passed. Application tests and browser checks were not run because no application behavior changed.

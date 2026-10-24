@@ -1,6 +1,6 @@
 # Bezeg demonstration workspace usability redesign
 
-Status: implemented on all active demonstration routes. The owner accepted the general polynomial Bézier and cubic PH pilots on 2026-10-08 and authorized rollout to every active route. The shared workspace follows [the redesign proposal](../prototypes/tools-redesign-proposal.md); implementation evidence and remaining classroom/device review are in [the implementation report](../reviews/tools-workspace-redesign.md).
+Status: implemented on all active demonstration routes. The owner accepted the general polynomial Bézier and cubic PH pilots on 2026-10-08 and authorized rollout to every active route. The shared workspace follows [the redesign proposal](../reviews/interface-implementation-history.md#workspace-selections-and-tool-controls); implementation evidence and remaining classroom/device review are in [the implementation report](../reviews/tools-workspace-redesign.md).
 
 ## Problem Statement
 
@@ -95,6 +95,6 @@ The visual concepts are static and have not been usability-tested. The shared de
 
 On 2026-10-09, the owner accepted the visual direction represented by **A · Krivuljni laboratorij**, the dark **B · Črnilo za projekcijo** presentation treatment, and **C · Kompaktni pogled** for narrow screens. The earlier guided/question-led variant was rejected because it made the question block the first visual element and did not compose well with the graph workspace. Production styling keeps the existing React workspace, routes, graph renderer, controls, prompts, and preset behavior; it changes the shared canvas, topic rail, inspector surfaces, typography, header treatment, presentation contrast, and responsive spacing only.
 
-The follow-up route prototype on 2026-10-09 confirmed **A · Stranski pregled** as the production workspace composition: topic navigation at left, graph in the center, and a contextual inspector at right. The static “ready” status and decorative inspector mark were removed after review because they did not communicate actionable state. The throwaway comparison was exercised on `/bezeg/rational/farin-points` and `/bezeg/bezier/affine`; its reference mockups remain in [`docs/prototypes/tools-redesign-proposal.md`](../prototypes/tools-redesign-proposal.md).
+The follow-up route prototype on 2026-10-09 confirmed **A · Stranski pregled** as the production workspace composition: topic navigation at left, graph in the center, and a contextual inspector at right. The static “ready” status and decorative inspector mark were removed after review because they did not communicate actionable state. The throwaway comparison was exercised on `/bezeg/rational/farin-points` and `/bezeg/bezier/affine`; its reference mockups remain in [`docs/reviews/interface-implementation-history.md#workspace-selections-and-tool-controls`](../reviews/interface-implementation-history.md#workspace-selections-and-tool-controls).
 
 This file is the reviewable local spec. If implementation is approved, create local task documents only for executable slices that will be carried out; decisions and reference-only findings belong here or in a planning document, not in task files.

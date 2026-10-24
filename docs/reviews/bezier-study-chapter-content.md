@@ -1,8 +1,10 @@
 # Bézier chapter content review — 2026-10-20
 
+Historical content-preparation record. The pilot was subsequently implemented and released; see [runtime and hosted evidence](standalone-learning/implementation.md). The [current release policy](../guardrails.md#release-policy--owner-decision-2026-10-24) supersedes the owner wording/classroom gates below; original checks and coverage limitations retain their historical scope.
+
 ## Delivered scope
 
-The owner's “Do it” accepted the recommendation to complete/review the Bézier chapter copy and activity script, then prepare an implementation handoff. The result is a complete [Slovenian draft](../content/bezier-curves.sl.md), [English counterpart](../content/bezier-curves.en.md), [six-activity script](../specs/bezier-study-chapter-activities.md), and [bounded pilot task](../tasks/standalone-learning/implement-bezier-pilot.md). The parent [standalone learning specification](../specs/standalone-learning.md) remains authoritative for runtime behavior.
+The owner's “Do it” accepted the recommendation to complete/review the Bézier chapter copy and activity script, then prepare an implementation handoff. The result is a complete [Slovenian draft](../content/bezier-curves.sl.md), [English counterpart](../content/bezier-curves.en.md), [six-activity script](../specs/bezier-study-chapter-activities.md), and [bounded pilot task](lesson-implementation-history.md#standalone-learning-pilot). The parent [standalone learning specification](../specs/standalone-learning.md) remains authoritative for runtime behavior.
 
 This is content and implementation preparation. No routes, graph code, localization catalogs, preset storage, or deployed app behavior changed. The activity URLs in the drafts describe future contexts, visibly labeled as such. Chapter runtime implementation has not started.
 

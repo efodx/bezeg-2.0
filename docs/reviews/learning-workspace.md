@@ -1,6 +1,6 @@
 # Learning workspace implementation review
 
-Implements [the selected B layout](../specs/learning-workspace.md). Comparison source remains on `codex/workspace-prototypes` at `375d453`; the implementation removes all prototype components and variant routing.
+Implements [the selected B layout](interface-implementation-history.md#workspace-selections-and-tool-controls). Comparison source remains on `codex/workspace-prototypes` at `375d453`; the implementation removes all prototype components and variant routing.
 
 ## Verification on 2026-10-08
 

@@ -34,7 +34,7 @@ Apply consistent spacing, typography, icons, contrast, and curve styling while r
 
 ## 3A. Guided lessons — released
 
-The [runtime](tasks/guided-lessons/implement-guided-lesson-runtime.md), pilot content and available cohort lessons are released under the [owner decision, 2026-10-24](guardrails.md#release-policy--owner-decision-2026-10-24). Existing Slovenian terminology and English wording are approved. Separate owner language and physical-device/projector/classroom sign-offs are not standing gates.
+The [runtime](reviews/lesson-implementation-history.md#guided-lesson-runtime-and-pilot-content), pilot content and available cohort lessons are released under the [owner decision, 2026-10-24](guardrails.md#release-policy--owner-decision-2026-10-24). Existing Slovenian terminology and English wording are approved. Separate owner language and physical-device/projector/classroom sign-offs are not standing gates.
 
 The [rollout specification](specs/guided-lessons-rollout.md) and [content blueprint](specs/guided-lessons-content-expansion.md) record implemented capability-aligned lessons. Keep supported availability explicit; do not invent generic lessons for unsupported graphs. Preserve typed graph actions, transient scenes/progress, existing routes and browser-local Presets.
 
@@ -50,7 +50,7 @@ The [2026-10-24 UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md) identif
 
 ## 3C. Readable chapters using shared Demonstrations — released pilot
 
-The bilingual Bézier chapter, Learning index and six activities reuse four existing graph implementations. Visit-scoped reading/activity/ordinary-scene memory and typed actions implement the [bounded handoff](tasks/standalone-learning/implement-bezier-pilot.md). [Implementation and hosted verification](reviews/standalone-learning/implementation.md) records real-board checks, deep links, refresh and history return. Existing wording is approved and separate physical-device/projector/classroom gates are removed.
+The bilingual Bézier chapter, Learning index and six activities reuse four existing graph implementations. Visit-scoped reading/activity/ordinary-scene memory and typed actions implement the [bounded handoff](reviews/lesson-implementation-history.md#standalone-learning-pilot). [Implementation and hosted verification](reviews/standalone-learning/implementation.md) records real-board checks, deep links, refresh and history return. Existing wording is approved and separate physical-device/projector/classroom gates are removed.
 
 The [standalone learning specification](specs/standalone-learning.md) and [ADR 0014](adr/0014-study-chapters-share-demonstrations.md) own the independent Learning/Demonstrations entry points and shared graph behavior. Keep static client-only hosting, bilingual content and transient state; practice and assessment remain excluded.
 

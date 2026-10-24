@@ -10,7 +10,7 @@ The all-demonstrations catalog repeats a graph-opening arrow and a text link for
 
 Give each Demonstration entry a decorative schematic graph preview, its title, and a compact inline action area. Put the graph action and, when available, the Guided lesson action to the right of the title in the same footer row. Use icon-only links with localized accessible names and localized tooltips on hover and keyboard focus. Keep the existing route and destination behavior.
 
-The prototype compared three visual treatments for the same layout: circular outline, rounded square, and minimal ghost buttons. On 2026-10-13 the owner selected treatment C. Idle actions have no visible fill or outline; hover and keyboard focus add a subtle tinted surface, while distinct graph and lesson colors remain. See [the catalog prototype notes](demonstration-catalog-prototype.md) and the prototype source on `codex/prototype-demonstration-motion` at `7bd9630`.
+The prototype compared three visual treatments for the same layout: circular outline, rounded square, and minimal ghost buttons. On 2026-10-13 the owner selected treatment C. Idle actions have no visible fill or outline; hover and keyboard focus add a subtle tinted surface, while distinct graph and lesson colors remain. See the archived prototype source on `codex/prototype-demonstration-motion` at `7bd9630`.
 
 ## User Stories
 
@@ -49,7 +49,7 @@ Tests should exercise user-visible catalog behavior rather than CSS implementati
 - Use browser review at 390, 724, and 1440 CSS pixels to check preview prominence, title wrapping beside actions, the three-column tablet layout, one-column phone layout, desktop density, and no horizontal overflow. Exercise hover and touch-sized targets where the browser supports them. This viewport review is browser evidence, not physical-device acceptance.
 - Run TypeScript and the production build. No geometry or graph-rendering checks are needed because the preview is decorative and the graph destinations are unchanged.
 
-Prior art includes the existing Demonstrations catalog navigation tests, localized interaction tests, and the browser catalog review recorded in [the dedicated demonstrations view spec](demonstrations-view.md).
+Prior art includes the existing Demonstrations catalog navigation tests, localized interaction tests, and the browser catalog review recorded in [the dedicated demonstrations view spec](../reviews/interface-implementation-history.md#dedicated-catalogue-and-topic-presentation).
 
 ## Out of Scope
 
@@ -61,4 +61,4 @@ Prior art includes the existing Demonstrations catalog navigation tests, localiz
 
 ## Further Notes
 
-The action-style comparison is preserved on `codex/prototype-demonstration-motion` at `7bd9630`; the production catalog has no action-style switcher or query interpretation. Earlier prototype captures and visual feedback are in [the catalog prototype record](demonstration-catalog-prototype.md).
+The action-style comparison is preserved on `codex/prototype-demonstration-motion` at `7bd9630`; the production catalog has no action-style switcher or query interpretation. Earlier comparison details are recoverable from that archived prototype commit.

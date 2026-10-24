@@ -1,6 +1,6 @@
 # React architecture refactor
 
-Status: all seven implementation tasks complete as recorded on 2026-10-13 in the [task index and commit evidence](../tasks/react-architecture/README.md). Prototype gating remains deferred. The findings below preserve the original 2026-10-12 review, not a current list of defects. This continues the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md); a renderer decision remains separate.
+Status: all seven implementation tasks completed on 2026-10-13. Commit provenance and the deferred prototype-gating decision are recorded in the [engineering implementation history](../reviews/engineering-implementation-history.md#react-architecture-refactor). The findings below preserve the original 2026-10-12 review, not a current list of defects. This continues the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md); a renderer decision remains separate.
 
 ## Problem
 

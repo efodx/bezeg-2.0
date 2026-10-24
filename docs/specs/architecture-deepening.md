@@ -1,6 +1,6 @@
 # Deepen visit, preview capture, and scene recovery modules
 
-**Status:** all three tasks implemented and verified on 2026-10-20. See [visit acceptance](../reviews/chapter-activity-visit.md), [preview capture acceptance](../reviews/preview-capture-interface.md), and [scene recovery completion](../tasks/architecture-deepening/03-scene-recovery.md#completion-evidence). The original investigation briefs below are historical implementation inputs, not open work.
+**Status:** all three tasks implemented and verified on 2026-10-20. See [visit acceptance](../reviews/chapter-activity-visit.md), [preview capture acceptance](../reviews/preview-capture-interface.md), and the [engineering implementation history](../reviews/engineering-implementation-history.md#architecture-deepening) for scene recovery completion and its real-host rollback finding. The investigation briefs below are historical inputs, not open work.
 **Source:** architecture review of 65 recent commits and focused source/test inspection, initially presented as a temporary HTML report on 2026-10-20. The durable scope and evidence are recorded here.
 **Contracts:** [guardrails](../guardrails.md), [standalone learning](standalone-learning.md), [Guided lessons](guided-lessons.md), [representative previews](representative-demonstration-previews.md), and [continuous motion previews](continuous-motion-previews.md).
 
@@ -12,9 +12,9 @@ Prepare and carry out three bounded tasks independently. Do not prescribe method
 
 | Task | Recommendation | Primary outcome |
 | --- | --- | --- |
-| [Chapter activity visit ownership](../tasks/architecture-deepening/01-chapter-activity-visit.md) | Strong; first choice | One owner for visit policy and snapshots, with browser effects kept explicit. |
-| [Demonstration preview capture and evidence](../tasks/architecture-deepening/02-preview-capture-evidence.md) | Worth exploring | Reduce the knowledge exposed by the capture module while preserving mathematical evidence. |
-| [Lesson scene recovery](../tasks/architecture-deepening/03-scene-recovery.md) | Worth exploring; test first | Verify recovery semantics, then consolidate mechanics only if both existing callers become simpler. |
+| Chapter activity visit ownership | Strong; first choice | One owner for visit policy and snapshots, with browser effects kept explicit. Completed; see visit acceptance. |
+| Demonstration preview capture and evidence | Worth exploring | Reduce the knowledge exposed by the capture module while preserving mathematical evidence. Completed; see preview-capture acceptance. |
+| Lesson scene recovery | Worth exploring; test first | Verify recovery semantics, then consolidate mechanics only if both existing callers become simpler. Completed; see the engineering implementation history. |
 
 ## 1. Chapter activity visit ownership
 
@@ -69,7 +69,7 @@ The inspected `LessonSession.test.ts` action-failure case makes the first action
 
 ## Sequencing, decisions and verification
 
-Start with task 01. Task 02 has separate source ownership and may proceed independently. Tasks 01 and 03 share chapter orchestration code: serialize their changes and reassess task 03 after visit ownership settles. Coordinate with existing lesson graph-access work before changing its consumers; preserve unrelated local edits.
+Implementation sequencing: task 01 preceded task 03 because they shared chapter orchestration; task 02 had separate source ownership. All three are complete, with outcomes recorded in the linked reviews and history.
 
 Respect ADRs [0002](../adr/0002-guided-lessons-static-content-and-graph-capabilities.md), [0003](../adr/0003-frame-based-graph-anchored-lesson-overlay.md), [0006](../adr/0006-model-input-ownership-before-renderer-migration.md), [0013](../adr/0013-iteration-driven-by-scene-actions.md), and [0014](../adr/0014-study-chapters-share-demonstrations.md). No reversal is proposed. Document consequential choices with real alternatives in an ADR; use the glossary only for domain vocabulary.
 

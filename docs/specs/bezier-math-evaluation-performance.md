@@ -1,6 +1,6 @@
 # Mathematical Bézier evaluation performance investigation
 
-Status: completed 2026-10-08. The investigation retained a measured scratch-row optimization for curves with at least five control points; the OnePlus Nord N10 acceptance check remains unverified. See the [recorded results](../bezier-performance-results.md) and [source task](../tasks/bezier-math-performance/investigate-and-optimize.md). This follows the [shared Bézier drawing experiment](bezier-drawing-performance.md).
+Status: completed 2026-10-08. The investigation retained a measured scratch-row optimization for curves with at least five control points; the OnePlus Nord N10 acceptance check remains unverified. See the [recorded results](../bezier-performance-results.md) and [engineering implementation history](../reviews/engineering-implementation-history.md). This follows the [shared Bézier drawing experiment](bezier-drawing-performance.md).
 
 ## Problem
 

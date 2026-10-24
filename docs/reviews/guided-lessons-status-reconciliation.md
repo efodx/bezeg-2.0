@@ -4,14 +4,13 @@ Current disposition, 2026-10-24: the [owner's release policy](../guardrails.md#r
 
 Date: 2026-10-20. Scope: reconcile older rollout task statuses against later repository evidence; no application changes, new implementation, or educational approval.
 
-## Disposition
+## Current disposition
 
-| Task | Reconciled state | Remaining work |
+| Record | State | Follow-up owner |
 | --- | --- | --- |
-| [Build capability matrix](../tasks/guided-lessons-rollout/build-capability-matrix.md) | Partially fulfilled by rollout matrix, blueprint, and cohort evidence | Consolidate evidence-linked rows, name owners, and record unresolved review gates. Confirm scope before extending the original 26-route inventory. |
-| [Review/release pilots](../tasks/guided-lessons-rollout/review-and-release-pilot.md) | Implemented pilots are already available; review gate remains open | Owner/subject-matter language and content approval; classroom/device review; address the separately queued graph-obstruction issue. |
-| [Extend polynomial cohort](../tasks/guided-lessons-rollout/extend-polynomial-bezier-cohort.md) | Implementation superseded by completed expansion slices | Review existing drafts; do not reimplement the seven lessons. |
-| [Cohort B](../tasks/guided-lessons-rollout/implement-cohort-b.md), [C](../tasks/guided-lessons-rollout/implement-cohort-c.md), [D](../tasks/guided-lessons-rollout/implement-cohort-d.md), [E](../tasks/guided-lessons-rollout/implement-cohort-e.md) | Implemented drafts, as already recorded | Retain their recorded owner/classroom gates and specific coverage limits. No blanket completion upgrade. |
+| Capability matrix | Evidence consolidation and eight missing smoke rows remain | [Matrix task](../tasks/guided-lessons-rollout/build-capability-matrix.md), the single rollout follow-up owner |
+| Pilot and polynomial rollout handoffs | Implemented and released under the current policy; redundant handoffs retired | Preserve concrete coverage limits in the matrix and [lesson history](lesson-implementation-history.md) |
+| Cohorts B–E | Released; historical mathematical repairs and coverage limitations retained | [Content blueprint](../specs/guided-lessons-content-expansion.md) and [cohort evidence](lesson-implementation-history.md#rollout-cohorts-be) |
 
 ## Evidence inspected
 
@@ -23,9 +22,9 @@ Date: 2026-10-20. Scope: reconcile older rollout task statuses against later rep
 - Cohort B–E verification sections record historical type/unit/build/browser results. For example, Cohort E records 187/187 built smoke checks, including 153/153 lesson checks, plus an explicit Farin drag coverage omission and unresolved spline default-data questions. These counts are historical, not current suite totals.
 - [Standalone pilot implementation evidence](standalone-learning/implementation.md) records later shared lesson/activity regression coverage while retaining owner and physical-device/classroom limits. This is corroborating runtime evidence, not approval of all earlier lesson prose.
 
-## Unresolved contract discrepancy
+## Resolved availability terminology
 
-The original rollout acceptance criteria and the runtime catalog comment describe an allowlist of reviewed lessons. Later cohort contracts and tasks record draft availability before owner/classroom approval. This reconciliation documents the implemented state and preserves the outstanding gate; it does not invent approval, remove available lessons, or decide a new release policy. Clarify the release/availability terminology when the owner addresses lesson review. Original acceptance criteria remain visible for that discussion.
+The original reviewed-only wording and later draft availability were reconciled by the owner's 2026-10-24 release policy. Available implemented lessons are released; general wording, device and classroom sign-offs no longer create an approval queue. The source and browser gaps below remain concrete follow-ups, and no unperformed check becomes a pass.
 
 ## Current smoke coverage gap
 
