@@ -622,7 +622,7 @@ const splineCn = {
     stableCounts: async page => ({continuity: await countValue(page, 0), degree: await countValue(page, 1), switches: await splineSwitches(page)}),
 };
 
-// Symmetric splines: 6 / 7 free points plus derived joints and inner points; the lessons only change switches.
+// Symmetric splines: free points plus derived joints and inner points; lesson fixtures replace the default 6 / 7 free points in most steps.
 // `stepPoints` gives the per-step point count where lesson fixtures replace the default scene.
 function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps, stepPoints}) {
     return {
