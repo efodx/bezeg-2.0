@@ -117,7 +117,7 @@ test('keeps the exact pilot scene values', () => {
     const distances = ph.steps.flatMap(step => step.scene?.actions ?? [])
         .filter(sceneAction => sceneAction.name === 'set-offset-distance')
         .map(sceneAction => sceneAction.value);
-    expect(distances).toEqual([0.2, -0.2]);
+    expect(distances).toEqual([1, -1, 1]);
 });
 
 test('records the thesis-consistent cubic PH mixed control-point coefficient', () => {

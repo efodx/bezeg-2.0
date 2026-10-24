@@ -1,10 +1,18 @@
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
+import type {LessonCurveFixture, LessonViewBox} from '../model';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
 const action = (name: SceneAction['name'], value: SceneAction['value']): SceneAction => ({name, value});
 const scene = (id: string, actions: readonly SceneAction[], sl: string, en: string) => ({
     id, basedOn: 'demonstration-default' as const, actions, expectedState: text(sl, en),
+});
+
+/** Quintic PH lesson fixture: P_0=(-2,-1), w_0=2, w_1=2+i, w_2=1+i, so w(t)=(2-t^2)+i(2t-t^2), speed 4-4t^3+2t^4, arc length 17/5. */
+const phQuinticFixture: LessonCurveFixture = {points: [[-2, -1]], hodographs: [[2, 0], [2, 1], [1, 1]]};
+const phQuinticView: LessonViewBox = [-3, 2.2, 2.5, -2.6];
+const phQuinticScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id, basedOn: 'lesson-fixture', curve: phQuinticFixture, view: phQuinticView, actions, expectedState: text(sl, en),
 });
 
 const rational: GuidedLesson = {
@@ -129,32 +137,32 @@ const phQuintic: GuidedLesson = {
         {id: 'ph-quintic-degree', latex: 'm=3\\Longrightarrow\\deg r=2m-1=5', notation: text('Trije generatorji določijo kvintično PH-krivuljo.', 'Three generators determine a quintic PH curve.'), explanation: text('Stopnja je ena manj kot dvakratno število generatorjev.', 'The degree is one less than twice the number of generators.')},
         {id: 'ph-quintic-hodograph', latex: 'w(t)=\\sum_{i=0}^{2}b_{i,2}(t)w_i,\\qquad r\'(t)=w(t)^2', notation: text('Hodograf se kvadrira v kompleksni predstavitvi odvoda.', 'The hodograph is squared in the complex representation of the derivative.'), explanation: text('Kvadrat ne pomeni navadnega skalarnega kvadrata; uporablja se kompleksno množenje ravninskih vektorjev.', 'The square is not an ordinary scalar square; it uses complex multiplication of planar vectors.')},
         {id: 'ph-quintic-speed', latex: '\\|r\'(t)\\|=\\|w(t)\\|^2', notation: text('Hitrost je kvadrat dolžine hodografa.', 'Speed is the square of the hodograph length.'), explanation: text('Zato je hitrost polinom in jo lahko preverimo brez numeričnega odvajanja izrisa.', 'The speed is therefore polynomial and can be checked without numerically differentiating the drawing.')},
-        {id: 'ph-quintic-offset', latex: 'r_d(t)=r(t)+d\\,n(t)', notation: text('Odmik uporablja razdaljo \\(d\\) in normalno smer \\(n(t)\\).', 'The offset uses distance \\(d\\) and normal direction \\(n(t)\\).'), explanation: text('V prikazu ostane osnovna PH-krivulja enaka, medtem ko se doda odmična konstrukcija.', 'The base PH curve stays the same in the display while an offset construction is added.')},
+        {id: 'ph-quintic-offset', latex: 'r_d(t)=r(t)+d\\,n(t),\\qquad n(t)=\\frac{\\left(y\'(t),\\,-x\'(t)\\right)}{\\|r\'(t)\\|}', notation: text('Odmik uporablja razdaljo \\(d\\) in enotsko normalo \\(n(t)\\) desno od smeri potovanja; \\(d>0\\) je desna, \\(d<0\\) leva stran.', 'The offset uses distance \\(d\\) and the unit normal \\(n(t)\\) to the right of the direction of travel; \\(d>0\\) is the right side and \\(d<0\\) the left.'), explanation: text('Osnovna PH-krivulja ostane enaka, medtem ko se doda odmična konstrukcija; ta je regularna, dokler je \\(1+d\\kappa>0\\) za predznačeno ukrivljenost \\(\\kappa\\).', 'The base PH curve stays the same while an offset construction is added; the offset is regular while \\(1+d\\kappa>0\\) for the signed curvature \\(\\kappa\\).')},
     ],
     workedExamples: [{
-        id: 'ph-quintic-speed-midpoint', title: text('Hitrost pri \\(t=\\tfrac{1}{2}\\)', 'Speed at \\(t=\\tfrac{1}{2}\\)'),
-        calculationLatex: 'w(1/2)=\\tfrac14(-3.3,0)+\\tfrac12(0.2,-4)+\\tfrac14(2,-3.2)=(-0.225,-2.8)',
-        resultLatex: '\\|r\'(1/2)\\|=\\|w(1/2)\\|^2=(-0.225)^2+(-2.8)^2=7.890625',
-        check: text('Vrednost primerjaj z istim hodografom in ne z vizualno dolžino odseka na grafu.', 'Compare the value with the same hodograph, not with the visual length of a graph segment.'),
+        id: 'ph-quintic-speed-midpoint', title: text('Hitrost in dolžina loka', 'Speed and arc length'),
+        calculationLatex: 'w(t)=(2-t^2)+i(2t-t^2),\\;\\;w(\\tfrac12)=\\tfrac14\\cdot2+\\tfrac12(2+i)+\\tfrac14(1+i)=\\tfrac74+\\tfrac34i,\\;\\;\\|r\'(\\tfrac12)\\|=\\tfrac{49}{16}+\\tfrac{9}{16}=\\tfrac{29}{8},\\;\\;L=\\int_0^1\\left(4-4t^3+2t^4\\right)dt',
+        resultLatex: '\\text{speed}(t)=4-4t^3+2t^4,\\quad \\text{speed}(\\tfrac12)=\\tfrac{29}{8},\\quad L=4-1+\\tfrac25=\\tfrac{17}{5}=3.4',
+        check: text('Dolžina loka \\(\\tfrac{17}{5}\\) se ujema z odčitkom na grafu; primerjaj jo s hodografom in ne z vizualno dolžino odseka.', 'The arc length \\(\\tfrac{17}{5}\\) matches the readout on the graph; compare it with the hodograph, not with the visual length of a segment.'),
     }],
     steps: [
         {
             id: 'ph-quintic-degree', order: 1, title: text('Tri generatorji, stopnja pet', 'Three generators, degree five'),
             purpose: text('Razumevanje vhodnih podatkov kvintične PH-krivulje.', 'Understanding the inputs of the quintic PH curve.'),
-            explanation: text('Privzeta scena začne s \\(P_0=\\left(1,\\,-1\\right)\\) in tremi generatorji \\(w_0=\\left(-3{,}3,\\,0\\right)\\), \\(w_1=\\left(0{,}2,\\,-4\\right)\\), \\(w_2=\\left(2,\\,-3{,}2\\right)\\).', 'The default scene starts with \\(P_0=\\left(1,\\,-1\\right)\\) and three generators \\(w_0=\\left(-3.3,\\,0\\right)\\), \\(w_1=\\left(0.2,\\,-4\\right)\\), \\(w_2=\\left(2,\\,-3.2\\right)\\).'),
+            explanation: text('Scena začne s \\(P_0=\\left(-2,\\,-1\\right)\\) in tremi generatorji \\(w_0=2\\), \\(w_1=2+i\\), \\(w_2=1+i\\), torej \\(w(t)=(2-t^2)+i(2t-t^2)\\).', 'The scene starts with \\(P_0=\\left(-2,\\,-1\\right)\\) and three generators \\(w_0=2\\), \\(w_1=2+i\\), \\(w_2=1+i\\), so \\(w(t)=(2-t^2)+i(2t-t^2)\\).'),
             formulaIds: ['ph-quintic-degree'], frames: [frame('ph-quintic-degree-explanation', 'explanation'), frame('ph-quintic-degree-observation', 'observation')], learnerInteraction: 'observe',
-            observationPrompt: text('Preštej generatorje in poveži njihovo število s stopnjo krivulje.', 'Count the generators and connect their number with the curve degree.'),
-            expectedObservations: [text('Trije generatorji dajo stopnjo 5; generatorji so vhod, večina kontrolnih točk krivulje pa je izpeljana.', 'Three generators give degree 5; the generators are inputs, while most curve control points are derived.')],
-            scene: scene('ph-quintic-default', [], 'Privzeta kvintična scena ostane pripravljena brez odmika.', 'The default quintic scene remains prepared without an offset.'),
+            observationPrompt: text('Preštej generatorje in poveži njihovo število s stopnjo krivulje. Preveri, da je \\(w_0-2w_1+w_2=-1-i\\) različno od nič.', 'Count the generators and connect their number with the curve degree. Check that \\(w_0-2w_1+w_2=-1-i\\) is nonzero.'),
+            expectedObservations: [text('Trije generatorji dajo stopnjo 5; generatorji so vhod, večina kontrolnih točk krivulje pa je izpeljana. Ker \\(w_0-2w_1+w_2\\) ni nič, hodograf ni linearen in krivulja je res kvintična, ne zgolj kubična.', 'Three generators give degree 5; the generators are inputs, while most curve control points are derived. Because \\(w_0-2w_1+w_2\\) is nonzero the hodograph is not linear, so the curve is genuinely quintic rather than merely cubic.')],
+            scene: phQuinticScene('ph-quintic-default', [], 'Scena vsebuje šest kontrolnih točk od \\(\\left(-2,\\,-1\\right)\\) do \\(\\left(\\tfrac13,\\,\\tfrac{16}{15}\\right)\\), brez odmika.', 'The scene contains six control points from \\(\\left(-2,\\,-1\\right)\\) to \\(\\left(\\tfrac13,\\,\\tfrac{16}{15}\\right)\\), without an offset.'),
         },
         {
             id: 'ph-quintic-speed', order: 2, title: text('Hodograf določa hitrost', 'The hodograph determines speed'),
             purpose: text('Povezava hodografa z odvodom in hitrostjo.', 'Connecting the hodograph with the derivative and speed.'),
             explanation: text('Pri \\(t=\\tfrac{1}{2}\\) se trije generatorji zmešajo z Bernsteinovimi faktorji stopnje 2; nato kvadrat norme določi hitrost.', 'At \\(t=\\tfrac{1}{2}\\) the three generators mix with degree-two Bernstein factors; the squared norm then gives speed.'),
             formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-speed-explanation', 'explanation'), frame('ph-quintic-speed-calculation', 'calculation'), frame('ph-quintic-speed-observation', 'observation')], workedExampleId: 'ph-quintic-speed-midpoint', learnerInteraction: 'observe',
-            observationPrompt: text('Preveri vrednost 7.890625 z izračunom srednjega hodografa.', 'Check 7.890625 by calculating the midpoint hodograph.'),
-            expectedObservations: [text('Hitrost je kvadrat dolžine hodografa, ne dolžina osnovne krivulje.', 'Speed is the squared length of the hodograph, not the length of the base curve.')],
-            scene: scene('ph-quintic-speed-scene', [action('show-evaluation-point', 0.5)], 'Označena je srednja točka osnovne krivulje.', 'The midpoint of the base curve is marked.'),
+            observationPrompt: text('Preveri hitrost \\(\\tfrac{29}{8}\\) z izračunom srednjega hodografa in primerjaj njen potek: pri \\(t=0\\) je \\(4\\), pri \\(t=1\\) pa \\(2\\).', 'Check the speed \\(\\tfrac{29}{8}\\) by calculating the midpoint hodograph and compare its course: it is \\(4\\) at \\(t=0\\) and \\(2\\) at \\(t=1\\).'),
+            expectedObservations: [text('Hitrost \\(4-4t^3+2t^4\\) je kvadrat dolžine hodografa, ne dolžina osnovne krivulje; njen integral da dolžino loka \\(\\tfrac{17}{5}=3{,}4\\), kar kaže tudi odčitek na grafu.', 'The speed \\(4-4t^3+2t^4\\) is the squared length of the hodograph, not the length of the base curve; its integral gives the arc length \\(\\tfrac{17}{5}=3.4\\), which the readout on the graph also shows.')],
+            scene: phQuinticScene('ph-quintic-speed-scene', [action('show-evaluation-point', 0.5)], 'Označena je srednja točka osnovne krivulje, kjer je \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).', 'The midpoint of the base curve is marked, where \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).'),
         },
         {
             id: 'ph-quintic-offset-positive', order: 3, title: text('Pozitiven odmik', 'Positive offset'),
@@ -163,16 +171,16 @@ const phQuintic: GuidedLesson = {
             formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-positive-explanation', 'explanation'), frame('ph-quintic-offset-positive-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
             observationPrompt: text('Primerjaj osnovno krivuljo in odmik pri \\(d=0{,}5\\).', 'Compare the base curve and the offset at \\(d=0.5\\).'),
             expectedObservations: [text('Odmik je dodatna konstrukcija; generatorji in osnovna krivulja se ne zamenjajo.', 'The offset is an additional construction; the generators and base curve are not replaced.')],
-            scene: scene('ph-quintic-offset-positive', [action('set-offset-distance', 0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=0{,}5\\).', 'The offset at \\(d=0.5\\) is shown.'),
+            scene: phQuinticScene('ph-quintic-offset-positive', [action('set-offset-distance', 0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=0{,}5\\), na desni (spodnji) strani krivulje.', 'The offset at \\(d=0.5\\) is shown, on the right (lower) side of the curve.'),
         },
         {
             id: 'ph-quintic-offset-sign', order: 4, title: text('Predznak odmika', 'Offset sign'),
             purpose: text('Opazovanje spremembe strani odmika.', 'Observing the change of offset side.'),
-            explanation: text('Negativen \\(d\\) izbere nasprotno stran normalne smeri; osnovna krivulja ostane nespremenjena.', 'A negative \\(d\\) selects the opposite normal side; the base curve stays unchanged.'),
+            explanation: text('Negativen \\(d\\) izbere nasprotno stran normalne smeri, to je notranjo stran zavoja. Krivulja se povsod obrača v levo, njena ukrivljenost je največ \\(1\\) (pri \\(t=1\\)), zato je odmik na levi regularen le pri \\(|d|<1\\); pri \\(d=-1\\) bi dobili ostan. Osnovna krivulja ostane nespremenjena.', 'A negative \\(d\\) selects the opposite normal side, the inner side of the bend. The curve turns left everywhere and its curvature is at most \\(1\\) (at \\(t=1\\)), so the offset on the left is regular only for \\(|d|<1\\); at \\(d=-1\\) a cusp would appear. The base curve stays unchanged.'),
             formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-sign-explanation', 'explanation'), frame('ph-quintic-offset-sign-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
             observationPrompt: text('Primerjaj odmika pri \\(d=0{,}5\\) in \\(d=-0{,}5\\) ter opiši nespremenjeni del.', 'Compare \\(d=0.5\\) and \\(d=-0.5\\) and describe what does not change.'),
             expectedObservations: [text('Predznak spremeni stran odmika, ne pa stopnje ali vhodnih generatorjev.', 'The sign changes the offset side, not the degree or input generators.')],
-            scene: scene('ph-quintic-offset-negative', [action('set-offset-distance', -0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-0{,}5\\).', 'The offset at \\(d=-0.5\\) is shown.'),
+            scene: phQuinticScene('ph-quintic-offset-negative', [action('set-offset-distance', -0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-0{,}5\\), na levi (zgornji) strani krivulje.', 'The offset at \\(d=-0.5\\) is shown, on the left (upper) side of the curve.'),
         },
         {
             id: 'ph-quintic-analysis', order: 5, title: text('Samostojna analiza', 'Independent analysis'),
@@ -181,7 +189,7 @@ const phQuintic: GuidedLesson = {
             formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-analysis-explanation', 'explanation'), frame('ph-quintic-analysis-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
             observationPrompt: text('Izberi razdaljo odmika in razloži, kateri podatki ostanejo nespremenjeni.', 'Choose an offset distance and explain which data remain unchanged.'),
             expectedObservations: [text('Generatorji določajo PH-krivuljo in hitrost; \\(d\\) določa odmični prikaz.', 'The generators determine the PH curve and speed; \\(d\\) determines the offset display.')],
-            scene: scene('ph-quintic-analysis-scene', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Končna scena omogoča primerjavo osnovne in odmične krivulje.', 'The final scene enables comparison of base and offset curves.'),
+            scene: phQuinticScene('ph-quintic-analysis-scene', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Končna scena prikazuje odmik pri \\(d=1\\) na zunanji strani zavoja, kjer je odmik vedno regularen.', 'The final scene shows the offset at \\(d=1\\) on the outer side of the bend, where the offset is always regular.'),
         },
     ],
     sources: [
@@ -190,6 +198,7 @@ const phQuintic: GuidedLesson = {
     ],
     edgeCases: [
         text('Če hodograf izgine, regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes, regularity and a normal offset direction are not guaranteed.'),
+        text('Najmanjši polmer ukrivljenosti te krivulje je \\(1\\) (pri \\(t=1\\)); odmik na levi strani pri \\(d=-1\\) bi imel tam ostan, zato lekcija uporablja \\(d=-0{,}5\\).', 'The smallest radius of curvature of this curve is \\(1\\) (at \\(t=1\\)); the offset on the left at \\(d=-1\\) would have a cusp there, so the lesson uses \\(d=-0.5\\).'),
         text('Odmik ni dokaz, da sta dve krivulji povsod na enaki vizualni razdalji v projekciji zaslona.', 'An offset is not evidence that two curves are at equal visual distance in screen projection everywhere.'),
     ],
     unresolvedQuestions: [text('Pred classroom-ready pregledom preveri, ali želiš vključiti sekundarni graf generatorjev kot ločeno dejavnost.', 'Before classroom-ready review, decide whether the secondary generator graph should be a separate activity.')],
