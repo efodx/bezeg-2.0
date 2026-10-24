@@ -27,7 +27,7 @@ Keep dispatch guidance concise and separate it from evaluation history. The feed
 
 ## Scope
 
-This covers repository delegation, the authorized default changes, task handoffs, and evidence logging. It does not create permanent worker personas, install skills globally, introduce a benchmark harness, or change application behavior.
+This covers repository delegation, the authorized default changes, task handoffs, and evidence logging. It does not create permanent worker personas, install skills globally, or change application behavior. The [repeatable evaluation harness](#repeatable-evaluation-harness--2026-10-24) is the only benchmark harness; ordinary task evidence still comes from real work.
 
 ## Historical follow-up — 2026-10-15
 
@@ -113,6 +113,21 @@ Acceptance for this follow-up:
 ### Codex monitoring implementation — 2026-10-24
 
 The owner authorized implementation after the [Codex control probe](../agent-workflow/codex-handoff-probe-2026-10-24.md). The [monitoring spec](codex-worker-monitoring.md) defines automatic threshold detection and a handler-delivered cooperative handoff, including failure handling and live verification. It supersedes the guidance-only scope for this bounded tooling follow-up; model defaults and the trial budget stay unchanged. A hard token ceiling and efficiency improvement remain unproven.
+
+## Repeatable evaluation harness — 2026-10-24
+
+Observational records compare different tasks, so they cannot separate a workflow change from task difficulty. The owner asked for repeatable synthetic runs at three sizes, defaulting to medium, under the full current tooling; token budget is not a constraint because runs use spare capacity. This revises the earlier scope exclusion of a benchmark harness.
+
+Decision: replay past commits rather than invent tasks, composing each sandbox from three layers (base app commit, the solution's spec, current tooling) instead of a maintained branch or tag. A frozen branch would also freeze the workflow under test, could be pushed by mistake, and its history would expose the solution. Held-back tests from the solution commit grade the result without being visible to the agent.
+
+Acceptance:
+
+- `just eval setup [S|M|L|task]` creates a history-free sandbox outside the repository with no remote, the base app, the task spec, current tooling from `HEAD` (or a chosen revision or directory) and installed dependencies; medium is the default. Evaluation history and research are excluded because they describe the original solutions.
+- `just eval grade <run>` runs typecheck, all unit tests and build with the sandbox's tooling, then the solution's held-back tests. Contract tests use only spec-fixed names and behavior and decide acceptance; reference tests of the original design are informational. The report adds commits, uncommitted paths, diff size, and Claude and Codex usage scoped to the sandbox, split into handler and workers.
+- `just eval calibrate [task]` must show the reference solution passing every gate and hidden test and the base failing at least one contract test under current tooling. Calibrate after tooling changes; replace a task whose base no longer runs with current tooling.
+- A run is invalid when the agent read another checkout. Comparisons follow this spec's one-factor rule, with at least three runs per arm on the same task, and are recorded as a labeled pilot in the evaluation log; the harness verdict does not replace handler review against the spec.
+
+Tasks: S `count-setter` (`4a6c092`), M `chapter-activity-controls` (`aaa5c65`), L `fixed-point-lesson` (`3d37627`, Parts B and C). Procedure, layers and limits: [harness README](../../tools/agent-eval/README.md).
 
 ## Related files
 

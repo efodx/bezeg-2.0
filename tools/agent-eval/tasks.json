@@ -1,0 +1,65 @@
+{
+    "defaultTask": "chapter-activity-controls",
+    "tooling": [
+        ".codex",
+        ".gitignore",
+        "AGENTS.md",
+        "docs/agent-workflow.md",
+        "docs/commands.md",
+        "docs/smoke-tests.md",
+        "justfile",
+        "playwright.config.cjs",
+        "scripts/commands.cjs",
+        "scripts/commands.test.cjs",
+        "scripts/serve-smoke-build.cjs",
+        "tools/agent-usage",
+        "tools/skills"
+    ],
+    "tasks": [
+        {
+            "id": "count-setter",
+            "size": "S",
+            "class": "UI bug fix",
+            "base": "339bd28ad9c31716ca616bdd38fa932d146c4ae3",
+            "solution": "4a6c092205e035a5a6fcc2eb388df2710869eb16",
+            "spec": ["docs/specs/count-setter-value-visibility.md"],
+            "prompt": "Implement docs/specs/count-setter-value-visibility.md.",
+            "hidden": [
+                {"path": "tests/count-setter.smoke.spec.cjs", "tier": "contract", "kind": "smoke"}
+            ]
+        },
+        {
+            "id": "chapter-activity-controls",
+            "size": "M",
+            "class": "UI and accessibility fix",
+            "base": "ee0cb79335e5e0adb8d8adf3014da2f182e69129",
+            "solution": "aaa5c65db5662e72cd0c753a4d87f22d866c8d3b",
+            "spec": ["docs/specs/chapter-activity-controls.md"],
+            "prompt": "Implement docs/specs/chapter-activity-controls.md.",
+            "hidden": [
+                {"path": "tests/standalone-learning.smoke.spec.cjs", "tier": "contract", "kind": "smoke"}
+            ]
+        },
+        {
+            "id": "fixed-point-lesson",
+            "size": "L",
+            "class": "feature: graph, demonstration and guided lesson",
+            "base": "b6cfd2d6720834f6a01cbab1dd4453b0be047e8b",
+            "solution": "3d3762739d956234958d6571ab4535ccebf4017a",
+            "spec": [],
+            "prompt": "Implement Parts B and C of docs/tasks/analysis-guided-lessons/12-fixed-point-iteration.md. Part A, the mathematics, is already in place.",
+            "hidden": [
+                {"path": "src/Routes.test.tsx", "tier": "contract", "kind": "unit"},
+                {"path": "src/demonstrations.test.ts", "tier": "contract", "kind": "unit"},
+                {"path": "src/learning/runtime/lessonCatalog.test.ts", "tier": "contract", "kind": "unit"},
+                {"path": "src/learning/content/lessonMathNotation.test.ts", "tier": "contract", "kind": "unit"},
+                {"path": "src/analysis/fixedPoint.test.ts", "tier": "reference", "kind": "unit"},
+                {"path": "src/graphs/base/presets/PresetImport.test.ts", "tier": "reference", "kind": "unit"},
+                {"path": "src/graphs/functions/FixedPointGraph.test.ts", "tier": "reference", "kind": "unit"},
+                {"path": "src/graphs/functions/FixedPointGraph.host.test.tsx", "tier": "reference", "kind": "unit"},
+                {"path": "src/learning/content/analysisGuidedLessons.test.ts", "tier": "reference", "kind": "unit"},
+                {"path": "tests/guided-lessons.smoke.spec.cjs", "tier": "reference", "kind": "smoke", "args": ["--grep", "Lesson fixed-point"]}
+            ]
+        }
+    ]
+}

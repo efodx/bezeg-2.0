@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | typecheck | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test')
+    @console.log('Bezeg developer commands: just check | typecheck | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, all unit tests, then a provenance-recorded production build.
 check:
@@ -48,6 +48,10 @@ ci *args:
 # Serve the provenance-validated production build in the foreground.
 preview *args:
     @require('./scripts/commands.cjs').cli(['preview', ...process.argv.slice(2)])
+
+# Set up, grade or calibrate a repeatable workflow-evaluation sandbox (see tools/agent-eval/README.md).
+eval *args:
+    @require('./tools/agent-eval/agent_eval.cjs').cli(process.argv.slice(2))
 
 # Run the focused Node tests for this command runner.
 tooling-test:
