@@ -19,7 +19,7 @@ test('keeps the function lessons bounded, localized, and source-backed', () => {
     for (const lesson of functionGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
-        expect(lesson.steps.length).toBeLessThanOrEqual(6);
+        expect(lesson.steps.length).toBeLessThanOrEqual(7);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
         expect(new Set(lesson.steps.map(step => step.id)).size).toBe(lesson.steps.length);
         expect(new Set(lesson.steps.flatMap(step => step.frames.map(frame => frame.id))).size)
@@ -196,26 +196,67 @@ describe('trigonometric-functions lesson', () => {
     const source = () => functionGuidedLessons.find(entry => entry.demonstrationId === 'trigonometric-functions')!;
     const lesson = () => getLessonForDemonstration('trigonometric-functions')!;
 
-    test('is available with five steps and adapts its scenes into typed actions', () => {
+    test('is available with seven steps and adapts its scenes into typed actions', () => {
         expect(lesson().id).toBe('trigonometric-functions-guided');
-        expect(lesson().steps).toHaveLength(5);
+        expect(lesson().steps).toHaveLength(7);
+        expect(lesson().steps.map(step => step.id)).toEqual(['trig-base-sine', 'trig-amplitude', 'trig-vertical-shift', 'trig-frequency', 'trig-phase-cosine', 'trig-combined', 'trig-tangent']);
+        const reference = {kind: 'function-visibility', target: 'reference', visible: true};
+        const rest = (index: number) => lesson().steps[index].scene?.actions.slice(1);
         expect(lesson().steps[0].scene?.actions).toEqual([{kind: 'prepared-scene', sceneId: 'trig-default', source: 'demonstration-default'}]);
-        expect(lesson().steps[1].scene?.actions.slice(1)).toEqual([
-            {kind: 'function-parameter', name: 'A', value: 2},
-            {kind: 'function-parameter', name: 'B', value: -1},
+        // each introductory comparison changes exactly one parameter against the fixed dashed reference
+        expect(rest(1)).toEqual([{kind: 'function-parameter', name: 'A', value: 2}, reference]);
+        expect(rest(2)).toEqual([{kind: 'function-parameter', name: 'B', value: 1}, reference]);
+        expect(rest(3)).toEqual([{kind: 'function-parameter', name: 'omega', value: 2}, reference]);
+        expect(rest(4)).toEqual([
+            {kind: 'function-choice', name: 'trig-function', value: 'sin'},
+            {kind: 'function-parameter', name: 'phi', value: Math.PI / 2},
+            reference,
         ]);
-        expect(lesson().steps[2].scene?.actions.slice(1)).toEqual([
+        expect(rest(5)).toEqual([
             {kind: 'function-parameter', name: 'A', value: 2},
             {kind: 'function-parameter', name: 'omega', value: 2},
             {kind: 'function-parameter', name: 'phi', value: Math.PI / 2},
             {kind: 'function-parameter', name: 'B', value: 1},
         ]);
-        expect(lesson().steps[3].scene?.actions.slice(1)).toEqual([
-            {kind: 'function-choice', name: 'trig-function', value: 'sin'},
-            {kind: 'function-parameter', name: 'phi', value: Math.PI / 2},
-            {kind: 'function-visibility', target: 'reference', visible: true},
-        ]);
-        expect(lesson().steps[4].scene?.actions.slice(1)).toEqual([{kind: 'function-choice', name: 'trig-function', value: 'tan'}]);
+        expect(rest(6)).toEqual([{kind: 'function-choice', name: 'trig-function', value: 'tan'}]);
+    });
+
+    test('each introductory comparison changes one quantity against sin x and agrees with its displayed formula', () => {
+        const baseline = {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0} as const;
+        const scenes = {amplitude: {...baseline, A: 2}, vertical: {...baseline, B: 1}, frequency: {...baseline, omega: 2}, phase: {...baseline, phi: Math.PI / 2}};
+        // the actions of each scene set exactly the parameter named here (checked against the lesson content)
+        const setParameter = (index: number) => lesson().steps[index].scene!.actions
+            .filter(action => action.kind === 'function-parameter').map(action => (action as {name: string}).name);
+        expect([2, 3, 4, 5].map(i => setParameter(i - 1))).toEqual([['A'], ['B'], ['omega'], ['phi']]);
+        // amplitude: range [-2, 2], same period, same shift, same midline
+        expect(valueRange(scenes.amplitude)).toEqual([-2, 2]);
+        expect(period(scenes.amplitude)).toBeCloseTo(period(baseline), 12);
+        expect(phaseShift(scenes.amplitude)).toBe(phaseShift(baseline));
+        expect(amplitude(scenes.amplitude)).toBe(2);
+        expect(trigValue(scenes.amplitude, 1.3)).toBeCloseTo(2 * Math.sin(1.3), 12);
+        // vertical shift: range [0, 2], every point is 1 higher, amplitude and period unchanged
+        expect(valueRange(scenes.vertical)).toEqual([0, 2]);
+        expect(amplitude(scenes.vertical)).toBe(1);
+        expect(period(scenes.vertical)).toBeCloseTo(period(baseline), 12);
+        for (const x of [-3, -1, 0, 0.5, 2, 4]) expect(trigValue(scenes.vertical, x) - trigValue(baseline, x)).toBeCloseTo(1, 12);
+        // frequency: period pi (half of 2 pi), range unchanged, sin 2x
+        expect(period(scenes.frequency)).toBeCloseTo(Math.PI, 12);
+        expect(valueRange(scenes.frequency)).toEqual(valueRange(baseline));
+        expect(phaseShift(scenes.frequency)).toBe(0);
+        for (const x of [-3, -1, 0, 0.5, 2, 4]) {
+            expect(trigValue(scenes.frequency, x)).toBeCloseTo(Math.sin(2 * x), 12);
+            expect(trigValue(scenes.frequency, x + Math.PI)).toBeCloseTo(trigValue(scenes.frequency, x), 12);
+        }
+        // phase: shift -phi/omega = -pi/2 means to the left; a negative phi moves the graph to the right
+        expect(phaseShift(scenes.phase)).toBeCloseTo(-Math.PI / 2, 12);
+        expect(phaseShift({...baseline, phi: -Math.PI / 2})).toBeCloseTo(Math.PI / 2, 12);
+        expect(phaseShift({...baseline, omega: 2, phi: Math.PI / 2})).toBeCloseTo(-Math.PI / 4, 12);
+        expect(period(scenes.phase)).toBeCloseTo(period(baseline), 12);
+        expect(valueRange(scenes.phase)).toEqual(valueRange(baseline));
+        // the left shift: the shifted graph at x equals the baseline at x + pi/2 and its maximum sits at x = 0
+        for (const x of [-3, -1, 0, 0.5, 2, 4]) expect(trigValue(scenes.phase, x)).toBeCloseTo(Math.sin(x + Math.PI / 2), 12);
+        expect(trigValue(scenes.phase, -Math.PI / 2)).toBeCloseTo(0, 12);
+        expect(trigValue({...baseline, phi: -Math.PI / 2}, Math.PI)).toBeCloseTo(1, 12);
     });
 
     test('the worked example matches the mathematics: max 3, min -1, period pi, shift -pi/4', () => {
@@ -235,21 +276,23 @@ describe('trigonometric-functions lesson', () => {
         // step 1: the base wave
         expect(valueRange({fn: 'sin', A: 1, B: 0})).toEqual([-1, 1]);
         expect(period({fn: 'sin', omega: 1})).toBeCloseTo(6.28, 2);
-        // step 2: A = 2, B = -1
+        // step 2: A = 2 (B = 0), range [-2, 2]; step 3: B = 1, range [0, 2]
+        expect(valueRange({fn: 'sin', A: 2, B: 0})).toEqual([-2, 2]);
+        expect(valueRange({fn: 'sin', A: -2, B: 0})).toEqual([-2, 2]);
+        expect(valueRange({fn: 'sin', A: 1, B: 1})).toEqual([0, 2]);
         expect(valueRange({fn: 'sin', A: 2, B: -1})).toEqual([-3, 1]);
-        expect(valueRange({fn: 'sin', A: -2, B: -1})).toEqual([-3, 1]);
         expect(amplitude({fn: 'sin', A: -2})).toBe(2);
-        // step 3: shift -pi/4 = -0.79, period pi = 3.14, and f(0) = 2 sin(pi/2) + 1 = 3
+        // step 6: shift -pi/4 = -0.79, period pi = 3.14, and f(0) = 2 sin(pi/2) + 1 = 3
         const example = {fn: 'sin' as const, A: 2, omega: 2, phi: Math.PI / 2, B: 1};
         expect(phaseShift(example)).toBeCloseTo(-Math.PI / 4, 14);
         expect(formatNumber(Math.PI / 4, 'en')).toBe('0.79');
         expect(formatNumber(period(example), 'en')).toBe('3.14');
         expect(trigValue(example, 0)).toBeCloseTo(3, 12);
-        // step 4: cos x = sin(x + pi/2), shift -pi/2 = -1.57, maximum 1 at x = 0
+        // step 5: cos x = sin(x + pi/2), shift -pi/2 = -1.57, maximum 1 at x = 0
         for (const x of [-4, -1, 0, 2, 5]) expect(basicValue('sin', x + Math.PI / 2)).toBeCloseTo(basicValue('cos', x), 12);
         expect(formatNumber(Math.PI / 2, 'en')).toBe('1.57');
         expect(trigValue({fn: 'sin', A: 1, omega: 1, phi: Math.PI / 2, B: 0}, 0)).toBeCloseTo(1, 12);
-        // step 5: asymptotes of tan x in view: +-pi/2 = +-1.57 and +-3 pi/2 = +-4.71, period pi
+        // step 7: asymptotes of tan x in view: +-pi/2 = +-1.57 and +-3 pi/2 = +-4.71, period pi
         const asymptotes = tangentAsymptotes(1, 0, -7, 7);
         expect(asymptotes.map(x => Math.round(x * 100) / 100)).toEqual([-4.71, -1.57, 1.57, 4.71]);
         expect(period({fn: 'tan', omega: 1})).toBeCloseTo(Math.PI, 12);
@@ -496,10 +539,16 @@ describe('area between curves lesson', () => {
         expect(lesson().id).toBe('area-between-curves-guided');
         expect(lesson().steps).toHaveLength(5);
         const rest = (index: number) => lesson().steps[index].scene?.actions.slice(1);
-        expect(lesson().steps[0].scene?.actions[0]).toEqual({kind: 'prepared-scene', sceneId: 'area-under-g-scene', source: 'demonstration-default'});
-        expect(rest(0)).toEqual([{kind: 'function-choice', name: 'area-mode', value: 'under-g'}]);
-        expect(rest(1)).toEqual([
+        expect(lesson().steps[0].scene?.actions[0]).toEqual({kind: 'prepared-scene', sceneId: 'area-difference-scene', source: 'demonstration-default'});
+        // the lesson opens with the between-region on [1, 3] and only then splits it into the areas under g and f
+        expect(rest(0)).toEqual([
             {kind: 'function-choice', name: 'area-mode', value: 'between'},
+            {kind: 'function-parameter', name: 'a', value: 1},
+            {kind: 'function-parameter', name: 'b', value: 3},
+        ]);
+        expect(lesson().steps[1].scene?.actions[0]).toEqual({kind: 'prepared-scene', sceneId: 'area-under-g-scene', source: 'demonstration-default'});
+        expect(rest(1)).toEqual([
+            {kind: 'function-choice', name: 'area-mode', value: 'under-g'},
             {kind: 'function-parameter', name: 'a', value: 1},
             {kind: 'function-parameter', name: 'b', value: 3},
         ]);
@@ -528,7 +577,7 @@ describe('area between curves lesson', () => {
     test('every bound used by a scene is allowed by the graph', () => {
         const values = lesson().steps.flatMap(step => step.scene?.actions ?? [])
             .filter(action => action.kind === 'function-parameter').map(action => (action as {value: number}).value);
-        expect(values).toEqual([1, 3, 0, 4, 1, 3.5]);
+        expect(values).toEqual([1, 3, 1, 3, 0, 4, 1, 3.5]);
         values.forEach(value => expect(isAreaBound(value)).toBe(true));
     });
 
@@ -551,12 +600,12 @@ describe('area between curves lesson', () => {
     test('the numbers stated in the prose are correct', () => {
         // intersections (x-2)^2 = 3/2
         expect([round4(INTERSECTIONS[0]), round4(INTERSECTIONS[1])]).toEqual([0.7753, 3.2247]);
-        // step 1: under g 5 sqrt(1.5) = 6.1237, under f sqrt(1.5) = 1.2247 at the default bounds
+        // the default (intersection) bounds: under g 5 sqrt(1.5) = 6.1237, under f sqrt(1.5) = 1.2247
         expect(integralG(...INTERSECTIONS)).toBeCloseTo(5 * S, 12);
         expect(round4(5 * S)).toBe(6.1237);
         expect(integralF(...INTERSECTIONS)).toBeCloseTo(S, 12);
         expect(round4(S)).toBe(1.2247);
-        // step 2: [1, 3] gives 14/3, with the integrals 16/3 and 2/3 and the antiderivative 3x - (2/3)(x-2)^3
+        // steps 1-2: [1, 3] gives 14/3, with the integrals 16/3 and 2/3 and the antiderivative 3x - (2/3)(x-2)^3
         const D = (x: number) => 3 * x - (2 / 3) * Math.pow(x - 2, 3);
         expect(D(3) - D(1)).toBeCloseTo(14 / 3, 12);
         expect((9 - 2 / 3) - (3 + 2 / 3)).toBeCloseTo(14 / 3, 12);
@@ -582,6 +631,14 @@ describe('area between curves lesson', () => {
         expect(signedBetween(4, 0)).toBeCloseTo(-4 / 3, 12);
         expect(unsignedBetween(4, 0)).toBeCloseTo(unsignedBetween(0, 4), 12);
         // step 5: [1, 3.5]: signed 55/12 = 4.5833, area 4.9823; the last piece beyond 3.2247 contributes -0.1995 and +0.1995
+        // swapped bounds reverse the signed integral and keep the geometric area on the narrow crossing scene too
+        expect(signedBetween(3.5, 1)).toBeCloseTo(-55 / 12, 12);
+        expect(unsignedBetween(3.5, 1)).toBeCloseTo(unsignedBetween(1, 3.5), 12);
+        expect(signedBetween(3, 1)).toBeCloseTo(-14 / 3, 12);
+        expect(unsignedBetween(3, 1)).toBeCloseTo(14 / 3, 12);
+        // the crossing scenes separate signed from geometric: equal on [1, 3], different on [0, 4] and [1, 3.5]
+        expect(unsignedBetween(0, 4) - signedBetween(0, 4)).toBeGreaterThan(1);
+        expect(unsignedBetween(1, 3.5) - signedBetween(1, 3.5)).toBeGreaterThan(0.39);
         expect(signedBetween(1, 3.5)).toBeCloseTo(55 / 12, 12);
         expect(round4(55 / 12)).toBe(4.5833);
         expect(round4(unsignedBetween(1, 3.5))).toBe(4.9823);

@@ -1,5 +1,6 @@
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
+import {taylorAbsoluteError, taylorExample, taylorPolynomial} from '../../analysis/taylor';
 import {getLessonForDemonstration, isGuidedLessonAvailable, sceneAction} from '../runtime/lessonCatalog';
 import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
 import {BISECTION_EXAMPLE_IDS, bisectionHistory} from '../../analysis/bisection';
@@ -24,7 +25,7 @@ test('the analysis lessons are bounded, localized, source-backed and available',
         expect(getGuidedLesson(entry.demonstrationId)).toBe(entry);
         expect(isGuidedLessonAvailable(entry.demonstrationId)).toBe(true);
         expect(entry.steps.length).toBeGreaterThanOrEqual(5);
-        expect(entry.steps.length).toBeLessThanOrEqual(7);
+        expect(entry.steps.length).toBeLessThanOrEqual(8);
         expect(entry.steps.map(step => step.order)).toEqual(entry.steps.map((_, index) => index + 1));
         expect(new Set(entry.steps.map(step => step.id)).size).toBe(entry.steps.length);
         expect(new Set(entry.steps.flatMap(step => step.frames.map(frame => frame.id))).size)
@@ -902,20 +903,20 @@ describe('the taylor lesson', () => {
     const adaptedActions = (id: string) => adapted().steps.find(step => step.id === id)!.scene!.actions;
     const hide = {kind: 'function-visibility', target: 'taylor-bound', visible: false};
     const show = {kind: 'function-visibility', target: 'taylor-bound', visible: true};
-    const predictionSteps = ['taylor-prerequisites-step', 'taylor-sine-prediction-step', 'taylor-geometric-step', 'taylor-flat-prediction-step'];
+    const predictionSteps = ['taylor-prerequisites-step', 'taylor-exp-low-degrees-step', 'taylor-sine-prediction-step', 'taylor-geometric-step', 'taylor-flat-prediction-step'];
     const revealSteps = ['taylor-exp-step', 'taylor-sine-step', 'taylor-free-exploration'];
     const param = (name: string, value: number) => ({kind: 'function-parameter', name, value});
     const example = (value: string) => ({kind: 'function-choice', name: 'taylor-example', value});
 
     test('has the steps the task asks for, in order, and is adapted under the guided id', () => {
         expect(taylorLesson.steps.map(step => step.id)).toEqual([
-            'taylor-prerequisites-step', 'taylor-exp-step', 'taylor-sine-prediction-step', 'taylor-sine-step', 'taylor-geometric-step',
-            'taylor-flat-prediction-step', 'taylor-free-exploration',
+            'taylor-prerequisites-step', 'taylor-exp-low-degrees-step', 'taylor-exp-step', 'taylor-sine-prediction-step', 'taylor-sine-step',
+            'taylor-geometric-step', 'taylor-flat-prediction-step', 'taylor-free-exploration',
         ]);
         expect(adapted().id).toBe('taylor-guided');
-        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps).toHaveLength(8);
         expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
-        expect(taylorLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(18);
+        expect(taylorLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(20);
         expect(getGuidedLesson('taylor')).toBe(taylorLesson);
         expect(isGuidedLessonAvailable('taylor')).toBe(true);
     });
@@ -965,7 +966,7 @@ describe('the taylor lesson', () => {
         expect(opening[0].body!.en).toContain('higher derivatives');
         expect(opening[0].body!.en).toContain('factorials');
         expect(opening[0].notation!.map(item => item.en).join(' ')).toContain('has derivatives at the center through order');
-        expect(adapted().steps[1].frames![0].notation!.map(item => item.en).join(' ')).toContain('times differentiable between');
+        expect(adapted().steps[2].frames![0].notation!.map(item => item.en).join(' ')).toContain('times differentiable between');
         expect(opening[1].workedExample!.calculation.en).toContain('T_1(1)=1+1=2');
         expect(opening[1].workedExample!.calculation.en).not.toMatch(/T_[36]|5040/);
         expect(opening[1].workedExample!.check.en).toContain('bound stays hidden');
@@ -974,13 +975,15 @@ describe('the taylor lesson', () => {
             expect(tStep(id).frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);
         }
         const order = (id: string) => taylorLesson.steps.findIndex(step => step.id === id);
-        expect(order('taylor-prerequisites-step')).toBeLessThan(order('taylor-exp-step'));
+        expect(order('taylor-prerequisites-step')).toBeLessThan(order('taylor-exp-low-degrees-step'));
+        expect(order('taylor-exp-low-degrees-step')).toBeLessThan(order('taylor-exp-step'));
         expect(order('taylor-sine-prediction-step')).toBeLessThan(order('taylor-sine-step'));
         expect(order('taylor-flat-prediction-step')).toBeLessThan(order('taylor-free-exploration'));
     });
 
     test('the scenes encode the independently derived configurations', () => {
         expect(adaptedActions('taylor-prerequisites-step')).toEqual([{kind: 'prepared-scene', sceneId: 'taylor-prerequisites-scene', source: 'demonstration-default'}, hide]);
+        expect(adaptedActions('taylor-exp-low-degrees-step').slice(1)).toEqual([param('taylor-degree', 2), hide]);
         expect(adaptedActions('taylor-exp-step').slice(1)).toEqual([param('taylor-degree', 6), show]);
         expect(adaptedActions('taylor-sine-prediction-step').slice(1)).toEqual([example('sine'), hide]);
         expect(adaptedActions('taylor-sine-step').slice(1)).toEqual([example('sine'), show]);
@@ -1005,6 +1008,30 @@ describe('the taylor lesson', () => {
         expect(Math.E / factorial(7)).toBeCloseTo(0.000539, 6);
         expect(Math.E / factorial(7)).toBeGreaterThan(Math.E - t6);
         expect(Math.E).toBeLessThan(3);
+        // the repo's own evaluation agrees: e^x about 0 at x = 1 for degrees 1, 2, 3, 6 (degrees 1, 2, 3 are compared before 6)
+        const exp = taylorExample('exp');
+        const polynomialValues = [1, 2, 3, 6].map(n => taylorPolynomial(exp, 0, n, 1));
+        expect(polynomialValues[0]).toBeCloseTo(2, 14);
+        expect(polynomialValues[1]).toBeCloseTo(5 / 2, 14);
+        expect(polynomialValues[2]).toBeCloseTo(8 / 3, 14);
+        expect(polynomialValues[3]).toBeCloseTo(1957 / 720, 14);
+        const errors = [1, 2, 3, 6].map(n => taylorAbsoluteError(exp, 0, n, 1));
+        expect(errors[0]).toBeCloseTo(0.71828, 5);
+        expect(errors[1]).toBeCloseTo(0.21828, 5);
+        expect(errors[2]).toBeCloseTo(0.051615, 6);
+        expect(errors[3]).toBeCloseTo(0.000226, 6);
+        expect(errors[0]).toBeGreaterThan(errors[1]);
+        expect(errors[1]).toBeGreaterThan(errors[2]);
+        expect(errors[2]).toBeGreaterThan(errors[3]);
+        // the Lagrange bound with M = e < 3 holds at every compared degree (hypothesis: M bounds |f^(n+1)| between c and x)
+        [1, 2, 3, 6].forEach((n, index) => expect(errors[index]).toBeLessThanOrEqual(Math.E / factorial(n + 1)));
+        // the prose of the low-degree step states these values
+        const low = tStep('taylor-exp-low-degrees-step').explanation;
+        expect(low.en).toContain('\\frac52');
+        for (const value of ['0.7183', '0.2183', '0.0516']) expect(low.en).toContain(value);
+        for (const value of ['0{,}7183', '0{,}2183', '0{,}0516']) expect(low.sl).toContain(value);
+        expect([errors[0], errors[1], errors[2]].map(error => error.toFixed(4))).toEqual(['0.7183', '0.2183', '0.0516']);
+        expect(tStep('taylor-exp-step').explanation.en).toContain('0.2183');
         // sin x about 0 at x = 2: T_3 = 2 - 8/6 = 2/3, error about 0.2426, bound 16/24; T_5 = 14/15, error about 0.0240, bound 4/45
         expect(2 - 8 / 6).toBeCloseTo(2 / 3, 14);
         expect(Math.sin(2)).toBeCloseTo(0.9093, 4);
