@@ -28,6 +28,8 @@ The Node polling loop makes no model requests. Handler launches, empty polls, ex
 
 Account for handler overhead when assessing the budget trial. Prefer polling alongside useful work and batching idle waits within tools; compare total model-weighted handler and worker usage, including handoff and fresh-worker setup, against avoided worker usage. A lower worker peak alone is not an efficiency win. Longer handler wait batches reduce model round trips, but may delay the relay; no revised batch setting has a validated overshoot bound.
 
+A [controlled 40-second comparison](../../docs/specs/codex-worker-monitoring.md#observed-comparison) measured five handler model calls / 769k input for separate polls versus one model call / 155k input for batched waits. Both received the threshold event promptly. The successful batched arm's Standard-rate credit illustration was 71.4% lower; counting its failed instrumentation attempt reduced that advantage to 49.3%. This one pair supports batching waits, but does not establish net worker-budget savings or full relay latency. Keep waits bounded and only retain process handles when a running process actually returned one.
+
 ### Output and exits
 
 One JSON terminal event is written to stdout, with `event`, `parent_thread_id`, `agent_path`, nullable `observed_input_tokens`, nullable `threshold_input_tokens` (the crossing sample), `threshold`, nullable `rollout_path`, and optional `reason`. Argument errors print usage to stderr and exit 2; `--help` prints help and exits 0.
