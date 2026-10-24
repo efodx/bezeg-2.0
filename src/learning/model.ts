@@ -84,7 +84,8 @@ export type LessonAction =
     | {readonly kind: 'function-parameter'; readonly name: FunctionParameterName; readonly value: number}
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
     | {readonly kind: 'function-choice'; readonly name: FunctionChoiceName; readonly value: string}
-    | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'}
+    /** `view` sets the starting view, otherwise the default scene's own view handling applies. */
+    | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'; readonly view?: LessonViewBox}
     /** The default scene with the fixture's geometry; `view` sets the starting view, otherwise the current view stays. */
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'lesson-fixture'; readonly curve: LessonCurveFixture; readonly view?: LessonViewBox}
     | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'decasteljau-full-curve' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}

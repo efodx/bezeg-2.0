@@ -35,6 +35,13 @@ function cloneLessonValue<T>(value: T): T {
  */
 export type TransientState = Readonly<Record<string, unknown>>;
 
+/** Rejects a lesson view that is not a finite box [left, top, right, bottom] before any scene change. */
+function checkLessonView(view: LessonViewBox | undefined): void {
+    if (view && !(view.every(Number.isFinite) && view[0] < view[2] && view[3] < view[1])) {
+        throw new Error('The lesson view must be a finite box [left, top, right, bottom] with left < right and bottom < top.');
+    }
+}
+
 function isLessonState(value: unknown): value is {boardState: BoardState; graphState: unknown; data: unknown; transientState?: TransientState;
     displayState?: {size: number; axis: AxisSelect; pointLabelsVisible: boolean}} {
     if (!value || typeof value !== 'object') return false;
@@ -449,7 +456,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     protected registerLessonActions(registry: LessonActionRegistry): void {
         registry.on('prepared-scene', action => {
             if (action.source === 'demonstration-default') {
+                checkLessonView(action.view);
                 this.prepareLessonDefaultScene();
+                if (action.view) {
+                    this.board.setBoundingBox([...action.view], this.equalAxisUnits);
+                    this.boardUpdate();
+                }
                 return;
             }
             const data = this.lessonFixtureData(action.curve);
@@ -476,9 +488,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         if (!collection) throw new Error('This demonstration cannot check lesson geometry.');
         const checked = collection.check(cloneLessonValue(data));
         if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
-        if (view && !(view.every(Number.isFinite) && view[0] < view[2] && view[3] < view[1])) {
-            throw new Error('The lesson view must be a finite box [left, top, right, bottom] with left < right and bottom < top.');
-        }
+        checkLessonView(view);
         this.importPresetData(checked.data);
         if (view) this.board.setBoundingBox([...view], this.equalAxisUnits);
         // Replaced, not merged, as in the default scene.
