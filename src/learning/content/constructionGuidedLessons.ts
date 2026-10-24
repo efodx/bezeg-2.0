@@ -1,3 +1,4 @@
+import type {LessonCurveFixture, LessonViewBox} from '../model';
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -460,8 +461,8 @@ const rationalSubdivision: GuidedLesson = {
             title: text('Shema v homogenih koordinatah', 'The scheme in homogeneous coordinates'),
             purpose: text('Pojasniti, kako se uteži vključijo v rez.', 'Explaining how the weights enter the cut.'),
             explanation: text(
-                'Vsako točko zapišemo kot \\((w_iP_i,\\ w_i)\\) in v tej obliki izvedemo isto shemo kot pri navadni krivulji. Šele nato delimo s \\(w\\). Tako shema pri racionalnih krivuljah da tudi nove uteži.',
-                'Each point is written as \\((w_iP_i,\\ w_i)\\) and the same scheme as for an ordinary curve is run in that form. Only afterward do we divide by \\(w\\). This is how the scheme gives the new weights as well.',
+                'Vsako točko zapišemo kot \\((w_iP_i,\\ w_i)\\) in v tej obliki izvedemo isto shemo kot pri navadni krivulji. Šele nato delimo s \\(w\\). Tako shema pri racionalnih krivuljah da tudi nove uteži. Pri enakih utežeh so vse zadnje koordinate enake 1 in shema je navadna subdivizija; uteži delov se spremenijo le, kadar so izvirne uteži različne.',
+                'Each point is written as \\((w_iP_i,\\ w_i)\\) and the same scheme as for an ordinary curve is run in that form. Only afterward do we divide by \\(w\\). This is how the scheme gives the new weights as well. With equal weights all last coordinates equal 1 and the scheme is ordinary subdivision; the weights of the parts change only when the original weights differ.',
             ),
             formulaIds: ['rsd-homogeneous-scheme'],
             frames: [frame('rsd-homogeneous-rule-explanation', 'explanation'), frame('rsd-homogeneous-rule-observation', 'observation')],
@@ -479,8 +480,8 @@ const rationalSubdivision: GuidedLesson = {
             title: text('Rez pri \\(t=\\tfrac12\\)', 'The cut at \\(t=\\tfrac12\\)'),
             purpose: text('Izračunati točke in uteži obeh delov in jih primerjati s prikazom.', 'Computing the points and weights of both parts and comparing them with the display.'),
             explanation: text(
-                'Uteži vrstic sheme so \\(\\tfrac32,\\tfrac32,1\\), nato \\(\\tfrac32,\\tfrac54\\) in končno \\(\\tfrac{11}{8}\\). Levi del ima uteži \\((1,\\ \\tfrac32,\\ \\tfrac32,\\ \\tfrac{11}8)\\), desni pa \\((\\tfrac{11}8,\\ \\tfrac54,\\ 1,\\ 1)\\). Uteži delov se razlikujejo od \\((1,2,1,1)\\), krivulja pa ostane enaka.',
-                'The weights of the rows of the scheme are \\(\\tfrac32,\\tfrac32,1\\), then \\(\\tfrac32,\\tfrac54\\) and finally \\(\\tfrac{11}{8}\\). The left part has weights \\((1,\\ \\tfrac32,\\ \\tfrac32,\\ \\tfrac{11}8)\\) and the right one \\((\\tfrac{11}8,\\ \\tfrac54,\\ 1,\\ 1)\\). The weights of the parts differ from \\((1,2,1,1)\\), while the curve stays the same.',
+                'Uteži vrstic sheme so \\(\\tfrac32,\\tfrac32,1\\), nato \\(\\tfrac32,\\tfrac54\\) in končno \\(\\tfrac{11}{8}\\). Levi del ima uteži \\((1,\\ \\tfrac32,\\ \\tfrac32,\\ \\tfrac{11}8)\\), desni pa \\((\\tfrac{11}8,\\ \\tfrac54,\\ 1,\\ 1)\\). Uteži delov se razlikujejo od \\((1,2,1,1)\\), krivulja pa ostane enaka. Pri enakih utežeh bi bila skupna točka navadna točka \\(B\\left(\\tfrac12\\right)=(0,\\,\\tfrac32)\\); utež 2 jo premakne v \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\).',
+                'The weights of the rows of the scheme are \\(\\tfrac32,\\tfrac32,1\\), then \\(\\tfrac32,\\tfrac54\\) and finally \\(\\tfrac{11}{8}\\). The left part has weights \\((1,\\ \\tfrac32,\\ \\tfrac32,\\ \\tfrac{11}8)\\) and the right one \\((\\tfrac{11}8,\\ \\tfrac54,\\ 1,\\ 1)\\). The weights of the parts differ from \\((1,2,1,1)\\), while the curve stays the same. With equal weights the shared point would be the ordinary point \\(B\\left(\\tfrac12\\right)=(0,\\,\\tfrac32)\\); the weight 2 moves it to \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\).',
             ),
             formulaIds: ['rsd-homogeneous-scheme', 'rsd-junction-weight'],
             frames: [frame('rsd-half-example-explanation', 'explanation'), frame('rsd-half-example-calculation', 'calculation'), frame('rsd-half-example-observation', 'observation')],
@@ -691,12 +692,22 @@ const extrapolation: GuidedLesson = {
 // rational-extrapolation
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Rational extrapolation fixtures: the route's default curve (weights (1,2,1,1)) with views that contain every extended
+ * control point. The scheme's third control point is (176/13, 33/13) at t=6/5 (x of about 13.54, outside the default view
+ * [-5, 5, 5, -5]) and (-29.5, 6) with weight -1/2 at t=3/2. D(s) = 1 + 3s(1 - s)^2 >= 1 for s >= 0, with its only real root
+ * at s of about -0.2229, outside the extended interval.
+ */
+const rationalExtrapolationFixture: LessonCurveFixture = {points: [[-4, -3], [-3, 3], [3, 3], [4, -1]], weights: [1, 2, 1, 1]};
+const rationalExtrapolationExampleView: LessonViewBox = [-7, 8, 17, -6];
+const rationalExtrapolationNegativeWeightView: LessonViewBox = [-34, 9, 6, -6];
+
 const rationalExtrapolation: GuidedLesson = {
     demonstrationId: 'rational-extrapolation',
     title: text('Ekstrapolacija racionalne Bézierjeve krivulje', 'Extrapolation of a rational Bézier curve'),
     summary: text(
-        'V homogenih koordinatah \\((w_iP_i,\\ w_i)\\) se ekstrapolacija izvede enako kot pri navadni krivulji in da krivuljo \\(E(u)=B(tu)\\). Nove uteži \\(1,\\ 1+t,\\ 1+2t-2t^2,\\ w(t)\\) lahko postanejo nepozitivne, ker pa imenovalec izvirne krivulje ostane pozitiven, pola ni.',
-        'In homogeneous coordinates \\((w_iP_i,\\ w_i)\\) extrapolation is carried out exactly as for an ordinary curve and gives the curve \\(E(u)=B(tu)\\). The new weights \\(1,\\ 1+t,\\ 1+2t-2t^2,\\ w(t)\\) can become non-positive, but the denominator of the original curve stays positive, so there is no pole.',
+        'V homogenih koordinatah \\((w_iP_i,\\ w_i)\\) se ekstrapolacija izvede enako kot pri navadni krivulji in da krivuljo \\(E(u)=B(tu)\\). Nove uteži \\(1,\\ 1+t,\\ 1+2t-2t^2,\\ w(t)\\) lahko postanejo nepozitivne, a negativna utež kontrolne točke sama ni pol: pol bi bila ničla imenovalca \\(D\\) izvirne krivulje, ta pa je na podaljšanem intervalu \\([0,t]\\) pozitiven.',
+        'In homogeneous coordinates \\((w_iP_i,\\ w_i)\\) extrapolation is carried out exactly as for an ordinary curve and gives the curve \\(E(u)=B(tu)\\). The new weights \\(1,\\ 1+t,\\ 1+2t-2t^2,\\ w(t)\\) can become non-positive, but a negative control weight is not itself a pole: a pole would be a zero of the denominator \\(D\\) of the original curve, and \\(D\\) is positive on the extended interval \\([0,t]\\).',
     ),
     prerequisites: [
         text('Potrebno je poznavanje ekstrapolacije Bézierjeve krivulje in racionalne krivulje z utežmi.', 'Assumes familiarity with extrapolating a Bézier curve and with a rational curve with weights.'),
@@ -705,7 +716,7 @@ const rationalExtrapolation: GuidedLesson = {
     learningGoals: [
         text('Razložiš, da je podaljšek še vedno \\(B(tu)\\) in da sledi izvirni racionalni krivulji.', 'Explain that the extension is still \\(B(tu)\\) and follows the original rational curve.'),
         text('Izračunaš nove uteži pri \\(t=\\tfrac65\\) za privzeto krivuljo.', 'Compute the new weights at \\(t=\\tfrac65\\) for the default curve.'),
-        text('Poveš, zakaj negativna utež nove predstavitve ni pol krivulje in kaj izgubimo.', 'State why a negative weight of the new representation is not a pole of the curve and what is lost.'),
+        text('Poveš, zakaj negativna utež nove predstavitve ni pol krivulje, preveriš imenovalec na celotnem podaljšanem intervalu in poveš, kaj izgubimo.', 'State why a negative weight of the new representation is not a pole of the curve, check the denominator on the whole extended interval, and say what is lost.'),
     ],
     formulaBlocks: [
         {
@@ -734,14 +745,14 @@ const rationalExtrapolation: GuidedLesson = {
         },
         {
             id: 'rex-denominator',
-            latex: 'D(s)=\\sum_{i=0}^{3}b_{i,3}(s)\\,w_i=1+3s-6s^2+3s^3\\ge1\\quad\\text{for}\\ s\\in[0,\\tfrac32]',
+            latex: 'D(s)=\\sum_{i=0}^{3}b_{i,3}(s)\\,w_i=1+3s-6s^2+3s^3=1+3s(1-s)^2\\ge1\\quad\\text{for}\\ s\\ge0',
             notation: text(
                 'Imenovalec \\(D(s)\\) izvirne racionalne krivulje; \\(b_{i,3}\\) so Bernsteinovi polinomi, \\(w_i\\) privzete uteži.',
                 'The denominator \\(D(s)\\) of the original rational curve; the \\(b_{i,3}\\) are Bernstein polynomials and the \\(w_i\\) are the default weights.',
             ),
             explanation: text(
-                'Ker je \\(D(s)\\ge1\\) na \\([0,\\tfrac32]\\), v izvirni krivulji ni pola in je \\(E(u)=B(tu)\\) povsod dobro definirana. Negativna utež pomeni le, da nova predstavitev nima več lastnosti konveksne ovojnice.',
-                'Because \\(D(s)\\ge1\\) on \\([0,\\tfrac32]\\), the original curve has no pole and \\(E(u)=B(tu)\\) is well defined everywhere. A negative weight only means the new representation no longer has the convex hull property.',
+                'Ker je \\(3s(1-s)^2\\ge0\\) za \\(s\\ge0\\), je \\(D(s)\\ge1\\) na vsem podaljšanem intervalu \\([0,t]\\), tudi do \\(t=\\tfrac32\\): tam ni pola in je \\(E(u)=B(tu)\\) povsod dobro definirana. Pozitivne uteži na \\([0,1]\\) pa same po sebi ne izključijo pola zunaj: ta \\(D\\) ima ničlo pri \\(s\\approx-0{,}223\\), torej pred začetkom krivulje. Negativna utež kontrolne točke ni pol; pomeni le, da nova predstavitev nima več lastnosti konveksne ovojnice.',
+                'Because \\(3s(1-s)^2\\ge0\\) for \\(s\\ge0\\), we have \\(D(s)\\ge1\\) on the whole extended interval \\([0,t]\\), up to \\(t=\\tfrac32\\): there is no pole there, and \\(E(u)=B(tu)\\) is well defined everywhere. Positive weights on \\([0,1]\\) do not by themselves exclude a pole outside it, though: this \\(D\\) has a zero at \\(s\\approx-0.223\\), before the start of the curve. A negative control weight is not a pole; it only means the new representation no longer has the convex hull property.',
             ),
         },
     ],
@@ -763,8 +774,8 @@ const rationalExtrapolation: GuidedLesson = {
             title: text('Racionalna krivulja in točka zunaj nje', 'A rational curve and a point beyond it'),
             purpose: text('Videti izhodišče: uteži in označeno točko \\(B(t)\\) zunaj krivulje.', 'Seeing the starting point: the weights and the marked point \\(B(t)\\) beyond the curve.'),
             explanation: text(
-                'Privzeta racionalna krivulja ima uteži \\((1,2,1,1)\\). Točka pri \\(t=\\tfrac65\\) leži zunaj narisanega loka: racionalna funkcija \\(B\\) je tam še vedno definirana, ker je imenovalec pozitiven.',
-                'The default rational curve has weights \\((1,2,1,1)\\). The point at \\(t=\\tfrac65\\) lies outside the drawn arc: the rational function \\(B\\) is still defined there because its denominator is positive.',
+                'Privzeta racionalna krivulja ima uteži \\((1,2,1,1)\\). Točka pri \\(t=\\tfrac65\\) leži zunaj narisanega loka: racionalna funkcija \\(B\\) je tam še vedno definirana, ker je njen imenovalec \\(D(s)\\) pozitiven na vsem intervalu \\([0,\\tfrac65]\\) (najmanj 1).',
+                'The default rational curve has weights \\((1,2,1,1)\\). The point at \\(t=\\tfrac65\\) lies outside the drawn arc: the rational function \\(B\\) is still defined there because its denominator \\(D(s)\\) is positive on the whole interval \\([0,\\tfrac65]\\) (at least 1).',
             ),
             formulaIds: ['rex-denominator'],
             frames: [frame('rex-weighted-curve-explanation', 'explanation'), frame('rex-weighted-curve-observation', 'observation')],
@@ -801,8 +812,8 @@ const rationalExtrapolation: GuidedLesson = {
             title: text('Podaljšek pri \\(t=\\tfrac65\\)', 'The extension at \\(t=\\tfrac65\\)'),
             purpose: text('Izračunati nove točke in uteži in jih primerjati s prikazom.', 'Computing the new points and weights and comparing them with the display.'),
             explanation: text(
-                'Gumb Ekstrapoliraj nadomesti krivuljo z \\(E(u)=B(\\tfrac{6u}{5})\\). Nove uteži so \\(1,\\ \\tfrac{11}5,\\ \\tfrac{13}{25},\\ \\tfrac{143}{125}\\), tj. \\(1,\\ 2{,}2,\\ 0{,}52,\\ 1{,}144\\). Tretja kontrolna točka je daleč od krivulje, ker ima majhno utež.',
-                'The Extrapolate button replaces the curve with \\(E(u)=B(\\tfrac{6u}{5})\\). The new weights are \\(1,\\ \\tfrac{11}5,\\ \\tfrac{13}{25},\\ \\tfrac{143}{125}\\), that is \\(1,\\ 2.2,\\ 0.52,\\ 1.144\\). The third control point is far from the curve because its weight is small.',
+                'Gumb Ekstrapoliraj nadomesti krivuljo z \\(E(u)=B(\\tfrac{6u}{5})\\). Nove uteži so \\(1,\\ \\tfrac{11}5,\\ \\tfrac{13}{25},\\ \\tfrac{143}{125}\\), tj. \\(1,\\ 2{,}2,\\ 0{,}52,\\ 1{,}144\\). Tretja kontrolna točka \\(\\left(\\tfrac{176}{13},\\,\\tfrac{33}{13}\\right)\\approx(13{,}54;\\ 2{,}54)\\) je daleč od krivulje, ker ima majhno utež; pogled je zato razširjen, da je vidna.',
+                'The Extrapolate button replaces the curve with \\(E(u)=B(\\tfrac{6u}{5})\\). The new weights are \\(1,\\ \\tfrac{11}5,\\ \\tfrac{13}{25},\\ \\tfrac{143}{125}\\), that is \\(1,\\ 2.2,\\ 0.52,\\ 1.144\\). The third control point \\(\\left(\\tfrac{176}{13},\\,\\tfrac{33}{13}\\right)\\approx(13.54,\\ 2.54)\\) is far from the curve because its weight is small; the view is widened so that it is visible.',
             ),
             formulaIds: ['rex-homogeneous', 'rex-weights'],
             frames: [frame('rex-example-explanation', 'explanation'), frame('rex-example-calculation', 'calculation'), frame('rex-example-observation', 'observation')],
@@ -811,28 +822,28 @@ const rationalExtrapolation: GuidedLesson = {
             observationPrompt: text('Preberi uteži ob kontrolnih točkah in poišči kontrolno točko z najmanjšo utežjo.', 'Read the weights next to the control points and find the control point with the smallest weight.'),
             expectedObservations: [text('Še vedno je ena krivulja s štirimi točkami; najmanjšo utež \\(0{,}52\\) ima tretja kontrolna točka, ki je daleč desno.', 'There is still one curve with four points; the smallest weight \\(0.52\\) belongs to the third control point, which is far to the right.')],
             scene: {
-                id: 'rex-after-twelve-tenths', basedOn: 'demonstration-default',
+                id: 'rex-after-twelve-tenths', basedOn: 'lesson-fixture', curve: rationalExtrapolationFixture, view: rationalExtrapolationExampleView,
                 actions: [{name: 'show-weights', value: true}, {name: 'set-extrapolation-parameter', value: 1.2}, {name: 'extrapolate', value: true}],
-                expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac65\\), uteži so vidne.', 'The curve is extended at \\(t=\\tfrac65\\), with the weights visible.'),
+                expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac65\\), uteži so vidne, pogled pa vključuje vse štiri nove kontrolne točke.', 'The curve is extended at \\(t=\\tfrac65\\), with the weights visible, and the view includes all four new control points.'),
             },
         },
         {
             id: 'rex-negative-weight', order: 4,
-            title: text('Negativna utež, a brez pola', 'A negative weight, yet no pole'),
+            title: text('Napredno: negativna utež, a brez pola', 'Advanced: a negative weight, yet no pole'),
             purpose: text('Pojasniti, kaj pomeni nepozitivna utež nove predstavitve.', 'Explaining what a non-positive weight of the new representation means.'),
             explanation: text(
-                'Pri \\(t=\\tfrac32\\) so uteži \\(1,\\ \\tfrac52,\\ -\\tfrac12,\\ \\tfrac{17}8\\); tretja je nič pri \\(t=\\tfrac{1+\\sqrt3}2\\approx1{,}366\\) in negativna za večje \\(t\\). To ni pol: imenovalec izvirne krivulje \\(D(s)\\) je na \\([0,\\tfrac32]\\) vsaj 1 (pri \\(s=\\tfrac32\\) je \\(\\tfrac{17}8\\)), zato je \\(E(u)=B(tu)\\) povsod definirana. Nova predstavitev pa izgubi lastnost konveksne ovojnice. Točka z negativno utežjo leži pri približno \\((-29{,}5;\\ 6)\\), daleč zunaj privzetega pogleda, ker majhna absolutna vrednost uteži točko oddalji. Če jo želiš videti, večkrat pritisni gumb Oddalji graf v skupini Premikanje in povečava grafa.',
-                'At \\(t=\\tfrac32\\) the weights are \\(1,\\ \\tfrac52,\\ -\\tfrac12,\\ \\tfrac{17}8\\); the third is zero at \\(t=\\tfrac{1+\\sqrt3}2\\approx1.366\\) and negative for larger \\(t\\). That is not a pole: the denominator \\(D(s)\\) of the original curve is at least 1 on \\([0,\\tfrac32]\\) (it is \\(\\tfrac{17}8\\) at \\(s=\\tfrac32\\)), so \\(E(u)=B(tu)\\) is defined everywhere. The new representation, however, loses the convex hull property. The control point with the negative weight lies at about \\((-29.5,\\ 6)\\), far outside the default view, because a small absolute weight pushes the point far out. To see it, press the Zoom out button several times in the Graph pan and zoom group.',
+                'Pri \\(t=\\tfrac32\\) so uteži \\(1,\\ \\tfrac52,\\ -\\tfrac12,\\ \\tfrac{17}8\\); tretja je nič pri \\(t=\\tfrac{1+\\sqrt3}2\\approx1{,}366\\) in negativna za večje \\(t\\). Negativna utež kontrolne točke sama ni pol. Pol je ničla imenovalca \\(D(s)=1+3s(1-s)^2\\) izvirne krivulje, ta pa je na \\([0,\\tfrac32]\\) vsaj 1 (pri \\(s=\\tfrac32\\) je \\(\\tfrac{17}8\\)), zato je \\(E(u)=B(tu)\\) povsod definirana. Pozitivne uteži na \\([0,1]\\) ne zagotavljajo, da pola ni zunaj tega intervala: ta \\(D\\) ima ničlo pri \\(s\\approx-0{,}223\\), a ta leži pred začetkom krivulje. Nova predstavitev pa izgubi lastnost konveksne ovojnice. Točka z negativno utežjo leži pri \\((-29{,}5;\\ 6)\\), daleč od krivulje, ker majhna absolutna vrednost uteži točko oddalji; pogled je zato razširjen, da je vidna.',
+                'At \\(t=\\tfrac32\\) the weights are \\(1,\\ \\tfrac52,\\ -\\tfrac12,\\ \\tfrac{17}8\\); the third is zero at \\(t=\\tfrac{1+\\sqrt3}2\\approx1.366\\) and negative for larger \\(t\\). A negative control weight is not itself a pole. A pole is a zero of the denominator \\(D(s)=1+3s(1-s)^2\\) of the original curve, and \\(D\\) is at least 1 on \\([0,\\tfrac32]\\) (it is \\(\\tfrac{17}8\\) at \\(s=\\tfrac32\\)), so \\(E(u)=B(tu)\\) is defined everywhere. Positive weights on \\([0,1]\\) do not guarantee that there is no pole outside that interval: this \\(D\\) has a zero at \\(s\\approx-0.223\\), but it lies before the start of the curve. The new representation, however, loses the convex hull property. The control point with the negative weight lies at \\((-29.5,\\ 6)\\), far from the curve, because a small absolute weight pushes the point far out; the view is widened so that it is visible.',
             ),
             formulaIds: ['rex-weights', 'rex-denominator'],
             frames: [frame('rex-negative-weight-explanation', 'explanation'), frame('rex-negative-weight-observation', 'observation')],
             learnerInteraction: 'observe',
-            observationPrompt: text('Preveri, da je krivulja kljub negativni uteži ena sama gladka krivulja brez preloma in pola. Če želiš videti točko z negativno utežjo, večkrat pritisni Oddalji graf.', 'Check that the curve is nevertheless a single smooth curve with no break and no pole. To see the negative-weight point, press Zoom out several times.'),
-            expectedObservations: [text('Krivulja se zvezno nadaljuje brez pola in preloma; tretja kontrolna točka z utežjo \\(-\\tfrac12\\) leži pri približno \\((-29{,}5;\\ 6)\\), zunaj privzetega pogleda, in se pokaže po oddaljitvi grafa.', 'The curve continues smoothly with no pole or break; the third control point with weight \\(-\\tfrac12\\) lies at about \\((-29.5,\\ 6)\\), outside the default view, and appears after zooming out.')],
+            observationPrompt: text('Preveri, da je krivulja kljub negativni uteži ena sama gladka krivulja brez preloma in pola, in poišči kontrolno točko z negativno utežjo.', 'Check that the curve is nevertheless a single smooth curve with no break and no pole, and find the control point with the negative weight.'),
+            expectedObservations: [text('Krivulja se zvezno nadaljuje brez pola in preloma; tretja kontrolna točka z utežjo \\(-\\tfrac12\\) leži pri \\((-29{,}5;\\ 6)\\), daleč levo od krivulje, a v pogledu.', 'The curve continues smoothly with no pole or break; the third control point with weight \\(-\\tfrac12\\) lies at \\((-29.5,\\ 6)\\), far to the left of the curve but inside the view.')],
             scene: {
-                id: 'rex-after-three-halves', basedOn: 'demonstration-default',
+                id: 'rex-after-three-halves', basedOn: 'lesson-fixture', curve: rationalExtrapolationFixture, view: rationalExtrapolationNegativeWeightView,
                 actions: [{name: 'show-weights', value: true}, {name: 'set-extrapolation-parameter', value: 1.5}, {name: 'extrapolate', value: true}],
-                expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac32\\), uteži so vidne (\\(1\\), \\(2{,}50\\), \\(-0{,}50\\), \\(2{,}13\\)); točka z negativno utežjo je zunaj privzetega pogleda.', 'The curve is extended at \\(t=\\tfrac32\\), with the weights visible (\\(1\\), \\(2.50\\), \\(-0.50\\), \\(2.13\\)); the negative-weight point is outside the default view.'),
+                expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac32\\), uteži so vidne (\\(1\\), \\(2{,}50\\), \\(-0{,}50\\), \\(2{,}13\\)); pogled vključuje točko z negativno utežjo.', 'The curve is extended at \\(t=\\tfrac32\\), with the weights visible (\\(1\\), \\(2.50\\), \\(-0.50\\), \\(2.13\\)); the view includes the negative-weight point.'),
             },
         },
     ],
@@ -847,10 +858,11 @@ const rationalExtrapolation: GuidedLesson = {
     ],
     edgeCases: [
         text('Pri \\(t>\\tfrac{1+\\sqrt3}2\\) ima tretja kontrolna točka nepozitivno utež; krivulja je še vedno enaka \\(B(tu)\\).', 'For \\(t>\\tfrac{1+\\sqrt3}2\\) the third control point has a non-positive weight; the curve is still equal to \\(B(tu)\\).'),
-        text('Točke z majhno ali negativno utežjo so lahko zelo daleč in zunaj vidnega območja; to je posledica predstavitve, ne napaka krivulje.', 'Points with a small or negative weight can be very far away and outside the visible area; this is a property of the representation, not an error of the curve.'),
+        text('Točke z majhno ali negativno utežjo so lahko zelo daleč in zunaj vidnega območja; to je posledica predstavitve, ne napaka krivulje. Lekcija zato za primera \\(t=\\tfrac65\\) in \\(t=\\tfrac32\\) razširi pogled.', 'Points with a small or negative weight can be very far away and outside the visible area; this is a property of the representation, not an error of the curve. The lesson therefore widens the view for the cases \\(t=\\tfrac65\\) and \\(t=\\tfrac32\\).'),
+        text('Pozitivne uteži na \\([0,1]\\) ne izključijo pola zunaj tega intervala; za to krivuljo pa je \\(D(s)\\ge1\\) za \\(s\\ge0\\), zato podaljšanje do \\(t=\\tfrac32\\) pola ne zadene, podaljšanje v nasprotno smer čez \\(s\\approx-0{,}223\\) pa bi ga.', 'Positive weights on \\([0,1]\\) do not exclude a pole outside that interval; for this curve \\(D(s)\\ge1\\) for \\(s\\ge0\\), so extending to \\(t=\\tfrac32\\) meets no pole, whereas extending in the opposite direction past \\(s\\approx-0.223\\) would.'),
     ],
     unresolvedQuestions: [
-        text('Pred classroom-ready pregledom je treba potrditi vir za racionalne krivulje z negativnimi utežmi in prikaz točk zunaj vidnega območja pri \\(t=\\tfrac32\\).', 'Before classroom-ready review, confirm the source for rational curves with negative weights and how points outside the visible area at \\(t=\\tfrac32\\) are shown.'),
+        text('Pred classroom-ready pregledom je treba potrditi vir za racionalne krivulje z negativnimi utežmi.', 'Before classroom-ready review, confirm the source for rational curves with negative weights.'),
     ],
 };
 

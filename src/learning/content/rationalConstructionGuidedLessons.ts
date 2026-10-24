@@ -381,8 +381,8 @@ const farinExamples: readonly WorkedExample[] = [
         calculationLatex: '\\frac{\\lVert f_0-p_0\\rVert}{\\lVert f_0-p_1\\rVert}=2,\\quad \\frac{\\lVert f_1-p_1\\rVert}{\\lVert f_1-p_2\\rVert}=\\tfrac12,\\quad \\frac{\\lVert f_2-p_2\\rVert}{\\lVert f_2-p_3\\rVert}=1;\\qquad w_1=1\\cdot2,\\ \\ w_2=2\\cdot\\tfrac12,\\ \\ w_3=1\\cdot1',
         resultLatex: 'w=(1,2,1,1)',
         check: text(
-            'Dobili smo privzete uteži, torej velja obratna pot: uteži določajo Farinove točke in Farinove točke natanko določajo uteži.',
-            'We get the default weights back, so the way also works in reverse: the weights determine the Farin points and the Farin points determine the weights exactly.',
+            'Dobili smo privzete uteži, torej velja obratna pot: uteži določajo Farinove točke, Farinove točke pa določajo uteži do skupnega pozitivnega faktorja. Zato izberemo normalizacijo \\(w_0=1\\); množenje vseh uteži z isto \\(c>0\\) ne spremeni ne krivulje ne Farinovih točk.',
+            'We get the default weights back, so the way also works in reverse: the weights determine the Farin points, and the Farin points determine the weights up to a common positive factor. That is why we normalize with \\(w_0=1\\); multiplying all weights by the same \\(c>0\\) changes neither the curve nor the Farin points.',
         ),
     },
     {
@@ -401,8 +401,8 @@ const farinExamples: readonly WorkedExample[] = [
         calculationLatex: 'n=3,\\ \\rho=\\sqrt[3]{27}=3,\\ \\tilde w_i=\\frac{w_i}{\\sqrt[3]{27^{i}}}=\\frac{3^i}{3^i}=1;\\qquad \\varphi(t)=\\frac{t}{3-2t}',
         resultLatex: '\\tilde w=(1,1,1,1),\\qquad R_w(s)=B\\Bigl(\\frac{3s}{1+2s}\\Bigr),\\quad R_w\\bigl(\\tfrac12\\bigr)=B\\bigl(\\tfrac34\\bigr)=\\bigl(\\tfrac{79}{32},\\tfrac38\\bigr)',
         check: text(
-            'Enake uteži dajo polinomsko Bézierjevo krivuljo z istimi kontrolnimi točkami. Točka \\(R_w(\\tfrac12)\\) leži na tej krivulji pri \\(t=\\tfrac34\\), torej krivulja ostane ista, spremeni se le parametrizacija.',
-            'Equal weights give the polynomial Bézier curve with the same control points. The point \\(R_w(\\tfrac12)\\) lies on that curve at \\(t=\\tfrac34\\), so the curve stays the same and only the parameterization changes.',
+            'Enake uteži dajo polinomsko Bézierjevo krivuljo z istimi kontrolnimi točkami. Točka \\(R_w(\\tfrac12)\\) leži na tej krivulji pri \\(t=\\tfrac34\\), torej krivulja ostane ista, spremeni se le parametrizacija. Pri parametru \\(\\tfrac12\\) je zato točka pred standardizacijo \\(B\\left(\\tfrac34\\right)=\\left(\\tfrac{79}{32},\\,\\tfrac38\\right)\\), po njej pa \\(B\\left(\\tfrac12\\right)=\\left(0,\\,\\tfrac32\\right)\\).',
+            'Equal weights give the polynomial Bézier curve with the same control points. The point \\(R_w(\\tfrac12)\\) lies on that curve at \\(t=\\tfrac34\\), so the curve stays the same and only the parameterization changes. At parameter \\(\\tfrac12\\) the point is therefore \\(B\\left(\\tfrac34\\right)=\\left(\\tfrac{79}{32},\\,\\tfrac38\\right)\\) before standardization and \\(B\\left(\\tfrac12\\right)=\\left(0,\\,\\tfrac32\\right)\\) after it.',
         ),
     },
 ];
@@ -460,8 +460,8 @@ const farinLesson: GuidedLesson = {
             title: text('Uteži iz Farinovih točk', 'Weights from the Farin points'),
             purpose: text('Spoznati, da Farinove točke natanko določajo uteži.', 'Seeing that the Farin points determine the weights exactly.'),
             explanation: text(
-                'Ker razmerje \\(\\lVert f_i-p_i\\rVert:\\lVert f_i-p_{i+1}\\rVert\\) je \\(w_{i+1}:w_i\\), lahko pri \\(w_0=1\\) uteži izračunamo ena za drugo: \\(w_{i+1}=w_i\\,\\lVert f_i-p_i\\rVert/\\lVert f_i-p_{i+1}\\rVert\\) (str. 18). Zato premik Farinove točke spremeni utež in tudi vse naslednje.',
-                'Since the ratio \\(\\lVert f_i-p_i\\rVert:\\lVert f_i-p_{i+1}\\rVert\\) equals \\(w_{i+1}:w_i\\), with \\(w_0=1\\) the weights can be computed one after another: \\(w_{i+1}=w_i\\,\\lVert f_i-p_i\\rVert/\\lVert f_i-p_{i+1}\\rVert\\) (p. 18). So moving a Farin point changes one weight and all weights after it.',
+                'Ker razmerje \\(\\lVert f_i-p_i\\rVert:\\lVert f_i-p_{i+1}\\rVert\\) je \\(w_{i+1}:w_i\\), lahko pri \\(w_0=1\\) uteži izračunamo ena za drugo: \\(w_{i+1}=w_i\\,\\lVert f_i-p_i\\rVert/\\lVert f_i-p_{i+1}\\rVert\\) (str. 18). Zato premik Farinove točke spremeni utež in tudi vse naslednje. Razmerja določajo uteži le do skupnega pozitivnega faktorja, zato vzamemo \\(w_0=1\\).',
+                'Since the ratio \\(\\lVert f_i-p_i\\rVert:\\lVert f_i-p_{i+1}\\rVert\\) equals \\(w_{i+1}:w_i\\), with \\(w_0=1\\) the weights can be computed one after another: \\(w_{i+1}=w_i\\,\\lVert f_i-p_i\\rVert/\\lVert f_i-p_{i+1}\\rVert\\) (p. 18). So moving a Farin point changes one weight and all weights after it. The ratios fix the weights only up to a common positive factor, so we take \\(w_0=1\\).',
             ),
             formulaIds: ['farin-weights'],
             workedExampleId: 'farin-recover-weights',
@@ -490,8 +490,8 @@ const farinLesson: GuidedLesson = {
             title: text('Standardna oblika', 'Standard form'),
             purpose: text('Standardizirati uteži in preveriti, da se krivulja ne spremeni.', 'Standardizing the weights and checking that the curve does not change.'),
             explanation: text(
-                'Izrek 3.2 (str. 16) pravi, da lahko uteži preparametriziramo tako, da je \\(w_0=w_n=1\\); to je standardna oblika. Uteži \\(1,3,9,27\\) postanejo \\(1,1,1,1\\), krivulja pa ostane enaka (Slika 18, str. 19). Privzete uteži \\(1,2,1,1\\) so že standardne.',
-                'Theorem 3.2 (p. 16) says the weights can be reparameterized so that \\(w_0=w_n=1\\); this is standard form. The weights \\(1,3,9,27\\) become \\(1,1,1,1\\) and the curve stays the same (Figure 18, p. 19). The default weights \\(1,2,1,1\\) are already standard.',
+                'Izrek 3.2 (str. 16) pravi, da lahko uteži preparametriziramo tako, da je \\(w_0=w_n=1\\); to je standardna oblika. Uteži \\(1,3,9,27\\) postanejo \\(1,1,1,1\\), množica točk krivulje pa ostane enaka, le točka pri istem parametru se premakne: pri \\(\\tfrac12\\) iz \\(\\left(\\tfrac{79}{32},\\,\\tfrac38\\right)\\) v \\(\\left(0,\\,\\tfrac32\\right)\\) (Slika 18, str. 19). Privzete uteži \\(1,2,1,1\\) so že standardne.',
+                'Theorem 3.2 (p. 16) says the weights can be reparameterized so that \\(w_0=w_n=1\\); this is standard form. The weights \\(1,3,9,27\\) become \\(1,1,1,1\\) and the set of curve points stays the same, but the point at a given parameter moves: at \\(\\tfrac12\\) from \\(\\left(\\tfrac{79}{32},\\,\\tfrac38\\right)\\) to \\(\\left(0,\\,\\tfrac32\\right)\\) (Figure 18, p. 19). The default weights \\(1,2,1,1\\) are already standard.',
             ),
             formulaIds: ['farin-standard-form'],
             workedExampleId: 'farin-standardize',
@@ -524,6 +524,19 @@ const farinLesson: GuidedLesson = {
 // ---------------------------------------------------------------------------------------------
 // circle
 // ---------------------------------------------------------------------------------------------
+
+/**
+ * The three-piece circle has middle control points at distance 6 from the center: (+-5.196, -3) and (0, 6). The default
+ * view [-5, 5, 5, -5] hides them, so the n=3 scenes set a wider starting view; n >= 4 fits the default view.
+ */
+const circleThreePiecesView: LessonViewBox = [-7, 8, 7, -5];
+const viewScene = (id: string, view: LessonViewBox, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id,
+    basedOn: 'demonstration-default',
+    view,
+    actions,
+    expectedState: text(sl, en),
+});
 
 const circleFormulas: readonly FormulaBlock[] = [
     {
@@ -579,8 +592,8 @@ const circleExamples: readonly WorkedExample[] = [
         calculationLatex: 'n=6:\\quad \\alpha=\\tfrac{\\pi}6,\\quad \\cos\\alpha=\\tfrac{\\sqrt3}2,\\quad \\lVert OQ_1\\rVert=\\frac{3}{\\sqrt3/2}=2\\sqrt3\\approx3{,}464',
         resultLatex: 'w=\\bigl(1,\\tfrac{\\sqrt3}2,1\\bigr),\\qquad \\lVert OQ_1\\rVert=2\\sqrt3',
         check: text(
-            'Vsak lok je 60°; srednja utež \\(\\tfrac{\\sqrt3}2\\approx0{,}866\\) je že blizu 1 in srednja točka blizu krožnice.',
-            'Each arc is 60 degrees; the middle weight \\(\\tfrac{\\sqrt3}2\\approx0.866\\) is already close to 1 and the middle point close to the circle.',
+            'Vsak lok je 60°; srednja utež \\(\\tfrac{\\sqrt3}2\\approx0{,}866\\) je že blizu 1 in srednja točka blizu krožnice. Krog je natančen pri vsakem \\(n\\); manjša je le razdalja kontrolne točke, ne napaka krivulje.',
+            'Each arc is 60 degrees; the middle weight \\(\\tfrac{\\sqrt3}2\\approx0.866\\) is already close to 1 and the middle point close to the circle. The circle is exact for every \\(n\\); only the distance of the control point shrinks, not an error of the curve.',
         ),
     },
 ];
@@ -609,14 +622,14 @@ const circleLesson: GuidedLesson = {
             title: text('Krog iz treh kosov', 'A circle from three pieces'),
             purpose: text('Videti krog, sestavljen iz kosov, in njihove kontrolne točke.', 'Seeing the circle assembled from pieces and their control points.'),
             explanation: text(
-                'Privzeti graf nariše krog s polmerom 3 iz treh racionalnih kvadratnih kosov. Vsak kos je lok 120°, njegove kontrolne točke pa so dve točki na krožnici in presečišče tangent v njiju zunaj kroga.',
-                'The default graph draws a circle of radius 3 from three rational quadratic pieces. Each piece is a 120 degree arc, and its control points are two points on the circle and the intersection of the tangents at them outside the circle.',
+                'Privzeti graf nariše krog s polmerom 3 iz treh racionalnih kvadratnih kosov. Vsak kos je lok 120°, njegove kontrolne točke pa so dve točki na krožnici in presečišče tangent v njiju zunaj kroga, na razdalji 6 od središča. Pogled je razširjen, da so vidne tudi te točke.',
+                'The default graph draws a circle of radius 3 from three rational quadratic pieces. Each piece is a 120 degree arc, and its control points are two points on the circle and the intersection of the tangents at them outside the circle, at distance 6 from the center. The view is widened so that these points are visible too.',
             ),
             formulaIds: [],
             learnerInteraction: 'observe',
             observationPrompt: text('Preštej kose in poišči točke, kjer se sosednja kosa stikata; poišči tudi kontrolne točke zunaj kroga.', 'Count the pieces, find the points where neighbouring pieces meet, and find the control points outside the circle.'),
             expectedObservations: [text('Vidni so trije loki, ki se stikajo v treh točkah na krožnici, tri srednje kontrolne točke pa so zunaj kroga.', 'Three arcs are visible, meeting at three points on the circle, and three middle control points lie outside the circle.')],
-            scene: scene('circle-default', [], 'Krog je sestavljen iz treh kosov.', 'The circle is assembled from three pieces.'),
+            scene: viewScene('circle-default', circleThreePiecesView, [], 'Krog je sestavljen iz treh kosov; pogled vključuje vse kontrolne točke, tudi tisto pri \\((0,\\,6)\\).', 'The circle is assembled from three pieces; the view includes every control point, including the one at \\((0,\\,6)\\).'),
         }),
         step({
             id: 'circle-one-arc', order: 2,
@@ -631,15 +644,15 @@ const circleLesson: GuidedLesson = {
             learnerInteraction: 'observe',
             observationPrompt: text('Izberi en lok in preveri, da sta stranici kontrolnega trikotnika pri srednji točki enako dolgi.', 'Pick one arc and check that the two sides of its control triangle at the middle point have equal length.'),
             expectedObservations: [text('Srednja točka je daleč zunaj kroga, ker je lok dolg 120°; stranici trikotnika sta enako dolgi.', 'The middle point is far outside the circle because the arc is 120 degrees; the two sides of the triangle are equally long.')],
-            scene: scene('circle-three', [sceneActionOf('set-circle-pieces', 3)], 'Krog ima tri kose.', 'The circle has three pieces.'),
+            scene: viewScene('circle-three', circleThreePiecesView, [sceneActionOf('set-circle-pieces', 3)], 'Krog ima tri kose; pogled vključuje vse kontrolne točke, tudi tisto pri \\((0,\\,6)\\).', 'The circle has three pieces; the view includes every control point, including the one at \\((0,\\,6)\\).'),
         }),
         step({
             id: 'circle-four', order: 3,
             title: text('Štirje kosi', 'Four pieces'),
             purpose: text('Primerjati utež in razdaljo pri \\(n=4\\) s prejšnjima.', 'Comparing the weight and distance at \\(n=4\\) with the previous ones.'),
             explanation: text(
-                'Pri štirih kosih je vsak lok četrtina kroga, \\(\\alpha=\\tfrac\\pi4\\), srednja utež je \\(\\tfrac{\\sqrt2}2\\) in srednja točka je na razdalji \\(3\\sqrt2\\). Krajišča kosov so pri tem na oseh in srednje točke na kotih kvadrata.',
-                'With four pieces every arc is a quarter of the circle, \\(\\alpha=\\tfrac\\pi4\\), the middle weight is \\(\\tfrac{\\sqrt2}2\\) and the middle point is at distance \\(3\\sqrt2\\). The end points of the pieces are on the axes and the middle points are at the corners of a square.',
+                'Pri štirih kosih je vsak lok četrtina kroga, \\(\\alpha=\\tfrac\\pi4\\), srednja utež je \\(\\tfrac{\\sqrt2}2\\) in srednja točka je na razdalji \\(3\\sqrt2\\). Krajišča kosov so pri tem na oseh in srednje točke na kotih kvadrata. Krivulja je še vedno natančen krog s polmerom 3, kot pri treh kosih: spremenijo se le kontrolne točke in uteži, torej predstavitev, ne krivulja.',
+                'With four pieces every arc is a quarter of the circle, \\(\\alpha=\\tfrac\\pi4\\), the middle weight is \\(\\tfrac{\\sqrt2}2\\) and the middle point is at distance \\(3\\sqrt2\\). The end points of the pieces are on the axes and the middle points are at the corners of a square. The curve is still an exact circle of radius 3, as with three pieces: only the control points and weights change, so the representation changes, not the curve.',
             ),
             formulaIds: ['circle-arc'],
             workedExampleId: 'circle-four',
@@ -653,8 +666,8 @@ const circleLesson: GuidedLesson = {
             title: text('Šest kosov', 'Six pieces'),
             purpose: text('Videti, da se utež z večanjem \\(n\\) bliža 1.', 'Seeing that the weight approaches 1 as \\(n\\) grows.'),
             explanation: text(
-                'Pri šestih kosih je \\(\\alpha=\\tfrac\\pi6\\), utež je \\(\\tfrac{\\sqrt3}2\\) in srednja točka je na razdalji \\(2\\sqrt3\\). Sosednja kosa se stikata v skupni točki in imata tam skupno tangento: stranici kontrolnih trikotnikov ob stiku ležita na isti premici, pravokotni na polmer.',
-                'With six pieces \\(\\alpha=\\tfrac\\pi6\\), the weight is \\(\\tfrac{\\sqrt3}2\\) and the middle point is at distance \\(2\\sqrt3\\). Neighbouring pieces meet in a common point with a common tangent there: the sides of the control triangles at the joint lie on the same line, perpendicular to the radius.',
+                'Pri šestih kosih je \\(\\alpha=\\tfrac\\pi6\\), utež je \\(\\tfrac{\\sqrt3}2\\) in srednja točka je na razdalji \\(2\\sqrt3\\). Sosednja kosa se stikata v skupni točki in imata tam skupno tangento: stranici kontrolnih trikotnikov ob stiku ležita na isti premici, pravokotni na polmer. Več kosov krožnosti ne izboljša: krog je natančen že pri treh kosih, pri šestih se le bolj približajo kontrolne točke.',
+                'With six pieces \\(\\alpha=\\tfrac\\pi6\\), the weight is \\(\\tfrac{\\sqrt3}2\\) and the middle point is at distance \\(2\\sqrt3\\). Neighbouring pieces meet in a common point with a common tangent there: the sides of the control triangles at the joint lie on the same line, perpendicular to the radius. More pieces do not make the circle more accurate: it is exact already with three pieces, and with six only the control points move closer.',
             ),
             formulaIds: ['circle-arc', 'circle-midpoint'],
             workedExampleId: 'circle-six',

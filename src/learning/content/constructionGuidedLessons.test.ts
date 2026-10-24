@@ -70,7 +70,9 @@ test('keeps the construction lessons bounded, localized, and source-backed', () 
                 expect(exampleIds.has(step.workedExampleId)).toBe(true);
                 usedExamples.add(step.workedExampleId);
             }
-            expect(step.scene?.basedOn).toBe('demonstration-default');
+            // Only the rational-extrapolation steps that show far-away control points use a fixture with a widened view.
+            const fixtureSteps = lesson.demonstrationId === 'rational-extrapolation' ? ['rex-example', 'rex-negative-weight'] : [];
+            expect(step.scene?.basedOn).toBe(fixtureSteps.includes(step.id) ? 'lesson-fixture' : 'demonstration-default');
             for (const action of step.scene?.actions ?? []) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
