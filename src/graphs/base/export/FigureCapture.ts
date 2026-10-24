@@ -1,6 +1,8 @@
 import html2canvas from "html2canvas";
 import {beginFigureExport, reportFigureExportFailure} from "../../../localization";
 import {buildSvgWithMathLabels, loadSvgTypesetter as loadSvgTypesetterDefault, SvgTypesetter} from "./SvgMathLabels";
+import {loadMathJax} from "../../../mathjax/loadMathJax";
+import type {MathJaxApi} from "../../../mathjax/loadMathJax";
 
 /** The graph owner supplies readiness and cancellation for every capture. */
 export interface FigureExportLifecycle {
@@ -124,11 +126,6 @@ function hasRawMath(container: HTMLElement): boolean {
     return /\\\(|\\\[|\$\$|\\begin\s*\{/.test(container.textContent ?? "");
 }
 
-type MathJaxApi = {
-    startup?: {promise?: Promise<unknown>};
-    typesetPromise?: (elements?: Element[]) => Promise<void>;
-};
-
 function getMathJax(): MathJaxApi | undefined {
     return (window as Window & {MathJax?: MathJaxApi}).MathJax;
 }
@@ -137,22 +134,7 @@ async function waitForMathJax(target: FigureCaptureTarget): Promise<void> {
     let mathJax = getMathJax();
     if (!mathJax && !hasRawMath(target.container)) return;
 
-    if (!mathJax) {
-        const script = document.getElementById("MathJax-script");
-        if (!script) throw new Error("MathJax is required for this figure but its loader is unavailable.");
-        await waitForOwned<void>(registerCleanup => new Promise<void>((resolve, reject) => {
-            const loaded = () => resolve();
-            const failed = () => reject(new Error("MathJax failed to load while preparing the figure."));
-            script.addEventListener("load", loaded, {once: true});
-            script.addEventListener("error", failed, {once: true});
-            registerCleanup(() => {
-                script.removeEventListener("load", loaded);
-                script.removeEventListener("error", failed);
-            });
-        }), target, "MathJax to load");
-        mathJax = getMathJax();
-        if (!mathJax) throw new Error("MathJax loaded without exposing its typesetting API.");
-    }
+    if (!mathJax) mathJax = await waitForOwned(loadMathJax(), target, "MathJax to load");
 
     if (mathJax.startup?.promise) {
         await waitForOwned(mathJax.startup.promise, target, "MathJax startup");

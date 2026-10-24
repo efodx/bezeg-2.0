@@ -5,7 +5,7 @@ import type {Demonstration, FamilyId} from './demonstrations';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {demonstrationMotionAssets} from './demonstrationMotionAssets';
 import {DemonstrationPreview} from './DemonstrationPreview';
-import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
+import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {useT} from './localization';
 import './DemonstrationCollection.css';
 

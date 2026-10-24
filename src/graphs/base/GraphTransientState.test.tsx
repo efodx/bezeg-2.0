@@ -5,7 +5,7 @@
  * so no comparison passes because nothing changed.
  */
 import {act, fireEvent} from '@testing-library/react';
-import {graphFactories} from '../../Routes';
+import {graphFactories} from '../graphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import type {LessonAction} from '../../learning/model';

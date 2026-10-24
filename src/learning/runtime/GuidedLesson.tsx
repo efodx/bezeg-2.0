@@ -3,18 +3,13 @@ import {useLanguage, useT, Language, t} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
+import {typesetMath} from '../../mathjax/loadMathJax';
 import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
 
 function localized(value: {sl: string; en: string}, language: Language) {
     return value[language];
 }
-
-type MathJaxApi = {
-    startup?: {promise?: Promise<unknown>};
-    typesetClear?: (elements?: Element[]) => void;
-    typesetPromise?: (elements?: Element[]) => Promise<void>;
-};
 
 type LessonMode = 'content' | 'explore' | 'complete' | 'closed';
 type LessonOverlayPhase = 'visible' | 'closing' | 'hidden' | 'opening';
@@ -280,23 +275,8 @@ export function GuidedLesson(props: {
             || ['\\(', '\\[', '$$', '\\begin{'].some(delimiter => textContent.includes(delimiter));
         if (!hasMath) return;
         let cancelled = false;
-        const typeset = () => {
-            const mathJax = (window as Window & {MathJax?: MathJaxApi}).MathJax;
-            if (!mathJax?.typesetPromise) return;
-            const ready = mathJax.startup?.promise ?? Promise.resolve();
-            void ready.then(() => {
-                if (cancelled) return;
-                mathJax.typesetClear?.([element]);
-                return mathJax.typesetPromise?.([element]);
-            }).catch(() => undefined);
-        };
-        const script = document.getElementById('MathJax-script');
-        script?.addEventListener('load', typeset);
-        typeset();
-        return () => {
-            cancelled = true;
-            script?.removeEventListener('load', typeset);
-        };
+        void typesetMath(element, () => !cancelled).catch(() => undefined);
+        return () => { cancelled = true; };
     }, [language, overlayVisible, snapshot, startupError]);
 
     useEffect(() => {

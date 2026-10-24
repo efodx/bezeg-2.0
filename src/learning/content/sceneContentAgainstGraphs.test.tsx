@@ -5,7 +5,7 @@
  * stay a graph-side fact and content is checked against them without restating them.
  */
 import {act} from '@testing-library/react';
-import {graphFactories} from '../../Routes';
+import {graphFactories} from '../../graphs/graphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction} from '../model';
 import {activities} from '../chapter/activities';

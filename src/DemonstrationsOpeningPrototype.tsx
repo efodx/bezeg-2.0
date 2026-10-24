@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import type {Demonstration} from './demonstrations';
-import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
+import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {useT} from './localization';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 

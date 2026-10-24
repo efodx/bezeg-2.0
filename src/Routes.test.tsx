@@ -1,6 +1,8 @@
 import React from 'react';
 import routes from './Routes';
-import {GraphHost} from './graphs/base/GraphHost';
+import {graphFactories} from './graphs/graphFactories';
+import {GraphRoute} from './graphs/base/GraphRoute';
+import {getDemonstrationCatalog} from './demonstrations';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './graphs/complex/ComplexMultiplicationGraph';
 import { LinearFunctionGraph } from './graphs/functions/LinearFunctionGraph';
@@ -61,15 +63,25 @@ import RationalBezierCurveGraph
 
 
 // Verify the observable route-to-graph contract without mounting imperative boards.
-test('all existing graph URLs retain their graph implementations', () => {
+test('all existing graph URLs retain their graph implementations behind lazy routes', async () => {
     const children = routes[0].children;
-    const graphFor = (path: string) => {
+    const catalog = getDemonstrationCatalog().demonstrations;
+    const routeFactories = new Map(await Promise.all(catalog.map(async ({id, path}) => {
         const route = children.find(entry => entry.path === path)!;
-        const graph = route.element as React.ReactElement;
-        // GraphHost receives a factory; creating the controller has no side effects.
-        return (graph.props as {create: () => object}).create().constructor;
-    };
-    expect(children.filter(route => React.isValidElement(route.element) && route.element.type === GraphHost)).toHaveLength(45);
+        expect(route.lazy).toBeTypeOf('function');
+        if (!route.lazy) throw new Error(`Graph route ${path} must be lazy.`);
+        const loaded = await route.lazy();
+        const RouteComponent = loaded.Component as () => React.ReactElement;
+        const routeElement = RouteComponent() as React.ReactElement<{create: () => object}>;
+        expect(routeElement.type).toBe(GraphRoute);
+        const create = routeElement.props.create;
+        expect(create).toBe(graphFactories[id]);
+        return [path, create().constructor] as const;
+    })));
+    const graphFor = (path: string) => routeFactories.get(path);
+    const catalogPaths = catalog.map(({path}) => path);
+    expect(catalogPaths).toHaveLength(45);
+    expect(catalogPaths.every(path => typeof children.find(route => route.path === path)?.lazy === 'function')).toBe(true);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/complex-multiplication')).toBe(ComplexMultiplicationGraph);
     expect(graphFor('/bezeg-2.0/bezier/curve')).toBe(BezierCurveGraph);

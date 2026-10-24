@@ -1,7 +1,7 @@
 import {LessonAction, UnsupportedLessonActionError} from '../../../learning/model';
 import {LessonActionRegistry} from './LessonActionRegistry';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from '../../../learning/runtime/lessonCatalog';
-import {graphFactories} from '../../../Routes';
+import {graphFactories} from '../../graphFactories';
 
 const polygon: LessonAction = {kind: 'curve-visibility', target: 'control-polygon', visible: true};
 const hull: LessonAction = {kind: 'curve-visibility', target: 'convex-hull', visible: true};

@@ -76,7 +76,7 @@ function coordinateContextPolicy(demonstration) {
 }
 
 const messages = stringProperties(variableInitializer(parseSource('src/localization/en.ts'), 'en'));
-const lessonIdsExpression = variableInitializer(parseSource('src/learning/runtime/lessonCatalog.ts'), 'GUIDED_LESSON_AVAILABLE_IDS');
+const lessonIdsExpression = variableInitializer(parseSource('src/learning/runtime/lessonAvailability.ts'), 'GUIDED_LESSON_AVAILABLE_IDS');
 if (!ts.isArrayLiteralExpression(lessonIdsExpression)) throw new Error('Guided lesson availability must remain an array literal.');
 const availableLessonIds = new Set(lessonIdsExpression.elements.map(element => {
     const value = unwrapExpression(element);

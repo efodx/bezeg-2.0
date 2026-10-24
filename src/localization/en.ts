@@ -13,6 +13,7 @@ export const en: Record<keyof typeof sl, string> = {
     "chapter_quartic_example": "Degree-4 example · five control points",
     "chapter_affine_example": "A different cubic example",
     "chapter_scene_error": "The scene could not be saved or restored. The last valid scene was retained. Try again or open the standalone demonstration.",
+    "graph_loading": "Loading graph and formula support…",
     "chapter_invalid_context": "This link does not identify a valid activity for this demonstration. Free exploration is open; choose an activity in the chapter.",
     "chapter_restarted": "Refreshing restarted the authored example. Edits are retained only during this visit.",
     "points_to_shape": "Points → shape",

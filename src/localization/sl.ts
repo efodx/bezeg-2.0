@@ -12,6 +12,7 @@ export const sl = {
     "chapter_quartic_example": "Primer stopnje 4 · pet kontrolnih točk",
     "chapter_affine_example": "Drug kubični primer",
     "chapter_scene_error": "Prizora ni bilo mogoče shraniti ali obnoviti. Ohranjen je zadnji veljavni prizor. Poskusi znova ali odpri demonstracijo brez dejavnosti.",
+    "graph_loading": "Nalaganje grafa in podpore za formule …",
     "chapter_invalid_context": "Povezava ne določa veljavne dejavnosti za to demonstracijo. Odprto je prosto raziskovanje; dejavnost izberi v poglavju.",
     "chapter_restarted": "Po osvežitvi se je dejavnost vrnila na začetni primer. Spremembe se ohranijo le med trenutnim obiskom.",
     "points_to_shape": "Točke → oblika",

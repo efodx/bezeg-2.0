@@ -7,9 +7,9 @@ import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
 import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
 import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
+import {typesetMath} from '../mathjax/loadMathJax';
 import './ChapterPage.css';
 
-type MathJaxApi = {startup?: {promise?: Promise<unknown>}; typesetClear?: (elements?: Element[]) => void; typesetPromise?: (elements?: Element[]) => Promise<void>};
 type SectionScrollAnchor = {sectionId: string; top: number};
 function restoreSectionAnchor(anchor: SectionScrollAnchor) {
     const section = document.getElementById(anchor.sectionId);
@@ -184,25 +184,13 @@ export function ChapterPage() {
         const savedAnchor = scrollAnchor.current;
         previousLanguage.current = language;
         let disposed = false;
-        const typeset = () => {
-            const api = (window as Window & {MathJax?: MathJaxApi}).MathJax;
-            if (!api?.typesetPromise) {
-                if (languageChanged && !document.getElementById('MathJax-script')) requestAnimationFrame(() => restoreSectionAnchor(savedAnchor));
-                return;
-            }
-            void (api.startup?.promise ?? Promise.resolve()).then(() => {
-                if (disposed) return;
-                api.typesetClear?.([article]);
-                return api.typesetPromise?.([article]);
-            }).then(() => {
-                if (!disposed && languageChanged) requestAnimationFrame(() => restoreSectionAnchor(savedAnchor));
-            }).catch(() => { if (!disposed && languageChanged) requestAnimationFrame(() => restoreSectionAnchor(savedAnchor)); });
+        const restoreAnchor = () => {
+            if (!disposed && languageChanged) requestAnimationFrame(() => {
+                if (!disposed) restoreSectionAnchor(savedAnchor);
+            });
         };
-        const script = document.getElementById('MathJax-script');
-        script?.addEventListener('load', typeset);
-        script?.addEventListener('error', typeset);
-        typeset();
-        return () => { disposed = true; script?.removeEventListener('load', typeset); script?.removeEventListener('error', typeset); };
+        void typesetMath(article, () => !disposed).then(restoreAnchor, restoreAnchor);
+        return () => { disposed = true; };
     }, [language]);
 
     const nav = <nav className="chapter-toc" aria-label={language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}>

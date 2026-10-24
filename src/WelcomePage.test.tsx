@@ -4,8 +4,8 @@ import {createMemoryRouter, RouterProvider} from 'react-router-dom';
 import routes from './Routes';
 import {getDemonstrationCatalog} from './demonstrations';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
-import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
-import * as lessonCatalog from './learning/runtime/lessonCatalog';
+import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
+import * as lessonCatalog from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
 
 // Routes only hand a controller factory to GraphHost; mounting a real board is not what this suite checks.

@@ -7,6 +7,12 @@ import {GuidedLesson} from './GuidedLesson';
 import {LessonSession} from './LessonSession';
 import type {Mock} from 'vitest';
 
+beforeEach(() => {
+    (window as Window & {MathJax?: {startup: {promise: Promise<void>}; typesetClear: Mock; typesetPromise: Mock}}).MathJax = {
+        startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise: vi.fn().mockResolvedValue(undefined),
+    };
+});
+
 const lesson: LessonDefinition = {
     id: 'accessible-test', demonstrationId: 'bezier', title: {sl: 'Vodena pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
     steps: [

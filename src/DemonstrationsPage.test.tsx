@@ -3,12 +3,13 @@ import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {createMemoryRouter, RouterProvider} from 'react-router-dom';
 import routes from './Routes';
 import {getDemonstrationCatalog} from './demonstrations';
-import {isGuidedLessonAvailable} from './learning/runtime/lessonCatalog';
+import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
 
-vi.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
-vi.mock('./learning/runtime/lessonCatalog', async () => {
-    const actual = await vi.importActual<typeof import('./learning/runtime/lessonCatalog')>('./learning/runtime/lessonCatalog');
+vi.mock('./graphs/base/GraphRoute', () => ({__esModule: true, GraphRoute: () => <p>Opened Bézier graph</p>}));
+vi.mock('./graphs/graphFactories', () => ({graphFactories: {}}));
+vi.mock('./learning/runtime/lessonAvailability', async () => {
+    const actual = await vi.importActual<typeof import('./learning/runtime/lessonAvailability')>('./learning/runtime/lessonAvailability');
     return {...actual, isGuidedLessonAvailable: vi.fn(actual.isGuidedLessonAvailable)};
 });
 

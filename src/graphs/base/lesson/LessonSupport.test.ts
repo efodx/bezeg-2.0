@@ -1,6 +1,6 @@
 import {LessonAction, UnsupportedLessonActionError} from '../../../learning/model';
 import {LessonActionRegistry} from './LessonActionRegistry';
-import {graphFactories} from '../../../Routes';
+import {graphFactories} from '../../graphFactories';
 
 describe('support is precise', () => {
     test('a handler with a `supports` predicate handles only the actions it accepts, and an override inherits it', () => {

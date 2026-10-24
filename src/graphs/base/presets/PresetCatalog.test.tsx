@@ -3,7 +3,7 @@
  * committed by the file importer, and loaded back by the graph. Further checks tie each graph's Preset collection to the
  * definitions the file importer accepts.
  */
-import {graphFactories} from '../../../Routes';
+import {graphFactories} from '../../graphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, observeScene, settle} from '../realGraphTestHarness';

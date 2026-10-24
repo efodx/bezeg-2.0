@@ -1,6 +1,6 @@
 # Landing audit remediation
 
-Status: implementation authorized by the owner on 2026-10-24 following the landing-page audit.
+Status: implemented and verified on 2026-10-24 following owner authorization; verification limits and a non-reproduced full-suite timeout are recorded below.
 
 ## Scope
 
@@ -21,4 +21,4 @@ Handler owns color tokens, DESIGN.md, spec/evidence, integration, verification, 
 
 ## Evidence
 
-Pending implementation and integrated verification. Build-size changes establish payload reduction, not measured Core Web Vitals or classroom performance.
+See [implementation and verification evidence](../reviews/landing-audit-remediation.md) and [delegated browser coverage](../reviews/landing-audit-smoke.md). Initial JavaScript including static imports decreased from 3,238,169 to 424,461 bytes (about 86.9%). Typecheck, production build, focused async/export tests, and 56 browser checks passed. The final full unit run passed 3,098/3,099 tests; a subdivision checkpoint timeout passed the unchanged focused rerun, with no assertion or timeout relaxation. Selected label contrast is approximately 5.78:1. The handler verified PH editor manipulation to close the smoke worker's gap. No route or preset migration is required. Physical-device/projector coverage and measured Core Web Vitals remain outside acceptance.

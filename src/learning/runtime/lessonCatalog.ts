@@ -3,6 +3,8 @@ import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES,
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
+import {GUIDED_LESSON_AVAILABLE_IDS} from './lessonAvailability';
+export {GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonAvailability';
 
 /**
  * The value of a scene action that carries a number. Only the shape is checked here: the range belongs to the graph that
@@ -263,60 +265,7 @@ const adaptedLessons = new Map<DemonstrationId, LessonDefinition | undefined>();
  * content can be prepared in the content module first and added here only
  * after its graph capability and content review gates pass.
  */
-export const GUIDED_LESSON_AVAILABLE_IDS = [
-    'bezier',
-    'decasteljau',
-    'affine',
-    'elevation',
-    'rational',
-    'rational-decasteljau',
-    'ph-cubic',
-    'ph-quintic',
-    'bernstein',
-    'rational-elevation',
-    'weighted-parameterization',
-    'uniform-parameterization',
-    'subdivision',
-    'repeated-subdivision',
-    'rational-subdivision',
-    'extrapolation',
-    'rational-extrapolation',
-    'decasteljau-alternative',
-    'farin',
-    'circle',
-    'spline-cn',
-    'spline-c1',
-    'spline-c2',
-    'spline-g1',
-    'spline-g1-symmetric',
-    'spline-parameterization',
-    'linear-function',
-    'exponential-function',
-    'trigonometric-functions',
-    'continuity',
-    'derivative',
-    'definite-integral',
-    'area-between-curves',
-    'arc-length',
-    'bisection',
-    'mean-value',
-    'accumulation',
-    'darboux',
-    'extrema',
-    'convexity',
-    'taylor',
-    'sequence',
-    'uniform-convergence',
-    'complex-multiplication',
-    'fixed-point',
-] as const satisfies readonly DemonstrationId[];
-
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);
-
-export function isGuidedLessonAvailable(id: DemonstrationId): boolean {
-    return availableLessonIds.has(id) && Boolean(getLessonForDemonstration(id));
-}
-
 /** Stable lookup seam for the reviewed content module. */
 export function getLessonForDemonstration(id: DemonstrationId): LessonDefinition | undefined {
     if (!availableLessonIds.has(id)) return undefined;
