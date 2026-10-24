@@ -438,7 +438,7 @@ test('dragging x projects onto the 0.01 grid inside [0, r] and writes through th
 test('every lesson scene reproduces the configuration its expectedState describes, applied in one synchronous sequence', () => {
     const lesson = getLessonForDemonstration('uniform-convergence')!;
     expect(lesson.id).toBe('uniform-convergence-guided');
-    expect(lesson.steps).toHaveLength(7);
+    expect(lesson.steps).toHaveLength(8);
     const finals = lesson.steps.map(step => {
         // the React state lags inside one tick (setState is asynchronous); the model must still be what the actions describe
         const graph = makeGraph({asyncState: true});
@@ -451,11 +451,12 @@ test('every lesson scene reproduces the configuration its expectedState describe
     });
     const model = (example: string, r: number, n: number, x: number, supremumVisible: boolean) => ({example, r, n, x, epsilon: 0.1, supremumVisible});
     expect(finals).toEqual([
+        [model('scaled', 1, 4, 0.5, false), ['hidden']],
+        [model('power', 1, 5, 0.9, false), ['hidden', 'jump']],
+        [model('power', 1, 10, 0.9, false), ['hidden', 'jump']],
         [model('power', 0.8, 2, 0.5, false), ['hidden']],
         [model('power', 0.8, 5, 0.5, false), ['hidden']],
         [model('power', 0.8, 11, 0.5, true), ['attained', 'shared-n', 'covered']],
-        [model('power', 1, 5, 0.9, false), ['hidden', 'jump']],
-        [model('power', 1, 10, 0.9, false), ['hidden', 'jump']],
         [model('power', 0.95, 44, 0.5, false), ['hidden']],
         [model('scaled', 1, 5, 0.5, false), ['hidden']],
     ]);
@@ -463,28 +464,34 @@ test('every lesson scene reproduces the configuration its expectedState describe
     const graph = makeGraph({asyncState: false});
     const run = (index: number) => { for (const action of lesson.steps[index].scene!.actions) apply(graph, action); };
     run(0);
-    expect(rows(graph)).toMatchObject({term: '0,25', 'pointwise-error': '0,25', 'pointwise-n': '4'});
-    apply(graph, parameter('uniform-x', 0.8));
-    expect(rows(graph)['pointwise-n']).toBe('11');
-    run(1);
+    expect(rows(graph)).toMatchObject({term: '0,125', 'pointwise-error': '0,125'});
     apply(graph, reveal(true));
-    expect(rows(graph)).toMatchObject({supremum: '0,32768', 'supremum-attained': 'da, pri x = 0,8', 'shared-n': '11'});
-    run(2);
-    expect(rows(graph).supremum).toBe('0,085899');
-    run(3);
+    expect(rows(graph)).toMatchObject({supremum: '0,25', 'supremum-attained': 'da, pri x = 1', 'shared-n': '11'});
+    run(1);
     expect(rows(graph)).toMatchObject({'pointwise-error': '0,59049', 'pointwise-n': '22'});
     apply(graph, parameter('uniform-x', 0.99));
     expect(rows(graph)['pointwise-n']).toBe('230 (nad največjim izbirnim n = 50)');
-    run(4);
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({supremum: '1', 'supremum-attained': 'ne; napaka se mu približa blizu x = 1', 'shared-n': 'ne obstaja'});
+    run(2);
+    apply(graph, reveal(true));
+    expect(rows(graph)).toMatchObject({supremum: '1', 'shared-n': 'ne obstaja'});
+    run(3);
+    expect(rows(graph)).toMatchObject({term: '0,25', 'pointwise-error': '0,25', 'pointwise-n': '4'});
+    apply(graph, parameter('uniform-x', 0.8));
+    expect(rows(graph)['pointwise-n']).toBe('11');
+    run(4);
+    apply(graph, reveal(true));
+    expect(rows(graph)).toMatchObject({supremum: '0,32768', 'supremum-attained': 'da, pri x = 0,8', 'shared-n': '11'});
     run(5);
+    expect(rows(graph).supremum).toBe('0,085899');
+    run(6);
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({supremum: '0,10467', 'supremum-attained': 'da, pri x = 0,95', 'shared-n': '45'});
     apply(graph, parameter('uniform-n', 45));
     expect(rows(graph).supremum).toBe('0,09944');
     expect(leastBelow(19, 20, 10)).toBe(45);
-    run(6);
+    run(7);
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({supremum: '0,2', 'supremum-attained': 'da, pri x = 1', 'shared-n': '11', 'pointwise-n': '6'});
 });

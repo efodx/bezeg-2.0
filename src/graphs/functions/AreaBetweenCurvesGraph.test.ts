@@ -167,8 +167,8 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         return [graph.model, [rows['int-f'], rows['int-g'], rows.signed, rows.unsigned, rows.shaded].join(' | '), valuesText(graph)];
     });
     expect(finals).toEqual([
-        [{a: 2 - S, b: 2 + S, mode: 'under-g'}, '1,2247 | 6,1237 | 4,899 | 4,899 | 6,1237', '∫(g − f) dx = 4,899, ploščina = 4,899'],
         [{a: 1, b: 3, mode: 'between'}, '0,6667 | 5,3333 | 4,6667 | 4,6667 | 4,6667', '∫(g − f) dx = 4,6667, ploščina = 4,6667'],
+        [{a: 1, b: 3, mode: 'under-g'}, '0,6667 | 5,3333 | 4,6667 | 4,6667 | 5,3333', '∫(g − f) dx = 4,6667, ploščina = 4,6667'],
         [{a: 2 - S, b: 2 + S, mode: 'between'}, '1,2247 | 6,1237 | 4,899 | 4,899 | 4,899', '∫(g − f) dx = 4,899, ploščina = 4,899'],
         [{a: 0, b: 4, mode: 'between'}, '5,3333 | 6,6667 | 1,3333 | 8,4646 | 8,4646', '∫(g − f) dx = 1,3333, ploščina = 8,4646'],
         [{a: 1, b: 3.5, mode: 'between'}, '1,4583 | 6,0417 | 4,5833 | 4,9823 | 4,9823', '∫(g − f) dx = 4,5833, ploščina = 4,9823'],
