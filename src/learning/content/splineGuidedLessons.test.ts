@@ -13,7 +13,6 @@ import C1SplineGraph from '../../graphs/curves/spline/C1SplineGraph';
 import C2SplineGraph from '../../graphs/curves/spline/C2SplineGraph';
 import G1SplineGraph from '../../graphs/curves/spline/G1SplineGraph';
 import G1SymmetricSplineGraph from '../../graphs/curves/spline/G1SymmetricSplineGraph';
-import SplineAlphaParametrizationGraph from '../../graphs/curves/parametrisations/SplineAlphaParametrizationGraph';
 
 const lessonFor = (id: string) => splineGuidedLessons.find(lesson => lesson.demonstrationId === id)!;
 const stepActions = (id: string) => lessonFor(id).steps.map(step => step.scene!.actions);
@@ -26,7 +25,6 @@ const C1 = defaultPoints(C1SplineGraph);
 const C2 = defaultPoints(C2SplineGraph);
 const G1 = defaultPoints(G1SplineGraph);
 const G1S = defaultPoints(G1SymmetricSplineGraph);
-const PARAM = defaultPoints(SplineAlphaParametrizationGraph);
 
 const model = (points: number[][]) => points.map(([x, y]) => new PointImpl(x, y));
 const cn = (degree: number, continuity: number, points = CN) => new GenericBezierSpline(model(points), degree, continuity);
@@ -34,7 +32,6 @@ const c1 = (points = C1) => new C1QuadraticBezierSpline(model(points));
 const c2 = (points = C2) => new C2CubicBezierSpline(model(points));
 const g1 = (points = G1) => new G1QuadraticBezierSpline(model(points));
 const g1s = (points = G1S) => new G1SymmetricQuadraticBezierSpline(model(points));
-const param = () => new C2CubicBezierSpline(model(PARAM));
 
 const pieces = (spline: BezierSpline): number[][][] => spline.getUnderlyingCurves().map(curve => curve.getPoints().map(p => [p.X(), p.Y()]));
 const derived = (spline: BezierSpline): number[][] => spline.getNonFreePoints().map(p => [p.X(), p.Y()]);
@@ -136,7 +133,7 @@ test('keeps the spline lessons bounded, localized, and source-backed', () => {
                 expect(exampleIds.has(step.workedExampleId)).toBe(true);
                 usedExamples.add(step.workedExampleId);
             }
-            const fixtureLessons = ['spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric'];
+            const fixtureLessons = ['spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization'];
             if (fixtureLessons.includes(lesson.demonstrationId)) expect(['lesson-fixture', 'demonstration-default']).toContain(step.scene?.basedOn);
             else expect(step.scene?.basedOn).toBe('demonstration-default');
             expect(step.scene?.actions.length).toBeGreaterThan(0);
@@ -628,108 +625,19 @@ describe('spline-g1-symmetric numbers', () => {
 // spline-parameterization
 // ---------------------------------------------------------------------------------------------
 
-describe('spline-parameterization numbers', () => {
-    const chord = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
-    const chords = () => [chord(PARAM[0], PARAM[2]), chord(PARAM[2], PARAM[3]), chord(PARAM[3], PARAM[4]), chord(PARAM[4], PARAM[5]), chord(PARAM[5], PARAM[6]), chord(PARAM[6], PARAM[8])];
-    const gaps = (spline: C2CubicBezierSpline, count: number) => {
-        const samples = Array.from({length: count}, (_, i) => {
-            const p = spline.eval((i + 1) / (count + 1));
-            return [p.X(), p.Y()];
-        });
-        const lengths = samples.slice(1).map((p, i) => chord(p, samples[i]));
-        return Math.max(...lengths) / Math.min(...lengths);
-    };
-    const samplesPerPiece = (spline: C2CubicBezierSpline, count: number) => {
-        const u: number[] = (spline as any).getU();
-        const result = new Array(u.length - 1).fill(0);
-        for (let i = 1; i <= count; i++) {
-            const t = i / (count + 1);
-            let k = 0;
-            while (k < result.length - 1 && t >= u[k + 1]) k++;
-            result[k]++;
-        }
-        return result;
-    };
-
-    test('default has nine points and six pieces; chords and spans', () => {
-        expect(PARAM).toHaveLength(9);
-        const spline = param();
-        expect(pieces(spline)).toHaveLength(6);
-        const lengths = chords();
-        expect(lengths[4]).toBeCloseTo(Math.sqrt(5 / 2), 12);
-        expect(lengths[5]).toBeCloseTo(Math.sqrt(261 / 4), 12);
-        expect(lengths.indexOf(Math.min(...lengths))).toBe(4);
-        expect(lengths.indexOf(Math.max(...lengths))).toBe(5);
-        const total = lengths.reduce((a, b) => a + b, 0);
-        expect(total).toBeCloseTo(19.380, 3);
-        spline.setAlpha(0);
-        spansOf(spline).forEach(span => expect(span).toBeCloseTo(1 / 6, 12));
-        spline.setAlpha(1);
-        spansOf(spline).forEach((span, i) => expect(span).toBeCloseTo(lengths[i] / total, 12));
-        expect(spansOf(spline)[4]).toBeCloseTo(0.082, 3);
-        expect(spansOf(spline)[5]).toBeCloseTo(0.417, 3);
-        const example = lessonFor('spline-parameterization').workedExamples[0];
-        expect(example.calculationLatex).toContain('\\approx19.380');
-        expect(example.resultLatex).toContain('\\approx0.082');
-        expect(example.resultLatex).toContain('\\approx0.417');
-    });
-
-    test('first joint for alpha = 0, 1/2, 1 and the distance it moves', () => {
-        const spline = param();
-        const joints = [0, 0.5, 1].map(alpha => {
-            spline.setAlpha(alpha);
-            const end = pieces(spline)[0][3];
-            return end;
-        });
-        close(joints[0], [-1.825, -0.5333333333], 4);
-        close(joints[1], [-2.2733008634, -0.6911739666], 8);
-        close(joints[2], [-2.703213085, -0.8099951479], 8);
-        expect(joints[0][0]).toBeCloseTo(-1.825, 3); expect(joints[0][1]).toBeCloseTo(-0.533, 3);
-        expect(joints[1][0]).toBeCloseTo(-2.273, 3); expect(joints[1][1]).toBeCloseTo(-0.691, 3);
-        expect(joints[2][0]).toBeCloseTo(-2.703, 3); expect(joints[2][1]).toBeCloseTo(-0.810, 3);
-        expect(norm(sub(joints[2], joints[0]))).toBeCloseTo(0.92, 2);
-        expect(lessonFor('spline-parameterization').workedExamples[1].resultLatex).toBe('\\lVert J_1(1)-J_1(0)\\rVert\\approx0.92');
-        // The free points stay and the junctions are shared by neighbouring pieces for every alpha.
-        spline.setAlpha(0.5);
-        expect(spline.getPoints().map(p => [p.X(), p.Y()])).toEqual(PARAM);
-    });
-
-    test('sample distribution: pieces per alpha and the largest-to-smallest gap ratio', () => {
-        const spline = param();
-        const result: Record<number, {perPiece: number[]; ratio25: number; ratio10: number}> = {};
-        for (const alpha of [0, 0.5, 1]) {
-            spline.setAlpha(alpha);
-            result[alpha] = {perPiece: samplesPerPiece(spline, 25), ratio25: gaps(spline, 25), ratio10: gaps(spline, 10)};
-        }
-        expect(result[0].perPiece).toEqual([4, 4, 4, 5, 4, 4]);
-        expect(result[1].perPiece).toEqual([2, 5, 3, 3, 2, 10]);
-        expect(result[1].perPiece.reduce((a, b) => a + b, 0)).toBe(25);
-        expect(result[0.5].perPiece).toEqual([3, 5, 4, 3, 3, 7]);
-        expect(result[0.5].ratio25).toBeCloseTo(3.51, 1);
-        expect(result[0].ratio25).toBeCloseTo(5.7, 1);
-        expect(result[1].ratio25).toBeCloseTo(2.59, 1);
-        expect(result[0].ratio25).toBeGreaterThan(result[0.5].ratio25);
-        expect(result[0.5].ratio25).toBeGreaterThan(result[1].ratio25);
-        expect(result[0].ratio10).toBeCloseTo(3.84, 1);
-        expect(result[1].ratio10).toBeCloseTo(2.15, 1);
-        // The prose rounds these to one decimal: 5.7, 3.5, 2.6 (25 samples) and 3.8, 2.1 (10 samples).
-        expect(result[0].ratio25.toFixed(1)).toBe('5.7');
-        expect(result[0.5].ratio25.toFixed(1)).toBe('3.5');
-        expect(result[1].ratio25.toFixed(1)).toBe('2.6');
-        expect(result[0].ratio10.toFixed(1)).toBe('3.8');
-        expect(result[1].ratio10.toFixed(1)).toBe('2.1');
-        const compare = lessonFor('spline-parameterization').steps[4].explanation;
-        ['5{,}7', '3{,}5', '2{,}6', '3{,}8', '2{,}1'].forEach(value => expect(compare.sl).toContain(value));
-        ['5.7', '3.5', '2.6', '3.8', '2.1'].forEach(value => expect(compare.en).toContain(value));
-        expect(lessonFor('spline-parameterization').steps[3].explanation.sl).toContain('2,5,3,3,2,10');
-        expect(lessonFor('spline-parameterization').steps[2].explanation.sl).toContain('4,4,4,5,4,4');
-    });
-
-    test('the scenes describe the verified alpha and sample values', () => {
+// The numbers of this lesson (fixture, chords, spans, joints, sample distribution, prose) are recomputed in
+// splineParameterizationExamples.test.ts; only the structural checks live here.
+describe('spline-parameterization structure', () => {
+    test('every step is a fixture scene that sets alpha, ten samples and visible derived points', () => {
         const scenes = stepActions('spline-parameterization');
-        expect(scenes[0]).toEqual([{name: 'set-parameterization-alpha', value: 0.5}, {name: 'set-parameterization-samples', value: 25}]);
-        expect(scenes[2][0]).toEqual({name: 'set-parameterization-alpha', value: 0});
-        expect(scenes[3][0]).toEqual({name: 'set-parameterization-alpha', value: 1});
-        expect(scenes[4]).toEqual([{name: 'set-parameterization-alpha', value: 1}, {name: 'set-parameterization-samples', value: 10}, {name: 'hide-spline-fixed-points', value: false}]);
+        const alphas = [0.5, 0.5, 0, 1, 0.5];
+        scenes.forEach((actions, i) => {
+            expect(actions).toEqual([
+                {name: 'set-parameterization-alpha', value: alphas[i]},
+                {name: 'set-parameterization-samples', value: 10},
+                {name: 'hide-spline-fixed-points', value: false},
+            ]);
+            expect(lessonFor('spline-parameterization').steps[i].scene?.basedOn).toBe('lesson-fixture');
+        });
     });
 });
