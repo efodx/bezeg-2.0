@@ -1035,8 +1035,8 @@ const splineParameterization: GuidedLesson = {
             id: 'sp-spans',
             latex: '\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha},\\qquad \\alpha\\in[0,1],\\qquad u_{i+1}=u_i+\\Delta u_i',
             notation: text(
-                'Vektorji \\(\\Delta p_i\\) so razlike zaporednih kontrolnih točk, \\(u_i\\) pa stični parametri, ki jih na koncu delimo z \\(u_m\\), da je zlepek na intervalu \\([0,1]\\).',
-                'The vectors \\(\\Delta p_i\\) are the differences of consecutive control points and the \\(u_i\\) are the joint parameters, finally divided by \\(u_m\\) so the spline lives on the interval \\([0,1]\\).',
+                'Vektorji \\(\\Delta p_i\\) so razlike kontrolnih točk, ki omejujejo posamezen odsek (na obeh koncih se ena točka preskoči, npr. \\(p_2-p_0\\)), \\(u_i\\) pa stični parametri, ki jih na koncu delimo z \\(u_m\\), da je zlepek na intervalu \\([0,1]\\).',
+                'The vectors \\(\\Delta p_i\\) are the differences of the control points that bound each piece (at both ends one point is skipped, e.g. \\(p_2-p_0\\)) and the \\(u_i\\) are the joint parameters, finally divided by \\(u_m\\) so the spline lives on the interval \\([0,1]\\).',
             ),
             explanation: text(
                 'Pri \\(\\alpha=0\\) so vsi razmiki \\(1\\) (enakomerna), pri \\(\\alpha=\\tfrac12\\) koreni dolžin (centripetalna), pri \\(\\alpha=1\\) dolžine tetiv (tetivna). Prvi in zadnji razmik upoštevata točki \\(p_{-1}\\) in \\(p_{m+1}\\).',
@@ -1137,7 +1137,7 @@ const splineParameterization: GuidedLesson = {
             frames: [frame('sp-chordal-explanation', 'explanation'), frame('sp-chordal-calculation', 'calculation'), frame('sp-chordal-observation', 'observation')],
             workedExampleId: 'sp-junction-example',
             learnerInteraction: 'adjust-construction-parameter',
-            observationPrompt: text('Primerjaj lego prve stične točke z lego pri \\(\\alpha=0\\) in razmike vzorcev na zadnjih dveh odsekih.', 'Compare the position of the third joint with that at \\(\\alpha=0\\) and the gaps of the samples on the last two pieces.'),
+            observationPrompt: text('Primerjaj lego tretje stične točke z lego pri \\(\\alpha=0\\) in razmike vzorcev na zadnjih dveh odsekih.', 'Compare the position of the third joint with that at \\(\\alpha=0\\) and the gaps of the samples on the last two pieces.'),
             expectedObservations: [text('Stična točka \\(J_3\\) je pomaknjena za približno \\(1{,}25\\) enote, krivulja je drugačna; največji razmik med vzorci je le približno \\(2{,}9\\)-krat daljši od najmanjšega.', 'The joint \\(J_3\\) has moved by about \\(1.25\\) units, the curve is different; the largest gap between samples is only about \\(2.9\\) times the smallest.')],
             scene: splineParameterizationScene('sp-alpha-one', 1, '\\(\\alpha=1\\), \\(10\\) vzorčnih točk, izpeljane točke vidne.', '\\(\\alpha=1\\), \\(10\\) sample points, derived points visible.'),
         },
