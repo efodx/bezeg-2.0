@@ -13,7 +13,7 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAnimationId} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAnimationId, LessonCurveFixture, LessonViewBox} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
@@ -141,12 +141,18 @@ export type SceneAction = Readonly<{
     value: SceneActionValue;
 }>;
 
+/**
+ * A scene starts from the Demonstration's default scene, or from that scene with lesson-specific curve geometry and an
+ * optional starting view (`lesson-fixture`); free-exploration defaults and Presets stay unchanged either way.
+ */
 export type LessonScene = Readonly<{
     id: string;
-    basedOn: 'demonstration-default';
     actions: readonly SceneAction[];
     expectedState: LocalizedText;
-}>;
+} & (
+    | {basedOn: 'demonstration-default'}
+    | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view?: LessonViewBox}
+)>;
 
 /** Existing UI gesture, recorded for the learner but never simulated by content. */
 export type LearnerInteraction =
