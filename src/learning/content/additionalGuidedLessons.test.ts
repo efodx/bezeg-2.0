@@ -25,11 +25,18 @@ test('keeps the additional lesson bounded, localized, and source-backed', () => 
     }
 });
 
-test('records the weighted midpoint used by the rational graph default', () => {
+test('records the quadratic opening and the weighted cubic midpoint of the rational construction', () => {
     const lesson = additionalGuidedLessons[0];
-    const example = lesson.workedExamples[0];
+    expect(lesson.workedExamples.map(item => item.id)).toEqual(['rational-decasteljau-quadratic', 'rational-decasteljau-midpoint']);
+    expect(lesson.workedExamples[0].calculationLatex).toContain('w=(1,2,1)');
+    expect(lesson.workedExamples[0].resultLatex).toContain('(0,1)');
+    const example = lesson.workedExamples[1];
     expect(example.calculationLatex).toContain('w=(1,2,1,1)');
     expect(example.resultLatex).toContain('(-9/11,21/11)');
+    expect(lesson.steps.map(step => step.id)).toEqual([
+        'rational-decasteljau-idea', 'rational-decasteljau-homogeneous', 'rational-decasteljau-projection',
+        'rational-decasteljau-cubic-equal', 'rational-decasteljau-weight-effect', 'rational-decasteljau-analysis',
+    ]);
     expect(lesson.formulaBlocks.map(formula => formula.id)).toEqual([
         'rational-weighted-form',
         'rational-homogeneous-row',

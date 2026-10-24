@@ -27,11 +27,18 @@ test('keeps the expansion cohort bounded, localized, and source-backed', () => {
 
 test('records the checked mathematics for the expansion cohort', () => {
     const rational = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'rational')!;
-    expect(rational.workedExamples[0].resultLatex).toContain('(-9/11,21/11)');
+    expect(rational.workedExamples.map(example => example.id)).toEqual(['rational-base-equal', 'rational-base-midpoint', 'rational-base-heavy']);
+    expect(rational.workedExamples[0].resultLatex).toContain('(0,3/2)');
+    expect(rational.workedExamples[1].resultLatex).toContain('(-9/11,21/11)');
+    expect(rational.workedExamples[2].resultLatex).toContain('(-27/17,39/17)');
     expect(rational.formulaBlocks.map(formula => formula.id)).toEqual([
         'rational-base-weighted-form',
         'rational-base-equal-weights',
+        'rational-base-second-weight',
         'rational-base-endpoints',
+    ]);
+    expect(rational.steps.map(step => step.id)).toEqual([
+        'rational-base-weights', 'rational-base-evaluation', 'rational-base-heavy', 'rational-base-endpoints', 'rational-base-analysis',
     ]);
 
     const ph = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'ph-quintic')!;

@@ -1,14 +1,32 @@
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import type {LessonCurveFixture, LessonViewBox} from '../model';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
+
+/**
+ * Rational De Casteljau fixtures at t=1/2. Quadratic P=(-4,-3),(0,3),(4,-3): w=(1,1,1) gives rows (-2,0),(2,0) and B=(0,0);
+ * w=(1,2,1) lifts to Q=(-4,-3,1),(0,6,2),(4,-3,1), row 1 (-2,3/2,3/2),(2,3/2,3/2), Q^(2)=(0,3/2,3/2), B=(0,1).
+ * Cubic P=(-4,-3),(-3,3),(3,3),(4,-3): w=(1,1,1,1) gives B=(0,3/2); w=(1,2,1,1) gives Q^(3)=(-9/8,21/8,11/8), B=(-9/11,21/11).
+ */
+const rationalDecasteljauView: LessonViewBox = [-6, 5, 6, -4.5];
+const quadraticFixture = (weights: readonly number[]): LessonCurveFixture => ({points: [[-4, -3], [0, 3], [4, -3]], weights});
+const cubicFixture = (weights: readonly number[]): LessonCurveFixture => ({points: [[-4, -3], [-3, 3], [3, 3], [4, -3]], weights});
+const rationalDecasteljauScene = (id: string, curve: LessonCurveFixture, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id, basedOn: 'lesson-fixture', curve, view: rationalDecasteljauView, actions, expectedState: text(sl, en),
+});
+const RATIONAL_DECASTELJAU_ACTIONS: readonly SceneAction[] = [
+    {name: 'show-decasteljau-construction', value: true},
+    {name: 'show-weights', value: true},
+    {name: 'set-decasteljau-parameter', value: 0.5},
+];
 
 const rationalDecasteljau: GuidedLesson = {
     demonstrationId: 'rational-decasteljau',
     title: text('Racionalna De Casteljaujeva konstrukcija', 'Rational De Casteljau construction'),
     summary: text(
-        'Racionalna konstrukcija uporablja utežene kontrolne točke v homogenih koordinatah in jih nato projicira nazaj v ravnino.',
-        'The rational construction interpolates weighted control points in homogeneous coordinates and then projects them back to the plane.',
+        'Racionalna konstrukcija uporablja utežene kontrolne točke v homogenih koordinatah in jih nato projicira nazaj v ravnino; najprej jo vidiš pri enakih utežeh, kjer je enaka navadni, nato pa pri spremenjeni uteži.',
+        'The rational construction interpolates weighted control points in homogeneous coordinates and then projects them back to the plane; you first see it with equal weights, where it equals the ordinary one, and then with a changed weight.',
     ),
     prerequisites: [
         text('Potrebno je osnovno poznavanje linearne interpolacije in Bézierjevih kontrolnih točk.', 'Assumes familiarity with linear interpolation and Bézier control points.'),
@@ -16,7 +34,7 @@ const rationalDecasteljau: GuidedLesson = {
     ],
     learningGoals: [
         text('Razložiš, zakaj racionalna krivulja potrebuje uteži in homogen zapis.', 'Explain why rational curves use weights and a homogeneous representation.'),
-        text('Prebereš vrstico racionalne De Casteljaujeve konstrukcije pri izbranem parametru.', 'Read a row of the rational De Casteljau construction at a chosen parameter.'),
+        text('Prebereš vrstico racionalne De Casteljaujeve konstrukcije pri \\(t=\\tfrac{1}{2}\\) in opaziš, da pri enakih utežeh zadnja koordinata ostane \\(1\\).', 'Read a row of the rational De Casteljau construction at \\(t=\\tfrac{1}{2}\\) and notice that with equal weights the last coordinate stays \\(1\\).'),
         text('Povežeš končno projekcijo konstrukcije z vrednostjo racionalne Bézierjeve krivulje.', 'Connect the final projection of the construction with the value of a rational Bézier curve.'),
     ],
     formulaBlocks: [
@@ -59,107 +77,127 @@ const rationalDecasteljau: GuidedLesson = {
     ],
     workedExamples: [
         {
-            id: 'rational-decasteljau-midpoint',
-            title: text('Privzeta krivulja pri \\(t=1/2\\)', 'The default curve at \\(t=1/2\\)'),
-            calculationLatex: 'P=(-4,-3),(-3,3),(3,3),(4,-3),\\quad w=(1,2,1,1),\\quad b(1/2)=(1/8,3/8,3/8,1/8)',
-            resultLatex: '\\mathbf{B}(1/2)=\\frac{(-9/8,21/8)}{11/8}=(-9/11,21/11)',
+            id: 'rational-decasteljau-quadratic',
+            title: text('Kvadratna krivulja z utežmi \\((1,2,1)\\) pri \\(t=\\tfrac{1}{2}\\)', 'Quadratic curve with weights \\((1,2,1)\\) at \\(t=\\tfrac{1}{2}\\)'),
+            calculationLatex: 'P=(-4,-3),(0,3),(4,-3),\\quad w=(1,2,1),\\quad Q^{(0)}=(-4,-3,1),(0,6,2),(4,-3,1),\\quad Q^{(1)}=(-2,3/2,3/2),(2,3/2,3/2)',
+            resultLatex: 'Q^{(2)}=(0,3/2,3/2),\\quad\\mathbf{B}(1/2)=\\frac{(0,3/2)}{3/2}=(0,1)',
             check: text(
-                'Rezultat preveri z zadnjo točko konstrukcije in z neodvisnim izračunom utežene Bernsteinove oblike.',
-                'Check the result against the final construction point and an independent weighted Bernstein calculation.',
+                'Pri enakih utežeh \\((1,1,1)\\) ostane zadnja koordinata \\(1\\) in dobimo navadno točko \\((0,0)\\); utež \\(2\\) jo dvigne na \\((0,1)\\).',
+                'With equal weights \\((1,1,1)\\) the last coordinate stays \\(1\\) and we get the ordinary point \\((0,0)\\); the weight \\(2\\) lifts it to \\((0,1)\\).',
+            ),
+        },
+        {
+            id: 'rational-decasteljau-midpoint',
+            title: text('Kubična krivulja z utežmi \\((1,2,1,1)\\) pri \\(t=1/2\\)', 'Cubic curve with weights \\((1,2,1,1)\\) at \\(t=1/2\\)'),
+            calculationLatex: 'P=(-4,-3),(-3,3),(3,3),(4,-3),\\quad w=(1,2,1,1),\\quad Q^{(0)}=(-4,-3,1),(-6,6,2),(3,3,1),(4,-3,1),\\quad Q^{(1)}=(-5,3/2,3/2),(-3/2,9/2,3/2),(7/2,0,1),\\quad Q^{(2)}=(-13/4,3,3/2),(1,9/4,5/4)',
+            resultLatex: 'Q^{(3)}=(-9/8,21/8,11/8),\\quad\\mathbf{B}(1/2)=\\frac{(-9/8,21/8)}{11/8}=(-9/11,21/11)',
+            check: text(
+                'Rezultat preveri z zadnjo točko konstrukcije in z neodvisnim izračunom utežene Bernsteinove oblike. Pri enakih utežeh \\((1,1,1,1)\\) je rezultat navadna točka \\((0,3/2)\\).',
+                'Check the result against the final construction point and an independent weighted Bernstein calculation. With equal weights \\((1,1,1,1)\\) the result is the ordinary point \\((0,3/2)\\).',
             ),
         },
     ],
     steps: [
         {
             id: 'rational-decasteljau-idea', order: 1,
-            title: text('Uteži določijo vpliv', 'Weights determine influence'),
-            purpose: text('Razlikovanje med navadno in racionalno Bézierjevo krivuljo.', 'Distinguishing ordinary and rational Bézier curves.'),
+            title: text('Enake uteži: navadna konstrukcija', 'Equal weights: the ordinary construction'),
+            purpose: text('Začeti z znano konstrukcijo, da je vpliv uteži viden kot sprememba.', 'Starting from the familiar construction so that the effect of a weight is visible as a change.'),
             explanation: text(
-                'Racionalna krivulja ima poleg kontrolnih točk še uteži. Večja pozitivna utež poveča vpliv pripadajoče kontrolne točke pri isti geometriji.',
-                'A rational curve has weights in addition to control points. A larger positive weight increases the influence of its control point for the same geometry.',
+                'Začnemo s kvadratno krivuljo s kontrolnimi točkami \\((-4,-3),(0,3),(4,-3)\\), da je izračun krajši. Pri utežeh \\((1,1,1)\\) so homogene točke \\((-4,-3,1),(0,3,1),(4,-3,1)\\); zadnja koordinata ostane \\(1\\), prvi dve pa se interpolirata kot pri navadni De Casteljaujevi konstrukciji: pri \\(t=\\tfrac{1}{2}\\) dobimo \\((-2,0)\\), \\((2,0)\\) in končno točko \\((0,0)\\).',
+                'We start with a quadratic curve with control points \\((-4,-3),(0,3),(4,-3)\\) to keep the calculation short. With the weights \\((1,1,1)\\) the homogeneous points are \\((-4,-3,1),(0,3,1),(4,-3,1)\\); the last coordinate stays \\(1\\) and the first two are interpolated exactly as in the ordinary De Casteljau construction: at \\(t=\\tfrac{1}{2}\\) we get \\((-2,0)\\), \\((2,0)\\) and the final point \\((0,0)\\).',
             ),
             formulaIds: ['rational-weighted-form'],
             frames: [frame('rational-decasteljau-idea-explanation', 'explanation'), frame('rational-decasteljau-idea-observation', 'observation')],
-            scene: {
-                id: 'rational-decasteljau-default', basedOn: 'demonstration-default',
-                actions: [
-                    {name: 'show-decasteljau-construction', value: true},
-                    {name: 'show-weights', value: true},
-                    {name: 'set-decasteljau-parameter', value: 0.5},
-                ],
-                expectedState: text('Privzete uteži in racionalna konstrukcija so vidne pri \\(t=\\tfrac{1}{2}\\).', 'The default weights and rational construction are visible at \\(t=\\tfrac{1}{2}\\).'),
-            },
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-default', quadraticFixture([1, 1, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Kvadratna krivulja z utežmi \\((1,1,1)\\) in konstrukcija pri \\(t=\\tfrac{1}{2}\\) sta vidni; končna točka je \\((0,0)\\).',
+                'The quadratic curve with weights \\((1,1,1)\\) and its construction at \\(t=\\tfrac{1}{2}\\) are visible; the final point is \\((0,0)\\).',
+            ),
             learnerInteraction: 'observe',
-            observationPrompt: text('Primerjaj položaje kontrolnih točk, uteži in krivulje.', 'Compare the positions of the control points, weights, and curve.'),
-            expectedObservations: [text('Uteži so dodatni podatki; kontrolni poligon ostane isti, oblika krivulje pa je lahko drugačna.', 'Weights are additional data; the control polygon stays the same while the curve shape can differ.')],
+            observationPrompt: text('Preberi uteži in končno točko konstrukcije; to je primerjalna točka za naslednja koraka.', 'Read the weights and the final point of the construction; it is the reference point for the next steps.'),
+            expectedObservations: [text('Vse uteži so \\(1\\) in konstrukcija je navadna; končna točka je \\((0,0)\\).', 'All weights are \\(1\\) and the construction is ordinary; the final point is \\((0,0)\\).')],
         },
         {
             id: 'rational-decasteljau-homogeneous', order: 2,
             title: text('Interpolacija v homogenih koordinatah', 'Interpolation in homogeneous coordinates'),
-            purpose: text('Razumevanje, kaj se interpolira v posamezni vrstici.', 'Understanding what is interpolated in each row.'),
+            purpose: text('Razumevanje, kaj se interpolira v posamezni vrstici, ko utež ni povsod \\(1\\).', 'Understanding what is interpolated in each row once the weight is not \\(1\\) everywhere.'),
             explanation: text(
-                'Vsaka kontrolna točka se najprej zapiše kot \\((w_iP_i,w_i)\\). De Casteljaujeva vrstica nato enako uteži položaj in zadnjo koordinato.',
-                'Each control point is first written as \\((w_iP_i,w_i)\\). A De Casteljau row then interpolates the position and the last coordinate together.',
+                'Spremenimo samo srednjo utež na \\(2\\): točke so še vedno \\((-4,-3),(0,3),(4,-3)\\), homogene točke pa \\((-4,-3,1),(0,6,2),(4,-3,1)\\). Prva vrstica pri \\(t=\\tfrac{1}{2}\\) je \\((-2,\\tfrac{3}{2},\\tfrac{3}{2})\\) in \\((2,\\tfrac{3}{2},\\tfrac{3}{2})\\); zadnja koordinata se je spremenila že v prvi vrstici.',
+                'We change only the middle weight to \\(2\\): the points are still \\((-4,-3),(0,3),(4,-3)\\), but the homogeneous points are \\((-4,-3,1),(0,6,2),(4,-3,1)\\). At \\(t=\\tfrac{1}{2}\\) the first row is \\((-2,\\tfrac{3}{2},\\tfrac{3}{2})\\) and \\((2,\\tfrac{3}{2},\\tfrac{3}{2})\\); the last coordinate already changed in the first row.',
             ),
             formulaIds: ['rational-homogeneous-row'],
             frames: [frame('rational-decasteljau-homogeneous-explanation', 'explanation', ['rational-homogeneous-row']), frame('rational-decasteljau-homogeneous-observation', 'observation')],
             animation: {animationId: 'decasteljau'},
-            scene: {
-                id: 'rational-decasteljau-quarter', basedOn: 'demonstration-default',
-                actions: [
-                    {name: 'show-decasteljau-construction', value: true},
-                    {name: 'set-decasteljau-parameter', value: 0.25},
-                ],
-                expectedState: text('Konstrukcija je prikazana pri \\(t=\\tfrac{1}{4}\\); vse homogene koordinate se interpolirajo skupaj.', 'The construction is shown at \\(t=\\tfrac{1}{4}\\); all homogeneous coordinates are interpolated together.'),
-            },
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-quadratic-weighted', quadraticFixture([1, 2, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Konstrukcija kvadratne krivulje z utežmi \\((1,2,1)\\) je prikazana pri \\(t=\\tfrac{1}{2}\\); vse homogene koordinate se interpolirajo skupaj.',
+                'The construction of the quadratic curve with weights \\((1,2,1)\\) is shown at \\(t=\\tfrac{1}{2}\\); all homogeneous coordinates are interpolated together.',
+            ),
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Predvajaj konstrukcijo in poišči vrstico, v kateri se začne spreminjati tudi zadnja, utežna koordinata.', 'Play the construction and identify the row in which the final, weight coordinate also changes.'),
-            expectedObservations: [text('V vsaki vrstici se spreminjajo položajne in utežne koordinate; konstrukcija se konča z eno homogeno točko.', 'Position and weight coordinates change in every row; the construction ends in one homogeneous point.')],
+            expectedObservations: [text('Zadnja koordinata se spremeni že v prvi vrstici (\\(\\tfrac{3}{2}\\)); konstrukcija se konča z eno homogeno točko.', 'The last coordinate changes already in the first row (\\(\\tfrac{3}{2}\\)); the construction ends in one homogeneous point.')],
         },
         {
             id: 'rational-decasteljau-projection', order: 3,
             title: text('Projekcija v ravnino', 'Projection to the plane'),
             purpose: text('Povezava zadnje homogene točke z dejansko točko na krivulji.', 'Connecting the final homogeneous point with the actual curve point.'),
             explanation: text(
-                'Končna točka konstrukcije še ni zapisana v navadnih koordinatah. Prvi dve koordinati delimo z zadnjo in dobimo točko racionalne krivulje.',
-                'The final construction point is not yet in ordinary coordinates. Divide its first two coordinates by the last to obtain the rational curve point.',
+                'Končna točka konstrukcije je \\((0,\\tfrac{3}{2},\\tfrac{3}{2})\\) in še ni zapisana v navadnih koordinatah. Prvi dve koordinati delimo z zadnjo in dobimo točko racionalne krivulje \\((0,1)\\); pri enakih utežeh je bila ta točka \\((0,0)\\).',
+                'The final construction point is \\((0,\\tfrac{3}{2},\\tfrac{3}{2})\\) and is not yet in ordinary coordinates. Divide its first two coordinates by the last to obtain the rational curve point \\((0,1)\\); with equal weights this point was \\((0,0)\\).',
             ),
             formulaIds: ['rational-projection'],
             frames: [frame('rational-decasteljau-projection-explanation', 'explanation'), frame('rational-decasteljau-projection-calculation', 'calculation'), frame('rational-decasteljau-projection-observation', 'observation')],
-            workedExampleId: 'rational-decasteljau-midpoint',
-            scene: {
-                id: 'rational-decasteljau-midpoint', basedOn: 'demonstration-default',
-                actions: [
-                    {name: 'show-decasteljau-construction', value: true},
-                    {name: 'set-decasteljau-parameter', value: 0.5},
-                ],
-                expectedState: text('Končna konstrukcijska točka pri \\(t=\\tfrac{1}{2}\\) je projekcija točke \\(B(\\tfrac{1}{2})\\).', 'The final construction point at \\(t=\\tfrac{1}{2}\\) is the projection of \\(B(\\tfrac{1}{2})\\).'),
-            },
+            workedExampleId: 'rational-decasteljau-quadratic',
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-quadratic-projection', quadraticFixture([1, 2, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Končna konstrukcijska točka pri \\(t=\\tfrac{1}{2}\\) je projekcija točke \\((0,1)\\).',
+                'The final construction point at \\(t=\\tfrac{1}{2}\\) is the projection of the point \\((0,1)\\).',
+            ),
             learnerInteraction: 'observe',
-            observationPrompt: text('Primerjaj izračunano točko \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) s končno točko konstrukcije.', 'Compare the calculated point \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) with the final construction point.'),
-            expectedObservations: [text('Po projekciji končna točka konstrukcije sovpada s točko racionalne krivulje.', 'After projection, the final construction point coincides with the point on the rational curve.')],
+            observationPrompt: text('Primerjaj izračunano točko \\((0,1)\\) s končno točko konstrukcije in s točko \\((0,0)\\) pri enakih utežeh.', 'Compare the calculated point \\((0,1)\\) with the final construction point and with the point \\((0,0)\\) for equal weights.'),
+            expectedObservations: [text('Po projekciji končna točka konstrukcije sovpada s točko racionalne krivulje; ta je višje kot pri enakih utežeh.', 'After projection, the final construction point coincides with the point on the rational curve; it is higher than for equal weights.')],
         },
         {
-            id: 'rational-decasteljau-weight-effect', order: 4,
+            id: 'rational-decasteljau-cubic-equal', order: 4,
+            title: text('Kubična krivulja z enakimi utežmi', 'The cubic curve with equal weights'),
+            purpose: text('Prenos zamisli na kubično krivuljo in njen navadni primerjalnik.', 'Carrying the idea over to the cubic curve and its ordinary counterpart.'),
+            explanation: text(
+                'Kubična krivulja s točkami \\((-4,-3),(-3,3),(3,3),(4,-3)\\) in utežmi \\((1,1,1,1)\\) ima pri \\(t=\\tfrac{1}{2}\\) vrstice \\((-\\tfrac{7}{2},0),(0,3),(\\tfrac{7}{2},0)\\), nato \\((-\\tfrac{7}{4},\\tfrac{3}{2}),(\\tfrac{7}{4},\\tfrac{3}{2})\\) in končno točko \\((0,\\tfrac{3}{2})\\), zadnja koordinata pa je povsod \\(1\\). To je navadna Bézierjeva krivulja.',
+                'The cubic curve with points \\((-4,-3),(-3,3),(3,3),(4,-3)\\) and weights \\((1,1,1,1)\\) has at \\(t=\\tfrac{1}{2}\\) the rows \\((-\\tfrac{7}{2},0),(0,3),(\\tfrac{7}{2},0)\\), then \\((-\\tfrac{7}{4},\\tfrac{3}{2}),(\\tfrac{7}{4},\\tfrac{3}{2})\\) and the final point \\((0,\\tfrac{3}{2})\\), while the last coordinate is \\(1\\) everywhere. This is the ordinary Bézier curve.',
+            ),
+            formulaIds: ['rational-weighted-form'],
+            frames: [frame('rational-decasteljau-cubic-equal-explanation', 'explanation'), frame('rational-decasteljau-cubic-equal-observation', 'observation')],
+            learnerInteraction: 'observe',
+            observationPrompt: text('Preveri, da je zadnja koordinata v vseh vrsticah \\(1\\), in preberi končno točko \\((0,\\tfrac{3}{2})\\).', 'Check that the last coordinate is \\(1\\) in every row, and read the final point \\((0,\\tfrac{3}{2})\\).'),
+            expectedObservations: [text('Pri enakih utežeh ni deljenja z drugo vrednostjo kot \\(1\\); konstrukcija je navadna.', 'With equal weights there is no division by anything other than \\(1\\); the construction is ordinary.')],
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-cubic-equal', cubicFixture([1, 1, 1, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Kubična krivulja z utežmi \\((1,1,1,1)\\) in konstrukcija pri \\(t=\\tfrac{1}{2}\\) sta vidni.',
+                'The cubic curve with weights \\((1,1,1,1)\\) and its construction at \\(t=\\tfrac{1}{2}\\) are visible.',
+            ),
+        },
+        {
+            id: 'rational-decasteljau-weight-effect', order: 5,
             title: text('Vpliv spremembe uteži', 'Effect of changing a weight'),
             purpose: text('Opazovanje spremembe oblike brez spremembe kontrolnega poligona.', 'Observing a shape change without changing the control polygon.'),
             explanation: text(
-                'Ko spremeniš utež, se spremeni racionalna utežna vsota. Kontrolne točke ostanejo na istih mestih, vendar se krivulja pomakne proti točki z večjim vplivom.',
-                'Changing a weight changes the rational weighted sum. The control points stay in place, but the curve is pulled toward the more influential point.',
+                'Druga utež se spremeni z \\(1\\) na \\(2\\), točke ostanejo. Homogene točke so \\((-4,-3,1),(-6,6,2),(3,3,1),(4,-3,1)\\), prvi dve vrstici pri \\(t=\\tfrac{1}{2}\\) imata zadnjo koordinato \\(\\tfrac{3}{2}\\), \\(\\tfrac{3}{2}\\), \\(1\\) in nato \\(\\tfrac{3}{2}\\), \\(\\tfrac{5}{4}\\), končna točka pa je \\((-\\tfrac{9}{8},\\tfrac{21}{8},\\tfrac{11}{8})\\). Po projekciji je rezultat \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\), tj. pomaknjen od \\((0,\\tfrac{3}{2})\\) proti točki z večjo utežjo.',
+                'The second weight changes from \\(1\\) to \\(2\\); the points stay. The homogeneous points are \\((-4,-3,1),(-6,6,2),(3,3,1),(4,-3,1)\\); the first two rows at \\(t=\\tfrac{1}{2}\\) have last coordinates \\(\\tfrac{3}{2}\\), \\(\\tfrac{3}{2}\\), \\(1\\) and then \\(\\tfrac{3}{2}\\), \\(\\tfrac{5}{4}\\), and the final point is \\((-\\tfrac{9}{8},\\tfrac{21}{8},\\tfrac{11}{8})\\). After projection the result is \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\), moved from \\((0,\\tfrac{3}{2})\\) toward the point with the larger weight.',
             ),
-            formulaIds: ['rational-weighted-form'],
-            frames: [frame('rational-decasteljau-weight-effect-explanation', 'explanation'), frame('rational-decasteljau-weight-effect-observation', 'observation')],
+            formulaIds: ['rational-weighted-form', 'rational-projection'],
+            frames: [frame('rational-decasteljau-weight-effect-explanation', 'explanation'), frame('rational-decasteljau-weight-effect-calculation', 'calculation'), frame('rational-decasteljau-weight-effect-observation', 'observation')],
+            workedExampleId: 'rational-decasteljau-midpoint',
             learnerInteraction: 'observe',
-            observationPrompt: text('Razloži, kako bi sprememba uteži vplivala na uteženo vsoto, ne da bi premaknil kontrolne točke.', 'Explain how changing a weight would affect the weighted sum without moving the control points.'),
-            expectedObservations: [text('Večja utež poveča vpliv svoje kontrolne točke; uvodna scena ohrani privzete uteži.', 'A larger weight increases its control point’s influence; the introductory scene keeps the default weights.')],
-            scene: {
-                id: 'rational-decasteljau-weight-exploration', basedOn: 'demonstration-default',
-                actions: [{name: 'show-decasteljau-construction', value: true}, {name: 'show-weights', value: true}, {name: 'set-decasteljau-parameter', value: 0.75}],
-                expectedState: text('Konstrukcija pri \\(t=\\tfrac{3}{4}\\) ostane vidna med spreminjanjem uteži.', 'The construction at \\(t=\\tfrac{3}{4}\\) remains visible while weights are changed.'),
-            },
+            observationPrompt: text('Primerjaj izračunano točko \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) s končno točko konstrukcije in s točko \\((0,\\tfrac{3}{2})\\) pri enakih utežeh.', 'Compare the calculated point \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) with the final construction point and with the point \\((0,\\tfrac{3}{2})\\) for equal weights.'),
+            expectedObservations: [text('Kontrolni poligon je isti, konstrukcijska točka pa je zaradi večje druge uteži bližje \\(P_1\\); po projekciji sovpada s točko krivulje.', 'The control polygon is the same, but because of the larger second weight the construction point is closer to \\(P_1\\); after projection it coincides with the curve point.')],
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-weight-exploration', cubicFixture([1, 2, 1, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Kubična krivulja z utežmi \\((1,2,1,1)\\) in konstrukcija pri \\(t=\\tfrac{1}{2}\\) sta vidni.',
+                'The cubic curve with weights \\((1,2,1,1)\\) and its construction at \\(t=\\tfrac{1}{2}\\) are visible.',
+            ),
         },
         {
-            id: 'rational-decasteljau-analysis', order: 5,
+            id: 'rational-decasteljau-analysis', order: 6,
             title: text('Samostojna analiza', 'Independent analysis'),
             purpose: text('Povezava uteži, konstrukcije in projekcije v poljubni nastavitvi.', 'Connecting weights, construction, and projection in an arbitrary configuration.'),
             explanation: text(
@@ -171,6 +209,11 @@ const rationalDecasteljau: GuidedLesson = {
             learnerInteraction: 'observe',
             observationPrompt: text('Izberi parameter in utež ter preveri, ali se konstrukcija in projekcija še ujemata.', 'Choose a parameter and a weight, then check whether the construction and projection still agree.'),
             expectedObservations: [text('Pri regularni nastavitvi se zadnja projekcija ujema z vrednostjo racionalne krivulje.', 'For a regular configuration, the final projection agrees with the rational curve value.')],
+            scene: rationalDecasteljauScene(
+                'rational-decasteljau-analysis', cubicFixture([1, 2, 1, 1]), RATIONAL_DECASTELJAU_ACTIONS,
+                'Kubična krivulja z utežmi \\((1,2,1,1)\\) in konstrukcija ostaneta vidni za samostojno spreminjanje.',
+                'The cubic curve with weights \\((1,2,1,1)\\) and its construction stay visible for free changes.',
+            ),
         },
     ],
     sources: [
