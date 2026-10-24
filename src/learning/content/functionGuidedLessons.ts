@@ -639,36 +639,117 @@ const trigonometricFunctions: GuidedLesson = {
             },
         },
         {
-            id: 'trig-amplitude-midline', order: 2,
-            title: text('Amplituda in srednja črta', 'Amplitude and midline'),
-            purpose: text('Zalogo vrednosti izračunati iz \\(A\\) in \\(B\\).', 'Computing the range from \\(A\\) and \\(B\\).'),
+            id: 'trig-amplitude', order: 2,
+            title: text('Amplituda \\(A\\)', 'Amplitude \\(A\\)'),
+            purpose: text('Videti, da \\(A\\) navpično razteguje val in poveča zalogo vrednosti, perioda pa ostane enaka.', 'Seeing that \\(A\\) stretches the wave vertically and widens the range while the period stays the same.'),
             explanation: text(
-                'Število \\(A\\) razteguje graf navpično: val doseže višino \\(|A|\\) nad srednjo črto in \\(|A|\\) pod njo. Število \\(B\\) premakne srednjo črto na \\(y=B\\). Zato je največja vrednost \\(B+|A|\\), najmanjša pa \\(B-|A|\\). Pri \\(A=2\\) in \\(B=-1\\) je največ \\(-1+2=1\\) in najmanj \\(-1-2=-3\\).',
-                'The number \\(A\\) stretches the graph vertically: the wave reaches \\(|A|\\) above the midline and \\(|A|\\) below it. The number \\(B\\) moves the midline to \\(y=B\\). So the maximum is \\(B+|A|\\) and the minimum is \\(B-|A|\\). For \\(A=2\\) and \\(B=-1\\) the maximum is \\(-1+2=1\\) and the minimum is \\(-1-2=-3\\).',
+                'Črtkani referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(A\\): pri \\(A=2\\) je \\(f(x)=2\\sin x\\) in val doseže višino \\(|A|=2\\) nad srednjo črto \\(y=0\\) in \\(2\\) pod njo. Zaloga vrednosti je zato \\([B-|A|,B+|A|]=[-2,2]\\), perioda \\(2\\pi\\) in srednja črta ostaneta enaki kot pri referenčnem grafu.',
+                'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(A\\): for \\(A=2\\) we have \\(f(x)=2\\sin x\\), and the wave reaches \\(|A|=2\\) above the midline \\(y=0\\) and \\(2\\) below it. The range is therefore \\([B-|A|,B+|A|]=[-2,2]\\), while the period \\(2\\pi\\) and the midline stay the same as for the reference graph.',
             ),
             formulaIds: ['trig-range'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('trig-amplitude-midline-explanation', 'explanation'), frame('trig-amplitude-midline-observation', 'observation')],
             observationPrompt: text(
-                'Premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
-                'Move the slider \\(A\\) across \\(0\\) to negative values and watch the graph and the amplitude readout.',
+                'Primerjaj višino vrhov polnega in črtkanega grafa ter njuna prečkanja osi \\(x\\). Nato premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
+                'Compare the height of the peaks of the solid and the dashed graph and where they cross the \\(x\\)-axis. Then move the slider \\(A\\) across \\(0\\) to negative values and watch the graph and the amplitude readout.',
             ),
             expectedObservations: [text(
-                'Pri \\(A=2\\) in \\(B=-1\\) je zaloga vrednosti \\([-3,1]\\). Pri negativnem \\(A\\) se graf prezrcali čez srednjo črto, amplituda \\(|A|\\) pa ostane pozitivna.',
-                'For \\(A=2\\) and \\(B=-1\\) the range is \\([-3,1]\\). For a negative \\(A\\) the graph is reflected over the midline, while the amplitude \\(|A|\\) stays positive.',
+                'Polni graf je dvakrat višji od črtkanega, zaloga vrednosti je \\([-2,2]\\), prečkanja osi \\(x\\) in perioda \\(2\\pi\\approx6{,}28\\) pa so ista. Pri negativnem \\(A\\) se graf prezrcali čez srednjo črto, amplituda \\(|A|\\) ostane pozitivna.',
+                'The solid graph is twice as tall as the dashed one, the range is \\([-2,2]\\), while the crossings of the \\(x\\)-axis and the period \\(2\\pi\\approx6.28\\) are the same. For a negative \\(A\\) the graph is reflected over the midline, while the amplitude \\(|A|\\) stays positive.',
             )],
             scene: {
-                id: 'trig-amplitude-two-midline-minus-one', basedOn: 'demonstration-default',
-                actions: [parameter('A', 2), parameter('B', -1)],
+                id: 'trig-amplitude-two', basedOn: 'demonstration-default',
+                actions: [parameter('A', 2), referenceVisibility(true)],
                 expectedState: text(
-                    'Prikazan je graf \\(f(x)=2\\sin x-1\\) s srednjo črto \\(y=-1\\); amplituda je \\(2\\), zaloga vrednosti \\([-3,1]\\).',
-                    'The graph of \\(f(x)=2\\sin x-1\\) is shown with the midline \\(y=-1\\); the amplitude is \\(2\\) and the range \\([-3,1]\\).',
+                    'Polni graf \\(f(x)=2\\sin x\\) in črtkani referenčni graf \\(\\sin x\\); amplituda je \\(2\\), zaloga vrednosti \\([-2,2]\\), perioda \\(2\\pi\\), zamik \\(0\\).',
+                    'The solid graph \\(f(x)=2\\sin x\\) and the dashed reference graph \\(\\sin x\\); the amplitude is \\(2\\), the range \\([-2,2]\\), the period \\(2\\pi\\), the shift \\(0\\).',
                 ),
             },
         },
         {
-            id: 'trig-period-shift-step', order: 3,
-            title: text('Perioda in fazni zamik', 'Period and phase shift'),
-            purpose: text('Periodo \\(2\\pi/\\omega\\) in zamik \\(-\\varphi/\\omega\\) izračunati in odčitati z grafa.', 'Computing the period \\(2\\pi/\\omega\\) and the shift \\(-\\varphi/\\omega\\) and reading them off the graph.'),
+            id: 'trig-vertical-shift', order: 3,
+            title: text('Navpični premik \\(B\\)', 'Vertical shift \\(B\\)'),
+            purpose: text('Videti, da \\(B\\) celoten val premakne navzgor ali navzdol in ne spremeni njegove oblike.', 'Seeing that \\(B\\) moves the whole wave up or down without changing its shape.'),
+            explanation: text(
+                'Referenčni graf je spet osnovni \\(\\sin x\\). Spremenimo samo \\(B\\): pri \\(B=1\\) je \\(f(x)=\\sin x+1\\), srednja črta je \\(y=1\\), največja vrednost je \\(B+|A|=1+1=2\\), najmanjša pa \\(B-|A|=1-1=0\\). Višina vala nad srednjo črto je še vedno \\(|A|=1\\), perioda pa \\(2\\pi\\).',
+                'The reference graph is again the basic \\(\\sin x\\). We change only \\(B\\): for \\(B=1\\) we have \\(f(x)=\\sin x+1\\), the midline is \\(y=1\\), the maximum is \\(B+|A|=1+1=2\\) and the minimum is \\(B-|A|=1-1=0\\). The height of the wave above the midline is still \\(|A|=1\\) and the period is \\(2\\pi\\).',
+            ),
+            formulaIds: ['trig-range'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-vertical-shift-explanation', 'explanation'), frame('trig-vertical-shift-observation', 'observation')],
+            observationPrompt: text(
+                'Izberi točko na črtkanem grafu in poišči točko polnega grafa z istim \\(x\\): za koliko je višja? Primerjaj še srednjo črto in odčitek zaloge vrednosti.',
+                'Pick a point on the dashed graph and find the point of the solid graph with the same \\(x\\): how much higher is it? Also compare the midline and the range readout.',
+            ),
+            expectedObservations: [text(
+                'Vsaka točka polnega grafa je za \\(1\\) višja od točke črtkanega grafa z istim \\(x\\). Srednja črta je \\(y=1\\), zaloga vrednosti je \\([0,2]\\), amplituda \\(1\\) in perioda \\(2\\pi\\) ostaneta.',
+                'Every point of the solid graph is \\(1\\) higher than the point of the dashed graph with the same \\(x\\). The midline is \\(y=1\\), the range is \\([0,2]\\), and the amplitude \\(1\\) and the period \\(2\\pi\\) stay.',
+            )],
+            scene: {
+                id: 'trig-vertical-shift-one', basedOn: 'demonstration-default',
+                actions: [parameter('B', 1), referenceVisibility(true)],
+                expectedState: text(
+                    'Polni graf \\(f(x)=\\sin x+1\\) s srednjo črto \\(y=1\\) in črtkani referenčni graf \\(\\sin x\\); zaloga vrednosti \\([0,2]\\), perioda \\(2\\pi\\), zamik \\(0\\).',
+                    'The solid graph \\(f(x)=\\sin x+1\\) with the midline \\(y=1\\) and the dashed reference graph \\(\\sin x\\); the range is \\([0,2]\\), the period \\(2\\pi\\), the shift \\(0\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-frequency', order: 4,
+            title: text('Frekvenca \\(\\omega\\) in perioda', 'Frequency \\(\\omega\\) and the period'),
+            purpose: text('Videti, da \\(\\omega\\) val vodoravno stisne: perioda je \\(2\\pi/\\omega\\), zaloga vrednosti pa se ne spremeni.', 'Seeing that \\(\\omega\\) squeezes the wave horizontally: the period is \\(2\\pi/\\omega\\) while the range does not change.'),
+            explanation: text(
+                'Referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(\\omega\\): pri \\(\\omega=2\\) je \\(f(x)=\\sin 2x\\). Argument \\(2x\\) preteče \\(2\\pi\\) že, ko se \\(x\\) poveča za \\(\\pi\\), zato je perioda \\(2\\pi/\\omega=\\pi\\) in se v istem razmiku \\(2\\pi\\) val ponovi dvakrat. Višina vala se ne spremeni, zaloga vrednosti ostane \\([-1,1]\\).',
+                'The reference graph is the basic \\(\\sin x\\). We change only \\(\\omega\\): for \\(\\omega=2\\) we have \\(f(x)=\\sin 2x\\). The argument \\(2x\\) runs through \\(2\\pi\\) already when \\(x\\) grows by \\(\\pi\\), so the period is \\(2\\pi/\\omega=\\pi\\) and the wave repeats twice in the same distance \\(2\\pi\\). The height of the wave does not change, and the range stays \\([-1,1]\\).',
+            ),
+            formulaIds: ['trig-period-shift'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-frequency-explanation', 'explanation'), frame('trig-frequency-observation', 'observation')],
+            observationPrompt: text(
+                'Preštej vrhove črtkanega in polnega grafa na razmiku od \\(0\\) do \\(2\\pi\\) in primerjaj razmik med dvema zaporednima vrhovoma polnega grafa z odčitkom periode.',
+                'Count the peaks of the dashed and of the solid graph between \\(0\\) and \\(2\\pi\\) and compare the distance between two consecutive peaks of the solid graph with the period readout.',
+            ),
+            expectedObservations: [text(
+                'Črtkani graf ima na \\([0,2\\pi]\\) en vrh, polni dva; razmik med vrhovoma je \\(\\pi\\approx3{,}14\\), kar kaže odčitek periode. Zaloga vrednosti \\([-1,1]\\) in zamik \\(0\\) ostaneta.',
+                'On \\([0,2\\pi]\\) the dashed graph has one peak and the solid one has two; the distance between the peaks is \\(\\pi\\approx3.14\\), as the period readout shows. The range \\([-1,1]\\) and the shift \\(0\\) stay.',
+            )],
+            scene: {
+                id: 'trig-frequency-two', basedOn: 'demonstration-default',
+                actions: [parameter('omega', 2), referenceVisibility(true)],
+                expectedState: text(
+                    'Polni graf \\(f(x)=\\sin 2x\\) in črtkani referenčni graf \\(\\sin x\\); perioda je \\(\\pi\\), zaloga vrednosti \\([-1,1]\\), zamik \\(0\\).',
+                    'The solid graph \\(f(x)=\\sin 2x\\) and the dashed reference graph \\(\\sin x\\); the period is \\(\\pi\\), the range \\([-1,1]\\), the shift \\(0\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-phase-cosine', order: 5,
+            title: text('Fazni zamik \\(\\varphi\\) in kosinus', 'Phase shift \\(\\varphi\\) and the cosine'),
+            purpose: text('Videti, da \\(\\varphi\\) val vodoravno zamakne za \\(-\\varphi/\\omega\\), in iz tega pokazati \\(\\cos x=\\sin(x+\\pi/2)\\).', 'Seeing that \\(\\varphi\\) moves the wave horizontally by \\(-\\varphi/\\omega\\), and showing from it that \\(\\cos x=\\sin(x+\\pi/2)\\).'),
+            explanation: text(
+                'Črtkani referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(\\varphi\\): polni graf je \\(\\sin(x+\\pi/2)\\) pri \\(\\varphi=\\pi/2\\). Pozitiven \\(\\varphi\\) graf zamakne v levo, negativen pa v desno. Polni graf je zamaknjen za \\(-\\varphi/\\omega=-\\pi/2\\), torej v levo, in ima pri \\(x=0\\) največjo vrednost \\(1\\), tako kot \\(\\cos x\\). Preveri: izberi \\(\\cos\\) in nastavi \\(\\varphi=0\\); dobiš isti graf.',
+                'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(\\varphi\\): the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). A positive \\(\\varphi\\) moves the graph to the left and a negative one to the right. The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
+            ),
+            formulaIds: ['trig-cos-sin'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
+            observationPrompt: text(
+                'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato nastavi \\(\\varphi=-\\pi/2\\) in preveri, da se graf zamakne v desno, nato pa izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
+                'Compare the solid graph with the dashed one: by how much and in which direction is it shifted? Then set \\(\\varphi=-\\pi/2\\) and check that the graph moves to the right, and finally choose \\(\\cos\\), set \\(\\varphi=0\\) and check that the solid graph does not change.',
+            ),
+            expectedObservations: [text(
+                'Polni graf je za \\(\\pi/2\\approx1{,}57\\) v levo od črtkanega, odčitek zamika je \\(-\\pi/2\\); isto krivuljo dobiš pri \\(\\cos\\) in \\(\\varphi=0\\).',
+                'The solid graph is \\(\\pi/2\\approx1.57\\) to the left of the dashed one, the shift readout is \\(-\\pi/2\\); you get the same curve with \\(\\cos\\) and \\(\\varphi=0\\).',
+            )],
+            scene: {
+                id: 'trig-sine-shifted-by-half-pi', basedOn: 'demonstration-default',
+                actions: [trigChoice('sin'), parameter('phi', Math.PI / 2), referenceVisibility(true)],
+                expectedState: text(
+                    'Polni graf \\(\\sin(x+\\pi/2)\\), ki je enak \\(\\cos x\\), in črtkani referenčni graf \\(\\sin x\\); zamik je \\(-\\pi/2\\).',
+                    'The solid graph \\(\\sin(x+\\pi/2)\\), which equals \\(\\cos x\\), and the dashed reference graph \\(\\sin x\\); the shift is \\(-\\pi/2\\).',
+                ),
+            },
+        },
+        {
+            id: 'trig-combined', order: 6,
+            title: text('Vsi štirje parametri skupaj', 'All four parameters together'),
+            purpose: text('Znane učinke \\(A\\), \\(\\omega\\), \\(\\varphi\\) in \\(B\\) sestaviti in odčitati z grafa.', 'Combining the known effects of \\(A\\), \\(\\omega\\), \\(\\varphi\\) and \\(B\\) and reading them off the graph.'),
             explanation: text(
                 'Faktor \\(\\omega\\) graf vodoravno stisne: perioda je \\(2\\pi/\\omega\\). Ker je \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), je graf zamaknjen za \\(-\\varphi/\\omega\\). Pri \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) in \\(B=1\\) je največ \\(1+2=3\\), najmanj \\(1-2=-1\\), perioda \\(2\\pi/2=\\pi\\) in zamik \\(-(\\pi/2)/2=-\\pi/4\\).',
                 'The factor \\(\\omega\\) squeezes the graph horizontally: the period is \\(2\\pi/\\omega\\). Since \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), the graph is shifted by \\(-\\varphi/\\omega\\). For \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) and \\(B=1\\) the maximum is \\(1+2=3\\), the minimum \\(1-2=-1\\), the period \\(2\\pi/2=\\pi\\) and the shift \\(-(\\pi/2)/2=-\\pi/4\\).',
@@ -693,34 +774,7 @@ const trigonometricFunctions: GuidedLesson = {
             },
         },
         {
-            id: 'trig-cosine-shifted-sine', order: 4,
-            title: text('Kosinus je zamaknjen sinus', 'The cosine is a shifted sine'),
-            purpose: text('Pokazati, da je \\(\\cos x=\\sin(x+\\pi/2)\\).', 'Showing that \\(\\cos x=\\sin(x+\\pi/2)\\).'),
-            explanation: text(
-                'Črtkani referenčni graf je osnovni \\(\\sin x\\), polni graf pa \\(\\sin(x+\\pi/2)\\) pri \\(\\varphi=\\pi/2\\). Polni graf je zamaknjen za \\(-\\varphi/\\omega=-\\pi/2\\), torej v levo, in ima pri \\(x=0\\) največjo vrednost \\(1\\), tako kot \\(\\cos x\\). Preveri: izberi \\(\\cos\\) in nastavi \\(\\varphi=0\\); dobiš isti graf.',
-                'The dashed reference graph is the basic \\(\\sin x\\), and the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
-            ),
-            formulaIds: ['trig-cos-sin'], learnerInteraction: 'adjust-construction-parameter',
-            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
-            observationPrompt: text(
-                'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
-                'Compare the solid graph with the dashed one: by how much and in which direction is it shifted? Then choose \\(\\cos\\), set \\(\\varphi=0\\) and check that the solid graph does not change.',
-            ),
-            expectedObservations: [text(
-                'Polni graf je za \\(\\pi/2\\approx1{,}57\\) v levo od črtkanega, odčitek zamika je \\(-\\pi/2\\); isto krivuljo dobiš pri \\(\\cos\\) in \\(\\varphi=0\\).',
-                'The solid graph is \\(\\pi/2\\approx1.57\\) to the left of the dashed one, the shift readout is \\(-\\pi/2\\); you get the same curve with \\(\\cos\\) and \\(\\varphi=0\\).',
-            )],
-            scene: {
-                id: 'trig-sine-shifted-by-half-pi', basedOn: 'demonstration-default',
-                actions: [trigChoice('sin'), parameter('phi', Math.PI / 2), referenceVisibility(true)],
-                expectedState: text(
-                    'Polni graf \\(\\sin(x+\\pi/2)\\), ki je enak \\(\\cos x\\), in črtkani referenčni graf \\(\\sin x\\); zamik je \\(-\\pi/2\\).',
-                    'The solid graph \\(\\sin(x+\\pi/2)\\), which equals \\(\\cos x\\), and the dashed reference graph \\(\\sin x\\); the shift is \\(-\\pi/2\\).',
-                ),
-            },
-        },
-        {
-            id: 'trig-tangent', order: 5,
+            id: 'trig-tangent', order: 7,
             title: text('Tangens in asimptote', 'The tangent and its asymptotes'),
             purpose: text('Spoznati periodo \\(\\pi/\\omega\\), asimptote in odsotnost največje ter najmanjše vrednosti pri \\(\\tan\\).', 'Learning the period \\(\\pi/\\omega\\), the asymptotes and the absence of a maximum and a minimum for \\(\\tan\\).'),
             explanation: text(
@@ -1604,34 +1658,7 @@ const areaBetweenCurves: GuidedLesson = {
     ],
     steps: [
         {
-            id: 'area-under-step', order: 1,
-            title: text('Ploščina pod vsako krivuljo', 'The area under each curve'),
-            purpose: text('Najprej izračunati ploščino pod vsako krivuljo posebej.', 'First computing the area under each curve separately.'),
-            explanation: text(
-                'Krivulji \\(f(x)=(x-2)^2\\) in \\(g(x)=3-(x-2)^2\\) se sekata pri \\(x=2\\mp\\sqrt{1{,}5}\\approx0{,}7753\\) in \\(3{,}2247\\); ti vrednosti sta privzeti meji \\(a\\) in \\(b\\). Pod \\(g\\) do osi \\(x\\) je \\(\\int_a^b g(x)\\,dx=6\\sqrt{1{,}5}-\\sqrt{1{,}5}\\), kar je \\(5\\sqrt{1{,}5}\\approx6{,}1237\\). To scena pobarva. Pod \\(f\\) je \\(\\int_a^b f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_a^b\\), kar je \\(\\sqrt{1{,}5}\\approx1{,}2247\\). Izbirnik »Kaj je pobarvano« preklopi med obema.',
-                'The curves \\(f(x)=(x-2)^2\\) and \\(g(x)=3-(x-2)^2\\) meet at \\(x=2\\mp\\sqrt{1.5}\\approx0.7753\\) and \\(3.2247\\); these are the default bounds \\(a\\) and \\(b\\). Under \\(g\\) down to the \\(x\\)-axis the area is \\(\\int_a^b g(x)\\,dx=6\\sqrt{1.5}-\\sqrt{1.5}\\), which is \\(5\\sqrt{1.5}\\approx6.1237\\). The scene shades this. Under \\(f\\) it is \\(\\int_a^b f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_a^b\\), which is \\(\\sqrt{1.5}\\approx1.2247\\). The selector “What is shaded” switches between the two.',
-            ),
-            formulaIds: ['area-between-intersections'], learnerInteraction: 'adjust-construction-parameter',
-            frames: [frame('area-under-explanation', 'explanation'), frame('area-under-observation', 'observation')],
-            observationPrompt: text(
-                'Preklopi med »Ploščina pod f« in »Ploščina pod g« ter primerjaj pobarvana lika in odčitka \\(\\int f\\,dx\\) ter \\(\\int g\\,dx\\).',
-                'Switch between “Area under f” and “Area under g” and compare the two shaded regions and the readouts of \\(\\int f\\,dx\\) and \\(\\int g\\,dx\\).',
-            ),
-            expectedObservations: [text(
-                'Pod \\(g\\) je pobarvan velik lik z ploščino \\(6{,}1237\\); pod \\(f\\) je manjši lik z ploščino \\(1{,}2247\\). Ploščina med krivuljama je razlika teh dveh.',
-                'Under \\(g\\) a large region with area \\(6.1237\\) is shaded; under \\(f\\) there is a smaller region with area \\(1.2247\\). The area between the curves is the difference of the two.',
-            )],
-            scene: {
-                id: 'area-under-g-scene', basedOn: 'demonstration-default',
-                actions: [areaMode('under-g')],
-                expectedState: text(
-                    'Pobarvan je lik pod \\(g\\) med \\(a\\approx0{,}78\\) in \\(b\\approx3{,}22\\): \\(\\int g\\,dx=6{,}1237\\), \\(\\int f\\,dx=1{,}2247\\).',
-                    'The region under \\(g\\) between \\(a\\approx0.78\\) and \\(b\\approx3.22\\) is shaded: \\(\\int g\\,dx=6.1237\\), \\(\\int f\\,dx=1.2247\\).',
-                ),
-            },
-        },
-        {
-            id: 'area-difference-step', order: 2,
+            id: 'area-difference-step', order: 1,
             title: text('Ploščina med krivuljama je razlika', 'The area between is the difference'),
             purpose: text('Videti, da je ploščina med krivuljama integral razlike, ko je \\(g\\ge f\\).', 'Seeing that the area between the curves is the integral of the difference when \\(g\\ge f\\).'),
             explanation: text(
@@ -1654,6 +1681,33 @@ const areaBetweenCurves: GuidedLesson = {
                 expectedState: text(
                     'Pobarvan je lik med krivuljama med \\(a=1\\) in \\(b=3\\): \\(\\int(g-f)\\,dx=4{,}6667\\) in ploščina \\(4{,}6667\\).',
                     'The region between the curves from \\(a=1\\) to \\(b=3\\) is shaded: \\(\\int(g-f)\\,dx=4.6667\\) and area \\(4.6667\\).',
+                ),
+            },
+        },
+        {
+            id: 'area-under-step', order: 2,
+            title: text('Ploščina pod vsako krivuljo', 'The area under each curve'),
+            purpose: text('Ploščino med krivuljama razstaviti na ploščini pod vsako krivuljo posebej.', 'Splitting the area between the curves into the areas under each curve separately.'),
+            explanation: text(
+                'Na istem intervalu \\([1,3]\\) preklopimo v način »Ploščina pod g«. Pod \\(g\\) do osi \\(x\\) je \\(\\int_1^3 g(x)\\,dx=\\left[3x-\\frac{(x-2)^3}{3}\\right]_1^3=\\frac{16}{3}\\approx5{,}3333\\); to scena pobarva. Pod \\(f\\) je \\(\\int_1^3 f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_1^3=\\frac23\\approx0{,}6667\\). Razlika \\(\\frac{16}{3}-\\frac23=\\frac{14}{3}\\) je ploščina med krivuljama iz prejšnjega koraka. Izbirnik »Kaj je pobarvano« preklopi med načini.',
+                'On the same interval \\([1,3]\\) we switch to the mode “Area under g”. Under \\(g\\) down to the \\(x\\)-axis the area is \\(\\int_1^3 g(x)\\,dx=\\left[3x-\\frac{(x-2)^3}{3}\\right]_1^3=\\frac{16}{3}\\approx5.3333\\); the scene shades this. Under \\(f\\) it is \\(\\int_1^3 f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_1^3=\\frac23\\approx0.6667\\). The difference \\(\\frac{16}{3}-\\frac23=\\frac{14}{3}\\) is the area between the curves from the previous step. The selector “What is shaded” switches between the modes.',
+            ),
+            formulaIds: ['area-between-difference'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('area-under-explanation', 'explanation'), frame('area-under-observation', 'observation')],
+            observationPrompt: text(
+                'Preklopi med »Ploščina pod f« in »Ploščina pod g« ter primerjaj pobarvana lika in odčitka \\(\\int f\\,dx\\) ter \\(\\int g\\,dx\\).',
+                'Switch between “Area under f” and “Area under g” and compare the two shaded regions and the readouts of \\(\\int f\\,dx\\) and \\(\\int g\\,dx\\).',
+            ),
+            expectedObservations: [text(
+                'Pod \\(g\\) je pobarvan lik z ploščino \\(5{,}3333\\); pod \\(f\\) je manjši lik z ploščino \\(0{,}6667\\). Ploščina med krivuljama \\(4{,}6667\\) je razlika teh dveh.',
+                'Under \\(g\\) a region with area \\(5.3333\\) is shaded; under \\(f\\) there is a smaller region with area \\(0.6667\\). The area between the curves, \\(4.6667\\), is the difference of the two.',
+            )],
+            scene: {
+                id: 'area-under-g-scene', basedOn: 'demonstration-default',
+                actions: [areaMode('under-g'), parameter('a', 1), parameter('b', 3)],
+                expectedState: text(
+                    'Pobarvan je lik pod \\(g\\) med \\(a=1\\) in \\(b=3\\): \\(\\int g\\,dx=5{,}3333\\), \\(\\int f\\,dx=0{,}6667\\).',
+                    'The region under \\(g\\) between \\(a=1\\) and \\(b=3\\) is shaded: \\(\\int g\\,dx=5.3333\\), \\(\\int f\\,dx=0.6667\\).',
                 ),
             },
         },

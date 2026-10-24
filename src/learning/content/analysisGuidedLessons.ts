@@ -1985,8 +1985,8 @@ const taylor: GuidedLesson = {
     ],
     learningGoals: [
         text(
-            'Pri \\(e^x\\) okoli \\(0\\) v točki \\(x=1\\) primerjaš \\(T_1(1)=2\\), \\(T_3(1)=\\frac83\\) in \\(T_6(1)=\\frac{1957}{720}\\) z \\(e\\) in napoveš, kako se napaka spreminja s stopnjo.',
-            'For \\(e^x\\) about \\(0\\) at \\(x=1\\) compare \\(T_1(1)=2\\), \\(T_3(1)=\\frac83\\) and \\(T_6(1)=\\frac{1957}{720}\\) with \\(e\\) and predict how the error changes with the degree.',
+            'Pri \\(e^x\\) okoli \\(0\\) v točki \\(x=1\\) primerjaš \\(T_1(1)=2\\), \\(T_2(1)=\\frac52\\), \\(T_3(1)=\\frac83\\) in šele nato \\(T_6(1)=\\frac{1957}{720}\\) z \\(e\\) in napoveš, kako se napaka spreminja s stopnjo.',
+            'For \\(e^x\\) about \\(0\\) at \\(x=1\\) compare \\(T_1(1)=2\\), \\(T_2(1)=\\frac52\\), \\(T_3(1)=\\frac83\\) and only then \\(T_6(1)=\\frac{1957}{720}\\) with \\(e\\) and predict how the error changes with the degree.',
         ),
         text(
             'Z Lagrangeevo oceno utemeljiš, da napaka ne presega \\(\\frac{M\\,|x-c|^{n+1}}{(n+1)!}\\), in poveš, kaj je \\(M\\) pri \\(e^x\\) in pri \\(\\sin x\\).',
@@ -2109,14 +2109,14 @@ const taylor: GuidedLesson = {
             title: text('Ali višja stopnja izboljša približek?', 'Does a higher degree improve the approximation?'),
             purpose: text('Pripraviti pojme in napoved, preden se ocena napake pokaže.', 'Preparing the terms and a prediction before the error bound is shown.'),
             explanation: text(
-                'Kako blizu lahko polinom pride funkciji \\(e^x\\)? Potrebuješ višje odvode \\(f^{(k)}(c)\\) in fakultete \\(k!\\). Središče \\(c\\) pove, kje se polinom ujema s funkcijo in njenimi odvodi; stopnja \\(n\\) določa, koliko členov uporabimo. Pri \\(e^x\\) okoli \\(c=0\\) je vsak odvod v središču enak \\(1\\). V točki \\(x=1\\) boš primerjal stopnji \\(3\\) in \\(6\\), preden razkriješ oceno napake.',
-                'How closely can a polynomial follow \\(e^x\\)? You need higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). The center \\(c\\) tells us where the polynomial matches the function and its derivatives; the degree \\(n\\) determines how many terms we use. For \\(e^x\\) about \\(c=0\\), every derivative at the center equals \\(1\\). At \\(x=1\\) you will compare degrees \\(3\\) and \\(6\\) before revealing the error bound.',
+                'Kako blizu lahko polinom pride funkciji \\(e^x\\)? Potrebuješ višje odvode \\(f^{(k)}(c)\\) in fakultete \\(k!\\). Središče \\(c\\) pove, kje se polinom ujema s funkcijo in njenimi odvodi; stopnja \\(n\\) določa, koliko členov uporabimo. Pri \\(e^x\\) okoli \\(c=0\\) je vsak odvod v središču enak \\(1\\). V točki \\(x=1\\) boš najprej primerjal stopnje \\(1\\), \\(2\\) in \\(3\\), nato stopnjo \\(6\\), preden razkriješ oceno napake.',
+                'How closely can a polynomial follow \\(e^x\\)? You need higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). The center \\(c\\) tells us where the polynomial matches the function and its derivatives; the degree \\(n\\) determines how many terms we use. For \\(e^x\\) about \\(c=0\\), every derivative at the center equals \\(1\\). At \\(x=1\\) you will first compare degrees \\(1\\), \\(2\\) and \\(3\\), then degree \\(6\\), before revealing the error bound.',
             ),
             formulaIds: ['taylor-polynomial'], workedExampleId: 'taylor-opening-example', learnerInteraction: 'observe',
             frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-calculation', 'calculation'), frame('taylor-prerequisites-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(3\\) in na \\(6\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
-                'Predict how the error at \\(x=1\\) changes when you raise the degree \\(n\\) to \\(3\\) and to \\(6\\) (the + button); only then press Show error bound.',
+                'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(2\\) in na \\(3\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
+                'Predict how the error at \\(x=1\\) changes when you raise the degree \\(n\\) to \\(2\\) and to \\(3\\) (the + button); only then press Show error bound.',
             ),
             expectedObservations: [text(
                 'Pri \\(n=1\\) je \\(T_1(1)=2\\) in napaka približno \\(0{,}7183\\); ocena napake je skrita.',
@@ -2132,12 +2132,39 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-exp-step', order: 2,
+            id: 'taylor-exp-low-degrees-step', order: 2,
+            title: text('Stopnje \\(1\\), \\(2\\) in \\(3\\) pri \\(e^x\\)', 'Degrees \\(1\\), \\(2\\) and \\(3\\) for \\(e^x\\)'),
+            purpose: text('Primerjati napake nizkih stopenj v isti točki, preden pogledamo stopnjo \\(6\\).', 'Comparing the errors of low degrees at the same point before looking at degree \\(6\\).'),
+            explanation: text(
+                'Središče in točka ostaneta isti: \\(c=0\\), \\(x=1\\). Pri \\(n=1\\) je \\(T_1(1)=1+1=2\\), pri \\(n=2\\) je \\(T_2(1)=1+1+\\frac12=\\frac52\\), pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\). Dejanske napake \\(e-T_n(1)\\) so približno \\(0{,}7183\\), \\(0{,}2183\\) in \\(0{,}0516\\): vsak dodani člen napako v tej točki zmanjša. To je opazovanje v eni točki, ne dokaz za vse \\(x\\) in \\(n\\). Scena kaže \\(n=2\\); ocena napake je še skrita.',
+                'The center and the point stay the same: \\(c=0\\), \\(x=1\\). At \\(n=1\\), \\(T_1(1)=1+1=2\\); at \\(n=2\\), \\(T_2(1)=1+1+\\frac12=\\frac52\\); at \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\). The actual errors \\(e-T_n(1)\\) are about \\(0.7183\\), \\(0.2183\\) and \\(0.0516\\): each added term reduces the error at this point. This is an observation at one point, not a proof for all \\(x\\) and \\(n\\). The scene shows \\(n=2\\); the error bound is still hidden.',
+            ),
+            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
+            frames: [frame('taylor-exp-low-degrees-explanation', 'explanation'), frame('taylor-exp-low-degrees-observation', 'observation')],
+            observationPrompt: text(
+                'Preberi \\(T_2(1)\\) in absolutno napako, nato stopnjo povečaj na \\(3\\) in zmanjšaj na \\(1\\) (gumba + in −) ter primerjaj tri napake. Napovej, kolikšna bo napaka pri \\(n=6\\).',
+                'Read \\(T_2(1)\\) and the absolute error, then raise the degree to \\(3\\) and lower it to \\(1\\) (the + and − buttons) and compare the three errors. Predict the error at \\(n=6\\).',
+            ),
+            expectedObservations: [text(
+                'Pri \\(n=2\\) je \\(T_2(1)=2{,}5\\) in napaka približno \\(0{,}2183\\); pri \\(n=1\\) je napaka \\(0{,}7183\\), pri \\(n=3\\) pa \\(0{,}0516\\); ocena napake je skrita.',
+                'At \\(n=2\\), \\(T_2(1)=2.5\\) and the error is about \\(0.2183\\); at \\(n=1\\) the error is \\(0.7183\\) and at \\(n=3\\) it is \\(0.0516\\); the error bound is hidden.',
+            )],
+            scene: {
+                id: 'taylor-exp-low-degrees-scene', basedOn: 'demonstration-default',
+                actions: [parameter('taylor-degree', 2), taylorBound(false)],
+                expectedState: text(
+                    'Prikazan je \\(e^x\\) okoli \\(c=0\\) s polinomom stopnje \\(n=2\\) v \\(x=1\\); ocena napake je skrita.',
+                    'The graph of \\(e^x\\) about \\(c=0\\) is shown with the polynomial of degree \\(n=2\\) at \\(x=1\\); the error bound is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'taylor-exp-step', order: 3,
             title: text('Višja stopnja in Lagrangeeva ocena', 'A higher degree and the Lagrange bound'),
             purpose: text('Primerjati napoved z vrednostmi in oceno napake.', 'Comparing the prediction with the values and the error bound.'),
             explanation: text(
-                'Pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2{,}6667\\), pri \\(n=6\\) pa \\(T_6(1)=\\frac{1957}{720}\\approx2{,}7181\\): napaka pada od približno \\(0{,}7183\\) prek \\(0{,}0516\\) do približno \\(0{,}000226\\). Zdaj je prikazana še Lagrangeeva ocena. Predpostavka je, da je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\); pri \\(e^x\\) je to \\(M=\\max(e^c,e^x)=e<3\\), ker je \\(e^t\\) naraščajoča. Pri \\(n=6\\) je ocena \\(\\frac{e}{7!}\\approx0{,}000539\\), kar je nad dejansko napako \\(0{,}000226\\).',
-                'At \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2.6667\\), and at \\(n=6\\), \\(T_6(1)=\\frac{1957}{720}\\approx2.7181\\): the error falls from about \\(0.7183\\) through \\(0.0516\\) to about \\(0.000226\\). The Lagrange bound is now shown as well. The assumption is that \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\); for \\(e^x\\) this is \\(M=\\max(e^c,e^x)=e<3\\), because \\(e^t\\) is increasing. At \\(n=6\\) the bound is \\(\\frac{e}{7!}\\approx0.000539\\), which lies above the actual error \\(0.000226\\).',
+                'Pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2{,}6667\\), pri \\(n=6\\) pa \\(T_6(1)=\\frac{1957}{720}\\approx2{,}7181\\): napaka pada od približno \\(0{,}7183\\) prek \\(0{,}2183\\) in \\(0{,}0516\\) do približno \\(0{,}000226\\). Zdaj je prikazana še Lagrangeeva ocena. Predpostavka je, da je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\); pri \\(e^x\\) je to \\(M=\\max(e^c,e^x)=e<3\\), ker je \\(e^t\\) naraščajoča. Pri \\(n=6\\) je ocena \\(\\frac{e}{7!}\\approx0{,}000539\\), kar je nad dejansko napako \\(0{,}000226\\).',
+                'At \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2.6667\\), and at \\(n=6\\), \\(T_6(1)=\\frac{1957}{720}\\approx2.7181\\): the error falls from about \\(0.7183\\) through \\(0.2183\\) and \\(0.0516\\) to about \\(0.000226\\). The Lagrange bound is now shown as well. The assumption is that \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\); for \\(e^x\\) this is \\(M=\\max(e^c,e^x)=e<3\\), because \\(e^t\\) is increasing. At \\(n=6\\) the bound is \\(\\frac{e}{7!}\\approx0.000539\\), which lies above the actual error \\(0.000226\\).',
             ),
             formulaIds: ['taylor-polynomial', 'taylor-lagrange'], workedExampleId: 'taylor-exp-example', learnerInteraction: 'observe',
             frames: [frame('taylor-exp-explanation', 'explanation'), frame('taylor-exp-calculation', 'calculation'), frame('taylor-exp-observation', 'observation')],
@@ -2159,7 +2186,7 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-sine-prediction-step', order: 3,
+            id: 'taylor-sine-prediction-step', order: 4,
             title: text('Funkcija \\(\\sin x\\): napoved', 'The function \\(\\sin x\\): a prediction'),
             purpose: text('Napovedati oceno napake, preden se pokaže.', 'Predicting the error bound before it is shown.'),
             explanation: text(
@@ -2186,7 +2213,7 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-sine-step', order: 4,
+            id: 'taylor-sine-step', order: 5,
             title: text('Ocena \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) za \\(\\sin x\\)', 'The bound \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) for \\(\\sin x\\)'),
             purpose: text('Primerjati napoved z oceno z \\(M=1\\).', 'Comparing the prediction with the bound with \\(M=1\\).'),
             explanation: text(
@@ -2213,7 +2240,7 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-geometric-step', order: 5,
+            id: 'taylor-geometric-step', order: 6,
             title: text('Zunaj konvergenčnega intervala: \\(\\frac{1}{1-x}\\)', 'Outside the convergence interval: \\(\\frac{1}{1-x}\\)'),
             purpose: text('Napovedati, da višja stopnja ne pomeni vedno boljšega približka.', 'Predicting that a higher degree does not always mean a better approximation.'),
             explanation: text(
@@ -2240,7 +2267,7 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-flat-prediction-step', order: 6,
+            id: 'taylor-flat-prediction-step', order: 7,
             title: text('Gladka funkcija z vsemi koeficienti \\(0\\)', 'A smooth function with all coefficients \\(0\\)'),
             purpose: text('Napovedati, kaj stori Taylorjev polinom, ko so vsi odvodi v središču \\(0\\).', 'Predicting what the Taylor polynomial does when all derivatives at the center are \\(0\\).'),
             explanation: text(
@@ -2267,7 +2294,7 @@ const taylor: GuidedLesson = {
             },
         },
         {
-            id: 'taylor-free-exploration', order: 7,
+            id: 'taylor-free-exploration', order: 8,
             title: text('Približek ni vrsta in samostojno raziskovanje', 'An approximation is not a series, and free exploration'),
             purpose: text('Ločiti končni približek od konvergence vrste in preiti v samostojno raziskovanje.', 'Separating the finite approximation from convergence of the series and handing over to free exploration.'),
             explanation: text(

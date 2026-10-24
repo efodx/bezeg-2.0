@@ -869,12 +869,14 @@ const trigReadout = async (page, id) => (await page.locator(`[data-readout="${id
 // The range lists its two numbers (separated by ; or , depending on the language); tangent has none.
 const trigRange = async page => ((await page.locator('[data-readout="range"] dd').innerText()).replace(/−/g, '-').match(/-?\d+(?:[.,]\d+)?/g) || []).map(value => value.replace(',', '.'));
 // Per step: equation, period, phase shift (with exact multiples of pi), range and the number of visible graph curves
-// (midline + main graph; the reference graph and, for tan, the asymptotes add one). Steps: default, amplitude, worked example, cosine as shifted sine, tangent.
+// (midline + main graph; the reference graph and, for tan, the asymptotes add one). Steps: default, amplitude, vertical shift, frequency, phase (cosine as shifted sine), combined worked example, tangent.
 const TRIG_STEPS = [
     {equation: 'f(x) = sin(x)', period: '6.28 (2π)', shift: '0', range: ['-1', '1'], curves: 2},
-    {equation: 'f(x) = 2·sin(x) - 1', period: '6.28 (2π)', shift: '0', range: ['-3', '1'], curves: 2},
-    {equation: 'f(x) = 2·sin(2x + π/2) + 1', period: '3.14 (π)', shift: '-0.79 (-π/4)', range: ['-1', '3'], curves: 2},
+    {equation: 'f(x) = 2·sin(x)', period: '6.28 (2π)', shift: '0', range: ['-2', '2'], curves: 3},
+    {equation: 'f(x) = sin(x) + 1', period: '6.28 (2π)', shift: '0', range: ['0', '2'], curves: 3},
+    {equation: 'f(x) = sin(2x)', period: '3.14 (π)', shift: '0', range: ['-1', '1'], curves: 3},
     {equation: 'f(x) = sin(x + π/2)', period: '6.28 (2π)', shift: '-1.57 (-π/2)', range: ['-1', '1'], curves: 3},
+    {equation: 'f(x) = 2·sin(2x + π/2) + 1', period: '3.14 (π)', shift: '-0.79 (-π/4)', range: ['-1', '3'], curves: 2},
     {equation: 'f(x) = tan(x)', period: '3.14 (π)', shift: '0', range: [], curves: 3},
 ];
 
@@ -882,8 +884,8 @@ const trigonometric = {
     id: 'trigonometric-functions',
     path: `${BASE}/functions/trigonometric`,
     titles: {sl: 'Trigonometrične funkcije', en: 'Trigonometric functions'},
-    steps: 5,
-    minFrames: 11, // 2 + 2 + 3 + 2 + 2 frames
+    steps: 7,
+    minFrames: 15, // 2 + 2 + 2 + 2 + 2 + 3 + 2 frames
     setup: async page => {
         await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThanOrEqual(2);
         return {};
@@ -894,7 +896,7 @@ const trigonometric = {
         await expect.poll(() => trigReadout(page, 'period'), {message: `period at ${label}`}).toBe(expected.period);
         await expect.poll(() => trigReadout(page, 'shift'), {message: `phase shift at ${label}`}).toBe(expected.shift);
         await expect.poll(() => trigRange(page), {message: `range at ${label}`}).toEqual(expected.range);
-        if (step === 5) expect(await trigReadout(page, 'amplitude'), 'tangent has no amplitude').toBe('—');
+        if (step === 7) expect(await trigReadout(page, 'amplitude'), 'tangent has no amplitude').toBe('—');
         await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible curves at ${label}`}).toBe(expected.curves);
         await expect.poll(async () => (await boardStats(page)).drawnCurves, {message: `drawn curves at ${label}`}).toBeGreaterThanOrEqual(expected.curves);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
@@ -904,7 +906,7 @@ const trigonometric = {
         await expect.poll(() => trigReadout(page, 'equation')).toBe('f(x) = sin(2x)');
         return await boardStats(page);
     },
-    exitStep: 3,
+    exitStep: 6,
     duringLesson: async page => {
         await expect.poll(() => trigReadout(page, 'equation'), {message: 'lesson scene replaced the user frequency'}).toBe('f(x) = 2·sin(2x + π/2) + 1');
     },
@@ -1069,10 +1071,10 @@ const definiteIntegral = {
 const areaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
 const AREA_S = Math.sqrt(1.5);
 // Per step: the bounds a and b (as shown and as placed on the axis), the signed integral of g - f, the unsigned area and the shaded quantity of the mode.
-// Steps: under g at the intersections, the area between [1, 3], the default bounds, [0, 4], [1, 3.5].
+// Steps: between [1, 3], under g on [1, 3], the default bounds (intersections), [0, 4], [1, 3.5].
 const AREA_STEPS = [
-    {a: '0.78', b: '3.22', pa: 2 - AREA_S, pb: 2 + AREA_S, signed: '4.899', unsigned: '4.899', shaded: '6.1237'},
     {a: '1', b: '3', pa: 1, pb: 3, signed: '4.6667', unsigned: '4.6667', shaded: '4.6667'},
+    {a: '1', b: '3', pa: 1, pb: 3, signed: '4.6667', unsigned: '4.6667', shaded: '5.3333'},
     {a: '0.78', b: '3.22', pa: 2 - AREA_S, pb: 2 + AREA_S, signed: '4.899', unsigned: '4.899', shaded: '4.899'},
     {a: '0', b: '4', pa: 0, pb: 4, signed: '1.3333', unsigned: '8.4646', shaded: '8.4646'},
     {a: '1', b: '3.5', pa: 1, pb: 3.5, signed: '4.5833', unsigned: '4.9823', shaded: '4.9823'},
@@ -1546,11 +1548,12 @@ const convexity = {
 // ---------------------------------------------------------------- Taylor approximation
 const taylorReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
 const taylorStatuses = page => page.locator('[data-taylor-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-taylor-status')));
-// Per step: the displayed center, degree, x and T_n(x), and the statuses on screen. While the bound is hidden (steps 1, 3, 5 and 6; the learner
+// Per step: the displayed center, degree, x and T_n(x), and the statuses on screen. While the bound is hidden (steps 1, 2, 4, 6 and 7; the learner
 // changes the degree or presses Show error bound after predicting) the bound readouts are words ("skrito" / "hidden"), so only the
 // language-independent status ids are checked there.
 const TAYLOR_STEPS = [
     {center: '0', degree: '1', x: '1', polynomial: '2', statuses: ['hidden']},
+    {center: '0', degree: '2', x: '1', polynomial: '2.5', statuses: ['hidden']},
     {center: '0', degree: '6', x: '1', polynomial: '2.7181', statuses: ['revealed']},
     {center: '0', degree: '3', x: '2', polynomial: '0.6667', statuses: ['hidden']},
     {center: '0', degree: '3', x: '2', polynomial: '0.6667', statuses: ['revealed'], bound: '0.6667'},
@@ -1563,8 +1566,8 @@ const taylor = {
     id: 'taylor',
     path: `${BASE}/analysis/taylor`,
     titles: {sl: 'Taylorjev polinom in napaka približka', en: 'Taylor polynomial and the error of the approximation'},
-    steps: 7,
-    minFrames: 17, // 2 + 3 + 2 + 3 + 2 + 2 + 3 frames
+    steps: 8,
+    minFrames: 20, // eight steps; the content test pins 20 frames
     setup: async page => {
         await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
         return {};
@@ -1589,7 +1592,7 @@ const taylor = {
         await expect.poll(() => taylorStatuses(page), {message: 'the error bound is shown'}).toEqual(['revealed']);
         return await boardStats(page);
     },
-    exitStep: 3,
+    exitStep: 4,
     duringLesson: async page => {
         await expect.poll(() => taylorReadout(page, 'degree'), {message: 'lesson scene replaced the user degree'}).toBe('3');
         await expect.poll(() => taylorStatuses(page), {message: 'lesson scene hid the error bound'}).toEqual(['hidden']);
