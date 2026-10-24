@@ -2378,8 +2378,8 @@ const sequence: GuidedLesson = {
     ],
     learningGoals: [
         text(
-            'Pri \\(a_n=\\frac1n\\) in \\(\\varepsilon=0{,}1\\) ugotoviš, da \\(N=5\\) ne deluje (pri \\(n=5\\) je \\(a_5=0{,}2\\)), da \\(N=10\\) ne deluje (\\(a_{10}=0{,}1\\) je na robu pasu) in da je najmanjši delujoči \\(N\\) enak \\(11\\).',
-            'For \\(a_n=\\frac1n\\) and \\(\\varepsilon=0.1\\) find that \\(N=5\\) does not work (at \\(n=5\\), \\(a_5=0.2\\)), that \\(N=10\\) does not work (\\(a_{10}=0.1\\) is on the edge of the band) and that the least working \\(N\\) is \\(11\\).',
+            'Pri \\(a_n=\\frac1n\\) in \\(\\varepsilon=\\frac14\\) ugotoviš, da je \\(a_4=\\frac14\\) na robu odprtega pasu, da \\(N=4\\) zato ne deluje in da \\(N=5\\) deluje. Pri \\(\\varepsilon=0{,}1\\) ugotoviš, da \\(N=5\\) ne deluje (pri \\(n=5\\) je \\(a_5=0{,}2\\)), da \\(N=10\\) ne deluje (\\(a_{10}=0{,}1\\) je na robu pasu) in da je najmanjši delujoči \\(N\\) enak \\(11\\).',
+            'For \\(a_n=\\frac1n\\) and \\(\\varepsilon=\\frac14\\) find that \\(a_4=\\frac14\\) is on the edge of the open band, so \\(N=4\\) does not work, while \\(N=5\\) does. For \\(\\varepsilon=0.1\\) find that \\(N=5\\) does not work (at \\(n=5\\), \\(a_5=0.2\\)), that \\(N=10\\) does not work (\\(a_{10}=0.1\\) is on the edge of the band) and that the least working \\(N\\) is \\(11\\).',
         ),
         text(
             'Z obrazcem \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1\\) izračunaš \\(N=101\\) za \\(\\varepsilon=0{,}01\\), čeprav je to onkraj vseh prikazanih členov, in razložiš, zakaj certifikat kljub temu velja.',
@@ -2486,31 +2486,31 @@ const sequence: GuidedLesson = {
             title: text('Definicija z \\(\\varepsilon\\) in \\(N\\)', 'The definition with \\(\\varepsilon\\) and \\(N\\)'),
             purpose: text('Povezati kvantifikatorje definicije s pasom in napovedati prag \\(N\\), preden se pokaže certifikat.', 'Linking the quantifiers of the definition to the band and predicting the threshold \\(N\\) before the certificate is shown.'),
             explanation: text(
-                'Zaporedje \\(a_n=\\frac1n\\) ima neskončno mnogo členov: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … Kandidat za limito je \\(L=0\\). Definicija pravi: za vsak \\(\\varepsilon>0\\) obstaja \\(N\\), da je \\(|a_n-L|<\\varepsilon\\) za vsak \\(n\\ge N\\). Najprej je izbran \\(\\varepsilon\\), šele nato iščemo \\(N\\), ki je odvisen od njega, pogoj pa mora veljati za vse \\(n\\ge N\\). Na grafu je zeleno osenčen pas med \\(L-\\varepsilon\\) in \\(L+\\varepsilon\\), pri izbranem \\(\\varepsilon=0{,}1\\) torej med \\(-0{,}1\\) in \\(0{,}1\\). Člen v pasu je poln krogec, člen izven njega križec. Prikazanih je prvih osem členov, nobeden ni v pasu, certifikat pa je skrit.',
-                'The sequence \\(a_n=\\frac1n\\) has infinitely many terms: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … The candidate limit is \\(L=0\\). The definition says: for every \\(\\varepsilon>0\\) there is an \\(N\\) such that \\(|a_n-L|<\\varepsilon\\) for every \\(n\\ge N\\). First \\(\\varepsilon\\) is chosen, only then do we look for an \\(N\\) that depends on it, and the condition must hold for all \\(n\\ge N\\). The graph shows the band between \\(L-\\varepsilon\\) and \\(L+\\varepsilon\\) shaded, so for the chosen \\(\\varepsilon=0.1\\) between \\(-0.1\\) and \\(0.1\\). A term inside the band is a filled circle, a term outside it a cross. The first eight terms are shown, none is in the band, and the certificate is hidden.',
+                'Zaporedje \\(a_n=\\frac1n\\) ima neskončno mnogo členov: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … Kandidat za limito je \\(L=0\\). Definicija pravi: za vsak \\(\\varepsilon>0\\) obstaja \\(N\\), da je \\(|a_n-L|<\\varepsilon\\) za vsak \\(n\\ge N\\). Najprej je izbran \\(\\varepsilon\\), šele nato iščemo \\(N\\), ki je odvisen od njega, pogoj pa mora veljati za vse \\(n\\ge N\\). Na grafu je zeleno osenčen pas med \\(L-\\varepsilon\\) in \\(L+\\varepsilon\\), pri izbranem \\(\\varepsilon=\\frac14\\) torej med \\(-0{,}25\\) in \\(0{,}25\\); pas je odprt. Člen v pasu je poln krogec, člen izven njega križec. Prikazanih je prvih dvanajst členov. Člen \\(a_4=0{,}25\\) leži natanko na robu pasu, zato ni v njem, od \\(a_5=0{,}2\\) naprej pa so prikazani členi v pasu. Certifikat je skrit. Prikazani členi sami konvergence ne dokažejo: da tudi vsi neprikazani členi od \\(n=5\\) naprej ležijo v pasu, pove šele obrazec.',
+                'The sequence \\(a_n=\\frac1n\\) has infinitely many terms: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … The candidate limit is \\(L=0\\). The definition says: for every \\(\\varepsilon>0\\) there is an \\(N\\) such that \\(|a_n-L|<\\varepsilon\\) for every \\(n\\ge N\\). First \\(\\varepsilon\\) is chosen, only then do we look for an \\(N\\) that depends on it, and the condition must hold for all \\(n\\ge N\\). The graph shows the band between \\(L-\\varepsilon\\) and \\(L+\\varepsilon\\) shaded, so for the chosen \\(\\varepsilon=\\frac14\\) between \\(-0.25\\) and \\(0.25\\); the band is open. A term inside the band is a filled circle, a term outside it a cross. The first twelve terms are shown. The term \\(a_4=0.25\\) lies exactly on the edge of the band, so it is not in it, and from \\(a_5=0.2\\) on the shown terms are in the band. The certificate is hidden. The shown terms alone do not prove convergence: that all the unshown terms from \\(n=5\\) on also lie in the band is stated only by the formula.',
             ),
             formulaIds: ['sequence-definition', 'sequence-definition-condition'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('sequence-definition-explanation', 'explanation'), frame('sequence-definition-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=0{,}1\\), torej ali je \\(|a_n|<0{,}1\\) za vsak \\(n\\ge5\\); poskusi tudi druge vrednosti v polju Prag N in šele nato pritisni Pokaži certifikat.',
-                'Predict whether \\(N=5\\) works for \\(\\varepsilon=0.1\\), that is whether \\(|a_n|<0.1\\) for every \\(n\\ge5\\); also try other values in the Threshold N field, and only then press Show certificate.',
+                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti v polju Prag N in šele nato pritisni Pokaži certifikat.',
+                'Predict whether \\(N=5\\) works for \\(\\varepsilon=\\frac14\\), that is whether \\(|a_n|<\\frac14\\) for every \\(n\\ge5\\), and whether \\(N=4\\) will work; also try other values in the Threshold N field, and only then press Show certificate.',
             ),
             expectedObservations: [
                 text(
-                    'Prikazanih je osem členov, nobeden ni v pasu; certifikat je skrit.',
-                    'Eight terms are shown, none is in the band; the certificate is hidden.',
+                    'Prikazanih je dvanajst členov, od tega osem (\\(n=5,\\dots,12\\)) v pasu; \\(a_4=0{,}25\\) je na robu in ni v pasu; certifikat je skrit.',
+                    'Twelve terms are shown, eight of them (\\(n=5,\\dots,12\\)) in the band; \\(a_4=0.25\\) is on the edge and not in the band; the certificate is hidden.',
                 ),
                 text(
-                    'Pri \\(N=5\\) certifikat pove, da \\(N\\) ne deluje: pri \\(n=5\\) je \\(|a_5|=0{,}2\\ge\\varepsilon\\); najmanjši delujoči \\(N\\) je \\(11\\).',
-                    'At \\(N=5\\) the certificate says that \\(N\\) does not work: at \\(n=5\\), \\(|a_5|=0.2\\ge\\varepsilon\\); the least working \\(N\\) is \\(11\\).',
+                    'Pri \\(N=5\\) certifikat pove, da \\(N\\) deluje; najmanjši delujoči \\(N\\) je \\(5\\). Pri \\(N=4\\) pove, da ne deluje, ker je \\(|a_4|=0{,}25=\\varepsilon\\).',
+                    'At \\(N=5\\) the certificate says that \\(N\\) works; the least working \\(N\\) is \\(5\\). At \\(N=4\\) it says that \\(N\\) does not work, because \\(|a_4|=0.25=\\varepsilon\\).',
                 ),
             ],
             scene: {
                 id: 'sequence-definition-scene', basedOn: 'demonstration-default',
-                actions: [...terms(8), sequenceCertificate(false)],
+                actions: [parameter('sequence-epsilon', 0.25), ...terms(12), sequenceCertificate(false)],
                 expectedState: text(
-                    'Prikazano je zaporedje \\(\\frac1n\\) z \\(\\varepsilon=0{,}1\\), \\(L=0\\) in \\(N=5\\); prikazanih je osem členov, nobeden ni v pasu, certifikat je skrit.',
-                    'The sequence \\(\\frac1n\\) is shown with \\(\\varepsilon=0.1\\), \\(L=0\\) and \\(N=5\\); eight terms are shown, none is in the band, and the certificate is hidden.',
+                    'Prikazano je zaporedje \\(\\frac1n\\) z \\(\\varepsilon=0{,}25\\), \\(L=0\\) in \\(N=5\\); prikazanih je dvanajst členov, od tega osem v pasu, certifikat je skrit.',
+                    'The sequence \\(\\frac1n\\) is shown with \\(\\varepsilon=0.25\\), \\(L=0\\) and \\(N=5\\); twelve terms are shown, eight of them in the band, and the certificate is hidden.',
                 ),
             },
         },
@@ -2519,8 +2519,8 @@ const sequence: GuidedLesson = {
             title: text('Najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}1\\)', 'The least working \\(N\\) for \\(\\varepsilon=0.1\\)'),
             purpose: text('Primerjati napoved s certifikatom, izračunanim po obrazcu.', 'Comparing the prediction with the certificate computed from the formula.'),
             explanation: text(
-                'Pri \\(N=5\\) je certifikat povedal, da \\(N\\) ne deluje: pri \\(n=5\\) je člen \\(0{,}2\\) izven pasu. Zdaj je izbran \\(N=11\\) in certifikat je prikazan. Za \\(n\\ge N\\) velja \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), neenakost \\(\\frac1N<\\varepsilon\\) pa je enakovredna \\(N\\varepsilon>1\\). Pri \\(N=11\\) je \\(N\\varepsilon=1{,}1>1\\), zato \\(11\\) deluje. Pri \\(N=10\\) je \\(N\\varepsilon=1\\), kar ni več od \\(1\\): člen \\(a_{10}=0{,}1\\) leži natanko na robu pasu, pas pa je odprt, zato \\(10\\) ne deluje. Najmanjši delujoči \\(N\\) je torej \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Od dvanajstih prikazanih členov sta v pasu zadnja dva; certifikat pa velja za vsak \\(n\\ge11\\), tudi za neprikazane člene.',
-                'At \\(N=5\\) the certificate said that \\(N\\) does not work: at \\(n=5\\) the term \\(0.2\\) is outside the band. Now \\(N=11\\) is chosen and the certificate is shown. For \\(n\\ge N\\) we have \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), and the inequality \\(\\frac1N<\\varepsilon\\) is equivalent to \\(N\\varepsilon>1\\). At \\(N=11\\), \\(N\\varepsilon=1.1>1\\), so \\(11\\) works. At \\(N=10\\), \\(N\\varepsilon=1\\), which is not more than \\(1\\): the term \\(a_{10}=0.1\\) lies exactly on the edge of the band, and the band is open, so \\(10\\) does not work. The least working \\(N\\) is therefore \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Of the twelve shown terms the last two are in the band; the certificate holds for every \\(n\\ge11\\), also for terms that are not shown.',
+                'Pri \\(\\varepsilon=\\frac14\\) je \\(N=5\\) deloval. Zdaj pas zožimo na \\(\\varepsilon=0{,}1\\): pri \\(N=5\\) je člen \\(a_5=0{,}2\\) izven pasu, zato \\(N=5\\) ne deluje. Izbran je \\(N=11\\) in certifikat je prikazan. Za \\(n\\ge N\\) velja \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), neenakost \\(\\frac1N<\\varepsilon\\) pa je enakovredna \\(N\\varepsilon>1\\). Pri \\(N=11\\) je \\(N\\varepsilon=1{,}1>1\\), zato \\(11\\) deluje. Pri \\(N=10\\) je \\(N\\varepsilon=1\\), kar ni več od \\(1\\): člen \\(a_{10}=0{,}1\\) leži natanko na robu pasu, pas pa je odprt, zato \\(10\\) ne deluje. Najmanjši delujoči \\(N\\) je torej \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Od dvanajstih prikazanih členov sta v pasu zadnja dva; certifikat pa velja za vsak \\(n\\ge11\\), tudi za neprikazane člene.',
+                'At \\(\\varepsilon=\\frac14\\), \\(N=5\\) worked. Now we narrow the band to \\(\\varepsilon=0.1\\): at \\(N=5\\) the term \\(a_5=0.2\\) is outside the band, so \\(N=5\\) does not work. Now \\(N=11\\) is chosen and the certificate is shown. For \\(n\\ge N\\) we have \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), and the inequality \\(\\frac1N<\\varepsilon\\) is equivalent to \\(N\\varepsilon>1\\). At \\(N=11\\), \\(N\\varepsilon=1.1>1\\), so \\(11\\) works. At \\(N=10\\), \\(N\\varepsilon=1\\), which is not more than \\(1\\): the term \\(a_{10}=0.1\\) lies exactly on the edge of the band, and the band is open, so \\(10\\) does not work. The least working \\(N\\) is therefore \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Of the twelve shown terms the last two are in the band; the certificate holds for every \\(n\\ge11\\), also for terms that are not shown.',
             ),
             formulaIds: ['sequence-definition', 'sequence-definition-condition', 'sequence-reciprocal-threshold'], workedExampleId: 'sequence-reciprocal-example', learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('sequence-threshold-explanation', 'explanation'), frame('sequence-threshold-calculation', 'calculation'), frame('sequence-threshold-observation', 'observation')],
@@ -2710,7 +2710,7 @@ const sequence: GuidedLesson = {
         {
             id: 'bezeg-sequence-implementation',
             citation: 'Bezeg source: src/analysis/sequence.ts, src/analysis/sequenceModel.ts and src/graphs/functions/SequenceGraph.tsx.',
-            supports: ['1/n and (-1)^n/n have |a_n - 0| = 1/n, so N works exactly when N epsilon > 1 and the least working N is floor(1/epsilon) + 1: 11 for epsilon = 0.1 and 101 for epsilon = 0.01', 'a_10 = 0.1 = epsilon is on the edge of the band and outside the open band', '(-1)^n has the farther of the values 1 and -1 at distance 1 + |L| from L, so no N works for epsilon <= 1 + |L|; for L = 0 and epsilon = 1.5 all terms are in the band', 'a_n = n exceeds L + epsilon for every n > L + epsilon, so no N works'],
+            supports: ['1/n and (-1)^n/n have |a_n - 0| = 1/n, so N works exactly when N epsilon > 1 and the least working N is floor(1/epsilon) + 1: 11 for epsilon = 0.1 and 101 for epsilon = 0.01', 'for epsilon = 1/4, a_4 = 1/4 is on the edge of the band and a_5 = 1/5 < 1/4, so the least working N is 5 (tail n >= N, strict inequality)', 'a_10 = 0.1 = epsilon is on the edge of the band and outside the open band', '(-1)^n has the farther of the values 1 and -1 at distance 1 + |L| from L, so no N works for epsilon <= 1 + |L|; for L = 0 and epsilon = 1.5 all terms are in the band', 'a_n = n exceeds L + epsilon for every n > L + epsilon, so no N works'],
             implementationCorrespondence: 'Epsilon is handled as an integer count of hundredths, so N epsilon > 1 and N_min are exact integer arithmetic; the certificate is computed from the formula of the named example and never from the shown terms (the revealed terms only decide what is drawn and whether N lies beyond them); a lesson scene applies set-function-parameter, set-function-choice, show-function-element and run-sequence-command actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -3157,6 +3157,10 @@ const uniformConvergence: GuidedLesson = {
     ],
     learningGoals: [
         text(
+            'Pri \\(\\frac xn\\) na \\([0;\\,1]\\) in \\(\\varepsilon=0{,}1\\) primerjaš točkovno napako s supremumom \\(\\frac1n\\), ki je dosežen pri \\(x=1\\) in je neodvisen od točke, ter utemeljiš skupni \\(N=11\\).',
+            'For \\(\\frac xn\\) on \\([0,1]\\) and \\(\\varepsilon=0.1\\) compare the pointwise error with the supremum \\(\\frac1n\\), attained at \\(x=1\\) and independent of the point, and justify the shared \\(N=11\\).',
+        ),
+        text(
             'Pri \\(x^n\\) na \\([0;\\,0{,}8]\\) in \\(\\varepsilon=0{,}1\\) ločiš točkovni prag \\(N(x)\\), ki je odvisen od točke (\\(N(0{,}5)=4\\)), od skupnega \\(N=11\\), ki deluje za vse točke hkrati.',
             'For \\(x^n\\) on \\([0,\\,0.8]\\) and \\(\\varepsilon=0.1\\) tell the pointwise threshold \\(N(x)\\), which depends on the point (\\(N(0.5)=4\\)), from the shared \\(N=11\\), which works for all points at once.',
         ),
@@ -3261,12 +3265,111 @@ const uniformConvergence: GuidedLesson = {
     ],
     steps: [
         {
-            id: 'uniform-pointwise-step', order: 1,
+            id: 'uniform-scaled-step', order: 1,
+            title: text('Začetek: \\(\\frac xn\\) na \\([0;\\,1]\\)', 'Start: \\(\\frac xn\\) on \\([0,1]\\)'),
+            purpose: text('Primerjati točkovno napako z največjo napako po vseh točkah in napovedati skupni \\(N\\), preden se pokaže supremum.', 'Comparing the pointwise error with the largest error over all points and predicting the shared \\(N\\) before the supremum is shown.'),
+            explanation: text(
+                'Začnemo z zaporedjem funkcij \\(f_n(x)=\\frac xn\\) na območju \\([0;\\,1]\\). Za vsak \\(x\\) gre \\(\\frac xn\\) proti \\(0\\), zato je limita \\(f(x)=0\\) povsod, brez skoka. Okoli limite je pas \\(\\varepsilon=0{,}1\\) na vsako stran. Izbrana točka \\(x=0{,}5\\) ima pri \\(n=4\\) napako \\(|f_4(0{,}5)-0|=0{,}125\\), kar je izven pasu. Točkovni prag \\(N(x)\\) je najmanjši \\(n\\), od katerega naprej je napaka v tej točki manjša od \\(\\varepsilon\\). Enakomerna konvergenca zahteva več: en \\(N\\), ki deluje za vse \\(x\\) iz \\([0;\\,1]\\) hkrati, zato mora biti manjša od \\(\\varepsilon\\) največja napaka po vseh točkah, supremum \\(\\sup|f_n-f|\\). Vprašanji sta: kje na območju je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon\\). Supremum je skrit in se računa po obrazcu, ne iz vzorčenih točk.',
+                'We start with the sequence of functions \\(f_n(x)=\\frac xn\\) on the domain \\([0,1]\\). For every \\(x\\), \\(\\frac xn\\) tends to \\(0\\), so the limit is \\(f(x)=0\\) everywhere, without a jump. Around the limit there is a band of \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has at \\(n=4\\) the error \\(|f_4(0.5)-0|=0.125\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) from which on the error at this point is below \\(\\varepsilon\\). Uniform convergence asks for more: a single \\(N\\) that works for all \\(x\\) in \\([0,1]\\) at once, so the largest error over all points, the supremum \\(\\sup|f_n-f|\\), has to be below \\(\\varepsilon\\). The questions are: where on the domain the error at \\(n=4\\) is largest and how large it is, and what the least \\(n\\) is that makes all errors below \\(\\varepsilon\\). The supremum is hidden and is computed from the formula, not from sampled points.',
+            ),
+            formulaIds: ['uniform-definition', 'uniform-definition-uniform'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('uniform-scaled-explanation', 'explanation'), frame('uniform-scaled-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej, kje je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); preveri z gumboma − in + ali s poljem Indeks n in šele nato pritisni Pokaži supremum.',
+                'Predict where the error at \\(n=4\\) is largest and how large it is, and the least \\(n\\) that makes all errors below \\(\\varepsilon=0.1\\); check with the − and + buttons or the Index n field, and only then press Show supremum.',
+            ),
+            expectedObservations: [
+                text(
+                    'Supremum napake je \\(\\frac14=0{,}25\\), dosežen v krajišču \\(x=1\\); pri točki \\(x=0{,}5\\) je napaka le \\(0{,}125\\). Supremum \\(\\frac1n\\) je odvisen samo od \\(n\\).',
+                    'The supremum error is \\(\\frac14=0.25\\), attained at the endpoint \\(x=1\\); at the point \\(x=0.5\\) the error is only \\(0.125\\). The supremum \\(\\frac1n\\) depends only on \\(n\\).',
+                ),
+                text(
+                    'Skupni \\(N=11\\): \\(\\frac1{11}<0{,}1\\), \\(\\frac1{10}=0{,}1\\) pa ni manjši. Točkovni prag pri \\(x=0{,}5\\) je \\(N(0{,}5)=6\\); skupni \\(N=11\\) velja za vse točke hkrati, konvergenca je torej enakomerna na \\([0;\\,1]\\).',
+                    'The shared \\(N=11\\): \\(\\frac1{11}<0.1\\), while \\(\\frac1{10}=0.1\\) is not below. The pointwise threshold at \\(x=0.5\\) is \\(N(0.5)=6\\); the shared \\(N=11\\) holds for all points at once, so the convergence is uniform on \\([0,1]\\).',
+                ),
+            ],
+            scene: {
+                id: 'uniform-scaled-scene', basedOn: 'demonstration-default',
+                actions: [uniformChoice('scaled'), parameter('uniform-n', 4), uniformSupremumShown(false)],
+                expectedState: text(
+                    'Prikazano je \\(\\frac xn\\) na \\([0;\\,1]\\) z \\(n=4\\), \\(x=0{,}5\\) in \\(\\varepsilon=0{,}1\\); supremum je skrit.',
+                    'The function \\(\\frac xn\\) is shown on \\([0,1]\\) with \\(n=4\\), \\(x=0.5\\) and \\(\\varepsilon=0.1\\); the supremum is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'uniform-whole-interval-step', order: 2,
+            title: text('Isti funkciji na \\([0;\\,1]\\): prag \\(N(x)\\) raste', 'The same functions on \\([0,1]\\): the threshold \\(N(x)\\) grows'),
+            purpose: text('Videti, da točkovni prag na \\([0;\\,1]\\) raste čez vse meje, ko gre \\(x\\) proti \\(1\\).', 'Seeing that on \\([0,1]\\) the pointwise threshold grows without bound as \\(x\\) approaches \\(1\\).'),
+            explanation: text(
+                'Pri \\(\\frac xn\\) na \\([0;\\,1]\\) je en \\(N=11\\) deloval za vse točke. Zdaj so na istem območju \\([0;\\,1]\\) funkcije \\(x^n\\). Limita je \\(f(x)=0\\) za \\(x<1\\) in \\(f(1)=1\\), pri vsakem \\(x\\) je konvergenca še vedno točkovna. Prag \\(N(x)\\) pa je odvisen od točke: pri \\(x=0{,}5\\) je \\(4\\), bliže \\(1\\) je večji. Pogoj \\(x^n<\\varepsilon\\) je enakovreden \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), imenovalec pa gre proti \\(0\\), ko gre \\(x\\to1\\). Izbrana je točka \\(x=0{,}9\\) in \\(n=5\\), kjer je napaka \\(0{,}9^5=0{,}59049\\), daleč izven pasu. Supremum je spet skrit.',
+                'For \\(\\frac xn\\) on \\([0,1]\\) one \\(N=11\\) worked for all points. Now on the same domain \\([0,1]\\) we take the functions \\(x^n\\). The limit is \\(f(x)=0\\) for \\(x<1\\) and \\(f(1)=1\\), and at each \\(x\\) the convergence is still pointwise. The threshold \\(N(x)\\), however, depends on the point: at \\(x=0.5\\) it is \\(4\\), closer to \\(1\\) it is larger. The condition \\(x^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), and the denominator tends to \\(0\\) as \\(x\\to1\\). The chosen point is \\(x=0.9\\) with \\(n=5\\), where the error \\(0.9^5=0.59049\\) is far outside the band. The supremum is hidden again.',
+            ),
+            formulaIds: ['uniform-power-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('uniform-whole-interval-explanation', 'explanation'), frame('uniform-whole-interval-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato vnesi \\(x=0{,}99\\) v polje Točka x.',
+                'Predict the pointwise thresholds \\(N(0.9)\\) and \\(N(0.99)\\) at \\(\\varepsilon=0.1\\); check at \\(x=0.9\\) and then enter \\(x=0.99\\) in the Point x field.',
+            ),
+            expectedObservations: [
+                text(
+                    'Pri \\(x=0{,}9\\) je napaka \\(0{,}59049\\) in točkovni prag \\(N(0{,}9)=22\\); supremum je skrit.',
+                    'At \\(x=0.9\\) the error is \\(0.59049\\) and the pointwise threshold is \\(N(0.9)=22\\); the supremum is hidden.',
+                ),
+                text(
+                    'Pri \\(x=0{,}99\\) je \\(N(0{,}99)=230\\), nad največjim izbirnim \\(n=50\\); odčitek to pove in praga ne skrajša. Prag torej ni omejen z nobenim \\(n\\) za vse točke.',
+                    'At \\(x=0.99\\) the threshold is \\(N(0.99)=230\\), beyond the largest selectable \\(n=50\\); the readout says so and does not shorten it. So no single \\(n\\) bounds the threshold for all points.',
+                ),
+            ],
+            scene: {
+                id: 'uniform-whole-interval-scene', basedOn: 'demonstration-default',
+                actions: [parameter('uniform-r', 1), parameter('uniform-x', 0.9), uniformSupremumShown(false)],
+                expectedState: text(
+                    'Prikazano je \\(x^n\\) na \\([0;\\,1]\\) z \\(n=5\\), \\(x=0{,}9\\) in \\(\\varepsilon=0{,}1\\); limita ima skok pri \\(x=1\\), supremum je skrit.',
+                    'The function \\(x^n\\) is shown on \\([0,1]\\) with \\(n=5\\), \\(x=0.9\\) and \\(\\varepsilon=0.1\\); the limit has a jump at \\(x=1\\), and the supremum is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'uniform-supremum-one-step', order: 3,
+            title: text('Supremum \\(1\\) za vsak \\(n\\), ni dosežen', 'The supremum is \\(1\\) for every \\(n\\), not attained'),
+            purpose: text('Napovedati, da na \\([0;\\,1]\\) noben \\(n\\) ne deluje za vse točke, in razumeti skok limite.', 'Predicting that on \\([0,1]\\) no \\(n\\) works for all points, and understanding the jump of the limit.'),
+            explanation: text(
+                'Funkcije \\(x^n\\) so zvezne, limita pa ima pri \\(x=1\\) skok. Na grafu je limita narisana v dveh kosih: črtkana črta \\(y=0\\) na \\([0,1)\\) z odprtim krogcem pri \\((1,0)\\), kar je vrednost, ki je limita ne zavzame, in poln krogec pri \\((1,1)\\) kot osamljena vrednost; skoka ne povezujemo. Izbrana sta \\(n=10\\) in točka \\(x=0{,}9\\), kjer je napaka \\(0{,}9^{10}\\approx0{,}35\\), bliže \\(1\\) pa je še večja. Vprašanje ni več, kolikšen je prag pri eni točki, ampak ali obstaja supremum pod \\(\\varepsilon\\) in zato en \\(N\\) za vse točke, tudi pri večjih \\(n\\).',
+                'The functions \\(x^n\\) are continuous, but the limit has a jump at \\(x=1\\). On the graph the limit is drawn in two pieces: the dashed line \\(y=0\\) on \\([0,1)\\) with an open circle at \\((1,0)\\), a value the limit does not take, and a filled circle at \\((1,1)\\) as an isolated value; the jump is not joined. The chosen values are \\(n=10\\) and the point \\(x=0.9\\), where the error \\(0.9^{10}\\approx0.35\\) and closer to \\(1\\) it is larger. The question is no longer the threshold at one point, but whether the supremum can be below \\(\\varepsilon\\) and therefore one \\(N\\) for all points, also for larger \\(n\\).',
+            ),
+            formulaIds: ['uniform-power-supremum'], learnerInteraction: 'adjust-construction-parameter',
+            frames: [frame('uniform-supremum-one-explanation', 'explanation'), frame('uniform-supremum-one-observation', 'observation')],
+            observationPrompt: text(
+                'Napovej supremum napake pri \\(n=10\\), ali je dosežen in ali obstaja skupni \\(N\\); povečaj \\(n\\) in preveri, ali se napoved spremeni; šele nato pritisni Pokaži supremum.',
+                'Predict the supremum error at \\(n=10\\), whether it is attained and whether a shared \\(N\\) exists; increase \\(n\\) and check whether the prediction changes; only then press Show supremum.',
+            ),
+            expectedObservations: [
+                text(
+                    'Supremum je \\(1\\) in ni dosežen: za \\(x<1\\) je \\(x^n<1\\), pri \\(x=1\\) je limita \\(1\\) in napaka \\(0\\), zato krajišče ni priča supremuma; blizu \\(x=1\\) pa se napaka približa \\(1\\). Skupnega \\(N\\) ni.',
+                    'The supremum is \\(1\\) and not attained: for \\(x<1\\) we have \\(x^n<1\\), at \\(x=1\\) the limit is \\(1\\) and the error is \\(0\\), so the endpoint is no witness of the supremum; near \\(x=1\\) the error approaches \\(1\\). There is no shared \\(N\\).',
+                ),
+                text(
+                    'Supremum je \\(1\\) pri vsakem \\(n\\), tudi pri \\(n=50\\): konvergenca na \\([0;\\,1]\\) torej ni enakomerna, čeprav je pri vsakem \\(x\\) točkovna.',
+                    'The supremum is \\(1\\) at every \\(n\\), also at \\(n=50\\): the convergence on \\([0,1]\\) is therefore not uniform, although it is pointwise at every \\(x\\).',
+                ),
+            ],
+            scene: {
+                id: 'uniform-supremum-one-scene', basedOn: 'demonstration-default',
+                actions: [parameter('uniform-r', 1), parameter('uniform-x', 0.9), parameter('uniform-n', 10), uniformSupremumShown(false)],
+                expectedState: text(
+                    'Prikazano je \\(x^n\\) na \\([0;\\,1]\\) z \\(n=10\\), \\(x=0{,}9\\) in \\(\\varepsilon=0{,}1\\); supremum je skrit.',
+                    'The function \\(x^n\\) is shown on \\([0,1]\\) with \\(n=10\\), \\(x=0.9\\) and \\(\\varepsilon=0.1\\); the supremum is hidden.',
+                ),
+            },
+        },
+        {
+            id: 'uniform-pointwise-step', order: 4,
             title: text('Točkovna napaka in prag \\(N(x)\\) na \\([0;\\,0{,}8]\\)', 'The pointwise error and the threshold \\(N(x)\\) on \\([0,\\,0.8]\\)'),
             purpose: text('Povezati točkovno napako pri izbrani točki z njenim pragom \\(N(x)\\), preden vprašamo po vseh točkah hkrati.', 'Linking the pointwise error at a chosen point to its threshold \\(N(x)\\) before asking about all points at once.'),
             explanation: text(
-                'Opazujemo funkcije \\(f_n(x)=x^n\\) na območju \\([0;\\,0{,}8]\\). Za vsak \\(x\\) iz območja gre \\(x^n\\) proti \\(0\\), zato je limita \\(f(x)=0\\). Okoli limite je pas širine \\(\\varepsilon=0{,}1\\) na vsako stran. Izbrana točka \\(x=0{,}5\\) ima napako \\(|f_n(x)-f(x)|\\); pri \\(n=2\\) je ta \\(0{,}25\\), kar je izven pasu. Točkovni prag \\(N(x)\\) je najmanjši \\(n\\), pri katerem je napaka v tej točki manjša od \\(\\varepsilon\\), in za večje \\(n\\) ostane manjša. Prag je odvisen od točke: z drugim \\(x\\) dobimo lahko drug \\(N(x)\\). Supremum je skrit, saj tu opazujemo le eno točko naenkrat.',
-                'We look at the functions \\(f_n(x)=x^n\\) on the domain \\([0,\\,0.8]\\). For every \\(x\\) in the domain \\(x^n\\) tends to \\(0\\), so the limit is \\(f(x)=0\\). Around the limit there is a band of width \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has the error \\(|f_n(x)-f(x)|\\); at \\(n=2\\) it is \\(0.25\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) for which the error at this point is below \\(\\varepsilon\\), and for larger \\(n\\) it stays below. The threshold depends on the point: with a different \\(x\\) we may get a different \\(N(x)\\). The supremum is hidden, since here we look at one point at a time.',
+                'Območje zožimo na \\([0;\\,0{,}8]\\): to je nova primerjava, ne nadaljevanje prejšnje. Opazujemo funkcije \\(f_n(x)=x^n\\) na območju \\([0;\\,0{,}8]\\). Za vsak \\(x\\) iz območja gre \\(x^n\\) proti \\(0\\), zato je limita \\(f(x)=0\\). Okoli limite je pas širine \\(\\varepsilon=0{,}1\\) na vsako stran. Izbrana točka \\(x=0{,}5\\) ima napako \\(|f_n(x)-f(x)|\\); pri \\(n=2\\) je ta \\(0{,}25\\), kar je izven pasu. Točkovni prag \\(N(x)\\) je najmanjši \\(n\\), pri katerem je napaka v tej točki manjša od \\(\\varepsilon\\), in za večje \\(n\\) ostane manjša. Prag je odvisen od točke: z drugim \\(x\\) dobimo lahko drug \\(N(x)\\). Supremum je skrit, saj tu opazujemo le eno točko naenkrat.',
+                'We narrow the domain to \\([0,\\,0.8]\\): this is a new comparison, not a continuation of the previous one. We look at the functions \\(f_n(x)=x^n\\) on the domain \\([0,\\,0.8]\\). For every \\(x\\) in the domain \\(x^n\\) tends to \\(0\\), so the limit is \\(f(x)=0\\). Around the limit there is a band of width \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has the error \\(|f_n(x)-f(x)|\\); at \\(n=2\\) it is \\(0.25\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) for which the error at this point is below \\(\\varepsilon\\), and for larger \\(n\\) it stays below. The threshold depends on the point: with a different \\(x\\) we may get a different \\(N(x)\\). The supremum is hidden, since here we look at one point at a time.',
             ),
             formulaIds: ['uniform-definition', 'uniform-definition-uniform'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('uniform-pointwise-explanation', 'explanation'), frame('uniform-pointwise-observation', 'observation')],
@@ -3294,7 +3397,7 @@ const uniformConvergence: GuidedLesson = {
             },
         },
         {
-            id: 'uniform-supremum-step', order: 2,
+            id: 'uniform-supremum-step', order: 5,
             title: text('Supremum napake in skupni \\(N\\): napoved', 'The supremum error and the shared \\(N\\): a prediction'),
             purpose: text('Napovedati, kje je napaka na celem območju največja in ali en \\(N\\) deluje za vse točke, preden se pokaže supremum.', 'Predicting where the error over the whole domain is largest and whether one \\(N\\) works for all points, before the supremum is shown.'),
             explanation: text(
@@ -3327,7 +3430,7 @@ const uniformConvergence: GuidedLesson = {
             },
         },
         {
-            id: 'uniform-shared-n-step', order: 3,
+            id: 'uniform-shared-n-step', order: 6,
             title: text('Skupni \\(N\\) na \\([0;\\,0{,}8]\\)', 'The shared \\(N\\) on \\([0,\\,0.8]\\)'),
             purpose: text('Primerjati napoved s supremumom, izračunanim po obrazcu, in videti, da en \\(N\\) deluje za vse točke.', 'Comparing the prediction with the supremum computed from the formula and seeing that one \\(N\\) works for all points.'),
             explanation: text(
@@ -3354,73 +3457,7 @@ const uniformConvergence: GuidedLesson = {
             },
         },
         {
-            id: 'uniform-whole-interval-step', order: 4,
-            title: text('Isti funkciji na \\([0;\\,1]\\): prag \\(N(x)\\) raste', 'The same functions on \\([0,1]\\): the threshold \\(N(x)\\) grows'),
-            purpose: text('Videti, da točkovni prag na \\([0;\\,1]\\) raste čez vse meje, ko gre \\(x\\) proti \\(1\\).', 'Seeing that on \\([0,1]\\) the pointwise threshold grows without bound as \\(x\\) approaches \\(1\\).'),
-            explanation: text(
-                'Na \\([0;\\,0{,}8]\\) je en \\(N=11\\) deloval za vse točke. Zdaj je območje \\([0;\\,1]\\), funkcije \\(x^n\\) pa so iste. Limita je \\(f(x)=0\\) za \\(x<1\\) in \\(f(1)=1\\), pri vsakem \\(x\\) je konvergenca še vedno točkovna. Prag \\(N(x)\\) pa je odvisen od točke: pri \\(x=0{,}5\\) je \\(4\\), bliže \\(1\\) je večji. Pogoj \\(x^n<\\varepsilon\\) je enakovreden \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), imenovalec pa gre proti \\(0\\), ko gre \\(x\\to1\\). Izbrana je točka \\(x=0{,}9\\) in \\(n=5\\), kjer je napaka \\(0{,}9^5=0{,}59049\\), daleč izven pasu. Supremum je spet skrit.',
-                'On \\([0,\\,0.8]\\) one \\(N=11\\) worked for all points. Now the domain is \\([0,1]\\) and the functions \\(x^n\\) are the same. The limit is \\(f(x)=0\\) for \\(x<1\\) and \\(f(1)=1\\), and at each \\(x\\) the convergence is still pointwise. The threshold \\(N(x)\\), however, depends on the point: at \\(x=0.5\\) it is \\(4\\), closer to \\(1\\) it is larger. The condition \\(x^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), and the denominator tends to \\(0\\) as \\(x\\to1\\). The chosen point is \\(x=0.9\\) with \\(n=5\\), where the error \\(0.9^5=0.59049\\) is far outside the band. The supremum is hidden again.',
-            ),
-            formulaIds: ['uniform-power-threshold'], learnerInteraction: 'adjust-construction-parameter',
-            frames: [frame('uniform-whole-interval-explanation', 'explanation'), frame('uniform-whole-interval-observation', 'observation')],
-            observationPrompt: text(
-                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato vnesi \\(x=0{,}99\\) v polje Točka x.',
-                'Predict the pointwise thresholds \\(N(0.9)\\) and \\(N(0.99)\\) at \\(\\varepsilon=0.1\\); check at \\(x=0.9\\) and then enter \\(x=0.99\\) in the Point x field.',
-            ),
-            expectedObservations: [
-                text(
-                    'Pri \\(x=0{,}9\\) je napaka \\(0{,}59049\\) in točkovni prag \\(N(0{,}9)=22\\); supremum je skrit.',
-                    'At \\(x=0.9\\) the error is \\(0.59049\\) and the pointwise threshold is \\(N(0.9)=22\\); the supremum is hidden.',
-                ),
-                text(
-                    'Pri \\(x=0{,}99\\) je \\(N(0{,}99)=230\\), nad največjim izbirnim \\(n=50\\); odčitek to pove in praga ne skrajša. Prag torej ni omejen z nobenim \\(n\\) za vse točke.',
-                    'At \\(x=0.99\\) the threshold is \\(N(0.99)=230\\), beyond the largest selectable \\(n=50\\); the readout says so and does not shorten it. So no single \\(n\\) bounds the threshold for all points.',
-                ),
-            ],
-            scene: {
-                id: 'uniform-whole-interval-scene', basedOn: 'demonstration-default',
-                actions: [parameter('uniform-r', 1), parameter('uniform-x', 0.9), uniformSupremumShown(false)],
-                expectedState: text(
-                    'Prikazano je \\(x^n\\) na \\([0;\\,1]\\) z \\(n=5\\), \\(x=0{,}9\\) in \\(\\varepsilon=0{,}1\\); limita ima skok pri \\(x=1\\), supremum je skrit.',
-                    'The function \\(x^n\\) is shown on \\([0,1]\\) with \\(n=5\\), \\(x=0.9\\) and \\(\\varepsilon=0.1\\); the limit has a jump at \\(x=1\\), and the supremum is hidden.',
-                ),
-            },
-        },
-        {
-            id: 'uniform-supremum-one-step', order: 5,
-            title: text('Supremum \\(1\\) za vsak \\(n\\), ni dosežen', 'The supremum is \\(1\\) for every \\(n\\), not attained'),
-            purpose: text('Napovedati, da na \\([0;\\,1]\\) noben \\(n\\) ne deluje za vse točke, in razumeti skok limite.', 'Predicting that on \\([0,1]\\) no \\(n\\) works for all points, and understanding the jump of the limit.'),
-            explanation: text(
-                'Funkcije \\(x^n\\) so zvezne, limita pa ima pri \\(x=1\\) skok. Na grafu je limita narisana v dveh kosih: črtkana črta \\(y=0\\) na \\([0,1)\\) z odprtim krogcem pri \\((1,0)\\), kar je vrednost, ki je limita ne zavzame, in poln krogec pri \\((1,1)\\) kot osamljena vrednost; skoka ne povezujemo. Izbrana sta \\(n=10\\) in točka \\(x=0{,}9\\), kjer je napaka \\(0{,}9^{10}\\approx0{,}35\\), bliže \\(1\\) pa je še večja. Vprašanje ni več, kolikšen je prag pri eni točki, ampak ali obstaja supremum pod \\(\\varepsilon\\) in zato en \\(N\\) za vse točke, tudi pri večjih \\(n\\).',
-                'The functions \\(x^n\\) are continuous, but the limit has a jump at \\(x=1\\). On the graph the limit is drawn in two pieces: the dashed line \\(y=0\\) on \\([0,1)\\) with an open circle at \\((1,0)\\), a value the limit does not take, and a filled circle at \\((1,1)\\) as an isolated value; the jump is not joined. The chosen values are \\(n=10\\) and the point \\(x=0.9\\), where the error \\(0.9^{10}\\approx0.35\\) and closer to \\(1\\) it is larger. The question is no longer the threshold at one point, but whether the supremum can be below \\(\\varepsilon\\) and therefore one \\(N\\) for all points, also for larger \\(n\\).',
-            ),
-            formulaIds: ['uniform-power-supremum'], learnerInteraction: 'adjust-construction-parameter',
-            frames: [frame('uniform-supremum-one-explanation', 'explanation'), frame('uniform-supremum-one-observation', 'observation')],
-            observationPrompt: text(
-                'Napovej supremum napake pri \\(n=10\\), ali je dosežen in ali obstaja skupni \\(N\\); povečaj \\(n\\) in preveri, ali se napoved spremeni; šele nato pritisni Pokaži supremum.',
-                'Predict the supremum error at \\(n=10\\), whether it is attained and whether a shared \\(N\\) exists; increase \\(n\\) and check whether the prediction changes; only then press Show supremum.',
-            ),
-            expectedObservations: [
-                text(
-                    'Supremum je \\(1\\) in ni dosežen: za \\(x<1\\) je \\(x^n<1\\), pri \\(x=1\\) je napaka \\(0\\), blizu \\(x=1\\) pa se napaka približa \\(1\\). Skupnega \\(N\\) ni.',
-                    'The supremum is \\(1\\) and not attained: for \\(x<1\\) we have \\(x^n<1\\), at \\(x=1\\) the error is \\(0\\), and near \\(x=1\\) the error approaches \\(1\\). There is no shared \\(N\\).',
-                ),
-                text(
-                    'Supremum je \\(1\\) pri vsakem \\(n\\), tudi pri \\(n=50\\): konvergenca na \\([0;\\,1]\\) torej ni enakomerna, čeprav je pri vsakem \\(x\\) točkovna.',
-                    'The supremum is \\(1\\) at every \\(n\\), also at \\(n=50\\): the convergence on \\([0,1]\\) is therefore not uniform, although it is pointwise at every \\(x\\).',
-                ),
-            ],
-            scene: {
-                id: 'uniform-supremum-one-scene', basedOn: 'demonstration-default',
-                actions: [parameter('uniform-r', 1), parameter('uniform-x', 0.9), parameter('uniform-n', 10), uniformSupremumShown(false)],
-                expectedState: text(
-                    'Prikazano je \\(x^n\\) na \\([0;\\,1]\\) z \\(n=10\\), \\(x=0{,}9\\) in \\(\\varepsilon=0{,}1\\); supremum je skrit.',
-                    'The function \\(x^n\\) is shown on \\([0,1]\\) with \\(n=10\\), \\(x=0.9\\) and \\(\\varepsilon=0.1\\); the supremum is hidden.',
-                ),
-            },
-        },
-        {
-            id: 'uniform-domain-change-step', order: 6,
+            id: 'uniform-domain-change-step', order: 7,
             title: text('Sprememba območja je nova primerjava', 'A domain change is a new comparison'),
             purpose: text('Ločiti enakomerno konvergenco na \\([0;\\,r]\\) od enakomerne konvergence na \\([0;\\,1]\\) in napovedati skupni \\(N\\) pri \\(r\\) blizu \\(1\\).', 'Separating uniform convergence on \\([0,\\,r]\\) from uniform convergence on \\([0,1]\\) and predicting the shared \\(N\\) for \\(r\\) close to \\(1\\).'),
             explanation: text(
@@ -3453,12 +3490,12 @@ const uniformConvergence: GuidedLesson = {
             },
         },
         {
-            id: 'uniform-free-exploration', order: 7,
+            id: 'uniform-free-exploration', order: 8,
             title: text('Primer \\(\\frac xn\\) na \\([0;\\,1]\\) in samostojno raziskovanje', 'The example \\(\\frac xn\\) on \\([0,1]\\), and free exploration'),
             purpose: text('Videti enakomerno konvergenco na \\([0;\\,1]\\) in preiti v samostojno raziskovanje.', 'Seeing uniform convergence on \\([0,1]\\) and handing over to free exploration.'),
             explanation: text(
-                'Doslej so funkcije \\(x^n\\) na \\([0;\\,1]\\) konvergirale točkovno, a ne enakomerno. Zdaj je prikazan drug primer: \\(f_n(x)=\\frac xn\\) na \\([0;\\,1]\\) z limito \\(f(x)=0\\) povsod, brez skoka. Pri \\(n=5\\), \\(x=0{,}5\\) in \\(\\varepsilon=0{,}1\\) je točkovna napaka \\(0{,}1\\). Pomisli, kje na \\([0;\\,1]\\) je napaka največja in ali je njena velikost odvisna le od \\(n\\). Povzetek: enakomerna konvergenca zahteva en \\(N\\) za vse točke območja hkrati; zanj odloča supremum napake po obrazcu, ne vzorčene vrednosti; sprememba območja je nova primerjava. Zdaj raziskuj sam: izberi primer, spreminjaj \\(r\\), \\(n\\), \\(x\\) in \\(\\varepsilon\\) ter napovej, preden pokažeš supremum.',
-                'So far the functions \\(x^n\\) on \\([0,1]\\) converged pointwise but not uniformly. Now another example is shown: \\(f_n(x)=\\frac xn\\) on \\([0,1]\\) with the limit \\(f(x)=0\\) everywhere, without a jump. At \\(n=5\\), \\(x=0.5\\) and \\(\\varepsilon=0.1\\) the pointwise error is \\(0.1\\). Think about where on \\([0,1]\\) the error is largest and whether its size depends only on \\(n\\). In summary: uniform convergence requires one \\(N\\) for all points of the domain at once; the supremum error from the formula decides it, not sampled values; a change of domain is a new comparison. Now explore on your own: choose an example, change \\(r\\), \\(n\\), \\(x\\) and \\(\\varepsilon\\), and predict before you show the supremum.',
+                'Funkcije \\(x^n\\) na \\([0;\\,1]\\) so konvergirale točkovno, a ne enakomerno, na \\([0;\\,0{,}8]\\) pa enakomerno. Zdaj je spet prikazan primer \\(f_n(x)=\\frac xn\\) na \\([0;\\,1]\\) z limito \\(f(x)=0\\) povsod, brez skoka. Pri \\(n=5\\), \\(x=0{,}5\\) in \\(\\varepsilon=0{,}1\\) je točkovna napaka \\(0{,}1\\). Pomisli, kje na \\([0;\\,1]\\) je napaka največja in ali je njena velikost odvisna le od \\(n\\). Povzetek: enakomerna konvergenca zahteva en \\(N\\) za vse točke območja hkrati; zanj odloča supremum napake po obrazcu, ne vzorčene vrednosti; sprememba območja je nova primerjava. Zdaj raziskuj sam: izberi primer, spreminjaj \\(r\\), \\(n\\), \\(x\\) in \\(\\varepsilon\\) ter napovej, preden pokažeš supremum.',
+                'The functions \\(x^n\\) on \\([0,1]\\) converged pointwise but not uniformly, and on \\([0,\\,0.8]\\) uniformly. Now the example \\(f_n(x)=\\frac xn\\) on \\([0,1]\\) is shown again, with the limit \\(f(x)=0\\) everywhere, without a jump. At \\(n=5\\), \\(x=0.5\\) and \\(\\varepsilon=0.1\\) the pointwise error is \\(0.1\\). Think about where on \\([0,1]\\) the error is largest and whether its size depends only on \\(n\\). In summary: uniform convergence requires one \\(N\\) for all points of the domain at once; the supremum error from the formula decides it, not sampled values; a change of domain is a new comparison. Now explore on your own: choose an example, change \\(r\\), \\(n\\), \\(x\\) and \\(\\varepsilon\\), and predict before you show the supremum.',
             ),
             formulaIds: ['uniform-scaled', 'uniform-scaled-threshold'], learnerInteraction: 'adjust-construction-parameter',
             frames: [frame('uniform-free-explanation', 'explanation'), frame('uniform-free-observation', 'observation')],

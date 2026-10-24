@@ -1,6 +1,8 @@
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
 import {taylorAbsoluteError, taylorExample, taylorPolynomial} from '../../analysis/taylor';
+import {isTermInBand, sequenceMinThreshold, sequenceThresholdWorks} from '../../analysis/sequence';
+import {uniformExample, uniformLimit, uniformPointwiseError, uniformPointwiseThreshold, uniformSupremum, uniformThreshold} from '../../analysis/uniformConvergence';
 import {getLessonForDemonstration, isGuidedLessonAvailable, sceneAction} from '../runtime/lessonCatalog';
 import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
 import {BISECTION_EXAMPLE_IDS, bisectionHistory} from '../../analysis/bisection';
@@ -1169,7 +1171,7 @@ describe('the sequence lesson', () => {
 
     test('the scenes encode the independently derived configurations', () => {
         const scene = (id: string) => ({kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'});
-        expect(adaptedActions('sequence-definition-step')).toEqual([scene('sequence-definition-scene'), ...advances(8), hide]);
+        expect(adaptedActions('sequence-definition-step')).toEqual([scene('sequence-definition-scene'), param('sequence-epsilon', 0.25), ...advances(12), hide]);
         expect(adaptedActions('sequence-threshold-step').slice(1)).toEqual([...advances(12), param('sequence-threshold', 11), show]);
         expect(adaptedActions('sequence-small-epsilon-step').slice(1)).toEqual([param('sequence-epsilon', 0.01), ...advances(40), hide]);
         expect(adaptedActions('sequence-alternating-step').slice(1)).toEqual([example('alternating-reciprocal'), ...advances(12), hide]);
@@ -1226,6 +1228,40 @@ describe('the sequence lesson', () => {
         expect(worked.resultLatex).toContain('\\tfrac1{10}=\\varepsilon');
         expect(worked.resultLatex).toContain('\\tfrac1{11}<\\tfrac1{10}');
         expect(sequenceLesson.formulaBlocks.find(block => block.id === 'sequence-oscillating-distance')!.latex).toContain('=1+|L|');
+    });
+
+    test('opens with epsilon = 1/4: a_4 is on the open-band boundary, the tail n >= 5 is inside, and every classification uses one convention', () => {
+        // exact fractions: 1/4 is not below 1/4 (boundary), 1/5 is
+        expect(1 * 4 < 1 * 4).toBe(false);
+        expect(1 * 5 > 1 * 4).toBe(true);
+        expect(sequenceMinThreshold(0.25)).toBe(5);
+        expect(sequenceThresholdWorks(0.25, 4)).toBe(false);
+        expect(sequenceThresholdWorks(0.25, 5)).toBe(true);
+        expect(isTermInBand('reciprocal', 4, 0, 0.25)).toBe(false);
+        expect(isTermInBand('reciprocal', 5, 0, 0.25)).toBe(true);
+        // the certificate N and the classification of every term agree (tail convention n >= N, strict inequality)
+        for (let n = 1; n <= 1000; n++) expect(isTermInBand('reciprocal', n, 0, 0.25), String(n)).toBe(n >= sequenceMinThreshold(0.25));
+        const shown = Array.from({length: 12}, (_, index) => index + 1);
+        expect(shown.filter(n => isTermInBand('reciprocal', n, 0, 0.25))).toEqual([5, 6, 7, 8, 9, 10, 11, 12]);
+        // the smaller-band examples are kept and consistent
+        expect(sequenceMinThreshold(0.1)).toBe(11);
+        expect(sequenceMinThreshold(0.01)).toBe(101);
+        // a loose band around (-1)^n contains every term yet is no convergence: epsilon <= 1 contains none
+        expect(shown.every(n => isTermInBand('alternating-sign', n, 0, 1.5))).toBe(true);
+        expect(shown.some(n => isTermInBand('alternating-sign', n, 0, 1))).toBe(false);
+        // the prose
+        const step = qStep('sequence-definition-step');
+        expect(step.explanation.en).toContain('a_4=0.25');
+        expect(step.explanation.en).toContain('a_5=0.2');
+        expect(step.explanation.en).toMatch(/first twelve terms/);
+        expect(step.explanation.en).toMatch(/do not prove convergence/);
+        expect(step.explanation.sl).toContain('a_4=0{,}25');
+        expect(step.expectedObservations[0].en).toMatch(/eight of them/);
+        expect(step.expectedObservations[1].en).toContain('least working \\(N\\) is \\(5\\)');
+        expect(step.expectedObservations[1].en).toContain('|a_4|=0.25=');
+        expect(step.expectedObservations[1].en).not.toMatch(/does not work.*At/);
+        expect(qStep('sequence-threshold-step').explanation.en).toContain('At \\(\\varepsilon=\\frac14\\), \\(N=5\\) worked');
+        expect(sequenceLesson.learningGoals[0].en).toContain('N=4');
     });
 
     test('the lesson-facing vocabulary is closed: the new parameter names, the example choice, the certificate element and the sequence command', () => {
@@ -1423,16 +1459,16 @@ describe('the uniform convergence lesson', () => {
     const hide = {kind: 'function-visibility', target: 'uniform-supremum', visible: false};
     const show = {kind: 'function-visibility', target: 'uniform-supremum', visible: true};
     const param = (name: string, value: number) => ({kind: 'function-parameter', name, value});
-    const ids = ['uniform-pointwise-step', 'uniform-supremum-step', 'uniform-shared-n-step', 'uniform-whole-interval-step', 'uniform-supremum-one-step',
-        'uniform-domain-change-step', 'uniform-free-exploration'];
+    const ids = ['uniform-scaled-step', 'uniform-whole-interval-step', 'uniform-supremum-one-step', 'uniform-pointwise-step', 'uniform-supremum-step',
+        'uniform-shared-n-step', 'uniform-domain-change-step', 'uniform-free-exploration'];
     const predictionSteps = ids.filter(id => id !== 'uniform-shared-n-step');
 
     test('has the steps in order and is adapted under the guided id', () => {
         expect(uniformLesson.steps.map(step => step.id)).toEqual(ids);
         expect(adapted().id).toBe('uniform-convergence-guided');
-        expect(adapted().steps).toHaveLength(7);
+        expect(adapted().steps).toHaveLength(8);
         expect(adapted().steps.flatMap(step => step.frames ?? []).some(frame => frame.animation)).toBe(false);
-        expect(uniformLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(15);
+        expect(uniformLesson.steps.reduce((count, step) => count + step.frames.length, 0)).toBe(17);
         expect(getGuidedLesson('uniform-convergence')).toBe(uniformLesson);
         expect(isGuidedLessonAvailable('uniform-convergence')).toBe(true);
     });
@@ -1465,7 +1501,7 @@ describe('the uniform convergence lesson', () => {
             expect(actions).toContainEqual(hide);
             expect(uStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
         }
-        for (const id of ['uniform-supremum-step', 'uniform-supremum-one-step', 'uniform-domain-change-step', 'uniform-free-exploration']) {
+        for (const id of ['uniform-scaled-step', 'uniform-supremum-step', 'uniform-supremum-one-step', 'uniform-domain-change-step', 'uniform-free-exploration']) {
             expect(uStep(id).observationPrompt.en, id).toMatch(/Show supremum/);
             expect(uStep(id).observationPrompt.sl, id).toMatch(/Pokaži supremum/);
         }
@@ -1479,6 +1515,7 @@ describe('the uniform convergence lesson', () => {
 
     test('the scenes encode the independently derived configurations', () => {
         const scene = (id: string) => ({kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'});
+        expect(adaptedActions('uniform-scaled-step').slice(1)).toEqual([{kind: 'function-choice', name: 'uniform-example', value: 'scaled'}, param('uniform-n', 4), hide]);
         expect(adaptedActions('uniform-pointwise-step')).toEqual([scene('uniform-pointwise-scene'), param('uniform-n', 2), hide]);
         expect(adaptedActions('uniform-supremum-step')).toEqual([scene('uniform-supremum-scene'), hide]);
         expect(adaptedActions('uniform-shared-n-step').slice(1)).toEqual([param('uniform-n', 11), show]);
@@ -1515,6 +1552,46 @@ describe('the uniform convergence lesson', () => {
         expect(uStep('uniform-whole-interval-step').expectedObservations[1].en).toContain('N(0.99)=230');
         expect(uStep('uniform-domain-change-step').expectedObservations[0].en).toContain('N=45');
         expect(uniformLesson.formulaBlocks.find(block => block.id === 'uniform-scaled-threshold')!.latex).toContain('+1');
+    });
+
+    test('begins with x/n on [0,1], then x^n on [0,1], then [0,0.8]; the numbers match the analysis functions', () => {
+        const scaled = uniformExample('scaled');
+        const power = uniformExample('power');
+        const index = (id: string) => uniformLesson.steps.findIndex(step => step.id === id);
+        expect(index('uniform-scaled-step')).toBe(0);
+        expect(index('uniform-whole-interval-step')).toBeLessThan(index('uniform-pointwise-step'));
+        expect(index('uniform-supremum-one-step')).toBeLessThan(index('uniform-pointwise-step'));
+        expect(index('uniform-pointwise-step')).toBeLessThan(index('uniform-domain-change-step'));
+        // sup over [0,1] of |x/n| is 1/n, attained at x = 1, and no sampled error exceeds it
+        for (let n = 1; n <= 50; n++) {
+            expect(uniformSupremum(scaled, 1, n)).toEqual({value: 1 / n, attained: true, at: 1});
+            for (let x = 0; x <= 100; x++) expect(uniformPointwiseError(scaled, 1, n, x / 100)).toBeLessThanOrEqual(1 / n);
+        }
+        expect(uniformPointwiseError(scaled, 1, 4, 0.5)).toBe(0.125);
+        expect(uniformSupremum(scaled, 1, 4).value).toBe(0.25);
+        expect(uniformThreshold(scaled, 1, 0.1)).toEqual({kind: 'threshold', n: 11});
+        expect(1 / 11 < 0.1 && 1 / 10 < 0.1).toBe(false);
+        expect(uniformPointwiseThreshold(scaled, 1, 0.5, 0.1)).toEqual({kind: 'threshold', n: 6});
+        const first = uStep('uniform-scaled-step');
+        expect(first.expectedObservations[0].en).toContain('0.25');
+        expect(first.expectedObservations[1].en).toContain('N=11');
+        expect(first.expectedObservations[1].en).toContain('N(0.5)=6');
+        // 0.8^11 < 0.1 < 0.8^10, and the shared N on [0, 0.8]
+        expect(0.8 ** 11).toBeLessThan(0.1);
+        expect(0.8 ** 10).toBeGreaterThan(0.1);
+        expect(uniformThreshold(power, 0.8, 0.1)).toEqual({kind: 'threshold', n: 11});
+        // x^n on [0,1]: limit 0 below one, 1 at one, supremum error 1 not attained, the endpoint error is 0 and no witness
+        expect(uniformLimit(power, 1, 0.5)).toBe(0);
+        expect(uniformLimit(power, 1, 1)).toBe(1);
+        for (const n of [1, 10, 50]) {
+            expect(uniformSupremum(power, 1, n)).toEqual({value: 1, attained: false, at: 1});
+            expect(uniformPointwiseError(power, 1, n, 1)).toBe(0);
+            for (let x = 0; x <= 100; x++) expect(uniformPointwiseError(power, 1, n, x / 100)).toBeLessThan(1);
+        }
+        expect(uniformThreshold(power, 1, 0.1)).toEqual({kind: 'none'});
+        expect(uStep('uniform-supremum-one-step').expectedObservations[0].en).toContain('so the endpoint is no witness');
+        expect(uStep('uniform-supremum-one-step').expectedObservations[0].sl).toMatch(/krajišče ni priča supremuma/);
+        expect(uStep('uniform-pointwise-step').explanation.en).toMatch(/new comparison/);
     });
 
     test('the lesson-facing vocabulary is closed', () => {
