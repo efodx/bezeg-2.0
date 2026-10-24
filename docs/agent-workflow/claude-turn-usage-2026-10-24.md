@@ -23,6 +23,18 @@ Since 2026-10-16, workers are 71% of input (48 contexts, median 34 turns, peak m
 
 A content breakdown of the main-checkout project directory (67 transcripts, tool results weighted by the turns they remain in context, characters ÷ 4) attributed about 21% of input to the fixed startup prefix (system prompt, tools, `AGENTS.md`, memory), about 48% to conversation and unattributed residue, about 14% to code and test reads, 4% to `git diff/show/log`, about 2% each to logs, screenshots and documentation, and under 1% to the localization catalogs. A four-worker A/B of a 73% shorter `docs/localization.md` changed worker usage by about 2% with equal correctness.
 
+## Handler-side signal
+
+**Claude, confirmed by probe.** A background Haiku worker read 15 files in sequence under a rule to stop on a `HANDOFF` message. The handler read its live input from the worker transcript (`tools/agent-usage/claude_worker_watch.py`) while it ran, then sent `HANDOFF` with `SendMessage` at turn 5 and about 88k input. The message was queued for the worker's next tool round. The worker stopped after file 6 of 15 at turn 8 and about 100k input, wrote its handoff note, and returned. The overshoot was about 12k, one further read. The completion notice reported 100,629 `subagent_tokens`, matching the transcript.
+
+**Codex, inferred from 46 local rollouts and not run live** (the CLI is not installed on this machine):
+
+- `list_agents` and `wait_agent` return status only, with no usage.
+- Each child writes its own rollout under `~/.codex/sessions`. `session_meta` records the parent thread and agent path, and `token_count` events record `last_token_usage` and `model_context_window`.
+- Parents have used `send_message`, `followup_task`, and `interrupt_agent`. `interrupt_agent` returned `previous_status: running`.
+- A parent could therefore read child usage from disk if its sandbox permits, and request a handoff with `interrupt_agent` followed by `followup_task`.
+- Whether a `send_message` reaches a child mid-task could not be separated from initial task delivery in the logs.
+
 ## Interpretation
 
 The startup prefix is re-read every turn but is paid again by any fresh context, so it scales with total turns, not sessions. Accumulated history is what a fresh context avoids: a worker at 150k re-reads about 110k more per turn than a fresh one, while a new worker costs one ~37k cache write plus re-reading its entry files. Long workers are therefore the main reducible cost. Rewriting documentation is not.

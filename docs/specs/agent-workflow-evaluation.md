@@ -106,6 +106,7 @@ Acceptance for this follow-up:
 
 - Dispatch sizes worker slices to finish in about 40 turns, splitting larger specs into sequential workers linked by handoff notes.
 - Brief v9 adds a budget: past about 40 turns, or 150k input where visible (workers usually cannot see their token count), a worker stops at a consistent point, writes a handoff note to a named path, and returns. The handler continues with a fresh worker rather than `SendMessage` when the next step does not need the old history.
+- Revision (same day, owner request): brief v10 sets a 100k input budget for Haiku workers (turn fallback about 30) and moves the trigger to the handler, which watches worker input and sends `HANDOFF` about 15k before the budget. Confirmed for Claude by a live probe; the Codex mechanism is inferred from local rollouts and stays untested until a Codex run.
 - Record per-turn usage with `tools/agent-usage/claude_turn_usage.py` before and after the trial. Keep the budget only if worker usage falls without more repairs, escaped defects, or longer completion; otherwise revert it.
 - Guidance change only; verify links and the bounded diff.
 
