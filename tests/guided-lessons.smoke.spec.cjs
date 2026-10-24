@@ -196,14 +196,14 @@ const weighted = parameterizationRow({
     id: 'param-weighted',
     path: `${BASE}/param/param/alphaparam`,
     titles: {sl: 'Utežena parametrizacija', en: 'Weighted parameterization'},
-    samplesByStep: [10, 3, 3, 3, 20],
+    samplesByStep: [3, 3, 3, 10, 20],
     hasMode: false,
 });
 const uniformPh = parameterizationRow({
     id: 'param-uniform-ph',
     path: `${BASE}/param/param/uniform`,
     titles: {sl: 'Enakomerna parametrizacija PH krivulje', en: 'Uniform parameterization of a PH curve'},
-    samplesByStep: [10, 10, 3, 20, 10],
+    samplesByStep: [3, 3, 3, 10, 10],
     hasMode: true,
 });
 
@@ -447,25 +447,29 @@ const alternativeDeCasteljau = {
     id: 'decasteljau-alternative',
     path: `${BASE}/bezier/decasteljau2`,
     titles: {sl: 'Alternativna De Casteljaujeva rekurzija', en: 'The alternative de Casteljau recursion'},
-    steps: 5,
-    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
+    steps: 7,
+    minFrames: 18, // 3 + 3 + 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
-        // Quartic curve plus its two helper cubics, drawn with 4 + 4 control points.
+        // The curve plus its two helper curves of one degree less (a cubic fixture in steps 1-2, the default quartic later).
         await expect.poll(async () => (await boardStats(page)).curves).toBe(3);
         return {points: (await boardStats(page)).points};
     },
     stepProbe: async (page, ctx, step, label) => {
-        await expectRange(page, 0, [0.5, 0.5, 0.25, 0.75, 0.5][step - 1], `t slider at ${label}`, 2);
+        await expectRange(page, 0, [0.5, 0.25, 0.5, 0.5, 0.25, 0.75, 0.5][step - 1], `t slider at ${label}`, 2);
         const stats = await boardStats(page);
-        expect(stats.curves, `quartic + two helper cubics at ${label}`).toBe(3);
-        expect(stats.points, `points stable at ${label}`).toBe(ctx.points);
+        expect(stats.curves, `curve + two helper curves at ${label}`).toBe(3);
+        // The point count is stable per degree, and the quartic has exactly one control point more than the cubic.
+        const degree = step <= 2 ? 'cubic' : 'quartic';
+        ctx[degree] ??= stats.points;
+        expect(stats.points, `points stable for the ${degree} at ${label}`).toBe(ctx[degree]);
+        if (ctx.cubic !== undefined && ctx.quartic !== undefined) expect(ctx.quartic - ctx.cubic, `one more control point at ${label}`).toBe(1);
     },
     prepareUserState: async page => {
         await setRange(page, 0, 0.8);
         await expectRange(page, 0, 0.8, 'user-set t', 1);
         return await boardStats(page);
     },
-    exitStep: 3,
+    exitStep: 5,
     duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user t', 2); },
     assertUserState: async (page, ctx, before) => {
         await expectRange(page, 0, 0.8, 't restored after exit', 1);

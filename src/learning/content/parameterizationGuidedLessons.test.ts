@@ -4,6 +4,7 @@ import {sceneAction} from '../runtime/lessonCatalog';
 import {alphaParameterization} from '../../graphs/curves/parametrisations/AlphaParamBezierCurveGraph';
 import {PhBezierCurve} from '../../bezeg/impl/curve/ph-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
+import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 
 const lessonFor = (id: string) => parameterizationGuidedLessons.find(lesson => lesson.demonstrationId === id)!;
 
@@ -62,8 +63,10 @@ test('the weighted lesson only uses alpha and sample actions, the mode action be
     const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.name));
     expect(names('weighted-parameterization')).toEqual(new Set(['set-parameterization-alpha', 'set-parameterization-samples']));
     expect(names('uniform-parameterization')).toEqual(new Set(['set-parameterization-mode', 'set-parameterization-alpha', 'set-parameterization-samples']));
-    expect(lessonFor('weighted-parameterization').steps[0].scene?.actions).toEqual([]);
-    expect(lessonFor('uniform-parameterization').steps[0].scene?.actions).toEqual([]);
+    // Both lessons open with three interior samples set by explicit actions, not by the route default of 10.
+    const first = (id: string) => lessonFor(id).steps[0].scene!.actions.map(action => [action.name, action.value]);
+    expect(first('weighted-parameterization')).toEqual([['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
+    expect(first('uniform-parameterization')).toEqual([['set-parameterization-mode', 'weighted'], ['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
 });
 
 test('the weighted worked examples match the implementation of phi_alpha', () => {
@@ -104,11 +107,65 @@ test('the weighted worked examples match the implementation of phi_alpha', () =>
 });
 
 test('the weighted lesson scenes use the values stated in the prose', () => {
-    const scenes = Object.fromEntries(lessonFor('weighted-parameterization').steps.map(step => [step.id, step.scene!.actions.map(action => [action.name, action.value])]));
-    expect(scenes['wp-rule']).toEqual([['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
+    const lesson = lessonFor('weighted-parameterization');
+    const scenes = Object.fromEntries(lesson.steps.map(step => [step.id, step.scene!.actions.map(action => [action.name, action.value])]));
+    expect(lesson.steps.map(step => step.id)).toEqual(['wp-same-curve', 'wp-quarter-calculation', 'wp-symmetry-step', 'wp-density-ten', 'wp-density']);
+    expect(scenes['wp-same-curve']).toEqual([['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
     expect(scenes['wp-quarter-calculation']).toEqual([['set-parameterization-alpha', 0.25], ['set-parameterization-samples', 3]]);
     expect(scenes['wp-symmetry-step']).toEqual([['set-parameterization-alpha', 0.75], ['set-parameterization-samples', 3]]);
+    expect(scenes['wp-density-ten']).toEqual([['set-parameterization-alpha', 0.25], ['set-parameterization-samples', 10]]);
     expect(scenes['wp-density']).toEqual([['set-parameterization-alpha', 0.25], ['set-parameterization-samples', 20]]);
+    // No scene replaces the control points, so all comparisons share one locus.
+    lesson.steps.forEach(step => expect(Object.keys(step.scene!).sort()).toEqual(['actions', 'basedOn', 'expectedState', 'id']));
+    expect(lesson.steps[0].explanation.en).toContain('N=3');
+    expect(lesson.steps[0].explanation.en).toContain('end points');
+});
+
+// Sample parameters as the graph computes them: N interior values i/(N+1) mapped by phi_alpha; B(0) and B(1) are not markers.
+const weightedParameters = (alpha: number, count: number) =>
+    Array.from({length: count}, (_, i) => alphaParameterization(alpha, (i + 1) / (count + 1)));
+
+const bezierCurve = () => new PolynomialBezierCurve([[-4, -3], [-3, 2], [2, 2], [3, -2]].map(([x, y]) => new PointImpl(x, y)));
+
+// Distance of a point to the curve, from a fine polyline (spacing at most about 0.01 in this scene, so the tolerance 1e-2 is the sampling bound).
+const distanceToLocus = (curve: {eval(t: number): {X(): number, Y(): number}}, x: number, y: number) => {
+    let best = Infinity;
+    const n = 4000;
+    for (let i = 0; i <= n; i++) {
+        const p = curve.eval(i / n);
+        best = Math.min(best, Math.hypot(p.X() - x, p.Y() - y));
+    }
+    return best;
+};
+
+test('the weighted comparison keeps one locus and the stated parameters for alpha 1/2, 1/4 and 3/4 with three samples', () => {
+    const curve = bezierCurve();
+    const expected: Record<number, number[]> = {0.5: [1 / 4, 1 / 2, 3 / 4], 0.25: [1 / 2, 3 / 4, 9 / 10], 0.75: [1 / 10, 1 / 4, 1 / 2]};
+    for (const [alpha, parameters] of Object.entries(expected)) {
+        const actual = weightedParameters(Number(alpha), 3);
+        expect(actual).toHaveLength(3);
+        actual.forEach((value, i) => expect(value).toBeCloseTo(parameters[i], 12));
+        // Interior samples only: strictly between the end points.
+        actual.forEach(value => { expect(value).toBeGreaterThan(0); expect(value).toBeLessThan(1); });
+    }
+    // Same locus: every sample at every alpha and count lies on the one fixed curve.
+    for (const alpha of [0.25, 0.5, 0.75]) {
+        for (const count of [3, 10, 20]) {
+            weightedParameters(alpha, count).forEach(t => {
+                const point = curve.eval(t);
+                expect(distanceToLocus(curve, point.X(), point.Y())).toBeLessThan(1e-2);
+            });
+        }
+    }
+    // The locus check can fail: a point off the curve is rejected.
+    expect(distanceToLocus(curve, 0, 0)).toBeGreaterThan(0.5);
+    // The comparison is not vacuous: the samples differ between alphas and crowd as the prose says.
+    const last = (alpha: number) => curve.eval(weightedParameters(alpha, 3)[2]);
+    expect(Math.hypot(last(0.25).X() - last(0.75).X(), last(0.25).Y() - last(0.75).Y())).toBeGreaterThan(1);
+    const ten = weightedParameters(0.25, 10);
+    expect(ten).toHaveLength(10);
+    const gaps = ten.map((value, i) => value - (i ? ten[i - 1] : 0));
+    expect(gaps[0]).toBeGreaterThan(gaps[9]);
 });
 
 test('the uniform lesson numbers match the PH implementation', () => {
@@ -190,8 +247,96 @@ test('uniform samples are approximately, not exactly, equally spaced, unlike wei
 
     // Prose says "about 4 times" and "approximately equal"; it never claims exact equality.
     const lesson = lessonFor('uniform-parameterization');
-    expect(lesson.steps[0].expectedObservations[0].en).toContain('about 4 times');
+    expect(lesson.steps[4].explanation.en).toContain('about 4 times');
     const equalArc = lesson.formulaBlocks.find(formula => formula.id === 'up-equal-arc')!;
     expect(equalArc.explanation.en).toContain('approximately equal, not exactly equal');
     expect(JSON.stringify(lesson.steps).replace(/not exactly equal/g, '')).not.toMatch(/exactly equal|precisely equal/);
+});
+
+const weightedParameters10 = (alpha: number) => weightedParameters(alpha, 10);
+
+test('uniform lesson: equal arcs versus unequal chords, inversion tolerance, shared locus, and prose figures', () => {
+    const curve = defaultCurve();
+    const L = curve.s(1);
+    const uniformTs = (N: number) => {
+        let t = 0;
+        return Array.from({length: N}, (_, i) => (t = curve.tk(t, L / (N + 1), i + 1)));
+    };
+    const pieces = (ts: number[], f: (a: number, b: number) => number) => {
+        const all = [0, ...ts, 1];
+        return all.slice(1).map((value, i) => f(all[i], value));
+    };
+    const chord = (a: number, b: number) => Math.hypot(curve.eval(b).X() - curve.eval(a).X(), curve.eval(b).Y() - curve.eval(a).Y());
+    // Arc length by Simpson integration of the speed, independent of curve.s.
+    const arc = (a: number, b: number, n = 400) => {
+        const h = (b - a) / n;
+        let sum = curve.sigma(a) + curve.sigma(b);
+        for (let i = 1; i < n; i++) sum += curve.sigma(a + i * h) * (i % 2 ? 4 : 2);
+        return sum * h / 3;
+    };
+
+    // Inversion tolerance: one predictor step and four Newton corrections, no stopping criterion. The recorded error is about
+    // 1e-8 L at N = 3 and rounding level for N >= 10; the lesson states "below 1e-6 L".
+    let worst = 0;
+    for (let N = 1; N <= 40; N++) {
+        uniformTs(N).forEach((value, i) => { worst = Math.max(worst, Math.abs(arc(0, value) - (i + 1) * L / (N + 1)) / L); });
+    }
+    expect(worst).toBeLessThan(1e-6);
+    expect(worst).toBeGreaterThan(1e-10); // approximate, not exact
+    expect(L / 4).toBeCloseTo(4.18, 2);
+
+    // N = 3: weighted arcs 5.92, 2.43, 2.43, 5.92; uniform arcs 4.18 each, uniform chords 4.18, 3.91, 3.91, 4.18.
+    pieces(weightedParameters(0.5, 3), arc).forEach((value, i) => expect(value).toBeCloseTo([5.92, 2.43, 2.43, 5.92][i], 2));
+    pieces(uniformTs(3), arc).forEach(value => expect(Math.abs(value - L / 4)).toBeLessThan(1e-6 * L));
+    const chords3 = pieces(uniformTs(3), chord);
+    chords3.forEach((value, i) => expect(value).toBeCloseTo([4.18, 3.91, 3.91, 4.18][i], 2));
+    expect(chords3[1] / chords3[0]).toBeGreaterThan(0.92);
+    expect(chords3[1] / chords3[0]).toBeLessThan(0.95); // "about 6% shorter"
+
+    // N = 10: 11 equal arcs L/11 = 1.52; chords 1.52 near the ends and 1.44 in the middle (about 5% shorter).
+    const uniform10 = uniformTs(10);
+    pieces(uniform10, arc).forEach(value => expect(value).toBeCloseTo(1.52, 2));
+    const chords10 = pieces(uniform10, chord);
+    expect(chords10[0]).toBeCloseTo(1.52, 2);
+    expect(chords10[5]).toBeCloseTo(1.44, 2);
+    expect(chords10[5] / chords10[0]).toBeGreaterThan(0.93);
+    expect(chords10[5] / chords10[0]).toBeLessThan(0.96);
+    chords10.forEach((value, i) => expect(value).toBeLessThanOrEqual(pieces(uniform10, arc)[i] + 1e-9));
+
+    // Weighted alpha = 1/2 at the same count: arcs 2.81 near the ends down to 0.69 in the middle (about 4 times).
+    const weighted10 = weightedParameters10(0.5);
+    weighted10.forEach((value, i) => expect(value).toBeCloseTo((i + 1) / 11, 12));
+    const arcs10 = pieces(weighted10, arc);
+    expect(arcs10[0]).toBeCloseTo(2.81, 2);
+    expect(arcs10[5]).toBeCloseTo(0.69, 2);
+    expect(arcs10[0] / arcs10[5]).toBeGreaterThan(3.9);
+    expect(arcs10[0] / arcs10[5]).toBeLessThan(4.2);
+
+    // Same locus: weighted and uniform samples at the same count lie on the one PH curve.
+    [...weighted10, ...uniform10].forEach(t => {
+        const point = curve.eval(t);
+        expect(distanceToLocus(curve, point.X(), point.Y())).toBeLessThan(1e-2);
+    });
+
+    // The scenes compare modes at one count and geometry: steps 4 and 5 both use 10 samples, steps 1 to 3 use 3.
+    const lesson = lessonFor('uniform-parameterization');
+    const counts = lesson.steps.map(step => step.scene!.actions.find(action => action.name === 'set-parameterization-samples')!.value);
+    expect(counts).toEqual([3, 3, 3, 10, 10]);
+    expect(lesson.steps.map(step => step.scene!.actions.find(action => action.name === 'set-parameterization-mode')!.value))
+        .toEqual(['weighted', 'weighted', 'uniform', 'uniform', 'weighted']);
+    lesson.steps.forEach(step => expect(Object.keys(step.scene!).sort()).toEqual(['actions', 'basedOn', 'expectedState', 'id']));
+
+    // The prose figures appear in both languages.
+    const prose = JSON.stringify([lesson.steps, lesson.formulaBlocks, lesson.edgeCases]);
+    for (const needle of ['5{,}92', '2{,}43', '4{,}18', '3{,}91', '1{,}52', '1{,}44', '2{,}81', '0{,}69', 'tetiv']) expect(prose).toContain(needle);
+    for (const needle of ['5.92', '2.43', '4.18', '3.91', '1.52', '1.44', '2.81', '0.69', 'chord', 'one predictor step and four corrections']) expect(prose).toContain(needle);
+
+    // Each figure sits in the step that explains it (a figure edited in one place cannot hide behind a repeat elsewhere).
+    const [, , chordStep, tenStep, contrastStep] = lesson.steps;
+    expect(chordStep.explanation.sl).toContain('\\(3{,}91\\), \\(3{,}91\\)');
+    expect(chordStep.explanation.en).toContain('\\(3.91\\), \\(3.91\\)');
+    expect(tenStep.explanation.sl).toContain('\\(1{,}44\\)');
+    expect(tenStep.explanation.en).toContain('\\(1.44\\)');
+    expect(contrastStep.explanation.sl).toContain('\\(2{,}81\\)');
+    expect(contrastStep.explanation.en).toContain('\\(0.69\\)');
 });
