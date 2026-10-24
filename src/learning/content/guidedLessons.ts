@@ -227,6 +227,18 @@ const scene = (
 
 const action = (name: SupportedSceneActionName, value: boolean | number): SceneAction => ({name, value});
 
+/** Cubic PH lesson fixture: P_0=(-2,-1), w_0=2, w_1=2+i, so w(t)=2+it, speed 4+t^2 and arc length 13/3. */
+const phCubicFixture: LessonCurveFixture = {points: [[-2, -1]], hodographs: [[2, 0], [2, 1]]};
+const phCubicView: LessonViewBox = [-3.2, 2.7, 3.4, -2.7];
+const phCubicScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id,
+    basedOn: 'lesson-fixture',
+    curve: phCubicFixture,
+    view: phCubicView,
+    actions,
+    expectedState: text(sl, en),
+});
+
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
 
 const bezierFormulaBlocks: readonly FormulaBlock[] = [
@@ -330,6 +342,18 @@ const phFormulaBlocks: readonly FormulaBlock[] = [
         explanation: text(
             'To je obrazec, ki ga za kubično krivuljo uporablja Bezegov matematični model za generiranje kontrolnih točk.',
             'This is the formula used by Bezeg’s mathematical model to generate the cubic control points.',
+        ),
+    },
+    {
+        id: 'ph-offset',
+        latex: 'r_d(t)=r(t)+d\\,n(t),\\qquad n(t)=\\frac{\\left(y\'(t),\\,-x\'(t)\\right)}{\\|r\'(t)\\|}',
+        notation: text(
+            '\\(n(t)\\) je enotska normala, ki leži desno od smeri potovanja; \\(d>0\\) zato premakne točko na desno, \\(d<0\\) pa na levo.',
+            '\\(n(t)\\) is the unit normal lying to the right of the direction of travel, so \\(d>0\\) moves the point to the right and \\(d<0\\) to the left.',
+        ),
+        explanation: text(
+            'Odmik je pri vsakem \\(t\\) natanko \\(|d|\\) oddaljen od točke krivulje, merjeno vzdolž normale, ne navpično na zaslonu. Je pa regularen le, dokler je \\(1+d\\kappa>0\\) (z \\(\\kappa\\) označimo predznačeno ukrivljenost).',
+            'At every \\(t\\) the offset is exactly \\(|d|\\) from the curve point, measured along the normal rather than vertically on the screen. It is regular only while \\(1+d\\kappa>0\\) (where \\(\\kappa\\) is the signed curvature).',
         ),
     },
 ];
@@ -612,17 +636,17 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
         workedExamples: [
             {
                 id: 'ph-default-control-points',
-                title: text('Kontrolne točke iz privzetega hodografa', 'Control points from the default hodograph'),
-                calculationLatex: 'P_0=(-4.2,-2),\\;w_0=(-3.5,-1.7),\\;w_1=(-2.6,1.7)',
-                resultLatex: 'P_1\\approx(-1.08,1.9667),\\;P_2\\approx(2.9167,1.4567),\\;P_3\\approx(4.2067,-1.49)',
-                check: text('Vrednosti so zaokrožene; graf uporablja iste izračune kot phControlPoints (ph-math.ts).', 'Values are rounded; the graph uses the same calculations as phControlPoints (ph-math.ts).'),
+                title: text('Kontrolne točke iz hodografa lekcije', 'Control points from the lesson hodograph'),
+                calculationLatex: 'P_0=(-2,-1),\\;w_0=2,\\;w_1=2+i:\\quad P_1=P_0+\\tfrac13w_0^2=\\left(-\\tfrac23,\\,-1\\right),\\;P_2=P_1+\\tfrac13w_0w_1=\\left(\\tfrac23,\\,-\\tfrac13\\right),\\;P_3=P_2+\\tfrac13w_1^2=\\left(\\tfrac53,\\,1\\right)',
+                resultLatex: 'P_0=(-2,-1),\\;P_1=\\left(-\\tfrac23,-1\\right),\\;P_2=\\left(\\tfrac23,-\\tfrac13\\right),\\;P_3=\\left(\\tfrac53,1\\right)',
+                check: text('Vrednosti so točni ulomki in jih izračuna tudi graf s phControlPoints (ph-math.ts).', 'The values are exact fractions and the graph computes them too with phControlPoints (ph-math.ts).'),
             },
             {
                 id: 'ph-default-speed-at-half',
-                title: text('Hitrost pri \\(t=1/2\\)', 'Speed at \\(t=1/2\\)'),
-                calculationLatex: 'w(1/2)=(-3.05,0),\\qquad \\|r\'(1/2)\\|=\\|w(1/2)\\|^2=9.3025',
-                resultLatex: '\\text{speed}(1/2)=9.3025',
-                check: text('Pri privzetih generatorjih je srednji hodograf vodoraven; hitrost je kvadrat njegove norme.', 'With the default generators the midpoint hodograph is horizontal; speed is the square of its norm.'),
+                title: text('Hitrost in dolžina loka', 'Speed and arc length'),
+                calculationLatex: 'w(t)=2+it,\\;\\;w(\\tfrac12)=2+\\tfrac12i,\\;\\;\\|r\'(\\tfrac12)\\|=\\|w(\\tfrac12)\\|^2=4+\\tfrac14=\\tfrac{17}{4},\\;\\;L=\\int_0^1(4+t^2)\\,dt',
+                resultLatex: '\\text{speed}(t)=4+t^2,\\quad \\text{speed}(\\tfrac12)=\\tfrac{17}{4},\\quad L=4+\\tfrac13=\\tfrac{13}{3}\\approx4.333',
+                check: text('Dolžino loka \\(\\tfrac{13}{3}\\) prikaže tudi odčitek na grafu; polinomska hitrost omogoča integral brez numeričnega približka.', 'The graph shows the arc length \\(\\tfrac{13}{3}\\) in its readout; the polynomial speed allows an integral without numerical approximation.'),
             },
         ],
         steps: [
@@ -632,63 +656,66 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 purpose: text('Vloga hodografa kot generatorja krivulje, ne zgolj kot dodatnega prikaza.', 'The hodograph as a curve generator rather than merely an additional plot.'),
                 explanation: text('Pri kubični PH-krivulji začetna točka \\(P_0\\) in generatorja \\(w_0\\), \\(w_1\\) določijo odvod, iz odvoda pa se izračunajo kontrolne točke krivulje.', 'For a cubic PH curve, the start point \\(P_0\\) and generators \\(w_0\\), \\(w_1\\) determine the derivative, from which the curve control points are generated.'),
                 formulaIds: ['ph-hodograph', 'ph-cubic-control-points'], learnerInteraction: 'observe',
+                workedExampleId: 'ph-default-control-points',
                 frames: [
-                    {...frame('ph-introduction-explanation', 'explanation'), formulaIds: ['ph-hodograph']},
-                    {...frame('ph-introduction-control-points', 'explanation'), formulaIds: ['ph-cubic-control-points']},
+                    frame('ph-introduction-explanation', 'explanation'),
+                    frame('ph-introduction-calculation', 'calculation'),
                     frame('ph-introduction-observation', 'observation'),
                 ],
-                observationPrompt: text('Razvrsti podatke na vhodne in izpeljane količine.', 'Classify the quantities as inputs or derived values.'),
-                expectedObservations: [text('\\(P_0\\), \\(w_0\\) in \\(w_1\\) so vhodni podatki; preostale kontrolne točke se izračunajo.', '\\(P_0\\), \\(w_0\\), and \\(w_1\\) are inputs; the remaining control points are derived.')],
-                scene: scene('ph-cubic-default', [], 'Privzeta scena vsebuje \\(P_0=\\left(-4{,}2,\\,-2\\right)\\), \\(w_0=\\left(-3{,}5,\\,-1{,}7\\right)\\) in \\(w_1=\\left(-2{,}6,\\,1{,}7\\right)\\).', 'The default scene contains \\(P_0=\\left(-4.2,\\,-2\\right)\\), \\(w_0=\\left(-3.5,\\,-1.7\\right)\\), and \\(w_1=\\left(-2.6,\\,1.7\\right)\\).'),
+                observationPrompt: text('Razvrsti podatke na vhodne in izpeljane količine ter z obrazcem izračunaj \\(P_1\\).', 'Classify the quantities as inputs or derived values and use the formula to calculate \\(P_1\\).'),
+                expectedObservations: [text('\\(P_0\\), \\(w_0\\) in \\(w_1\\) so vhodni podatki; preostale kontrolne točke se izračunajo, na primer \\(P_1=P_0+\\tfrac13w_0^2=\\left(-\\tfrac23,\\,-1\\right)\\).', '\\(P_0\\), \\(w_0\\), and \\(w_1\\) are inputs; the remaining control points are derived, for example \\(P_1=P_0+\\tfrac13w_0^2=\\left(-\\tfrac23,\\,-1\\right)\\).')],
+                scene: phCubicScene('ph-cubic-default', [], 'Scena vsebuje \\(P_0=\\left(-2,\\,-1\\right)\\), \\(w_0=\\left(2,\\,0\\right)\\) in \\(w_1=\\left(2,\\,1\\right)\\), torej \\(w_0=2\\) in \\(w_1=2+i\\); kontrolne točke so \\(\\left(-\\tfrac23,\\,-1\\right)\\), \\(\\left(\\tfrac23,\\,-\\tfrac13\\right)\\) in \\(\\left(\\tfrac53,\\,1\\right)\\).', 'The scene contains \\(P_0=\\left(-2,\\,-1\\right)\\), \\(w_0=\\left(2,\\,0\\right)\\), and \\(w_1=\\left(2,\\,1\\right)\\), so \\(w_0=2\\) and \\(w_1=2+i\\); the derived control points are \\(\\left(-\\tfrac23,\\,-1\\right)\\), \\(\\left(\\tfrac23,\\,-\\tfrac13\\right)\\), and \\(\\left(\\tfrac53,\\,1\\right)\\).'),
             },
             {
                 id: 'ph-generator', order: 2,
                 title: text('Kvadrat hodografa in hitrost', 'Squared hodograph and speed'),
                 purpose: text('Povezava generatorjev z odvodom in polinomsko hitrostjo.', 'The relationship between the generators, derivative, and polynomial speed.'),
-                explanation: text('Linearni hodograf \\(w(t)\\) se pri kompleksnem množenju kvadrira v \\(r\'(t)\\). Dolžina odvoda je zato \\(\\|w(t)\\|^2\\), kar je polinom v \\(t\\).', 'The linear hodograph \\(w(t)\\) is squared by complex multiplication to obtain \\(r\'(t)\\). Therefore \\(\\|w(t)\\|^2\\) is polynomial in \\(t\\).'),
+                explanation: text('Linearni hodograf \\(w(t)=2+it\\) se pri kompleksnem množenju kvadrira v \\(r\'(t)=(4-t^2)+4it\\). Dolžina odvoda je zato \\(\\|w(t)\\|^2=4+t^2\\), kar je polinom v \\(t\\).', 'The linear hodograph \\(w(t)=2+it\\) is squared by complex multiplication to obtain \\(r\'(t)=(4-t^2)+4it\\). Therefore \\(\\|w(t)\\|^2=4+t^2\\) is polynomial in \\(t\\).'),
                 formulaIds: ['ph-hodograph', 'ph-polynomial-speed'], learnerInteraction: 'observe',
+                workedExampleId: 'ph-default-speed-at-half',
                 frames: [
-                    {...frame('ph-generator-explanation', 'explanation'), formulaIds: ['ph-hodograph']},
-                    {...frame('ph-generator-speed', 'explanation'), formulaIds: ['ph-polynomial-speed']},
+                    frame('ph-generator-explanation', 'explanation'),
+                    frame('ph-generator-calculation', 'calculation'),
                     frame('ph-generator-observation', 'observation'),
                 ],
-                observationPrompt: text('Pri \\(t=1/2\\) uporabi \\(w(1/2)=(-3,05,0)\\) za izračun hitrosti.', 'At \\(t=1/2\\), use \\(w(1/2)=(-3.05,0)\\) to calculate the speed.'),
-                expectedObservations: [text('Hitrost je 9,3025, torej kvadrat dolžine srednjega hodografa.', 'The speed is 9.3025, the squared length of the midpoint hodograph.')],
+                observationPrompt: text('Pri \\(t=1/2\\) uporabi \\(w(1/2)=2+\\tfrac12i\\) za izračun hitrosti in primerjaj z označeno točko \\(r(\\tfrac12)\\).', 'At \\(t=1/2\\), use \\(w(1/2)=2+\\tfrac12i\\) to calculate the speed and compare with the marked point \\(r(\\tfrac12)\\).'),
+                expectedObservations: [text('Hitrost je \\(\\tfrac{17}{4}=4{,}25\\), kvadrat dolžine srednjega hodografa; ker je hitrost \\(4+t^2\\), je dolžina loka \\(\\tfrac{13}{3}\\approx4{,}333\\), kar kaže tudi odčitek na grafu.', 'The speed is \\(\\tfrac{17}{4}=4.25\\), the squared length of the midpoint hodograph; since the speed is \\(4+t^2\\), the arc length is \\(\\tfrac{13}{3}\\approx4.333\\), which the readout on the graph also shows.')],
+                scene: phCubicScene('ph-cubic-speed-scene', [action('show-evaluation-point', 0.5)], 'Označena je točka \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) osnovne krivulje.', 'The point \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) of the base curve is marked.'),
             },
             {
                 id: 'ph-offsets', order: 3,
                 title: text('Odmik krivulje', 'Curve offset'),
                 purpose: text('Odmična krivulja kot geometrijska posledica PH-strukture.', 'The offset curve as a geometric consequence of the PH structure.'),
-                explanation: text('Pri nespremenjeni osnovni krivulji je prikazan odmik z razdaljo \\(d=0,2\\). Odmik je izračunan iz krivulje in njenega hodografa.', 'With the base curve unchanged, an offset at distance \\(d=0.2\\) is shown. The offset is computed from the curve and its hodograph.'),
-                formulaIds: ['ph-hodograph'],
+                explanation: text('Pri nespremenjeni osnovni krivulji je prikazan odmik z razdaljo \\(d=1\\). Pozitiven \\(d\\) premakne točko na desno od smeri potovanja, zato je odmik na začetku pod krivuljo: iz \\(\\left(-2,\\,-1\\right)\\) v \\(\\left(-2,\\,-2\\right)\\). Ker se krivulja povsod obrača v levo, je to zunanja stran in je odmik vedno regularen.', 'With the base curve unchanged, an offset at distance \\(d=1\\) is shown. A positive \\(d\\) moves the point to the right of the direction of travel, so the offset starts below the curve: from \\(\\left(-2,\\,-1\\right)\\) to \\(\\left(-2,\\,-2\\right)\\). Because the curve turns left everywhere, this is the outer side and the offset is always regular.'),
+                formulaIds: ['ph-offset'],
                 frames: [frame('ph-offsets-explanation', 'explanation'), frame('ph-offsets-observation', 'observation')],
-                scene: scene('ph-offset-positive', [action('set-offset-distance', 0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=0{,}2\\).', 'The offset at \\(d=0.2\\) is shown.'),
+                scene: phCubicScene('ph-offset-positive', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=1\\), pod osnovno krivuljo.', 'The offset at \\(d=1\\) is shown, below the base curve.'),
                 learnerInteraction: 'adjust-offset-distance',
-                observationPrompt: text('Preveri, ali je odmična krivulja na zaslonu povsod videti enako oddaljena.', 'Verify whether the offset curve appears equally distant everywhere on the screen.'),
-                expectedObservations: [text('V rednem delu krivulje odmik sledi osnovni krivulji; prikaz uporablja izračunano odmično konstrukcijo.', 'On the regular part of the curve the offset follows the base curve; the display uses the computed offset construction.')],
+                observationPrompt: text('Primerjaj navpični zamik točke odmika na levem koncu in pri \\(t=1\\), kjer je tangenta \\(r\'(1)=(3,4)\\). Ali je razdalja vzdolž normale povsod enaka?', 'Compare the vertical shift of the offset point at the left end and at \\(t=1\\), where the tangent is \\(r\'(1)=(3,4)\\). Is the distance along the normal the same everywhere?'),
+                expectedObservations: [text('Vzdolž normale je razdalja povsod \\(1\\), navpični zamik pa ni: na levem koncu je \\(1\\), pri \\(t=1\\) pa \\(\\tfrac35\\), ker je tam normala \\(\\left(\\tfrac45,\\,-\\tfrac35\\right)\\).', 'Along the normal the distance is \\(1\\) everywhere, but the vertical shift is not: it is \\(1\\) at the left end and \\(\\tfrac35\\) at \\(t=1\\) because the normal there is \\(\\left(\\tfrac45,\\,-\\tfrac35\\right)\\).')],
             },
             {
                 id: 'ph-offset-side', order: 4,
                 title: text('Predznak odmika', 'Offset sign'),
                 purpose: text('Analiziraj vpliv predznaka odmika pri nespremenjenih generatorjih.', 'Analyze the effect of the offset sign while keeping the generators fixed.'),
-                explanation: text('Pri \\(d=-0,2\\) predznak izbere nasprotno stran odmika, osnovna PH-krivulja in njena kontrolna geometrija pa ostaneta isti.', 'At \\(d=-0.2\\), the sign selects the opposite offset side, while the base PH curve and its control geometry stay the same.'),
-                formulaIds: [],
+                explanation: text('Pri \\(d=-1\\) predznak izbere nasprotno stran: odmik leži nad krivuljo, na notranji strani zavoja. Polmer ukrivljenosti je \\(\\tfrac{(4+t^2)^2}{4}\\), torej med \\(4\\) in \\(\\tfrac{25}{4}\\), in je večji od \\(1\\), zato ostane odmik regularen; do ostrine bi prišlo šele pri \\(|d|\\ge4\\), kar je zunaj drsnika. Osnovna PH-krivulja in njena kontrolna geometrija ostaneta isti.', 'At \\(d=-1\\), the sign selects the opposite side: the offset lies above the curve, on the inner side of the bend. The radius of curvature is \\(\\tfrac{(4+t^2)^2}{4}\\), between \\(4\\) and \\(\\tfrac{25}{4}\\), and larger than \\(1\\), so the offset stays regular; a cusp would appear only at \\(|d|\\ge4\\), which is outside the slider. The base PH curve and its control geometry stay the same.'),
+                formulaIds: ['ph-offset'],
                 frames: [frame('ph-offset-side-explanation', 'explanation'), frame('ph-offset-side-observation', 'observation')],
-                scene: scene('ph-offset-negative', [action('set-offset-distance', -0.2), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-0{,}2\\).', 'The offset at \\(d=-0.2\\) is shown.'),
+                scene: phCubicScene('ph-offset-negative', [action('set-offset-distance', -1), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-1\\), nad osnovno krivuljo.', 'The offset at \\(d=-1\\) is shown, above the base curve.'),
                 learnerInteraction: 'adjust-offset-distance',
-                observationPrompt: text('Primerjaj obe predznačeni vrednosti in določi, kaj se spremeni ter kaj ostane nespremenjeno.', 'Compare the two signed values and determine what changes and what remains unchanged.'),
-                expectedObservations: [text('Spremeni se stran oziroma položaj odmika; osnovna krivulja ostane enaka.', 'The offset side or position changes; the base curve remains the same.')],
+                observationPrompt: text('Primerjaj odmika pri \\(d=1\\) in \\(d=-1\\): na kateri strani krivulje leži vsak in kaj ostane nespremenjeno?', 'Compare the offsets at \\(d=1\\) and \\(d=-1\\): which side of the curve does each lie on, and what stays unchanged?'),
+                expectedObservations: [text('Odmik pri \\(d=1\\) leži pod krivuljo, pri \\(d=-1\\) nad njo, na notranji strani zavoja; osnovna krivulja ostane enaka.', 'The offset at \\(d=1\\) lies below the curve and at \\(d=-1\\) above it, on the inner side of the bend; the base curve remains the same.')],
             },
             {
                 id: 'ph-hodograph-edit', order: 5,
                 title: text('Vpliv premika generatorja', 'Effect of moving a generator'),
                 purpose: text('Vpliv spremembe vhodnega hodografa na krivuljo.', 'The effect of changing the input hodograph on the curve.'),
-                explanation: text('Premik \\(w_0\\) ali \\(w_1\\) na sekundarnem grafu povzroči ponovni izračun kontrolnih točk PH-krivulje in osvežitev odmika.', 'Moving \\(w_0\\) or \\(w_1\\) on the secondary graph recomputes the PH control points and refreshes the offset.'),
+                explanation: text('Premik \\(w_0\\) ali \\(w_1\\) na sekundarnem grafu povzroči ponovni izračun kontrolnih točk PH-krivulje in osvežitev odmika. Poskusi premakniti \\(w_1\\) v \\(2+2i\\): hitrost postane \\(4+4t^2\\), dolžina loka pa \\(\\tfrac{16}{3}\\approx5{,}333\\).', 'Moving \\(w_0\\) or \\(w_1\\) on the secondary graph recomputes the PH control points and refreshes the offset. Try moving \\(w_1\\) to \\(2+2i\\): the speed becomes \\(4+4t^2\\) and the arc length \\(\\tfrac{16}{3}\\approx5.333\\).'),
                 formulaIds: ['ph-hodograph', 'ph-cubic-control-points'], learnerInteraction: 'drag-hodograph-point',
                 frames: [frame('ph-hodograph-edit-explanation', 'explanation'), frame('ph-hodograph-edit-observation', 'observation')],
-                observationPrompt: text('Opiši spremembe oblike krivulje, hodografa in odmika.', 'Describe the changes in the curve shape, hodograph, and offset.'),
-                expectedObservations: [text('Sprememba generatorja spremeni izračunane kontrolne točke, odvod in zato tudi prikazani odmik.', 'Changing a generator changes the derived control points, derivative, and therefore the displayed offset.')],
-                scene: scene('ph-offset-after-edit', [action('show-offset-curve', true)], 'Odmik ostane viden med ročnim urejanjem hodografa.', 'The offset remains visible while the hodograph is edited manually.'),
+                observationPrompt: text('Opiši spremembe oblike krivulje, hodografa in odmika ter preveri odčitek dolžine loka pri \\(w_1=2+2i\\).', 'Describe the changes in the curve shape, hodograph, and offset, and check the arc-length readout at \\(w_1=2+2i\\).'),
+                expectedObservations: [text('Sprememba generatorja spremeni izračunane kontrolne točke, odvod in zato tudi prikazani odmik; pri \\(w_1=2+2i\\) je dolžina loka \\(\\tfrac{16}{3}\\).', 'Changing a generator changes the derived control points, derivative, and therefore the displayed offset; at \\(w_1=2+2i\\) the arc length is \\(\\tfrac{16}{3}\\).')],
+                scene: phCubicScene('ph-offset-after-edit', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Odmik pri \\(d=1\\) ostane viden med ročnim urejanjem hodografa.', 'The offset at \\(d=1\\) remains visible while the hodograph is edited manually.'),
             },
             {
                 id: 'ph-free-exploration', order: 6,
@@ -717,13 +744,14 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             {
                 id: 'bezeg-ph-implementation',
                 citation: 'Bezeg source: src/bezeg/impl/curve/ph-bezier-curve.ts, src/graphs/curves/ph/CubicPhBezierCurveGraph.tsx, and src/graphs/curves/object/JXGPHBezierCurve.ts.',
-                supports: ['default P₀,w₀,w₁', 'derived cubic control points', 'offset distance and visibility controls'],
+                supports: ['lesson-fixture P₀,w₀,w₁', 'derived cubic control points', 'offset distance and visibility controls'],
             },
         ],
         edgeCases: [
             text('Če hodograf izgine oziroma je \\(w(t)=0\\), regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes so that \\(w(t)=0\\), regularity and a normal offset direction are not guaranteed.'),
             text('Odmična konstrukcija uporablja racionalne krivulje; pri ničelnem imenovalcu lahko nastane nedoločen prikaz, ki ga runtime ne sme skriti.', 'The offset construction uses rational curves; a zero denominator can make the display undefined, which the runtime must not hide.'),
-            text('Vrednosti v worked example so zaokrožene in niso nadomestilo za preverjanje v produkcijskem grafu.', 'Worked-example values are rounded and are not a substitute for checking the production graph.'),
+            text('Odmik na notranji strani zavoja postane ostan, ko je \\(|d|\\) vsaj enak polmeru ukrivljenosti. Pri tej krivulji je najmanjši polmer \\(4\\), zato bi do tega prišlo šele pri \\(|d|\\ge4\\), zunaj območja drsnika \\([-3,3]\\).', 'An offset on the inner side of a bend becomes singular once \\(|d|\\) reaches the radius of curvature. For this curve the smallest radius is \\(4\\), so this would happen only at \\(|d|\\ge4\\), outside the slider range \\([-3,3]\\).'),
+            text('Vrednosti v worked example so točni ulomki; zaokrožene vrednosti, na primer \\(4{,}333\\), so le izpis na grafu.', 'Worked-example values are exact fractions; rounded values such as \\(4.333\\) are only the graph readout.'),
         ],
         unresolvedQuestions: [
             text('Lastnik oziroma predmetni strokovnjak naj potrdi, ali je kompleksna notacija primerna za ciljno starost učencev.', 'The owner or subject-matter reviewer should confirm whether complex notation fits the target students.'),

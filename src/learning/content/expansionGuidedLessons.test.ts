@@ -35,7 +35,7 @@ test('records the checked mathematics for the expansion cohort', () => {
     ]);
 
     const ph = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'ph-quintic')!;
-    expect(ph.workedExamples[0].resultLatex).toContain('7.890625');
+    expect(ph.workedExamples[0].resultLatex).toContain('\\tfrac{29}{8}');
     expect(ph.steps[2].scene?.actions).toContainEqual({name: 'show-offset-curve', value: true});
 
     const affine = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'affine')!;
