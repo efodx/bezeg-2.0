@@ -13,7 +13,8 @@ These are provisional starting choices based on [external guidance](agent-workfl
 | Narrow research and code exploration | Haiku 5.5 `medium` | GPT-6 Luna `high` |
 | Bounded implementation, fixes, and tests | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
 | Independent review | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
-| Browser smoke ([smoke-tester](../tools/skills/smoke-tester/SKILL.md)) | Sonnet 5.5 `high` | GPT-6 Luna `max` |
+| Narrow browser smoke ([smoke-tester](../tools/skills/smoke-tester/SKILL.md)): named routes, repair rechecks, catalog/asset checks | Haiku 5.5 `medium` | GPT-6 Luna `max` |
+| Broad or first-pass browser smoke of new UI | Sonnet 5.5 `medium` | GPT-6 Luna `max` |
 | Integration and final acceptance | Handler | Handler |
 
 Choose supported higher effort or a stronger model within the active family for substantial ambiguity, difficult mathematics, or complex interactions; record the reason and selected setting. Assess foreseeable difficulty before dispatch. After a failure, distinguish missing context, unclear acceptance, ownership conflicts, environment problems, and reasoning errors before escalating. Reserve XHigh/Max for demanding reasoning or a labeled comparison. If the intended setting is unavailable, report it and continue independent work; do not silently substitute across families. Requested settings are not proof of resolved settings.

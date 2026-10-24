@@ -34,10 +34,16 @@ The owner authorized all proposals on 2026-10-24.
 - **B (brief → v8):** when a slice touches stored Presets, imported files or routes, Context states that data and links valid at HEAD keep working, or names the accepted break.
 - **C (dispatch):** under Codex, run loopback previews and Playwright outside the sandbox from the first attempt; plan Playwright or a handler relay instead of in-app browser access in subagents.
 - **D (tooling):** `playwright.config.cjs` suffixes `test-results` and `playwright-report` with the port when `SMOKE_PORT` is not the default 4173; default and CI paths are unchanged.
-- **E (routing):** separate review and smoke rows; smoke is Luna `max` (Codex) or Sonnet 5.5 `high` (Claude), matching the smoke-tester skill.
+- **E (routing):** separate review and smoke rows, matching the smoke-tester skill. Codex smoke stays Luna `max`. Claude smoke splits by scope: Haiku 5.5 `medium` for narrow checks, Sonnet 5.5 `medium` for broad or first-pass smoke (see below).
 - **F (logging):** omit unexposed context fields; read dispatch/acceptance times from a clock command when they occur.
 
 Model, effort and task-size defaults are otherwise unchanged; three Claude records do not support a change.
+
+### Claude smoke model and effort
+
+The owner questioned the initially adopted Sonnet 5.5 `high`. Local transcripts show effort is a minor usage factor: in the two surviving full Codex smoke rollouts (Luna `max`), cached input was 95–96% of 1.4–3.5M tokens and reasoning 11–18k. Usage scales with browser steps and accumulated context, not effort.
+
+Pricing the seven recoverable Claude smoke runs (10-10 to 10-17) request by request from their recorded usage gives $9.22 at Sonnet 5.5 rates and about $1.53 at Haiku 5.5 rates (83% lower). This uses the skill-cached 2026-10-06 prices, assumes cache read 0.1× and cache write 1.25× input, applies Haiku's over-100K tier per request, and assumes equal step counts. Quality evidence for Haiku: four narrow catalog/viewport smokes completed in 2–10 minutes without recorded problems; the one broad Haiku smoke (controls UX redesign) exceeded its budget, reported a misread heading as a failure and missed two controls, needing more handler follow-up. Haiku pilots generally met explicit checks but missed implied visual issues. No same-task Sonnet comparison exists. Future check: handler follow-up and false-failure counts on the next Haiku narrow smokes and Sonnet broad smokes.
 
 ## Future observations
 
