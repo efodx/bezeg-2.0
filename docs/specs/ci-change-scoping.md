@@ -1,6 +1,6 @@
 # Scope CI for documentation-only changes
 
-Status: implemented and locally verified on 2026-10-15; hosted Actions evidence pending the implementation push.
+Status: implemented and hosted verification confirmed on 2026-10-24. [Documentation-only run](https://github.com/efodx/bezeg-2.0/actions/runs/40082167546) passed scope detection while skipping app checks, artifact upload and deployment; [full run](https://github.com/efodx/bezeg-2.0/actions/runs/40083016319) passed type, unit, production build, Chromium smoke and deployment. Original local boundary-case evidence follows.
 
 ## Scope and acceptance
 

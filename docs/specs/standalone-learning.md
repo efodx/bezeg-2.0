@@ -1,6 +1,6 @@
 # Standalone learning through study chapters
 
-Status: specified future feature, 2026-10-16. The owner accepted the reading/activity visual direction and shared-demonstration model, and requested this specification with picture examples published to master. This request authorizes documentation and reference assets, not application implementation. Final chapter copy and classroom readiness remain subject to content and interaction review.
+Status: Bézier pilot implemented and published on 2026-10-20 following subsequent implementation authorization. [Implementation and hosted acceptance evidence](../reviews/standalone-learning/implementation.md) records the delivered chapter, six activities, and remaining owner/content, physical-device, projector and screen-reader gates. The original 2026-10-16 request authorized specification publication only; it is no longer the implementation status. Review this pilot before expanding to another chapter.
 
 ## Confirmed owner direction
 

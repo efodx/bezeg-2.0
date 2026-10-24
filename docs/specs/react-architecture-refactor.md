@@ -1,6 +1,6 @@
 # React architecture refactor
 
-Status: proposed on 2026-10-12 from a source review of the React and graph layers; implementation approved by the owner on 2026-10-12. Tasks: [docs/tasks/react-architecture/](../tasks/react-architecture/README.md). It continues the direction of the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md): JSXGraph and all mathematical algorithms are retained, and a renderer decision remains separate.
+Status: all seven implementation tasks complete as recorded on 2026-10-13 in the [task index and commit evidence](../tasks/react-architecture/README.md). Prototype gating remains deferred. The findings below preserve the original 2026-10-12 review, not a current list of defects. This continues the [curve ownership refactor](curve-ownership-refactor.md) and [ADR 0006](../adr/0006-model-input-ownership-before-renderer-migration.md); a renderer decision remains separate.
 
 ## Problem
 

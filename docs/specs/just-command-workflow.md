@@ -1,6 +1,6 @@
 # Just verification workflow
 
-Status: implemented and locally verified on Windows, 2026-10-16. Hosted Linux/Windows checks are pending at the implementation commit boundary. Source: [session analysis and frozen forecast](../research/justfile-session-opportunities-2026-10-16.md).
+Status: implemented and locally verified on Windows, 2026-10-16; hosted Ubuntu and Windows coverage confirmed on 2026-10-24 in [Developer tools run 40083016329](https://github.com/efodx/bezeg-2.0/actions/runs/40083016329). Both jobs passed recipe discovery, tooling tests and focused unit argument forwarding. Source: [session analysis and frozen forecast](../research/justfile-session-opportunities-2026-10-16.md). Efficiency forecasts remain unmeasured by this workflow pass.
 
 ## Scope
 

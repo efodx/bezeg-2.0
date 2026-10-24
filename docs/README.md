@@ -2,6 +2,7 @@
 
 This documentation supports planning Bezeg's future and extracting a reusable process for SPAs hosted on GitHub Pages.
 
+- [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled completion, owner decisions, verification gaps, retirement candidates and recommended next steps.
 - [Graph visual style](specs/graph-visual-style.md): illustrated C references, graph-preservation constraints, and acceptance evidence required for the follow-up.
 - [Graph visual style implementation task](tasks/graph-visual-style/implement-graph-visual-style.md): handoff for a new agent to implement the graph styling on fresh master.
 - [Rendered graph style contracts](specs/rendered-graph-style-contracts.md): real JSXGraph marker/state and downloaded-figure regression checks.

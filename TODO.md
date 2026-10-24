@@ -12,14 +12,14 @@ These items continue the [curve ownership refactor](docs/specs/curve-ownership-r
 
 - [ ] **Stop calling `board.update()` from curve setters.** There are about 24 direct `board.update()` calls, many inside setters on `AbstractJXG*Curve` objects. The owned `GraphSession` should schedule refreshes. (Merges the old "setters should update in `componentDidUpdate`" and "`curve.board.update()` shouldn't be needed" items.)
 - [ ] **Initialize graphs from presets/scenes and remove `initialize()`.** `BaseGraph.initialize()` is still abstract and overridden by each graph. Presets exist, but defaults are still hand-built in code. This belongs to the planned scene/preset-codec migration.
-- [ ] **Move cache state out of the geometry core.** `src/bezeg/cache/GeometryCache.ts` is a module-global revision counter inside `src/bezeg`. The guardrails require geometry independent of graph-global cache state, so freshness should be owned per curve/session.
 - [ ] **Capability interfaces for curve operations and commands.** Split the Bézier API into capabilities (subdivide, extrapolate, elevate, ...) and show a graph command only when the selected curve implements it. Guided lessons already use typed graph capabilities, but graph commands do not. (Merges two old items.)
 - [ ] **Remove duplicated methods across the `JXG*Curve` classes** (needs an audit first).
 - [ ] **Make `JSX*`/`JXG*` naming consistent.** Note that `JSXBezierCurve` and similar names are stored preset identifiers. Renaming them breaks saved presets and imports unless a migration is added, so limit renames to code-only names or record the breaking change.
-- [ ] **Clean up `JGBox`** (`src/JGBox.tsx`): remove the dead thesis-figure sizing code and the hard-coded `jgbox` element id. Board lifetime now belongs to `GraphSession`, so the rest of the old "self-initiating JGBox" idea is covered.
+- [ ] **Assess the fixed `JGBox` id if multiple primary boards become necessary.** `src/JGBox.tsx` is now a small forwarded-ref container; dead thesis sizing is already removed. Its comment records that JSXGraph-generated ids and styles still depend on `jgbox`. Audit those consumers before changing it; this is not a current lifecycle defect.
 
 ## Dropped or superseded
 
-- *Own script/build setup*: tracked as the Vite evaluation in the [roadmap](docs/roadmap.md).
+- *Own script/build setup*: completed by the [Vite migration](docs/specs/vite-migration.md).
+- *Move cache state out of the geometry core*: completed by [per-curve geometry versions](docs/tasks/react-architecture/06-per-curve-cache.md); `src/bezeg/cache/GeometryCache.ts` and graph-global cache imports are gone.
 - *Use JavaScript `get`/`set` accessors instead of `getX()`/`setX()`*: low value with broad churn. The original note already doubted it was worth doing. Reconsider only as part of an API redesign.
 - *De Casteljau without the full scheme, drawing the two interpolated lower-degree curves*: implemented as `DecasteljauGraph2` (`/bezier/decasteljau2`). Its helper curves follow the live control points, so the old "add points in De Casteljau 2" request is covered too.

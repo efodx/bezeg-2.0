@@ -1,6 +1,6 @@
 # Implement Demonstrations visual refinement
 
-**Status:** implementation complete; production build and browser smoke verification remain incomplete because the local Sass dependency and browser networking are unavailable.
+**Status:** historical implementation; retired from the active queue because later [page composition](../../specs/homepage-carousel-and-demonstrations-catalogue.md), [library redesign](../../specs/demonstrations-library-redesign.md), and [preview](../../specs/representative-demonstration-previews.md) work supersedes this surface. The blocked checks below describe the original attempt, not the current environment. This retirement does not claim those original checks passed.
 **Source spec:** [Demonstrations page visual refinement and repeatable previews](../../specs/demonstrations-visual-refinement.md)
 
 Implement the approved Demonstrations page direction and make generated default-scene previews the only catalog preview source. Preserve the page hierarchy, carousel behavior, family order, route defaults, lesson availability, and navigation. Lesson-linked animation remains out of scope.

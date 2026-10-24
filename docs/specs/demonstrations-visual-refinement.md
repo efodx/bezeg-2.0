@@ -1,6 +1,6 @@
 # Demonstrations page visual refinement and repeatable previews
 
-**Status:** implementation complete; production build and browser smoke verification remain incomplete because of local environment limitations. The owner approved the visual direction shown in the [static mockup](../prototypes/demonstrations-visual-refinement.png) and confirmed the choices below on 2026-10-13. Verification details are recorded in the [implementation task](../tasks/demonstrations-visual-refinement/implement.md).
+**Status:** historical implementation, superseded by subsequent [page composition](homepage-carousel-and-demonstrations-catalogue.md), [library redesign](demonstrations-library-redesign.md), and [representative preview](representative-demonstration-previews.md) work. The original environment-blocked checks remain historical gaps in the [task record](../tasks/demonstrations-visual-refinement/implement.md); they are not evidence that the current app cannot build or needs this design implemented again. Later specifications own current behavior and acceptance.
 
 ## Problem Statement
 

@@ -1,6 +1,6 @@
 # Bézier chapter activity script
 
-Status: authored implementation input, 2026-10-20. This specifies six activities for the [standalone learning pilot](standalone-learning.md); it does not describe a shipped chapter. The bilingual reading copy is in [Slovenian](../content/bezier-curves.sl.md) and [English](../content/bezier-curves.en.md). Owner terminology approval and real-board acceptance remain release gates.
+Status: activity script implemented in the published [standalone learning pilot](standalone-learning.md) on 2026-10-20. [Implementation evidence](../reviews/standalone-learning/implementation.md) records real-board, browser and hosted checks; owner terminology/content approval and physical-device/classroom review remain open. Bilingual reading source copy is in [Slovenian](../content/bezier-curves.sl.md) and [English](../content/bezier-curves.en.md).
 
 ## Identity and entry
 

@@ -1,6 +1,6 @@
 # Slovenian and English localization
 
-Status: the owner confirmed the complete design on 2026-10-08. Implementation is present in the working tree; automated and source-review evidence is recorded in [the implementation review](../reviews/localization.md). Browser/device verification and owner translation approval remain outstanding.
+Status: implemented and committed. The [original implementation review](../reviews/localization.md) records the initial evidence and gaps; later [chapter verification](../reviews/standalone-learning/implementation.md) and [lesson experience verification](../reviews/lesson-experience-improvements/implementation.md) add bilingual browser coverage. These do not close every original export/dialog/device case or owner terminology approval. See the [2026-10-24 planning cleanup](../reviews/planning-cleanup-2026-10-24.md) for remaining decisions.
 
 ## Purpose
 

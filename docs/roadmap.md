@@ -2,6 +2,8 @@
 
 This roadmap defines order and completion evidence, without invented dates or performance numbers. Each implementation task needs a bounded spec. Breaking changes are allowed and must describe their impact.
 
+Current queue and status corrections: [planning cleanup, 2026-10-24](reviews/planning-cleanup-2026-10-24.md). Prioritize the observed lesson keyboard-focus defect, then bounded lesson interaction improvements and the existing example-improvement batches. The phases below describe direction rather than a list of unstarted tasks.
+
 ## 1. Establish the baseline
 
 Review every active demonstration using the [capability map](capabilities.md), and record which controls, exports, and presets actually work. Curate representative saved examples. Inspect the remote GitHub Pages configuration and document the real release process. Replace the stale starter-test assumption with relevant mathematical and interaction checks in separately scoped implementation work.
@@ -18,7 +20,7 @@ Evaluate React + TypeScript + Vite as the first build-tool candidate. Create Rea
 
 Compare keeping the current build temporarily against a Vite migration and a static-compatible framework approach. Prefer the smallest change that gives an understandable, maintained build and reusable hosting process. Record supported runtime versions, JSXGraph integration, MathJax loading, Sass imports, type checking, test tooling, and production output. A Vite build alone does not replace type checks or application tests.
 
-Separately evaluate publishing through GitHub Actions instead of a local `gh-pages` command, using the [SPA playbook](github-pages-spa-playbook.md). Keep JSXGraph and Bootstrap initially so build-tool results are not confused with renderer or design changes. These are recommendations for evaluation, not accepted migration decisions.
+GitHub Actions publication is also implemented, activated and verified; see [continuous deployment](specs/continuous-deployment.md) and the [SPA playbook](github-pages-spa-playbook.md). The earlier technology comparison above is historical. JSXGraph and Bootstrap remain; renderer and UI-library migrations are separate decisions.
 
 **Done when:** a candidate produces a working static build, representative routes/exports/math behave as expected, and a documented cost-benefit decision selects the next implementation step. If the candidate is unsuitable, retain the baseline and record why.
 
@@ -40,7 +42,7 @@ The [runtime task](tasks/guided-lessons/implement-guided-lesson-runtime.md) and 
 
 ## 3B. Roll out reviewed lessons by cohort
 
-The [lesson experience improvement specification](specs/lesson-experience-improvements.md), prepared on 2026-10-21 from the Taylor UX review, is ready for agent implementation. It prioritizes persistent navigation and clearer reading surfaces, safe early exit, then a bounded Taylor content pilot. It preserves graph access and scene ownership; specification publication does not start application implementation or close the evidence gates.
+The [lesson experience improvement specification](specs/lesson-experience-improvements.md) was implemented on 2026-10-21, including reading/navigation changes, safe early exit and a Taylor content pilot. [Implementation evidence](reviews/lesson-experience-improvements/implementation.md) retains formative and physical-device gates. The later [2026-10-24 UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md) identifies new follow-ups, led by keyboard focus entering obscured graph objects; do not repeat the completed implementation.
 
 Do not expose Guided lessons uniformly across the catalog. Build the [capability matrix](specs/guided-lessons-rollout.md), review and allowlist the three pilots, then proceed through Foundations/polynomial Bézier, rational Bézier, PH/parameterization, and spline cohorts. The current implementation also contains capability-aligned drafts for rational De Casteljau, degree elevation, base rational Bézier, quintic PH, affine translation/scale, (Cohort B) Bernstein polynomials and rational degree elevation, (Cohort C) weighted and PH arc-length parameterization, (Cohort D) subdivision and extrapolation, and (Cohort E, from the owner's thesis) splines, Farin points, the n-piece circle, and the alternative De Casteljau construction, so every active route now has a draft lesson; these remain subject to the same review gates and do not authorize generic lessons for the other routes. A route may remain lesson-free when its graph cannot support a coherent typed learning flow. The [rollout spec](specs/guided-lessons-rollout.md) records the matrix, gates, dependencies, and no-fit decision.
 
@@ -64,7 +66,7 @@ Work toward geometry independent of graph-global cache state. Consider alternate
 
 ## 5. Add English and curate future capabilities
 
-Localization implementation is now present in the working tree under the [confirmed spec](specs/localization.md). Automated checks and source review are recorded in [the implementation review](reviews/localization.md); browser/device evidence and owner translation approval remain outstanding before this phase's language work is complete.
+Localization is implemented and committed under the [confirmed spec](specs/localization.md). The [original review](reviews/localization.md) and later chapter/lesson verification record automated, source and bilingual-browser evidence. Owner terminology approval, physical-device review and any original cases not covered by later evidence remain open; these are acceptance follow-ups rather than an unstarted English implementation.
 
 Centralize language strings and mathematical terminology, then provide English translations while keeping Slovenian as default. Review help, accessible names, empty/error states, and exports as applicable.
 
