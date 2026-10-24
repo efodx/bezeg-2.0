@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T08:46:27Z",
+  "title": "Bezeg web shell and homepage",
+  "extensions": {
+    "shadows": [
+      {"name": "shell-card", "value": "0 18px 42px rgb(35 54 42 / 12%), 0 3px 10px rgb(35 54 42 / 5%)", "purpose": "Existing featured preview card."},
+      {"name": "shell-action", "value": "0 3px 8px rgb(31 62 45 / 12%)", "purpose": "Existing graph action link."}
+    ],
+    "breakpoints": [
+      {"name": "intro-stack", "value": "820px"},
+      {"name": "preview-stack", "value": "700px"}
+    ]
+  },
+  "components": [],
+  "narrative": {
+    "overview": "Records the incumbent cream, green, and elderflower header/homepage. No replacement visual world or carousel behavior is authorized.",
+    "dos": ["Preserve readable state pairings and visible keyboard focus.", "Retain the approved mathematical previews and elderflower identity."],
+    "donts": ["Do not apply the shell palette to mathematical geometry.", "Do not introduce a pause control in this remediation."]
+  }
+}

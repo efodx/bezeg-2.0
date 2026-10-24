@@ -1,0 +1,45 @@
+/* Incumbent header/home palette. Keep state relationships explicit; see DESIGN.md. */
+:root {
+    --bezeg-shell-canvas: #f7f5e9;
+    --bezeg-shell-panel: #fffdf5;
+    --bezeg-shell-preview-panel: #fffdf6;
+    --bezeg-shell-ink: #19372f;
+    --bezeg-shell-ink-secondary: #526152;
+    --bezeg-shell-label: #647557;
+    --bezeg-shell-label-selected: #526152;
+    --bezeg-shell-eyebrow: #5b684c;
+    --bezeg-shell-action: #244c37;
+    --bezeg-shell-action-hover: #355c3d;
+    --bezeg-shell-on-action: #fff;
+    --bezeg-shell-choice-ink: #29452e;
+    --bezeg-shell-rule: #d6dccb;
+    --bezeg-shell-rule-active: #b8c5ac;
+    --bezeg-shell-nav-active: #e8eddd;
+    --bezeg-shell-preview-rule: #c4d0bc;
+    --bezeg-shell-media-rule: #dfe5d7;
+    --bezeg-shell-media: #e8eee2;
+    --bezeg-shell-control-rule: #cbd4c1;
+    --bezeg-shell-control-rule-hover: #9aaa87;
+    --bezeg-shell-control-hover: #eef3e5;
+    --bezeg-shell-choice-rule-hover: #aab99b;
+    --bezeg-shell-choice-hover: #f8f9f4;
+    --bezeg-shell-choice-selected: #edf2e7;
+    --bezeg-shell-choice-rule-selected: #6e895f;
+    --bezeg-shell-number-rule: #d5dfca;
+    --bezeg-shell-number-ink: #59734b;
+    --bezeg-shell-number-selected: #5e774d;
+    --bezeg-shell-scroll-thumb: #a7b69b;
+    --bezeg-shell-scroll-track: #e7ebdf;
+    --bezeg-shell-ochre: #b88a43;
+    --bezeg-shell-lesson-ink: #885512;
+    --bezeg-shell-lesson-hover: #f5edda;
+    --bezeg-shell-focus: #456db0;
+    --bezeg-shell-header-focus: #577cc3;
+    --bezeg-shell-grid: rgb(88 111 83 / 4%);
+    --bezeg-shell-botanical-stem: #7c8d6b;
+    --bezeg-shell-botanical-leaf: #d9e1ca;
+    --bezeg-shell-botanical-leaf-rule: #829174;
+    --bezeg-shell-botanical-flower: #fff8df;
+    --bezeg-shell-shadow-card: 0 18px 42px rgb(35 54 42 / 12%), 0 3px 10px rgb(35 54 42 / 5%);
+    --bezeg-shell-shadow-action: 0 3px 8px rgb(31 62 45 / 12%);
+}

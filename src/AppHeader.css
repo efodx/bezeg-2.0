@@ -1,3 +1,5 @@
+@import "./shellTokens.css";
+
 :root {
     --bezeg-canvas: #f4f0df;
     --bezeg-canvas-deep: #e9e3cb;
@@ -17,9 +19,9 @@
     gap: 16px;
     min-height: 72px;
     padding: 12px clamp(16px, 4vw, 54px);
-    border-bottom: 1px solid #d6dccb;
-    background: #f7f5e9;
-    color: #19372f;
+    border-bottom: 1px solid var(--bezeg-shell-rule);
+    background: var(--bezeg-shell-canvas);
+    color: var(--bezeg-shell-ink);
     text-align: left;
     position: relative;
     z-index: 10;
@@ -37,7 +39,7 @@
     letter-spacing: -.04em;
 }
 
-.app-brand:hover { color: #355c3d; }
+.app-brand:hover { color: var(--bezeg-shell-action-hover); }
 .app-brand img { width: 34px; height: 34px; object-fit: contain; }
 .app-header-actions { display: flex; min-width: 0; max-width: 100%; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 
@@ -49,10 +51,10 @@
     min-height: 44px;
     padding: 10px 16px;
     overflow-wrap: anywhere;
-    border: 1px solid #d6dccb;
+    border: 1px solid var(--bezeg-shell-rule);
     border-radius: 8px;
-    background: #fffdf5;
-    color: #244c37;
+    background: var(--bezeg-shell-panel);
+    color: var(--bezeg-shell-action);
     font-size: 13px;
     font-weight: 650;
     text-decoration: none;
@@ -61,13 +63,13 @@
 .app-header .app-topic-toggle:hover,
 .app-header .app-topic-toggle:active,
 .app-header .app-topic-toggle.active {
-    border-color: #b8c5ac;
-    background: #e8eddd;
-    color: #19372f;
+    border-color: var(--bezeg-shell-rule-active);
+    background: var(--bezeg-shell-nav-active);
+    color: var(--bezeg-shell-ink);
 }
 
 .app-header .app-topic-toggle.active {
-    box-shadow: inset 0 -2px #b88a43;
+    box-shadow: inset 0 -2px var(--bezeg-shell-ochre);
 }
 
 .app-header .app-topic-menu {
@@ -88,11 +90,11 @@
 .app-topic-menu .dropdown-item.active { border-left: 3px solid var(--bezeg-moss); background: #e2ebcb; color: var(--bezeg-ink); font-weight: 700; }
 
 .app-header .language-selector { margin: 0; }
-.app-header .language-selector select { min-width: 64px; min-height: 44px; padding: 10px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #526152; font-size: 13px; font-weight: 700; }
-.app-header .language-selector select:hover { border-color: #d6dccb; background: #fffdf5; color: #19372f; }
+.app-header .language-selector select { min-width: 64px; min-height: 44px; padding: 10px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--bezeg-shell-ink-secondary); font-size: 13px; font-weight: 700; }
+.app-header .language-selector select:hover { border-color: var(--bezeg-shell-rule); background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink); }
 .app-header .language-selector small { max-width: 220px; font-size: 12px; }
-.app-header :focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; box-shadow: none; }
-.app-header .app-topic-toggle:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; box-shadow: none; }
+.app-header :focus-visible { outline: 3px solid var(--bezeg-shell-header-focus); outline-offset: 3px; box-shadow: none; }
+.app-header .app-topic-toggle:focus-visible { outline: 3px solid var(--bezeg-shell-header-focus); outline-offset: 3px; box-shadow: none; }
 
 @media(max-width:700px) {
     .app-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
