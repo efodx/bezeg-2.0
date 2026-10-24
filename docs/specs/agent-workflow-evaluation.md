@@ -98,6 +98,17 @@ Acceptance for this follow-up:
 
 Assessment: [handoff v7 assessment](../agent-workflow/handoff-v7-assessment-2026-10-24.md).
 
+## Context budget trial — 2026-10-24
+
+The owner asked whether usage favors fresh contexts and authorized a worker context budget. [Per-turn measurements](../agent-workflow/claude-turn-usage-2026-10-24.md) put workers at 67% of input, with 73 of 157 peaking above 150k; accumulated history, not the startup prefix, is the reducible part. This revises the 2026-10-16 "retain current task sizes" acceptance for workers only; model and effort defaults are unchanged.
+
+Acceptance for this follow-up:
+
+- Dispatch sizes worker slices to finish in about 40 turns, splitting larger specs into sequential workers linked by handoff notes.
+- Brief v9 adds a budget: past about 150k input, a worker stops at a consistent point, writes a handoff note to a named path, and returns. The handler continues with a fresh worker rather than `SendMessage` when the next step does not need the old history.
+- Record per-turn usage with `tools/agent-usage/claude_turn_usage.py` before and after the trial. Keep the budget only if worker usage falls without more repairs, escaped defects, or longer completion; otherwise revert it.
+- Guidance change only; verify links and the bounded diff.
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)
