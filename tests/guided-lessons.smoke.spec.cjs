@@ -755,13 +755,12 @@ const splineParameterization = {
     },
     stepProbe: async (page, ctx, step, label) => {
         // Range 0 is alpha (0..1), range 1 the number of sample points (0..50).
-        await expectRange(page, 0, [0.5, 0.5, 0, 1, 1][step - 1], `alpha at ${label}`, 2);
-        await expectRange(page, 1, [25, 25, 25, 25, 10][step - 1], `samples at ${label}`, 0);
-        // Step 1 keeps the route's hidden derived points (9 + 25 samples); steps 2-4 show 15 derived points more; step 5 has 10 samples.
-        const points = [34, 49, 49, 49, 34][step - 1];
-        await expect.poll(async () => (await boardStats(page)).points, {message: `points at ${label}`}).toBe(points);
+        await expectRange(page, 0, [0.5, 0.5, 0, 1, 0.5][step - 1], `alpha at ${label}`, 2);
+        await expectRange(page, 1, 10, `samples at ${label}`, 0);
+        // Every step is the lesson fixture: 8 free + 12 derived points (joints visible) + 10 samples.
+        await expect.poll(async () => (await boardStats(page)).points, {message: `points at ${label}`}).toBe(30);
         expect((await boardStats(page)).curves, `one spline curve at ${label}`).toBe(1);
-        expect((await splineSwitches(page)).hideFixed, `derived points hidden only at step 1 (${label})`).toBe(step === 1);
+        expect((await splineSwitches(page)).hideFixed, `derived points visible at ${label}`).toBe(false);
     },
     prepareUserState: async page => {
         await setRange(page, 0, 0.8);
@@ -773,7 +772,7 @@ const splineParameterization = {
     exitStep: 3,
     duringLesson: async page => {
         await expectRange(page, 0, 0, 'lesson scene replaces the user alpha', 2);
-        await expectRange(page, 1, 25, 'lesson scene replaces the user samples', 0);
+        await expectRange(page, 1, 10, 'lesson scene replaces the user samples', 0);
     },
     assertUserState: async (page, ctx, before) => {
         await expectRange(page, 0, 0.8, 'alpha restored after exit', 2);

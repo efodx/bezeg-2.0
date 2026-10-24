@@ -1,4 +1,5 @@
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import type {LessonCurveFixture, LessonViewBox} from '../model';
 
 /**
  * Cohort E, spline routes: spline-cn, spline-c1, spline-c2, spline-g1, spline-g1-symmetric, spline-parameterization.
@@ -997,12 +998,28 @@ const splineG1Symmetric: GuidedLesson = {
 // spline-parameterization
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Open symmetric C^2 spline with eight free points and five pieces. The thesis spans are |p_0 p_2|, |p_2 p_3|, |p_3 p_4|,
+ * |p_4 p_5|, |p_5 p_7| = 3.202, 1.414, 2.625, 8.006, 6.325 (sum 21.571), distinctly unequal. Every free and derived point
+ * fits `splineParameterizationView`; `splineParameterizationExamples.test.ts` recomputes all numbers in the prose.
+ */
+const splineParameterizationFixture: LessonCurveFixture = {points: [[-7, -2], [-7, 1.5], [-5, 0.5], [-4, 1.5], [-3.2, -1], [4, 2.5], [6, -1.5], [2, -3.5]]};
+const splineParameterizationView: LessonViewBox = [-9, 5, 9, -5];
+const splineParameterizationScene = (id: string, alpha: number, sl: string, en: string): NonNullable<GuidedLesson['steps'][number]['scene']> => ({
+    id,
+    basedOn: 'lesson-fixture',
+    curve: splineParameterizationFixture,
+    view: splineParameterizationView,
+    actions: [{name: 'set-parameterization-alpha', value: alpha}, {name: 'set-parameterization-samples', value: 10}, {name: 'hide-spline-fixed-points', value: false}],
+    expectedState: text(sl, en),
+});
+
 const splineParameterization: GuidedLesson = {
     demonstrationId: 'spline-parameterization',
     title: text('α-parametrizacije zlepka', 'α-parameterizations of a spline'),
     summary: text(
-        'Razmike stičnih parametrov zlepka izberemo kot \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\). Vrednosti \\(\\alpha=0\\), \\(\\tfrac12\\) in \\(1\\) dajo enakomerno, centripetalno in tetivno parametrizacijo; \\(\\alpha\\) spremeni obliko zlepka in razporeditev točk, izračunanih pri enakih korakih parametra.',
-        'The spacing of the joint parameters of a spline is chosen as \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\). The values \\(\\alpha=0\\), \\(\\tfrac12\\) and \\(1\\) give the uniform, centripetal and chordal parameterization; \\(\\alpha\\) changes the shape of the spline and the distribution of points computed at equal parameter steps.',
+        'Razmike stičnih parametrov zlepka izberemo kot \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\). Vrednosti \\(\\alpha=0\\), \\(\\tfrac12\\) in \\(1\\) dajo enakomerno, centripetalno in tetivno parametrizacijo; \\(\\alpha\\) spremeni obliko zlepka in razporeditev točk, izračunanih pri enakih korakih parametra. To ni ponovno parametriziranje ene same Bézierjeve krivulje: tu se sama krivulja spremeni, proste točke pa ostanejo.',
+        'The spacing of the joint parameters of a spline is chosen as \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\). The values \\(\\alpha=0\\), \\(\\tfrac12\\) and \\(1\\) give the uniform, centripetal and chordal parameterization; \\(\\alpha\\) changes the shape of the spline and the distribution of points computed at equal parameter steps. This is not a reparameterization of one fixed Bézier curve: here the curve itself changes while the free points stay.',
     ),
     prerequisites: [
         text('Potrebno je poznavanje simetričnega \\(C^2\\) zlepka.', 'Assumes familiarity with the symmetric \\(C^2\\) spline.'),
@@ -1043,21 +1060,21 @@ const splineParameterization: GuidedLesson = {
         {
             id: 'sp-spacing-example',
             title: text('Primer: najkrajša in najdaljša tetiva', 'Example: the shortest and the longest chord'),
-            calculationLatex: '\\lVert p_5-p_6\\rVert=\\sqrt{\\tfrac52}\\approx1.581,\\qquad \\lVert p_6-p_8\\rVert=\\sqrt{\\tfrac{261}{4}}\\approx8.078,\\qquad \\sum_i\\lVert\\Delta p_i\\rVert\\approx19.380',
-            resultLatex: '\\alpha=0:\\ \\tfrac16,\\dots,\\tfrac16;\\qquad \\alpha=1:\\ \\tfrac{1.581}{19.380}\\approx0.082,\\ \\ \\tfrac{8.078}{19.380}\\approx0.417',
+            calculationLatex: '\\lVert p_2-p_3\\rVert=\\sqrt2\\approx1.414,\\qquad \\lVert p_4-p_5\\rVert=\\sqrt{\\tfrac{6409}{100}}\\approx8.006,\\qquad \\sum_i\\lVert\\Delta p_i\\rVert\\approx21.571',
+            resultLatex: '\\alpha=0:\\ \\tfrac15,\\dots,\\tfrac15;\\qquad \\alpha=1:\\ \\tfrac{1.414}{21.571}\\approx0.066,\\ \\ \\tfrac{8.006}{21.571}\\approx0.371',
             check: text(
-                'Pri \\(\\alpha=0\\) vsak od \\(6\\) odsekov dobi \\(\\tfrac16\\) parametra; pri \\(\\alpha=1\\) dobi najkrajša tetiva \\(0{,}082\\), najdaljša pa \\(0{,}417\\) parametra.',
-                'At \\(\\alpha=0\\) each of the \\(6\\) pieces gets \\(\\tfrac16\\) of the parameter; at \\(\\alpha=1\\) the shortest chord gets \\(0.082\\) and the longest \\(0.417\\) of it.',
+                'Pri \\(\\alpha=0\\) vsak od \\(5\\) odsekov dobi \\(\\tfrac15\\) parametra; pri \\(\\alpha=1\\) dobi najkrajša tetiva \\(0{,}066\\), najdaljša pa \\(0{,}371\\) parametra.',
+                'At \\(\\alpha=0\\) each of the \\(5\\) pieces gets \\(\\tfrac15\\) of the parameter; at \\(\\alpha=1\\) the shortest chord gets \\(0.066\\) and the longest \\(0.371\\) of it.',
             ),
         },
         {
             id: 'sp-junction-example',
-            title: text('Primer: prva stična točka pri različnih \\(\\alpha\\)', 'Example: the first joint for different \\(\\alpha\\)'),
-            calculationLatex: 'J_1(0)\\approx(-1.825,\\,-0.533),\\quad J_1(\\tfrac12)\\approx(-2.273,\\,-0.691),\\quad J_1(1)\\approx(-2.703,\\,-0.810)',
-            resultLatex: '\\lVert J_1(1)-J_1(0)\\rVert\\approx0.92',
+            title: text('Primer: tretja stična točka pri različnih \\(\\alpha\\)', 'Example: the third joint for different \\(\\alpha\\)'),
+            calculationLatex: 'J_3(0)\\approx(-2.133,\\,0),\\quad J_3(\\tfrac12)\\approx(-2.845,\\,0.094),\\quad J_3(1)\\approx(-3.325,\\,0.385)',
+            resultLatex: '\\lVert J_3(1)-J_3(0)\\rVert\\approx1.25',
             check: text(
-                'Točka \\(J_1\\) se pri \\(\\alpha\\) od \\(0\\) do \\(1\\) premakne za približno \\(0{,}92\\) enote, čeprav se nobena prosta točka ni premaknila.',
-                'The point \\(J_1\\) moves by about \\(0.92\\) units as \\(\\alpha\\) goes from \\(0\\) to \\(1\\), although no free point has moved.',
+                'Točka \\(J_3\\) se pri \\(\\alpha\\) od \\(0\\) do \\(1\\) premakne za približno \\(1{,}25\\) enote, čeprav se nobena prosta točka ni premaknila.',
+                'The point \\(J_3\\) moves by about \\(1.25\\) units as \\(\\alpha\\) goes from \\(0\\) to \\(1\\), although no free point has moved.',
             ),
         },
     ],
@@ -1067,103 +1084,83 @@ const splineParameterization: GuidedLesson = {
             title: text('Zlepek, točke in \\(\\alpha\\)', 'The spline, the points and \\(\\alpha\\)'),
             purpose: text('Spoznati zlepek, vzorčne točke in drsnik \\(\\alpha\\).', 'Meeting the spline, the sample points and the \\(\\alpha\\) slider.'),
             explanation: text(
-                'Privzeti simetrični \\(C^2\\) zlepek ima \\(9\\) prostih točk in \\(6\\) odsekov. Na njem je \\(25\\) vzorčnih točk pri enakih korakih \\(t_k=\\tfrac{k}{26}\\) in \\(\\alpha=\\tfrac12\\) (centripetalna parametrizacija). Izpeljane stične točke so privzeto skrite.',
-                'The default symmetric \\(C^2\\) spline has \\(9\\) free points and \\(6\\) pieces. It carries \\(25\\) sample points at equal steps \\(t_k=\\tfrac{k}{26}\\) and \\(\\alpha=\\tfrac12\\) (the centripetal parameterization). The derived joints are hidden by default.',
+                'Odprt simetrični \\(C^2\\) zlepek ima \\(8\\) prostih točk \\(p_0,\\dots,p_7\\) in \\(5\\) odsekov; stranice so očitno različno dolge. Na njem je \\(10\\) vzorčnih točk pri enakih korakih \\(t_k=\\tfrac{k}{11}\\) in \\(\\alpha=\\tfrac12\\) (centripetalna parametrizacija). Vzorčnih točk na krajiščih \\(t=0\\) in \\(t=1\\) ni. Izpeljane točke, med njimi \\(4\\) stične, so vidne.',
+                'The open symmetric \\(C^2\\) spline has \\(8\\) free points \\(p_0,\\dots,p_7\\) and \\(5\\) pieces; the edges are clearly of different lengths. It carries \\(10\\) sample points at equal steps \\(t_k=\\tfrac{k}{11}\\) and \\(\\alpha=\\tfrac12\\) (the centripetal parameterization). There are no samples at the ends \\(t=0\\) and \\(t=1\\). The derived points, \\(4\\) of them joints, are visible.',
             ),
             formulaIds: ['sp-samples'],
             frames: [frame('sp-default-explanation', 'explanation'), frame('sp-default-observation', 'observation')],
             learnerInteraction: 'observe',
             observationPrompt: text('Preštej vzorčne točke in primerjaj njihove razmike: so povsod enaki?', 'Count the sample points and compare their gaps: are they equal everywhere?'),
-            expectedObservations: [text('Vzorčnih točk je \\(25\\); najdaljši razmik je približno \\(3{,}5\\)-krat daljši od najkrajšega.', 'There are \\(25\\) sample points; the longest gap is about \\(3.5\\) times the shortest.')],
-            scene: {
-                id: 'sp-default-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'set-parameterization-alpha', value: 0.5}, {name: 'set-parameterization-samples', value: 25}],
-                expectedState: text('\\(\\alpha=\\tfrac12\\) in \\(25\\) vzorčnih točk, stične točke skrite.', '\\(\\alpha=\\tfrac12\\) and \\(25\\) sample points, joints hidden.'),
-            },
+            expectedObservations: [text('Vzorčnih točk je \\(10\\); najdaljši razmik je približno \\(3{,}5\\)-krat daljši od najkrajšega.', 'There are \\(10\\) sample points; the longest gap is about \\(3.5\\) times the shortest.')],
+            scene: splineParameterizationScene('sp-default-scene', 0.5, '\\(\\alpha=\\tfrac12\\), \\(10\\) vzorčnih točk, izpeljane točke vidne.', '\\(\\alpha=\\tfrac12\\), \\(10\\) sample points, derived points visible.'),
         },
         {
             id: 'sp-rule', order: 2,
             title: text('Pravilo \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\)', 'The rule \\(\\Delta u_i=\\lVert\\Delta p_i\\rVert^{\\alpha}\\)'),
             purpose: text('Izračunati razmike stičnih parametrov.', 'Computing the spacings of the joint parameters.'),
             explanation: text(
-                'Razmik \\(\\Delta u_i\\) je dolžina razlike zaporednih kontrolnih točk na potenco \\(\\alpha\\) (razdelek 4.2.3). Najkrajša tetiva je \\(\\lVert p_5-p_6\\rVert\\approx1{,}581\\), najdaljša \\(\\lVert p_6-p_8\\rVert\\approx8{,}078\\). Pri \\(\\alpha=0\\) vsak odsek dobi \\(\\tfrac16\\) parametra, pri \\(\\alpha=1\\) pa \\(0{,}082\\) oziroma \\(0{,}417\\).',
-                'The spacing \\(\\Delta u_i\\) is the length of the difference of consecutive control points raised to the power \\(\\alpha\\) (section 4.2.3). The shortest chord is \\(\\lVert p_5-p_6\\rVert\\approx1.581\\) and the longest \\(\\lVert p_6-p_8\\rVert\\approx8.078\\). At \\(\\alpha=0\\) every piece gets \\(\\tfrac16\\) of the parameter, at \\(\\alpha=1\\) it gets \\(0.082\\) and \\(0.417\\).',
+                'Razmik \\(\\Delta u_i\\) je dolžina razlike zaporednih kontrolnih točk na potenco \\(\\alpha\\) (razdelek 4.2.3). Najkrajša tetiva je \\(\\lVert p_2-p_3\\rVert\\approx1{,}414\\), najdaljša \\(\\lVert p_4-p_5\\rVert\\approx8{,}006\\). Pri \\(\\alpha=0\\) vsak odsek dobi \\(\\tfrac15\\) parametra, pri \\(\\alpha=1\\) pa \\(0{,}066\\) oziroma \\(0{,}371\\).',
+                'The spacing \\(\\Delta u_i\\) is the length of the difference of consecutive control points raised to the power \\(\\alpha\\) (section 4.2.3). The shortest chord is \\(\\lVert p_2-p_3\\rVert\\approx1.414\\) and the longest \\(\\lVert p_4-p_5\\rVert\\approx8.006\\). At \\(\\alpha=0\\) every piece gets \\(\\tfrac15\\) of the parameter, at \\(\\alpha=1\\) it gets \\(0.066\\) and \\(0.371\\).',
             ),
             formulaIds: ['sp-spans'],
             frames: [frame('sp-rule-explanation', 'explanation'), frame('sp-rule-calculation', 'calculation'), frame('sp-rule-observation', 'observation')],
             workedExampleId: 'sp-spacing-example',
             learnerInteraction: 'observe',
-            observationPrompt: text('S stikalom Skrij fiksne točke pokaži stične točke in poišči najdaljši odsek.', 'Show the joints with the Hide fixed points switch and find the longest piece.'),
-            expectedObservations: [text('Zadnji odsek je najdaljši: ima tetivo \\(\\lVert p_6-p_8\\rVert\\approx8{,}078\\) in zlepek ima pet stičnih točk.', 'The last piece is the longest: its chord is \\(\\lVert p_6-p_8\\rVert\\approx8.078\\) and the spline has five joints.')],
-            scene: {
-                id: 'sp-rule-joints', basedOn: 'demonstration-default',
-                actions: [{name: 'hide-spline-fixed-points', value: false}],
-                expectedState: text('Privzeti zlepek z vidnimi izpeljanimi točkami.', 'The default spline with the derived points visible.'),
-            },
+            observationPrompt: text('Poišči stranici \\(p_2p_3\\) in \\(p_4p_5\\) in ju primerjaj po dolžini.', 'Find the edges \\(p_2p_3\\) and \\(p_4p_5\\) and compare their lengths.'),
+            expectedObservations: [text('Stranica \\(p_4p_5\\) je najdaljša (\\(\\approx8{,}006\\)), stranica \\(p_2p_3\\) najkrajša (\\(\\approx1{,}414\\)); zlepek ima štiri stične točke.', 'The edge \\(p_4p_5\\) is the longest (\\(\\approx8.006\\)) and the edge \\(p_2p_3\\) the shortest (\\(\\approx1.414\\)); the spline has four joints.')],
+            scene: splineParameterizationScene('sp-rule-joints', 0.5, '\\(\\alpha=\\tfrac12\\), \\(10\\) vzorčnih točk, izpeljane točke vidne.', '\\(\\alpha=\\tfrac12\\), \\(10\\) sample points, derived points visible.'),
         },
         {
             id: 'sp-uniform', order: 3,
             title: text('Enakomerna: \\(\\alpha=0\\)', 'Uniform: \\(\\alpha=0\\)'),
             purpose: text('Videti zlepek z enakimi razmiki parametra.', 'Seeing the spline with equal parameter spacings.'),
             explanation: text(
-                'Pri \\(\\alpha=0\\) imajo vsi odseki enak parametrski interval, zato dobi vsak od njih približno enako število vzorčnih točk (\\(4,4,4,5,4,4\\) od \\(25\\)). Prva stična točka je \\(J_1\\approx(-1{,}825;\\ -0{,}533)\\). Vzorci pa niso enakomerno razporejeni po krivulji: kratki odseki so gosto posejani, dolgi redko.',
-                'At \\(\\alpha=0\\) all pieces have the same parameter interval, so each gets about the same number of sample points (\\(4,4,4,5,4,4\\) out of \\(25\\)). The first joint is \\(J_1\\approx(-1.825,\\ -0.533)\\). The samples are not evenly spread along the curve, though: short pieces are densely sown, long ones sparsely.',
+                'Pri \\(\\alpha=0\\) imajo vsi odseki enak parametrski interval, zato dobi vsak od njih enako število vzorčnih točk (\\(2,2,2,2,2\\) od \\(10\\)). Tretja stična točka je \\(J_3\\approx(-2{,}133;\\ 0)\\). Vzorci pa niso enakomerno razporejeni po krivulji: kratki odseki so gosto posejani, dolgi redko.',
+                'At \\(\\alpha=0\\) all pieces have the same parameter interval, so each gets the same number of sample points (\\(2,2,2,2,2\\) out of \\(10\\)). The third joint is \\(J_3\\approx(-2.133,\\ 0)\\). The samples are not evenly spread along the curve, though: short pieces are densely sown, long ones sparsely.',
             ),
             formulaIds: ['sp-samples'],
             frames: [frame('sp-uniform-explanation', 'explanation'), frame('sp-uniform-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Primerjaj razmike med vzorčnimi točkami na kratkem in na dolgem odseku.', 'Compare the gaps between sample points on a short and on a long piece.'),
-            expectedObservations: [text('Največji razmik je približno \\(5{,}7\\)-krat daljši od najmanjšega.', 'The largest gap is about \\(5.7\\) times the smallest.')],
-            scene: {
-                id: 'sp-alpha-zero', basedOn: 'demonstration-default',
-                actions: [{name: 'set-parameterization-alpha', value: 0}, {name: 'hide-spline-fixed-points', value: false}],
-                expectedState: text('\\(\\alpha=0\\), \\(25\\) vzorčnih točk, stične točke vidne.', '\\(\\alpha=0\\), \\(25\\) sample points, joints visible.'),
-            },
+            expectedObservations: [text('Največji razmik je približno \\(5{,}1\\)-krat daljši od najmanjšega.', 'The largest gap is about \\(5.1\\) times the smallest.')],
+            scene: splineParameterizationScene('sp-alpha-zero', 0, '\\(\\alpha=0\\), \\(10\\) vzorčnih točk, izpeljane točke vidne.', '\\(\\alpha=0\\), \\(10\\) sample points, derived points visible.'),
         },
         {
             id: 'sp-chordal', order: 4,
             title: text('Tetivna: \\(\\alpha=1\\)', 'Chordal: \\(\\alpha=1\\)'),
             purpose: text('Videti, da \\(\\alpha\\) spremeni obliko in razporeditev točk.', 'Seeing that \\(\\alpha\\) changes the shape and the distribution of points.'),
             explanation: text(
-                'Pri \\(\\alpha=1\\) je parametrski interval odseka sorazmeren z dolžino njegove tetive. Izpeljane stične točke se premaknejo (\\(J_1\\approx(-2{,}703;\\ -0{,}810)\\)), zato se spremeni tudi oblika zlepka. Dolgi zadnji odsek dobi \\(10\\) od \\(25\\) vzorčnih točk, razporeditev (\\(2,5,3,3,2,10\\)) pa je po krivulji enakomernejša.',
-                'At \\(\\alpha=1\\) the parameter interval of a piece is proportional to the length of its chord. The derived joints move (\\(J_1\\approx(-2.703,\\ -0.810)\\)), so the shape of the spline changes too. The long last piece gets \\(10\\) of the \\(25\\) sample points, and the distribution (\\(2,5,3,3,2,10\\)) is more even along the curve.',
+                'Pri \\(\\alpha=1\\) je parametrski interval odseka sorazmeren z dolžino njegove tetive. Izpeljane točke se premaknejo (\\(J_3\\approx(-3{,}325;\\ 0{,}385)\\)), zato se spremeni tudi oblika zlepka, čeprav se proste točke niso premaknile. Dolgi odseki dobijo več vzorčnih točk: razporeditev je \\(1,1,1,4,3\\) od \\(10\\) in je po krivulji enakomernejša.',
+                'At \\(\\alpha=1\\) the parameter interval of a piece is proportional to the length of its chord. The derived points move (\\(J_3\\approx(-3.325,\\ 0.385)\\)), so the shape of the spline changes too, although the free points have not moved. Long pieces get more samples: the distribution is \\(1,1,1,4,3\\) out of \\(10\\) and is more even along the curve.',
             ),
             formulaIds: ['sp-spans'],
             frames: [frame('sp-chordal-explanation', 'explanation'), frame('sp-chordal-calculation', 'calculation'), frame('sp-chordal-observation', 'observation')],
             workedExampleId: 'sp-junction-example',
             learnerInteraction: 'adjust-construction-parameter',
-            observationPrompt: text('Primerjaj lego prve stične točke z lego pri \\(\\alpha=0\\) in razmike vzorcev na zadnjem odseku.', 'Compare the position of the first joint with that at \\(\\alpha=0\\) and the gaps of the samples on the last piece.'),
-            expectedObservations: [text('Stična točka je pomaknjena za približno \\(0{,}92\\) enote, krivulja je drugačna; največji razmik med vzorci je le približno \\(2{,}6\\)-krat daljši od najmanjšega.', 'The joint has moved by about \\(0.92\\) units, the curve is different; the largest gap between samples is only about \\(2.6\\) times the smallest.')],
-            scene: {
-                id: 'sp-alpha-one', basedOn: 'demonstration-default',
-                actions: [{name: 'set-parameterization-alpha', value: 1}, {name: 'hide-spline-fixed-points', value: false}],
-                expectedState: text('\\(\\alpha=1\\), \\(25\\) vzorčnih točk, stične točke vidne.', '\\(\\alpha=1\\), \\(25\\) sample points, joints visible.'),
-            },
+            observationPrompt: text('Primerjaj lego prve stične točke z lego pri \\(\\alpha=0\\) in razmike vzorcev na zadnjih dveh odsekih.', 'Compare the position of the third joint with that at \\(\\alpha=0\\) and the gaps of the samples on the last two pieces.'),
+            expectedObservations: [text('Stična točka \\(J_3\\) je pomaknjena za približno \\(1{,}25\\) enote, krivulja je drugačna; največji razmik med vzorci je le približno \\(2{,}9\\)-krat daljši od najmanjšega.', 'The joint \\(J_3\\) has moved by about \\(1.25\\) units, the curve is different; the largest gap between samples is only about \\(2.9\\) times the smallest.')],
+            scene: splineParameterizationScene('sp-alpha-one', 1, '\\(\\alpha=1\\), \\(10\\) vzorčnih točk, izpeljane točke vidne.', '\\(\\alpha=1\\), \\(10\\) sample points, derived points visible.'),
         },
         {
             id: 'sp-compare', order: 5,
             title: text('Primerjava in redkejši vzorci', 'Comparison and sparser samples'),
             purpose: text('Povezati \\(\\alpha\\) z enakomernostjo vzorcev.', 'Linking \\(\\alpha\\) to the evenness of the samples.'),
             explanation: text(
-                'Pri \\(25\\) vzorcih je razmerje največjega in najmanjšega razmika \\(5{,}7\\) pri \\(\\alpha=0\\), \\(3{,}5\\) pri \\(\\alpha=\\tfrac12\\) in \\(2{,}6\\) pri \\(\\alpha=1\\): večji \\(\\alpha\\) da bolj enakomerno razporeditev. S \\(10\\) vzorci so razmiki lažje vidni; pri \\(\\alpha=1\\) je razmerje \\(2{,}1\\) (pri \\(\\alpha=0\\) \\(3{,}8\\)). Razmik merimo v ravni črti med zaporednima vzorcema, ne po loku.',
-                'With \\(25\\) samples the ratio of the largest to the smallest gap is \\(5.7\\) at \\(\\alpha=0\\), \\(3.5\\) at \\(\\alpha=\\tfrac12\\) and \\(2.6\\) at \\(\\alpha=1\\): a larger \\(\\alpha\\) gives a more even distribution. With \\(10\\) samples the gaps are easier to see; at \\(\\alpha=1\\) the ratio is \\(2.1\\) (\\(3.8\\) at \\(\\alpha=0\\)). The gap is measured as a straight line between consecutive samples, not along the arc.',
+                'Pri \\(10\\) vzorcih je razmerje največjega in najmanjšega razmika \\(5{,}1\\) pri \\(\\alpha=0\\), \\(3{,}5\\) pri \\(\\alpha=\\tfrac12\\) in \\(2{,}9\\) pri \\(\\alpha=1\\): večji \\(\\alpha\\) da bolj enakomerno razporeditev. Razmik merimo v ravni črti med zaporednima vzorcema, ne po loku. Pri Bézierjevi krivulji \\(\\alpha\\) le premakne vzorce po isti krivulji; pri zlepku premakne tudi izpeljane točke, zato se krivulja sama spremeni, medtem ko proste točke ostanejo.',
+                'With \\(10\\) samples the ratio of the largest to the smallest gap is \\(5.1\\) at \\(\\alpha=0\\), \\(3.5\\) at \\(\\alpha=\\tfrac12\\) and \\(2.9\\) at \\(\\alpha=1\\): a larger \\(\\alpha\\) gives a more even distribution. The gap is measured as a straight line between consecutive samples, not along the arc. On a Bézier curve \\(\\alpha\\) only moves the samples along the same curve; on a spline it also moves the derived points, so the curve itself changes while the free points stay.',
             ),
             formulaIds: ['sp-samples'],
             frames: [frame('sp-compare-explanation', 'explanation'), frame('sp-compare-observation', 'observation')],
             learnerInteraction: 'adjust-construction-parameter',
-            observationPrompt: text('Z drsnikom \\(\\alpha\\) preleti vrednosti \\(0\\), \\(0{,}5\\) in \\(1\\) ter opazuj razmike med \\(10\\) vzorci.', 'Sweep the \\(\\alpha\\) slider over \\(0\\), \\(0.5\\) and \\(1\\) and watch the gaps between the \\(10\\) samples.'),
-            expectedObservations: [text('Z večjim \\(\\alpha\\) so razmiki med vzorci bolj izenačeni; kontrolne točke ostanejo na mestu.', 'With a larger \\(\\alpha\\) the gaps between samples are more equal; the control points stay in place.')],
-            scene: {
-                id: 'sp-alpha-one-ten', basedOn: 'demonstration-default',
-                actions: [{name: 'set-parameterization-alpha', value: 1}, {name: 'set-parameterization-samples', value: 10}, {name: 'hide-spline-fixed-points', value: false}],
-                expectedState: text('\\(\\alpha=1\\), \\(10\\) vzorčnih točk, stične točke vidne.', '\\(\\alpha=1\\), \\(10\\) sample points, joints visible.'),
-            },
+            observationPrompt: text('Z drsnikom \\(\\alpha\\) preleti vrednosti \\(0\\), \\(0{,}5\\) in \\(1\\) ter opazuj razmike med \\(10\\) vzorci in lego stičnih točk.', 'Sweep the \\(\\alpha\\) slider over \\(0\\), \\(0.5\\) and \\(1\\) and watch the gaps between the \\(10\\) samples and the positions of the joints.'),
+            expectedObservations: [text('Z večjim \\(\\alpha\\) so razmiki med vzorci bolj izenačeni, stične točke se premikajo; proste točke ostanejo na mestu.', 'With a larger \\(\\alpha\\) the gaps between samples are more equal and the joints move; the free points stay in place.')],
+            scene: splineParameterizationScene('sp-alpha-sweep', 0.5, '\\(\\alpha=\\tfrac12\\), \\(10\\) vzorčnih točk, izpeljane točke vidne; drsnik \\(\\alpha\\) je na voljo za primerjavo.', '\\(\\alpha=\\tfrac12\\), \\(10\\) sample points, derived points visible; the \\(\\alpha\\) slider is available for comparison.'),
         },
     ],
     sources: [
         thesisSource('stampar-thesis-spline-parameterization', 'razdelek 4.2.3 (Slika 30, str. 26-28)',
             ['alpha-parameterizations of symmetric C^2 splines', 'uniform, centripetal and chordal parameterization', 'effect of alpha on shape and point distribution'],
-            'The route spline is the C^2 spline with 9 points (thesis p_{-1}..p_7); its first span is |p_0 p_2| (thesis p_{-1}p_1), then the consecutive chords, and the last is |p_6 p_8|.'),
+            'The lesson spline is a C^2 spline with 8 free points (thesis p_{-1}..p_6); its first span is |p_0 p_2| (thesis p_{-1}p_1), then the consecutive chords, and the last is |p_5 p_7|. The route default has 9 points.'),
         farinSource('farin-cagd-spline-parameterization', ['uniform, chordal and centripetal parameterization of interpolating splines']),
         {
             id: 'bezeg-spline-parameterization-implementation',
@@ -1173,9 +1170,9 @@ const splineParameterization: GuidedLesson = {
         },
     ],
     edgeCases: [
-        text('Parameter \\(\\alpha\\) leži na krivulji in se ob vsaki pripravi prizora znova uporabi; privzeta vrednost je \\(\\tfrac12\\), \\(25\\) vzorčnih točk.', 'The parameter \\(\\alpha\\) lives on the curve and is reapplied whenever a scene is prepared; the default is \\(\\tfrac12\\) with \\(25\\) sample points.'),
+        text('Parameter \\(\\alpha\\) leži na krivulji in se ob vsaki pripravi prizora znova uporabi; privzeta vrednost je \\(\\tfrac12\\), \\(25\\) vzorčnih točk, lekcija pa vedno nastavi \\(10\\) vzorčnih točk.', 'The parameter \\(\\alpha\\) lives on the curve and is reapplied whenever a scene is prepared; the default is \\(\\tfrac12\\) with \\(25\\) sample points, while this lesson always sets \\(10\\) sample points.'),
         text('Drsnik Število točk dovoli \\(0\\) do \\(50\\) točk; pri \\(0\\) so vidne le kontrolne točke in zlepek.', 'The Number of points slider allows \\(0\\) to \\(50\\) points; at \\(0\\) only the control points and the spline are visible.'),
-        text('Razmerja razmikov veljajo za privzete točke; pri drugačnih točkah so števila drugačna, vrstni red \\(\\alpha=0\\), \\(\\tfrac12\\), \\(1\\) pa ni zagotovljen.', 'The gap ratios hold for the default points; other points give other numbers, and the order \\(\\alpha=0\\), \\(\\tfrac12\\), \\(1\\) is not guaranteed.'),
+        text('Razmerja razmikov veljajo za točke te lekcije; pri drugačnih točkah so števila drugačna, vrstni red \\(\\alpha=0\\), \\(\\tfrac12\\), \\(1\\) pa ni zagotovljen.', 'The gap ratios hold for the points of this lesson; other points give other numbers, and the order \\(\\alpha=0\\), \\(\\tfrac12\\), \\(1\\) is not guaranteed.'),
     ],
     unresolvedQuestions: [
         text('Pred classroom-ready pregledom je treba potrditi slovenske izraze »enakomerna«, »centripetalna« in »tetivna« parametrizacija ter trditev, da večji \\(\\alpha\\) vedno izenači razmike, tudi za druge točke.', 'Before classroom-ready review, confirm the Slovenian terms "enakomerna", "centripetalna" and "tetivna" parameterization and the claim that a larger \\(\\alpha\\) always evens out the gaps, also for other points.'),
