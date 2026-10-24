@@ -2,7 +2,7 @@
 
 **Source spec:** [Scope, acceptance, and verification](../../specs/lesson-example-improvements.md)
 
-**Status:** planned. **Dependencies:** none. **Owner:** handler or one shared-contract worker.
+**Status:** implemented 2026-10-24 (handler); browser acceptance pending in task 09. **Dependencies:** none. **Owner:** handler.
 
 ## Work
 
@@ -21,3 +21,14 @@ Entry points: `src/learning/content/guidedLessons.ts`, `src/learning/model.ts`, 
 - Verify Back/Next, exit/re-entry, Reset, language switch, preset restore, and paused animation behavior for a representative consumer of each new capability.
 - If no extension is needed, close with concrete existing entry points and evidence for every downstream requirement; do not add unnecessary code.
 - Run focused unit checks, typecheck/build, and the full applicable lesson-runtime browser checklist if shared runtime behavior changes. Record evidence and gaps as described in the [task index](README.md).
+
+## Outcome
+
+Existing capabilities covered function lessons and default-scene resets but could not prepare lesson-specific curve geometry or a view. One typed operation was added:
+
+- `LessonAction` `{kind: 'prepared-scene', sceneId, source: 'lesson-fixture', curve: LessonCurveFixture, view?: LessonViewBox}` in `src/learning/model.ts`. The fixture holds `points`, optional `weights`, `hodographs` (PH generating point is the single `points` entry), `degree`/`continuity` (generic spline) and `splineRatios` (G1 junction ratios).
+- `BaseGraph` builds the graph's own Preset data through `lessonFixtureData`, checks it with the graph's Preset collection and the view box before replacing anything, then imports it, resets scene state as the default scene does, applies the view if given, and finishes the scene replacement synchronously. Graphs without support reject the action with `UnsupportedLessonActionError`.
+- `BaseCurveGraph.lessonFixtureData` keeps the default scene's single curve type and display state and replaces only the fixture inputs; default G1 ratios are dropped unless given, since they fit only the default point count.
+- Consumers: tasks 01–05 (all single-curve curve demonstrations). Free-exploration defaults, Reset and stored Presets are unchanged; checkpoints capture fixture scenes through the existing exported Preset data. Rational weights may be changed by a fixture with the same points; only `farin` also supports `rational-weights`.
+
+Evidence: `src/graphs/base/lessonFixtureScene.test.tsx` on real graphs (Bézier fixture and view, same-tick follow-up action reading fixture state, PH and G1 fixtures, five rejected fixtures leaving the scene unchanged, repeated preparation and checkpoint restore, unsupported graph). The first run failed on a real defect (an emitted empty curve state), which shows the scene assertions are not vacuous.

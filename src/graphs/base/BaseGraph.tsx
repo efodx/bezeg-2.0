@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {renderMessage, t} from "../../localization";
 import React from 'react';
 
 
@@ -13,7 +13,7 @@ import {AxisSelector} from "./AxisSelector";
 import {SizeRange} from "./SizeRange";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
-import {LessonAction, LessonGraphCapabilities, LessonSceneCheckpoint, UnsupportedLessonActionError} from '../../learning/model';
+import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonSceneCheckpoint, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import {AxisSelect, DisplaySettings} from "./DisplaySettings";
@@ -448,9 +448,42 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** Contributes this graph's lesson action handlers. Overrides call `super` first, then add their own. */
     protected registerLessonActions(registry: LessonActionRegistry): void {
         registry.on('prepared-scene', action => {
-            if (action.source !== 'demonstration-default') throw new UnsupportedLessonActionError(action);
-            this.prepareLessonDefaultScene();
+            if (action.source === 'demonstration-default') {
+                this.prepareLessonDefaultScene();
+                return;
+            }
+            const data = this.lessonFixtureData(action.curve);
+            if (data === undefined) throw new UnsupportedLessonActionError(action);
+            this.prepareLessonFixtureScene(data, action.view);
         });
+    }
+
+    /**
+     * This graph's Preset data for a lesson curve fixture, or undefined when the graph has no fixture support. Only
+     * builds data; `prepareLessonFixtureScene` checks it before anything is replaced.
+     */
+    protected lessonFixtureData(_curve: LessonCurveFixture): D | undefined {
+        return undefined;
+    }
+
+    /**
+     * The default scene's fresh state with fixture Preset data. The data is checked by the graph's Preset collection
+     * first, so a rejected fixture leaves the current scene untouched.
+     */
+    private prepareLessonFixtureScene(data: D, view: LessonViewBox | undefined): void {
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        const collection = this.presetCollection();
+        if (!collection) throw new Error('This demonstration cannot check lesson geometry.');
+        const checked = collection.check(cloneLessonValue(data));
+        if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
+        if (view && !(view.every(Number.isFinite) && view[0] < view[2] && view[3] < view[1])) {
+            throw new Error('The lesson view must be a finite box [left, top, right, bottom] with left < right and bottom < top.');
+        }
+        this.importPresetData(checked.data);
+        if (view) this.board.setBoundingBox([...view], this.equalAxisUnits);
+        // Replaced, not merged, as in the default scene.
+        this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
+        this.finishSceneReplacement(undefined);
     }
 
     /** Whether the graph has a handler for the action (it may still reject the action's values or scene). */

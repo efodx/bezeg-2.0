@@ -60,11 +60,33 @@ export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 export const LESSON_ANIMATION_COMMANDS = ['play', 'pause', 'replay', 'stop', 'next-step', 'reset'] as const;
 export type LessonAnimationCommand = typeof LESSON_ANIMATION_COMMANDS[number];
 
+export type LessonPoint = readonly [x: number, y: number];
+
+/** A view as JSXGraph bounding box: left, top, right, bottom in user coordinates. */
+export type LessonViewBox = readonly [left: number, top: number, right: number, bottom: number];
+
+/**
+ * Lesson-specific geometry of a curve demonstration's single curve. The graph keeps its default scene's curve type and
+ * display state and replaces only the given inputs: control points, rational weights, the PH generating point
+ * (`points`, one point) with its hodograph points, generic spline degree/continuity, or G1 spline junction ratios.
+ * Free-exploration defaults and stored Presets are unaffected; the graph rejects inputs its Preset collection rejects.
+ */
+export interface LessonCurveFixture {
+    readonly points: readonly LessonPoint[];
+    readonly weights?: readonly number[];
+    readonly hodographs?: readonly LessonPoint[];
+    readonly degree?: number;
+    readonly continuity?: number;
+    readonly splineRatios?: readonly number[];
+}
+
 export type LessonAction =
     | {readonly kind: 'function-parameter'; readonly name: FunctionParameterName; readonly value: number}
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
     | {readonly kind: 'function-choice'; readonly name: FunctionChoiceName; readonly value: string}
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'}
+    /** The default scene with the fixture's geometry; `view` sets the starting view, otherwise the current view stays. */
+    | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'lesson-fixture'; readonly curve: LessonCurveFixture; readonly view?: LessonViewBox}
     | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'decasteljau-full-curve' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}
     | {readonly kind: 'curve-evaluation'; readonly parameter: number}
     | {readonly kind: 'degree-elevation'}
