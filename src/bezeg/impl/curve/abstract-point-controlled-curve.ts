@@ -70,7 +70,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
     }
 
     /**
-     * Rotates the curve around origin by theta.
+     * Rotates the curve by theta around the centre (mean) of its control points.
      * @param theta angle of rotation in radians
      */
     rotate(theta: number) {
