@@ -250,7 +250,8 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
                     step.scene.basedOn === 'lesson-fixture'
                         ? {kind: 'prepared-scene', sceneId: step.scene.id, source: 'lesson-fixture', curve: step.scene.curve,
                             ...(step.scene.view ? {view: step.scene.view} : {})}
-                        : {kind: 'prepared-scene', sceneId: step.scene.id, source: 'demonstration-default'},
+                        : {kind: 'prepared-scene', sceneId: step.scene.id, source: 'demonstration-default',
+                            ...(step.scene.view ? {view: step.scene.view} : {})},
                     ...step.scene.actions.map(sceneAction),
                 ],
             } : undefined,

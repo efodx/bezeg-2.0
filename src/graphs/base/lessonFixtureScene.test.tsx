@@ -106,3 +106,17 @@ test('a graph without fixture support rejects the action as unsupported', () => 
         expect(() => apply(fixture({points: [[0, 0], [1, 1]]}))).toThrow(/does not support lesson action/);
     });
 });
+
+test('a default scene may set its starting view; an invalid view leaves the scene unchanged', () => {
+    withGraph('circle', (mounted, apply) => {
+        apply({...DEFAULT_SCENE, view: [-7, 7, 7, -7]});
+        const [left, top, right, bottom] = observeScene(mounted.graph).view as number[];
+        expect(left).toBeLessThanOrEqual(-7);
+        expect(right).toBeGreaterThanOrEqual(7);
+        expect(top).toBeGreaterThanOrEqual(7);
+        expect(bottom).toBeLessThanOrEqual(-7);
+        const before = observeScene(mounted.graph);
+        expect(() => apply({...DEFAULT_SCENE, view: [0, 0, 1, 1]})).toThrow(/lesson view/);
+        expect(observeScene(mounted.graph)).toEqual(before);
+    });
+});

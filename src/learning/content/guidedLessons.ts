@@ -150,7 +150,7 @@ export type LessonScene = Readonly<{
     actions: readonly SceneAction[];
     expectedState: LocalizedText;
 } & (
-    | {basedOn: 'demonstration-default'}
+    | {basedOn: 'demonstration-default'; view?: LessonViewBox}
     | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view?: LessonViewBox}
 )>;
 
