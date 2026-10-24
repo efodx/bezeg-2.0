@@ -356,7 +356,7 @@ const elevation: GuidedLesson = {
             title: text('Samostojna primerjava', 'Independent comparison'),
             purpose: text('Preverjanje ohranjene geometrije z več parametri.', 'Checking preserved geometry at several parameters.'),
             explanation: text(
-                'Višanje stopnje je uporabno, ko želimo enotno stopnjo ali dodatne kontrolne točke, ne da bi spremenili geometrijo krivulje. Po pritisku na gumb je polni poligon prejšnji črtkani \(Q\); novi črtkani poligon prikazuje naslednje višanje in ni prvotni \(P\).',
+                'Višanje stopnje je uporabno, ko želimo enotno stopnjo ali dodatne kontrolne točke, ne da bi spremenili geometrijo krivulje. Po pritisku na gumb je polni poligon prejšnji črtkani \\(Q\\); novi črtkani poligon prikazuje naslednje višanje in ni prvotni \\(P\\).',
                 'Degree elevation is useful when a common degree or extra control points are needed without changing the curve geometry. After pressing the button the solid polygon is the former dashed \\(Q\\); the new dashed polygon previews the next elevation and is not the original \\(P\\).',
             ),
             formulaIds: ['elevation-shape-invariance'],

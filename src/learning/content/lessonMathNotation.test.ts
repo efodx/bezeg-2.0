@@ -1,3 +1,5 @@
+import {readdirSync, readFileSync} from 'node:fs';
+import {join} from 'node:path';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
@@ -145,6 +147,19 @@ test('scans every lesson module', () => {
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
             'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point'].sort(),
     );
+});
+
+/**
+ * A delimiter written with one backslash in a TS string (`'\(x\)'`) reaches the learner as plain `(x)`, which the
+ * runtime scan above cannot tell from ordinary brackets; only the source shows it.
+ */
+test('lesson sources double the backslash of every MathJax delimiter', () => {
+    const directory = join(process.cwd(), 'src/learning/content');
+    const found = readdirSync(directory)
+        .filter(name => name.endsWith('.ts') && !name.endsWith('.test.ts'))
+        .flatMap(name => readFileSync(join(directory, name), 'utf-8').split('\n')
+            .flatMap((line, index) => /(?<!\\)\\[()[\]]/.test(line) ? [`${name}:${index + 1}`] : []));
+    expect(found).toEqual([]);
 });
 
 test('lesson prose wraps math in MathJax delimiters and latex fields stay bare', () => {

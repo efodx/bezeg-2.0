@@ -151,7 +151,7 @@ export type LessonScene = Readonly<{
     expectedState: LocalizedText;
 } & (
     | {basedOn: 'demonstration-default'; view?: LessonViewBox}
-    | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view?: LessonViewBox}
+    | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view: LessonViewBox}
 )>;
 
 /** Existing UI gesture, recorded for the learner but never simulated by content. */
