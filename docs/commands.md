@@ -2,6 +2,17 @@
 
 Install [just](https://just.systems/) 1.30 or newer and the Node version declared by `package.json` (Node 24.15 or newer). On Windows, install just with `winget install Casey.Just`; with Rust on other platforms, use `cargo install just --locked`. Install project dependencies with `npm ci` before running these commands. Run `just --list` to see the available workflows and their descriptions.
 
+## Agent skills
+
+Bezeg's own skills (`smoke-tester`, `subagent-flow-evaluation`) come with this repository in `.agents/skills/` and need no installation. The owner's general skills live in the private [efodx/agent-skills](https://github.com/efodx/agent-skills) repository, so this step works only for the owner. On a new computer, run from Git Bash on Windows (or any shell elsewhere):
+
+```sh
+git clone https://github.com/efodx/agent-skills.git ~/IdeaProjects/agent-skills
+~/IdeaProjects/agent-skills/install.sh
+```
+
+The installer copies each skill into `~/.claude/skills` and `~/.codex/skills`. To update later, `git pull` in that clone and rerun `install.sh`; edit skills there, not in the installed copies, and see its README for `install.sh diff` and per-tool options.
+
 `just check` runs TypeScript, the full Vitest suite once, then a production build. `just unit [args...]` forwards each argument to `npm test -- --run`; for example, `just unit src/learning/content/lessonMathNotation.test.ts -t "scans every lesson|lesson prose wraps"`. `just check-localization` runs TypeScript and a production build. `just build` runs the existing production build and records local provenance for the resulting `build/` directory.
 
 `just smoke [args...]` builds and runs the existing Playwright smoke script. `just smoke-built [args...]` runs that script against an already built app after checking that its source inputs and output still match the last successful runner build. Smoke options are forwarded as individual arguments, including quoted filters such as `just smoke-built tests/home.smoke.spec.cjs --grep "homepage owns|homepage fits"`. Use `--port 4300` to choose the server port; the helper removes that option before forwarding the remaining Playwright arguments. Without it, `SMOKE_PORT` is inherited, or port 4173 is used. Playwright starts and disposes its own server, so a separate preview is unnecessary. An occupied port fails.
