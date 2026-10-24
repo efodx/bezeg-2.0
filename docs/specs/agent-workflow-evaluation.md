@@ -85,6 +85,19 @@ Acceptance for this follow-up:
 
 Assessment and version inventory: [handoff versions](../agent-workflow/handoff-versions-2026-10-20.md).
 
+## v7 assessment follow-up — 2026-10-24
+
+The owner requested a review of the workflow against records since v7 and authorized all six proposed changes.
+
+Acceptance for this follow-up:
+
+- Compare v7 records with the v7 assessment's own refutation criterion; report counts, confounds and positive evidence.
+- Apply only the authorized changes: v8 brief wording (observed-failure evidence, reviewer non-vacuity, persisted-data compatibility), browser-environment dispatch defaults, port-scoped Playwright output, routing/smoke alignment and logging fixes. Keep other model, effort and task-size defaults.
+- Keep default and CI Playwright output paths unchanged; verify a non-default port writes separate folders.
+- Verify local links and the bounded diff; mark future effects unmeasured.
+
+Assessment: [handoff v7 assessment](../agent-workflow/handoff-v7-assessment-2026-10-24.md).
+
 ## Related files
 
 - [Agent workflow](../agent-workflow.md)
