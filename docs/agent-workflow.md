@@ -13,7 +13,7 @@ These are provisional starting choices based on [external guidance](agent-workfl
 | Narrow research and code exploration | Haiku 5.5 `medium` | GPT-6 Luna `high` |
 | Bounded implementation, fixes, and tests | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
 | Independent review | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
-| Narrow browser smoke ([smoke-tester](../tools/skills/smoke-tester/SKILL.md)): named routes, repair rechecks, catalog/asset checks | Haiku 5.5 `medium` | GPT-6 Luna `max` |
+| Narrow browser smoke ([smoke-tester](../.agents/skills/smoke-tester/SKILL.md)): named routes, repair rechecks, catalog/asset checks | Haiku 5.5 `medium` | GPT-6 Luna `max` |
 | Broad or first-pass browser smoke of new UI | Sonnet 5.5 `medium` | GPT-6 Luna `max` |
 | Integration and final acceptance | Handler | Handler |
 
@@ -58,11 +58,11 @@ For build-tool, dependency, or artifact-format migrations, inventory affected au
 
 Account for every acceptance criterion with observed evidence or an explicit gap. Distinguish implementation completion from acceptance completion: report partial acceptance while a required criterion is unmet or unverified, unless the owner explicitly revises or defers it. Preserve that deferral and its impact in the record.
 
-Record accepted/blocked time and complete the [evaluation record](../tools/skills/subagent-flow-evaluation/SKILL.md#do-log) from current-task evidence, then commit and push under the repository Git rules. Research, review, and smoke assignments count too; useful handler-only cases provide comparisons. Keep verification gaps explicit.
+Record accepted/blocked time and complete the [evaluation record](../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log) from current-task evidence, then commit and push under the repository Git rules. Research, review, and smoke assignments count too; useful handler-only cases provide comparisons. Keep verification gaps explicit.
 
 ## Improve the workflow
 
-Use [the evaluation skill](../tools/skills/subagent-flow-evaluation/SKILL.md#suggest-subagents-flow-improvements) when assessing accumulated evidence. It connects both routing choices and task wording to outcomes. Load the log and research then, rather than on ordinary worker assignments.
+Use [the evaluation skill](../.agents/skills/subagent-flow-evaluation/SKILL.md#suggest-subagents-flow-improvements) when assessing accumulated evidence. It connects both routing choices and task wording to outcomes. Load the log and research then, rather than on ordinary worker assignments.
 
 The [v1–v6 assessment](agent-workflow/handoff-versions-2026-10-20.md) finds useful local instruction responses and clearer acceptance reporting, with no measured overall efficiency gain. The [v7 assessment](agent-workflow/handoff-v7-assessment-2026-10-24.md) found vacuous assertions recurring despite v7's wording; v8 adds observed-failure evidence and a reviewer non-vacuity check, plus persisted-data compatibility in Context. Their effect remains unmeasured. v9 adds the worker context budget as a [trial](specs/agent-workflow-evaluation.md#context-budget-trial--2026-10-24); v10 makes the handler send the handoff signal and gives Haiku a 100k budget.
 

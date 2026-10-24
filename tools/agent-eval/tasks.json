@@ -1,6 +1,8 @@
 {
     "defaultTask": "chapter-activity-controls",
     "tooling": [
+        ".agents/skills",
+        ".claude/skills",
         ".codex",
         ".gitignore",
         "AGENTS.md",
@@ -12,8 +14,7 @@
         "scripts/commands.cjs",
         "scripts/commands.test.cjs",
         "scripts/serve-smoke-build.cjs",
-        "tools/agent-usage",
-        "tools/skills"
+        "tools/agent-usage"
     ],
     "tasks": [
         {

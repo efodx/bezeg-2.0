@@ -1,11 +1,20 @@
 ---
 name: smoke-tester
-description: Delegate a short browser smoke check of representative app workflows after meaningful runtime or UI changes, or when the user requests smoke testing. Report observed failures and coverage; leave fixes to the handler.
+description: Delegate a short browser smoke check for changes that cross routes, shared workspace/runtime behavior, persistence, lessons, rendering, or hosting; for an isolated visual or single-route control tweak, use focused browser validation instead unless the user explicitly requests smoke testing.
 ---
 
 # Smoke tester
 
 Answer whether the selected main workflows still function in the tested checkout. Keep the run bounded and evidence-based; a smoke pass establishes only the reported coverage.
+
+## Triage before dispatch
+
+Classify the change before loading the full smoke workflow:
+
+- **Focused validation:** Use a direct browser check in the handler for a route-local styling change, copy adjustment, spacing/layout fix, or one isolated control whose state and data model are unchanged. Verify the affected route and the changed interaction only; do not dispatch this skill's worker for this lane.
+- **Delegated smoke:** Use this skill when the change affects shared workspace components, multiple routes or graph families, routing/hosting, persistence/import/export, lessons, renderer or lifecycle behavior, mathematical output, or a cross-cutting interaction. Also use it when the user explicitly asks for a smoke test.
+
+Choose the smallest lane that covers the actual risk. A UI change is not automatically a smoke-test change: the deciding question is whether the change can affect workflows beyond the directly edited route/control. State the selected lane and its reason in the handler's final report.
 
 ## Prepare and dispatch
 

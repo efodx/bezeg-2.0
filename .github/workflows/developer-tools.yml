@@ -8,6 +8,9 @@ on:
       - scripts/commands*.cjs
       - tools/agent-usage/codex_worker_watch*.cjs
       - tools/agent-eval/**
+      - scripts/project-skills.test.cjs
+      - .agents/skills/**
+      - .claude/skills/**
       - .github/workflows/developer-tools.yml
       - package.json
       - package-lock.json
@@ -19,6 +22,9 @@ on:
       - scripts/commands*.cjs
       - tools/agent-usage/codex_worker_watch*.cjs
       - tools/agent-eval/**
+      - scripts/project-skills.test.cjs
+      - .agents/skills/**
+      - .claude/skills/**
       - .github/workflows/developer-tools.yml
       - package.json
       - package-lock.json
@@ -63,6 +69,8 @@ jobs:
         run: node --test tools/agent-usage/codex_worker_watch.test.cjs
       - name: Test workflow evaluation harness
         run: node --test tools/agent-eval/agent_eval.test.cjs
+      - name: Check project skill pointers
+        run: node --test scripts/project-skills.test.cjs
       - name: Exercise focused unit forwarding
         run: just unit src/learning/content/lessonMathNotation.test.ts -t "scans every lesson|lesson prose wraps"
       - name: Upload command logs on failure

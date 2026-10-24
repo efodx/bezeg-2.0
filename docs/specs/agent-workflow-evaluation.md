@@ -133,4 +133,4 @@ Tasks: S `count-setter` (`4a6c092`), M `chapter-activity-controls` (`aaa5c65`), 
 
 - [Agent workflow](../agent-workflow.md)
 - [Evaluation log](../agent-workflow/evaluation-log.md)
-- [Workflow evaluation skill](../../tools/skills/subagent-flow-evaluation/SKILL.md)
+- [Workflow evaluation skill](../../.agents/skills/subagent-flow-evaluation/SKILL.md)

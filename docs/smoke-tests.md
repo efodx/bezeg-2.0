@@ -1,6 +1,6 @@
 # Bezeg browser smoke checklist
 
-Use with `$smoke-tester` after meaningful app changes. The reusable skill is maintained at [tools/skills/smoke-tester/SKILL.md](../tools/skills/smoke-tester/SKILL.md); its installed copy belongs in the personal Codex skills directory. See [the bounded spec](specs/smoke-testing.md).
+Use with `$smoke-tester` after meaningful app changes. The skill is maintained as a project skill at [.agents/skills/smoke-tester/SKILL.md](../.agents/skills/smoke-tester/SKILL.md), where Codex discovers it; Claude Code discovers it through `.claude/skills/smoke-tester/SKILL.md`, which points to the maintained copy. No personal installation is needed. See [the bounded spec](specs/smoke-testing.md).
 
 The handler dispatches one GPT-6 Luna worker at Max reasoning with a default ten-minute budget including setup. Keep the baseline below, and add or substitute demonstration-specific checks when the change warrants it. Account for every selected check in the report; budget exhaustion means skipped coverage.
 

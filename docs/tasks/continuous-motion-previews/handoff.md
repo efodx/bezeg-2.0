@@ -59,10 +59,10 @@ Out of scope, noted only: `DecasteljauAnimationControls.tsx:34` renders `t = 0.5
 
 1. One Haiku worker: fix findings 1-8, full run, confirm unchanged source-frame hashes for untouched clips, view farin frames at card size. Handler reviews and commits.
 2. Docs (finding 9) — handler or worker. Update `tests/demonstration-motion.smoke.spec.cjs` for the new clip set if its six-ID assumptions apply.
-3. Smoke with `tools/skills/smoke-tester` (catalog desktop + 390 px), then fetch, rebase onto `origin/master`, push `HEAD:master` (AGENTS.md git rules), check CI with `just ci`.
+3. Smoke with `.agents/skills/smoke-tester` (catalog desktop + 390 px), then fetch, rebase onto `origin/master`, push `HEAD:master` (AGENTS.md git rules), check CI with `just ci`.
 4. Phase 2 (`weighted-parameterization` α sweep, `complex-multiplication` w drag around the unit circle, `accumulation` x drag with number-field restore), one worker per clip, serialized (shared motion script and published set), each with math invariants from the spec table. Then Phase 2 reviews, docs, push.
 5. Stop for owner review before Phase 3.
-6. Complete the [evaluation record](../../../tools/skills/subagent-flow-evaluation/SKILL.md#do-log) for this pilot (data below).
+6. Complete the [evaluation record](../../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log) for this pilot (data below).
 
 ## Environment
 
