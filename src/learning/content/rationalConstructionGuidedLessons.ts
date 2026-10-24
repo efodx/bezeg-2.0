@@ -11,6 +11,7 @@ import type {
     SupportedSceneActionName,
 } from './guidedLessons';
 import type {FormulaBlock, WorkedExample} from './guidedLessons';
+import type {LessonCurveFixture, LessonViewBox} from '../model';
 
 /**
  * Cohort E lessons for `decasteljau-alternative`, `farin` and `circle`.
@@ -28,6 +29,19 @@ const decasteljauT = (value: number): SceneAction => ({name: 'set-decasteljau-pa
 const scene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'demonstration-default',
+    actions,
+    expectedState: text(sl, en),
+});
+
+/** Cubic fixture of the opening steps: asymmetric, so the two helper quadratics are at different heights. */
+const alternativeCubicFixture: LessonCurveFixture = {points: [[-4, -2], [-2, 4], [2, 2], [4, -2]]};
+const alternativeCubicView: LessonViewBox = [-6, 6, 6, -4];
+
+const fixtureScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id,
+    basedOn: 'lesson-fixture',
+    curve: alternativeCubicFixture,
+    view: alternativeCubicView,
     actions,
     expectedState: text(sl, en),
 });
@@ -85,6 +99,18 @@ const alternativeFormulas: readonly FormulaBlock[] = [
         ),
     },
     {
+        id: 'da-cubic',
+        latex: 'B(t)=(1-t)\\,Q_1(t)+t\\,Q_2(t),\\qquad Q_1=B_{[p_0,p_1,p_2]},\\quad Q_2=B_{[p_1,p_2,p_3]}',
+        notation: text(
+            'Kubična krivulja ima štiri kontrolne točke; \\(Q_1\\) in \\(Q_2\\) sta pomožni kvadratni krivulji, ki ju graf nariše.',
+            'A cubic curve has four control points; \\(Q_1\\) and \\(Q_2\\) are the two helper quadratic curves that the graph draws.',
+        ),
+        explanation: text(
+            'Rekurzija je ista kot pri višji stopnji: točka \\(B(t)\\) leži na daljici med \\(Q_1(t)\\) in \\(Q_2(t)\\) in jo deli v razmerju \\(t:(1-t)\\).',
+            'The recursion is the same as at higher degree: the point \\(B(t)\\) lies on the segment between \\(Q_1(t)\\) and \\(Q_2(t)\\) and splits it in the ratio \\(t:(1-t)\\).',
+        ),
+    },
+    {
         id: 'da-quartic',
         latex: 'B(t)=(1-t)\\,C_1(t)+t\\,C_2(t),\\qquad C_1=B_{[p_0,p_1,p_2,p_3]},\\quad C_2=B_{[p_1,p_2,p_3,p_4]}',
         notation: text(
@@ -112,6 +138,26 @@ const alternativeFormulas: readonly FormulaBlock[] = [
 
 const alternativeExamples: readonly WorkedExample[] = [
     {
+        id: 'da-cubic-half',
+        title: text('Primer: kubična krivulja, \\(t=\\tfrac12\\)', 'Example: cubic curve, \\(t=\\tfrac12\\)'),
+        calculationLatex: 'p=(-4,-2),(-2,4),(2,2),(4,-2);\\quad Q_1\\bigl(\\tfrac12\\bigr)=\\tfrac14\\,(p_0+2p_1+p_2)=\\bigl(-\\tfrac32,2\\bigr);\\quad Q_2\\bigl(\\tfrac12\\bigr)=\\tfrac14\\,(p_1+2p_2+p_3)=\\bigl(\\tfrac32,\\tfrac32\\bigr)',
+        resultLatex: 'B\\bigl(\\tfrac12\\bigr)=\\tfrac12\\,Q_1\\bigl(\\tfrac12\\bigr)+\\tfrac12\\,Q_2\\bigl(\\tfrac12\\bigr)=\\bigl(0,\\tfrac74\\bigr)',
+        check: text(
+            'Neodvisno: \\(\\tfrac18\\,(p_0+3p_1+3p_2+p_3)=\\bigl(0,\\tfrac74\\bigr)\\). Pomožni točki nista na isti višini (\\(2\\) in \\(\\tfrac32\\)), \\(B\\) je na sredini daljice med njima.',
+            'Independently: \\(\\tfrac18\\,(p_0+3p_1+3p_2+p_3)=\\bigl(0,\\tfrac74\\bigr)\\). The helper points are not at the same height (\\(2\\) and \\(\\tfrac32\\)); \\(B\\) is at the midpoint of the segment between them.',
+        ),
+    },
+    {
+        id: 'da-cubic-quarter',
+        title: text('Primer: kubična krivulja, \\(t=\\tfrac14\\)', 'Example: cubic curve, \\(t=\\tfrac14\\)'),
+        calculationLatex: 'Q_1\\bigl(\\tfrac14\\bigr)=\\tfrac1{16}\\,(9p_0+6p_1+p_2)=\\bigl(-\\tfrac{23}{8},\\tfrac12\\bigr);\\quad Q_2\\bigl(\\tfrac14\\bigr)=\\tfrac1{16}\\,(9p_1+6p_2+p_3)=\\bigl(-\\tfrac18,\\tfrac{23}{8}\\bigr)',
+        resultLatex: 'B\\bigl(\\tfrac14\\bigr)=\\tfrac34\\,Q_1\\bigl(\\tfrac14\\bigr)+\\tfrac14\\,Q_2\\bigl(\\tfrac14\\bigr)=\\bigl(-\\tfrac{35}{16},\\tfrac{35}{32}\\bigr)',
+        check: text(
+            'Decimalno: \\(Q_1=(-2{,}875;\\ 0{,}5)\\), \\(Q_2=(-0{,}125;\\ 2{,}875)\\), \\(B\\approx(-2{,}188;\\ 1{,}094)\\). Neodvisno isto točko dobimo tudi iz \\(\\tfrac1{64}\\,(27p_0+27p_1+9p_2+p_3)\\).',
+            'In decimals: \\(Q_1=(-2.875,\\ 0.5)\\), \\(Q_2=(-0.125,\\ 2.875)\\), \\(B\\approx(-2.188,\\ 1.094)\\). Independently: \\(\\tfrac1{64}\\,(27p_0+27p_1+9p_2+p_3)\\) gives the same point.',
+        ),
+    },
+    {
         id: 'da-half',
         title: text('Primer: \\(t=\\tfrac12\\)', 'Example: \\(t=\\tfrac12\\)'),
         calculationLatex: 'p=(-4,-3),(-3,2),(0,3),(3,2),(4,-3);\\quad C_1\\bigl(\\tfrac12\\bigr)=\\tfrac18\\,(p_0+3p_1+3p_2+p_3)=\\bigl(-\\tfrac54,\\tfrac74\\bigr);\\quad C_2\\bigl(\\tfrac12\\bigr)=\\tfrac18\\,(p_1+3p_2+3p_3+p_4)=\\bigl(\\tfrac54,\\tfrac74\\bigr)',
@@ -137,8 +183,8 @@ const decasteljauAlternative: GuidedLesson = {
     demonstrationId: 'decasteljau-alternative',
     title: text('Alternativna De Casteljaujeva rekurzija', 'The alternative de Casteljau recursion'),
     summary: text(
-        'Točko Bézierjeve krivulje stopnje \\(n\\) dobimo kot tehtano povprečje točk dveh krivulj stopnje \\(n-1\\): prva uporabi vse kontrolne točke razen zadnje, druga vse razen prve. Graf to pokaže na krivulji stopnje 4 z dvema pomožnima kubičnima krivuljama.',
-        'A point of a Bézier curve of degree \\(n\\) is a weighted average of points of two curves of degree \\(n-1\\): the first uses all control points except the last, the second all except the first. The graph shows this on a degree 4 curve with two helper cubic curves.',
+        'Točko Bézierjeve krivulje stopnje \\(n\\) dobimo kot tehtano povprečje točk dveh krivulj stopnje \\(n-1\\): prva uporabi vse kontrolne točke razen zadnje, druga vse razen prve. Graf to najprej pokaže na kubični krivulji z dvema pomožnima kvadratnima krivuljama, nato na krivulji stopnje 4 z dvema pomožnima kubičnima.',
+        'A point of a Bézier curve of degree \\(n\\) is a weighted average of points of two curves of degree \\(n-1\\): the first uses all control points except the last, the second all except the first. The graph shows this first on a cubic curve with two helper quadratic curves, then on a degree 4 curve with two helper cubic curves.',
     ),
     prerequisites: [
         text('Potrebno je poznavanje Bézierjeve krivulje \\(B(t)\\) in običajne De Casteljaujeve sheme.', 'Assumes familiarity with a Bézier curve \\(B(t)\\) and the ordinary de Casteljau scheme.'),
@@ -146,6 +192,7 @@ const decasteljauAlternative: GuidedLesson = {
     ],
     learningGoals: [
         text('Zapišeš rekurzivno zvezo iz Izreka 2.13 in poveš, katere kontrolne točke uporabljata obe krivulji nižje stopnje.', 'Write the recursion of Theorem 2.13 and state which control points the two lower degree curves use.'),
+        text('Izračunaš točko kubične krivulje pri \\(t=\\tfrac12\\) in \\(t=\\tfrac14\\) iz točk obeh pomožnih kvadratnih krivulj.', 'Compute a point of a cubic curve at \\(t=\\tfrac12\\) and \\(t=\\tfrac14\\) from the points of the two helper quadratic curves.'),
         text('Izračunaš točko krivulje stopnje 4 pri danem \\(t\\) iz točk obeh pomožnih kubičnih krivulj.', 'Compute a point of the degree 4 curve at a given \\(t\\) from the points of the two helper cubic curves.'),
         text('Povežeš to rekurzijo z zadnjim korakom običajne De Casteljaujeve sheme.', 'Connect this recursion with the last step of the ordinary de Casteljau scheme.'),
     ],
@@ -153,12 +200,42 @@ const decasteljauAlternative: GuidedLesson = {
     workedExamples: alternativeExamples,
     steps: [
         step({
-            id: 'da-two-cubics', order: 1,
+            id: 'da-cubic-two-quadratics', order: 1,
+            title: text('Kubična krivulja in dve kvadratni', 'A cubic and two quadratics'),
+            purpose: text('Izračunati točko kubične krivulje iz točk dveh pomožnih kvadratnih krivulj.', 'Computing a cubic curve point from the points of two helper quadratic curves.'),
+            explanation: text(
+                'Začnemo s kubično krivuljo s kontrolnimi točkami \\(p_0=(-4,-2)\\), \\(p_1=(-2,4)\\), \\(p_2=(2,2)\\), \\(p_3=(4,-2)\\); ni zrcalno simetrična. Prva pomožna kvadratna krivulja \\(Q_1\\) uporabi \\(p_0,p_1,p_2\\), druga \\(Q_2\\) pa \\(p_1,p_2,p_3\\). Pri \\(t=\\tfrac12\\) sta uteži enaki, torej je \\(B(\\tfrac12)\\) na sredini daljice med \\(Q_1(\\tfrac12)\\) in \\(Q_2(\\tfrac12)\\).',
+                'We start with a cubic curve with control points \\(p_0=(-4,-2)\\), \\(p_1=(-2,4)\\), \\(p_2=(2,2)\\), \\(p_3=(4,-2)\\); it is not mirror symmetric. The first helper quadratic curve \\(Q_1\\) uses \\(p_0,p_1,p_2\\), the second \\(Q_2\\) uses \\(p_1,p_2,p_3\\). At \\(t=\\tfrac12\\) the weights are equal, so \\(B(\\tfrac12)\\) is at the midpoint of the segment between \\(Q_1(\\tfrac12)\\) and \\(Q_2(\\tfrac12)\\).',
+            ),
+            formulaIds: ['da-recursion', 'da-cubic'],
+            workedExampleId: 'da-cubic-half',
+            learnerInteraction: 'observe',
+            observationPrompt: text('Poišči obe pomožni kvadratni krivulji in daljico med njunima točkama; preveri, da je glavna točka na njeni sredini.', 'Find both helper quadratic curves and the segment between their points; check that the main point is at its midpoint.'),
+            expectedObservations: [text('Pomožni točki sta na različnih višinah, \\(2\\) in \\(\\tfrac32\\), daljica med njima je rahlo nagnjena, glavna točka \\(\\bigl(0,\\tfrac74\\bigr)\\) pa je na njeni sredini.', 'The helper points are at different heights, \\(2\\) and \\(\\tfrac32\\); the segment between them is slightly tilted and the main point \\(\\bigl(0,\\tfrac74\\bigr)\\) is at its midpoint.')],
+            scene: fixtureScene('da-cubic-half', [decasteljauT(0.5)], 'Kubična krivulja z dvema pomožnima kvadratnima pri \\(t=\\tfrac12\\).', 'The cubic curve with its two helper quadratics at \\(t=\\tfrac12\\).'),
+        }),
+        step({
+            id: 'da-cubic-quarter', order: 2,
+            title: text('Neenaki uteži pri kubični krivulji', 'Unequal weights on the cubic'),
+            purpose: text('Videti, da utež \\(1-t\\) in utež \\(t\\) premakneta točko po daljici.', 'Seeing that the weights \\(1-t\\) and \\(t\\) slide the point along the segment.'),
+            explanation: text(
+                'Pri \\(t=\\tfrac14\\) ima \\(Q_1\\) utež \\(\\tfrac34\\), \\(Q_2\\) pa \\(\\tfrac14\\). Pomožni točki sta \\(\\bigl(-\\tfrac{23}{8},\\tfrac12\\bigr)\\) in \\(\\bigl(-\\tfrac18,\\tfrac{23}{8}\\bigr)\\), glavna točka pa je od prve oddaljena četrtino dolžine daljice.',
+                'At \\(t=\\tfrac14\\) the point \\(Q_1\\) has weight \\(\\tfrac34\\) and \\(Q_2\\) only \\(\\tfrac14\\). The helper points are \\(\\bigl(-\\tfrac{23}{8},\\tfrac12\\bigr)\\) and \\(\\bigl(-\\tfrac18,\\tfrac{23}{8}\\bigr)\\), and the main point is a quarter of the segment length away from the first.',
+            ),
+            formulaIds: ['da-cubic'],
+            workedExampleId: 'da-cubic-quarter',
+            learnerInteraction: 'adjust-construction-parameter',
+            observationPrompt: text('Premakni drsnik \\(t\\) in spremljaj, kako glavna točka drsi po daljici od \\(Q_1\\) proti \\(Q_2\\).', 'Move the \\(t\\) slider and watch the main point slide along the segment from \\(Q_1\\) toward \\(Q_2\\).'),
+            expectedObservations: [text('Pri \\(t=\\tfrac14\\) je glavna točka \\(\\bigl(-\\tfrac{35}{16},\\tfrac{35}{32}\\bigr)\\) bliže točki \\(Q_1\\) kot \\(Q_2\\).', 'At \\(t=\\tfrac14\\) the main point \\(\\bigl(-\\tfrac{35}{16},\\tfrac{35}{32}\\bigr)\\) is nearer to \\(Q_1\\) than to \\(Q_2\\).')],
+            scene: fixtureScene('da-cubic-quarter', [decasteljauT(0.25)], 'Ista kubična krivulja pri \\(t=\\tfrac14\\).', 'The same cubic curve at \\(t=\\tfrac14\\).'),
+        }),
+        step({
+            id: 'da-two-cubics', order: 3,
             title: text('Krivulja stopnje 4 in dve kubični', 'A quartic and two cubics'),
             purpose: text('Spoznati pomožni krivulji in njuni kontrolni točki.', 'Meeting the two helper curves and their control points.'),
             explanation: text(
-                'Privzeta krivulja ima pet kontrolnih točk \\(p_0,\\dots,p_4\\). Prva pomožna kubična krivulja uporabi \\(p_0,\\dots,p_3\\), druga \\(p_1,\\dots,p_4\\). Graf ju nariše v različnih barvah, med njunima točkama pri izbranem \\(t\\) pa potegne daljico.',
-                'The default curve has five control points \\(p_0,\\dots,p_4\\). The first helper cubic curve uses \\(p_0,\\dots,p_3\\), the second \\(p_1,\\dots,p_4\\). The graph draws them in different colors and, at the chosen \\(t\\), draws a segment between their points.',
+                'Isto zamisel pokažemo na privzeti krivulji stopnje 4, ki ima pet kontrolnih točk \\(p_0,\\dots,p_4\\). Prva pomožna kubična krivulja uporabi \\(p_0,\\dots,p_3\\), druga \\(p_1,\\dots,p_4\\). Graf ju nariše v različnih barvah, med njunima točkama pri izbranem \\(t\\) pa potegne daljico.',
+                'The same idea now appears on the default degree 4 curve, which has five control points \\(p_0,\\dots,p_4\\). The first helper cubic curve uses \\(p_0,\\dots,p_3\\), the second \\(p_1,\\dots,p_4\\). The graph draws them in different colors and, at the chosen \\(t\\), draws a segment between their points.',
             ),
             formulaIds: ['da-quartic'],
             learnerInteraction: 'observe',
@@ -167,7 +244,7 @@ const decasteljauAlternative: GuidedLesson = {
             scene: scene('da-default', [], 'Privzeta krivulja stopnje 4 z obema pomožnima krivuljama pri \\(t=\\tfrac12\\).', 'The default degree 4 curve with both helper curves at \\(t=\\tfrac12\\).'),
         }),
         step({
-            id: 'da-recursion-half', order: 2,
+            id: 'da-recursion-half', order: 4,
             title: text('Rekurzija pri \\(t=\\tfrac12\\)', 'The recursion at \\(t=\\tfrac12\\)'),
             purpose: text('Izračunati točko krivulje iz točk obeh pomožnih krivulj.', 'Computing the curve point from the points of both helper curves.'),
             explanation: text(
@@ -182,7 +259,7 @@ const decasteljauAlternative: GuidedLesson = {
             scene: scene('da-half', [decasteljauT(0.5)], 'Parameter je \\(t=\\tfrac12\\).', 'The parameter is \\(t=\\tfrac12\\).'),
         }),
         step({
-            id: 'da-recursion-quarter', order: 3,
+            id: 'da-recursion-quarter', order: 5,
             title: text('Neenaki uteži pri \\(t=\\tfrac14\\)', 'Unequal weights at \\(t=\\tfrac14\\)'),
             purpose: text('Videti, da utež \\(1-t\\) in utež \\(t\\) premakneta točko po daljici.', 'Seeing that the weights \\(1-t\\) and \\(t\\) slide the point along the segment.'),
             explanation: text(
@@ -197,7 +274,7 @@ const decasteljauAlternative: GuidedLesson = {
             scene: scene('da-quarter', [decasteljauT(0.25)], 'Parameter je \\(t=\\tfrac14\\).', 'The parameter is \\(t=\\tfrac14\\).'),
         }),
         step({
-            id: 'da-symmetry', order: 4,
+            id: 'da-symmetry', order: 6,
             title: text('Zrcalna slika pri \\(t=\\tfrac34\\)', 'The mirror image at \\(t=\\tfrac34\\)'),
             purpose: text('Uporabiti simetrijo privzete krivulje za napoved.', 'Using the symmetry of the default curve to predict a result.'),
             explanation: text(
@@ -211,7 +288,7 @@ const decasteljauAlternative: GuidedLesson = {
             scene: scene('da-three-quarters', [decasteljauT(0.75)], 'Parameter je \\(t=\\tfrac34\\).', 'The parameter is \\(t=\\tfrac34\\).'),
         }),
         step({
-            id: 'da-scheme-connection', order: 5,
+            id: 'da-scheme-connection', order: 7,
             title: text('Zadnji korak sheme', 'The last step of the scheme'),
             purpose: text('Povezati alternativno rekurzijo z običajno De Casteljaujevo shemo.', 'Connecting the alternative recursion to the ordinary de Casteljau scheme.'),
             explanation: text(
@@ -231,12 +308,12 @@ const decasteljauAlternative: GuidedLesson = {
         {
             id: 'bezeg-decasteljau-alternative-implementation',
             citation: 'Bezeg source: src/graphs/curves/bezier/DecasteljauGraph2.tsx and src/bezeg/impl/curve/polynomial-bezier-curve.ts.',
-            supports: ['default quartic and its two helper cubics', 'parameter slider', 'segment between helper points'],
+            supports: ['lesson-fixture cubic and its two helper quadratics', 'default quartic and its two helper cubics', 'parameter slider', 'segment between helper points'],
             implementationCorrespondence: 'generateInterpolatingBezierCurves slices the control points of the first curve at offsets 0 and 1 into two PolynomialBezierCurve helpers of one degree less, and draws the points at the parameter t and the segment between them.',
         },
     ],
     edgeCases: [
-        text('Pri \\(t=0\\) sta pomožni točki \\(p_0\\) in \\(p_1\\), pri \\(t=1\\) pa \\(p_3\\) in \\(p_4\\); krivulja se začne in konča v krajiščih, pomožni krivulji pa ne.', 'At \\(t=0\\) the helper points are \\(p_0\\) and \\(p_1\\), at \\(t=1\\) they are \\(p_3\\) and \\(p_4\\); the curve starts and ends at its end points, the helper curves do not.'),
+        text('Pri \\(t=0\\) sta pomožni točki \\(p_0\\) in \\(p_1\\), pri \\(t=1\\) pa \\(p_{n-1}\\) in \\(p_n\\), torej \\(p_2,p_3\\) pri kubični in \\(p_3,p_4\\) pri krivulji stopnje 4; krivulja se začne in konča v krajiščih, pomožni krivulji pa ne.', 'At \\(t=0\\) the helper points are \\(p_0\\) and \\(p_1\\), at \\(t=1\\) they are \\(p_{n-1}\\) and \\(p_n\\), that is \\(p_2,p_3\\) for the cubic and \\(p_3,p_4\\) for the degree 4 curve; the curve starts and ends at its end points, the helper curves do not.'),
         text('Če premakneš kontrolno točko, se pomožni krivulji pri novem \\(t\\) preračunata, rekurzija pa ostane enaka.', 'If a control point moves, the helper curves are recomputed at the new \\(t\\), while the recursion stays the same.'),
     ],
     unresolvedQuestions: [

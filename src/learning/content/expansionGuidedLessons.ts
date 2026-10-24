@@ -204,10 +204,22 @@ const phQuintic: GuidedLesson = {
     unresolvedQuestions: [text('Pred classroom-ready pregledom preveri, ali želiš vključiti sekundarni graf generatorjev kot ločeno dejavnost.', 'Before classroom-ready review, decide whether the secondary generator graph should be a separate activity.')],
 };
 
+/**
+ * Affine lesson fixture: an asymmetric cubic whose marked point B(1/2)=(3,7/4) is far from the origin. The graph rotates about
+ * the mean of the control points and scales about the centre of their bounding box; both are (3,1) here
+ * (AbstractPointControlledCurve.transform / scale / rotate).
+ */
+const affineFixture: LessonCurveFixture = {points: [[1, 0], [2, 3], [4, 2], [5, -1]]};
+const affineView: LessonViewBox = [-5, 7, 9, -5];
+const affineScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+    id, basedOn: 'lesson-fixture', curve: affineFixture, view: affineView, actions, expectedState: text(sl, en),
+});
+const QUARTER_TURN = Math.PI / 2;
+
 const affine: GuidedLesson = {
     demonstrationId: 'affine',
     title: text('Afine transformacije Bézierjeve krivulje', 'Affine transformations of a Bézier curve'),
-    summary: text('Preveri, kako premik in merilo delujeta na kontrolne točke in krivuljo.', 'Check how translation and scaling act on control points and the curve.'),
+    summary: text('Preveri, kako premik, četrtinski obrat in merilo delujejo na kontrolne točke in krivuljo ter kje je središče obrata in merila.', 'Check how translation, a quarter-turn and scaling act on control points and the curve, and where the centre of the turn and of the scaling is.'),
     prerequisites: [
         text('Potrebno je osnovno poznavanje linearnih transformacij ravnine.', 'Assumes basic familiarity with planar linear transformations.'),
         text('Potrebno je poznavanje Bézierjevega vrednotenja kot utežene vsote kontrolnih točk.', 'Assumes Bézier evaluation as a weighted sum of control points.'),
@@ -215,66 +227,91 @@ const affine: GuidedLesson = {
     learningGoals: [
         text('Prepoznaš, da afina transformacija deluje na vse kontrolne točke.', 'Recognize that an affine transformation acts on every control point.'),
         text('Preveriš komutativnost transformacije in vrednotenja.', 'Check that transformation and evaluation commute.'),
+        text('Poveš, okoli katere točke graf zavrti in poveča krivuljo.', 'State about which point the graph turns and scales the curve.'),
         text('Ločiš spremembo lege ali merila od spremembe stopnje krivulje.', 'Distinguish a change of position or scale from a change of curve degree.'),
     ],
     formulaBlocks: [
-        {id: 'affine-map', latex: 'T(P)=AP+b', notation: text('Afina preslikava je linearni del \\(A\\) in premik \\(b\\).', 'An affine map consists of a linear part \\(A\\) and translation \\(b\\).'), explanation: text('Premiki in enakomerno merilo v tej lekciji sta afini preslikavi, ki uporabljata isto pravilo za vse kontrolne točke.', 'The translation and uniform scaling used in this lesson are affine maps that apply the same rule to every control point.')},
-        {id: 'affine-bezier-commutation', latex: 'T(B(t))=T\\left(\\sum_i b_{i,n}(t)P_i\\right)=\\sum_i b_{i,n}(t)T(P_i)', notation: text('Afina preslikava lahko gre skozi Bernsteinovo vsoto.', 'An affine map can pass through the Bernstein sum.'), explanation: text('Zato lahko transformiraš kontrolne točke ali najprej izračunaš točko krivulje in dobiš isti rezultat.', 'Therefore transforming control points or evaluating first and then transforming gives the same result.')},
+        {id: 'affine-map', latex: 'T(P)=AP+b', notation: text('Afina preslikava je linearni del \\(A\\) in premik \\(b\\).', 'An affine map consists of a linear part \\(A\\) and translation \\(b\\).'), explanation: text('Premik, četrtinski obrat in enakomerno merilo v tej lekciji so afine preslikave, ki uporabljajo isto pravilo za vse kontrolne točke.', 'The translation, quarter-turn and uniform scaling used in this lesson are affine maps that apply the same rule to every control point.')},
+        {id: 'affine-pivot', latex: 'T_c(P)=c+A(P-c)=AP+(c-Ac),\\qquad A_{90^\\circ}(x,y)=(-y,x)', notation: text('Obrat in merilo okoli središča \\(c\\): najprej odštejemo \\(c\\), uporabimo \\(A\\), nato spet prištejemo \\(c\\).', 'Turning and scaling about a centre \\(c\\): subtract \\(c\\), apply \\(A\\), then add \\(c\\) again.'), explanation: text('Graf zavrti krivuljo okoli povprečja kontrolnih točk, ne okoli izhodišča, merilo pa spremeni okoli središča pravokotnika, ki objame kontrolne točke. Pri tej krivulji sta obe središči \\((3,1)\\).', 'The graph turns the curve about the mean of the control points, not about the origin, and scales it about the centre of the rectangle that encloses the control points. For this curve both centres are \\((3,1)\\).')},
+        {id: 'affine-bezier-commutation', latex: 'T(B(t))=T\\left(\\sum_i b_{i,n}(t)P_i\\right)=\\sum_i b_{i,n}(t)T(P_i)', notation: text('Afina preslikava lahko gre skozi Bernsteinovo vsoto.', 'An affine map can pass through the Bernstein sum.'), explanation: text('Zato lahko transformiraš kontrolne točke ali najprej izračunaš točko krivulje in dobiš isti rezultat.', 'Therefore you can transform the control points or first compute the curve point and obtain the same result.')},
         {id: 'affine-degree-invariant', latex: '\\deg(T(B))=\\deg(B),\\qquad t\\in[0,1]', notation: text('Afina transformacija ne spremeni stopnje ali parametričnega intervala.', 'An affine transformation does not change degree or parameter interval.'), explanation: text('Spremeni se geometrijska lega oziroma merilo, ne pa število Bernsteinovih členov.', 'The geometric position or scale changes, not the number of Bernstein terms.')},
     ],
-    workedExamples: [{
-        id: 'affine-translation-midpoint', title: text('Premik v desno pri \\(t=\\tfrac{1}{2}\\)', 'Translation right at \\(t=\\tfrac{1}{2}\\)'),
-        calculationLatex: 'B(1/2)=(3/8,0),\\qquad T(x,y)=(x+1/2,y)',
-        resultLatex: 'T(B(1/2))=(7/8,0)=B_T(1/2)',
-        check: text('Po premiku za \\(\\tfrac{1}{2}\\) preveri istočko na grafu in transformirane kontrolne točke.', 'After translating by \\(\\tfrac{1}{2}\\), check the graph point and transformed control points.'),
-    }],
+    workedExamples: [
+        {
+            id: 'affine-translation-midpoint', title: text('Premik za \\((-2,-1)\\) pri \\(t=\\tfrac{1}{2}\\)', 'Translation by \\((-2,-1)\\) at \\(t=\\tfrac{1}{2}\\)'),
+            calculationLatex: 'P=(1,0),(2,3),(4,2),(5,-1);\\quad B(1/2)=\\tfrac18\\,(P_0+3P_1+3P_2+P_3)=(3,7/4);\\quad T(x,y)=(x-2,y-1)',
+            resultLatex: 'T(B(1/2))=(1,3/4)=B_T(1/2),\\qquad T(P)=(-1,-1),(0,2),(2,1),(3,-2)',
+            check: text('Točka \\(B(\\tfrac{1}{2})\\) se premakne za isti vektor kot vse kontrolne točke; isto vrednost da vrednotenje premaknjenih kontrolnih točk.', 'The point \\(B(\\tfrac{1}{2})\\) moves by the same vector as every control point; evaluating the moved control points gives the same value.'),
+        },
+        {
+            id: 'affine-quarter-turn-midpoint', title: text('Četrtinski obrat okoli \\((3,1)\\) pri \\(t=\\tfrac{1}{2}\\)', 'Quarter-turn about \\((3,1)\\) at \\(t=\\tfrac{1}{2}\\)'),
+            calculationLatex: 'c=(3,1),\\quad T(P)=c+(-(y-1),\\,x-3);\\quad T(P)=(4,-1),(1,0),(2,2),(5,3)',
+            resultLatex: 'T(B(1/2))=(3,1)+(-3/4,\\,0)=(9/4,\\,1)=B_T(1/2)',
+            check: text('Obrat okoli izhodišča bi dal \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\); graf prikaže \\(\\left(\\tfrac{9}{4},\\,1\\right)\\), ker je središče obrata \\((3,1)\\).', 'A turn about the origin would give \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\); the graph shows \\(\\left(\\tfrac{9}{4},\\,1\\right)\\) because the centre of the turn is \\((3,1)\\).'),
+        },
+        {
+            id: 'affine-scale-midpoint', title: text('Merilo \\(2\\) okoli \\((3,1)\\) pri \\(t=\\tfrac{1}{2}\\)', 'Scale \\(2\\) about \\((3,1)\\) at \\(t=\\tfrac{1}{2}\\)'),
+            calculationLatex: 'T(P)=c+2(P-c);\\quad T(P)=(-1,-1),(1,5),(5,3),(7,-3)',
+            resultLatex: 'T(B(1/2))=(3,1)+2\\,(0,3/4)=(3,5/2)=B_T(1/2)',
+            check: text('Točka \\((3,\\tfrac{7}{4})\\) je nad središčem \\((3,1)\\) in se od njega oddalji dvakrat; središče samo ostane na mestu.', 'The point \\((3,\\tfrac{7}{4})\\) lies above the centre \\((3,1)\\) and moves twice as far from it; the centre itself stays put.'),
+        },
+    ],
     steps: [
         {
             id: 'affine-map', order: 1, title: text('Kaj je afina transformacija?', 'What is an affine transformation?'),
             purpose: text('Razlikovanje linearnega dela in premika.', 'Distinguishing the linear part from translation.'),
-            explanation: text('Afina preslikava lahko spremeni lego, orientacijo ali merilo krivulje, vendar uporablja isto preslikavo za vse kontrolne točke.', 'An affine map can change position, orientation, or scale while using the same map for every control point.'),
+            explanation: text('Začnemo s kubično krivuljo s kontrolnimi točkami \\((1,0),(2,3),(4,2),(5,-1)\\). Ni zrcalno simetrična, označena točka \\(B(\\tfrac{1}{2})=\\left(3,\\tfrac{7}{4}\\right)\\) pa je daleč od izhodišča. Afina preslikava lahko spremeni lego, orientacijo ali merilo krivulje, vendar uporablja isto preslikavo za vse kontrolne točke.', 'We start with a cubic curve with control points \\((1,0),(2,3),(4,2),(5,-1)\\). It is not mirror symmetric, and the marked point \\(B(\\tfrac{1}{2})=\\left(3,\\tfrac{7}{4}\\right)\\) is far from the origin. An affine map can change position, orientation, or scale while using the same map for every control point.'),
             formulaIds: ['affine-map', 'affine-degree-invariant'], frames: [frame('affine-map-explanation', 'explanation'), frame('affine-map-observation', 'observation')], learnerInteraction: 'observe',
-            observationPrompt: text('Preštej kontrolne točke in opiši, kaj se v privzeti sceni lahko spremeni brez spremembe stopnje.', 'Count the control points and describe what can change without changing degree.'),
-            expectedObservations: [text('Privzeta krivulja je kubična in ima štiri kontrolne točke; transformacija tega ne spremeni.', 'The default curve is cubic with four control points; the transformation does not change that.')],
-            scene: scene('affine-default', [action('show-control-polygon', true), action('show-evaluation-point', 0.5)], 'Privzeta krivulja, kontrolni poligon in \\(B(\\tfrac{1}{2})\\) so vidni.', 'The default curve, control polygon, and \\(B(\\tfrac{1}{2})\\) are visible.'),
+            observationPrompt: text('Preštej kontrolne točke, poišči izhodišče in označeno točko ter opiši, kaj se lahko spremeni brez spremembe stopnje.', 'Count the control points, find the origin and the marked point, and describe what can change without changing degree.'),
+            expectedObservations: [text('Krivulja je kubična s štirimi kontrolnimi točkami; označena točka je desno od izhodišča in transformacija stopnje ne spremeni.', 'The curve is cubic with four control points; the marked point is right of the origin and a transformation does not change the degree.')],
+            scene: affineScene('affine-default', [action('show-control-polygon', true), action('show-evaluation-point', 0.5)], 'Asimetrična kubična krivulja, kontrolni poligon in \\(B(\\tfrac{1}{2})\\) so vidni.', 'The asymmetric cubic curve, control polygon, and \\(B(\\tfrac{1}{2})\\) are visible.'),
         },
         {
             id: 'affine-translation', order: 2, title: text('Premik skozi Bernsteinovo vsoto', 'Translation through the Bernstein sum'),
             purpose: text('Preverjanje afine komutativnosti na konkretnem primeru.', 'Checking affine commutation in a concrete example.'),
-            explanation: text('Premik za \\(\\tfrac{1}{2}\\) v smeri \\(x\\) doda isti vektor vsaki kontrolni točki in tudi vrednosti \\(B(t)\\).', 'Translating by \\(\\tfrac{1}{2}\\) in \\(x\\) adds the same vector to every control point and to \\(B(t)\\).'),
+            explanation: text('Premik za \\((-2,-1)\\) doda isti vektor vsaki kontrolni točki in tudi vrednosti \\(B(t)\\).', 'Translating by \\((-2,-1)\\) adds the same vector to every control point and to \\(B(t)\\).'),
             formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-translation-explanation', 'explanation', ['affine-bezier-commutation']), frame('affine-translation-calculation', 'calculation'), frame('affine-translation-observation', 'observation')], workedExampleId: 'affine-translation-midpoint', learnerInteraction: 'observe',
             observationPrompt: text('Preveri, ali se \\(B(\\tfrac{1}{2})\\) premakne za isti vektor kot kontrolne točke.', 'Check whether \\(B(\\tfrac{1}{2})\\) moves by the same vector as the control points.'),
-            expectedObservations: [text('Po premiku je \\(B_T(\\tfrac{1}{2})=\\left(\\tfrac{7}{8},\\,0\\right)\\), kar je \\(T(B(\\tfrac{1}{2}))\\).', 'After translation \\(B_T(\\tfrac{1}{2})=\\left(\\tfrac{7}{8},\\,0\\right)\\), which equals \\(T(B(\\tfrac{1}{2}))\\).')],
-            scene: scene('affine-translation-right', [action('show-control-polygon', true), action('translate-x', 0.5), action('show-evaluation-point', 0.5)], 'Krivulja je premaknjena za \\(\\tfrac{1}{2}\\) v desno.', 'The curve is translated \\(\\tfrac{1}{2}\\) to the right.'),
+            expectedObservations: [text('Po premiku je \\(B_T(\\tfrac{1}{2})=\\left(1,\\,\\tfrac{3}{4}\\right)\\), kar je \\(T(B(\\tfrac{1}{2}))\\).', 'After translation \\(B_T(\\tfrac{1}{2})=\\left(1,\\,\\tfrac{3}{4}\\right)\\), which equals \\(T(B(\\tfrac{1}{2}))\\).')],
+            scene: affineScene('affine-translation-left-down', [action('show-control-polygon', true), action('translate-x', -2), action('translate-y', -1), action('show-evaluation-point', 0.5)], 'Krivulja je premaknjena za \\(2\\) v levo in \\(1\\) navzdol.', 'The curve is translated \\(2\\) to the left and \\(1\\) down.'),
         },
         {
-            id: 'affine-scale', order: 3, title: text('Merilo brez spremembe stopnje', 'Scale without changing degree'),
+            id: 'affine-quarter-turn', order: 3, title: text('Četrtinski obrat okoli središča', 'A quarter-turn about its centre'),
+            purpose: text('Ugotoviti, okoli katere točke graf zavrti krivuljo.', 'Finding the point about which the graph turns the curve.'),
+            explanation: text('Obrat za \\(90^\\circ\\) v pozitivni smeri (proti urinemu kazalcu) graf izvede okoli povprečja kontrolnih točk, pri tej krivulji okoli \\((3,1)\\), in ne okoli izhodišča. Nove kontrolne točke so \\((4,-1),(1,0),(2,2),(5,3)\\).', 'The graph performs a \\(90^\\circ\\) turn in the positive (counter-clockwise) direction about the mean of the control points, here \\((3,1)\\), and not about the origin. The new control points are \\((4,-1),(1,0),(2,2),(5,3)\\).'),
+            formulaIds: ['affine-pivot', 'affine-bezier-commutation'], frames: [frame('affine-quarter-turn-explanation', 'explanation', ['affine-pivot']), frame('affine-quarter-turn-calculation', 'calculation'), frame('affine-quarter-turn-observation', 'observation')], workedExampleId: 'affine-quarter-turn-midpoint', learnerInteraction: 'observe',
+            observationPrompt: text('Poišči točko, ki jo obrat pusti pri miru, in preveri, da \\(B(\\tfrac{1}{2})\\) ni obrnjena okoli izhodišča.', 'Find the point the turn leaves fixed and check that \\(B(\\tfrac{1}{2})\\) was not turned about the origin.'),
+            expectedObservations: [text('Poligon se zavrti okoli \\((3,1)\\), označena točka je pri \\(\\left(\\tfrac{9}{4},\\,1\\right)\\), ne pri \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\).', 'The polygon turns about \\((3,1)\\); the marked point is at \\(\\left(\\tfrac{9}{4},\\,1\\right)\\), not at \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\).')],
+            scene: affineScene('affine-quarter-turn', [action('show-control-polygon', true), action('rotate-affine', QUARTER_TURN), action('show-evaluation-point', 0.5)], 'Krivulja je zasukana za četrtinski obrat okoli povprečja kontrolnih točk.', 'The curve is turned a quarter-turn about the mean of its control points.'),
+        },
+        {
+            id: 'affine-scale', order: 4, title: text('Merilo brez spremembe stopnje', 'Scale without changing degree'),
             purpose: text('Opazovanje spremembe velikosti in nespremenjene parametrične strukture.', 'Observing a size change with unchanged parametric structure.'),
-            explanation: text('Enakomerno merilo 1,2 spremeni velikost okoli središča krivulje, ne pa števila kontrolnih točk ali intervala \\(t\\).', 'Uniform scale 1.2 changes size around the curve center, not the number of control points or the \\(t\\) interval.'),
-            formulaIds: ['affine-degree-invariant'], frames: [frame('affine-scale-explanation', 'explanation'), frame('affine-scale-observation', 'observation')], learnerInteraction: 'observe',
-            observationPrompt: text('Primerjaj stopnjo, število točk in obliko pred in po spremembi merila.', 'Compare degree, point count, and shape before and after scaling.'),
-            expectedObservations: [text('Merilo spremeni razsežnost, ne pa stopnje ali števila Bernsteinovih členov.', 'Scaling changes size, not degree or the number of Bernstein terms.')],
-            scene: scene('affine-scale-up', [action('show-control-polygon', true), action('scale-affine', 1.2), action('show-evaluation-point', 0.5)], 'Krivulja je povečana z merilom 1,2.', 'The curve is enlarged by scale 1.2.'),
+            explanation: text('Enakomerno merilo \\(2\\) razteguje krivuljo od središča pravokotnika, ki objame kontrolne točke, pri tej krivulji od \\((3,1)\\). Ne spremeni števila kontrolnih točk ali intervala \\(t\\). Nove kontrolne točke so \\((-1,-1),(1,5),(5,3),(7,-3)\\).', 'Uniform scale \\(2\\) stretches the curve from the centre of the rectangle that encloses the control points, here \\((3,1)\\). It does not change the number of control points or the \\(t\\) interval. The new control points are \\((-1,-1),(1,5),(5,3),(7,-3)\\).'),
+            formulaIds: ['affine-pivot', 'affine-degree-invariant'], frames: [frame('affine-scale-explanation', 'explanation'), frame('affine-scale-calculation', 'calculation'), frame('affine-scale-observation', 'observation')], workedExampleId: 'affine-scale-midpoint', learnerInteraction: 'observe',
+            observationPrompt: text('Primerjaj stopnjo, število točk in oddaljenost označene točke od središča \\((3,1)\\) pred in po spremembi merila.', 'Compare degree, point count, and the distance of the marked point from the centre \\((3,1)\\) before and after scaling.'),
+            expectedObservations: [text('Merilo podvoji oddaljenost od središča (označena točka je pri \\(\\left(3,\\,\\tfrac{5}{2}\\right)\\)), ne pa stopnje ali števila Bernsteinovih členov.', 'Scaling doubles the distance from the centre (the marked point is at \\(\\left(3,\\,\\tfrac{5}{2}\\right)\\)) but not the degree or the number of Bernstein terms.')],
+            scene: affineScene('affine-scale-up', [action('show-control-polygon', true), action('scale-affine', 2), action('show-evaluation-point', 0.5)], 'Krivulja je povečana z merilom \\(2\\).', 'The curve is enlarged by scale \\(2\\).'),
         },
         {
-            id: 'affine-analysis', order: 4, title: text('Samostojna primerjava', 'Independent comparison'),
-            purpose: text('Uporaba afine komutativnosti pri prostem raziskovanju.', 'Using affine commutation during free exploration.'),
-            explanation: text('Pri prostem raziskovanju primerjaj transformirane kontrolne točke z označeno vrednostjo krivulje.', 'During free exploration, compare transformed control points with the marked curve value.'),
+            id: 'affine-analysis', order: 5, title: text('Samostojna primerjava', 'Independent comparison'),
+            purpose: text('Uporaba afine komutativnosti pri sestavljeni transformaciji.', 'Using affine commutation for a composed transformation.'),
+            explanation: text('Sestavljena transformacija (premik, obrat, merilo) je spet afina preslikava, zato se transformirane kontrolne točke še vedno ujemajo z označeno vrednostjo krivulje. Središče obrata in merila se premika skupaj s krivuljo.', 'The composed transformation (translation, turn, scaling) is again an affine map, so the transformed control points still agree with the marked curve value. The centre of the turn and of the scaling moves with the curve.'),
             formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-analysis-explanation', 'explanation'), frame('affine-analysis-observation', 'observation')], learnerInteraction: 'observe',
             observationPrompt: text('Izberi transformacijo in preveri en parameter, za katerega lahko utemeljiš rezultat.', 'Choose a transformation and check one parameter value whose result you can justify.'),
             expectedObservations: [text('Transformacija vrednosti in transformirano vrednotenje kontrolnih točk se ujemata.', 'Transforming the value and evaluating transformed control points agree.')],
-            scene: scene('affine-translate-up', [action('show-control-polygon', true), action('translate-y', 0.5), action('show-evaluation-point', 0.75)], 'Končna scena pokaže premik za \\(\\tfrac{1}{2}\\) navzgor.', 'The final scene shows a translation by \\(\\tfrac{1}{2}\\) upward.'),
+            scene: affineScene('affine-composed', [action('show-control-polygon', true), action('translate-x', -2), action('translate-y', -1), action('rotate-affine', QUARTER_TURN), action('scale-affine', 2), action('show-evaluation-point', 0.75)], 'Prikazani so premik, četrtinski obrat in merilo \\(2\\) skupaj, označena točka je pri \\(t=\\tfrac{3}{4}\\).', 'Translation, quarter-turn and scale \\(2\\) are shown together, the marked point is at \\(t=\\tfrac{3}{4}\\).'),
         },
     ],
     sources: [
         {id: 'farin-affine-bezier', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.', supports: ['affine invariance of Bézier curves', 'control-point transformations'], implementationCorrespondence: 'The implementation transforms the point-controlled curve while evaluating the same Bernstein representation.'},
-        {id: 'bezeg-affine', citation: 'Bezeg source: src/graphs/curves/bezier/AffineTransformsBezierCurveGraph.tsx and src/bezeg/impl/curve/abstract-point-controlled-curve.ts.', supports: ['translation', 'scaling', 'rotation', 'reflection operations']},
+        {id: 'bezeg-affine', citation: 'Bezeg source: src/graphs/curves/bezier/AffineTransformsBezierCurveGraph.tsx and src/bezeg/impl/curve/abstract-point-controlled-curve.ts.', supports: ['translation', 'scaling', 'rotation', 'reflection operations'], implementationCorrespondence: 'rotate() calls transform() without a centre, so the pivot is the mean of the control points; scale() uses the centre of the control points\' bounding box; moveFor() adds a vector.'},
     ],
     edgeCases: [
         text('Afina transformacija lahko spremeni lego ali merilo, vendar ne sme ustvariti nove stopnje.', 'An affine transformation can change position or scale, but it does not create a new degree.'),
-        text('V tej lekciji se merilo uporablja kot enakomerno merilo okoli središča krivulje, kot ga izvaja graf.', 'This lesson uses uniform scaling around the curve center, as implemented by the graph.'),
+        text('Obrat in zrcaljenje graf izvede okoli povprečja kontrolnih točk, merilo pa okoli središča pravokotnika, ki objame kontrolne točke; pri splošni krivulji se središči razlikujeta (tu se ujemata v \\((3,1)\\)).', 'The graph turns and reflects about the mean of the control points and scales about the centre of the rectangle enclosing them; for a general curve these differ (here they coincide at \\((3,1)\\)).'),
     ],
-    unresolvedQuestions: [text('Pred ločeno lekcijo za vrtenje in zrcaljenje določi eksplicitno središče transformacije; trenutna grafična operacija ga izračuna iz kontrolnih točk.', 'Before a separate rotation and reflection lesson, define the transform center explicitly; the current graph operation derives it from the control points.')],
+    unresolvedQuestions: [text('Središče obrata in merila graf ne nariše; pred ločeno lekcijo za vrtenje in zrcaljenje preveri, ali ga je treba prikazati ali izbrati.', 'The graph does not draw the centre of the turn and the scaling; before a separate rotation and reflection lesson, decide whether it should be shown or chosen.')],
 };
 
 export const expansionGuidedLessons: readonly GuidedLesson[] = [rational, phQuintic, affine];

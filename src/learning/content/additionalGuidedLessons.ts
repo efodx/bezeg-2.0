@@ -255,18 +255,18 @@ const elevation: GuidedLesson = {
             title: text('Stopnja in kontrolne točke', 'Degree and control points'),
             purpose: text('Razlikovanje med geometrijo krivulje in njeno predstavitvijo.', 'Distinguishing the curve geometry from its representation.'),
             explanation: text(
-                'Kubična Bézierjeva krivulja ima štiri kontrolne točke. Višanje stopnje bo dodalo peto točko, vendar naj bi narisana krivulja ostala ista.',
-                'A cubic Bézier curve has four control points. Degree elevation will add a fifth point, while the drawn curve should stay the same.',
+                'Kubična Bézierjeva krivulja ima štiri kontrolne točke. Višanje stopnje bo dodalo peto točko, vendar naj bi narisana krivulja ostala ista. Polni poligon \\(P_0,\\dots,P_3\\) pripada krivulji, črtkani poligon s petimi točkami \\(Q_0,\\dots,Q_4\\) pa je poligon višane predstavitve iste krivulje.',
+                'A cubic Bézier curve has four control points. Degree elevation will add a fifth point, while the drawn curve should stay the same. The solid polygon \\(P_0,\\dots,P_3\\) belongs to the curve; the dashed five-point polygon \\(Q_0,\\dots,Q_4\\) is the polygon of the elevated representation of the same curve.',
             ),
             formulaIds: ['elevation-shape-invariance'],
             frames: [frame('elevation-degree-explanation', 'explanation'), frame('elevation-degree-observation', 'observation')],
             learnerInteraction: 'observe',
-            observationPrompt: text('Preštej kontrolne točke in opiši obliko krivulje pred višanjem stopnje.', 'Count the control points and describe the curve shape before elevation.'),
-            expectedObservations: [text('Privzeta krivulja ima štiri kontrolne točke in stopnjo 3.', 'The default curve has four control points and degree 3.')],
+            observationPrompt: text('Preštej točke polnega in črtkanega poligona ter ugotovi, kateri od njiju določa krivuljo, ki jo trenutno vlečeš.', 'Count the points of the solid and the dashed polygon and decide which of them defines the curve you are currently dragging.'),
+            expectedObservations: [text('Polni poligon ima štiri točke (stopnja 3), črtkani pet; krivulja je ena sama.', 'The solid polygon has four points (degree 3), the dashed one five; there is a single curve.')],
             scene: {
                 id: 'elevation-default', basedOn: 'demonstration-default',
                 actions: [{name: 'show-control-polygon', value: true}],
-                expectedState: text('Privzeta kubična krivulja in kontrolni poligon sta vidna.', 'The default cubic curve and control polygon are visible.'),
+                expectedState: text('Privzeta kubična krivulja z njenim polnim poligonom in črtkanim poligonom višane predstavitve sta vidna.', 'The default cubic curve with its solid polygon and the dashed polygon of the elevated representation are visible.'),
             },
         },
         {
@@ -280,12 +280,12 @@ const elevation: GuidedLesson = {
             formulaIds: ['elevation-control-points'],
             frames: [frame('elevation-formula-explanation', 'explanation'), frame('elevation-formula-observation', 'observation')],
             learnerInteraction: 'observe',
-            observationPrompt: text('Klikni za višanje stopnje in primerjaj novi kontrolni poligon s starim.', 'Elevate the degree and compare the new control polygon with the old one.'),
-            expectedObservations: [text('Število kontrolnih točk se poveča za eno, krajišči pa ostaneta isti.', 'The number of control points increases by one while the endpoints stay the same.')],
+            observationPrompt: text('Primerjaj polni poligon \\(P\\) s črtkanim \\(Q\\): kje se ujemata in kje se razlikujeta?', 'Compare the solid polygon \\(P\\) with the dashed polygon \\(Q\\): where do they agree and where do they differ?'),
+            expectedObservations: [text('Črtkani poligon ima eno točko več, krajišči \\(Q_0=P_0\\) in \\(Q_4=P_3\\) pa sta skupni.', 'The dashed polygon has one more point, while the endpoints \\(Q_0=P_0\\) and \\(Q_4=P_3\\) are shared.')],
             scene: {
-                id: 'elevation-raised', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}],
-                expectedState: text('Prikazana je stopnja 4 z novim kontrolnim poligonom.', 'Degree 4 and the new control polygon are shown.'),
+                id: 'elevation-both-polygons', basedOn: 'demonstration-default',
+                actions: [{name: 'show-control-polygon', value: true}],
+                expectedState: text('Polni poligon (štiri točke) in črtkani poligon višane predstavitve (pet točk) sta prikazana skupaj; krivulja je še stopnje 3.', 'The solid polygon (four points) and the dashed polygon of the elevated representation (five points) are shown together; the curve is still of degree 3.'),
             },
         },
         {
@@ -304,8 +304,8 @@ const elevation: GuidedLesson = {
             expectedObservations: [text('Vrednost \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) se ohrani, čeprav je kontrolni poligon drugačen.', 'The value \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) is preserved even though the control polygon is different.')],
             scene: {
                 id: 'elevation-calculation-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}],
-                expectedState: text('Višana krivulja je pripravljena za primerjavo pri \\(t=\\tfrac{1}{2}\\).', 'The elevated curve is ready for comparison at \\(t=\\tfrac{1}{2}\\).'),
+                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-evaluation-point', value: 0.5}],
+                expectedState: text('Oba poligona in točka \\(B(\\tfrac{1}{2})\\) sta prikazana; točka leži na krivulji, ne glede na to, kateri poligon jo določa.', 'Both polygons and the point \\(B(\\tfrac{1}{2})\\) are shown; the point lies on the curve whichever polygon defines it.'),
             },
         },
         {
@@ -313,8 +313,8 @@ const elevation: GuidedLesson = {
             title: text('Samostojna primerjava', 'Independent comparison'),
             purpose: text('Preverjanje ohranjene geometrije z več parametri.', 'Checking preserved geometry at several parameters.'),
             explanation: text(
-                'Višanje stopnje je uporabno, ko želimo enotno stopnjo ali dodatne kontrolne točke, ne da bi spremenili geometrijo krivulje.',
-                'Degree elevation is useful when a common degree or extra control points are needed without changing the curve geometry.',
+                'Višanje stopnje je uporabno, ko želimo enotno stopnjo ali dodatne kontrolne točke, ne da bi spremenili geometrijo krivulje. Po pritisku na gumb je polni poligon prejšnji črtkani \(Q\); novi črtkani poligon prikazuje naslednje višanje in ni prvotni \(P\).',
+                'Degree elevation is useful when a common degree or extra control points are needed without changing the curve geometry. After pressing the button the solid polygon is the former dashed \\(Q\\); the new dashed polygon previews the next elevation and is not the original \\(P\\).',
             ),
             formulaIds: ['elevation-shape-invariance'],
             frames: [frame('elevation-analysis-explanation', 'explanation'), frame('elevation-analysis-observation', 'observation')],
@@ -323,8 +323,8 @@ const elevation: GuidedLesson = {
             expectedObservations: [text('Pri običajnem intervalu se ujemajo vse preverjene točke, ne samo sredina.', 'All checked points agree on the ordinary interval, not only the midpoint.')],
             scene: {
                 id: 'elevation-analysis-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}],
-                expectedState: text('Končna višana predstavitev ostane na voljo za prosto raziskovanje.', 'The final elevated representation remains available for free exploration.'),
+                actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}, {name: 'show-evaluation-point', value: 0.75}],
+                expectedState: text('Krivulja je zdaj stopnje 4: polni poligon je prejšnji črtkani \\(Q\\), črtkani poligon kaže naslednje višanje na stopnjo 5.', 'The curve now has degree 4: the solid polygon is the former dashed \\(Q\\), the dashed polygon previews the next elevation to degree 5.'),
             },
         },
     ],
@@ -344,6 +344,7 @@ const elevation: GuidedLesson = {
     edgeCases: [
         text('Višanje stopnje ne pomeni, da so nove notranje kontrolne točke na prvotni krivulji.', 'Degree elevation does not mean that the new interior control points lie on the original curve.'),
         text('Preverjanje velja za isto geometrijsko krivuljo; dodatne točke spremenijo predstavitev in kontrolni poligon.', 'The check concerns the same geometric curve; the extra points change the representation and control polygon.'),
+        text('Po višanju graf prikaže le polni poligon nove predstavitve; prvotni poligon \\(P\\) ni več narisan, zato ju je mogoče primerjati le pred višanjem, ko je črtkani poligon pregled.', 'After elevation the graph draws only the new representation\'s solid polygon; the original \\(P\\) is no longer drawn, so the two can be compared together only before elevating, when the dashed polygon is a preview.'),
     ],
     unresolvedQuestions: [
         text('Pred classroom-ready pregledom je treba potrditi, ali naj učenci nove kontrolne točke izračunajo ročno ali jih najprej samo opazujejo.', 'Before classroom-ready review, confirm whether students should calculate the new control points by hand or first only observe them.'),

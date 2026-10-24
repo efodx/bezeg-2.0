@@ -40,5 +40,9 @@ test('records the checked mathematics for the expansion cohort', () => {
 
     const affine = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'affine')!;
     expect(affine.formulaBlocks.map(formula => formula.id)).toContain('affine-bezier-commutation');
-    expect(affine.steps[3].scene?.actions).toContainEqual({name: 'translate-y', value: 0.5});
+    expect(affine.steps).toHaveLength(5);
+    expect(affine.steps[1].scene?.actions).toContainEqual({name: 'translate-x', value: -2});
+    expect(affine.steps[1].scene?.actions).toContainEqual({name: 'translate-y', value: -1});
+    expect(affine.steps[2].scene?.actions).toContainEqual({name: 'rotate-affine', value: Math.PI / 2});
+    expect(affine.steps[3].scene?.actions).toContainEqual({name: 'scale-affine', value: 2});
 });
