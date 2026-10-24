@@ -579,23 +579,23 @@ const splineCn = {
     id: 'spline-cn',
     path: `${BASE}/spline/spline`,
     titles: {sl: 'Enostranski Cⁿ zlepek', en: 'One-sided Cⁿ spline'},
-    steps: 4,
-    minFrames: 10, // 2 + 3 + 3 + 2 frames
+    steps: 5,
+    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
         await expect.poll(async () => (await boardStats(page)).points).toBe(11);
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
         // Counter 0 is the continuity order, counter 1 the spline degree.
-        const [continuity, degreeValue, points] = [[1, 2, 11], [1, 2, 11], [2, 3, 13], [1, 2, 11]][step - 1];
+        const [continuity, degreeValue, points] = [[1, 2, 5], [1, 2, 5], [2, 3, 7], [1, 2, 11], [2, 3, 13]][step - 1];
         await expectCount(page, 0, continuity, `continuity at ${label}`);
         await expectCount(page, 1, degreeValue, `degree at ${label}`);
-        // 7 free points plus the derived points (4 at n=2, r=1; 6 at n=3, r=2).
+        // Steps 1-3: lesson fixtures with 4 / 4 / 5 free points plus 1 / 1 / 2 derived; step 4: the default 7 + 4; step 5: 7 + 6 derived.
         await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(points);
         expect((await boardStats(page)).curves, `one drawn spline curve at ${label}`).toBe(1);
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2);
-        // Step 3: some derived points lie far outside the default view (zoom out to see them).
-        if (step === 3) expect(await offscreenPoints(page), `derived points outside the default view at ${label}`).toBeGreaterThan(0);
+        // Fixture scenes set their own view, including the far-reaching limitations example at step 5.
+        if (step !== 4) expect(await offscreenPoints(page), `all points inside the lesson view at ${label}`).toBe(0);
     },
     prepareUserState: async page => {
         await page.getByRole('button', {name: 'Increase count'}).nth(1).click();
@@ -619,7 +619,8 @@ const splineCn = {
 };
 
 // Symmetric splines: 6 / 7 free points plus derived joints and inner points; the lessons only change switches.
-function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps}) {
+// `stepPoints` gives the per-step point count where lesson fixtures replace the default scene.
+function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps, stepPoints}) {
     return {
         id, path, titles, steps, minFrames,
         setup: async page => {
@@ -627,7 +628,8 @@ function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygon
             return {};
         },
         stepProbe: async (page, ctx, step, label) => {
-            await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(points);
+            const expected = stepPoints ? stepPoints[step - 1] : points;
+            await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(expected);
             expect((await boardStats(page)).curves, `one drawn spline curve at ${label}`).toBe(1);
             const switches = await splineSwitches(page);
             expect(switches.polygon, `control polygon at ${label}`).toBe(polygonSteps.includes(step));
@@ -643,7 +645,7 @@ function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygon
         duringLesson: async page => {
             await expect.poll(() => splineSwitches(page), {message: 'lesson scene replaces the user switches'})
                 .toMatchObject({labels: true, hideFixed: false});
-            expect((await boardStats(page)).points).toBe(points);
+            expect((await boardStats(page)).points).toBe(stepPoints ? stepPoints[1] : points);
         },
         assertUserState: async (page, ctx, saved) => {
             await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
@@ -657,10 +659,12 @@ function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygon
 const splineC1 = symmetricSplineRow({
     id: 'spline-c1', path: `${BASE}/spline/c1spline`, titles: {sl: 'Simetrični C¹ zlepek', en: 'Symmetric C¹ spline'},
     steps: 5, minFrames: 12, points: 9, polygonSteps: [2, 3], // 6 free points + 3 joints; 2 + 3 + 2 + 2 + 3 frames
+    stepPoints: [5, 5, 5, 9, 5], // fixtures: 4 free + 1 joint; step 4 keeps the default
 });
 const splineC2 = symmetricSplineRow({
     id: 'spline-c2', path: `${BASE}/spline/c2spline`, titles: {sl: 'Simetrični C² zlepek', en: 'Symmetric C² spline'},
     steps: 4, minFrames: 10, points: 16, polygonSteps: [2, 3], // 7 free points + 9 derived; 2 + 3 + 3 + 2 frames
+    stepPoints: [12, 12, 12, 16], // fixtures: 6 free + 6 derived; step 4 keeps the default
 });
 
 // G1 splines: sliders are the first inspector ranges (b for the one-sided, beta for the symmetric spline).
@@ -669,7 +673,7 @@ const splineG1 = {
     path: `${BASE}/spline/g1spline`,
     titles: {sl: 'Enostranski G¹ zlepek', en: 'One-sided G¹ spline'},
     steps: 5,
-    minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
         await expect.poll(async () => (await boardStats(page)).points).toBe(7);
         await expect(page.getByText('Parameter b', {exact: true}).first(), 'sliders are labelled "Parameter b"').toBeVisible();
@@ -678,11 +682,13 @@ const splineG1 = {
     stepProbe: async (page, ctx, step, label) => {
         // The slider snaps to its grid (b = 1 reads 0.9967), hence the tolerance of 0.05.
         await expectRange(page, 0, [1, 1, 0.25, 2.5, 0.25][step - 1], `first b slider at ${label}`);
-        await expectRange(page, 1, 1, `second b slider unchanged at ${label}`);
-        await expect.poll(async () => (await boardStats(page)).points, {message: `5 free + 2 derived points at ${label}`}).toBe(7);
-        // Even at b = 5/2 the derived point must stay inside the default view.
-        expect(await offscreenPoints(page), `all points visible in the default view at ${label}`).toBe(0);
-        expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2 || step === 5);
+        // Steps 1-4: one joint (4 free + 1 derived, one slider); step 5: the chain (5 free + 2 derived, two sliders).
+        if (step === 5) await expectRange(page, 1, 1, `second b slider unchanged at ${label}`);
+        const points = [5, 5, 5, 5, 7][step - 1];
+        await expect.poll(async () => (await boardStats(page)).points, {message: `free + derived points at ${label}`}).toBe(points);
+        // Even at b = 5/2 the derived point must stay inside the lesson view.
+        expect(await offscreenPoints(page), `all points visible in the lesson view at ${label}`).toBe(0);
+        expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step >= 2);
     },
     prepareUserState: async page => {
         await setRange(page, 0, 1.5);
@@ -696,7 +702,7 @@ const splineG1 = {
         await expectRange(page, 1, 1, 'second b untouched');
         expect((await boardStats(page)).points).toBe(before.points);
     },
-    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100), b1: Math.round((await rangeValue(page, 1)) * 100)}),
+    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100)}),
 };
 
 const splineG1Symmetric = {
@@ -711,9 +717,11 @@ const splineG1Symmetric = {
     },
     stepProbe: async (page, ctx, step, label) => {
         // beta0, beta1, beta2 sliders; the slider grid is 0.005 wide, so 0.25 reads 0.245.
-        const betas = [[0.5, 0.5, 0.5], [0.25, 0.5, 0.5], [0.75, 0.5, 0.5], [0.5, 0.75, 0.5], [0.99, 0.5, 0.5]][step - 1];
+        // Only step 4 keeps the default scene with three sliders; the other steps are one-joint fixtures.
+        const betas = [[0.5], [0.25], [0.75], [0.5, 0.75, 0.5], [0.99]][step - 1];
         for (const [index, value] of betas.entries()) await expectRange(page, index, value, `beta${index} at ${label}`);
-        await expect.poll(async () => (await boardStats(page)).points, {message: `6 free + 3 joint points at ${label}`}).toBe(9);
+        const points = [5, 5, 5, 9, 5][step - 1];
+        await expect.poll(async () => (await boardStats(page)).points, {message: `free + joint points at ${label}`}).toBe(points);
         expect(await offscreenPoints(page), `all points visible at ${label}`).toBe(0);
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step <= 3);
     },
@@ -728,7 +736,7 @@ const splineG1Symmetric = {
         await expectRange(page, 0, 0.3, 'beta0 restored after exit');
         expect((await boardStats(page)).points).toBe(before.points);
     },
-    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100), b1: Math.round((await rangeValue(page, 1)) * 100)}),
+    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100)}),
 };
 
 const splineParameterization = {
