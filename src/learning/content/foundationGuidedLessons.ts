@@ -267,11 +267,11 @@ const rationalElevation: GuidedLesson = {
         {
             id: 'rational-elevation-default-example',
             title: text('Eno višanje privzete krivulje', 'One elevation of the default curve'),
-            calculationLatex: "P=(-4,-3),(-3,3),(3,3),(4,-3),\\ w=(1,2,1,1);\\ w'_1=\\tfrac14\\cdot1+\\tfrac34\\cdot2",
+            calculationLatex: "P=(-4,-3),(-3,3),(3,3),(4,-3),\\ w=(1,2,1,1);\\ w'_1=\\tfrac14\\cdot1+\\tfrac34\\cdot2=\\tfrac74;\\ \\hat Q_1=\\tfrac14(-4,-3,1)+\\tfrac34(-6,6,2)=\\left(-\\tfrac{11}2,\\tfrac{15}4,\\tfrac74\\right)",
             resultLatex: "w'=\\left(1,\\tfrac74,\\tfrac32,1,1\\right),\\ Q_1=\\left(-\\tfrac{22}{7},\\tfrac{15}{7}\\right),\\ Q_2=(-1,3),\\ Q_3=\\left(\\tfrac{13}{4},\\tfrac32\\right)",
             check: text(
-                '\\(Q_1=\\left(-\\tfrac{22}{7},\\,\\tfrac{15}{7}\\right)\\) se razlikuje od neuteženega povprečja \\(\\left(-3{,}25;\\,1{,}5\\right)\\), ker ima \\(P_1\\) večjo utež; preveri tudi, da krivulja ostane enaka.',
-                '\\(Q_1=\\left(-\\tfrac{22}{7},\\,\\tfrac{15}{7}\\right)\\) differs from the unweighted blend \\(\\left(-3.25,\\,1.5\\right)\\) because \\(P_1\\) has the larger weight; also check that the curve stays the same.',
+                '\\(Q_1=\\left(-\\tfrac{22}{7},\\,\\tfrac{15}{7}\\right)\\) se razlikuje od neuteženega povprečja \\(\\left(-3{,}25;\\,1{,}5\\right)\\), ker ima \\(P_1\\) večjo utež. Homogeno točko \\(\\hat Q_1=\\left(-\\tfrac{11}{2},\\,\\tfrac{15}{4},\\,\\tfrac{7}{4}\\right)\\) projiciramo z deljenjem z zadnjo koordinato \\(\\tfrac{7}{4}\\); krivulja ostane enaka, ker višanje homogenih točk ne spremeni homogene krivulje.',
+                '\\(Q_1=\\left(-\\tfrac{22}{7},\\,\\tfrac{15}{7}\\right)\\) differs from the unweighted blend \\(\\left(-3.25,\\,1.5\\right)\\) because \\(P_1\\) has the larger weight. The homogeneous point \\(\\hat Q_1=\\left(-\\tfrac{11}{2},\\,\\tfrac{15}{4},\\,\\tfrac{7}{4}\\right)\\) is projected by dividing by its last coordinate \\(\\tfrac{7}{4}\\); the curve stays the same because elevating the homogeneous points does not change the homogeneous curve.',
             ),
         },
     ],
@@ -319,8 +319,8 @@ const rationalElevation: GuidedLesson = {
             title: text('Eno višanje', 'One elevation'),
             purpose: text('Opazovanje nove stopnje, točk in uteži.', 'Observing the new degree, points, and weights.'),
             explanation: text(
-                'Po enem višanju ima krivulja stopnjo 4 in pet točk z utežmi \\(\\left(1,\\,\\tfrac{7}{4},\\,\\tfrac{3}{2},\\,1,\\,1\\right)\\). Krajišči ostaneta, oblika krivulje pa se ne spremeni.',
-                'After one elevation the curve has degree 4 and five points with weights \\(\\left(1,\\,\\tfrac{7}{4},\\,\\tfrac{3}{2},\\,1,\\,1\\right)\\). The endpoints stay, and the curve shape does not change.',
+                'Po enem višanju ima krivulja stopnjo 4 in pet točk z utežmi \\(\\left(1,\\,\\tfrac{7}{4},\\,\\tfrac{3}{2},\\,1,\\,1\\right)\\) namesto prvotnih \\(\\left(1,\\,2,\\,1,\\,1\\right)\\). Prvotni poligon se po višanju ne izriše več; primerjaj s prejšnjima korakoma. Krajišči ostaneta, oblika krivulje pa se ne spremeni.',
+                'After one elevation the curve has degree 4 and five points with weights \\(\\left(1,\\,\\tfrac{7}{4},\\,\\tfrac{3}{2},\\,1,\\,1\\right)\\) instead of the original \\(\\left(1,\\,2,\\,1,\\,1\\right)\\). The original polygon is no longer drawn after elevation; compare with the previous steps. The endpoints stay, and the curve shape does not change.',
             ),
             formulaIds: ['rational-elevation-weights-points'],
             frames: [frame('rational-elevation-once-explanation', 'explanation'), frame('rational-elevation-once-observation', 'observation')],
