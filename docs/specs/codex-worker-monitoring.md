@@ -30,3 +30,19 @@ Use Node's built-in test runner for the watcher; no production app build or brow
 - The final suite and syntax checks passed locally on Windows. Developer tools CI now includes the watcher suite on Windows and Linux; remote CI outcome is separate from local verification. Documentation links and whitespace were checked. No application behavior, routes, mathematical operations or localization changed, so no app build or browser smoke was required.
 
 This verifies automatic detection plus a handler relay, including a real below-to-above crossing. It does not establish hard enforcement, a universal 15k margin, behavior at 150k, savings, compaction quality, or safe cancellation of arbitrary external processes. The handler still needs to consume watcher output promptly. No hosted collaboration API is exposed to the shell watcher; a fully autonomous process-to-agent interrupt would require a separately supported control integration.
+
+## Handler overhead follow-up
+
+The owner requested handler-cost accounting after implementation. The watcher itself has no model calls; its surrounding orchestration can be expensive. The following observed handler request usage comes from this chat's local rollout `token_usage_record.payload.usage`, associating each selected tool-generating response with its following usage record. Only the live synthetic watcher's launch/polls (process session 22324, execution cells 31/32) and the final handoff relay were selected, between 09:36:56 and 09:39:03 UTC on 2026-10-24. Development, review-worker dispatch, probe correction, and later evidence analysis are excluded.
+
+| Handler responses | Count | Input | Cached subset | Output |
+| --- | ---: | ---: | ---: | ---: |
+| Watcher launch, dedicated polls and cell resumes | 6 | 647624 | 646144 | 497 |
+| Handoff relay | 1 | 112236 | 111872 | 93 |
+| Polling combined with source review or live inspection | 4 | 438326 | 436608 | 870 |
+
+The dedicated monitoring plus relay group totals **759860 input, 758016 cached, 1844 uncached, and 590 output tokens**. Including all mixed responses gives 1198186 input and 1460 output, but that overattributes useful work to monitoring. These are observed requests, not a counterfactual marginal-cost measurement or a final bill; later rereading of the added polling history is not included. Cached tokens are a subset of input, not extra tokens.
+
+Handler turn configuration recorded GPT-6.1 Sol. At the published Standard credit rates checked on 2026-10-24 (50/2.5/250 credits per million uncached input/cached input/output), the dedicated group plus relay illustrates **2.135 credits**, or **3.530** if every mixed response is included. Actual account deductions and included subscription limits cannot be inferred from these calculations. The synthetic Luna worker's entire recorded usage (1053895 input, 1015680 cached, 2573 output) illustrates 0.382 credits at its 2.5/0.25/12.5 rates. This is not a comparable useful-task benchmark, but it shows why a stronger handler's extra round trips can outweigh cheaper-worker savings. Sources: [credit pricing](https://learn.chatgpt.com/docs/pricing), [usage semantics](https://developers.openai.com/api/docs/guides/agents-api/observability).
+
+The handler procedure now batches idle process waits within a tool execution rather than specifying one model round trip per five-second poll, and prefers checks alongside useful work. This is an overhead-reduction recommendation, not a measured savings result. Future trial acceptance must include handler launch/poll/resume/relay costs, worker handoff/fresh-context setup, and avoided worker usage with model/cache weighting; worker input peaks alone cannot establish a net gain. No new live synthetic run was incurred solely for this retrospective analysis.

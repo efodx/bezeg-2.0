@@ -15,12 +15,18 @@ The default trigger is 135000 request-input tokens (150000 budget minus 15000 ma
 ### Handler procedure
 
 1. Launch with `exec_command` as a background command. Retain its process/session handle alongside the worker path; do not detach it with an unmanaged process launcher.
-2. Consume output while the worker runs. If the command yields a session ID, poll with `write_stdin` using bounded waits (five seconds while waiting for the worker), and check the watcher between independent tasks. Process exit alone does not guarantee a Codex wakeup. Do not wait solely on `wait_agent` with unread watcher output.
+2. Consume output while the worker runs. If the command yields a session ID, check it alongside useful handler work. When idle, batch `write_stdin` waits inside one `functions.exec` execution (for example, five-second process waits for up to fifty seconds), returning on terminal output or process exit. Do not use a separate model turn for every five-second poll. Retain the session handle across bounded batches and yield promptly on output; if an execution cell yields, resume that cell instead of launching another watcher. Process exit alone does not guarantee a Codex wakeup. Do not wait solely on `wait_agent` with unread watcher output.
 3. Parse the terminal JSON. On `handoff_required`, call collaboration `send_message` with `target` equal to the event's `agent_path`: `HANDOFF: input budget trigger reached. Stop at a consistent point, write the assigned handoff note with state, remaining work, touched files and checks, and return partial.` The initial brief must name a handoff-note path. Do not assign more work to that child.
 4. Inspect the partial response and note. If no response arrives at the next tool boundary, use `interrupt_agent` then `followup_task` requesting the note. Interruption does not guarantee cancellation of external processes or safe partial writes; inspect affected files/processes. Continue with a fresh worker from the note when its old history is unnecessary.
 5. On `completed`, review the actual worker result separately. On telemetry failure, report monitoring as unverified, inspect the reason, and retain the brief's 40-turn fallback. Missing usage never means below budget. If the worker is cancelled or the handler finishes early, stop any remaining watcher using its retained process/session handle and record incomplete coverage.
 
 The Node process cannot invoke hosted collaboration tools: detection is automatic and the handler relays the handoff. This is cooperative enforcement, not a hard cap. Telemetry describes completed requests; polling and delivery add delay; a single request can cross the entire margin. The 15k margin is not a proven Codex overshoot bound. Transcript layout is an implementation detail; unsupported telemetry is a monitoring failure.
+
+### Handler overhead
+
+The Node polling loop makes no model requests. Handler launches, empty polls, execution-cell resumes and handoff messages do consume model usage, including rereading cached history. In the first live probe, six monitoring-only responses plus the relay processed about 760k input (758016 cached) and 590 output tokens; four mixed polling/work responses added 438326 input and 870 output, which cannot all be attributed to monitoring. See the [measured overhead](../../docs/specs/codex-worker-monitoring.md#handler-overhead-follow-up) for scope and limits.
+
+Account for handler overhead when assessing the budget trial. Prefer polling alongside useful work and batching idle waits within tools; compare total model-weighted handler and worker usage, including handoff and fresh-worker setup, against avoided worker usage. A lower worker peak alone is not an efficiency win. Longer handler wait batches reduce model round trips, but may delay the relay; no revised batch setting has a validated overshoot bound.
 
 ### Output and exits
 
