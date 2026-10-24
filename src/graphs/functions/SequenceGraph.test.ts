@@ -236,7 +236,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         return graph.model;
     });
     expect(finals).toEqual([
-        model({terms: 8}),
+        model({epsilon: 0.25, terms: 12}),
         model({terms: 12, threshold: 11, certificateVisible: true}),
         model({epsilon: 0.01, terms: 40}),
         model({...SEQUENCE_EXAMPLE_MODELS['alternating-reciprocal'], terms: 12}),

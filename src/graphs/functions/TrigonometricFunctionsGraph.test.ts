@@ -104,7 +104,7 @@ test('a multi-action scene applied in one synchronous tick uses the model even t
 
 test('every lesson scene reproduces the state its expectedState describes', () => {
     const lesson = getLessonForDemonstration('trigonometric-functions')!;
-    expect(lesson.steps).toHaveLength(5);
+    expect(lesson.steps).toHaveLength(7);
     const finals = lesson.steps.map(step => {
         const graph = makeGraph();
         // Start from a deliberately different user state so that the default scene has to reset it.
@@ -119,9 +119,11 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     });
     const expected = [
         {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0, reference: false},
-        {fn: 'sin', A: 2, omega: 1, phi: 0, B: -1, reference: false},
-        {fn: 'sin', A: 2, omega: 2, phi: Math.PI / 2, B: 1, reference: false},
+        {fn: 'sin', A: 2, omega: 1, phi: 0, B: 0, reference: true},
+        {fn: 'sin', A: 1, omega: 1, phi: 0, B: 1, reference: true},
+        {fn: 'sin', A: 1, omega: 2, phi: 0, B: 0, reference: true},
         {fn: 'sin', A: 1, omega: 1, phi: Math.PI / 2, B: 0, reference: true},
+        {fn: 'sin', A: 2, omega: 2, phi: Math.PI / 2, B: 1, reference: false},
         {fn: 'tan', A: 1, omega: 1, phi: 0, B: 0, reference: false},
     ];
     finals.forEach((model, index) => {

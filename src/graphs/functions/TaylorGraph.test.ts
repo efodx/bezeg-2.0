@@ -471,7 +471,7 @@ test('a multi-action scene applied in one synchronous tick uses the model even t
 test('every lesson scene reproduces the state its expectedState describes', () => {
     const lesson = getLessonForDemonstration('taylor')!;
     expect(lesson.id).toBe('taylor-guided');
-    expect(lesson.steps).toHaveLength(7);
+    expect(lesson.steps).toHaveLength(8);
     const finals = lesson.steps.map(step => {
         const graph = makeGraph({asyncState: false});
         // a deliberately different user state that the default scene must reset
@@ -484,6 +484,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     });
     expect(finals).toEqual([
         [{example: 'exp', center: 0, degree: 1, x: 1, boundVisible: false}, ['hidden']],
+        [{example: 'exp', center: 0, degree: 2, x: 1, boundVisible: false}, ['hidden']],
         [{example: 'exp', center: 0, degree: 6, x: 1, boundVisible: true}, ['revealed']],
         [{example: 'sine', center: 0, degree: 3, x: 2, boundVisible: false}, ['hidden']],
         [{example: 'sine', center: 0, degree: 3, x: 2, boundVisible: true}, ['revealed']],
@@ -492,8 +493,11 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         [{example: 'flat', center: 0, degree: 3, x: 1, boundVisible: true}, ['revealed', 'no-bound', 'flat']],
     ]);
     // the numbers the lesson prose states
+    const lowDegree = makeGraph({asyncState: false});
+    for (const action of lesson.steps[1].scene!.actions) apply(lowDegree, action);
+    expect(rows(lowDegree)).toMatchObject({polynomial: '2,5', 'absolute-error': '0,2183'});
     const graph = makeGraph({asyncState: false});
-    for (const action of lesson.steps[1].scene!.actions) apply(graph, action);
+    for (const action of lesson.steps[2].scene!.actions) apply(graph, action);
     expect(rows(graph)).toMatchObject({polynomial: '2,7181', 'absolute-error': '0,0002263', bound: '0,0005393'});
 });
 
