@@ -20,7 +20,7 @@ const expectPoint = (actual: {X(): number; Y(): number}, x: number, y: number) =
 };
 
 const expectedSteps: Record<string, number> = {
-    'decasteljau-alternative': 5,
+    'decasteljau-alternative': 7,
     'farin': 5,
     'circle': 5,
 };
@@ -30,7 +30,7 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
     for (const lesson of rationalConstructionGuidedLessons) {
         expect(lesson.steps).toHaveLength(expectedSteps[lesson.demonstrationId]);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
-        expect(lesson.steps.length).toBeLessThanOrEqual(6);
+        expect(lesson.steps.length).toBeLessThanOrEqual(7);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
         expect(new Set(lesson.steps.map(step => step.id)).size).toBe(lesson.steps.length);
         expect(new Set(lesson.steps.flatMap(step => step.frames.map(frame => frame.id))).size)
@@ -64,7 +64,9 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
                 expect(exampleIds.has(step.workedExampleId)).toBe(true);
                 usedExamples.add(step.workedExampleId);
             }
-            expect(step.scene?.basedOn).toBe('demonstration-default');
+            const startsFromFixture = lesson.demonstrationId === 'decasteljau-alternative'
+                && ['da-cubic-two-quadratics', 'da-cubic-quarter'].includes(step.id);
+            expect(step.scene?.basedOn).toBe(startsFromFixture ? 'lesson-fixture' : 'demonstration-default');
             for (const action of step.scene?.actions ?? []) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
@@ -101,6 +103,7 @@ test('each lesson only uses the scene actions of its own graph, with valid value
         expect(action.value as number).toBeLessThanOrEqual(12);
     }
     expect(lessonFor('decasteljau-alternative').steps.map(step => step.scene!.actions)).toEqual([
+        [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
         [], [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
         [{name: 'set-decasteljau-parameter', value: 0.75}], [{name: 'set-decasteljau-parameter', value: 0.5}],
     ]);

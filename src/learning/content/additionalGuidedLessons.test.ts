@@ -41,5 +41,7 @@ test('records the degree-elevation invariants for the polynomial default', () =>
     const lesson = additionalGuidedLessons.find(item => item.demonstrationId === 'elevation')!;
     expect(lesson.formulaBlocks.map(formula => formula.id)).toEqual(['elevation-control-points', 'elevation-shape-invariance']);
     expect(lesson.workedExamples[0].resultLatex).toContain('\\frac12,3');
-    expect(lesson.steps[1].scene?.actions).toContainEqual({name: 'elevate-degree', value: true});
+    expect(lesson.steps[1].scene?.actions).not.toContainEqual({name: 'elevate-degree', value: true});
+    expect(lesson.steps[3].scene?.actions).toContainEqual({name: 'elevate-degree', value: true});
+    expect(lesson.steps[2].scene?.actions).toContainEqual({name: 'show-evaluation-point', value: 0.5});
 });
