@@ -2,7 +2,7 @@
 
 **Source spec:** [Lesson example improvements](../../specs/lesson-example-improvements.md)
 
-**Status:** planned 2026-10-20; no implementation or browser acceptance completed under this plan.
+**Status:** planned 2026-10-20. Tasks 00–08 implemented and unit-verified 2026-10-25; no browser acceptance yet. Task 09 not started. Handoff: [handoff-2026-10-25](../../reviews/lesson-example-improvements/handoff-2026-10-25.md).
 
 These tasks cover all 45 available lessons from the source review. Read the source spec's shared acceptance and verification requirements, then the assigned task. Exact scene geometry and visual acceptance remain implementation work where only a candidate is specified.
 
@@ -10,15 +10,15 @@ These tasks cover all 45 available lessons from the source review. Read the sour
 
 | Batch | Task | Depends on | Status |
 | --- | --- | --- | --- |
-| A | [00 Lesson scene preparation](00-lesson-scene-preparation.md) | None | Planned |
-| A | [01 Bézier, interpolation, affine, elevation](01-bezier-and-interpolation.md) | 00 | Planned |
-| A | [02 PH examples](02-ph-examples.md) | 00 | Planned |
-| B | [03 Rational constructions](03-rational-constructions.md) | 00; coordinate with 01 | Planned |
-| B | [04 Spline constructions](04-spline-constructions.md) | 00 | Planned |
-| C | [05 Parameterization](05-parameterization.md) | 00, 04; coordinate with 02 | Planned |
-| C | [06 Function example sequences](06-function-example-sequences.md) | None | Planned |
-| C | [07 Convergence examples](07-convergence-examples.md) | None | Planned |
-| D | [08 Retained-example regression review](08-retained-examples.md) | 00–07 | Planned |
+| A | [00 Lesson scene preparation](00-lesson-scene-preparation.md) | None | Implemented; acceptance pending |
+| A | [01 Bézier, interpolation, affine, elevation](01-bezier-and-interpolation.md) | 00 | Implemented; acceptance pending |
+| A | [02 PH examples](02-ph-examples.md) | 00 | Implemented; acceptance pending |
+| B | [03 Rational constructions](03-rational-constructions.md) | 00; coordinate with 01 | Implemented; acceptance pending |
+| B | [04 Spline constructions](04-spline-constructions.md) | 00 | Implemented; acceptance pending |
+| C | [05 Parameterization](05-parameterization.md) | 00, 04; coordinate with 02 | Implemented; acceptance pending |
+| C | [06 Function example sequences](06-function-example-sequences.md) | None | Implemented; acceptance pending |
+| C | [07 Convergence examples](07-convergence-examples.md) | None | Implemented; acceptance pending |
+| D | [08 Retained-example regression review](08-retained-examples.md) | 00–07 | Implemented; acceptance pending |
 | D | [09 Integration and acceptance](09-integration-and-acceptance.md) | 00–08 | Planned |
 
 Batch labels express priority, not a requirement to implement every earlier batch before starting independent work. Task 00 first establishes the shared preparation boundary; it may close with evidence that existing capabilities suffice. Do not build infrastructure merely because a task exists.
