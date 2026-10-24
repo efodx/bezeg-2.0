@@ -386,7 +386,7 @@ const rationalExtrapolation = {
         const weights = [[1, 2, 1, 1], [1, 2, 1, 1], [1, 2.2, 0.52, 1.14], [1, 2.5, -0.5, 2.13]][step - 1];
         await expectWeights(page, weights, `weights at ${label}`);
         if (step === 3) { await expectPointNear(page, [-2.91, 3.55]); await expectPointNear(page, [13.54, 2.54]); }
-        // The third control point (negative weight) lies at (-29.5, 6), outside the default view; the lesson says so and points to Zoom out.
+        // The advanced comparison sets a view that contains the negative-weight control point at (-29.5, 6).
         if (step === 4) { await expectPointNear(page, [-2.8, 4.2]); await expectPointNear(page, [-29.5, 6]); }
     },
     prepareUserState: async page => {
@@ -1867,7 +1867,241 @@ const fixedPoint = {
     stableCounts: async page => ({step: await fixedPointReadout(page, 'step'), tolerance: await fixedPointReadout(page, 'tolerance')}),
 };
 
-const LESSONS = [bernstein, rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// ---------------------------------------------------------------- Pilot lessons (bezier, decasteljau, affine, elevation, rational, rational-decasteljau, PH)
+// Expected values come from the scene fixtures in src/learning/content (see docs/reviews/lesson-example-improvements/pilot-smoke-rows.md).
+const expectPointsNear = async (page, points, label) => { for (const point of points) await expectPointNear(page, point, `${label}: point near (${point})`); };
+const polygonRestoreRow = {
+    prepareUserState: async page => {
+        await setSwitch(page, 'polygon', false);
+        expect(await switchByName(page, 'polygon').isChecked()).toBe(false);
+        return await boardStats(page);
+    },
+    duringLesson: async page => {
+        await expect.poll(() => switchByName(page, 'polygon').isChecked(), {message: 'lesson scene turns the control polygon on'}).toBe(true);
+    },
+    assertUserState: async page => {
+        await expect.poll(() => switchByName(page, 'polygon').isChecked(), {message: 'control polygon restored OFF after exit'}).toBe(false);
+    },
+};
+
+const BEZIER_SYMMETRIC = [[-3, -2], [-3, 2], [3, 2], [3, -2]];
+const bezierPilot = {
+    id: 'bezier',
+    path: `${BASE}/bezier/curve`,
+    titles: {sl: 'Bézierjeva krivulja: od točk do oblike', en: 'Bézier curve: from points to shape'},
+    steps: 6,
+    minFrames: 14, // 2 + 2 + 2 + 3 + 3 + 2 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        if (step <= 4) await expectPointsNear(page, BEZIER_SYMMETRIC, `symmetric cubic at ${label}`);
+        if (step === 4) await expectPointNear(page, [0, 1], `B(1/2) marker at ${label}`);
+        if (step === 5) {
+            await expectPointsNear(page, [[-3, -2], [-1, 3], [2, -1], [3, 2]], `asymmetric cubic at ${label}`);
+            await expectPointNear(page, [0.38, 0.75], `B(1/2) marker at ${label}`);
+        }
+        // unverified: one curve object per scene, stable across steps (no accumulation).
+        const curves = (await boardStats(page)).curves;
+        ctx.curves ??= curves;
+        expect(curves, `curve count stable at ${label}`).toBe(ctx.curves);
+    },
+    ...polygonRestoreRow, // unverified: the plain route's polygon switch label and default
+    exitStep: 3,
+    stableCounts: async page => ({polygon: await switchByName(page, 'polygon').isChecked()}),
+};
+
+const decasteljauPilot = {
+    id: 'decasteljau',
+    path: `${BASE}/bezier/decasteljau`,
+    titles: {sl: 'De Casteljaujeva konstrukcija', en: 'De Casteljau construction'},
+    steps: 7,
+    minFrames: 19, // 2 + 3 + 2 + 3 + 3 + 3 + 3 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        await expectRange(page, 0, [0.5, 0.5, 0.5, 0.5, 0.25, 0.75, 0.5][step - 1], `t slider at ${label}`, 2); // unverified: slider index 0
+        const rows = {
+            1: [[-3, -2], [0, 4], [3, -2], [-1.5, 1], [1.5, 1], [0, 1]],
+            4: [[-3, -2], [-3, 2], [3, 2], [3, -2], [-3, 0], [0, 2], [3, 0], [-1.5, 1], [1.5, 1], [0, 1]],
+            5: [[-3, -1], [-1.5, 2], [3, 1], [-2.63, -0.25], [-0.38, 1.75], [-2.06, 0.25]],
+            6: [[-3, 1], [1.5, 2], [3, -1], [0.38, 1.75], [2.63, -0.25], [2.06, 0.25]],
+            7: [[0, 1.75]],
+        };
+        const key = step <= 3 ? 1 : step;
+        await expectPointsNear(page, rows[key], `construction rows at ${label}`); // unverified: scheme points are visible board points
+        // unverified: point count is stable within a degree (quadratic steps 1-3, cubic steps 4-6) and grows with the degree.
+        const kind = step <= 3 ? 'quadratic' : step <= 6 ? 'cubic' : 'quartic';
+        const points = (await boardStats(page)).points;
+        ctx[kind] ??= points;
+        expect(points, `points stable for the ${kind} at ${label}`).toBe(ctx[kind]);
+        if (ctx.quadratic !== undefined && ctx.cubic !== undefined) expect(ctx.cubic, 'cubic has more points').toBeGreaterThan(ctx.quadratic);
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 0.8);
+        await expectRange(page, 0, 0.8, 'user-set t', 1);
+        return await boardStats(page);
+    },
+    exitStep: 5,
+    duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user t', 2); },
+    assertUserState: async (page, ctx, before) => {
+        await expectRange(page, 0, 0.8, 't restored after exit', 1);
+        expect((await boardStats(page)).points).toBe(before.points);
+    },
+    stableCounts: async page => ({t: await rangeValue(page, 0)}),
+};
+
+// Affine fixture (3,1) is both the mean of the control points and the centre of their bounding box.
+const AFFINE_STEPS = {
+    1: [[1, 0], [2, 3], [4, 2], [5, -1]],
+    2: [[-1, -1], [0, 2], [2, 1], [3, -2]], // translate (-2,-1)
+    3: [[4, -1], [1, 0], [2, 2], [5, 3]], // unverified: counter-clockwise quarter-turn about (3,1): (x,y) -> (4-y, x-2)
+    4: [[-1, -1], [1, 5], [5, 3], [7, -3]], // scale 2 about (3,1): (x,y) -> (2x-3, 2y-1)
+};
+const affinePilot = {
+    id: 'affine',
+    path: `${BASE}/bezier/affine`,
+    titles: {sl: 'Afine transformacije Bézierjeve krivulje', en: 'Affine transformations of a Bézier curve'},
+    steps: 5,
+    minFrames: 13, // 2 + 3 + 3 + 3 + 2 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        if (AFFINE_STEPS[step]) await expectPointsNear(page, AFFINE_STEPS[step], `control points at ${label}`);
+        const curves = (await boardStats(page)).curves;
+        ctx.curves ??= curves; // unverified: curve count constant across transformations
+        expect(curves, `curve count stable at ${label}`).toBe(ctx.curves);
+    },
+    ...polygonRestoreRow,
+    exitStep: 3,
+    stableCounts: async page => ({polygon: await switchByName(page, 'polygon').isChecked()}),
+};
+
+const ELEVATION_P = [[-4, -2], [-3, 3], [2, 3], [3, -2]];
+const elevationPilot = {
+    id: 'elevation',
+    path: `${BASE}/bezier/elevation`,
+    titles: {sl: 'Višanje stopnje brez spremembe krivulje', en: 'Degree elevation without changing the curve'},
+    steps: 4,
+    minFrames: 9, // 2 + 2 + 3 + 2 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        if (step <= 3) await expectPointsNear(page, ELEVATION_P, `P_0..P_3 at ${label}`);
+        if (step === 3) await expectPointNear(page, [-0.5, 1.75], `B(1/2) marker at ${label}`);
+        if (step === 4) await expectPointNear(page, [1.63, 0.81], `B(3/4) marker at ${label}`); // 1.625, 0.8125 from the Bernstein weights
+        // unverified: steps 1-3 share one point count; the elevated step has exactly one more.
+        const points = (await boardStats(page)).points;
+        if (step <= 3) { ctx.base ??= points; expect(points, `points stable at ${label}`).toBe(ctx.base); }
+        else if (ctx.base !== undefined) expect(points, `one more control point after elevation at ${label}`).toBe(ctx.base + 1);
+    },
+    prepareUserState: async page => {
+        const base = (await boardStats(page)).points;
+        await page.getByRole('button', {name: 'Elevate degree'}).click();
+        await expect.poll(async () => (await boardStats(page)).points).toBe(base + 1);
+        return {points: base + 1};
+    },
+    exitStep: 2,
+    duringLesson: async (page, ctx, saved) => {
+        await expect.poll(async () => (await boardStats(page)).points, {message: 'lesson scene replaces the elevated curve'}).toBe(saved.points - 1);
+    },
+    assertUserState: async (page, ctx, saved) => {
+        await expect.poll(async () => (await boardStats(page)).points, {message: 'elevated curve restored after exit'}).toBe(saved.points);
+    },
+    stableCounts: async page => ({points: (await boardStats(page)).points}),
+};
+
+const RATIONAL_STEPS = {
+    1: {weights: [1, 1, 1, 1], point: [0, 1.5]},
+    2: {weights: [1, 2, 1, 1], point: [-0.82, 1.91]},
+    3: {weights: [1, 4, 1, 1], point: [-1.59, 2.29]},
+    4: {weights: [1, 4, 1, 1], point: [-1.59, 2.29]},
+    5: {weights: [1, 1, 1, 1], point: [0, 1.5]},
+};
+const rationalPilot = {
+    id: 'rational',
+    path: `${BASE}/rational/base`,
+    titles: {sl: 'Racionalna Bézierjeva krivulja', en: 'Rational Bézier curve'},
+    steps: 5,
+    minFrames: 13, // 3 + 3 + 3 + 2 + 2 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        await expectWeights(page, RATIONAL_STEPS[step].weights, `weights at ${label}`);
+        await expectPointsNear(page, [[-4, -3], [-3, 3], [3, 3], [4, -3], RATIONAL_STEPS[step].point], `fixture and B(1/2) at ${label}`);
+    },
+    prepareUserState: async page => {
+        const weights = await h.boardWeights(page);
+        expect(weights, 'weight labels are off before the lesson').toEqual([]); // unverified on this route
+        return {weights, ...(await boardStats(page))};
+    },
+    exitStep: 3,
+    duringLesson: async page => { await expectWeights(page, [1, 4, 1, 1], 'lesson scene shows the weights'); },
+    assertUserState: async (page, ctx, saved) => {
+        await expectWeights(page, [], 'weight labels hidden again after exit');
+        expect((await boardStats(page)).curves).toBe(saved.curves);
+    },
+    stableCounts: async page => ({weights: (await h.boardWeights(page)).length}),
+};
+
+const RATIONAL_DECASTELJAU_STEPS = {
+    1: {weights: [1, 1, 1], point: [0, 0]},
+    2: {weights: [1, 2, 1], point: [0, 1]},
+    3: {weights: [1, 2, 1], point: [0, 1]},
+    4: {weights: [1, 1, 1, 1], point: [0, 1.5]},
+    5: {weights: [1, 2, 1, 1], point: [-0.82, 1.91]},
+    6: {weights: [1, 2, 1, 1], point: [-0.82, 1.91]},
+};
+const rationalDecasteljauPilot = {
+    id: 'rational-decasteljau',
+    path: `${BASE}/rational/rational-decasteljau`,
+    titles: {sl: 'Racionalna De Casteljaujeva konstrukcija', en: 'Rational De Casteljau construction'},
+    steps: 6,
+    minFrames: 14, // 2 + 2 + 3 + 2 + 3 + 2 frames
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        const expected = RATIONAL_DECASTELJAU_STEPS[step];
+        await expectWeights(page, expected.weights, `weights at ${label}`);
+        await expectPointNear(page, expected.point, `final construction point at ${label}`);
+        await expectRange(page, 0, 0.5, `t slider at ${label}`, 2); // unverified: slider index 0
+    },
+    prepareUserState: async page => {
+        await setRange(page, 0, 0.8);
+        await expectRange(page, 0, 0.8, 'user-set t', 1);
+        return await boardStats(page);
+    },
+    exitStep: 3,
+    duringLesson: async page => { await expectRange(page, 0, 0.5, 'lesson scene replaces the user t', 2); },
+    assertUserState: async (page, ctx, saved) => {
+        await expectRange(page, 0, 0.8, 't restored after exit', 1);
+        expect((await boardStats(page)).curves).toBe(saved.curves);
+    },
+    stableCounts: async page => ({t: await rangeValue(page, 0)}),
+};
+
+const phPilotRow = ({id, path, titles, steps, minFrames, controls, offsetFromStep}) => ({
+    id, path, titles, steps, minFrames,
+    setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
+    stepProbe: async (page, ctx, step, label) => {
+        await expectPointsNear(page, controls, `PH control points at ${label}`);
+        // unverified: the offset curve adds drawn curves from offsetFromStep on, relative to the offset-free first step.
+        const curves = (await boardStats(page)).curves;
+        if (step === 1) ctx.base = curves;
+        if (ctx.base !== undefined && step < offsetFromStep) expect(curves, `no offset curve at ${label}`).toBe(ctx.base);
+        if (ctx.base !== undefined && step >= offsetFromStep && step <= offsetFromStep + 1) expect(curves, `offset curve shown at ${label}`).toBeGreaterThan(ctx.base);
+    },
+});
+
+const phCubicPilot = {
+    ...phPilotRow({
+        id: 'ph-cubic', path: `${BASE}/ph/cubic`,
+        titles: {sl: 'Kubična PH-krivulja', en: 'Cubic PH curve'},
+        steps: 6, minFrames: 14, // 3 + 3 + 2 + 2 + 2 + 2 frames
+        controls: [[-2, -1], [-0.67, -1], [0.67, -0.33], [1.67, 1]], offsetFromStep: 3,
+    }),
+};
+const phQuinticPilot = phPilotRow({
+    id: 'ph-quintic', path: `${BASE}/ph/quintic`,
+    titles: {sl: 'Kvintična PH-krivulja', en: 'Quintic PH curve'},
+    steps: 5, minFrames: 11, // 2 + 3 + 2 + 2 + 2 frames
+    controls: [[-2, -1], [0.33, 1.07]], offsetFromStep: 3,
+});
+
+const LESSONS = [bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
 
 // ---------------------------------------------------------------- Generic tests
