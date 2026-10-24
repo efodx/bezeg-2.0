@@ -86,7 +86,7 @@ const changedPieces = (make: (points: number[][]) => BezierSpline, base: number[
 // ---------------------------------------------------------------------------------------------
 
 const expectedSteps: Record<string, number> = {
-    'spline-cn': 4,
+    'spline-cn': 5,
     'spline-c1': 5,
     'spline-c2': 4,
     'spline-g1': 5,
@@ -136,7 +136,9 @@ test('keeps the spline lessons bounded, localized, and source-backed', () => {
                 expect(exampleIds.has(step.workedExampleId)).toBe(true);
                 usedExamples.add(step.workedExampleId);
             }
-            expect(step.scene?.basedOn).toBe('demonstration-default');
+            const fixtureLessons = ['spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric'];
+            if (fixtureLessons.includes(lesson.demonstrationId)) expect(['lesson-fixture', 'demonstration-default']).toContain(step.scene?.basedOn);
+            else expect(step.scene?.basedOn).toBe('demonstration-default');
             expect(step.scene?.actions.length).toBeGreaterThan(0);
             for (const action of step.scene?.actions ?? []) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
@@ -150,7 +152,7 @@ test('keeps the spline lessons bounded, localized, and source-backed', () => {
 
 test('each lesson only uses the action families of its own graph', () => {
     const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.name));
-    expect(names('spline-cn')).toEqual(new Set(['show-spline-labels', 'show-control-polygon', 'set-spline-degree', 'set-spline-continuity']));
+    expect(names('spline-cn')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
     expect(names('spline-c1')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
     expect(names('spline-c2')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
     expect(names('spline-g1')).toEqual(new Set(['show-spline-labels', 'show-control-polygon', 'set-spline-beta']));
@@ -159,25 +161,19 @@ test('each lesson only uses the action families of its own graph', () => {
 });
 
 test('scene actions respect the graph bounds when applied in order', () => {
-    // spline-cn: degree and continuity are validated against the current state, one action at a time.
-    for (const actions of stepActions('spline-cn')) {
-        let degree = 2, continuity = 1;
-        const points = CN.length;
-        for (const action of actions) {
-            if (action.name === 'set-spline-continuity') {
-                expect(action.value as number).toBeGreaterThanOrEqual(0);
-                expect(action.value as number).toBeLessThanOrEqual(degree - 1);
-                continuity = action.value as number;
-            } else if (action.name === 'set-spline-degree') {
-                expect(action.value as number).toBeGreaterThanOrEqual(continuity + 1);
-                expect(action.value as number).toBeLessThanOrEqual(points);
-                degree = action.value as number;
-            }
+    // spline-cn: degree and continuity now come from the lesson fixtures (values checked in splineExamples.test.ts).
+    for (const step of lessonFor('spline-cn').steps) {
+        const scene = step.scene!;
+        if (scene.basedOn === 'lesson-fixture') {
+            const {degree = 2, continuity = 1, points} = scene.curve;
+            expect(continuity).toBeGreaterThanOrEqual(0);
+            expect(continuity).toBeLessThanOrEqual(degree - 1);
+            expect(degree).toBeLessThanOrEqual(points.length);
+            // Only pairs that fill every piece are used (see the limitation test below).
+            expect([[2, 1], [3, 2]]).toContainEqual([degree, continuity]);
         }
-        // Only pairs that fill every piece are used (see the limitation test below).
-        expect([[2, 1], [3, 2]]).toContainEqual([degree, continuity]);
+        expect(scene.actions.some(action => action.name === 'set-spline-degree' || action.name === 'set-spline-continuity')).toBe(false);
     }
-    expect(stepActions('spline-cn')[2]).toEqual([{name: 'set-spline-degree', value: 3}, {name: 'set-spline-continuity', value: 2}, {name: 'show-spline-labels', value: true}]);
     // spline-g1 / spline-g1-symmetric: the junction index exists and the value is inside the slider range.
     const betaChecks: [string, number, number, number][] = [['spline-g1', g1().getNumOfBs(), 0.01, 3], ['spline-g1-symmetric', g1s().getNumOfBs(), 0.01, 0.99]];
     for (const [id, count, min, max] of betaChecks) {
@@ -316,9 +312,9 @@ describe('spline-cn numbers', () => {
         close(sub(all[0][2], all[0][1]), [0.5, -1.5]);
         close([(all[0][1][0] + all[1][1][0]) / 2, (all[0][1][1] + all[1][1][1]) / 2], all[0][2]);
         const example = lessonFor('spline-cn').workedExamples[0];
-        expect(example.resultLatex).toContain('q_1=\\bigl(-3,-\\tfrac52\\bigr)');
-        expect(example.calculationLatex).toContain('p_1=\\bigl(-4,\\tfrac12\\bigr)');
-        expect(example.calculationLatex).toContain('p_2=\\bigl(-\\tfrac72,-1\\bigr)');
+        expect(example.resultLatex).toContain('q_1=(2,-4)');
+        expect(example.calculationLatex).toContain('p_1=(-2,-2)');
+        expect(example.calculationLatex).toContain('p_2=(0,-3)');
     });
 
     test('(2,1) is C1 at every junction', () => {
@@ -350,7 +346,7 @@ describe('spline-cn numbers', () => {
         expect(farthest).toBeCloseTo(Math.hypot(61, 34.5), 9);
         expect(Math.abs(farthest - 70)).toBeLessThan(1);
         const example = lessonFor('spline-cn').workedExamples[1];
-        expect(example.resultLatex).toBe('\\Delta^2p_1=\\Delta^2q_0=\\bigl(\\tfrac32,\\tfrac12\\bigr)');
+        expect(example.resultLatex).toBe('\\Delta^2p_1=\\Delta^2q_0=(0,-2)');
     });
 
     test('(4,3) derived points are over 150 units from the origin and (3,1) leaves a short last piece', () => {
@@ -383,8 +379,8 @@ describe('spline-c1 numbers', () => {
         close(joints[0], [-2.5, -3]); close(joints[1], [-1, 0]); close(joints[2], [1, 3]);
         joints.forEach((joint, i) => close(joint, [(C1[i + 1][0] + C1[i + 2][0]) / 2, (C1[i + 1][1] + C1[i + 2][1]) / 2], 12));
         const example = lessonFor('spline-c1').workedExamples[0];
-        expect(example.resultLatex).toContain('J_1=\\bigl(-\\tfrac52,-3\\bigr)');
-        expect(example.resultLatex).toContain('\\bigl(\\tfrac32,0\\bigr)');
+        expect(example.resultLatex).toContain('J_1=(0,2)');
+        expect(example.resultLatex).toContain('(2,0)');
     });
 
     test('J_l - p_l and p_{l+1} - J_l are equal and C1 holds at every junction', () => {
@@ -406,7 +402,7 @@ describe('spline-c1 numbers', () => {
         close(second(all[1]), [-1.5, 3]);
         for (let j = 0; j < 3; j++) expect(junctionGap(spline, j, 2)).toBeGreaterThan(1e-3);
         const example = lessonFor('spline-c1').workedExamples[1];
-        expect(example.resultLatex).toBe('\\bigl(\\tfrac32,6\\bigr)\\ne\\bigl(-\\tfrac32,3\\bigr)');
+        expect(example.resultLatex).toBe('(0,-4)\\ne(-1,-3)');
     });
 
     test('locality of every free point', () => {
@@ -444,8 +440,8 @@ describe('spline-c2 numbers', () => {
         expect(all[1][0][0]).toBeCloseTo(-3.517, 3);
         expect(all[1][0][1]).toBeCloseTo(-1.996, 3);
         const examples = lessonFor('spline-c2').workedExamples;
-        expect(examples[0].resultLatex).toBe('c_1=\\bigl(-\\tfrac{38}{15},-\\tfrac83\\bigr),\\qquad c_2=\\bigl(-\\tfrac{23}{30},-\\tfrac73\\bigr)');
-        expect(examples[1].resultLatex).toContain('J_1=\\bigl(-\\tfrac{211}{60},-\\tfrac{479}{240}\\bigr)');
+        expect(examples[0].resultLatex).toBe('c_1=(-1,-2),\\qquad c_2=(1,-1)');
+        expect(examples[1].resultLatex).toContain('J_1=\\bigl(-\\tfrac52,-1\\bigr)');
     });
 
     test('every junction is the midpoint of the neighbouring inner points; C1 and C2 hold, C3 does not', () => {
@@ -482,49 +478,74 @@ describe('spline-c2 numbers', () => {
 // spline-g1
 // ---------------------------------------------------------------------------------------------
 
+const G1_FIXTURE = [[-4, -1], [-2, 2], [0, 0], [4, -1]];
+const G1_CHAIN = [[-5, -1], [-3, 2], [-1, 0], [2, -1], [5, 2]];
+const G1S_FIXTURE = [[-5, -1], [-2, 2], [2, 0], [5, 3]];
+
 describe('spline-g1 numbers', () => {
-    test('five points, three pieces, b starts at 1 and the b = 1 derived point mirrors p_1', () => {
-        const spline = g1();
-        expect(G1).toHaveLength(5);
-        expect(pieces(spline)).toHaveLength(3);
-        expect(spline.getBs()).toEqual([1, 1]);
-        close(pieces(spline)[1][1], [-1, -3.5]);
-        close(pieces(spline)[1][1], [2 * G1[2][0] - G1[1][0], 2 * G1[2][1] - G1[1][1]]);
+    const withB = (points: number[][], ...b: number[]) => {
+        const spline = g1(points);
+        b.forEach((value, i) => spline.setB(i, value));
+        return spline;
+    };
+
+    test('the one-joint fixture has four points, two pieces, one b that starts at 1, and b = 1 mirrors p_1 across p_2', () => {
+        const spline = g1(G1_FIXTURE);
+        expect(spline.getNumOfBs()).toBe(1);
+        expect(spline.getBs()).toEqual([1]);
+        expect(pieces(spline)).toHaveLength(2);
+        spansOf(spline).forEach(span => expect(span).toBeCloseTo(1 / 2, 12));
+        close(pieces(spline)[1][1], [2, -2]);
+        close(pieces(spline)[1][1], [2 * G1_FIXTURE[2][0] - G1_FIXTURE[1][0], 2 * G1_FIXTURE[2][1] - G1_FIXTURE[1][1]]);
     });
 
-    test.each([[0.25, [-17 / 8, -11 / 4]], [1, [-1, -7 / 2]], [2.5, [5 / 4, -5]]])('b = %p: second point of the second piece, collinear with p_1 p_2, derivative ratio b', (b, expected) => {
-        const spline = g1();
-        spline.setB(0, b);
-        const all = pieces(spline);
+    test.each([[0.25, [0.5, -0.5]], [1, [2, -2]], [2.5, [5, -5]]])('b = %p: second point of the second piece, same tangent direction, derivative ratio b under spans 1/2', (b, expected) => {
+        const spline = withB(G1_FIXTURE, b);
+        const all = pieces(spline), spans = spansOf(spline);
         close(all[1][1], expected as number[]);
-        close(all[1][1], [G1[2][0] + b * (G1[2][0] - G1[1][0]), G1[2][1] + b * (G1[2][1] - G1[1][1])]);
-        expect(cross(sub(all[1][1], G1[2]), sub(G1[2], G1[1]))).toBeCloseTo(0, 12);
-        spansOf(spline).forEach(span => expect(span).toBeCloseTo(1 / 3, 12));
-        const incoming = sub(all[0][2], all[0][1]), outgoing = sub(all[1][1], all[1][0]);
-        expect(norm(outgoing) / norm(incoming)).toBeCloseTo(b, 12);
-        expect(cross(incoming, outgoing)).toBeCloseTo(0, 12);
+        close(all[1][1], [G1_FIXTURE[2][0] + b * (G1_FIXTURE[2][0] - G1_FIXTURE[1][0]), G1_FIXTURE[2][1] + b * (G1_FIXTURE[2][1] - G1_FIXTURE[1][1])]);
+        expect(cross(sub(all[1][1], G1_FIXTURE[2]), sub(G1_FIXTURE[2], G1_FIXTURE[1]))).toBeCloseTo(0, 12);
+        const left = derivative(all[0], 1, spans[0], true), right = derivative(all[1], 1, spans[1], false);
+        close(left, [8, -8]);
+        close(right, [8 * b, -8 * b]);
+        expect(norm(left)).toBeGreaterThan(0.5);
+        expect(norm(right)).toBeGreaterThan(0.5);
+        expect(cross(left, right)).toBeCloseTo(0, 9);
+        expect(left[0] * right[0] + left[1] * right[1]).toBeGreaterThan(0);
+        expect(norm(right) / norm(left)).toBeCloseTo(b, 12);
         // C1 only at b = 1.
         expect(junctionGap(spline, 0, 1) < 1e-9).toBe(b === 1);
-        const example = lessonFor('spline-g1').workedExamples[0];
-        expect(example.resultLatex).toContain('\\bigl(-\\tfrac{17}{8},-\\tfrac{11}{4}\\bigr)');
-        expect(example.resultLatex).toContain('\\bigl(-1,-\\tfrac72\\bigr)');
-        expect(example.resultLatex).toContain('\\bigl(\\tfrac54,-5\\bigr)');
     });
 
-    test('changing the first b moves the third piece while the second joint stays C1 with ratio b_2 = 1', () => {
-        const base = pieces(g1());
-        const spline = g1();
-        spline.setB(0, 0.25);
-        const all = pieces(spline);
-        expect(same(all[0], base[0])).toBe(true);
-        expect(same(all[1], base[1])).toBe(false);
-        expect(same(all[2], base[2])).toBe(false);
-        close(base[2][1], [1, 1.5]);
-        close(all[2][1], [2.125, 0.75]);
-        const incoming = sub(all[1][2], all[1][1]), outgoing = sub(all[2][1], all[2][0]);
-        expect(norm(outgoing) / norm(incoming)).toBeCloseTo(1, 12);
+    test('worked examples state the same points and derivatives', () => {
+        const [points, magnitude] = lessonFor('spline-g1').workedExamples;
+        expect(points.resultLatex).toContain('\\bigl(\\tfrac12,-\\tfrac12\\bigr)');
+        expect(points.resultLatex).toContain('(2,-2)');
+        expect(points.resultLatex).toContain('(5,-5)');
+        expect(magnitude.calculationLatex).toContain('(8,-8)');
+        expect(magnitude.resultLatex).toContain('S_2^{\\prime}=(2,-2)');
+        expect(magnitude.resultLatex).toContain('2\\sqrt2');
+        expect(magnitude.resultLatex).toContain('8\\sqrt2');
+        const spline = withB(G1_FIXTURE, 0.25), spans = spansOf(spline), all = pieces(spline);
+        expect(norm(derivative(all[1], 1, spans[1], false))).toBeCloseTo(2 * Math.SQRT2, 12);
+        expect(norm(derivative(all[0], 1, spans[0], true))).toBeCloseTo(8 * Math.SQRT2, 12);
+    });
+
+    test('chain: changing the first b moves the second and third pieces, not the first; the second joint stays C1 with its direction turned', () => {
+        const base = withB(G1_CHAIN, 1, 1), spline = withB(G1_CHAIN, 0.25, 1);
+        expect(spline.getNumOfBs()).toBe(2);
+        const before = pieces(base), all = pieces(spline), spans = spansOf(spline);
+        expect(all.map((piece, i) => !same(piece, before[i]))).toEqual([false, true, true]);
+        close(before[1][1], [1, -2]);
+        close(before[2][1], [3, 0]);
+        close(all[1][1], [-0.5, -0.5]);
+        close(all[2][1], [4.5, -1.5]);
+        expect(junctionGap(base, 1, 1)).toBeLessThan(1e-9);
         expect(junctionGap(spline, 1, 1)).toBeLessThan(1e-9);
         expect(junctionGap(spline, 0, 1)).toBeGreaterThan(1e-3);
+        close(derivative(before[1], 1, 1 / 3, true), [6, 6]);
+        close(derivative(all[1], 1, spans[1], true), [15, -3]);
+        close(derivative(all[2], 1, spans[2], false), [15, -3]);
     });
 });
 
@@ -533,6 +554,12 @@ describe('spline-g1 numbers', () => {
 // ---------------------------------------------------------------------------------------------
 
 describe('spline-g1-symmetric numbers', () => {
+    const withBeta = (points: number[][], ...b: number[]) => {
+        const spline = g1s(points);
+        b.forEach((value, i) => spline.setB(i, value));
+        return spline;
+    };
+
     test('default equals the symmetric C1 spline and every beta starts at 1/2', () => {
         const spline = g1s();
         expect(G1S).toEqual(C1);
@@ -541,37 +568,50 @@ describe('spline-g1-symmetric numbers', () => {
         spansOf(spline).forEach(span => expect(span).toBeCloseTo(0.25, 12));
     });
 
-    test.each([[0.25, [-13 / 4, -3], 3], [0.75, [-7 / 4, -3], 1 / 3], [0.99, [-1.03, -3], 1 / 99]])('beta_1 = %p: junction, tangent continuity and derivative ratio (1-beta)/beta', (beta, expected, ratio) => {
-        const spline = g1s();
-        spline.setB(0, beta);
-        const all = pieces(spline);
+    test('the one-joint fixture: beta = 1/2 gives the midpoint and equal derivatives', () => {
+        const spline = withBeta(G1S_FIXTURE, 0.5);
+        expect(spline.getNumOfBs()).toBe(1);
+        expect(pieces(spline)).toHaveLength(2);
+        spansOf(spline).forEach(span => expect(span).toBeCloseTo(0.5, 12));
+        close(pieces(spline)[0][2], [0, 1]);
+        close(derivative(pieces(spline)[0], 1, 0.5, true), [8, -4]);
+        close(derivative(pieces(spline)[1], 1, 0.5, false), [8, -4]);
+        expect(junctionGap(spline, 0, 1)).toBeLessThan(1e-9);
+    });
+
+    test.each([[0.25, [-1, 1.5], 3], [0.75, [1, 0.5], 1 / 3], [0.99, [1.96, 0.02], 1 / 99]])('beta_1 = %p: junction, tangent continuity and derivative ratio (1-beta)/beta', (beta, expected, ratio) => {
+        const spline = withBeta(G1S_FIXTURE, beta);
+        const all = pieces(spline), spans = spansOf(spline);
         close(all[0][2], expected as number[]);
         close(all[1][0], expected as number[]);
-        close(all[0][2], [(1 - beta) * G1S[1][0] + beta * G1S[2][0], (1 - beta) * G1S[1][1] + beta * G1S[2][1]], 12);
-        const incoming = sub(all[0][2], all[0][1]), outgoing = sub(all[1][1], all[1][0]);
-        expect(cross(incoming, outgoing)).toBeCloseTo(0, 12);
-        expect(incoming[0] * outgoing[0] + incoming[1] * outgoing[1]).toBeGreaterThan(0);
-        expect(norm(outgoing) / norm(incoming)).toBeCloseTo(ratio as number, 12);
+        close(all[0][2], [(1 - beta) * G1S_FIXTURE[1][0] + beta * G1S_FIXTURE[2][0], (1 - beta) * G1S_FIXTURE[1][1] + beta * G1S_FIXTURE[2][1]], 12);
+        const left = derivative(all[0], 1, spans[0], true), right = derivative(all[1], 1, spans[1], false);
+        expect(norm(left)).toBeGreaterThan(0.1);
+        expect(norm(right)).toBeGreaterThan(0.1);
+        expect(cross(left, right)).toBeCloseTo(0, 9);
+        expect(cross(left, sub(G1S_FIXTURE[2], G1S_FIXTURE[1]))).toBeCloseTo(0, 9);
+        expect(left[0] * right[0] + left[1] * right[1]).toBeGreaterThan(0);
+        expect(norm(right) / norm(left)).toBeCloseTo(ratio as number, 12);
         expect((1 - beta) / beta).toBeCloseTo(ratio as number, 12);
         expect(junctionGap(spline, 0, 1) < 1e-9).toBe(false);
     });
 
     test('worked examples', () => {
         const [first, second] = lessonFor('spline-g1-symmetric').workedExamples;
-        expect(first.resultLatex).toContain('J_1=\\bigl(-\\tfrac{13}{4},-3\\bigr)');
-        expect(first.resultLatex).toContain('J_1-p_1=\\bigl(\\tfrac34,0\\bigr)');
-        const spline = g1s();
-        spline.setB(0, 0.25);
-        close(sub(pieces(spline)[0][2], G1S[1]), [0.75, 0]);
+        expect(first.resultLatex).toContain('J_1=\\bigl(-1,\\tfrac32\\bigr)');
+        expect(first.resultLatex).toContain('J_1-p_1=\\bigl(1,-\\tfrac12\\bigr)');
+        const spline = withBeta(G1S_FIXTURE, 0.25);
+        close(sub(pieces(spline)[0][2], G1S_FIXTURE[1]), [1, -0.5]);
         spline.setB(0, 0.75);
         const all = pieces(spline);
-        close(sub(all[0][2], G1S[1]), [9 / 4, 0]);
-        close(sub(G1S[2], all[0][2]), [3 / 4, 0]);
-        expect(second.calculationLatex).toContain('\\bigl(\\tfrac94,0\\bigr)');
+        close(sub(all[0][2], G1S_FIXTURE[1]), [3, -1.5]);
+        close(sub(G1S_FIXTURE[2], all[0][2]), [1, -0.5]);
+        expect(second.calculationLatex).toContain('\\bigl(3,-\\tfrac32\\bigr)');
+        expect(second.calculationLatex).toContain('\\bigl(1,-\\tfrac12\\bigr)');
         expect(second.resultLatex).toContain('\\tfrac13');
     });
 
-    test('moving the second junction changes only the second and third pieces', () => {
+    test('moving the second junction of the default spline changes only the second and third pieces', () => {
         const base = pieces(g1s());
         const spline = g1s();
         spline.setB(1, 0.75);
