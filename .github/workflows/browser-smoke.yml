@@ -130,7 +130,14 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # The runner image already has Chromium's libraries; `--with-deps` only added fonts through apt, whose mirror
+      # sometimes crawls (8.5 min on one shard). Fall back to apt only when a browser binary lacks a library.
+      - name: Install Chromium
+        run: |
+          npx playwright install chromium
+          if find ~/.cache/ms-playwright -type f \( -name chrome -o -name chrome-headless-shell \) -exec ldd {} + | grep -q 'not found'; then
+            npx playwright install-deps chromium
+          fi
       - name: Download production build
         uses: actions/download-artifact@v7
         with:
