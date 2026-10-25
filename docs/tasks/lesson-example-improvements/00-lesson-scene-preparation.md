@@ -2,7 +2,7 @@
 
 **Source spec:** [Scope, acceptance, and verification](../../specs/lesson-example-improvements.md)
 
-**Status:** implemented 2026-10-24 (handler); browser acceptance pending in task 09. **Dependencies:** none. **Owner:** handler.
+**Status:** implemented 2026-10-24 (handler); accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** none. **Owner:** handler.
 
 ## Work
 

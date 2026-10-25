@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch C](../../specs/lesson-example-improvements.md#batch-c-parameterization-and-example-sequences)
 
-**Status:** planned. **Dependencies:** none. **Lessons:** `sequence`, `uniform-convergence`.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** none. **Lessons:** `sequence`, `uniform-convergence`.
 
 ## Work
 

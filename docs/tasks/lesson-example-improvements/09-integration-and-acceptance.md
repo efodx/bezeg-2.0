@@ -2,7 +2,7 @@
 
 **Source spec:** [Acceptance and delivery](../../specs/lesson-example-improvements.md#acceptance-criteria)
 
-**Status:** planned. **Dependencies:** 00–08. **Owner:** main handler.
+**Status:** accepted 2026-10-25 with recorded gaps; see [acceptance](../../reviews/lesson-example-improvements/acceptance.md). **Dependencies:** 00–08. **Owner:** main handler.
 
 ## Work
 

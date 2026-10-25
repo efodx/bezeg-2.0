@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch B](../../specs/lesson-example-improvements.md#batch-b-rational-constructions-and-splines)
 
-**Status:** planned. **Dependencies:** 00; coordinate shared content/overlays with 01.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00; coordinate shared content/overlays with 01.
 
 **Lessons:** `rational`, `rational-decasteljau`, `rational-elevation`, `rational-subdivision`, `rational-extrapolation`, `farin`, `circle`.
 

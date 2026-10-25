@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch B](../../specs/lesson-example-improvements.md#batch-b-rational-constructions-and-splines)
 
-**Status:** planned. **Dependencies:** 00. **Lessons:** `spline-cn`, `spline-c1`, `spline-c2`, `spline-g1`, `spline-g1-symmetric`.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00. **Lessons:** `spline-cn`, `spline-c1`, `spline-c2`, `spline-g1`, `spline-g1-symmetric`.
 
 ## Work
 

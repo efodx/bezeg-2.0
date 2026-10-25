@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch C](../../specs/lesson-example-improvements.md#batch-c-parameterization-and-example-sequences)
 
-**Status:** planned. **Dependencies:** 00, 04; coordinate PH defaults with 02.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00, 04; coordinate PH defaults with 02.
 
 **Lessons:** `weighted-parameterization`, `uniform-parameterization`, `spline-parameterization`.
 

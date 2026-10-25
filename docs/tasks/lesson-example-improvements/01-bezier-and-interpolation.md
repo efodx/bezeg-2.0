@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch A](../../specs/lesson-example-improvements.md#batch-a-make-foundational-constructions-readable)
 
-**Status:** planned. **Dependencies:** 00. **Lessons:** `bezier`, `decasteljau`, `decasteljau-alternative`, `affine`, `elevation`.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00. **Lessons:** `bezier`, `decasteljau`, `decasteljau-alternative`, `affine`, `elevation`.
 
 ## Work
 

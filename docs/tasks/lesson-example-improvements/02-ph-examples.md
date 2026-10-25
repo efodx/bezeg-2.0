@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch A PH candidates](../../specs/lesson-example-improvements.md#batch-a-make-foundational-constructions-readable)
 
-**Status:** planned. **Dependencies:** 00. **Lessons:** `ph-cubic`, `ph-quintic`.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00. **Lessons:** `ph-cubic`, `ph-quintic`.
 
 ## Work
 

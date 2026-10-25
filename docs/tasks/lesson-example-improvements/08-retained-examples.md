@@ -2,7 +2,7 @@
 
 **Source spec:** [Batch D](../../specs/lesson-example-improvements.md#batch-d-retain-and-verify)
 
-**Status:** planned. **Dependencies:** 00–07. **Scope:** verify retention; no mandatory rewrites.
+**Status:** implemented; accepted 2026-10-25 (task 09, [acceptance](../../reviews/lesson-example-improvements/acceptance.md)). **Dependencies:** 00–07. **Scope:** verify retention; no mandatory rewrites.
 
 ## Required dispositions
 

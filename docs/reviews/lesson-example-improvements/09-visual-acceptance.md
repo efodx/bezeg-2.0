@@ -40,4 +40,12 @@ Reviewed by eye on the new captures: rational-extrapolation EN desktop step 4 (w
 
 Minor (legible, no change made): rational-extrapolation w0/w3 labels overlap because P0 and P3 are close in the fixture; spline-parameterization 390 px labels P0..P3 crowd at the left; circle n=12 labels crowd; some calculation rows (bezier frames 8 and 11, PH normal formula) extend past their box at 390 px and need horizontal scrolling inside the box.
 
-Still unreviewed by eye: SL desktop sheets of all 12 lessons, 390 px sheets of affine, elevation, rational, spline-c1 and sequence (both languages), EN 390 px sheets except rational-extrapolation, and the `B-*-langswitch`/`B-*-exit` shots. Checks B-D ran on ad7ab7a; d020abc changes only lesson-view framing, which B's Back-walk view comparison and the 164 automated rows cover.
+## Handler by-eye pass of the remaining sheets (d020abc captures)
+
+After this handoff, the handler reviewed the 28 remaining contact sheets (captured 2026-10-25 00:41Z, after the d020abc rebuild): SL desktop for all 12 lessons, SL 390 px for affine, elevation, rational, spline-c1 and sequence, and EN 390 px for all 11 lessons apart from rational-extrapolation. Every card renders its formulas, controls stay reachable, and every scene object stays inside the board. No layout or framing failures were found.
+
+New findings:
+- **Shared LaTeX shows English in Slovenian (pre-existing, deferred).** `latex`/`calculationLatex`/`resultLatex` are plain strings (`GuidedLesson` formula blocks in `src/learning/content/guidedLessons.ts`), shared by both languages. In SL, words in `\text{...}` appear in English: for example rational-extrapolation step 2 shows "E has points … and weights w from" (`shots/rational-extrapolation-sl-d-03-card.png`), and sequence step 6 shows "for every". Decimal points also appear in SL (spline-parameterization `1.414`, `21.571`; trigonometric `3.14`). Master already has 25 such lines; this branch changed values in two and added one `\text{speed}` row in the same pattern. A fix requires localizable LaTeX or symbol-only rows across lessons, so it is out of scope here.
+- Minor crowding (legible): affine 390 px `P1`/`B(1/2)`/`P2` labels; spline-c1 joint labels `p_1^{(1)}`/`p_2^{(2)}` at 390 px and on desktop; ph-cubic 390 px top y-axis tick next to the "Arc length" readout.
+
+Not reviewed: the `B-*-langswitch`/`B-*-exit` shots were no longer in `shots/` (replaced by the recapture). B's programmatic assertions still cover those checks (heading re-titled, scene unchanged, exact restore on exit). Checks B-D ran on ad7ab7a; d020abc changes only lesson-view framing, which B's Back-walk view comparison and the 164 automated rows cover.
