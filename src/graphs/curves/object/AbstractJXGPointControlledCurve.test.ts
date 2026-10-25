@@ -16,7 +16,7 @@ test('refreshes callback-based curve geometry after a control-point drag', async
 });
 
 test('does not run a deferred drag refresh after its graph session is disposed', async () => {
-    const board = {fullUpdate: vi.fn(), inUpdate: true} as unknown as Board;
+    const board = {fullUpdate: vi.fn(), inUpdate: true, containerObj: document.createElement('div')} as unknown as Board;
     const freeBoard = vi.fn();
     const dependencies = {
         initBoard: vi.fn(() => board),

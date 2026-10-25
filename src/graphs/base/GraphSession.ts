@@ -60,6 +60,13 @@ export class GraphSession {
         const board = this.dependencies.initBoard(container, options);
         this.board = board;
         sessionsByBoard.set(board, this);
+        // JSXGraph caches the container position for a second (and throughout drags).
+        // A scroll or inspector layout change can move it before the next gesture.
+        // Capture runs before JSXGraph's native target listener and our board handlers,
+        // so both dragging and curve editing use the same fresh pointer origin.
+        const refreshPointerOrigin = () => { board.cPos = []; };
+        board.containerObj.addEventListener('pointerdown', refreshPointerOrigin, true);
+        this.registerCleanup(() => board.containerObj.removeEventListener('pointerdown', refreshPointerOrigin, true));
         return board;
     }
 

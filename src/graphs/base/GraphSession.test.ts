@@ -4,6 +4,8 @@ import {GraphSession, GraphSessionDependencies} from "./GraphSession";
 function createBoard(inUpdate = false) {
     return Object.assign({
         inUpdate,
+        containerObj: document.createElement("div"),
+        cPos: [20, 30],
         on: vi.fn(),
         off: vi.fn(),
         fullUpdate: vi.fn(),
@@ -119,4 +121,22 @@ test('disposal cancels deferred updates and releases readiness waiters', async (
     expect((board as any).fullUpdate).not.toHaveBeenCalled();
     expect(freeBoard).toHaveBeenCalledTimes(1);
     expect(session.isSettled).toBe(false);
+});
+
+
+test('refreshes pointer origin before native handlers and removes the capture listener on disposal', () => {
+    const board = createBoard();
+    // JSXGraph installs its target-phase listener while initBoard runs, before the session hook.
+    const origins: unknown[][] = [];
+    board.containerObj.addEventListener('pointerdown', () => origins.push([...board.cPos]));
+    const {dependencies} = createDependencies(board);
+    const session = new GraphSession(dependencies);
+    session.createBoard(board.containerObj, {});
+
+    board.containerObj.dispatchEvent(new Event('pointerdown', {bubbles: true}));
+    expect(origins).toEqual([[]]);
+    board.cPos = [50, 60];
+    session.dispose();
+    board.containerObj.dispatchEvent(new Event('pointerdown', {bubbles: true}));
+    expect(origins).toEqual([[], [50, 60]]);
 });

@@ -75,7 +75,7 @@ const renderHost = (graph: TestGraph, strict = false) => {
 
 beforeEach(() => {
     // CRA resets mock implementations before every test.
-    (JSXGraph.initBoard as Mock).mockImplementation(() => ({}));
+    (JSXGraph.initBoard as Mock).mockImplementation(() => ({containerObj: document.createElement('div')}));
     (JSXGraph.freeBoard as Mock).mockImplementation(() => undefined);
 });
 

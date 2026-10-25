@@ -1,7 +1,10 @@
 const {test, expect} = require('@playwright/test');
 
-for (const route of ['rational/base', 'bezier/decasteljau']) {
-    test(`visible curve modes preserve editing on ${route}`, async ({page}, testInfo) => {
+const editingCases = ['rational/base', 'bezier/decasteljau'].flatMap(route =>
+    [false, true].map(scrolled => ({route, scrolled})));
+
+for (const {route, scrolled} of editingCases) {
+    test(`visible curve modes preserve editing on ${route}${scrolled ? ' after scrolling' : ''}`, async ({page}, testInfo) => {
         const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
@@ -47,6 +50,13 @@ for (const route of ['rational/base', 'bezier/decasteljau']) {
             };
         }, addedPoint.id);
         await group.getByRole('button', {name: 'Manipulate curve'}).click();
+        // Prime JSXGraph's pointer-origin cache, then move the document before a new gesture.
+        if (scrolled) {
+            const beforeScroll = await pointScreenPosition();
+            await page.mouse.move(beforeScroll.x, beforeScroll.y);
+            const scrollY = await page.evaluate(() => { window.scrollBy(0, 80); return window.scrollY; });
+            expect(scrollY).toBeGreaterThan(0);
+        }
         const dragStart = await pointScreenPosition();
         await page.mouse.move(dragStart.x, dragStart.y);
         await page.mouse.down();
@@ -57,6 +67,13 @@ for (const route of ['rational/base', 'bezier/decasteljau']) {
             return point && (Math.abs(point.x) >= .05 || Math.abs(point.y + 2) >= .05);
         }).toBe(true);
         await group.getByRole('button', {name: 'Delete points'}).click();
+        if (scrolled) {
+            const beforeScroll = await pointScreenPosition();
+            await page.mouse.move(beforeScroll.x, beforeScroll.y);
+            const previousScroll = await page.evaluate(() => window.scrollY);
+            await page.evaluate(() => window.scrollBy(0, -40));
+            expect(await page.evaluate(() => window.scrollY)).toBeLessThan(previousScroll);
+        }
         const deleteTarget = await pointScreenPosition();
         await page.mouse.click(deleteTarget.x, deleteTarget.y);
         await expect.poll(async () => (await boardPoints()).some(({id}) => id === addedPoint.id)).toBe(false);
