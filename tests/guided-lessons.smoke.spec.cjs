@@ -4,8 +4,10 @@
  * ADDING A LESSON: append one row to LESSONS below. Three tests run for every row:
  *   1. sl forward walk: deep link + title, setup, every frame probed (stepProbe), observation frames go through the
  *      real flow (observe button, graph unlocked, compact tab reopens the same frame, Next hit-tested at its center, Next advances), completion.
- *   2. en Exit/re-entry: setup, prepareUserState, short Back/Next check at exitStep, duringLesson, Exit,
- *      assertUserState, then two re-entry rounds with a stable board snapshot (curves/points/total + stableCounts).
+ *   2. en Exit/re-entry, only for rows in EXIT_SAMPLE (one row per restoration mechanism): setup, prepareUserState,
+ *      short Back/Next check at exitStep, duringLesson, Exit, assertUserState, then two re-entry rounds with a stable
+ *      board snapshot (curves/points/total + stableCounts). Every other lesson is covered by the real-graph
+ *      session-restoration contract src/learning/runtime/lessonRestorationContract.tsx, so its rows carry no hooks.
  *   3. 390x844 narrow viewport: Next/Exit visible; calculation and notation frames have no horizontal overflow and
  *      a pointer-clickable Next.
  *   Tests 1 and 3 also require every visible board point inside the board view on every frame (offscreenSteps).
@@ -23,6 +25,7 @@
  *                                      returns ctx (e.g. a control-point count or baseline curve count).
  *   stepProbe(page, ctx, step, label)  optional; asserts the board for the scene of `step`. Runs on every frame
  *                                      of the forward walk, around the short Back check, and during re-entry.
+ *   Exit hooks (prepareUserState to reentryStep) apply to EXIT_SAMPLE rows only; do not add them to other rows.
  *   prepareUserState(page, ctx)        optional (absent = skip the user-state parts); with no lesson open, changes a user
  *                                      control and returns a `saved` value (usually before-lesson board stats).
  *   exitStep  number?                  step to advance to before exiting (default 3).
@@ -72,40 +75,9 @@ const bernstein = {
     stepProbe: async (page, ctx, step, label) => {
         expect((await boardStats(page)).curves, `curve count sane at ${label}`).toBeLessThanOrEqual(12);
     },
-    prepareUserState: async page => {
-        await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0);
-        expect(await degree(page)).toBe(1);
-        await page.getByRole('button', {name: 'Increase count'}).click();
-        await expect.poll(() => degree(page)).toBe(2);
-        const before = await boardStats(page);
-        expect(before.curves).toBeGreaterThan(0);
-        return before;
-    },
-    exitStep: 4,
-    duringLesson: async page => {
-        await expect.poll(async () => (await stackedSwitch(page)).isChecked()).toBe(true);
-        expect(await degree(page)).toBe(3);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => degree(page), {message: 'degree restored after exit'}).toBe(2);
-        await expect.poll(async () => (await stackedSwitch(page)).isChecked(), {message: 'stacked switch restored OFF'}).toBe(false);
-        expect((await boardStats(page)).curves, 'same curve count as before the lesson').toBe(before.curves);
-    },
-    stableCounts: async page => ({degree: await degree(page), stacked: await (await stackedSwitch(page)).isChecked()}),
 };
 
 // ---------------------------------------------------------------- Rational elevation
-async function runElevationActions(page, until) {
-    const lesson = lessonPanel(page);
-    for (let guard = 0; guard < 30; guard += 1) {
-        await h.reveal(page);
-        const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe):not(.guided-lesson-continue)');
-        if (await action.count()) { await action.first().click(); await settle(page); }
-        if (until && await until()) return;
-        await advance(page);
-    }
-}
-
 const rationalElevation = {
     id: 'rational-elevation',
     path: `${BASE}/rational/rational-elevation`,
@@ -115,27 +87,11 @@ const rationalElevation = {
         await expect.poll(async () => (await boardStats(page)).points).toBe(4);
         return {};
     },
-    prepareUserState: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBe(4);
-        return {points: 4};
-    },
-    // "Exit mid-lesson on an elevated step restores 4 points": apply the lesson's elevation action first.
-    exitStep: 1,
-    duringLesson: async page => {
-        await runElevationActions(page, async () => (await boardStats(page)).points >= 5);
-        expect((await boardStats(page)).points).toBeGreaterThanOrEqual(5);
-    },
-    assertUserState: async (page, ctx, saved) => {
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'points restored after exit'}).toBe(saved.points);
-    },
-    stableCounts: async page => ({points: (await boardStats(page)).points}),
 };
 
 // ---------------------------------------------------------------- Parameterization
 const DEFAULT_SAMPLES = 10;
-const alphaSlider = page => page.locator('input[type="range"][max="1"]').first();
 const samplesSlider = page => page.locator('input[type="range"][max="40"]').first();
-const modeSelect = page => page.getByRole('combobox', {name: /Choose parametrization|Izberi parametrizacijo/});
 
 // Sample points currently drawn: visible points minus the control points.
 const sampleCount = async (page, controls) => (await boardStats(page)).points - controls;
@@ -158,7 +114,7 @@ async function controlPointCount(page) {
 }
 
 // samplesByStep: sample-point count the scene of each step prepares (step 1 is the route default).
-function parameterizationRow({id, path, titles, samplesByStep, hasMode}) {
+function parameterizationRow({id, path, titles, samplesByStep}) {
     return {
         id, path, titles, steps: 5,
         setup: async page => {
@@ -170,36 +126,6 @@ function parameterizationRow({id, path, titles, samplesByStep, hasMode}) {
             await expectSamples(page, ctx.controls, samplesByStep[step - 1], `sample points at ${label}`);
             expect((await boardStats(page)).curves, `curve count stable at ${label}`).toBe(ctx.curves);
         },
-        prepareUserState: async (page, ctx) => {
-            await expect(samplesSlider(page)).toHaveValue(String(DEFAULT_SAMPLES));
-            await alphaSlider(page).fill('0.8');
-            await samplesSlider(page).fill('7');
-            await expectSamples(page, ctx.controls, 7, 'user-set sample count drawn');
-            if (hasMode) await modeSelect(page).selectOption('uniform');
-            return await boardStats(page);
-        },
-        // Step 3 prepares 3 samples on both routes (the PH route also switches mode there).
-        exitStep: 3,
-        duringLesson: async (page, ctx) => {
-            await expectSamples(page, ctx.controls, samplesByStep[2], 'lesson scene replaces the user sample count');
-        },
-        assertUserState: async (page, ctx, before) => {
-            await expectSamples(page, ctx.controls, 7, 'sample count restored after exit');
-            await expect.poll(async () => (await samplesSlider(page).inputValue())).toBe('7');
-            if (hasMode) {
-                await expect(modeSelect(page)).toHaveValue('uniform');
-                // The alpha slider is only offered in weighted mode; switching back is a normal user action.
-                await modeSelect(page).selectOption('alpha');
-                await expectSamples(page, ctx.controls, 7, 'weighted samples after switching mode back');
-            }
-            await expect.poll(async () => Number(await alphaSlider(page).inputValue())).toBeCloseTo(0.8, 5);
-            expect((await boardStats(page)).curves, 'same curve count as before the lesson').toBe(before.curves);
-        },
-        reentryStep: 4,
-        assertBaseline: async (page, ctx) => {
-            expect((await boardStats(page)).points).toBe(ctx.controls + DEFAULT_SAMPLES);
-        },
-        stableCounts: async (page, ctx) => ({samples: await sampleCount(page, ctx.controls)}),
     };
 }
 
@@ -208,14 +134,12 @@ const weighted = parameterizationRow({
     path: `${BASE}/param/param/alphaparam`,
     titles: {sl: 'Utežena parametrizacija', en: 'Weighted parameterization'},
     samplesByStep: [3, 3, 3, 10, 20],
-    hasMode: false,
 });
 const uniformPh = parameterizationRow({
     id: 'uniform-parameterization',
     path: `${BASE}/param/param/uniform`,
     titles: {sl: 'Enakomerna parametrizacija PH krivulje', en: 'Uniform parameterization of a PH curve'},
     samplesByStep: [3, 3, 3, 10, 10],
-    hasMode: true,
 });
 
 // ---------------------------------------------------------------- Construction lessons (Cohort D)
@@ -243,23 +167,6 @@ const subdivision = {
             expect((await boardStats(page)).drawnCurves, `two parts after the cut at ${label}`).toBe(2);
         }
     },
-    prepareUserState: async page => {
-        await page.getByRole('button', {name: 'Subdivide'}).click();
-        await expect.poll(async () => (await boardStats(page)).drawnCurves).toBe(2);
-        await tSlider(page).fill('0.696');
-        await expectT(page, 0.7, 'user-set t');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    assertUserState: async (page, ctx, before) => {
-        await expectT(page, 0.7, 't restored after exit');
-        // After the user's cut, t = 0.7 makes the orange remainder [0.7, 1] a real curve again: 3 drawn curves.
-        await expect.poll(async () => (await boardStats(page)).drawnCurves, {message: 'cut curves restored'}).toBe(before.drawnCurves);
-        const after = await boardStats(page);
-        expect(after.curves, 'same curve objects (no duplicated remainder)').toBe(before.curves);
-        expect(after.points).toBe(before.points);
-    },
-    stableCounts: async page => ({t: Number(await tSlider(page).inputValue())}),
 };
 
 const repeatedSubdivision = {
@@ -322,22 +229,6 @@ const rationalSubdivision = {
             await expectWeights(page, [1, 1.44, 1.3, 1.49, 1.42, 1, 1.44, 1], `weights of both pieces at ${label}`);
         }
     },
-    prepareUserState: async page => {
-        await tSlider(page).fill('0.696');
-        await expectT(page, 0.7, 'user-set t');
-        return {...(await boardStats(page)), weights: await h.boardWeights(page)};
-    },
-    exitStep: 3,
-    assertUserState: async (page, ctx, before) => {
-        await expectT(page, 0.7, 't restored after exit');
-        const after = await boardStats(page);
-        expect(after.drawnCurves).toBe(before.drawnCurves);
-        expect(after.curves, 'same curve objects (no duplicated remainder)').toBe(before.curves);
-        // Weight labels are off on the plain route; the lesson turns them on, so Exit must hide them again.
-        expect(before.weights, 'weight labels are off before the lesson').toEqual([]);
-        await expectWeights(page, [], 'weight labels hidden again after exit');
-    },
-    stableCounts: async page => ({t: Number(await tSlider(page).inputValue())}),
 };
 
 // Extrapolation: 4 control points + the marker point B(t); the curve is replaced by the extended one.
@@ -364,19 +255,6 @@ const extrapolation = {
         if (step === 3) { await expectPointNear(page, [3.06, -3.87], 'p3 equals the old marker B(6/5)'); await expectPointNear(page, [-2.8, 4]); }
         if (step === 4) { await expectPointNear(page, [0.5, -9.88], 'p3 equals the old marker B(3/2)'); await expectPointNear(page, [-2.5, 5.5]); }
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, '1.5').fill('1.4');
-        await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue())).toBeCloseTo(1.4, 1);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue()), {message: 'extrapolation slider restored'}).toBeCloseTo(1.4, 1);
-        const after = await boardStats(page);
-        expect(after.curves).toBe(before.curves);
-        expect(after.points).toBe(before.points);
-    },
-    stableCounts: async page => ({t: Number(await rangeSlider(page, '1.5').inputValue())}),
 };
 
 const rationalExtrapolation = {
@@ -400,22 +278,6 @@ const rationalExtrapolation = {
         // The advanced comparison sets a view that contains the negative-weight control point at (-29.5, 6).
         if (step === 4) { await expectPointNear(page, [-2.8, 4.2]); await expectPointNear(page, [-29.5, 6]); }
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, '1.5').fill('1.4');
-        await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue())).toBeCloseTo(1.4, 1);
-        return {...(await boardStats(page)), weights: await h.boardWeights(page)};
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expectWeights(page, [1, 2.2, 0.52, 1.14], 'lesson scene weights');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue()), {message: 'extrapolation slider restored'}).toBeCloseTo(1.4, 1);
-        expect(before.weights, 'weight labels are off before the lesson').toEqual([]);
-        await expectWeights(page, [], 'weight labels hidden again after exit');
-        expect((await boardStats(page)).points).toBe(before.points);
-    },
-    stableCounts: async page => ({t: Number(await rangeSlider(page, '1.5').inputValue())}),
 };
 
 // ---------------------------------------------------------------- Rational construction lessons (Cohort B)
@@ -475,20 +337,6 @@ const alternativeDeCasteljau = {
         expect(stats.points, `points stable for the ${degree} at ${label}`).toBe(ctx[degree]);
         if (ctx.cubic !== undefined && ctx.quartic !== undefined) expect(ctx.quartic - ctx.cubic, `one more control point at ${label}`).toBe(1);
     },
-    prepareUserState: async page => {
-        await setRange(page, 0, 0.8);
-        await expectRange(page, 0, 0.8, 'user-set t', 1);
-        return await boardStats(page);
-    },
-    exitStep: 5,
-    duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user t', 2); },
-    assertUserState: async (page, ctx, before) => {
-        await expectRange(page, 0, 0.8, 't restored after exit', 1);
-        const after = await boardStats(page);
-        expect(after.curves).toBe(before.curves);
-        expect(after.points).toBe(before.points);
-    },
-    stableCounts: async page => ({t: await rangeValue(page, 0)}),
 };
 
 const farinSwitches = async page => ({
@@ -555,24 +403,6 @@ const circle = {
         await expect.poll(async () => (await boardStats(page)).curves, {message: `${pieces} curves at ${label}`}).toBe(pieces);
         expect((await boardStats(page)).points, `3 control points per piece at ${label}`).toBe(3 * pieces);
     },
-    prepareUserState: async page => {
-        await page.getByRole('button', {name: 'Increase count'}).click();
-        await page.getByRole('button', {name: 'Increase count'}).click();
-        await expectCount(page, 0, 5, 'user-set piece count');
-        await expect.poll(async () => (await boardStats(page)).curves).toBe(5);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expectCount(page, 0, 4, 'lesson scene replaces the user piece count');
-        await expect.poll(async () => (await boardStats(page)).curves).toBe(4);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expectCount(page, 0, 5, 'piece counter restored after exit');
-        await expect.poll(async () => (await boardStats(page)).curves, {message: 'curves restored'}).toBe(before.curves);
-        expect((await boardStats(page)).points).toBe(before.points);
-    },
-    stableCounts: async page => ({pieces: await countValue(page, 0)}),
 };
 
 // Spline lessons: "Label all points" and "Hide fixed points" are plain switches; derived points are the fixed ones.
@@ -606,30 +436,12 @@ const splineCn = {
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2);
         // Fixture scenes set their own view, including the far-reaching limitations example at step 5.
         if (step !== 4) expect(await offscreenPoints(page), `all points inside the lesson view at ${label}`).toBe(0);
-    },    prepareUserState: async page => {
-        await page.getByRole('button', {name: 'Increase count'}).nth(1).click();
-        await expectCount(page, 1, 3, 'user-set degree');
-        await setSwitch(page, 'labels', false);
-        return {...(await boardStats(page)), switches: await splineSwitches(page)};
     },
-    exitStep: 2,
-    duringLesson: async page => {
-        await expectCount(page, 1, 2, 'lesson scene replaces the user degree');
-        await expect.poll(async () => (await splineSwitches(page)).labels, {message: 'lesson turns the point labels on'}).toBe(true);
-    },
-    assertUserState: async (page, ctx, saved) => {
-        await expectCount(page, 1, 3, 'degree restored after exit');
-        await expectCount(page, 0, 1, 'continuity restored after exit');
-        await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
-        await expect.poll(async () => (await boardStats(page)).points).toBe(saved.points);
-    },
-    reentryStep: 3,
-    stableCounts: async page => ({continuity: await countValue(page, 0), degree: await countValue(page, 1), switches: await splineSwitches(page)}),
 };
 
 // Symmetric splines: free points plus derived joints and inner points; lesson fixtures replace the default 6 / 7 free points in most steps.
 // `stepPoints` gives the per-step point count where lesson fixtures replace the default scene.
-function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps, stepPoints}) {
+function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygonSteps, stepPoints, exitHooks}) {
     return {
         id, path, titles, steps, minFrames,
         setup: async page => {
@@ -644,31 +456,33 @@ function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygon
             expect(switches.polygon, `control polygon at ${label}`).toBe(polygonSteps.includes(step));
             expect(switches.hideFixed, `derived points stay visible at ${label}`).toBe(false);
         },
-        prepareUserState: async page => {
-            await setSwitch(page, 'hideFixed', true);
-            await expect.poll(async () => (await boardStats(page)).points).toBeLessThan(points);
-            await setSwitch(page, 'labels', false);
-            return {...(await boardStats(page)), switches: await splineSwitches(page)};
-        },
-        exitStep: 2,
-        duringLesson: async page => {
-            await expect.poll(() => splineSwitches(page), {message: 'lesson scene replaces the user switches'})
-                .toMatchObject({labels: true, hideFixed: false});
-            expect((await boardStats(page)).points).toBe(stepPoints ? stepPoints[1] : points);
-        },
-        assertUserState: async (page, ctx, saved) => {
-            await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
-            await expect.poll(async () => (await boardStats(page)).points, {message: 'hidden derived points restored'}).toBe(saved.points);
-        },
-        reentryStep: 3,
-        stableCounts: async page => ({switches: await splineSwitches(page)}),
+        ...(exitHooks ? {
+            prepareUserState: async page => {
+                await setSwitch(page, 'hideFixed', true);
+                await expect.poll(async () => (await boardStats(page)).points).toBeLessThan(points);
+                await setSwitch(page, 'labels', false);
+                return {...(await boardStats(page)), switches: await splineSwitches(page)};
+            },
+            exitStep: 2,
+            duringLesson: async page => {
+                await expect.poll(() => splineSwitches(page), {message: 'lesson scene replaces the user switches'})
+                    .toMatchObject({labels: true, hideFixed: false});
+                expect((await boardStats(page)).points).toBe(stepPoints ? stepPoints[1] : points);
+            },
+            assertUserState: async (page, ctx, saved) => {
+                await expect.poll(() => splineSwitches(page), {message: 'switches restored after exit'}).toEqual(saved.switches);
+                await expect.poll(async () => (await boardStats(page)).points, {message: 'hidden derived points restored'}).toBe(saved.points);
+            },
+            reentryStep: 3,
+            stableCounts: async page => ({switches: await splineSwitches(page)}),
+        } : {}),
     };
 }
 
 const splineC1 = symmetricSplineRow({
     id: 'spline-c1', path: `${BASE}/spline/c1spline`, titles: {sl: 'Simetrični C¹ zlepek', en: 'Symmetric C¹ spline'},
     steps: 5, minFrames: 12, points: 9, polygonSteps: [2, 3], // 6 free points + 3 joints; 2 + 3 + 2 + 2 + 3 frames
-    stepPoints: [5, 5, 5, 9, 5], // fixtures: 4 free + 1 joint; step 4 keeps the default
+    exitHooks: true, stepPoints: [5, 5, 5, 9, 5], // fixtures: 4 free + 1 joint; step 4 keeps the default
 });
 const splineC2 = symmetricSplineRow({
     id: 'spline-c2', path: `${BASE}/spline/c2spline`, titles: {sl: 'Simetrični C² zlepek', en: 'Symmetric C² spline'},
@@ -699,19 +513,6 @@ const splineG1 = {
         expect(await offscreenPoints(page), `all points visible in the lesson view at ${label}`).toBe(0);
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step >= 2);
     },
-    prepareUserState: async page => {
-        await setRange(page, 0, 1.5);
-        await expectRange(page, 0, 1.5, 'user-set b');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => { await expectRange(page, 0, 0.25, 'lesson scene replaces the user b'); },
-    assertUserState: async (page, ctx, before) => {
-        await expectRange(page, 0, 1.5, 'b restored after exit');
-        await expectRange(page, 1, 1, 'second b untouched');
-        expect((await boardStats(page)).points).toBe(before.points);
-    },
-    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100)}),
 };
 
 const splineG1Symmetric = {
@@ -734,18 +535,6 @@ const splineG1Symmetric = {
         expect(await offscreenPoints(page), `all points visible at ${label}`).toBe(0);
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step <= 3);
     },
-    prepareUserState: async page => {
-        await setRange(page, 0, 0.3);
-        await expectRange(page, 0, 0.3, 'user-set beta0');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => { await expectRange(page, 0, 0.75, 'lesson scene replaces the user beta0'); },
-    assertUserState: async (page, ctx, before) => {
-        await expectRange(page, 0, 0.3, 'beta0 restored after exit');
-        expect((await boardStats(page)).points).toBe(before.points);
-    },
-    stableCounts: async page => ({b0: Math.round((await rangeValue(page, 0)) * 100)}),
 };
 
 const splineParameterization = {
@@ -767,26 +556,6 @@ const splineParameterization = {
         expect((await boardStats(page)).curves, `one spline curve at ${label}`).toBe(1);
         expect((await splineSwitches(page)).hideFixed, `derived points visible at ${label}`).toBe(false);
     },
-    prepareUserState: async page => {
-        await setRange(page, 0, 0.8);
-        await setRange(page, 1, 7);
-        await expectRange(page, 1, 7, 'user-set samples', 0);
-        await expect.poll(async () => (await boardStats(page)).points).toBe(9 + 7);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expectRange(page, 0, 0, 'lesson scene replaces the user alpha', 2);
-        await expectRange(page, 1, 10, 'lesson scene replaces the user samples', 0);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expectRange(page, 0, 0.8, 'alpha restored after exit', 2);
-        await expectRange(page, 1, 7, 'samples restored after exit', 0);
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'points restored (derived points hidden again)'}).toBe(before.points);
-        expect((await splineSwitches(page)).hideFixed).toBe(true);
-    },
-    reentryStep: 4,
-    stableCounts: async page => ({alpha: Math.round((await rangeValue(page, 0)) * 100), samples: await rangeValue(page, 1)}),
 };
 
 // ---------------------------------------------------------------- Linear function
@@ -863,21 +632,6 @@ const exponential = {
         await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible graphs at ${label}`}).toBe(expected.mirror ? 2 : 1);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 5).fill('3');
-        await expect.poll(() => exponentialReadout(page, 'a')).toBe('3');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => exponentialReadout(page, 'a'), {message: 'lesson scene replaced the user base'}).toBe('0.5');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => exponentialReadout(page, 'a'), {message: 'user base restored'}).toBe('3');
-        await expectPointNear(page, [1, 3], 'user point (1,a) restored');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({a: await exponentialReadout(page, 'a')}),
 };
 
 // ---------------------------------------------------------------- Trigonometric functions
@@ -917,20 +671,6 @@ const trigonometric = {
         await expect.poll(async () => (await boardStats(page)).drawnCurves, {message: `drawn curves at ${label}`}).toBeGreaterThanOrEqual(expected.curves);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 4).fill('2');
-        await expect.poll(() => trigReadout(page, 'equation')).toBe('f(x) = sin(2x)');
-        return await boardStats(page);
-    },
-    exitStep: 6,
-    duringLesson: async page => {
-        await expect.poll(() => trigReadout(page, 'equation'), {message: 'lesson scene replaced the user frequency'}).toBe('f(x) = 2·sin(2x + π/2) + 1');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => trigReadout(page, 'equation'), {message: 'user frequency restored'}).toBe('f(x) = sin(2x)');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({equation: await trigReadout(page, 'equation')}),
 };
 
 // ---------------------------------------------------------------- Continuity
@@ -966,22 +706,6 @@ const continuity = {
         expect(stats.drawnCurves, `both pieces have points at ${label}`).toBe(2);
         expect(stats.total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 3).fill('2.5');
-        await expect.poll(() => continuityReadout(page, 'value')).toBe('2.5');
-        await expect.poll(() => continuityReadout(page, 'right-limit')).toBe('0.5');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => continuityReadout(page, 'value'), {message: 'lesson scene replaced the user parameter'}).toBe('1');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => continuityReadout(page, 'value'), {message: 'user parameter restored'}).toBe('2.5');
-        await expectPointNear(page, [1, 0.5], 'user hollow point restored');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({a: await continuityReadout(page, 'value')}),
 };
 
 // ---------------------------------------------------------------- Derivative
@@ -1017,22 +741,6 @@ const derivative = {
         await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `visible curves at ${label}`}).toBe(expected.curves);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 2).fill('-1.5');
-        await expect.poll(() => derivativeReadout(page, 'h')).toBe('-1.5');
-        await expect.poll(() => derivativeReadout(page, 'quotient')).toBe('0.5');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => derivativeReadout(page, 'h'), {message: 'lesson scene replaced the user step'}).toBe('0.1');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => derivativeReadout(page, 'h'), {message: 'user step restored'}).toBe('-1.5');
-        await expectPointNear(page, [-0.5, 0.25], 'user point Q restored');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({h: await derivativeReadout(page, 'h')}),
 };
 
 // ---------------------------------------------------------------- Definite integral
@@ -1067,20 +775,6 @@ const definiteIntegral = {
         // the shapes are two curve objects whatever n is: the object count must not grow with n
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 150).fill('20');
-        await expect.poll(() => integralReadout(page, 'n')).toBe('20');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => integralReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('4');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => integralReadout(page, 'n'), {message: 'user n restored'}).toBe('20');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({n: await integralReadout(page, 'n')}),
 };
 
 // ---------------------------------------------------------------- Area between curves
@@ -1118,21 +812,6 @@ const areaBetween = {
         // the shading is two curve objects whatever the mode and the bounds are: the object count must stay put
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByRole('spinbutton', {name: /^(Bound b|Meja b)$/}).fill('2.5');
-        await expect.poll(() => areaReadout(page, 'b')).toBe('2.5');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => areaReadout(page, 'b'), {message: 'lesson scene replaced the user bound'}).toBe('3.22');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => areaReadout(page, 'b'), {message: 'user bound restored'}).toBe('2.5');
-        await expectPointNear(page, [2.5, 0], 'user bound b restored');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({b: await areaReadout(page, 'b')}),
 };
 
 // ---------------------------------------------------------------- Arc length
@@ -1169,20 +848,6 @@ const arcLength = {
         // the polyline and its markers are two curve objects whatever n is: the object count must not grow with n
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
-    prepareUserState: async page => {
-        await rangeSlider(page, 100).fill('20');
-        await expect.poll(() => arcReadout(page, 'n')).toBe('20');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => arcReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('10');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => arcReadout(page, 'n'), {message: 'user n restored'}).toBe('20');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({n: await arcReadout(page, 'n')}),
 };
 
 // ---------------------------------------------------------------- Bisection
@@ -1287,25 +952,6 @@ const meanValue = {
         await expectPointNear(page, [Number(expected.c), 0], `c on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/Point of tangency c|Točka dotika c/).fill('1.2');
-        await expect.poll(() => meanValueReadout(page, 'c')).toBe('1.2');
-        await expect.poll(() => meanValueReadout(page, 'secant-slope'), {message: 'changing c does not move the secant'}).toBe('2');
-        await page.locator('[data-action="toggle-matches"]').click();
-        await expect.poll(() => meanValueStatuses(page), {message: 'the matching point is revealed'}).toContain('matches');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => meanValueReadout(page, 'c'), {message: 'lesson scene replaced the user c'}).toBe('1.5');
-        await expect.poll(() => meanValueStatuses(page), {message: 'lesson scene hid the user reveal'}).not.toContain('matches');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => meanValueReadout(page, 'c'), {message: 'user c restored'}).toBe('1.2');
-        await expect.poll(() => meanValueStatuses(page), {message: 'user reveal restored'}).toContain('matches');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({c: await meanValueReadout(page, 'c')}),
 };
 
 // ---------------------------------------------------------------- Accumulated integral
@@ -1349,26 +995,6 @@ const accumulation = {
         await expectPointNear(page, [Number(expected.x), 0], `x on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/Point x|Točka x/).fill('1.2');
-        await expect.poll(() => accumulationReadout(page, 'x')).toBe('1.2');
-        await page.locator('[data-action="toggle-accumulation"]').click();
-        await expect.poll(() => accumulationStatuses(page), {message: 'the accumulation is shown'}).not.toContain('hidden');
-        await expect.poll(() => accumulationReadout(page, 'signed-integral'), {message: 'A(1.2) = 1 - cos 1.2'}).toBe('0.6376');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => accumulationReadout(page, 'x'), {message: 'lesson scene replaced the user x'}).toBe('3.1416');
-        await expect.poll(() => accumulationStatuses(page), {message: 'lesson scene hid the user reveal'}).toEqual(['hidden']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => accumulationReadout(page, 'x'), {message: 'user x restored'}).toBe('1.2');
-        await expect.poll(() => accumulationStatuses(page), {message: 'user reveal restored'}).not.toContain('hidden');
-        await expect.poll(() => accumulationReadout(page, 'signed-integral'), {message: 'user signed integral restored'}).toBe('0.6376');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({x: await accumulationReadout(page, 'x')}),
 };
 
 // ---------------------------------------------------------------- Darboux sums
@@ -1413,26 +1039,6 @@ const darboux = {
         await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/Number of parts n|Število delov n/).fill('16');
-        await expect.poll(() => darbouxReadout(page, 'n')).toBe('16');
-        await page.locator('[data-action="toggle-upper"]').click();
-        await expect.poll(() => darbouxStatuses(page), {message: 'the upper sum is hidden'}).toContain('hidden');
-        await expect.poll(() => darbouxReadout(page, 'lower'), {message: 'L(16) for x^2 on [0, 2]'}).toBe('2.4219');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => darbouxReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('8');
-        await expect.poll(() => darbouxStatuses(page), {message: 'lesson scene showed both sums'}).toEqual(['trapped']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => darbouxReadout(page, 'n'), {message: 'user n restored'}).toBe('16');
-        await expect.poll(() => darbouxStatuses(page), {message: 'user hidden upper sum restored'}).toContain('hidden');
-        await expect.poll(() => darbouxReadout(page, 'lower'), {message: 'user lower sum restored'}).toBe('2.4219');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({n: await darbouxReadout(page, 'n')}),
 };
 
 // ---------------------------------------------------------------- Extrema
@@ -1479,26 +1085,6 @@ const extrema = {
         await expectPointNear(page, [Number(expected.b), 0], `b on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/Right endpoint b|Desno krajišče b/).fill('1.5');
-        await expect.poll(() => extremaReadout(page, 'b')).toBe('1.5');
-        await page.locator('[data-action="toggle-classification"]').click();
-        await expect.poll(() => extremaStatuses(page), {message: 'the classification is shown'}).toContain('revealed');
-        await expect.poll(() => extremaGlobal(page, 'global-maximum'), {message: 'maximum of x^2 on [-1, 1.5]'}).toBe('2.25');
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => extremaReadout(page, 'b'), {message: 'lesson scene replaced the user b'}).toBe('1');
-        await expect.poll(() => extremaStatuses(page), {message: 'lesson scene hid the classification'}).toEqual(['hidden']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => extremaReadout(page, 'b'), {message: 'user b restored'}).toBe('1.5');
-        await expect.poll(() => extremaStatuses(page), {message: 'user classification restored'}).toContain('revealed');
-        await expect.poll(() => extremaGlobal(page, 'global-maximum'), {message: 'user global maximum restored'}).toBe('2.25');
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({b: await extremaReadout(page, 'b')}),
 };
 
 // ---------------------------------------------------------------- Convexity
@@ -1541,24 +1127,6 @@ const convexity = {
         await expectPointNear(page, [Number(expected.t), 0], `t on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/Tangent point t|Točka dotika tangente t/).fill('1.8');
-        await expect.poll(() => convexityReadout(page, 't')).toBe('1.8');
-        await page.locator('[data-action="toggle-second-derivative"]').click();
-        await expect.poll(() => convexityStatuses(page), {message: 'the second derivative is shown and the tangent claim withdrawn'}).toEqual(['revealed', 'tangent-outside']);
-        return await boardStats(page);
-    },
-    exitStep: 4,
-    duringLesson: async page => {
-        await expect.poll(() => convexityReadout(page, 't'), {message: 'lesson scene replaced the user t'}).toBe('0.5');
-        await expect.poll(() => convexityStatuses(page), {message: 'lesson scene hid the second derivative'}).toEqual(['hidden']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => convexityReadout(page, 't'), {message: 'user t restored'}).toBe('1.8');
-        await expect.poll(() => convexityStatuses(page), {message: 'user second derivative restored'}).toEqual(['revealed', 'tangent-outside']);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({t: await convexityReadout(page, 't')}),
 };
 
 // ---------------------------------------------------------------- Taylor approximation
@@ -1601,24 +1169,6 @@ const taylor = {
         await expectPointNear(page, [Number(expected.x), 0], `x on the axis at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/^(Degree n|Stopnja n)$/).fill('7');
-        await expect.poll(() => taylorReadout(page, 'degree')).toBe('7');
-        await page.locator('[data-action="toggle-taylor-bound"]').click();
-        await expect.poll(() => taylorStatuses(page), {message: 'the error bound is shown'}).toEqual(['revealed']);
-        return await boardStats(page);
-    },
-    exitStep: 4,
-    duringLesson: async page => {
-        await expect.poll(() => taylorReadout(page, 'degree'), {message: 'lesson scene replaced the user degree'}).toBe('3');
-        await expect.poll(() => taylorStatuses(page), {message: 'lesson scene hid the error bound'}).toEqual(['hidden']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => taylorReadout(page, 'degree'), {message: 'user degree restored'}).toBe('7');
-        await expect.poll(() => taylorStatuses(page), {message: 'user error bound restored'}).toEqual(['revealed']);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({degree: await taylorReadout(page, 'degree')}),
 };
 
 // ---------------------------------------------------------------- Sequence convergence
@@ -1659,30 +1209,6 @@ const sequence = {
         await expectPointNear(page, expected.last, `last shown term at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
     },
-    prepareUserState: async page => {
-        await page.locator('[data-action="next-step"]').click();
-        await page.locator('[data-action="next-step"]').click();
-        await expect.poll(() => sequenceReadout(page, 'terms')).toBe('3');
-        await page.getByLabel(/^(Threshold N|Prag N)$/).fill('11');
-        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'N edited'}).toBe('11');
-        await page.locator('[data-action="toggle-sequence-certificate"]').click();
-        await expect.poll(() => sequenceStatuses(page), {message: 'the certificate is shown, N beyond the shown terms'}).toEqual(['certified', 'beyond-terms', 'n-min-beyond-terms']);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => sequenceReadout(page, 'terms'), {message: 'lesson scene replaced the user terms'}).toBe('40');
-        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'lesson scene replaced the user N'}).toBe('5');
-        await expect.poll(() => sequenceStatuses(page), {message: 'lesson scene hid the certificate'}).toEqual(['hidden', 'complete']);
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => sequenceReadout(page, 'terms'), {message: 'user terms restored'}).toBe('3');
-        await expect.poll(() => sequenceReadout(page, 'threshold'), {message: 'user N restored'}).toBe('11');
-        await expect.poll(() => sequenceStatuses(page), {message: 'user certificate restored'}).toEqual(['certified', 'beyond-terms', 'n-min-beyond-terms']);
-        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveText(/Predvajaj|Play/);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({terms: await sequenceReadout(page, 'terms'), threshold: await sequenceReadout(page, 'threshold')}),
 };
 
 // ---------------------------------------------------------------- Uniform convergence
@@ -1726,27 +1252,6 @@ const uniformConvergence = {
         await expectPointNear(page, expected.point, `value of f_n at x at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/^(Index n|Indeks n)$/).fill('7');
-        await expect.poll(() => uniformReadout(page, 'n'), {message: 'n edited'}).toBe('7');
-        await page.getByLabel(/^(Tolerance ε|Toleranca ε)$/).fill('0.05');
-        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'epsilon edited'}).toBe('0.05');
-        await page.locator('[data-action="toggle-uniform-supremum"]').click();
-        await expect.poll(() => uniformStatuses(page), {message: 'the supremum is shown'}).toEqual(['attained', 'shared-n', 'not-covered']);
-        return await boardStats(page);
-    },
-    exitStep: 6,
-    duringLesson: async page => {
-        await expect.poll(() => uniformReadout(page, 'n'), {message: 'lesson scene replaced the user n'}).toBe('11');
-        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'lesson scene replaced the user epsilon'}).toBe('0.1');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => uniformReadout(page, 'n'), {message: 'user n restored'}).toBe('7');
-        await expect.poll(() => uniformReadout(page, 'epsilon'), {message: 'user epsilon restored'}).toBe('0.05');
-        await expect.poll(() => uniformStatuses(page), {message: 'user supremum restored'}).toEqual(['attained', 'shared-n', 'not-covered']);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({n: await uniformReadout(page, 'n'), epsilon: await uniformReadout(page, 'epsilon')}),
 };
 
 // ---------------------------------------------------------------- Complex multiplication
@@ -1786,26 +1291,6 @@ const complexMultiplication = {
         for (const point of expected.points) await expectPointNear(page, point, `a point at (${point}) at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/^Re z$/).fill('0.5');
-        await expect.poll(() => complexReadout(page, 'z'), {message: 'Re z edited'}).toBe('0.5 + i');
-        await page.locator('[data-action="toggle-complex-product"]').click();
-        await page.locator('[data-action="toggle-complex-arguments"]').click();
-        await expect.poll(() => complexStatuses(page), {message: 'the product is shown'}).toEqual(['not-reduced']);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => complexReadout(page, 'z'), {message: 'lesson scene replaced the user z'}).toBe('1 + i');
-        await expect.poll(() => complexReadout(page, 'w'), {message: 'lesson scene replaced the user w'}).toBe('-1');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => complexReadout(page, 'z'), {message: 'user z restored'}).toBe('0.5 + i');
-        await expect.poll(() => complexReadout(page, 'product'), {message: 'user product restored'}).toBe('-1 + 0.5i');
-        await expect.poll(() => complexStatuses(page), {message: 'user product visibility restored'}).toEqual(['not-reduced']);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({z: await complexReadout(page, 'z'), product: await complexReadout(page, 'product')}),
 };
 
 // ---------------------------------------------------------------- Fixed-point iteration
@@ -1847,46 +1332,12 @@ const fixedPoint = {
         await expectPointNear(page, [expected.point, expected.point], `current iterate at ${label}`);
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(120);
     },
-    prepareUserState: async page => {
-        await page.getByLabel(/^(Tolerance digits d|Natančnost d)/).fill('5');
-        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'tolerance edited'}).toBe('10⁻⁵');
-        await page.locator('[data-action="next-step"]').click();
-        await page.locator('[data-action="next-step"]').click();
-        await expect.poll(() => fixedPointReadout(page, 'step')).toBe('2');
-        await page.locator('[data-action="toggle-fixed-point-bound"]').click();
-        await expect.poll(() => fixedPointStatuses(page), {message: 'the bound is shown'}).toEqual(BOUND_STATUSES);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => {
-        await expect.poll(() => fixedPointReadout(page, 'step'), {message: 'lesson scene replaced the user step'}).toBe('3');
-        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'lesson scene replaced the user tolerance'}).toBe('10⁻³');
-    },
-    assertUserState: async (page, ctx, before) => {
-        await expect.poll(() => fixedPointReadout(page, 'step'), {message: 'user step restored'}).toBe('2');
-        await expect.poll(() => fixedPointReadout(page, 'tolerance'), {message: 'user tolerance restored'}).toBe('10⁻⁵');
-        await expect.poll(() => fixedPointStatuses(page), {message: 'user bound restored'}).toEqual(BOUND_STATUSES);
-        await expect(page.locator('[data-action="play-pause"]'), 'restoring does not resume playback').toHaveText(/Predvajaj|Play/);
-        expect((await boardStats(page)).total).toBe(before.total);
-    },
-    stableCounts: async page => ({step: await fixedPointReadout(page, 'step'), tolerance: await fixedPointReadout(page, 'tolerance')}),
 };
 
 // ---------------------------------------------------------------- Pilot lessons (bezier, decasteljau, affine, elevation, rational, rational-decasteljau, PH)
 // Expected values come from the scene fixtures in src/learning/content (see docs/reviews/lesson-example-improvements/pilot-smoke-rows.md).
 const expectPointsNear = async (page, points, label) => { for (const point of points) await expectPointNear(page, point, `${label}: point near (${point})`); };
 const polygonRestoreRow = {
-    prepareUserState: async page => {
-        await setSwitch(page, 'polygon', false);
-        expect(await switchByName(page, 'polygon').isChecked()).toBe(false);
-        return await boardStats(page);
-    },
-    duringLesson: async page => {
-        await expect.poll(() => switchByName(page, 'polygon').isChecked(), {message: 'lesson scene turns the control polygon on'}).toBe(true);
-    },
-    assertUserState: async page => {
-        await expect.poll(() => switchByName(page, 'polygon').isChecked(), {message: 'control polygon restored OFF after exit'}).toBe(false);
-    },
 };
 
 const BEZIER_SYMMETRIC = [[-3, -2], [-3, 2], [3, 2], [3, -2]];
@@ -1910,8 +1361,6 @@ const bezierPilot = {
         expect(curves, `curve count stable at ${label}`).toBe(ctx.curves);
     },
     ...polygonRestoreRow, // unverified: the plain route's polygon switch label and default
-    exitStep: 3,
-    stableCounts: async page => ({polygon: await switchByName(page, 'polygon').isChecked()}),
 };
 
 const decasteljauPilot = {
@@ -1974,8 +1423,6 @@ const affinePilot = {
         expect(curves, `curve count stable at ${label}`).toBe(ctx.curves);
     },
     ...polygonRestoreRow,
-    exitStep: 3,
-    stableCounts: async page => ({polygon: await switchByName(page, 'polygon').isChecked()}),
 };
 
 const ELEVATION_P = [[-4, -2], [-3, 3], [2, 3], [3, -2]];
@@ -1996,21 +1443,6 @@ const elevationPilot = {
         const points = (await boardStats(page)).points;
         expect(points, `visible points at ${label}`).toBe([9, 9, 10, 12][step - 1]);
     },
-    prepareUserState: async page => {
-        const base = (await boardStats(page)).points;
-        await page.getByRole('button', {name: 'Elevate degree'}).click();
-        // One elevation turns the 4 + 5 point pair into 5 + 6 points.
-        await expect.poll(async () => (await boardStats(page)).points).toBe(base + 2);
-        return {points: base + 2};
-    },
-    exitStep: 2,
-    duringLesson: async (page, ctx, saved) => {
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'lesson scene replaces the elevated curve'}).toBe(saved.points - 2);
-    },
-    assertUserState: async (page, ctx, saved) => {
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'elevated curve restored after exit'}).toBe(saved.points);
-    },
-    stableCounts: async page => ({points: (await boardStats(page)).points}),
 };
 
 const RATIONAL_STEPS = {
@@ -2031,18 +1463,6 @@ const rationalPilot = {
         await expectWeights(page, RATIONAL_STEPS[step].weights, `weights at ${label}`);
         await expectPointsNear(page, [[-4, -3], [-3, 3], [3, 3], [4, -3], RATIONAL_STEPS[step].point], `fixture and B(1/2) at ${label}`);
     },
-    prepareUserState: async page => {
-        const weights = await h.boardWeights(page);
-        expect(weights, 'weight labels are on by default on this route').toEqual([1, 2, 1, 1]);
-        return {weights, ...(await boardStats(page))};
-    },
-    exitStep: 3,
-    duringLesson: async page => { await expectWeights(page, [1, 4, 1, 1], 'lesson scene shows the weights'); },
-    assertUserState: async (page, ctx, saved) => {
-        await expectWeights(page, saved.weights, 'route weight labels restored after exit');
-        expect((await boardStats(page)).curves).toBe(saved.curves);
-    },
-    stableCounts: async page => ({weights: (await h.boardWeights(page)).length}),
 };
 
 const RATIONAL_DECASTELJAU_STEPS = {
@@ -2066,18 +1486,6 @@ const rationalDecasteljauPilot = {
         await expectPointNear(page, expected.point, `final construction point at ${label}`);
         await expectRange(page, 0, 0.5, `t slider at ${label}`, 2); // unverified: slider index 0
     },
-    prepareUserState: async page => {
-        await setRange(page, 0, 0.8);
-        await expectRange(page, 0, 0.8, 'user-set t', 1);
-        return await boardStats(page);
-    },
-    exitStep: 3,
-    duringLesson: async page => { await expectRange(page, 0, 0.5, 'lesson scene replaces the user t', 2); },
-    assertUserState: async (page, ctx, saved) => {
-        await expectRange(page, 0, 0.8, 't restored after exit', 1);
-        expect((await boardStats(page)).curves).toBe(saved.curves);
-    },
-    stableCounts: async page => ({t: await rangeValue(page, 0)}),
 };
 
 // `free`: a final scene-less step restores the route's own board, so it is checked against the route default instead.
