@@ -20,7 +20,6 @@ export class JXGPointWrapper implements Point {
 
     setX(x: number | (() => number)): void {
         if (typeof x == 'function') {
-            // eslint-disable-next-line no-throw-literal
             throw "Not implemented yet";
         }
         this.point.setPositionDirectly(JXG.COORDS_BY_USER, [x, this.point.Y()]);
@@ -28,7 +27,6 @@ export class JXGPointWrapper implements Point {
 
     setY(y: number | (() => number)): void {
         if (typeof y == 'function') {
-            // eslint-disable-next-line no-throw-literal
             throw "Not implemented yet";
         }
         this.point.setPositionDirectly(JXG.COORDS_BY_USER, [this.point.X(), y]);

@@ -3,15 +3,19 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | typecheck | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | eval <list|setup|grade|calibrate> [args...]')
 
-# Run typecheck, all unit tests, then a provenance-recorded production build.
+# Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
     @require('./scripts/commands.cjs').cli(['check'])
 
 # Typecheck once with the local compiler.
 typecheck:
     @require('./scripts/commands.cjs').cli(['typecheck'])
+
+# Lint app code, tests, and tooling with the local ESLint; arguments replace the default `.` target.
+lint *args:
+    @require('./scripts/commands.cjs').cli(['lint', ...process.argv.slice(2)])
 
 # Run unit tests once and forward all arguments to Vitest.
 unit *args:

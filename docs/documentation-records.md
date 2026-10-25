@@ -41,6 +41,7 @@ Completed handoffs have been consolidated into the implementation histories belo
 - [Workspace implementation review](reviews/tools-workspace-redesign.md): the all-route workspace, interaction checks, compatibility, and remaining device/classroom review.
 - [GitHub Pages SPA playbook](github-pages-spa-playbook.md): reusable setup and publishing process.
 - [Vite migration spec](specs/vite-migration.md): CRA/Jest replaced by Vite/Vitest on Node 24, with parity evidence; [ADR 0009](adr/0009-vite-build-and-vitest.md) records the choice.
+- [Agent guardrails spec](specs/agent-guardrails.md): lint, lesson smoke-row parity, lesson view containment and evaluation-log merges that replace recurring review findings; [ADR 0017](adr/0017-eslint-correctness-lint.md) records the lint choice.
 - [Continuous deployment spec](specs/continuous-deployment.md): CI checks and gated native Pages deployment, activated on `master`.
 - [CI/CD verification](reviews/continuous-deployment.md): hosted CI evidence, local checks, and activation limits.
 - [ADR 0010](adr/0010-scheme-driven-bezier-splines.md): accepted scheme-driven Bézier splines (one `BezierSpline`, one `SplineScheme` per kind) replacing the subclass hierarchy.
