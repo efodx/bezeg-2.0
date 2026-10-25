@@ -1,6 +1,6 @@
 # 4. Separate authored activities from shared visit/history behavior
 
-Status: planned. Independent implementation after the coverage-map format is settled. Source: [specification](../../specs/test-consolidation.md), acceptance 5 and 7–9.
+Status: implemented; evidence in [coverage.md](coverage.md) "Task 4 chapter activities". Independent implementation after the coverage-map format is settled. Source: [specification](../../specs/test-consolidation.md), acceptance 5 and 7–9.
 
 ## Scope and entry points
 

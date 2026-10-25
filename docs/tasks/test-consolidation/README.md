@@ -1,6 +1,6 @@
 # Test consolidation work queue
 
-Status: in progress, 2026-10-25. Source, scope and shared acceptance: [specification](../../specs/test-consolidation.md). These are implementation tasks, ordered by expected priority/gain. Task 5 is implemented (`1653fbb`; harness artifacts, no app defect; gaps in [coverage.md](coverage.md)); task 1 has its shared helpers (`531ebe6`), inventory, first baseline and the session-driven contract with fault evidence (`5ebb45e`); the browser `en: Exit` sample (7 rows) and hook deletions are done, with the mapping in coverage.md; tasks 2 and 4 are implemented; task 3 and final timing are open. Evidence: [coverage.md](coverage.md).
+Status: implemented, 2026-10-25. Source, scope and shared acceptance: [specification](../../specs/test-consolidation.md). These are implementation tasks, ordered by expected priority/gain. All five tasks are implemented; task 3 kept two navigations per lesson after a single traversal measured slower. Final timing (full browser suite 665 s → 370 s wall, 3914 s → 2159 s summed) and the unit run are in [coverage.md](coverage.md) "Final timing". Evidence: [coverage.md](coverage.md).
 
 | Priority | Task | Dependency |
 | --- | --- | --- |

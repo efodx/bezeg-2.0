@@ -1,17 +1,18 @@
 /*
  * Data-driven guided-lesson smoke spec.
  *
- * ADDING A LESSON: append one row to LESSONS below. Three tests run for every row:
- *   1. sl forward walk: deep link + title, setup, every frame probed (stepProbe), a pointer click on Next on every
- *      frame (board labels must not intercept it), completion. Observe/reopen/compact-tab behaviour is shared runtime
- *      and runs once in the 'Observation flow' block (matrix in docs/tasks/test-consolidation/coverage.md, task 2).
+ * ADDING A LESSON: append one row to LESSONS below. Two tests run for every row (three for EXIT_SAMPLE rows):
+ *   1. sl desktop walk: deep link + title, setup, every frame probed (stepProbe), then the en 390x844 walk: Next/Exit
+ *      inside the viewport, and on calculation/notation frames no page overflow and every math block inside the
+ *      viewport. Both walks click Next with a real pointer on every frame (board labels must not intercept it), keep
+ *      visible points inside the board view (offscreenSteps), must visit the frames in exact order (step 1 frames
+ *      1..n, step 2 ...), fail explicitly when the frame guard expires, and must complete. Two navigations measured
+ *      faster than one walk that switches language and width per frame (docs/tasks/test-consolidation/coverage.md,
+ *      task 3). Observe/reopen/compact-tab behaviour is shared runtime and runs once in the 'Observation flow' block.
  *   2. en Exit/re-entry, only for rows in EXIT_SAMPLE (one row per restoration mechanism): setup, prepareUserState,
  *      short Back/Next check at exitStep, duringLesson, Exit, assertUserState, then two re-entry rounds with a stable
  *      board snapshot (curves/points/total + stableCounts). Every other lesson is covered by the real-graph
  *      session-restoration contract src/learning/runtime/lessonRestorationContract.tsx, so its rows carry no hooks.
- *   3. 390x844 narrow viewport: Next/Exit visible; calculation and notation frames have no horizontal overflow and
- *      a pointer-clickable Next.
- *   Tests 1 and 3 also require every visible board point inside the board view on every frame (offscreenSteps).
  * Shared GuidedLesson runtime behaviour (header language switch, Tab+Enter on Next, lossless Back walk) is not
  * repeated per row; it runs on SHARED_RUNTIME_ROWS in the 'Shared lesson runtime' block. No new spec file is needed.
  *
@@ -1567,6 +1568,50 @@ async function openLesson(page, row, language) {
 }
 
 const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
+// Walks every frame from the current one to completion: observe(label) runs on each frame, visible points must stay in
+// the board view (offscreenSteps excepted) and Next is clicked with a real pointer, so board labels must not cover it.
+// Returns what the caller asserts with expectCompleteWalk.
+async function walkFrames(page, row, observe) {
+    const visited = [];
+    const blocked = [];
+    const offscreen = [];
+    let completed = false;
+    for (let guard = 0; guard < 60 && !completed; guard += 1) {
+        const label = await progress(page);
+        visited.push(label.match(/\d+/g).map(Number));
+        const finishing = await isFinishing(page);
+        await observe(label);
+        await collectOffscreen(page, row, label, offscreen);
+        // A generous timeout: a loaded machine may still be laying out; an intercepting board label keeps failing until
+        // the timeout and is reported below.
+        try {
+            await nextButton(page).click({timeout: 15000});
+        } catch (error) {
+            const lines = error.message.split(String.fromCharCode(10)).map(line => line.trim()).filter(Boolean);
+            blocked.push(`${label}: ${lines.find(line => line.includes('intercepts')) || `click failed: ${lines.at(-1)}`}`);
+            await pressOn(page, nextButton(page));
+        }
+        await settle(page);
+        if (finishing) completed = true;
+    }
+    return {visited, blocked, offscreen, completed};
+}
+async function expectCompleteWalk(page, {visited, blocked, offscreen, completed}, row, minFrames, width) {
+    expect(completed, 'the 60-frame guard expired before the lesson completed').toBe(true);
+    await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
+    expect(blocked, `Next not pointer-clickable at ${width} (an intercepting element, or the click failed as reported)`).toEqual([]);
+    expect(offscreen, `visible board points outside the lesson view at ${width}`).toEqual([]);
+    // Exact in-order sequence: step 1 frames 1..n1, step 2 frames 1..n2, ... up to row.steps. A step never reached
+    // contributes a placeholder frame, so skipping a whole step fails too.
+    const expected = [];
+    for (let step = 1; step <= row.steps; step += 1) {
+        const frameCount = visited.find(entry => entry[0] === step)?.[3];
+        if (frameCount === undefined) expected.push([step, row.steps, 1, 'never reached']);
+        for (let frame = 1; frame <= (frameCount ?? 0); frame += 1) expected.push([step, row.steps, frame, frameCount]);
+    }
+    expect(visited, 'frames visited in order (step, steps, frame, frames)').toEqual(expected);
+    expect(visited.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
+}
 // Records the frame's visible points that fall outside the board view, unless the row declares the step as intended.
 async function collectOffscreen(page, row, label, found) {
     if (row.offscreenSteps?.includes(stepNumber(label))) return;
@@ -1583,36 +1628,46 @@ for (const row of LESSONS) {
     test.describe(`Lesson ${row.id}`, () => {
         test.setTimeout(150_000);
 
-        test('sl: ?learn=1 walks every frame with pointer clicks on Next and completes', async ({page}) => {
+        test('sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes', async ({page}) => {
             await openLesson(page, row, 'sl');
             await expect(lessonHeading(page)).toHaveText(row.titles.sl);
             await expect(backButton(page)).toBeDisabled();
             const ctx = row.setup ? await row.setup(page) : undefined;
-            const seen = [];
-            const blocked = [];
-            const offscreen = [];
-            for (let guard = 0; guard < 60; guard += 1) {
-                const label = await progress(page);
-                seen.push(label);
+            const walk = await walkFrames(page, row, async label => {
                 if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label);
-                await collectOffscreen(page, row, label, offscreen);
-                const finishing = await isFinishing(page);
-                // A real pointer click on every frame: this lesson's board labels must not cover Next.
-                // Observe, reopen and the compact tab are runtime behaviour owned by the 'Observation flow' block.
-                try {
-                    await nextButton(page).click({timeout: 4000});
-                } catch (error) {
-                    blocked.push(`${label}: ${error.message.split(String.fromCharCode(10)).find(line => line.includes('intercepts')) || 'click failed'}`);
-                    await pressOn(page, nextButton(page));
-                }
-                await settle(page);
-                if (finishing) break;
+            });
+            await expectCompleteWalk(page, walk, row, minFrames, 'desktop');
+        });
+
+        test('en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable', async ({page}) => {
+            await page.setViewportSize({width: 390, height: 844});
+            await openLesson(page, row, 'en');
+            await expect(lessonHeading(page)).toHaveText(row.titles.en);
+            await expect(backButton(page)).toBeDisabled();
+            const lesson = lessonPanel(page);
+            for (const control of [nextButton(page), exitButton(page)]) {
+                await expect(control).toBeVisible();
+                const box = await control.boundingBox();
+                expect(box.x).toBeGreaterThanOrEqual(-1);
+                expect(box.x + box.width).toBeLessThanOrEqual(391);
             }
-            await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
-            expect(blocked, 'Next not pointer-clickable (board elements intercept)').toEqual([]);
-            expect(offscreen, 'visible board points outside the lesson view').toEqual([]);
-            expect(new Set(seen.map(stepNumber)), 'every step visited').toEqual(new Set(Array.from({length: row.steps}, (_, i) => i + 1)));
-            expect(seen.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
+            const overflowing = [];
+            const walk = await walkFrames(page, row, async label => {
+                const blocks = lesson.locator('.guided-lesson-worked-example, .guided-lesson-notation');
+                if (await blocks.count() === 0) return;
+                const {scrollWidth, innerWidth} = await page.evaluate(() => ({
+                    scrollWidth: document.scrollingElement.scrollWidth, innerWidth: window.innerWidth}));
+                if (scrollWidth > innerWidth + 1) overflowing.push(`${label}: scrollWidth ${scrollWidth} > ${innerWidth}`);
+                // The lesson panel clips its own overflow, so the page width alone cannot reveal a block that escapes it:
+                // the notation and worked-example boxes themselves must stay inside the viewport.
+                const escaping = await blocks.evaluateAll(
+                    (boxes, width) => boxes.map(block => block.getBoundingClientRect()).filter(box => box.right > width + 1 || box.left < -1).map(box => `${Math.round(box.left)}..${Math.round(box.right)}`), innerWidth);
+                if (escaping.length) overflowing.push(`${label}: math block outside the ${innerWidth}px viewport (${escaping.join(', ')})`);
+            });
+            await expectCompleteWalk(page, walk, row, minFrames, '390 px');
+            expect(overflowing, 'calculation/notation frames with overflow at 390 px').toEqual([]);
+            await expect(page.locator('#jgbox')).toBeVisible();
+            await noHorizontalOverflow(page);
         });
 
         if (EXIT_SAMPLE.has(row.id)) test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
@@ -1656,51 +1711,6 @@ for (const row of LESSONS) {
                 await expect(lessonPanel(page)).toHaveCount(0);
                 await expect.poll(snapshot, {message: `board counts after round ${round}`}).toEqual(baseline);
             }
-        });
-
-        test.describe('narrow viewport', () => {
-            test.use({viewport: {width: 390, height: 844}});
-            test('lesson controls are visible; calculation and notation frames have no horizontal overflow and Next is clickable', async ({page}) => {
-                await openLesson(page, row, 'en');
-                const lesson = lessonPanel(page);
-                for (const control of [nextButton(page), exitButton(page)]) {
-                    await expect(control).toBeVisible();
-                    const box = await control.boundingBox();
-                    expect(box.x).toBeGreaterThanOrEqual(-1);
-                    expect(box.x + box.width).toBeLessThanOrEqual(391);
-                }
-                const overflowing = [];
-                const blocked = [];
-                const offscreen = [];
-                for (let guard = 0; guard < 60; guard += 1) {
-                    const label = await progress(page);
-                    await collectOffscreen(page, row, label, offscreen);
-                    const hasMath = await lesson.locator('.guided-lesson-worked-example, .guided-lesson-notation').count() > 0;
-                    const finishing = await isFinishing(page);
-                    if (hasMath) {
-                        const {scrollWidth, innerWidth} = await page.evaluate(() => ({
-                            scrollWidth: document.scrollingElement.scrollWidth, innerWidth: window.innerWidth}));
-                        if (scrollWidth > innerWidth + 1) overflowing.push(`${label}: scrollWidth ${scrollWidth} > ${innerWidth}`);
-                        try {
-                            await nextButton(page).click({timeout: 4000});
-                        } catch (error) {
-                            blocked.push(`${label}: ${error.message.split(String.fromCharCode(10)).find(line => line.includes('intercepts')) || 'click failed'}`);
-                            await nextButton(page).focus();
-                            await page.keyboard.press('Enter');
-                        }
-                    } else {
-                        await nextButton(page).click();
-                    }
-                    await settle(page);
-                    if (finishing) break;
-                }
-                expect(blocked, 'Next not pointer-clickable on calculation/notation frames').toEqual([]);
-                expect(overflowing, 'calculation/notation frames with horizontal page overflow').toEqual([]);
-                expect(offscreen, 'visible board points outside the lesson view at 390 px').toEqual([]);
-                await expect(page.locator('#jgbox')).toBeVisible();
-                await noHorizontalOverflow(page);
-                await expect(lesson).toBeAttached();
-            });
         });
     });
 }
