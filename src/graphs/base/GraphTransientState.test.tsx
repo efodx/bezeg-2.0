@@ -30,7 +30,6 @@ import {
     scene,
     sceneActions,
     type SceneView,
-    stale,
 } from './realGraphScenes';
 import type {Preset} from './presets/Presets';
 
@@ -114,8 +113,7 @@ describe.each(ids)('%s', id => {
         expect(full(mounted)).not.toEqual(captured);
 
         act(() => capabilities.restoreState(checkpoint));
-        const comparable = stale(id, 'checkpoint');
-        expect(comparable(full(mounted))).toEqual(comparable(captured));
+        expect(full(mounted)).toEqual(captured);
         expect(storageWrite).not.toHaveBeenCalled();
         storageWrite.mockRestore();
 
@@ -131,7 +129,7 @@ describe.each(ids)('%s', id => {
             applyActions(graph, sceneActions(graph, 'b'));
             applyActions(twin.graph, sceneActions(twin.graph, 'b'));
         });
-        expect(comparable(full(mounted))).toEqual(comparable(full(twin)));
+        expect(full(mounted)).toEqual(full(twin));
         twin.view.unmount();
         mounted.view.unmount();
     });
@@ -156,9 +154,8 @@ describe.each(ids)('%s', id => {
         else expect(mainScene(changed!)).not.toEqual(mainScene(captured));
         // A child board (the PH hodograph) is recreated by the inspector when the host commits; until then its view
         // waits in the declared transient state, which is compared.
-        const comparable = stale(id, 'rollback');
-        expect(comparable(mainScene(inTick!))).toEqual(comparable(mainScene(captured)));
-        expect(comparable(scene(graph))).toEqual(comparable(captured));
+        expect(mainScene(inTick!)).toEqual(mainScene(captured));
+        expect(scene(graph)).toEqual(captured);
         mounted.view.unmount();
     });
 
@@ -178,9 +175,8 @@ describe.each(ids)('%s', id => {
             inTick = scene(mounted.graph);
         });
         const {controls: _controls, ...expectedScene} = expected;
-        const comparable = stale(id, 'default');
-        expect(comparable(inTick)).toEqual(comparable(expectedScene));
-        expect(comparable(full(mounted))).toEqual(comparable(expected));
+        expect(inTick).toEqual(expectedScene);
+        expect(full(mounted)).toEqual(expected);
         reference.view.unmount();
         mounted.view.unmount();
     });
@@ -194,8 +190,7 @@ describe.each(ids)('%s', id => {
         resetDisplay(mounted.graph, reference.graph);
         expect(full(mounted)).not.toEqual(expected);
         await settle(() => mounted.graph.reset());
-        const comparable = stale(id, 'reset');
-        expect(comparable(full(mounted))).toEqual(comparable(expected));
+        expect(full(mounted)).toEqual(expected);
         reference.view.unmount();
         mounted.view.unmount();
     });
@@ -220,16 +215,15 @@ describe.each(ids)('%s', id => {
             shown.push(scene(graph));
             return new Blob(['png']);
         });
-        const comparable = stale(id, 'batch');
         const storageWrite = vi.spyOn(Storage.prototype, 'setItem');
         await settle(() => internals(graph).exportPresetFigures(stored ? [viewOnly, stored] : [viewOnly]));
         expect(shown).toHaveLength(stored ? 2 : 1);
         expect(shown[0]).toEqual(freshScene);
         if (storedScene) {
             expect(mainScene(storedScene)).not.toEqual(mainScene(freshScene));
-            expect(comparable(shown[1])).toEqual(comparable(storedScene));
+            expect(shown[1]).toEqual(storedScene);
         }
-        expect(comparable(full(mounted))).toEqual(comparable(captured));
+        expect(full(mounted)).toEqual(captured);
         expect(storageWrite).not.toHaveBeenCalled();
         reference.view.unmount();
         mounted.view.unmount();

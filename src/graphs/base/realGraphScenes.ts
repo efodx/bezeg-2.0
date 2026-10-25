@@ -4,7 +4,6 @@
  * Graphs come from `graphFactories` through `realGraphTestHarness`; nothing here mocks a graph.
  */
 import {act, fireEvent} from '@testing-library/react';
-import type {DemonstrationId} from '../../demonstrations';
 import type BaseGraph from './BaseGraph';
 import type {BaseGraphState} from './BaseGraph';
 import type {LessonAction} from '../../learning/model';
@@ -137,27 +136,4 @@ export function changeScene(mounted: MountedGraph, variant: 'a' | 'b'): void {
         graph.setElementSize(variant === 'a' ? 4 : 2);
         hodograph(graph)?.setBoundingBox(variant === 'a' ? [-3, 2, 3, -2] : [-6, 7, 6, -1], true);
     });
-}
-
-/**
- * Function-graph region drawing that is stale before this task (reproduced at 850b6ac) and outside its scope. Regions
- * drawn from caches keyed by the model only (for example the definite-integral `fillCache`) keep data sampled for an
- * earlier view, so a newly mounted reference or a captured scene shows the stale region; the accumulation region seen
- * at capture also differs from the one redrawn after restore (cause not isolated). For the listed scenarios curves are
- * left out of the board comparison; everything else is compared. Remove an entry when its drawing is fixed.
- */
-export const STALE_VIEW_CACHED_CURVES: Partial<Record<DemonstrationId, readonly string[]>> = {
-    'accumulation': ['checkpoint', 'rollback'],
-    'arc-length': ['default'],
-    'area-between-curves': ['default', 'batch'],
-    'darboux': ['default'],
-    'definite-integral': ['default'],
-    'fixed-point': ['default'],
-};
-export function stale(id: DemonstrationId, scenario: string) {
-    return <T,>(observed: T): T => {
-        if (!STALE_VIEW_CACHED_CURVES[id]?.includes(scenario) || typeof observed !== 'object' || observed === null) return observed;
-        const board = (observed as {board?: string[]}).board;
-        return board ? {...observed, board: board.filter(line => !line.startsWith('curve'))} : observed;
-    };
 }

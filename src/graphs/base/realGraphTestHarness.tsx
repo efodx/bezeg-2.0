@@ -96,10 +96,14 @@ export function boardSignature(board: JXG.Board): string[] {
         if (JXG.isPoint(object)) {
             line += ` ${round(object.coords.usrCoords[1])},${round(object.coords.usrCoords[2])}`;
         } else if (object.elType === 'curve' || object.elType === 'functiongraph') {
-            const points: Array<{usrCoords: number[]}> = object.points ?? [];
+            // JSXGraph keeps entries past `numberPoints` from an earlier, longer data array and never draws them.
+            const allPoints: Array<{usrCoords: number[]}> = object.points ?? [];
+            const points = typeof object.numberPoints === 'number' ? allPoints.slice(0, object.numberPoints) : allPoints;
+            // A curve with nothing to draw is the same picture as a hidden one; JSXGraph only hides it at creation.
+            if (points.length === 0) continue;
             const sample = (i: number) => `${round(points[i]?.usrCoords[1])},${round(points[i]?.usrCoords[2])}`;
             const at = [0, 0.25, 0.5, 0.75, 1].map(fraction => Math.round(fraction * (points.length - 1)));
-            line += points.length > 0 ? ` n=${points.length} ${at.map(sample).join(' ')}` : ' empty';
+            line += ` n=${points.length} ${at.map(sample).join(' ')}`;
         } else if (object.elType === 'text') {
             line += object.isLabel || object.elType === 'label' ? ' label' : ` ${String(object.plaintext ?? object.htmlStr ?? '')}`;
         }
