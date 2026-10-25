@@ -10,6 +10,7 @@ import {splineGuidedLessons} from './splineGuidedLessons';
 import {functionGuidedLessons} from './functionGuidedLessons';
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
+import {familyChapters} from './familyChapters';
 
 /**
  * Guards the lesson math typography contract.
@@ -108,7 +109,8 @@ const BARE_MATH_HEURISTICS: readonly (readonly [string, RegExp])[] = [
 
 function findings(): string[] {
     const result: string[] = [];
-    for (const [moduleName, lessons] of lessonSets) {
+    const readingChapters = familyChapters.map(chapter => ({...chapter, demonstrationId: chapter.id}));
+    for (const [moduleName, lessons] of [...lessonSets, ['familyChapters', readingChapters] as const]) {
         for (const lesson of lessons) {
             const where = `${moduleName}/${lesson.demonstrationId}`;
             const localized: {path: string; lang: string; text: string}[] = [];
