@@ -478,8 +478,8 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Izračun pri \\(t=1/2\\)', 'Evaluate at \\(t=1/2\\)'),
                 purpose: text('Primerjava analitičnega izračuna z označeno točko na krivulji.', 'A comparison between the analytical evaluation and the marked point on the curve.'),
                 explanation: text(
-                    'Za točke \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\) je \\(B(1/2)=\\tfrac18\\bigl((-3,-2)+3(-3,2)+3(3,2)+(3,-2)\\bigr)=(0,1)\\). To je utežena vsota vseh štirih kontrolnih točk z utežmi \\(1/8,\\,3/8,\\,3/8,\\,1/8\\), ne njihovo aritmetično povprečje \\((0,0)\\).',
-                    'For the points \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\), \\(B(1/2)=\\tfrac18\\bigl((-3,-2)+3(-3,2)+3(3,2)+(3,-2)\\bigr)=(0,1)\\). It is a weighted sum of all four control points with weights \\(1/8,\\,3/8,\\,3/8,\\,1/8\\), not their arithmetic mean \\((0,0)\\).',
+                    'Za točke \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\) je \\[ \\begin{aligned}B(1/2)&=\\tfrac18\\bigl((-3,-2)+3(-3,2)\\\\&\\qquad{}+3(3,2)+(3,-2)\\bigr)\\\\&=\\tfrac18(0,8)=(0,1)\\end{aligned} \\] To je utežena vsota vseh štirih kontrolnih točk z utežmi \\(1/8,\\,3/8,\\,3/8,\\,1/8\\), ne njihovo aritmetično povprečje \\((0,0)\\).',
+                    'For the points \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\), \\[ \\begin{aligned}B(1/2)&=\\tfrac18\\bigl((-3,-2)+3(-3,2)\\\\&\\qquad{}+3(3,2)+(3,-2)\\bigr)\\\\&=\\tfrac18(0,8)=(0,1)\\end{aligned} \\] It is a weighted sum of all four control points with weights \\(1/8,\\,3/8,\\,3/8,\\,1/8\\), not their arithmetic mean \\((0,0)\\).',
                 ),
                 formulaIds: ['bezier-bernstein-form'],
                 frames: [frame('bezier-evaluation-explanation', 'explanation'), frame('bezier-evaluation-calculation', 'calculation'), frame('bezier-evaluation-observation', 'observation')],
