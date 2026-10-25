@@ -1,0 +1,125 @@
+{
+  "url": "http://127.0.0.1:4387/bezeg-2.0/learn",
+  "checks": [
+    {
+      "name": "all 45 default-text lesson-link targets are at least 44px",
+      "status": "Passed",
+      "evidence": {
+        "count": 45,
+        "minHeight": 44,
+        "maxHeight": 44,
+        "shortTargets": []
+      }
+    },
+    {
+      "name": "390px default text with Analysis lessons expanded",
+      "status": "Passed",
+      "evidence": {
+        "viewport": {
+          "innerWidth": 390,
+          "documentWidth": 390
+        },
+        "expanded": {
+          "open": true,
+          "topic": "analysis",
+          "lessonCount": 10,
+          "detailsHeight": 592,
+          "overflowY": "visible"
+        }
+      }
+    },
+    {
+      "name": "390px at 200% text with longest Analysis list expanded",
+      "status": "Passed",
+      "evidence": {
+        "viewport": {
+          "innerWidth": 390,
+          "documentWidth": 390,
+          "headingSize": "64px"
+        },
+        "expanded": {
+          "open": true,
+          "lessonCount": 10,
+          "detailsHeight": 1092,
+          "listHeight": 968,
+          "detailsBottom": 1456,
+          "listBottom": 1456,
+          "firstLinkHeight": 61,
+          "lastLinkHeight": 112,
+          "overflowY": "visible"
+        }
+      }
+    },
+    {
+      "name": "analysis hash is visible after anchor, reader return, refresh, Back and Forward",
+      "status": "Passed",
+      "evidence": [
+        {
+          "label": "topic anchor click",
+          "path": "/bezeg-2.0/learn",
+          "hash": "#analysis",
+          "scrollY": 3054,
+          "scrollHeight": 4054,
+          "maxScrollY": 3054,
+          "bottomGap": 0,
+          "sectionTop": 548,
+          "headingTop": 571,
+          "headingBottom": 608,
+          "viewportHeight": 1000
+        },
+        {
+          "label": "reader opened",
+          "path": "/bezeg-2.0/learn/analysis"
+        },
+        {
+          "label": "reader return",
+          "path": "/bezeg-2.0/learn",
+          "hash": "#analysis",
+          "scrollY": 3054,
+          "scrollHeight": 4054,
+          "maxScrollY": 3054,
+          "bottomGap": 0,
+          "sectionTop": 548,
+          "headingTop": 571,
+          "headingBottom": 608,
+          "viewportHeight": 1000
+        },
+        {
+          "label": "refresh",
+          "path": "/bezeg-2.0/learn",
+          "hash": "#analysis",
+          "scrollY": 3054,
+          "scrollHeight": 4054,
+          "maxScrollY": 3054,
+          "bottomGap": 0,
+          "sectionTop": 548,
+          "headingTop": 571,
+          "headingBottom": 608,
+          "viewportHeight": 1000
+        },
+        {
+          "label": "Back",
+          "path": "/bezeg-2.0/learn/analysis"
+        },
+        {
+          "label": "Forward",
+          "path": "/bezeg-2.0/learn",
+          "hash": "#analysis",
+          "scrollY": 3054,
+          "scrollHeight": 4054,
+          "maxScrollY": 3054,
+          "bottomGap": 0,
+          "sectionTop": 548,
+          "headingTop": 571,
+          "headingBottom": 608,
+          "viewportHeight": 1000
+        }
+      ]
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "browser": "156.0.8078.4",
+  "completedAt": "2026-10-25T23:42:51.195Z"
+}

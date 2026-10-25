@@ -1,0 +1,7 @@
+# Learning landing page implementation notes
+
+The landing page now starts with a Foundations reading action and explains the suggested topic order alongside the difference between reading chapters and guided graph lessons. Each of the eight topics has a single chapter heading and reading action, one lazy app-derived capture with bilingual alt text/caption, a short related-chapter link, and a native lesson disclosure with its available count. All 45 guided lesson routes remain in the DOM under their disclosures; no graph board is mounted by the page.
+
+Captures were visually checked against their contents: `bernstein`, `bezier`, `rational`, `spline-cn`, `ph-cubic`, `uniform-parameterization`, `derivative`, and `bisection`. All are 720×440; intrinsic dimensions reserve their space before lazy loading, and CSS uses `object-fit: contain`. The capture catalog has one image per demonstration; some baked-in graph labels are Slovenian, so only the surrounding alt text and caption change with the language.
+
+The focused landing test was updated for the new h2 heading and explicit reading action; the reader navigation test now activates that action. The smoke flow now opens Foundations’ native disclosure before selecting its lesson. `just unit src/learning/LearningPage.test.tsx` passed, and `just typecheck` passed. Production build, browser smoke, viewport/text scaling review, and hash/history behavior remain with the handler.

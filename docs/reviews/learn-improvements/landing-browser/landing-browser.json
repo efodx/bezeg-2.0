@@ -1,0 +1,460 @@
+{
+  "url": "http://127.0.0.1:4387/bezeg-2.0/learn",
+  "checks": [
+    {
+      "name": "topic, chapter and lesson inventory; no live boards",
+      "status": "Passed",
+      "evidence": {
+        "topics": 8,
+        "lessons": 45,
+        "uniqueLessonDestinations": 45,
+        "chapters": 8,
+        "heading": "Uči se z branjem in raziskovanjem",
+        "boards": 0
+      }
+    },
+    {
+      "name": "8 decoded graph previews with Slovenian alt and captions",
+      "status": "Passed",
+      "evidence": [
+        {
+          "id": "foundations",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/bernstein-D61L2FLD.png",
+          "alt": "Grafi Bernsteinovih baznih polinomov na intervalu od 0 do 1.",
+          "caption": "Bernsteinovi polinomi sestavijo uteženo kombinacijo, iz katere nastane Bézierjeva krivulja.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "bezier-curves",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/bezier-C5k08qrv.png",
+          "alt": "Bézierjeva krivulja in črtkana povezava njenih kontrolnih točk.",
+          "caption": "Kontrolni poligon pomaga razložiti, kako točke vplivajo na obliko krivulje.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "rational-curves",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/rational-C-QcrSOA.png",
+          "alt": "Racionalna Bézierjeva krivulja s kontrolnim poligonom in prikazanimi utežmi.",
+          "caption": "Uteži spremenijo vpliv kontrolnih točk na racionalno Bézierjevo krivuljo.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "splines",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/spline-cn-sPxXxXRG.png",
+          "alt": "Zlepek dveh krivuljnih odsekov s kontrolnimi točkami na obeh straneh spoja.",
+          "caption": "Zlepek sestavi več odsekov in določa, kako se stikajo pri skupnem vozlišču.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "ph-curves",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/ph-cubic-CD1IB-t0.png",
+          "alt": "Kubična PH-krivulja z dvema prikazanima krivuljama in dolžino loka.",
+          "caption": "Kubična PH-krivulja ima polinomsko določeno dolžino loka.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "parametrization",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/uniform-parameterization-CIn9L-uL.png",
+          "alt": "Vzorčne točke na krivulji so označene z razmiki, ki se po loku razlikujejo.",
+          "caption": "Enakomeren korak parametra ne pomeni nujno enake razdalje po krivulji.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "functions-and-calculus",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/derivative-BLS82jhL.png",
+          "alt": "Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.",
+          "caption": "Odvod opiše naklon tangente in lokalno spreminjanje funkcije.",
+          "width": 720,
+          "height": 440
+        },
+        {
+          "id": "analysis",
+          "src": "http://127.0.0.1:4387/bezeg-2.0/assets/bisection-D0oDAtUi.png",
+          "alt": "Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.",
+          "caption": "Bisekcija zožuje interval, v katerem leži ničla funkcije.",
+          "width": 720,
+          "height": 440
+        }
+      ]
+    },
+    {
+      "name": "language switch updates landing copy and all preview alt/captions",
+      "status": "Passed",
+      "evidence": {
+        "heading": "Learn through reading and exploration",
+        "start": "Start with Foundations\n→",
+        "firstSummary": "Guided graph lessons (2)",
+        "translatedPreviewCount": 8,
+        "englishPreviews": [
+          {
+            "alt": "Graphs of the Bernstein basis polynomials on the interval from 0 to 1.",
+            "caption": "Bernstein polynomials form the weighted combination that defines a Bézier curve."
+          },
+          {
+            "alt": "A Bézier curve with the dashed polygon connecting its control points.",
+            "caption": "The control polygon helps explain how points influence the curve shape."
+          },
+          {
+            "alt": "A rational Bézier curve with its control polygon and displayed weights.",
+            "caption": "Weights change how control points influence a rational Bézier curve."
+          },
+          {
+            "alt": "A spline joining two curve segments, with control points on both sides of the join.",
+            "caption": "A spline combines several segments and specifies how they meet at a shared knot."
+          },
+          {
+            "alt": "A cubic PH curve with two displayed curves and an arc-length value.",
+            "caption": "A cubic PH curve has a polynomially determined arc length."
+          },
+          {
+            "alt": "Sample points are marked along a curve with visibly varying distances along the arc.",
+            "caption": "Equal parameter steps do not necessarily mean equal distances along the curve."
+          },
+          {
+            "alt": "A quadratic function graph with a tangent line marked at a selected point.",
+            "caption": "The derivative describes the tangent slope and local change of a function."
+          },
+          {
+            "alt": "A quadratic graph with an interval and midpoint for the bisection method.",
+            "caption": "Bisection narrows the interval that contains a function root."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Foundations starting action",
+      "status": "Passed",
+      "evidence": {
+        "href": "/bezeg-2.0/learn/foundations",
+        "path": "/bezeg-2.0/learn/foundations",
+        "heading": "Osnove: uteži, polinomi in ravnina"
+      }
+    },
+    {
+      "name": "all 8 guided lesson lists open and close with Enter; lesson destinations are keyboard reachable",
+      "status": "Passed",
+      "evidence": {
+        "details": [
+          {
+            "id": "foundations",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "bezier-curves",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "rational-curves",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "splines",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "ph-curves",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "parametrization",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "functions-and-calculus",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          },
+          {
+            "id": "analysis",
+            "opened": true,
+            "closed": true,
+            "focus": {
+              "visible": true,
+              "outlineStyle": "solid",
+              "outlineWidth": "3px"
+            }
+          }
+        ],
+        "all45LessonLinksTabbable": true
+      }
+    },
+    {
+      "name": "44px primary action, topic and disclosure targets",
+      "status": "Passed",
+      "evidence": {
+        "primaryActions": [
+          {
+            "label": "Začni pri osnovah\n→",
+            "width": 186,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          },
+          {
+            "label": "Preberi poglavje\n→",
+            "width": 176,
+            "height": 48
+          }
+        ],
+        "topicAnchors": [
+          {
+            "label": "Osnove",
+            "width": 53,
+            "height": 44
+          },
+          {
+            "label": "Bezierjeve Krivulje",
+            "width": 127,
+            "height": 44
+          },
+          {
+            "label": "Racionalne Bezierjeve Krivulje",
+            "width": 208,
+            "height": 44
+          },
+          {
+            "label": "Zlepki",
+            "width": 43,
+            "height": 44
+          },
+          {
+            "label": "PH Krivulje",
+            "width": 76,
+            "height": 44
+          },
+          {
+            "label": "Parametrizacije",
+            "width": 106,
+            "height": 44
+          },
+          {
+            "label": "Funkcije in analiza",
+            "width": 128,
+            "height": 44
+          },
+          {
+            "label": "Analiza",
+            "width": 51,
+            "height": 44
+          }
+        ],
+        "disclosures": [
+          {
+            "label": "Vodene učne poti ob grafih (2)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (8)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (7)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (5)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (2)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (3)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (8)",
+            "width": 496,
+            "height": 44
+          },
+          {
+            "label": "Vodene učne poti ob grafih (10)",
+            "width": 496,
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "44px lesson link targets in expanded lists",
+      "status": "Failed",
+      "evidence": {
+        "count": 45,
+        "minHeight": 36,
+        "shortExamples": [
+          {
+            "topic": "foundations",
+            "label": "Bernsteinovi Polinomi",
+            "height": 36
+          },
+          {
+            "topic": "foundations",
+            "label": "Kompleksno množenje",
+            "height": 36
+          },
+          {
+            "topic": "bezier-curves",
+            "label": "Bezierjeva Krivulja",
+            "height": 36
+          },
+          {
+            "topic": "bezier-curves",
+            "label": "De Casteljau",
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "name": "no page overflow at desktop, projection and narrow widths",
+      "status": "Passed",
+      "evidence": [
+        {
+          "name": "desktop",
+          "innerWidth": 1440,
+          "documentWidth": 1440,
+          "headingSize": "52.8px",
+          "topicCount": 8,
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "projection",
+          "innerWidth": 1024,
+          "documentWidth": 1024,
+          "headingSize": "45.056px",
+          "topicCount": 8,
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "narrow",
+          "innerWidth": 390,
+          "documentWidth": 390,
+          "headingSize": "32px",
+          "topicCount": 8,
+          "noHorizontalOverflow": true
+        }
+      ]
+    },
+    {
+      "name": "390px at 200% text with longest Analysis list expanded",
+      "status": "Passed",
+      "evidence": {
+        "viewport": {
+          "innerWidth": 390,
+          "documentWidth": 390,
+          "headingSize": "64px"
+        },
+        "expanded": {
+          "open": true,
+          "listHeight": 968,
+          "detailsHeight": 1092,
+          "detailsBottom": 1795,
+          "listBottom": 1795,
+          "firstLinkHeight": 61,
+          "lastLinkHeight": 112,
+          "overflowY": "visible",
+          "lessonCount": 10
+        }
+      }
+    },
+    {
+      "name": "analysis hash return after reader, refresh, Back and Forward",
+      "status": "Skipped",
+      "evidence": {
+        "reason": "The first harness sampled before the SPA scroll effect completed; see landing-recheck.json for the explicit URL-wait and visible-heading result."
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "viewport": "Chromium headless, light mode, desktop 1440x1000; responsive captures at 1024x768, 390x844, and 390x844 with 200% root font",
+  "generatedAt": "2026-10-25T23:39:52.836Z"
+}

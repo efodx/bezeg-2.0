@@ -22,9 +22,13 @@ test('Learn contains every family chapter and every available guided lesson exac
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(getDemonstrationCatalog().families.map(family => family.id).sort());
     expect(container.querySelectorAll('.learning-family')).toHaveLength(8);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(8);
+    expect(container.querySelectorAll('.learning-preview img[loading="lazy"]')).toHaveLength(8);
     for (const chapter of learningChapters) {
-        expect(screen.getByRole('link', {name: chapter.title.sl})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);
+        expect(screen.getByRole('heading', {name: chapter.title.sl, level: 2})).toBeInTheDocument();
+        expect(within(container.querySelector(`#${chapter.id}`)!).getByRole('link', {name: 'Preberi poglavje'})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);
     }
+    expect(container.querySelectorAll('.learning-lessons:not([open]) summary')).toHaveLength(8);
     const lessonLinks = [...container.querySelectorAll('a')].filter(link => link.search === '?learn=1');
     expect(lessonLinks.map(link => link.pathname).sort()).toEqual(getDemonstrationCatalog().demonstrations
         .filter(demo => GUIDED_LESSON_AVAILABLE_IDS.includes(demo.id)).map(demo => demo.path).sort());
@@ -44,7 +48,7 @@ test('chapter reading navigates between topics and translates without a graph mo
     fireEvent.click(screen.getByRole('link', {name: /All learning content/}));
     await waitFor(() => expect(screen.getByRole('heading', {level: 1})).toHaveTextContent('Learn through reading'));
     const next = familyChapters.find(chapter => chapter.id === 'rational-curves')!;
-    fireEvent.click(within(screen.getByRole('heading', {name: next.title.en, level: 3})).getByRole('link'));
+    fireEvent.click(within(container.querySelector(`#${next.id}`)!).getByRole('link', {name: 'Read the chapter'}));
     await waitFor(() => expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(next.title.en));
     expect(container.querySelectorAll('.chapter-section')).toHaveLength(next.sections.length);
 });

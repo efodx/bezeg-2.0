@@ -15,6 +15,7 @@ test('Learn unifies every chapter and guided lesson with working topic returns',
     await page.getByRole('link', {name: /Vsa učna vsebina/}).click();
     await expect(page).toHaveURL(/\/learn#analysis$/);
     await expect(page.locator('#analysis-heading')).toBeInViewport();
+    await page.locator('#foundations .learning-lessons summary').click();
     await page.locator('#foundations .learning-lessons a').first().click();
     await expect(page).toHaveURL(/\?learn=1$/);
     await expect(page.locator('#jgbox')).toBeVisible();
