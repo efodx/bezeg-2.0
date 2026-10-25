@@ -118,8 +118,18 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
+      # Playwright's --shard splits by test count, but a guided-lesson test takes about four times as long as the
+      # others. Three shards each run a third of the guided lessons; the fourth runs every other spec.
       matrix:
-        shard: [1, 2, 3, 4]
+        include:
+          - shard: lessons-1
+            args: tests/guided-lessons.smoke.spec.cjs --shard=1/3
+          - shard: lessons-2
+            args: tests/guided-lessons.smoke.spec.cjs --shard=2/3
+          - shard: lessons-3
+            args: tests/guided-lessons.smoke.spec.cjs --shard=3/3
+          - shard: other-specs
+            ignore: '**/guided-lessons.smoke.spec.cjs'
     concurrency:
       group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-chromium-${{ matrix.shard }}
       cancel-in-progress: true
@@ -143,10 +153,11 @@ jobs:
         with:
           name: production-build
           path: build
-      - name: Run Chromium smoke tests (shard ${{ matrix.shard }}/4)
-        run: npm run test:smoke:built -- --shard=${{ matrix.shard }}/4
+      - name: Run Chromium smoke tests (${{ matrix.shard }})
+        run: npm run test:smoke:built -- ${{ matrix.args }}
         env:
           CI: 'true'
+          SMOKE_TEST_IGNORE: ${{ matrix.ignore }}
       - name: Upload failure evidence
         if: failure()
         uses: actions/upload-artifact@v6

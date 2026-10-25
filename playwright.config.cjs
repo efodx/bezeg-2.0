@@ -7,6 +7,8 @@ const outputSuffix = port === 4173 ? '' : `-${port}`;
 module.exports = defineConfig({
     testDir: './tests',
     testMatch: '**/*.smoke.spec.cjs',
+    // CI balances its shards by excluding the guided lessons from one of them (see browser-smoke.yml).
+    ...(process.env.SMOKE_TEST_IGNORE ? {testIgnore: process.env.SMOKE_TEST_IGNORE} : {}),
     timeout: 60_000,
     expect: {timeout: 10_000},
     fullyParallel: false,
