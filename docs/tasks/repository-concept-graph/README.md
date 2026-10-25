@@ -1,6 +1,8 @@
 # Repository concept graph tasks
 
-Status: planned; no implementation started. Source and acceptance criteria: [specification](../../specs/repository-concept-graph.md). Execute sequentially until interfaces and evidence are stable. Handlers own scope, review, verification, and Git operations; bounded implementation slices can then be delegated under the repository workflow.
+Status: prototype implementation delivered, acceptance partial, 2026-10-25. Task 1 has frozen cases and measured original/repair/hardening pilots; the owner accepted bounded continuation after usage comparison. Tasks 2–3 implement structural extraction and explicitly scoped, resumable enrichment. Task 4 implements reading packets and fixed-case evaluation, but reliable semantic retrieval remains unaccepted. Task 5 integrates commands, documentation and credential-free Windows/Linux CI. Repository-wide enrichment and agent instructions depending on retrieval remain gated. Source and acceptance criteria: [specification](../../specs/repository-concept-graph.md); [observed evidence and remaining acceptance](../../research/repository-concept-graph-pilot-2026-10-25.md). Handlers own scope, review, verification, and Git operations.
+
+Implementation entry: [tools/repo-graph/README.md](../../../tools/repo-graph/README.md). Start with `just graph-build`, `just graph-status`, `just graph-enrich --path source --model gpt-6-luna` (dry run), and `just graph-query "task"`; these perform no model work. Only scoped enrichment with `--execute` invokes hosted Codex. Do not interpret the experimental packets as accepted semantic discovery.
 
 ## 1. Freeze evaluation cases and run a local semantic feasibility experiment
 

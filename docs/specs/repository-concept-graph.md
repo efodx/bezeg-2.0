@@ -1,12 +1,12 @@
 # Repository concept graph
 
-Status: planned, 2026-10-25. Implementation has not started. Source: [research](../research/repository-concept-graph-2026-10-25.md). Executable sequence: [tasks](../tasks/repository-concept-graph/README.md).
+Status: implemented prototype with partial acceptance, 2026-10-25. Structural extraction, bounded local enrichment, caches and model-free reading packets are available. Reliable semantic discovery and repository-wide processing remain gated on retrieval quality. The owner authorized bounded continuation after usage comparison, with at most four calls per explicit run. Source: [research](../research/repository-concept-graph-2026-10-25.md). Executable sequence: [tasks](../tasks/repository-concept-graph/README.md). Observed results and open acceptance: [pilot evidence](../research/repository-concept-graph-pilot-2026-10-25.md).
 
 ## Goal and owner direction
 
 Help an agent discover relevant code, prose, constraints, and tests through shared concepts, including connections that imports or matching terminology miss. Given a task and a reading budget, return current source passages with evidence explaining their connections. A dependency inventory alone does not satisfy this goal.
 
-The owner prefers using their existing ChatGPT subscription if consumption is modest, with semantic processing launched on their own machine rather than CI. Plan a local Codex CLI experiment using saved ChatGPT authentication; do not assume subscription access to an embeddings endpoint. Local orchestration still uses hosted Codex inference. Confirm actual account access and observed usage in the experiment. No model calls have been run for this feature yet.
+The owner prefers using their existing ChatGPT subscription if consumption is modest, with semantic processing launched on their own machine rather than CI. The measured local Codex CLI experiment uses saved ChatGPT authentication; it does not assume subscription access to an embeddings endpoint. Local orchestration still uses hosted Codex inference. Actual account access and observed usage are recorded in the pilot evidence.
 
 ## Scope and non-goals
 
@@ -16,14 +16,14 @@ CI may validate extraction and graph invariants without model credentials. Seman
 
 ## Module interface
 
-Proposed commands, not existing commands:
+Implemented commands:
 
 - `just graph-build`: deterministic structural extraction and freshness manifest, with no model call.
-- `just graph-enrich`: bounded local semantic extraction with dry-run estimates and an incremental work queue.
+- `just graph-enrich`: dry-run estimates by default; bounded, explicitly scoped local semantic extraction with `--execute`, a selected model, and an incremental work queue.
 - `just graph-query <task> ...`: return a reading packet within explicit byte or character and result limits, with an estimated token count reported separately.
 - `just graph-status`: show source revision, dirty content fingerprint, pending work, semantic coverage, and extraction versions.
 
-The module hides parsing, ranking, caching, and snapshot assembly behind this interface. Final argument syntax is part of task 2. Consumers must be able to query without account access after enrichment. Failed enrichment leaves a valid structural graph and an explicit partial semantic status.
+Implemented syntax and coverage limits are in [the tooling README](../../tools/repo-graph/README.md). Queries take one quoted task plus `--max-chars`, `--max-bytes`, `--max-results` and `--mode lexical|structural|semantic`; semantic mode requires validated current annotations and performs no inference. Source changes require `graph-build` and cache reassembly before semantic querying. The module hides parsing, ranking, caching, and snapshot assembly behind this interface. Consumers can query without account access after enrichment. Failed enrichment leaves a valid structural graph and an explicit partial semantic status.
 
 ## Graph contract
 
@@ -68,7 +68,7 @@ The first agent integration is a documented command workflow. Editing AGENTS.md 
 
 ## Remaining decisions
 
-The first experiment must settle actual ChatGPT-authenticated Codex access, model choice, overhead, acceptable initial/update consumption, concept normalization quality, and whether explicit candidate review is needed. Initial canonical concept IDs and aliases are a design proposal, not an established domain glossary change. Structural incrementality, embeddings, visualization, automatic triggers, and MCP integration require evidence of a specific remaining need.
+The first experiment confirmed actual ChatGPT-authenticated access using `gpt-6-luna` / low effort, but found substantial CLI context overhead, concept normalization errors and rejected quote evidence after a small edit. A revised prompt produced a useful implementation/ADR relation and consistent canonical tags on repeat. Disabling host tools/skills reduced measured context overhead; short verbatim quotes passed the changed-code, changed-document and combined review pilot. The owner authorized bounded continuation after the known pilot tokens were compared with this chat's raw totals (with cached/fresh differences disclosed); limits are four calls, 18,000 supplied bytes/call, 60 seconds/call and 240 seconds/run, zero retries and one concurrent call. See the [measurement record](../research/repository-concept-graph-pilot-2026-10-25.md). These limits do not authorize an initial full-repo semantic run or establish a subscription percentage. Semantic retrieval quality remains an acceptance gate. Initial canonical IDs/aliases supplement the glossary without changing domain vocabulary. Structural incrementality, embeddings, visualization, automatic triggers, and MCP integration require evidence of a specific remaining need.
 
 ## Official integration references
 

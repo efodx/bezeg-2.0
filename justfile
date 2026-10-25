@@ -60,3 +60,19 @@ eval *args:
 # Run the focused Node tests for this command runner.
 tooling-test:
     @require('./scripts/commands.cjs').cli(['tooling-test'])
+
+# Rebuild the local structural repository graph without model calls.
+graph-build:
+    @require('./tools/repo-graph/cli.cjs').cli(['build'])
+
+# Show repository graph revision, freshness, and extraction coverage.
+graph-status:
+    @require('./tools/repo-graph/cli.cjs').cli(['status'])
+
+# Plan scoped local enrichment; inference requires --execute and explicit limits/scope.
+graph-enrich *args:
+    @require('./tools/repo-graph/cli.cjs').cli(['enrich', ...process.argv.slice(2)])
+
+# Return a model-free source reading packet within explicit limits.
+graph-query +args:
+    @require('./tools/repo-graph/cli.cjs').cli(['query', ...process.argv.slice(2)])

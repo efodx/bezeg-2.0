@@ -2,6 +2,14 @@
 
 Install [just](https://just.systems/) 1.30 or newer and the Node version declared by `package.json` (Node 24.15 or newer). On Windows, install just with `winget install Casey.Just`; with Rust on other platforms, use `cargo install just --locked`. Install project dependencies with `npm ci` before running these commands. Run `just --list` to see the available workflows and their descriptions.
 
+## Repository concept graph (experimental)
+
+`just graph-build` rebuilds ignored `.repo-graph/snapshot.json` without model calls. `just graph-status` reports its revision, source fingerprint, freshness and structural/semantic coverage. `just graph-query "task" --max-chars 8000 --max-bytes 32000 --max-results 12` returns a model-free reading packet; add `--mode lexical` for the lexical baseline. Quote the task as one argument. Queries refuse stale snapshots; rebuild after source changes or commits. Graph commands print their own summaries/packets and keep artifacts in `.repo-graph/`, rather than using the general runner's `.command-logs/` files.
+
+`just graph-enrich --path src/graphs/base/SceneStore.ts --model gpt-6-luna` plans enrichment without inference. Add `--execute` only to explicitly send the scope to hosted Codex through saved ChatGPT login. Each run allows at most four calls, 18,000 supplied bytes/call, 60 seconds/call, 240 seconds/run and zero retries; limits can be lowered. Use repeated `--node`, `--passage` (the plan's range ID) or `--path` options. Failed or limited runs retain cached successes and pending work; rerun the same scope to resume. `--execute --max-calls 0` reassembles only valid current cache entries without account access or inference. `graph-build` resets live annotations while retaining the cache. `graph-query --mode semantic` reads validated live annotations without model calls and refuses missing/stale data. Repository-wide processing remains gated on retrieval quality.
+
+Run `node --test tools/repo-graph/*.test.cjs` for credential-free fixtures. The separate Repository graph workflow exercises these and a structural build on Windows/Linux; no Codex login, inference, or Pages integration is involved. Fixed-case evaluation is `node tools/repo-graph/evaluate.cjs`; it records mandatory-anchor coverage and writes packets for separate manual relevance judgments. Read the [tool README](../tools/repo-graph/README.md) for coverage, pilot commands and authentication boundaries.
+
 ## Agent skills
 
 Bezeg's own skills (`smoke-tester`, `subagent-flow-evaluation`) come with this repository in `.agents/skills/` and need no installation. The owner's general skills live in the private [efodx/agent-skills](https://github.com/efodx/agent-skills) repository, so this step works only for the owner. On a new computer, run from Git Bash on Windows (or any shell elsewhere):

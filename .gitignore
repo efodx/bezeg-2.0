@@ -16,6 +16,7 @@
 /.command-logs
 /.bezeg-build-provenance.json
 /.just-install
+/.repo-graph/
 
 # Idea
 .idea

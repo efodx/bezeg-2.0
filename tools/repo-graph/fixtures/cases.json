@@ -1,0 +1,169 @@
+{
+  "cases": [
+    {
+      "id": "dev-geometry-reuse",
+      "split": "development",
+      "task": "Reuse the spline parameterization rules in another curve family without changing their mathematical meaning.",
+      "mandatoryPassages": [
+        {"path": "src/bezeg/impl/curve/geometry.ts", "anchor": "export function chordKnots", "relevance": "Defines distance-powered uniform, centripetal, and chordal knot spacing, including the all-zero fallback."},
+        {"path": "src/bezeg/impl/curve/bezier-spline.ts", "anchor": "chordKnots(this.scheme.knotSpans", "relevance": "Shows a consuming spline assembly that obtains spans from its scheme and delegates knot construction to the shared helper."}
+      ],
+      "usefulConnections": [
+        {"from": {"path": "src/bezeg/impl/curve/geometry.ts", "anchor": "export function chordKnots"}, "to": {"path": "src/bezeg/impl/curve/bezier-spline.ts", "anchor": "chordKnots(this.scheme.knotSpans"}, "rationale": "The shared numeric routine is used through a scheme-provided span list, connecting a generic geometry helper to a family-specific construction."}
+      ],
+      "distractors": [
+        {"path": "src/graphs/curves/object/AbstractJXGBezierCurve.ts", "anchor": "createSubdivisionPoint()", "whyDistracting": "It also evaluates a curve at a parameter and creates a point.", "whyExclude": "This is a JSXGraph auxiliary drawing object, not the spline knot parameterization rule."}
+      ]
+    },
+    {
+      "id": "dev-scene-action-order",
+      "split": "development",
+      "task": "Make a lesson scene reveal several sequential steps in one synchronous action sequence.",
+      "mandatoryPassages": [
+        {"path": "src/graphs/base/SceneStore.ts", "anchor": "setState(update: SceneStateUpdate", "relevance": "State updates apply immediately and notify subscribers, allowing the next same-tick action to observe the earlier write."},
+        {"path": "docs/adr/0013-iteration-driven-by-scene-actions.md", "anchor": "A scene that shows k steps repeats `next-step` k times", "relevance": "Records the accepted lesson behavior and its relationship to the synchronous scene store."}
+      ],
+      "usefulConnections": [
+        {"from": {"path": "src/graphs/base/SceneStore.ts", "anchor": "setState(update: SceneStateUpdate"}, "to": {"path": "docs/adr/0013-iteration-driven-by-scene-actions.md", "anchor": "A scene that shows k steps repeats `next-step` k times"}, "rationale": "The implementation calls this a synchronous store; the accepted lesson decision describes its learner-visible effect as sequential scene actions."}
+      ],
+      "distractors": [
+        {"path": "src/graphs/base/SceneStore.ts", "anchor": "getVersion(): number", "whyDistracting": "It exposes another version counter used by subscribers.", "whyExclude": "This UI snapshot version is distinct from the scene store's immediate state writes that establish same-tick action ordering."}
+      ]
+    },
+    {
+      "id": "dev-auxiliary-ownership",
+      "split": "development",
+      "task": "Change Bezier construction visuals and ensure every auxiliary board object is removed during disposal.",
+      "mandatoryPassages": [
+        {"path": "src/graphs/curves/object/AbstractJXGBezierCurve.ts", "anchor": "override dispose(): void", "relevance": "Collects and removes auxiliary points and segments, clears their references and caches, then delegates disposal."},
+        {"path": "docs/guardrails.md", "anchor": "Give imperative boards, event listeners, auxiliary boards, and generated objects explicit ownership and disposal.", "relevance": "States the lifecycle constraint and asks for repeated navigation/remount review."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/graphs/base/SceneStore.ts", "anchor": "subscribe = (listener", "whyDistracting": "It has an unsubscribe closure and an explicit cleanup operation.", "whyExclude": "Listener unsubscription is a separate lifecycle responsibility from disposing JSXGraph-owned geometry objects."}
+      ]
+    },
+    {
+      "id": "dev-localization-contract",
+      "split": "development",
+      "task": "Add a localized message with a placeholder and keep its typed Slovenian and English catalogs consistent.",
+      "mandatoryPassages": [
+        {"path": "src/localization/index.ts", "anchor": "type Parameters<S extends string>", "relevance": "Derives allowed placeholder names from the Slovenian catalog and uses them to type translation arguments."},
+        {"path": "docs/specs/localization.md", "anchor": "Verification rejects missing translations and mismatched message parameters.", "relevance": "Defines the cross-catalog completeness and parameter-matching behavior."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/localization/index.ts", "anchor": "String(params[name] ?? match)", "whyDistracting": "Runtime substitution handles the same placeholder values.", "whyExclude": "Substitution behavior does not define which parameter names are accepted by TypeScript."}
+      ]
+    },
+    {
+      "id": "dev-import-preflight",
+      "split": "development",
+      "task": "Extend preset import while rejecting malformed collection data before storage changes and preserving old values on write failure.",
+      "mandatoryPassages": [
+        {"path": "src/graphs/base/presets/PresetImport.ts", "anchor": "preflightPresetImport(contents", "relevance": "Parses and validates the envelope, known collection keys, IDs, and each collection's data before returning a plan."},
+        {"path": "src/graphs/base/presets/PresetImport.ts", "anchor": "commitPresetImport(plan", "relevance": "Revalidates at the write boundary and restores prior storage values if a write fails."},
+        {"path": "docs/guardrails.md", "anchor": "New import code should validate supported structure and numerical inputs", "relevance": "Requires supported structure, relevant keys, actionable errors, and backup guidance."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/graphs/base/presets/PresetCollection.ts", "anchor": "export function checkSceneState", "whyDistracting": "It validates imported scene-shaped values.", "whyExclude": "A leaf state validator does not define import envelope checks, replacement behavior, or transactional storage writes."}
+      ]
+    },
+    {
+      "id": "dev-lesson-notation",
+      "split": "development",
+      "task": "Add mathematical symbols to lesson prose and calculation fields without violating the notation convention.",
+      "mandatoryPassages": [
+        {"path": "src/learning/content/lessonMathNotation.test.ts", "anchor": "Guards the lesson math typography contract.", "relevance": "Defines delimiters for prose, bare TeX fields, skipped metadata, and the checker’s known detection limits."},
+        {"path": "AGENTS.md", "anchor": "Lesson prose: wrap every symbol or formula", "relevance": "States authoring requirements for prose delimiters, decimal commas, and undelimited TeX fields."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/learning/content/lessonMathNotation.test.ts", "anchor": "const SKIPPED_KEYS = new Set(['sources'])", "whyDistracting": "It is part of the notation checker and concerns lesson content metadata.", "whyExclude": "The sources field is intentionally not rendered or scanned, so it does not define student-facing math formatting."}
+      ]
+    },
+    {
+      "id": "dev-doc-status",
+      "split": "development",
+      "task": "Resolve whether static client-only hosting is a binding constraint or just an implementation option.",
+      "mandatoryPassages": [
+        {"path": "docs/adr/0001-static-client-only-app.md", "anchor": "status: accepted", "relevance": "Marks the owner-confirmed no-backend/static-hosting direction as accepted."},
+        {"path": "docs/future-plan.md", "anchor": "The planning direction is settled.", "relevance": "Separates settled product direction from implementation choices that remain for scoped work."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "docs/specs/repository-concept-graph.md", "anchor": "Structural incrementality, embeddings, visualization, automatic triggers, and MCP integration require evidence", "whyDistracting": "It discusses future local developer-tooling extensions in confident detail.", "whyExclude": "These tooling proposals do not supersede the accepted application hosting decision."}
+      ]
+    },
+    {
+      "id": "dev-cache-freshness",
+      "split": "development",
+      "task": "Change a derived geometric value and preserve correct cached evaluation after its dependency changes.",
+      "mandatoryPassages": [
+        {"path": "src/bezeg/impl/curve/geometry-versions.test.ts", "anchor": "computed points with dependencies cache until a dependency changes", "relevance": "Checks reuse before mutation and recomputation after a dependency's coordinate changes."},
+        {"path": "docs/guardrails.md", "anchor": "Treat cache invalidation as part of correctness.", "relevance": "Requires affected geometry to invalidate while unrelated numerical work stays untouched."}
+      ],
+      "usefulConnections": [
+        {"from": {"path": "src/bezeg/impl/curve/geometry-versions.test.ts", "anchor": "computed points with dependencies cache until a dependency changes"}, "to": {"path": "docs/guardrails.md", "anchor": "Treat cache invalidation as part of correctness."}, "rationale": "The test describes dependency-triggered recomputation; the guardrail calls the same behavior a correctness condition."}
+      ],
+      "distractors": [
+        {"path": "src/graphs/base/SceneStore.ts", "anchor": "getVersion(): number", "whyDistracting": "It has a monotonically changing version used by subscribers.", "whyExclude": "This UI snapshot version is distinct from per-point and per-curve numerical freshness stamps."}
+      ]
+    },
+    {
+      "id": "heldout-localization-parameter",
+      "split": "held-out",
+      "task": "Call a translation key with a placeholder, then fix the call if its parameter name is wrong.",
+      "mandatoryPassages": [
+        {"path": "src/localization/index.ts", "anchor": "type Args<K extends MessageKey>", "relevance": "The exact catalog placeholder names determine the allowed parameter object keys for each translation key."},
+        {"path": "AGENTS.md", "anchor": "`t('key', {value0: value})` with the catalog's exact names", "relevance": "Provides the repository rule for typed translation call syntax and keeping catalogs in lockstep."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/localization/index.ts", "anchor": "type MessageArguments", "whyDistracting": "It also mentions message keys and parameter objects.", "whyExclude": "It types the structured message() API; this task asks about t() call arguments specifically."}
+      ]
+    },
+    {
+      "id": "heldout-import-write-boundary",
+      "split": "held-out",
+      "task": "A previously valid import plan reaches storage after its data may have changed; identify the required safety check.",
+      "mandatoryPassages": [
+        {"path": "src/graphs/base/presets/PresetImport.ts", "anchor": "Revalidate at the write boundary", "relevance": "The commit path runs preflight again immediately before writing and retains previous values for rollback."},
+        {"path": "docs/guardrails.md", "anchor": "avoid silently overwriting user presets", "relevance": "Explains why preserving existing local data is part of the import contract."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/graphs/base/presets/PresetImport.ts", "anchor": "replacements: Object.keys(parsed)", "whyDistracting": "It identifies which stored collections will be replaced.", "whyExclude": "Replacement reporting does not perform the write-boundary revalidation or rollback."}
+      ]
+    },
+    {
+      "id": "heldout-animation-authority",
+      "split": "held-out",
+      "task": "A lesson should reveal several iteration steps; determine whether lesson frames should start playback or dispatch repeated declared actions.",
+      "mandatoryPassages": [
+        {"path": "docs/adr/0013-iteration-driven-by-scene-actions.md", "anchor": "A typed `run-bisection-command` scene action limited to `next-step` and `reset`, chosen.", "relevance": "The accepted option keeps scene actions deterministic and synchronous and leaves timing to the learner/controller."},
+        {"path": "src/graphs/base/SceneStore.ts", "anchor": "later action of a lesson scene", "relevance": "Explains why an action sequence can observe writes made earlier in the same tick."}
+      ],
+      "usefulConnections": [
+        {"from": {"path": "docs/adr/0013-iteration-driven-by-scene-actions.md", "anchor": "A typed `run-bisection-command` scene action limited to `next-step` and `reset`, chosen."}, "to": {"path": "src/graphs/base/SceneStore.ts", "anchor": "later action of a lesson scene"}, "rationale": "The decision uses declared operations to advance; the store's synchronous semantics make consecutive operations observable."}
+      ],
+      "distractors": [
+        {"path": "docs/adr/0013-iteration-driven-by-scene-actions.md", "anchor": "Play and Pause stay graph controls in the inspector", "whyDistracting": "It discusses playback and lessons in the same decision.", "whyExclude": "It establishes playback ownership and pause conditions, while the requested multi-step scene progression is handled by the typed action."}
+      ]
+    },
+    {
+      "id": "heldout-math-construction-boundaries",
+      "split": "held-out",
+      "task": "Review a request to add degree elevation and subdivision; locate the exact-shape requirements and avoid confusing them with display construction behavior.",
+      "mandatoryPassages": [
+        {"path": "src/bezeg/impl/curve/bezier-evaluation.test.ts", "anchor": "subdivision and degree elevation preserve shape", "relevance": "Numerically checks that these mathematical operations preserve curve evaluation."},
+        {"path": "src/graphs/curves/object/AbstractJXGBezierCurve.ts", "anchor": "const drawingPoint = this.board?.create('point'", "relevance": "Creates the live JSXGraph construction visualization, a separate responsibility from the shape-preserving geometry operations."}
+      ],
+      "usefulConnections": [],
+      "distractors": [
+        {"path": "src/graphs/curves/object/AbstractJXGBezierCurve.ts", "anchor": "Shows the control points of the elevated curve as live points", "whyDistracting": "It names degree elevation and draws derived control points.", "whyExclude": "This adapter displays an elevated construction; it does not itself prove shape preservation by the geometry operation."}
+      ]
+    }
+  ]
+}
