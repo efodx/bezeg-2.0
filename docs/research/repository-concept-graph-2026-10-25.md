@@ -1,0 +1,43 @@
+# Repository concept graph research — 2026-10-25
+
+## Question
+
+Can Bezeg generate a repository concept graph after commits in GitHub Actions, combining reliable code structure with optional semantic discovery, and incrementally update it without serving stale or incorrect relationships?
+
+## Findings
+
+**Structural extraction is a strong first layer.** Bezeg already declares TypeScript `~5.9.3`. The TypeScript Compiler API exposes parsed source files, `Program`, `TypeChecker`, symbols, and module resolution; its documented `resolveModuleName` follows compiler options. This supports deterministic nodes for files, declarations/exports, imports, and symbol references, with typed edges such as `imports`, `exports`, `references`, and `declares`. Pin extraction behavior to the repository's TypeScript version and `tsconfig`; the TypeScript wiki currently warns its described API changes in TypeScript 7.1. Structural edges are evidence from compiler resolution, not claims about conceptual similarity.
+
+**Semantic edges should remain a separate, uncertain layer.** Embeddings represent relatedness and rank candidates; similarity does not establish a dependency or a true domain relation. Embed normalized, bounded text for exported declarations, documentation headings, and lesson concepts; retain score, model identifier, input hash, and provenance, and label edges as suggestions. Cache by content hash plus model/version, dimensions, and normalization/chunking version. Reuse only exact-key vectors; invalidate when any component changes. OpenAI's API accepts text and returns vectors, but the repository has not selected a provider, model, budget, or whether remote source text is acceptable. Keep this optional, run it only where credentials and policy permit, and never make the structural graph depend on it.
+
+**Use a small custom hybrid graph before adopting GraphRAG.** Bezeg has a code/documentation corpus and asks about repository concepts and connections. A typed JSON graph plus optional vector index fits extraction and visualization. Microsoft's GraphRAG targets LLM extraction from unstructured text, community summaries, and question answering; its standard indexing uses LLM extraction and it warns indexing can consume substantial resources. Its own project is in maintenance mode and is a research project rather than a supported Microsoft offering. It is worth benchmarking only if the custom graph fails a defined cross-document question set; adopting its full indexing/query pipeline adds Python and model workflow without demonstrated need.
+
+## Incremental update and freshness proposal
+
+Start with a full structural rebuild, while reusing content-addressed semantic results. The incremental structural algorithm below is a later option if measured rebuild duration justifies its complexity, not a prerequisite for the pilot.
+
+Build the authoritative snapshot for the checked-out commit SHA. Attach `headSha`, graph schema version, extractor version, TypeScript version, relevant config hashes, and semantic model/input-pipeline fingerprint. A consumer must match the graph's `headSha` to its requested revision; “latest successful” alone is not sufficient. Initially rebuild the structural snapshot in full after each push, then compare measured CI duration and artifact size against an incremental prototype before accepting its extra invalidation complexity. A local tool can overlay uncommitted changed/deleted paths on the matching committed snapshot and label the result with the base SHA plus a dirty-worktree state.
+
+If incrementality later proves useful, use the Git base-to-head changed/deleted/renamed paths to reparse changed files, replace their nodes and outgoing edges, then recompute incoming edges using a reverse-import index. Git rename detection is similarity-threshold based, so treat a rename as delete-old plus add-new and rebuild path-based identities/references. Always remove deleted file nodes and incident edges. Fall back to a full structural rebuild when no valid ancestor snapshot exists or project-wide resolution inputs change, including `tsconfig`, package metadata/exports, TypeScript version, ambient declarations, or relevant path/barrel resolution changes. A changed export or declaration may affect importers beyond the changed file; use reverse dependencies and propagate until stable, with full rebuild as the correctness fallback. Compare incremental output with full output on sampled revisions before relying on incremental mode.
+
+GitHub Actions artifacts are suitable for versioned snapshots exchanged across workflow runs when the run ID is known; they expire (90 days by default) and deleting a workflow run deletes its artifacts. Actions caches are evictable (default removal after 7 inactive days), limited (10 GB by default), and scoped by branch/ref; pull-request caches are scoped to the merge ref and cannot update the base-branch cache. Therefore, neither is durable canonical storage. A practical pilot can download the prior successful ancestor artifact and upload a new SHA-addressed artifact, falling back to a full build when absent; treat caches only as acceleration. Serialize per-branch publication or reject older completed runs so concurrent runs cannot make a stale SHA appear current. CI artifacts are also a transient delivery mechanism, not a user-facing graph host.
+
+## First slice and evaluation
+
+The agent-facing interface should accept a task or symbol and a reading budget, then return source passages and typed connection paths with evidence. Start with glossary concepts, explicit document links, and compiler-resolved references; these connect prose to code before embeddings are introduced. Rank expansion relative to the task, penalize ubiquitous nodes, and cap both hop count and returned text. Treat inferred similarity as a candidate relation rather than a confirmed shared responsibility. CI snapshots describe committed content; local queries must re-extract dirty files and invalidate affected relationships, or explicitly report incomplete coverage rather than present stale results as current.
+
+Semantic caching saves inference work, but does not make graph assembly entirely incremental. Changed vectors can alter unchanged nodes' nearest neighbors. Recompute candidate rankings against the current live set (or update both directions with a validated algorithm), remove deleted candidates, and rebuild aggregates affected by changed membership. Any enrichment that includes neighboring context must include those dependencies in its cache key.
+
+Prototype deterministic file/declaration/import/export nodes from the configured TypeScript `Program`, plus Markdown heading/document links if those can be extracted simply. Emit a schema-versioned JSON snapshot and a small query/visual preview; do not add semantic embeddings to the first slice. Use a fixed, manually checked set of repository questions to score whether traversal finds relevant source/spec/doc nodes. Verify full-build determinism, then measure CI duration and artifact size; add incremental-versus-full equality, deletion/rename cleanup, and resolution-change invalidation checks only if incrementality is pursued. Record embedding/model costs only after a separately scoped experiment; there are no measured performance figures yet. If structural links leave a known discovery gap, separately test embeddings on that question set and report precision/false suggestions before deciding on a provider or production workflow.
+
+## Primary sources
+
+- TypeScript Compiler API, AST, symbols, watcher/builder programs, and module resolution: https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API
+- Git changed paths, status output, and similarity-based rename detection: https://git-scm.com/docs/git-diff
+- GitHub Actions cache scope, eviction, and storage limits: https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+- GitHub Actions artifacts versus cache and artifact deletion behavior: https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts
+- Cross-run artifact access: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
+- Artifact default retention: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts
+- Embeddings and similarity semantics: https://developers.openai.com/api/docs/guides/embeddings
+- GraphRAG purpose, cost caution, and maintenance status: https://github.com/microsoft/graphrag
+- GraphRAG indexing and search design: https://github.com/microsoft/graphrag/blob/main/docs/index/overview.md and https://github.com/microsoft/graphrag/blob/main/docs/query/overview.md
