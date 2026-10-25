@@ -195,9 +195,11 @@ async function noHorizontalOverflow(page) {
     expect(scrollWidth).toBeLessThanOrEqual(innerWidth + 1);
 }
 
+// Every MathJax expression in the lesson text is a tab stop (MJX-CONTAINER, accessibility explorer), so the number of
+// stops before Next grows with the amount of notation in the first frame: spline-g1 needs 27 presses, bernstein 15.
 async function pressNextWithKeyboard(page) {
     let reached = false;
-    for (let presses = 0; presses < 25; presses += 1) {
+    for (let presses = 0; presses < 60; presses += 1) {
         await page.keyboard.press('Tab');
         const active = await page.evaluate(() => document.activeElement?.className || '');
         if (String(active).includes('guided-lesson-nav-next')) { reached = true; break; }
