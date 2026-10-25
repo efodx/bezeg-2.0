@@ -1,2 +1,5 @@
 # Vitest writes snapshots with LF; checking them out as CRLF makes every test run show them as modified.
 *.snap text eol=lf
+
+# Branches append records at the end of this log; keep both sides instead of conflicting on every rebase.
+docs/agent-workflow/evaluation-log.md merge=union
