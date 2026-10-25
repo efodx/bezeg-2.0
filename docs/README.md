@@ -20,6 +20,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled statuses, concrete gaps, proposals and recommended priorities. Recommendations do not authorize all listed work.
 - [Lesson UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md): observed interaction findings to scope before implementation.
 - [Lesson example improvements](tasks/lesson-example-improvements/README.md): planned batches linked to their source spec.
+- [Test consolidation](tasks/test-consolidation/README.md): five ranked implementation tasks for reducing repeated verification while retaining graph, content and browser coverage.
 - [Lesson rollout reconciliation](reviews/guided-lessons-status-reconciliation.md): remaining evidence ownership and smoke coverage gaps.
 - [Performance plan](performance-plan.md) and [Bézier performance results](bezier-performance-results.md): measurement requirements, results and unresolved questions.
 
