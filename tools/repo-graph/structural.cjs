@@ -81,7 +81,7 @@ function configDetails(root, ts) {
       onUnRecoverableConfigFileDiagnostic: () => {},
     });
     const configs = resolvedConfigFiles(configPath, root, ts);
-    const { configFile, ...effectiveOptions } = parsed?.options || {};
+    const { configFile: _configFile, ...effectiveOptions } = parsed?.options || {};
     const compilerFiles = (parsed?.fileNames || []).map(file => slash(path.relative(root, path.resolve(file)))).sort(compare);
     return { configFingerprint: hash(JSON.stringify({ compilerVersion: ts.version, configs, effectiveOptions, compilerFiles, errors: (parsed?.errors || []).map(d => d.code) })), parsed, configPath, configs, compilerFiles };
   }
@@ -107,7 +107,7 @@ function resolvedConfigFiles(configPath, root, ts) {
           catch { resolved = require.resolve(ref, { paths: [path.dirname(current)] }); }
         }
         if (ts.sys.fileExists(resolved)) pending.push(resolved);
-      } catch {}
+      } catch { /* Unresolved extends remain represented by the compiler config diagnostics. */ }
     }
   }
   return [...files.values()].sort((a, b) => compare(a.path, b.path));
@@ -255,7 +255,7 @@ function extractMarkdown(root, sourceTexts, nodes, edges, diagnostics, fileIds) 
     for (const link of markdownLinks(text)) {
       let dest = link.destination.trim().replace(/^<|>$/g, '').replace(/\\([\\<>])/g, '$1').split(/[?#]/)[0];
       if (!dest || /^(?:[a-z]+:|\/\/|\/|#)/i.test(dest)) continue;
-      try { dest = decodeURIComponent(dest); } catch {}
+      try { dest = decodeURIComponent(dest); } catch { /* Keep the raw target for unresolved-link reporting. */ }
       const targetPath = slash(path.posix.normalize(path.posix.join(path.posix.dirname(rel), dest)));
       if (fileIds.has(targetPath)) edges.push({ from: fileIds.get(rel), to: fileIds.get(targetPath), type: 'link', provenance: 'markdown' });
       else diagnostics.push({ path: rel, kind: 'unresolved-link', target: dest, line: linesAt(text, link.index, link.end).startLine });
@@ -407,7 +407,7 @@ function writeSnapshot(root, snapshot) {
   const dir = path.join(root, STATE_DIR); fs.mkdirSync(dir, { recursive: true });
   const target = path.join(dir, 'snapshot.json'); const temp = path.join(dir, `.snapshot-${process.pid}.tmp`);
   fs.writeFileSync(temp, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
-  try { assertFresh(root, snapshot); fs.renameSync(temp, target); } catch (error) { try { fs.unlinkSync(temp); } catch {} throw error; }
+  try { assertFresh(root, snapshot); fs.renameSync(temp, target); } catch (error) { try { fs.unlinkSync(temp); } catch { /* Preserve the publication failure if cleanup also fails. */ } throw error; }
   return target;
 }
 function readSnapshot(root) { const data = JSON.parse(fs.readFileSync(path.join(root, STATE_DIR, 'snapshot.json'), 'utf8')); validateSnapshot(data); return data; }

@@ -69,7 +69,7 @@ test('imports and re-exports resolve to files, and identifier references connect
 test('inventory rejects symlinks before reading linked source', t => {
   const f = fixture(t); const outside = path.join(path.dirname(f.root), `repo-graph-outside-${process.pid}.md`);
   fs.writeFileSync(outside, '# Outside\n');
-  t.after(() => { try { fs.unlinkSync(outside); } catch {} });
+  t.after(() => { try { fs.unlinkSync(outside); } catch { /* Cleanup also tolerates an already removed fixture. */ } });
   try { fs.symlinkSync(outside, path.join(f.root, 'linked.md'), 'file'); }
   catch (error) { t.skip(`Symlinks are unavailable on this platform: ${error.code || error.message}`); return; }
   const inv = graph.inventory(f.root);

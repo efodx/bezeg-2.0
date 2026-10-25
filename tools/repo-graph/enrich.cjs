@@ -77,7 +77,7 @@ function jobsFor(snapshot, sources, memberships = []) {
     const list = inverted.get(membership.concept);
     if (!list.some(s => s.id === source.id) && list.length < 12) list.push(source);
   }
-  for (const [concept, list] of [...inverted].sort(([a], [b]) => cmp(a, b))) {
+  for (const [, list] of [...inverted].sort(([a], [b]) => cmp(a, b))) {
     if (list.length < 2) continue;
     for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length && j < i + 4; j++) addPair(list[i], list[j]);
   }
@@ -93,7 +93,7 @@ function jobsFor(snapshot, sources, memberships = []) {
     if (!postings.has(token)) postings.set(token, []);
     const list = postings.get(token); if (list.length < 12) list.push(source);
   }
-  for (const [token, list] of [...postings].sort(([a], [b]) => cmp(a, b))) {
+  for (const [, list] of [...postings].sort(([a], [b]) => cmp(a, b))) {
     if (list.length < 2 || list.length >= 12) continue;
     for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length && j < i + 4; j++) addPair(list[i], list[j]);
   }
@@ -329,7 +329,7 @@ function enrich(root, snapshot, options = {}) {
     if (record) records.push({job: cachedJob, record});
   }
   const glossary = new Map(vocabularyFor(snapshot).entries.flatMap(v => [[v.canonical, v.id], [v.id, v.id]]));
-  const memberships = records.filter(r => r.job.mode === 'tags').flatMap(({job, record}) => record.result.tags.map(t => ({
+  const memberships = records.filter(r => r.job.mode === 'tags').flatMap(({record}) => record.result.tags.map(t => ({
     sourceId: t.sourceId, concept: glossary.get(t.concept) || t.concept}))).filter(m => marked.has(m.sourceId));
   const pairJob = jobsFor(snapshot, scoped, memberships).find(j => j.mode === 'pairs');
   if (pairJob) {
