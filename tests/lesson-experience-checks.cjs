@@ -5,7 +5,8 @@ const h = require('./lesson-smoke-helpers.cjs');
 module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
         test('same-frame reading position survives math reflow after hide and reopen', async ({page}) => {
-            await page.setViewportSize({width: 1100, height: 650});
+            // At 1100px wide, short desktop height gives this production prose a real scroll range.
+            await page.setViewportSize({width: 1100, height: 540});
             await h.useLanguage(page, 'en');
             await page.goto('/bezeg-2.0/analysis/taylor?learn=1');
             const panel = h.lessonPanel(page);
@@ -18,6 +19,7 @@ module.exports = function registerExperienceChecks() {
             });
             await settleMath();
             const reading = panel.locator('.guided-lesson-reading');
+            expect(await reading.locator('mjx-container').count(), 'the same-frame reading contains rendered mathematics').toBeGreaterThan(0);
             await reading.evaluate(el => { el.scrollTop = el.scrollHeight; });
             const before = await reading.evaluate(el => el.scrollTop);
             expect(before, 'the production prose really scrolls').toBeGreaterThan(0);
@@ -70,7 +72,18 @@ module.exports = function registerExperienceChecks() {
                         }
                     }
                     await expect(h.backButton(page)).toBeDisabled();
-                    expect(await panel.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(251, 252, 245)');
+                    const panelBackground = await panel.evaluate(el => {
+                        const token = getComputedStyle(document.documentElement).getPropertyValue('--bezeg-shell-panel').trim();
+                        const probe = document.createElement('span');
+                        probe.style.backgroundColor = 'var(--bezeg-shell-panel)';
+                        document.body.appendChild(probe);
+                        const tokenBackground = getComputedStyle(probe).backgroundColor;
+                        probe.remove();
+                        return {token, tokenBackground, panelBackground: getComputedStyle(el).backgroundColor};
+                    });
+                    expect(panelBackground.token, 'the approved shell panel role is defined').not.toBe('');
+                    expect(panelBackground.tokenBackground, 'the approved shell panel role is opaque').toMatch(/^rgb\(/);
+                    expect(panelBackground.panelBackground).toBe(panelBackground.tokenBackground);
                     expect(await reading.evaluate(el => getComputedStyle(el).overflowY)).toBe('auto');
                     const progress = await h.progress(page);
                     const originalUrl = page.url();
