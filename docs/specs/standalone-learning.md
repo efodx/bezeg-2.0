@@ -82,7 +82,7 @@ The owner accepted these two views as the visual direction on 2026-10-16. Preser
 ![Expanded chapter activity: the shared demonstration graph, concise observation context and display controls, and a prominent return-to-reading action.](assets/standalone-learning/chapter-activity.png)
 
 - Open the existing Demonstration workspace in chapter-activity context. Give the active graph most space; replace the long reading column and chapter contents with a short activity context.
-- Show the chapter/section identity, activity purpose, relevant controls, Return to chapter / Nazaj v poglavje, and Continue reading / Nadaljuj z branjem. Both reading-return actions lead to the originating section; opening a graph does not mark that section complete or advance to another section automatically.
+- Show the chapter/section identity, activity purpose, relevant controls, a single primary Continue reading / Nadaljuj z branjem action. This reading-return action leads to the originating section; opening a graph does not mark that section complete or advance to another section automatically.
 - Retain the shared graph and inspector implementation. Relevant controls may be emphasized or disclosed compactly for the activity, but normal editing, display, saving/export, Presentation mode, and demonstration switching stay reachable through the shared workspace. The picture's small control set is not permission to remove existing functionality.
 - Free exploration / Prosto raziskovanje exits activity context and keeps the current scene in the ordinary Demonstration. Keep a Read about this link back to the explanation.
 - Keep the graph interactive while the short prompt is visible. Do not open a blocking Guided lesson overlay automatically.

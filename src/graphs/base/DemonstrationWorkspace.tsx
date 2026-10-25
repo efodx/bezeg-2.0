@@ -221,8 +221,7 @@ export function DemonstrationWorkspace(props: {
                 <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
             </div>
             <div className="activity-context-actions">
-                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_return')}</button>
-                <button className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
+                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
                 <button onClick={() => {setLessonOpen(false); chapter.reset();}} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
                 <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.freeExplore();}}>{t('chapter_free_exploration')}</button>
             </div>

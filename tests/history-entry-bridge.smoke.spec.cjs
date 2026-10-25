@@ -55,7 +55,7 @@ test('the GitHub Pages 404 redirect carries bounded state and restores no-hash r
     expect(await page.evaluate(() => sessionStorage.getItem('bezeg-2.0:history-entry-bridge:v1'))).toBeNull();
 
     interceptReadingPage = true;
-    await page.getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await page.getByRole('button', {name: 'Continue reading', exact: true}).click();
     await expect(page).toHaveURL(chapter);
     expect(await page.evaluate(() => history.state.usr.chapterReadingInvocation)).toMatchObject({
         v: 1, activityId: 'curve-parameter', sectionId: 'parameter', readingKey: expect.any(String),

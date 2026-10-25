@@ -17,7 +17,9 @@ test('chapter exploration opens with its return controls in view and keyboard fo
     await h.useLanguage(page, 'en');
     await page.goto(`${chapter}#parameter`);
     await page.locator('#activity-curve-parameter').click();
-    const back = context(page).getByRole('button', {name: 'Return to chapter', exact: true});
+    const back = context(page).getByRole('button', {name: 'Continue reading', exact: true});
+    await expect(context(page).getByRole('button')).toHaveCount(3);
+    await expect(context(page).getByRole('button', {name: 'Return to chapter', exact: true})).toHaveCount(0);
     await expect(back).toBeInViewport({ratio: 1});
     await expect(back).toBeFocused();
     const slider = page.locator('.decasteljau-animation-slider input[type="range"]').first();
@@ -27,14 +29,14 @@ test('chapter exploration opens with its return controls in view and keyboard fo
     await expect(page.locator('.decasteljau-animation-heading output')).not.toHaveText('t = 0.50');
     await page.locator('#bezeg-language').focus();
     await page.locator('#bezeg-language').selectOption('sl');
-    await expect(context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true})).toBeInViewport({ratio: 1});
+    await expect(context(page).getByRole('button', {name: 'Nadaljuj z branjem', exact: true})).toBeInViewport({ratio: 1});
     await expect(page.locator('#bezeg-language')).toBeFocused();
     // Return remains a native keyboard action after entry.
-    await context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true}).focus();
+    await context(page).getByRole('button', {name: 'Nadaljuj z branjem', exact: true}).focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#activity-curve-parameter')).toBeFocused();
     await page.goForward();
-    await expect(context(page).getByRole('button', {name: 'Nazaj v poglavje', exact: true})).toBeFocused();
+    await expect(context(page).getByRole('button', {name: 'Nadaljuj z branjem', exact: true})).toBeFocused();
 });
 
 test('activity reading actions remain reachable on narrow screens and enlarged text', async ({page}) => {
@@ -46,7 +48,7 @@ test('activity reading actions remain reachable on narrow screens and enlarged t
     const standaloneWidth = await page.evaluate(() => document.scrollingElement.scrollWidth);
     await page.goto(`${chapter}#parameter`);
     await page.locator('#activity-curve-parameter').click();
-    const back = context(page).getByRole('button', {name: 'Return to chapter', exact: true});
+    const back = context(page).getByRole('button', {name: 'Continue reading', exact: true});
     await expect(back).toBeInViewport({ratio: 1});
     await expect(back).toBeFocused();
     for (const size of ['100%', '200%']) {
@@ -60,7 +62,7 @@ test('activity reading actions remain reachable on narrow screens and enlarged t
             expect(bounds.x).toBeGreaterThanOrEqual(0);
             expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
         }
-        for (const name of ['Return to chapter', 'Continue reading', 'Reset example', 'Free exploration']) {
+        for (const name of ['Continue reading', 'Reset example', 'Free exploration']) {
             const action = context(page).getByRole('button', {name, exact: true});
             await action.scrollIntoViewIfNeeded();
             await expect(action).toBeInViewport({ratio: 1});
@@ -107,7 +109,7 @@ for (const [id, route, section] of rows) {
             expect(points).toEqual(expect.arrayContaining([[-4, -3], [-3, 2], [2, 2], [3, -2]]));
         }
         if (id === 'transform-shape') expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
-        await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+        await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
         await expect(page).toHaveURL(new RegExp(`/learn/bezier-curves#${section}$`));
         await expect(page.locator(`#activity-${id}`)).toBeFocused();
         expect(await page.locator('#jgbox').count()).toBe(0);
@@ -186,7 +188,7 @@ test('ordinary scene survives reading and independent activity edits; keyboard e
     await page.getByRole('button', {name: 'Read about this', exact: true}).click();
     await page.locator('#activity-shape-control').click();
     await editFirstPoint(page, -6);
-    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
     await page.getByRole('link', {name: 'Back to your graph'}).click();
     await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-5, -3]]));
     await page.getByRole('button', {name: 'Read about this', exact: true}).click();
@@ -208,7 +210,7 @@ test('activity yields scene ownership to Guided lesson and restores it paused on
     await h.exitAndConfirm(page);
     await expect(h.lessonPanel(page)).toHaveCount(0);
     await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
-    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
     await page.locator('#activity-curve-parameter').click();
     await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
 });
@@ -217,8 +219,9 @@ test('chapter launch without a hash retains named return and focus after activit
     await h.useLanguage(page, 'en');
     await page.goto(chapter);
     await page.locator('#activity-geometric-bounds').click();
+    await expect(context(page)).toBeVisible();
     await page.reload();
-    await context(page).getByRole('button', {name: 'Return to chapter', exact: true}).click();
+    await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
     await expect(page).toHaveURL(new RegExp('/learn/bezier-curves$'));
     await expect(page.locator('#activity-geometric-bounds')).toBeFocused();
     await page.goForward();
