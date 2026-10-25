@@ -3,7 +3,6 @@ import React from 'react';
 
 
 
-import {Select} from "../../inputs/Select";
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {Commands} from "./Commands";
@@ -320,16 +319,23 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     }
 
     getSelect() {
-        return <Select onChange={e => this.onSelectChange(e)}
-                       value={String(this.state.selectedCurveOption)}
-                       ariaLabel={t("editing_mode")}
-                       options={[{
-                           "value": "0", "text": t("manipulate_curve")
-                       }, {
-                           "value": "1", "text": t("add_points")
-                       }, {
-                           "value": "2", "text": t("delete_points")
-                       }]}/>;
+        const modes = [
+            {value: SelectedCurveOption.MOVE_CURVE, label: t("manipulate_curve")},
+            {value: SelectedCurveOption.ADD_POINTS, label: t("add_points")},
+            {value: SelectedCurveOption.DELETE_POINTS, label: t("delete_points")},
+        ];
+        return <div className="curve-editing-mode-buttons" role="group" aria-label={t("editing_mode")}>
+            {modes.map(({value, label}) => {
+                const selected = this.state.selectedCurveOption === value;
+                return <button key={value} type="button" aria-pressed={selected}
+                    onClick={() => this.setEditingMode(value)}>
+                    <span className="curve-editing-mode-marker" aria-hidden="true">
+                        {selected && <svg viewBox="0 0 16 16" focusable="false"><path d="m2.5 8.5 3.5 3.5 7.5-8"/></svg>}
+                    </span>
+                    <span>{label}</span>
+                </button>;
+            })}
+        </div>;
     }
 
     override getGraphCommandsArea(): React.JSX.Element | null {
@@ -391,8 +397,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         this.editing.select(selectableCurve, additionalState);
     }
 
-    private onSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        this.editing.setMode(Number(e.target.value));
+    private setEditingMode(mode: SelectedCurveOption) {
+        this.editing.setMode(mode);
     }
 
 }

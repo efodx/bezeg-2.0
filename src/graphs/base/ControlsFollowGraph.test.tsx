@@ -58,23 +58,31 @@ class CountableDecasteljauGraph extends DecasteljauGraph {
         && 'elType' in object && object.elType === 'curve').length; }
 }
 
-test('the editing-mode dropdown follows the graph when another curve is picked in move mode', () => {
+test('visible editing-mode buttons follow the graph and switch modes without changing curve geometry', () => {
     const graph = new TwoCurveGraph();
     const view = renderGraph(graph);
     act(() => graph.selectWith(0, SelectedCurveOption.ADD_POINTS));
 
-    const dropdown = () => view.getByLabelText(t('editing_mode')) as HTMLSelectElement;
-    expect(dropdown().value).toBe(String(SelectedCurveOption.ADD_POINTS));
+    const modeGroup = () => view.getByRole('group', {name: t('editing_mode')});
+    const modeButton = (label: string) => view.getByRole('button', {name: label});
+    const modes = [t('manipulate_curve'), t('add_points'), t('delete_points')];
+    const selectedModes = () => modes.filter(label => modeButton(label).getAttribute('aria-pressed') === 'true');
+    const originalPoints = graph.curveAt(0).getCurve().getPoints().map(point => [point.X(), point.Y()]);
+    expect(modeGroup()).toBeTruthy();
+    expect(modeGroup().querySelectorAll('button')).toHaveLength(3);
+    expect(modeGroup().querySelectorAll('.curve-editing-mode-marker[aria-hidden="true"]')).toHaveLength(3);
+    expect(selectedModes()).toEqual([t('add_points')]);
 
     // The curve picker selects the other curve and switches the graph to move mode.
     fireEvent.click(view.getByRole('button', {name: `${t('curve')}2`}));
     expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.MOVE_CURVE);
-    expect(dropdown().value).toBe(String(SelectedCurveOption.MOVE_CURVE));
+    expect(selectedModes()).toEqual([t('manipulate_curve')]);
 
     // A user choice is written to the graph and shown.
-    fireEvent.change(dropdown(), {target: {value: String(SelectedCurveOption.DELETE_POINTS)}});
+    fireEvent.click(modeButton(t('delete_points')));
     expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
-    expect(dropdown().value).toBe(String(SelectedCurveOption.DELETE_POINTS));
+    expect(selectedModes()).toEqual([t('delete_points')]);
+    expect(graph.curveAt(0).getCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(originalPoints);
     view.unmount();
 });
 
@@ -96,6 +104,7 @@ test('lesson checkpoints restore curve geometry, viewport, and selected editing 
 
     expect(graph.selectedCurve()).toBe(graph.curveAt(1));
     expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
+    expect(view.getByRole('button', {name: t('delete_points')})).toHaveAttribute('aria-pressed', 'true');
     expect(graph.curveAt(1).getCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(savedPoints);
     expect(graph.boardState().boundingBox).toEqual(savedView);
     expect(graph.displaySettings.getSize()).toBe(2);

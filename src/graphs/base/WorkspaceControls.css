@@ -11,6 +11,39 @@
 .inspector-tabs button:first-child { border-radius:3px 0 0 3px; }
 .inspector-tabs button:last-child { border-radius:0 3px 3px 0; }
 .workspace-modes { gap:5px; }
+.curve-editing-mode-buttons { display:flex; flex-direction:column; gap:6px; width:100%; }
+.demonstration-workspace .curve-editing-mode-buttons button {
+    min-height:44px;
+    width:100%;
+    padding:7px 10px;
+    border:1px solid var(--workspace-rule);
+    border-radius:3px;
+    background:var(--workspace-panel);
+    color:var(--workspace-ink);
+    font-size:.84rem;
+    line-height:1.35;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+}
+.curve-editing-mode-marker { display:grid; place-items:center; flex:0 0 16px; width:16px; height:16px; }
+.curve-editing-mode-marker svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.demonstration-workspace .curve-editing-mode-buttons button:hover { background:var(--workspace-canvas-deep); }
+.demonstration-workspace .curve-editing-mode-buttons button[aria-pressed="true"] {
+    border-color:var(--workspace-green);
+    background:var(--workspace-green);
+    color:white;
+}
+.demonstration-workspace .curve-editing-mode-buttons button:focus-visible {
+    outline:3px solid #577cc3;
+    outline-offset:2px;
+    position:relative;
+    z-index:1;
+}
 .workspace-inspector .btn-group { gap:0; }
 .workspace-inspector .btn-group > .btn { margin:0; border-radius:0 !important; }
 .workspace-inspector .btn-group > .btn:first-child { border-radius:2px 0 0 2px !important; }
