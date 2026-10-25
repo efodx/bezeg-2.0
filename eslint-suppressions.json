@@ -330,17 +330,12 @@
       "count": 1
     }
   },
-  "src/learning/runtime/GuidedLesson.test.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "src/learning/runtime/GuidedLesson.tsx": {
     "react-hooks/exhaustive-deps": {
-      "count": 6
+      "count": 5
     },
     "react-hooks/refs": {
-      "count": 3
+      "count": 1
     },
     "react-hooks/set-state-in-effect": {
       "count": 2
