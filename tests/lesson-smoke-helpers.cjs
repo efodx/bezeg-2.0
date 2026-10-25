@@ -6,7 +6,7 @@ const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
 const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit lesson|Končaj učno pot/});
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
-const reopenButton = page => page.getByRole('button', {name: /Back to the instructions|Nazaj na navodila/});
+const reopenButton = page => page.locator('button.guided-lesson-tab');
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
 
 // Uncaught page errors and console errors fail every test. Call once at file level.
@@ -111,7 +111,7 @@ async function countSetterValue(page, index) {
     return Number(text.replace(/\D+/g, ''));
 }
 
-// Wait until either the instruction panel or its outside-the-graph reopen action is available.
+// Wait until either the expanded instruction panel or its compact graph tab is available.
 async function settle(page) {
     await expect.poll(async () => {
         if (await reopenButton(page).isVisible() && !(await nextButton(page).isVisible())) return true;
@@ -120,7 +120,7 @@ async function settle(page) {
     await page.waitForTimeout(20);
 }
 
-// Reopens instructions from the workspace header. Continue remains a separate frame-advancing action.
+// Reopens instructions from the compact graph tab; progression stays inside the expanded overlay.
 async function reveal(page) {
     await settle(page);
     if (!(await nextButton(page).isVisible())) {

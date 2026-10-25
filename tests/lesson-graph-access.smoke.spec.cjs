@@ -105,10 +105,11 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await h.settle(page);
     await h.noHorizontalOverflow(page);
     const panel = h.lessonPanel(page);
-    expect(await panel.locator('.guided-lesson-reading').evaluate(element => getComputedStyle(element).overflowY)).toBe('visible');
-    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
+    const reading = panel.locator('.guided-lesson-reading');
+    expect(await reading.evaluate(element => getComputedStyle(element).overflowY)).toBe('auto');
+    await reading.evaluate(element => { element.scrollTop = element.scrollHeight; });
+    expect(await reading.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
     await expect(panel.getByRole('button', {name: 'Hide lesson instructions', exact: true})).toHaveCount(0);
-    await panel.evaluate(element => window.scrollTo(0, element.getBoundingClientRect().bottom + window.scrollY - innerHeight));
     const observe = panel.getByRole('button', {name: 'Observe on the graph', exact: true});
     await expect(observe).toBeVisible();
     const actionFitsPanel = await observe.evaluate(button => {
@@ -116,25 +117,28 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
         const container = button.closest('.guided-lesson').getBoundingClientRect();
         return action.top >= container.top && action.bottom <= container.bottom;
     });
-    expect(actionFitsPanel, 'last action fits within document-flow reading after scrolling').toBe(true);
+    expect(actionFitsPanel, 'the visible minimize action fits within the bounded overlay').toBe(true);
     const actionBox = await observe.boundingBox();
     expect(actionBox.y).toBeGreaterThanOrEqual(0);
     expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
-    expect(await panel.evaluate(element => element.scrollTop), 'the overlay is not a second prose scroller').toBe(0);
+    expect(await panel.evaluate(element => element.scrollTop), 'prose scroll belongs to the reading region').toBe(0);
 
     await observe.click();
     await expect(panel).toHaveCount(0);
     const reopen = h.reopenButton(page);
     await expect(reopen).toBeVisible();
-    const outsideGraph = await page.evaluate(() => {
-        const action = [...document.querySelectorAll('.workspace-actions button')]
-            .find(button => button.textContent.trim() === 'Back to the instructions');
+    const tabMetrics = await reopen.evaluate(action => {
         const board = document.querySelector('#jgbox');
         const a = action.getBoundingClientRect();
         const b = board.getBoundingClientRect();
-        return a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom;
+        const overlaps = a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+        const hit = document.elementFromPoint(a.left + a.width / 2, a.top + a.height / 2);
+        return {overlaps, width: a.width, height: a.height, hit: action.contains(hit)};
     });
-    expect(outsideGraph, 'the reopen action sits outside the plotting area').toBe(true);
+    expect(tabMetrics.overlaps, 'the compact lesson tab overlays the graph').toBe(true);
+    expect(tabMetrics.width).toBeGreaterThanOrEqual(44);
+    expect(tabMetrics.height).toBeGreaterThanOrEqual(44);
+    expect(tabMetrics.hit, 'the compact lesson tab receives pointer hits').toBe(true);
 
     await page.setViewportSize({width: 844, height: 390});
     await h.noHorizontalOverflow(page);

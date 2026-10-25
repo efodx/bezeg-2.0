@@ -32,9 +32,10 @@ module.exports = function registerExperienceChecks() {
             for (const view of [
                 {name: 'desktop', width: 1440, height: 1000},
                 {name: 'projection', width: 1920, height: 1080, presenting: true},
-                {name: 'narrow', width: 390, height: 844, document: true},
-                {name: 'landscape', width: 844, height: 390, document: true},
-                {name: 'enlarged', width: 390, height: 844, document: true, enlarged: true},
+                {name: 'narrow', width: 390, height: 844},
+                {name: 'landscape', width: 844, height: 390},
+                {name: 'enlarged', width: 390, height: 844, enlarged: true},
+                {name: 'small-enlarged', width: 320, height: 844, enlarged: true},
             ]) {
                 test(`${language} ${view.name}: persistent actions, scroll ownership, and safe exit`, async ({page}, testInfo) => {
                     await page.setViewportSize({width: view.width, height: view.height});
@@ -52,20 +53,20 @@ module.exports = function registerExperienceChecks() {
                     const reading = panel.locator('.guided-lesson-reading');
                     await expect(h.backButton(page)).toBeDisabled();
                     expect(await panel.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(251, 252, 245)');
-                    expect(await reading.evaluate(el => getComputedStyle(el).overflowY)).toBe(view.document ? 'visible' : 'auto');
+                    expect(await reading.evaluate(el => getComputedStyle(el).overflowY)).toBe('auto');
                     const progress = await h.progress(page);
                     const originalUrl = page.url();
                     const boardId = await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id);
                     const hide = panel.getByRole('button', {name: language === 'en' ? 'Hide lesson instructions' : 'Skrij navodila učne poti', exact: true});
                     const exit = panel.getByRole('button', {name: language === 'en' ? 'Exit lesson' : 'Končaj učno pot', exact: true});
                     for (const [position, fraction] of [['top', 0], ['middle', .5], ['bottom', 1]]) {
-                        if (view.document) await panel.evaluate((el, f) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY + (el.clientHeight - window.innerHeight) * f), fraction);
-                        else await reading.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
+                        await reading.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
                         for (const control of [hide, exit, h.nextButton(page)]) {
                             await expect(control).toBeVisible();
                             const box = await control.boundingBox();
                             expect(box.width).toBeGreaterThanOrEqual(44);
                             expect(box.height).toBeGreaterThanOrEqual(44);
+                            expect(await control.evaluate(element => element.scrollWidth <= element.clientWidth + 1), 'action text fits its button').toBe(true);
                             expect(box.y).toBeGreaterThanOrEqual(0);
                             expect(box.y + box.height).toBeLessThanOrEqual(view.height + 1);
                             expect(await control.evaluate(el => {
@@ -93,7 +94,7 @@ module.exports = function registerExperienceChecks() {
                     expect(await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id)).toBe(boardId);
                     await h.nextButton(page).click();
                     await expect(panel.locator('h3')).toBeInViewport();
-                    if (!view.document) expect(await reading.evaluate(el => el.scrollTop)).toBe(0);
+                    expect(await reading.evaluate(el => el.scrollTop)).toBe(0);
                 });
             }
         }

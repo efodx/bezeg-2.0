@@ -11,10 +11,7 @@
     pointer-events: none;
 }
 
-/* Keep JSXGraph annotations, including rational weights, visibly behind the lesson copy. */
-.demonstration-workspace.lesson-content .workspace-graph #jgbox {
-    opacity: .48;
-}
+/* The opaque reading overlay separates lesson copy from the fully colored graph beneath it. */
 
 .demonstration-workspace.lesson-content .workspace-graph button {
     pointer-events: none;

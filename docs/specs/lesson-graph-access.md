@@ -1,5 +1,7 @@
 # Keep the graph usable during Guided lessons
 
+**Presentation update, 2026-10-25:** the owner-approved [compact graph overlay specification](lesson-overlay-minimize.md) replaces the external reopen tab with a small tab over the graph and adopts content-sized expanded reading with internal scrolling on all screen sizes. The scene, restoration and playback contracts below remain applicable; external Continue/Exit actions and narrow document-flow reading are historical presentation choices.
+
 **Status:** implemented, published and verified on 2026-10-20 after owner authorization; small lesson tab selected. Acceptance and publication evidence is recorded in the linked task.
 **Implementation task:** [Restore graph access](../reviews/lesson-implementation-history.md#lesson-graph-access)
 **Reported:** 2026-10-20

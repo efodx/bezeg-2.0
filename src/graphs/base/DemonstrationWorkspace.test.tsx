@@ -105,7 +105,7 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
 });
 
-test('lesson header preserves the frame through hide, supports Continue, and exits with focus restored', async () => {
+test('lesson overlay preserves the frame through hide, advances inside the overlay, and exits with focus restored', async () => {
     setLanguage('en');
     const lesson: LessonDefinition = {
         id: 'workspace-hide-test', demonstrationId: 'bezier', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -121,18 +121,20 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
 
     fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
     await screen.findByRole('heading', {name: 'Introduction'});
-    fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
+    fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
     const progress = document.querySelector('.guided-lesson-progress')?.textContent;
 
     fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
     await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
-    const reopen = screen.getByRole('button', {name: 'Back to the instructions'});
+    const reopen = screen.getByRole('button', {name: /Guided path.*Step 1 of 1.*Frame 2 of 2.*Back to the instructions/});
     await waitFor(() => expect(reopen).toHaveFocus());
     expect(screen.queryByRole('button', {name: 'Learn this demonstration'})).not.toBeInTheDocument();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
     expect(capabilities.restoreState).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', {name: 'Continue lesson'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Exit lesson'})).not.toBeInTheDocument();
 
     const parameter = screen.getByLabelText('Parameter');
     fireEvent.change(parameter, {target: {value: '.8'}});
@@ -153,8 +155,9 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
     expect(capabilities.restoreState).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
-    await waitFor(() => expect(screen.getByRole('button', {name: 'Continue lesson'})).toBeVisible());
-    fireEvent.click(screen.getByRole('button', {name: 'Continue lesson'}));
+    const compactTab = screen.getByRole('button', {name: /Guided path.*Frame 2 of 2/});
+    fireEvent.click(compactTab);
+    fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
     expect(await screen.findByText('Lesson complete')).toBeVisible();
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -169,6 +172,38 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
     fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
     await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
+    act(() => setLanguage('sl'));
+});
+
+test('minimized lesson exposes one focused reopen tab over the graph', async () => {
+    setLanguage('en');
+    const lesson: LessonDefinition = {
+        id: 'workspace-tab-test', demonstrationId: 'bezier', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
+        steps: [{id: 'step', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'}, frames: [
+            {id: 'read', kind: 'explanation', title: {sl: 'Uvod', en: 'Introduction'}, body: {sl: 'Besedilo', en: 'Reading'}},
+            {id: 'observe', kind: 'observation', title: {sl: 'Opazovanje', en: 'Observation'}, prompt: {sl: 'Preveri graf.', en: 'Inspect the graph.'}},
+        ]}],
+    };
+    lessonLookup.mockReturnValue(lesson);
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Explore"
+        edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()}
+        lessonCapabilities={{captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
+    await screen.findByRole('heading', {name: 'Introduction'});
+    fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
+    const tab = await screen.findByRole('button', {name: /Guided path.*Step 1 of 1.*Frame 2 of 2/i});
+    expect(tab.closest('.guided-lesson-layer')).not.toBeNull();
+    expect(tab.closest('.demonstration-workspace')).not.toBeNull();
+    await waitFor(() => expect(tab).toHaveFocus());
+    await waitFor(() => expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument());
+    expect(screen.queryByRole('button', {name: 'Back to the instructions'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Continue lesson'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Exit lesson'})).not.toBeInTheDocument();
+    fireEvent.click(tab);
+    expect(await screen.findByText('Observation', {selector: 'strong'})).toBeVisible();
+    expect(document.querySelector('.guided-lesson-nav-next')).toBeVisible();
     act(() => setLanguage('sl'));
 });
 

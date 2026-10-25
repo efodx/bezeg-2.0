@@ -82,6 +82,10 @@ function observe() {
     act(() => vi.advanceTimersByTime(250));
 }
 
+function reopenWithTab() {
+    fireEvent.click(screen.getByRole('button', {name: /Back to the instructions|Nazaj na navodila/}));
+}
+
 test('offers content-first navigation and preserves step identity when language changes', () => {
     setLanguage('sl');
     const close = vi.fn();
@@ -119,10 +123,8 @@ test('hides instructions without ending the session and reopens the same frame',
     setLanguage('sl');
     try {
         const caps = capabilities();
-        let showInstructions: (() => void) | undefined;
         const started = vi.spyOn(LessonSession.prototype, 'start');
-        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
@@ -140,7 +142,7 @@ test('hides instructions without ending the session and reopens the same frame',
         expect(container.querySelector('.guided-lesson')).not.toBeInTheDocument();
         expect(started).toHaveBeenCalledTimes(1);
 
-        act(() => showInstructions?.());
+        reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
@@ -158,14 +160,12 @@ test('preserves reading position on reopen and starts a new frame at its introdu
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        let showInstructions: (() => void) | undefined;
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         const reading = document.querySelector<HTMLElement>('.guided-lesson-reading')!;
         reading.scrollTop = 140;
         fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
         act(() => vi.advanceTimersByTime(250));
-        act(() => showInstructions?.());
+        reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector<HTMLElement>('.guided-lesson-reading')?.scrollTop).toBe(140);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
@@ -185,12 +185,10 @@ test('narrow page reading restores its scroll position on reopen and resets at a
     Object.defineProperty(window, 'scrollY', {configurable: true, value: 420});
     setLanguage('sl');
     try {
-        let showInstructions: (() => void) | undefined;
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
         act(() => vi.advanceTimersByTime(250));
-        act(() => showInstructions?.());
+        reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(pageScroll).toHaveBeenCalledWith({top: 420});
         const panel = document.querySelector('.guided-lesson') as HTMLElement;
@@ -213,19 +211,20 @@ test('rapidly reopening during the closing handoff restores panel focus without 
     try {
         const caps = capabilities();
         const started = vi.spyOn(LessonSession.prototype, 'start');
-        let showInstructions: (() => void) | undefined;
-        render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
 
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
-        act(() => showInstructions?.());
+        expect((document.querySelector('.guided-lesson') as HTMLElement).inert).toBe(true);
+        expect(document.querySelector('.guided-lesson-tab')).toHaveFocus();
+        reopenWithTab();
 
         const panel = document.querySelector('.guided-lesson');
         expect(panel).toBeInTheDocument();
+        expect((panel as HTMLElement).inert).toBe(false);
         expect(panel).toHaveClass('guided-lesson-handoff-opening');
         expect(panel).toHaveFocus();
         expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
@@ -245,15 +244,13 @@ test('keeps the graph locked while instructions are visible and unlocks it only 
     setLanguage('sl');
     try {
         const onModeChange = vi.fn();
-        let showInstructions: (() => void) | undefined;
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         observe();
         expect(onModeChange).toHaveBeenLastCalledWith('explore');
-        act(() => showInstructions?.());
+        reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         fireEvent.click(screen.getByRole('button', {name: 'Zaključi učno pot'}));
@@ -322,19 +319,16 @@ test('failed checkpoint restoration keeps the lesson and dialog available for re
     expect(onClose).not.toHaveBeenCalled();
 });
 
-test('workspace Continue advances to the next frame and opens its overlay', () => {
+test('observation advancement uses Next inside the expanded overlay', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        let showInstructions: (() => void) | undefined;
-        let graphActions: {continueLesson?: () => void} | undefined;
-        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}
-            registerGraphActions={actions => { graphActions = actions; }}/>);
+        render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         observe();
-        act(() => graphActions?.continueLesson?.());
+        reopenWithTab();
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('heading', {name: 'Zaključek'})).toBeVisible();
         expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
@@ -346,19 +340,16 @@ test('workspace Continue advances to the next frame and opens its overlay', () =
     }
 });
 
-test('Continue on the last observation frame completes the lesson', () => {
+test('Next on the last observation frame completes the lesson after reopening', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        let showInstructions: (() => void) | undefined;
-        let graphActions: {continueLesson?: () => void} | undefined;
-        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}
-            registerGraphActions={actions => { graphActions = actions; }}/>);
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         observe();
-        act(() => graphActions?.continueLesson?.());
+        reopenWithTab();
+        fireEvent.click(screen.getByRole('button', {name: 'Zaključi učno pot'}));
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
         expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
@@ -384,9 +375,7 @@ test('pauses graph animation when hiding instructions and reopening does not res
     setLanguage('sl');
     try {
         const apply = vi.fn();
-        let showInstructions: (() => void) | undefined;
-        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         const controls = screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'});
@@ -399,7 +388,7 @@ test('pauses graph animation when hiding instructions and reopening does not res
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
-        act(() => showInstructions?.());
+        reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'})).toBeVisible();
         expect(apply.mock.calls.filter(([command]) => command?.kind === 'animation' && command.command === 'play')).toHaveLength(1);
@@ -512,7 +501,6 @@ test('typesets mathematics again when hidden observation instructions reopen', a
     const win = window as Window & {MathJax?: {startup: {promise: Promise<unknown>}; typesetClear: Mock; typesetPromise: Mock}};
     const previousMathJax = win.MathJax;
     const typesetPromise = vi.fn((..._args: unknown[]) => Promise.resolve());
-    let showInstructions: (() => void) | undefined;
     win.MathJax = {startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise};
     const mathLesson: LessonDefinition = {
         id: 'math-observation-test', demonstrationId: 'bezier', title: {sl: 'Matematika', en: 'Mathematics'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -523,15 +511,14 @@ test('typesets mathematics again when hidden observation instructions reopen', a
     };
 
     try {
-        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={vi.fn()}
-            registerShowInstructions={show => { showInstructions = show; }}/>);
+        render(<GuidedLesson lesson={mathLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-exploration'))).toBe(true));
         const initialTypesetCount = typesetPromise.mock.calls.length;
         vi.useFakeTimers();
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         act(() => vi.advanceTimersByTime(250));
-        act(() => showInstructions?.());
+        reopenWithTab();
         vi.useRealTimers();
         await waitFor(() => expect(typesetPromise.mock.calls.length).toBeGreaterThan(initialTypesetCount));
     } finally {

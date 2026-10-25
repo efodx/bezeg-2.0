@@ -1,9 +1,20 @@
-.guided-lesson {
+.guided-lesson-layer {
     grid-area: graph;
     z-index: 3;
     align-self: stretch;
     justify-self: stretch;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    pointer-events: none;
+}
+.guided-lesson {
+    position: relative;
+    z-index: 3;
+    align-self: start;
+    justify-self: stretch;
     width: 100%;
+    height: auto;
     min-height: 0;
     min-width: 0;
     max-height: min(74vh, 760px);
@@ -17,9 +28,37 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    position: relative;
+    overflow: hidden;
+    pointer-events: auto;
     box-shadow: 0 10px 32px rgb(28 45 29 / 12%);
 }
+.demonstration-workspace .guided-lesson-tab {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    max-width: min(calc(100% - 16px), 310px);
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 7px 11px;
+    border: 1px solid #9aaa87;
+    border-radius: 7px;
+    background: #fbfcf5;
+    color: #243b2b;
+    box-shadow: 0 3px 10px rgb(28 45 29 / 18%);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    pointer-events: auto;
+}
+.guided-lesson-tab:hover { background: #f1f6e9; }
+.guided-lesson-tab:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+.guided-lesson-tab-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.guided-lesson-tab-progress { flex: none; color: #5b684c; font-size: .78rem; font-variant-numeric: tabular-nums; }
+.guided-lesson-tab-expand { flex: none; }
 .guided-lesson-heading { display:flex; flex:0 0 auto; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:12px; border-bottom:1px solid #e0e6d7; }
 .guided-lesson-heading > div { min-width:0; }
 .guided-lesson-heading h2 { margin:6px 0 4px; font-size:24px; }
@@ -88,15 +127,15 @@
     .guided-lesson-frame, .guided-lesson-exploration, .guided-lesson-handoff-opening, .guided-lesson-handoff-closing { animation:none; }
 }
 @media(max-width:700px), (max-height:520px) {
-    .guided-lesson { max-height:none; border-radius:0; padding:12px 12px 0; }
+    .guided-lesson { max-height:min(90vh, 760px); border-radius:8px; padding:12px 12px 0; }
     .guided-lesson-heading { flex-wrap:wrap; gap:8px; }
     .guided-lesson-heading > div { flex-basis:100%; }
     .guided-lesson-heading button { flex:1 1 40%; }
-    .guided-lesson-reading { overflow:visible; min-height:0; }
+    .guided-lesson-reading { overflow-y:auto; min-height:0; }
     .guided-lesson-heading .guided-lesson-hide, .guided-lesson-heading .guided-lesson-exit { display:none; }
     .guided-lesson-footer { position:sticky; bottom:0; margin:0 -12px; padding:8px 12px max(8px, env(safe-area-inset-bottom)); box-shadow:0 -6px 14px rgb(251 252 245 / 94%); }
     .guided-lesson-persistent-actions { display:flex; gap:8px; margin-bottom:8px; }
-    .guided-lesson-persistent-actions > button { flex:1 1 0; min-height:44px; white-space:normal; }
+    .guided-lesson-persistent-actions > button { flex:1 1 0; min-width:0; min-height:44px; white-space:normal; overflow-wrap:anywhere; }
     .guided-lesson-actions button { flex:1 1 42%; }
     .guided-lesson-navigation { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .guided-lesson .guided-lesson-navigation button { min-width:0; overflow-wrap:anywhere; }
