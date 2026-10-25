@@ -24,7 +24,8 @@
 .guided-lesson-heading > div { min-width:0; }
 .guided-lesson-heading h2 { margin:6px 0 4px; font-size:24px; }
 .guided-lesson-heading p { margin:0; color:#526152; line-height:1.45; }
-.guided-lesson-heading button, .guided-lesson-actions button, .guided-lesson-navigation button {
+.guided-lesson .guided-lesson-heading button, .guided-lesson .guided-lesson-persistent-actions button, .guided-lesson .guided-lesson-actions button, .guided-lesson .guided-lesson-navigation button {
+    box-sizing:border-box;
     min-width:44px;
     min-height:44px;
     padding:9px 14px;
@@ -48,8 +49,8 @@
 .guided-lesson-navigation { display:flex; justify-content:space-between; gap:10px; margin-top:8px; }
 .guided-lesson-navigation button:disabled { opacity:.5; cursor:not-allowed; }
 .guided-lesson-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-.guided-lesson-actions .guided-lesson-observe { border-color:#3b6704; background:#3b6704; color:#fff; font-weight:600; }
-.guided-lesson-actions .guided-lesson-observe:hover { background:#2f5203; color:#fff; }
+.guided-lesson .guided-lesson-actions .guided-lesson-observe { border-color:#3b6704; background:#3b6704; color:#fff; font-weight:600; }
+.guided-lesson .guided-lesson-actions .guided-lesson-observe:hover { background:#2f5203; color:#fff; }
 .guided-lesson-frame { animation: guided-lesson-frame-in .18s ease-out; }
 .guided-lesson-frame-label { display:block; margin-bottom:8px; color:#3b6704; font-size:.68rem; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
 .guided-lesson-frame h3 { margin:0 0 10px; font-size:1.25rem; }
@@ -92,13 +93,13 @@
     .guided-lesson-heading > div { flex-basis:100%; }
     .guided-lesson-heading button { flex:1 1 40%; }
     .guided-lesson-reading { overflow:visible; min-height:0; }
-    .guided-lesson-reading { padding-bottom:320px; }
     .guided-lesson-heading .guided-lesson-hide, .guided-lesson-heading .guided-lesson-exit { display:none; }
     .guided-lesson-footer { position:sticky; bottom:0; margin:0 -12px; padding:8px 12px max(8px, env(safe-area-inset-bottom)); box-shadow:0 -6px 14px rgb(251 252 245 / 94%); }
     .guided-lesson-persistent-actions { display:flex; gap:8px; margin-bottom:8px; }
     .guided-lesson-persistent-actions > button { flex:1 1 0; min-height:44px; white-space:normal; }
     .guided-lesson-actions button { flex:1 1 42%; }
-    .guided-lesson-navigation button { flex:1 1 0; }
+    .guided-lesson-navigation { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .guided-lesson .guided-lesson-navigation button { min-width:0; overflow-wrap:anywhere; }
     .guided-lesson-exit-dialog { padding:18px; }
     .guided-lesson-exit-actions { justify-content:stretch; }
     .guided-lesson-exit-actions button { flex:1 1 100%; }

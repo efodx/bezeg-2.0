@@ -126,7 +126,7 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
     const progress = document.querySelector('.guided-lesson-progress')?.textContent;
 
-    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-hide')!);
+    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
     await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
     const reopen = screen.getByRole('button', {name: 'Back to the instructions'});
     await waitFor(() => expect(reopen).toHaveFocus());
@@ -152,7 +152,7 @@ test('lesson header preserves the frame through hide, supports Continue, and exi
     expect(document.querySelector('.guided-lesson-progress')?.textContent).toBe(progress);
     expect(capabilities.restoreState).not.toHaveBeenCalled();
 
-    fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-hide')!);
+    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Continue lesson'})).toBeVisible());
     fireEvent.click(screen.getByRole('button', {name: 'Continue lesson'}));
     expect(await screen.findByText('Lesson complete')).toBeVisible();

@@ -379,7 +379,7 @@ export function GuidedLesson(props: {
     }, [session, props.registerGraphActions, isExploring, frame.id, frame.animation?.animationId, language]);
 
     const closeButton = <button type="button" className="guided-lesson-exit" onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson')}</button>;
-    const hideButton = <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>;
+    const hideButton = !isExploring && <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>;
     const exitDialog = exitRequested && <div className="guided-lesson-exit-backdrop"><div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="guided-lesson-exit-title" aria-describedby="guided-lesson-exit-message" className="guided-lesson-exit-dialog">
         <h2 id="guided-lesson-exit-title">{t('guided_lesson_exit_title')}</h2>
         <p id="guided-lesson-exit-message">{t('guided_lesson_exit_warning')}</p>

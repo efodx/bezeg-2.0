@@ -359,7 +359,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
         padding: 16px 12px 70px;
         gap: 12px;
         grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "heading" "graph" "learning" "inspector";
+        grid-template-areas: "heading" "graph" "inspector";
     }
     .workspace-heading { align-items: stretch; flex-direction: column; gap: 10px; }
     .workspace-heading h1 { font-size: 1.7rem; }
@@ -369,9 +369,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
     /* Phone: the inspector flows in the page, with no fixed height and no inner scroller. */
     .workspace-inspector { width: 100%; height: auto; min-height: 0; display: block; overflow: visible; }
     #inspector-content { flex: none; overflow: visible; }
-    .workspace-learning { gap: 8px; flex-wrap: wrap; }
-    .workspace-learning > span { width: 100%; }
-    .workspace-learning p { font-size: .82rem; }
+    .workspace-learning { display: none; }
     .is-presenting { grid-template-areas: "heading" "graph" "inspector"; }
     .workspace-gesture-hint { display: none; }
 }

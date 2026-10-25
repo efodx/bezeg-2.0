@@ -129,6 +129,8 @@ test('hides instructions without ending the session and reopens the same frame',
 
         expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
+        expect(screen.queryByRole('button', {name: 'Skrij navodila učne poti'})).not.toBeInTheDocument();
+        expect(screen.getAllByRole('button', {name: 'Opazuj na grafu'})).toHaveLength(1);
         expect(screen.getByRole('button', {name: 'Prejšnji okvir'})).toBeVisible();
         expect(screen.getByRole('button', {name: 'Zaključi učno pot'})).toBeVisible();
 
@@ -393,7 +395,7 @@ test('pauses graph animation when hiding instructions and reopening does not res
         fireEvent.click(screen.getByRole('button', {name: /Predvajaj/}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'play'});
 
-        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         expect(apply).toHaveBeenLastCalledWith({kind: 'animation', animationId: 'decasteljau', command: 'pause'});
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
@@ -418,7 +420,7 @@ test('does not pause playback that the observation never started', () => {
         render(<GuidedLesson lesson={framedLesson} capabilities={{...capabilities(), apply}} onClose={vi.fn()}/>);
 
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
-        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         act(() => vi.advanceTimersByTime(250));
         expect(apply).not.toHaveBeenCalledWith(expect.objectContaining({kind: 'animation'}));
     } finally {
@@ -527,7 +529,7 @@ test('typesets mathematics again when hidden observation instructions reopen', a
         await waitFor(() => expect(typesetPromise.mock.calls.some(call => (call[0] as unknown as Element[])[0]?.querySelector('.guided-lesson-exploration'))).toBe(true));
         const initialTypesetCount = typesetPromise.mock.calls.length;
         vi.useFakeTimers();
-        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         act(() => vi.advanceTimersByTime(250));
         act(() => showInstructions?.());
         vi.useRealTimers();

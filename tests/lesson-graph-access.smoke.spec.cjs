@@ -107,8 +107,7 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     const panel = h.lessonPanel(page);
     expect(await panel.locator('.guided-lesson-reading').evaluate(element => getComputedStyle(element).overflowY)).toBe('visible');
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
-    const hide = panel.getByRole('button', {name: 'Hide lesson instructions', exact: true});
-    await expect(hide).toBeVisible();
+    await expect(panel.getByRole('button', {name: 'Hide lesson instructions', exact: true})).toHaveCount(0);
     await panel.evaluate(element => window.scrollTo(0, element.getBoundingClientRect().bottom + window.scrollY - innerHeight));
     const observe = panel.getByRole('button', {name: 'Observe on the graph', exact: true});
     await expect(observe).toBeVisible();
@@ -122,7 +121,6 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     expect(actionBox.y).toBeGreaterThanOrEqual(0);
     expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
     expect(await panel.evaluate(element => element.scrollTop), 'the overlay is not a second prose scroller').toBe(0);
-    await expect(hide).toBeVisible();
 
     await observe.click();
     await expect(panel).toHaveCount(0);
@@ -155,7 +153,7 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     const boardAfterPresentationReopen = await boardSnapshot(page);
     expect(boardAfterPresentationReopen.id).toBe(boardBeforePresentationReopen.id);
     expect(boardAfterPresentationReopen.view).toEqual(boardBeforePresentationReopen.view);
-    await h.lessonPanel(page).getByRole('button', {name: 'Hide lesson instructions', exact: true}).click();
+    await h.lessonPanel(page).getByRole('button', {name: 'Observe on the graph', exact: true}).click();
     await expect(reopen).toBeVisible();
 });
 
