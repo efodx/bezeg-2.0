@@ -4,7 +4,7 @@
 .demonstrations-opening { max-width: 1100px; min-width: 0; }
 .demonstrations-opening-preview {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 3fr);
     max-width: 1100px;
     min-width: 0;
     overflow: hidden;
@@ -17,8 +17,7 @@
     position: relative;
     min-height: 260px;
     overflow: hidden;
-    border-right: 1px solid var(--bezeg-shell-media-rule);
-    background: var(--bezeg-shell-media);
+    background: var(--bezeg-shell-preview-panel);
 }
 .demonstrations-opening-image {
     display: block;
@@ -28,7 +27,7 @@
     width: 100%;
     height: 100%;
     padding: 12px;
-    background: var(--bezeg-shell-media);
+    background: var(--bezeg-shell-preview-panel);
     object-fit: contain;
     object-position: center;
     opacity: 0;
@@ -37,6 +36,9 @@
 .demonstrations-opening-image[data-selected="true"] {
     z-index: 1;
     opacity: 1;
+}
+.home-demonstrations-carousel .demonstration-preview-media {
+    background: var(--bezeg-shell-preview-panel);
 }
 .demonstrations-opening-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 24px 26px; }
 .demonstrations-opening-copy h3 { margin: 8px 0; font-size: 25px; line-height: 1.25; }
@@ -94,7 +96,7 @@
 
 @media (max-width: 700px) {
     .home-demonstrations-carousel .demonstrations-opening-preview { grid-template-columns: minmax(0, 1fr); }
-    .home-demonstrations-carousel .demonstrations-opening-image-stage { min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; border-right: 0; border-bottom: 1px solid var(--bezeg-shell-media-rule); }
+    .home-demonstrations-carousel .demonstrations-opening-image-stage { min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; }
     .home-demonstrations-carousel .demonstrations-opening-copy { padding: 16px; }
     .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 21px; }
     .home-demonstrations-carousel .demonstrations-opening-controls { margin-top: 12px; }

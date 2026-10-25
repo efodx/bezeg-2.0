@@ -62,7 +62,7 @@ Introductory copy is 17px with 1.55 line height (15px on narrow screens); the se
 
 ## Layout
 
-The homepage content has a 1100px maximum width and natural vertical flow. The intro stacks below 820px. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
+The homepage content has a 1100px maximum width and natural vertical flow. The featured card uses a 40% artwork / 60% copy split on desktop and a continuous cream preview-panel surface, including nested media, without a divider. Preserve the complete artwork with proportional containment. See [homepage preview spacing](docs/specs/homepage-preview-spacing.md). The intro stacks below 820px. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
 
 ## Elevation & Depth
 
