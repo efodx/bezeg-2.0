@@ -3,20 +3,27 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import {BaseSequencer, type TestSpecification} from 'vitest/node';
 
+const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
+
 /**
- * `vitest --shard` splits files by path hash, so the slow real-graph suites could share one shard. Their
- * `*.partN.test.*` files go to shard N (wrapping), keeping each suite's parts on different CI runners; every other file
- * keeps Vitest's hash split.
+ * The slow real-graph suites are split into `*.partN.test.*` files. `vitest --shard` splits files by path hash, so
+ * their parts could share one shard: part N goes to shard N (wrapping) instead, and every other file keeps Vitest's hash
+ * split. Without cached durations (as in CI) Vitest runs larger files first, which would start the small part files
+ * last and leave them as a long tail, so they run first.
  */
 class PartSequencer extends BaseSequencer {
     override async shard(files: TestSpecification[]): Promise<TestSpecification[]> {
         const {index, count} = this.ctx.config.shard!;
-        const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
         const parts = files.filter(file => {
             const n = part(file);
             return n !== undefined && (Number(n) - 1) % count === index - 1;
         });
         return [...parts, ...await super.shard(files.filter(file => part(file) === undefined))];
+    }
+
+    override async sort(files: TestSpecification[]): Promise<TestSpecification[]> {
+        const sorted = await super.sort(files);
+        return [...sorted.filter(file => part(file) !== undefined), ...sorted.filter(file => part(file) === undefined)];
     }
 }
 
