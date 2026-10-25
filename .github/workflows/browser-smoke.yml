@@ -10,12 +10,17 @@ on:
 permissions:
   contents: read
 
+# The checks run as parallel jobs: static checks, two Vitest shards, and the build feeding four Chromium smoke shards;
+# the `smoke` job gates them as one check.
+# Each job cancels the same job of an obsolete run; the group names a shard so shards of one run never cancel each other.
+# The deploy job is not cancelled.
+
 jobs:
-  smoke:
+  scope:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 5
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}
+      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-scope
       cancel-in-progress: true
     outputs:
       full_verification: ${{ steps.scope.outputs.full_verification }}
@@ -30,52 +35,141 @@ jobs:
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       - name: Test verification scope detector
         run: node --test scripts/ci-change-scope.test.cjs
+
+  checks:
+    needs: scope
+    if: needs.scope.outputs.full_verification == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-checks
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
-        if: steps.scope.outputs.full_verification == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-        if: steps.scope.outputs.full_verification == 'true'
       - name: Check TypeScript
-        if: steps.scope.outputs.full_verification == 'true'
         run: npx tsc --noEmit --pretty false
       - name: Lint
-        if: steps.scope.outputs.full_verification == 'true'
         run: npx eslint .
-      - name: Run unit tests
-        if: steps.scope.outputs.full_verification == 'true'
-        run: npm test
+
+  unit:
+    needs: scope
+    if: needs.scope.outputs.full_verification == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards.
+        shard: [1, 2]
+    concurrency:
+      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Run unit tests (shard ${{ matrix.shard }}/2)
+        run: npm test -- --shard=${{ matrix.shard }}/2
         env:
           CI: 'true'
-      - run: npx playwright install --with-deps chromium
-        if: steps.scope.outputs.full_verification == 'true'
+
+  build:
+    needs: scope
+    if: needs.scope.outputs.full_verification == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-build
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
       - name: Build production app
-        if: steps.scope.outputs.full_verification == 'true'
         run: npm run build
-      - name: Run Chromium smoke tests
-        if: steps.scope.outputs.full_verification == 'true'
-        run: npm run test:smoke:built
-        env:
-          CI: 'true'
-      - name: Upload verified Pages artifact
-        if: success() && steps.scope.outputs.full_verification == 'true' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      # Every smoke shard tests this build, and only this build is deployed.
+      - name: Upload build for smoke shards
+        uses: actions/upload-artifact@v6
+        with:
+          name: production-build
+          path: build/
+          include-hidden-files: true
+          retention-days: 1
+      - name: Upload Pages artifact
+        if: github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@v4
         with:
           path: build
+
+  chromium:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    concurrency:
+      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-chromium-${{ matrix.shard }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Download production build
+        uses: actions/download-artifact@v7
+        with:
+          name: production-build
+          path: build
+      - name: Run Chromium smoke tests (shard ${{ matrix.shard }}/4)
+        run: npm run test:smoke:built -- --shard=${{ matrix.shard }}/4
+        env:
+          CI: 'true'
       - name: Upload failure evidence
-        if: failure() && steps.scope.outputs.full_verification == 'true'
+        if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: browser-smoke-failure-evidence
+          name: browser-smoke-failure-evidence-${{ matrix.shard }}
           path: |
             playwright-report/
             test-results/
           retention-days: 3
 
+  # The `smoke` check: passes when every check job succeeded, or when the scope skipped them for documentation.
+  smoke:
+    needs: [scope, checks, unit, build, chromium]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every check job
+        env:
+          FULL_VERIFICATION: ${{ needs.scope.outputs.full_verification }}
+          RESULTS: ${{ needs.scope.result }} ${{ needs.checks.result }} ${{ needs.unit.result }} ${{ needs.build.result }} ${{ needs.chromium.result }}
+        run: |
+          echo "Job results (scope checks unit build chromium): $RESULTS"
+          if [ "$FULL_VERIFICATION" = 'false' ] && [ "${RESULTS%% *}" = 'success' ]; then exit 0; fi
+          for result in $RESULTS; do [ "$result" = 'success' ] || exit 1; done
+
   deploy:
-    needs: smoke
-    if: needs.smoke.result == 'success' && needs.smoke.outputs.full_verification == 'true' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [scope, smoke]
+    # Without a status function the condition also requires both needed jobs to succeed.
+    if: needs.scope.outputs.full_verification == 'true' && github.repository == 'efodx/bezeg-2.0' && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -1,6 +1,24 @@
 /// <reference types="vitest/config" />
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
+import {BaseSequencer, type TestSpecification} from 'vitest/node';
+
+/**
+ * `vitest --shard` splits files by path hash, so the slow real-graph suites could share one shard. Their
+ * `*.partN.test.*` files go to shard N (wrapping), keeping each suite's parts on different CI runners; every other file
+ * keeps Vitest's hash split.
+ */
+class PartSequencer extends BaseSequencer {
+    override async shard(files: TestSpecification[]): Promise<TestSpecification[]> {
+        const {index, count} = this.ctx.config.shard!;
+        const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
+        const parts = files.filter(file => {
+            const n = part(file);
+            return n !== undefined && (Number(n) - 1) % count === index - 1;
+        });
+        return [...parts, ...await super.shard(files.filter(file => part(file) === undefined))];
+    }
+}
 
 // GitHub Pages project site: https://efodx.github.io/bezeg-2.0/
 export default defineConfig({
@@ -24,5 +42,6 @@ export default defineConfig({
         // Jest ran serially with a 5 s timeout; Vitest runs files in parallel workers, and several slow component
         // tests (2-3 s alone) exceeded the 5 s default under CI load.
         testTimeout: 15000,
+        sequence: {sequencer: PartSequencer},
     },
 });
