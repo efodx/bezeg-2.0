@@ -202,14 +202,14 @@ function parameterizationRow({id, path, titles, samplesByStep, hasMode}) {
 }
 
 const weighted = parameterizationRow({
-    id: 'param-weighted',
+    id: 'weighted-parameterization',
     path: `${BASE}/param/param/alphaparam`,
     titles: {sl: 'Utežena parametrizacija', en: 'Weighted parameterization'},
     samplesByStep: [3, 3, 3, 10, 20],
     hasMode: false,
 });
 const uniformPh = parameterizationRow({
-    id: 'param-uniform-ph',
+    id: 'uniform-parameterization',
     path: `${BASE}/param/param/uniform`,
     titles: {sl: 'Enakomerna parametrizacija PH krivulje', en: 'Uniform parameterization of a PH curve'},
     samplesByStep: [3, 3, 3, 10, 10],
