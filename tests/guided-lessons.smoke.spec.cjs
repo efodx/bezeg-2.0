@@ -2095,14 +2095,48 @@ const phPilotRow = ({id, path, titles, steps, minFrames, controls, offsetFromSte
     },
 });
 
+// The hodograph child board (#hodograph-input-box) exists only while a curve is selected; its visible points are w_0, w_1.
+const hodographBoard = page => page.evaluate(() => {
+    const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.containerObj?.id === 'hodograph-input-box');
+    if (!board) return null;
+    return {total: board.objectsList.length, generators: board.objectsList.filter(object => object.elType === 'point' && object.visProp.visible)
+        .map(point => [Number(point.X().toFixed(2)), Number(point.Y().toFixed(2))])};
+});
+const PH_CUBIC_CONTROLS = [[-2, -1], [-0.67, -1], [0.67, -0.33], [1.67, 1]]; // from the fixture hodographs [[2, 0], [2, 1]]
+const PH_USER_W1 = [3.5, 1.7]; // route default w_1 is (-2.6, 1.7); only x is edited
 const phCubicPilot = {
     ...phPilotRow({
         id: 'ph-cubic', path: `${BASE}/ph/cubic`,
         titles: {sl: 'Kubična PH-krivulja', en: 'Cubic PH curve'},
         steps: 6, minFrames: 14, // 3 + 3 + 2 + 2 + 2 + 2 frames
-        controls: [[-2, -1], [-0.67, -1], [0.67, -0.33], [1.67, 1]], offsetFromStep: 3,
+        controls: PH_CUBIC_CONTROLS, offsetFromStep: 3,
         free: {step: 6, firstPoint: [-4.2, -2]}, // ph-free-exploration has no scene; CubicPhBezierCurveGraph default P_0
     }),
+    prepareUserState: async page => {
+        await page.locator('.curve-selection button').first().click();
+        await expect.poll(() => hodographBoard(page), {message: 'selecting the curve mounts the hodograph board'}).not.toBeNull();
+        const editor = page.locator('.point-coordinate-editor');
+        await editor.locator('summary').click();
+        await editor.getByRole('spinbutton', {name: 'w1 x'}).fill(String(PH_USER_W1[0]));
+        await editor.getByRole('button', {name: 'Apply coordinates'}).click();
+        await expect.poll(async () => (await hodographBoard(page)).generators[1], {message: 'keyboard edit moves w_1'}).toEqual(PH_USER_W1);
+        return {points: await h.visiblePoints(page), hodograph: await hodographBoard(page)};
+    },
+    // The lesson clears the selection (no child board), so the fixture hodographs show through their derived controls.
+    duringLesson: async (page, ctx, saved) => {
+        await expectPointsNear(page, PH_CUBIC_CONTROLS, 'fixture controls replace the user curve');
+        await expect.poll(async () => {
+            const visible = await h.visiblePoints(page);
+            return saved.points.filter(([x, y]) => visible.some(point => near(point[0], x) && near(point[1], y))).length;
+        }, {message: 'user curve points hidden during the lesson'}).toBeLessThan(saved.points.length);
+    },
+    assertUserState: async (page, ctx, saved) => {
+        await expect.poll(() => hodographBoard(page), {message: 'selection and edited hodograph restored after exit'}).toEqual(saved.hodograph);
+        // The editor <details> is closed after exit, which hides its inputs from role queries.
+        expect(Number(await page.locator('.point-coordinate-editor input[aria-label="w1 x"]').inputValue()), 'editor shows the user w_1').toBe(PH_USER_W1[0]);
+        expect(await h.visiblePoints(page)).toEqual(saved.points);
+    },
+    stableCounts: async page => ({hodograph: await hodographBoard(page)}),
 };
 const phQuinticPilot = phPilotRow({
     id: 'ph-quintic', path: `${BASE}/ph/quintic`,
@@ -2113,6 +2147,8 @@ const phQuinticPilot = phPilotRow({
 
 const LESSONS = [bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
+// Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
+const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
@@ -2187,7 +2223,7 @@ for (const row of LESSONS) {
             expect(seen.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
         });
 
-        test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
+        if (EXIT_SAMPLE.has(row.id)) test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
             await h.useLanguage(page, 'en');
             await page.goto(row.path, {waitUntil: 'domcontentloaded'});
             const ctx = row.setup ? await row.setup(page) : undefined;
