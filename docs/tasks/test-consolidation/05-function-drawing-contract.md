@@ -1,6 +1,6 @@
 # 5. Restore unfiltered drawing comparisons
 
-Status: planned. Gates task 1's affected browser removals. Source: [specification](../../specs/test-consolidation.md), acceptance 6–9.
+Status: implemented in `a6a3170` (harness artifacts; no app change). Disposition and gaps: [coverage record](coverage.md#task-5-disposition). Gates task 1's affected browser removals. Source: [specification](../../specs/test-consolidation.md), acceptance 6–9.
 
 ## Scope and entry points
 
