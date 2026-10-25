@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { test } = require('node:test');
-const { discoverRollout, parseArgs, processLine, runWatcher, usageInput } = require('./codex_worker_watch.cjs');
+const { discoverRollout, discoverSelfRollout, parseArgs, processLine, runWatcher, usageInput } = require('./codex_worker_watch.cjs');
 
 const script = path.join(__dirname, 'codex_worker_watch.cjs');
 
@@ -15,6 +15,7 @@ function event(type, payload) { return JSON.stringify({ type, payload }); }
 function metadata(parent = 'parent-1', agent = '/tmp/agents/a') {
   return event('session_meta', { parent_thread_id: parent, agent_path: agent });
 }
+function selfMetadata(id = 'session-1') { return event('session_meta', { id }); }
 function usage(tokens, total = 999999) {
   return event('event_msg', { type: 'token_count', info: {
     last_token_usage: tokens == null ? null : { input_tokens: tokens }, total_token_usage: { input_tokens: total },
@@ -216,5 +217,93 @@ test('validates CLI arguments, derives defaults, and emits JSON for terminal eve
   assert.equal(terminal.status, 0);
   assert.equal(terminal.stdout.trim().split(/\r?\n/).length, 1);
   assert.equal(JSON.parse(terminal.stdout).event, 'handoff_required');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('self selector uses canonical rollout ID, supports legacy fallback, and rejects duplicate IDs', () => {
+  const root = tempRoot();
+  const p = path.join(root, 'rollout-self.jsonl');
+  fs.writeFileSync(p, `${event('session_meta', {
+    id: 'guardian-session', session_id: 'parent-session', parent_thread_id: 'parent-session',
+    source: { subagent: { other: 'guardian' } },
+  })}\n${usage(17)}\n`);
+  assert.equal(discoverSelfRollout(root, 'parent-session').kind, 'missing');
+  assert.equal(discoverSelfRollout(root, 'guardian-session').path, p);
+  const legacyPath = path.join(root, 'rollout-legacy.jsonl');
+  fs.writeFileSync(legacyPath, `${event('session_meta', { session_id: 'legacy-session' })}\n`);
+  assert.equal(discoverSelfRollout(root, 'legacy-session').path, legacyPath);
+  const duplicatePath = path.join(root, 'rollout-duplicate-id.jsonl');
+  fs.writeFileSync(duplicatePath, `${selfMetadata('guardian-session')}\n`);
+  assert.equal(discoverSelfRollout(root, 'guardian-session').kind, 'ambiguous');
+  const defaults = parseArgs(['--self'], { CODEX_THREAD_ID: 'guardian-session' });
+  assert.equal(defaults.threadId, 'guardian-session');
+  assert.equal(defaults.threshold, 150000);
+  assert.equal(parseArgs(['--self', '--thread-id', 'fixture', '--until', '190000'], {}).threshold, 190000);
+  assert.throws(() => parseArgs(['--self', '--agent-path', '/tmp/a'], { CODEX_THREAD_ID: 's' }), /conflicts/);
+  assert.throws(() => parseArgs(['--self', '--parent-thread-id', 'p'], { CODEX_THREAD_ID: 's' }), /conflicts/);
+  assert.throws(() => parseArgs(['--thread-id', 's', '--agent-path', '/tmp/a'], {}), /only available/);
+  assert.throws(() => parseArgs(['--self'], {}), /requires CODEX_THREAD_ID/);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('one-shot self snapshots report below threshold, handoff from completed input, and unavailable telemetry', async () => {
+  const root = tempRoot();
+  const p = path.join(root, 'rollout-self.jsonl');
+  fs.writeFileSync(p, `${selfMetadata()}\n${event('turn_context', { turn_id: 'current' })}\n${usage(49)}\n`);
+  const opts = parseArgs(['--self', '--thread-id', 'session-1', '--sessions-root', root, '--once', '--until', '50'], {});
+  const below = await runWatcher(opts);
+  assert.equal(below.event, 'below_threshold');
+  assert.equal(below.self_thread_id, 'session-1');
+  assert.equal(below.observed_input_tokens, 49);
+  fs.appendFileSync(p, `${usage(50)}\n${usage(8)}\n`);
+  assert.equal((await runWatcher(opts)).event, 'handoff_required');
+  fs.writeFileSync(p, `${selfMetadata()}\n${event('turn_context', { turn_id: 'current' })}\n${usage(60)}\n${event('event_msg', { type: 'task_complete' })}\n`);
+  const completed = await runWatcher(opts);
+  assert.equal(completed.event, 'handoff_required');
+  assert.equal(completed.observed_input_tokens, 60);
+  fs.writeFileSync(p, `${selfMetadata()}\n${event('turn_context', { turn_id: 'current' })}\n${event('event_msg', { type: 'unknown' })}\n`);
+  const unavailable = await runWatcher(opts);
+  assert.equal(unavailable.event, 'unavailable');
+  assert.equal(unavailable.observed_input_tokens, null);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('self snapshot ignores an older completed crossing when a newer turn has lower input', async () => {
+  const root = tempRoot();
+  fs.writeFileSync(path.join(root, 'rollout-self-history.jsonl'), [
+    selfMetadata(), event('turn_context', { turn_id: 'old' }), usage(100), event('event_msg', { type: 'task_complete' }),
+    event('turn_context', { turn_id: 'new' }), usage(7), '',
+  ].join('\n'));
+  const opts = parseArgs(['--self', '--thread-id', 'session-1', '--sessions-root', root, '--once', '--until', '50'], {});
+  const result = await runWatcher(opts);
+  assert.equal(result.event, 'below_threshold');
+  assert.equal(result.observed_input_tokens, 7);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('self snapshot reports previous turn input while a newer turn has no sample yet', async () => {
+  const root = tempRoot();
+  fs.writeFileSync(path.join(root, 'rollout-self-pending.jsonl'), [
+    selfMetadata(), event('turn_context', { turn_id: 'old' }), usage(120), event('event_msg', { type: 'task_complete' }),
+    event('turn_context', { turn_id: 'new' }), '',
+  ].join('\n'));
+  const opts = parseArgs(['--self', '--thread-id', 'session-1', '--sessions-root', root, '--once', '--until', '50'], {});
+  const result = await runWatcher(opts);
+  assert.equal(result.event, 'handoff_required');
+  assert.equal(result.observed_input_tokens, 120);
+  assert.equal(result.usage_source, 'previous_turn');
+  assert.equal(result.threshold_input_tokens, 120);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('self long watch waits through idle time for completion', async () => {
+  const root = tempRoot();
+  const p = path.join(root, 'rollout-self-live.jsonl');
+  fs.writeFileSync(p, `${selfMetadata()}\n${event('turn_context', { turn_id: 'current' })}\n${usage(7)}\n`);
+  const opts = parseArgs(['--self', '--thread-id', 'session-1', '--sessions-root', root, '--interval', '0.005', '--timeout', '0.2', '--idle-timeout', '0.01'], {});
+  const watch = runWatcher(opts);
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  fs.appendFileSync(p, `${event('event_msg', { type: 'task_complete' })}\n`);
+  assert.equal((await watch).event, 'completed');
   fs.rmSync(root, { recursive: true, force: true });
 });

@@ -1,4 +1,18 @@
-# Worker input budgets
+# Agent input budgets
+
+## Codex handler self checks
+
+At task start and bounded work boundaries, including tasks without workers, run:
+
+```powershell
+node tools/agent-usage/codex_worker_watch.cjs --self --once
+```
+
+This reads the exact `CODEX_THREAD_ID` session metadata; `--thread-id <id>` overrides that identity for self checks. Canonical metadata `id` identifies the rollout; legacy records fall back to `session_id`, then `sessionId`, only when `id` is absent. A guardian's `session_id` can name its parent and must not override its own `id`. The monitor never selects a session by recency. Use `--until 190000` during handoff closeout; the default self threshold is 150000. `below_threshold` and `handoff_required` both exit 0, so inspect the JSON event rather than just the exit code. `observed_input_tokens` is latest request input, including its cached subset once; it is not cumulative usage. A crossing within the active turn survives a later compaction sample. A snapshot can report a completed turn's last input, or the previous turn's input before the first new sample. Missing telemetry returns `unavailable` (11); identity/read errors return `error` (1), never a below-budget claim.
+
+Follow the [handler handoff procedure](../../docs/agent-workflow.md#handler-context-budget-codex) for workers, Git state, successor notes and fresh-chat continuation. One-shot checks do not wait for telemetry or grow model context by polling. An optional background `--self` watcher uses the same threshold and terminal events as the worker watcher: it waits through idle periods with valid telemetry while the handler waits on workers, and exits on turn completion. Retain and consume its process handle with bounded waits; restart for a later turn. Discovery/missing-usage timeout still applies. It cannot wake the model, send a hosted message or create a successor chat by itself. Fresh-chat creation still follows the chat tool's user-authorization requirements.
+
+The project's `.codex/config.toml` requests `model_auto_compact_token_limit = 220000` with scope `total`. Configuration is applied when the client loads the project; an already-running chat is not evidence that the setting reloaded. This is automatic compaction, not automatic successor creation or a hard cap. Tool results can overshoot between checks. Official sources: [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference), [GPT-6.1 Sol pricing](https://developers.openai.com/api/docs/models/gpt-6.1-sol). See the [bounded spec](../../docs/specs/codex-handler-handoff.md) for acceptance and observed evidence.
 
 ## Codex: monitor, then relay
 

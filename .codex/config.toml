@@ -1,3 +1,7 @@
+# Fallback for handler handoff; this is not a hard request-input cap.
+model_auto_compact_token_limit = 220000
+model_auto_compact_token_limit_scope = "total"
+
 # Project-scoped child defaults; the main chat keeps its selected model.
 [agents]
 enabled = true
