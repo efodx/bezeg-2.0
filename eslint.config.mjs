@@ -8,7 +8,7 @@ import tseslint from 'typescript-eslint';
 const unusedVars = ['error', {argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none'}];
 
 export default tseslint.config(
-    {ignores: ['build/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', '.claude/**', '.command-logs/**', '.repo-graph/**']},
+    {ignores: ['build/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', '.claude/**', '.command-logs/**']},
     {linterOptions: {reportUnusedDisableDirectives: 'error'}},
     {
         // Node scripts and Playwright specs; page.evaluate callbacks run in the browser.
