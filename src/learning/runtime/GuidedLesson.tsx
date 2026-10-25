@@ -371,8 +371,10 @@ export function GuidedLesson(props: {
 
     if (startupError) {
         return <><div className="guided-lesson-layer"><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
-            <div className="guided-lesson-heading"><div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2></div>
-                {closeButton}</div>
+            <div className="guided-lesson-heading">
+                <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
+                <div className="guided-lesson-utilities">{closeButton}</div>
+            </div>
             <p role="alert">{t('guided_lesson_scene_error')} {startupError}</p>
         </section></div>{exitDialog}</>;
     }
@@ -384,14 +386,12 @@ export function GuidedLesson(props: {
     <div className="guided-lesson-layer">
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
         <div className="guided-lesson-heading">
-            <div><span className="workspace-eyebrow">{t('guided_lesson')}</span><h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2></div>
-            {hideButton}
-            {closeButton}
+            <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
+            <div className="guided-lesson-utilities">{hideButton}{closeButton}</div>
         </div>
         <div className="guided-lesson-reading" ref={readingRef}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary">{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
-            <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <h3>{localized(frame.title, language)}</h3>
             {frame.body && <p>{localized(frame.body, language)}</p>}
             {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
@@ -403,7 +403,6 @@ export function GuidedLesson(props: {
             </div>}
         </div>}
         {!isComplete && isExploring && <div className="guided-lesson-exploration" key={frame.id}>
-            <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <strong>{localized(frame.title, language)}</strong>
             {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
             {animationControls}
@@ -412,14 +411,18 @@ export function GuidedLesson(props: {
         {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}
         </div>
         <footer className="guided-lesson-footer">
-            <div className="guided-lesson-persistent-actions">{hideButton}{closeButton}</div>
-            <div className="guided-lesson-progress" role="status" aria-live="polite">
-                {isComplete ? t('guided_lesson_complete') : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
+            <div className="guided-lesson-footer-main">
+                <div className="guided-lesson-progress-group">
+                    {!isComplete && <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>}
+                    <div className="guided-lesson-progress" role="status" aria-live="polite">
+                        {isComplete ? t('guided_lesson_complete') : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
+                    </div>
+                </div>
+                {!isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
+                    <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>{t('guided_lesson_previous_frame')}</button>
+                    <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')} onClick={() => refresh(() => session.next())}>{atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')}</button>
+                </nav>}
             </div>
-            {!isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-                <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>{t('guided_lesson_previous_frame')}</button>
-                <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')} onClick={() => refresh(() => session.next())}>{atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')}</button>
-            </nav>}
             {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
                 {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
                 {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}

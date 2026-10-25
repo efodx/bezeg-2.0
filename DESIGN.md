@@ -88,3 +88,7 @@ The lesson overlay uses the warm panel, ink, secondary ink, rule and forest acti
 - Preserve the elderflower artwork, mathematical previews, bilingual copy, clear focus, and keyboard access.
 - Keep geometry and graph colors independent from this shell palette.
 - Do not introduce marketing claims, replacement artwork, typography changes, dark mode, or new carousel behavior through this document.
+
+## Guided lesson reading panel
+
+The expanded graph overlay uses the shell's opaque `panel`, `ink`, `ink-secondary`, `rule`, `action` and `focus` roles. Its desktop width is bounded to a reading measure and inset from the graph edge. A smaller lesson title and quiet utility actions identify the session; the larger current-frame heading leads the explanation. Frame type accompanies step/frame progress in the footer. On wide screens navigation shares that footer row; narrow layouts stack it. Keep 44px action targets and bounded internal prose/formula scrolling, including enlarged text. The minimized graph tab and lesson interaction remain unchanged. See [the refinement spec](docs/specs/lesson-panel-visual-refinement.md).
