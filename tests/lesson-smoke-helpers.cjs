@@ -94,6 +94,20 @@ function visiblePoints(page) {
     });
 }
 
+// Visible board points outside the board's current bounding box, as "(x, y)" strings. A lesson view must frame
+// every visible point at any canvas aspect; an empty list for a missing board would hide a broken scene, so throw.
+function offscreenPoints(page) {
+    return page.locator('#jgbox').evaluate(container => {
+        const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
+        if (!board) throw new Error('main board missing');
+        const [left, top, right, bottom] = board.getBoundingBox();
+        return Object.values(board.objects)
+            .filter(object => object.elType === 'point' && object.rendNode?.isConnected && object.visPropCalc?.visible !== false)
+            .filter(object => object.X() < left || object.X() > right || object.Y() > top || object.Y() < bottom)
+            .map(object => `(${object.X().toFixed(2)}, ${object.Y().toFixed(2)})`);
+    });
+}
+
 // The inspector's tab buttons are addressed by the section they open, so the lookup works in either language.
 // Hidden tab sections stay mounted, so their controls are invisible to getByRole until the tab is pressed.
 async function openInspectorTab(page, section) {
@@ -210,7 +224,7 @@ async function pressNextWithKeyboard(page) {
 
 module.exports = {
     lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, reopenButton, lessonHeading,
-    failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, settle, reveal, progress, stepNumber, isFinishing,
+    failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, offscreenPoints, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
     openInspectorTab, countSetterValue,
 };

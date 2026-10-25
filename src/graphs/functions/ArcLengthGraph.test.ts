@@ -10,6 +10,8 @@ const DEFAULT = {a: 0, b: Math.PI, n: 2};
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
+        // Lesson views measure the canvas; a detached container has no size, so the view box is applied as given.
+        container: document.createElement('div'),
         unitX: 100,
         unitY: 100,
         create: vi.fn((type: string, parents: any[], attributes: any) => {
