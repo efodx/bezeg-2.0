@@ -66,12 +66,12 @@ Every row also runs the template's shared parts: Back/Next one frame at `exitSte
 
 ## Task 1 progress
 
-- `cbe5375`: scene-change/observation helpers moved to `src/graphs/base/realGraphScenes.ts` for reuse by the session contract.
+- `531ebe6`: scene-change/observation helpers moved to `src/graphs/base/realGraphScenes.ts` for reuse by the session contract.
 - Not started: the session-driven contract, browser sample selection, fault runs, deletions.
 
 ## Task 5 disposition
 
-Implemented in `a6a3170` by a Sonnet 5.5 worker (dispatched 2026-10-25T13:55Z, handoff-v11, own worktree), reviewed and integrated by the handler. Re-read list at start: accumulation checkpoint/rollback; arc-length, area-between-curves, darboux, definite-integral, fixed-point default; area-between-curves batch.
+Implemented in `1653fbb` by a Sonnet 5.5 worker (dispatched 2026-10-25T13:55Z, handoff-v11, own worktree), reviewed and integrated by the handler. Re-read list at start: accumulation checkpoint/rollback; arc-length, area-between-curves, darboux, definite-integral, fixed-point default; area-between-curves batch.
 
 | Exclusion | Reproduction with list emptied | Root cause | Disposition |
 | --- | --- | --- | --- |

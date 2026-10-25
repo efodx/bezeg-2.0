@@ -1,15 +1,15 @@
 # Test consolidation handler handoff 1
 
-- Branch `worktree-test-consolidation`, worktree `.claude/worktrees/test-consolidation`, based on `origin/master` `a2216c4`. Own `node_modules` from `npm ci` (no junction).
+- Branch `worktree-test-consolidation`, worktree `.claude/worktrees/test-consolidation`, based on `origin/master` `a2216c4`, rebased onto `b7a9dc8` (tooling-only; no src changes). Own `node_modules` from `npm ci` (no junction).
 - Source: [spec](../../specs/test-consolidation.md), [work queue](../../tasks/test-consolidation/README.md), evidence in [coverage.md](../../tasks/test-consolidation/coverage.md).
 - Invoked via `/implement docs/tasks/test-consolidation/README.md` (implement skill: tdd at agreed seams, typecheck and single files regularly, full suite once at the end, then the `code-review` skill, then commit).
 
 ## Accepted work
 
-- `cbe5375` test: shared real-graph scene helpers in `src/graphs/base/realGraphScenes.ts`, behavior-preserving (typecheck, lint; `GraphTransientState.test.tsx` passed except three load-induced `subdivision` timeouts that pass alone).
+- `531ebe6` test: shared real-graph scene helpers in `src/graphs/base/realGraphScenes.ts`, behavior-preserving (typecheck, lint; `GraphTransientState.test.tsx` passed except three load-induced `subdivision` timeouts that pass alone).
 - Baseline browser run 1 and the 45-row exit-hook inventory, recorded in coverage.md.
 
-- `a6a3170` task 5: all six exclusions were harness artifacts in `boardSignature`; the filter is removed and the contract passes unfiltered (369 passed). The disposition and gaps are in coverage.md. Worker worktree `.claude/worktrees/agent-a3ffd2e075748943f` (uncommitted copy of the same change) can be discarded; it has its own `node_modules` from `npm ci`, not a junction.
+- `1653fbb` task 5: all six exclusions were harness artifacts in `boardSignature`; the filter is removed and the contract passes unfiltered (369 passed). The disposition and gaps are in coverage.md. Worker worktree `.claude/worktrees/agent-a3ffd2e075748943f` (uncommitted copy of the same change) can be discarded; it has its own `node_modules` from `npm ci`, not a junction.
 
 ## Remaining steps, in order
 

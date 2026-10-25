@@ -1,6 +1,6 @@
 # Test consolidation work queue
 
-Status: in progress, 2026-10-25. Source, scope and shared acceptance: [specification](../../specs/test-consolidation.md). These are implementation tasks, ordered by expected priority/gain. Task 5 is implemented (`a6a3170`; harness artifacts, no app defect; gaps in [coverage.md](coverage.md)); task 1 has its shared helpers (`cbe5375`), inventory and first baseline; tasks 1–4 are otherwise open. Evidence: [coverage.md](coverage.md).
+Status: in progress, 2026-10-25. Source, scope and shared acceptance: [specification](../../specs/test-consolidation.md). These are implementation tasks, ordered by expected priority/gain. Task 5 is implemented (`1653fbb`; harness artifacts, no app defect; gaps in [coverage.md](coverage.md)); task 1 has its shared helpers (`531ebe6`), inventory and first baseline; tasks 1–4 are otherwise open. Evidence: [coverage.md](coverage.md).
 
 | Priority | Task | Dependency |
 | --- | --- | --- |
