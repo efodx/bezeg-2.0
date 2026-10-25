@@ -239,6 +239,32 @@ test('rapidly reopening during the closing handoff restores panel focus without 
     }
 });
 
+test('reduced motion hides and reopens instructions immediately without a handoff phase', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({matches: media.includes('prefers-reduced-motion'), media, addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    setLanguage('sl');
+    try {
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
+
+        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
+        expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(document.querySelector('.guided-lesson-tab')).toHaveFocus();
+
+        reopenWithTab();
+        const panel = document.querySelector('.guided-lesson');
+        expect(panel).toBeInTheDocument();
+        expect(panel).not.toHaveClass('guided-lesson-handoff-opening');
+        expect(panel).toHaveFocus();
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+    } finally {
+        vi.unstubAllGlobals();
+        vi.useRealTimers();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('keeps the graph locked while instructions are visible and unlocks it only when hidden', () => {
     vi.useFakeTimers();
     setLanguage('sl');

@@ -2,8 +2,9 @@
  * Data-driven guided-lesson smoke spec.
  *
  * ADDING A LESSON: append one row to LESSONS below. Three tests run for every row:
- *   1. sl forward walk: deep link + title, setup, every frame probed (stepProbe), observation frames go through the
- *      real flow (observe button, graph unlocked, compact tab reopens the same frame, Next hit-tested at its center, Next advances), completion.
+ *   1. sl forward walk: deep link + title, setup, every frame probed (stepProbe), a pointer click on Next on every
+ *      frame (board labels must not intercept it), completion. Observe/reopen/compact-tab behaviour is shared runtime
+ *      and runs once in the 'Observation flow' block (matrix in docs/tasks/test-consolidation/coverage.md, task 2).
  *   2. en Exit/re-entry, only for rows in EXIT_SAMPLE (one row per restoration mechanism): setup, prepareUserState,
  *      short Back/Next check at exitStep, duringLesson, Exit, assertUserState, then two re-entry rounds with a stable
  *      board snapshot (curves/points/total + stableCounts). Every other lesson is covered by the real-graph
@@ -1582,7 +1583,7 @@ for (const row of LESSONS) {
     test.describe(`Lesson ${row.id}`, () => {
         test.setTimeout(150_000);
 
-        test('sl: ?learn=1 walks every frame (observation frames through observe + reopen + Next) and completes', async ({page}) => {
+        test('sl: ?learn=1 walks every frame with pointer clicks on Next and completes', async ({page}) => {
             await openLesson(page, row, 'sl');
             await expect(lessonHeading(page)).toHaveText(row.titles.sl);
             await expect(backButton(page)).toBeDisabled();
@@ -1596,36 +1597,19 @@ for (const row of LESSONS) {
                 if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label);
                 await collectOffscreen(page, row, label, offscreen);
                 const finishing = await isFinishing(page);
-                const observe = lessonPanel(page).locator('.guided-lesson-observe');
-                if (await observe.count()) {
-                    // Observe with a free graph, then reopen the same frame and advance inside the overlay.
-                    await pressOn(page, observe);
-                    expect(await page.locator('section.workspace-graph').getAttribute('data-lesson-locked'), `graph unlocked while observing at ${label}`).not.toBe('true');
-                    const reopen = h.reopenButton(page);
-                    const tabBox = await reopen.boundingBox();
-                    expect(tabBox, 'compact tab has a rendered target').not.toBeNull();
-                    expect(tabBox.width).toBeGreaterThanOrEqual(44);
-                    expect(tabBox.height).toBeGreaterThanOrEqual(44);
-                    await pressOn(page, reopen);
-                    expect(await progress(page), 'reopening preserves the observed frame').toBe(label);
-                    const cont = nextButton(page);
-                    await expect(cont).toBeVisible();
-                    const blocker = await cont.evaluate(button => {
-                        const r = button.getBoundingClientRect();
-                        const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-                        return top === button || button.contains(top) ? null : top ? `${top.tagName}.${top.className?.baseVal ?? top.className}` : 'outside viewport';
-                    });
-                    if (blocker) blocked.push(`at "${label}": ${blocker}`);
-                    // Keyboard activation: board labels can intercept pointer clicks; the hit-test above asserts reach.
-                    await pressOn(page, cont);
-                } else {
-                    await nextButton(page).click();
-                    await settle(page);
+                // A real pointer click on every frame: this lesson's board labels must not cover Next.
+                // Observe, reopen and the compact tab are runtime behaviour owned by the 'Observation flow' block.
+                try {
+                    await nextButton(page).click({timeout: 4000});
+                } catch (error) {
+                    blocked.push(`${label}: ${error.message.split(String.fromCharCode(10)).find(line => line.includes('intercepts')) || 'click failed'}`);
+                    await pressOn(page, nextButton(page));
                 }
+                await settle(page);
                 if (finishing) break;
             }
             await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
-            expect(blocked, 'Next frame center hit-test blocked by board elements').toEqual([]);
+            expect(blocked, 'Next not pointer-clickable (board elements intercept)').toEqual([]);
             expect(offscreen, 'visible board points outside the lesson view').toEqual([]);
             expect(new Set(seen.map(stepNumber)), 'every step visited').toEqual(new Set(Array.from({length: row.steps}, (_, i) => i + 1)));
             expect(seen.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
@@ -1653,13 +1637,7 @@ for (const row of LESSONS) {
             expect(await progress(page), 'the opposite move returns to the same frame').toBe(here);
             await probe(here);
             if (row.prepareUserState && row.duringLesson) await row.duringLesson(page, ctx, saved);
-            const beforeExit = await progress(page);
-            await exitButton(page).click();
-            await expect(page.getByRole('dialog')).toBeVisible();
-            await expect(page.getByRole('button', {name: /Continue lesson|Nadaljuj učno pot/})).toBeFocused();
-            await page.keyboard.press('Escape');
-            await expect(page.getByRole('dialog')).toHaveCount(0);
-            expect(await progress(page)).toBe(beforeExit);
+            // Dialog focus and Escape cancellation are shared runtime, owned by lesson-experience-checks.cjs (Taylor).
             await exitAndConfirm(page);
             await expect(lessonPanel(page)).toHaveCount(0);
             if (row.prepareUserState) await row.assertUserState(page, ctx, saved);
@@ -1733,12 +1711,20 @@ test.describe('Shared lesson runtime', () => {
 
     for (const row of SHARED_RUNTIME_ROWS) {
         test.describe(`on ${row.id}`, () => {
-            test('header language switch re-titles the open lesson', async ({page}) => {
+            test('header language switch re-titles the open lesson without resetting the frame or scene', async ({page}) => {
                 await openLesson(page, row, 'sl');
                 await expect(lessonHeading(page)).toHaveText(row.titles.sl);
+                await advanceToStep(page, 2);
+                const label = await progress(page);
+                const scene = await boardStats(page);
                 await page.locator('#bezeg-language').selectOption('en');
                 await expect(lessonHeading(page)).toHaveText(row.titles.en);
                 await expect(exitButton(page)).toBeVisible();
+                // "Korak 2 od 5 · Okvir 1 od 3" -> "Step 2 of 5 · Frame 1 of 3": same numbers, new language.
+                const numbers = text => text.match(/\d+/g).join('/');
+                expect(numbers(await progress(page)), 'the switch keeps the frame').toBe(numbers(label));
+                expect(await progress(page)).not.toBe(label);
+                expect(await boardStats(page), 'the switch keeps the lesson scene').toEqual(scene);
             });
 
             test('Next is reachable via Tab and activated with Enter', async ({page}) => {
@@ -1987,6 +1973,9 @@ test.describe('Observation flow', () => {
         await expect(lessonPanel(page)).toHaveCount(0);
         expect(await locked(page), 'graph unlocked while instructions are hidden').toBe(false);
         expect(await reopenFocused(page), 'compact reopen tab takes focus').toBe(true);
+        const tabBox = await h.reopenButton(page).boundingBox();
+        expect(tabBox, 'compact tab has a rendered target').not.toBeNull();
+        expect(Math.min(tabBox.width, tabBox.height), 'compact tab target is at least 44 px').toBeGreaterThanOrEqual(44);
         // The graph accepts input now: a slider change reaches the board.
         const slider = rangeSlider(page, '1.5');
         await slider.fill('1.4');
@@ -2013,6 +2002,12 @@ test.describe('Observation flow', () => {
         expect(await progress(page)).toBe(observationLabel);
         expect(await locked(page), 'graph locked after reopening instructions').toBe(true);
         expect(await panelFocused(page), 'focus returns to the overlay').toBe(true);
+        const blocker = await nextButton(page).evaluate(button => {
+            const r = button.getBoundingClientRect();
+            const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+            return top === button || button.contains(top) ? null : top ? `${top.tagName}.${top.className?.baseVal ?? top.className}` : 'outside viewport';
+        });
+        expect(blocker, 'the reopened overlay leaves Next on top at its center').toBeNull();
 
         // Progression is available only inside the expanded overlay.
         await pressOn(page, nextButton(page));

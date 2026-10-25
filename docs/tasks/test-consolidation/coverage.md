@@ -147,3 +147,31 @@ Implemented in `1653fbb` by a Sonnet 5.5 worker (dispatched 2026-10-25T13:55Z, h
 `fillCache` is keyed by the model, but view clamping runs inside `updateDataArray`, so no stale view geometry was found. Evidence: worker's `boardSignature.test.tsx` cases fail against the old harness (`n=5` vs `n=3`; `curve empty` vs `[]`), and all three pass after the fix. Handler rerun after integration: `GraphTransientState.test.tsx` plus `boardSignature.test.tsx`, 369 passed, unfiltered, 204 s idle (`.command-logs/task5-unfiltered.log`, not committed); typecheck and lint clean. Worker: `src/graphs/functions` 932 passed.
 
 Gaps: no dedicated zoom/pan/resize-at-unchanged-model regression (only `changeScene`'s bounding-box change exercises it); no browser smoke or drag/slider measurement, because no app code changed. The signature deliberately treats visible-but-empty and hidden curves alike. No task 1 browser row needs to be retained on task 5's account.
+
+## Task 2 shared interaction matrix
+
+Handler 4, inventory in [task2-inventory.md](task2-inventory.md). `hideOverlay`/`showOverlay` in `GuidedLesson.tsx` run no lesson-specific scene action (mode, playback pause, overlay phase only), so observe/reopen behaviour is shared runtime; whether board labels cover Next is lesson content.
+
+Representatives by exercised feature:
+
+| Feature | Representative | Owner |
+| --- | --- | --- |
+| Observation with edits, board identity on reopen and Exit | taylor | `lesson-graph-access` "Taylor…" and touch test |
+| Observation lock, unlock, reopen frame, focus, Escape, desktop tab size, Next on top after reopen | extrapolation | `guided-lessons` "Observation flow" (tab size and hit-test moved here) |
+| Animation/playback | decasteljau | "Observation flow / playback pauses…"; `GuidedLesson.test.tsx` pause tests |
+| Long math, reading position | taylor (en, 1100×540) | `lesson-experience-checks` "same-frame reading position…"; unit reading tests |
+| Graph-label overlap | every row | pointer click on Next on every frame of the sl and narrow walks |
+| Child board | ph-cubic | `en: Exit` sample (hodograph after Exit) |
+
+Behaviour owners: Back losslessness, Tab+Enter and language switch on `SHARED_RUNTIME_ROWS` (the switch now also requires the same frame numbers and an equal `boardStats` scene); exit dialog focus, trap, Escape and cancellation in `lesson-experience-checks` (Taylor, 14 variants) plus `GuidedLesson.test.tsx` Escape test; exit rollback on the 7-row `en: Exit` sample and the restoration contract; completion retention in "Rational elevation extras" and `LessonSession.test.ts`; touch in the `lesson-graph-access` touch test; reduced motion in the new `GuidedLesson.test.tsx` "reduced motion hides and reopens instructions immediately…" (non-reduced: "rapidly reopening during the closing handoff…"); runtime errors through `failOnRuntimeErrors` everywhere.
+
+Removed → replacement:
+
+- sl walk, every observation frame of 45 rows: graph unlocked after Observe → Observation flow and `DemonstrationWorkspace.test.tsx`; tab ≥ 44 px → Observation flow (desktop) and `lesson-graph-access` 390 px; reopen keeps the frame → Observation flow, Taylor, `GuidedLesson.test.tsx`; Next centre hit-test after reopen → Observation flow; keyboard Next on observation frames → Observation flow `pressOn` and Tab+Enter. Observation frames now take a real pointer click on Next like every other frame (previously keyboard, because of the hit-test), so per-lesson pointer reach is checked on more frames than before.
+- `en: Exit` (7 rows): Continue focused on open and Escape keeping the frame → `lesson-experience-checks` and `GuidedLesson.test.tsx`. The short Back/Next block stays: it runs each row's `stepProbe`.
+
+Faults (temporary, reverted, `git diff -- src/learning/runtime/GuidedLesson.tsx` empty afterwards): (A) Next calls `session.next()` twice: `GuidedLesson.test.tsx` fails, 5 of 12 Shared runtime/Observation flow browser tests fail. (B) `showOverlay` also calls `session.back()`: unit fails, 3 of 3 Observation flow tests fail. (C) reduced-motion branch disabled: only the new unit case fails. A first reopen fault (forcing `onModeChange('explore')` in `showOverlay`) was masked by the mode effect at `GuidedLesson.tsx:193` and is not a valid fault.
+
+Unexercised variants: browser `prefers-reduced-motion` emulation; touch on rows other than Taylor; reopen with a child board mounted; language switch while an observation is hidden or the exit dialog is open; browser failure injection.
+
+Verification (2f602d0 + task 2 tree, clean app code, fresh `just build`): `GuidedLesson.test.tsx` 21 passed; typecheck and lint clean; `smoke-built --port 4517 tests/guided-lessons.smoke.spec.cjs`: 130 passed, 4.6 min wall (indicative; 5.4 min on the deletion tree); the 7 `en: Exit` rows passed again after the dialog block was removed. Smoke-tester not run: test-only change.

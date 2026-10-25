@@ -1,6 +1,6 @@
 # 2. Give shared lesson interactions one test owner
 
-Status: planned. Depends on task 1's coverage inventory. Source: [specification](../../specs/test-consolidation.md), acceptance 1, 3, 7–9.
+Status: implemented; matrix, mapping and fault evidence in [coverage.md](coverage.md) "Task 2 shared interaction matrix". Depends on task 1's coverage inventory. Source: [specification](../../specs/test-consolidation.md), acceptance 1, 3, 7–9.
 
 ## Scope and entry points
 
