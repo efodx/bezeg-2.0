@@ -1,6 +1,6 @@
 # 3. Traverse authored lesson content once
 
-Status: planned. Depends on task 2. Source: [specification](../../specs/test-consolidation.md), acceptance 1, 4 and 7–9.
+Status: in progress; merged traversal measured slower than two walks, direction open (coverage.md "Task 3 single content traversal"). Depends on task 2. Source: [specification](../../specs/test-consolidation.md), acceptance 1, 4 and 7–9.
 
 ## Scope and entry points
 
