@@ -52,4 +52,4 @@ The Developer tools workflow runs these tests on Windows and Linux. See the [mon
 
 ## Claude
 
-`claude_worker_watch.py` reads Claude Code transcripts only. See [dispatch guidance](../../docs/agent-workflow.md#dispatch); it cannot monitor Codex.
+`claude_worker_watch.py` reads Claude Code transcripts only. See [dispatch guidance](../../docs/agent-workflow.md#dispatch); it cannot monitor Codex. With `--self` it watches the calling session for the [handler context budget](../../docs/agent-workflow.md#handler-context-budget-claude).
