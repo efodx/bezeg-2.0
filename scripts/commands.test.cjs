@@ -296,6 +296,18 @@ test('typecheck runs only the local compiler', async () => {
     } finally { cleanup(root); }
 });
 
+test('lint runs the local ESLint on the repository or on the given paths', async () => {
+    const root = fixture();
+    const events = path.join(root, 'events.log');
+    fs.mkdirSync(path.join(root, 'node_modules/eslint/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/eslint/bin/eslint.js'), `require('node:fs').appendFileSync(${JSON.stringify(events)}, JSON.stringify(process.argv.slice(2)) + '\\n')`);
+    try {
+        assert.equal(await commands.execute('lint', [], {root}), 0);
+        assert.equal(await commands.execute('lint', ['tests', '--max-warnings', '0'], {root}), 0);
+        assert.deepEqual(fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [['.'], ['tests', '--max-warnings', '0']]);
+    } finally { cleanup(root); }
+});
+
 test('smoke-lesson validates ids and forwards a lesson grep with remaining arguments to the built smoke script', async () => {
     const root = fixture();
     const priorNpmExecPath = process.env.npm_execpath;

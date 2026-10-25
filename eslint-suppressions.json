@@ -1,0 +1,354 @@
+{
+  "scripts/capture-demonstration-previews.cjs": {
+    "no-unused-vars": {
+      "count": 3
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "scripts/ci-change-scope.test.cjs": {
+    "no-unsafe-finally": {
+      "count": 1
+    }
+  },
+  "scripts/commands.cjs": {
+    "no-unused-vars": {
+      "count": 1
+    },
+    "preserve-caught-error": {
+      "count": 2
+    }
+  },
+  "scripts/demonstration-preview-analysis-motion.cjs": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "scripts/demonstration-preview-capture.test.cjs": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "scripts/demonstration-preview-concept-motion.test.cjs": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "scripts/demonstration-preview-curve-motion.cjs": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "scripts/demonstration-preview-motion.cjs": {
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "scripts/graph-visual-style/capture.cjs": {
+    "no-empty": {
+      "count": 2
+    },
+    "no-unused-vars": {
+      "count": 2
+    },
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "scripts/graph-visual-style/performance.cjs": {
+    "no-empty": {
+      "count": 2
+    },
+    "no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "scripts/graph-visual-style/sample-curves.cjs": {
+    "no-empty": {
+      "count": 2
+    }
+  },
+  "src/DemonstrationPreview.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/DemonstrationsPage.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/WelcomePage.test.tsx": {
+    "@typescript-eslint/no-this-alias": {
+      "count": 1
+    }
+  },
+  "src/bezeg/impl/curve/abstract-point-controlled-curve.ts": {
+    "prefer-const": {
+      "count": 6
+    }
+  },
+  "src/bezeg/impl/curve/polynomial-bezier-curve.ts": {
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/bezeg/impl/curve/rational-bezier-curve.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 6
+    }
+  },
+  "src/bezeg/impl/point/fixed-point.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/graphs/base/BaseCurveGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/BaseGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/graphs/base/Commands.tsx": {
+    "@typescript-eslint/no-wrapper-object-types": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/CurveEditingFeature.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/CurveWorkspaceControls.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "src/graphs/base/DemonstrationWorkspace.tsx": {
+    "react-hooks/immutability": {
+      "count": 2
+    }
+  },
+  "src/graphs/base/GraphHost.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/GraphSession.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/PresetSelector.tsx": {
+    "no-var": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/controls/BezierCurveControls.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/graphs/base/lesson/curveLessonActions.ts": {
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 2
+    }
+  },
+  "src/graphs/bernstein/BernsteinGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 7
+    },
+    "prefer-const": {
+      "count": 9
+    }
+  },
+  "src/graphs/curves/bezier/DecasteljauGraph.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/graphs/curves/bezier/SubdivisionGraph.tsx": {
+    "prefer-const": {
+      "count": 3
+    }
+  },
+  "src/graphs/curves/object/AbstractJXGPointControlledCurve.ts": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    },
+    "no-var": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 30
+    }
+  },
+  "src/graphs/curves/object/AbstractJXGSplineCurve.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/object/JXGBezierCurve.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/object/JXGPHBezierCurve.ts": {
+    "prefer-const": {
+      "count": 20
+    }
+  },
+  "src/graphs/curves/object/JXGQuadraticG1SplineCurve.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/object/JXGQubicC2SplineCurve.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/object/JXGRationalBezierCurve.ts": {
+    "prefer-const": {
+      "count": 4
+    }
+  },
+  "src/graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/parametrisations/UniformParamBezierCurveGraph.tsx": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/ph/CubicPhBezierCurveGraph.tsx": {
+    "no-var": {
+      "count": 6
+    },
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/graphs/curves/ph/HodographInputBox.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "src/graphs/curves/spline/CnSplineGraph.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "src/graphs/functions/DarbouxGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/graphs/functions/ExtremaGraph.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/graphs/functions/SequenceGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/graphs/functions/UniformConvergenceGraph.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/graphs/functions/UniformConvergenceGraph.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/graphs/styles/AxisStyles.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/graphs/styles/PointStyles.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/inputs/Select.tsx": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/inputs/ToolTippedButton.tsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "src/learning/ChapterPage.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/learning/chapter/useChapterActivity.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "src/learning/content/expansionGuidedLessons.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/learning/runtime/GuidedLesson.test.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/learning/runtime/GuidedLesson.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 6
+    },
+    "react-hooks/refs": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "tools/agent-usage/codex_worker_watch.cjs": {
+    "no-useless-assignment": {
+      "count": 2
+    }
+  }
+}

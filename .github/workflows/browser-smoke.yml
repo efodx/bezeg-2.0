@@ -40,6 +40,9 @@ jobs:
       - name: Check TypeScript
         if: steps.scope.outputs.full_verification == 'true'
         run: npx tsc --noEmit --pretty false
+      - name: Lint
+        if: steps.scope.outputs.full_verification == 'true'
+        run: npx eslint .
       - name: Run unit tests
         if: steps.scope.outputs.full_verification == 'true'
         run: npm test

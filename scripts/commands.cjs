@@ -295,7 +295,7 @@ function npmCliPath() {
 }
 
 function localTool(root, name) {
-    const entry = name === 'typescript' ? 'tsc' : name;
+    const entry = {typescript: 'tsc', eslint: 'eslint.js'}[name] || name;
     const file = path.join(root, 'node_modules', name, 'bin', entry);
     if (!fs.existsSync(file)) throw new Error(`Local ${name} is missing. Install project dependencies, then retry.`);
     return file;
@@ -377,12 +377,14 @@ async function execute(command, rawArgs = [], options = {}) {
     const run = (scope, steps, env = process.env, longLived = false, onStart, provenance) => runPlan({root, scope, steps, env, longLived, onStart, provenance});
     const nodeStep = (label, file, argv = [], env = process.env) => ({label, executable: process.execPath, args: [file, ...argv], env});
     const tsc = () => nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false']);
+    const lint = argv => nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']);
     const build = () => npmStep('build');
     const unit = argv => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
     const smokeBuilt = argv => npmStep('test:smoke:built', argv);
     if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs')]}]);
     if (command === 'unit') return run('unit', [unit(args)]);
     if (command === 'typecheck') return run('typecheck', [tsc()]);
+    if (command === 'lint') return run('lint', [lint(args)]);
     if (command === 'loc') {
         if (args.length !== 1) throw new Error('Usage: just loc <pattern> (a case-insensitive regex matched against keys and both translations).');
         process.stdout.write(`${lookupLocalization(root, args[0])}\n`);
@@ -416,7 +418,7 @@ async function execute(command, rawArgs = [], options = {}) {
     };
     if (command === 'build') return buildWithProvenance('build');
     if (command === 'check') {
-        const code = await run('check', [tsc(), unit([])]);
+        const code = await run('check', [tsc(), lint([]), unit([])]);
         return code === 0 ? buildWithProvenance('check build') : code;
     }
     if (command === 'check-localization') {
