@@ -8,6 +8,7 @@ const DEFAULT_BOX = [-6, 8, 6, -4];
 
 function fakeBoard() {
     const board: any = {
+        containerObj: {style: {cursor: 'default'}},
         objectsList: [] as any[],
         create: vi.fn((type: string, parents: any[], attributes: any) => {
             const object: any = {type, board, parents, attributes, handlers: {} as Record<string, () => void>};
@@ -15,6 +16,7 @@ function fakeBoard() {
                 const free = parents.every((parent: unknown) => typeof parent === 'number');
                 object.x = free ? parents[0] : undefined;
                 object.y = free ? parents[1] : undefined;
+                object.visProp = {fixed: attributes?.fixed ?? false};
                 object.X = () => (free ? object.x : parents[0]());
                 object.Y = () => (free ? object.y : parents[1]());
                 object.moveTo = vi.fn(([x, y]: number[]) => { object.x = x; object.y = y; });
@@ -44,6 +46,16 @@ function makeUninitializedGraph() {
     graph.boardUpdate = vi.fn();
     graph.setState = vi.fn();
     return graph;
+}
+
+class SlidingPointGraph extends LinearFunctionGraph {
+    installBoard(board: ReturnType<typeof fakeBoard>) {
+        this.board = board;
+    }
+
+    createSlidingPoint(attributes: object = {}) {
+        return this.slidingPoint({x: 0, position: x => x, min: -2, max: 2, step: 0.1, attributes, write: () => undefined});
+    }
 }
 
 const parameter = (name: any, value: number): LessonAction => ({kind: 'function-parameter', name, value});
@@ -141,6 +153,24 @@ describe('domain errors', () => {
         expect(() => graph.ignoreOutOfDomain(() => { throw bug; })).toThrow(bug);
         expect(new DomainError('x')).toBeInstanceOf(Error);
     });
+});
+
+test('function graph points use the pointer for movable hover and leave fixed hover unchanged', () => {
+    const graph = new SlidingPointGraph();
+    const board = fakeBoard();
+    graph.installBoard(board);
+    graph.createSlidingPoint();
+    const point = board.objectsList.at(-1)!;
+
+    point.handlers.over();
+    expect(board.containerObj.style.cursor).toBe('pointer');
+    point.handlers.out();
+    expect(board.containerObj.style.cursor).toBe('default');
+
+    graph.createSlidingPoint({fixed: true});
+    const fixedPoint = board.objectsList.at(-1)!;
+    fixedPoint.handlers.over();
+    expect(board.containerObj.style.cursor).toBe('default');
 });
 
 describe('mathTextHtml', () => {

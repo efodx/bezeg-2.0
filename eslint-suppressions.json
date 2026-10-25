@@ -200,7 +200,7 @@
       "count": 1
     },
     "prefer-const": {
-      "count": 30
+      "count": 28
     }
   },
   "src/graphs/curves/object/AbstractJXGSplineCurve.ts": {

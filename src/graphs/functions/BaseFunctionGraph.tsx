@@ -7,6 +7,7 @@ import {LessonAction} from "../../learning/model";
 import {formatNumber} from "../../analysis/format";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * Shared foundation of the function and calculus demonstrations (ADR 0007).
@@ -549,6 +550,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         x: number; position: (x: number) => number; min: number | (() => number); max: number | (() => number); step: number; attributes: object; write: (x: number) => void | boolean;
     }): JXG.Point {
         const point = this.own(this.board.create("point", [config.x, config.position(config.x)], config.attributes)) as JXG.Point;
+        bindMovablePointCursor(point, this.board);
         const bound = (value: number | (() => number)) => typeof value === "function" ? value() : value;
         point.on("drag", () => {
             const x = Math.min(bound(config.max), Math.max(bound(config.min), Math.round(point.X() / config.step) * config.step + 0));

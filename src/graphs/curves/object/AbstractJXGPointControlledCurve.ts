@@ -9,6 +9,7 @@ import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "./ModelPointBinding";
 import {graphSessionForBoard} from "../../base/GraphSession";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
 export interface PointControlledCurveAttributes {
     allowShowControlPolygon: boolean
@@ -584,19 +585,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         } else {
             point = this.board.create('point', [x, y]);
         }
-        let over = (p: JXG.Point) => {
-            if (!p.visProp.fixed) {
-                this.board.containerObj.style.cursor = 'pointer';
-            }
-        };
-        let out = (p: JXG.Point) => {
-            if (!p.visProp.fixed) {
-                this.board.containerObj.style.cursor = 'default';
-            }
-        };
-
-        point.on('over', () => over(point));
-        point.on('out', () => out(point));
+        bindMovablePointCursor(point, this.board);
         if (refreshOnDrag) {
             point.on('drag', () => refreshAfterControlPointDrag(this.board));
         }
