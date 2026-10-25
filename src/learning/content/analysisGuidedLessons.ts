@@ -46,7 +46,7 @@
  * playback command. A prediction step hides the supremum and the learner presses the graph's own Show supremum after predicting;
  * only the step that explains the shared N on the smaller domain shows it. Every domain change (uniform-r) starts a new comparison.
  */
-import type {FunctionParameterName} from '../model';
+import type {FunctionParameterName, LessonViewBox} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
 import type {MeanValueExampleId} from '../../analysis/meanValue';
 import type {FunctionId} from '../../analysis/functions';
@@ -67,6 +67,9 @@ const bisectionExample = (value: BisectionExampleId): SceneAction => ({
 });
 /** The scene shows the state after `count` revealed steps. */
 const steps = (count: number): SceneAction[] => Array.from({length: count}, () => ({name: 'run-bisection-command', value: 'next-step'}));
+
+/** The free-exploration cubic with a = -1.5 has its bracket points at about (-1.5, -1.88) and (2, 6). */
+const bisectionCubicView: LessonViewBox = [-3, 7, 3.5, -3];
 
 const bisection: GuidedLesson = {
     demonstrationId: 'bisection',
@@ -298,7 +301,7 @@ const bisection: GuidedLesson = {
                 'For \\(a=-1.5\\) and \\(b=2\\) the values at the endpoints have opposite signs; bisection closes in on the root \\(1\\), and the other two roots stay undiscovered.',
             )],
             scene: {
-                id: 'bisection-free-scene', basedOn: 'demonstration-default',
+                id: 'bisection-free-scene', basedOn: 'demonstration-default', view: bisectionCubicView,
                 actions: [bisectionExample('cubic'), parameter('bisect-a', -1.5)],
                 expectedState: text(
                     'Prikazan je \\(f(x)=x^3-x\\) na \\([-1{,}5;\\,2]\\) pri koraku \\(0\\): \\(f(-1{,}5)=-1{,}875\\), \\(f(2)=6\\).',

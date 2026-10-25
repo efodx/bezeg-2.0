@@ -537,6 +537,13 @@ const rationalSubdivision: GuidedLesson = {
 // extrapolation
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Extrapolation views around the route's default curve. At t=3/2 the curve's end reaches (1/2, -9.88) and at t=6/5 the
+ * extended curve reaches y of about -8.5; after extrapolating at t=3/2 the control points span (-27.6, -32.8) to (8, 1.75).
+ */
+const extrapolationExampleView: LessonViewBox = [-5.5, 5.5, 5.5, -11];
+const extrapolationLargeView: LessonViewBox = [-30, 8, 10, -35];
+
 const extrapolation: GuidedLesson = {
     demonstrationId: 'extrapolation',
     title: text('Ekstrapolacija Bézierjeve krivulje', 'Extrapolation of a Bézier curve'),
@@ -625,7 +632,7 @@ const extrapolation: GuidedLesson = {
             observationPrompt: text('Premikaj drsnik \\(t\\) med 1 in 1,5 ter spremljaj, kako hitro točka beži.', 'Move the \\(t\\) slider between 1 and 1.5 and watch how fast the point runs away.'),
             expectedObservations: [text('Z naraščajočim \\(t\\) se točka vse hitreje oddaljuje od krivulje; pri \\(t=\\tfrac32\\) je lahko zunaj vidnega območja.', 'As \\(t\\) grows the point moves away from the curve ever faster; at \\(t=\\tfrac32\\) it may be outside the visible area.')],
             scene: {
-                id: 'ex-t-max', basedOn: 'demonstration-default',
+                id: 'ex-t-max', basedOn: 'demonstration-default', view: extrapolationExampleView,
                 actions: [{name: 'set-extrapolation-parameter', value: 1.5}],
                 expectedState: text('Točka je prikazana pri \\(t=\\tfrac32\\).', 'The point is shown at \\(t=\\tfrac32\\).'),
             },
@@ -645,7 +652,7 @@ const extrapolation: GuidedLesson = {
             observationPrompt: text('Preveri, da nova krivulja najprej ponovi izvirno in nato nadaljuje prek njenega konca.', 'Check that the new curve first retraces the original and then continues past its end.'),
             expectedObservations: [text('Še vedno je ena krivulja s štirimi kontrolnimi točkami; začetek je isti, konec pa je za \\((3{,}06;\\ -3{,}87)\\).', 'There is still one curve with four control points; the start is the same, and the end is at \\((3.06,\\ -3.87)\\).')],
             scene: {
-                id: 'ex-after-twelve-tenths', basedOn: 'demonstration-default',
+                id: 'ex-after-twelve-tenths', basedOn: 'demonstration-default', view: extrapolationExampleView,
                 actions: [{name: 'set-extrapolation-parameter', value: 1.2}, {name: 'extrapolate', value: true}],
                 expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac65\\).', 'The curve is extended at \\(t=\\tfrac65\\).'),
             },
@@ -664,7 +671,7 @@ const extrapolation: GuidedLesson = {
             observationPrompt: text('Primerjaj lego kontrolnih točk z lego pri \\(t=\\tfrac65\\) in poišči, kje se podaljšek loči od izvirne krivulje.', 'Compare the positions of the control points with those at \\(t=\\tfrac65\\) and find where the extension departs from the original curve.'),
             expectedObservations: [text('Kontrolne točke so veliko dlje od krivulje kot pri \\(t=\\tfrac65\\); nekatere so lahko zunaj vidnega območja.', 'The control points are much farther from the curve than at \\(t=\\tfrac65\\); some may be outside the visible area.')],
             scene: {
-                id: 'ex-after-three-halves', basedOn: 'demonstration-default',
+                id: 'ex-after-three-halves', basedOn: 'demonstration-default', view: extrapolationLargeView,
                 actions: [{name: 'set-extrapolation-parameter', value: 1.5}, {name: 'extrapolate', value: true}],
                 expectedState: text('Krivulja je podaljšana pri \\(t=\\tfrac32\\).', 'The curve is extended at \\(t=\\tfrac32\\).'),
             },

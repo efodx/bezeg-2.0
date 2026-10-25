@@ -8,6 +8,7 @@
  *      assertUserState, then two re-entry rounds with a stable board snapshot (curves/points/total + stableCounts).
  *   3. 390x844 narrow viewport: Next/Exit visible; calculation and notation frames have no horizontal overflow and
  *      a pointer-clickable Next.
+ *   Tests 1 and 3 also require every visible board point inside the board view on every frame (offscreenSteps).
  * Shared GuidedLesson runtime behaviour (header language switch, Tab+Enter on Next, lossless Back walk) is not
  * repeated per row; it runs on SHARED_RUNTIME_ROWS in the 'Shared lesson runtime' block. No new spec file is needed.
  *
@@ -17,6 +18,7 @@
  *   titles    {sl, en} exact lesson heading in each language (src/learning/content/*GuidedLessons.ts).
  *   steps     number   lesson step count (progress reads "Step n of <steps>").
  *   minFrames number?  minimum progress frames visited (observation frames count); default 10.
+ *   offscreenSteps number[]?  steps whose scene intentionally leaves visible points outside the view; say why.
  *   setup(page)                        optional; runs after the route is open with the lesson state ready;
  *                                      returns ctx (e.g. a control-point count or baseline curve count).
  *   stepProbe(page, ctx, step, label)  optional; asserts the board for the scene of `step`. Runs on every frame
@@ -581,12 +583,7 @@ const splineSwitches = async page => ({
 });
 
 // Visible board points outside the current view box (derived points of high-order splines can be far away).
-const offscreenPoints = page => page.locator('#jgbox').evaluate(container => {
-    const board = Object.values(window.JXG.boards).find(candidate => candidate.containerObj === container);
-    const [left, top, right, bottom] = board.getBoundingBox();
-    return Object.values(board.objects).filter(o => o.elType === 'point' && o.visPropCalc.visible && o.rendNode?.isConnected)
-        .filter(o => o.X() < left || o.X() > right || o.Y() > top || o.Y() < bottom).length;
-});
+const offscreenPoints = async page => (await h.offscreenPoints(page)).length;
 
 const splineCn = {
     id: 'spline-cn',
@@ -609,8 +606,7 @@ const splineCn = {
         expect((await splineSwitches(page)).polygon, `control polygon at ${label}`).toBe(step === 2);
         // Fixture scenes set their own view, including the far-reaching limitations example at step 5.
         if (step !== 4) expect(await offscreenPoints(page), `all points inside the lesson view at ${label}`).toBe(0);
-    },
-    prepareUserState: async page => {
+    },    prepareUserState: async page => {
         await page.getByRole('button', {name: 'Increase count'}).nth(1).click();
         await expectCount(page, 1, 3, 'user-set degree');
         await setSwitch(page, 'labels', false);
@@ -2126,6 +2122,13 @@ async function openLesson(page, row, language) {
 }
 
 const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
+// Records the frame's visible points that fall outside the board view, unless the row declares the step as intended.
+async function collectOffscreen(page, row, label, found) {
+    if (row.offscreenSteps?.includes(stepNumber(label))) return;
+    const outside = await h.offscreenPoints(page);
+    if (outside.length) found.push(`${label}: ${outside.join(' ')}`);
+}
+
 // Shared runtime behaviour (GuidedLesson.tsx) is identical for every lesson, so it is tested once on these rows.
 const SHARED_RUNTIME_ROWS = [bernstein, farin, splineG1];
 
@@ -2142,10 +2145,12 @@ for (const row of LESSONS) {
             const ctx = row.setup ? await row.setup(page) : undefined;
             const seen = [];
             const blocked = [];
+            const offscreen = [];
             for (let guard = 0; guard < 60; guard += 1) {
                 const label = await progress(page);
                 seen.push(label);
                 if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label);
+                await collectOffscreen(page, row, label, offscreen);
                 const finishing = await isFinishing(page);
                 const observe = lessonPanel(page).locator('.guided-lesson-observe');
                 if (await observe.count()) {
@@ -2170,6 +2175,7 @@ for (const row of LESSONS) {
             }
             await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
             expect(blocked, 'Continue lesson center hit-test blocked by board elements').toEqual([]);
+            expect(offscreen, 'visible board points outside the lesson view').toEqual([]);
             expect(new Set(seen.map(stepNumber)), 'every step visited').toEqual(new Set(Array.from({length: row.steps}, (_, i) => i + 1)));
             expect(seen.length, 'frames visited').toBeGreaterThanOrEqual(minFrames);
         });
@@ -2236,8 +2242,10 @@ for (const row of LESSONS) {
                 }
                 const overflowing = [];
                 const blocked = [];
+                const offscreen = [];
                 for (let guard = 0; guard < 60; guard += 1) {
                     const label = await progress(page);
+                    await collectOffscreen(page, row, label, offscreen);
                     const hasMath = await lesson.locator('.guided-lesson-worked-example, .guided-lesson-notation').count() > 0;
                     const finishing = await isFinishing(page);
                     if (hasMath) {
@@ -2259,6 +2267,7 @@ for (const row of LESSONS) {
                 }
                 expect(blocked, 'Next not pointer-clickable on calculation/notation frames').toEqual([]);
                 expect(overflowing, 'calculation/notation frames with horizontal page overflow').toEqual([]);
+                expect(offscreen, 'visible board points outside the lesson view at 390 px').toEqual([]);
                 await expect(page.locator('#jgbox')).toBeVisible();
                 await noHorizontalOverflow(page);
                 await expect(lesson).toBeAttached();

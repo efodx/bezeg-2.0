@@ -2,7 +2,7 @@
  * Guided lessons of the Functions and calculus family (ADR 0007, docs/specs/function-concepts.md).
  * Each later concept appends its lesson to `functionGuidedLessons` and its id to GUIDED_LESSON_AVAILABLE_IDS.
  */
-import type {FunctionParameterName} from '../model';
+import type {FunctionParameterName, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -1833,6 +1833,9 @@ const areaBetweenCurves: GuidedLesson = {
     ],
 };
 
+/** The link step sets b = 2π: the view shows the whole period of sin, from (0, 0) to (2π, 0). */
+const arcFullPeriodView: LessonViewBox = [-0.5, 2.2, 6.9, -1.6];
+
 const arcLength: GuidedLesson = {
     demonstrationId: 'arc-length',
     title: text('Dolžina loka krivulje', 'Arc length of a curve'),
@@ -2027,7 +2030,7 @@ const arcLength: GuidedLesson = {
                 'For \\(n=2\\) the polyline is a straight line along the \\(x\\)-axis of length \\(6.2832\\) and the arc \\(7.6404\\) is much longer. With \\(a\\) and \\(b\\) swapped the lengths do not change, because a length is never negative.',
             )],
             scene: {
-                id: 'arc-link-scene', basedOn: 'demonstration-default',
+                id: 'arc-link-scene', basedOn: 'demonstration-default', view: arcFullPeriodView,
                 actions: [parameter('b', 2 * Math.PI)],
                 expectedState: text(
                     'Interval \\([0,2\\pi]\\), dve tetivi po osi \\(x\\): lomljenka \\(6{,}2832\\), lok \\(7{,}6404\\).',
