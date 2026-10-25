@@ -1,6 +1,6 @@
 # 1. Verify lesson restoration through the real-graph contract
 
-Status: planned. Source: [specification](../../specs/test-consolidation.md), acceptance 1–3 and 6–9.
+Status: in progress; the unit contract is implemented (`5dbf00c`, evidence in [coverage.md](coverage.md)), browser sample selection and deletions are open. Source: [specification](../../specs/test-consolidation.md), acceptance 1–3 and 6–9.
 
 ## Scope and entry points
 
