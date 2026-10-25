@@ -78,6 +78,10 @@ The shared header contains the brand, Learning and Demonstrations links, and the
 
 Retain current carousel timing, manual takeover, temporary hover/focus pauses, visibility guards, and reduced-motion behavior. The audit's proposed pause button was explicitly excluded by the owner. No animation, content, or interaction redesign is part of this token consolidation.
 
+## Guided lesson reading overlay
+
+The lesson overlay uses the warm panel, ink, secondary ink, rule and forest action roles above. Its title occupies a full row, with quiet Hide/Exit actions below; Next carries the primary action treatment. Keep natural content height, a bounded scrolling reading region and persistent actions on narrow or short screens. Programmatic focus on the reading section does not draw a perimeter around the panel; interactive controls retain visible keyboard focus. See [the refinement specification](docs/specs/lesson-panel-visual-refinement.md).
+
 ## Do's and Don'ts
 
 - Use semantic shell roles for new states on the audited surfaces and check their foreground/background pairing.
