@@ -85,8 +85,26 @@ test('activity actions wrap without squeezing the explanation at intermediate wi
 });
 test.describe.configure({mode: 'parallel'});
 
+// Completeness: every activity the chapter offers must have a row below.
+test('every chapter activity has an authored-scene row', async ({page}) => {
+    await page.goto(chapter);
+    await expect(page.locator('.chapter-section')).toHaveCount(8);
+    const offered = await page.locator('[id^="activity-"]').evaluateAll(els => els.map(e => e.id.slice('activity-'.length)).sort());
+    expect(offered.length).toBeGreaterThan(0);
+    expect(offered).toEqual(rows.map(([id]) => id).sort());
+});
+
+// Shared lifetime (capture/restore, reset, rollback, handoff, cleanup) is unit-tested in
+// ChapterActivityVisit.test.ts and useChapterActivity.test.tsx. Every row keeps launch, route,
+// reading context and authored-scene checks; only the sampled rows add the real-browser
+// Back/Forward, scroll/focus, refresh/hash and reset sequence:
+//  - curve-parameter: Casteljau route; animation slider pauses at t=0.75 across Forward, reset to 0.50.
+//  - blending-coefficients: Bernstein route; a different graph and activity query path.
+// bezier/curve refresh and Forward is also covered by the no-hash refresh test below.
+const lifecycleSample = new Set(['curve-parameter', 'blending-coefficients']);
 for (const [id, route, section] of rows) {
-    test(`${id}: authored scene, reading round trip, Forward, reset and fresh refresh`, async ({page}) => {
+    const lifecycle = lifecycleSample.has(id);
+    test(`${id}: launch and authored scene${lifecycle ? ', reading round trip, Forward, reset and fresh refresh' : ''}`, async ({page}) => {
         await h.useLanguage(page, 'en');
         await page.goto(`${chapter}#${section}`);
         await expect(page.locator('.chapter-section')).toHaveCount(8);
@@ -109,6 +127,9 @@ for (const [id, route, section] of rows) {
             expect(points).toEqual(expect.arrayContaining([[-4, -3], [-3, 2], [2, 2], [3, -2]]));
         }
         if (id === 'transform-shape') expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
+        await expect(page).toHaveURL(new RegExp(`activity=${id}`));
+        await expect(context(page).getByRole('button', {name: 'Continue reading', exact: true})).toBeVisible();
+        if (!lifecycle) return;
         await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
         await expect(page).toHaveURL(new RegExp(`/learn/bezier-curves#${section}$`));
         await expect(page.locator(`#activity-${id}`)).toBeFocused();
