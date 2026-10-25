@@ -107,6 +107,22 @@ test('a graph without fixture support rejects the action as unsupported', () => 
     });
 });
 
+test.each<[string, LessonViewBox]>([
+    ['wider', [-34, 9, 6, -6]],
+    ['taller', [-2, 10, 2, -10]],
+])('a lesson view %s than the 600 x 400 canvas stays whole and centred', (_, view) => {
+    withGraph('rational-extrapolation', (mounted, apply) => {
+        apply({...DEFAULT_SCENE, view});
+        const [left, top, right, bottom] = observeScene(mounted.graph).view as number[];
+        expect(left).toBeLessThanOrEqual(view[0]);
+        expect(right).toBeGreaterThanOrEqual(view[2]);
+        expect(top).toBeGreaterThanOrEqual(view[1]);
+        expect(bottom).toBeLessThanOrEqual(view[3]);
+        expect((left + right) / 2).toBeCloseTo((view[0] + view[2]) / 2, 6);
+        expect((top + bottom) / 2).toBeCloseTo((view[1] + view[3]) / 2, 6);
+    });
+});
+
 test('a default scene may set its starting view; an invalid view leaves the scene unchanged', () => {
     withGraph('circle', (mounted, apply) => {
         apply({...DEFAULT_SCENE, view: [-7, 7, 7, -7]});

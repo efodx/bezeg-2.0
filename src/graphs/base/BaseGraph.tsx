@@ -459,7 +459,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 checkLessonView(action.view);
                 this.prepareLessonDefaultScene();
                 if (action.view) {
-                    this.board.setBoundingBox([...action.view], this.equalAxisUnits);
+                    this.applyLessonView(action.view);
                     this.boardUpdate();
                 }
                 return;
@@ -490,7 +490,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
         checkLessonView(view);
         this.importPresetData(checked.data);
-        if (view) this.board.setBoundingBox([...view], this.equalAxisUnits);
+        if (view) this.applyLessonView(view);
         // Replaced, not merged, as in the default scene.
         this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
         this.finishSceneReplacement(undefined);
@@ -629,6 +629,17 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
      */
     protected fitView(points: readonly [number, number][], width: number, height: number): [number, number, number, number] | undefined {
         return fitBoundingBox(points, width, height);
+    }
+
+    /**
+     * Shows the whole lesson view. With equal axis units JSXGraph keeps the left and top edges of a box whose aspect differs from the
+     * canvas and drops the rest, so the view is widened to the canvas aspect around its centre; a canvas without size keeps the box.
+     */
+    private applyLessonView(view: LessonViewBox): void {
+        const [left, top, right, bottom] = view;
+        const {width, height} = JXG.getDimensions(this.board.container, document);
+        const box = this.equalAxisUnits ? fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) : undefined;
+        this.board.setBoundingBox(box ?? [...view], this.equalAxisUnits);
     }
 
     private navigateBoard(action: string) {
