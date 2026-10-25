@@ -22,7 +22,7 @@ module.exports = function registerExperienceChecks() {
             const before = await reading.evaluate(el => el.scrollTop);
             expect(before, 'the production prose really scrolls').toBeGreaterThan(0);
             const progress = await h.progress(page);
-            await panel.getByRole('button', {name: 'Hide lesson instructions'}).click();
+            await panel.getByRole('button', {name: 'Observe on the graph', exact: true}).click();
             await h.reopenButton(page).click();
             await settleMath();
             expect(await h.progress(page)).toBe(progress);
