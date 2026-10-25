@@ -9,6 +9,7 @@ import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bez
 import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import './ChapterPage.css';
+import './LearningPage.css';
 
 type SectionScrollAnchor = {sectionId: string; top: number};
 function restoreSectionAnchor(anchor: SectionScrollAnchor) {
@@ -213,6 +214,7 @@ export function ChapterPage() {
             <div className="chapter-contents-mobile"><button type="button" aria-expanded={contentsOpen} aria-controls="chapter-mobile-toc" onClick={() => setContentsOpen(open => !open)}>{language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}<span aria-hidden="true">{contentsOpen ? '−' : '+'}</span></button>{contentsOpen && <div id="chapter-mobile-toc">{nav}</div>}</div>
             <article className="chapter-article" ref={articleRef}>
                 <header className="chapter-heading">
+                    <Link className="learning-back" to="/bezeg-2.0/learn">{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}<span aria-hidden="true"> ←</span></Link>
                     {graphReturnPath && <div className="chapter-graph-return">
                         <Link to={graphReturnPath} state={{...state, chapterRestore: true}}>{language === 'sl' ? 'Nazaj na graf' : 'Back to your graph'}<span aria-hidden="true"> ←</span></Link>
                         {!graphReturnIsMemory && <p role="note">{language === 'sl' ? 'Po ponovnem nalaganju prejšnjega stanja grafa ni bilo mogoče obnoviti; prikaz se bo odprl z začetnimi nastavitvami.' : 'The earlier graph state could not be restored after reload; the demonstration will open with its default settings.'}</p>}
@@ -227,7 +229,12 @@ export function ChapterPage() {
                     <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`} section={section} language={language}/>)}</div>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}
-                <footer className="chapter-source"><h2>{language === 'sl' ? 'Vir' : 'Source'}</h2><p>{copy.source}</p></footer>
+                <footer className="chapter-source"><h2>{language === 'sl' ? 'Vir' : 'Source'}</h2><p>{copy.source}</p>
+                    <nav className="learning-neighbors" aria-label={language === 'sl' ? 'Povezana poglavja' : 'Related chapters'}>
+                        <Link to="/bezeg-2.0/learn/foundations">{language === 'sl' ? 'Osnove' : 'Foundations'}</Link>
+                        <Link to="/bezeg-2.0/learn/rational-curves">{language === 'sl' ? 'Racionalne krivulje' : 'Rational curves'}</Link>
+                    </nav>
+                </footer>
             </article>
         </div>
     </main>;

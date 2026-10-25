@@ -1,5 +1,7 @@
 # The future of Bezeg
 
+Learning update, 2026-10-25: the owner authorized merging chapter reading and guided learning into Learn and writing the missing text in one pass. Learn now includes the existing Bézier chapter, seven bilingual first-draft family chapters, and every available guided lesson. This supersedes the pilot-only rollout scope below; it does not add assessment, accounts or a progress service. See [unified learning](specs/unified-learning.md).
+
 Release-policy update, 2026-10-24: existing Slovenian terminology and English wording are approved; separate language and physical-device/projector/classroom sign-offs are no longer standing gates. Implemented available drafts count as released unless a concrete requirement is missing. The [current policy](guardrails.md#release-policy--owner-decision-2026-10-24) supersedes conflicting historical approval wording below. The Bézier pilot is implemented and released; further chapters remain separate work.
 
 ## Purpose

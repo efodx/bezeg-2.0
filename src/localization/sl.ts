@@ -67,7 +67,6 @@ export const sl = {
     "start_exploring": "Začni raziskovati",
     "starting_demonstrations": "Začetne demonstracije",
     "open_demonstration": "Odpri demonstracijo",
-    "guided_path_short": "Vodena pot",
     "curve_illustration": "Ilustracija Bézierjeve krivulje",
     "control_points_shape": "Kontrolne točke določajo obliko krivulje.",
     "example_bezier": "Oblikuj krivuljo s kontrolnimi točkami.",

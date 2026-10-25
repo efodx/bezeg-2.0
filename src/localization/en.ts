@@ -68,7 +68,6 @@ export const en: Record<keyof typeof sl, string> = {
     "start_exploring": "Start exploring",
     "starting_demonstrations": "Starting demonstrations",
     "open_demonstration": "Open demonstration",
-    "guided_path_short": "Guided path",
     "curve_illustration": "Bézier curve illustration",
     "control_points_shape": "Control points determine the curve's shape.",
     "example_bezier": "Shape a curve with control points.",

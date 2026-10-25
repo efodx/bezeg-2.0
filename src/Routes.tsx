@@ -25,6 +25,10 @@ const routes = [{
             const {ChapterPage} = await import('./learning/ChapterPage');
             return {Component: ChapterPage};
         }},
+        {path: '/bezeg-2.0/learn/:chapterId', lazy: async () => {
+            const {FamilyChapterPage} = await import('./learning/FamilyChapterPage');
+            return {Component: FamilyChapterPage};
+        }},
         {path: '/bezeg-2.0/learn/*', element: <ErrorPage embedded/>},
         ...getDemonstrationCatalog().demonstrations.map(({id, path}) => ({
             path, lazy: graphRoute(id),

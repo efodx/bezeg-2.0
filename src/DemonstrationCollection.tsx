@@ -61,7 +61,7 @@ export function DemonstrationCollection({topic, query, onTopicChange, onQueryCha
         graph: t('open_demonstration'),
         lesson: t('guided_lesson'),
         open: t('open'),
-        guided: t('guided_path_short'),
+        guided: t('guided_lesson'),
     };
 
     const select = (entry: Demonstration, lesson: boolean) => onSelect?.(entry, lesson);
