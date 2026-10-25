@@ -21,6 +21,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Lesson UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md): observed interaction findings to scope before implementation.
 - [Lesson example improvements](tasks/lesson-example-improvements/README.md): planned batches linked to their source spec.
 - [Test consolidation](tasks/test-consolidation/README.md): five ranked implementation tasks for reducing repeated verification while retaining graph, content and browser coverage.
+- [Architecture deepening backlog](tasks/architecture-deepening-backlog/README.md): ten module-deepening tasks in four parallel lanes (host, curves, functions, learning) from the 2026-10-25 whole-app review.
 - [Lesson rollout reconciliation](reviews/guided-lessons-status-reconciliation.md): remaining evidence ownership and smoke coverage gaps.
 - [Performance plan](performance-plan.md) and [Bézier performance results](bezier-performance-results.md): measurement requirements, results and unresolved questions.
 
