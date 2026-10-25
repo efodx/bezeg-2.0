@@ -341,3 +341,9 @@
     .workspace-navigation button { min-width:44px; }
     #inspector-display .form-check { min-height:44px; }
 }
+
+@media(max-width:700px) {
+    .workspace-inspector .inspector-heading { display:flex; align-items:flex-start; flex-wrap:wrap; gap:8px; }
+    .workspace-inspector .inspector-heading > div:first-child { flex:1 1 100%; min-width:0; padding-right:0; }
+    .workspace-inspector .inspector-heading > button { position:static; margin-left:auto; }
+}

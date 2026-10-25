@@ -74,7 +74,33 @@ module.exports = function registerExperienceChecks() {
                                 return el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
                             }), `${position}: action is pointer reachable`).toBe(true);
                         }
-                        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+                        const overflow = await page.evaluate(() => {
+                            const documentOverflow = document.documentElement.scrollWidth > innerWidth + 1;
+                            const offenders = documentOverflow ? [...document.querySelectorAll('body *')].filter(element => {
+                                const rect = element.getBoundingClientRect();
+                                return rect.width > 0 && (rect.right > innerWidth + 1 || rect.left < -1 || element.scrollWidth > element.clientWidth + 1);
+                            }).slice(0, 12).map(element => {
+                                const rect = element.getBoundingClientRect();
+                                return {
+                                    selector: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${typeof element.className === 'string' && element.className ? `.${element.className.trim().replace(/\s+/g, '.')}` : ''}`,
+                                    text: element.textContent.trim().slice(0, 80),
+                                    left: Math.round(rect.left), right: Math.round(rect.right),
+                                    clientWidth: element.clientWidth, scrollWidth: element.scrollWidth,
+                                };
+                            }) : [];
+                            return {documentOverflow, documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth, offenders};
+                        });
+                        expect(overflow.documentOverflow, `document horizontal overflow: ${JSON.stringify(overflow)}`).toBe(false);
+                        if (view.name === 'small-enlarged') {
+                            const headingOverlap = await page.locator('.workspace-inspector .inspector-heading').evaluate(el => {
+                                const title = el.querySelector(':scope > div').getBoundingClientRect();
+                                const button = el.querySelector(':scope > button').getBoundingClientRect();
+                                return {overlap: title.right > button.left + 1 && title.bottom > button.top + 1 && button.bottom > title.top + 1,
+                                    title: {left: title.left, right: title.right, top: title.top, bottom: title.bottom},
+                                    button: {left: button.left, right: button.right, top: button.top, bottom: button.bottom}};
+                            });
+                            expect(headingOverlap.overlap, `inspector title and collapse action overlap: ${JSON.stringify({headingOverlap, overflow})}`).toBe(false);
+                        }
                         await testInfo.attach(`${language}-${view.name}-${position}`, {body: await page.screenshot(), contentType: 'image/png'});
                     }
                     await exit.click();
