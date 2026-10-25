@@ -53,3 +53,5 @@ The Developer tools workflow runs these tests on Windows and Linux. See the [mon
 ## Claude
 
 `claude_worker_watch.py` reads Claude Code transcripts only. See [dispatch guidance](../../docs/agent-workflow.md#dispatch); it cannot monitor Codex. With `--self` it watches the calling session for the [handler context budget](../../docs/agent-workflow.md#handler-context-budget-claude).
+
+`claude_watch_reminder.py` is the project's PostToolUse hook for the `Agent` tool ([`.claude/settings.json`](../../.claude/settings.json)). After a background worker launches, it adds the worker's `claude_worker_watch.py` command to the handler's context, with the signal threshold for the resolved model (78k Haiku, 135k others). It prints nothing for synchronous results.
