@@ -140,10 +140,19 @@ const sampleCount = async (page, controls) => (await boardStats(page)).points - 
 const expectSamples = (page, controls, expected, message) =>
     expect.poll(() => sampleCount(page, controls), {message}).toBe(expected);
 
-// Control points are whatever remains of the visible points when the route holds its default 10 samples.
+// `row.setup` runs on the bare route in the en Exit test but after step 1's scene in the sl walk, so route-default
+// assertions only hold while no lesson is open; lesson scenes are asserted by each row's stepProbe.
+const lessonOpen = async page => (await lessonPanel(page).count()) > 0;
+async function expectDefaultPoints(page, expected) {
+    if (!(await lessonOpen(page))) await expect.poll(async () => (await boardStats(page)).points).toBe(expected);
+}
+
+// Control points are the visible points minus the drawn samples (the samples slider value); on the bare route that
+// slider must hold the default 10 samples.
 async function controlPointCount(page) {
-    await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThan(DEFAULT_SAMPLES);
-    return (await boardStats(page)).points - DEFAULT_SAMPLES;
+    if (!(await lessonOpen(page))) await expect(samplesSlider(page)).toHaveValue(String(DEFAULT_SAMPLES));
+    await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThan(Number(await samplesSlider(page).inputValue()));
+    return (await boardStats(page)).points - Number(await samplesSlider(page).inputValue());
 }
 
 // samplesByStep: sample-point count the scene of each step prepares (step 1 is the route default).
@@ -586,7 +595,7 @@ const splineCn = {
     steps: 5,
     minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBe(11);
+        await expectDefaultPoints(page, 11);
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
@@ -628,7 +637,7 @@ function symmetricSplineRow({id, path, titles, steps, minFrames, points, polygon
     return {
         id, path, titles, steps, minFrames,
         setup: async page => {
-            await expect.poll(async () => (await boardStats(page)).points).toBe(points);
+            await expectDefaultPoints(page, points);
             return {};
         },
         stepProbe: async (page, ctx, step, label) => {
@@ -679,7 +688,7 @@ const splineG1 = {
     steps: 5,
     minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBe(7);
+        await expectDefaultPoints(page, 7);
         await expect(page.getByText('Parameter b', {exact: true}).first(), 'sliders are labelled "Parameter b"').toBeVisible();
         return {};
     },
@@ -716,7 +725,7 @@ const splineG1Symmetric = {
     steps: 5,
     minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBe(9);
+        await expectDefaultPoints(page, 9);
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
@@ -750,7 +759,7 @@ const splineParameterization = {
     steps: 5,
     minFrames: 12, // 2 + 3 + 2 + 3 + 2 frames
     setup: async page => {
-        await expect.poll(async () => (await boardStats(page)).points).toBe(34);
+        await expectDefaultPoints(page, 34);
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
@@ -1985,20 +1994,22 @@ const elevationPilot = {
         if (step <= 3) await expectPointsNear(page, ELEVATION_P, `P_0..P_3 at ${label}`);
         if (step === 3) await expectPointNear(page, [-0.5, 1.75], `B(1/2) marker at ${label}`);
         if (step === 4) await expectPointNear(page, [1.63, 0.81], `B(3/4) marker at ${label}`); // 1.625, 0.8125 from the Bernstein weights
-        // unverified: steps 1-3 share one point count; the elevated step has exactly one more.
+        // Both polygons are drawn: P_0..P_3 plus the five-point preview Q_0..Q_4 = 9 points (steps 1-2); step 3 adds the
+        // B(1/2) marker; after elevation the former Q is the solid polygon and a six-point preview appears (5 + 6), plus the
+        // B(3/4) marker.
         const points = (await boardStats(page)).points;
-        if (step <= 3) { ctx.base ??= points; expect(points, `points stable at ${label}`).toBe(ctx.base); }
-        else if (ctx.base !== undefined) expect(points, `one more control point after elevation at ${label}`).toBe(ctx.base + 1);
+        expect(points, `visible points at ${label}`).toBe([9, 9, 10, 12][step - 1]);
     },
     prepareUserState: async page => {
         const base = (await boardStats(page)).points;
         await page.getByRole('button', {name: 'Elevate degree'}).click();
-        await expect.poll(async () => (await boardStats(page)).points).toBe(base + 1);
-        return {points: base + 1};
+        // One elevation turns the 4 + 5 point pair into 5 + 6 points.
+        await expect.poll(async () => (await boardStats(page)).points).toBe(base + 2);
+        return {points: base + 2};
     },
     exitStep: 2,
     duringLesson: async (page, ctx, saved) => {
-        await expect.poll(async () => (await boardStats(page)).points, {message: 'lesson scene replaces the elevated curve'}).toBe(saved.points - 1);
+        await expect.poll(async () => (await boardStats(page)).points, {message: 'lesson scene replaces the elevated curve'}).toBe(saved.points - 2);
     },
     assertUserState: async (page, ctx, saved) => {
         await expect.poll(async () => (await boardStats(page)).points, {message: 'elevated curve restored after exit'}).toBe(saved.points);
@@ -2026,13 +2037,13 @@ const rationalPilot = {
     },
     prepareUserState: async page => {
         const weights = await h.boardWeights(page);
-        expect(weights, 'weight labels are off before the lesson').toEqual([]); // unverified on this route
+        expect(weights, 'weight labels are on by default on this route').toEqual([1, 2, 1, 1]);
         return {weights, ...(await boardStats(page))};
     },
     exitStep: 3,
     duringLesson: async page => { await expectWeights(page, [1, 4, 1, 1], 'lesson scene shows the weights'); },
     assertUserState: async (page, ctx, saved) => {
-        await expectWeights(page, [], 'weight labels hidden again after exit');
+        await expectWeights(page, saved.weights, 'route weight labels restored after exit');
         expect((await boardStats(page)).curves).toBe(saved.curves);
     },
     stableCounts: async page => ({weights: (await h.boardWeights(page)).length}),
@@ -2073,13 +2084,15 @@ const rationalDecasteljauPilot = {
     stableCounts: async page => ({t: await rangeValue(page, 0)}),
 };
 
-const phPilotRow = ({id, path, titles, steps, minFrames, controls, offsetFromStep}) => ({
+// `free`: a final scene-less step restores the route's own board, so it is checked against the route default instead.
+const phPilotRow = ({id, path, titles, steps, minFrames, controls, offsetFromStep, free}) => ({
     id, path, titles, steps, minFrames,
     setup: async page => { await expect.poll(async () => (await boardStats(page)).curves).toBeGreaterThan(0); return {}; },
     stepProbe: async (page, ctx, step, label) => {
-        await expectPointsNear(page, controls, `PH control points at ${label}`);
-        // unverified: the offset curve adds drawn curves from offsetFromStep on, relative to the offset-free first step.
-        const curves = (await boardStats(page)).curves;
+        if (free && step >= free.step) await expectPointNear(page, free.firstPoint, `route default P_0 at ${label}`);
+        else await expectPointsNear(page, controls, `PH control points at ${label}`);
+        // Offset curves are always created (hidden); show-offset-curve makes them visible, so count visible curves.
+        const curves = (await boardStats(page)).visibleCurves;
         if (step === 1) ctx.base = curves;
         if (ctx.base !== undefined && step < offsetFromStep) expect(curves, `no offset curve at ${label}`).toBe(ctx.base);
         if (ctx.base !== undefined && step >= offsetFromStep && step <= offsetFromStep + 1) expect(curves, `offset curve shown at ${label}`).toBeGreaterThan(ctx.base);
@@ -2092,6 +2105,7 @@ const phCubicPilot = {
         titles: {sl: 'Kubična PH-krivulja', en: 'Cubic PH curve'},
         steps: 6, minFrames: 14, // 3 + 3 + 2 + 2 + 2 + 2 frames
         controls: [[-2, -1], [-0.67, -1], [0.67, -0.33], [1.67, 1]], offsetFromStep: 3,
+        free: {step: 6, firstPoint: [-4.2, -2]}, // ph-free-exploration has no scene; CubicPhBezierCurveGraph default P_0
     }),
 };
 const phQuinticPilot = phPilotRow({
