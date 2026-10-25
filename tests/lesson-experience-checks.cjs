@@ -36,6 +36,7 @@ module.exports = function registerExperienceChecks() {
                 {name: 'landscape', width: 844, height: 390},
                 {name: 'enlarged', width: 390, height: 844, enlarged: true},
                 {name: 'small-enlarged', width: 320, height: 844, enlarged: true},
+                {name: 'small-enlarged-wide-font', width: 320, height: 844, enlarged: true, fontFamily: 'Verdana, system-ui'},
             ]) {
                 test(`${language} ${view.name}: persistent actions, scroll ownership, and safe exit`, async ({page}, testInfo) => {
                     await page.setViewportSize({width: view.width, height: view.height});
@@ -49,8 +50,25 @@ module.exports = function registerExperienceChecks() {
                         await window.MathJax.typesetPromise();
                     });
                     if (view.enlarged) await page.addStyleTag({content: 'html {font-size:200% !important}'});
+                    // Exercise wider font metrics without depending on the host's default UI font.
+                    if (view.fontFamily) await page.addStyleTag({content: `body {font-family:${view.fontFamily} !important}`});
                     if (view.presenting) await page.getByRole('button', {name: language === 'en' ? 'Presentation mode' : 'Predstavitveni način', exact: true}).click();
                     const reading = panel.locator('.guided-lesson-reading');
+                    if (view.width === 320) {
+                        const degreeControls = page.locator('.workspace-inspector .count-setter-controls');
+                        expect(await degreeControls.evaluate(el => el.scrollWidth <= el.parentElement.clientWidth + 1), 'degree stepper fits its inspector row even with enlarged text').toBe(true);
+                        for (const control of await degreeControls.locator('button, input').all()) {
+                            const box = await control.boundingBox();
+                            expect(box.width).toBeGreaterThanOrEqual(44);
+                            expect(box.height).toBeGreaterThanOrEqual(44);
+                        }
+                        for (const tab of await page.locator('.workspace-inspector .inspector-tabs button').all()) {
+                            const box = await tab.boundingBox();
+                            expect(box.width).toBeGreaterThanOrEqual(44);
+                            expect(box.height).toBeGreaterThanOrEqual(44);
+                            expect(await tab.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'inspector tab labels remain readable within their targets').toBe(true);
+                        }
+                    }
                     await expect(h.backButton(page)).toBeDisabled();
                     expect(await panel.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(251, 252, 245)');
                     expect(await reading.evaluate(el => getComputedStyle(el).overflowY)).toBe('auto');
@@ -91,7 +109,7 @@ module.exports = function registerExperienceChecks() {
                             return {documentOverflow, documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth, offenders};
                         });
                         expect(overflow.documentOverflow, `document horizontal overflow: ${JSON.stringify(overflow)}`).toBe(false);
-                        if (view.name === 'small-enlarged') {
+                        if (view.width === 320) {
                             const headingOverlap = await page.locator('.workspace-inspector .inspector-heading').evaluate(el => {
                                 const title = el.querySelector(':scope > div').getBoundingClientRect();
                                 const button = el.querySelector(':scope > button').getBoundingClientRect();

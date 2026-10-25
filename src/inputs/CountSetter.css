@@ -1,7 +1,7 @@
 /* Stepper in the order − / value / +; every button keeps a 44px hit area while the desktop look stays compact. */
 .count-setter { display: grid; gap: 4px; }
 .count-setter-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.1; }
-.count-setter-controls { display: flex; align-items: stretch; gap: 6px; }
+.count-setter-controls { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
 .count-setter-controls .count-setter-button { min-width: 44px; min-height: 44px; padding: 0 12px; font-size: 1.1rem; line-height: 1; }
 .count-setter-controls .count-setter-button:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
 /* Match the compact input's minimum width so right-aligned digits cannot slip under the plus button. */

@@ -15,8 +15,22 @@ for (const width of [390, 614, 1280]) {
             const [inputBox, minusBox, plusBox] = await Promise.all([
                 field.boundingBox(), minus.boundingBox(), plus.boundingBox(),
             ]);
-            expect(inputBox.x).toBeGreaterThanOrEqual(minusBox.x + minusBox.width);
-            expect(inputBox.x + inputBox.width).toBeLessThanOrEqual(plusBox.x);
+            const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width &&
+                a.y < b.y + b.height && b.y < a.y + a.height;
+            expect(overlaps(inputBox, minusBox), 'minus does not cover the input').toBe(false);
+            expect(overlaps(inputBox, plusBox), 'plus does not cover the input').toBe(false);
+            const rowBox = await controls.boundingBox();
+            for (const control of [field, minus, plus]) {
+                const box = await control.boundingBox();
+                expect(box.x).toBeGreaterThanOrEqual(rowBox.x);
+                expect(box.x + box.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+                expect(box.width).toBeGreaterThanOrEqual(44);
+                expect(box.height).toBeGreaterThanOrEqual(44);
+                expect(await control.evaluate(el => {
+                    const rect = el.getBoundingClientRect();
+                    return el.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+                }), 'control remains pointer reachable when the row wraps').toBe(true);
+            }
         };
         await expectUncovered();
         await plus.click();

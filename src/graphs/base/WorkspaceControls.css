@@ -105,12 +105,14 @@
 }
 .workspace-inspector .inspector-tabs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 0;
     background: color-mix(in srgb, var(--workspace-canvas-deep) 35%, var(--workspace-panel));
 }
 .workspace-inspector .inspector-tabs button {
+    min-width: 0;
     min-height: 52px;
+    overflow-wrap: anywhere;
     border: 0;
     border-right: 1px solid var(--workspace-rule);
     border-radius: 0;
@@ -155,6 +157,7 @@
 .workspace-inspector .tools .form-check-input { order: 2; width: 34px; height: 20px; margin: 0; }
 .workspace-inspector .tools .form-check-input:checked { background-color: var(--workspace-green); border-color: var(--workspace-green); }
 .workspace-inspector .tools .btn { min-height: 34px; border-color: var(--workspace-rule); border-radius: 4px !important; background: var(--workspace-panel); }
+.workspace-inspector .tools .count-setter-button { min-height: 44px; }
 .workspace-inspector .tools .btn:hover { background: var(--workspace-canvas-deep); }
 .figure-export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .workspace-inspector .tools .btn-group { gap: 4px; }
