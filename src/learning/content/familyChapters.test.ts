@@ -98,4 +98,45 @@ describe('family reading chapters', () => {
         expect(captions).toContain('kvadratičen');
         expect(captions).toContain('quarter');
     });
+
+    test('gives every spline graph link a bilingual control-specific prompt and uses the join figures', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'splines')!;
+        expect(chapter.sections.map(section => section.id)).toEqual([
+            'piecewise', 'continuity-levels', 'geometric-vs-parametric', 'worked-join', 'investigate-splines',
+        ]);
+        const linkedIds = chapter.sections.flatMap(section => section.demonstrationIds ?? []);
+        expect([...new Set(linkedIds)].sort()).toEqual([
+            'spline-c1', 'spline-c2', 'spline-cn', 'spline-g1', 'spline-g1-symmetric',
+        ]);
+        for (const section of chapter.sections) {
+            for (const id of section.demonstrationIds ?? []) {
+                const prompt = section.investigationPrompts?.[id];
+                expect(prompt?.sl, `${section.id}/${id} Slovenian prompt`).toBeTruthy();
+                expect(prompt?.en, `${section.id}/${id} English prompt`).toBeTruthy();
+            }
+        }
+
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets['spline-c1'], demonstrationPreviewAssets['spline-g1'],
+        ]);
+        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('parabol');
+        expect(captions).toContain('parabolas');
+        expect(captions).toContain('večdel');
+        expect(captions).toContain('multi-piece');
+
+        const workedJoin = chapter.sections.find(section => section.id === 'worked-join')!.paragraphs
+            .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(workedJoin).toContain('globalni parameter');
+        expect(workedJoin).toContain('global parameter');
+        expect(workedJoin).toContain('L(t)=(t,t^2)');
+        expect(workedJoin).toContain('R(s)=(1+s,1+2s+as^2)');
+        expect(workedJoin).toContain('dt/du=ds/du=1');
+        expect(workedJoin).toContain('h^2');
+        expect(workedJoin).toContain('h_L');
+        expect(workedJoin).toContain('h_R');
+        expect(workedJoin).toContain('a=1');
+    });
 });
