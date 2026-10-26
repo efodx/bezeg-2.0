@@ -1,0 +1,104 @@
+{
+  "row": {
+    "name": "Repeated dispose/remount and toolbar",
+    "status": "failed",
+    "evidence": "preset toolbar stopped responding after remount"
+  },
+  "checks": [
+    {
+      "name": "Four preset views and depth screenshots",
+      "status": "passed",
+      "evidence": {
+        "cameras": {
+          "front": {
+            "az": 0,
+            "el": 0,
+            "distance": 14
+          },
+          "top": {
+            "az": 0,
+            "el": 1.54,
+            "distance": 14
+          },
+          "side": {
+            "az": 1.5707963267948966,
+            "el": 0.06,
+            "distance": 14
+          },
+          "isometric": {
+            "az": 0.7853981633974483,
+            "el": 0.55,
+            "distance": 14
+          }
+        },
+        "files": [
+          "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\view-front.png",
+          "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\view-top.png",
+          "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\view-side.png",
+          "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\view-isometric.png"
+        ]
+      }
+    },
+    {
+      "name": "Actual 32-patch teapot",
+      "status": "passed",
+      "evidence": {
+        "patches": 32,
+        "meshTriangles": 4096,
+        "drawCalls": 40
+      }
+    },
+    {
+      "name": "SVG and PNG downloads with labels",
+      "status": "passed",
+      "evidence": {
+        "svgBytes": 86241,
+        "svgLabelCount": 17,
+        "pngBytes": 107899,
+        "pngSize": [
+          1005,
+          810
+        ]
+      }
+    },
+    {
+      "name": "Presentation, resize, and 390px viewport",
+      "status": "passed",
+      "evidence": {
+        "presentation": {
+          "active": true,
+          "aside": "none"
+        },
+        "layout": {
+          "width": 390,
+          "scrollWidth": 390,
+          "board": {
+            "x": 10,
+            "y": 235,
+            "width": 370,
+            "height": 633,
+            "top": 235,
+            "right": 380,
+            "bottom": 868,
+            "left": 10
+          },
+          "canvas": {
+            "x": 10,
+            "y": 235,
+            "width": 370,
+            "height": 633,
+            "top": 235,
+            "right": 380,
+            "bottom": 868,
+            "left": 10
+          }
+        }
+      }
+    },
+    {
+      "name": "Repeated dispose/remount and toolbar",
+      "status": "failed",
+      "evidence": "preset toolbar stopped responding after remount"
+    }
+  ]
+}

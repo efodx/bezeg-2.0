@@ -1,0 +1,48 @@
+{
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/three.html",
+  "preview": "local isolated acceptance copy",
+  "revision": "be078cd",
+  "dirty": "pre-existing measure.mjs edit plus handoff files and .worktrees; prototype copy hash-matched",
+  "viewport": "1280x900 desktop; 390x844 narrow",
+  "browser": "Playwright Chromium, headless",
+  "servedPrototypeSha256": "f2c277b0da2d33a3b2c0a66f7887f915ed7da8f50c478bd3f55ca6b1d7d4900f",
+  "checks": [
+    {
+      "name": "Rendered tensor baseline",
+      "status": "passed",
+      "evidence": {
+        "meshTriangles": 128,
+        "controlPoints": 16,
+        "canvasHash": "1eda2436b3f9cd2a8a28da83a43ea52ea02528ad50a8316c8bf143650f89756a"
+      }
+    },
+    {
+      "name": "Tensor mouse XY drag",
+      "status": "failed",
+      "evidence": "mouse drag did not change point XY"
+    },
+    {
+      "name": "Rendered triangular surface and mouse drag",
+      "status": "failed",
+      "evidence": "triangle mouse XY drag did not move in plane"
+    },
+    {
+      "name": "Touch XY and z drag with fixed camera",
+      "status": "failed",
+      "evidence": "touch XY drag failed its plane constraint"
+    }
+  ],
+  "runtimeErrors": [
+    "Cannot read properties of undefined (reading 'intersectObjects')",
+    "Cannot read properties of undefined (reading 'intersectObjects')",
+    "Cannot read properties of undefined (reading 'intersectObjects')"
+  ],
+  "consoleErrors": [],
+  "downloads": [],
+  "screenshots": [
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\tensor-initial.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\tensor-after-mouse-drag.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\run-2026-10-26-1933\\triangle-after-mouse-drag.png"
+  ],
+  "elapsedMs": 5761
+}

@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "name": "Keyboard orbit",
+      "status": "passed",
+      "before": {
+        "az": 0.7853981633974483,
+        "el": 0.52,
+        "distance": 14
+      },
+      "after": {
+        "az": 0.8553981633974483,
+        "el": 0.52,
+        "distance": 14
+      }
+    },
+    {
+      "name": "Parameter inset pointer",
+      "status": "passed",
+      "before": [
+        0.32,
+        0.44
+      ],
+      "after": [
+        0.7800001664595171,
+        0.7799999930641868
+      ]
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/three.html",
+  "preview": "local isolated acceptance copy",
+  "revision": "be078cd",
+  "dirty": "dirty lifecycle and raycaster repairs on be078cd; exact served source hash asserted",
+  "viewport": "1280x900 desktop; 390x844 narrow",
+  "browser": "Playwright Chromium, headless",
+  "servedPrototypeSha256": "930ff21fd0c1df5e7e7100d90b2e0dd9482a60247b7011fb569615c0e01878aa",
+  "checks": [
+    {
+      "name": "Rendered tensor baseline",
+      "status": "passed",
+      "evidence": {
+        "meshTriangles": 128,
+        "controlPoints": 16,
+        "canvasHash": "1eda2436b3f9cd2a8a28da83a43ea52ea02528ad50a8316c8bf143650f89756a"
+      }
+    },
+    {
+      "name": "Tensor mouse XY drag",
+      "status": "passed",
+      "evidence": {
+        "before": [
+          -3,
+          3,
+          0.14755891438661006
+        ],
+        "after": [
+          -3.08045832209071,
+          3.873308063950997,
+          0.14755891438661006
+        ],
+        "cameraUnchanged": true,
+        "renderedPixelsChanged": true
+      }
+    },
+    {
+      "name": "Rendered triangular surface and mouse drag",
+      "status": "passed",
+      "evidence": {
+        "points": 10,
+        "meshTriangles": 64,
+        "before": [
+          -3,
+          -2,
+          0
+        ],
+        "after": [
+          -4.068611623946042,
+          -1.8683914148867533,
+          0
+        ]
+      }
+    },
+    {
+      "name": "Touch XY and z drag with fixed camera",
+      "status": "failed",
+      "evidence": "touch z drag changed wrong coordinates"
+    },
+    {
+      "name": "Touch orbit and keyboard orbit",
+      "status": "passed",
+      "evidence": {
+        "touchCamera": {
+          "az": 1.3193981633974483,
+          "el": 0.76,
+          "distance": 14
+        },
+        "keyboardChangedAzimuth": true
+      }
+    },
+    {
+      "name": "Parameter inset pointer",
+      "status": "passed",
+      "evidence": {
+        "before": [
+          0.32,
+          0.44
+        ],
+        "after": [
+          0.7600000554865057,
+          0.7599999687888406
+        ]
+      }
+    },
+    {
+      "name": "Four preset views depth evidence",
+      "status": "passed",
+      "evidence": {
+        "cameras": {
+          "front": {
+            "az": 0,
+            "el": 0,
+            "distance": 14
+          },
+          "top": {
+            "az": 0,
+            "el": 1.54,
+            "distance": 14
+          },
+          "side": {
+            "az": 1.5707963267948966,
+            "el": 0.06,
+            "distance": 14
+          },
+          "isometric": {
+            "az": 0.7853981633974483,
+            "el": 0.55,
+            "distance": 14
+          }
+        },
+        "screenshots": [
+          "view-front.png",
+          "view-top.png",
+          "view-side.png",
+          "view-isometric.png"
+        ],
+        "visualDepthReview": "screenshots retained for visual inspection"
+      }
+    },
+    {
+      "name": "Actual 32-patch teapot",
+      "status": "passed",
+      "evidence": {
+        "teapotPatches": 32,
+        "meshTriangles": 4096,
+        "drawCalls": 40
+      }
+    },
+    {
+      "name": "SVG and PNG downloads contain labels",
+      "status": "passed",
+      "evidence": {
+        "svgBytes": 86264,
+        "svgLabels": 17,
+        "pngBytes": 106444,
+        "pngSize": [
+          1005,
+          810
+        ]
+      }
+    },
+    {
+      "name": "Presentation, resize, and 390px viewport",
+      "status": "passed",
+      "evidence": {
+        "presentation": {
+          "active": true,
+          "aside": "none"
+        },
+        "layout": {
+          "width": 390,
+          "scrollWidth": 390,
+          "board": {
+            "x": 10,
+            "y": 235,
+            "width": 370,
+            "height": 633,
+            "top": 235,
+            "right": 380,
+            "bottom": 868,
+            "left": 10
+          },
+          "canvas": {
+            "x": 10,
+            "y": 235,
+            "width": 370,
+            "height": 633,
+            "top": 235,
+            "right": 380,
+            "bottom": 868,
+            "left": 10
+          }
+        }
+      }
+    },
+    {
+      "name": "Repeated dispose/remount and toolbar response",
+      "status": "passed",
+      "evidence": {
+        "firstRemountReady": true,
+        "secondRemountReady": true,
+        "canvasCount": 1,
+        "toolbarAfterRemount": "responsive"
+      }
+    },
+    {
+      "name": "Async setup/dispose race",
+      "status": "passed",
+      "evidence": {
+        "disposedWhileTeapotFetchPending": true,
+        "pageError": "",
+        "status": "Loading isolated three.js modules…"
+      }
+    }
+  ],
+  "runtimeErrors": [],
+  "consoleErrors": [],
+  "downloads": [
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\downloads\\bezier-patch-three.svg",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\downloads\\bezier-patch-three.png"
+  ],
+  "screenshots": [
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\tensor-initial.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\tensor-after-mouse-drag.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\triangle-after-mouse-drag.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\view-front.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\view-top.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\view-side.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\view-isometric.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\actual-32-patch-teapot.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\presentation-narrow-390.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\after-ui-remount.png",
+    "docs\\reviews\\bezier-patches\\three-focused-artifacts\\repair-2026-10-26-1946\\after-second-remount.png"
+  ],
+  "elapsedMs": 22747
+}

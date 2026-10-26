@@ -1,0 +1,12 @@
+# Measurement harness review
+
+Reviewed `measure.mjs`, its guide, the prototype README paragraph, and the measurement criteria in task 02 and the performance plan. This review did not inspect the separate `three-prototype.js` lifecycle diff or run browser timings.
+
+## Findings
+
+- **P1 — Render check can pass with the patch absent** (`measure.mjs:147–157`). JSXGraph counts every long SVG path in the board; this includes axes, net/construction lines, and other non-surface objects. The WebGL check counts any sampled nonwhite canvas pixels, which can come from axes or other scene scaffolding. A broken or missing patch surface can therefore be recorded as `status: complete`. Check patch-specific rendered objects or pixels in a patch-bounded region, and fail if the patch itself is absent.
+- **P2 — Triangular mesh mode is neither selected nor recorded** (`measure.mjs:94–100`). The JSX prototype exposes `surface` and `mesh`, but the harness only selects kind/iso/tiling; a fresh page consequently measures the page default and offers no filter for the alternate path. The stated triangular renderer comparison cannot be completed or audited from this matrix. Select and record the mode, or explicitly narrow the claim to the default surface mode.
+- **P2 — Provenance omits the prototype revision** (`measure.mjs:57–60`, `measurement-harness.md:28`). Hashes cover the two prototype scripts and the runner checks runtime versions, but the report does not record a commit or identify the served HTML/vendor assets. Task 02 requires the prototype commit hash, and the performance plan requires comparable build/source context. Record the commit and dirty state (or equivalent full-source manifest) with each report.
+- **P2 — Context setup failures leave a permanently running entry** (`measure.mjs:72–79`). `newContext()` and `newPage()` are outside the per-run catch. If either rejects or times out, the process exits with a nonzero code while `measure.json` retains `status: "running"` and no run failure. Catch and persist these failures so incomplete runs remain distinguishable from interrupted runs.
+
+Raw frame/event samples are retained and timestamps/state are captured; teapot drag/UV exclusions are explicit and reasonable. The hard-deadline process-tree strategy is appropriate for Windows, though it was reviewed statically only. Timing fields remain clearly caveated as headless rAF/input proxies; no performance conclusion follows from this review.

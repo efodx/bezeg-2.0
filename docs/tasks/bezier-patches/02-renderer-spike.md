@@ -2,6 +2,8 @@
 
 Status: in progress; acceptance partial. [Current evidence](../../reviews/bezier-patches/renderer-spike.md) records pinned-runtime browser findings, an interrupted timing attempt, verified actual teapot data and an isolated three.js fallback. PNG export, touch z editing, listener cleanup, drawing fidelity, complete measurements and ADR remain open. No renderer is selected. Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies: 01 merged. Role: renderer investigation owner.
 
+Latest [repair verification](../../reviews/bezier-patches/renderer-repair-verification.md) closes three.js raycaster and async/remount failures and validates bounded timing probes. The combined touch sequence, JSX findings, full comparison matrix and renderer ADR still require work.
+
 Decide how patches are drawn and edited, using measurements. The spike code is throwaway: keep it on a branch or under `docs/prototypes/`, never in production routes. Only the evidence and the ADR ship.
 
 1. Build a prototype page on the upgraded JSXGraph with `view3d` inside a board created as `GraphSession` does. It shows:

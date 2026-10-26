@@ -2,6 +2,8 @@
 
 Status: partial investigation; no accepted renderer ADR. Task 02 remains open. Production routes and dependencies are unchanged by the prototypes. The initial comparison sources and functional evidence are preserved at prototype commit `3e1bbc1`; later repairs require fresh checks against their own source hashes.
 
+Latest: [renderer repair verification](renderer-repair-verification.md) records independent three.js failures, pointer/lifecycle repairs, fresh browser rechecks, and bounded three-sample timing-runner probes on both pinned runtimes. Isolated touch z works; a combined XY→z target sequence remains unresolved. Full measurements, export depth fidelity, JSX browser confirmation and the ADR remain open. The new [measurement guide](measurement-harness.md) replaces the old JSX-only harness instructions below; the old timings remain historical evidence.
+
 ## Functional evidence
 
 The [JSXGraph functional report](prototype-functional.md) records Chromium 156.0.8078.4 with actual JSXGraph 1.14.1, source hashes, screenshots, geometry checks and exports. Mouse editing/orbit, inset movement, presentation/resize and board deregistration passed the selected checks. PNG export fails with a tainted canvas; touch z drag also changes XY; main-board listeners accumulate across remounts. Live triangular mesh-face movement remains inconclusive because the original path probe did not observe polygon geometry. Depth ordering has screenshots but no accepted visual verdict. These findings warrant the task's same-scene fallback comparison; they do not select a renderer.

@@ -1,0 +1,23 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
+const {chromium}=require("playwright");
+const fs=require("node:fs/promises");
+const path=require("node:path");
+const root=process.cwd(),out=path.join(root,"docs/reviews/bezier-patches/three-focused-artifacts/run-2026-10-26-1933");
+(async()=>{
+ const b=await chromium.launch({headless:true}),c=await b.newContext({viewport:{width:1280,height:900}}),p=await c.newPage();
+ await p.goto("http://127.0.0.1:4181/docs/prototypes/bezier-patches/three.html",{waitUntil:"networkidle"});
+ await p.waitForFunction(()=>window.BezierPatchSpike&&window.BezierPatchSpike.ready(),null,{timeout:15000});
+ const checks=[];
+ let before=await p.evaluate(()=>window.BezierPatchSpike.snapshot());
+ await p.locator("#main-board").focus();await p.keyboard.press("ArrowLeft");
+ let after=await p.evaluate(()=>window.BezierPatchSpike.snapshot());
+ checks.push({name:"Keyboard orbit",status:before.camera.az!==after.camera.az?"passed":"failed",before:before.camera,after:after.camera});
+ const inset=await p.locator("#domain-board").evaluate(el=>{const r=el.getBoundingClientRect(),[x,y,s]=el.dataset.plot.split(",").map(Number);return{x:r.left+x+s*.78,y:r.top+y+s*.22};});
+ before=after;await p.mouse.click(inset.x,inset.y);
+ after=await p.evaluate(()=>window.BezierPatchSpike.snapshot());
+ checks.push({name:"Parameter inset pointer",status:Math.abs(after.uv[0]-before.uv[0])>.1||Math.abs(after.uv[1]-before.uv[1])>.1?"passed":"failed",before:before.uv,after:after.uv});
+ await fs.writeFile(path.join(out,"keyboard-inset.json"),JSON.stringify({checks},null,2));
+ console.log(JSON.stringify(checks));
+ await c.close();await b.close();
+})().catch(e=>{console.error(e.stack||String(e));process.exitCode=1;});
