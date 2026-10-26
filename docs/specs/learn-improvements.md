@@ -50,3 +50,15 @@ Acceptance:
 - Run focused learning tests, typecheck, production build and delegated browser smoke on the affected reading routes. Review the rendered desktop/narrow result and account for acceptance and coverage gaps in a repository-local evidence note.
 
 Accepted 2026-10-26: shared reader implementation and independent review in `docs/reviews/learn-improvements/reader-worker.md`; browser matrix, section tracking, keyboard contents, language/history and activity-return evidence in `reader-browser.md`. All eight chapter route rows and the final targeted recovery/activity checks passed. Handler reviewed normal desktop/narrow renders, removed the redundant Bézier category label and reverified the rebuilt reader. No math, scene, preset or URL contract changed.
+
+## 4. Reproducible Bézier app figures
+
+Replace the six programmatic activity illustrations with actual static captures from the authored chapter activity URLs. Keep activity recipes and reading/activity URL contracts unchanged in this slice. Degree/prose simplification remains task 5.
+
+Acceptance:
+
+- Capture all six activities from a clean browser context through the shipped chapter activity flow; the graph scene must be the same one opened by its activity link. Both De Casteljau activities intentionally share the quartic scene at parameter one half. Capture the affine activity's actual starting scene and describe it accurately rather than drawing an additional transformed curve absent from the activity.
+- Supply deliberate framing that includes relevant controls, curves, construction and labels, consistent cream background and legible contrast. Capture the board only, without workspace controls. Preserve mathematical coordinates and visible construction meaning; capture-only camera/label sizing is allowed. Include meaningful, checkable scene evidence and fail on empty/missing graph data or runtime errors.
+- Render responsive figures with intrinsic dimensions, bilingual alt text and captions explaining the pictured claim/starting scene. Use enough reading-column space for labels, avoid cropping, and mount no live boards in reading. Remove the obsolete hand-drawn SVG/geometry helpers.
+- Provide a repeatable offline command, reuse existing capture presentation helpers where appropriate, and retain a compact manifest identifying activity URLs, source/build provenance, scene checks and output hashes. Regeneration must not mutate catalog assets or authored scenes. Document refresh instructions and caption/label language limitations.
+- Check curve endpoints/control points, De Casteljau parameter and degree, Bernstein degree/basis, convex hull visibility and affine starting geometry against actual scene/recipe evidence. Unit checks must preserve existing activity/content invariants. Run typecheck, focused lint, production build and delegated browser checks of image decoding, framing, responsive layout, language captions and activity scene/return. Handler reviews all six captures and desktop/narrow reader renders.
