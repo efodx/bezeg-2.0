@@ -1,0 +1,140 @@
+{
+  "sourceSha256": "4a88d4443ffdbdb88154f624033fa37d507e990f15f16575ded40e84a2c4341b",
+  "renderer": "three.js r180",
+  "presets": [
+    {
+      "kind": "tensor",
+      "view": "front",
+      "visibleLabels": 12,
+      "vectorLabels": 12,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 26034
+    },
+    {
+      "kind": "tensor",
+      "view": "top",
+      "visibleLabels": 17,
+      "vectorLabels": 17,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 269853
+    },
+    {
+      "kind": "tensor",
+      "view": "side",
+      "visibleLabels": 12,
+      "vectorLabels": 12,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 24065
+    },
+    {
+      "kind": "tensor",
+      "view": "isometric",
+      "visibleLabels": 17,
+      "vectorLabels": 17,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 144398
+    },
+    {
+      "kind": "triangular",
+      "view": "front",
+      "visibleLabels": 9,
+      "vectorLabels": 9,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 21160
+    },
+    {
+      "kind": "triangular",
+      "view": "top",
+      "visibleLabels": 11,
+      "vectorLabels": 11,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 63708
+    },
+    {
+      "kind": "triangular",
+      "view": "side",
+      "visibleLabels": 10,
+      "vectorLabels": 10,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 18713
+    },
+    {
+      "kind": "triangular",
+      "view": "isometric",
+      "visibleLabels": 10,
+      "vectorLabels": 10,
+      "svgEmbeddedPng": [
+        1005,
+        810
+      ],
+      "png": [
+        1005,
+        810
+      ],
+      "nonWhite": 42882
+    }
+  ],
+  "touch": {
+    "owner": 0,
+    "xyPointMode": true,
+    "zPointMode": true,
+    "zDelta": 0.49777777777777776,
+    "cameraFixed": true
+  },
+  "errors": [],
+  "touchOverlap": {
+    "owner": 1,
+    "visible": false,
+    "frontmost": 5,
+    "frontmostDistance": 12.891247965617753
+  }
+}
