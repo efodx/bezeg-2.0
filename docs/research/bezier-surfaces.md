@@ -147,6 +147,13 @@ Each lesson ends with a measurable takeaway (MT), something a student can do or 
 
 Lessons 1–5 form a minimal first release. Lessons 6–10 can follow.
 
+**Owner decision (2026-10-26):** the first release teaches both tensor-product (square) and triangular patches. Lesson 10 is therefore split:
+
+- **10a. Triangular patches** (first release). MT: count triangular control points, locate a point by barycentric \((u,v,w)\), run barycentric de Casteljau at the centroid, and show that a boundary is a degree-\(n\) Bézier curve. Compare it with a tensor patch of the same boundary degree.
+- **10b. Rational patches** (later). MT: explain why a sphere octant needs weights.
+
+The teapot capstone stays with the tensor-product lessons.
+
 ### 2.3 Common misconceptions
 
 - **"The surface passes through all control points."** Only the corners are interpolated. (Students carry over the same error from curves; Farin.)
