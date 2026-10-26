@@ -9,7 +9,7 @@ Every layer currently assumes planar geometry. The chapter/catalog layers extend
 | Layer | Today | Needed for surfaces | Size |
 | --- | --- | --- | --- |
 | Family and catalog | `families` in `src/demonstrations.ts`, `FamilyId`, metadata, `familyChapters.ts`, `learningChapters.ts` | New `surfaces` family, demonstrations, bilingual chapter | Additive, small |
-| Geometry | `Point` is `X()/Y()` (`src/bezeg/api/point/point.ts`); curve impls are Point-based | Numeric 3D surface module independent of `Point`, JSXGraph and React | New module, medium |
+| Geometry | `Point` is `X()/Y()` (`src/bezeg/api/point/point.ts`); curve impls are Point-based | Extract the existing dimension-generic de Casteljau/elevation/subdivision as shared kernels; add optional `Z()` to points; patches compose the curve kernels; only the triangular recurrence is new | Refactor + small new module, medium |
 | Rendering | JSXGraph 1.9.2 2D board per graph via `GraphSession`/`BaseGraph` | Projected 3D view: wireframe/net, iso-curves, optionally shaded patch, camera | **Decision needed**, large |
 | Interaction | 2D drag, `CurveEditingFeature`, structured x/y editing | 3D point editing without depth ambiguity, orbit, preset views, keyboard/touch | Medium–large |
 | Presets | 2D curve DTOs via `ClassMapper`, 2D board bounds | New surface DTO, 3D box + camera, validation | Additive format change |
@@ -34,9 +34,36 @@ Every layer currently assumes planar geometry. The chapter/catalog layers extend
 
 ## 2. Geometry module
 
-Create `src/bezeg/impl/surface/` (with API types in `src/bezeg/api/surface/`). It should work on numeric `Vec3 = readonly [x, y, z]` arrays, not on the 2D, function-capable `Point`. This follows the target "Geometry" module in [curve-architecture-deep-dive.md](../curve-architecture-deep-dive.md#proposed-target-modules): numeric definitions in, evaluations/constructions out, with no JSXGraph or graph-global cache.
+Share the curve algorithms; do not write a parallel surface implementation (owner direction, 2026-10-26). The roadmap idea of extending points to 3D fits this plan.
 
-- **Core kernel:** a dimension-generic de Casteljau on `number[][]` (points as coordinate arrays) returning the full triangular scheme. Surfaces apply it row-wise, then once along the column (two-stage). The direct bilinear scheme is a separate function so lessons can compare them. Do not refactor curve classes onto it in the same change; curves keep their own tested path.
+**What already generalises.** `PolynomialBezierCurve.runDeCasteljau` (`src/bezeg/impl/curve/polynomial-bezier-curve.ts:84`) is the one recurrence used by evaluation, the scheme, subdivision and extrapolation, for polynomial and rational curves. It already operates on coordinate rows of any length; only `length === 2` takes a fast path. The 2D coupling is only at the edges:
+
+- `eval`/`evaluatePoint` read `X()/Y()` and return `PointImpl(x, y)`;
+- `decasteljauScheme` maps rows to `PointImpl(x, y)`;
+- `elevate` computes `x` and `y` explicitly.
+
+**Plan: two behaviour-preserving steps, then patches.**
+
+1. **Extract coordinate-array kernels.** Pull these out as pure exported functions on `number[][]` rows of any dimension:
+   - `runDeCasteljau` (with optional weights and scheme);
+   - degree elevation, polynomial and rational;
+   - subdivision and extrapolation, read from the scheme.
+
+   Polynomial and rational curves delegate to them unchanged. This is a pure refactor, so the existing `de-casteljau-unified`, `bezier-evaluation` and spline/PH golden tests must pass unchanged, and the drag benchmark in [performance-plan.md](../performance-plan.md) must not regress (keep the 2D fast path).
+2. **Extend points to 3D.** Add an optional `Z()` to `Point` (absent means `0`), a `z` argument to `PointImpl` with its own version stamp, and carry `z` through the curve edges above. A polynomial or rational curve with 3D control points then evaluates, subdivides and elevates in 3D without new mathematics. Two cautions:
+   - Planar-only code must not silently drop `z`: PH curves (complex arithmetic), `convexHull`, `chordKnots`, `boundingBoxOf`, `distance`, and the 2D Preset DTOs. Type those inputs to accept only 2D points, for example a `Point2` vs `Point3` split, or reject points with a nonzero `z`. Do not rely on the default.
+   - `ModelPointBinding` and JSXGraph 2D adapters stay 2D. 3D points bind through the new 3D adapter.
+3. **Build patches as compositions of the kernels.** A tensor patch has rows `(m+1)×(n+1)` of 3D coordinates:
+   - **Evaluation:** curve de Casteljau on each row at `u`, then on the resulting column at `v`, using the same kernel.
+   - **Boundary and iso-curves:** these are ordinary curve objects, `PolynomialBezierCurve` over 3D points, so subdivision, elevation and the scheme come for free.
+   - **Subdivision or elevation in `u` or `v`:** apply the curve operation to every row or column.
+   - **Rational patches later:** reuse the weighted kernel.
+
+   The direct bilinear variant and the triangular barycentric recurrence are the only genuinely new recurrences.
+
+The patch types add only net structure (grid or triangular indexing), patch-level caching and normals. Like the target "Geometry" module in [curve-architecture-deep-dive.md](../curve-architecture-deep-dive.md#proposed-target-modules), they stay free of JSXGraph, React and graph-global cache. Location: `src/bezeg/impl/surface/` with API types in `src/bezeg/api/surface/`.
+
+- **Kernel tests:** each extracted kernel gets dimension-parametrised tests (2D results identical to before; 3D results checked against the Bernstein sum). This is the mathematical check that sharing preserved meaning.
 - **`TensorProductBezierSurface`** (degree `(m, n)`, net `(m+1)×(n+1)`):
   - evaluate `S(u, v)`;
   - scheme at `(u, v)`;
@@ -140,7 +167,12 @@ Whichever option wins, put it behind a small surface-view adapter: `attach`, `re
 1. **JSXGraph upgrade** to the latest 1.x, as its own change with full 2D regression checks.
 2. **Renderer spike + ADR** on the upgraded library. Measured; no production code.
 3. **Spec** in `docs/specs/bezier-patches.md`, with acceptance criteria and the demonstration list.
-4. **Geometry module with mathematical tests** for both tensor and triangular patches. It is independent of rendering, so it can run in parallel with steps 1–2.
+4. **Shared geometry**, independent of rendering, so it can run in parallel with steps 1–2:
+   1. extract the curve kernels (pure refactor, unchanged golden tests);
+   2. add optional 3D points with planar-only guards;
+   3. build the tensor and triangular patch types on the kernels, with mathematical tests.
+
+   Each sub-step is its own commit.
 5. **Tensor-product patch demonstration.** This proves the surface-view adapter, 3D editing, camera, Presets and transient state. Then the de Casteljau demonstration and the chapter reading pages.
 6. **Triangular patch demonstration,** with the parameter-domain inset.
 7. **Guided lessons** with fixtures and new actions, plus previews.
