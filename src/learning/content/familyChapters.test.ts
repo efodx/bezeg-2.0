@@ -184,4 +184,43 @@ describe('family reading chapters', () => {
         expect(offsets).toContain('self-intersection');
         expect(offsets).toContain('global regularity');
     });
+
+    test('teaches spline chord allocation separately from the rational curve parameter warp', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'parametrization')!;
+        const weighted = chapter.sections.find(section => section.id === 'weighted-knot')!;
+        const worked = chapter.sections.find(section => section.id === 'worked-timing')!;
+        const weightedText = weighted.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        const workedText = worked.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(weighted.demonstrationIds).toEqual(['spline-parameterization']);
+        expect(worked.demonstrationIds).toEqual(['spline-parameterization']);
+        expect(weightedText).toContain('endpoints of each spline span');
+        expect(weightedText).toContain('length of its chord');
+        expect(workedText).toContain('\\frac15');
+        expect(workedText).toContain('\\frac45');
+        expect(workedText).toContain('\\frac13');
+        expect(workedText).toContain('\\frac23');
+
+        const trace = chapter.sections.find(section => section.id === 'trace-vs-parameter')!;
+        expect(trace.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ')).toContain('neutral');
+        expect(trace.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ')).toContain('\\frac12');
+
+        for (const section of chapter.sections) {
+            for (const id of section.demonstrationIds ?? []) {
+                expect(section.investigationPrompts?.[id]?.sl, `${section.id}/${id} SL`).toBeTruthy();
+                expect(section.investigationPrompts?.[id]?.en, `${section.id}/${id} EN`).toBeTruthy();
+            }
+        }
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets['spline-parameterization'],
+            demonstrationPreviewAssets['weighted-parameterization'],
+            demonstrationPreviewAssets['uniform-parameterization'],
+        ]);
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('0{,}7');
+        expect(captions).toContain('12');
+        expect(captions).toContain('0{,}25');
+        expect(captions).toContain('weighted mode');
+        expect(captions).toContain('not arc-length mode');
+    });
 });
