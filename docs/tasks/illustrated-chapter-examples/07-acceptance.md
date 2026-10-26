@@ -1,6 +1,6 @@
 # 07 — Reconcile and accept the complete chapter flow
 
-Status: in progress. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A1–A8 and verification](../../specs/illustrated-chapter-examples.md). Dependencies: 03–06 complete with evidence. Role: handler integration and acceptance, with delegated independent review and smoke.
+Status: complete 2026-10-26. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A1–A8 and verification](../../specs/illustrated-chapter-examples.md). Dependencies: 03–06 complete with evidence. Role: handler integration and acceptance, with delegated independent review and smoke.
 
 1. At a stable revision with writers idle, reconcile all eight chapters in both languages against the baseline audit. Account for every original entry and distinct goal, every final placement and preview. Remove temporary renderer adapters and registry append fallbacks. Fail on unexplained duplicates, unplaced entries, missing assets, stale scenes or unresolved aliases. Inspect reading sequences rather than trusting counts alone.
 2. Validate provenance/checksums and actual initial scene matches for every retained image. Review caption/alternative-text accuracy and mathematical claims. Reconcile shared asset reuse explicitly. Review old-to-new entry and section maps, catalog guidance, direct loads and refresh, and existing preset compatibility; document any accepted break and user impact.

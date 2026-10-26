@@ -1,6 +1,6 @@
 # 01 — Establish authored placement and stable example identity
 
-Status: implemented; final media and browser acceptance in progress. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A2, A3, A6, A7](../../specs/illustrated-chapter-examples.md). Dependency: 00 accepted. Role: shared learning implementation owner.
+Status: complete 2026-10-26. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A2, A3, A6, A7](../../specs/illustrated-chapter-examples.md). Dependency: 00 accepted. Role: shared learning implementation owner.
 
 Own the shared content types, chapter renderers, example registry/resolution and return-reference seams. Start at `ChapterPage.tsx`, `FamilyChapterPage.tsx`, `ChapterGuidedLessons.tsx`, `chapter/guidedExamples.ts` and `chapter/guidedExampleReading.ts`; inspect relevant tests before changing the interface.
 

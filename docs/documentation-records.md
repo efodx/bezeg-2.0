@@ -5,6 +5,7 @@ This catalog preserves the previous documentation index for finding feature spec
 Completed handoffs have been consolidated into the implementation histories below. The [planning cleanup review](reviews/planning-cleanup-2026-10-24.md) reconciles known completion and supersession; the [retention policy](specs/documentation-lifecycle.md) explains when records can be consolidated or removed.
 
 - [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled completion, owner decisions, verification gaps, retirement candidates and recommended next steps.
+- [Illustrated chapter examples](specs/illustrated-chapter-examples.md): completed bilingual reading flow with 56 exact-scene previews; [acceptance evidence](reviews/illustrated-chapter-examples/acceptance.md) and completed task index.
 - [Graph visual style](specs/graph-visual-style.md): illustrated C references, graph-preservation constraints, and acceptance evidence required for the follow-up.
 - [Graph visual style implementation evidence](reviews/graph-visual-style/README.md): matched scenes, provenance, checks and limitations.
 - [Rendered graph style contracts](specs/rendered-graph-style-contracts.md): real JSXGraph marker/state and downloaded-figure regression checks.

@@ -1,6 +1,6 @@
 # Illustrated chapter examples: implementation tasks
 
-Status: implementation in progress, authorized 2026-10-26. Source: [Illustrated guided examples within chapter flow](../../specs/illustrated-chapter-examples.md). See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md) for completed checks and outstanding requirements.
+Status: complete 2026-10-26, authorized by the tasks from `2c3df6a`. Source: [Illustrated guided examples within chapter flow](../../specs/illustrated-chapter-examples.md). See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md) for A1–A8 acceptance and verification limits.
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |
@@ -13,8 +13,4 @@ Status: implementation in progress, authorized 2026-10-26. Source: [Illustrated 
 | [06 Functions, calculus and analysis](06-functions-analysis.md) | 00–02 | Two complete bilingual chapters, merged examples and final captures |
 | [07 Integrated review and acceptance](07-acceptance.md) | 03–06 | Exhaustive reconciliation, review, checks and browser evidence |
 
-Task 00 is complete; tasks 01–03 are in progress. Final captures, chapter migrations and integrated acceptance remain outstanding. Read the source spec and assigned task before implementing. The handler owns dispatch, review, integration, checks and Git; implementation workers do not delegate or commit. Follow [agent workflow](../../agent-workflow.md) for bounded assignments and evidence. Return at most 400 words summarizing changed paths, acceptance covered, check results, unresolved risks and the durable evidence path; keep bulky matrices and capture output in files.
-
-Tasks 03–06 are content slices, not unrestricted concurrent write permission. `familyChapters.ts`, the example registry, capture manifests and shared tests have one writer at a time. Prefer serial batches; parallel work requires handler-assigned disjoint files or explicit section handoffs with handler integration. The preview/build server has a named owner and stable revision; coordinate capture and smoke ports. Split a batch at a chapter boundary if it exceeds a bounded worker assignment.
-
-Each batch updates the audit mapping and evidence for its chapters, with final captures after its scene/content changes. The final handler reconciles the complete matrix rather than treating batch checks as whole-product acceptance. Application implementation, image capture and browser verification are future work; creating this queue does not claim those checks passed.
+Tasks 00–07 are complete. All 175 source placements map to 56 retained homes, with exact prepared-scene previews and authored bilingual placement. The acceptance record retains curriculum, independent review, capture, automated checks and actual browser evidence. These files preserve the original bounded requirements as historical context; they are no longer an active work queue.

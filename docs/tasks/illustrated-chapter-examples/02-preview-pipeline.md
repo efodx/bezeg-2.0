@@ -1,6 +1,6 @@
 # 02 — Capture and validate actual prepared-example previews
 
-Status: implemented; final media and browser acceptance in progress. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A4, A5, A7](../../specs/illustrated-chapter-examples.md). Dependencies: 00 and 01 accepted. Role: capture/media integration owner.
+Status: complete 2026-10-26. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A4, A5, A7](../../specs/illustrated-chapter-examples.md). Dependencies: 00 and 01 accepted. Role: capture/media integration owner.
 
 Own the shared capture tool, preview metadata/validation and manifest contract. Coordinate shared card rendering with task 01's owner; chapter batches own final content and captures. Start with `scripts/capture-chapter-figures.cjs`, `chapterActivityFigures.ts`, `ChapterExploration.tsx`, `ChapterGuidedLessons.tsx` and [capture commands](../../commands.md).
 

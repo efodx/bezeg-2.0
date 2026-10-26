@@ -1,6 +1,6 @@
 # 05 — Rewrite PH and parametrization chapter sequences
 
-Status: implemented; final media and browser acceptance in progress. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A1–A8](../../specs/illustrated-chapter-examples.md). Dependencies: 00–02 accepted. Role: chapter content/scene implementation worker; handler assigns shared-file ownership.
+Status: complete 2026-10-26. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A1–A8](../../specs/illustrated-chapter-examples.md). Dependencies: 00–02 accepted. Role: chapter content/scene implementation worker; handler assigns shared-file ownership.
 
 Scope: `ph-curves` and `parametrization`. Start at their audited sections in `content/familyChapters.ts`, PH/parameterization definitions, prepared scenes and example mappings. Coordinate shared registry changes with its owner.
 

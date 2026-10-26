@@ -1,6 +1,6 @@
 # Illustrated guided examples within chapter flow
 
-Status: implementation in progress, authorized 2026-10-26 by the owner's request to implement the tasks from `2c3df6a`. See the [curriculum audit](../reviews/illustrated-chapter-examples/curriculum-audit.md), [eight implementation tasks](../tasks/illustrated-chapter-examples/README.md), and [acceptance record](../reviews/illustrated-chapter-examples/acceptance.md). Acceptance remains incomplete.
+Status: complete 2026-10-26; implementation authorized 2026-10-26 by the owner's request to implement the tasks from `2c3df6a`. See the [curriculum audit](../reviews/illustrated-chapter-examples/curriculum-audit.md), [eight implementation tasks](../tasks/illustrated-chapter-examples/README.md), and [acceptance record](../reviews/illustrated-chapter-examples/acceptance.md). All tasks and A1–A8 are accepted; the acceptance record distinguishes local verification from hosted delivery.
 
 ## Outcome and scope
 

@@ -2,11 +2,11 @@
 
 Implementation authorized by the owner's request to implement the tasks from `2c3df6a`, 2026-10-26. Source: [specification](../../specs/illustrated-chapter-examples.md) and [task queue](../../tasks/illustrated-chapter-examples/README.md).
 
-Status: implementation substantially complete; browser review found missing prompts and narrow enlarged-text overflow. Acceptance remains incomplete. No final acceptance or deployment is claimed yet.
+Status: complete 2026-10-26. All tasks and A1–A8 accepted. Missing prompts and enlarged-text overflow were repaired and verified. Hosted delivery is recorded separately below.
 
 ## Scope and curriculum
 
-Implementation uses `.worktrees/consolidated-learning`, branch `codex/consolidated-learning`, baseline `2c3df6aa32d906f2e10279f1b45b16a1fb23fa09`; verification below uses dirty `ad37517a9e43fb043e514b5044b7d3ac2065bd2c`. The primary checkout has unrelated changes and is excluded.
+Implementation uses `.worktrees/consolidated-learning`, branch `codex/consolidated-learning`, baseline `2c3df6aa32d906f2e10279f1b45b16a1fb23fa09`; final capture and production-browser verification use `93066f43c9edf0cd145473fd62317f7397934b09`, integrated onto master at `2ef29a0`. Later commits `a96d00b` and `28f8cbb` contain verified smoke assertions/reports and refreshed provenance only. The primary checkout has unrelated changes and is excluded.
 
 The [curriculum audit](curriculum-audit.md) and [baseline inventory](baseline-examples.json) account for 175 original placements across eight chapters and 44 sections: 56 retained, 40 merged and 79 aliases map to 56 retained homes. Explicit bilingual reading sequences place every retained card once. No registry-append fallback remains. The distinct worked parabola and Foundations quadratic-weight examples remain separate; the former's coefficient reflection is explicitly on paper rather than a nonexistent graph control. Canonical and legacy entry forms keep their retained owners; no route or preset-format break is introduced.
 
@@ -19,23 +19,24 @@ The [curriculum audit](curriculum-audit.md) and [baseline inventory](baseline-ex
 | A3 Consolidation | Explicit retained/merged/alias mappings; coherent merged guidance; distinct worked parabola preserved. [Registry evidence](registry-foundations-final-note.md). | Passed |
 | A4 Actual-scene images | All 56 exact opening scenes captured, all images and bilingual copy reviewed; mismatches corrected; worked parabola reframed. [First 21](captured-copy-first21-note.md), [remaining 35](captured-copy-remaining35-note.md), [final capture](capture-final-note.md). | Passed |
 | A5 Reproducibility | Complete generated inventory, clean context per scene, initial-frame guards, numerical checks, checksums and provenance; permanent unit gate validates all 56 mappings/PNG bytes/source scenes/bilingual resolvers. [Manifest](../../../src/images/learning/examples/manifest.json). | Passed |
-| A6 Entry/return continuity | Unit coverage includes all 175 aliases, malformed queries and retained owners. Final production-browser continuity check in progress. | Pending browser |
-| A7 Readability/accessibility | Source review and media inspection complete; prompt-weight P2 fixed. Final desktop/projection/narrow touch/keyboard/enlarged-text checks in progress. | Pending browser |
-| A8 Complete coverage | Mathematical, engineering and UI source reviews complete; integrated checks and final media build passed. Delegated browser evidence pending. | Partial |
+| A6 Entry/return continuity | Unit coverage includes all 175 aliases, malformed queries and retained owners. Canonical/legacy routes, refresh/history/language and four midway/completion focus/scroll returns passed. [Browser evidence](final-browser-acceptance.md). | Passed |
+| A7 Readability/accessibility | Source review and media inspection complete; prompt-weight P2 fixed. All 64 bilingual viewport checks, touch/keyboard, 200% text and missing-media fallback passed. [Browser evidence](final-browser-acceptance.md). | Passed |
+| A8 Complete coverage | Mathematical, engineering and UI source reviews complete; integrated checks and final media build passed. All 56 images decoded in both languages; observed order, identity, copy and URLs match the inventory. [Browser evidence](final-browser-acceptance.md). | Passed |
 
 ## Automated verification
 
 - `just --list` inspected at start and continuation boundaries.
 - Full `just check` passed in 479.0 seconds: 192 files / 3,682 tests, typecheck, lint and production build. Log `.command-logs/handler-integrated-check-3.log`; full test log `2026-10-26T14-33-07-962Z-91852-6bc084a7.log`. Earlier transient file-loading failures did not recur. This predates later caption/media/capture-tooling/CSS-only changes; affected checks below supplement it.
-- Final exact `npx tsc --noEmit --pretty false` passed; `.command-logs/handler-final-exact-tsc.log` is empty.
-- Final affected unit run passed 5 files / 13 tests: published-media gate, bilingual preview copy, unchanged lesson math notation, exploration fallback and guided-card rendering. `.command-logs/handler-final-focused.log` / `2026-10-26T15-05-52-192Z-12532-da5d0efb.log`.
-- Final Node capture/API/inventory run passed 17 tests; `.command-logs/handler-final-media-tooling.log`. Scoped ESLint passed; `.command-logs/handler-final-focused-lint.log`.
-- Final production build after all PNGs and copy fixes passed in 8.1 seconds; `.command-logs/handler-final-media-build.log` / `2026-10-26T15-06-09-370Z-95956-dab9045b.log`. Served entry bundles were compared byte-for-byte with this build before smoke dispatch and matched.
+- Integrated-master `just check`: typecheck and lint passed; 192 test files ran with 3,685 passing tests and one stale Foundations figure-count assertion. The command exited 1. The corrected assertion distinguishes two explanatory figures from three illustrated cards; focused LearningPage/guided-example/media/math-notation tests passed (`handler-final-unit-repair.log`). This full run is not reported as passing.
+- Exact `npx tsc --noEmit --pretty false` and scoped ESLint passed (`handler-master-exact-tsc.log`, `handler-final-test-lint.log`). Integrated capture/inventory/API and catalog-provenance tooling passed 53 Node tests (`handler-master-tooling.log`).
+- Full 56-scene recapture after integrating master produced SHA-identical PNGs to the reviewed set; changed images = 0 (`final-capture-comparison.json`). Capture source is `93066f4`; post-capture media and LearningPage tests passed (`handler-post-capture-unit.log`).
+- Final production build passed in 8.6 seconds (`handler-final-browser-build.log`). Served HTML and all five JS/CSS assets matched local bytes, including `index-9pAhOL_0.js` and `index-Ci6_9flY.css`. Existing Sass/eval warnings remain.
+- Selected production smoke suite: 20 passed and five stale selector/scene-fixture assertions failed initially. All five corrected cases then passed against the same build; syntax and scoped lint passed. This is combined 25-case coverage, not one all-green 25-case run. [Repair evidence](final-smoke-assertion-repair.md).
 - Vitest's filesystem transform cache retained the earlier empty image glob after the PNGs appeared. The media gate passed with `--no-fsModuleCache`; the stale cache was then cleared using `npx vitest --clearCache`, and the final ordinary unit command above passed. One attempted full check was stopped before completion while recapture was active; it supplies no verification evidence.
 
 ## Review and regression evidence
 
-Independent [mathematical](mathematical-review-2.md) and [engineering](engineering-review-2.md) reviews each reported one P2, both fixed and rereviewed. The [final engineering/UI review](final-engineering-ui-review.md) accepted ordered rendering, stable lesson cache ownership, media fallback and focus structure. Its inherited bold-prompt finding was fixed by restricting the paragraph selector to direct children; browser style confirmation remains pending.
+Independent [mathematical](mathematical-review-2.md) and [engineering](engineering-review-2.md) reviews each reported one P2, both fixed and rereviewed. The [final engineering/UI review](final-engineering-ui-review.md) accepted ordered rendering, stable lesson cache ownership, media fallback and focus structure. Its inherited bold-prompt finding was fixed by restricting the paragraph selector to direct children; browser confirmation passed with prompt weight 400 across all 64 viewport/locale checks. Seven missing learner prompts and enlarged MathJax overflow were repaired; see [repair evidence](card-repair-note.md).
 
 Production capture exposed a lesson identity loop: repeated retained-example resolution cloned lesson definitions and replaced active sessions on graph updates. A source-definition/home-key WeakMap cache fixes this; the identity regression failed before and passed after the fix. The exact formerly hanging URL then opened in under two seconds with no runtime errors. Logs `.command-logs/handler-stable-identity-red.log` and `handler-stable-identity-green.log`. Eight stale integration assertions were repaired against authored order and retained scenes; [39 focused tests passed](integration-test-repair-note.md).
 
@@ -45,6 +46,10 @@ New content assertions were observed failing for wrong degree, wrong authored ca
 
 ## Browser and release
 
-Delegated production smoke is running against the verified final build on port 4387. Required coverage is all eight chapters in both languages, real media, representative entry forms and refresh/history/language behavior, midway/completion return focus and reading position, responsive/keyboard/touch/enlarged-text flows, plus the shared-workspace baseline.
+The [final production-browser review](final-browser-acceptance.md) passed 133 distinct checks, including 112 bilingual image decodes, 64 responsive chapter checks, four return flows, representative graph interactions and guided observation/edit/reopen/exit restoration. The initial detached fallback locator was a harness race; its focused rerun passed. No uncaught runtime errors occurred. Intentional image-request failure was recorded. All owned preview/browser processes were closed; an unrelated pre-existing server on port 4387 was left untouched.
 
-Physical-device, actual-projector and classroom observation remain optional follow-up under the release policy. Local preview results will not be presented as hosted GitHub Pages evidence. Final commit, master push and deployment checks remain pending browser acceptance.
+Physical-device, actual-projector and classroom observation remain optional under the release policy. Screen-reader behavior was not tested. Local preview results are not hosted GitHub Pages evidence. Push and hosted CI/deployment verification are pending delivery closeout.
+
+## Evidence retention
+
+Five temporary handler handoffs were retired after consolidating their final outcomes here and in the linked capture, repair, review and browser records. Historical evaluation entries mentioning those filenames refer to former continuation notes; this record is their current completion reference.
