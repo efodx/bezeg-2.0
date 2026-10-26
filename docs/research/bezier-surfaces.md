@@ -1,6 +1,6 @@
 # Bézier surfaces as a learning family
 
-Research date: 2026-10-26. This page gathers sources and teaching options for a future Bézier surface family. It is not a spec or a migration decision. Mathematical statements come from standard CAGD textbooks, cited by bibliographic reference because their chapter numbering differs between editions. Library statements come from official JSXGraph and three.js documentation, the JSXGraph CHANGELOG and the published 1.9.2 package source. The app's internal architecture is out of scope here.
+Research date: 2026-10-26. This page gathers sources and teaching options for a future Bézier surface family. It is not a spec or a migration decision; see the [Bézier patches spec](../specs/bezier-patches.md). Mathematical statements come from standard CAGD textbooks, cited by bibliographic reference because their chapter numbering differs between editions. Library statements come from official JSXGraph and three.js documentation, the JSXGraph CHANGELOG and the published 1.9.2 package source. The app's internal architecture is out of scope here.
 
 ## Summary
 

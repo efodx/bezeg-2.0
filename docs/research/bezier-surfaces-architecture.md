@@ -1,6 +1,6 @@
 # Bézier surfaces: architectural requirements
 
-Repository inspection: 2026-10-26. This note maps what a Bézier surface learning family needs from the app. It is planning input for a later spec under `docs/specs/`, not an accepted decision. The mathematical and teaching material, plus first-party library facts, are in [bezier-surfaces.md](bezier-surfaces.md).
+Repository inspection: 2026-10-26. This note maps what a Bézier surface learning family needs from the app. It is planning input; the resulting contract is the [Bézier patches spec](../specs/bezier-patches.md), which takes precedence where they differ. The mathematical and teaching material, plus first-party library facts, are in [bezier-surfaces.md](bezier-surfaces.md).
 
 ## Summary
 
