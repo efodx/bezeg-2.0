@@ -156,16 +156,40 @@ The chapter is prerequisite-linked to Bézier curves and is placed after the cur
 
 ## Localization
 
-Slovenian is the default. `sl.ts` and `en.ts` stay in lockstep with typed keys. Agreed: *Bézierjeve krpe* / *Bézier patches* (family).
+Slovenian is the default. `sl.ts` and `en.ts` stay in lockstep with typed keys.
 
-Open questions for the owner, to be answered before chapter copy (task-blocking only for content work):
-- the Slovenian names for the two kinds (tensor-product, triangular);
-- control net (*kontrolna mreža*?);
-- iso-curve;
-- boundary curve (*robna krivulja*?);
-- twist vector.
+**Terminology.** Decided 2026-10-26: the owner chose the family name and delegated the rest after a source search. Use these terms consistently in UI, chapter, lessons and the glossary. Two conventions apply:
 
-Standard terms needing only confirmation: *baricentrične koordinate*, *tangentna ravnina*, *normala*.
+- **Adjective spelling:** *Bézierjev-* (*Bézierjeva krpa*), matching the app's existing copy (about 100 uses vs 1 *Bézierov-*) and FMF usage. Some FRI graphics material writes *Bézierova krpa*; do not mix the two.
+- **Patch vs surface:** *krpa* is the patch, a single parametric piece; *ploskev* is a surface in general, for example several patches together or "parametrična ploskev".
+
+| English | Slovenian | Basis |
+| --- | --- | --- |
+| Bézier patches (family) | **Bézierjeve krpe** | Owner decision |
+| Bézier patch | **Bézierjeva krpa** | Owner decision; FRI graphics handouts use *krpa* |
+| tensor-product patch | **tenzorska Bézierjeva krpa**; in definitions, *krpa v obliki tenzorskega produkta* | FMF CAGD syllabus "tenzorski produkti"; Šadl Praprotnik (2021) "tenzorske … Bézierjeve ploskve" |
+| triangular patch | **trikotna Bézierjeva krpa** | FMF CAGD syllabus "trikotne krpe"; Šteblaj (2023) keyword "trikotne Bezierjeve krpe". The owner rejected bare *trikotna krpa* as the family name; the full form with *Bézierjeva* is used for the kind. |
+| bilinear / biquadratic / bicubic patch | **bilinearna / bikvadratna / bikubična Bézierjeva krpa** | FRI handouts "bilinearna krpa", "bikubična Bézierova krpa" (spelling aligned) |
+| control net | **kontrolna mreža** | FRI handouts "kontrolna mreža šestnajstih točk"; parallels the app's *kontrolni poligon* |
+| boundary curve | **robna krivulja** | Jaklič & Kanduč (FMF) "robne krivulje vsake trikotne krpe" |
+| iso-curve (isoparametric curve) | **izoparametrična krivulja** | diameter.si *Krivulje in ploskve* "izo-parametričnih krivulj". Prose may say *krivulja pri stalnem \(u\)* |
+| parameter domain | **parametrično območje** (unit square / reference triangle: *enotski kvadrat* / *referenčni trikotnik*) | Chosen; standard analysis wording |
+| barycentric coordinates | **baricentrične koordinate** | Standard |
+| partial derivative | **parcialni odvod** | Standard |
+| tangent plane / normal | **tangentna ravnina** / **normala** | Standard |
+| twist vector | **mešani odvod** (on first mention: *mešani odvod oz. vektor zasuka, angl. twist*) | No Slovenian source found. The mixed partial \(S_{uv}\) is standard calculus vocabulary, so it is primary; *vektor zasuka* is a gloss only. |
+| degree elevation / subdivision / convex hull | **višanje stopnje** / **subdivizija** / **konveksna ovojnica** | Existing app terms |
+| C0/C1 join, G1 | **zveznost C0/C1**, **geometrijska zveznost G1** | Existing app terms |
+
+Sources:
+- FMF *Računalniško podprto (geometrijsko) oblikovanje* syllabus (fmf.uni-lj.si, programme 2MATE, course 364);
+- FRI *Računalniška grafika: Krivulje in ploskve* handouts (itzsimpl.info/lectures/CG/L4-curves&patches_handouts.pdf, 2012);
+- M. Šteblaj, *Predstavitev polinomskih krivulj in ploskev s principom razcveta*, MSc thesis (UL FMF, 2023, RUL repository);
+- A. Šadl Praprotnik, FMF seminar abstracts (2021);
+- T. Kanduč, FMF seminar abstract;
+- diameter.si *SciQuest*, ch. 31.
+
+The FMF pages were seen only as search-result excerpts: their TLS certificate failed verification, so they were not fetched.
 
 ## Acceptance criteria
 
@@ -211,7 +235,7 @@ The graph remains prominent, and controls follow the one-home rule. The elderflo
 
 **P8 — Presets.** Save, load, delete, export and import work for both patch types, including the camera. Malformed files get actionable localized errors. Existing Presets and files still load.
 
-**P9 — Content quality.** Chapter prose and lessons pass `lessonMathNotation.test.ts` and pass mathematical review. Each listed misconception is addressed. Slovenian terms match the owner's answers.
+**P9 — Content quality.** Chapter prose and lessons pass `lessonMathNotation.test.ts` and pass mathematical review. Each listed misconception is addressed. Slovenian copy uses the terminology table consistently, including the *Bézierjev-* spelling and *krpa* vs *ploskev*.
 
 **P10 — Documentation.** These are updated:
 - capabilities, current architecture and `docs/ui-functionality.md`;
