@@ -49,8 +49,18 @@ for (const chapter of chapters) {
         await expect(page.locator('mjx-merror, .mjx-merror')).toHaveCount(0);
         await page.setViewportSize({width: 390, height: 844});
         await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+        if (chapter === 'parametrization') {
+            // Stress the real action labels independent of the host's installed fonts.
+            await page.locator('.chapter-open-activity').evaluateAll(actions => {
+                if (actions.length === 0) throw new Error('Parametrization chapter action links are missing.');
+                actions.forEach(action => { action.style.letterSpacing = '.12em'; });
+            });
+        }
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
         expect(overflow).toBe(false);
+        if (chapter === 'parametrization') {
+            await expect(page.locator('.chapter-open-activity').first().locator('span[aria-hidden="true"]')).toBeVisible();
+        }
         if (chapter !== 'bezier-curves') {
             const summary = page.locator('.learning-mobile-contents summary');
             await summary.focus();
