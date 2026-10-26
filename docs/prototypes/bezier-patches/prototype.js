@@ -1,9 +1,10 @@
 (() => {
   const $ = id => document.getElementById(id);
-  const state = { kind: 'tensor', mesh: 'surface', iso: 8, tiling: 8, showIso: true, showNet: true, zMode: false, uv: [0.32, 0.44], stress: 0 };
+  const state = { kind: 'tensor', mesh: 'surface', iso: 8, tiling: 8, showIso: true, showNet: true, zMode: false, uv: [0.32, 0.44] };
   const owned = { board: null, inset: null, resize: null, points: [], objects: [], construction: [], insetObjects: [], net: [], grid: [], netKind: null, listeners: [], disposed: false, view: null };
   const binom = (n, k) => { let v = 1; for (let i = 1; i <= k; i++) v = v * (n - i + 1) / i; return v; };
   const mix = (a, b, t) => a.map((x, i) => x * (1 - t) + b[i] * t);
+  function sampleControlLine(points, s) { const q=Math.max(0,Math.min(1,s))*3; return q>=3?[...points[3]]:mix(points[Math.floor(q)],points[Math.floor(q)+1],q%1); }
   const casteljau = (pts, t) => { let row = pts.map(p => [...p]); while (row.length > 1) row = row.slice(0, -1).map((p, i) => mix(p, row[i + 1], t)); return row[0]; };
   const tensorPreset = () => Array.from({length: 4}, (_, i) => Array.from({length: 4}, (_, j) => {
     const x = (j - 1.5) * 2, y = (1.5 - i) * 2;
@@ -21,6 +22,9 @@
       for (let d=0; d<3; d++) p[d] += coeff*net[idx][d]; idx++;
     }
     return p;
+  }
+  function triangularIsoFamilies(evaluateAt) {
+    return [t=>s=>evaluateAt(t,s*(1-t)),t=>s=>evaluateAt(s*(1-t),t),t=>s=>evaluateAt(s*(1-t),(1-s)*(1-t))];
   }
   const evaluate = (u,v,offset=[0,0,0]) => {
     const p = state.kind === 'tensor' ? evalTensor(owned.grid,u,v) : evalTri(owned.net,u,v);
@@ -86,15 +90,21 @@
       }
     }
   }
+  function buildTeapot() {
+    const data=window.BezierTeapotData;
+    if(!data||data.teapotPatches.length!==512||data.teapotVertices.length!==870)throw Error('Reviewed 32-patch teapot data is unavailable');
+    for(let i=0;i<32;i++) { const flat=data.resolvePatch(i,{fitLid:false,blinn:true,displaySpace:false}),net=Array.from({length:4},(_,r)=>flat.slice(r*4,r*4+4)); const surf=owned.view.create('parametricsurface3d',[(u,v)=>evalTensor(net,u,v),[0,1],[0,1]],{strokeColor:'#bd8253',strokeWidth:.4,fillColor:'#dcae78',fillOpacity:.6,stepsU:Math.max(2,state.tiling),stepsV:Math.max(2,state.tiling),highlight:false}); owned.objects.push(surf); if(i===0&&state.showNet){for(const row of net)addLine(s=>sampleControlLine(row,s),{strokeColor:'#526950',dash:2});for(let j=0;j<4;j++)addLine(s=>sampleControlLine(net.map(row=>row[j]),s),{strokeColor:'#526950',dash:2});} }
+  }
   function rebuild() {
     if(!owned.board || owned.disposed) return;
+    $('domain-board').hidden=state.kind==='teapot';
     owned.board.suspendUpdate();
     cleanList(owned.objects); cleanList(owned.points);
+    if(state.kind==='teapot') { cleanList(owned.construction); owned.net=[]; owned.grid=[]; owned.netKind='teapot'; $('uv-label').textContent='32 patches; no single parameter domain'; buildTeapot(); updateReadout(); owned.board.unsuspendUpdate(); return; }
     if(owned.netKind!==state.kind || !owned.net.length) {
       if(state.kind==='tensor'){owned.grid=tensorPreset();owned.net=owned.grid.flat();}else{owned.net=triPreset();owned.grid=[];}
       owned.netKind=state.kind;
     }
-    for(let repeat=0;repeat<state.stress;repeat++) buildSurface([((repeat%8)-3.5)*2.2,(Math.floor(repeat/8)-1.5)*2.2,0]);
     buildSurface();
     const n=state.kind==='tensor'?4:10;
     if(state.showIso) {
@@ -102,7 +112,7 @@
         if(state.kind==='tensor') {
           addLine(s=>evaluate(t,s)); addLine(s=>evaluate(s,t));
         } else {
-          addLine(s=>evaluate(t*(1-s),t*s)); addLine(s=>evaluate(t*s,t*(1-s)));
+          for(const family of triangularIsoFamilies(evaluate)) addLine(family(t));
         }
       }
     }
@@ -111,8 +121,8 @@
     if(state.showNet) {
       const rows=state.kind==='tensor'?owned.grid:[];
       if(state.kind==='tensor') {
-        rows.forEach((row,i)=>addLine(s=>mix(owned.grid[i][Math.min(2,Math.floor(s*3))],owned.grid[i][Math.min(3,Math.floor(s*3)+1)],s*3%1),{strokeColor:'#526950',dash:2}));
-        for(let j=0;j<4;j++) addLine(s=>mix(owned.grid[Math.min(2,Math.floor(s*3))][j],owned.grid[Math.min(3,Math.floor(s*3)+1)][j],s*3%1),{strokeColor:'#526950',dash:2});
+        rows.forEach((row,i)=>addLine(s=>sampleControlLine(row,s),{strokeColor:'#526950',dash:2}));
+        for(let j=0;j<4;j++) addLine(s=>sampleControlLine(owned.grid.map(row=>row[j]),s),{strokeColor:'#526950',dash:2});
       } else {
         const lookup=new Map();let nidx=0;for(let i=3;i>=0;i--)for(let j=3-i;j>=0;j--){const k=3-i-j;lookup.set(`${i},${j},${k}`,nidx++);}
         for(let i=3;i>=0;i--)for(let j=3-i;j>=0;j--){const k=3-i-j,from=lookup.get(`${i},${j},${k}`);for(const key of [`${i-1},${j+1},${k}`,`${i-1},${j},${k+1}`,`${i},${j-1},${k+1}`]){const to=lookup.get(key);if(to!==undefined && from<to)addLine(s=>mix(owned.net[from],owned.net[to],s),{strokeColor:'#526950',dash:2});}}
@@ -123,6 +133,7 @@
   }
   function rebuildConstruction() {
     if(!owned.board || owned.disposed) return;
+    if(state.kind==='teapot') return;
     cleanList(owned.construction);
     const [u,v]=state.uv, p=evaluate(u,v);
     $('uv-label').textContent=`u=${u.toFixed(3)}, v=${v.toFixed(3)}${state.kind==='triangular'?`, w=${(1-u-v).toFixed(3)}`:''}`;
@@ -144,7 +155,7 @@
   }
   function updateReadout() {
     const count=boardCounts();
-    $('readout').textContent=JSON.stringify({ready:!!owned.board&&!owned.disposed,kind:state.kind,triangularRenderer:state.mesh,iso:state.iso,tiling:state.tiling,stress:state.stress,netCount:owned.net.length,uv:state.uv,pointCount:owned.points.length,counts:count},null,2);
+    $('readout').textContent=JSON.stringify({ready:!!owned.board&&!owned.disposed,kind:state.kind,triangularRenderer:state.mesh,iso:state.iso,tiling:state.tiling,teapotPatches:state.kind==='teapot'?32:0,netCount:owned.net.length,uv:state.uv,pointCount:owned.points.length,counts:count},null,2);
   }
   function setCamera(name) { const a={front:[0,0],top:[0,Math.PI/2-.03],side:[Math.PI/2,.05],isometric:[Math.PI/4,.6]}[name]; if(!a||!owned.view)return; owned.view.az_slide.setValue(a[0]); owned.view.el_slide.setValue(a[1]); owned.board.fullUpdate(); }
   function snapshot() { return {ready:!!owned.board&&!owned.disposed,kind:state.kind,net:owned.net.map(p=>[...p]),uv:[...state.uv],camera:owned.view?{az:owned.view.az_slide.Value(),el:owned.view.el_slide.Value()}:null,counts:boardCounts(),disposed:owned.disposed}; }
@@ -176,7 +187,7 @@
     for(const button of document.querySelectorAll('[data-view]'))bind(button,'click',()=>setCamera(button.dataset.view)); bind($('reset'),'click',()=>setCamera('isometric')); bind($('remount'),'click',remount);
     bind($('export-svg'),'click',exportSvg);bind($('export-png'),'click',()=>exportPng().catch(e=>alert(e.message)));
     bind($('presentation'),'click',()=>{document.body.classList.toggle('presentation');owned.board?.resizeContainer($('main-board').clientWidth,$('main-board').clientHeight,true);});
-    bind($('stress'),'click',()=>{state.stress=32;rebuild();});bind($('clear-stress'),'click',()=>{state.stress=0;rebuild();});
+    bind($('stress'),'click',()=>{$('kind').value='teapot';state.kind='teapot';rebuild();});bind($('clear-stress'),'click',()=>{$('kind').value='tensor';state.kind='tensor';state.uv=[.32,.44];rebuild();});
     bind($('main-board'),'keydown',e=>{if(!owned.view||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const az=owned.view.az_slide.Value()+(e.key==='ArrowLeft'?.08:e.key==='ArrowRight'?-.08:0),el=owned.view.el_slide.Value()+(e.key==='ArrowUp'?.06:e.key==='ArrowDown'?-.06:0);owned.view.az_slide.setValue(az);owned.view.el_slide.setValue(el);owned.board.fullUpdate();});
     bind($('main-board'),'pointerdown',()=>{$('main-board').focus({preventScroll:true});});
     bind(window,'resize',()=>{owned.board?.resizeContainer($('main-board').clientWidth,$('main-board').clientHeight,true);owned.inset?.resizeContainer($('domain-board').clientWidth,$('domain-board').clientHeight,true);});

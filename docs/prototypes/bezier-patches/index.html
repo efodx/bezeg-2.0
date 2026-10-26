@@ -11,7 +11,7 @@
 <body>
   <header>
     <strong>Bézier patch renderer spike</strong>
-    <label>Patch <select id="kind"><option value="tensor">Bicubic tensor (16)</option><option value="triangular">Cubic triangular (10)</option></select></label>
+    <label>Patch <select id="kind"><option value="tensor">Bicubic tensor (16)</option><option value="triangular">Cubic triangular (10)</option><option value="teapot">Utah teapot (32 patches)</option></select></label>
     <label>Triangular view <select id="triangle-renderer"><option value="surface">parametricsurface3d</option><option value="mesh">triangle mesh (polygon3d)</option></select></label>
     <label>Iso grid <select id="iso"><option>8</option><option>16</option></select></label>
     <label>Shading <select id="tiling"><option>8</option><option>16</option></select></label>
@@ -28,10 +28,11 @@
       <div id="domain-board" class="jxgbox"></div>
       <p>Focus the graph and use arrow keys to orbit. Drag empty space to orbit. Drag a net point in the XY plane; toggle z mode before dragging to change its height.</p>
       <pre id="readout"></pre>
-      <button id="stress">Add 32 repeated patches</button>
-      <button id="clear-stress">Clear repeated patches</button>
+      <button id="stress">Show Utah teapot (32 patches)</button>
+      <button id="clear-stress">Return to default patch</button>
     </aside>
   </main>
+  <script src="./teapot-data.js"></script>
   <script src="./prototype.js"></script>
 </body>
 </html>
