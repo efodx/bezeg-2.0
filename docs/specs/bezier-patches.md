@@ -158,7 +158,7 @@ The chapter is prerequisite-linked to Bézier curves and is placed after the cur
 
 Slovenian is the default. `sl.ts` and `en.ts` stay in lockstep with typed keys.
 
-**Terminology.** Decided 2026-10-26: the owner chose the family name and delegated the rest after a source search. Use these terms consistently in UI, chapter, lessons and the glossary. Two conventions apply:
+**Terminology.** Decided 2026-10-26: the owner chose the family name and delegated the rest after a source search. Use these terms consistently in UI, chapter, lessons and the glossary. The canonical term list is the [localization table](../localization.md#approved-mathematical-terminology); this table keeps the sources and reasoning. Two conventions apply:
 
 - **Adjective spelling:** *Bézierjev-* (*Bézierjeva krpa*), matching the app's existing copy (about 100 uses vs 1 *Bézierov-*) and FMF usage. Some FRI graphics material writes *Bézierova krpa*; do not mix the two.
 - **Patch vs surface:** *krpa* is the patch, a single parametric piece; *ploskev* is a surface in general, for example several patches together or "parametrična ploskev".

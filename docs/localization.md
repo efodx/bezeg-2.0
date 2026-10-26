@@ -44,8 +44,30 @@ The static document initially declares Slovenian, and runtime selection updates 
 | hodograf | hodograph |
 | odmik krivulje | curve offset |
 | prednastavitev | preset |
+| Bézierjeve krpe | Bézier patches (family) |
+| Bézierjeva krpa | Bézier patch |
+| tenzorska Bézierjeva krpa | tensor-product Bézier patch |
+| trikotna Bézierjeva krpa | triangular Bézier patch |
+| kontrolna mreža | control net |
+| robna krivulja | boundary curve |
+| izoparametrična krivulja | isoparametric curve (iso-curve) |
+| baricentrične koordinate | barycentric coordinates |
+| mešani odvod | twist (mixed partial derivative) |
+
+Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
 The owner approved the existing Slovenian terminology and English wording on 2026-10-24. Separate owner language sign-off is no longer a standing gate; see the [release policy](guardrails.md#release-policy--owner-decision-2026-10-24). Keep catalog counterparts and mathematical meaning consistent, and fix concrete wording issues when identified. Existing spelling/capitalization variants may be refined through ordinary changes.
+
+## Choosing new terms
+
+When a change needs a Slovenian term that the table lacks, the agent settles it. The owner delegated this on 2026-10-26. Owner choices already recorded in the table, or in a spec's owner decisions, stand unless the owner reopens them.
+
+1. **Reuse.** Search `src/localization/sl.ts` and `src/learning/content/` for the concept and its neighbours. Match existing spelling and word families, for example *Bézierjev-* rather than *Bézierov-*, and *kontrolni poligon* → *kontrolna mreža*.
+2. **Research.** Look for established usage. Prefer University of Ljubljana mathematics teaching: FMF/FRI course pages and syllabi, and theses in the RUL repository (repozitorij.uni-lj.si). Then try Slovenian textbooks, and after that general sources (sl.wikipedia, Termania). Note what each source actually shows.
+3. **Decide.** Prefer the term used in UL mathematics teaching. When sources conflict or are absent, choose the most transparent standard mathematical wording, and give the English term as a gloss on first mention in prose.
+4. **Record.** In the same change, add the term to the table above. Put its sources and reasoning in the feature's spec, or in the commit message for a one-off term.
+
+Done when every new Slovenian term in the change is in the table with a recorded basis.
 
 See [verification evidence and remaining checks](reviews/localization.md).
 
