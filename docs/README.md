@@ -16,6 +16,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 
 ## Direction and work queue
 
+- [Illustrated chapter examples](tasks/illustrated-chapter-examples/README.md): eight planned tasks for actual prepared-graph previews, authored placement within bilingual prose and consolidation of overlapping examples; implementation unstarted.
 - [Future plan](future-plan.md), [product direction](product-direction.md) and [roadmap](roadmap.md): agreed direction and sequencing. Historical briefs within these documents do not reopen completed work.
 - [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled statuses, concrete gaps, proposals and recommended priorities. Recommendations do not authorize all listed work.
 - [Lesson UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md): observed interaction findings to scope before implementation.

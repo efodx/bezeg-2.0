@@ -1,0 +1,12 @@
+# 01 — Establish authored placement and stable example identity
+
+Status: planned. Source: [spec A2, A3, A6, A7](../../specs/illustrated-chapter-examples.md). Dependency: 00 accepted. Role: shared learning implementation owner.
+
+Own the shared content types, chapter renderers, example registry/resolution and return-reference seams. Start at `ChapterPage.tsx`, `FamilyChapterPage.tsx`, `ChapterGuidedLessons.tsx`, `chapter/guidedExamples.ts` and `chapter/guidedExampleReading.ts`; inspect relevant tests before changing the interface.
+
+1. Establish one explicit ordered-content contract supporting prose, formulas, figures and stable example references for both chapter forms. Preserve bilingual equivalence and section anchors. Render a single referenced card at its authored location; remove the automatic section-end registry sweep once migrated. Do not leave old activity markers silently suppressed or render the same entry twice.
+2. Keep interim chapters working while tasks 03–06 migrate their authored sequences. Any temporary adapter preserves current cards and has a named removal check in task 07. Demonstrate prose → example → prose → example using a bounded representative section, with a single-example section also covered; coordinate that section's later batch ownership.
+3. Support audit-approved identity aliases for merges without deriving pedagogy from structural deduplication. Retain current valid entry forms and catalog guidance, correct owner resolution, completion, midway return and focus targets. Record deliberate breaks and user impact rather than silently dropping entries.
+4. Expose the preview metadata seam task 02 needs, and hand off stable types/IDs and migration instructions to chapter batches. Keep graph lifecycle/state ownership unchanged unless required, in which case verify the affected behavior explicitly.
+
+Completion: focused chapter/registry/reading tests cover actual interleaving, unknown and duplicate references, language parity and representative legacy entry/return behavior. New regression checks demonstrate pre-change or mutation failure. Run relevant `just unit` checks, typecheck and production build; localized changes also run the spec's exact TypeScript command. Use focused delegated browser smoke for the changed chapter/entry/return paths through the smoke-tester skill. Save evidence and compatibility decisions in the shared review. Full chapter migration and final global media completeness belong to later tasks.

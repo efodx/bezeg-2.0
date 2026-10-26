@@ -1,0 +1,12 @@
+# 02 — Capture and validate actual prepared-example previews
+
+Status: planned. Source: [spec A4, A5, A7](../../specs/illustrated-chapter-examples.md). Dependencies: 00 and 01 accepted. Role: capture/media integration owner.
+
+Own the shared capture tool, preview metadata/validation and manifest contract. Coordinate shared card rendering with task 01's owner; chapter batches own final content and captures. Start with `scripts/capture-chapter-figures.cjs`, `chapterActivityFigures.ts`, `ChapterExploration.tsx`, `ChapterGuidedLessons.tsx` and [capture commands](../../commands.md).
+
+1. Reuse or extend the current capture path to open any retained exact example URL in an isolated browser session, wait for its prepared initial scene and board effects, validate applicable graph objects/values, and capture a readable board-only image. Reject empty graphs or captures of a later frame. Establish deterministic viewport and clean-state preparation.
+2. Bind stable example IDs to asset, bilingual alternative text/caption, initial frame/scene and provenance including source fingerprint/revision, URL, viewport, output checksum and scene-check results. Validate existing six Bézier images before reuse. Record verified shared-scene reuse rather than assuming all entries on one demonstration share a preview.
+3. Make missing/unknown assets and stale scene references detectable, with a complete-inventory gate once all batches migrate. Provide caption/alt authoring and regeneration instructions for chapter workers. Preserve unrelated catalog capture assets and commands.
+4. Exercise representative short and long examples with differing preparation, including the exact spline worked-parabola scene. Verify an invalid mapping, empty graph and missing file fail rather than pass through an empty collection. Verify failed image loading keeps understandable card text and action.
+
+Completion: reproducible sample captures and scene-check evidence, focused tool/metadata tests with deliberate failure evidence, appropriate typecheck/build and browser card inspection at desktop and narrow widths. Delegate browser checks through smoke-tester. Update `docs/commands.md` for the implemented capture workflow. Full asset inventory is completed by tasks 03–06 and reconciled in 07; sample success is not product-wide acceptance.
