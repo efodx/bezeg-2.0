@@ -1,5 +1,7 @@
 # The future of Bezeg
 
+Learning consolidation confirmed, 2026-10-26: Learn leads through chapter sections into **Guided examples / Vodeni primeri**, then back to the owning section. All chapter graph activities share this experience, from a single prompt to multiple guided frames. Completion keeps the graph available with an explicit continue-in-chapter action; midway return remains available. Catalog guidance opens the same chapter-owned example. This is accepted direction pending implementation; see the [consolidation acceptance criteria](specs/chapter-owned-guided-learning.md#consolidated-learning-flow--confirmed-2026-10-26).
+
 Learning correction, 2026-10-26: guided graph lessons are activities within their owning chapter, rather than a parallel learning destination. Learn leads to chapters; chapter sections contain guided activity entry points. The workspace presents chapter identity and guided frames together, with one activity owning the graph at a time. See [chapter-owned guided learning](specs/chapter-owned-guided-learning.md).
 
 Learning update, 2026-10-25: the owner authorized merging chapter reading and guided learning into Learn and writing the missing text in one pass. Learn now includes the existing Bézier chapter, seven bilingual first-draft family chapters, and every available guided lesson. This supersedes the pilot-only rollout scope below; it does not add assessment, accounts or a progress service. See [unified learning](specs/unified-learning.md).

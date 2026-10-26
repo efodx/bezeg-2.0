@@ -30,29 +30,33 @@ A named saved configuration of a demonstration that can be reopened or exchanged
 A view of a demonstration that gives the graph more space for classroom projection.
 _Avoid_: Fullscreen (unless referring to the browser's fullscreen feature)
 
-**Guided lesson**:
-An ordered educational sequence attached to one Demonstration, combining explanation with directed graph exploration.
+**Learning path**:
+A progression through chapter sections and their Guided examples, with each example connecting back to its chapter explanation.
+
+**Guided example**:
+A chapter-owned mathematical example that combines explanation and directed graph exploration in a Demonstration. It may contain a single exploration prompt or several ordered explanation and observation frames.
+_Avoid_: Guided lesson, Guided path (for an individual example), Vodena učna pot; use Vodeni primer in Slovenian.
 
 **Study chapter**:
 A readable development of a mathematical topic through motivation, explanation, worked examples, and graph activities, with sections that learners can revisit directly.
 
 **Chapter activity**:
-A focused investigation within a Study chapter that uses a Demonstration to illustrate an idea and connects back to its explanation. A Demonstration can support activities in several chapters.
+A Guided example encountered within a Study chapter. A Demonstration can support examples in several chapters.
 
 **Lesson step**:
-One learner-facing unit within a Guided lesson. It may explain a concept, establish a graph scene, invite an observation, or lead to the next step.
+One learner-facing unit within a Guided example. It may explain a concept, establish a graph scene, invite an observation, or lead to the next step.
 
 **Graph action**:
-A learner-visible operation that a Demonstration exposes for a Guided lesson, such as changing a parameter or showing a construction.
+A learner-visible operation that a Demonstration exposes for a Guided example, such as changing a parameter or showing a construction.
 
 **Lesson scene**:
 A temporary graph configuration used to illustrate a Lesson step.
 
 **Lesson progress**:
-The learner's position within a Guided lesson.
+The learner's position within a Guided example.
 
 **Lesson overlay**:
-A graph-anchored presentation of a Guided lesson that keeps the graph visible while changing between explanation and active exploration context.
+A graph-anchored presentation of a Guided example that keeps the graph visible while changing between explanation and active exploration context.
 _Avoid_: Lesson panel, when the graph remains the primary workspace
 
 **Exploration prompt**:
@@ -71,10 +75,10 @@ A Lesson frame that introduces the current mathematical idea or notation before 
 A Lesson frame that gives the learner a graph-focused action or prompt and makes the relevant visual evidence easy to inspect.
 
 **Reviewed lesson**:
-A Guided lesson whose mathematical claims, learner-facing copy, prepared scenes, graph actions, and required interaction evidence have been approved for its Demonstration.
+A Guided example whose mathematical claims, learner-facing copy, prepared scenes, graph actions, and required interaction evidence have been approved for its Demonstration.
 
 **Lesson cohort**:
 A bounded rollout group of Demonstrations that share a mathematical family or capability pattern and are reviewed together.
 
 **Capability matrix**:
-A project inventory that maps each Demonstration to its supported Guided lesson actions, prepared scenes, correctness checks, and review status.
+A project inventory that maps each Demonstration to its supported Guided example actions, prepared scenes, correctness checks, and review status.

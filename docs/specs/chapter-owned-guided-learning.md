@@ -4,6 +4,23 @@ Owner request, 2026-10-26: guided lessons belong to chapters; chapter exploratio
 
 ## Acceptance
 
+### Consolidated learning flow — confirmed 2026-10-26
+
+The owner confirmed all three recommendations after comparing the Splines `worked-join` investigation and its separate guided lesson. This is the agreed product model for consolidation; it does not claim that the runtime already implements it.
+
+- The flow is Learn → chapter section → guided example on the graph → the same chapter section, where reading continues. The example is part of that learning path.
+- Use **Guided example / Vodeni primer** as the learner-facing name, replacing Guided lesson / Vodena učna pot and competing investigation terminology for chapter-launched graph activities.
+- Every graph activity launched from Learn uses the same guided-example experience. A short example may contain one exploration prompt; a longer example may contain several explanation and observation frames. These are variations of one concept, not separate learning modes.
+- Each example supplies chapter context, a prepared graph matching the explanation, instructions and exploration prompts in one coherent experience. Do not retain a separate investigation banner alongside an independent guided sequence.
+- Finishing leaves the graph available for continued experimentation and offers **Continue in chapter / Nadaljuj v poglavju**. It does not automatically navigate away. Returning midway remains available and returns to the owning section with reading position and focus restored.
+- Guidance opened from the Demonstrations catalog opens the same chapter-owned example, with chapter context and a return destination. Independent free exploration remains available through Demonstrations.
+- Audit the content match product wide. In particular, the Splines `worked-join` example must illustrate the chapter's worked join of two parabolas; sharing a graph route with a general symmetric spline sequence is insufficient.
+- Existing entry links must resolve into the consolidated experience or have an explicitly documented compatibility change. Preserve mathematical meaning, safe example cleanup and graph-state ownership; do not introduce accounts, assessment or persistent learning progress.
+
+Implementation acceptance must include a chapter/example/return round trip for both a short and a multi-frame example, midway return, completion followed by graph editing, catalog guidance entry, and the reported spline content match, in addition to the checks below.
+
+### Existing ownership and lifecycle requirements
+
 - Learn presents chapters as the learning units. Guided graph activities are discoverable inside their relevant chapter sections, including every available Bézier lesson, rather than a second independent list on Learn.
 - Every available guided lesson has an authored chapter/section owner. Chapter launches and existing direct `?learn=1` links identify that chapter and offer an exact-section return. Existing demonstration and activity routes continue to work; no preset/storage changes.
 - In the graph workspace, a guided activity has one instructional surface containing its chapter identity and lesson frames. Do not simultaneously show a separate chapter activity/investigation prompt and an unrelated lesson overlay.
