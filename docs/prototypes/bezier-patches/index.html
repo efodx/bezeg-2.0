@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bézier patch renderer spike</title>
+  <link rel="stylesheet" href="../../../node_modules/jsxgraph/distrib/jsxgraph.css">
+  <link rel="stylesheet" href="./style.css">
+  <script src="../../../node_modules/jsxgraph/distrib/jsxgraphcore.js"></script>
+</head>
+<body>
+  <header>
+    <strong>Bézier patch renderer spike</strong>
+    <label>Patch <select id="kind"><option value="tensor">Bicubic tensor (16)</option><option value="triangular">Cubic triangular (10)</option></select></label>
+    <label>Triangular view <select id="triangle-renderer"><option value="surface">parametricsurface3d</option><option value="mesh">triangle mesh (polygon3d)</option></select></label>
+    <label>Iso grid <select id="iso"><option>8</option><option>16</option></select></label>
+    <label>Shading <select id="tiling"><option>8</option><option>16</option></select></label>
+    <label><input id="show-iso" type="checkbox" checked> iso curves</label>
+    <label><input id="show-net" type="checkbox" checked> net</label>
+    <label><input id="z-mode" type="checkbox"> z drag mode</label>
+    <button data-view="front">Front</button><button data-view="top">Top</button><button data-view="side">Side</button><button data-view="isometric">Isometric</button>
+    <button id="reset">Reset</button><button id="presentation">Presentation size</button><button id="export-svg">SVG</button><button id="export-png">PNG</button><button id="remount">Dispose / remount</button>
+  </header>
+  <main>
+    <section id="main-board" class="jxgbox" tabindex="0" aria-label="3D Bézier patch; focus here and use arrow keys to orbit"></section>
+    <aside>
+      <div><b>Parameter domain</b><span id="uv-label"></span></div>
+      <div id="domain-board" class="jxgbox"></div>
+      <p>Focus the graph and use arrow keys to orbit. Drag empty space to orbit. Drag a net point in the XY plane; toggle z mode before dragging to change its height.</p>
+      <pre id="readout"></pre>
+      <button id="stress">Add 32 repeated patches</button>
+      <button id="clear-stress">Clear repeated patches</button>
+    </aside>
+  </main>
+  <script src="./prototype.js"></script>
+</body>
+</html>

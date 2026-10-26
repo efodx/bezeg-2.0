@@ -1,0 +1,208 @@
+{
+  "provenance": {
+    "version": "1.14.1",
+    "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+    "boards": 2,
+    "initialPointCount": 16
+  },
+  "math": {
+    "tensorError": 1.1102230246251565e-16,
+    "triangularError": 3.3306690738754696e-16
+  },
+  "mouseXY": {
+    "before": [
+      -3,
+      3,
+      0.14755891438661006
+    ],
+    "after": [
+      -2.112231698796669,
+      4.075888807751485,
+      0.14755891438661006
+    ],
+    "surfacePathChanged": true,
+    "cameraFixed": true
+  },
+  "zMode": {
+    "before": [
+      -1,
+      3,
+      0.5357420731735295
+    ],
+    "after": [
+      -1,
+      3,
+      0.9982971392528246
+    ],
+    "cameraFixed": true
+  },
+  "orbit": {
+    "mouseBefore": {
+      "az": 1.0000000000000004,
+      "el": 0.2999999999999998
+    },
+    "mouseAfter": {
+      "az": 0.7568844894040577,
+      "el": 0.4620770070639616
+    },
+    "keyboardAfter": {
+      "az": 0.6768844894040578,
+      "el": 0.4620770070639616
+    }
+  },
+  "insetTriangular": {
+    "before": [
+      0.32,
+      0.35
+    ],
+    "after": [
+      0.4809133693568067,
+      0.5190866306431933
+    ],
+    "constructionBefore": [
+      -0.11634800000000003,
+      -0.10354000000000027,
+      0.7975516999999998
+    ],
+    "constructionAfter": [
+      0.752146736483761,
+      -1.720263249128452,
+      0.5964134300980173
+    ],
+    "triangularSurfaceObjects": 1
+  },
+  "triangleMesh": {
+    "faces": 64,
+    "draggedPoint": [
+      -2.876238440544518,
+      -1.5137379434169578,
+      0
+    ],
+    "duringDragPoint": [
+      -2.925743471569689,
+      -1.7082430516559346,
+      0
+    ],
+    "facePathChangedDuringDrag": false,
+    "pathBefore": null,
+    "pathDuring": null
+  },
+  "gaps": [
+    "Triangle mesh face path did not visibly change during point drag; JSXGraph mesh acceptance remains open.",
+    "Listener counts grew across remount: {\"baselineListeners\":{\"window\":17,\"document\":8,\"main-board\":15,\"domain-board\":11},\"remountedListeners\":{\"window\":17,\"document\":8,\"main-board\":21,\"domain-board\":11}}"
+  ],
+  "insetTensor": {
+    "before": [
+      0.32,
+      0.44
+    ],
+    "after": [
+      0.3532069473384581,
+      0.42330681412943183
+    ],
+    "constructionBefore": [
+      -0.36000000000000015,
+      1.08,
+      0.737247808911067
+    ],
+    "constructionAfter": [
+      -0.460159115223409,
+      0.8807583159692518,
+      0.7461474580725593
+    ]
+  },
+  "exports": {
+    "svgBytes": 822013,
+    "svgHasSurface": true,
+    "svgHasLabels": true,
+    "pngDownloaded": false,
+    "pngBytes": 0,
+    "pngPixels": null,
+    "pngExportError": "Failed to execute 'toBlob' on 'HTMLCanvasElement': Tainted canvases may not be exported."
+  },
+  "presentationResize": {
+    "before": {
+      "x": 10,
+      "y": 97,
+      "width": 1165,
+      "height": 910
+    },
+    "presentation": {
+      "x": 10,
+      "y": 97,
+      "width": 1420,
+      "height": 910
+    },
+    "resized": {
+      "x": 10,
+      "y": 97,
+      "width": 1160,
+      "height": 670
+    }
+  },
+  "viewScreenshots": {
+    "tensor": {
+      "front": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\tensor-surface-front.png",
+      "top": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\tensor-surface-top.png",
+      "side": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\tensor-surface-side.png",
+      "isometric": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\tensor-surface-isometric.png"
+    },
+    "triangularMesh": {
+      "front": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\triangular-mesh-front.png",
+      "top": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\triangular-mesh-top.png",
+      "side": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\triangular-mesh-side.png",
+      "isometric": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-functional\\triangular-mesh-isometric.png"
+    }
+  },
+  "lifecycle": {
+    "cycles": 3,
+    "baselineBoards": 2,
+    "disposedBoards": 0,
+    "remountedBoards": 2,
+    "baselineListeners": {
+      "window": 17,
+      "document": 8,
+      "main-board": 15,
+      "domain-board": 11
+    },
+    "remountedListeners": {
+      "window": 17,
+      "document": 8,
+      "main-board": 21,
+      "domain-board": 11
+    },
+    "listenersStable": false
+  },
+  "touch": {
+    "orbitBefore": {
+      "az": 1.0000000000000004,
+      "el": 0.2999999999999998
+    },
+    "orbitAfter": {
+      "az": 0.596585213022178,
+      "el": 0.552134241861139
+    },
+    "xyBefore": [
+      -3,
+      3,
+      0.14755891438661006
+    ],
+    "xyAfter": [
+      -3.659816998337585,
+      2.84563737033961,
+      0.14755891438661006
+    ],
+    "xyCameraFixed": true,
+    "zBefore": [
+      -3.659816998337585,
+      2.84563737033961,
+      0.14755891438661006
+    ],
+    "zAfter": [
+      -3.791780482751437,
+      2.8147637988087393,
+      0.5807272312182932
+    ]
+  },
+  "pageErrors": []
+}
