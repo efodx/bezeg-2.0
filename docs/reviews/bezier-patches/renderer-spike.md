@@ -2,7 +2,11 @@
 
 Status: partial investigation; no accepted renderer ADR. Task 02 remains open. Production routes and dependencies are unchanged by the prototypes. The initial comparison sources and functional evidence are preserved at prototype commit `3e1bbc1`; later repairs require fresh checks against their own source hashes.
 
-Latest: [renderer repair verification](renderer-repair-verification.md) records independent three.js failures, pointer/lifecycle repairs, fresh browser rechecks, and bounded three-sample timing-runner probes on both pinned runtimes. Isolated touch z works; a combined XY→z target sequence remains unresolved. Full measurements, export depth fidelity, JSX browser confirmation and the ADR remain open. The new [measurement guide](measurement-harness.md) replaces the old JSX-only harness instructions below; the old timings remain historical evidence.
+Latest: [JSX construction batching](jsx-batching.md) reduces the tiny same-scene parameter API medians from 3419.5 to 87.1 ms (tensor) and 1541.9 to 55.3 ms (triangular mesh), with independent Bernstein agreement, stable board ownership and visible candidate constructions. These are not frame budgets. The [combined touch diagnosis](three-touch-target.md) identifies a nearer overlapping control point as the second gesture's actual target; only that point's z changes, with fixed XY and camera. The [Three depth/export repair](three-export-depth.md) suppresses occluded labels and embeds the current WebGL raster scene inside SVG with visible vector labels. Eight views/exports and visible-owner XY → z editing passed implementation and handler browser runs. The [delegated smoke](three-export-depth-smoke.md) remains partial after a browser-tool download stall; its report distinguishes the successful handler fallback. Full measurements, remaining JSX browser checks and the ADR remain open.
+
+The earlier [renderer repair verification](renderer-repair-verification.md) records independent three.js failures, pointer/lifecycle repairs, browser rechecks, and tiny timing-runner probes on both pinned runtimes. The [measurement guide](measurement-harness.md) replaces the old JSX-only harness instructions below; old timings remain historical evidence.
+
+The [full matrix attempt](renderer-matrix-attempt.md) retains192 records:96 JSX and40 Three cases complete,56 Three cases fail non-vacuity checks. Diagnose narrow drag targeting and triangular patch-pixel sampling before accepting the comparison; no budgets or renderer conclusion follow from the attempt.
 
 ## Functional evidence
 

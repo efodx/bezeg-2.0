@@ -2,7 +2,11 @@
 
 Status: in progress; acceptance partial. [Current evidence](../../reviews/bezier-patches/renderer-spike.md) records pinned-runtime browser findings, an interrupted timing attempt, verified actual teapot data and an isolated three.js fallback. PNG export, touch z editing, listener cleanup, drawing fidelity, complete measurements and ADR remain open. No renderer is selected. Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies: 01 merged. Role: renderer investigation owner.
 
-Latest [repair verification](../../reviews/bezier-patches/renderer-repair-verification.md) closes three.js raycaster and async/remount failures and validates bounded timing probes. The combined touch sequence, JSX findings, full comparison matrix and renderer ADR still require work.
+Earlier [repair verification](../../reviews/bezier-patches/renderer-repair-verification.md) closes three.js raycaster and async/remount failures and validates bounded timing probes. Its combined-touch target uncertainty is resolved by the further evidence below. JSX findings, the full comparison matrix and renderer ADR still require work.
+
+Further [touch diagnosis](../../reviews/bezier-patches/three-touch-target.md) identifies a nearer overlapping point rather than z drift; the [depth/export repair](../../reviews/bezier-patches/three-export-depth.md) hides occluded labels and retains scene depth in mixed raster/vector SVG. Implementation and handler browser checks pass all eight preset/export cases and a visible-owner combined touch edit; delegated smoke coverage and its stalled download are explicit. [JSX batching](../../reviews/bezier-patches/jsx-batching.md) now has a fair tiny before/after comparison with exact construction checks. Full matched measurements and the renderer ADR remain open; later tasks are not yet created.
+
+The [matrix attempt](../../reviews/bezier-patches/renderer-matrix-attempt.md) completed192 attempts with56 failed Three verification cases. It retains all raw evidence but does not close matched measurement acceptance. Diagnose those paths, then complete actual teapot measurements and the ADR.
 
 Decide how patches are drawn and edited, using measurements. The spike code is throwaway: keep it on a branch or under `docs/prototypes/`, never in production routes. Only the evidence and the ADR ship.
 

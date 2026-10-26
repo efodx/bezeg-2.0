@@ -1,0 +1,70 @@
+{
+  "startedAt": "2026-10-26T20:14:18.676Z",
+  "finishedAt": "2026-10-26T20:22:51.667Z",
+  "parameters": {
+    "renderers": [
+      "jsx",
+      "three"
+    ],
+    "kinds": [
+      "tensor",
+      "triangular"
+    ],
+    "isos": [
+      "8",
+      "16"
+    ],
+    "tilings": [
+      "8",
+      "16"
+    ],
+    "viewports": [
+      "desktop",
+      "narrow"
+    ],
+    "gestures": [
+      "drag",
+      "orbit",
+      "uv"
+    ],
+    "triangleModes": [
+      "mesh"
+    ],
+    "repeats": 2,
+    "samples": 8,
+    "operationTimeout": 30000
+  },
+  "runs": 192,
+  "failures": 56,
+  "groups": {
+    "jsx/tensor/desktop/drag/complete": 8,
+    "jsx/tensor/desktop/orbit/complete": 8,
+    "jsx/tensor/desktop/uv/complete": 8,
+    "jsx/tensor/narrow/drag/complete": 8,
+    "jsx/tensor/narrow/orbit/complete": 8,
+    "jsx/tensor/narrow/uv/complete": 8,
+    "jsx/triangular/desktop/drag/complete": 8,
+    "jsx/triangular/desktop/orbit/complete": 8,
+    "jsx/triangular/desktop/uv/complete": 8,
+    "jsx/triangular/narrow/drag/complete": 8,
+    "jsx/triangular/narrow/orbit/complete": 8,
+    "jsx/triangular/narrow/uv/complete": 8,
+    "three/tensor/desktop/drag/complete": 8,
+    "three/tensor/desktop/orbit/complete": 8,
+    "three/tensor/desktop/uv/complete": 8,
+    "three/tensor/narrow/drag/failed": 8,
+    "three/tensor/narrow/orbit/complete": 8,
+    "three/tensor/narrow/uv/complete": 8,
+    "three/triangular/desktop/drag/failed": 8,
+    "three/triangular/desktop/orbit/failed": 8,
+    "three/triangular/desktop/uv/failed": 8,
+    "three/triangular/narrow/drag/failed": 8,
+    "three/triangular/narrow/orbit/failed": 8,
+    "three/triangular/narrow/uv/failed": 8
+  },
+  "failuresByKind": {
+    "three/tensor/not-moved/other": 8,
+    "three/triangular/moved/zero-patch-pixels": 47,
+    "three/triangular/not-moved/zero-patch-pixels": 1
+  }
+}
