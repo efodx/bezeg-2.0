@@ -1,6 +1,6 @@
 # 02 — Renderer spike and ADR
 
-Status: planned. Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies: 01 merged. Role: renderer investigation owner.
+Status: in progress; acceptance partial. Prototype interactions have repairs and partial browser evidence; exports, lifecycle, touch, measurements and ADR remain open. See [repair evidence](../../reviews/bezier-patches/prototype-repair.md) and [teapot source guidance](../../reviews/bezier-patches/teapot-data.md). Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies: 01 merged. Role: renderer investigation owner.
 
 Decide how patches are drawn and edited, using measurements. The spike code is throwaway: keep it on a branch or under `docs/prototypes/`, never in production routes. Only the evidence and the ADR ship.
 
