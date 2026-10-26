@@ -35,7 +35,7 @@ Before editing, read only the spec or document covering the area you change. [do
 - Smoke-test with `$smoke-tester` and [the browser checklist](docs/smoke-tests.md) when a change alters a route, control, lesson, or rendering/interaction path. Check the affected routes and workflows; run the full checklist only when the shared app shell, workspace, or lesson runtime changes. Report failures and incomplete coverage. Documentation, test-only, and behavior-preserving changes covered by unit tests do not need smoke testing.
 - Preserve unrelated working-tree changes.
 - Context economy: locate code with search before reading; read files and specs by line range or section, not whole; summarize diffs by file before reading them, and check mechanical renames by search; keep long command output in logs and extract only failures; worker briefs cap report length and write bulky results to a file.
-- Review large diffs (multi-file features or geometry changes) with parallel subagents for mathematical correctness and engineering constraints, adding UI and accessibility review when controls or visuals change. Review smaller diffs in the main chat.
+- Review large diffs (multi-file features or geometry changes) with parallel subagents for engineering constraints, adding mathematical review when the diff changes mathematics and UI and accessibility review when controls or visuals change; [review routing](docs/agent-workflow.md#review-routing) sets scope, model, and repair confirmation. Review smaller diffs in the main chat.
 
 ## Git workflow
 

@@ -12,7 +12,8 @@ These are provisional starting choices based on [external guidance](agent-workfl
 | --- | --- | --- |
 | Narrow research and code exploration | Haiku 5.5 `medium` | GPT-6 Luna `high` |
 | Bounded implementation, fixes, and tests | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
-| Independent review | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
+| Routine review slice ([review routing](#review-routing)) | Haiku 5.5 `medium` | GPT-6 Luna `high` |
+| Engineering review of a large diff; review of difficult mathematics | Sonnet 5.5 `medium` | GPT-6 Luna `high` |
 | Narrow browser smoke ([smoke-tester](../.agents/skills/smoke-tester/SKILL.md)): named routes, repair rechecks, catalog/asset checks | Haiku 5.5 `medium` | GPT-6 Luna `max` |
 | Broad or first-pass browser smoke of new UI | Sonnet 5.5 `medium` | GPT-6 Luna `max` |
 | Integration and final acceptance | Handler | Handler |
@@ -77,7 +78,7 @@ Increment the brief revision when this template changes.
 
 Derive expected behavior from the spec, review the actual diff and surrounding code, and assess worker evidence. Use the specialist reviews and smoke workflow required by `AGENTS.md`; reuse sufficient checks unless integration or corrections invalidate them. Send repairs to the worker with the location, observed failure, and expected behavior. Repeated failure calls for reconsidering scope or approach. Final acceptance remains with the handler.
 
-Assign extra implementation-worker screenshots where foreseeable layout risk warrants them or the worker needs them for its own verification; let the assigned release reviewer cover the remaining visual acceptance. Reserve deeper independent checking of mathematical premises for difficult mathematics, assumptions shared by dependent slices, or costly downstream rework. Required acceptance checks still apply. Focused repair is an ordinary completion path for local findings; choose preventive work according to the likely total effort through acceptance.
+Assign extra implementation-worker screenshots where foreseeable layout risk warrants them or the worker needs them for its own verification; let the assigned release reviewer cover the remaining visual acceptance. Required acceptance checks still apply. Focused repair is an ordinary completion path for local findings; choose preventive work according to the likely total effort through acceptance.
 
 Run integrated acceptance at a stable checkpoint while relevant writers and dependency mutations are idle; record the revision and relevant dirty state. Reproduce failures observed during concurrent edits at that checkpoint before attributing them. Evidence predating relevant edits needs revalidation.
 
@@ -86,6 +87,15 @@ For build-tool, dependency, or artifact-format migrations, inventory affected au
 Account for every acceptance criterion with observed evidence or an explicit gap. Distinguish implementation completion from acceptance completion: report partial acceptance while a required criterion is unmet or unverified, unless the owner explicitly revises or defers it. Preserve that deferral and its impact in the record.
 
 Record accepted/blocked time and complete the [evaluation record](../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log) from current-task evidence, then commit and push under the repository Git rules. Research, review, and smoke assignments count too; useful handler-only cases provide comparisons. Keep verification gaps explicit.
+
+### Review routing
+
+Scope each independent review to where the [evaluation log](agent-workflow/evaluation-log.md) shows reviewers finding defects. Engineering review found missed consumers, lifecycle and state bugs, vacuous assertions, and focus or keyboard gaps. Mathematical review found errors in newly written mathematics. Final re-reviews after repair, and mathematical reviews of regrouped content, mostly returned no finding.
+
+- **Engineering review** covers every large diff: actual consumers and callers, lifecycle and disposal, state after reset or navigation, and whether each new assertion would fail without the change. Add UI and accessibility review when controls or visuals change.
+- **Mathematical review** applies when the diff adds or changes formulas, numerical claims, evaluation, drawing, or constructions, or the mathematical premises shared by dependent slices. When lesson content is moved, regrouped, or reworded with its mathematics unchanged, the handler's diff check and `lessonMathNotation.test.ts` cover it instead; record that choice in the task record.
+- **Routine review slices** go to Haiku: one concern, a bounded diff, and a named checklist, such as content fidelity, notation, a consumer inventory, or a visual comparison. The [routing table](#model-routing) sends the rest to Sonnet.
+- **Repair confirmation** stays with the handler for a local finding: check the fix against the finding's location and expected behavior, and confirm the worker's observed pre-fix failure of its regression check. Send a repair back for independent re-review only when it changes shared interfaces, mathematics, or behavior beyond the finding.
 
 ## Improve the workflow
 
