@@ -1,6 +1,6 @@
 # Illustrated chapter examples: implementation tasks
 
-Status: planned 2026-10-26; implementation unstarted. Source: [Illustrated guided examples within chapter flow](../../specs/illustrated-chapter-examples.md). The owner's present request is to create tasks only.
+Status: implementation in progress, authorized 2026-10-26. Source: [Illustrated guided examples within chapter flow](../../specs/illustrated-chapter-examples.md). See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md) for completed checks and outstanding requirements.
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Status: planned 2026-10-26; implementation unstarted. Source: [Illustrated guide
 | [06 Functions, calculus and analysis](06-functions-analysis.md) | 00–02 | Two complete bilingual chapters, merged examples and final captures |
 | [07 Integrated review and acceptance](07-acceptance.md) | 03–06 | Exhaustive reconciliation, review, checks and browser evidence |
 
-All eight tasks are planned. Read the source spec and assigned task before implementing. The handler owns dispatch, review, integration, checks and Git; implementation workers do not delegate or commit. Follow [agent workflow](../../agent-workflow.md) for bounded assignments and evidence. Return at most 400 words summarizing changed paths, acceptance covered, check results, unresolved risks and the durable evidence path; keep bulky matrices and capture output in files.
+Task 00 is complete; tasks 01–03 are in progress. Final captures, chapter migrations and integrated acceptance remain outstanding. Read the source spec and assigned task before implementing. The handler owns dispatch, review, integration, checks and Git; implementation workers do not delegate or commit. Follow [agent workflow](../../agent-workflow.md) for bounded assignments and evidence. Return at most 400 words summarizing changed paths, acceptance covered, check results, unresolved risks and the durable evidence path; keep bulky matrices and capture output in files.
 
 Tasks 03–06 are content slices, not unrestricted concurrent write permission. `familyChapters.ts`, the example registry, capture manifests and shared tests have one writer at a time. Prefer serial batches; parallel work requires handler-assigned disjoint files or explicit section handoffs with handler integration. The preview/build server has a named owner and stable revision; coordinate capture and smoke ports. Split a batch at a chapter boundary if it exceeds a bounded worker assignment.
 

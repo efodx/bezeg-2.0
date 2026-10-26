@@ -1,6 +1,6 @@
 # Illustrated guided examples within chapter flow
 
-Status: planned 2026-10-26. The owner confirmed all recommendations and requested task creation. This change publishes the specification and [eight implementation tasks](../tasks/illustrated-chapter-examples/README.md); application implementation has not started.
+Status: implementation in progress, authorized 2026-10-26 by the owner's request to implement the tasks from `2c3df6a`. See the [curriculum audit](../reviews/illustrated-chapter-examples/curriculum-audit.md), [eight implementation tasks](../tasks/illustrated-chapter-examples/README.md), and [acceptance record](../reviews/illustrated-chapter-examples/acceptance.md). Acceptance remains incomplete.
 
 ## Outcome and scope
 
@@ -8,7 +8,7 @@ Every guided example in every chapter has a picture of its actual prepared start
 
 This extends the implemented [chapter-owned guided learning contract](chapter-owned-guided-learning.md). Keep its single instructional surface, editable graph after completion, midway return, chapter context and exact-section reading/focus restoration. The owner's reference was the existing Follow the parameter card, with a graph image and caption beside its title, prompt and Guided example link. Extend that useful information to every card; final responsive composition may adapt to available space.
 
-Scope includes Bézier curves, foundations, rational curves, splines, PH curves, parametrization, functions and calculus, and analysis. It includes all chapter entry points, catalog guidance into those examples, bilingual prose, image assets, capture tooling and relevant tests. No new mathematical feature, assessment, authoring platform, persistent progress, backend or renderer migration is needed. Producing these planning documents does not authorize running the implementation tasks in this chat.
+Scope includes Bézier curves, foundations, rational curves, splines, PH curves, parametrization, functions and calculus, and analysis. It includes all chapter entry points, catalog guidance into those examples, bilingual prose, image assets, capture tooling and relevant tests. No new mathematical feature, assessment, authoring platform, persistent progress, backend or renderer migration is needed.
 
 ## Starting seams, inspected at c791dab
 

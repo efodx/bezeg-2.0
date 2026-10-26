@@ -1,6 +1,6 @@
 # 00 — Audit teaching flow and example overlap
 
-Status: planned. Source: [spec A1–A3, A6](../../specs/illustrated-chapter-examples.md). Dependencies: none. Role: bounded content/code investigation; no application edits.
+Status: completed 2026-10-26. The audit and baseline inventory in docs/reviews/illustrated-chapter-examples/ map 175 source entries to 56 retained homes (56 retained, 40 merged, 79 aliases). Handler checked counts, preparation/URL fields and destination coverage. Source: [spec A1–A3, A6](../../specs/illustrated-chapter-examples.md). Dependencies: none. Role: bounded content/code investigation; no application edits.
 
 1. Enumerate all eight chapters, sections and actual resolved example cards from `content/bezierChapter.ts`, `content/familyChapters.ts`, `chapter/guidedExamples.ts` and guided lesson ownership. Record baseline revision and counts by chapter/source; verify the enumeration is nonempty and complete against current registries.
 2. Read relevant prose, prompts, complete guided frames and prepared actions together. For every entry record its goal, initial graph, existing IDs/URLs, related entries and retain/merge decision with rationale. A shared demonstration is not sufficient reason to merge; different IDs are not sufficient reason to keep repetition.
