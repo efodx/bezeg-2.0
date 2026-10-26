@@ -1,6 +1,8 @@
 # 02 — Renderer spike and ADR
 
-Status: in progress; acceptance partial. [Current evidence](../../reviews/bezier-patches/renderer-spike.md) records pinned-runtime browser findings, an interrupted timing attempt, verified actual teapot data and an isolated three.js fallback. PNG export, touch z editing, listener cleanup, drawing fidelity, complete measurements and ADR remain open. No renderer is selected. Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies: 01 merged. Role: renderer investigation owner.
+Status: complete2026-10-26. [ADR0018](../../adr/0018-three-surface-view-adapter.md) selects Three behind the surface-view adapter, with defaults/budgets and explicit mixed raster/vector export. [Completed measurements](../../reviews/bezier-patches/renderer-measurements.md) cover both patch kinds, density combinations, viewports and actual32-patch teapots; [JSX confirmation](../../reviews/bezier-patches/jsx-final.md) closes its live triangle/teapot probes while retaining rejected-candidate limitations. Source: [spec P2 and the rendering/interaction contract](../../specs/bezier-patches.md#rendering-and-interaction-contract). Dependencies:01 merged. Later production acceptance is tracked in05–14.
+
+The paragraphs below retain the investigation history; their then-open items are resolved or explicitly disposed in the ADR and completed measurement report, rather than representing current task status.
 
 Earlier [repair verification](../../reviews/bezier-patches/renderer-repair-verification.md) closes three.js raycaster and async/remount failures and validates bounded timing probes. Its combined-touch target uncertainty is resolved by the further evidence below. JSX findings, the full comparison matrix and renderer ADR still require work.
 

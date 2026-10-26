@@ -1,0 +1,9 @@
+# 12 — Bilingual Bézier patches chapter
+
+Status: ready after08/10; activity wiring follows11. Source: [chapter outline, terminology and P9](../../specs/bezier-patches.md#chapter-and-guided-lessons), linked research sections2.2/2.3. Own chapter prose/registry and necessary figures; coordinate activity identities with13.
+
+Write all11 listed conceptual sections in Slovenian and English, prerequisite-linked after Bézier curves. Include motivation, tensor/barycentric definitions, exact examples, properties/non-properties, derivatives/twist, operations, joins and the capstone. Address every recorded misconception, especially iso control nets, variation diminishing and continuity distinctions. Use the spec's approved terminology and compare square/triangle domains in08's comparison view.
+
+Acceptance: each section states its learning outcome and uses exact, independently reviewed mathematics. Prose formulas use required math delimiters/decimal commas; structured LaTeX fields remain undelimited. Activity links identify chapter-owned examples and preserve return position/focus. Figures depict the actual authored scenes with bilingual alternatives.
+
+Verification: mathematical/content review, notation tests, localization typecheck/build and `just check`; `$smoke-tester` for chapter navigation, both languages, narrow/desktop reading, figures and activity return. Record section-to-misconception/activity coverage and remaining gaps in `docs/reviews/bezier-patches/chapter.md`.

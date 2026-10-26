@@ -1,6 +1,6 @@
 # Bézier patches (Bézierjeve krpe)
 
-Status: in progress. The owner requested the spec on 2026-10-26. [Task 01](../tasks/bezier-patches/01-jsxgraph-upgrade.md) (P1, JSXGraph 1.14.1), [task 03](../tasks/bezier-patches/03-shared-kernels.md) (shared kernels), and [task 04](../tasks/bezier-patches/04-3d-points.md) (3D points) are complete. Task 02's renderer investigation is in progress. Tasks for later slices are created after its renderer ADR. Sources:
+Status: in progress. Tasks01–04 are complete. [ADR0018](../adr/0018-three-surface-view-adapter.md) selects Three for patch views after [completed prototype measurements](../reviews/bezier-patches/renderer-measurements.md). Production [tasks05–14](../tasks/bezier-patches/README.md) are created, with tensor geometry next. No production patch route has shipped. Sources:
 - [teaching research](../research/bezier-surfaces.md): mathematics, lesson outline, misconceptions, library facts;
 - [architecture research](../research/bezier-surfaces-architecture.md): layer-by-layer requirements.
 
@@ -105,7 +105,7 @@ The chapter is prerequisite-linked to Bézier curves and is placed after the cur
 
 ## Rendering and interaction contract
 
-- **Renderer:** chosen by task 02's ADR. The default candidate is JSXGraph 3D (`view3d`) inside the board owned by `GraphSession`, after task 01's upgrade. The fallback is three.js isolated to this family. Either way, it sits behind a surface-view adapter (`attach`, `reconcile(scene)`, `onEdit`, `dispose`). Geometry, lessons and React never touch renderer objects.
+- **Renderer:** [ADR0018](../adr/0018-three-surface-view-adapter.md) selects lazy-loaded Three isolated to this family, behind a surface-view adapter (`attach`, `reconcile(scene)`, `onEdit`, `dispose`). JSXGraph remains for existing curve graphs and the independently owned parameter board. Geometry, lessons and React never touch renderer objects. SVG surface geometry is raster with vector labels; the export tradeoff and production budgets are explicit in the ADR.
 - **View:** the control net, its points and the patch are visible, with optional shaded faces, iso-curve grid, boundary curves, normals and tangent plane. Lines and faces must be depth-ordered correctly enough that the net does not visibly overlap the wrong side of the patch at preset views.
 - **Camera:**
   - orbit by dragging empty space;
@@ -255,10 +255,12 @@ Start with `just --list` and [commands](../commands.md). Each task names its foc
 3. **[03](../tasks/bezier-patches/03-shared-kernels.md):** shared curve kernels (P3). Independent of 01 and 02.
 4. **[04](../tasks/bezier-patches/04-3d-points.md):** 3D points with planar guards (P4). Depends on 03.
 
-Later tasks are created after 02's ADR:
+The ADR-dependent implementation queue is now created in [tasks05–14](../tasks/bezier-patches/README.md):
 - patch geometry (P5);
 - the surface-view adapter and `patch-tensor`, with Presets (P7, P8);
 - `patch-triangular` with the inset;
 - the remaining demonstrations;
 - chapter, lessons and previews (P6, P9);
 - integrated acceptance (P10).
+
+The optional standalone `patch-compare` route is replaced in the plan by a comparison view in `patch-triangular`; no existing route changes. The32-patch teapot capstone is feasible at tiling8, with optional16 requiring integrated stress acceptance. Prototype measurements do not declare P5–P10 complete.
