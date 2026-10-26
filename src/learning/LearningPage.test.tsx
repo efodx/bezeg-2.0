@@ -162,7 +162,7 @@ test('Foundations renders bilingual unified example labels and keeps its explana
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/foundations']}>
         <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
     </MemoryRouter>);
-    const figures = [...container.querySelectorAll('.chapter-activity-figure')];
+    const figures = [...container.querySelectorAll('.chapter-section-body > .chapter-activity-figure')];
     expect(figures).toHaveLength(2);
     const imageSources = figures.map(figure => figure.querySelector('img')?.getAttribute('src'));
     expect(imageSources).toContain(demonstrationPreviewAssets.bernstein);
@@ -182,7 +182,8 @@ test('Foundations renders bilingual unified example labels and keeps its explana
     const guidedLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
     const foundation = familyChapters.find(chapter => chapter.id === 'foundations')!;
     const expectedFoundations = foundation.sections.flatMap(section => getChapterGuidedExamples('foundations', section.id));
-    expect(cards.length).toBeGreaterThan(0);
+    expect(cards).toHaveLength(3);
+    expect(cards.every(card => card.querySelector('.chapter-activity-figure img'))).toBe(true);
     expect(guidedLinks).toHaveLength(cards.length);
     expect(guidedLinks.map(link => link.getAttribute('href'))).toEqual(expectedFoundations.map(example => example.path));
     expect(cards.every(card => card.getAttribute('aria-label')?.startsWith('Vodeni primer: '))).toBe(true);
