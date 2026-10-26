@@ -17,6 +17,7 @@ import {
     controlsSignature,
     installBoardShims,
     mountGraph,
+    REAL_GRAPH_TEST_TIMEOUT,
     settle,
     waitUntil,
 } from './realGraphTestHarness';
@@ -97,6 +98,7 @@ const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default',
 
 /** Runs the contract for every `TRANSIENT_STATE_PARTS`-th Demonstration from `part` (0-based); the part files cover the catalog. */
 export function describeGraphTransientState(part: number): void {
+    vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
     beforeAll(installBoardShims);
     beforeEach(() => appStorage.clear());
     afterEach(() => vi.restoreAllMocks());

@@ -9,7 +9,9 @@ const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(fil
  * The slow real-graph suites are split into `*.partN.test.*` files. `vitest --shard` splits files by path hash, so
  * their parts could share one shard: part N goes to shard N (wrapping) instead, and every other file keeps Vitest's hash
  * split. Without cached durations (as in CI) Vitest runs larger files first, which would start the small part files
- * last and leave them as a long tail, so they run first.
+ * last and leave them as a long tail, so a sharded run starts them first. An unsharded local run keeps Vitest's order:
+ * its cached durations already start the slow files early, and starting every part at once on every worker slowed the
+ * run and pushed real-graph tests past their timeout.
  */
 class PartSequencer extends BaseSequencer {
     override async shard(files: TestSpecification[]): Promise<TestSpecification[]> {
@@ -23,6 +25,7 @@ class PartSequencer extends BaseSequencer {
 
     override async sort(files: TestSpecification[]): Promise<TestSpecification[]> {
         const sorted = await super.sort(files);
+        if (!this.ctx.config.shard) return sorted;
         return [...sorted.filter(file => part(file) !== undefined), ...sorted.filter(file => part(file) === undefined)];
     }
 }

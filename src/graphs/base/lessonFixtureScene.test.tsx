@@ -7,8 +7,9 @@ import {act} from '@testing-library/react';
 import {graphFactories} from '../graphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../../learning/model';
-import {installBoardShims, MountedGraph, mountGraph, observeScene} from './realGraphTestHarness';
+import {installBoardShims, MountedGraph, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT} from './realGraphTestHarness';
 
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 
 const fixture = (curve: LessonCurveFixture, view?: LessonViewBox): LessonAction =>

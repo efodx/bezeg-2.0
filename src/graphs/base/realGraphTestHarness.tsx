@@ -9,6 +9,13 @@ import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 
+/**
+ * Test budget for a file that mounts real graphs, set with `vi.setConfig({testTimeout})` beside
+ * `beforeAll(installBoardShims)`. A test mounting the subdivision graphs takes 4-6 s alone and several times longer
+ * while the full suite fills every worker, which exceeds the 15 s default meant for ordinary component tests.
+ */
+export const REAL_GRAPH_TEST_TIMEOUT = 60_000;
+
 /** jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board. Call from `beforeAll`. */
 export function installBoardShims(): void {
     // jsdom lays nothing out; give every element a canvas-like size so boards get a finite view.

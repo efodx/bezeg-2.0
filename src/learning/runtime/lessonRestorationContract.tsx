@@ -11,7 +11,7 @@ import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
 import {graphFactories} from '../../graphs/graphFactories';
 import BaseGraph, {BaseGraphState} from '../../graphs/base/BaseGraph';
-import {installBoardShims, type MountedGraph, mountGraph} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, type MountedGraph, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {applyActions, changeScene, flipSwitches, full, hodograph, internals, sceneActions} from '../../graphs/base/realGraphScenes';
 import type {DemonstrationId} from '../../demonstrations';
 import {appStorage} from '../../storage/appStorage';
@@ -117,6 +117,7 @@ function walk(mounted: MountedGraph, lesson: LessonSession, lastStep = Infinity)
 
 /** Runs the contract for every `LESSON_RESTORATION_PARTS`-th guided lesson from `part` (0-based); the part files cover the catalog. */
 export function describeLessonRestoration(part: number): void {
+    vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
     beforeAll(installBoardShims);
     beforeEach(() => appStorage.clear());
     afterEach(() => vi.restoreAllMocks());

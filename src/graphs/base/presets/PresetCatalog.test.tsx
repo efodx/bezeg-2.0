@@ -6,10 +6,11 @@
 import {graphFactories} from '../../graphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, observeScene, settle} from '../realGraphTestHarness';
+import {installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
 import {commitPresetImport, preflightPresetImport, presetCollections} from './PresetImport';
 import {legacyCurvePresetCollections} from '../../curves/curvePresetCollections';
 
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
 afterEach(() => vi.restoreAllMocks());

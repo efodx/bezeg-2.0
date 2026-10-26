@@ -8,7 +8,7 @@ import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {appStorage} from '../../storage/appStorage';
 import {capturePNGBlob} from './export/FigureCapture';
 import type {Mock} from 'vitest';
-import {installBoardShims, mountGraph, settle} from './realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from './realGraphTestHarness';
 import {applyActions, internals} from './realGraphScenes';
 import type {Preset} from './presets/Presets';
 
@@ -19,6 +19,7 @@ vi.mock('./export/FigureCapture', async () => ({
     downloadBlob: vi.fn(),
 }));
 
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
 afterEach(() => vi.restoreAllMocks());

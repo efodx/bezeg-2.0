@@ -10,7 +10,7 @@ import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction} from '../model';
 import {activities} from '../chapter/activities';
 import {getLessonForDemonstration, GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonCatalog';
-import {installBoardShims, mountGraph} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {BERNSTEIN_MAX_DEGREE} from '../../graphs/bernstein/BernsteinGraph';
 import {SUBDIVISION_T_MAX, SUBDIVISION_T_MIN} from '../../graphs/curves/bezier/SubdivisionGraph1';
 import {EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from '../../graphs/curves/object/AbstractJXGBezierCurve';
@@ -24,6 +24,7 @@ import {
     SPLINE_ALPHA_MIN_SAMPLES,
 } from '../../graphs/curves/parametrisations/parametrisationLimits';
 
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 
 /** Applies the actions in one synchronous sequence and names every action the graph rejected. */
