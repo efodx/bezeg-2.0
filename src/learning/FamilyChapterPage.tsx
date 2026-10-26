@@ -94,7 +94,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     </div>
                 </section>)}
                 <footer className="chapter-source">
-                    <p>{language === 'sl' ? `To je prvi osnutek poglavja za področje ${family.title}. Razlage poveži z vodenimi prikazi; slika ponazarja trditev, splošne veljavnosti pa sama ne dokazuje.` : `This is a first draft for ${family.title}. Read alongside the guided demonstrations; a picture illustrates a claim but does not by itself prove it in general.`}</p>
+                    <p>{language === 'sl' ? `To je prvi osnutek poglavja za področje ${family.title}. Ob razlagi prosto raziskuj grafe ali izberi vodeno učno uro; slika ponazarja trditev, splošne veljavnosti pa sama ne dokazuje.` : `This is a first draft for ${family.title}. Explore the graphs or follow a guided lesson alongside the text; a picture illustrates a claim but does not by itself prove it in general.`}</p>
                     <ChapterNeighbors chapterId={chapter.id}/>
                 </footer>
             </article>
