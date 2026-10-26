@@ -240,7 +240,7 @@ test('production deep links retain filters and lesson query/hash through refresh
     const lesson = page.locator('section.guided-lesson');
     await expect(lesson).toBeVisible();
     await h.exitAndConfirm(page);
-    await expect(page).toHaveURL(/\/bezier\/curve\?school=west#figure$/);
+    await expect(page).toHaveURL(/\/bezier\/curve\?school=west&learnChapter=bezier-curves&learnSection=control-points#figure$/);
     await expect(page.locator('#jgbox')).toBeVisible();
     await page.goto('/bezeg-2.0/not-a-demonstration', {waitUntil: 'domcontentloaded'});
     await expect(page.getByRole('link', {name: 'Bezeg · home'})).toBeVisible();
