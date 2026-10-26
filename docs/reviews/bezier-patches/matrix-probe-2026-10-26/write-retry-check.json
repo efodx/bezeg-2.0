@@ -1,0 +1,33 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "platform": "win32",
+      "code": "UNKNOWN",
+      "count": 2,
+      "calls": 3,
+      "error": null
+    },
+    {
+      "platform": "win32",
+      "code": "UNKNOWN",
+      "count": 99,
+      "calls": 6,
+      "error": "UNKNOWN"
+    },
+    {
+      "platform": "win32",
+      "code": "EACCES",
+      "count": 2,
+      "calls": 1,
+      "error": "EACCES"
+    },
+    {
+      "platform": "linux",
+      "code": "UNKNOWN",
+      "count": 2,
+      "calls": 1,
+      "error": "UNKNOWN"
+    }
+  ]
+}

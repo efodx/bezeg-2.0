@@ -1,0 +1,141 @@
+{
+  "browser": "156.0.8078.4",
+  "sourceSha256": "0d5354cfd0c81c1f230a4bb3c09a0875b17ade62faea4ea6518554b48befba1f",
+  "cases": [
+    {
+      "mutation": false,
+      "diagnostic": {
+        "parameter": [
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "world": [
+          -0.14814814814814814,
+          -0.148148148148148,
+          0.8111111111111114
+        ],
+        "projected": {
+          "x": 592.5,
+          "y": 474.51100088173706,
+          "depth": 0.9856835104518494,
+          "inFrustum": true
+        },
+        "ownerCount": 1,
+        "ownerTriangleCount": 64,
+        "rayOwnerRole": "surface",
+        "rayDistance": 13.463802342233592,
+        "withSurface": {
+          "sampled": 448,
+          "centerRgba": [
+            202,
+            163,
+            113,
+            255
+          ]
+        },
+        "withoutSurface": {
+          "sampled": 448,
+          "centerRgba": [
+            255,
+            255,
+            255,
+            255
+          ]
+        },
+        "changedPixels": 438
+      }
+    },
+    {
+      "mutation": true,
+      "diagnostic": {
+        "parameter": [
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "world": [
+          -0.14814814814814814,
+          -0.148148148148148,
+          0.8111111111111114
+        ],
+        "projected": {
+          "x": 592.5,
+          "y": 474.51100088173706,
+          "depth": 0.9856835104518494,
+          "inFrustum": true
+        },
+        "ownerCount": 1,
+        "ownerTriangleCount": 64,
+        "rayOwnerRole": "surface",
+        "rayDistance": 13.463802342233592,
+        "withSurface": {
+          "sampled": 448,
+          "centerRgba": [
+            202,
+            163,
+            113,
+            255
+          ]
+        },
+        "withoutSurface": {
+          "sampled": 448,
+          "centerRgba": [
+            202,
+            163,
+            113,
+            255
+          ]
+        },
+        "changedPixels": 0
+      }
+    }
+  ],
+  "teapot": {
+    "diagnostic": {
+      "parameter": [
+        0.5,
+        0.5
+      ],
+      "world": [
+        1.3852630058924358,
+        -0.09508333603541057,
+        2.414355516433716
+      ],
+      "projected": {
+        "x": 477.31557079136707,
+        "y": 371.3249484846097,
+        "depth": 0.9835436898569695,
+        "inFrustum": true
+      },
+      "ownerCount": 32,
+      "ownerTriangleCount": 4096,
+      "rayOwnerRole": "teapot",
+      "rayDistance": 12.040306646585016,
+      "withSurface": {
+        "sampled": 453,
+        "centerRgba": [
+          199,
+          160,
+          111,
+          255
+        ]
+      },
+      "withoutSurface": {
+        "sampled": 453,
+        "centerRgba": [
+          255,
+          255,
+          255,
+          255
+        ]
+      },
+      "changedPixels": 446
+    },
+    "expected": [
+      1.3852630208333334,
+      -0.09508333333333334,
+      2.4143554687499997
+    ],
+    "error": 4.7683716086766026e-8
+  },
+  "pass": true
+}

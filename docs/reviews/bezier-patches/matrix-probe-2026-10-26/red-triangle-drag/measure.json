@@ -1,0 +1,154 @@
+{
+  "startedAt": "2026-10-26T20:29:20.680Z",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 5 3600 6-Core Processor              "
+  },
+  "git": {
+    "head": "e04479051a582470396ab4561cbd893794154ed6",
+    "dirty": true,
+    "dirtyStatusSha256": "b4b4aacb6de65f49e6b9882afd50707cb6d364bd420497155fa378295a2294af",
+    "dirtyEntries": 16
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  },
+  "runtime": {
+    "expectedJsxGraph": "1.14.1",
+    "expectedThreeRevision": "180",
+    "localSourceSha256": {
+      "prototype.js": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07",
+      "three-prototype.js": "4a88d4443ffdbdb88154f624033fa37d507e990f15f16575ded40e84a2c4341b"
+    }
+  },
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+  "parameters": {
+    "renderers": [
+      "three"
+    ],
+    "kinds": [
+      "triangular"
+    ],
+    "isos": [
+      "8"
+    ],
+    "tilings": [
+      "8"
+    ],
+    "viewports": [
+      "desktop"
+    ],
+    "gestures": [
+      "drag"
+    ],
+    "triangleModes": [
+      "mesh"
+    ],
+    "repeats": 1,
+    "samples": 3,
+    "operationTimeout": 12000
+  },
+  "caveats": [
+    "Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.",
+    "rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.",
+    "The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.",
+    "UV samples time the named setParameter/update path and are reported separately from pointer gestures.",
+    "Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons."
+  ],
+  "runs": [
+    {
+      "renderer": "three",
+      "kind": "triangular",
+      "triangleMode": "three-surface",
+      "iso": 8,
+      "tiling": 8,
+      "viewportName": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "gesture": "drag",
+      "repeat": 1,
+      "status": "failed",
+      "startedAt": "2026-10-26T20:29:20.822Z",
+      "samples": [
+        {
+          "at": "2026-10-26T20:29:23.231Z",
+          "x": 671.6549613059643,
+          "y": 411.46875,
+          "state": [
+            -3.154358588374766,
+            -1.7194719701660652,
+            0
+          ]
+        },
+        {
+          "at": "2026-10-26T20:29:23.458Z",
+          "x": 671.6549613059643,
+          "y": 414.46875,
+          "state": [
+            -3.088499755342868,
+            -1.6600128264264935,
+            0
+          ]
+        },
+        {
+          "at": "2026-10-26T20:29:23.686Z",
+          "x": 647.40625,
+          "y": 417.46875,
+          "state": [
+            -2.8053925146373615,
+            -1.8189149797427788,
+            0
+          ]
+        }
+      ],
+      "sourceSha256": {
+        "served": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "4a88d4443ffdbdb88154f624033fa37d507e990f15f16575ded40e84a2c4341b",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "worktree": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "4a88d4443ffdbdb88154f624033fa37d507e990f15f16575ded40e84a2c4341b",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "matchesWorktree": true
+      },
+      "runtime": {
+        "jsxgraph": null,
+        "threeRevision": "180"
+      },
+      "failure": "Error: Non-vacuous measurement failed: moved=true, dragCameraFixed=true, rAF=21, patchGeometry={\"kind\":\"three-surface-interior-pixels\",\"surfaceFaces\":64,\"patchInteriorPixels\":0,\"sampledPixels\":0}\n    at file:///C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.command-logs/patches-acceptance/docs/prototypes/bezier-patches/measure.mjs:216:89",
+      "finishedAt": "2026-10-26T20:29:23.982Z"
+    }
+  ],
+  "failures": [
+    {
+      "key": {
+        "renderer": "three",
+        "kind": "triangular",
+        "triangleMode": "three-surface",
+        "iso": 8,
+        "tiling": 8,
+        "viewportName": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "gesture": "drag",
+        "repeat": 1
+      },
+      "failure": "Error: Non-vacuous measurement failed: moved=true, dragCameraFixed=true, rAF=21, patchGeometry={\"kind\":\"three-surface-interior-pixels\",\"surfaceFaces\":64,\"patchInteriorPixels\":0,\"sampledPixels\":0}\n    at file:///C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.command-logs/patches-acceptance/docs/prototypes/bezier-patches/measure.mjs:216:89"
+    }
+  ],
+  "finishedAt": "2026-10-26T20:29:24.157Z"
+}

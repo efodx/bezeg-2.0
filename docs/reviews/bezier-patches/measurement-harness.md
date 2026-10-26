@@ -1,5 +1,7 @@
 # Renderer measurement harness
 
+Current owner verification: [the corrected probe](matrix-probe-2026-10-26/matrix-probe.md) uses actual camera projection, visible control ray ownership and all-net deltas for Three dragging. Surface evidence comes from the actual mesh-owner pixel difference with visibility restored in `finally`, independent of label rectangles. Teapot checks all32 mesh owners. Windows `UNKNOWN` evidence-write errors receive at most five recorded retries; unrelated/exhausted errors still abort. [Completed populations and caveats](renderer-measurements.md) supersede the old label/nonwhite-pixel description below.
+
 `docs/prototypes/bezier-patches/measure.mjs` runs bounded, isolated Chromium probes against the JSXGraph and three.js pages. It starts with JSXGraph, tensor, iso 8, tiling 8, desktop 1440×1000, and one short drag/orbit/UV pass. The hard wall-clock limit defaults to 90 seconds; each browser operation has its own timeout. A parent process kills the runner and its browser process tree at the hard deadline. Each run uses a fresh context/page, avoiding repeated remounts of either prototype.
 
 Run after functional verification and when other browser/timing work is idle:

@@ -1,0 +1,213 @@
+{
+  "startedAt": "2026-10-26T20:34:49.340Z",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 5 3600 6-Core Processor              "
+  },
+  "git": {
+    "head": "e04479051a582470396ab4561cbd893794154ed6",
+    "dirty": true,
+    "dirtyStatusSha256": "ea770a234eb66ca50fdc89b7a8ca5dbeadd14f53595540e60dc03f572aae462f",
+    "dirtyEntries": 30
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  },
+  "runtime": {
+    "expectedJsxGraph": "1.14.1",
+    "expectedThreeRevision": "180",
+    "localSourceSha256": {
+      "prototype.js": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07",
+      "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab"
+    }
+  },
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+  "parameters": {
+    "renderers": [
+      "three"
+    ],
+    "kinds": [
+      "triangular"
+    ],
+    "isos": [
+      "8"
+    ],
+    "tilings": [
+      "8"
+    ],
+    "viewports": [
+      "narrow"
+    ],
+    "gestures": [
+      "uv"
+    ],
+    "triangleModes": [
+      "mesh"
+    ],
+    "repeats": 1,
+    "samples": 3,
+    "operationTimeout": 12000
+  },
+  "caveats": [
+    "Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.",
+    "rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.",
+    "The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.",
+    "UV samples time the named setParameter/update path and are reported separately from pointer gestures.",
+    "Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons."
+  ],
+  "runs": [
+    {
+      "renderer": "three",
+      "kind": "triangular",
+      "triangleMode": "three-surface",
+      "iso": 8,
+      "tiling": 8,
+      "viewportName": "narrow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "gesture": "uv",
+      "repeat": 1,
+      "status": "complete",
+      "startedAt": "2026-10-26T20:34:49.450Z",
+      "samples": [
+        {
+          "at": "2026-10-26T20:34:50.192Z",
+          "operationCostMs": 4.600000023841858,
+          "state": [
+            0.12,
+            0.12
+          ]
+        },
+        {
+          "at": "2026-10-26T20:34:50.295Z",
+          "operationCostMs": 4.800000071525574,
+          "state": [
+            0.31,
+            0.22999999999999998
+          ]
+        },
+        {
+          "at": "2026-10-26T20:34:50.401Z",
+          "operationCostMs": 4.299999952316284,
+          "state": [
+            0.5,
+            0.33999999999999997
+          ]
+        }
+      ],
+      "sourceSha256": {
+        "served": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "worktree": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "matchesWorktree": true
+      },
+      "runtime": {
+        "jsxgraph": null,
+        "threeRevision": "180"
+      },
+      "finishedAt": "2026-10-26T20:34:50.598Z",
+      "changedState": true,
+      "expectedPointMoved": true,
+      "expectedPointIndex": 0,
+      "changedPointIndices": [],
+      "targetEvidence": null,
+      "dragCameraFixed": true,
+      "finalState": [
+        0.5,
+        0.33999999999999997
+      ],
+      "frameIntervalMs": {
+        "count": 6,
+        "median": 16.700000000000045,
+        "p95": 83.30000000000007,
+        "max": 83.30000000000007
+      },
+      "rawFrameIntervalsMs": [
+        16.700000000000045,
+        16.699999999999932,
+        83.30000000000007,
+        16.699999999999932,
+        83.30000000000007,
+        16.699999999999932
+      ],
+      "inputToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "rawInputToNextRaf": [],
+      "operationCostMs": {
+        "count": 3,
+        "median": 4.600000023841858,
+        "p95": 4.800000071525574,
+        "max": 4.800000071525574
+      },
+      "patchGeometry": {
+        "kind": "three-surface-interior-pixels",
+        "surfaceFaces": 64,
+        "surfaceOwnerCount": 1,
+        "patchInteriorPixels": 395,
+        "sampledPixels": 450,
+        "surfaceProbe": {
+          "parameter": [
+            0.3333333333333333,
+            0.3333333333333333
+          ],
+          "world": [
+            -0.14814814814814814,
+            -0.148148148148148,
+            0.8111111111111114
+          ],
+          "projected": {
+            "x": 195,
+            "y": 427.84052187332907,
+            "depth": 0.9856580366945962,
+            "inFrustum": true
+          },
+          "ownerCount": 1,
+          "ownerTriangleCount": 64,
+          "rayOwnerRole": "surface",
+          "rayDistance": 13.460560676888287,
+          "withSurface": {
+            "sampled": 450,
+            "centerRgba": [
+              202,
+              162,
+              113,
+              255
+            ]
+          },
+          "withoutSurface": {
+            "sampled": 450,
+            "centerRgba": [
+              255,
+              255,
+              255,
+              255
+            ]
+          },
+          "changedPixels": 395
+        }
+      }
+    }
+  ],
+  "failures": [],
+  "finishedAt": "2026-10-26T20:34:50.741Z"
+}

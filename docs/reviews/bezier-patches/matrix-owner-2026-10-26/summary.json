@@ -1,0 +1,286 @@
+{
+  "startedAt": "2026-10-26T20:40:39.109Z",
+  "finishedAt": "2026-10-26T20:45:33.684Z",
+  "runs": 144,
+  "failures": 0,
+  "statuses": {
+    "complete": 112,
+    "skipped": 32
+  },
+  "groups": {
+    "three/tensor/desktop/drag/complete": 8,
+    "three/tensor/desktop/orbit/complete": 8,
+    "three/tensor/desktop/uv/complete": 8,
+    "three/tensor/narrow/drag/complete": 8,
+    "three/tensor/narrow/orbit/complete": 8,
+    "three/tensor/narrow/uv/complete": 8,
+    "three/triangular/desktop/drag/complete": 8,
+    "three/triangular/desktop/orbit/complete": 8,
+    "three/triangular/desktop/uv/complete": 8,
+    "three/triangular/narrow/drag/complete": 8,
+    "three/triangular/narrow/orbit/complete": 8,
+    "three/triangular/narrow/uv/complete": 8,
+    "three/teapot/desktop/drag/skipped": 8,
+    "three/teapot/desktop/orbit/complete": 8,
+    "three/teapot/desktop/uv/skipped": 8,
+    "three/teapot/narrow/drag/skipped": 8,
+    "three/teapot/narrow/orbit/complete": 8,
+    "three/teapot/narrow/uv/skipped": 8
+  },
+  "evidenceWriteRetries": [
+    {
+      "at": "2026-10-26T20:40:48.757Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:40:57.736Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:06.425Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:09.997Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:14.716Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:23.737Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:23.852Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:32.113Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:34.745Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:40.389Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:41:46.860Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:05.207Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:09.670Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:12.374Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:12.501Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:20.534Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:23.589Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:27.344Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:35.126Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:43.951Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:42:51.898Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:04.544Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:14.371Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:23.638Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:26.946Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:35.846Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:36.629Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:45.813Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:43:48.711Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:04.417Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:12.135Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:28.596Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:31.148Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:34.114Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:36.599Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:38.613Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:46.470Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:44:50.518Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:45:11.581Z",
+      "name": "measure.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:45:19.013Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    },
+    {
+      "at": "2026-10-26T20:45:23.210Z",
+      "name": "progress.json",
+      "retry": 1,
+      "code": "UNKNOWN"
+    }
+  ],
+  "source": {
+    "expectedJsxGraph": "1.14.1",
+    "expectedThreeRevision": "180",
+    "localSourceSha256": {
+      "prototype.js": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07",
+      "three-prototype.js": "0d5354cfd0c81c1f230a4bb3c09a0875b17ade62faea4ea6518554b48befba1f"
+    }
+  }
+}

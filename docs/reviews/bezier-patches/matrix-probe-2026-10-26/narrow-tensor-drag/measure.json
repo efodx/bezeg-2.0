@@ -1,0 +1,123 @@
+{
+  "startedAt": "2026-10-26T20:33:47.087Z",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 5 3600 6-Core Processor              "
+  },
+  "git": {
+    "head": "e04479051a582470396ab4561cbd893794154ed6",
+    "dirty": true,
+    "dirtyStatusSha256": "b279b08a43b9d3eb69fe710951eec65dc422f49351571e1d898ad41abbbc4bd7",
+    "dirtyEntries": 24
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  },
+  "runtime": {
+    "expectedJsxGraph": "1.14.1",
+    "expectedThreeRevision": "180",
+    "localSourceSha256": {
+      "prototype.js": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07",
+      "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab"
+    }
+  },
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+  "parameters": {
+    "renderers": [
+      "three"
+    ],
+    "kinds": [
+      "tensor"
+    ],
+    "isos": [
+      "8"
+    ],
+    "tilings": [
+      "8"
+    ],
+    "viewports": [
+      "narrow"
+    ],
+    "gestures": [
+      "drag"
+    ],
+    "triangleModes": [
+      "mesh"
+    ],
+    "repeats": 1,
+    "samples": 3,
+    "operationTimeout": 12000
+  },
+  "caveats": [
+    "Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.",
+    "rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.",
+    "The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.",
+    "UV samples time the named setParameter/update path and are reported separately from pointer gestures.",
+    "Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons."
+  ],
+  "runs": [
+    {
+      "renderer": "three",
+      "kind": "tensor",
+      "triangleMode": "n/a",
+      "iso": 8,
+      "tiling": 8,
+      "viewportName": "narrow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "gesture": "drag",
+      "repeat": 1,
+      "status": "failed",
+      "startedAt": "2026-10-26T20:33:47.204Z",
+      "samples": [],
+      "sourceSha256": {
+        "served": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "worktree": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "67ed76fb51c2605e375444173fb429b56a6a04d1180edc97db34c9843da4dfab",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "matchesWorktree": true
+      },
+      "runtime": {
+        "jsxgraph": null,
+        "threeRevision": "180"
+      },
+      "failure": "page.evaluate: Error: Projected point does not hit its visible Three control owner: {\"pointIndex\":0,\"world\":[-3,3,0.14755891438661006],\"projected\":{\"x\":400.31634692491565,\"y\":461.0035007359247,\"depth\":0.9858337319305847,\"inFrustum\":false},\"rayOwnerIndex\":0,\"label\":{\"rect\":{\"x\":0,\"y\":0,\"width\":0,\"height\":0,\"top\":0,\"right\":0,\"bottom\":0,\"left\":0},\"display\":\"none\",\"visibility\":\"visible\"},\"hitElement\":null}\n    at eval (eval at evaluate (:370:30), <anonymous>:9:160)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-acceptance\\docs\\prototypes\\bezier-patches\\measure.mjs:131:44",
+      "finishedAt": "2026-10-26T20:33:47.882Z"
+    }
+  ],
+  "failures": [
+    {
+      "key": {
+        "renderer": "three",
+        "kind": "tensor",
+        "triangleMode": "n/a",
+        "iso": 8,
+        "tiling": 8,
+        "viewportName": "narrow",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "gesture": "drag",
+        "repeat": 1
+      },
+      "failure": "page.evaluate: Error: Projected point does not hit its visible Three control owner: {\"pointIndex\":0,\"world\":[-3,3,0.14755891438661006],\"projected\":{\"x\":400.31634692491565,\"y\":461.0035007359247,\"depth\":0.9858337319305847,\"inFrustum\":false},\"rayOwnerIndex\":0,\"label\":{\"rect\":{\"x\":0,\"y\":0,\"width\":0,\"height\":0,\"top\":0,\"right\":0,\"bottom\":0,\"left\":0},\"display\":\"none\",\"visibility\":\"visible\"},\"hitElement\":null}\n    at eval (eval at evaluate (:370:30), <anonymous>:9:160)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.command-logs\\patches-acceptance\\docs\\prototypes\\bezier-patches\\measure.mjs:131:44"
+    }
+  ],
+  "finishedAt": "2026-10-26T20:33:47.964Z"
+}

@@ -23,7 +23,17 @@ function listEnv(name, fallback, allowed) {
   if (!values.length || values.some(x => !allowed.includes(x))) throw Error(`${name} must contain comma-separated values from: ${allowed.join(', ')}`);
   return [...new Set(values)];
 }
-async function save(name, value) { await writeFile(resolve(out, name), JSON.stringify(value, null, 2)); }
+const evidenceWriteRetries = [];
+async function save(name, value) {
+  for (let attempt = 0; ; attempt++) {
+    try { await writeFile(resolve(out, name), JSON.stringify(value, null, 2)); return; }
+    catch (error) {
+      if (process.platform !== 'win32' || error.code !== 'UNKNOWN' || attempt >= 5) throw error;
+      evidenceWriteRetries.push({ at: new Date().toISOString(), name, retry: attempt + 1, code: error.code });
+      await new Promise(resolveRetry => setTimeout(resolveRetry, 100));
+    }
+  }
+}
 
 if (process.argv[2] !== '--worker') {
   await mkdir(out, { recursive: true });
@@ -61,7 +71,7 @@ if (process.argv[2] !== '--worker') {
   const repoRoot = resolve(here, '../../..');
   const gitHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, encoding: 'utf8' }).trim();
   const gitStatus = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: repoRoot, encoding: 'utf8' });
-  const report = { startedAt: new Date().toISOString(), host: { platform: os.platform(), release: os.release(), arch: os.arch(), cpu: os.cpus()[0]?.model }, git: { head: gitHead, dirty: gitStatus.length > 0, dirtyStatusSha256: createHash('sha256').update(gitStatus).digest('hex'), dirtyEntries: gitStatus ? gitStatus.trimEnd().split(/\r?\n/).length : 0 }, browser: null, runtime: { expectedJsxGraph: '1.14.1', expectedThreeRevision: '180', localSourceSha256: localHashes }, url: baseUrl, parameters: { renderers, kinds, isos, tilings, viewports, gestures, triangleModes, repeats, samples, operationTimeout }, caveats: ['Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.', 'rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.', 'The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.', 'UV samples time the named setParameter/update path and are reported separately from pointer gestures.', 'Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons.'], runs: [], failures: [] };
+  const report = { evidenceWriteRetries, startedAt: new Date().toISOString(), host: { platform: os.platform(), release: os.release(), arch: os.arch(), cpu: os.cpus()[0]?.model }, git: { head: gitHead, dirty: gitStatus.length > 0, dirtyStatusSha256: createHash('sha256').update(gitStatus).digest('hex'), dirtyEntries: gitStatus ? gitStatus.trimEnd().split(/\r?\n/).length : 0 }, browser: null, runtime: { expectedJsxGraph: '1.14.1', expectedThreeRevision: '180', localSourceSha256: localHashes }, url: baseUrl, parameters: { renderers, kinds, isos, tilings, viewports, gestures, triangleModes, repeats, samples, operationTimeout }, caveats: ['Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.', 'rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.', 'The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.', 'UV samples time the named setParameter/update path and are reported separately from pointer gestures.', 'Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons.'], runs: [], failures: [] };
   await save('measure.json', report);
   const planned = renderers.reduce((n, renderer) => n + kinds.reduce((m, kind) => m + (kind === 'triangular' && renderer === 'jsx' ? triangleModes.length : 1) * isos.length * tilings.length * viewports.length * gestures.length * repeats, 0), 0);
   await save('progress.json', { at: report.startedAt, status: 'started', completed: 0, planned });
@@ -128,13 +138,21 @@ if (process.argv[2] !== '--worker') {
         if (renderer === 'jsx' && setup.runtime.jsxgraph !== '1.14.1') throw Error(`Wrong JSXGraph runtime: ${setup.runtime.jsxgraph}`);
         if (renderer === 'three' && threeRevision !== '180') throw Error(`Wrong three.js REVISION: ${threeRevision}`);
         const before = setup.snapshot;
-        const started = await bounded(page.evaluate(({ gesture, samples }) => {
+        const started = await bounded(page.evaluate(async ({ gesture, samples }) => {
           const box = document.querySelector('#main-board').getBoundingClientRect();
-          let target;
+          let target, targetEvidence = null, expectedPointIndex = 0;
           if (gesture === 'drag') {
-            const info = BezierPatchSpike.pointInfo(0); if (!info?.draggable) throw Error('Point 0 is not draggable');
+            let info = BezierPatchSpike.pointInfo(expectedPointIndex); if (!info?.draggable) throw Error(`Point ${expectedPointIndex} is not draggable`);
             if (window.JXG) { const board = Object.values(JXG.boards).find(b => b.containerObj.id === 'main-board'); target = board.objects[info.id].element2D.rendNode.getBoundingClientRect(); }
-            else { const label = [...document.querySelectorAll('#labels *')].find(e => e.textContent.trim() === String(info.id)); if (!label) throw Error('Indexed point label is unavailable'); target = label.getBoundingClientRect(); }
+            else {
+              const candidates = Array.from({ length: BezierPatchSpike.snapshot().net.length }, (_, index) => BezierPatchSpike.diagnostics({ pointIndex: index }).control);
+              const selected = candidates.find(candidate => candidate.projected.inFrustum && candidate.visible && candidate.rayOwnerIndex === candidate.pointIndex && candidate.hitElement === 'CANVAS');
+              if (!selected) throw Error(`No visible Three control point has an owning ray hit: ${JSON.stringify(candidates)}`);
+              expectedPointIndex = selected.pointIndex; info = BezierPatchSpike.pointInfo(expectedPointIndex);
+              targetEvidence = BezierPatchSpike.diagnostics({ pointIndex: expectedPointIndex }).control;
+              if (!targetEvidence?.projected.inFrustum || !targetEvidence.visible || targetEvidence.rayOwnerIndex !== expectedPointIndex || targetEvidence.hitElement !== 'CANVAS') throw Error(`Projected point does not hit its visible Three control owner: ${JSON.stringify(targetEvidence)}`);
+              target = { x: targetEvidence.projected.x, y: targetEvidence.projected.y, width: 0, height: 0 };
+            }
           }
           const x = target ? target.x + target.width / 2 : box.x + box.width - 34, y = target ? target.y + target.height / 2 : box.y + 34;
           window.__probe = { raf: [], events: [], last: null, active: true, start: performance.now() };
@@ -142,7 +160,7 @@ if (process.argv[2] !== '--worker') {
           requestAnimationFrame(tick);
           const mark = e => { if (e.type === 'pointermove' && !e.buttons) return; const t = performance.now(), type = e.type; requestAnimationFrame(() => { const p = window.__probe; p.events.push({ type, ms: performance.now() - t, at: new Date().toISOString(), state: BezierPatchSpike.snapshot() }); }); };
           for (const type of ['pointerdown', 'pointermove', 'pointerup']) document.querySelector('#main-board').addEventListener(type, mark, true);
-          return { x, y, before: BezierPatchSpike.snapshot() };
+          return { x, y, before: BezierPatchSpike.snapshot(), expectedPointIndex, targetEvidence };
         }, { gesture, samples }), 'probe setup');
         const duration = [];
         if (gesture === 'uv') {
@@ -162,7 +180,7 @@ if (process.argv[2] !== '--worker') {
             await bounded(page.evaluate(() => new Promise(requestAnimationFrame)), 'sample rAF gate');
             await bounded(page.mouse.move(x, y), `${gesture} sample ${i}`);
             const sampleState = await bounded(page.evaluate(() => BezierPatchSpike.snapshot()), 'sample state');
-            entry.samples.push({ at: new Date().toISOString(), x, y, state: gesture === 'drag' ? sampleState.net[0] : sampleState.camera }); await save('measure.json', report);
+            entry.samples.push({ at: new Date().toISOString(), x, y, state: gesture === 'drag' ? sampleState.net[started.expectedPointIndex] : sampleState.camera }); await save('measure.json', report);
           }
           await bounded(page.mouse.up(), 'pointer up');
           await bounded(page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))), 'settle frames');
@@ -171,14 +189,10 @@ if (process.argv[2] !== '--worker') {
         const geometry = await bounded(page.evaluate(async ({ kind, triangleMode, tiling }) => {
           const toggle = id => { const el = document.querySelector(`#${id}`); el.checked = false; el.dispatchEvent(new Event('change', { bubbles: true })); };
           toggle('show-net'); toggle('show-iso');
-          let labelRect = null;
           if (kind !== 'teapot') {
             BezierPatchSpike.setParameter(...(kind === 'triangular' ? [.33, .33] : [.5, .5]));
             await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-            const label = [...document.querySelectorAll('#labels .scene-label')].find(el => el.textContent === 'P(u,v)');
-            if (label) labelRect = label.getBoundingClientRect().toJSON();
             document.querySelector('#labels')?.style.setProperty('visibility', 'hidden');
-            if (!window.JXG && !labelRect) return { kind: 'three-surface-interior-pixels', surfaceFaces: BezierPatchSpike.counts().meshTriangles, patchInteriorPixels: 0, reason: 'Projected interior parameter label missing.' };
           }
           if (window.JXG) {
             const board = Object.values(JXG.boards).find(b => b.containerObj.id === 'main-board');
@@ -192,29 +206,21 @@ if (process.argv[2] !== '--worker') {
             }
             return { kind: 'jsx-owned-surface-geometry', ownerType, faceOrSurfaceOwners: owners.length, renderedOwnerPrimitives: primitives.size };
           }
-          const canvas = document.querySelector('#main-board canvas'), gl = canvas?.getContext('webgl2') || canvas?.getContext('webgl'), faces = BezierPatchSpike.counts().meshTriangles;
-          if (!canvas || !gl) return { kind: 'three-surface-interior-pixels', surfaceFaces: faces, patchInteriorPixels: 0 };
-          const pixels = new Uint8Array(4 * canvas.width * canvas.height); gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-          const area = labelRect && kind !== 'teapot' ? (() => {
-            const box = canvas.getBoundingClientRect(), sx = canvas.width / box.width, sy = canvas.height / box.height;
-            const cx = (labelRect.x + labelRect.width / 2 - box.x) * sx, cy = canvas.height - (labelRect.y + labelRect.height / 2 - box.y) * sy, radius = 18;
-            let colored = 0, sampled = 0;
-            for (let y = Math.max(0, Math.floor(cy - radius)); y < Math.min(canvas.height, Math.ceil(cy + radius)); y++) for (let x = Math.max(0, Math.floor(cx - radius)); x < Math.min(canvas.width, Math.ceil(cx + radius)); x++) {
-              const d = Math.hypot(x - cx, y - cy); if (d < 7 || d > radius) continue;
-              const i = (y * canvas.width + x) * 4; sampled++; if (pixels[i] < 250 || pixels[i + 1] < 246 || pixels[i + 2] < 238) colored++;
-            }
-            return { colored, sampled };
-          })() : (() => { let colored = 0, sampled = 0; for (let i = 0; i < canvas.width * canvas.height; i += 128) { const j = i * 4; sampled++; if (pixels[j] < 250 || pixels[j + 1] < 246 || pixels[j + 2] < 238) colored++; } return { colored, sampled }; })();
-          return { kind: 'three-surface-interior-pixels', surfaceFaces: faces, patchInteriorPixels: area.colored, sampledPixels: area.sampled };
+          const u = kind === 'triangular' ? 1 / 3 : .5, v = kind === 'triangular' ? 1 / 3 : .5;
+          const surfaceProbe = BezierPatchSpike.diagnostics({ surfaceParameter: kind === 'teapot' ? 'teapot' : [u, v] }).surface;
+          return { kind: 'three-surface-interior-pixels', surfaceFaces: surfaceProbe?.ownerTriangleCount ?? 0, surfaceOwnerCount: surfaceProbe?.ownerCount ?? 0, patchInteriorPixels: surfaceProbe?.changedPixels ?? 0, sampledPixels: surfaceProbe?.withSurface.sampled ?? 0, surfaceProbe };
         }, { kind, triangleMode: key.triangleMode, tiling: Number(tiling) }), 'verify patch geometry');
-        const moved = gesture === 'drag' ? before.net[0]?.some((v, i) => Math.abs(v - result.after.net[0][i]) > .001) : gesture === 'orbit' ? JSON.stringify(before.camera) !== JSON.stringify(result.after.camera) : before.uv.some((v, i) => Math.abs(v - result.after.uv[i]) > .001);
+        const changedPointIndices = gesture === 'drag' ? before.net.map((point, pointIndex) => point.some((v, i) => Math.abs(v - result.after.net[pointIndex][i]) > .001) ? pointIndex : null).filter(pointIndex => pointIndex !== null) : [];
+        const expectedPointMoved = gesture !== 'drag' || changedPointIndices.length === 1 && changedPointIndices[0] === started.expectedPointIndex;
+        const moved = gesture === 'drag' ? expectedPointMoved : gesture === 'orbit' ? JSON.stringify(before.camera) !== JSON.stringify(result.after.camera) : before.uv.some((v, i) => Math.abs(v - result.after.uv[i]) > .001);
         const dragCameraFixed = gesture !== 'drag' || JSON.stringify(before.camera) === JSON.stringify(result.after.camera);
         const expectedFaces = kind === 'teapot' ? 64 * Number(tiling) ** 2 : kind === 'triangular' ? Number(tiling) ** 2 : 2 * Number(tiling) ** 2;
         const geometryPresent = geometry.kind === 'jsx-owned-surface-geometry'
           ? geometry.faceOrSurfaceOwners > 0 && geometry.renderedOwnerPrimitives > 0 && (key.triangleMode !== 'mesh' || geometry.faceOrSurfaceOwners >= Number(tiling) ** 2)
-          : geometry.surfaceFaces >= expectedFaces && geometry.patchInteriorPixels > 20;
+          : geometry.surfaceFaces >= expectedFaces && geometry.patchInteriorPixels > 20 && geometry.surfaceProbe?.projected.inFrustum && geometry.surfaceProbe?.rayOwnerRole === (kind === 'teapot' ? 'teapot' : 'surface') && geometry.surfaceOwnerCount === (kind === 'teapot' ? 32 : 1);
+        Object.assign(entry, { changedState: moved, expectedPointMoved, expectedPointIndex: started.expectedPointIndex, changedPointIndices, targetEvidence: started.targetEvidence, dragCameraFixed, finalState: gesture === 'drag' ? result.after.net[started.expectedPointIndex] : gesture === 'orbit' ? result.after.camera : result.after.uv, frameIntervalMs: stats(result.raf), rawFrameIntervalsMs: result.raf, inputToNextRafMs: stats(result.inputToNextRaf.map(x => x.ms)), rawInputToNextRaf: result.inputToNextRaf, operationCostMs: duration.length ? stats(duration) : undefined, patchGeometry: geometry });
         if (!moved || !dragCameraFixed || !result.raf.length || !geometryPresent) throw Error(`Non-vacuous measurement failed: moved=${moved}, dragCameraFixed=${dragCameraFixed}, rAF=${result.raf.length}, patchGeometry=${JSON.stringify(geometry)}`);
-        Object.assign(entry, { status: 'complete', finishedAt: new Date().toISOString(), changedState: moved, dragCameraFixed, finalState: gesture === 'drag' ? result.after.net[0] : gesture === 'orbit' ? result.after.camera : result.after.uv, frameIntervalMs: stats(result.raf), rawFrameIntervalsMs: result.raf, inputToNextRafMs: stats(result.inputToNextRaf.map(x => x.ms)), rawInputToNextRaf: result.inputToNextRaf, operationCostMs: duration.length ? stats(duration) : undefined, patchGeometry: geometry });
+        Object.assign(entry, { status: 'complete', finishedAt: new Date().toISOString() });
       } catch (error) { Object.assign(entry, { status: 'failed', failure: String(error?.stack || error), finishedAt: new Date().toISOString() }); report.failures.push({ key, failure: entry.failure }); }
       finally { contextClosed = true; if (context) await bounded(context.close(), 'context close').catch(e => report.failures.push({ key, failure: `Context cleanup: ${e.message}` })); }
       await save('measure.json', report); await save('progress.json', { at: new Date().toISOString(), status: 'running', current: key, completed: report.runs.filter(x => x.status !== 'running').length });

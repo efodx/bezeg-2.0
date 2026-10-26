@@ -1,0 +1,358 @@
+{
+  "startedAt": "2026-10-26T20:36:32.984Z",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 5 3600 6-Core Processor              "
+  },
+  "git": {
+    "head": "e04479051a582470396ab4561cbd893794154ed6",
+    "dirty": true,
+    "dirtyStatusSha256": "f39116326dbb53c2fee4bb634b5c9b51da76432ffe2579b33965eab51cf46dfb",
+    "dirtyEntries": 44
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  },
+  "runtime": {
+    "expectedJsxGraph": "1.14.1",
+    "expectedThreeRevision": "180",
+    "localSourceSha256": {
+      "prototype.js": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07",
+      "three-prototype.js": "d2739b8675ecaeea2b40c8f68d01896577f507557057d22fbe6bd1da6b710a4e"
+    }
+  },
+  "url": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+  "parameters": {
+    "renderers": [
+      "three"
+    ],
+    "kinds": [
+      "teapot"
+    ],
+    "isos": [
+      "8"
+    ],
+    "tilings": [
+      "8"
+    ],
+    "viewports": [
+      "desktop"
+    ],
+    "gestures": [
+      "orbit"
+    ],
+    "triangleModes": [
+      "mesh"
+    ],
+    "repeats": 1,
+    "samples": 3,
+    "operationTimeout": 12000
+  },
+  "caveats": [
+    "Headless Chromium on this host; narrow viewport is an emulation, not a physical phone.",
+    "rAF cadence and input-dispatch-to-next-rAF are proxies; they do not measure compositor presentation or pixel-visible latency.",
+    "The continuous rAF series includes time between host-dispatched samples and JSON writes; inspect raw per-event samples for the interaction response.",
+    "UV samples time the named setParameter/update path and are reported separately from pointer gestures.",
+    "Per-renderer medians describe these prototypes and are not interchangeable operation-cost comparisons."
+  ],
+  "runs": [
+    {
+      "renderer": "three",
+      "kind": "teapot",
+      "triangleMode": "n/a",
+      "iso": 8,
+      "tiling": 8,
+      "viewportName": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "gesture": "orbit",
+      "repeat": 1,
+      "status": "complete",
+      "startedAt": "2026-10-26T20:36:33.106Z",
+      "samples": [
+        {
+          "at": "2026-10-26T20:36:34.347Z",
+          "x": 1134,
+          "y": 137,
+          "state": {
+            "az": 0.8413981633974483,
+            "el": 0.5980000000000001,
+            "distance": 14
+          }
+        },
+        {
+          "at": "2026-10-26T20:36:34.512Z",
+          "x": 1127,
+          "y": 143,
+          "state": {
+            "az": 0.8973981633974483,
+            "el": 0.646,
+            "distance": 14
+          }
+        },
+        {
+          "at": "2026-10-26T20:36:34.674Z",
+          "x": 1120,
+          "y": 149,
+          "state": {
+            "az": 0.9533981633974483,
+            "el": 0.6940000000000001,
+            "distance": 14
+          }
+        }
+      ],
+      "sourceSha256": {
+        "served": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "d2739b8675ecaeea2b40c8f68d01896577f507557057d22fbe6bd1da6b710a4e",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "worktree": {
+          "three.html": "08c9154741623214a5fd49ad24aa1c0b92e78a2e1f76635d7cf92325a0624c7f",
+          "three-prototype.js": "d2739b8675ecaeea2b40c8f68d01896577f507557057d22fbe6bd1da6b710a4e",
+          "three-style.css": "47a7eb9a0c23aa71afe4ce1c9002bf26a73e96486d1d52434af060df9d2b3b56",
+          "../../../.command-logs/patches-three-vendor/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+          "../../../.command-logs/patches-three-vendor/teapot-data.json": "e4119319d6eae8caa244ccce20234f624b747ed134a2ea28cbc7a897ae823620"
+        },
+        "matchesWorktree": true
+      },
+      "runtime": {
+        "jsxgraph": null,
+        "threeRevision": "180"
+      },
+      "changedState": true,
+      "expectedPointMoved": true,
+      "expectedPointIndex": 0,
+      "changedPointIndices": [],
+      "targetEvidence": null,
+      "dragCameraFixed": true,
+      "finalState": {
+        "az": 0.9533981633974483,
+        "el": 0.6940000000000001,
+        "distance": 14
+      },
+      "frameIntervalMs": {
+        "count": 22,
+        "median": 33.30000000000007,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "rawFrameIntervalsMs": [
+        33.30000000000007,
+        33.299999999999955,
+        33.39999999999998,
+        33.30000000000007,
+        33.299999999999955,
+        33.39999999999998,
+        33.30000000000007,
+        33.299999999999955,
+        33.40000000000009,
+        33.299999999999955,
+        33.299999999999955,
+        33.40000000000009,
+        33.399999999999864,
+        33.299999999999955,
+        33.200000000000045,
+        33.40000000000009,
+        33.299999999999955,
+        33.40000000000009,
+        33.299999999999955,
+        33.399999999999864,
+        33.30000000000018,
+        33.299999999999955
+      ],
+      "inputToNextRafMs": {
+        "count": 5,
+        "median": 1.2000000476837158,
+        "p95": 2.5,
+        "max": 2.5
+      },
+      "rawInputToNextRaf": [
+        {
+          "type": "pointerdown",
+          "ms": 2.5,
+          "at": "2026-10-26T20:36:34.107Z",
+          "state": {
+            "ready": true,
+            "kind": "teapot",
+            "net": [],
+            "uv": [
+              0.32,
+              0.44
+            ],
+            "camera": {
+              "az": 0.7853981633974483,
+              "el": 0.55,
+              "distance": 14
+            },
+            "counts": {
+              "meshTriangles": 4096,
+              "drawCalls": 40,
+              "controlPoints": 0,
+              "teapotPatches": 32
+            },
+            "disposed": false
+          }
+        },
+        {
+          "type": "pointermove",
+          "ms": 1.5999999046325684,
+          "at": "2026-10-26T20:36:34.241Z",
+          "state": {
+            "ready": true,
+            "kind": "teapot",
+            "net": [],
+            "uv": [
+              0.32,
+              0.44
+            ],
+            "camera": {
+              "az": 0.8413981633974483,
+              "el": 0.5980000000000001,
+              "distance": 14
+            },
+            "counts": {
+              "meshTriangles": 4096,
+              "drawCalls": 40,
+              "controlPoints": 0,
+              "teapotPatches": 32
+            },
+            "disposed": false
+          }
+        },
+        {
+          "type": "pointermove",
+          "ms": 1.100000023841858,
+          "at": "2026-10-26T20:36:34.442Z",
+          "state": {
+            "ready": true,
+            "kind": "teapot",
+            "net": [],
+            "uv": [
+              0.32,
+              0.44
+            ],
+            "camera": {
+              "az": 0.8973981633974483,
+              "el": 0.646,
+              "distance": 14
+            },
+            "counts": {
+              "meshTriangles": 4096,
+              "drawCalls": 40,
+              "controlPoints": 0,
+              "teapotPatches": 32
+            },
+            "disposed": false
+          }
+        },
+        {
+          "type": "pointermove",
+          "ms": 1,
+          "at": "2026-10-26T20:36:34.609Z",
+          "state": {
+            "ready": true,
+            "kind": "teapot",
+            "net": [],
+            "uv": [
+              0.32,
+              0.44
+            ],
+            "camera": {
+              "az": 0.9533981633974483,
+              "el": 0.6940000000000001,
+              "distance": 14
+            },
+            "counts": {
+              "meshTriangles": 4096,
+              "drawCalls": 40,
+              "controlPoints": 0,
+              "teapotPatches": 32
+            },
+            "disposed": false
+          }
+        },
+        {
+          "type": "pointerup",
+          "ms": 1.2000000476837158,
+          "at": "2026-10-26T20:36:34.705Z",
+          "state": {
+            "ready": true,
+            "kind": "teapot",
+            "net": [],
+            "uv": [
+              0.32,
+              0.44
+            ],
+            "camera": {
+              "az": 0.9533981633974483,
+              "el": 0.6940000000000001,
+              "distance": 14
+            },
+            "counts": {
+              "meshTriangles": 4096,
+              "drawCalls": 40,
+              "controlPoints": 0,
+              "teapotPatches": 32
+            },
+            "disposed": false
+          }
+        }
+      ],
+      "patchGeometry": {
+        "kind": "three-surface-interior-pixels",
+        "surfaceFaces": 4096,
+        "surfaceOwnerCount": 32,
+        "patchInteriorPixels": 453,
+        "sampledPixels": 453,
+        "surfaceProbe": {
+          "parameter": null,
+          "world": [
+            1.3852630058924358,
+            1.3852630058924358,
+            1.3852630058924358
+          ],
+          "projected": {
+            "x": 555.2780116622378,
+            "y": 571.38077337915,
+            "depth": 0.983000283944549,
+            "inFrustum": true
+          },
+          "ownerCount": 32,
+          "ownerTriangleCount": 4096,
+          "rayOwnerRole": "teapot",
+          "rayDistance": 11.668748256526033,
+          "withSurface": {
+            "sampled": 453,
+            "centerRgba": [
+              176,
+              139,
+              94,
+              255
+            ]
+          },
+          "withoutSurface": {
+            "sampled": 453,
+            "centerRgba": [
+              255,
+              255,
+              255,
+              255
+            ]
+          },
+          "changedPixels": 453
+        }
+      },
+      "finishedAt": "2026-10-26T20:36:34.966Z"
+    }
+  ],
+  "failures": [],
+  "finishedAt": "2026-10-26T20:36:35.270Z"
+}
