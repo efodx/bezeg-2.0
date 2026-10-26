@@ -1,5 +1,5 @@
 /**
- * Lesson and activity content applied to the real graphs: every scene of every Guided lesson and the actions of every
+ * Lesson and activity content applied to the real graphs: every scene of every Guided example and the actions of every
  * Chapter activity go to the real graph of their Demonstration (`graphFactories`, mounted through the real `GraphHost`),
  * synchronously and in order, the way a lesson session applies them. A value a graph rejects fails here, so limits
  * stay a graph-side fact and content is checked against them without restating them.
@@ -52,7 +52,7 @@ function rejections(id: DemonstrationId, where: string, actionsByScene: Readonly
     }
 }
 
-describe('Guided lesson scenes are accepted by their Demonstration graph', () => {
+describe('Guided example scenes are accepted by their Demonstration graph', () => {
     test.each([...GUIDED_LESSON_AVAILABLE_IDS])('%s', id => {
         const lesson = getLessonForDemonstration(id)!;
         const scenes = lesson.steps.filter(step => step.scene).map(step => ({where: step.id, actions: step.scene!.actions}));

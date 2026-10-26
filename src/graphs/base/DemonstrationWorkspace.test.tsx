@@ -103,15 +103,17 @@ test('ignores lesson query parameters on demonstrations without reviewed lessons
     expect(screen.getByRole('region', {name: 'Interaktivni graf'})).not.toHaveAttribute('data-lesson-locked');
 });
 
-test('valid family context shows its bilingual prompt and an exact-section return', () => {
+test('valid family investigation URLs resolve into the chapter-owned guided example', () => {
     setLanguage('en');
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein?school=west&explore=foundations.why-weights.bernstein#figure']}>
-        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
+        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
+            lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/>
     </MemoryRouter>);
 
-    expect(screen.getByRole('region', {name: 'Investigation instructions'})).toBeVisible();
+    expect(document.querySelector('.guided-lesson')).toBeInTheDocument();
+    expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
     expect(screen.getByText(/Change the degree with its selector/)).toBeVisible();
-    expect(screen.getByRole('link', {name: /Return to chapter: Foundations/})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#why-weights');
+    expect(screen.getByRole('link', {name: 'Return to chapter'})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#why-weights');
 });
 
 test('invalid family context is removed while unrelated query values and the hash survive', async () => {
@@ -161,8 +163,8 @@ test('direct guided family context exits back to its investigation prompt and pr
     expect(screen.queryByRole('button', {name: 'Learn this demonstration'})).not.toBeInTheDocument();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
     expect(capabilities.restoreState).not.toHaveBeenCalled();
-    expect(screen.queryByRole('button', {name: 'Continue lesson'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', {name: 'Exit lesson'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Continue example'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Exit example'})).not.toBeInTheDocument();
 
     const parameter = screen.getByLabelText('Parameter');
     fireEvent.change(parameter, {target: {value: '.8'}});
@@ -175,7 +177,7 @@ test('direct guided family context exits back to its investigation prompt and pr
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    const safeChoice = screen.getByRole('button', {name: 'Continue lesson'});
+    const safeChoice = screen.getByRole('button', {name: 'Continue example'});
     expect(safeChoice).toHaveFocus();
     fireEvent.click(safeChoice);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -186,10 +188,10 @@ test('direct guided family context exits back to its investigation prompt and pr
     const compactTab = screen.getByRole('button', {name: /Guided path.*Frame 2 of 2/});
     fireEvent.click(compactTab);
     fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
-    expect(await screen.findByText('Lesson complete')).toBeVisible();
+    expect(await screen.findByText('Example complete')).toBeVisible();
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(capabilities.restoreState).not.toHaveBeenCalled();
+    expect(capabilities.restoreState).toHaveBeenCalledTimes(1);
     const learnAgain = screen.getByRole('button', {name: 'Learn this demonstration'});
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
 
@@ -198,7 +200,7 @@ test('direct guided family context exits back to its investigation prompt and pr
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     expect(screen.getByRole('dialog')).toBeVisible();
     fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
-    await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/spline/spline?learnChapter=splines&learnSection=piecewise'));
     expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
@@ -229,8 +231,8 @@ test('minimized lesson exposes one focused reopen tab over the graph', async () 
     await waitFor(() => expect(tab).toHaveFocus());
     await waitFor(() => expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument());
     expect(screen.queryByRole('button', {name: 'Back to the instructions'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', {name: 'Continue lesson'})).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', {name: 'Exit lesson'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Continue example'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: 'Exit example'})).not.toBeInTheDocument();
     fireEvent.click(tab);
     expect(await screen.findByText('Observation', {selector: 'strong'})).toBeVisible();
     expect(document.querySelector('.guided-lesson-nav-next')).toBeVisible();

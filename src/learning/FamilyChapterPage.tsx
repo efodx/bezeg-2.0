@@ -8,8 +8,7 @@ import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
-import {ChapterExploration} from './ChapterExploration';
-import {familyInvestigationQuery} from './chapter/familyInvestigation';
+import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -17,6 +16,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
     const {language} = useLanguage();
     const location = useLocation();
     const articleRef = useRef<HTMLElement>(null);
+    const restoredPath = useRef<string>();
     const catalog = getDemonstrationCatalog();
     const family = catalog.families.find(entry => entry.id === chapter.family)!;
     const contentsSections = useMemo(() => chapter.sections.map(section => ({id: section.id, title: section.title[language]})), [chapter, language]);
@@ -28,6 +28,11 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
         let frame = 0;
         const settle = () => {
             if (disposed) return;
+            const returnPath = `${location.pathname}${location.hash}`;
+            if (restoredPath.current !== returnPath) {
+                restoredPath.current = returnPath;
+                if (restoreGuidedExampleReading(returnPath)) return;
+            }
             const id = location.hash.slice(1);
             if (id && chapter.sections.some(section => section.id === id)) {
                 document.getElementById(id)?.scrollIntoView();
@@ -38,7 +43,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
         const schedule = () => { if (!disposed) frame = window.requestAnimationFrame(settle); };
         void typesetMath(article, () => !disposed).then(schedule, schedule);
         return () => { disposed = true; window.cancelAnimationFrame(frame); };
-    }, [chapter, language, location.hash]);
+    }, [chapter, language, location.hash, location.pathname]);
 
     useEffect(() => {
         if (!location.hash) {
@@ -68,33 +73,12 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                             <img src={figure.src} alt={figure.alt[language]} width="720" height="440" loading="lazy"/>
                             <figcaption>{figure.caption[language]}</figcaption>
                         </figure>)}
-                        {section.demonstrationIds?.length && <div className="learning-investigations">
-                            <div className="learning-investigation-list">{section.demonstrationIds.map(id => {
-                                const demo = catalog.demonstrations.find(entry => entry.id === id)!;
-                                const prompt = section.investigationPrompts?.[id];
-                                const anchorSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
-                                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                                    const url = `${location.pathname}${location.search}#${section.id}`;
-                                    window.history.replaceState(window.history.state, '', url);
-                                };
-                                return <ChapterExploration key={id}
-                                    kind="free-exploration"
-                                    label={language === 'sl' ? `Prosto raziskovanje grafa v razdelku ${section.title[language]}` : `Free graph exploration in ${section.title[language]}`}
-                                    title={demo.catalogTitle}
-                                    prompt={prompt?.[language]}
-                                    promptClassName="learning-investigation-prompt"
-                                    action={<Link className="learning-investigation-explore-link chapter-open-activity" to={demo.path + familyInvestigationQuery(chapter.id, section.id, id)} onClick={anchorSection}>
-                                        {demo.catalogTitle} — {language === 'sl' ? 'prosto raziskovanje' : 'free exploration'}<span aria-hidden="true"> →</span>
-                                    </Link>}
-                                />;
-                            })}</div>
 
-                        </div>}
                     </div>
                     <ChapterGuidedLessons chapterId={chapter.id} sectionId={section.id} language={language}/>
                 </section>)}
                 <footer className="chapter-source">
-                    <p>{language === 'sl' ? `To je prvi osnutek poglavja za področje ${family.title}. Ob razlagi prosto raziskuj grafe ali izberi vodeno učno uro; slika ponazarja trditev, splošne veljavnosti pa sama ne dokazuje.` : `This is a first draft for ${family.title}. Explore the graphs or follow a guided lesson alongside the text; a picture illustrates a claim but does not by itself prove it in general.`}</p>
+                    <p>{language === 'sl' ? `To je prvi osnutek poglavja za področje ${family.title}. Ob razlagi odpri vodeni primer; slika ponazarja trditev, splošne veljavnosti pa sama ne dokazuje.` : `This is a first draft for ${family.title}. Open a guided example alongside the text; a picture illustrates a claim but does not by itself prove it in general.`}</p>
                     <ChapterNeighbors chapterId={chapter.id}/>
                 </footer>
             </article>

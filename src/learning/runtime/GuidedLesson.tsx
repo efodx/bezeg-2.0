@@ -73,7 +73,7 @@ export function GuidedLesson(props: {
     }
     const session = current.session;
     useEffect(() => {
-        props.registerClose?.(() => session.close());
+        props.registerClose?.(() => session.close({restoreCompleted: true}));
         return () => props.registerClose?.(undefined);
     }, [session, props.registerClose]);
     const snapshot: LessonSessionSnapshot = useSyncExternalStore(session.subscribe, session.getSnapshot);
@@ -149,7 +149,7 @@ export function GuidedLesson(props: {
     const requestExit = (invoker?: HTMLElement | null) => {
         pausePlayback();
         if (isComplete) {
-            close();
+            close(true);
             return;
         }
         if (exitRequested) return;
@@ -186,7 +186,7 @@ export function GuidedLesson(props: {
             setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
         }
         return () => {
-            try { session.close(); } catch { /* A failed restoration remains recoverable while the host is mounted. */ }
+            try { session.close({restoreCompleted: true}); } catch { /* A failed restoration remains recoverable while the host is mounted. */ }
         };
     }, [session]);
 
@@ -331,8 +331,8 @@ export function GuidedLesson(props: {
         }
     };
 
-    const close = () => {
-        session.close();
+    const close = (restoreCompleted = false) => {
+        session.close({restoreCompleted});
         props.onModeChange?.('closed');
         props.onClose();
     };
@@ -343,7 +343,7 @@ export function GuidedLesson(props: {
         </button>)}
     </div>;
 
-    const exitRef = useRef(close);
+    const exitRef = useRef<(invoker?: HTMLElement | null) => void>(requestExit);
     exitRef.current = requestExit;
 
     useEffect(() => {
@@ -373,7 +373,18 @@ export function GuidedLesson(props: {
         if (!props.chapterOwner || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
         try {
-            session.close();
+            session.close({restoreCompleted: true});
+            props.chapterOwner.onReturn();
+        } catch {
+            setExitError(true);
+        }
+    };
+    const continueInChapter = () => {
+        if (!props.chapterOwner) return;
+        try {
+            // Chapter return is a safe exit, so restore the opening graph even
+            // when the learner completed and explored the example.
+            session.close({restoreCompleted: true});
             props.chapterOwner.onReturn();
         } catch {
             setExitError(true);
@@ -442,6 +453,9 @@ export function GuidedLesson(props: {
                     <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')} onClick={() => refresh(() => session.next())}>{atLastFrame ? t('finish_lesson') : t('guided_lesson_next_frame')}</button>
                 </nav>}
             </div>
+            {isComplete && props.chapterOwner && <div className="guided-lesson-actions">
+                <button type="button" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
+            </div>}
             {!isComplete && (isExploring || frameAction) && <div className="guided-lesson-actions">
                 {isExploring && <button type="button" className="guided-lesson-observe" onClick={hideOverlay}>{t('observe_on_graph')}</button>}
                 {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
@@ -450,7 +464,7 @@ export function GuidedLesson(props: {
     </section>}
     {(overlayPhase === 'closing' || overlayPhase === 'hidden') && <button ref={compactTabRef} type="button" className="guided-lesson-tab" onClick={showOverlay}
         aria-label={`${localized(props.lesson.title, language)}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
-        <span className="guided-lesson-tab-title">{t('guided_lesson')}</span>
+        <span className="guided-lesson-tab-title">{t('guided_example')}</span>
         <span className="guided-lesson-tab-progress">{snapshot.stepIndex + 1}/{props.lesson.steps.length} · {snapshot.frameIndex + 1}/{frames.length}</span>
         <svg className="guided-lesson-tab-expand" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

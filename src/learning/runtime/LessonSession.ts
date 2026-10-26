@@ -167,10 +167,10 @@ export class LessonSession {
         this.capabilities.apply({kind: 'animation', animationId, command});
     }
 
-    close() {
+    close(options: {restoreCompleted?: boolean} = {}) {
         this.stopAnimations();
         const graphIsAvailable = this.capabilities.isAvailable?.() ?? true;
-        if (this.snapshotValue.status !== 'closed' && this.snapshotValue.status !== 'complete' && this.checkpoint && graphIsAvailable) {
+        if (this.snapshotValue.status !== 'closed' && (this.snapshotValue.status !== 'complete' || options.restoreCompleted) && this.checkpoint && graphIsAvailable) {
             this.capabilities.restoreState(this.checkpoint);
         }
         this.snapshotValue = {...this.snapshotValue, status: 'closed'};

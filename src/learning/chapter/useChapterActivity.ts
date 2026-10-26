@@ -8,24 +8,25 @@ import {reportNavigationFailure} from './navigationFailure';
 import {chapterActivityVisit} from './ChapterActivityVisit';
 
 /** URL data selects authored IDs only; graph-owned checkpoints never enter history or storage. */
-export function resolveActivityContext(search: string, demonstrationId?: string) {
+export function resolveActivityContext(search: string, demonstrationId?: string, guidedExampleOwnsRoute = false) {
     const query = new URLSearchParams(search);
     const requested = query.has('chapter') || query.has('activity');
-    const lessonOwnsRoute = query.get('learn') === '1';
+    const lessonOwnsRoute = query.get('learn') === '1' || query.has('example') || query.has('explore');
     const activity = findActivity(query.get('activity') ?? '');
     const valid = query.getAll('chapter').length === 1 && query.get('chapter') === 'bezier-curves'
         && query.getAll('activity').length === 1 && activity?.demonstrationId === demonstrationId;
-    return {activity: !lessonOwnsRoute && valid ? activity : undefined, invalid: requested && !lessonOwnsRoute && !valid};
+    const guidedActivityRoute = lessonOwnsRoute || (guidedExampleOwnsRoute && valid && query.has('activity'));
+    return {activity: !guidedActivityRoute && valid ? activity : undefined, invalid: requested && !guidedActivityRoute && !valid};
 }
 
 export function useChapterActivity(capabilities: LessonGraphCapabilities | undefined,
     beforeDispose: React.MutableRefObject<(() => void) | undefined> | undefined,
     closeLesson: React.MutableRefObject<(() => void) | undefined>, disposeFailedGraph?: () => void,
-    visit = chapterActivityVisit) {
+    visit = chapterActivityVisit, guidedExampleOwnsRoute = false) {
     const location = useLocation();
     const navigate = useNavigate();
     const demo = findDemonstration(location.pathname);
-    const {activity, invalid} = resolveActivityContext(location.search, demo?.id);
+    const {activity, invalid} = resolveActivityContext(location.search, demo?.id, guidedExampleOwnsRoute);
     const [error, setError] = useState(false);
     const [fatal, setFatal] = useState(false);
     const [invalidNotice, setInvalidNotice] = useState(invalid);

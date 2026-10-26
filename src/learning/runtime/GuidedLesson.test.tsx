@@ -92,7 +92,7 @@ test('offers content-first navigation and preserves step identity when language 
     render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={close}/>);
     expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Korak 1 od 2');
-    expect(screen.getAllByRole('button', {name: 'Končaj učno pot'})[0]).toHaveClass('guided-lesson-exit');
+    expect(screen.getAllByRole('button', {name: 'Končaj vodeni primer'})[0]).toHaveClass('guided-lesson-exit');
     const backButton = screen.getByRole('button', {name: 'Prejšnji okvir'});
     const nextButton = screen.getByRole('button', {name: 'Naslednji okvir'});
     expect(backButton).toHaveClass('guided-lesson-nav-back');
@@ -108,13 +108,48 @@ test('offers content-first navigation and preserves step identity when language 
     act(() => setLanguage('en'));
     expect(screen.getByRole('heading', {name: 'Second step'})).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 2');
-    fireEvent.click(screen.getAllByRole('button', {name: 'Exit lesson'})[0]);
+    fireEvent.click(screen.getAllByRole('button', {name: 'Exit example'})[0]);
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
-    fireEvent.click(screen.getByRole('button', {name: 'Continue lesson'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Continue example'}));
     expect(close).not.toHaveBeenCalled();
-    fireEvent.click(screen.getAllByRole('button', {name: 'Exit lesson'})[0]);
+    fireEvent.click(screen.getAllByRole('button', {name: 'Exit example'})[0]);
     fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
     expect(close).toHaveBeenCalled();
+    act(() => setLanguage('sl'));
+});
+
+test('returning midway restores the graph checkpoint before returning to the owning chapter', () => {
+    setLanguage('en');
+    const caps = capabilities();
+    const onReturn = vi.fn();
+    render(<GuidedLesson lesson={{...lesson, steps: [lesson.steps[1]]}} capabilities={caps} onClose={vi.fn()} chapterOwner={{
+        chapterTitle: 'Foundations', sectionTitle: 'Control points', returnPath: '/learn#control-points',
+        returnLabel: 'Return to chapter', onReturn,
+    }}/>);
+
+    fireEvent.click(screen.getByRole('link', {name: 'Return to chapter'}));
+
+    expect(caps.restoreState).toHaveBeenCalledWith({version: 1, value: 'before'});
+    expect(onReturn).toHaveBeenCalledOnce();
+    act(() => setLanguage('sl'));
+});
+
+test('completion offers chapter continuation and keeps the final graph scene', () => {
+    setLanguage('en');
+    const caps = capabilities();
+    const onReturn = vi.fn();
+    render(<GuidedLesson lesson={{...lesson, steps: [lesson.steps[1]]}} capabilities={caps} onClose={vi.fn()} chapterOwner={{
+        chapterTitle: 'Foundations', sectionTitle: 'Control points', returnPath: '/learn#control-points',
+        returnLabel: 'Return to chapter', onReturn,
+    }}/>);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Complete example'}));
+    expect(screen.getByRole('button', {name: 'Continue in chapter'})).toBeVisible();
+    expect(caps.restoreState).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', {name: 'Continue in chapter'}));
+
+    expect(caps.restoreState).toHaveBeenCalledWith({version: 1, value: 'before'});
+    expect(onReturn).toHaveBeenCalledOnce();
     act(() => setLanguage('sl'));
 });
 
@@ -131,10 +166,10 @@ test('hides instructions without ending the session and reopens the same frame',
 
         expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
-        expect(screen.queryByRole('button', {name: 'Skrij navodila učne poti'})).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', {name: 'Skrij navodila vodenega primera'})).not.toBeInTheDocument();
         expect(screen.getAllByRole('button', {name: 'Opazuj na grafu'})).toHaveLength(1);
         expect(screen.getByRole('button', {name: 'Prejšnji okvir'})).toBeVisible();
-        expect(screen.getByRole('button', {name: 'Zaključi učno pot'})).toBeVisible();
+        expect(screen.getByRole('button', {name: 'Zaključi vodeni primer'})).toBeVisible();
 
         fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
@@ -147,7 +182,7 @@ test('hides instructions without ending the session and reopens the same frame',
         expect(screen.getByRole('button', {name: 'Opazuj na grafu'})).toBeVisible();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
         expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
-        expect(screen.getByRole('button', {name: 'Zaključi učno pot'})).toBeVisible();
+        expect(screen.getByRole('button', {name: 'Zaključi vodeni primer'})).toBeVisible();
         expect(started).toHaveBeenCalledTimes(1);
     } finally {
         vi.useRealTimers();
@@ -163,7 +198,7 @@ test('preserves reading position on reopen and starts a new frame at its introdu
         render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
         const reading = document.querySelector<HTMLElement>('.guided-lesson-reading')!;
         reading.scrollTop = 140;
-        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
+        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila vodenega primera'})[0]);
         act(() => vi.advanceTimersByTime(250));
         reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
@@ -186,7 +221,7 @@ test('narrow page reading restores its scroll position on reopen and resets at a
     setLanguage('sl');
     try {
         render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
-        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila učne poti'})[0]);
+        fireEvent.click(screen.getAllByRole('button', {name: 'Skrij navodila vodenega primera'})[0]);
         act(() => vi.advanceTimersByTime(250));
         reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
@@ -279,7 +314,7 @@ test('keeps the graph locked while instructions are visible and unlocks it only 
         reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
-        fireEvent.click(screen.getByRole('button', {name: 'Zaključi učno pot'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Zaključi vodeni primer'}));
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('complete');
     } finally {
@@ -315,9 +350,9 @@ test('exit dialog keeps reading open on Escape and restores focus to its invoker
     render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={onClose} registerExit={callback => { exit = callback; }}/>);
     const backgroundControl = document.createElement('button');
     document.body.append(backgroundControl);
-    const invoker = screen.getAllByRole('button', {name: 'Končaj učno pot'})[0];
+    const invoker = screen.getAllByRole('button', {name: 'Končaj vodeni primer'})[0];
     fireEvent.click(invoker);
-    const safe = screen.getByRole('button', {name: 'Nadaljuj učno pot'});
+    const safe = screen.getByRole('button', {name: 'Nadaljuj vodeni primer'});
     expect(safe).toHaveFocus();
     expect(backgroundControl.inert).toBe(true);
     fireEvent.keyDown(document, {key: 'Escape'});
@@ -337,7 +372,7 @@ test('failed checkpoint restoration keeps the lesson and dialog available for re
     (caps.restoreState as Mock).mockImplementation(() => { throw new Error('restore unavailable'); });
     const onClose = vi.fn();
     render(<GuidedLesson lesson={lesson} capabilities={caps} onClose={onClose}/>);
-    fireEvent.click(screen.getAllByRole('button', {name: 'Končaj učno pot'})[0]);
+    fireEvent.click(screen.getAllByRole('button', {name: 'Končaj vodeni primer'})[0]);
     fireEvent.click(screen.getByRole('button', {name: 'Zapusti in povrni graf'}));
     expect(screen.getByRole('alert')).toHaveTextContent('Stanja grafa ni bilo mogoče povrniti');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -375,10 +410,10 @@ test('Next on the last observation frame completes the lesson after reopening', 
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         observe();
         reopenWithTab();
-        fireEvent.click(screen.getByRole('button', {name: 'Zaključi učno pot'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Zaključi vodeni primer'}));
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
-        expect(screen.queryByRole('button', {name: 'Nadaljuj učno pot'})).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', {name: 'Nadaljuj vodeni primer'})).not.toBeInTheDocument();
     } finally {
         vi.useRealTimers();
         act(() => setLanguage('sl'));
@@ -418,7 +453,7 @@ test('pauses graph animation when hiding instructions and reopening does not res
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('group', {name: 'Kontrole animacije konstrukcije'})).toBeVisible();
         expect(apply.mock.calls.filter(([command]) => command?.kind === 'animation' && command.command === 'play')).toHaveLength(1);
-        fireEvent.click(screen.getByRole('button', {name: 'Zaključi učno pot'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Zaključi vodeni primer'}));
         act(() => vi.advanceTimersByTime(250));
         expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
     } finally {

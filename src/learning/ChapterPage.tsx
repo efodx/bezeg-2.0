@@ -1,22 +1,15 @@
 import React, {useEffect, useRef} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
-import {ChapterExploration} from './ChapterExploration';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {useLanguage} from '../localization';
-import type {Language} from '../localization';
 import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
+import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
-import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
-import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
+import {bezierChapter} from './content/bezierChapter';
+import type {ChapterBlock} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
-import shapeControlFigure from '../images/learning/bezier/shape-control.png';
-import curveParameterFigure from '../images/learning/bezier/curve-parameter.png';
-import repeatedInterpolationFigure from '../images/learning/bezier/repeated-interpolation.png';
-import blendingCoefficientsFigure from '../images/learning/bezier/blending-coefficients.png';
-import geometricBoundsFigure from '../images/learning/bezier/geometric-bounds.png';
-import transformShapeFigure from '../images/learning/bezier/transform-shape.png';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -26,26 +19,6 @@ function restoreSectionAnchor(anchor: SectionScrollAnchor) {
     if (section) window.scrollTo(0, Math.max(0, window.scrollY + section.getBoundingClientRect().top - anchor.top));
 }
 
-const activityFigures: Record<BezierActivityId, {src: string; alt: Record<Language, string>; caption: Record<Language, string>}> = {
-    'shape-control': {src: shapeControlFigure,
-        alt: {sl: 'Kubična Bézierjeva krivulja, štiri kontrolne točke in črtkani kontrolni poligon.', en: 'A cubic Bézier curve, its four control points, and the dashed control polygon.'},
-        caption: {sl: 'Pripravljena kubična krivulja s kontrolnim poligonom in kontrolnimi točkami.', en: 'The prepared cubic curve with its control polygon and control points.'}},
-    'curve-parameter': {src: curveParameterFigure,
-        alt: {sl: 'Krivulja stopnje štiri in zaporedne točke De Casteljaujeve konstrukcije.', en: 'A degree-four curve with successive points from the De Casteljau construction.'},
-        caption: {sl: 'Pri parametru \\(t = 0{,}5\\) končna interpolirana točka leži na krivulji stopnje štiri.', en: 'At \\(t = 0.5\\), the final interpolated point lies on the degree-four curve.'}},
-    'repeated-interpolation': {src: repeatedInterpolationFigure,
-        alt: {sl: 'Pet kontrolnih točk in vse zaporedne vrstice interpolacije do točke na krivulji.', en: 'Five control points and each successive interpolation row ending at the curve point.'},
-        caption: {sl: 'Pri \\(t = 0{,}5\\) pet kontrolnih točk da štiri, tri, dve in nazadnje eno interpolirano točko.', en: 'At \\(t = 0.5\\), five controls produce rows of four, three, two, then one interpolated point.'}},
-    'blending-coefficients': {src: blendingCoefficientsFigure,
-        alt: {sl: 'Trije grafi Bernsteinovih baznih funkcij stopnje dve na intervalu od nič do ena.', en: 'Three graphs of the degree-two Bernstein basis functions on the interval from zero to one.'},
-        caption: {sl: 'Tri Bernsteinove bazne funkcije druge stopnje na intervalu od nič do ena.', en: 'The three degree-two Bernstein basis functions on the interval from zero to one.'}},
-    'geometric-bounds': {src: geometricBoundsFigure,
-        alt: {sl: 'Kubična Bézierjeva krivulja v osenčeni konveksni ovojnici svojih kontrolnih točk.', en: 'A cubic Bézier curve inside the shaded convex hull of its control points.'},
-        caption: {sl: 'Krivulja leži v konveksni ovojnici kontrolnih točk; prikazan je en konkreten primer.', en: 'The curve lies in the convex hull of its control points; this shows one example.'}},
-    'transform-shape': {src: transformShapeFigure,
-        alt: {sl: 'Začetna kubična Bézierjeva krivulja s kontrolnimi točkami in kontrolnim poligonom.', en: 'The starting cubic Bézier curve with its control points and control polygon.'},
-        caption: {sl: 'Začetni kubični primer za raziskovanje premika, spremembe merila, vrtenja ali zrcaljenja.', en: 'The starting cubic example for exploring translation, scaling, rotation, or reflection.'}},
-};
 function renderParagraph(text: string, links?: readonly {label: string; href: string}[]) {
     if (!links?.length) return text;
     const result: React.ReactNode[] = [];
@@ -62,24 +35,8 @@ function renderParagraph(text: string, links?: readonly {label: string; href: st
     return result;
 }
 
-function ActivityCard({id, sectionId, language}: {id: BezierActivityId; sectionId: string; language: Language}) {
-    const location = useLocation();
-    const copy = bezierActivityCopy[id][language];
-    const figure = activityFigures[id];
-    const linkId = `activity-${id}`;
-    return <ChapterExploration
-        kind="prepared-activity"
-        label={language === 'sl' ? 'Pripravljena dejavnost poglavja' : 'Prepared chapter activity'}
-        title={copy.title}
-        prompt={copy.prompt}
-        preview={{src: figure.src, alt: figure.alt[language], caption: figure.caption[language]}}
-        context={<p className="chapter-activity-return"><span>{language === 'sl' ? 'Vrni se k:' : 'Return to:'}</span> <a href={`#${sectionId}`}>{sectionId === 'control-points' ? (language === 'sl' ? 'razlagi kontrolnih točk' : 'the control-point explanation') : bezierChapter[language].sections.find(section => section.id === sectionId)?.title}</a></p>}
-        action={<Link id={linkId} className="chapter-open-activity" to={copy.demoHref} state={chapterActivityVisit.activityEntryState(location.state, id, location.key)} onClick={() => chapterActivityVisit.prepareActivityLaunch(id, sectionId, linkId, location.key)}>{language === 'sl' ? 'Odpri pripravljeno dejavnost' : 'Open prepared activity'}<span aria-hidden="true"> →</span></Link>}
-    />;
-}
-
-function ChapterBlockView({block, section, language}: {block: ChapterBlock; section: ChapterSection; language: Language}) {
-    if (block.kind === 'activity') return <ActivityCard key={block.id} id={block.id} sectionId={section.id} language={language}/>;
+function ChapterBlockView({block}: {block: ChapterBlock}) {
+    if (block.kind === 'activity') return null;
     if (block.kind === 'formula') return <div className="chapter-formula" role="region" aria-label={block.label} tabIndex={0}><span className="chapter-formula-label">{block.label}</span><div className="chapter-math">\[{block.latex}\]</div></div>;
     return <p className="chapter-paragraph">{renderParagraph(block.text, block.links)}</p>;
 }
@@ -94,7 +51,7 @@ export function ChapterPage() {
     const scrollAnchor = useRef<SectionScrollAnchor>({sectionId: 'motivation', top: 0});
 
     useEffect(() => {
-        const restored = chapterActivityVisit.restoreReading('motivation');
+        const restored = restoreGuidedExampleReading(`${location.pathname}${location.hash}`) || chapterActivityVisit.restoreReading('motivation');
         const hash = location.hash.slice(1);
         const invocation = location.state && typeof location.state === 'object' ? location.state.chapterReadingInvocation : undefined;
         const sourceActivity = invocation && typeof invocation === 'object' && invocation.v === 1
@@ -148,9 +105,14 @@ export function ChapterPage() {
                 if (!disposed) restoreSectionAnchor(savedAnchor);
             });
         };
-        void typesetMath(article, () => !disposed).then(restoreAnchor, restoreAnchor);
+        const settle = () => {
+            if (disposed) return;
+            if (!languageChanged && restoreGuidedExampleReading(`${location.pathname}${location.hash}`)) return;
+            restoreAnchor();
+        };
+        void typesetMath(article, () => !disposed).then(settle, settle);
         return () => { disposed = true; };
-    }, [language]);
+    }, [language, location.hash, location.pathname]);
 
     const state = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : {};
     const requestedGraphId = state.chapterGraphId;
@@ -177,7 +139,7 @@ export function ChapterPage() {
                 </header>
                 {copy.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
                     <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}>¶</a></div>
-                    <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`} section={section} language={language}/>)}</div>
+                    <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`}/>)}</div>
                     <ChapterGuidedLessons chapterId="bezier-curves" sectionId={section.id} language={language}/>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}

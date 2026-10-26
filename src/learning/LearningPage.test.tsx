@@ -9,7 +9,9 @@ import {LearningPage} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
 import {familyChapters} from './content/familyChapters';
+import {bezierChapter} from './content/bezierChapter';
 import {learningChapters} from './learningChapters';
+import {getChapterGuidedExamples, resolveGuidedExample} from './chapter/guidedExamples';
 
 function RouterLocationProbe() {
     const location = useLocation();
@@ -107,20 +109,46 @@ test.each(familyChapters.map(chapter => [chapter.id, chapter] as const))('%s has
         expect(container.querySelector(`[id="${section.id}"]`)).toBeTruthy();
         expect(screen.getAllByRole('link', {name: section.title.sl})[0]).toHaveAttribute('href', `#${section.id}`);
     }
-    const graphLinks = [...container.querySelectorAll('.learning-investigations a')];
-    const explorations = [...container.querySelectorAll('.chapter-exploration')];
-    const demoCount = chapter.sections.reduce((count, section) => count + (section.demonstrationIds?.length ?? 0), 0);
-    expect(explorations).toHaveLength(demoCount);
-    const names = explorations.map(item => item.getAttribute('aria-label') ?? '');
-    expect(names.every((name, index) => name.startsWith('Prosto raziskovanje grafa v razdelku ') && name.endsWith(`: ${explorations[index].querySelector('h3')?.textContent}`))).toBe(true);
-    expect(new Set(names).size).toBe(explorations.length);
-    expect(explorations.every(item => item.querySelector('.chapter-open-activity')?.textContent?.includes('prosto raziskovanje'))).toBe(true);
-    expect(graphLinks.length).toBeGreaterThan(0);
-    for (const link of graphLinks) expect(getDemonstrationCatalog().demonstrations.some(demo => demo.path === link.getAttribute('href')?.split('?')[0])).toBe(true);
+    const graphLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
+    const expected = chapter.sections.flatMap(section => getChapterGuidedExamples(id, section.id));
+    expect(graphLinks).toHaveLength(expected.length);
+    expect(graphLinks.map(link => link.getAttribute('href'))).toEqual(expected.map(entry => entry.path));
+    expect(graphLinks.every(link => link.textContent?.includes('Vodeni primer'))).toBe(true);
+    expect(container.querySelectorAll('.learning-lessons, .chapter-activity-list')).toHaveLength(0);
     await waitFor(() => expect(document.getElementById(`${chapter.sections[0].id}-heading`)).toHaveFocus());
 });
 
-test('Foundations renders bilingual app figures, specific graph prompts and accurate guided-lesson links', async () => {
+test('every chapter example link resolves to its precise owner in the unified guided model', () => {
+    const sections = [
+        ...familyChapters.map(chapter => ({id: chapter.id, sections: chapter.sections.map(section => section.id)})),
+        {id: 'bezier-curves', sections: bezierChapter.sl.sections.map(section => section.id)},
+    ];
+    let total = 0;
+    let multiFrameOwner: {chapterId: string; sectionId: string} | undefined;
+    for (const chapter of sections) for (const sectionId of chapter.sections) {
+        const entries = getChapterGuidedExamples(chapter.id, sectionId);
+        const paths = entries.map(entry => entry.path);
+        expect(new Set(paths).size, `${chapter.id}#${sectionId} has duplicate example destinations`).toBe(paths.length);
+        for (const entry of entries) {
+            const search = entry.path.slice(entry.path.indexOf('?'));
+            const resolved = resolveGuidedExample(search, entry.demonstrationId);
+            expect(resolved, entry.path).toBeDefined();
+            expect(resolved?.owner).toEqual({chapterId: chapter.id, sectionId});
+            expect(resolved?.lesson.demonstrationId).toBe(entry.demonstrationId);
+            expect(resolved?.lesson.steps.length).toBeGreaterThan(0);
+            if (resolved && resolved.lesson.steps.length > 1) multiFrameOwner = {chapterId: chapter.id, sectionId};
+            total += 1;
+        }
+    }
+    expect(total).toBeGreaterThan(0);
+
+    const shortPath = getChapterGuidedExamples('bezier-curves', 'parameter').find(entry => entry.demonstrationId === 'decasteljau')!.path;
+    const short = resolveGuidedExample(`?${shortPath.split('?')[1]}`, 'decasteljau');
+    expect(short?.lesson.steps).toHaveLength(1);
+    expect(multiFrameOwner).toBeDefined();
+});
+
+test('Foundations renders bilingual unified example labels and keeps its explanatory figures', async () => {
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/foundations']}>
         <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
     </MemoryRouter>);
@@ -140,21 +168,21 @@ test('Foundations renders bilingual app figures, specific graph prompts and accu
     }
     expect(container.textContent).toContain('štiri kubične uteži');
     expect(container.textContent).toContain('kvadratne uteži');
-    expect(container.textContent).toContain('Učna pot ob grafu');
-    expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('stopnjo');
-    const links = [...container.querySelectorAll('.learning-investigation-explore-link')];
-    expect(links.length).toBeGreaterThan(2);
-    expect(links.every(link => link.getAttribute('href')?.includes('?explore='))).toBe(true);
+    const cards = [...container.querySelectorAll('.chapter-exploration--guided-example')];
     const guidedLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
-    expect(guidedLinks.length).toBeGreaterThan(0);
-    expect(guidedLinks.every(link => link.getAttribute('href')?.includes('?learn=1&learnChapter=foundations&learnSection='))).toBe(true);
+    const foundation = familyChapters.find(chapter => chapter.id === 'foundations')!;
+    const expectedFoundations = foundation.sections.flatMap(section => getChapterGuidedExamples('foundations', section.id));
+    expect(cards.length).toBeGreaterThan(0);
+    expect(guidedLinks).toHaveLength(cards.length);
+    expect(guidedLinks.map(link => link.getAttribute('href'))).toEqual(expectedFoundations.map(example => example.path));
+    expect(cards.every(card => card.getAttribute('aria-label')?.startsWith('Vodeni primer: '))).toBe(true);
 
     setLanguage('en');
     await waitFor(() => {
-        expect(container.querySelector('.chapter-exploration')?.getAttribute('aria-label')).toMatch(/^Free graph exploration in .+: /);
+        expect(container.querySelector('.chapter-exploration--guided-example')?.getAttribute('aria-label')).toMatch(/^Guided example: /);
         expect(container.textContent).toContain('four cubic weights');
         expect(container.textContent).toContain('quadratic weights');
-        expect(container.textContent).toContain('Guided lesson alongside the graph');
-        expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('degree');
+        expect([...container.querySelectorAll('.chapter-exploration--guided-example')].every(card => card.getAttribute('aria-label')?.startsWith('Guided example: '))).toBe(true);
+        expect(guidedLinks.every(link => link.textContent?.includes('Guided example'))).toBe(true);
     });
 });

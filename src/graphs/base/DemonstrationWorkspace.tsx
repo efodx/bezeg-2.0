@@ -1,6 +1,6 @@
 import {useT} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
-import {Link, useLocation, useNavigate, useNavigationType} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
@@ -11,17 +11,16 @@ import "./DemonstrationWorkspace.css";
 import "./WorkspaceControls.css";
 import "./DemonstrationWorkspaceIdentity.css";
 import {LearningPrompt} from './LearningPrompt';
-import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
+import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
 import {useChapterActivity} from '../../learning/chapter/useChapterActivity';
 import {chapterActivityVisit} from '../../learning/chapter/ChapterActivityVisit';
-import {bezierActivityCopy} from '../../learning/content/bezierChapter';
 import {useLanguage} from '../../localization';
 import '../../learning/chapter/ActivityContext.css';
-import {useTypesetMath} from '../../learning/useTypesetMath';
-import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 import {getGuidedLessonChapterTitle, getGuidedLessonSectionTitle, guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/chapter/guidedLessonOwnership';
+import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
+import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -41,28 +40,23 @@ export function DemonstrationWorkspace(props: {
     const exitLesson = useRef<(() => void) | undefined>();
     const registerLessonExit = useCallback((exit: (() => void) | undefined) => { exitLesson.current = exit; }, []);
     const [lessonGraphActions, setLessonGraphActions] = useState<{animationControls?: React.ReactNode}>();
-    const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph);
-    const activityContext = useRef<HTMLElement>(null);
-    const familyInvestigationContext = useRef<HTMLElement>(null);
-    const chapterReturnButton = useRef<HTMLButtonElement>(null);
-    const focusedActivity = useRef<{id: string; key: string; focused: boolean}>();
-    useTypesetMath(activityContext, `${chapter.activity?.id ?? ''}-${language}`);
     const location = useLocation();
-    const navigationType = useNavigationType();
     const {pathname, search, hash} = location;
     const returnContext = readDemonstrationReturnContext(location.state);
     const navigateRoute = useNavigate();
     const {families} = getDemonstrationCatalog();
     const demonstration = findDemonstration(pathname);
-    const familyInvestigation = readFamilyInvestigation(search, pathname);
-    useTypesetMath(familyInvestigationContext, `${familyInvestigation.context?.chapterId ?? ''}-${familyInvestigation.context?.sectionId ?? ''}-${language}`);
-    useEffect(() => {
-        if (!familyInvestigation.invalid || new URLSearchParams(search).get('learn') === '1') return;
-        navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: location.state});
-    }, [familyInvestigation.invalid, hash, location.state, navigateRoute, pathname, search]);
-    const lesson = demonstration && getLessonForDemonstration(demonstration.id);
     const demonstrationId = demonstration?.id;
-    const lessonOwner = demonstrationId && resolveGuidedLessonOwner(search, demonstrationId);
+    const guidedExample = demonstrationId && resolveGuidedExample(search, demonstrationId);
+    const lesson = guidedExample?.lesson ?? (demonstrationId && getLessonForDemonstration(demonstrationId));
+    const lessonOwner = guidedExample?.owner ?? (demonstrationId && resolveGuidedLessonOwner(search, demonstrationId));
+    const lessonOpen = Boolean(guidedExample);
+    const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph, undefined, lessonOpen);
+    const familyInvestigation = readFamilyInvestigation(search, pathname);
+    useEffect(() => {
+        if (!familyInvestigation.invalid || lessonOpen) return;
+        navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: location.state});
+    }, [familyInvestigation.invalid, hash, lessonOpen, location.state, navigateRoute, pathname, search]);
     const family = families.find(entry => entry.id === demonstration?.family);
     const [pickerOpen, setPickerOpen] = useState(false);
     const switchButton = useRef<HTMLButtonElement>(null);
@@ -94,8 +88,7 @@ export function DemonstrationWorkspace(props: {
     const [section, setSection] = useState<Section>("edit");
     const [expanded, setExpanded] = useState(true);
     const [presentationControls, setPresentationControls] = useState(false);
-    const lessonOpen = new URLSearchParams(search).get('learn') === '1';
-    const [lessonMode, setLessonMode] = useState<LessonMode>(() => new URLSearchParams(search).get('learn') === '1' ? 'content' : 'closed');
+    const [lessonMode, setLessonMode] = useState<LessonMode>(() => lessonOpen ? 'content' : 'closed');
     const inspector = useRef<HTMLElement>(null);
     // The content region is the inspector's only scroll owner; tab changes return it to the top.
     const inspectorContent = useRef<HTMLDivElement>(null);
@@ -143,26 +136,6 @@ export function DemonstrationWorkspace(props: {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
-    useLayoutEffect(() => {
-        const activityId = chapter.activity?.id;
-        if (!activityId) {
-            focusedActivity.current = undefined;
-            return;
-        }
-        if (props.graphBusy) return;
-        const previous = focusedActivity.current;
-        const newEntry = previous?.id !== activityId || (previous.key !== location.key && navigationType !== 'REPLACE');
-        const shouldFocus = newEntry || !previous?.focused;
-        if (!shouldFocus) {
-            focusedActivity.current = {id: activityId, key: location.key, focused: previous?.focused ?? false};
-            return;
-        }
-        const button = chapterReturnButton.current;
-        if (!button) return;
-        focusedActivity.current = {id: activityId, key: location.key, focused: true};
-        button.scrollIntoView?.({block: 'center', inline: 'nearest'});
-        button.focus({preventScroll: true});
-    }, [chapter.activity?.id, location.key, navigationType, props.graphBusy]);
     return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
@@ -198,8 +171,8 @@ export function DemonstrationWorkspace(props: {
                 </svg>
             </div>
             <div className="workspace-actions">
-                {chapter.readAbout && !chapter.activity && !familyInvestigation.context && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
-                {!chapter.activity && !familyInvestigation.context && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
+                {chapter.readAbout && !lessonActive && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
+                {!lessonActive && !chapter.activity && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
                     title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
@@ -219,20 +192,6 @@ export function DemonstrationWorkspace(props: {
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
             </div>
         </header>
-        {familyInvestigation.context && !lessonActive && <section ref={familyInvestigationContext} className="chapter-activity-context family-investigation-context"
-            aria-label={language === 'sl' ? 'Navodilo za raziskovanje' : 'Investigation instructions'}>
-            <div className="activity-context-heading">
-                <Link to={familyInvestigation.context.returnPath}>
-                    {language === 'sl' ? `Nazaj v poglavje: ${familyInvestigation.context.chapterTitle.sl}` : `Return to chapter: ${familyInvestigation.context.chapterTitle.en}`}
-                </Link>
-                <h2>{familyInvestigation.context.sectionTitle[language]}</h2>
-            </div>
-            <div className="activity-context-prompt">
-                <p>{language === 'sl' ? 'Graf se odpre v trenutnem oziroma privzetem stanju. Navodilo pove, kaj nastaviš za raziskovanje.'
-                    : 'The graph opens in its current or default state. Follow these instructions to set up the investigation.'}</p>
-                <p>{familyInvestigation.context.prompt[language]}</p>
-            </div>
-        </section>}
         {(chapter.invalidNotice || chapter.error || chapter.restarted) && <p className="activity-notice" role="status">
             {chapter.error ? t('chapter_scene_error') : chapter.invalidNotice ? t('chapter_invalid_context') : t('chapter_restarted')}
             {chapter.error && <>
@@ -241,22 +200,6 @@ export function DemonstrationWorkspace(props: {
                 <a href={pathname}>{t('chapter_free_exploration')}</a>
             </>}
         </p>}
-        {chapter.activity && !lessonActive && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
-            <div className="activity-context-heading"><Link to={chapter.returnPath ?? chapterActivityVisit.readingReturnPath()} state={location.state}
-                onClick={event => { event.preventDefault(); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
-                <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
-            </div>
-            <div className="activity-context-actions">
-                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={chapter.returnToReading}>{t('chapter_continue')}</button>
-                <button onClick={chapter.reset} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
-                <button disabled={props.pickerUnavailable} onClick={chapter.freeExplore}>{t('chapter_free_exploration')}</button>
-            </div>
-            <div className="activity-context-prompt">
-                <p>{bezierActivityCopy[chapter.activity.id][language].prompt}</p>
-                {(chapter.activity.demonstrationId === 'decasteljau' || chapter.activity.demonstrationId === 'affine') &&
-                    <p>{chapter.activity.demonstrationId === 'decasteljau' ? t('chapter_quartic_example') : t('chapter_affine_example')}</p>}
-            </div>
-        </section>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
@@ -266,17 +209,14 @@ export function DemonstrationWorkspace(props: {
                 sectionTitle: getGuidedLessonSectionTitle(lessonOwner, language),
                 returnPath: guidedLessonReturnPath(lessonOwner),
                 returnLabel: t('chapter_return'),
-                onReturn: () => {
-                    if (lessonOwner.chapterId === 'bezier-curves') chapterActivityVisit.prepareGuidedLessonReturn(lessonOwner.sectionId);
-                    navigateRoute(guidedLessonReturnPath(lessonOwner), {state: location.state});
-                },
+                onReturn: () => navigateRoute(guidedLessonReturnPath(lessonOwner), {state: location.state}),
             } : undefined}
             onModeChange={setLessonMode}
             onClose={() => {
                 setLessonMode('closed');
                 const query = new URLSearchParams(search);
-                if (query.get('learn') === '1') {
-                    query.delete('learn');
+                if (['learn', 'example', 'explore', 'chapter', 'activity'].some(key => query.has(key))) {
+                    for (const key of ['learn', 'example', 'explore', 'chapter', 'activity']) query.delete(key);
                     navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true, state: location.state});
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);

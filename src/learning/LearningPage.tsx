@@ -83,8 +83,8 @@ export function LearningPage() {
             <header className="learning-heading">
                 <h1>{language === 'sl' ? 'Uči se z branjem in raziskovanjem' : 'Learn through reading and exploration'}</h1>
                 <p>{language === 'sl'
-                    ? 'Poglavja povezujejo razlago z raziskovanjem. Preberi razdelek, odpri pripravljeno dejavnost ali izberi vodeno učno pot ob grafu.'
-                    : 'Each chapter brings explanation and exploration together. Read a section, open its prepared activity, or follow a guided lesson alongside the graph.'}</p>
+                    ? 'Preberi razdelek poglavja, odpri vodeni primer ob grafu in se vrni k branju.'
+                    : 'Read a chapter section, open its guided example on the graph, then return to continue reading.'}</p>
                 <Link className="learning-open learning-start" to="/bezeg-2.0/learn/foundations">
                     {language === 'sl' ? 'Začni pri osnovah' : 'Start with Foundations'}<span aria-hidden="true"> →</span>
                 </Link>

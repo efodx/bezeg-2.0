@@ -17,7 +17,7 @@ export function ChapterExploration({
     context,
     secondary,
 }: {
-    kind: 'prepared-activity' | 'free-exploration';
+    kind: 'prepared-activity' | 'free-exploration' | 'guided-example';
     label: string;
     title: string;
     prompt?: string;

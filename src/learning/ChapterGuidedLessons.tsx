@@ -1,20 +1,29 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {getDemonstrationCatalog} from '../demonstrations';
 import type {Language} from '../localization';
-import {authoredGuidedLessonIds, getGuidedLessonOwnerForSection, guidedLessonLaunchPath} from './chapter/guidedLessonOwnership';
+import {getChapterGuidedExamples} from './chapter/guidedExamples';
+import {rememberGuidedExampleReading} from './chapter/guidedExampleReading';
+import {ChapterExploration} from './ChapterExploration';
+import {activityFigures} from './chapterActivityFigures';
 import './ChapterGuidedLessons.css';
 
 export function ChapterGuidedLessons({chapterId, sectionId, language}: {chapterId: string; sectionId: string; language: Language}) {
-    const ids = authoredGuidedLessonIds(chapterId, sectionId);
-    if (!ids.length) return null;
-    const catalog = getDemonstrationCatalog();
-    return <nav className="chapter-guided-lessons" aria-label={language === 'sl' ? 'Vodene učne poti v tem razdelku' : 'Guided lessons in this section'}>
-        <p>{language === 'sl' ? 'Učna pot ob grafu' : 'Guided lesson alongside the graph'}</p>
-        <ul>{ids.map(id => {
-            const demo = catalog.demonstrations.find(entry => entry.id === id)!;
-            const owner = getGuidedLessonOwnerForSection(id, chapterId, sectionId)!;
-            return <li key={id}><Link to={guidedLessonLaunchPath(id, owner)}>{demo.catalogTitle}<span aria-hidden="true"> →</span></Link></li>;
-        })}</ul>
-    </nav>;
+    const examples = getChapterGuidedExamples(chapterId, sectionId);
+    if (!examples.length) return null;
+    const label = language === 'sl' ? 'Vodeni primer' : 'Guided example';
+    const returnPath = `/bezeg-2.0/learn/${chapterId}#${sectionId}`;
+    return <div className="chapter-guided-lessons learning-investigations">
+        <div className="learning-investigation-list">{examples.map(example => {
+            const figure = Object.entries(activityFigures).find(([id]) => example.id === id)?.[1];
+            const linkId = `example-${chapterId}-${sectionId}-${example.id}`;
+            return <ChapterExploration key={example.id} kind="guided-example" label={label}
+                title={example.title[language]} prompt={example.prompt?.[language]}
+                promptClassName="learning-investigation-prompt"
+                preview={figure ? {src: figure.src, alt: figure.alt[language], caption: figure.caption[language]} : undefined}
+                action={<Link id={linkId} className="chapter-open-activity" to={example.path} onClick={event => {
+                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    rememberGuidedExampleReading(returnPath, linkId);
+                }}>{label}<span aria-hidden="true"> →</span></Link>}/>;
+        })}</div>
+    </div>;
 }

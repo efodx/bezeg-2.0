@@ -191,7 +191,7 @@ test('manual carousel actions and row scrolling take control for the page visit'
     expect(within(opening).getByRole('link', {name: `Odpri demonstracijo: ${selected.catalogTitle}`}))
         .toHaveAttribute('href', selected.path);
     if (isGuidedLessonAvailable(selected.id)) {
-        expect(within(opening).getByRole('link', {name: `Vodena učna pot: ${selected.catalogTitle}`}))
+        expect(within(opening).getByRole('link', {name: `Vodeni primer: ${selected.catalogTitle}`}))
             .toHaveAttribute('href', selected.path + '?learn=1');
     }
     act(() => {vi.advanceTimersByTime(18000);});
@@ -287,14 +287,14 @@ test('arrow selection from preview actions preserves focus and updates the selec
     expect(within(opening).getByRole('link', {name: `Odpri demonstracijo: ${bernstein.catalogTitle}`}))
         .toBe(graphLink);
     expect(graphLink).toHaveAttribute('href', bernstein.path);
-    const lessonLink = within(opening).getByRole('link', {name: `Vodena učna pot: ${bernstein.catalogTitle}`});
+    const lessonLink = within(opening).getByRole('link', {name: `Vodeni primer: ${bernstein.catalogTitle}`});
     expect(lessonLink).toHaveAttribute('href', bernstein.path + '?learn=1');
 
     act(() => {lessonLink.focus();});
     fireEvent.keyDown(lessonLink, {key: 'ArrowRight'});
 
     expect(within(opening).getByRole('heading', {level: 3, name: rational.catalogTitle})).toBeVisible();
-    expect(within(opening).queryByRole('link', {name: `Vodena učna pot: ${rational.catalogTitle}`})).toBeNull();
+    expect(within(opening).queryByRole('link', {name: `Vodeni primer: ${rational.catalogTitle}`})).toBeNull();
     const rationalGraphLink = within(opening).getByRole('link', {name: `Odpri demonstracijo: ${rational.catalogTitle}`});
     expect(rationalGraphLink).toBe(graphLink);
     expect(rationalGraphLink).toHaveAttribute('href', rational.path);
