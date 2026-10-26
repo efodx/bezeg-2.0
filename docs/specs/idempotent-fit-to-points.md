@@ -4,7 +4,7 @@ Scope: make the graph workspace "Fit to points" action (`navigateBoard('fit')` i
 
 ## Problem
 
-The action delegates to JSXGraph 1.9.2 `board.zoomAllPoints()`, which is not idempotent:
+At implementation time, the action delegated to JSXGraph 1.9.2 `board.zoomAllPoints()`, which was not idempotent:
 
 - The 50px margin is converted to user units with the scale *before* the fit (`border / this.unitX`), so each press uses a different margin until the view converges.
 - With `keepaspectratio`, `setBoundingBox` chooses the axis to fit by comparing the requested box's width and height instead of comparing the box's aspect ratio with the canvas aspect ratio, so points can be clipped on the other axis.

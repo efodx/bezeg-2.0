@@ -1,0 +1,40 @@
+{
+  "url": "http://127.0.0.1:4396/bezeg-2.0/bezier/decasteljau",
+  "revision": "819f737bba74497be3a0ef72948ca34dea33b971",
+  "jsxgraph": "1.14.1",
+  "browser": "Playwright Chromium 156.0.8078.4",
+  "viewport": {
+    "width": 1440,
+    "height": 960
+  },
+  "math": {
+    "labels": 30,
+    "mathPaths": 0,
+    "objects": 78
+  },
+  "results": [
+    {
+      "format": "SVG",
+      "file": "docs/reviews/bezier-patches/browser-parity/after/exports/export.svg",
+      "filename": "export.svg",
+      "bytes": 74185,
+      "svgRoot": true,
+      "pathElements": 50,
+      "hasMathJaxPathMarkup": false,
+      "mathJaxDomNodes": 30,
+      "mathJaxDomPaths": 0
+    },
+    {
+      "format": "PNG",
+      "file": "docs/reviews/bezier-patches/browser-parity/after/exports/export.png",
+      "filename": "export.png",
+      "bytes": 62426,
+      "pngSignature": "89504e470d0a1a0a",
+      "width": 1002,
+      "height": 634,
+      "nonTransparentPixels": 635268,
+      "distinctSampledColors": 100
+    }
+  ],
+  "pageErrors": []
+}

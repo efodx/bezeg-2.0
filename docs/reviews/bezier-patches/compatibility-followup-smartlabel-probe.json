@@ -1,0 +1,421 @@
+{
+  "port": 4396,
+  "results": [
+    {
+      "route": "/rational/farin-points",
+      "counts": {
+        "text": 1,
+        "label": 24,
+        "sketchcurve": 2,
+        "curve": 1
+      },
+      "objects": [
+        {
+          "id": "jxgBoard1L3_ticks_15Label1",
+          "elType": "label",
+          "name": "t_{b}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_110Label2",
+          "elType": "label",
+          "name": "t_{c}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_115Label3",
+          "elType": "label",
+          "name": "t_{d}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_120Label4",
+          "elType": "label",
+          "name": "t_{e}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_127Label5",
+          "elType": "label",
+          "name": "t_{f}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_132Label6",
+          "elType": "label",
+          "name": "t_{g}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_137Label7",
+          "elType": "label",
+          "name": "t_{h}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_142Label8",
+          "elType": "label",
+          "name": "t_{i}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_15Label1",
+          "elType": "label",
+          "name": "t_{j}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_110Label2",
+          "elType": "label",
+          "name": "t_{k}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_115Label3",
+          "elType": "label",
+          "name": "t_{l}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_120Label4",
+          "elType": "label",
+          "name": "t_{m}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_129Label5",
+          "elType": "label",
+          "name": "t_{n}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_134Label6",
+          "elType": "label",
+          "name": "t_{o}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_139Label7",
+          "elType": "label",
+          "name": "t_{p}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_144Label8",
+          "elType": "label",
+          "name": "t_{q}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1G25",
+          "elType": "sketchcurve",
+          "name": "s_{a}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 0,
+          "pathLength": 5,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G26",
+          "elType": "sketchcurve",
+          "name": "s_{b}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 0,
+          "pathLength": 5,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1P27Label",
+          "elType": "label",
+          "name": "t_{r}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P27"
+          ]
+        },
+        {
+          "id": "jxgBoard1P29Label",
+          "elType": "label",
+          "name": "t_{s}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P29"
+          ]
+        },
+        {
+          "id": "jxgBoard1P31Label",
+          "elType": "label",
+          "name": "t_{t}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P31"
+          ]
+        },
+        {
+          "id": "jxgBoard1P33Label",
+          "elType": "label",
+          "name": "t_{u}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P33"
+          ]
+        },
+        {
+          "id": "jxgBoard1G35",
+          "elType": "curve",
+          "name": "s_{c}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 704,
+          "pathLength": 27305,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1P36Label",
+          "elType": "label",
+          "name": "t_{v}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P36"
+          ]
+        },
+        {
+          "id": "jxgBoard1P38Label",
+          "elType": "label",
+          "name": "t_{w}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P38"
+          ]
+        },
+        {
+          "id": "jxgBoard1P40Label",
+          "elType": "label",
+          "name": "t_{x}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P40"
+          ]
+        },
+        {
+          "id": "jxgBoard1P42Label",
+          "elType": "label",
+          "name": "t_{y}",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1P42"
+          ]
+        }
+      ]
+    }
+  ]
+}

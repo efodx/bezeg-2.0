@@ -1,0 +1,350 @@
+{
+  "browser": {
+    "version": "156.0.8078.4",
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    },
+    "deviceScaleFactor": 1,
+    "locale": "sl-SI",
+    "colorScheme": "light",
+    "reducedMotion": "reduce",
+    "timezoneId": "Europe/Ljubljana"
+  },
+  "captures": [
+    {
+      "phase": "fresh-baseline",
+      "port": 4398,
+      "disableLabelClip": false,
+      "version": "1.9.2",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "inset(-296.188px -658.719px -270.969px -319.938px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "inset(-296.188px -319.938px -270.969px -658.719px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-baseline.png"
+    },
+    {
+      "phase": "fresh-upgrade-clip-false",
+      "port": 4396,
+      "disableLabelClip": true,
+      "version": "1.14.1",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "clip": false,
+          "rect": {
+            "x": 374.9375,
+            "y": 618.671875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 618.671875,
+            "right": 398.28125,
+            "bottom": 685.109375,
+            "left": 374.9375
+          },
+          "clipPath": ""
+        },
+        {
+          "name": "$$P_2$$",
+          "clip": false,
+          "rect": {
+            "x": 713.71875,
+            "y": 618.671875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 618.671875,
+            "right": 737.0625,
+            "bottom": 685.109375,
+            "left": 713.71875
+          },
+          "clipPath": ""
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-upgrade-clip-false.png"
+    },
+    {
+      "phase": "fresh-upgrade-default",
+      "port": 4396,
+      "disableLabelClip": false,
+      "version": "1.14.1",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "rect(-296.192px 681.725px 337.808px -320.275px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "rect(-296.192px 343.275px 337.808px -658.725px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-upgrade-default.png"
+    },
+    {
+      "phase": "fresh-baseline-repeat",
+      "port": 4398,
+      "disableLabelClip": false,
+      "version": "1.9.2",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "inset(-294.688px -658.719px -272.469px -319.938px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "inset(-294.688px -319.938px -272.469px -658.719px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-baseline-repeat.png"
+    },
+    {
+      "phase": "fresh-upgrade-default-repeat",
+      "port": 4396,
+      "disableLabelClip": false,
+      "version": "1.14.1",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "rect(-296.192px 681.725px 337.808px -320.275px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "rect(-296.192px 343.275px 337.808px -658.725px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-upgrade-default-repeat.png"
+    },
+    {
+      "phase": "fresh-baseline-repeat-2",
+      "port": 4398,
+      "disableLabelClip": false,
+      "version": "1.9.2",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "inset(-294.688px -658.719px -272.469px -319.938px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "inset(-294.688px -319.938px -272.469px -658.719px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-baseline-repeat-2.png"
+    },
+    {
+      "phase": "fresh-upgrade-default-repeat-2",
+      "port": 4396,
+      "disableLabelClip": false,
+      "version": "1.14.1",
+      "labels": [
+        {
+          "name": "$$P_1$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 374.9375,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 398.28125,
+            "bottom": 686.609375,
+            "left": 374.9375
+          },
+          "clipPath": "rect(-296.192px 681.725px 337.808px -320.275px)"
+        },
+        {
+          "name": "$$P_2$$",
+          "clip": "inherit",
+          "rect": {
+            "x": 713.71875,
+            "y": 620.171875,
+            "width": 23.34375,
+            "height": 66.4375,
+            "top": 620.171875,
+            "right": 737.0625,
+            "bottom": 686.609375,
+            "left": 713.71875
+          },
+          "clipPath": "rect(-296.192px 343.275px 337.808px -658.725px)"
+        }
+      ],
+      "filename": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade\\docs\\reviews\\bezier-patches\\area-parity\\fresh-upgrade-default-repeat-2.png"
+    }
+  ],
+  "comparisons": {
+    "suppliedBaselineToFreshBaseline": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "suppliedBaselineToClipFalse": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "freshBaselineToClipFalse": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "freshBaselineToUpgradeDefault": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "repeatBaselineToUpgradeDefault": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "repeat2BaselineToUpgradeDefault": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "freshBaselineToBaselineRepeat": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "freshUpgradeToUpgradeRepeat": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "suppliedBaselineToUpgradeDefault": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 0,
+      "bbox": null
+    },
+    "suppliedUpgradeToFreshUpgradeDefault": {
+      "width": 1440,
+      "height": 1187,
+      "differentPixels": 419,
+      "bbox": [
+        375,
+        642,
+        737,
+        662
+      ]
+    }
+  }
+}

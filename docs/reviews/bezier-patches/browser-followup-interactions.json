@@ -1,0 +1,109 @@
+{
+  "startedAt": "2026-10-26T17:10:19.221Z",
+  "preview": "http://127.0.0.1:4396/bezeg-2.0",
+  "browser": {
+    "name": "Playwright Chromium",
+    "version": "156.0.8078.4",
+    "headless": true
+  },
+  "checks": [
+    {
+      "name": "pan/zoom",
+      "status": "passed",
+      "evidence": {
+        "before": [
+          -7.902208,
+          5,
+          7.902208,
+          -5
+        ],
+        "afterZoom": [
+          -6.321767,
+          4,
+          6.321767,
+          -4
+        ],
+        "afterPan": [
+          -8.218297,
+          4,
+          4.425237,
+          -4
+        ],
+        "zoomSpanShrank": true,
+        "panBoundingBoxChanged": true,
+        "correction": "The original check compared signed widths; absolute span confirms zoom-in."
+      },
+      "errors": []
+    },
+    {
+      "name": "PH child-board edit",
+      "status": "blocked",
+      "evidence": {
+        "detail": "Auxiliary editor mounts after selecting a curve; the assigned manual attempt did not complete that selection/drag. Handler notes full-suite PH child-board tests are available for integration with the broader verification."
+      },
+      "errors": []
+    },
+    {
+      "name": "Presentation mode",
+      "status": "blocked",
+      "evidence": {
+        "detail": "A real pointer click reached the visible control; the original selector disappeared afterward, and the post-toggle visual/state was not captured."
+      },
+      "errors": []
+    },
+    {
+      "name": "390px emulated touch drag",
+      "status": "passed",
+      "evidence": {
+        "point": "$$p_{0}$$",
+        "before": [
+          -4,
+          -3
+        ],
+        "after": [
+          -2.983050847457627,
+          -2.389830508474576
+        ],
+        "displacement": 1.1859563175956545,
+        "pointerTypes": [
+          "touch"
+        ],
+        "eventCount": 12,
+        "viewport": 390,
+        "boxRect": [
+          13,
+          305.484375,
+          364,
+          295.390625
+        ],
+        "documentWidth": 390,
+        "clientWidth": 390,
+        "screenshot": "docs/reviews/bezier-patches/browser-parity/followup/upgrade-touch-drag.png"
+      },
+      "errors": []
+    },
+    {
+      "name": "lesson enter/exit",
+      "status": "blocked",
+      "evidence": {
+        "lessonUrl": "http://127.0.0.1:4396/bezeg-2.0/learn/bezier-curves#control-points",
+        "exitUrl": "http://127.0.0.1:4396/bezeg-2.0/bezier/curve",
+        "before": [
+          -4,
+          -3
+        ],
+        "edited": [
+          -3.652997,
+          -2.77918
+        ],
+        "restoredValue": null,
+        "detail": "Explicit “Nazaj na graf” returned to the route; stale JSXGraph object id prevented confirming scene restoration."
+      },
+      "errors": []
+    }
+  ],
+  "finishedAt": "2026-10-26T17:10:33.523Z",
+  "elapsedMs": 14302,
+  "correctedAt": "2026-10-26T17:14:20Z",
+  "note": "Final statuses supersede the initial selector/assertion attempts recorded in this run."
+}

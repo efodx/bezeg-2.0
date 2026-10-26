@@ -1,0 +1,128 @@
+{
+  "port": 4398,
+  "results": [
+    {
+      "route": "/rational/farin-points",
+      "counts": {
+        "text": 25,
+        "curve": 1
+      },
+      "objects": [
+        {
+          "id": "jxgBoard1G33",
+          "elType": "curve",
+          "name": "s_{a}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 704,
+          "pathLength": 27305,
+          "parents": []
+        }
+      ]
+    },
+    {
+      "route": "/functions/trigonometric?learn=1",
+      "counts": {
+        "text": 18,
+        "curve": 6
+      },
+      "objects": [
+        {
+          "id": "jxgBoard1G25",
+          "elType": "curve",
+          "name": "s_{a}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 1025,
+          "pathLength": 24913,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G26",
+          "elType": "curve",
+          "name": "s_{b}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1025,
+          "pathLength": 35528,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G27",
+          "elType": "curve",
+          "name": "s_{c}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G28",
+          "elType": "curve",
+          "name": "s_{d}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G29",
+          "elType": "curve",
+          "name": "s_{e}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 1025,
+          "pathLength": 37807,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G30",
+          "elType": "curve",
+          "name": "s_{f}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "parents": []
+        }
+      ]
+    }
+  ]
+}

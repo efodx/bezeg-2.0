@@ -10,7 +10,7 @@ If a replacement is later justified, evaluate a small SVG renderer first, option
 
 ## What Bezeg actually delegates today
 
-The dependency declaration is `jsxgraph: ^1.9.2`; [package-lock.json](../../package-lock.json) resolves JSXGraph 1.9.2. The official online reference below describes the currently published documentation, which may contain APIs absent from that pinned version. Check the chosen package's source and types before implementing an experiment; do not assume an online example establishes support in Bezeg's installed dependency.
+The dependency declaration is `jsxgraph: ^1.14.1`; [package-lock.json](../../package-lock.json) resolves JSXGraph 1.14.1. The official online reference below describes the currently published documentation. Check the chosen package's source and types before implementing an experiment; do not assume an online example establishes support in Bezeg's installed dependency.
 
 - [BaseGraph](../../src/graphs/base/BaseGraph.tsx) initializes the board, coordinate bounds, aspect ratio and axes; attaches a container ResizeObserver; frees workspace boards; serializes `renderer.svgRoot` for SVG; and captures the graph container for PNG. Initialization leaves renderer selection to JSXGraph. SVG export assumes an SVG renderer and currently revokes its download object URL.
 - [BaseCurveGraph](../../src/graphs/base/BaseCurveGraph.tsx) translates board down/up/move events into editing and selection, uses JSXGraph coordinates and point hit tests, batches mutations, and imports/exports curve DTOs.

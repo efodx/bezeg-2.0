@@ -1,6 +1,6 @@
 # 01 — Upgrade JSXGraph to the latest 1.x
 
-Status: planned. Source: [spec P1, D2](../../specs/bezier-patches.md). Dependencies: none. Role: dependency-upgrade owner.
+Status: complete (2026-10-26). Evidence: [upgrade audit](../../reviews/bezier-patches/jsxgraph-upgrade.md). Source: [spec P1, D2](../../specs/bezier-patches.md). Dependencies: none. Role: dependency-upgrade owner.
 
 Upgrade `jsxgraph` from 1.9.2 to the latest 1.x release (1.14.x at research time) as an isolated change, with no surface code. Owner decision D2 accepts the upgrade; this task proves it does not regress the 2D app.
 

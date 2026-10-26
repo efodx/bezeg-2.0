@@ -13,4 +13,11 @@ declare namespace JXG {
          */
         hasPoint(x: number, y: number): boolean;
     }
+
+    interface Board {
+        /** JSXGraph's two board-owned pointer-sketch curves. */
+        sketches: Array<GeometryElement | null>;
+        /** Alias for sketches[0]. */
+        sketch: GeometryElement | null;
+    }
 }

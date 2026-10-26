@@ -4,7 +4,7 @@
 
 **Historical note (2026-10-12):** source links and lifecycle names below describe the code at the time of writing. Graphs are no longer React class components: `componentDidMount`/`componentDidUpdate` are now `BaseGraph.mount`/`onStateChange` hosted by `GraphHost`, and the global geometry cache was replaced by per-curve versions. See the [React architecture refactor](../specs/react-architecture-refactor.md).
 
-**Scope.** This note covers JSXGraph behavior that matters for interactive curve drawing, especially phone/touch dragging, dynamic parametric curves, and a visible De Casteljau construction. It is source research, not a performance result or an authorization to change the renderer. The repository currently locks JSXGraph 1.9.2 in [`package-lock.json`](../../package-lock.json#L10972-L10975). The official source links below point to the maintained `main` source tree; implementation work should re-check any candidate against the locked version or an explicitly approved upgrade. The official changelog records the 1.9.2 release.
+**Scope.** This note covers JSXGraph behavior that matters for interactive curve drawing, especially phone/touch dragging, dynamic parametric curves, and a visible De Casteljau construction. It is source research, not a performance result or an authorization to change the renderer. At the time of this report (2026-10-09), the repository locked JSXGraph 1.9.2; the checkout now uses 1.14.1. The official source links below point to the maintained `main` source tree; implementation work should check the exact installed version. The official changelog records the 1.9.2 release.
 
 ## Findings
 
@@ -54,7 +54,7 @@ When the construction is shown, Bezeg creates a triangular collection of functio
 
 ### 5. `reducedUpdate` is a lead, not an accepted optimization
 
-The Board API documents `reducedUpdate` as a mode that updates only the dragged element and a few following elements during movement, followed by a whole-construction update on release. That sounds relevant to slow phones, but a visible De Casteljau construction has dependencies spread across the main curve, intermediate points, and segments. A reduced update could leave a teaching construction visually stale unless its dependency graph is proven compatible. It must be tested against the exact JSXGraph version in use; the checked installed 1.9.2 source exposes the documented field but does not make it a demonstrated drop-in solution for this scene. See the [Board API description](https://jsxgraph.org/docs/symbols/JXG.Board.html) and the [official Board source](https://github.com/jsxgraph/jsxgraph/blob/main/src/base/board.js#L456-L462).
+The Board API documents `reducedUpdate` as a mode that updates only the dragged element and a few following elements during movement, followed by a whole-construction update on release. That sounds relevant to slow phones, but a visible De Casteljau construction has dependencies spread across the main curve, intermediate points, and segments. A reduced update could leave a teaching construction visually stale unless its dependency graph is proven compatible. It must be tested against the exact JSXGraph version in use; the source inspected for this report at 1.9.2 exposed the documented field but did not establish it as a drop-in solution for this scene. See the [Board API description](https://jsxgraph.org/docs/symbols/JXG.Board.html) and the [official Board source](https://github.com/jsxgraph/jsxgraph/blob/main/src/base/board.js#L456-L462).
 
 ## Recommended investigation order
 
@@ -184,14 +184,12 @@ reference](https://jsxgraph.org/docs/JXG.JSXGraph.html#freeBoard)).
 
 ### Library upgrade is a separate experiment
 
-The lockfile pins JSXGraph 1.9.2 while the official package currently lists
-1.13.3 as latest ([npm package](https://www.npmjs.com/package/jsxgraph?activeTab=versions),
+At the time this report was written, the lockfile pinned JSXGraph 1.9.2 and the
+official package listed 1.13.3 as latest ([npm package](https://www.npmjs.com/package/jsxgraph?activeTab=versions),
 [official releases](https://github.com/jsxgraph/jsxgraph/releases)). The
-changelog includes later curve, pointer, SVG, and lifecycle fixes, but an
-upgrade can change rendering and event behavior. Test it independently against
-the current production benchmark, preset/export behavior, construction
-correctness, and the target phone; do not combine it with an application-side
-renderer or cache rewrite.
+separate dependency upgrade now resolves 1.14.1; its performance and browser
+acceptance evidence is recorded in [the upgrade review](../reviews/bezier-patches/jsxgraph-upgrade.md).
+The historical 1.9.2 source findings below are not measurements of 1.14.1.
 
 ## Prioritized recommendations
 

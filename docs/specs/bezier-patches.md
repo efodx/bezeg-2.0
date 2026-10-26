@@ -1,6 +1,6 @@
 # Bézier patches (Bézierjeve krpe)
 
-Status: planned. The owner requested the spec on 2026-10-26. [Tasks 01–04](../tasks/bezier-patches/README.md) are defined and unstarted. Tasks for the later slices are created after task 02's renderer ADR. Sources:
+Status: in progress. The owner requested the spec on 2026-10-26. [Task 01](../tasks/bezier-patches/01-jsxgraph-upgrade.md) (P1, JSXGraph 1.14.1) and [task 03](../tasks/bezier-patches/03-shared-kernels.md) (shared kernels) are complete; tasks 02 and 04 remain planned. Tasks for the later slices are created after task 02's renderer ADR. Sources:
 - [teaching research](../research/bezier-surfaces.md): mathematics, lesson outline, misconceptions, library facts;
 - [architecture research](../research/bezier-surfaces-architecture.md): layer-by-layer requirements.
 
@@ -193,7 +193,7 @@ The FMF pages were seen only as search-result excerpts: their TLS certificate fa
 
 ## Acceptance criteria
 
-**P1 — JSXGraph upgrade parity.** JSXGraph is at the latest 1.x release. The following all pass or have recorded, owner-accepted differences:
+**P1 — JSXGraph upgrade parity.** Complete 2026-10-26: JSXGraph 1.14.1 with passing checks and exact representative visual parity; see [acceptance audit](../reviews/bezier-patches/jsxgraph-upgrade.md). JSXGraph is at the latest 1.x release. The following all pass or have recorded, owner-accepted differences:
 - unit, type, lint and production-build checks;
 - the transient-state contract;
 - figure export (SVG/PNG with MathJax labels);

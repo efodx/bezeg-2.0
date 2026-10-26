@@ -1048,6 +1048,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             visit(axis.point1);
             visit(axis.point2);
         }
+        // JSXGraph stores its two pointer-sketching curves in board.sketches
+        // (and aliases the first as board.sketch). They are board-owned even
+        // when hidden, so retain these exact references across scene replacement.
+        valuesOf(this.board.sketches).forEach(visit);
+        visit(this.board.sketch);
         return preserved;
     }
 

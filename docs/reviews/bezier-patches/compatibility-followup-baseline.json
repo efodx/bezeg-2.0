@@ -1,0 +1,2569 @@
+{
+  "port": 4398,
+  "before": {
+    "label": "before-batch",
+    "count": 50,
+    "listCount": 50,
+    "objects": [
+      {
+        "id": "jxgBoard1_infobox",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{a}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGinfobox",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P1",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L3"
+        ]
+      },
+      {
+        "id": "jxgBoard1P2",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L3"
+        ]
+      },
+      {
+        "id": "jxgBoard1L3",
+        "elType": "axis",
+        "type": 3,
+        "name": "x",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P1",
+          "jxgBoard1P2"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_1",
+        "elType": "ticks",
+        "type": 5,
+        "name": "",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1L3"
+        ],
+        "childIds": [
+          "jxgBoard1L3_ticks_15Label1",
+          "jxgBoard1L3_ticks_110Label2",
+          "jxgBoard1L3_ticks_115Label3",
+          "jxgBoard1L3_ticks_120Label4",
+          "jxgBoard1L3_ticks_127Label5",
+          "jxgBoard1L3_ticks_132Label6",
+          "jxgBoard1L3_ticks_137Label7",
+          "jxgBoard1L3_ticks_142Label8"
+        ]
+      },
+      {
+        "id": "jxgBoard1L3_ticks_15Label1",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{b}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          2,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_110Label2",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{c}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          4,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_115Label3",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{d}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          6,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_120Label4",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{e}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          8,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_127Label5",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{f}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_132Label6",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{g}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -4,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_137Label7",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{h}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -6,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_142Label8",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{i}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -8,
+          -0.06316
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P13",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L15"
+        ]
+      },
+      {
+        "id": "jxgBoard1P14",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L15"
+        ]
+      },
+      {
+        "id": "jxgBoard1L15",
+        "elType": "axis",
+        "type": 3,
+        "name": "y",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P13",
+          "jxgBoard1P14"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_1",
+        "elType": "ticks",
+        "type": 5,
+        "name": "",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1L15"
+        ],
+        "childIds": [
+          "jxgBoard1L15_ticks_15Label1",
+          "jxgBoard1L15_ticks_110Label2",
+          "jxgBoard1L15_ticks_115Label3",
+          "jxgBoard1L15_ticks_120Label4",
+          "jxgBoard1L15_ticks_129Label5",
+          "jxgBoard1L15_ticks_134Label6",
+          "jxgBoard1L15_ticks_139Label7",
+          "jxgBoard1L15_ticks_144Label8"
+        ]
+      },
+      {
+        "id": "jxgBoard1L15_ticks_15Label1",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{j}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          0.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_110Label2",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{k}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          1.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_115Label3",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{l}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          2.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_120Label4",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{m}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -1.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_129Label5",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{n}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -2.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_134Label6",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{o}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -3.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_139Label7",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{p}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.21053,
+          -3.10526
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_144Label8",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{q}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.21053,
+          -4.10526
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P25",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{0}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0.8,
+          -3
+        ],
+        "labelId": "jxgBoard1P25Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P25Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P25Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{r}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          0.8,
+          -3.10105
+        ],
+        "parentIds": [
+          "jxgBoard1P25"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P27",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{1}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          2
+        ],
+        "labelId": "jxgBoard1P27Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P27Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P27Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{s}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -3,
+          1.89895
+        ],
+        "parentIds": [
+          "jxgBoard1P27"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P29",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{2}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          2,
+          2
+        ],
+        "labelId": "jxgBoard1P29Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P29Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P29Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{t}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          2,
+          1.89895
+        ],
+        "parentIds": [
+          "jxgBoard1P29"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P31",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{3}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          -2
+        ],
+        "labelId": "jxgBoard1P31Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P31Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P31Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{u}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3,
+          -2.10105
+        ],
+        "parentIds": [
+          "jxgBoard1P31"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1G33",
+        "elType": "curve",
+        "type": 8,
+        "name": "s_{a}",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "points": 581,
+        "parentIds": [],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P34",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          -3
+        ],
+        "labelId": "jxgBoard1P34Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P34Label",
+          "jxgBoard1L42",
+          "jxgBoard1L45"
+        ]
+      },
+      {
+        "id": "jxgBoard1P34Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{v}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2.83158,
+          -2.83158
+        ],
+        "parentIds": [
+          "jxgBoard1P34"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P36",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          2
+        ],
+        "labelId": "jxgBoard1P36Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P36Label",
+          "jxgBoard1L42",
+          "jxgBoard1L43"
+        ]
+      },
+      {
+        "id": "jxgBoard1P36Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{w}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2.83158,
+          2.16842
+        ],
+        "parentIds": [
+          "jxgBoard1P36"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P38",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          2
+        ],
+        "labelId": "jxgBoard1P38Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P38Label",
+          "jxgBoard1L43",
+          "jxgBoard1L44"
+        ]
+      },
+      {
+        "id": "jxgBoard1P38Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{x}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.16842,
+          2.16842
+        ],
+        "parentIds": [
+          "jxgBoard1P38"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P40",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          -3
+        ],
+        "labelId": "jxgBoard1P40Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P40Label",
+          "jxgBoard1L44",
+          "jxgBoard1L45"
+        ]
+      },
+      {
+        "id": "jxgBoard1P40Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{y}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.16842,
+          -2.83158
+        ],
+        "parentIds": [
+          "jxgBoard1P40"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L42",
+        "elType": "segment",
+        "type": 11,
+        "name": "a",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P34",
+          "jxgBoard1P36"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L43",
+        "elType": "segment",
+        "type": 11,
+        "name": "b",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P36",
+          "jxgBoard1P38"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L44",
+        "elType": "segment",
+        "type": 11,
+        "name": "c",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P38",
+          "jxgBoard1P40"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L45",
+        "elType": "segment",
+        "type": 11,
+        "name": "d",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P40",
+          "jxgBoard1P34"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P46",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0.1,
+          0.875
+        ],
+        "labelId": "jxgBoard1P46Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P46Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P46Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{z}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          0.1,
+          0.77395
+        ],
+        "parentIds": [
+          "jxgBoard1P46"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P48",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3.0176,
+          -4.872
+        ],
+        "labelId": "jxgBoard1P48Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P48Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P48Label",
+        "elType": "text",
+        "type": 18,
+        "name": "",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.0176,
+          -4.97305
+        ],
+        "parentIds": [
+          "jxgBoard1P48"
+        ],
+        "childIds": []
+      }
+    ],
+    "axes": [
+      {
+        "axis": {
+          "id": "jxgBoard1L3",
+          "elType": "axis",
+          "type": 3,
+          "name": "x",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1P1",
+            "jxgBoard1P2"
+          ],
+          "childIds": []
+        },
+        "label": {
+          "connected": false,
+          "nodeClass": "",
+          "parentIds": [],
+          "childIds": []
+        },
+        "ticks": {
+          "id": "jxgBoard1L3_ticks_1",
+          "elType": "ticks",
+          "type": 5,
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1L3"
+          ],
+          "childIds": [
+            "jxgBoard1L3_ticks_15Label1",
+            "jxgBoard1L3_ticks_110Label2",
+            "jxgBoard1L3_ticks_115Label3",
+            "jxgBoard1L3_ticks_120Label4",
+            "jxgBoard1L3_ticks_127Label5",
+            "jxgBoard1L3_ticks_132Label6",
+            "jxgBoard1L3_ticks_137Label7",
+            "jxgBoard1L3_ticks_142Label8"
+          ]
+        },
+        "tickLabels": [
+          {
+            "id": "jxgBoard1L3_ticks_15Label1",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{b}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              2,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_110Label2",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{c}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              4,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_115Label3",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{d}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              6,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_120Label4",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{e}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              8,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_127Label5",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{f}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -2,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_132Label6",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{g}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -4,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_137Label7",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{h}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -6,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_142Label8",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{i}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -8,
+              -0.06316
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          }
+        ]
+      },
+      {
+        "axis": {
+          "id": "jxgBoard1L15",
+          "elType": "axis",
+          "type": 3,
+          "name": "y",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1P13",
+            "jxgBoard1P14"
+          ],
+          "childIds": []
+        },
+        "label": {
+          "connected": false,
+          "nodeClass": "",
+          "parentIds": [],
+          "childIds": []
+        },
+        "ticks": {
+          "id": "jxgBoard1L15_ticks_1",
+          "elType": "ticks",
+          "type": 5,
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1L15"
+          ],
+          "childIds": [
+            "jxgBoard1L15_ticks_15Label1",
+            "jxgBoard1L15_ticks_110Label2",
+            "jxgBoard1L15_ticks_115Label3",
+            "jxgBoard1L15_ticks_120Label4",
+            "jxgBoard1L15_ticks_129Label5",
+            "jxgBoard1L15_ticks_134Label6",
+            "jxgBoard1L15_ticks_139Label7",
+            "jxgBoard1L15_ticks_144Label8"
+          ]
+        },
+        "tickLabels": [
+          {
+            "id": "jxgBoard1L15_ticks_15Label1",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{j}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              0.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_110Label2",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{k}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              1.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_115Label3",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{l}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              2.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_120Label4",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{m}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -1.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_129Label5",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{n}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -2.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_134Label6",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{o}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -3.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_139Label7",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{p}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.21053,
+              -3.10526
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_144Label8",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{q}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.21053,
+              -4.10526
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "label": "after-batch",
+    "count": 50,
+    "listCount": 50,
+    "objects": [
+      {
+        "id": "jxgBoard1_infobox",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{a}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGinfobox",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P1",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L3"
+        ]
+      },
+      {
+        "id": "jxgBoard1P2",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L3"
+        ]
+      },
+      {
+        "id": "jxgBoard1L3",
+        "elType": "axis",
+        "type": 3,
+        "name": "x",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P1",
+          "jxgBoard1P2"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_1",
+        "elType": "ticks",
+        "type": 5,
+        "name": "",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1L3"
+        ],
+        "childIds": [
+          "jxgBoard1L3_ticks_15Label1",
+          "jxgBoard1L3_ticks_110Label2",
+          "jxgBoard1L3_ticks_115Label3",
+          "jxgBoard1L3_ticks_120Label4",
+          "jxgBoard1L3_ticks_127Label5",
+          "jxgBoard1L3_ticks_132Label6",
+          "jxgBoard1L3_ticks_137Label7",
+          "jxgBoard1L3_ticks_142Label8"
+        ]
+      },
+      {
+        "id": "jxgBoard1L3_ticks_15Label1",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{b}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          2,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_110Label2",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{c}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          4,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_115Label3",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{d}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          6,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_120Label4",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{e}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          8,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_127Label5",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{f}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_132Label6",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{g}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -4,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_137Label7",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{h}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -6,
+          -0.05053
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L3_ticks_142Label8",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{i}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -8,
+          -0.06316
+        ],
+        "parentIds": [
+          "jxgBoard1L3_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P13",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L15"
+        ]
+      },
+      {
+        "id": "jxgBoard1P14",
+        "elType": "point",
+        "type": 4,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1L15"
+        ]
+      },
+      {
+        "id": "jxgBoard1L15",
+        "elType": "axis",
+        "type": 3,
+        "name": "y",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P13",
+          "jxgBoard1P14"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_1",
+        "elType": "ticks",
+        "type": 5,
+        "name": "",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1L15"
+        ],
+        "childIds": [
+          "jxgBoard1L15_ticks_15Label1",
+          "jxgBoard1L15_ticks_110Label2",
+          "jxgBoard1L15_ticks_115Label3",
+          "jxgBoard1L15_ticks_120Label4",
+          "jxgBoard1L15_ticks_129Label5",
+          "jxgBoard1L15_ticks_134Label6",
+          "jxgBoard1L15_ticks_139Label7",
+          "jxgBoard1L15_ticks_144Label8"
+        ]
+      },
+      {
+        "id": "jxgBoard1L15_ticks_15Label1",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{j}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          0.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_110Label2",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{k}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          1.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_115Label3",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{l}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          2.91579
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_120Label4",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{m}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -1.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_129Label5",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{n}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -2.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_134Label6",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{o}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.16842,
+          -3.08421
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_139Label7",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{p}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.21053,
+          -3.10526
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L15_ticks_144Label8",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{q}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -0.21053,
+          -4.10526
+        ],
+        "parentIds": [
+          "jxgBoard1L15_ticks_1"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P92",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{0}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0.8,
+          -3
+        ],
+        "labelId": "jxgBoard1P92Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P92Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P92Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{r}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          0.8,
+          -3.10105
+        ],
+        "parentIds": [
+          "jxgBoard1P92"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P94",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{1}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          2
+        ],
+        "labelId": "jxgBoard1P94Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P94Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P94Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{s}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -3,
+          1.89895
+        ],
+        "parentIds": [
+          "jxgBoard1P94"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P96",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{2}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          2,
+          2
+        ],
+        "labelId": "jxgBoard1P96Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P96Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P96Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{t}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          2,
+          1.89895
+        ],
+        "parentIds": [
+          "jxgBoard1P96"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P98",
+        "elType": "point",
+        "type": 12,
+        "name": "$$p_{3}$$",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          -2
+        ],
+        "labelId": "jxgBoard1P98Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P98Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P98Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{u}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3,
+          -2.10105
+        ],
+        "parentIds": [
+          "jxgBoard1P98"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1G100",
+        "elType": "curve",
+        "type": 8,
+        "name": "s_{a}",
+        "connected": true,
+        "nodeTag": "path",
+        "nodeClass": "",
+        "points": 581,
+        "parentIds": [],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P101",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          -3
+        ],
+        "labelId": "jxgBoard1P101Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P101Label",
+          "jxgBoard1L109",
+          "jxgBoard1L112"
+        ]
+      },
+      {
+        "id": "jxgBoard1P101Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{v}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2.83158,
+          -2.83158
+        ],
+        "parentIds": [
+          "jxgBoard1P101"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P103",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          -3,
+          2
+        ],
+        "labelId": "jxgBoard1P103Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P103Label",
+          "jxgBoard1L109",
+          "jxgBoard1L110"
+        ]
+      },
+      {
+        "id": "jxgBoard1P103Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{w}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          -2.83158,
+          2.16842
+        ],
+        "parentIds": [
+          "jxgBoard1P103"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P105",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          2
+        ],
+        "labelId": "jxgBoard1P105Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P105Label",
+          "jxgBoard1L110",
+          "jxgBoard1L111"
+        ]
+      },
+      {
+        "id": "jxgBoard1P105Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{x}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.16842,
+          2.16842
+        ],
+        "parentIds": [
+          "jxgBoard1P105"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P107",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3,
+          -3
+        ],
+        "labelId": "jxgBoard1P107Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P107Label",
+          "jxgBoard1L111",
+          "jxgBoard1L112"
+        ]
+      },
+      {
+        "id": "jxgBoard1P107Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{y}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.16842,
+          -2.83158
+        ],
+        "parentIds": [
+          "jxgBoard1P107"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L109",
+        "elType": "segment",
+        "type": 11,
+        "name": "a",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P101",
+          "jxgBoard1P103"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L110",
+        "elType": "segment",
+        "type": 11,
+        "name": "b",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P103",
+          "jxgBoard1P105"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L111",
+        "elType": "segment",
+        "type": 11,
+        "name": "c",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P105",
+          "jxgBoard1P107"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1L112",
+        "elType": "segment",
+        "type": 11,
+        "name": "d",
+        "connected": true,
+        "nodeTag": "line",
+        "nodeClass": "",
+        "parentIds": [
+          "jxgBoard1P107",
+          "jxgBoard1P101"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P113",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          0.1,
+          0.875
+        ],
+        "labelId": "jxgBoard1P113Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P113Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P113Label",
+        "elType": "text",
+        "type": 18,
+        "name": "t_{z}",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          0.1,
+          0.77395
+        ],
+        "parentIds": [
+          "jxgBoard1P113"
+        ],
+        "childIds": []
+      },
+      {
+        "id": "jxgBoard1P115",
+        "elType": "point",
+        "type": 14,
+        "name": "",
+        "connected": true,
+        "nodeTag": "ellipse",
+        "nodeClass": "",
+        "coords": [
+          1,
+          3.0176,
+          -4.872
+        ],
+        "labelId": "jxgBoard1P115Label",
+        "parentIds": [],
+        "childIds": [
+          "jxgBoard1P115Label"
+        ]
+      },
+      {
+        "id": "jxgBoard1P115Label",
+        "elType": "text",
+        "type": 18,
+        "name": "",
+        "connected": true,
+        "nodeTag": "DIV",
+        "nodeClass": "JXGtext",
+        "coords": [
+          1,
+          3.0176,
+          -4.97305
+        ],
+        "parentIds": [
+          "jxgBoard1P115"
+        ],
+        "childIds": []
+      }
+    ],
+    "axes": [
+      {
+        "axis": {
+          "id": "jxgBoard1L3",
+          "elType": "axis",
+          "type": 3,
+          "name": "x",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1P1",
+            "jxgBoard1P2"
+          ],
+          "childIds": []
+        },
+        "label": {
+          "connected": false,
+          "nodeClass": "",
+          "parentIds": [],
+          "childIds": []
+        },
+        "ticks": {
+          "id": "jxgBoard1L3_ticks_1",
+          "elType": "ticks",
+          "type": 5,
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1L3"
+          ],
+          "childIds": [
+            "jxgBoard1L3_ticks_15Label1",
+            "jxgBoard1L3_ticks_110Label2",
+            "jxgBoard1L3_ticks_115Label3",
+            "jxgBoard1L3_ticks_120Label4",
+            "jxgBoard1L3_ticks_127Label5",
+            "jxgBoard1L3_ticks_132Label6",
+            "jxgBoard1L3_ticks_137Label7",
+            "jxgBoard1L3_ticks_142Label8"
+          ]
+        },
+        "tickLabels": [
+          {
+            "id": "jxgBoard1L3_ticks_15Label1",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{b}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              2,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_110Label2",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{c}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              4,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_115Label3",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{d}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              6,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_120Label4",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{e}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              8,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_127Label5",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{f}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -2,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_132Label6",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{g}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -4,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_137Label7",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{h}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -6,
+              -0.05053
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L3_ticks_142Label8",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{i}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -8,
+              -0.06316
+            ],
+            "parentIds": [
+              "jxgBoard1L3_ticks_1"
+            ],
+            "childIds": []
+          }
+        ]
+      },
+      {
+        "axis": {
+          "id": "jxgBoard1L15",
+          "elType": "axis",
+          "type": 3,
+          "name": "y",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1P13",
+            "jxgBoard1P14"
+          ],
+          "childIds": []
+        },
+        "label": {
+          "connected": false,
+          "nodeClass": "",
+          "parentIds": [],
+          "childIds": []
+        },
+        "ticks": {
+          "id": "jxgBoard1L15_ticks_1",
+          "elType": "ticks",
+          "type": 5,
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "parentIds": [
+            "jxgBoard1L15"
+          ],
+          "childIds": [
+            "jxgBoard1L15_ticks_15Label1",
+            "jxgBoard1L15_ticks_110Label2",
+            "jxgBoard1L15_ticks_115Label3",
+            "jxgBoard1L15_ticks_120Label4",
+            "jxgBoard1L15_ticks_129Label5",
+            "jxgBoard1L15_ticks_134Label6",
+            "jxgBoard1L15_ticks_139Label7",
+            "jxgBoard1L15_ticks_144Label8"
+          ]
+        },
+        "tickLabels": [
+          {
+            "id": "jxgBoard1L15_ticks_15Label1",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{j}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              0.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_110Label2",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{k}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              1.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_115Label3",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{l}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              2.91579
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_120Label4",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{m}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -1.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_129Label5",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{n}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -2.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_134Label6",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{o}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.16842,
+              -3.08421
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_139Label7",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{p}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.21053,
+              -3.10526
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          },
+          {
+            "id": "jxgBoard1L15_ticks_144Label8",
+            "elType": "text",
+            "type": 18,
+            "name": "t_{q}",
+            "connected": true,
+            "nodeTag": "DIV",
+            "nodeClass": "JXGtext",
+            "coords": [
+              1,
+              -0.21053,
+              -4.10526
+            ],
+            "parentIds": [
+              "jxgBoard1L15_ticks_1"
+            ],
+            "childIds": []
+          }
+        ]
+      }
+    ]
+  }
+}

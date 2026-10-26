@@ -1,0 +1,555 @@
+{
+  "port": 4396,
+  "results": [
+    {
+      "route": "/functions/trigonometric?learn=1",
+      "counts": {
+        "text": 2,
+        "point": 4,
+        "axis": 2,
+        "ticks": 2,
+        "label": 16,
+        "sketchcurve": 2,
+        "curve": 6
+      },
+      "objects": [
+        {
+          "id": "jxgBoard1_infobox",
+          "elType": "text",
+          "name": "t_{a}",
+          "plaintext": "0,0",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGinfobox",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1P1",
+          "elType": "point",
+          "name": "",
+          "connected": true,
+          "nodeTag": "ellipse",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "pathTotalLength": 24.49175262451172,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1P2",
+          "elType": "point",
+          "name": "",
+          "connected": true,
+          "nodeTag": "ellipse",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "pathTotalLength": 24.49175453186035,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1L3",
+          "elType": "axis",
+          "name": "x",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "pathTotalLength": 840,
+          "parents": [
+            "jxgBoard1P1",
+            "jxgBoard1P2"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_1",
+          "elType": "ticks",
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "pathLength": 1622,
+          "pathTotalLength": 2906,
+          "parents": [
+            "jxgBoard1L3"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_15Label1",
+          "elType": "label",
+          "name": "t_{b}",
+          "plaintext": "2",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_110Label2",
+          "elType": "label",
+          "name": "t_{c}",
+          "plaintext": "4",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_115Label3",
+          "elType": "label",
+          "name": "t_{d}",
+          "plaintext": "6",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_120Label4",
+          "elType": "label",
+          "name": "t_{e}",
+          "plaintext": "−2",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_127Label5",
+          "elType": "label",
+          "name": "t_{f}",
+          "plaintext": "−4",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_132Label6",
+          "elType": "label",
+          "name": "t_{g}",
+          "plaintext": "−6",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_137Label7",
+          "elType": "label",
+          "name": "t_{h}",
+          "plaintext": "−6",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L3_ticks_142Label8",
+          "elType": "label",
+          "name": "t_{i}",
+          "plaintext": "−8",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L3_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1P13",
+          "elType": "point",
+          "name": "",
+          "connected": true,
+          "nodeTag": "ellipse",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "pathTotalLength": 24.49175262451172,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1P14",
+          "elType": "point",
+          "name": "",
+          "connected": true,
+          "nodeTag": "ellipse",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "pathTotalLength": 24.49175453186035,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1L15",
+          "elType": "axis",
+          "name": "y",
+          "connected": true,
+          "nodeTag": "line",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "pathTotalLength": 467,
+          "parents": [
+            "jxgBoard1P13",
+            "jxgBoard1P14"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_1",
+          "elType": "ticks",
+          "name": "",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "pathLength": 1741,
+          "pathTotalLength": 5152,
+          "parents": [
+            "jxgBoard1L15"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_15Label1",
+          "elType": "label",
+          "name": "t_{j}",
+          "plaintext": "1",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_110Label2",
+          "elType": "label",
+          "name": "t_{k}",
+          "plaintext": "2",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_115Label3",
+          "elType": "label",
+          "name": "t_{l}",
+          "plaintext": "3",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_120Label4",
+          "elType": "label",
+          "name": "t_{m}",
+          "plaintext": "−1",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_129Label5",
+          "elType": "label",
+          "name": "t_{n}",
+          "plaintext": "−2",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_134Label6",
+          "elType": "label",
+          "name": "t_{o}",
+          "plaintext": "−3",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_139Label7",
+          "elType": "label",
+          "name": "t_{p}",
+          "plaintext": "−3",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1L15_ticks_144Label8",
+          "elType": "label",
+          "name": "t_{q}",
+          "plaintext": "−4",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": false,
+          "display": "block",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "parents": [
+            "jxgBoard1L15_ticks_1"
+          ]
+        },
+        {
+          "id": "jxgBoard1G25",
+          "elType": "sketchcurve",
+          "name": "s_{a}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 0,
+          "pathLength": 5,
+          "pathTotalLength": 0,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G26",
+          "elType": "sketchcurve",
+          "name": "s_{b}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 0,
+          "pathLength": 5,
+          "pathTotalLength": 0,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G27",
+          "elType": "curve",
+          "name": "s_{c}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 2,
+          "pathLength": 53,
+          "pathTotalLength": 1017.5999755859375,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G28",
+          "elType": "curve",
+          "name": "s_{d}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 127,
+          "pathLength": 4679,
+          "pathTotalLength": 1242.6044921875,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G29",
+          "elType": "curve",
+          "name": "s_{e}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "pathTotalLength": 0,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G30",
+          "elType": "curve",
+          "name": "s_{f}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "pathTotalLength": 0,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G31",
+          "elType": "curve",
+          "name": "s_{g}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "points": 127,
+          "pathLength": 4651,
+          "pathTotalLength": 1224.9847412109375,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1G32",
+          "elType": "curve",
+          "name": "s_{h}",
+          "connected": true,
+          "nodeTag": "path",
+          "nodeClass": "",
+          "visible": false,
+          "display": "none",
+          "cssVisibility": "hidden",
+          "opacity": "1",
+          "points": 1,
+          "pathLength": 27,
+          "pathTotalLength": 0,
+          "parents": []
+        },
+        {
+          "id": "jxgBoard1T33",
+          "elType": "text",
+          "name": "t_{r}",
+          "plaintext": "<div style=\"color:#4d594f;font-size:1.2em\"><i>f</i>(<i>x</i>) = sin(<i>x</i>)</div>",
+          "connected": true,
+          "nodeTag": "DIV",
+          "nodeClass": "JXGtext",
+          "visible": true,
+          "display": "block",
+          "cssVisibility": "visible",
+          "opacity": "1",
+          "parents": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "before": "baseline-idle",
+  "after": "after-idle",
+  "results": [
+    {
+      "file": "area-between-curves.png",
+      "width": 1440,
+      "height": 1187,
+      "differingPixels": 419
+    },
+    {
+      "file": "bezier.png",
+      "width": 1440,
+      "height": 1187,
+      "differingPixels": 0
+    },
+    {
+      "file": "decasteljau-mathjax.png",
+      "width": 1440,
+      "height": 1187,
+      "differingPixels": 0
+    },
+    {
+      "file": "ph-cubic.png",
+      "width": 1440,
+      "height": 1187,
+      "differingPixels": 0
+    },
+    {
+      "file": "rational.png",
+      "width": 1440,
+      "height": 1246,
+      "differingPixels": 0
+    },
+    {
+      "file": "spline-c1.png",
+      "width": 1440,
+      "height": 1187,
+      "differingPixels": 0
+    }
+  ]
+}

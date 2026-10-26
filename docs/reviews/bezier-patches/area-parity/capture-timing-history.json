@@ -1,0 +1,42 @@
+{
+  "purpose": "Retain exact comparison outputs from the corrected label-object experiment before and after a repeat run.",
+  "browser": "Playwright Chromium 156.0.8078.4",
+  "settings": {
+    "headless": true,
+    "viewport": {"width": 1440, "height": 960},
+    "deviceScaleFactor": 1,
+    "locale": "sl-SI",
+    "colorScheme": "light",
+    "reducedMotion": "reduce",
+    "timezoneId": "Europe/Ljubljana",
+    "settle": "parity runner readiness, MathJax and document.fonts readiness, then 120 ms"
+  },
+  "correctedCaptureRun1": {
+    "mutation": "Only fresh-upgrade-clip-false used point.label.setAttribute({clip:false}); default captures had no board.update() call.",
+    "baselineFirstLabelY": 620.171875,
+    "baselineRepeatLabelY": 618.671875,
+    "upgradeDefaultFirstLabelY": 618.671875,
+    "upgradeDefaultRepeatLabelY": 618.671875,
+    "comparisons": {
+      "freshBaselineToFreshBaselineRepeat": {"differentPixels": 419, "bbox": [375, 642, 737, 662]},
+      "freshBaselineToFreshUpgradeDefault": {"differentPixels": 419, "bbox": [375, 642, 737, 662]},
+      "freshBaselineRepeatToFreshUpgradeDefaultRepeat": {"differentPixels": 0},
+      "suppliedBaselineToFreshBaseline": {"differentPixels": 0},
+      "suppliedBaselineToFreshUpgradeDefault": {"differentPixels": 419, "bbox": [375, 642, 737, 662]},
+      "suppliedUpgradeToFreshUpgradeDefault": {"differentPixels": 0}
+    }
+  },
+  "correctedCaptureRun2": {
+    "mutation": "Only fresh-upgrade-clip-false used point.label.setAttribute({clip:false}); all default captures had no board.update() call.",
+    "defaultLabelY": 620.171875,
+    "comparisons": {
+      "freshBaselineToFreshUpgradeDefault": {"differentPixels": 0},
+      "freshBaselineToFreshBaselineRepeat": {"differentPixels": 0},
+      "freshUpgradeDefaultToFreshUpgradeDefaultRepeat": {"differentPixels": 0},
+      "freshBaselineRepeatToFreshUpgradeDefaultRepeat": {"differentPixels": 0},
+      "freshBaselineRepeat2ToFreshUpgradeDefaultRepeat2": {"differentPixels": 0},
+      "suppliedBaselineToFreshUpgradeDefault": {"differentPixels": 0},
+      "suppliedUpgradeToFreshUpgradeDefault": {"differentPixels": 419, "bbox": [375, 642, 737, 662]}
+    }
+  }
+}

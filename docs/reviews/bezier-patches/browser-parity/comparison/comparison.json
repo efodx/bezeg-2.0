@@ -1,0 +1,102 @@
+{
+  "before": "baseline at JSXGraph 1.9.2",
+  "after": "upgraded at JSXGraph 1.14.1",
+  "method": "Browser-decoded PNG RGBA exact-pixel comparison",
+  "results": [
+    {
+      "id": "bezier",
+      "dimensions": {
+        "before": [
+          1440,
+          1187
+        ],
+        "after": [
+          1440,
+          1187
+        ]
+      },
+      "dimensionMatch": true,
+      "totalPixels": 1709280,
+      "differentPixels": 0,
+      "differentPixelPercent": 0,
+      "meanAbsoluteChannelDelta": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "id": "decasteljau-mathjax",
+      "dimensions": {
+        "before": [
+          1440,
+          1187
+        ],
+        "after": [
+          1440,
+          1187
+        ]
+      },
+      "dimensionMatch": true,
+      "totalPixels": 1709280,
+      "differentPixels": 0,
+      "differentPixelPercent": 0,
+      "meanAbsoluteChannelDelta": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "id": "rational",
+      "dimensions": {
+        "before": [
+          1440,
+          1246
+        ],
+        "after": [
+          1440,
+          1246
+        ]
+      },
+      "dimensionMatch": true,
+      "totalPixels": 1794240,
+      "differentPixels": 0,
+      "differentPixelPercent": 0,
+      "meanAbsoluteChannelDelta": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "id": "spline-c1",
+      "dimensions": {
+        "before": [
+          1440,
+          1187
+        ],
+        "after": [
+          1440,
+          1187
+        ]
+      },
+      "dimensionMatch": true,
+      "totalPixels": 1709280,
+      "differentPixels": 0,
+      "differentPixelPercent": 0,
+      "meanAbsoluteChannelDelta": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "id": "ph-cubic",
+      "dimensions": {
+        "before": [
+          1440,
+          1187
+        ],
+        "after": [
+          1440,
+          1187
+        ]
+      },
+      "dimensionMatch": true,
+      "totalPixels": 1709280,
+      "differentPixels": 0,
+      "differentPixelPercent": 0,
+      "meanAbsoluteChannelDelta": 0,
+      "maxChannelDelta": 0
+    }
+  ]
+}

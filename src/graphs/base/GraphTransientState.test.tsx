@@ -113,4 +113,19 @@ describe('scenes saved with graph-specific state', () => {
         expect({pieces: graph.jxgCurves.length, steps: graph.stepsDone}).toEqual({pieces: 2, steps: 1});
         mounted.view.unmount();
     });
+
+    test('JSXGraph pointer-sketch curves survive batch scene replacement and leave with their board', async () => {
+        const mounted = mountGraph(graphFactories.bezier());
+        const graph = mounted.graph;
+        const board = internals(graph).board;
+        const sketches = board.sketches.filter((sketch): sketch is JXG.GeometryElement => sketch !== null);
+        expect(sketches).toHaveLength(2);
+        for (const sketch of sketches) expect(board.objects[sketch.id]).toBe(sketch);
+
+        await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'sketch-board'}]));
+
+        for (const sketch of sketches) expect(board.objects[sketch.id]).toBe(sketch);
+        mounted.view.unmount();
+        for (const sketch of sketches) expect(board.objects[sketch.id]).toBeUndefined();
+    });
 });

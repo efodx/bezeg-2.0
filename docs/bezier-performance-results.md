@@ -299,7 +299,7 @@ main-thread time to:
 - `componentDidUpdate` → `unsuspendBoardUpdate` → JSXGraph `fullUpdate`: about
   45 ms. A full update re-measures every HTML text and schedules one
   `setTimeout` per text (about 8.6 ms of timer tasks per frame).
-- JSXGraph 1.9.2 `setObjectViewport`: about 11–14 ms. On every HTML text style
+- On the JSXGraph 1.9.2 baseline, `setObjectViewport` took about 11–14 ms. On every HTML text style
   update it reads the text's and container's bounding rectangles, then writes a
   clip path, forcing one synchronous layout per label (28 labels here).
 - The hidden "whole curve" was sampled every frame because JSXGraph samples

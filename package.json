@@ -14,7 +14,7 @@
     "bootstrap": "^5.3.3",
     "client-zip": "^2.4.5",
     "html2canvas": "^1.4.1",
-    "jsxgraph": "^1.9.2",
+    "jsxgraph": "^1.14.1",
     "jszip": "^3.10.1",
     "mathjax-full": "3.2.2",
     "react": "^18.3.1",

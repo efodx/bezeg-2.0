@@ -1,10 +1,10 @@
 # Bézier patches: implementation tasks
 
-Status: in progress; 03 done. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
+Status: tasks 01 and 03 complete; tasks 02 and 04 planned. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |
-| [01 JSXGraph upgrade](01-jsxgraph-upgrade.md) | None | Latest 1.x with full 2D parity evidence (P1) |
+| [01 JSXGraph upgrade](01-jsxgraph-upgrade.md) | None | Complete: JSXGraph 1.14.1, full 2D parity evidence (P1) |
 | [02 Renderer spike and ADR](02-renderer-spike.md) | 01 | Measured prototype of both patch kinds, ADR, drag/orbit budget (P2) |
 | [03 Shared curve kernels](03-shared-kernels.md) | None | Dimension-generic de Casteljau, elevation, subdivision and extrapolation; curves delegate unchanged (P3) |
 | [04 3D points](04-3d-points.md) | 03 | Optional `Z()`, 3D curves via the kernels, planar-only guards (P4) |

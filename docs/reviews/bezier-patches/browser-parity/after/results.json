@@ -1,0 +1,2853 @@
+{
+  "phase": "after",
+  "targetUrl": "http://127.0.0.1:4396/bezeg-2.0",
+  "checkout": "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.worktrees\\jsxgraph-upgrade",
+  "revision": "819f737bba74497be3a0ef72948ca34dea33b971",
+  "dirty": [
+    "M docs/current-architecture.md",
+    " M docs/research/bezier-surfaces-architecture.md",
+    " M docs/research/bezier-surfaces.md",
+    " M docs/research/curve-renderer-options.md",
+    " M docs/research/decasteljau-performance.md",
+    " M docs/specs/idempotent-fit-to-points.md",
+    " M package-lock.json",
+    " M package.json",
+    "?? docs/reviews/bezier-patches/"
+  ],
+  "packageJsxgraph": "1.14.1",
+  "lockJsxgraph": "1.14.1",
+  "browser": {
+    "name": "Playwright Chromium",
+    "version": "156.0.8078.4",
+    "headless": true
+  },
+  "device": {
+    "platform": "win32",
+    "arch": "x64",
+    "hostname": "DESKTOP-9IVA2DC"
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 960
+  },
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "reducedMotion": "reduce",
+  "startedAt": "2026-10-26T16:32:55.620Z",
+  "assetProvenance": {
+    "shellStatus": 200,
+    "entryAssets": [
+      {
+        "name": "index-DhvbKgcv.js",
+        "servedHash": "20ae38f8057d4f00e567c1c88666daa5211b162287b7999461f97c635f33b8b7",
+        "localDistHash": "20ae38f8057d4f00e567c1c88666daa5211b162287b7999461f97c635f33b8b7",
+        "matchesLocalDist": true
+      },
+      {
+        "name": "index-3PxAN9kg.css",
+        "servedHash": "e4575c48cd4045b8fb53cea20ebc4d98c7b2db4fb8614756fd58e90eab739a05",
+        "localDistHash": "e4575c48cd4045b8fb53cea20ebc4d98c7b2db4fb8614756fd58e90eab739a05",
+        "matchesLocalDist": true
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "id": "bezier",
+      "path": "docs/reviews/bezier-patches/browser-parity/after/bezier.png",
+      "route": "/bezier/curve",
+      "board": {
+        "container": "jgbox",
+        "size": {
+          "width": 1002,
+          "height": 633.59375
+        },
+        "boundingBox": [
+          -7.902208201892745,
+          5,
+          7.902208201892745,
+          -5
+        ],
+        "objectCount": 46,
+        "visibleObjectCount": 34,
+        "curveCount": 1,
+        "pointCount": 4,
+        "labelCount": 22,
+        "mathJaxCount": 8,
+        "objects": [
+          {
+            "type": "text",
+            "name": "t_{a}",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              1,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "x",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{b}",
+            "xy": [
+              2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{c}",
+            "xy": [
+              4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{d}",
+            "xy": [
+              6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{e}",
+            "xy": [
+              -2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{f}",
+            "xy": [
+              -4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{g}",
+            "xy": [
+              -6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              1
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "y",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{h}",
+            "xy": [
+              -0.15773,
+              0.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{i}",
+            "xy": [
+              -0.15773,
+              1.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{j}",
+            "xy": [
+              -0.15773,
+              2.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{k}",
+            "xy": [
+              -0.15773,
+              3.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{l}",
+            "xy": [
+              -0.15773,
+              -1.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{m}",
+            "xy": [
+              -0.15773,
+              -2.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{n}",
+            "xy": [
+              -0.15773,
+              -3.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{o}",
+            "xy": [
+              -0.15773,
+              -4.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{b}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{0}$$",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{p}",
+            "xy": [
+              -4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{1}$$",
+            "xy": [
+              -3,
+              2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{q}",
+            "xy": [
+              -3,
+              1.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{2}$$",
+            "xy": [
+              2,
+              2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{r}",
+            "xy": [
+              2,
+              1.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{3}$$",
+            "xy": [
+              3,
+              -2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{s}",
+            "xy": [
+              3,
+              -2.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "curve",
+            "name": "s_{c}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{t}",
+            "xy": [
+              -3.84227,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              2
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{u}",
+            "xy": [
+              -3.84227,
+              2.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              3,
+              2
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{v}",
+            "xy": [
+              3.15773,
+              2.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              3,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{w}",
+            "xy": [
+              3.15773,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "a",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "b",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "c",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "d",
+            "xy": null,
+            "visible": false
+          }
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "id": "decasteljau-mathjax",
+      "path": "docs/reviews/bezier-patches/browser-parity/after/decasteljau-mathjax.png",
+      "route": "/bezier/decasteljau",
+      "board": {
+        "container": "jgbox",
+        "size": {
+          "width": 1002,
+          "height": 633.59375
+        },
+        "boundingBox": [
+          -7.902208201892745,
+          5,
+          7.902208201892745,
+          -5
+        ],
+        "objectCount": 78,
+        "visibleObjectCount": 66,
+        "curveCount": 1,
+        "pointCount": 15,
+        "labelCount": 33,
+        "mathJaxCount": 30,
+        "objects": [
+          {
+            "type": "text",
+            "name": "t_{a}",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              1,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "x",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{b}",
+            "xy": [
+              2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{c}",
+            "xy": [
+              4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{d}",
+            "xy": [
+              6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{e}",
+            "xy": [
+              -2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{f}",
+            "xy": [
+              -4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{g}",
+            "xy": [
+              -6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              1
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "y",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{h}",
+            "xy": [
+              -0.15773,
+              0.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{i}",
+            "xy": [
+              -0.15773,
+              1.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{j}",
+            "xy": [
+              -0.15773,
+              2.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{k}",
+            "xy": [
+              -0.15773,
+              3.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{l}",
+            "xy": [
+              -0.15773,
+              -1.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{m}",
+            "xy": [
+              -0.15773,
+              -2.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{n}",
+            "xy": [
+              -0.15773,
+              -3.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{o}",
+            "xy": [
+              -0.15773,
+              -4.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{b}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{p}",
+            "xy": [
+              -4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -3,
+              2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{q}",
+            "xy": [
+              -3,
+              1.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              0,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{r}",
+            "xy": [
+              0,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              3,
+              2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{s}",
+            "xy": [
+              3,
+              1.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{t}",
+            "xy": [
+              4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "curve",
+            "name": "s_{c}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{u}",
+            "xy": [
+              -3.84227,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{v}",
+            "xy": [
+              -3.84227,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{w}",
+            "xy": [
+              4.15773,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{x}",
+            "xy": [
+              4.15773,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "a",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "b",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "c",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "d",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "e",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "f",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "g",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "h",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -3.5,
+              -0.5
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{y}",
+            "xy": [
+              -3.5,
+              -0.3265
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -1.5,
+              2.5
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{z}",
+            "xy": [
+              -1.5,
+              2.6735
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "i",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              1.5,
+              2.5
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              1.5,
+              2.6735
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "j",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              3.5,
+              -0.5
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              3.5,
+              -0.3265
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "k",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -2.5,
+              1
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              -2.5,
+              0.71609
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              0,
+              2.5
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              0,
+              2.21609
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "l",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              2.5,
+              1
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              2.5,
+              0.71609
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "m",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              -1.25,
+              1.75
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              -1.25,
+              2.03391
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              1.25,
+              1.75
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              1.25,
+              2.03391
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "n",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "xy": [
+              0,
+              1.75
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              0,
+              1.35568
+            ],
+            "visible": true
+          }
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "id": "rational",
+      "path": "docs/reviews/bezier-patches/browser-parity/after/rational.png",
+      "route": "/rational/base",
+      "board": {
+        "container": "jgbox",
+        "size": {
+          "width": 1002,
+          "height": 633.59375
+        },
+        "boundingBox": [
+          -7.902208201892745,
+          5,
+          7.902208201892745,
+          -5
+        ],
+        "objectCount": 50,
+        "visibleObjectCount": 38,
+        "curveCount": 1,
+        "pointCount": 4,
+        "labelCount": 22,
+        "mathJaxCount": 16,
+        "objects": [
+          {
+            "type": "text",
+            "name": "t_{a}",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              1,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "x",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{b}",
+            "xy": [
+              2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{c}",
+            "xy": [
+              4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{d}",
+            "xy": [
+              6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{e}",
+            "xy": [
+              -2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{f}",
+            "xy": [
+              -4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{g}",
+            "xy": [
+              -6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              1
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "y",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{h}",
+            "xy": [
+              -0.15773,
+              0.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{i}",
+            "xy": [
+              -0.15773,
+              1.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{j}",
+            "xy": [
+              -0.15773,
+              2.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{k}",
+            "xy": [
+              -0.15773,
+              3.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{l}",
+            "xy": [
+              -0.15773,
+              -1.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{m}",
+            "xy": [
+              -0.15773,
+              -2.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{n}",
+            "xy": [
+              -0.15773,
+              -3.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{o}",
+            "xy": [
+              -0.15773,
+              -4.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{b}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{0}$$",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{p}",
+            "xy": [
+              -4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{1}$$",
+            "xy": [
+              -3,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{q}",
+            "xy": [
+              -3,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{2}$$",
+            "xy": [
+              3,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{r}",
+            "xy": [
+              3,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{3}$$",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{s}",
+            "xy": [
+              4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "curve",
+            "name": "s_{c}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{t}",
+            "xy": [
+              -3.84227,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{u}",
+            "xy": [
+              -3.84227,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{v}",
+            "xy": [
+              4.15773,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{w}",
+            "xy": [
+              4.15773,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "a",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "b",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "c",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "d",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "smartlabel",
+            "name": "t_{x}",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "smartlabel",
+            "name": "t_{y}",
+            "xy": [
+              -3,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "smartlabel",
+            "name": "t_{z}",
+            "xy": [
+              3,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "smartlabel",
+            "name": "",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": true
+          }
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "id": "spline-c1",
+      "path": "docs/reviews/bezier-patches/browser-parity/after/spline-c1.png",
+      "route": "/spline/c1spline",
+      "board": {
+        "container": "jgbox",
+        "size": {
+          "width": 1002,
+          "height": 633.59375
+        },
+        "boundingBox": [
+          -7.902208201892745,
+          5,
+          7.902208201892745,
+          -5
+        ],
+        "objectCount": 56,
+        "visibleObjectCount": 44,
+        "curveCount": 1,
+        "pointCount": 9,
+        "labelCount": 27,
+        "mathJaxCount": 18,
+        "objects": [
+          {
+            "type": "text",
+            "name": "t_{a}",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              1,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "x",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{b}",
+            "xy": [
+              2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{c}",
+            "xy": [
+              4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{d}",
+            "xy": [
+              6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{e}",
+            "xy": [
+              -2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{f}",
+            "xy": [
+              -4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{g}",
+            "xy": [
+              -6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              1
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "y",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{h}",
+            "xy": [
+              -0.15773,
+              0.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{i}",
+            "xy": [
+              -0.15773,
+              1.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{j}",
+            "xy": [
+              -0.15773,
+              2.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{k}",
+            "xy": [
+              -0.15773,
+              3.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{l}",
+            "xy": [
+              -0.15773,
+              -1.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{m}",
+            "xy": [
+              -0.15773,
+              -2.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{n}",
+            "xy": [
+              -0.15773,
+              -3.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{o}",
+            "xy": [
+              -0.15773,
+              -4.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{b}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize0}^{\\scriptsize(1)}$$",
+            "xy": [
+              -4,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{p}",
+            "xy": [
+              -4,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize1}^{\\scriptsize(1)}$$",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{q}",
+            "xy": [
+              -4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize1}^{\\scriptsize(2)}$$",
+            "xy": [
+              -1,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{r}",
+            "xy": [
+              -1,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize1}^{\\scriptsize(3)}$$",
+            "xy": [
+              -1,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{s}",
+            "xy": [
+              -1,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize1}^{\\scriptsize(4)}$$",
+            "xy": [
+              3,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{t}",
+            "xy": [
+              3,
+              2.90536
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{\\scriptsize2}^{\\scriptsize(4)}$$",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{u}",
+            "xy": [
+              4,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "curve",
+            "name": "s_{c}",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{v}",
+            "xy": [
+              -3.84227,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{w}",
+            "xy": [
+              -3.84227,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{x}",
+            "xy": [
+              4.15773,
+              3.15773
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4,
+              -3
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{y}",
+            "xy": [
+              4.15773,
+              -2.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "a",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "b",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "c",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "d",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": " $$ p_{\\scriptsize2}^{\\scriptsize(1)}{\\scriptsize=}p_{\\scriptsize0}^{\\scriptsize(2)}$$",
+            "xy": [
+              -2.5,
+              -3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{z}",
+            "xy": [
+              -2.5,
+              -3.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": " $$ p_{\\scriptsize2}^{\\scriptsize(2)}{\\scriptsize=}p_{\\scriptsize0}^{\\scriptsize(3)}$$",
+            "xy": [
+              -1,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              -1,
+              -0.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": " $$ p_{\\scriptsize2}^{\\scriptsize(3)}{\\scriptsize=}p_{\\scriptsize0}^{\\scriptsize(4)}$$",
+            "xy": [
+              1,
+              3
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "",
+            "xy": [
+              1,
+              2.90536
+            ],
+            "visible": true
+          }
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "id": "ph-cubic",
+      "path": "docs/reviews/bezier-patches/browser-parity/after/ph-cubic.png",
+      "route": "/ph/cubic",
+      "board": {
+        "container": "jgbox",
+        "size": {
+          "width": 1002,
+          "height": 633.59375
+        },
+        "boundingBox": [
+          -7.902208201892745,
+          5,
+          7.902208201892745,
+          -5
+        ],
+        "objectCount": 71,
+        "visibleObjectCount": 52,
+        "curveCount": 1,
+        "pointCount": 4,
+        "labelCount": 28,
+        "mathJaxCount": 14,
+        "objects": [
+          {
+            "type": "text",
+            "name": "t_{a}",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              1,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "x",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{b}",
+            "xy": [
+              2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{c}",
+            "xy": [
+              4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{d}",
+            "xy": [
+              6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{e}",
+            "xy": [
+              -2,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{f}",
+            "xy": [
+              -4,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{g}",
+            "xy": [
+              -6,
+              -0.04732
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              1
+            ],
+            "visible": false
+          },
+          {
+            "type": "axis",
+            "name": "y",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "ticks",
+            "name": "",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{h}",
+            "xy": [
+              -0.15773,
+              0.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{i}",
+            "xy": [
+              -0.15773,
+              1.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{j}",
+            "xy": [
+              -0.15773,
+              2.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{k}",
+            "xy": [
+              -0.15773,
+              3.92114
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{l}",
+            "xy": [
+              -0.15773,
+              -1.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{m}",
+            "xy": [
+              -0.15773,
+              -2.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{n}",
+            "xy": [
+              -0.15773,
+              -3.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{o}",
+            "xy": [
+              -0.15773,
+              -4.07886
+            ],
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "sketchcurve",
+            "name": "s_{b}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{0}$$",
+            "xy": [
+              -4.2,
+              -2
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{p}",
+            "xy": [
+              -4.2,
+              -2.09464
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{1}$$",
+            "xy": [
+              -1.08,
+              1.96667
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{q}",
+            "xy": [
+              -1.08,
+              1.87203
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{2}$$",
+            "xy": [
+              2.91667,
+              1.45667
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{r}",
+            "xy": [
+              2.91667,
+              1.36203
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "$$p_{3}$$",
+            "xy": [
+              4.20667,
+              -1.49
+            ],
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{s}",
+            "xy": [
+              4.20667,
+              -1.58464
+            ],
+            "visible": true
+          },
+          {
+            "type": "curve",
+            "name": "s_{c}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4.2,
+              -2
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{t}",
+            "xy": [
+              -4.04227,
+              -1.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -4.2,
+              1.96667
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{u}",
+            "xy": [
+              -4.04227,
+              2.1244
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4.20667,
+              1.96667
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{v}",
+            "xy": [
+              4.3644,
+              2.1244
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              4.20667,
+              -2
+            ],
+            "visible": false
+          },
+          {
+            "type": "label",
+            "name": "t_{w}",
+            "xy": [
+              4.3644,
+              -1.84227
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "a",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "b",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "c",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "segment",
+            "name": "d",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "curve",
+            "name": "s_{d}",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "text",
+            "name": "t_{x}",
+            "xy": [
+              -7.58612,
+              4.8
+            ],
+            "visible": true
+          },
+          {
+            "type": "angle",
+            "name": "$$\\theta_1$$",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{y}",
+            "xy": [
+              -0.8657,
+              1.34875
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              -1.23456,
+              1.77017
+            ],
+            "visible": false
+          },
+          {
+            "type": "arc",
+            "name": "_arc",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "angle",
+            "name": "$$\\theta_1$$",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "label",
+            "name": "t_{z}",
+            "xy": [
+              2.57783,
+              0.90934
+            ],
+            "visible": true
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              2.66868,
+              1.48831
+            ],
+            "visible": false
+          },
+          {
+            "type": "arc",
+            "name": "_arc",
+            "xy": null,
+            "visible": false
+          },
+          {
+            "type": "point",
+            "name": "",
+            "xy": [
+              0,
+              0
+            ],
+            "visible": false
+          },
+          {
+            "type": "text",
+            "name": "",
+            "xy": [
+              -3.03213,
+              0.13446
+            ],
+            "visible": true
+          },
+          {
+            "type": "text",
+            "name": "",
+            "xy": [
+              0.74928,
+              1.95414
+            ],
+            "visible": true
+          },
+          {
+            "type": "text",
+            "name": "",
+            "xy": [
+              3.58559,
+              0.08136
+            ],
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "e",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "f",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "g",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "h",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "i",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "polygon",
+            "name": "P_{a}",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "j",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "k",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "segment",
+            "name": "l",
+            "xy": null,
+            "visible": true
+          },
+          {
+            "type": "polygon",
+            "name": "P_{b}",
+            "xy": null,
+            "visible": true
+          }
+        ]
+      },
+      "pageErrors": []
+    }
+  ],
+  "dragTrials": [
+    {
+      "trial": 1,
+      "path": "/bezier/curve",
+      "pointerDeltaPx": [
+        42,
+        -24
+      ],
+      "point": "$$p_{0}$$",
+      "pointId": "jxgBoard1P25",
+      "beforeUserXY": [
+        -4,
+        -3
+      ],
+      "afterUserXY": [
+        -3.39274,
+        -2.653
+      ],
+      "displacement": 0.69941,
+      "pointerMoves": 12,
+      "boardUpdateCount": 16,
+      "boardUpdateMedianMs": 2.5,
+      "boardUpdateP95Ms": 11.6,
+      "boardUpdateDurationsMs": [
+        11.6,
+        2.5,
+        5.4,
+        2,
+        5.8,
+        2.1,
+        6.7,
+        4.1,
+        4.8,
+        1.6,
+        5.6,
+        1.5,
+        4,
+        2,
+        2,
+        1.4
+      ],
+      "rafFrameCount": 14,
+      "rafMedianMs": 16.6,
+      "rafP95Ms": 16.8,
+      "rafFrameIntervalsMs": [
+        16.6,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.6,
+        16.8,
+        16.6,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.6,
+        16.6
+      ],
+      "pageErrors": [],
+      "beforeBoard": {
+        "objectCount": 46,
+        "curveCount": 1
+      }
+    },
+    {
+      "trial": 2,
+      "path": "/bezier/curve",
+      "pointerDeltaPx": [
+        42,
+        -24
+      ],
+      "point": "$$p_{0}$$",
+      "pointId": "jxgBoard1P25",
+      "beforeUserXY": [
+        -4,
+        -3
+      ],
+      "afterUserXY": [
+        -3.39274,
+        -2.653
+      ],
+      "displacement": 0.69941,
+      "pointerMoves": 12,
+      "boardUpdateCount": 16,
+      "boardUpdateMedianMs": 3,
+      "boardUpdateP95Ms": 12.3,
+      "boardUpdateDurationsMs": [
+        10.7,
+        3,
+        4.6,
+        1.8,
+        3.8,
+        1.5,
+        12.3,
+        3.8,
+        4.1,
+        1.5,
+        4.6,
+        1.3,
+        4.7,
+        2.3,
+        3,
+        2.3
+      ],
+      "rafFrameCount": 13,
+      "rafMedianMs": 16.7,
+      "rafP95Ms": 16.8,
+      "rafFrameIntervalsMs": [
+        16.7,
+        16.6,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.6,
+        16.6,
+        16.8
+      ],
+      "pageErrors": [],
+      "beforeBoard": {
+        "objectCount": 46,
+        "curveCount": 1
+      }
+    },
+    {
+      "trial": 3,
+      "path": "/bezier/curve",
+      "pointerDeltaPx": [
+        42,
+        -24
+      ],
+      "point": "$$p_{0}$$",
+      "pointId": "jxgBoard1P25",
+      "beforeUserXY": [
+        -4,
+        -3
+      ],
+      "afterUserXY": [
+        -3.33754,
+        -2.62145
+      ],
+      "displacement": 0.76299,
+      "pointerMoves": 12,
+      "boardUpdateCount": 20,
+      "boardUpdateMedianMs": 3.4,
+      "boardUpdateP95Ms": 7.6,
+      "boardUpdateDurationsMs": [
+        11.7,
+        2.6,
+        7.6,
+        5.5,
+        6.5,
+        2.3,
+        5.2,
+        4.5,
+        3.8,
+        1.7,
+        7.6,
+        1.8,
+        3.4,
+        1.3,
+        3.9,
+        1.5,
+        5.7,
+        3.1,
+        2.1,
+        1.6
+      ],
+      "rafFrameCount": 17,
+      "rafMedianMs": 16.7,
+      "rafP95Ms": 16.8,
+      "rafFrameIntervalsMs": [
+        16.7,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.6,
+        16.7,
+        16.6,
+        16.8,
+        16.6,
+        16.6,
+        16.7,
+        16.6,
+        16.7,
+        16.7,
+        16.7,
+        16.6
+      ],
+      "pageErrors": [],
+      "beforeBoard": {
+        "objectCount": 46,
+        "curveCount": 1
+      }
+    }
+  ],
+  "finishedAt": "2026-10-26T16:33:08.212Z",
+  "elapsedMs": 12592
+}

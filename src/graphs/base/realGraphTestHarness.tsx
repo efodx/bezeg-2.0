@@ -111,8 +111,10 @@ export function boardSignature(board: JXG.Board): string[] {
             const sample = (i: number) => `${round(points[i]?.usrCoords[1])},${round(points[i]?.usrCoords[2])}`;
             const at = [0, 0.25, 0.5, 0.75, 1].map(fraction => Math.round(fraction * (points.length - 1)));
             line += ` n=${points.length} ${at.map(sample).join(' ')}`;
-        } else if (object.elType === 'text') {
-            line += object.isLabel || object.elType === 'label' ? ' label' : ` ${String(object.plaintext ?? object.htmlStr ?? '')}`;
+        } else if (object.elType === 'label' || object.isLabel) {
+            line += ' label';
+        } else if (object.elType === 'text' || object.elType === 'smartlabel') {
+            line += ` ${String(object.plaintext ?? object.htmlStr ?? '')}`;
         }
         lines.push(line);
     }

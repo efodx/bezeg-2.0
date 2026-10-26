@@ -58,12 +58,19 @@ function boardStats(page) {
         for (const object of Object.values(board.objects)) {
             const connected = Boolean(object.rendNode?.isConnected);
             const visible = object.visPropCalc?.visible !== false;
-            if (object.elType === 'curve' && connected) { stats.curves += 1; stats.curveIds.push(object.id); if (visible) stats.visibleCurves += 1; if (visible && (object.points?.length ?? 0) > 2) stats.drawnCurves += 1; }
+            if (object.elType === 'curve' && connected) {
+                stats.curves += 1;
+                stats.curveIds.push(object.id);
+                if (visible) stats.visibleCurves += 1;
+                // Count visible rendered geometry, including straight curves represented by
+                // only two JSXGraph points. A collapsed remainder has zero SVG path length.
+                if (visible && object.rendNode?.getTotalLength?.() > 0.01) stats.drawnCurves += 1;
+            }
             if (object.elType === 'point' && visible && connected) stats.points += 1;
             if (object.elType === 'slider') stats.sliders += 1;
             // Weight labels are smart labels rendered as text nodes with this class.
             const cls = String(object.rendNode?.className?.baseVal ?? object.rendNode?.className ?? '');
-            if (object.elType === 'text' && connected && visible && cls.includes('smart-label-point2')) stats.labels += 1;
+            if (['text', 'smartlabel'].includes(object.elType) && connected && visible && cls.includes('smart-label-point2')) stats.labels += 1;
         }
         return stats;
     });
@@ -76,7 +83,7 @@ function boardWeights(page) {
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         const weights = [];
         for (const object of Object.values(board.objects)) {
-            if (object.elType !== 'text' || !object.rendNode?.isConnected || object.visPropCalc?.visible === false) continue;
+            if (!['text', 'smartlabel'].includes(object.elType) || !object.rendNode?.isConnected || object.visPropCalc?.visible === false) continue;
             const match = /w_\{(\d+)\}=(-?\d+(?:\.\d+)?)/.exec(String(object.plaintext ?? ''));
             if (match) weights.push([Number(match[1]), Number(match[2])]);
         }

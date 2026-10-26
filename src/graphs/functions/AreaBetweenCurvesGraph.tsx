@@ -142,11 +142,12 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         boundLine("a");
         boundLine("b");
 
+        // JSXGraph 1.13 enabled RDP smoothing by default; retain the pre-upgrade samples across Preset round trips.
         const curve = (value: (x: number) => number, color: string) => this.own(board.create("functiongraph", [(x: number) => {
             const {high, low} = limits();
             const y = value(x);
             return y > high || y < low ? NaN : y;
-        }], {strokeColor: color, highlight: false, fixed: true, strokeWidth}));
+        }], {strokeColor: color, highlight: false, fixed: true, strokeWidth, RDPsmoothing: false}));
         curve(f, GraphPalette.comparisonCurve);
         curve(g, GraphPalette.primaryCurve);
 

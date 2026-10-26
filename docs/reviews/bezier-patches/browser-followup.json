@@ -1,0 +1,1840 @@
+{
+  "startedAt": "2026-10-26T17:06:55.322Z",
+  "browser": {
+    "name": "Playwright Chromium",
+    "version": "156.0.8078.4",
+    "headless": true
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 960,
+    "deviceScaleFactor": 1
+  },
+  "platform": "win32",
+  "locale": "sl-SI",
+  "reducedMotion": "reduce",
+  "builds": [
+    {
+      "id": "baseline",
+      "url": "http://127.0.0.1:4398/bezeg-2.0",
+      "build": "../jsxgraph-baseline/build",
+      "routes": [
+        {
+          "route": "/bezier/curve",
+          "httpStatus": 200,
+          "suggestedFilename": "izvoz.svg",
+          "svgBytes": 50539,
+          "svgSha256": "398d635118233d215620f5e809fe0759ff3b566404f5ca8afd18edfaa3782384",
+          "tagCounts": {
+            "text": 14,
+            "path": 11,
+            "image": 0,
+            "foreignObject": 1,
+            "mjx": 0,
+            "nestedSvg": 5,
+            "mathLabelGroups": 1,
+            "mathGroupPaths": 1
+          },
+          "onScreen": {
+            "labelCount": 22,
+            "mathJaxCount": 8,
+            "boardSize": [
+              1002,
+              633.59375
+            ],
+            "rendererRootRect": [
+              55,
+              323.984375,
+              1002,
+              633.59375
+            ],
+            "labels": [
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_15Label1",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  679.796875,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-320px -371.203px -295.594px -624.797px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_110Label2",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  806.59375,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-320px -244.406px -295.594px -751.594px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_115Label3",
+                "text": "6",
+                "math": false,
+                "rect": [
+                  933.390625,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-320px -117.609px -295.594px -878.391px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_124Label4",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  422.6875,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-320px -621.531px -295.594px -367.688px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_129Label5",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  295.890625,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-320px -748.328px -295.594px -240.891px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_134Label6",
+                "text": "−6",
+                "math": false,
+                "rect": [
+                  169.09375,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-320px -875.125px -295.594px -114.094px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_15Label1",
+                "text": "1",
+                "math": false,
+                "rect": [
+                  540,
+                  573.578125,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-249.594px -511px -366px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_110Label2",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  540,
+                  510.171875,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-186.188px -511px -429.406px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_115Label3",
+                "text": "3",
+                "math": false,
+                "rect": [
+                  540,
+                  446.78125,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-122.797px -511px -492.797px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_120Label4",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  540,
+                  383.375,
+                  6,
+                  18
+                ],
+                "clipPath": "inset(-59.3906px -511px -556.203px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_129Label5",
+                "text": "−1",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  700.375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-376.391px -511px -239.203px -478.219px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_134Label6",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  763.78125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-439.797px -511px -175.797px -478.219px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_139Label7",
+                "text": "−3",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  827.171875,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-503.188px -511px -112.406px -478.219px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_144Label8",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  890.578125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "inset(-566.594px -511px -49px -478.219px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P23Label",
+                "text": "𝑝\n0",
+                "math": true,
+                "rect": [
+                  302.390625,
+                  774.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "inset(-448.656px -734.531px -120.797px -247.391px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P25Label",
+                "text": "𝑝\n1",
+                "math": true,
+                "rect": [
+                  365.796875,
+                  457.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "inset(-132.016px -671.125px -437.797px -310.797px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P27Label",
+                "text": "𝑝\n2",
+                "math": true,
+                "rect": [
+                  682.796875,
+                  457.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "inset(-132.016px -354.125px -437.797px -627.797px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P29Label",
+                "text": "𝑝\n3",
+                "math": true,
+                "rect": [
+                  746.1875,
+                  711.578125,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "inset(-385.266px -290.734px -184.188px -691.188px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P32Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P34Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  503.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P36Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  756.1875,
+                  503.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P38Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  756.1875,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              }
+            ]
+          },
+          "screenshots": {
+            "board": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\baseline-bezier-board.png",
+            "export": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\baseline-bezier-export.png"
+          },
+          "pageErrors": [],
+          "consoleErrors": []
+        },
+        {
+          "route": "/bezier/decasteljau",
+          "httpStatus": 200,
+          "suggestedFilename": "izvoz.svg",
+          "svgBytes": 75228,
+          "svgSha256": "8ec582da2b797467bfc9760dccd894b2cedff65b6d244e51ba0a85a6ef69d4d7",
+          "tagCounts": {
+            "text": 14,
+            "path": 48,
+            "image": 0,
+            "foreignObject": 1,
+            "mjx": 0,
+            "nestedSvg": 16,
+            "mathLabelGroups": 1,
+            "mathGroupPaths": 1
+          },
+          "onScreen": {
+            "labelCount": 33,
+            "mathJaxCount": 30,
+            "boardSize": [
+              1002,
+              633.59375
+            ],
+            "rendererRootRect": [
+              55,
+              323.984375,
+              1002,
+              633.59375
+            ],
+            "labels": [
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_15Label1",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  679.796875,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_110Label2",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  806.59375,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_115Label3",
+                "text": "6",
+                "math": false,
+                "rect": [
+                  933.390625,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_124Label4",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  422.6875,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_129Label5",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  295.890625,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_134Label6",
+                "text": "−6",
+                "math": false,
+                "rect": [
+                  169.09375,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_15Label1",
+                "text": "1",
+                "math": false,
+                "rect": [
+                  540,
+                  573.578125,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_110Label2",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  540,
+                  510.171875,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_115Label3",
+                "text": "3",
+                "math": false,
+                "rect": [
+                  540,
+                  446.78125,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_120Label4",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  540,
+                  383.375,
+                  6,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_129Label5",
+                "text": "−1",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  700.375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_134Label6",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  763.78125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_139Label7",
+                "text": "−3",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  827.171875,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_144Label8",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  890.578125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P23Label",
+                "text": "𝑝\n0\n0",
+                "math": true,
+                "rect": [
+                  302.390625,
+                  762.875,
+                  22.015625,
+                  73.90625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P25Label",
+                "text": "𝑝\n1\n0",
+                "math": true,
+                "rect": [
+                  365.796875,
+                  446.234375,
+                  22.015625,
+                  73.546875
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P27Label",
+                "text": "𝑝\n2\n0",
+                "math": true,
+                "rect": [
+                  556,
+                  382.84375,
+                  22.015625,
+                  73.546875
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P29Label",
+                "text": "𝑝\n3\n0",
+                "math": true,
+                "rect": [
+                  746.1875,
+                  445.890625,
+                  22.015625,
+                  73.890625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P31Label",
+                "text": "𝑝\n4\n0",
+                "math": true,
+                "rect": [
+                  809.59375,
+                  763.046875,
+                  22.015625,
+                  73.734375
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P34Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P36Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  440.28125,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P38Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  819.59375,
+                  440.28125,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P40Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  819.59375,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "inset(-306.5px -491px -327.094px -511px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P50Label",
+                "text": "𝑝\n0\n1",
+                "math": true,
+                "rect": [
+                  323.09375,
+                  661.671875,
+                  22.015625,
+                  73.75
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P52Label",
+                "text": "𝑝\n1\n1",
+                "math": true,
+                "rect": [
+                  449.890625,
+                  471.484375,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P55Label",
+                "text": "𝑝\n2\n1",
+                "math": true,
+                "rect": [
+                  640.09375,
+                  471.484375,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P58Label",
+                "text": "𝑝\n3\n1",
+                "math": true,
+                "rect": [
+                  766.890625,
+                  661.671875,
+                  22.015625,
+                  73.765625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P61Label",
+                "text": "𝑝\n0\n2",
+                "math": true,
+                "rect": [
+                  386.5,
+                  521.4375,
+                  22.015625,
+                  73.75
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P63Label",
+                "text": "𝑝\n1\n2",
+                "math": true,
+                "rect": [
+                  545,
+                  426.6875,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P66Label",
+                "text": "𝑝\n2\n2",
+                "math": true,
+                "rect": [
+                  703.5,
+                  521.796875,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P69Label",
+                "text": "𝑝\n0\n3",
+                "math": true,
+                "rect": [
+                  465.75,
+                  512.03125,
+                  22.015625,
+                  73.890625
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P71Label",
+                "text": "𝑝\n1\n3",
+                "math": true,
+                "rect": [
+                  624.25,
+                  512.03125,
+                  22.015625,
+                  73.53125
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P74Label",
+                "text": "𝑝\n0\n4",
+                "math": true,
+                "rect": [
+                  545,
+                  480.703125,
+                  22.015625,
+                  73.9375
+                ],
+                "clipPath": "",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              }
+            ]
+          },
+          "screenshots": {
+            "board": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\baseline-decasteljau-board.png",
+            "export": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\baseline-decasteljau-export.png"
+          },
+          "pageErrors": [],
+          "consoleErrors": []
+        }
+      ]
+    },
+    {
+      "id": "upgrade",
+      "url": "http://127.0.0.1:4396/bezeg-2.0",
+      "build": "build",
+      "routes": [
+        {
+          "route": "/bezier/curve",
+          "httpStatus": 200,
+          "suggestedFilename": "izvoz.svg",
+          "svgBytes": 50864,
+          "svgSha256": "7913ce52bf6180f92f8c5854aac930e9f0efe4db1f7b37215c4148a821bc573f",
+          "tagCounts": {
+            "text": 14,
+            "path": 13,
+            "image": 0,
+            "foreignObject": 1,
+            "mjx": 0,
+            "nestedSvg": 5,
+            "mathLabelGroups": 1,
+            "mathGroupPaths": 1
+          },
+          "onScreen": {
+            "labelCount": 22,
+            "mathJaxCount": 8,
+            "boardSize": [
+              1002,
+              633.59375
+            ],
+            "rendererRootRect": [
+              55,
+              323.984375,
+              1002,
+              633.59375
+            ],
+            "labels": [
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_15Label1",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  679.796875,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 377.2px 314px -624.8px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_110Label2",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  806.59375,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 250.4px 314px -751.6px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_115Label3",
+                "text": "6",
+                "math": false,
+                "rect": [
+                  933.390625,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 123.6px 314px -878.4px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_124Label4",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  422.6875,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 634.3px 314px -367.7px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_129Label5",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  295.890625,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 761.1px 314px -240.9px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_134Label6",
+                "text": "−6",
+                "math": false,
+                "rect": [
+                  169.09375,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 887.9px 314px -114.1px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_15Label1",
+                "text": "1",
+                "math": false,
+                "rect": [
+                  540,
+                  573.578125,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-249.6px 517px 384.4px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_110Label2",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  540,
+                  510.171875,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-186.2px 517px 447.8px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_115Label3",
+                "text": "3",
+                "math": false,
+                "rect": [
+                  540,
+                  446.78125,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-122.8px 517px 511.2px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_120Label4",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  540,
+                  383.375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-59.4px 517px 574.6px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_129Label5",
+                "text": "−1",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  700.375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-376.4px 524px 257.6px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_134Label6",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  763.78125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-439.8px 524px 194.2px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_139Label7",
+                "text": "−3",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  827.171875,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-503.2px 524px 130.8px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_144Label8",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  890.578125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-566.6px 524px 67.4px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P25Label",
+                "text": "𝑝\n0",
+                "math": true,
+                "rect": [
+                  302.390625,
+                  774.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "rect(-451.2px 754.6px 182.8px -247.4px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P27Label",
+                "text": "𝑝\n1",
+                "math": true,
+                "rect": [
+                  365.796875,
+                  457.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "rect(-134.2px 691.2px 499.8px -310.8px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P29Label",
+                "text": "𝑝\n2",
+                "math": true,
+                "rect": [
+                  682.796875,
+                  457.96875,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "rect(-134.2px 374.2px 499.8px -627.8px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P31Label",
+                "text": "𝑝\n3",
+                "math": true,
+                "rect": [
+                  746.1875,
+                  711.578125,
+                  20.078125,
+                  61.8125
+                ],
+                "clipPath": "rect(-387.8px 310.8px 246.2px -691.2px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P34Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-496.7px 744.6px 137.3px -257.4px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P36Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  503.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-179.7px 744.6px 454.3px -257.4px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P38Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  756.1875,
+                  503.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-179.7px 300.8px 454.3px -701.2px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P40Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  756.1875,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-496.7px 300.8px 137.3px -701.2px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              }
+            ]
+          },
+          "screenshots": {
+            "board": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\upgrade-bezier-board.png",
+            "export": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\upgrade-bezier-export.png"
+          },
+          "pageErrors": [],
+          "consoleErrors": []
+        },
+        {
+          "route": "/bezier/decasteljau",
+          "httpStatus": 200,
+          "suggestedFilename": "izvoz.svg",
+          "svgBytes": 74185,
+          "svgSha256": "36083c78d187114d47676a13b359ae1c8516baf8e5bf0f78212e5d3e65e3edc3",
+          "tagCounts": {
+            "text": 14,
+            "path": 50,
+            "image": 0,
+            "foreignObject": 1,
+            "mjx": 0,
+            "nestedSvg": 16,
+            "mathLabelGroups": 1,
+            "mathGroupPaths": 1
+          },
+          "onScreen": {
+            "labelCount": 33,
+            "mathJaxCount": 30,
+            "boardSize": [
+              1002,
+              633.59375
+            ],
+            "rendererRootRect": [
+              55,
+              323.984375,
+              1002,
+              633.59375
+            ],
+            "labels": [
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_15Label1",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  679.796875,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 377.2px 314px -624.8px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_110Label2",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  806.59375,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 250.4px 314px -751.6px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_115Label3",
+                "text": "6",
+                "math": false,
+                "rect": [
+                  933.390625,
+                  643.984375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-320px 123.6px 314px -878.4px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_124Label4",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  422.6875,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 634.3px 314px -367.7px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_129Label5",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  295.890625,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 761.1px 314px -240.9px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L3_ticks_134Label6",
+                "text": "−6",
+                "math": false,
+                "rect": [
+                  169.09375,
+                  643.984375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-320px 887.9px 314px -114.1px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_15Label1",
+                "text": "1",
+                "math": false,
+                "rect": [
+                  540,
+                  573.578125,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-249.6px 517px 384.4px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_110Label2",
+                "text": "2",
+                "math": false,
+                "rect": [
+                  540,
+                  510.171875,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-186.2px 517px 447.8px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_115Label3",
+                "text": "3",
+                "math": false,
+                "rect": [
+                  540,
+                  446.78125,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-122.8px 517px 511.2px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_120Label4",
+                "text": "4",
+                "math": false,
+                "rect": [
+                  540,
+                  383.375,
+                  6,
+                  18
+                ],
+                "clipPath": "rect(-59.4px 517px 574.6px -485px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_129Label5",
+                "text": "−1",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  700.375,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-376.4px 524px 257.6px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_134Label6",
+                "text": "−2",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  763.78125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-439.8px 524px 194.2px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_139Label7",
+                "text": "−3",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  827.171875,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-503.2px 524px 130.8px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1L13_ticks_144Label8",
+                "text": "−4",
+                "math": false,
+                "rect": [
+                  530.65625,
+                  890.578125,
+                  15.34375,
+                  18
+                ],
+                "clipPath": "rect(-566.6px 524px 67.4px -478px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P25Label",
+                "text": "𝑝\n0\n0",
+                "math": true,
+                "rect": [
+                  302.390625,
+                  762.875,
+                  22.015625,
+                  73.90625
+                ],
+                "clipPath": "rect(-439.2px 754.6px 194.8px -247.4px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P27Label",
+                "text": "𝑝\n1\n0",
+                "math": true,
+                "rect": [
+                  365.796875,
+                  446.234375,
+                  22.015625,
+                  73.546875
+                ],
+                "clipPath": "rect(-122.2px 691.2px 511.8px -310.8px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P29Label",
+                "text": "𝑝\n2\n0",
+                "math": true,
+                "rect": [
+                  556,
+                  382.84375,
+                  22.015625,
+                  73.546875
+                ],
+                "clipPath": "rect(-58.8px 501px 575.2px -501px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P31Label",
+                "text": "𝑝\n3\n0",
+                "math": true,
+                "rect": [
+                  746.1875,
+                  445.890625,
+                  22.015625,
+                  73.890625
+                ],
+                "clipPath": "rect(-122.2px 310.8px 511.8px -691.2px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P33Label",
+                "text": "𝑝\n4\n0",
+                "math": true,
+                "rect": [
+                  809.59375,
+                  763.046875,
+                  22.015625,
+                  73.734375
+                ],
+                "clipPath": "rect(-439.2px 247.4px 194.8px -754.6px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P36Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-496.7px 744.6px 137.3px -257.4px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P38Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  312.390625,
+                  440.28125,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-116.3px 744.6px 517.7px -257.4px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P40Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  819.59375,
+                  440.28125,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-116.3px 237.4px 517.7px -764.6px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P42Label",
+                "text": "",
+                "math": false,
+                "rect": [
+                  819.59375,
+                  820.671875,
+                  0,
+                  0
+                ],
+                "clipPath": "rect(-496.7px 237.4px 137.3px -764.6px)",
+                "display": "block",
+                "visibility": "hidden",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P52Label",
+                "text": "𝑝\n0\n1",
+                "math": true,
+                "rect": [
+                  323.09375,
+                  661.671875,
+                  22.015625,
+                  73.75
+                ],
+                "clipPath": "rect(-337.7px 733.9px 296.3px -268.1px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P54Label",
+                "text": "𝑝\n1\n1",
+                "math": true,
+                "rect": [
+                  449.890625,
+                  471.484375,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "rect(-147.5px 607.1px 486.5px -394.9px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P57Label",
+                "text": "𝑝\n2\n1",
+                "math": true,
+                "rect": [
+                  640.09375,
+                  471.484375,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "rect(-147.5px 416.9px 486.5px -585.1px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P60Label",
+                "text": "𝑝\n3\n1",
+                "math": true,
+                "rect": [
+                  766.890625,
+                  661.671875,
+                  22.015625,
+                  73.765625
+                ],
+                "clipPath": "rect(-337.7px 290.1px 296.3px -711.9px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P63Label",
+                "text": "𝑝\n0\n2",
+                "math": true,
+                "rect": [
+                  386.5,
+                  521.4375,
+                  22.015625,
+                  73.75
+                ],
+                "clipPath": "rect(-197.6px 670.5px 436.4px -331.5px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P65Label",
+                "text": "𝑝\n1\n2",
+                "math": true,
+                "rect": [
+                  545,
+                  426.6875,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "rect(-103.5px 512px 530.5px -490px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P68Label",
+                "text": "𝑝\n2\n2",
+                "math": true,
+                "rect": [
+                  703.5,
+                  521.796875,
+                  22.015625,
+                  73.390625
+                ],
+                "clipPath": "rect(-198.6px 353.5px 435.4px -648.5px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P71Label",
+                "text": "𝑝\n0\n3",
+                "math": true,
+                "rect": [
+                  465.75,
+                  512.03125,
+                  22.015625,
+                  73.890625
+                ],
+                "clipPath": "rect(-188.05px 591.25px 445.95px -410.75px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P73Label",
+                "text": "𝑝\n1\n3",
+                "math": true,
+                "rect": [
+                  624.25,
+                  512.03125,
+                  22.015625,
+                  73.53125
+                ],
+                "clipPath": "rect(-188.05px 432.75px 445.95px -569.25px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              },
+              {
+                "id": "jgbox_jxgBoard1P76Label",
+                "text": "𝑝\n0\n4",
+                "math": true,
+                "rect": [
+                  545,
+                  480.703125,
+                  22.015625,
+                  73.9375
+                ],
+                "clipPath": "rect(-157.05px 512px 476.95px -490px)",
+                "display": "block",
+                "visibility": "visible",
+                "opacity": "1"
+              }
+            ]
+          },
+          "screenshots": {
+            "board": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\upgrade-decasteljau-board.png",
+            "export": "docs\\reviews\\bezier-patches\\browser-parity\\followup\\upgrade-decasteljau-export.png"
+          },
+          "pageErrors": [],
+          "consoleErrors": []
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-10-26T17:07:01.791Z",
+  "elapsedMs": 6469
+}

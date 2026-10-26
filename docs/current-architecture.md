@@ -37,7 +37,7 @@ The production catalogue displays all entries in metadata order without family d
 
 ## App shell and deployment
 
-The manifest declares React 18, TypeScript 5.9, React Router 6, Bootstrap 5, React Bootstrap 2, JSXGraph 1.9, Vite 8 with `@vitejs/plugin-react`, and Vitest 5 with jsdom, on Node.js 24 ([`.nvmrc`](../.nvmrc)). Create React App was replaced on 2026-10-13; see [ADR 0009](adr/0009-vite-build-and-vitest.md). These are declared dependency ranges, not a claim about every resolved package version.
+The manifest declares React 18, TypeScript 5.9, React Router 6, Bootstrap 5, React Bootstrap 2, JSXGraph 1.14, Vite 8 with `@vitejs/plugin-react`, and Vitest 5 with jsdom, on Node.js 24 ([`.nvmrc`](../.nvmrc)). Create React App was replaced on 2026-10-13; see [ADR 0009](adr/0009-vite-build-and-vitest.md). These are declared dependency ranges, not a claim about every resolved package version.
 
 [`src/index.tsx`](../src/index.tsx) creates a browser router from [`src/Routes.tsx`](../src/Routes.tsx) and mounts it in React Strict Mode. Routes and navigation explicitly include `/bezeg-2.0`. [`src/AppHeader.tsx`](../src/AppHeader.tsx) provides the shared brand row, a link to the dedicated demonstrations page, and real compact language selector on every app page. [`src/App.tsx`](../src/App.tsx) supplies presentation mode and active demonstration workspace metadata through `SiteContext`. Each lazy demonstration route supplies its own component identity and renders a [`GraphRoute`](../src/graphs/base/GraphRoute.tsx), which waits for label support before mounting [`GraphHost`](../src/graphs/base/GraphHost.tsx). Prototype variants are archived at commit `1a90bf1`; query parameters no longer swap headers.
 

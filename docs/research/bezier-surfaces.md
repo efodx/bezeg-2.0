@@ -1,6 +1,6 @@
 # Bézier surfaces as a learning family
 
-Research date: 2026-10-26. This page gathers sources and teaching options for a future Bézier surface family. It is not a spec or a migration decision; see the [Bézier patches spec](../specs/bezier-patches.md). Mathematical statements come from standard CAGD textbooks, cited by bibliographic reference because their chapter numbering differs between editions. Library statements come from official JSXGraph and three.js documentation, the JSXGraph CHANGELOG and the published 1.9.2 package source. The app's internal architecture is out of scope here.
+Research date: 2026-10-26. This page gathers sources and teaching options for a future Bézier surface family. It is not a spec or a migration decision; see the [Bézier patches spec](../specs/bezier-patches.md). Mathematical statements come from standard CAGD textbooks, cited by bibliographic reference because their chapter numbering differs between editions. The 1.9.2 library observations below are historical source research; the package now resolves to JSXGraph 1.14.1. The app's internal architecture is out of scope here.
 
 ## Summary
 
@@ -8,7 +8,7 @@ Research date: 2026-10-26. This page gathers sources and teaching options for a 
 - Several curve properties survive: convex hull, affine invariance, corner interpolation and endpoint tangents. Variation diminishing does not survive in any general form. Learners should be told this explicitly (Farin).
 - Triangular Bézier patches are a different construction, not a special case of tensor patches: they use barycentric coordinates, a triangular control net and a three-way de Casteljau step. They make a good closing comparison lesson (Farin 1986).
 - The bilinear patch (degree (1,1)) is the smallest useful object. Its four corners already show a hyperbolic paraboloid, ruled lines and the twist. A bicubic patch, and finally the 32-patch Utah teapot, make a strong historical finale.
-- The installed **JSXGraph 1.9.2** has a 3D view with parallel or central projection, a trackball, keyboard az/el/bank control and draggable `point3d`. Its surfaces are wireframe-only and only points are depth-sorted. Filled, shaded surfaces with face depth ordering need **JSXGraph ≥ 1.11** (`polyhedron3d`), and **≥ 1.13** to render `surface3d` as a shaded polyhedron. three.js offers better shading and performance, but Bezeg would then have to build 3D dragging, labels and LaTeX itself.
+- The historical **JSXGraph 1.9.2** source had a 3D view with parallel or central projection, a trackball, keyboard az/el/bank control and draggable `point3d`. Its surfaces were wireframe-only and only points were depth-sorted. Filled, shaded surfaces with face depth ordering require **JSXGraph ≥ 1.11** (`polyhedron3d`), and **≥ 1.13** to render `surface3d` as a shaded polyhedron. The current 1.14.1 package includes these later capabilities. three.js offers GPU shading, but Bezeg would then have to build 3D dragging, labels and LaTeX itself.
 
 ## 1. Mathematical content (learning progression)
 
@@ -190,11 +190,11 @@ Recommendations here are partly design judgement. Cited sources support the perc
 
 ## 4. Rendering and library options
 
-Bezeg pins `jsxgraph: ^1.9.2`. The caret range admits 1.x upgrades, but the lockfile resolves 1.9.2 (see [curve-renderer-options](curve-renderer-options.md)). All version claims below are from the JSXGraph CHANGELOG and the unpkg-published 1.9.2 source.
+At the time of this research, Bezeg declared `jsxgraph: ^1.9.2` and the lockfile resolved 1.9.2 (see [curve-renderer-options](curve-renderer-options.md)). The declaration now starts at `^1.14.1`, and the lockfile resolves 1.14.1. The historical-version column below uses the JSXGraph CHANGELOG and the unpkg-published 1.9.2 source; the current-version column reflects the 1.14.1 release and changelog.
 
-### 4.1 JSXGraph 3D: installed 1.9.2 vs latest (1.14.2, 2026-10-26)
+### 4.1 JSXGraph 3D: historical 1.9.2 vs installed 1.14.1 (2026-10-26)
 
-| Feature | 1.9.2 (installed) | Latest | Introduced |
+| Feature | 1.9.2 (historical) | 1.14.1 (installed) | Introduced |
 |---|---|---|---|
 | `view3d`, `point3d`, `curve3d`, `line3d`, `plane3d`, `functiongraph3d`, `parametricsurface3d` | Yes (`src/3d/`: box3d, circle3d, curve3d, point3d, polygon3d, sphere3d, surface3d, view3d…) | Yes | Before 1.9 |
 | Central (perspective) projection | Yes (`projection: 'central'`, default `'parallel'`) | Yes | 1.9.0 |
@@ -212,8 +212,8 @@ Bezeg pins `jsxgraph: ^1.9.2`. The caret range admits 1.x upgrades, but the lock
 
 Implications:
 
-- 1.9.2 can teach wireframe patches, control nets (`line3d`/`polygon3d`), draggable control points with shift-for-$z$, orbit and presets. It **cannot** draw shaded or opaque surfaces, and it does not depth-sort faces or lines, so nets and surfaces will overlap incorrectly when rotated.
-- A JSXGraph upgrade to ≥ 1.13 makes shaded surfaces with depth order and labels possible inside the existing library. That is a separate, bounded dependency change: the 2D curve boards would need regression checks across 1.10–1.14, and 1.13.2 changed the `surface3d.F` API. JSXGraph 3D is SVG/Canvas painter-style rendering (sorted 2D primitives), not GPU z-buffering. Dense shaded meshes and intersecting surfaces will be limited in quality and speed compared to WebGL. Measure before committing (see the performance plan).
+- The 1.9.2 baseline could teach wireframe patches, control nets (`line3d`/`polygon3d`), draggable control points with shift-for-$z$, orbit and presets. It could not draw shaded or opaque surfaces, and it did not depth-sort faces or lines, so nets and surfaces overlapped incorrectly when rotated.
+- The installed 1.14.1 package supports shaded surfaces with depth order and labels inside the existing library. The separate dependency upgrade is implemented and its 2D regression evidence is being recorded in the [upgrade review](../reviews/bezier-patches/jsxgraph-upgrade.md). JSXGraph 3D is SVG/Canvas painter-style rendering (sorted 2D primitives), not GPU z-buffering. Dense shaded meshes and intersecting surfaces will be limited in quality and speed compared to WebGL. Measure before selecting a renderer (see the performance plan).
 - JSXGraph is dual-licensed MIT OR LGPL-3.0-or-later (npm metadata).
 
 ### 4.2 three.js
@@ -234,8 +234,8 @@ Implications:
 
 | Option | Shading / depth | 3D point drag | Labels / LaTeX | Fit with app | Licence |
 |---|---|---|---|---|---|
-| JSXGraph 1.9.2 (installed) | Wireframe, points-only depth | Built in (xy-plane + shift for z) | Board text (2D) | No new dependency | MIT/LGPL |
-| JSXGraph ≥ 1.13 | Painter-sorted faces, simple shader | Built in, improved | `text3d`, KaTeX/MathJax infobox | Same library, upgrade risk for 2D boards | MIT/LGPL |
+| JSXGraph 1.9.2 (historical baseline) | Wireframe, points-only depth | Built in (xy-plane + shift for z) | Board text (2D) | No new dependency | MIT/LGPL |
+| JSXGraph 1.14.1 (installed) | Painter-sorted faces, simple shader | Built in, improved | `text3d`, KaTeX/MathJax infobox | Same library | MIT/LGPL |
 | three.js | Full GPU shading, z-buffer | Build yourself | HTML overlay | Second renderer stack | MIT |
 | Babylon.js | Full | Gizmos | GUI/overlay | Heavy | Apache-2.0 |
 | Plain WebGL / regl | Full, all manual | Manual | Manual | High effort | — / MIT |
