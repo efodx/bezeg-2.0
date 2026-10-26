@@ -50,6 +50,12 @@ describe('family reading chapters', () => {
                     for (const paragraph of section.paragraphs) {
                         expect(withoutMath(paragraph[language])).not.toMatch(/\\[A-Za-z]+/u);
                     }
+                    for (const figure of section.figures ?? []) {
+                        expect(withoutMath(figure.caption[language])).not.toMatch(/\\[A-Za-z]+/u);
+                    }
+                    for (const prompt of Object.values(section.investigationPrompts ?? {})) {
+                        if (prompt) expect(withoutMath(prompt[language])).not.toMatch(/\\[A-Za-z]+/u);
+                    }
                     if (section.formula) expect(section.formula).not.toMatch(/\\[()[\]]/u);
                 }
             }

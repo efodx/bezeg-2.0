@@ -4,6 +4,7 @@ import {MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import {beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
+import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
 import {LearningPage} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
@@ -113,4 +114,39 @@ test.each(familyChapters.map(chapter => [chapter.id, chapter] as const))('%s has
     expect(graphLinks.length).toBeGreaterThan(0);
     for (const link of graphLinks) expect(getDemonstrationCatalog().demonstrations.some(demo => demo.path === link.getAttribute('href')?.split('?')[0])).toBe(true);
     await waitFor(() => expect(document.getElementById(`${chapter.sections[0].id}-heading`)).toHaveFocus());
+});
+
+test('Foundations renders bilingual app figures, specific graph prompts and accurate guided-lesson links', async () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/foundations']}>
+        <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
+    </MemoryRouter>);
+    const figures = [...container.querySelectorAll('.chapter-activity-figure')];
+    expect(figures).toHaveLength(2);
+    const imageSources = figures.map(figure => figure.querySelector('img')?.getAttribute('src'));
+    expect(imageSources).toContain(demonstrationPreviewAssets.bernstein);
+    expect(imageSources).toContain(demonstrationPreviewAssets['complex-multiplication']);
+    for (const figure of figures) {
+        const image = figure.querySelector('img')!;
+        expect(image.alt).toBeTruthy();
+        expect(image.alt).not.toMatch(/\\[()[\]]/u);
+        expect(image).toHaveAttribute('width', '720');
+        expect(image).toHaveAttribute('height', '440');
+        expect(image).toHaveAttribute('loading', 'lazy');
+        expect(figure.querySelector('figcaption')?.textContent).toBeTruthy();
+    }
+    expect(container.textContent).toContain('štiri kubične uteži');
+    expect(container.textContent).toContain('kvadratne uteži');
+    expect(container.textContent).toContain('Vodena učna ura');
+    expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('stopnjo');
+    const links = [...container.querySelectorAll('.learning-investigations a')];
+    expect(links.length).toBeGreaterThan(2);
+    expect(links.every(link => link.getAttribute('href')?.endsWith('?learn=1'))).toBe(true);
+
+    setLanguage('en');
+    await waitFor(() => {
+        expect(container.textContent).toContain('four cubic weights');
+        expect(container.textContent).toContain('quadratic weights');
+        expect(container.textContent).toContain('Guided graph lesson');
+        expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('degree');
+    });
 });

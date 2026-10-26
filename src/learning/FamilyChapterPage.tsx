@@ -59,11 +59,20 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     <div className="chapter-section-body">
                         {section.paragraphs.map((paragraph, paragraphIndex) => <p className="chapter-paragraph" key={paragraphIndex}>{paragraph[language]}</p>)}
                         {section.formula && <div className="chapter-formula" role="region" aria-label={section.title[language]} tabIndex={0}><div className="chapter-math">\[{section.formula}\]</div></div>}
+                        {section.figures?.map((figure, figureIndex) => <figure className="chapter-activity-figure" key={figureIndex}>
+                            <img src={figure.src} alt={figure.alt[language]} width="720" height="440" loading="lazy"/>
+                            <figcaption>{figure.caption[language]}</figcaption>
+                        </figure>)}
                         {section.demonstrationIds?.length && <div className="learning-investigations">
                             <h3>{language === 'sl' ? 'Razišči ob grafu' : 'Explore with a graph'}</h3>
                             <ul>{section.demonstrationIds.map(id => {
                                 const demo = catalog.demonstrations.find(entry => entry.id === id)!;
-                                return <li key={id}><Link to={`${demo.path}${isGuidedLessonAvailable(id) ? '?learn=1' : ''}`}>{demo.catalogTitle}</Link></li>;
+                                const prompt = section.investigationPrompts?.[id];
+                                const guided = isGuidedLessonAvailable(id);
+                                return <li key={id}>
+                                    <Link to={demo.path + (guided ? '?learn=1' : '')}>{demo.catalogTitle}{prompt && guided ? ' — ' + (language === 'sl' ? 'Vodena učna ura' : 'Guided graph lesson') : ''}</Link>
+                                    {prompt && <p className="learning-investigation-prompt">{prompt[language]}</p>}
+                                </li>;
                             })}</ul>
                         </div>}
                     </div>

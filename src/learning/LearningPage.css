@@ -25,6 +25,7 @@
 .learning-lessons ul, .learning-investigations ul { margin: 0; padding-left: 20px; }
 .learning-lessons li, .learning-investigations li { padding: 5px 0; line-height: 1.6; }
 .learning-lessons a, .learning-investigations a { display: inline-block; padding: 5px 0; }
+.learning-investigation-prompt { margin: 0 0 6px; color: var(--chapter-muted); }
 .learning-lessons a { min-height: 44px; box-sizing: border-box; }
 .learning-lessons summary { min-height: 44px; padding: 10px 0; color: #315d3b; font-weight: 700; line-height: 1.5; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
 .learning-lessons summary::marker { color: #b48029; }

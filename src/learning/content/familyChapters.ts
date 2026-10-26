@@ -1,5 +1,22 @@
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
+import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import type {LocalizedText} from '../model';
+
+export interface FamilyChapterFigure {
+    src: string;
+    alt: LocalizedText;
+    caption: LocalizedText;
+}
+
+export interface FamilyChapterSection {
+    id: string;
+    title: LocalizedText;
+    paragraphs: readonly LocalizedText[];
+    formula?: string;
+    demonstrationIds?: readonly DemonstrationId[];
+    figures?: readonly FamilyChapterFigure[];
+    investigationPrompts?: Partial<Record<DemonstrationId, LocalizedText>>;
+}
 
 export interface FamilyChapter {
     id: string;
@@ -7,13 +24,7 @@ export interface FamilyChapter {
     title: LocalizedText;
     purpose: LocalizedText;
     prerequisites: LocalizedText;
-    sections: readonly {
-        id: string;
-        title: LocalizedText;
-        paragraphs: readonly LocalizedText[];
-        formula?: string;
-        demonstrationIds?: readonly DemonstrationId[];
-    }[];
+    sections: readonly FamilyChapterSection[];
 }
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -24,7 +35,20 @@ const section = (
     paragraphs: readonly LocalizedText[],
     formula?: string,
     demonstrationIds?: readonly DemonstrationId[],
-) => ({id, title: text(titleSl, titleEn), paragraphs, ...(formula ? {formula} : {}), ...(demonstrationIds ? {demonstrationIds} : {})});
+    extras: Pick<FamilyChapterSection, 'figures' | 'investigationPrompts'> = {},
+) => ({id, title: text(titleSl, titleEn), paragraphs, ...(formula ? {formula} : {}), ...(demonstrationIds ? {demonstrationIds} : {}), ...extras});
+
+const bernsteinFigure: FamilyChapterFigure = {
+    src: demonstrationPreviewAssets.bernstein,
+    alt: text('Graf štirih Bernsteinovih uteži tretje stopnje na intervalu od nič do ena.', 'A graph of the four cubic Bernstein weights on the interval from zero to one.'),
+    caption: text('Zajeti graf prikazuje štiri kubične uteži. Izračunani primer z utežmi \\(\\frac14,\\frac12,\\frac14\\) v naslednjem razdelku uporablja kvadratne uteži, torej drugo stopnjo.', 'This captured graph shows four cubic weights. The worked example in the next section uses the quadratic weights \\(\\frac14,\\frac12,\\frac14\\), so it has degree two.'),
+};
+
+const complexMultiplicationFigure: FamilyChapterFigure = {
+    src: demonstrationPreviewAssets['complex-multiplication'],
+    alt: text('Kompleksno število z z vrednostjo ena plus i, faktor i in prikazani zmnožek z argumenti.', 'A complex number z equal to one plus i, the factor i, and their product with arguments shown.'),
+    caption: text('Prikazani primer je \\((1+i)i=-1+i\\): faktor \\(i\\) zavrti število \\(z=1+i\\) za \\(\\frac{\\pi}{2}\\), modul pa ostane enak, ker je \\(|i|=1\\).', 'The pictured example is \\((1+i)i=-1+i\\): the factor \\(i\\) rotates \\(z=1+i\\) by \\(\\frac{\\pi}{2}\\), while its modulus stays the same because \\(|i|=1\\).'),
+};
 
 /** Original bilingual reading chapters for the seven non-Bézier demonstration families. */
 export const familyChapters: readonly FamilyChapter[] = [
@@ -32,28 +56,40 @@ export const familyChapters: readonly FamilyChapter[] = [
         id: 'foundations', family: 'basics',
         title: text('Osnove: uteži, polinomi in ravnina', 'Foundations: weights, polynomials, and the plane'),
         purpose: text('Spoznaj, kako polinomske uteži sestavijo krivuljo in kako množenje kompleksnih števil opiše vrtenje in razteg.', 'See how polynomial weights combine into a curve and how complex multiplication describes rotation and scaling.'),
-        prerequisites: text('Potrebuješ osnovno algebro, koordinatne pare in razumevanje potence. Imaginarna enota \\(i\\) zadošča \\(i^2=-1\\). Kompleksno število je predstavljeno kot urejen par realnih števil.', 'You need basic algebra, coordinate pairs, and powers. The imaginary unit \\(i\\) satisfies \\(i^2=-1\\). A complex number is introduced as an ordered pair of real numbers.'),
+        prerequisites: text('Potrebuješ osnovno algebro, koordinatne pare in razumevanje potence. Trigonometrijo in radiane uvedemo v tem poglavju. Imaginarna enota \\(i\\) zadošča \\(i^2=-1\\), kompleksno število pa predstavimo kot urejen par realnih števil.', 'You need basic algebra, coordinate pairs, and powers. This chapter introduces trigonometry and radians. The imaginary unit \\(i\\) satisfies \\(i^2=-1\\), and a complex number is represented as an ordered pair of real numbers.'),
         sections: [
             section('why-weights', 'Zakaj uteži?', 'Why weights?', [
                 text('Modeli krivulj pogosto zapišejo položaj kot vsoto preprostih sestavin. Namesto da vsako točko opisujemo ločeno, poiščemo funkcije, ki povedo, kolikšen delež prispeva posamezna kontrolna točka. Če so uteži nenegativne in seštevek ena, je rezultat tehtano povprečje: leži med sestavinami, ne pa nujno na njihovih mestih.', 'Curve models often write a position as a sum of simple ingredients. Rather than describe every point separately, we use functions that say how much each control point contributes. When the weights are nonnegative and sum to one, the result is a weighted average: it lies among the ingredients, though not necessarily at their locations.'),
                 text('Bernsteinovi polinomi so takšna družina uteži na intervalu od nič do ena. Njihove oblike se spreminjajo gladko, na robovih pa ena utež prevzame celoten delež. Zato so uporabni pri Bézierjevih krivuljah, pa tudi kot samostojna tema: njihove višine in površine razkrivajo, kako se delež porazdeli skozi parameter.', 'Bernstein polynomials form such a family of weights on the interval from zero to one. Their shapes change smoothly, and at the endpoints one weight takes the entire share. This makes them useful in Bézier curves and interesting on their own: their heights and areas show how contribution is distributed over the parameter.'),
-            ], String.raw`b_i^n(t)=\binom{n}{i}(1-t)^{n-i}t^i`, ['bernstein']),
+            ], String.raw`b_i^n(t)=\binom{n}{i}(1-t)^{n-i}t^i`, ['bernstein'], {investigationPrompts: {
+                bernstein: text('Spremeni stopnjo z izbirnikom in opazuj, kako se spremeni število ter oblika uteži. Pri stopnji \\(n\\) jih je \\(n+1\\); vse skupaj povedo, kako se delež porazdeli po parametru.', 'Change the degree with its selector and watch the number and shape of the weights. Degree \\(n\\) has \\(n+1\\) weights; together they show how contribution is distributed across the parameter.'),
+            }}),
             section('reading-bernstein', 'Kako brati Bernsteinovo utež', 'Reading a Bernstein weight', [
                 text('Za nenegativno celo stopnjo \\(n\\) in \\(0\\le i\\le n\\) je \\(\\binom ni=n!/(i!(n-i)!)\\), kjer \\(n!\\) pomeni produkt celih števil od ena do \\(n\\), za nič pa določimo \\(0!=1\\). V zapisu je \\(n\\) stopnja, \\(i\\) izbere eno funkcijo, \\(t\\) pa teče od nič do ena. Binomski koeficient \\(\\binom{n}{i}\\) izberemo tako, da se vse kombinacije seštejejo v eno: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). Za \\(n=2\\) dobimo uteži \\((1-t)^2\\), \\(2t(1-t)\\) in \\(t^2\\). Pri \\(t=\\frac12\\) so njihove vrednosti \\(\\frac14,\\frac12,\\frac14\\), zato srednja utež prispeva polovico vsote.', 'For a nonnegative integer degree \\(n\\) and \\(0\\le i\\le n\\), \\(\\binom ni=n!/(i!(n-i)!)\\), where \\(n!\\) is the product of the integers from one to \\(n\\), with \\(0!=1\\). In this notation, \\(n\\) is the degree, \\(i\\) selects one function, and \\(t\\) runs from zero to one. The binomial coefficient \\(\\binom{n}{i}\\) is chosen so all the functions sum to one: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). For \\(n=2\\), the weights are \\((1-t)^2\\), \\(2t(1-t)\\), and \\(t^2\\). At \\(t=\\frac12\\), their values are \\(\\frac14,\\frac12,\\frac14\\), so the middle weight contributes half the total.'),
                 text('Ko spreminjaš stopnjo, opazuj število funkcij in položaj njihovih vrhov. Graf prikazuje skalarne uteži, ne geometrijske krivulje. Njihova vsota ena pojasni, zakaj lahko utežena vsota točk ohrani translacijo: če vse točke premaknemo za isti vektor, se rezultat premakne za isti vektor.', 'As you change the degree, watch the number of functions and where their peaks occur. The graph shows scalar weights, not a geometric curve. Their sum of one explains why a weighted sum of points preserves translation: moving every point by the same vector moves the result by that same vector.'),
-            ], undefined, ['bernstein']),
+            ], undefined, ['bernstein'], {figures: [bernsteinFigure], investigationPrompts: {
+                bernstein: text('Izberi stopnjo dve in primerjaj tri narisane funkcije z zapisi v formuli. Njihova nenegativnost in vsota ena pojasnita, zakaj so uteži primerne za tehtano povprečje.', 'Select degree two and compare the three plotted functions with the formula. Their nonnegativity and sum of one explain why these weights form a weighted average.'),
+            }}),
             section('worked-weight', 'Izračunan primer uteževanja', 'A worked weighting example', [
                 text('Vzemimo tri točke \\(P_0=(0,0)\\), \\(P_1=(2,2)\\) in \\(P_2=(4,0)\\). Kvadratna Bernsteinova vsota pri \\(t=\\frac12\\) je \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Koordinate izračunamo ločeno: \\(x=0+1+1=2\\) ter \\(y=0+1+0=1\\), zato je rezultat \\((2,1)\\). Ni naključje, da leži na sredini simetričnega loka.', 'Take three points \\(P_0=(0,0)\\), \\(P_1=(2,2)\\), and \\(P_2=(4,0)\\). The quadratic Bernstein sum at \\(t=\\frac12\\) is \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Calculate coordinates separately: \\(x=0+1+1=2\\) and \\(y=0+1+0=1\\), so the result is \\((2,1)\\). It lies at the midpoint of the symmetric arc for a reason.'),
                 text('Ta račun je primer sestave točke iz uteži; Bézierjeva parametrizacija uporabi isti princip za vsako vrednost parametra. Uteži same ne povedo, kje so kontrolne točke, zato iz grafa uteži ne moremo sklepati o obliki določene krivulje brez podatkov o točkah.', 'This calculation shows how weights combine points; a Bézier parametrization uses the same principle for every parameter value. Weights alone do not say where the control points are, so a weight plot cannot determine the shape of a particular curve without the point data.'),
-            ], undefined, ['bernstein']),
+            ], undefined, ['bernstein'], {investigationPrompts: {
+                bernstein: text('Spremeni stopnjo na dve in nato na tri: primerjaj tri kvadratne uteži s štirimi kubičnimi v zgornji sliki. Izračunana točka \\((2,1)\\) uporablja tri kontrolne točke in kvadratne uteži.', 'Change the degree to two and then three: compare the three quadratic weights with the four cubic weights in the figure above. The worked point \\((2,1)\\) uses three control points and quadratic weights.'),
+            }}),
             section('complex-plane', 'Kompleksna števila kot geometrijske preslikave', 'Complex numbers as geometric maps', [
-                text('Kompleksno število \\(z=x+iy\\) lahko beremo kot točko \\((x,y)\\). Seštevanje premakne točko, množenje pa združi dolžine in kote. V polarni obliki \\(z=r(\\cos\\theta+i\\sin\\theta)\\) je \\(r\\) razdalja od izhodišča, \\(\\theta\\) pa smer. Množenje z \\(w=s(\\cos\\phi+i\\sin\\phi)\\) zato pomnoži razdaljo s \\(s\\) in kot spremeni za \\(\\phi\\).', 'A complex number \\(z=x+iy\\) can be read as the point \\((x,y)\\). Addition translates a point, while multiplication combines lengths and angles. In polar form \\(z=r(\\cos\\theta+i\\sin\\theta)\\), \\(r\\) is the distance from the origin and \\(\\theta\\) is the direction. Multiplying by \\(w=s(\\cos\\phi+i\\sin\\phi)\\) therefore scales distance by \\(s\\) and changes angle by \\(\\phi\\).'),
-                text('Na primer, množenje z \\(i\\) pomeni faktor dolžine ena in zasuk za \\(\\frac{\\pi}{2}\\): \\(i(x+iy)=-y+ix\\), kar je točka \\((-y,x)\\). Pri poljubnem neničelnem faktorju sta zasuk in enakomerno skaliranje okrog izhodišča. To ni splošna afina preslikava: ne more neodvisno raztegniti vodoravne in navpične osi ali striči ravnine.', 'For example, multiplication by \\(i\\) uses scale factor one and a quarter-turn: \\(i(x+iy)=-y+ix\\), the point \\((-y,x)\\). A general nonzero factor gives a rotation and uniform scaling about the origin. This is not a general affine map: it cannot independently stretch the horizontal and vertical axes or shear the plane.'),
-            ], String.raw`(x+iy)(u+iv)=(xu-yv)+i(xv+yu)`, ['complex-multiplication']),
+                text('Radian je mera kota, določena kot predznačena dolžina loka na enotski krožnici od pozitivne realne osi; nasprotna smer urinega kazalca je pozitivna. Poln obrat meri \\(2\\pi\\), četrt obrata pa \\(\\frac{\\pi}{2}\\). Na enotski krožnici sta koordinati točke v smeri \\(\\theta\\) \\((\\cos\\theta,\\sin\\theta)\\); pri \\(\\theta=\\frac{\\pi}{2}\\) je točka \\((0,1)\\), ki predstavlja \\(i\\). Vsako neničelno kompleksno število lahko zapišemo v polarni obliki \\(z=r(\\cos\\theta+i\\sin\\theta)\\), kjer je \\(r=|z|>0\\) razdalja od izhodišča. Število nič nima določenega argumenta, zato njegove polarne smeri ne določimo.', 'A radian measures an angle as the signed arc length on the unit circle from the positive real axis; counterclockwise is positive. A full turn measures \\(2\\pi\\), and a quarter turn measures \\(\\frac{\\pi}{2}\\). On the unit circle, the coordinates of the point in direction \\(\\theta\\) are \\((\\cos\\theta,\\sin\\theta)\\); at \\(\\theta=\\frac{\\pi}{2}\\), the point is \\((0,1)\\), which represents \\(i\\). Every nonzero complex number has polar form \\(z=r(\\cos\\theta+i\\sin\\theta)\\), where \\(r=|z|>0\\) is its distance from the origin. Zero has no defined argument, so it has no polar direction.'),
+                text('Za neničelni \\(z=r(\\cos\\theta+i\\sin\\theta)\\) in \\(w=s(\\cos\\phi+i\\sin\\phi)\\) zmnožek pomnoži razdalji, kota pa sešteje modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). Če je eden od faktorjev nič, je zmnožek nič, katerega argument ni določen; pravilo o vsoti argumentov velja le za neničelna faktorja. Množenje z \\(i\\) zato pomeni faktor dolžine ena in zasuk za \\(\\frac{\\pi}{2}\\): \\(i(x+iy)=-y+ix\\), kar je točka \\((-y,x)\\).', 'For nonzero \\(z=r(\\cos\\theta+i\\sin\\theta)\\) and \\(w=s(\\cos\\phi+i\\sin\\phi)\\), multiplication scales the distances and adds the angles modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). If either factor is zero, the product is zero and its argument is undefined; the argument-sum rule applies only to nonzero factors. Multiplication by \\(i\\) therefore uses scale one and a quarter-turn: \\(i(x+iy)=-y+ix\\), the point \\((-y,x)\\).'),
+                text('Množenje z neničelnim faktorjem je zasuk in enakomerno skaliranje okrog izhodišča; množenje z nič pošlje vse točke v izhodišče. Ta preslikava ni splošna afina preslikava: ne more neodvisno raztegniti vodoravne in navpične osi ali striči ravnine. V naslednjih poglavjih se množenje s kompleksnimi števili vrne kot način za obračanje in skaliranje točk krivulje.', 'Multiplication by a nonzero factor is a rotation and uniform scaling about the origin; multiplication by zero sends every point to the origin. This is not a general affine map: it cannot independently stretch the horizontal and vertical axes or shear the plane. Later curve chapters use complex multiplication again to rotate and scale curve points.'),
+            ], String.raw`(x+iy)(u+iv)=(xu-yv)+i(xv+yu)`, ['complex-multiplication'], {figures: [complexMultiplicationFigure], investigationPrompts: {
+                'complex-multiplication': text('Vključi prikaz zmnožka in argumentov. Nato spremeni argument faktorja \\(w\\) z njegovim polarnim vnosom: točka zmnožka se zavrti, njen prikazani argument pa je vsota argumentov faktorjev modulo \\(2\\pi\\).', 'Reveal the product and arguments. Then change the argument of factor \\(w\\) with its polar input: the product point rotates, and its displayed argument is the sum of the factor arguments modulo \\(2\\pi\\).'),
+            }}),
             section('investigate-limits', 'Preiskovanje in meje modela', 'Investigating the model and its limits', [
                 text('Na grafu Bernsteinovih funkcij izberi stopnjo dve in oceni, katera utež je največja pri \\(t=\\frac14\\); nato primerjaj z \\(t=\\frac34\\). Simetrija zamenja prvo in zadnjo utež, srednja pa ostane enaka. Pri kompleksnem množenju premakni faktor na enotsko krožnico in preveri, ali se dolžina izbrane točke ohrani. Nato spremeni njegov modul in opazuj enakomeren razteg.', 'On the Bernstein graph, choose degree two and estimate which weight is largest at \\(t=\\frac14\\); compare with \\(t=\\frac34\\). Symmetry swaps the first and last weights while leaving the middle one unchanged. In the complex multiplication graph, place the multiplier on the unit circle and check whether the chosen point keeps its length. Then change the modulus and watch the uniform scaling.'),
                 text('Opazovanje podpira formulo, ne nadomesti dokaza za vse stopnje ali vse točke. Kompleksno množenje je zmogljiv opis podobnosti z istim središčem, Bernsteinove uteži pa so osnova za polinomske krivulje. Skupna ideja je, da algebra postane razumljiva, ko sledimo njenemu geometrijskemu učinku.', 'An observation supports a formula; it does not replace a proof for all degrees or points. Complex multiplication is a compact description of similarities with a shared center, while Bernstein weights underpin polynomial curves. The shared lesson is that algebra becomes easier to interpret when we follow its geometric effect.'),
-            ], undefined, ['bernstein', 'complex-multiplication']),
+            ], undefined, ['bernstein', 'complex-multiplication'], {investigationPrompts: {
+                bernstein: text('Z izbirnikom stopnje nastavi dve, nato tri. Primerjaj tri kvadratne in štiri kubične uteži: stopnja določi število baznih funkcij, njihova vsota ena pa omogoča uteženo povprečje kontrolnih točk.', 'Set the degree to two and then three. Compare three quadratic weights with four cubic weights: the degree determines the number of basis functions, and their sum of one lets them form a weighted average of control points.'),
+                'complex-multiplication': text('Pokaži zmnožek in argumente, nato spremeni modul faktorja \\(w\\) s polarnim vnosom. Dolžina zmnožka se spremeni za isti faktor, kar pokaže enakomerno skaliranje okrog izhodišča.', 'Reveal the product and arguments, then change the modulus of factor \\(w\\) with its polar input. The product length changes by the same factor, showing uniform scaling about the origin.'),
+            }}),
         ],
     },
     {
