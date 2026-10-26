@@ -223,4 +223,69 @@ describe('family reading chapters', () => {
         expect(captions).toContain('weighted mode');
         expect(captions).toContain('not arc-length mode');
     });
+
+    test('gives every calculus destination supported bilingual exploration and uses the captured calculus figures', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'functions-and-calculus')!;
+        const occurrences = chapter.sections.flatMap(section => (section.demonstrationIds ?? []).map(id => ({section, id})));
+        const supportedControls: Record<string, {sl: RegExp; en: RegExp}> = {
+            'linear-function': {sl: /točk|naklon|presečišč/i, en: /point|slope|intercept/i},
+            'exponential-function': {sl: /osnove|zrcal/i, en: /base|mirror/i},
+            'trigonometric-functions': {sl: /sin|kosinus|tangens|amplitud|period|faz|srednj/i, en: /sin|cos|tan|amplitude|period|phase|midline/i},
+            continuity: {sl: /drsnik|limita|vrednost/i, en: /slider|limit|value/i},
+            derivative: {sl: /h|sekant|tangent|točk/i, en: /h|secant|tangent|point/i},
+            'definite-integral': {sl: /mej|podinterval|pravokotnik|vsot/i, en: /bound|subinterval|rectangle|sum/i},
+            'area-between-curves': {sl: /način|mej|krivulj|ploščin/i, en: /mode|bound|curve|area/i},
+            'arc-length': {sl: /krajišč|število|lomljen|dolžin/i, en: /endpoint|segment|polyline|length/i},
+        };
+        expect([...new Set(occurrences.map(({id}) => id))].sort()).toEqual([
+            'arc-length', 'area-between-curves', 'continuity', 'definite-integral', 'derivative',
+            'exponential-function', 'linear-function', 'trigonometric-functions',
+        ]);
+        for (const {section, id} of occurrences) {
+            const prompt = section.investigationPrompts?.[id];
+            expect(prompt?.sl, `${section.id}/${id} Slovenian prompt`).toBeTruthy();
+            expect(prompt?.en, `${section.id}/${id} English prompt`).toBeTruthy();
+            expect(prompt!.sl.length, `${section.id}/${id} Slovenian prompt is specific`).toBeGreaterThan(90);
+            expect(prompt!.en.length, `${section.id}/${id} English prompt is specific`).toBeGreaterThan(90);
+            expect(prompt!.sl).toMatch(/spremeni|premakni|izberi|povečaj|zmanjšaj/i);
+            expect(prompt!.en).toMatch(/change|move|select|increase|decrease/i);
+            expect(prompt!.sl).toMatch(/opazuj|primerjaj|preveri|ugotovi/i);
+            expect(prompt!.en).toMatch(/observe|compare|check|notice/i);
+            expect(prompt!.sl).toContain('?');
+            expect(prompt!.en).toContain('?');
+            expect(prompt!.sl).toMatch(supportedControls[id].sl);
+            expect(prompt!.en).toMatch(supportedControls[id].en);
+        }
+
+        const prose = chapter.sections.flatMap(section => section.paragraphs).map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(prose).toContain('\\forall\\varepsilon>0\\;\\exists\\delta>0\\;\\forall x\\in D');
+        expect(prose).toContain('for every tolerance');
+        expect(prose).toContain('for every domain point');
+        expect(prose).toContain('h\\ne0');
+        expect(prose).toContain('\\int_0^2 x\\,dx=2');
+
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets.continuity,
+            demonstrationPreviewAssets.derivative,
+            demonstrationPreviewAssets['definite-integral'],
+        ]);
+        for (const figure of figures) {
+            expect(figure.alt.sl.trim()).not.toBe('');
+            expect(figure.alt.en.trim()).not.toBe('');
+            expect(figure.alt.sl).not.toMatch(/\\[A-Za-z]+/u);
+            expect(figure.alt.en).not.toMatch(/\\[A-Za-z]+/u);
+        }
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('skok');
+        expect(captions).toContain('jump');
+        expect(captions).toContain('sekant');
+        expect(captions).toContain('secant');
+        expect(captions).toContain('šest');
+        expect(captions).toContain('six');
+        expect(captions).toContain('vsota');
+        expect(captions).toContain('sum');
+        expect(captions).toContain('signed integral');
+        expect(captions).toContain('geometric area');
+    });
 });
