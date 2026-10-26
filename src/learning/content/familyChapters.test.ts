@@ -288,4 +288,63 @@ describe('family reading chapters', () => {
         expect(captions).toContain('signed integral');
         expect(captions).toContain('geometric area');
     });
+    test('teaches Analysis with explicit uniform quantifiers, supported prompts, and the three inspected captures', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'analysis')!;
+        const occurrences = chapter.sections.flatMap(section => (section.demonstrationIds ?? []).map(id => ({section, id})));
+        const supportedControls: Record<string, {sl: RegExp; en: RegExp}> = {
+            bisection: {sl: /korak|razpolovišče|interval/i, en: /step|midpoint|interval/i},
+            'mean-value': {sl: /c|sekant|tangent/i, en: /c|secant|tangent/i},
+            accumulation: {sl: /akumulacij|integral|mej/i, en: /accumulation|integral|bound/i},
+            darboux: {sl: /razdelit|vsot|zgosti/i, en: /partition|sum|refine/i},
+            extrema: {sl: /krajišč|interval|klasifikacij/i, en: /endpoint|interval|classification/i},
+            convexity: {sl: /krajišč|tangent|drugi odvod/i, en: /endpoint|tangent|second derivative/i},
+            taylor: {sl: /stopnj|točko|oceno napake/i, en: /degree|point|error bound/i},
+            sequence: {sl: /člen|prag|certifikat/i, en: /term|threshold|certificate/i},
+            'uniform-convergence': {sl: /suprem|indeks|epsilon/i, en: /suprem|index|epsilon/i},
+            'fixed-point': {sl: /začetek|korak|ocen/i, en: /start|step|bound/i},
+        };
+        expect(occurrences).toHaveLength(21);
+        expect([...new Set(occurrences.map(({id}) => id))].sort()).toEqual(Object.keys(supportedControls).sort());
+        for (const {section, id} of occurrences) {
+            const prompt = section.investigationPrompts?.[id];
+            expect(prompt?.sl, `${section.id}/${id} Slovenian prompt`).toBeTruthy();
+            expect(prompt?.en, `${section.id}/${id} English prompt`).toBeTruthy();
+            expect(prompt!.sl.length, `${section.id}/${id} Slovenian prompt is specific`).toBeGreaterThan(70);
+            expect(prompt!.en.length, `${section.id}/${id} English prompt is specific`).toBeGreaterThan(70);
+            expect(prompt!.sl).toMatch(/spremeni|premakni|izberi|povečaj|zgosti|razkrij|pokaži/i);
+            expect(prompt!.en).toMatch(/change|move|select|increase|refine|reveal|show/i);
+            expect(prompt!.sl).toMatch(/opazuj|primerjaj|preveri|ugotovi|napovej/i);
+            expect(prompt!.en).toMatch(/observe|compare|check|notice|predict/i);
+            expect(prompt!.sl).toContain('?');
+            expect(prompt!.en).toContain('?');
+            expect(prompt!.sl).toMatch(supportedControls[id].sl);
+            expect(prompt!.en).toMatch(supportedControls[id].en);
+        }
+
+        const convergence = chapter.sections.find(section => section.id === 'convergence')!.paragraphs
+            .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(convergence).toContain('za vsak');
+        expect(convergence).toContain('neodvisno od');
+        expect(convergence).toContain('independent of');
+        expect(convergence).toContain('for every');
+        expect(convergence).toContain('0<r<1');
+        expect(convergence).toContain('0.8');
+        expect(convergence).toContain('0.32768');
+        expect(convergence).toContain('not uniform');
+        expect(convergence).toContain('not attained');
+
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets.bisection,
+            demonstrationPreviewAssets.darboux,
+            demonstrationPreviewAssets['uniform-convergence'],
+        ]);
+        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('1{,}5');
+        expect(captions).toContain('n=4');
+        expect(captions).toContain('0{,}8^5');
+        expect(captions).toContain('0.8^5');
+        expect(captions).toContain('nonuniform convergence case');
+    });
 });
