@@ -1,0 +1,2498 @@
+{
+  "startedAt": "2026-10-26T19:56:36.428Z",
+  "gitHead": "0ec2f8f7e641e6c63b9908bd2d26484da5183d43",
+  "baselineRevision": "0ec2f8f7e641e6c63b9908bd2d26484da5183d43",
+  "baseUrl": "http://127.0.0.1:4181/docs/prototypes/bezier-patches/",
+  "expectedJsxGraph": "1.14.1",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "configuration": {
+    "iso": 8,
+    "tiling": 8,
+    "warmups": 1,
+    "samples": 3,
+    "operationTimeoutMs": 30000,
+    "totalDeadlineMs": 120000
+  },
+  "sourceSha256": {
+    "baseline": "fbb204547661044ba523667ce2108e21761dab5ea56fd955b3e51f55dd94c47d",
+    "candidate": "9038ca9671a2d90a36069714fd8fb187c657ba10aad5766dc988bf9e443e6f07"
+  },
+  "rendererAssetSha256": {
+    "../../../node_modules/jsxgraph/distrib/jsxgraphcore.js": {
+      "served": "b6ebd07421e560431b888efeb472cfb7f2cfc495a853200963f97d2c28e6e474",
+      "local": "b6ebd07421e560431b888efeb472cfb7f2cfc495a853200963f97d2c28e6e474"
+    },
+    "../../../node_modules/jsxgraph/distrib/jsxgraph.css": {
+      "served": "58ff5704eb9bb8db66e8b002d01c44a6ddfe0ced7f887ab2ef602feff2f3c0f6",
+      "local": "58ff5704eb9bb8db66e8b002d01c44a6ddfe0ced7f887ab2ef602feff2f3c0f6"
+    }
+  },
+  "runs": [
+    {
+      "mode": "baseline",
+      "kind": "tensor",
+      "timesMs": [
+        3651.2000000476837,
+        3419.5,
+        3395.2000000476837
+      ],
+      "batches": [
+        {
+          "durationMs": 3651.2000000476837,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 65.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 52.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 53.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 49.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 55.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 43
+            },
+            {
+              "name": "updateElements",
+              "ms": 43
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 49
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 48.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.59999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 54.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 44
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 48.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 42
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 49.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 48.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 48.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 55.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 54.700000047683716
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 70.79999995231628
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              -0.26999999999999985,
+              1.1999999999999995,
+              0.7296605787888877
+            ],
+            "uv": [
+              0.3,
+              0.455
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 3419.5,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 56.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 44
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 50.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 40
+            },
+            {
+              "name": "updateElements",
+              "ms": 45
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.59999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 51
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 37.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 40
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 44.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.700000047683716
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 61.699999928474426
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              -0.12000000000000013,
+              0.66,
+              0.754066386956493
+            ],
+            "uv": [
+              0.39,
+              0.48
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 3395.2000000476837,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 55.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 55.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 51
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 50.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 51.59999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 45.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 49.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 48
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 42
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 40
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 42.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 57.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.60000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 40
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 43.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.39999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 47.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 37.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 39
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.89999997615814
+            },
+            {
+              "name": "updateElements",
+              "ms": 37.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.59999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 37.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 39.10000002384186
+            },
+            {
+              "name": "updateElements",
+              "ms": 40.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 46.300000071525574
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 58.799999952316284
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              0.030000000000000082,
+              0.12000000000000005,
+              0.7513665353196023
+            ],
+            "uv": [
+              0.48,
+              0.505
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        }
+      ],
+      "baselineOrCandidate": "baseline",
+      "runtime": "1.14.1",
+      "servedPrototypeSha256": "34890f5db2ca7dd646484bb12fa55dfeb950907773b3a29bdeb215d9dd622d65",
+      "medianMs": 3419.5,
+      "minMs": 3395.2000000476837,
+      "maxMs": 3651.2000000476837,
+      "stableBoardObjectCount": 1078,
+      "renderedOwnerPrimitiveCount": 1
+    },
+    {
+      "mode": "baseline",
+      "kind": "triangular",
+      "timesMs": [
+        1541.8999999761581,
+        1523.5,
+        1567
+      ],
+      "batches": [
+        {
+          "durationMs": 1541.8999999761581,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 23.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 19
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 18
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 27.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 17
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 26.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.399999976158142
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 39.800000071525574
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.16447299999999984,
+              0.25500149999999977,
+              0.9240967374999999
+            ],
+            "uv": [
+              0.3,
+              0.265
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 1523.5,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 33
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.199999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 25.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 18
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 22
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 28.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 22
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 38.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 27.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.200000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 15.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.699999928474426
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 35.5
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.2462509999999999,
+              -0.401398,
+              0.8211225000000001
+            ],
+            "uv": [
+              0.39,
+              0.29
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 1567,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 25
+            },
+            {
+              "name": "updateElements",
+              "ms": 27.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 23
+            },
+            {
+              "name": "updateElements",
+              "ms": 41.40000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 23.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 23
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.700000047683716
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 18.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 18
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.899999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.399999976158142
+            },
+            {
+              "name": "updateElements",
+              "ms": 22.09999990463257
+            },
+            {
+              "name": "updateElements",
+              "ms": 21
+            },
+            {
+              "name": "updateElements",
+              "ms": 22
+            },
+            {
+              "name": "updateElements",
+              "ms": 21.600000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.800000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.299999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 24.300000071525574
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.5
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.90000009536743
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.100000023841858
+            },
+            {
+              "name": "updateElements",
+              "ms": 19.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 17.799999952316284
+            },
+            {
+              "name": "updateElements",
+              "ms": 16.699999928474426
+            },
+            {
+              "name": "updateElements",
+              "ms": 16
+            },
+            {
+              "name": "updateElements",
+              "ms": 20.299999952316284
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 42.700000047683716
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.30990599999999985,
+              -0.9898655000000001,
+              0.7181004125
+            ],
+            "uv": [
+              0.48,
+              0.315
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        }
+      ],
+      "baselineOrCandidate": "baseline",
+      "runtime": "1.14.1",
+      "servedPrototypeSha256": "34890f5db2ca7dd646484bb12fa55dfeb950907773b3a29bdeb215d9dd622d65",
+      "medianMs": 1541.8999999761581,
+      "minMs": 1523.5,
+      "maxMs": 1567,
+      "stableBoardObjectCount": 1464,
+      "renderedOwnerPrimitiveCount": 64
+    },
+    {
+      "mode": "candidate",
+      "kind": "tensor",
+      "timesMs": [
+        98.60000002384186,
+        85.39999997615814,
+        87.10000002384186
+      ],
+      "batches": [
+        {
+          "durationMs": 98.60000002384186,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 57.700000047683716
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 75.19999992847443
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 75.19999992847443
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              -0.26999999999999985,
+              1.1999999999999995,
+              0.7296605787888877
+            ],
+            "uv": [
+              0.3,
+              0.455
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 85.39999997615814,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 52.699999928474426
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 66.70000004768372
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 66.70000004768372
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              -0.12000000000000013,
+              0.66,
+              0.754066386956493
+            ],
+            "uv": [
+              0.39,
+              0.48
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 87.10000002384186,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 46.700000047683716
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 65.5
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 65.5
+            }
+          ],
+          "state": {
+            "objectCount": 1078,
+            "surfaceOwnerCount": 1,
+            "renderedOwnerPrimitiveCount": 1,
+            "targetPoint": [
+              0.030000000000000082,
+              0.12000000000000005,
+              0.7513665353196023
+            ],
+            "uv": [
+              0.48,
+              0.505
+            ],
+            "net": [
+              [
+                -3,
+                3,
+                0.14755891438661006
+              ],
+              [
+                -1,
+                3,
+                0.5357420731735295
+              ],
+              [
+                1,
+                3,
+                0.5465943038963752
+              ],
+              [
+                3,
+                3,
+                0.1701381156761888
+              ],
+              [
+                -3,
+                1,
+                0.5607059134609148
+              ],
+              [
+                -1,
+                1,
+                1.1860766393565998
+              ],
+              [
+                1,
+                1,
+                1.0341957798696275
+              ],
+              [
+                3,
+                1,
+                0.24470189677785056
+              ],
+              [
+                -3,
+                -1,
+                0.4236859168938448
+              ],
+              [
+                -1,
+                -1,
+                0.9692326970506983
+              ],
+              [
+                1,
+                -1,
+                0.9368932123538646
+              ],
+              [
+                3,
+                -1,
+                0.35640023589243797
+              ],
+              [
+                -3,
+                -3,
+                -0.008845904439805458
+              ],
+              [
+                -1,
+                -3,
+                0.2882202635130034
+              ],
+              [
+                1,
+                -3,
+                0.43552591369831656
+              ],
+              [
+                3,
+                -3,
+                0.2976389106705683
+              ]
+            ]
+          }
+        }
+      ],
+      "baselineOrCandidate": "candidate",
+      "runtime": "1.14.1",
+      "servedPrototypeSha256": "86067de998a0ea78aeb565b2f3f1a0034d9b035048c25cf5e0389ed880ab2517",
+      "medianMs": 87.10000002384186,
+      "minMs": 85.39999997615814,
+      "maxMs": 98.60000002384186,
+      "stableBoardObjectCount": 1078,
+      "renderedOwnerPrimitiveCount": 1
+    },
+    {
+      "mode": "candidate",
+      "kind": "triangular",
+      "timesMs": [
+        69.20000004768372,
+        54.89999997615814,
+        55.299999952316284
+      ],
+      "batches": [
+        {
+          "durationMs": 69.20000004768372,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 39.39999997615814
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 57
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 57
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.16447299999999984,
+              0.25500149999999977,
+              0.9240967374999999
+            ],
+            "uv": [
+              0.3,
+              0.265
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 54.89999997615814,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 20.899999976158142
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 42.89999997615814
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 42.89999997615814
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.2462509999999999,
+              -0.401398,
+              0.8211225000000001
+            ],
+            "uv": [
+              0.39,
+              0.29
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        },
+        {
+          "durationMs": 55.299999952316284,
+          "calls": [
+            {
+              "name": "updateElements",
+              "ms": 26.300000071525574
+            },
+            {
+              "name": "fullUpdate",
+              "ms": 42.700000047683716
+            },
+            {
+              "name": "unsuspendUpdate",
+              "ms": 42.700000047683716
+            }
+          ],
+          "state": {
+            "objectCount": 1464,
+            "surfaceOwnerCount": 64,
+            "renderedOwnerPrimitiveCount": 64,
+            "targetPoint": [
+              -0.30990599999999985,
+              -0.9898655000000001,
+              0.7181004125
+            ],
+            "uv": [
+              0.48,
+              0.315
+            ],
+            "net": [
+              [
+                -3,
+                -2,
+                0
+              ],
+              [
+                -1,
+                -2,
+                1.6
+              ],
+              [
+                1,
+                -2,
+                0
+              ],
+              [
+                3,
+                -2,
+                -0.2
+              ],
+              [
+                -2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2.2
+              ],
+              [
+                2,
+                0,
+                0.7
+              ],
+              [
+                -1,
+                2,
+                0
+              ],
+              [
+                1,
+                2,
+                1.4
+              ],
+              [
+                0,
+                4,
+                0.2
+              ]
+            ]
+          }
+        }
+      ],
+      "baselineOrCandidate": "candidate",
+      "runtime": "1.14.1",
+      "servedPrototypeSha256": "86067de998a0ea78aeb565b2f3f1a0034d9b035048c25cf5e0389ed880ab2517",
+      "medianMs": 55.299999952316284,
+      "minMs": 54.89999997615814,
+      "maxMs": 69.20000004768372,
+      "stableBoardObjectCount": 1464,
+      "renderedOwnerPrimitiveCount": 64
+    }
+  ],
+  "failures": [],
+  "caveats": [
+    "Headless Chromium on desktop; this tiny comparison does not establish renderer or interaction budgets.",
+    "Operation wall time includes construction and the synchronous board flush; it excludes the following animation frame.",
+    "Update-method counters are call counts, not pixel-presentation measurements.",
+    "A 120 second in-process deadline closes Chromium; it is not an OS process-tree kill guarantee."
+  ],
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  }
+}
