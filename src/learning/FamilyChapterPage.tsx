@@ -7,7 +7,7 @@ import {typesetMath} from '../mathjax/loadMathJax';
 import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
-import {isGuidedLessonAvailable} from './runtime/lessonAvailability';
+import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {familyInvestigationQuery} from './chapter/familyInvestigation';
 import './ChapterPage.css';
 import './LearningPage.css';
@@ -72,7 +72,6 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                             <ul>{section.demonstrationIds.map(id => {
                                 const demo = catalog.demonstrations.find(entry => entry.id === id)!;
                                 const prompt = section.investigationPrompts?.[id];
-                                const guided = isGuidedLessonAvailable(id);
                                 const anchorSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
                                     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                                     const url = `${location.pathname}${location.search}#${section.id}`;
@@ -83,15 +82,11 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                                         {demo.catalogTitle} — {language === 'sl' ? 'prosto raziskovanje' : 'free exploration'}
                                     </Link>
                                     {prompt && <p className="learning-investigation-prompt">{prompt[language]}</p>}
-                                    {guided && <Link className="learning-guided-investigation-link"
-                                        to={demo.path + '?learn=1' + familyInvestigationQuery(chapter.id, section.id, id, '&')}
-                                        onClick={anchorSection}>
-                                        {language === 'sl' ? 'Vodena učna ura' : 'Guided graph lesson'}
-                                    </Link>}
                                 </li>;
                             })}</ul>
                         </div>}
                     </div>
+                    <ChapterGuidedLessons chapterId={chapter.id} sectionId={section.id} language={language}/>
                 </section>)}
                 <footer className="chapter-source">
                     <p>{language === 'sl' ? `To je prvi osnutek poglavja za področje ${family.title}. Ob razlagi prosto raziskuj grafe ali izberi vodeno učno uro; slika ponazarja trditev, splošne veljavnosti pa sama ne dokazuje.` : `This is a first draft for ${family.title}. Explore the graphs or follow a guided lesson alongside the text; a picture illustrates a claim but does not by itself prove it in general.`}</p>

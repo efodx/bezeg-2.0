@@ -1,0 +1,9 @@
+.chapter-guided-lessons {
+    margin: 1.25rem 0 0;
+    padding-top: .85rem;
+    border-top: 1px solid var(--learning-rule, #d8dfd2);
+}
+.chapter-guided-lessons p { margin: 0 0 .45rem; color: var(--learning-ink, #274338); font-weight: 650; }
+.chapter-guided-lessons ul { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin: 0; padding-left: 1.2rem; }
+.chapter-guided-lessons a { color: var(--learning-link, #355f3d); text-underline-offset: .18em; }
+.chapter-guided-lessons a:focus-visible { outline: 3px solid var(--learning-focus, #456db0); outline-offset: 3px; }

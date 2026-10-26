@@ -11,10 +11,11 @@ import {chapterActivityVisit} from './ChapterActivityVisit';
 export function resolveActivityContext(search: string, demonstrationId?: string) {
     const query = new URLSearchParams(search);
     const requested = query.has('chapter') || query.has('activity');
+    const lessonOwnsRoute = query.get('learn') === '1';
     const activity = findActivity(query.get('activity') ?? '');
     const valid = query.getAll('chapter').length === 1 && query.get('chapter') === 'bezier-curves'
         && query.getAll('activity').length === 1 && activity?.demonstrationId === demonstrationId;
-    return {activity: valid ? activity : undefined, invalid: requested && !valid};
+    return {activity: !lessonOwnsRoute && valid ? activity : undefined, invalid: requested && !lessonOwnsRoute && !valid};
 }
 
 export function useChapterActivity(capabilities: LessonGraphCapabilities | undefined,

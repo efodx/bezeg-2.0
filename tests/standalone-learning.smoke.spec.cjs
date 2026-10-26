@@ -221,17 +221,21 @@ test('ordinary scene survives reading and independent activity edits; keyboard e
     await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[-4, -3]]));
 });
 
-test('activity yields scene ownership to Guided lesson and restores it paused on Exit', async ({page}) => {
+test('guided chapter activity replaces prepared activity ownership and preserves its saved scene', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.goto('/bezeg-2.0/bezier/decasteljau?chapter=bezier-curves&activity=curve-parameter');
     const slider = page.locator('.decasteljau-animation-slider input[type="range"]').first();
     await slider.fill('0.75');
     await page.getByRole('button', {name: 'Learn this demonstration', exact: true}).click();
     await expect(h.lessonPanel(page)).toBeVisible();
+    await expect(context(page)).toHaveCount(0);
+    expect(new URL(page.url()).searchParams.has('activity')).toBe(false);
+    expect(new URL(page.url()).searchParams.has('chapter')).toBe(false);
+    await expect(h.lessonPanel(page).locator('a[href*="/learn/bezier-curves#"]')).toBeVisible();
     await h.exitAndConfirm(page);
     await expect(h.lessonPanel(page)).toHaveCount(0);
     await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
-    await context(page).getByRole('button', {name: 'Continue reading', exact: true}).click();
+    await page.getByRole('link', {name: 'Return to chapter', exact: true}).click();
     await page.locator('#activity-curve-parameter').click();
     await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.75');
 });

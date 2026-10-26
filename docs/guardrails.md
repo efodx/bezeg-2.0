@@ -4,6 +4,8 @@ These constraints reflect the owner's planning answers on 2026-10-08. The implem
 
 ## Product constraints
 
+- Guided graph lessons belong to chapter sections. Present one coherent chapter activity in the graph workspace; do not layer an independent lesson over a prepared chapter investigation. See the [owner's correction](specs/chapter-owned-guided-learning.md), which supersedes the parallel entry model in earlier learning specifications.
+
 - Optimize for learning and teaching curve concepts. Keep the graph central and make the effect of each control understandable.
 - Support desktop and projection first, while keeping essential workflows usable with touch and keyboard on narrow screens.
 - Keep Slovenian as the default app language. Plan English support; use English for contributor documentation.

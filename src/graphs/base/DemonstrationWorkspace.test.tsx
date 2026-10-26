@@ -120,7 +120,7 @@ test('invalid family context is removed while unrelated query values and the has
         <LocationReadout/>
     </MemoryRouter>);
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/bernstein?school=west&learn=1#figure'));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/bernstein?school=west&learn=1&learnChapter=foundations&learnSection=why-weights#figure'));
     expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
 });
 
@@ -200,8 +200,8 @@ test('direct guided family context exits back to its investigation prompt and pr
     fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
     await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/spline/spline?explore=splines.piecewise.spline-cn'));
-    expect(screen.getByRole('region', {name: 'Investigation instructions'})).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/spline/spline?learnChapter=splines&learnSection=piecewise'));
+    expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
     act(() => setLanguage('sl'));
 });
 

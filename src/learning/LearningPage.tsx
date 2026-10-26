@@ -3,7 +3,6 @@ import {Link, useLocation} from 'react-router-dom';
 import {useLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
-import {isGuidedLessonAvailable} from './runtime/lessonAvailability';
 import {learningChapters} from './learningChapters';
 import {useTypesetMath} from './useTypesetMath';
 import './LearningPage.css';
@@ -84,8 +83,8 @@ export function LearningPage() {
             <header className="learning-heading">
                 <h1>{language === 'sl' ? 'Uči se z branjem in raziskovanjem' : 'Learn through reading and exploration'}</h1>
                 <p>{language === 'sl'
-                    ? 'Teme so urejene v predlaganem vrstnem redu, ki mu lahko slediš ali ga prilagodiš svojim vprašanjem. Poglavja razložijo pojme z branjem; vodene učne poti pa te po korakih vodijo ob grafu.'
-                    : 'Topics follow a suggested order that you can follow or adapt to your questions. Chapters explain ideas through reading; guided lessons take you step by step through a graph.'}</p>
+                    ? 'Poglavja povezujejo razlago z raziskovanjem. Preberi razdelek, odpri pripravljeno dejavnost ali izberi vodeno učno pot ob grafu.'
+                    : 'Each chapter brings explanation and exploration together. Read a section, open its prepared activity, or follow a guided lesson alongside the graph.'}</p>
                 <Link className="learning-open learning-start" to="/bezeg-2.0/learn/foundations">
                     {language === 'sl' ? 'Začni pri osnovah' : 'Start with Foundations'}<span aria-hidden="true"> →</span>
                 </Link>
@@ -97,9 +96,7 @@ export function LearningPage() {
                 </nav>
             </header>
             {learningChapters.map(chapter => {
-                const family = catalog.families.find(entry => entry.id === chapter.family)!;
                 const preview = topicPreviews[chapter.id as keyof typeof topicPreviews];
-                const demonstrations = family.demonstrations.filter(demo => isGuidedLessonAvailable(demo.id));
                 const relatedChapter = learningChapters.find(entry => entry.id === preview.connection)!;
                 return <section className="learning-family" id={chapter.id} key={chapter.id} aria-labelledby={`${chapter.id}-heading`}>
                     <h2 className="learning-topic-heading" id={`${chapter.id}-heading`}>{chapter.title[language]}</h2>
@@ -114,12 +111,6 @@ export function LearningPage() {
                             <Link className="learning-open" to={`/bezeg-2.0/learn/${chapter.id}`}>
                                 {language === 'sl' ? 'Preberi poglavje' : 'Read the chapter'}<span aria-hidden="true"> →</span>
                             </Link>
-                            <details className="learning-lessons">
-                                <summary>{language === 'sl' ? `Vodene učne poti ob grafih (${demonstrations.length})` : `Guided graph lessons (${demonstrations.length})`}</summary>
-                                <ul>{demonstrations.map(demo => <li key={demo.id}>
-                                    <Link to={`${demo.path}?learn=1`}>{demo.catalogTitle}</Link>
-                                </li>)}</ul>
-                            </details>
                         </div>
                     </div>
                 </section>;

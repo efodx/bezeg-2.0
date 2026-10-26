@@ -21,6 +21,7 @@ import {useLanguage} from '../../localization';
 import '../../learning/chapter/ActivityContext.css';
 import {useTypesetMath} from '../../learning/useTypesetMath';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
+import {getGuidedLessonChapterTitle, getGuidedLessonSectionTitle, guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/chapter/guidedLessonOwnership';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -56,10 +57,12 @@ export function DemonstrationWorkspace(props: {
     const familyInvestigation = readFamilyInvestigation(search, pathname);
     useTypesetMath(familyInvestigationContext, `${familyInvestigation.context?.chapterId ?? ''}-${familyInvestigation.context?.sectionId ?? ''}-${language}`);
     useEffect(() => {
-        if (!familyInvestigation.invalid) return;
+        if (!familyInvestigation.invalid || new URLSearchParams(search).get('learn') === '1') return;
         navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: location.state});
     }, [familyInvestigation.invalid, hash, location.state, navigateRoute, pathname, search]);
     const lesson = demonstration && getLessonForDemonstration(demonstration.id);
+    const demonstrationId = demonstration?.id;
+    const lessonOwner = demonstrationId && resolveGuidedLessonOwner(search, demonstrationId);
     const family = families.find(entry => entry.id === demonstration?.family);
     const [pickerOpen, setPickerOpen] = useState(false);
     const switchButton = useRef<HTMLButtonElement>(null);
@@ -71,7 +74,7 @@ export function DemonstrationWorkspace(props: {
         closePicker(entry.path === pathname && (!startLesson || lessonOpen));
         if (entry.path === pathname) {
             if (chapter.activity && !startLesson) { chapter.freeExplore(); return; }
-            if (startLesson && !lessonOpen) {setLessonMode('content'); setLessonOpen(true);}
+            if (startLesson && !lessonOpen) openGuidedLesson();
             return;
         }
         closeLesson.current?.();
@@ -91,13 +94,32 @@ export function DemonstrationWorkspace(props: {
     const [section, setSection] = useState<Section>("edit");
     const [expanded, setExpanded] = useState(true);
     const [presentationControls, setPresentationControls] = useState(false);
-    const [lessonOpen, setLessonOpen] = useState(() => new URLSearchParams(search).get('learn') === '1');
+    const lessonOpen = new URLSearchParams(search).get('learn') === '1';
     const [lessonMode, setLessonMode] = useState<LessonMode>(() => new URLSearchParams(search).get('learn') === '1' ? 'content' : 'closed');
     const inspector = useRef<HTMLElement>(null);
     // The content region is the inspector's only scroll owner; tab changes return it to the top.
     const inspectorContent = useRef<HTMLDivElement>(null);
     const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
+    const openGuidedLesson = () => {
+        if (!demonstration || !lessonOwner) return;
+        const query = new URLSearchParams(search);
+        query.delete('chapter'); query.delete('activity'); query.delete('explore');
+        query.set('learn', '1');
+        query.set('learnChapter', lessonOwner.chapterId);
+        query.set('learnSection', lessonOwner.sectionId);
+        navigateRoute({pathname, search: `?${query.toString()}`, hash}, {replace: true, state: location.state});
+        setLessonMode('content');
+    };
+    useEffect(() => {
+        if (!lesson || !demonstration || new URLSearchParams(search).get('learn') !== '1' || !lessonOwner) return;
+        const query = new URLSearchParams(search);
+        query.delete('chapter'); query.delete('activity'); query.delete('explore');
+        query.set('learnChapter', lessonOwner.chapterId);
+        query.set('learnSection', lessonOwner.sectionId);
+        const nextSearch = `?${query.toString()}`;
+        if (nextSearch !== search) navigateRoute({pathname, search: nextSearch, hash}, {replace: true, state: location.state});
+    }, [demonstration, hash, lesson, lessonOwner, location.state, navigateRoute, pathname, search]);
     // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
     // keeps its prompt inside it).
     const graphContainer = useRef<HTMLDivElement | null>(null);
@@ -113,11 +135,6 @@ export function DemonstrationWorkspace(props: {
     // board. Keep the normal workspace interactive until the graph-owned
     // capability is available; BaseGraph will provide it on the next render.
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
-    useEffect(() => {
-        const shouldOpen = new URLSearchParams(search).get('learn') === '1';
-        setLessonOpen(shouldOpen);
-        setLessonMode(shouldOpen ? 'content' : 'closed');
-    }, [pathname, search]);
     useEffect(() => {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
@@ -192,7 +209,7 @@ export function DemonstrationWorkspace(props: {
                         setPickerOpen(true);
                     }}>{t('library_switch')}</button>}
                 {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
-                {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} onClick={() => {setLessonMode('content'); setLessonOpen(true);}} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
+                {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} onClick={openGuidedLesson} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
                 {lessonActive && lessonMode === 'explore' && <>
                     {lessonGraphActions?.animationControls}
                 </>}
@@ -202,7 +219,7 @@ export function DemonstrationWorkspace(props: {
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
             </div>
         </header>
-        {familyInvestigation.context && <section ref={familyInvestigationContext} className="chapter-activity-context family-investigation-context"
+        {familyInvestigation.context && !lessonActive && <section ref={familyInvestigationContext} className="chapter-activity-context family-investigation-context"
             aria-label={language === 'sl' ? 'Navodilo za raziskovanje' : 'Investigation instructions'}>
             <div className="activity-context-heading">
                 <Link to={familyInvestigation.context.returnPath}>
@@ -224,15 +241,15 @@ export function DemonstrationWorkspace(props: {
                 <a href={pathname}>{t('chapter_free_exploration')}</a>
             </>}
         </p>}
-        {chapter.activity && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
+        {chapter.activity && !lessonActive && <section ref={activityContext} className="chapter-activity-context" aria-label={t('chapter_activity')}>
             <div className="activity-context-heading"><Link to={chapter.returnPath ?? chapterActivityVisit.readingReturnPath()} state={location.state}
-                onClick={event => { event.preventDefault(); setLessonOpen(false); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
+                onClick={event => { event.preventDefault(); chapter.returnToReading(); }}>{t('chapter_bezier_title')}</Link>
                 <h2>{bezierActivityCopy[chapter.activity.id][language].title}</h2>
             </div>
             <div className="activity-context-actions">
-                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.returnToReading();}}>{t('chapter_continue')}</button>
-                <button onClick={() => {setLessonOpen(false); chapter.reset();}} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
-                <button disabled={props.pickerUnavailable} onClick={() => {setLessonOpen(false); chapter.freeExplore();}}>{t('chapter_free_exploration')}</button>
+                <button ref={chapterReturnButton} className="activity-context-primary" disabled={props.pickerUnavailable} onClick={chapter.returnToReading}>{t('chapter_continue')}</button>
+                <button onClick={chapter.reset} disabled={lessonActive || props.pickerUnavailable}>{t('chapter_reset')}</button>
+                <button disabled={props.pickerUnavailable} onClick={chapter.freeExplore}>{t('chapter_free_exploration')}</button>
             </div>
             <div className="activity-context-prompt">
                 <p>{bezierActivityCopy[chapter.activity.id][language].prompt}</p>
@@ -244,10 +261,19 @@ export function DemonstrationWorkspace(props: {
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}
+            chapterOwner={lessonOwner ? {
+                chapterTitle: getGuidedLessonChapterTitle(lessonOwner, language),
+                sectionTitle: getGuidedLessonSectionTitle(lessonOwner, language),
+                returnPath: guidedLessonReturnPath(lessonOwner),
+                returnLabel: t('chapter_return'),
+                onReturn: () => {
+                    if (lessonOwner.chapterId === 'bezier-curves') chapterActivityVisit.prepareGuidedLessonReturn(lessonOwner.sectionId);
+                    navigateRoute(guidedLessonReturnPath(lessonOwner), {state: location.state});
+                },
+            } : undefined}
             onModeChange={setLessonMode}
             onClose={() => {
                 setLessonMode('closed');
-                setLessonOpen(false);
                 const query = new URLSearchParams(search);
                 if (query.get('learn') === '1') {
                     query.delete('learn');

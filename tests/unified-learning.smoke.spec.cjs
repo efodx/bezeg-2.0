@@ -4,24 +4,28 @@ h.failOnRuntimeErrors();
 
 const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'functions-and-calculus', 'analysis'];
 
-test('Learn unifies every chapter and guided lesson with working topic returns', async ({page}) => {
+test('Learn opens chapters whose guided activities return to their section', async ({page}) => {
     await h.useLanguage(page, 'sl');
     await page.goto('/bezeg-2.0/learn');
     await expect(page.locator('.learning-family')).toHaveCount(8);
-    await expect(page.locator('.learning-lessons a')).toHaveCount(45);
+    await expect(page.locator('.learning-lessons')).toHaveCount(0);
     await expect(page.locator('.app-header-actions a')).toHaveCount(2);
     await page.locator('#analysis .learning-open').click();
     await expect(page).toHaveURL(/\/learn\/analysis$/);
     await page.getByRole('link', {name: /Vsa učna vsebina/}).click();
     await expect(page).toHaveURL(/\/learn#analysis$/);
     await expect(page.locator('#analysis-heading')).toBeInViewport();
-    await page.locator('#foundations .learning-lessons summary').click();
-    await page.locator('#foundations .learning-lessons a').first().click();
-    await expect(page).toHaveURL(/\?learn=1$/);
+    await page.locator('#foundations .learning-open').click();
+    await page.locator('.chapter-guided-lessons a').first().click();
+    await expect(page).toHaveURL(/learn=1/);
     await expect(page.locator('#jgbox')).toBeVisible();
     await expect(page.locator('.guided-lesson')).toBeVisible();
-    await page.goBack();
-    await expect(page.locator('.learning-family')).toHaveCount(8);
+    const readingReturn = page.locator('.guided-lesson a[href*="/learn/foundations#"]');
+    await expect(readingReturn).toBeVisible();
+    const returnHref = await readingReturn.getAttribute('href');
+    await readingReturn.click();
+    await expect(page).toHaveURL(new RegExp(`${returnHref}$`));
+    await expect(page.locator('.chapter-section')).not.toHaveCount(0);
 });
 
 for (const chapter of chapters) {

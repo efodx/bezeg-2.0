@@ -96,6 +96,13 @@ export class ChapterActivityVisit {
         return true;
     }
 
+    /** Make a guided lesson's authored section the return target while retaining saved activity checkpoints. */
+    prepareGuidedLessonReturn(sectionId: string): void {
+        this.reading = {sectionId, y: 0, relativeY: 0, focusId: `${sectionId}-heading`};
+        this.lastSection = sectionId;
+        this.pendingReturn = true;
+    }
+
     private captureActivity(activityId: ActivityId): LessonSceneCheckpoint {
         const current = this.session;
         if (!current || current.activityId !== activityId) throw new Error('The requested chapter activity is not active.');

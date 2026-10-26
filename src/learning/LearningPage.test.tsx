@@ -10,7 +10,6 @@ import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
 import {familyChapters} from './content/familyChapters';
 import {learningChapters} from './learningChapters';
-import {GUIDED_LESSON_AVAILABLE_IDS} from './runtime/lessonAvailability';
 
 function RouterLocationProbe() {
     const location = useLocation();
@@ -25,7 +24,7 @@ beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
 });
 
-test('Learn contains every family chapter and every available guided lesson exactly once', () => {
+test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(getDemonstrationCatalog().families.map(family => family.id).sort());
     expect(container.querySelectorAll('.learning-family')).toHaveLength(8);
@@ -35,10 +34,8 @@ test('Learn contains every family chapter and every available guided lesson exac
         expect(screen.getByRole('heading', {name: chapter.title.sl, level: 2})).toBeInTheDocument();
         expect(within(container.querySelector(`#${chapter.id}`)!).getByRole('link', {name: 'Preberi poglavje'})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);
     }
-    expect(container.querySelectorAll('.learning-lessons:not([open]) summary')).toHaveLength(8);
-    const lessonLinks = [...container.querySelectorAll('a')].filter(link => link.search === '?learn=1');
-    expect(lessonLinks.map(link => link.pathname).sort()).toEqual(getDemonstrationCatalog().demonstrations
-        .filter(demo => GUIDED_LESSON_AVAILABLE_IDS.includes(demo.id)).map(demo => demo.path).sort());
+    expect(container.querySelectorAll('.learning-lessons')).toHaveLength(0);
+    expect([...container.querySelectorAll('a')].filter(link => link.search.includes('learn=1'))).toHaveLength(0);
     expect(container.querySelector('#jgbox')).toBeNull();
 });
 
@@ -136,20 +133,20 @@ test('Foundations renders bilingual app figures, specific graph prompts and accu
     }
     expect(container.textContent).toContain('štiri kubične uteži');
     expect(container.textContent).toContain('kvadratne uteži');
-    expect(container.textContent).toContain('Vodena učna ura');
+    expect(container.textContent).toContain('Učna pot ob grafu');
     expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('stopnjo');
     const links = [...container.querySelectorAll('.learning-investigation-explore-link')];
     expect(links.length).toBeGreaterThan(2);
     expect(links.every(link => link.getAttribute('href')?.includes('?explore='))).toBe(true);
-    const guidedLinks = [...container.querySelectorAll('.learning-guided-investigation-link')];
+    const guidedLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
     expect(guidedLinks.length).toBeGreaterThan(0);
-    expect(guidedLinks.every(link => link.getAttribute('href')?.includes('?learn=1&explore=foundations.'))).toBe(true);
+    expect(guidedLinks.every(link => link.getAttribute('href')?.includes('?learn=1&learnChapter=foundations&learnSection='))).toBe(true);
 
     setLanguage('en');
     await waitFor(() => {
         expect(container.textContent).toContain('four cubic weights');
         expect(container.textContent).toContain('quadratic weights');
-        expect(container.textContent).toContain('Guided graph lesson');
+        expect(container.textContent).toContain('Guided lesson alongside the graph');
         expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('degree');
     });
 });

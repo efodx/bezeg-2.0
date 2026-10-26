@@ -45,6 +45,7 @@ export function GuidedLesson(props: {
     registerClose?: (close: (() => void) | undefined) => void;
     registerExit?: (exit: (() => void) | undefined) => void;
     registerGraphActions?: (actions: {animationControls?: React.ReactNode} | undefined) => void;
+    chapterOwner?: {chapterTitle: string; sectionTitle: string; returnPath: string; returnLabel: string; onReturn: () => void};
 }) {
     const {language} = useLanguage();
     const t = useT();
@@ -368,6 +369,20 @@ export function GuidedLesson(props: {
             <button type="button" onClick={confirmExit}>{t('guided_lesson_exit_restore')}</button>
         </div>
     </div></div>;
+    const returnToChapter = (event: React.MouseEvent<HTMLAnchorElement>) => {
+        if (!props.chapterOwner || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        try {
+            session.close();
+            props.chapterOwner.onReturn();
+        } catch {
+            setExitError(true);
+        }
+    };
+    const chapterIdentity = props.chapterOwner && <div className="guided-lesson-owner">
+        <span>{props.chapterOwner.chapterTitle} · {props.chapterOwner.sectionTitle}</span>
+        <a href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>
+    </div>;
 
     if (startupError) {
         return <><div className="guided-lesson-layer"><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
@@ -375,6 +390,8 @@ export function GuidedLesson(props: {
                 <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
                 <div className="guided-lesson-utilities">{closeButton}</div>
             </div>
+            {chapterIdentity}
+            {exitError && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
             <p role="alert">{t('guided_lesson_scene_error')} {startupError}</p>
         </section></div>{exitDialog}</>;
     }
@@ -389,6 +406,8 @@ export function GuidedLesson(props: {
             <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
             <div className="guided-lesson-utilities">{hideButton}{closeButton}</div>
         </div>
+        {chapterIdentity}
+        {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className="guided-lesson-reading" ref={readingRef}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary">{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>

@@ -4,6 +4,7 @@ import {getDemonstrationCatalog} from '../demonstrations';
 import {useLanguage} from '../localization';
 import type {Language} from '../localization';
 import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
+import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
 import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
@@ -112,7 +113,10 @@ export function ChapterPage() {
                     ?? document.getElementById(`${invocation.sectionId}-heading`))?.focus({preventScroll: true});
             });
         } else if (!restored && hash && copy.sections.some(section => section.id === hash)) {
-            requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
+            requestAnimationFrame(() => {
+                document.getElementById(hash)?.scrollIntoView();
+                document.getElementById(`${hash}-heading`)?.focus({preventScroll: true});
+            });
         } else if (!restored && hash) {
             navigate(`${location.pathname}${location.search}`, {replace: true, state: location.state});
             requestAnimationFrame(() => document.getElementById('chapter-title')?.focus());
@@ -180,6 +184,7 @@ export function ChapterPage() {
                 {copy.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
                     <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}>¶</a></div>
                     <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`} section={section} language={language}/>)}</div>
+                    <ChapterGuidedLessons chapterId="bezier-curves" sectionId={section.id} language={language}/>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}
                 <footer className="chapter-source"><h2>{language === 'sl' ? 'Vir' : 'Source'}</h2><p>{copy.source}</p>
