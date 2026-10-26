@@ -57,6 +57,8 @@ Completed handoffs have been consolidated into the implementation histories belo
 
 ## Consolidated implementation evidence
 
+- [Chapter-owned guided examples](specs/chapter-owned-guided-learning.md): unified learning flow and [acceptance evidence](reviews/learning-consolidation/acceptance.md).
+
 - [Lesson history](reviews/lesson-implementation-history.md): mathematical choices, cohort findings and historical coverage limits.
 - [Engineering history](reviews/engineering-implementation-history.md): ownership refactors, scene recovery, preview and performance outcomes.
 - [Interface history](reviews/interface-implementation-history.md): selected prototypes, superseded layouts and bounded fix evidence.

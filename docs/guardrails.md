@@ -4,7 +4,7 @@ These constraints reflect the owner's planning answers on 2026-10-08. The implem
 
 ## Product constraints
 
-- Guided graph lessons belong to chapter sections. Present one coherent chapter activity in the graph workspace; do not layer an independent lesson over a prepared chapter investigation. See the [owner's correction](specs/chapter-owned-guided-learning.md), which supersedes the parallel entry model in earlier learning specifications.
+- Guided examples belong to chapter sections. Every graph activity launched from Learn uses one instructional surface and session, whether it contains a short prompt or a longer sequence. Completion leaves the graph editable and offers Continue in chapter; midway return restores the owning section's reading position and focus. Catalog guidance uses the same chapter-owned experience, while independent graph exploration remains available. See the [owner's correction](specs/chapter-owned-guided-learning.md), which supersedes the parallel entry model in earlier learning specifications.
 
 - Optimize for learning and teaching curve concepts. Keep the graph central and make the effect of each control understandable.
 - Support desktop and projection first, while keeping essential workflows usable with touch and keyboard on narrow screens.

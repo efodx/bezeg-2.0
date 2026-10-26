@@ -1,12 +1,14 @@
 # Chapter-owned guided learning
 
+Status: implemented and locally accepted 2026-10-26. [Acceptance evidence and coverage limits](../reviews/learning-consolidation/acceptance.md) records master integration and deployment separately.
+
 Owner request, 2026-10-26: guided lessons belong to chapters; chapter exploration and guided instruction must not appear as separate competing concepts. This supersedes the parallel chapter/lesson entry model in `unified-learning.md`.
 
 ## Acceptance
 
 ### Consolidated learning flow — confirmed 2026-10-26
 
-The owner confirmed all three recommendations after comparing the Splines `worked-join` investigation and its separate guided lesson. This is the agreed product model for consolidation; it does not claim that the runtime already implements it.
+The owner confirmed all three recommendations after comparing the Splines `worked-join` investigation and its separate guided lesson. This is the agreed product model, now implemented; the linked acceptance record describes observed verification.
 
 - The flow is Learn → chapter section → guided example on the graph → the same chapter section, where reading continues. The example is part of that learning path.
 - Use **Guided example / Vodeni primer** as the learner-facing name, replacing Guided lesson / Vodena učna pot and competing investigation terminology for chapter-launched graph activities.
