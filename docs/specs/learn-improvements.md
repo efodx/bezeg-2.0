@@ -2,6 +2,8 @@
 
 Source: owner request, 2026-10-26, to execute [the ordered backlog](../tasks/learn-improvements/README.md). The backlog itself stays local and must not be pushed. This specification extends [unified learning](unified-learning.md).
 
+Status: complete, 2026-10-26. All eight ordered tasks are accepted. Final application commits `bd685ea` and `e82d61e` passed hosted CI/deployment; live Pages query/hash refresh, exact return, final copy/assets and emulated touch checks passed. See [final acceptance](../reviews/learn-improvements/final-acceptance.md) for chapter accounting, evidence and optional coverage limits. The source backlog remains local only.
+
 ## Sequence and boundaries
 
 Complete the content audit first, then the landing page, shared reader, reproducible app figures, Bézier pilot, each remaining chapter in backlog order, reading/exploration navigation, and final editorial/browser verification. Define acceptance for each implementation slice before editing its application code. Preserve stable chapter/section/activity links, existing valid presets and independent graph entry unless a deliberate break is documented here.

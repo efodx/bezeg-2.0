@@ -1,6 +1,6 @@
 # Learn improvements — final acceptance
 
-Local acceptance completed 2026-10-26 at 08:19 UTC. Final source: `bd685ea` plus the two Task 8 editorial changes in `FamilyChapterPage.tsx` and `content/familyChapters.ts`. Task 7 is accepted and deployed; final Task 8 hosted deployment checks follow the editorial commit.
+Complete, 2026-10-26. Local acceptance completed at 08:19 UTC; final CI/deployment and live Pages verification passed at 08:26 UTC. Final application commit: `e82d61e`, following Task 7's `bd685ea`. All eight ordered tasks are complete. The two Task 8 editorial changes are in `FamilyChapterPage.tsx` and `content/familyChapters.ts`.
 
 ## Editorial and mathematical accounting
 
@@ -36,5 +36,7 @@ Handler visually reviewed the desktop and narrow context, genuinely enlarged con
 - Shared browser suite: 30 passed, `2026-10-26T08-15-41-012Z-96484-49c6e2c5.log`.
 - Focused final browser artifacts: `.command-logs/journey-close.{cjs,json}`, `journey-handler-probe.cjs`, `editorial-final.{cjs,json}`, `final-calculus-{desktop,390-200}.png` and `journey-context-390-real200.png`.
 - Task 7 [hosted CI and deployment](https://github.com/efodx/bezeg-2.0/actions/runs/40290832571): all checks, unit shards, four Chromium groups and deploy passed for `bd685ea`.
+- Final [hosted CI and deployment](https://github.com/efodx/bezeg-2.0/actions/runs/40291605635): every job passed for `e82d61e`, including both unit shards, all four Chromium groups and deploy.
+- Live [GitHub Pages](https://efodx.github.io/bezeg-2.0/learn): Playwright verified the exact final production bundle (`index-BJd1axU1.js`), direct graph query/hash preservation through refresh, finite graph geometry, exact-section return/focus, reader hash refresh, corrected SL/EN editorial content, loaded derivative figure and emulated touch return. No page errors. Saved harness/result: `.command-logs/learn-live-final.{cjs,json}`. Browser contexts closed.
 
 The initial smoke worker's harness limitations and usage-limit interruption are explicitly recorded in journey acceptance. Handler-operated Playwright completed the remaining coverage; no worker completion is implied. Physical devices, actual projectors, classroom observation and comprehensive assistive-technology testing remain unperformed optional follow-up. No stored preset schema, mathematical engine or existing route was changed. The local-only backlog remains untracked and unpushed.
