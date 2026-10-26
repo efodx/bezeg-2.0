@@ -20,6 +20,7 @@ import {bezierActivityCopy} from '../../learning/content/bezierChapter';
 import {useLanguage} from '../../localization';
 import '../../learning/chapter/ActivityContext.css';
 import {useTypesetMath} from '../../learning/useTypesetMath';
+import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -41,6 +42,7 @@ export function DemonstrationWorkspace(props: {
     const [lessonGraphActions, setLessonGraphActions] = useState<{animationControls?: React.ReactNode}>();
     const chapter = useChapterActivity(props.lessonCapabilities, props.beforeDispose, closeLesson, props.disposeFailedGraph);
     const activityContext = useRef<HTMLElement>(null);
+    const familyInvestigationContext = useRef<HTMLElement>(null);
     const chapterReturnButton = useRef<HTMLButtonElement>(null);
     const focusedActivity = useRef<{id: string; key: string; focused: boolean}>();
     useTypesetMath(activityContext, `${chapter.activity?.id ?? ''}-${language}`);
@@ -51,6 +53,12 @@ export function DemonstrationWorkspace(props: {
     const navigateRoute = useNavigate();
     const {families} = getDemonstrationCatalog();
     const demonstration = findDemonstration(pathname);
+    const familyInvestigation = readFamilyInvestigation(search, pathname);
+    useTypesetMath(familyInvestigationContext, `${familyInvestigation.context?.chapterId ?? ''}-${familyInvestigation.context?.sectionId ?? ''}-${language}`);
+    useEffect(() => {
+        if (!familyInvestigation.invalid) return;
+        navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: location.state});
+    }, [familyInvestigation.invalid, hash, location.state, navigateRoute, pathname, search]);
     const lesson = demonstration && getLessonForDemonstration(demonstration.id);
     const family = families.find(entry => entry.id === demonstration?.family);
     const [pickerOpen, setPickerOpen] = useState(false);
@@ -173,8 +181,8 @@ export function DemonstrationWorkspace(props: {
                 </svg>
             </div>
             <div className="workspace-actions">
-                {chapter.readAbout && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
-                {!chapter.activity && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
+                {chapter.readAbout && !chapter.activity && !familyInvestigation.context && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
+                {!chapter.activity && !familyInvestigation.context && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
                     title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
@@ -194,6 +202,20 @@ export function DemonstrationWorkspace(props: {
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
             </div>
         </header>
+        {familyInvestigation.context && <section ref={familyInvestigationContext} className="chapter-activity-context family-investigation-context"
+            aria-label={language === 'sl' ? 'Navodilo za raziskovanje' : 'Investigation instructions'}>
+            <div className="activity-context-heading">
+                <Link to={familyInvestigation.context.returnPath}>
+                    {language === 'sl' ? `Nazaj v poglavje: ${familyInvestigation.context.chapterTitle.sl}` : `Return to chapter: ${familyInvestigation.context.chapterTitle.en}`}
+                </Link>
+                <h2>{familyInvestigation.context.sectionTitle[language]}</h2>
+            </div>
+            <div className="activity-context-prompt">
+                <p>{language === 'sl' ? 'Graf se odpre v trenutnem oziroma privzetem stanju. Navodilo pove, kaj nastaviš za raziskovanje.'
+                    : 'The graph opens in its current or default state. Follow these instructions to set up the investigation.'}</p>
+                <p>{familyInvestigation.context.prompt[language]}</p>
+            </div>
+        </section>}
         {(chapter.invalidNotice || chapter.error || chapter.restarted) && <p className="activity-notice" role="status">
             {chapter.error ? t('chapter_scene_error') : chapter.invalidNotice ? t('chapter_invalid_context') : t('chapter_restarted')}
             {chapter.error && <>

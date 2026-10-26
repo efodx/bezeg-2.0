@@ -8,6 +8,7 @@ import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
 import {isGuidedLessonAvailable} from './runtime/lessonAvailability';
+import {familyInvestigationQuery} from './chapter/familyInvestigation';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -23,6 +24,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
         const article = articleRef.current;
         if (!article) return;
         let disposed = false;
+        let frame = 0;
         const settle = () => {
             if (disposed) return;
             const id = location.hash.slice(1);
@@ -31,8 +33,10 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                 document.getElementById(`${id}-heading`)?.focus({preventScroll: true});
             }
         };
-        void typesetMath(article, () => !disposed).then(settle, settle);
-        return () => { disposed = true; };
+        // Browser history may restore focus after the math promise settles.
+        const schedule = () => { if (!disposed) frame = window.requestAnimationFrame(settle); };
+        void typesetMath(article, () => !disposed).then(schedule, schedule);
+        return () => { disposed = true; window.cancelAnimationFrame(frame); };
     }, [chapter, language, location.hash]);
 
     useEffect(() => {
@@ -69,9 +73,21 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                                 const demo = catalog.demonstrations.find(entry => entry.id === id)!;
                                 const prompt = section.investigationPrompts?.[id];
                                 const guided = isGuidedLessonAvailable(id);
+                                const anchorSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
+                                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                                    const url = `${location.pathname}${location.search}#${section.id}`;
+                                    window.history.replaceState(window.history.state, '', url);
+                                };
                                 return <li key={id}>
-                                    <Link to={demo.path + (guided ? '?learn=1' : '')}>{demo.catalogTitle}{prompt && guided ? ' — ' + (language === 'sl' ? 'Vodena učna ura' : 'Guided graph lesson') : ''}</Link>
+                                    <Link className="learning-investigation-explore-link" to={demo.path + familyInvestigationQuery(chapter.id, section.id, id)} onClick={anchorSection}>
+                                        {demo.catalogTitle} — {language === 'sl' ? 'prosto raziskovanje' : 'free exploration'}
+                                    </Link>
                                     {prompt && <p className="learning-investigation-prompt">{prompt[language]}</p>}
+                                    {guided && <Link className="learning-guided-investigation-link"
+                                        to={demo.path + '?learn=1' + familyInvestigationQuery(chapter.id, section.id, id, '&')}
+                                        onClick={anchorSection}>
+                                        {language === 'sl' ? 'Vodena učna ura' : 'Guided graph lesson'}
+                                    </Link>}
                                 </li>;
                             })}</ul>
                         </div>}

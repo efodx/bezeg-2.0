@@ -138,9 +138,12 @@ test('Foundations renders bilingual app figures, specific graph prompts and accu
     expect(container.textContent).toContain('kvadratne uteži');
     expect(container.textContent).toContain('Vodena učna ura');
     expect(container.querySelector('.learning-investigation-prompt')?.textContent).toContain('stopnjo');
-    const links = [...container.querySelectorAll('.learning-investigations a')];
+    const links = [...container.querySelectorAll('.learning-investigation-explore-link')];
     expect(links.length).toBeGreaterThan(2);
-    expect(links.every(link => link.getAttribute('href')?.endsWith('?learn=1'))).toBe(true);
+    expect(links.every(link => link.getAttribute('href')?.includes('?explore='))).toBe(true);
+    const guidedLinks = [...container.querySelectorAll('.learning-guided-investigation-link')];
+    expect(guidedLinks.length).toBeGreaterThan(0);
+    expect(guidedLinks.every(link => link.getAttribute('href')?.includes('?learn=1&explore=foundations.'))).toBe(true);
 
     setLanguage('en');
     await waitFor(() => {

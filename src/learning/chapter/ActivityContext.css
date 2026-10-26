@@ -41,6 +41,11 @@
 .activity-notice { grid-column: 1 / -1; padding: 12px; border: 1px solid var(--bezeg-pollen); }
 .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading heading' 'context context' 'graph inspector' 'learning learning'; }
 .chapter-activity-context { grid-area: context; }
+.family-investigation-context {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "heading" "prompt";
+}
+.family-investigation-context .activity-context-heading > a { display: inline-flex; align-items: center; min-height: 44px; }
 @media (max-width: 760px) {
     .demonstration-workspace:has(.chapter-activity-context) { grid-template-areas: 'heading' 'context' 'graph' 'inspector' 'learning'; }
     .chapter-activity-context {
@@ -49,4 +54,5 @@
         gap: 12px;
         padding: 14px;
     }
+    .family-investigation-context { grid-template-areas: "heading" "prompt"; }
 }

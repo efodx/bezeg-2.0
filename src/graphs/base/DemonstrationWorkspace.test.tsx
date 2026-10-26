@@ -1,6 +1,6 @@
 import React from "react";
 import {act, fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {MemoryRouter} from "react-router-dom";
+import {MemoryRouter, useLocation} from "react-router-dom";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {SiteContext} from "../context/react/SiteContext";
 import {setLanguage} from '../../localization';
@@ -16,9 +16,16 @@ vi.mock('../../learning/runtime/lessonCatalog', async () => {
 });
 const actualLessonLookup = (await vi.importActual<typeof import('../../learning/runtime/lessonCatalog')>('../../learning/runtime/lessonCatalog')).getLessonForDemonstration;
 const lessonLookup = getLessonForDemonstration as MockedFunction<typeof getLessonForDemonstration>;
+function LocationReadout() {
+    const location = useLocation();
+    return <output data-testid="location">{location.pathname}{location.search}{location.hash}</output>;
+}
 
 // Reinstall the real lookup before every test so one test's unavailable-route override cannot leak into the next.
-beforeEach(() => lessonLookup.mockImplementation(actualLessonLookup));
+beforeEach(() => {
+    setLanguage('sl');
+    lessonLookup.mockImplementation(actualLessonLookup);
+});
 
 test("inspector sections remain mounted and retain values when switched or collapsed", () => {
     render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
@@ -96,6 +103,27 @@ test('ignores lesson query parameters on demonstrations without reviewed lessons
     expect(screen.getByRole('region', {name: 'Interaktivni graf'})).not.toHaveAttribute('data-lesson-locked');
 });
 
+test('valid family context shows its bilingual prompt and an exact-section return', () => {
+    setLanguage('en');
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein?school=west&explore=foundations.why-weights.bernstein#figure']}>
+        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
+    </MemoryRouter>);
+
+    expect(screen.getByRole('region', {name: 'Investigation instructions'})).toBeVisible();
+    expect(screen.getByText(/Change the degree with its selector/)).toBeVisible();
+    expect(screen.getByRole('link', {name: /Return to chapter: Foundations/})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#why-weights');
+});
+
+test('invalid family context is removed while unrelated query values and the hash survive', async () => {
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein?school=west&explore=foundations.why-weights.bernstein&explore=duplicate&learn=1#figure']}>
+        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
+        <LocationReadout/>
+    </MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/bernstein?school=west&learn=1#figure'));
+    expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
+});
+
 test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
@@ -105,10 +133,10 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
 });
 
-test('lesson overlay preserves the frame through hide, advances inside the overlay, and exits with focus restored', async () => {
+test('direct guided family context exits back to its investigation prompt and preserves the frame through hide', async () => {
     setLanguage('en');
     const lesson: LessonDefinition = {
-        id: 'workspace-hide-test', demonstrationId: 'bezier', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
+        id: 'workspace-hide-test', demonstrationId: 'spline-cn', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
         steps: [{id: 'step', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'}, frames: [
             {id: 'read', kind: 'explanation', title: {sl: 'Uvod', en: 'Introduction'}, body: {sl: 'Besedilo', en: 'Reading'}},
             {id: 'observe', kind: 'observation', title: {sl: 'Opazovanje', en: 'Observation'}, prompt: {sl: 'Preveri graf.', en: 'Inspect the graph.'}},
@@ -116,10 +144,10 @@ test('lesson overlay preserves the frame through hide, advances inside the overl
     };
     lessonLookup.mockReturnValue(lesson);
     const capabilities = {captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()};
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Explore"
-        edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} lessonCapabilities={capabilities}/></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1&explore=splines.piecewise.spline-cn']}><DemonstrationWorkspace title="Spline" description="Explore"
+        edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} lessonCapabilities={capabilities}/>
+        <LocationReadout/></MemoryRouter>);
 
-    fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
     await screen.findByRole('heading', {name: 'Introduction'});
     fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
@@ -172,6 +200,8 @@ test('lesson overlay preserves the frame through hide, advances inside the overl
     fireEvent.click(screen.getByRole('button', {name: 'Exit and restore graph'}));
     await waitFor(() => expect(capabilities.restoreState).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole('button', {name: 'Learn this demonstration'})).toHaveFocus());
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/spline/spline?explore=splines.piecewise.spline-cn'));
+    expect(screen.getByRole('region', {name: 'Investigation instructions'})).toBeVisible();
     act(() => setLanguage('sl'));
 });
 
