@@ -8,6 +8,7 @@ import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
+import {ChapterExploration} from './ChapterExploration';
 import {familyInvestigationQuery} from './chapter/familyInvestigation';
 import './ChapterPage.css';
 import './LearningPage.css';
@@ -68,8 +69,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                             <figcaption>{figure.caption[language]}</figcaption>
                         </figure>)}
                         {section.demonstrationIds?.length && <div className="learning-investigations">
-                            <h3>{language === 'sl' ? 'Razišči ob grafu' : 'Explore with a graph'}</h3>
-                            <ul>{section.demonstrationIds.map(id => {
+                            <div className="learning-investigation-list">{section.demonstrationIds.map(id => {
                                 const demo = catalog.demonstrations.find(entry => entry.id === id)!;
                                 const prompt = section.investigationPrompts?.[id];
                                 const anchorSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -77,13 +77,18 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                                     const url = `${location.pathname}${location.search}#${section.id}`;
                                     window.history.replaceState(window.history.state, '', url);
                                 };
-                                return <li key={id}>
-                                    <Link className="learning-investigation-explore-link" to={demo.path + familyInvestigationQuery(chapter.id, section.id, id)} onClick={anchorSection}>
-                                        {demo.catalogTitle} — {language === 'sl' ? 'prosto raziskovanje' : 'free exploration'}
-                                    </Link>
-                                    {prompt && <p className="learning-investigation-prompt">{prompt[language]}</p>}
-                                </li>;
-                            })}</ul>
+                                return <ChapterExploration key={id}
+                                    kind="free-exploration"
+                                    label={language === 'sl' ? `Prosto raziskovanje grafa v razdelku ${section.title[language]}` : `Free graph exploration in ${section.title[language]}`}
+                                    title={demo.catalogTitle}
+                                    prompt={prompt?.[language]}
+                                    promptClassName="learning-investigation-prompt"
+                                    action={<Link className="learning-investigation-explore-link chapter-open-activity" to={demo.path + familyInvestigationQuery(chapter.id, section.id, id)} onClick={anchorSection}>
+                                        {demo.catalogTitle} — {language === 'sl' ? 'prosto raziskovanje' : 'free exploration'}<span aria-hidden="true"> →</span>
+                                    </Link>}
+                                />;
+                            })}</div>
+
                         </div>}
                     </div>
                     <ChapterGuidedLessons chapterId={chapter.id} sectionId={section.id} language={language}/>

@@ -108,6 +108,13 @@ test.each(familyChapters.map(chapter => [chapter.id, chapter] as const))('%s has
         expect(screen.getAllByRole('link', {name: section.title.sl})[0]).toHaveAttribute('href', `#${section.id}`);
     }
     const graphLinks = [...container.querySelectorAll('.learning-investigations a')];
+    const explorations = [...container.querySelectorAll('.chapter-exploration')];
+    const demoCount = chapter.sections.reduce((count, section) => count + (section.demonstrationIds?.length ?? 0), 0);
+    expect(explorations).toHaveLength(demoCount);
+    const names = explorations.map(item => item.getAttribute('aria-label') ?? '');
+    expect(names.every((name, index) => name.startsWith('Prosto raziskovanje grafa v razdelku ') && name.endsWith(`: ${explorations[index].querySelector('h3')?.textContent}`))).toBe(true);
+    expect(new Set(names).size).toBe(explorations.length);
+    expect(explorations.every(item => item.querySelector('.chapter-open-activity')?.textContent?.includes('prosto raziskovanje'))).toBe(true);
     expect(graphLinks.length).toBeGreaterThan(0);
     for (const link of graphLinks) expect(getDemonstrationCatalog().demonstrations.some(demo => demo.path === link.getAttribute('href')?.split('?')[0])).toBe(true);
     await waitFor(() => expect(document.getElementById(`${chapter.sections[0].id}-heading`)).toHaveFocus());
@@ -144,6 +151,7 @@ test('Foundations renders bilingual app figures, specific graph prompts and accu
 
     setLanguage('en');
     await waitFor(() => {
+        expect(container.querySelector('.chapter-exploration')?.getAttribute('aria-label')).toMatch(/^Free graph exploration in .+: /);
         expect(container.textContent).toContain('four cubic weights');
         expect(container.textContent).toContain('quadratic weights');
         expect(container.textContent).toContain('Guided lesson alongside the graph');

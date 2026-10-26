@@ -1,0 +1,120 @@
+{
+  "preview": "http://127.0.0.1:4391/bezeg-2.0",
+  "httpStatus": 200,
+  "browser": "156.0.8078.4",
+  "revision": "f2f628e61e51412901245b206e2009ab3d688d24 + isolated compact-reader changes",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "language": "en",
+  "before": {
+    "revision": "f2f628e61e51412901245b206e2009ab3d688d24",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "en",
+    "width": 780,
+    "height": 729.109375,
+    "title": "Move a control point",
+    "font": "16px",
+    "previewWidth": 746,
+    "previewHeight": 455.875
+  },
+  "after": {
+    "width": 780,
+    "height": 248.4375,
+    "title": "Move a control point",
+    "font": "16px",
+    "rootFont": "16px",
+    "previewWidth": 240,
+    "previewHeight": 146.65625,
+    "previewNaturalWidth": 720,
+    "previewNaturalHeight": 440,
+    "previewObjectFit": "contain",
+    "previewAlt": "A cubic Bézier curve, its four control points, and the dashed control polygon.",
+    "caption": "The prepared cubic curve with its control polygon and control points.",
+    "ariaLabel": "Prepared chapter activity: Move a control point",
+    "role": null
+  },
+  "heightReduction": 480.671875,
+  "heightReductionPercent": 65.92589417739966,
+  "narrowViewport": {
+    "width": 390,
+    "height": 844
+  },
+  "narrow100": {
+    "width": 358,
+    "height": 528.890625,
+    "x": 16,
+    "right": 374,
+    "previewWidth": 280,
+    "previewHeight": 171.109375,
+    "rootFont": "16px",
+    "font": "16px",
+    "scrollWidth": 390,
+    "viewportWidth": 390
+  },
+  "narrow200": {
+    "width": 358,
+    "height": 1315.265625,
+    "x": 16,
+    "right": 374,
+    "rootFont": "32px",
+    "font": "32px",
+    "scrollWidth": 390,
+    "viewportWidth": 390,
+    "children": [
+      {
+        "tag": "IMG",
+        "left": 55,
+        "right": 335,
+        "top": 4240.21875,
+        "bottom": 4411.328125
+      },
+      {
+        "tag": "FIGCAPTION",
+        "left": 55,
+        "right": 335,
+        "top": 4418.328125,
+        "bottom": 4585.328125
+      },
+      {
+        "tag": "H3",
+        "left": 31,
+        "right": 359,
+        "top": 4596.328125,
+        "bottom": 4701.984375
+      },
+      {
+        "tag": "P",
+        "left": 31,
+        "right": 359,
+        "top": 4708.984375,
+        "bottom": 5304.109375
+      },
+      {
+        "tag": "P",
+        "left": 31,
+        "right": 359,
+        "top": 5314.109375,
+        "bottom": 5401.484375
+      },
+      {
+        "tag": "A",
+        "left": 31,
+        "right": 328.53125,
+        "top": 5316.109375,
+        "bottom": 5397.796875
+      },
+      {
+        "tag": "A",
+        "left": 31,
+        "right": 359,
+        "top": 5411.484375,
+        "bottom": 5525.484375
+      }
+    ]
+  }
+}

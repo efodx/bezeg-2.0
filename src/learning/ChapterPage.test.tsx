@@ -51,6 +51,11 @@ test('activity figures use full-size captures with bilingual alternatives and ca
     </MemoryRouter>);
     const figures = [...container.querySelectorAll('.chapter-activity-figure')];
     expect(figures).toHaveLength(6);
+    const explorations = [...container.querySelectorAll('.chapter-exploration')];
+    expect(explorations).toHaveLength(6);
+    expect(explorations.every(item => item.getAttribute('aria-label') === `Pripravljena dejavnost poglavja: ${item.querySelector('h3')?.textContent}`)).toBe(true);
+    expect(new Set(explorations.map(item => item.getAttribute('aria-label'))).size).toBe(6);
+    expect(explorations.every(item => item.querySelector('.chapter-open-activity')?.textContent?.includes('pripravljeno dejavnost'))).toBe(true);
     const images = figures.map(figure => figure.querySelector('img')!);
     expect(images.map(image => image.getAttribute('src'))).toEqual(expect.arrayContaining([
         expect.stringMatching(/shape-control/), expect.stringMatching(/curve-parameter/),
@@ -67,6 +72,7 @@ test('activity figures use full-size captures with bilingual alternatives and ca
     expect(container.textContent).toContain('Začetni kubični primer');
     setLanguage('en');
     await waitFor(() => {
+        expect(explorations.every(item => item.getAttribute('aria-label') === `Prepared chapter activity: ${item.querySelector('h3')?.textContent}`)).toBe(true);
         expect(images[0].alt).toContain('cubic Bézier curve');
         expect(figures[5].querySelector('figcaption')?.textContent).toContain('starting cubic example');
     });

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {ChapterExploration} from './ChapterExploration';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {useLanguage} from '../localization';
 import type {Language} from '../localization';
@@ -45,14 +46,6 @@ const activityFigures: Record<BezierActivityId, {src: string; alt: Record<Langua
         alt: {sl: 'Začetna kubična Bézierjeva krivulja s kontrolnimi točkami in kontrolnim poligonom.', en: 'The starting cubic Bézier curve with its control points and control polygon.'},
         caption: {sl: 'Začetni kubični primer za raziskovanje premika, spremembe merila, vrtenja ali zrcaljenja.', en: 'The starting cubic example for exploring translation, scaling, rotation, or reflection.'}},
 };
-function ActivityFigure({activity, language}: {activity: BezierActivityId; language: Language}) {
-    const figure = activityFigures[activity];
-    return <figure className="chapter-activity-figure">
-        <img src={figure.src} alt={figure.alt[language]} width={720} height={440} loading="lazy" decoding="async"/>
-        <figcaption>{figure.caption[language]}</figcaption>
-    </figure>;
-}
-
 function renderParagraph(text: string, links?: readonly {label: string; href: string}[]) {
     if (!links?.length) return text;
     const result: React.ReactNode[] = [];
@@ -72,16 +65,17 @@ function renderParagraph(text: string, links?: readonly {label: string; href: st
 function ActivityCard({id, sectionId, language}: {id: BezierActivityId; sectionId: string; language: Language}) {
     const location = useLocation();
     const copy = bezierActivityCopy[id][language];
+    const figure = activityFigures[id];
     const linkId = `activity-${id}`;
-    return <aside className="chapter-activity-card" aria-label={language === 'sl' ? 'Dejavnost za raziskovanje' : 'Graph exploration activity'}>
-        <ActivityFigure activity={id} language={language}/>
-        <div className="chapter-activity-copy">
-            <h3>{copy.title}</h3>
-            <p>{copy.prompt}</p>
-            <p className="chapter-activity-return"><span>{language === 'sl' ? 'Vrni se k:' : 'Return to:'}</span> <a href={`#${sectionId}`}>{sectionId === 'control-points' ? (language === 'sl' ? 'razlagi kontrolnih točk' : 'the control-point explanation') : bezierChapter[language].sections.find(section => section.id === sectionId)?.title}</a></p>
-            <Link id={linkId} className="chapter-open-activity" to={copy.demoHref} state={chapterActivityVisit.activityEntryState(location.state, id, location.key)} onClick={() => chapterActivityVisit.prepareActivityLaunch(id, sectionId, linkId, location.key)}>{language === 'sl' ? 'Odpri raziskovanje' : 'Open exploration'}<span aria-hidden="true"> →</span></Link>
-        </div>
-    </aside>;
+    return <ChapterExploration
+        kind="prepared-activity"
+        label={language === 'sl' ? 'Pripravljena dejavnost poglavja' : 'Prepared chapter activity'}
+        title={copy.title}
+        prompt={copy.prompt}
+        preview={{src: figure.src, alt: figure.alt[language], caption: figure.caption[language]}}
+        context={<p className="chapter-activity-return"><span>{language === 'sl' ? 'Vrni se k:' : 'Return to:'}</span> <a href={`#${sectionId}`}>{sectionId === 'control-points' ? (language === 'sl' ? 'razlagi kontrolnih točk' : 'the control-point explanation') : bezierChapter[language].sections.find(section => section.id === sectionId)?.title}</a></p>}
+        action={<Link id={linkId} className="chapter-open-activity" to={copy.demoHref} state={chapterActivityVisit.activityEntryState(location.state, id, location.key)} onClick={() => chapterActivityVisit.prepareActivityLaunch(id, sectionId, linkId, location.key)}>{language === 'sl' ? 'Odpri pripravljeno dejavnost' : 'Open prepared activity'}<span aria-hidden="true"> →</span></Link>}
+    />;
 }
 
 function ChapterBlockView({block, section, language}: {block: ChapterBlock; section: ChapterSection; language: Language}) {
