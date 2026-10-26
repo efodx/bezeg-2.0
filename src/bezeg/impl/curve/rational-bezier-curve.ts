@@ -2,6 +2,7 @@ import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {MaybeVersioned, maxVersion, VOLATILE} from "../versioning";
+import {elevateRational, extrapolateRational, subdivideRational, WeightedNet} from "../kernels/bezier-kernels";
 
 
 export class RationalBezierCurve extends PolynomialBezierCurve {
@@ -32,27 +33,10 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
 
 
     override elevate(): this {
-        const ws = this.getEffectiveWeights();
-        let newPoints = [];
-        let newWeights = [];
-        newPoints.push(this.points[0]);
-        newWeights.push(ws[0]);
-        let n = this.points.length, x, y;
-        for (let i = 1; i < n; i++) {
-            let w1 = ws[i - 1];
-            let w2 = ws[i];
-            let w = i / n * w1 + (1 - i / n) * w2;
-            newWeights.push(w);
-            x = i / n * this.points[i - 1].X() * w1 + (1 - i / n) * this.points[i].X() * w2;
-            y = i / n * this.points[i - 1].Y() * w1 + (1 - i / n) * this.points[i].Y() * w2;
-
-            x = x / w;
-            y = y / w;
-            newPoints.push(new PointImpl(x, y));
-        }
-        newPoints.push(this.points[n - 1]);
-        newWeights.push(ws[n - 1]);
-        return new RationalBezierCurve(newPoints, newWeights) as this;
+        const {rows, weights} = elevateRational({rows: this.points.map(point => [point.X(), point.Y()]), weights: this.getEffectiveWeights()});
+        const n = this.points.length;
+        const newPoints = [this.points[0], ...rows.slice(1, n).map(([x, y]) => new PointImpl(x, y)), this.points[n - 1]];
+        return new RationalBezierCurve(newPoints, weights) as this;
     }
 
     /** Reactive weights are closures: volatile unless the constructor declared what they read. */
@@ -97,12 +81,8 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
      * @param t
      */
     override extrapolate(t: number): this {
-        const points = this.points.map((point, i) => [point.X() * this.weights[i], point.Y() * this.weights[i], this.weights[i]]);
-        const decasteljauScheme = super.decasteljau(t, points);
-        const pointsToProject = decasteljauScheme.map((row, i) => row[0]);
-        const actualPoints = pointsToProject.map(p => new PointImpl(p[0] / p[2], p[1] / p[2]));
-        const weights = pointsToProject.map(p => p[2]);
-        return new RationalBezierCurve(actualPoints, weights) as this;
+        const {rows, weights} = extrapolateRational(t, this.homogeneousSource());
+        return new RationalBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)), weights) as this;
     }
 
     /**
@@ -110,19 +90,14 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
      * @param t
      */
     override subdivide(t: number): this[] {
-        const points = this.points.map((point, i) => [point.X() * this.weights[i], point.Y() * this.weights[i], this.weights[i]]);
-        const decasteljauScheme = super.decasteljau(t, points);
-        const n = decasteljauScheme.length;
-        const points1 = decasteljauScheme.map((row, i) => row[0]);
-        const points2 = decasteljauScheme.map((row, i) => row[n - 1 - i]).reverse();
-        const actualPoints1 = points1.map(p => new PointImpl(p[0] / p[2], p[1] / p[2]));
-        const actualWeights = points1.map(p => p[2]);
-        const actualPoints2 = points2.map(p => new PointImpl(p[0] / p[2], p[1] / p[2]));
-        const actualWeights2 = points2.map(p => p[2]);
-        const bezierCurve1 = new RationalBezierCurve(actualPoints1, actualWeights);
-        const bezierCurve2 = new RationalBezierCurve(actualPoints2, actualWeights2);
-        return [bezierCurve1, bezierCurve2] as this[];
+        return subdivideRational(t, this.homogeneousSource())
+            .map(({rows, weights}) => new RationalBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)), weights)) as this[];
     };
+
+    // Subdivision and extrapolation use the stored weights, not the current reactive ones.
+    private homogeneousSource(): WeightedNet {
+        return {rows: this.points.map(point => [point.X(), point.Y()]), weights: this.weights};
+    }
 
     /**
      * Returns the full decasteljau scheme for desired t.

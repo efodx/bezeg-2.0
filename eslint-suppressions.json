@@ -98,19 +98,6 @@
       "count": 6
     }
   },
-  "src/bezeg/impl/curve/polynomial-bezier-curve.ts": {
-    "prefer-const": {
-      "count": 2
-    }
-  },
-  "src/bezeg/impl/curve/rational-bezier-curve.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
-    "prefer-const": {
-      "count": 6
-    }
-  },
   "src/bezeg/impl/point/fixed-point.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2

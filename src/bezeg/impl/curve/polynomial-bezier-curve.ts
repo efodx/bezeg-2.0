@@ -4,6 +4,7 @@ import {BezierCurve} from "../../api/curve/bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 
 import {VOLATILE} from "../versioning";
+import {deCasteljauInPlace, elevate, extrapolate, subdivide} from "../kernels/bezier-kernels";
 
 
 export class PolynomialBezierCurve extends AbstractPointControlledCurve implements BezierCurve {
@@ -12,15 +13,9 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
     private evaluationScratch: number[][] = [];
 
     elevate(): this {
-        let newPoints = [];
-        newPoints.push(this.points[0]);
-        let n = this.points.length, x, y;
-        for (let i = 1; i < n; i++) {
-            x = i / n * this.points[i - 1].X() + (1 - i / n) * this.points[i].X();
-            y = i / n * this.points[i - 1].Y() + (1 - i / n) * this.points[i].Y();
-            newPoints.push(new PointImpl(x, y));
-        }
-        newPoints.push(this.points[n - 1]);
+        const elevated = elevate(this.points.map(point => [point.X(), point.Y()]));
+        const n = this.points.length;
+        const newPoints = [this.points[0], ...elevated.slice(1, n).map(([x, y]) => new PointImpl(x, y)), this.points[n - 1]];
         return new PolynomialBezierCurve(newPoints) as this;
     }
 
@@ -75,38 +70,9 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
         return undefined;
     }
 
-    /**
-     * The one de Casteljau recurrence, in place on `rows` (one coordinate row per control point).
-     * With `weights` each step blends by the weighted (projected) coefficients and updates them;
-     * the weights array is consumed. If `scheme` is given, a copy of the rows is appended to it
-     * before the first step and after every step.
-     */
+    /** The de Casteljau recurrence in place on `rows`; see {@link deCasteljauInPlace}. */
     protected runDeCasteljau(t: number, rows: number[][], weights?: number[], scheme?: number[][][]): void {
-        const n = rows.length;
-        scheme?.push(rows.map(row => [...row]));
-        for (let r = 1; r < n; r++) {
-            for (let i = 0; i < n - r; i++) {
-                let left = 1 - t;
-                let right = t;
-                if (weights) {
-                    const w = left * weights[i] + right * weights[i + 1];
-                    left = left * weights[i] / w;
-                    right = right * weights[i + 1] / w;
-                    weights[i] = w;
-                }
-                const row = rows[i];
-                const next = rows[i + 1];
-                if (row.length === 2) {
-                    row[0] = left * row[0] + right * next[0];
-                    row[1] = left * row[1] + right * next[1];
-                } else {
-                    for (let d = 0; d < row.length; d++) {
-                        row[d] = left * row[d] + right * next[d];
-                    }
-                }
-            }
-            scheme?.push(rows.map(row => [...row]));
-        }
+        deCasteljauInPlace(t, rows, weights, scheme);
     }
 
     /**
@@ -124,8 +90,7 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @param t
      */
     extrapolate(t: number): this {
-        const decasteljauScheme = this.decasteljauScheme(t);
-        const newPoints = decasteljauScheme.map(row => row[0]);
+        const newPoints = extrapolate(t, this.points.map(point => [point.X(), point.Y()])).map(([x, y]) => new PointImpl(x, y));
         return new PolynomialBezierCurve(newPoints) as this;
     }
 
@@ -134,13 +99,8 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @param t
      */
     subdivide(t: number): this[] {
-        const decasteljauScheme = this.decasteljauScheme(t);
-        const n = decasteljauScheme.length;
-        const points1 = decasteljauScheme.map(row => row[0]);
-        const points2 = decasteljauScheme.map((row, i) => row[n - 1 - i]).reverse();
-        const bezierCurve1 = new PolynomialBezierCurve(points1);
-        const bezierCurve2 = new PolynomialBezierCurve(points2);
-        return [bezierCurve1, bezierCurve2] as this[];
+        return subdivide(t, this.points.map(point => [point.X(), point.Y()]))
+            .map(rows => new PolynomialBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)))) as this[];
     };
 
     decasteljau(t: number, pointsAtT: number[][]): number[][][] {

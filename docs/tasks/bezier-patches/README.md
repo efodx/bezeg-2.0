@@ -1,6 +1,6 @@
 # Bézier patches: implementation tasks
 
-Status: planned, unstarted. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
+Status: in progress; 03 done. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # 03 — Extract shared curve kernels
 
-Status: planned. Source: [spec P3 and the shared geometry contract](../../specs/bezier-patches.md#shared-geometry-contract). Dependencies: none (parallel with 01/02). Role: geometry refactor owner.
+Status: done 2026-10-26; evidence in [shared-kernels.md](../../reviews/bezier-patches/shared-kernels.md). Source: [spec P3 and the shared geometry contract](../../specs/bezier-patches.md#shared-geometry-contract). Dependencies: none (parallel with 01/02). Role: geometry refactor owner.
 
 Turn the curve algorithms into pure, dimension-generic functions that patches will compose. This is a behaviour-preserving refactor: no 3D points, no patch code, no UI change.
 
