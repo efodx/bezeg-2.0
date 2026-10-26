@@ -1,0 +1,21 @@
+# PH production browser acceptance
+
+Checked 2026-10-26 in a fresh Playwright Chromium context against the handler-owned local production preview at `http://127.0.0.1:4396/bezeg-2.0/`. The checkout was `d9107fa`; the relevant dirty files were `src/learning/content/familyChapters.ts` and `familyChapters.test.ts`, plus PH review/worker/task evidence. The production build log supplied by the handler is `.command-logs/2026-10-26T01-51-16-133Z-102488-47f86edd.log`. This targeted run took about six minutes of the ten-minute allowance.
+
+| Check | Result and evidence |
+| --- | --- |
+| PH chapter deep link and language | **Passed.** `/learn/ph-curves#worked-length` refreshed with the hash in Slovenian and English. The selector and prompts changed language. Seven rendered graph-link occurrences each had a nonempty prompt and a `?learn=1` destination. |
+| Reader rendering | **Passed.** Both figures decoded at 720×440, with bilingual alt text and typed caption formulas. The reader mounted no `#jgbox` board and MathJax reported no errors. Image bounds stayed within their figures and `object-fit` did not crop them. |
+| Layout | **Passed.** English reader had no horizontal document overflow at 1440, 1024, or 390 CSS pixels, including 390 pixels with root text set to 200%. |
+| Representative reader baseline | **Passed.** The unchanged Splines `#worked-join` reader rendered two decoded 720×440 figures, no board or MathJax errors, and no overflow at 1440 pixels. |
+| Guided graph links and return | **Passed.** The chapter's `ph-cubic?learn=1` and `ph-quintic?learn=1` links opened their lessons. For each, **Exit lesson → Exit and restore graph** closed the lesson and restored a visible graph before free-control checks. |
+| Cubic offsets | **Passed.** With the Display offset switch enabled before opening Edit, the distance field appeared. At `d=+0.35, 0, −0.35`, all sampled paths were finite; mean source-to-offset distances were 0.350 and 0.350; the two nonzero signs selected opposite sides; zero matched the source within `1.4×10⁻¹⁵`. Source path maximum change was 0; the displayed source length stayed `Arc length: 10.333`. |
+| Quintic offsets | **Passed.** At `d=+0.5, 0, −0.5`, mean distances were 0.500 and 0.500; the sides were opposite; zero matched the source within `1.4×10⁻¹⁵`. Source path maximum change was 0; the displayed source length stayed `Arc length: 9.233`. |
+| Browser errors | **Passed.** No page errors or console errors were observed. |
+| Final wording rebuild | **Passed.** After the handler's final build (`.command-logs/2026-10-26T01-58-11-767Z-95340-33f638fa.log`), the corrected complex-hodograph paragraph rendered the defining derivative and speed identity in Slovenian and English, retained its deep-link hash after refresh, had no MathJax errors, and mounted no board. |
+
+The geometry check samples both JXG curves at the same thirteen parameter values from 0 through 1. This avoids comparing adaptive screen samples at mismatched parameters and directly checks the source, zero offset, distance and side sign. The script is `.command-logs/ph-browser.cjs`; its machine-readable results are `.command-logs/ph-browser.json`.
+
+Saved captures for handler review are `.command-logs/ph-browser-en-desktop-1440.png`, `.command-logs/ph-browser-en-narrow-390.png`, `.command-logs/ph-browser-en-narrow-390-200.png`, `.command-logs/ph-browser-figure-cubic.png`, and `.command-logs/ph-browser-figure-quintic.png` (the figure captures include captions).
+
+The handler corrected the complex-hodograph wording after the main PH run. A compact final-build recheck is `.command-logs/ph-wording-recheck.cjs`, with results in `.command-logs/ph-wording-recheck.json`. It confirmed the corrected equations in both languages (15 Slovenian and 10 English typeset math containers in the paragraph), the refreshed `#complex-hodograph` hash, no reader board, and no browser errors. The paragraph captures are `.command-logs/ph-browser-complex-hodograph-sl.png` and `.command-logs/ph-browser-complex-hodograph-en.png`. This was browser viewport evidence, not physical-device, keyboard, or comprehensive accessibility testing. Both isolated browsers were closed after their runs; the handler-owned preview was left running.

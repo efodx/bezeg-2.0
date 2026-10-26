@@ -139,4 +139,49 @@ describe('family reading chapters', () => {
         expect(workedJoin).toContain('h_R');
         expect(workedJoin).toContain('a=1');
     });
+
+    test('completes the PH worked curve and gives every graph link specific prompts and offset figures', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'ph-curves')!;
+        for (const section of chapter.sections) {
+            for (const id of section.demonstrationIds ?? []) {
+                const prompt = section.investigationPrompts?.[id];
+                expect(prompt?.sl, `${section.id}/${id} Slovenian prompt`).toBeTruthy();
+                expect(prompt?.en, `${section.id}/${id} English prompt`).toBeTruthy();
+                expect(prompt?.sl).toMatch(/opaz|spremeni|primerj|preveri|povež/i);
+                expect(prompt?.en).toMatch(/observe|change|compare|check|connect/i);
+            }
+        }
+        const worked = chapter.sections.find(section => section.id === 'worked-length')!.paragraphs
+            .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(worked).toContain('t-\\frac{t^3}{3}');
+        expect(worked).toContain('r(0)=(0,0)');
+        expect(worked).toContain('r(1)=(\\frac23,1)');
+        expect(worked).toContain('1+t^2');
+        expect(worked).toContain('\\frac43');
+        expect(worked).toContain('initial point at the origin');
+        expect(worked).toContain('translation');
+
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets['ph-cubic'], demonstrationPreviewAssets['ph-quintic'],
+        ]);
+        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('0{,}35');
+        expect(captions).toContain('0.35');
+        expect(captions).toContain('0{,}5');
+        expect(captions).toContain('0.5');
+        expect(captions).toContain('integrirana');
+        expect(captions).toContain('integrated');
+
+        const offsets = chapter.sections.find(section => section.id === 'offsets')!.paragraphs
+            .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(offsets).toContain('regular point');
+        expect(offsets).toContain('opposite sides');
+        expect(offsets).toContain('d=0');
+        expect(offsets).toContain('not necessarily polynomial');
+        expect(offsets).toContain('singularities');
+        expect(offsets).toContain('self-intersection');
+        expect(offsets).toContain('global regularity');
+    });
 });
