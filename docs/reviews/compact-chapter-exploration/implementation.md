@@ -24,7 +24,7 @@ Evidence: [before dimensions](before-dimensions.json), [after dimensions](after-
 
 ## Implementation and review
 
-`ChapterExploration` owns the optional static preview, title, prompt, primary action, contextual reading link and secondary action presentation. Callers own navigation nodes; the component cannot infer or initialize a scene. Bézier retains all six existing prepared activity destinations, visit state and launch callbacks. Family readers retain their section figures, subject prompts, free exploration links and optional secondary guided lesson links. No runtime, mathematical evaluation, storage or route changes.
+`ChapterExploration` owns the optional static preview, title, prompt, primary action, contextual reading link and secondary action presentation. Callers own navigation nodes; the component cannot infer or initialize a scene. Bézier retains all six existing prepared activity destinations, visit state and launch callbacks. Family readers retain their section figures, subject prompts and free exploration links. After integration with chapter-owned guided learning, guided lessons remain in their authored section through ChapterGuidedLessons; obsolete per-card guided links are omitted. No runtime, mathematical evaluation, storage or route changes.
 
 Independent content/mathematical review found no changed claims, lost content or changed scene semantics. Independent engineering/accessibility review identified two issues, both fixed and rechecked: family link CSS specificity now preserves inline-flex alignment, and named exploration landmarks include their title and family section to distinguish repeated demonstrations. Tests check card counts and unique names. Handler integration review also corrected an obsolete list wrapper introduced while moving the changes to the isolated worktree.
 
@@ -42,3 +42,16 @@ The Impeccable detector ran once on the original implementation and reported inh
 ## Browser acceptance
 
 Accepted at 2026-10-26 09:20:43 UTC. See [browser smoke](browser-smoke.md). All eight chapters passed Slovenian/English content and launch-link checks. Six existing Bézier launch/authored-scene smoke cases passed, including sampled return, reset and refresh behavior. Prepared keyboard entry/return, focus/scroll restoration and Forward passed; representative ordinary/guided family launch and section return passed. All 64 chapter/language/viewport/text-size layout combinations are covered: 16 worker probes plus 48 saved handler probes in [layout-verification.json](layout-verification.json). The handler recheck closed the worker aggregate-output gap. An initial 8px Rational overflow reading did not reproduce in direct fresh and settled checks and is retained in the report. No physical-device or exhaustive accessibility claim is made.
+
+## Authorized rebase integration — 2026-10-26
+
+The owner authorized resolving the FamilyChapterPage conflict and publishing. The handler retained the compact shared free-exploration cards and master's ChapterGuidedLessons section ownership, omitting the obsolete guided availability import and per-card secondary links. Rebased task commit: `e313c002c1449e329539b2f70193e93e65c5f0b8`, on master `c6cfda3` (including its deep-link smoke assertion repair). No mathematical, runtime or stored-data changes were introduced by resolution.
+
+Integrated review found no further issue. Verification:
+
+- 77 tests across 11 reader, chapter/content, activity/navigation/ownership and notation files passed. Unit log: `.command-logs/2026-10-26T09-37-25-404Z-90376-255a6787.log`.
+- Typecheck and scoped lint passed on resolved commit `6752fdc`; `git diff --quiet 6752fdc e313c00 -- src` confirmed identical application source after the second rebase. Logs: `2026-10-26T09-38-03-579Z-25776-fa64c989.log` and `2026-10-26T09-38-03-579Z-57968-b826e314.log`.
+- Production build passed at `e313c00`: `.command-logs/2026-10-26T09-38-32-043Z-80200-fa95e36d.log`. Existing Sass deprecation warnings remain.
+- All 18 standalone-learning browser tests passed against that build: prepared launch and authored scenes, history, keyboard, reset/refresh, narrow/enlarged text, reading restoration and guided ownership. Log: `.command-logs/2026-10-26T09-39-41-874Z-71684-cc78b46c.log`.
+- Master's repaired production deep-link/lesson query/hash test passed against the integrated build. Log: `.command-logs/2026-10-26T09-40-46-081Z-61252-1b3cf2a1.log`.
+- Delegated integration browser evidence is recorded in [integrated-smoke.md](integrated-smoke.md). The prior full eight-chapter layout matrix remains evidence for unchanged routes; this integration reruns representative affected family/Bézier workflows and layouts. Physical devices, full accessibility and hosted deployment remain outside local browser acceptance.
