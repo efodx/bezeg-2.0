@@ -48,8 +48,16 @@ New content assertions were observed failing for wrong degree, wrong authored ca
 
 The [final production-browser review](final-browser-acceptance.md) passed 133 distinct checks, including 112 bilingual image decodes, 64 responsive chapter checks, four return flows, representative graph interactions and guided observation/edit/reopen/exit restoration. The initial detached fallback locator was a harness race; its focused rerun passed. No uncaught runtime errors occurred. Intentional image-request failure was recorded. All owned preview/browser processes were closed; an unrelated pre-existing server on port 4387 was left untouched.
 
-Physical-device, actual-projector and classroom observation remain optional under the release policy. Screen-reader behavior was not tested. Local preview results are not hosted GitHub Pages evidence. Push and hosted CI/deployment verification are pending delivery closeout.
+Physical-device, actual-projector and classroom observation remain optional under the release policy. Screen-reader behavior was not tested. Local preview results are not hosted GitHub Pages evidence. Hosted CI and deployment passed; details follow.
 
 ## Evidence retention
 
 Five temporary handler handoffs were retired after consolidating their final outcomes here and in the linked capture, repair, review and browser records. Historical evaluation entries mentioning those filenames refer to former continuation notes; this record is their current completion reference.
+
+## Delivered release — 2026-10-26
+
+Fast-forward pushed `5216c2bc0f2abd7a3f7a70bf623e13c0be62d37b` to `origin/master`. The final rebase from `2ef29a0` to `a5bb2d0` was clean; its only upstream changes were AGENTS/localization and Bézier-patch planning documentation. Application, tooling and media bytes were unchanged. Rebased commit mapping: `7b2caba` → `cd4c26f`, `93066f4` → `235559a`, `a96d00b` → `1ed1a5c`, `28f8cbb` → `f9bf851`. Capture provenance retains the actual revision used at capture rather than rewriting its history.
+
+[GitHub Actions run 40356064803](https://github.com/efodx/bezeg-2.0/actions/runs/40356064803) passed TypeScript, lint, production build, both unit shards (2,089 + 1,597 = **3,686 tests**, 192 files), and all four Chromium shards (44 + 43 + 43 + 113 = **243 browser tests**). The smoke gate and Pages deployment both succeeded. This complete CI run supersedes the local full-check gap described above without changing that historical result.
+
+Actual [GitHub Pages site](https://efodx.github.io/bezeg-2.0/) checked in Chromium at 16:16:18–16:16:32 UTC: all eight chapter deep routes loaded, all 56 chapter previews decoded (12/3/7/6/7/3/9/9 by chapter), and the direct Taylor example URL loaded a visible graph. No uncaught runtime errors occurred; the browser was closed. Entry asset names match the local tested production build, and all four compiled JS/CSS files match byte for byte. The uncompiled history bridge matches after CRLF/LF normalization, accounting for Windows versus Linux checkout. Local evidence: `.command-logs/hosted-illustrated-release.json`. The first hosted harness run already passed chapter/image/assets checks but used the wrong board selector; correcting it to the actual `#jgbox` produced the complete pass above.
