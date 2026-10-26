@@ -26,8 +26,8 @@ test('concept-led curve recipes expose their supported primary choreography and 
     assert.match(specs.rational.invariants.join(' '), /control points.*polygon stay fixed/i);
     assert.equal(specs.bernstein.conceptStatus, 'blocked');
     assert.match(specs.bernstein.dependency, /shared probe/i);
-    assert.equal(specs['rational-decasteljau'].conceptStatus, 'blocked');
-    assert.match(specs['rational-decasteljau'].dependency, /weighted interpolation levels/i);
+    assert.equal(specs['rational-decasteljau'].conceptStatus, 'supported');
+    assert.match(specs['rational-decasteljau'].invariants.join(' '), /weighted interpolation points/i);
     assert.deepEqual(specs['rational-subdivision'].checkpoints.map(row => row.value), ['setup', 'subdivided', 'setup']);
     assert.deepEqual(specs['rational-subdivision'].holds, [24, 48, 24]);
     assert.match(specs['rational-subdivision'].presentationDependencyIfMissing, /Both child polygons.*eight source weight labels/i);

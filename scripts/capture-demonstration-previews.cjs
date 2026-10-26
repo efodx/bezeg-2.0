@@ -430,6 +430,15 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
 
 }
 
+function selectiveSourceProvenance(previous, currentFingerprint, allowMixedSource = false) {
+    const matches = previous.graphSourceFingerprint === currentFingerprint;
+    assert.ok(matches || allowMixedSource,
+        'Existing captures have different mathematical source; run full generation or explicitly preserve prior source provenance');
+    return {previousGraphSourceRevision: previous.graphSourceRevision,
+        previousGraphSourceFingerprint: previous.graphSourceFingerprint,
+        mixedSource: !matches};
+}
+
 async function main() {
     validateRecipes(demonstrations);
     const started = Date.now();
@@ -465,8 +474,10 @@ async function main() {
     let motions = [];
     let diagnosticMotions = null;
     let previousGraphSourceRevision=null;
+    let previousGraphSourceFingerprint=null;
     let previousPresentationFingerprint=null;
     let previousSelectiveRecapture=null;
+    let mixedGraphSource=false;
     let previousCaptureIds=[];
     let previousMotionIds=[];
     const recaptureIds = process.env.PREVIEW_RECAPTURE_IDS?.split(',');
@@ -475,8 +486,11 @@ async function main() {
         assert.ok(recaptureIds.length && recaptureIds.every(id=>demonstrations.some(d=>d.id===id)),'Unknown recapture ID');
         const previous=JSON.parse(fs.readFileSync(path.join(publishedOutput,'manifest.json'),'utf8'));
         assert.equal(previous.version,2);
-        assert.equal(previous.graphSourceFingerprint,graphSourceFingerprint,'Existing captures have different mathematical source; run full generation');
-        previousGraphSourceRevision=previous.graphSourceRevision;
+        const sourceProvenance=selectiveSourceProvenance(previous,graphSourceFingerprint,
+            process.env.PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE==='1');
+        previousGraphSourceRevision=sourceProvenance.previousGraphSourceRevision;
+        previousGraphSourceFingerprint=sourceProvenance.previousGraphSourceFingerprint;
+        mixedGraphSource=sourceProvenance.mixedSource;
         previousPresentationFingerprint=previous.presentationFingerprint ?? null;
         previousSelectiveRecapture=previous.selectiveRecapture ?? null;
         previousCaptureIds=previous.captures.map(c=>c.id);
@@ -703,7 +717,7 @@ async function main() {
         image: expectedDimensions,
         captures,
         motions,
-        ...(recaptureIds?{selectiveRecapture:{previousGraphSourceRevision,previousPresentationFingerprint,priorSelectiveRecapture:previousSelectiveRecapture,
+        ...(recaptureIds?{selectiveRecapture:{previousGraphSourceRevision,previousGraphSourceFingerprint,mixedGraphSource,previousPresentationFingerprint,priorSelectiveRecapture:previousSelectiveRecapture,
             preservedCaptureIds:previousCaptureIds.filter(id=>!recaptureIds.includes(id)),
             preservedMotionIds:previousMotionIds.filter(id=>!recaptureIds.includes(id))}}:{}),
     };
@@ -747,7 +761,8 @@ async function main() {
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions, alignMotionCameras, serializeManifest};
+module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions, alignMotionCameras, serializeManifest,
+    selectiveSourceProvenance};
 if (require.main === module) main().catch(error => {
     console.error(error);
     process.exitCode = 1;

@@ -1,5 +1,7 @@
 # Concept-led demonstration preview acceptance
 
+> Correction (2026-10-26): the rational de Casteljau runtime already supports weighted levels and the evaluated point. The historical blocked disposition below came from the capture recipe hiding that construction. See [rational/PH repair](rational-preview-repair.md) for the replacement capture, current acceptance and provenance; Bernstein remains a separate gap.
+
 Source: [the bounded specification](../specs/concept-led-demonstration-previews.md), implemented on 2026-10-18. Runtime defaults, routes, presets, lessons, player activation, and mathematical definitions are unchanged. This is capture tooling and static media work.
 
 The implementation revises 22 clips and retains 23. Two retained clips remain **blocked**, rather than accepted for their new primary concept: Bernstein needs shared probe/value presentation; rational de Casteljau needs visible weighted interpolation levels. These are explicit follow-up seams, not permission to add runtime features here. All secondary comparisons in the specification remain deferred.

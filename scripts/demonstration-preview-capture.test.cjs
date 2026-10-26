@@ -291,14 +291,14 @@ const phFixtureMotion=(id,controls)=>{
     const sample=i=>{
         const d=sweepValue(i,spec),readout=spec.sweep.readout.text(d);
         const ph=Array.from({length:41},(_,k)=>bernsteinPoint(controls,k/40));
-        const offset=Array.from({length:41},(_,k)=>{
-            const B=ph[k],D=bernsteinDerivativePoint(controls,k/40),n=Math.hypot(D.x,D.y);
-            return {x:B.x+d*D.y/n,y:B.y-d*D.x/n};
-        });
+        const offsets=[1,2,3].map(multiplier=>Array.from({length:41},(_,k)=>{
+            const B=ph[k],D=bernsteinDerivativePoint(controls,k/40),n=Math.hypot(D.x,D.y),distance=multiplier*d;
+            return {x:B.x+distance*D.y/n,y:B.y-distance*D.x/n};
+        }));
         return {index:i,time:i/24,scheduled:d,actual:{input:d,readout,steps:0},controls:[],
             points:controls.map((p,j)=>({id:'c'+j,name:'$$p_{'+j+'}$$',x:p.x,y:p.y,draggable:false})),
-            observed:{curves:[{min:0,max:1,d:'offset-'+d,samples:offset},{min:0,max:1,d:'ph-path',samples:ph}]},
-            curvePathHash:'paths-'+d,pathCount:2,capture:{sha256:'recipe-png'}};
+            observed:{curves:[...offsets.map((samples,j)=>({min:0,max:1,d:`offset-${j+1}-${d}`,visible:true,samples})),{min:0,max:1,d:'ph-path',visible:true,samples:ph}]},
+            curvePathHash:'paths-'+d,pathCount:4,capture:{sha256:'recipe-png'}};
     };
     return ()=>({id,mode:'parameter-sweep',frameCount:96,sampleRate:24,duration:4,samples:Array.from({length:96},(_,i)=>sample(i))});
 };
@@ -311,7 +311,7 @@ const rotateOffset=(sample,k,theta)=>{
     o.x=B.x+Math.cos(theta)*vx-Math.sin(theta)*vy;o.y=B.y+Math.sin(theta)*vx+Math.cos(theta)*vy;
 };
 const phCubicControls=[{x:-4.2,y:-2},{x:-1.08,y:1.9667},{x:2.9167,y:1.4567},{x:4.2067,y:-1.49}];
-test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on one side, schedule passes through the curve, seam checked',()=>{
+test('ph-cubic sweep: three visible offsets track d, 2d, 3d on one side; the PH curve stays fixed and the seam matches',()=>{
     const {phOffsetWaypoints}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['ph-cubic'];
     const motion=phFixtureMotion('ph-cubic',phCubicControls);
@@ -321,20 +321,22 @@ test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on o
     assert.equal(Math.min(...valid.samples.map(s=>s.scheduled)),-0.35);assert.equal(Math.max(...valid.samples.map(s=>s.scheduled)),0.35);
     assert.deepEqual(phOffsetWaypoints(phCubicControls,0.35),[0.35,-0.35,0.35]);
     assert.deepEqual(spec.sweep.waypoints,[0.35,-0.35,0.35]);
-    const distance=motion();distance.samples[40].observed.curves[0].samples[10].x+=1e-3;
-    assert.throws(()=>assertMotionEvidence(distance),/Offset distance differs/);
+    const distance=motion();distance.samples[40].observed.curves[2].samples[10].x+=1e-3;
+    assert.throws(()=>assertMotionEvidence(distance),/Offset 3 distance differs/);
     const perp=motion();rotateOffset(perp.samples[40],10,0.01);
     assert.throws(()=>assertMotionEvidence(perp),/not perpendicular/);
     const side=motion();const s=side.samples[40].observed.curves[0].samples[10],B=bernsteinPoint(phCubicControls,0.25);
     // Mirror the offset point through the PH point: distance and perpendicularity hold, the side flips.
     s.x=2*B.x-s.x;s.y=2*B.y-s.y;
-    assert.throws(()=>assertMotionEvidence(side),/Offset side differs/);
-    const phPath=motion();phPath.samples[40].observed.curves[1].d='changed';
+    assert.throws(()=>assertMotionEvidence(side),/Offset 1 side differs/);
+    const phPath=motion();phPath.samples[40].observed.curves[3].d='changed';
     assert.throws(()=>assertMotionEvidence(phPath),/PH curve path changed/);
-    const phMoved=motion();phMoved.samples[40].observed.curves[1].samples[8].y+=0.01;
+    const phMoved=motion();phMoved.samples[40].observed.curves[3].samples[8].y+=0.01;
     assert.throws(()=>assertMotionEvidence(phMoved),/PH curve differs from its Bezier/);
-    const count=motion();count.samples[40].observed.curves.push({min:0,max:1,d:'third',samples:count.samples[40].observed.curves[0].samples});
-    assert.throws(()=>assertMotionEvidence(count),/Expected one PH curve and one offset curve/);
+    const count=motion();count.samples[40].observed.curves.pop();
+    assert.throws(()=>assertMotionEvidence(count),/Expected one PH curve and three offset curves/);
+    const hidden=motion();hidden.samples[40].observed.curves[2].visible=false;
+    assert.throws(()=>assertMotionEvidence(hidden),/not rendered visibly/);
     const stalled=motion();stalled.samples[30].observed.curves[0].d=stalled.samples[29].observed.curves[0].d;
     assert.throws(()=>assertMotionEvidence(stalled),/Offset path did not change/);
     const held=motion();held.samples[90].observed.curves[0].d='changed-while-held';
@@ -351,15 +353,22 @@ test('ph-cubic sweep: PH curve fixed, one offset at the normal distance |d| on o
     assert.throws(()=>assertMotionEvidence(noPath),/Curve paths missing/);
 });
 const phQuinticControls=[{x:1,y:-1},{x:3.178,y:-1},{x:3.046,y:1.64},{x:0.478,y:2.1306666666666665},{x:-2.002,y:0.4026666666666663},{x:-3.25,y:-2.1573333333333338}];
-test('ph-quintic sweep: larger signed-normal offset stays cusp-free and keeps its fixed quintic curve',()=>{
+test('ph-quintic sweep: three signed-normal offsets stay cusp-free and keep their fixed quintic curve',()=>{
     const {phOffsetRadii,phOffsetWaypoints}=require('./demonstration-preview-motion.cjs').testSupport;
     const spec=motionSpecs['ph-quintic'],motion=phFixtureMotion('ph-quintic',phQuinticControls),valid=motion();
     assertMotionEvidence(valid);
-    assert.deepEqual(spec.sweep.waypoints,[0.5,-0.5,0.5]);
-    assert.deepEqual(phOffsetWaypoints(phQuinticControls,0.5),[0.5,-0.5,0.5]);
-    assert.ok(phOffsetRadii(phQuinticControls).negative>0.75,'The cusp margin must exceed 1.5× recipe distance');
-    assert.equal(valid.samples[0].scheduled,0.5);assert.equal(valid.samples[95].scheduled,0.5);
-    assert.ok(Math.max(...valid.samples.map(s=>Math.abs(s.scheduled)))>0.49);
+    assert.deepEqual(spec.sweep.waypoints,[0.15,-0.15,0.15]);
+    assert.deepEqual(phOffsetWaypoints(phQuinticControls,0.15),[0.15,-0.15,0.15]);
+    assert.ok(phOffsetRadii(phQuinticControls).negative>0.675,'The cusp margin must exceed 1.5× the outermost recipe distance');
+    assert.equal(valid.samples[0].scheduled,0.15);assert.equal(valid.samples[95].scheduled,0.15);
+    assert.ok(Math.max(...valid.samples.map(s=>Math.abs(s.scheduled)))>0.14);
+    const {phOffsetSweepCheck,bernsteinPoint}=require('./demonstration-preview-motion.cjs').testSupport;
+    const unsafe=valid.samples[0],base=bernsteinPoint(phQuinticControls,0);
+    unsafe.scheduled=-0.3;unsafe.actual.input=-0.3;unsafe.actual.readout='−0,30';
+    unsafe.observed.curves.slice(0,3).forEach(curve=>curve.samples.forEach(point=>{
+        point.x=base.x-2*(point.x-base.x);point.y=base.y-2*(point.y-base.y);
+    }));
+    assert.throws(()=>phOffsetSweepCheck(unsafe,null,unsafe,spec),/3\|d\| = .* is not below the radius/);
 });
 const subdivisionControls=[{x:-4,y:-3},{x:-3,y:3},{x:3,y:3},{x:4,y:-3}];
 const subdivisionFixture=()=>{

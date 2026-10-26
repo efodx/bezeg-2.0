@@ -146,20 +146,21 @@ function phOffsetRadii(controls, samples = 4000) {
     return {negative, positive};
 }
 /**
- * Offset waypoints for the d sweep from the recipe value d0. If the radius on the d < 0 side stays at least 1.5·d0, the offset passes through
- * the curve to the other side: [d0, -d0, d0]. Otherwise it stops at the curve: [d0, 0, d0].
+ * Offset waypoints for three offsets at d, 2d, and 3d. The negative leg is used only when its outermost offset has a 50% cusp margin.
  */
-function phOffsetWaypoints(controls, d0) {
-    return phOffsetRadii(controls).negative >= 1.5 * d0 ? [d0, -d0, d0] : [d0, 0, d0];
+function phOffsetWaypoints(controls, d0, offsetCount = 3) {
+    return phOffsetRadii(controls).negative >= 1.5 * offsetCount * d0 ? [d0, -d0, d0] : [d0, 0, d0];
 }
-/** Board reads for the PH offset clips: every visible curve, sampled at 41 parameters over its own interval (the check tells the two apart). */
+/** Board reads for the PH offset clips: every curve object, with computed visibility and 41 parameter samples. */
 const phOffsetObserve = page => page.locator('#jgbox').evaluate(container => {
     const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
-    const curves = Object.values(b.objects).filter(o => o.elType === 'curve' && o.visProp?.visible !== false && o.rendNode);
+    const curves = Object.values(b.objects).filter(o => o.elType === 'curve' && o.rendNode);
     return {curves: curves.map(o => {
         const min = o.minX(), max = o.maxX();
         const samples = Array.from({length: 41}, (_, k) => { const s = min + (max - min) * k / 40; return {x: o.X(s), y: o.Y(s)}; });
-        return {min, max, d: o.rendNode.getAttribute('d') || '', samples};
+        const style = getComputedStyle(o.rendNode);
+        const visible = o.visProp?.visible !== false && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0;
+        return {min, max, d: o.rendNode.getAttribute('d') || '', visible, samples};
     })};
 });
 // The offset readout writes negatives with a true minus sign (U+2212), as the complex formatter does, and a decimal comma.
@@ -188,8 +189,8 @@ function phOffsetSide(sample, controls, offsetIndex) {
     return sides[0];
 }
 /**
- * Per-frame check of a PH offset sweep. Control points: every board point (none is draggable) equals frame 0 in identity and position.
- * The PH curve is the board curve on the polynomial Bézier, identified at frame 0 and asserted unchanged; the offset is the other curve.
+ * Per-frame check of a PH offset sweep. Control points equal frame 0. The PH polynomial is identified by evaluation; each of the
+ * three remaining rendered curves is checked at signed distance k·d, k = 1, 2, 3.
  */
 function phOffsetSweepCheck(sample, previous, first, spec) {
     const i = sample.index, d = phReportedDistance(sample), abs = Math.abs(d);
@@ -201,33 +202,44 @@ function phOffsetSweepCheck(sample, previous, first, spec) {
     });
     const controls = sample.points.map(({x, y}) => ({x, y}));
     const firstControls = first.points.map(({x, y}) => ({x, y}));
-    assert.equal(sample.observed.curves.length, 2, `Expected one PH curve and one offset curve at frame ${i}`);
+    assert.equal(sample.observed.curves.length, 4, `Expected one PH curve and three offset curves at frame ${i}`);
+    sample.observed.curves.forEach((c, j) => assert.equal(c.visible, true, `PH curve ${j} is not rendered visibly at frame ${i}`));
     sample.observed.curves.forEach(c => assert.ok(c.min === 0 && c.max === 1, `Curve interval differs from [0,1] at frame ${i}`));
     const firstOn = phCurveCandidates(first, firstControls);
     assert.equal(firstOn.length, 1, 'Exactly one board curve must be the PH polynomial at the recipe frame');
-    const ph = firstOn[0], off = 1 - ph;
+    const ph = firstOn[0], offsets = sample.observed.curves.map((_, k) => k).filter(k => k !== ph)
+        .sort((a, b) => {
+            const B = bernsteinPoint(firstControls, 0);
+            const distance = index => Math.hypot(first.observed.curves[index].samples[0].x - B.x, first.observed.curves[index].samples[0].y - B.y);
+            return distance(a) - distance(b);
+        });
     const on = phCurveCandidates(sample, controls);
     assert.ok(on.includes(ph), `PH curve differs from its Bezier at frame ${i}`);
     if (abs > 1e-12) assert.deepEqual(on, [ph], `Offset curve coincides with the PH curve at frame ${i}`);
     assert.equal(sample.observed.curves[ph].d, first.observed.curves[ph].d, `PH curve path changed at frame ${i}`);
     if (previous) {
-        const changed = sample.observed.curves[off].d !== previous.observed.curves[off].d;
-        if (previous.scheduled !== sample.scheduled) assert.ok(changed, `Offset path did not change at frame ${i}`);
-        else assert.ok(!changed, `Offset path changed while d held at frame ${i}`);
+        offsets.forEach(off => {
+            const changed = sample.observed.curves[off].d !== previous.observed.curves[off].d;
+            if (previous.scheduled !== sample.scheduled) assert.ok(changed, `Offset path did not change at frame ${i}`);
+            else assert.ok(!changed, `Offset path changed while d held at frame ${i}`);
+        });
     }
-    // No cusp at the reported d, and the schedule is the radius rule applied to these control points.
+    // No cusp at the outermost reported offset, and the schedule is the radius rule applied to these control points.
     const radius = phOffsetRadii(controls);
     const limit = d < 0 ? radius.negative : radius.positive;
-    assert.ok(abs < limit, `Offset reaches a cusp: |d| = ${abs} is not below the radius ${limit} at frame ${i}`);
+    assert.ok(3 * abs < limit, `Offset reaches a cusp: 3|d| = ${3 * abs} is not below the radius ${limit} at frame ${i}`);
     assert.deepEqual(spec.sweep.waypoints, phOffsetWaypoints(controls, spec.sweep.start), `Schedule differs from the radius rule at frame ${i}`);
-    // Offset points at 41 parameters: |O - B| = |d| (this includes O = B at d = 0), O - B perpendicular to B', and a fixed side.
-    const side = abs > 1e-12 ? phOffsetSide(first, firstControls, off) : null;
-    sample.observed.curves[off].samples.forEach((p, k) => {
-        const B = bernsteinPoint(controls, k / 40), D = bernsteinDerivativePoint(controls, k / 40);
-        const v = {x: p.x - B.x, y: p.y - B.y}, speed = Math.hypot(D.x, D.y);
-        assert.ok(Math.abs(Math.hypot(v.x, v.y) - abs) < 1e-9, `Offset distance differs from |d| at frame ${i}, parameter ${k}`);
-        assert.ok(Math.abs(v.x * D.x + v.y * D.y) / speed < 1e-9, `Offset is not perpendicular to B' at frame ${i}, parameter ${k}`);
-        if (side !== null) assert.equal(Math.sign(D.x * v.y - D.y * v.x) * Math.sign(d), side, `Offset side differs at frame ${i}, parameter ${k}`);
+    // Every offset is checked at 41 parameters for distance |k·d|, perpendicularity, and a fixed signed-normal side.
+    offsets.forEach((off, j) => {
+        const multiplier = j + 1, side = abs > 1e-12 ? phOffsetSide(first, firstControls, off) : null;
+        if (j > 0 && side !== null) assert.equal(side, phOffsetSide(first, firstControls, offsets[0]), `Offset ${multiplier} side differs from the first offset at frame ${i}`);
+        sample.observed.curves[off].samples.forEach((p, k) => {
+            const B = bernsteinPoint(controls, k / 40), D = bernsteinDerivativePoint(controls, k / 40);
+            const v = {x: p.x - B.x, y: p.y - B.y}, speed = Math.hypot(D.x, D.y);
+            assert.ok(Math.abs(Math.hypot(v.x, v.y) - multiplier * abs) < 1e-9, `Offset ${multiplier} distance differs from ${multiplier}|d| at frame ${i}, parameter ${k}`);
+            assert.ok(Math.abs(v.x * D.x + v.y * D.y) / speed < 1e-9, `Offset ${multiplier} is not perpendicular to B' at frame ${i}, parameter ${k}`);
+            if (side !== null) assert.equal(Math.sign(D.x * v.y - D.y * v.x) * Math.sign(d), side, `Offset ${multiplier} side differs at frame ${i}, parameter ${k}`);
+        });
     });
     if (i === frameCount - 1) assert.equal(sample.capture.sha256, first.capture.sha256, 'Non-seamless loop: last PNG differs from the recipe frame');
 }
@@ -794,9 +806,8 @@ const motionSpecs = {
             'Reported α (aria-valuetext) equals the input and the snapped target every frame', 'Only α changes; the camera is the poster fit in every frame',
             'First and last frames equal the recipe state (identical PNG)'],
     },
-    // PH offset clip (Phase 3). The PH curve's control points are visible but not draggable, so controlCount is 0 and the check compares
-    // every board point with frame 0. Radii from the control points (phOffsetRadii, 4000 samples): cubic d < 0 side R = Infinity (no positive
-    // curvature), which is at least 1.5·0.35 = 0.525, so [d0, -d0, d0]. The grid caveat and the d > 0 side radius are in phOffsetRadii.
+    // PH offset clip (Phase 3). The control points are fixed; the checker identifies the PH polynomial and checks all three normal offsets.
+    // For this cubic the negative-distance radius is infinite, so its outermost 3·0.35 offset remains cusp-free on both scheduled sides.
     'ph-cubic': {
         mode: 'parameter-sweep', controlCount: 0,
         control: {label: 'Razdalja odmika d', kind: 'range'},
@@ -808,36 +819,35 @@ const motionSpecs = {
         },
         // The full settle crashed the renderer during the sweep (as farin did); two animation frames are enough for this board.
         settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
-        crf: 10,
-        encoderBudget: 'CRF 10 (the encoder default): 236353 bytes measured on the diagnostic capture, under the 300 KiB ceiling, so no label, amplitude or encoder reduction was needed',
+        crf: 30,
+        encoderBudget: 'CRF 30: 304579 B on the final 96 source frames (CRF 29: 320351 B; CRF 26: 379727 B), the lowest measured CRF under the 307200 B ceiling; CRF 34 was 234136 B. Labels, amplitude, schedule, camera, and math are unchanged; the curves remain distinct at 360×220.',
         schedule: {kind: 'piecewise-sin2', waypoints: [0.35, -0.35, 0.35], phase: 'clamp((frame-12)/71)',
             deviation: 'spec table says 0 → recipe → 0; the clip must start and end at the recipe value (poster), so it runs recipe → −recipe → recipe',
             zeroDisplacementFrames: '0-12 and 83-95 (d holds at the recipe value 0.35)', movingFrames: '13-82',
             legs: 'two equal phase halves, each eased by (1 - cos πx)/2 from one waypoint to the next (d = -0.35 at the middle of the move)', step: 0.01,
             input: 'keyboard ArrowRight/ArrowLeft on the "Razdalja odmika d" range, incremental from the previous frame'},
         invariants: ['PH curve path identical in every frame (the polynomial Bézier of the visible points, identified by its evaluation)',
-            'Exactly one offset curve; control points unchanged (1e-9)',
-            'Offset at 41 parameters: |O - B| = |d| (1e-9), (O - B)·B\' = 0 (1e-9 relative to |B\'|), fixed side sign from frame 0',
+            'Exactly three rendered offset curves; control points unchanged (1e-9)',
+            'Each offset at 41 parameters: |O_k - B| = k|d| for k = 1, 2, 3 (1e-9), (O_k - B)·B\' = 0 (1e-9 relative to |B\'|), fixed side sign from frame 0',
             'Offset path changes whenever d changes and is unchanged while d holds; O = B at d = 0',
-            'No cusp: |d| below the radius on its side; schedule equals the radius rule', 'Input and aria-valuetext equal the snapped target every frame',
+            'No cusp: 3|d| below the radius on its side; schedule equals the radius rule', 'Input and aria-valuetext equal the snapped target every frame',
             'First and last frames equal the recipe state (identical PNG)'],
     },
-    // Reopened Phase 3: the quintic keeps its original PH curve and one useful offset. The 0.5 recipe distance remains below
-    // the measured 0.8004 minimum radius on the negative-distance side; the same measured control points drive every signed-normal check.
+    // The quintic uses a 0.15 recipe distance: its outermost 0.45 offset stays below the measured 0.8004 negative-side radius.
     'ph-quintic': {
         mode:'parameter-sweep',controlCount:0,
         control:{label:'Razdalja odmika d',kind:'range'},
-        sweep:{waypoints:[0.5,-0.5,0.5],step:0.01,start:0.5,
+        sweep:{waypoints:[0.15,-0.15,0.15],step:0.01,start:0.15,
             readout:{text:phReadoutText,read:({range})=>range.getAttribute('aria-valuetext')},observe:phOffsetObserve,check:phOffsetSweepCheck},
         settle:page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))),
-        crf:10,
-        encoderBudget:'CRF 10 (the encoder default); 247040 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
-        schedule:{kind:'piecewise-sin2',waypoints:[0.5,-0.5,0.5],phase:'clamp((frame-12)/71)',zeroDisplacementFrames:'0-12 and 83-95',movingFrames:'13-82',
-            legs:'two equal phase halves, each eased by (1 - cos πx)/2; d reaches −0.5 at the midpoint',step:0.01,
+        crf:34,
+        encoderBudget:'CRF 34: 304627 B on the final 96 source frames (CRF 33: 319731 B; CRF 30: 374820 B), the lowest measured CRF under the 307200 B ceiling. Labels, amplitude, schedule, camera, and math are unchanged; all three offsets remain visually distinct at 360×220.',
+        schedule:{kind:'piecewise-sin2',waypoints:[0.15,-0.15,0.15],phase:'clamp((frame-12)/71)',zeroDisplacementFrames:'0-12 and 83-95',movingFrames:'13-82',
+            legs:'two equal phase halves, each eased by (1 - cos πx)/2; d reaches −0.15 at the midpoint',step:0.01,
             input:'keyboard ArrowRight/ArrowLeft on the "Razdalja odmika d" range, incremental from the previous frame'},
         invariants:['PH quintic curve path identical in every frame; the six fixed Bezier control points do not move (1e-9)',
-            'Exactly one offset curve; at 41 parameters |O - B| = |d| and (O - B)·B′ = 0 (1e-9 relative to |B′|), with a fixed signed-normal side',
-            'Cusp-free throughout: |d| remains below the sampled minimum radius of curvature on its signed side',
+            'Exactly three rendered offset curves; at 41 parameters each |O_k - B| = k|d| for k = 1, 2, 3 and (O_k - B)·B′ = 0 (1e-9 relative to |B′|), with a fixed signed-normal side',
+            'Cusp-free throughout: 3|d| remains below the sampled minimum radius of curvature on its signed side',
             'Input and graph aria-valuetext equal the snapped target every frame', 'First and last frames equal the recipe state (identical PNG)'],
     },
     // Pre-Subdivide scene: both live curve portions, the de Casteljau construction, and the supporting polygon remain visible as t moves.
@@ -1564,12 +1574,13 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         const controls0=initial.points.filter(p=>p.draggable);
         assert.equal(controls0.length,spec.controlCount,`Expected ${spec.controlCount} draggable control points`);
         // The range is inside the animation panel behind the inspector tabs; reveal it as applyAction does.
+        if (spec.sweep.revealControl) await spec.sweep.revealControl(page);
         let control=page.getByLabel(spec.control.label,{exact:true});
         assert.equal(await control.count(),1,`Unsupported or ambiguous range control: ${spec.control.label}`);
         for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
         assert.ok(await control.isVisible(),`Range control ${spec.control.label} is still hidden after revealing the inspector tabs`);
         const rangeId=await control.getAttribute('id');
-        const range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
+        let range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
         const {sweep}=spec;
         const parseInput = value => Number(String(value).replace('−', '-').replace(',', '.'));
         let previousValue=parseInput(await range.inputValue());
@@ -1593,6 +1604,7 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
             const value=parseInput(await range.inputValue());
             const shown=await sweep.readout.read({page,range});
             assert.ok(Math.abs(value-target)<1e-9,`Input ${value} differs from scheduled ${target} at frame ${i}`);
+            if (sweep.beforeCapture) {await sweep.beforeCapture(page); await (spec.settle||settle)(page);}
             const state=await boardSnapshot(page);
             assertCamera(state.box,fixedBox,'Camera changed between sweep frames');
             if (spec.variableStrokes) {
@@ -1760,7 +1772,7 @@ const testSupport = Object.freeze({
     motionSpecs: Object.freeze({...motionSpecs}),
     sweepValue, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
     alphaParameterizationValue, weightedParameterizationMarkers, deCasteljauLevels,
-    bernsteinPoint, bernsteinDerivativePoint, phOffsetRadii, phOffsetWaypoints,
+    bernsteinPoint, bernsteinDerivativePoint, phOffsetRadii, phOffsetWaypoints, phOffsetSweepCheck,
     rationalPoint, farinEffectiveWeights, farinWeightText, farinValue, farinPoint,
     farinParameterTs, sin2OutAndBack, movePhase, complexCaptionLines, complexText,
     accumulationReference, accumulationReadoutLine, accumulationSnap, formatSlNumber,

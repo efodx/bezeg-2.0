@@ -252,11 +252,25 @@ const motionSpecs = {
         mode: 'parameter-sweep', controlCount: 4, control: {label: 'Vrednost uteži', kind: 'number'},
         observe: boardGeometry,
         sweep: {waypoints: [2, 4, 0.5, 2], step: 0.25, start: 2,
+            revealControl: page => page.getByRole('button', {name: 'Krivulja1', exact: true}).click(),
+            beforeCapture: page => page.locator('#jgbox').evaluate(container => {
+                const board=Object.values(window.JXG.boards).find(b=>b.containerObj===container);
+                const objects=Object.values(board.objects);
+                // Capture-only editing chrome: the four translucent rectangle handles, and only their edges.
+                const handles=objects.filter(o=>o.elType==='point' && o.name==='' && o.visProp.opacity===0.4);
+                if(handles.length!==4)throw new Error('Expected exactly four selection handles');
+                const ids=new Set(handles.map(o=>o.id));
+                objects.filter(o=>o.point1&&o.point2&&ids.has(o.point1.id)&&ids.has(o.point2.id)).forEach(o=>o.hide());
+                handles.forEach(o=>o.hide());
+                objects.filter(o=>o.elType==='point'&&!ids.has(o.id)&&o.visProp.visible!==false)
+                    .forEach(o=>o.setAttribute({fillColor:'#bd8040',strokeColor:'#fffdf5'}));
+            }),
             readout: {read: ({range}) => range.inputValue(), matches: (s, v) => Math.abs(Number(String(s).replace(',', '.')) - v) < 1e-9},
             observe: boardGeometry,
             check(sample, previous, first, spec) {
                 const assert = spec._assert, controls = sample.controls.map(({x,y}) => ({x,y})), original = first.controls;
                 assert.equal(controls.length, 4, 'Rational control polygon must remain present');
+                assert.equal(sample.observed.visiblePoints.length, 4, 'Rational preview must contain only its four controls, without selection handles');
                 for (let i = 0; i < controls.length; i++) assert.ok(close(controls[i], original[i], 1e-9), `Rational control ${i} moved while its weight changed`);
                 checkRationalCurve({...sample, controls}, [1, sample.actual.input, 1, 1], [0,1], 'Rational Bézier weight sweep', assert);
                 const p1 = controls[1], baseline = rational(controls, [1,2,1,1], 1/3), changed = rational(controls, [1,sample.actual.input,1,1], 1/3);
@@ -268,13 +282,16 @@ const motionSpecs = {
         invariants: ['Only w₁ changes through the selected-curve weight input; all four control points and the supporting polygon stay fixed', 'Rendered curve agrees with independent weighted Bernstein evaluation for [1,w₁,1,1]; increasing w₁ attracts it toward p₁'],
     },
     'rational-decasteljau': {
-        conceptStatus: 'blocked', dependency: 'The route exposes only a growing curve prefix; no weighted interpolation levels are visible through supported graph actions.',
+        conceptStatus: 'supported',
         mode: 'parameter-sweep', controlCount: 4, control: {label: 'Parameter t', kind:'range'},
         sweep: {waypoints:[0.5,0.7,0.3,0.5],step:0.01,start:0.5,
             readout:{read:({range})=>range.getAttribute('aria-valuetext'),matches:(s,v)=>Math.abs(Number(String(s).replace(',','.'))-v)<0.011},
             observe:boardGeometry,
             check(sample, previous, first, spec) {
                 const assert=spec._assert, P=sample.controls.map(({x,y})=>({x,y})), t=sample.actual.input;
+                const levels=homogeneousLevels(P,[1,2,1,1],t);
+                assertVisibleConstruction(sample.observed, levels.flat(), levels.flatMap(level=>level.slice(1).map((p,i)=>[level[i],p])), 'Weighted de Casteljau', assert);
+                assert.equal(sample.observed.visiblePoints.length, P.length+levels.flat().length, 'Construction must have no selection handles');
                 const target=rational(P,[1,2,1,1],t), curves=sample.observed.curves.filter(c=>c.samples.length===401);
                 assert.ok(Math.abs(target.denominator)>1e-8,'Rational denominator must remain nonzero');
                 assert.equal(curves.length,1,'Rational interpolation preview must show one growing curve prefix');
@@ -287,7 +304,7 @@ const motionSpecs = {
                 assert.ok(close(curve.samples.at(-1),target,3e-5),`Growing rational prefix must end at R(t): ${JSON.stringify(target)}`);
                 if(Math.abs(t-first.actual.input)>1e-9)assert.notEqual(sample.curvePathHash,first.curvePathHash,'Rational prefix SVG path did not update when t changed');
             }},
-        invariants:['Legacy prefix tracing is independently checked as R([0,t]) and is not evidence of weighted interpolation levels', 'Replacement remains blocked until the supported graph scene exposes the weighted levels and evaluated point'],
+        invariants:['Visible weighted interpolation points and legs agree with projected homogeneous de Casteljau levels', 'Evaluated point and curve prefix agree with independent rational Bernstein evaluation; no selection handles'],
     },
     'rational-extrapolation': {
         mode:'parameter-sweep',controlCount:4,control:{label:'Parameter ekstrapolacije t',kind:'range'},
