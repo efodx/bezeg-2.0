@@ -1,0 +1,11 @@
+# Shared reader implementation and review
+
+Task 3, 2026-10-26. Source acceptance: `docs/specs/learn-improvements.md`, section 3. Baseline `3c96183`; application diff is limited to chapter navigation, reader styling and focused tests. Mathematical content, activity actions and scene restoration are unchanged.
+
+Implementation uses `ChapterNavigation.tsx` in both readers: coalesced scroll/resize tracking with cleanup, native mobile contents disclosure, heading focus after ordinary selection, modified-click preservation, and labeled bilingual chapter neighbors derived from Learn order. The title scale and introductory spacing are reduced; paragraph measure is 70ch; formulas retain internal overflow. The three existing left borders were reduced to 1px after the design detector flagged them. Remaining detector results concern incumbent palette/radius differences, not new design-system work.
+
+Worker checks: focused learning tests 19/19, typecheck and targeted lint passed. Logs: `.command-logs/2026-10-25T23-55-32-697Z-96104-91b6766a.log` (unit), `...615Z-81456-5359bed6.log` (lint), `...619Z-105044-adaaef5c.log` (typecheck). A temporary mutation removing neighbor labels failed the new regression as expected; the mutation was removed. Handler identified a vacuous browser-hash assertion under MemoryRouter; worker replaced it with actual router hash/key observation. The scrolling assertion mocks distinct section positions, requires the second section to become current and verifies that the router entry remains unchanged.
+
+Independent read-only review found no blocking defect: listeners and pending frame are disposed; ordinary contents selection closes/focuses correctly; modified clicks remain native; ordered neighbors translate and omit unavailable endpoints. Tests observe rendered links and section state. Direct unit scroll coverage is on a family chapter; shared Bézier behavior is assigned to browser validation. No mathematical/runtime change was observed.
+
+Handler checks: exact `npx tsc --noEmit --pretty false` passed; production build passed with pre-existing Sass/Vite warnings (`.command-logs/2026-10-25T23-56-11-626Z-98996-15835b52.log`). `git diff --check` passed. Preview provenance validated all current app inputs and served the dirty `3c96183` checkout on port 4387. Browser acceptance is recorded separately in `reader-browser.md`.

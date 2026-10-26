@@ -1,14 +1,20 @@
 import React from 'react';
 import {act, fireEvent, render, screen, waitFor, within} from '@testing-library/react';
-import {MemoryRouter, Route, Routes} from 'react-router-dom';
+import {MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import {beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {LearningPage} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
+import {ChapterPage} from './ChapterPage';
 import {familyChapters} from './content/familyChapters';
 import {learningChapters} from './learningChapters';
 import {GUIDED_LESSON_AVAILABLE_IDS} from './runtime/lessonAvailability';
+
+function RouterLocationProbe() {
+    const location = useLocation();
+    return <output data-testid="router-location" data-hash={location.hash} data-key={location.key}/>;
+}
 
 vi.mock('../mathjax/loadMathJax', () => ({typesetMath: async () => undefined}));
 
@@ -51,6 +57,48 @@ test('chapter reading navigates between topics and translates without a graph mo
     fireEvent.click(within(container.querySelector(`#${next.id}`)!).getByRole('link', {name: 'Read the chapter'}));
     await waitFor(() => expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(next.title.en));
     expect(container.querySelectorAll('.chapter-section')).toHaveLength(next.sections.length);
+});
+
+test.each(learningChapters.map((chapter, index) => [chapter.id, chapter, learningChapters[index - 1], learningChapters[index + 1]] as const))(
+    '%s exposes explicitly labeled neighbors in Learn order', (id, chapter, previous, next) => {
+        const route = id === 'bezier-curves'
+            ? <ChapterPage/>
+            : <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>;
+        const {container} = render(<MemoryRouter initialEntries={[`/bezeg-2.0/learn/${id}`]}>{route}</MemoryRouter>);
+        const nav = screen.getByRole('navigation', {name: 'Poglavja po vrsti'});
+        const links = within(nav).getAllByRole('link');
+        expect(links.map(link => link.textContent)).toEqual([
+            ...(previous ? [`Prejšnje poglavje: ${previous.title.sl}`] : []),
+            ...(next ? [`Naslednje poglavje: ${next.title.sl}`] : []),
+        ]);
+        expect(container.querySelector('#jgbox')).toBeNull();
+    },
+);
+
+test('family contents follows scrolling without changing the hash and closes with heading focus after selection', async () => {
+    const chapter = familyChapters.find(entry => entry.id === 'foundations')!;
+    const {container} = render(<MemoryRouter initialEntries={[`/bezeg-2.0/learn/${chapter.id}`]}>
+        <RouterLocationProbe/>
+        <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
+    </MemoryRouter>);
+    const initialLocation = container.querySelector('[data-testid="router-location"]')!;
+    const initialHash = initialLocation.getAttribute('data-hash');
+    const initialKey = initialLocation.getAttribute('data-key');
+    const [, second] = chapter.sections;
+    chapter.sections.forEach((section, index) => {
+        document.getElementById(section.id)!.getBoundingClientRect = () => ({top: index === 0 ? -40 : index === 1 ? 100 : 5000} as DOMRect);
+    });
+    fireEvent.scroll(window);
+    await waitFor(() => expect(container.querySelector('.chapter-sidebar [aria-current="location"]')).toHaveAttribute('href', `#${second.id}`));
+    expect(container.querySelector('[data-testid="router-location"]')).toHaveAttribute('data-hash', initialHash);
+    expect(container.querySelector('[data-testid="router-location"]')).toHaveAttribute('data-key', initialKey);
+
+    const disclosure = container.querySelector('.learning-mobile-contents') as HTMLDetailsElement;
+    fireEvent.click(within(disclosure).getByText('Vsebina poglavja'));
+    const destination = within(disclosure).getByRole('link', {name: second.title.sl});
+    fireEvent.click(destination);
+    expect(disclosure.open).toBe(false);
+    expect(document.getElementById(`${second.id}-heading`)).toHaveFocus();
 });
 
 test.each(familyChapters.map(chapter => [chapter.id, chapter] as const))('%s has readable sections, stable anchors and valid graph targets', async (id, chapter) => {

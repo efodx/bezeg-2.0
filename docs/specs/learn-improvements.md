@@ -35,3 +35,18 @@ Acceptance:
 - Run focused learning unit checks, typecheck, production build, and delegated production browser validation covering these states. Review the rendered page before acceptance; no mathematical runtime or preset behavior changes are in this slice.
 
 Accepted 2026-10-26: audit in `docs/reviews/learn-improvements/content-audit.md`; landing implementation and browser evidence in `docs/reviews/learn-improvements/landing-worker.md` and `landing-browser.md`. Handler reviewed desktop and narrow renders and repaired lesson link target heights after browser review. Catalog captures may contain Slovenian graph labels; bilingual alternative text/captions supply the corresponding explanation. Later chapter figures still require reproducible captures matched to their specific examples and activities.
+
+## 3. Shared chapter reader
+
+Refine the incumbent reading surface for all eight chapters without changing mathematical content or activity recipes. Keep existing chapter/section URLs and the Bézier reading-position/activity-return contract.
+
+Acceptance:
+
+- Reduce introductory heading scale and excess introductory spacing; use a consistent, comfortable body measure (about 65–75 characters on wide screens), clear section separation, and readable formula regions that scroll internally when needed.
+- Both readers indicate the section being read during ordinary scrolling, direct hash entry and contents activation. Do not rewrite browser history on scrolling. Dispose observers/listeners when leaving a chapter.
+- Desktop contents remain reachable on short screens; narrow contents use a keyboard-operable disclosure with bounded internal scrolling, close after selection, and retain focus on the selected section heading. Preserve modified-click link behavior.
+- Show explicitly labeled previous/next chapter links, in the Learn topic order, on every chapter including Bézier; endpoints show only available neighbors. Labels translate with the current language.
+- At 1440px, 1024px, 390px and 200% text, verify no document horizontal overflow, usable contents and visible keyboard focus. Long formulas may scroll within their labeled regions. Check long Bézier contents, a family chapter, deep-link refresh, language changes and one Bézier activity return. Reading routes mount no boards.
+- Run focused learning tests, typecheck, production build and delegated browser smoke on the affected reading routes. Review the rendered desktop/narrow result and account for acceptance and coverage gaps in a repository-local evidence note.
+
+Accepted 2026-10-26: shared reader implementation and independent review in `docs/reviews/learn-improvements/reader-worker.md`; browser matrix, section tracking, keyboard contents, language/history and activity-return evidence in `reader-browser.md`. All eight chapter route rows and the final targeted recovery/activity checks passed. Handler reviewed normal desktop/narrow renders, removed the redundant Bézier category label and reverified the rebuilt reader. No math, scene, preset or URL contract changed.

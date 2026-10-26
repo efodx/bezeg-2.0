@@ -163,7 +163,7 @@ test('validated activity context preserves unrelated URL values and fresh return
 test('unknown chapters offer accessible Learning and Demonstrations recovery; unknown sections return to the chapter start', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.goto('/bezeg-2.0/learn');
-    await expect(page.getByRole('heading', {level: 2, name: 'Bézier curves', exact: true})).toBeVisible();
+    await expect(page.locator('#bezier-curves-heading')).toBeVisible();
     await page.goto('/bezeg-2.0/learn/unknown-chapter');
     await expect(page.getByRole('heading', {level: 1})).toBeVisible();
     await expect(page.locator('main').getByRole('link', {name: 'Learning', exact: true})).toBeVisible();
@@ -186,7 +186,7 @@ test('reading at 390px and enlarged text retains local formula overflow and dire
         });
         await h.noHorizontalOverflow(page, `${language} chapter top at 390px and 200% text`);
     }
-    await page.getByRole('button', {name: 'Chapter contents', exact: true}).click();
+    await page.locator('.chapter-contents-mobile summary').click();
     await page.locator('.chapter-contents-mobile').getByRole('link', {name: /A parameter selects/}).click();
     await expect(page).toHaveURL(/#parameter$/);
     expect(await page.locator('#jgbox').count()).toBe(0);

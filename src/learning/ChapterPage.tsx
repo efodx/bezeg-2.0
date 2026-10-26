@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {useLanguage} from '../localization';
@@ -8,6 +8,7 @@ import {bezierActivityCopy, bezierChapter} from './content/bezierChapter';
 import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
+import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -122,8 +123,6 @@ export function ChapterPage() {
     const articleRef = useRef<HTMLElement>(null);
     const previousLanguage = useRef(language);
     const scrollAnchor = useRef<SectionScrollAnchor>({sectionId: 'motivation', top: 0});
-    const [currentSection, setCurrentSection] = useState<string>(() => location.hash.slice(1) || 'motivation');
-    const [contentsOpen, setContentsOpen] = useState(false);
 
     useEffect(() => {
         const restored = chapterActivityVisit.restoreReading('motivation');
@@ -133,14 +132,12 @@ export function ChapterPage() {
             && typeof invocation.activityId === 'string' && invocation.readingKey === location.key
             && copy.sections.some(section => section.id === invocation.sectionId) ? findActivity(invocation.activityId) : undefined;
         if (!restored && sourceActivity) {
-            setCurrentSection(invocation.sectionId);
             requestAnimationFrame(() => {
                 document.getElementById(invocation.sectionId)?.scrollIntoView();
                 (document.getElementById(`activity-${sourceActivity.id}`)
                     ?? document.getElementById(`${invocation.sectionId}-heading`))?.focus({preventScroll: true});
             });
         } else if (!restored && hash && copy.sections.some(section => section.id === hash)) {
-            setCurrentSection(hash);
             requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
         } else if (!restored && hash) {
             navigate(`${location.pathname}${location.search}`, {replace: true, state: location.state});
@@ -149,17 +146,6 @@ export function ChapterPage() {
     // Hash navigation remains directly addressable; language changes retain the stable section identity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location.hash]);
-
-    useEffect(() => {
-        const targets = copy.sections.map(section => document.getElementById(section.id)).filter((item): item is HTMLElement => Boolean(item));
-        if (!targets.length || !('IntersectionObserver' in window)) return;
-        const observer = new IntersectionObserver(entries => {
-            const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-            if (visible) setCurrentSection(visible.target.id);
-        }, {rootMargin: '-15% 0px -70% 0px', threshold: [0, .2, .5]});
-        targets.forEach(target => observer.observe(target));
-        return () => observer.disconnect();
-    }, [copy]);
 
     useEffect(() => {
         let frame = 0;
@@ -194,11 +180,6 @@ export function ChapterPage() {
         return () => { disposed = true; };
     }, [language]);
 
-    const nav = <nav className="chapter-toc" aria-label={language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}>
-        <p className="chapter-toc-title">{language === 'sl' ? 'V tem poglavju' : 'In this chapter'}</p>
-        <ol>{copy.sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`} aria-current={currentSection === section.id ? 'location' : undefined} onClick={() => { setCurrentSection(section.id); setContentsOpen(false); }}>{section.title}<span className="chapter-toc-number">{index + 1}</span></a></li>)}</ol>
-    </nav>;
-
     const state = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : {};
     const requestedGraphId = state.chapterGraphId;
     const supportedGraphIds = ['bezier', 'decasteljau', 'bernstein', 'affine'];
@@ -210,8 +191,7 @@ export function ChapterPage() {
 
     return <main className="chapter-page">
         <div className="chapter-layout">
-            <aside className="chapter-sidebar">{nav}</aside>
-            <div className="chapter-contents-mobile"><button type="button" aria-expanded={contentsOpen} aria-controls="chapter-mobile-toc" onClick={() => setContentsOpen(open => !open)}>{language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}<span aria-hidden="true">{contentsOpen ? '−' : '+'}</span></button>{contentsOpen && <div id="chapter-mobile-toc">{nav}</div>}</div>
+            <ChapterContents sections={copy.sections} showNumbers/>
             <article className="chapter-article" ref={articleRef}>
                 <header className="chapter-heading">
                     <Link className="learning-back" to="/bezeg-2.0/learn">{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}<span aria-hidden="true"> ←</span></Link>
@@ -219,21 +199,17 @@ export function ChapterPage() {
                         <Link to={graphReturnPath} state={{...state, chapterRestore: true}}>{language === 'sl' ? 'Nazaj na graf' : 'Back to your graph'}<span aria-hidden="true"> ←</span></Link>
                         {!graphReturnIsMemory && <p role="note">{language === 'sl' ? 'Po ponovnem nalaganju prejšnjega stanja grafa ni bilo mogoče obnoviti; prikaz se bo odprl z začetnimi nastavitvami.' : 'The earlier graph state could not be restored after reload; the demonstration will open with its default settings.'}</p>}
                     </div>}
-                    <p className="chapter-family">{copy.family}</p>
                     <h1 id="chapter-title" tabIndex={-1}>{copy.title}</h1>
                     <p className="chapter-purpose">{copy.purpose}</p>
                     <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{copy.prerequisites}</p></div>
                 </header>
                 {copy.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
-                    <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`} onClick={() => setCurrentSection(section.id)}>¶</a></div>
+                    <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}>¶</a></div>
                     <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`} section={section} language={language}/>)}</div>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}
                 <footer className="chapter-source"><h2>{language === 'sl' ? 'Vir' : 'Source'}</h2><p>{copy.source}</p>
-                    <nav className="learning-neighbors" aria-label={language === 'sl' ? 'Povezana poglavja' : 'Related chapters'}>
-                        <Link to="/bezeg-2.0/learn/foundations">{language === 'sl' ? 'Osnove' : 'Foundations'}</Link>
-                        <Link to="/bezeg-2.0/learn/rational-curves">{language === 'sl' ? 'Racionalne krivulje' : 'Rational curves'}</Link>
-                    </nav>
+                    <ChapterNeighbors chapterId="bezier-curves"/>
                 </footer>
             </article>
         </div>
