@@ -4,7 +4,7 @@ h.failOnRuntimeErrors();
 
 const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'functions-and-calculus', 'analysis'];
 
-test('Learn opens chapters whose guided activities return to their section', async ({page}) => {
+test('Learn opens chapters whose Guided examples return to their owning section', async ({page}) => {
     await h.useLanguage(page, 'sl');
     await page.goto('/bezeg-2.0/learn');
     await expect(page.locator('.learning-family')).toHaveCount(8);
@@ -15,17 +15,37 @@ test('Learn opens chapters whose guided activities return to their section', asy
     await page.getByRole('link', {name: /Vsa učna vsebina/}).click();
     await expect(page).toHaveURL(/\/learn#analysis$/);
     await expect(page.locator('#analysis-heading')).toBeInViewport();
-    await page.locator('#foundations .learning-open').click();
-    await page.locator('.chapter-guided-lessons a').first().click();
-    await expect(page).toHaveURL(/learn=1/);
+    await page.locator('#bezier-curves .learning-open').click();
+    await expect(page).toHaveURL(/\/learn\/bezier-curves$/);
+    const link = page.locator('#control-points .chapter-guided-lessons a[href*="example=activity."]').first();
+    const linkId = await link.getAttribute('id');
+    await expect(link).toContainText('Vodeni primer');
+    await link.click();
+    await expect(page).toHaveURL(/example=activity\.bezier-curves\.control-points\./);
     await expect(page.locator('#jgbox')).toBeVisible();
     await expect(page.locator('.guided-lesson')).toBeVisible();
-    const readingReturn = page.locator('.guided-lesson a[href*="/learn/foundations#"]');
+    await expect(page.locator('.chapter-activity-context')).toHaveCount(0);
+    const readingReturn = page.locator('.guided-lesson-owner a[href="/bezeg-2.0/learn/bezier-curves#control-points"]');
     await expect(readingReturn).toBeVisible();
-    const returnHref = await readingReturn.getAttribute('href');
     await readingReturn.click();
-    await expect(page).toHaveURL(new RegExp(`${returnHref}$`));
+    await expect(page).toHaveURL('/bezeg-2.0/learn/bezier-curves#control-points');
+    await expect(page.locator(`#${linkId}`)).toBeFocused();
     await expect(page.locator('.chapter-section')).not.toHaveCount(0);
+});
+
+test('Demonstrations catalog guidance opens the chapter-owned example while graph entry remains free exploration', async ({page}) => {
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/demonstrations');
+    await page.locator('#demonstration-card-decasteljau-lesson').click();
+    await expect(page).toHaveURL(/\/bezier\/decasteljau\?learn=1&learnChapter=bezier-curves&learnSection=interpolation/);
+    await expect(page.locator('.guided-lesson')).toBeVisible();
+    await expect(page.locator('.guided-lesson-owner')).toContainText('Bézier curves');
+    await expect(page.locator('.guided-lesson-owner a')).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#interpolation');
+
+    await page.goto('/bezeg-2.0/bezier/decasteljau');
+    await expect(page.locator('.guided-lesson')).toHaveCount(0);
+    await expect(page.locator('#jgbox')).toBeVisible();
+    await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);
 });
 
 for (const chapter of chapters) {

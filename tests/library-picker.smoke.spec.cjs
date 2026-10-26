@@ -105,7 +105,7 @@ test('choosing the current graph continues the same board and preserves its less
     expect(editedEntryState.curves.length).toBeGreaterThan(0);
     await switchButton(page).click();
     const lessonPicker = picker(page);
-    await lessonPicker.getByRole('button', {name: 'Guided lesson: Bézier curve'}).click();
+    await lessonPicker.getByRole('button', {name: 'Guided example: Bézier curve'}).click();
     await expect(lessonPicker).toBeHidden();
     const lesson = page.locator('section.guided-lesson');
     await expect(lesson).toBeVisible();

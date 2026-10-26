@@ -61,7 +61,7 @@ test('the homepage owns the starting carousel and its actions lead to the select
     await expect(opening.getByRole('heading', {level: 3, name: selected.title})).toBeVisible();
     const graph = opening.getByRole('link', {name: `Open demonstration: ${selected.title}`});
     await expect(graph).toHaveAttribute('href', selected.path);
-    const lesson = opening.getByRole('link', {name: `Guided lesson: ${selected.title}`});
+    const lesson = opening.getByRole('link', {name: `Guided example: ${selected.title}`});
     await expect(lesson).toHaveAttribute('href', `${selected.path}?learn=1`);
 
     await shortcut.click();

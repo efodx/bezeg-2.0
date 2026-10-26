@@ -4,7 +4,7 @@ const {test, expect} = require('@playwright/test');
 const lessonPanel = page => page.locator('section.guided-lesson');
 const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
-const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit lesson|Končaj učno pot/});
+const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit example|Končaj vodeni primer/});
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
 const reopenButton = page => page.locator('button.guided-lesson-tab');
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
@@ -156,7 +156,7 @@ function stepNumber(label) {
 }
 
 async function isFinishing(page) {
-    return /^(Complete lesson|Zaključi učno pot)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
+    return /^(Complete example|Zaključi vodeni primer)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
 }
 
 async function advance(page) {
@@ -198,7 +198,7 @@ async function stepToCompletion(page, perFrame) {
         await settle(page);
         if (finishing) break;
     }
-    await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
+    await expect(lessonPanel(page)).toContainText(/Example complete|Vodeni primer je končan/);
     return seen;
 }
 

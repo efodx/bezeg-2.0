@@ -1598,7 +1598,7 @@ async function walkFrames(page, row, observe) {
 }
 async function expectCompleteWalk(page, {visited, blocked, offscreen, completed}, row, minFrames, width) {
     expect(completed, 'the 60-frame guard expired before the lesson completed').toBe(true);
-    await expect(lessonPanel(page)).toContainText(/Lesson complete|Učna pot je končana/);
+    await expect(lessonPanel(page)).toContainText(/Example complete|Vodeni primer je končan/);
     expect(blocked, `Next not pointer-clickable at ${width} (an intercepting element, or the click failed as reported)`).toEqual([]);
     expect(offscreen, `visible board points outside the lesson view at ${width}`).toEqual([]);
     // Exact in-order sequence: step 1 frames 1..n1, step 2 frames 1..n2, ... up to row.steps. A step never reached
@@ -1859,7 +1859,7 @@ test.describe('Bernstein extras', () => {
 test.describe('Rational elevation extras', () => {
     test.setTimeout(150_000);
 
-    test('?learn=1 steps through to completion; point count rises to 5 then 6; completed scene and labels remain', async ({page}) => {
+    test('?learn=1 completes with 5 then 6 points and labels; Exit restores the entry scene', async ({page}) => {
         await openLesson(page, rationalElevation, 'en');
         const lesson = lessonPanel(page);
         await expect.poll(async () => (await boardStats(page)).points).toBe(4);
@@ -1886,16 +1886,18 @@ test.describe('Rational elevation extras', () => {
             if (finishing) break;
         }
         test.info().annotations.push({type: 'points-trace', description: pointsByLabel.join('\n')});
-        await expect(lesson).toContainText(/Lesson complete/i);
+        await expect(lesson).toContainText(/Example complete/i);
         expect(sawFive, `5 control points seen:\n${pointsByLabel.join('\n')}`).toBe(true);
         expect(sawSix, `6 control points seen:\n${pointsByLabel.join('\n')}`).toBe(true);
         expect(maxLabels, `weight labels visible on some step:\n${pointsByLabel.join('\n')}`).toBeGreaterThan(0);
 
         const completed = await boardStats(page);
+        expect(completed.points, 'completion keeps the elevated scene available').toBe(6);
+        expect(completed.labels, 'completion keeps the weight labels visible').toBeGreaterThan(0);
         await exitButton(page).click();
         await expect(page.getByRole('dialog')).toHaveCount(0);
         await expect(lessonPanel(page)).toHaveCount(0);
-        expect(await boardStats(page), 'closing completion retains the final scene').toEqual(completed);
+        await expect.poll(() => boardStats(page), {message: 'Exit restores the entry scene after completion'}).toMatchObject({points: 4, labels: 0, curves: 1});
     });
 });
 

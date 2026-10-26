@@ -88,8 +88,8 @@ module.exports = function registerExperienceChecks() {
                     const progress = await h.progress(page);
                     const originalUrl = page.url();
                     const boardId = await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id);
-                    const hide = panel.getByRole('button', {name: language === 'en' ? 'Hide lesson instructions' : 'Skrij navodila učne poti', exact: true});
-                    const exit = panel.getByRole('button', {name: language === 'en' ? 'Exit lesson' : 'Končaj učno pot', exact: true});
+                    const hide = panel.getByRole('button', {name: language === 'en' ? 'Hide example instructions' : 'Skrij navodila vodenega primera', exact: true});
+                    const exit = panel.getByRole('button', {name: language === 'en' ? 'Exit example' : 'Končaj vodeni primer', exact: true});
                     for (const [position, fraction] of [['top', 0], ['middle', .5], ['bottom', 1]]) {
                         await reading.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
                         for (const control of [hide, exit, h.nextButton(page)]) {
@@ -137,7 +137,7 @@ module.exports = function registerExperienceChecks() {
                     await exit.click();
                     const dialog = page.getByRole('dialog');
                     await expect(dialog).toBeVisible();
-                    const safe = dialog.getByRole('button', {name: language === 'en' ? 'Continue lesson' : 'Nadaljuj učno pot', exact: true});
+                    const safe = dialog.getByRole('button', {name: language === 'en' ? 'Continue example' : 'Nadaljuj vodeni primer', exact: true});
                     await expect(safe).toBeFocused();
                     await page.keyboard.press('Shift+Tab');
                     await expect(dialog.getByRole('button').last()).toBeFocused();

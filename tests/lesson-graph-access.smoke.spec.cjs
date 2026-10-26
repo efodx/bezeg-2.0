@@ -172,7 +172,7 @@ test('touch learners can hide, reopen by touch, and explicitly exit', async ({br
         await expect(panel).toBeVisible();
         await h.settle(page);
         const before = await boardSnapshot(page);
-        await panel.getByRole('button', {name: 'Hide lesson instructions', exact: true}).tap();
+        await panel.getByRole('button', {name: 'Hide example instructions', exact: true}).tap();
         await expect(panel).toHaveCount(0);
         const reopen = h.reopenButton(page);
         await expect(reopen).toBeVisible();
@@ -180,7 +180,7 @@ test('touch learners can hide, reopen by touch, and explicitly exit', async ({br
         await h.settle(page);
         await expect(panel).toBeVisible();
         expect((await boardSnapshot(page)).id).toBe(before.id);
-        await panel.getByRole('button', {name: 'Exit lesson', exact: true}).tap();
+        await panel.getByRole('button', {name: 'Exit example', exact: true}).tap();
         await expect(page.getByRole('dialog')).toBeVisible();
         await page.getByRole('button', {name: 'Exit and restore graph', exact: true}).tap();
         await expect(page.getByRole('dialog')).toHaveCount(0);

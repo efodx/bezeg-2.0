@@ -79,7 +79,7 @@ test('the catalogue shows every demonstration in teaching order with useful card
         if (await graph.evaluate(element => element instanceof HTMLAnchorElement)) expect(await pathFromLink(graph, page)).toBe(demonstration.path);
         if (demonstration.hasLesson) {
             const lesson = card.locator('.demonstrations-catalog-lesson');
-            await expect(lesson).toHaveAttribute('aria-label', `Guided lesson: ${demonstration.title}`);
+            await expect(lesson).toHaveAttribute('aria-label', `Guided example: ${demonstration.title}`);
             if (await lesson.evaluate(element => element instanceof HTMLAnchorElement)) await expect(lesson).toHaveAttribute('href', demonstration.path + '?learn=1');
         } else {
             await expect(card.locator('.demonstrations-catalog-lesson')).toHaveCount(0);

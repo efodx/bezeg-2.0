@@ -4,10 +4,10 @@ const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
 const chapter = '/bezeg-2.0/learn/bezier-curves';
-const activityPath = '/bezeg-2.0/bezier/decasteljau?chapter=bezier-curves&activity=curve-parameter&other=kept&note=a~and~b#anchor';
+const examplePath = '/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau&other=kept&note=a~and~b#anchor';
 const missingPage = readFileSync(join(process.cwd(), 'build/404.html'), 'utf8');
 
-test('the GitHub Pages 404 redirect carries bounded state and restores no-hash reading focus after refresh', async ({page}) => {
+test('the GitHub Pages 404 redirect preserves a guided example URL and returns to its chapter section', async ({page}) => {
     const pageErrors = [];
     const unexpectedFailures = [];
     const failedRequests = [];
@@ -27,41 +27,35 @@ test('the GitHub Pages 404 redirect carries bounded state and restores no-hash r
     await h.useLanguage(page, 'en');
     await page.route(/\/bezeg-2\.0\/(?:bezier\/decasteljau|learn\/bezier-curves)(?:\?|$)/, async route => {
         const url = new URL(route.request().url());
-        const activityRequest = url.pathname === '/bezeg-2.0/bezier/decasteljau';
-        if (activityRequest || interceptReadingPage) {
+        const exampleRequest = url.pathname === '/bezeg-2.0/bezier/decasteljau';
+        if (exampleRequest || interceptReadingPage) {
             await route.fulfill({status: 404, contentType: 'text/html', body: missingPage});
         } else await route.continue();
     });
 
-    await page.goto(chapter);
-    const chapterIdx = await page.evaluate(() => history.state.idx);
-    await page.locator('#activity-curve-parameter').click();
-    await expect(page.locator('.chapter-activity-context')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => Boolean(history.state?.usr?.chapterActivity?.started))).toBe(true);
-    // Add unrelated URL values without replacing the router's validated navigation state.
-    await page.evaluate(url => history.replaceState(history.state, '', url), activityPath);
-    const saved = await page.evaluate(() => history.state);
-
+    await page.goto(`${chapter}#parameter`);
+    const link = page.locator('#parameter .chapter-guided-lessons a[href*="example=activity."]').first();
+    await link.click();
+    await expect(page.locator('.guided-lesson')).toBeVisible();
+    const historyLength = await page.evaluate(() => history.length);
+    // Keep unrelated search values and a hash while exercising the same direct-refresh URL on GitHub Pages.
+    await page.evaluate(url => history.replaceState(history.state, '', url), examplePath);
     await page.reload();
-    await expect(page).toHaveURL(activityPath);
-    await expect(page.locator('.chapter-activity-context')).toBeVisible();
-    await expect(page.locator('.activity-notice')).toContainText('Refreshing restarted');
+    await expect(page).toHaveURL(examplePath);
+    await expect(page.locator('.guided-lesson')).toBeVisible();
+    await expect(page.locator('.guided-lesson-owner')).toContainText(/parameter/i);
     const restored = await page.evaluate(() => history.state);
-    expect(restored.key).toBe(saved.key);
-    expect(restored.idx).toBe(saved.idx);
-    expect(restored.usr.chapterActivity).toEqual(saved.usr.chapterActivity);
-    expect(restored.usr).not.toHaveProperty('graphSnapshot');
-    expect(restored).not.toHaveProperty('graphSnapshot');
+    expect(restored === null || typeof restored === 'object').toBe(true);
+    expect(restored?.usr ?? {}).not.toHaveProperty('chapterActivity');
+    expect(restored?.usr ?? {}).not.toHaveProperty('graphSnapshot');
+    expect(restored ?? {}).not.toHaveProperty('graphSnapshot');
+    expect(await page.evaluate(() => history.length)).toBe(historyLength);
     expect(await page.evaluate(() => sessionStorage.getItem('bezeg-2.0:history-entry-bridge:v1'))).toBeNull();
 
     interceptReadingPage = true;
-    await page.getByRole('button', {name: 'Continue reading', exact: true}).click();
-    await expect(page).toHaveURL(chapter);
-    expect(await page.evaluate(() => history.state.usr.chapterReadingInvocation)).toMatchObject({
-        v: 1, activityId: 'curve-parameter', sectionId: 'parameter', readingKey: expect.any(String),
-    });
-    await expect(page.locator('#activity-curve-parameter')).toBeFocused();
-    expect(chapterIdx).toBeLessThan(saved.idx);
+    await page.locator('.guided-lesson-owner').getByRole('link', {name: 'Return to chapter', exact: true}).click();
+    await expect(page).toHaveURL(`${chapter}#parameter`);
+    await expect(page.locator('#parameter-heading')).toBeFocused();
     expect(expectedDocument404).toContain('/bezeg-2.0/bezier/decasteljau');
     expect(unexpectedFailures).toEqual([]);
     expect(failedRequests).toEqual([]);
