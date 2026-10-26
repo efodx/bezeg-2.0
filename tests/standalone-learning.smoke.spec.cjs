@@ -69,7 +69,7 @@ test('each Bézier chapter example opens the shared guided-example surface with 
 test('a short chapter example returns midway with its reading position and invoking link restored through Back and Forward', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.goto(`${chapter}#parameter`);
-    const link = exampleLink(page, 'parameter', 'curve-parameter');
+    const link = exampleLink(page, 'parameter', 'bezier-curves.parameter.decasteljau-parameter');
     await link.scrollIntoViewIfNeeded();
     await link.evaluate(element => element.focus({preventScroll: true}));
     const focusId = await link.getAttribute('id');
@@ -86,7 +86,7 @@ test('a short chapter example returns midway with its reading position and invok
     await returnLink.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(`${chapter}#parameter`);
-    await expect(page.locator(`#${focusId}`)).toBeFocused();
+    await expect(page.locator(`[id="${focusId}"]`)).toBeFocused();
     await expect.poll(() => page.evaluate(before => {
         const section = document.getElementById('parameter');
         return Math.abs(section.getBoundingClientRect().top - before);
@@ -99,29 +99,34 @@ test('a short chapter example returns midway with its reading position and invok
 
 test('a multi-frame authored example advances and returns to its owning chapter section', async ({page}) => {
     await h.useLanguage(page, 'en');
-    await page.goto('/bezeg-2.0/learn/foundations#why-weights');
-    const link = page.locator('#why-weights .chapter-guided-lessons a[href*="example=lesson."]').first();
+    await page.goto('/bezeg-2.0/learn/foundations#reading-bernstein');
+    const link = page.locator('#reading-bernstein .chapter-guided-lessons a[href*="example=lesson.foundations.reading-bernstein.bernstein"]');
     await expect(link).toBeVisible();
     const focusId = await link.getAttribute('id');
     await link.click();
     await expect(panel(page)).toBeVisible();
     const progress = panel(page).locator('.guided-lesson-progress');
-    const firstFrame = await progress.innerText();
-    await expect(progress).toContainText(/Step 1 of [2-9]/);
-    await expect(progress).toContainText(/Frame 1 of [2-9]/);
+    await expect(progress).toContainText('Step 1 of 5');
+    await expect(progress).toContainText('Frame 1 of 5');
+    for (let frame = 2; frame <= 5; frame += 1) {
+        await panel(page).locator('.guided-lesson-nav-next').click();
+        await expect(progress).toContainText(`Step 1 of 5 · Frame ${frame} of 5`);
+    }
     await panel(page).locator('.guided-lesson-nav-next').click();
-    await expect(progress).not.toHaveText(firstFrame);
-    await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#why-weights');
+    await expect(progress).toContainText('Step 2 of 5');
+    await expect(progress).toContainText('Frame 1 of 2');
+    await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#reading-bernstein');
     await panel(page).getByRole('link', {name: 'Return to chapter', exact: true}).click();
-    await expect(page).toHaveURL('/bezeg-2.0/learn/foundations#why-weights');
+    await expect(page).toHaveURL('/bezeg-2.0/learn/foundations#reading-bernstein');
     await expect(page.locator(`[id="${focusId}"]`)).toBeFocused();
+    await expect(page.locator('#jgbox')).toHaveCount(0);
 });
 
 test('a guided example stays keyboard-accessible at narrow width and enlarged text', async ({page}) => {
     await page.setViewportSize({width: 390, height: 844});
     await h.useLanguage(page, 'en');
     await page.goto(`${chapter}#parameter`);
-    await exampleLink(page, 'parameter', 'curve-parameter').click();
+    await exampleLink(page, 'parameter', 'bezier-curves.parameter.decasteljau-parameter').click();
     await expect(panel(page)).toBeVisible();
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
     const bounds = await panel(page).boundingBox();
@@ -160,18 +165,29 @@ async function editFirstPoint(page, x) {
     if ((await editor.getAttribute('open')) === null) await editor.locator('summary').click();
     await editor.locator('input[name="x-0"]').fill(String(x));
     await editor.locator('.point-coordinate-form button[type="submit"]').click();
-    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[x, -3]]));
+    await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[x, -3], [-3, 2], [2, 2], [3, -2]]));
 }
 
 test('completion keeps the example graph editable and Continue in chapter returns to the owner', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.goto(`${chapter}#control-points`);
-    await exampleLink(page, 'control-points', 'shape-control').click();
+    await exampleLink(page, 'control-points', 'bezier-curves.control-points.bezier').click();
     await expect(panel(page)).toBeVisible();
-    await panel(page).locator('.guided-lesson-nav-next').click();
+    const progress = panel(page).locator('.guided-lesson-progress');
+    const authoredFrames = [3, 2, 2, 3, 3, 2];
+    for (let step = 1; step <= authoredFrames.length; step += 1) {
+        for (let frame = 1; frame <= authoredFrames[step - 1]; frame += 1) {
+            await expect(progress).toContainText(`Step ${step} of 6`);
+            await expect(progress).toContainText(`Frame ${frame} of ${authoredFrames[step - 1]}`);
+            if (step < authoredFrames.length || frame < authoredFrames[step - 1]) {
+                await panel(page).locator('.guided-lesson-nav-next').click();
+            }
+        }
+    }
     await panel(page).locator('.guided-lesson-nav-next').click();
     await expect(page.locator('section.guided-lesson.guided-lesson-complete')).toBeVisible();
     await expect(panel(page).getByRole('button', {name: 'Continue in chapter', exact: true})).toBeVisible();
+    expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-4, -3], [-3, 2], [2, 2], [3, -2]]));
     await editFirstPoint(page, -5);
     await panel(page).getByRole('button', {name: 'Continue in chapter', exact: true}).click();
     await expect(page).toHaveURL(`${chapter}#control-points`);
