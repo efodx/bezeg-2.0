@@ -3,6 +3,7 @@ import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 import {SplineBuildContext, SplineScheme, spanEndpoints} from "./spline-scheme";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * Degree-n spline of continuity c: every span after the first starts at a free point, continues with
@@ -16,6 +17,7 @@ class GenericSplineScheme implements SplineScheme {
     }
 
     build(context: SplineBuildContext) {
+        assertPlanarPoints(context.points, "GenericBezierSpline");
         const degree = this.degree;
         const continuity = this.continuity;
         const step = degree - continuity;

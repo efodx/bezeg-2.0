@@ -3,6 +3,7 @@ import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {blendPoints} from "./geometry";
 import {Point} from "../../api/point/point";
 import {SplineScheme} from "./spline-scheme";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * Cubic C2 spline with de Boor-style free points P0 ... Pn: the end spans interpolate P0 and Pn, and
@@ -13,6 +14,7 @@ const C2_CUBIC_SCHEME: SplineScheme = {
     listsComputedPoints: false,
 
     build(context) {
+        assertPlanarPoints(context.points, "C2CubicBezierSpline");
         const points = context.points;
         const n = points.length;
         const numOfCurves = n - 3;

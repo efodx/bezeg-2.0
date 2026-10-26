@@ -70,6 +70,8 @@ Localization is implemented and committed under the [confirmed spec](specs/local
 
 Centralize language strings and mathematical terminology, then provide English translations while keeping Slovenian as default. Review help, accessible names, empty/error states, and exports as applicable.
 
+Delivered 2026-10-26: shared polynomial and rational Bézier curves accept optional `z` coordinates for upcoming Bézier patches, while planar-only PH, spline, geometry, serialization and JSXGraph paths reject nonzero height. The curve kernels retain the 2D fast path and existing 2D preset/file shapes.
+
 Curate new mathematical features from `TODO.md` and unused implementations. Possibilities include PH arc-length display, additional construction views, and higher-dimensional geometry. Each needs an educational goal, scope, and supporting checks; none is scheduled solely because it appears in historical TODOs.
 
 **Done when:** agreed English journeys are reviewed and future features have individual priorities and specs.

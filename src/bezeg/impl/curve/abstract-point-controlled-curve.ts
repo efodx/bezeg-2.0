@@ -58,7 +58,7 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
         if (yScale === undefined) {
             yScale = xScale;
         }
-        this.transform([[xScale, 0], [0, yScale]], [0, 0], this.getBoundingBoxCenter());
+        this.transform([[xScale, 0], [0, yScale]], [0, 0], this.getProjectedBoundingBoxCenter());
     }
 
     moveFor(x: number, y: number): void {
@@ -86,6 +86,23 @@ export abstract class AbstractPointControlledCurve implements PointControlledCur
         let [minX, maxX, minY, maxY] = this.getBoundingBox();
         return [(minX + maxX) / 2, (minY + maxY) / 2];
 
+    }
+
+    /** Center of the XY projection, used by XY-only affine transforms on spatial points. */
+    private getProjectedBoundingBoxCenter(): number[] {
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        let minX = Infinity;
+        let minY = Infinity;
+        for (const point of this.points) {
+            const x = point.X();
+            const y = point.Y();
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+        }
+        return [(minX + maxX) / 2, (minY + maxY) / 2];
     }
 
     transform(A: number[][], b?: number[], center?: number[]): void {

@@ -1,0 +1,114 @@
+[
+  {
+    "path": "src/bezeg/api/point/point.ts",
+    "sha256": "F3F4B8560F8DB5CCA0E8DACBFE55B628F597B5EEB69672934361503EE75610FF"
+  },
+  {
+    "path": "src/bezeg/impl/curve/C2CubicBezierSpline.ts",
+    "sha256": "EA2FD779438831910775A5044EA72C373F4523195ACEB2DCB07C50C2E29C911C"
+  },
+  {
+    "path": "src/bezeg/impl/curve/G1QuadraticBezierSpline.ts",
+    "sha256": "753E9CE2C0F08BD3DA6392D3C75F236BD37E7296413B0EE34898BEFA87EAC934"
+  },
+  {
+    "path": "src/bezeg/impl/curve/GenericBezierSpline.ts",
+    "sha256": "972A613B8F0CD70D28C96F0000706B363FA9858501011301D87B50AE9A45C451"
+  },
+  {
+    "path": "src/bezeg/impl/curve/abstract-point-controlled-curve.ts",
+    "sha256": "B8F071C05889F16AD435271F8B9FF11E31D2C99BC275641AD8A14B81EDEC7486"
+  },
+  {
+    "path": "src/bezeg/impl/curve/bezier-spline.ts",
+    "sha256": "9C6675505CC20C66CF22F73CF936B2AB6606668766A39355F3E4CA6ADADEAE4A"
+  },
+  {
+    "path": "src/bezeg/impl/curve/geometry.ts",
+    "sha256": "E7E4F4F29312413237136032DE1C70B3890867D23729FC32EDF2021BA6619EF1"
+  },
+  {
+    "path": "src/bezeg/impl/curve/ph-bezier-curve.ts",
+    "sha256": "082338AE0F6EC85A67CC99A00AFD360E682336BE313F8F31921E6BC6B743CDE1"
+  },
+  {
+    "path": "src/bezeg/impl/curve/ph-math.ts",
+    "sha256": "FCF924E994504442F58803CCAFF7361C82EFD8E69DE29A278D7A2781A330A3AF"
+  },
+  {
+    "path": "src/bezeg/impl/curve/polynomial-bezier-curve.ts",
+    "sha256": "B0F9448B6A4EFF26C594A8EF602803AB5CBB552743D7B2BDE2FAC17598BEBFC0"
+  },
+  {
+    "path": "src/bezeg/impl/curve/quadratic-join-scheme.ts",
+    "sha256": "944F7BD7C8713E257CDF1DAEDB6EDC42BF582CE40D952F68FB8446BF5AA97408"
+  },
+  {
+    "path": "src/bezeg/impl/curve/rational-bezier-curve.ts",
+    "sha256": "7CD6EDDF8BAA1C0158317B5758470B34191F03287DC03BE8A87AF55620C4134C"
+  },
+  {
+    "path": "src/bezeg/impl/point/fixed-point.ts",
+    "sha256": "B85D46C5D399D905D1CAC0120E6F91C32336669CD8BA1D1D9BA6D0658310781E"
+  },
+  {
+    "path": "src/bezeg/impl/point/point-impl.ts",
+    "sha256": "4544B70C93CB9966E85B4EBD7173B616E09797ECCF5983E43375B95F76AA18B3"
+  },
+  {
+    "path": "src/graphs/curves/object/AbstractJXGPointControlledCurve.ts",
+    "sha256": "592E8CB2077C4E81D68522B8BB1FDB89F73A6CD3D56ECFA6804DC80282C59B3E"
+  },
+  {
+    "path": "src/graphs/curves/object/ClassMapper.ts",
+    "sha256": "E6484FD76F8A46AFF47F0F746A18DF9346FFA31C5545537AD7999049D937B1FE"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGBezierCurve.ts",
+    "sha256": "011E00D0BD61237F1128DCD748E708339C644FD7167ABB75DB9B08BE8F5F68ED"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGGenericSplineCurve.ts",
+    "sha256": "8046FE6883801DA58CFD54427EA9A0233C7A19A4A045D98D4CB17409D40076ED"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGPHBezierCurve.ts",
+    "sha256": "DFBC7408AB6A1906C05AEA0F59E56E74D59524DBA2E4217A63382CD46E1891C4"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGQuadraticC1SplineCurve.ts",
+    "sha256": "CD9DF613412C89B0DA3FF0D0EE58EB233B1D532B677C442768A7015500EFE4BB"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGQuadraticG1SplineCurve.ts",
+    "sha256": "10BB917F8DCBCE7FF10BE15A74EF49C9F1D0C4A6EAA49B3196E27C6CD61FC573"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGQubicC2SplineCurve.ts",
+    "sha256": "3791B9EDE8408721D39F092DAF9029F5545B66055413D6661472DAC9AE658280"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGRationalBezierCurve.ts",
+    "sha256": "CAD21D6D3976C3C75E4F12B04711C40B2F98CBC5822DE897E220744661DF1837"
+  },
+  {
+    "path": "src/graphs/curves/object/JXGSymmetricQuadraticG1SplineCurve.ts",
+    "sha256": "4AB45F48529B0BAF82C815AB0E4ADBF1E64C40126E231400A546DCBF20B88518"
+  },
+  {
+    "path": "src/graphs/curves/object/ModelPointBinding.ts",
+    "sha256": "7D838D64907599FE1559789E4D973D088F5E2EBA4F4FB3E980C08D455235DE28"
+  },
+  {
+    "path": "src/bezeg/impl/curve/bezier-3d.test.ts",
+    "sha256": "E2E281E08D593D1B07D70019EA56881652F1B1AECFEACECE21F74BB5E051601A"
+  },
+  {
+    "path": "src/bezeg/impl/point/planar-guard.ts",
+    "sha256": "B946B0E36423C090A4A99C8B41EDBDAD2CD60DB41EC1636DEF094BB54E86EFB3"
+  },
+  {
+    "path": "src/graphs/curves/object/planarDtoGuard.ts",
+    "sha256": "46210BB3902756A673E7DA1C5534505FE49B158ADDF3A2909D24A8CF70886F97"
+  }
+]

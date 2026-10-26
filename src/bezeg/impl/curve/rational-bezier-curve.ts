@@ -33,9 +33,9 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
 
 
     override elevate(): this {
-        const {rows, weights} = elevateRational({rows: this.points.map(point => [point.X(), point.Y()]), weights: this.getEffectiveWeights()});
+        const {rows, weights} = elevateRational({rows: this.curveRows(), weights: this.getEffectiveWeights()});
         const n = this.points.length;
-        const newPoints = [this.points[0], ...rows.slice(1, n).map(([x, y]) => new PointImpl(x, y)), this.points[n - 1]];
+        const newPoints = [this.points[0], ...rows.slice(1, n).map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)), this.points[n - 1]];
         return new RationalBezierCurve(newPoints, weights) as this;
     }
 
@@ -82,7 +82,7 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
      */
     override extrapolate(t: number): this {
         const {rows, weights} = extrapolateRational(t, this.homogeneousSource());
-        return new RationalBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)), weights) as this;
+        return new RationalBezierCurve(rows.map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)), weights) as this;
     }
 
     /**
@@ -91,12 +91,19 @@ export class RationalBezierCurve extends PolynomialBezierCurve {
      */
     override subdivide(t: number): this[] {
         return subdivideRational(t, this.homogeneousSource())
-            .map(({rows, weights}) => new RationalBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)), weights)) as this[];
+            .map(({rows, weights}) => new RationalBezierCurve(rows.map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)), weights)) as this[];
     };
 
     // Subdivision and extrapolation use the stored weights, not the current reactive ones.
     private homogeneousSource(): WeightedNet {
-        return {rows: this.points.map(point => [point.X(), point.Y()]), weights: this.weights};
+        return {rows: this.curveRows(), weights: this.weights};
+    }
+
+    private curveRows(): number[][] {
+        const coordinates = this.points.map(point => [point.X(), point.Y(), point.Z?.() ?? 0]);
+        const hasHeight = coordinates.some(([, , z]) => z !== 0);
+        if (!hasHeight) coordinates.forEach(row => { row.length = 2; });
+        return coordinates;
     }
 
     /**

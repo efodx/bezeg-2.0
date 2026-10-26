@@ -1,6 +1,7 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams, SplineCurveState} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {G1SymmetricQuadraticBezierSpline} from "../../../bezeg/impl/curve/G1SymmetricQuadraticBezierSpline";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 interface G1SymSplineState extends SplineCurveState {
     b: number[];
@@ -8,6 +9,7 @@ interface G1SymSplineState extends SplineCurveState {
 
 export class JXGSymmetricQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G1SymmetricQuadraticBezierSpline> {
     static toDto(curve: JXGSymmetricQuadraticG1SplineCurve): JSXSplineConstructorParams {
+        assertPlanarAdapter(curve);
         return {
             points: curve.pointControlledCurve.points.map(point => [point.X(), point.Y()]),
             state: curve.exportState()
@@ -15,6 +17,7 @@ export class JXGSymmetricQuadraticG1SplineCurve extends AbstractJXGSplineCurve<G
     }
 
     static fromDto(params: JSXSplineConstructorParams, board: Board): JXGSymmetricQuadraticG1SplineCurve {
+        assertPlanarDto(params);
         const curve = new JXGSymmetricQuadraticG1SplineCurve(params.points, board);
         if (params.state) {
             curve.importState(params.state);

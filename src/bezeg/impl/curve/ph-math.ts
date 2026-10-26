@@ -8,6 +8,12 @@
  */
 export type Vec = readonly [number, number];
 
+function assertPlanarVectors(vectors: ReadonlyArray<readonly number[]>): void {
+    if (vectors.some(vector => vector.length !== 2)) {
+        throw new Error("PH maths only supports planar vectors [x, y].");
+    }
+}
+
 export function binomial(n: number, k: number): number {
     return k === 0 ? 1 : (n * binomial(n - 1, k - 1)) / k;
 }
@@ -22,6 +28,7 @@ export function phDegree(m: number): number {
  * P_(k+1) = P_k + (1/n) * (complex Bernstein product of w with itself)_k.
  */
 export function phControlPoints(start: Vec, w: ReadonlyArray<Vec>): Vec[] {
+    assertPlanarVectors([start, ...w]);
     const m = w.length;
     const n = phDegree(m);
     const points: Vec[] = [start];
@@ -46,6 +53,7 @@ export function phControlPoints(start: Vec, w: ReadonlyArray<Vec>): Vec[] {
  * polynomial, because |w(t)|^2 is).
  */
 export function phSigmas(w: ReadonlyArray<Vec>): number[] {
+    assertPlanarVectors(w);
     const n = phDegree(w.length);
     const m = (n - 1) / 2;
     const sigmas: number[] = [];
@@ -66,6 +74,7 @@ export function phSigmas(w: ReadonlyArray<Vec>): number[] {
  * 2n control points and weights, from the PH control points `p` and speed coefficients `sigmas`.
  */
 export function phOffsetRational(p: ReadonlyArray<Vec>, sigmas: ReadonlyArray<number>, d: number): { points: Vec[], weights: number[] } {
+    assertPlanarVectors(p);
     const n = p.length - 1;
     // Edge normals (rotated differences) of the control polygon.
     const normals: Vec[] = p.slice(1).map((q, i) => [q[1] - p[i][1], p[i][0] - q[0]]);

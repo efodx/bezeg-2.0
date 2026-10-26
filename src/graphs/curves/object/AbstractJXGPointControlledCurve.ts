@@ -10,6 +10,7 @@ import {ModelPointBinding} from "./ModelPointBinding";
 import {graphSessionForBoard} from "../../base/GraphSession";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
+import {assertPlanarPoints} from "../../../bezeg/impl/point/planar-guard";
 
 export interface PointControlledCurveAttributes {
     allowShowControlPolygon: boolean
@@ -97,6 +98,9 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     private readonly editablePointsByJxgPoint = new Map<JXG.Point, PointImpl>();
 
     constructor(points: number[][], board: Board, attributes?: Attr) {
+        if (points.some(point => point.length > 2 && point[2] !== 0)) {
+            throw new Error("JSXGraph curve adapters only support planar points (z must be 0).");
+        }
         this.board = board;
         this.setAttributes(this.getDefaultAttributes());
         if (attributes) {
@@ -549,6 +553,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     protected replaceEditablePoints(points: Point[]): void {
+        assertPlanarPoints(points, "JSXGraph curve adapter");
         this.clearJxgPoints();
         const editablePoints = points.map((point, i) => this.createEditableInputPoint(
             point.X(),

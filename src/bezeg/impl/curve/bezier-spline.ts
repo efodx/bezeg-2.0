@@ -5,6 +5,7 @@ import {boundingBoxOf, chordKnots} from "./geometry";
 import {PointImpl} from "../point/point-impl";
 import {VOLATILE} from "../versioning";
 import {SplineScheme} from "./spline-scheme";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * A piecewise Bezier curve whose spans, computed control points and knots come from a
@@ -39,6 +40,7 @@ class BezierSpline extends AbstractPointControlledCurve {
 
     /** Rebuilds the spans and computed points (and resets the editable parameters) from the free points. */
     generateBezierCurves(): void {
+        assertPlanarPoints(this.points, "BezierSpline");
         this.b = this.scheme.initialParameters?.(this.points.length) ?? [];
         const {curves, computedPoints} = this.scheme.build({
             points: this.points,
@@ -48,6 +50,11 @@ class BezierSpline extends AbstractPointControlledCurve {
         this.bezierCurves = curves;
         this.nonFreePoints = computedPoints;
         this.bindNonFreePoints();
+    }
+
+    override version(): number {
+        assertPlanarPoints(this.points, "BezierSpline");
+        return super.version();
     }
 
     /**

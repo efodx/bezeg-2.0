@@ -12,10 +12,17 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
     private cachedPoints: Map<number, PointImpl> = new Map();
     private evaluationScratch: number[][] = [];
 
+    private coordinateRows(): number[][] {
+        const coordinates = this.points.map(point => [point.X(), point.Y(), point.Z?.() ?? 0]);
+        const hasHeight = coordinates.some(([, , z]) => z !== 0);
+        if (!hasHeight) coordinates.forEach(row => { row.length = 2; });
+        return coordinates;
+    }
+
     elevate(): this {
-        const elevated = elevate(this.points.map(point => [point.X(), point.Y()]));
+        const elevated = elevate(this.coordinateRows());
         const n = this.points.length;
-        const newPoints = [this.points[0], ...elevated.slice(1, n).map(([x, y]) => new PointImpl(x, y)), this.points[n - 1]];
+        const newPoints = [this.points[0], ...elevated.slice(1, n).map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)), this.points[n - 1]];
         return new PolynomialBezierCurve(newPoints) as this;
     }
 
@@ -43,12 +50,18 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
                     this.evaluationScratch = Array.from({length: this.points.length}, () => [0, 0]);
                 }
                 pointsAtT = this.evaluationScratch;
+                let hasHeight = false;
                 for (let i = 0; i < this.points.length; i++) {
-                    pointsAtT[i][0] = this.points[i].X();
-                    pointsAtT[i][1] = this.points[i].Y();
+                    const point = this.points[i];
+                    pointsAtT[i][0] = point.X();
+                    pointsAtT[i][1] = point.Y();
+                    const z = point.Z?.() ?? 0;
+                    pointsAtT[i][2] = z;
+                    hasHeight ||= z !== 0;
                 }
+                if (!hasHeight) pointsAtT.forEach(row => { row.length = 2; });
             } else {
-                pointsAtT = this.points.map(point => [point.X(), point.Y()]);
+                pointsAtT = this.coordinateRows();
             }
             const point = this.evaluatePoint(t, pointsAtT);
             if (!volatile) {
@@ -62,7 +75,7 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
     /** Evaluate only the final point; keep full intermediate rows for constructions. */
     protected evaluatePoint(t: number, pointsAtT: number[][]): PointImpl {
         this.runDeCasteljau(t, pointsAtT, this.evaluationWeights());
-        return new PointImpl(pointsAtT[0][0], pointsAtT[0][1]);
+        return new PointImpl(pointsAtT[0][0], pointsAtT[0][1], undefined, pointsAtT[0][2] ?? 0);
     }
 
     /** Weights for the projected (rational) recurrence, or undefined for a plain polynomial curve. */
@@ -80,9 +93,9 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @param t
      */
     decasteljauScheme(t: number): Point[][] {
-        const pointsAtT = this.points.map(point => [point.X(), point.Y()]);
+        const pointsAtT = this.coordinateRows();
         const decasteljauInternal = this.decasteljau(t, pointsAtT);
-        return decasteljauInternal.map(row => row.map(([x, y]) => new PointImpl(x, y)));
+        return decasteljauInternal.map(row => row.map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)));
     }
 
     /**
@@ -90,7 +103,7 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @param t
      */
     extrapolate(t: number): this {
-        const newPoints = extrapolate(t, this.points.map(point => [point.X(), point.Y()])).map(([x, y]) => new PointImpl(x, y));
+        const newPoints = extrapolate(t, this.coordinateRows()).map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z));
         return new PolynomialBezierCurve(newPoints) as this;
     }
 
@@ -99,8 +112,8 @@ export class PolynomialBezierCurve extends AbstractPointControlledCurve implemen
      * @param t
      */
     subdivide(t: number): this[] {
-        return subdivide(t, this.points.map(point => [point.X(), point.Y()]))
-            .map(rows => new PolynomialBezierCurve(rows.map(([x, y]) => new PointImpl(x, y)))) as this[];
+        return subdivide(t, this.coordinateRows())
+            .map(rows => new PolynomialBezierCurve(rows.map(([x, y, z = 0]) => new PointImpl(x, y, undefined, z)))) as this[];
     };
 
     decasteljau(t: number, pointsAtT: number[][]): number[][][] {

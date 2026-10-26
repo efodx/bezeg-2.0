@@ -1,12 +1,15 @@
 import {Point} from "../../api/point/point";
 import {PointImpl} from "../point/point-impl";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 export function distance(p: Point, q: Point): number {
+    assertPlanarPoints([p, q], "distance");
     return Math.sqrt((p.X() - q.X()) ** 2 + (p.Y() - q.Y()) ** 2);
 }
 
 /** Returns [minX, maxX, minY, maxY]. */
 export function boundingBoxOf(points: ReadonlyArray<Point>): number[] {
+    assertPlanarPoints(points, "boundingBoxOf");
     let maxX = -Infinity;
     let maxY = -Infinity;
     let minX = Infinity;
@@ -45,6 +48,7 @@ export function chordKnots(spans: ReadonlyArray<readonly [Point, Point]>, alpha:
  * The result contains the given Point objects, never copies.
  */
 export function convexHull(points: ReadonlyArray<Point>): Point[] {
+    assertPlanarPoints(points, "convexHull");
     const sorted = [...points].sort((p, q) => p.X() === q.X() ? p.Y() - q.Y() : p.X() - q.X());
     const unique = sorted.filter((p, i) => i === 0 || p.X() !== sorted[i - 1].X() || p.Y() !== sorted[i - 1].Y());
     if (unique.length < 3) {
@@ -73,6 +77,10 @@ export function convexHull(points: ReadonlyArray<Point>): Point[] {
 export function blendPoints(a: Point, b: Point, weights: () => readonly [number, number]): PointImpl {
     return PointImpl.derived(() => {
         const [wa, wb] = weights();
-        return [wa * a.X() + wb * b.X(), wa * a.Y() + wb * b.Y()];
+        return [
+            wa * a.X() + wb * b.X(),
+            wa * a.Y() + wb * b.Y(),
+            wa * (a.Z?.() ?? 0) + wb * (b.Z?.() ?? 0),
+        ];
     });
 }

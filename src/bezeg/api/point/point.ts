@@ -3,9 +3,14 @@ export interface Point {
 
     Y(): number;
 
+    /** Optional height coordinate; implementations without it are planar (z = 0). */
+    Z?(): number;
+
     setX(x: number | (() => number)): void;
 
     setY(y: number | (() => number)): void;
+
+    setZ?(z: number | (() => number)): void;
 
     isYFunction(): boolean;
 

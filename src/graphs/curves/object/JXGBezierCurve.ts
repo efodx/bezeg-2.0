@@ -3,6 +3,7 @@ import {Board} from "jsxgraph";
 import {PointControlledCurveState} from "./AbstractJXGPointControlledCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 export interface JSXBezierCurveConstructorParams {
     points: number[][],
@@ -22,6 +23,7 @@ export interface JXGBezierCurveState extends PointControlledCurveState {
 export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCurveAttributes> {
 
     static toDto(curve: JXGBezierCurve): JSXBezierCurveConstructorParams {
+        assertPlanarAdapter(curve);
         return {
             points: curve.pointControlledCurve.getPoints().map(point => [point.X(), point.Y()]),
             state: curve.exportState()
@@ -29,6 +31,7 @@ export class JXGBezierCurve extends AbstractJXGBezierCurve<BezierCurve, BezierCu
     }
 
     static fromDto(params: JSXBezierCurveConstructorParams, board: Board): JXGBezierCurve {
+        assertPlanarDto(params);
         const curve = new JXGBezierCurve(params.points, board);
         if (params.state) {
             board.suspendUpdate();

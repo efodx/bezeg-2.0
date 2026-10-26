@@ -6,6 +6,7 @@ import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezier
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 interface JSXRationalBezierCurveConstructorParams {
     points: number[][],
@@ -32,6 +33,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     static toDto(curve: JXGRationalBezierCurve): JSXRationalBezierCurveConstructorParams {
+        assertPlanarAdapter(curve);
         return {
             points: curve.pointControlledCurve.getPoints().map(point => [point.X(), point.Y()]),
             weights: curve.pointControlledCurve.getWeights(),
@@ -40,6 +42,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     }
 
     static fromDto(params: JSXRationalBezierCurveConstructorParams, board: Board): JXGRationalBezierCurve {
+        assertPlanarDto(params);
         const curve = new JXGRationalBezierCurve(params.points, params.weights, board);
         if (params.state) {
             curve.importState(params.state);

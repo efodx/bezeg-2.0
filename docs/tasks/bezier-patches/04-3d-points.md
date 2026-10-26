@@ -1,6 +1,6 @@
 # 04 — Extend points to 3D with planar guards
 
-Status: planned. Source: [spec P4, D5](../../specs/bezier-patches.md#shared-geometry-contract). Dependencies: 03 merged. Role: geometry owner.
+Status: complete (2026-10-26, accepted18:58UTC). Independent mathematical/engineering reviews, full `just check` (3773tests), and pinned-runtime matched drag checks pass; see [evidence](../../reviews/bezier-patches/3d-points.md). The apparent baseline sketch failure was a dependency mismatch, resolved in isolated verification without changing the assertion. Source: [spec P4, D5](../../specs/bezier-patches.md#shared-geometry-contract). Dependencies: 03 merged. Role: geometry owner.
 
 Let polynomial and rational curves hold 3D control points, so patches can reuse them for boundaries and iso-curves. Planar-only code must not silently lose `z`. No rendering, routes, Presets or UI change.
 

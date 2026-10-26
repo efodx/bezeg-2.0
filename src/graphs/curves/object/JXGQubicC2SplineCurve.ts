@@ -1,10 +1,12 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {C2CubicBezierSpline} from "../../../bezeg/impl/curve/C2CubicBezierSpline";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 
 export class JXGQubicC2SplineCurve extends AbstractJXGSplineCurve<C2CubicBezierSpline> {
     static toDto(curve: JXGQubicC2SplineCurve): JSXSplineConstructorParams {
+        assertPlanarAdapter(curve);
         return {
             points: curve.pointControlledCurve.points.map(point => [point.X(), point.Y()]),
             state: curve.exportState()
@@ -12,6 +14,7 @@ export class JXGQubicC2SplineCurve extends AbstractJXGSplineCurve<C2CubicBezierS
     }
 
     static fromDto(params: JSXSplineConstructorParams, board: Board): JXGQubicC2SplineCurve {
+        assertPlanarDto(params);
         const curve = new JXGQubicC2SplineCurve(params.points, board);
         if (params.state) {
             curve.importState(params.state);

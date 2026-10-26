@@ -3,6 +3,7 @@ import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {PointImpl} from "../point/point-impl";
 import {Point} from "../../api/point/point";
 import {SplineScheme, spanEndpoints} from "./spline-scheme";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * Quadratic spline P0 P1 P2 | P2 N2 P3 | P3 N3 P4 | ...: the first span is the free points P0 P1 P2;
@@ -16,6 +17,7 @@ const G1_QUADRATIC_SCHEME: SplineScheme = {
     initialParameters: pointCount => new Array<number>(Math.max(0, pointCount - 3)).fill(1),
 
     build(context) {
+        assertPlanarPoints(context.points, "G1QuadraticBezierSpline");
         const points = context.points;
         const curves: PolynomialBezierCurve[] = [];
         const computedPoints: Point[] = [];

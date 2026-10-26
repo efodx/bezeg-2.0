@@ -1,6 +1,7 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
 import {GenericBezierSpline} from "../../../bezeg/impl/curve/GenericBezierSpline";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 export interface JSXGenericSplineConstructorParams extends JSXSplineConstructorParams {
     continuity: number,
@@ -21,6 +22,7 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
     }
 
     static toDto(curve: JXGGenericSplineCurve): JSXGenericSplineConstructorParams {
+        assertPlanarAdapter(curve);
         return {
             points: curve.pointControlledCurve.points.map(point => [point.X(), point.Y()]),
             degree: curve.pointControlledCurve.getDegree(),
@@ -30,6 +32,7 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
     }
 
     static fromDto(params: JSXGenericSplineConstructorParams, board: Board): JXGGenericSplineCurve {
+        assertPlanarDto(params);
         const curve = new JXGGenericSplineCurve(params.points, params.continuity, params.degree, board);
         if (params.state) {
             curve.importState(params.state);

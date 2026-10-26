@@ -6,6 +6,7 @@ import {RationalBezierCurve} from "./rational-bezier-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 import {currentStamp, maxVersion, NO_MEMO, Versioned, VersionedMemo, VOLATILE} from "../versioning";
 import {phControlPoints, phOffsetRational, phSigmas, Vec} from "./ph-math";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * Represents a PH Bezier curve.
@@ -24,6 +25,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
     private bezierCurveSigma?: BezierCurve;
 
     constructor(points: Point[], w: Point[]) {
+        assertPlanarPoints([...points, ...w], "PhBezierCurve");
         super(points);
         this._w = w;
         this.rebuild();
@@ -42,6 +44,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
      * with the same number the existing derived points read the new `w` directly.
      */
     set w(value: Point[]) {
+        assertPlanarPoints([...this.points, ...value], "PhBezierCurve");
         const degreeChanged = value.length !== this._w.length;
         this._w = value;
         if (degreeChanged) {
@@ -80,6 +83,7 @@ export class PhBezierCurve extends AbstractPointControlledCurve implements Bezie
      * VOLATILE if any generating point is volatile.
      */
     private inputsVersion(): number {
+        assertPlanarPoints([...this.points, ...this._w], "PhBezierCurve");
         const stamp = currentStamp();
         if (stamp === this.inputsMemoStamp) {
             return this.inputsMemo;

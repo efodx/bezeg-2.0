@@ -7,15 +7,15 @@ import {currentStamp, MaybeVersioned, maxVersion, NO_MEMO, nextVersion, Versione
  * result is cached until one of the dependencies changes.
  */
 export class FixedPoint implements Point, Versioned {
-    private readonly coords: () => [number, number];
+    private readonly coords: () => [number, number] | [number, number, number];
     private readonly dependencies?: ReadonlyArray<MaybeVersioned>;
     private readonly ownVersion = nextVersion();
-    private cachedCoords: undefined | [number, number] = undefined;
+    private cachedCoords: undefined | [number, number] | [number, number, number] = undefined;
     private cachedVersion = VOLATILE;
     private versionMemoStamp = NO_MEMO;
     private versionMemo = VOLATILE;
 
-    constructor(generatingFunction: () => [number, number], dependencies?: ReadonlyArray<MaybeVersioned>) {
+    constructor(generatingFunction: () => [number, number] | [number, number, number], dependencies?: ReadonlyArray<MaybeVersioned>) {
         this.coords = generatingFunction;
         this.dependencies = dependencies;
     }
@@ -44,6 +44,10 @@ export class FixedPoint implements Point, Versioned {
         return this.getCoords()[1];
     }
 
+    Z(): number {
+        return this.getCoords()[2] ?? 0;
+    }
+
     setX(x: number | (() => number)) {
         throw "JUST DONT DO THIS BROTHER PLS";
     }
@@ -60,7 +64,7 @@ export class FixedPoint implements Point, Versioned {
         return true;
     }
 
-    private getCoords() {
+    private getCoords(): [number, number] | [number, number, number] {
         const version = this.version();
         if (version === VOLATILE) {
             return this.coords();

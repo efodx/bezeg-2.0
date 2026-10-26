@@ -2,6 +2,7 @@ import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {blendPoints} from "./geometry";
 import {Point} from "../../api/point/point";
 import {SplineBuildContext, SplineScheme} from "./spline-scheme";
+import {assertPlanarPoints} from "../point/planar-guard";
 
 /**
  * Scheme for a quadratic spline with control points P0, P1, ..., Pn: the first span is P0 P1 J1,
@@ -24,6 +25,7 @@ export function quadraticJoinScheme(
             : pointCount => new Array<number>(Math.max(0, pointCount - 3)).fill(initialParameter),
 
         build(context) {
+            assertPlanarPoints(context.points, "quadratic spline scheme");
             const points = context.points;
             const spanPoints: Point[][] = [[points[0], points[1]]];
             const joins: Point[] = [];

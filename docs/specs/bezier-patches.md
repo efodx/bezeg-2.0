@@ -1,6 +1,6 @@
 # Bézier patches (Bézierjeve krpe)
 
-Status: in progress. The owner requested the spec on 2026-10-26. [Task 01](../tasks/bezier-patches/01-jsxgraph-upgrade.md) (P1, JSXGraph 1.14.1) and [task 03](../tasks/bezier-patches/03-shared-kernels.md) (shared kernels) are complete; tasks 02 and 04 remain planned. Tasks for the later slices are created after task 02's renderer ADR. Sources:
+Status: in progress. The owner requested the spec on 2026-10-26. [Task 01](../tasks/bezier-patches/01-jsxgraph-upgrade.md) (P1, JSXGraph 1.14.1), [task 03](../tasks/bezier-patches/03-shared-kernels.md) (shared kernels), and [task 04](../tasks/bezier-patches/04-3d-points.md) (3D points) are complete. Task 02's renderer investigation is in progress. Tasks for later slices are created after its renderer ADR. Sources:
 - [teaching research](../research/bezier-surfaces.md): mathematics, lesson outline, misconceptions, library facts;
 - [architecture research](../research/bezier-surfaces-architecture.md): layer-by-layer requirements.
 
@@ -206,7 +206,7 @@ No surface code ships in this change.
 
 **P3 — Shared kernels preserve curves.** Polynomial and rational curves delegate to the extracted kernels. Existing golden and curve tests pass with unchanged expectations. New dimension-parametrised kernel tests show identical 2D results and Bernstein-sum agreement in 3D. A deliberate kernel mutation fails them. The representative drag measurement does not regress beyond noise.
 
-**P4 — 3D points without silent planar loss.** Curves over 3D points evaluate, subdivide, elevate and extrapolate correctly in 3D, checked against the Bernstein sum. Every planar-only entry point listed in the starting seams rejects a nonzero `z` by type or at runtime, with tests. 2D behaviour, Presets and version-stamp caching are unchanged.
+**P4 — 3D points without silent planar loss.** Complete2026-10-26; [acceptance evidence](../reviews/bezier-patches/3d-points.md). Curves over 3D points evaluate, subdivide, elevate and extrapolate correctly in 3D, checked against the Bernstein sum. Every planar-only entry point listed in the starting seams rejects a nonzero `z` by type or at runtime, with tests. 2D behaviour, Presets and version-stamp caching are unchanged.
 
 **P5 — Patch mathematics.** Tests cover, for both patch types:
 - de Casteljau agrees with the Bernstein sum;
@@ -242,7 +242,7 @@ The graph remains prominent, and controls follow the one-home rule. The elderflo
 - the glossary (domain terms only);
 - the ADRs for P2.
 
-The roadmap records 3D points as delivered by P4. The owner's 3D-points idea is not yet written in `docs/roadmap.md`.
+The roadmap records 3D points as delivered by P4.
 
 ## Verification and delivery
 

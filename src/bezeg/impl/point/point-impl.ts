@@ -14,6 +14,7 @@ import {currentStamp, MaybeVersioned, maxVersion, NO_MEMO, nextVersion, Versione
 export class PointImpl implements Point, Versioned {
     private x: number | (() => number);
     private y: number | (() => number);
+    private z: number | (() => number);
     private changeListeners?: Set<() => void>;
     private ownVersion = nextVersion();
     private dependencies?: ReadonlyArray<MaybeVersioned>;
@@ -23,25 +24,28 @@ export class PointImpl implements Point, Versioned {
     private cachedXVersion = VOLATILE;
     private cachedY = 0;
     private cachedYVersion = VOLATILE;
+    private cachedZ = 0;
+    private cachedZVersion = VOLATILE;
 
     constructor(x: number | (() => number), y: number | (() => number),
-                dependencies?: ReadonlyArray<MaybeVersioned>) {
+                dependencies?: ReadonlyArray<MaybeVersioned>, z: number | (() => number) = 0) {
         this.x = x;
         this.y = y;
+        this.z = z;
         this.dependencies = dependencies;
     }
 
     /**
-     * A point computed from other geometry as one [x, y] function. `compute` runs once per
-     * version for both coordinates instead of once per coordinate. Declare `dependencies`
+     * A point computed from other geometry as one [x, y] or [x, y, z] function. `compute` runs once per
+     * version for every coordinate instead of once per coordinate. Declare `dependencies`
      * (or call `dependOn` later) to make the result cacheable; without them it is volatile
      * and `compute` runs on every read, as with two separate closures.
      */
-    static derived(compute: () => readonly [number, number],
+    static derived(compute: () => readonly [number, number] | readonly [number, number, number],
                    dependencies?: ReadonlyArray<MaybeVersioned>): PointImpl {
         let memoVersion = VOLATILE;
-        let memo: readonly [number, number] = [0, 0];
-        const read = (): readonly [number, number] => {
+        let memo: readonly [number, number] | readonly [number, number, number] = [0, 0];
+        const read = (): readonly [number, number] | readonly [number, number, number] => {
             const version = point.version();
             if (version === VOLATILE) {
                 return compute();
@@ -52,7 +56,7 @@ export class PointImpl implements Point, Versioned {
             }
             return memo;
         };
-        const point: PointImpl = new PointImpl(() => read()[0], () => read()[1], dependencies);
+        const point: PointImpl = new PointImpl(() => read()[0], () => read()[1], dependencies, () => read()[2] ?? 0);
         return point;
     }
 
@@ -63,7 +67,7 @@ export class PointImpl implements Point, Versioned {
     }
 
     version(): number {
-        if (typeof this.x === 'number' && typeof this.y === 'number') {
+        if (typeof this.x === 'number' && typeof this.y === 'number' && typeof this.z === 'number') {
             return this.ownVersion;
         }
         if (!this.dependencies) {
@@ -111,6 +115,17 @@ export class PointImpl implements Point, Versioned {
         return this.cachedY;
     }
 
+    Z(): number {
+        if (typeof this.z === 'number') return this.z;
+        const version = this.dependencies ? this.version() : VOLATILE;
+        if (version === VOLATILE) return this.z();
+        if (version !== this.cachedZVersion) {
+            this.cachedZ = this.z();
+            this.cachedZVersion = version;
+        }
+        return this.cachedZ;
+    }
+
     setX(x: number | (() => number)) {
         if (typeof x === 'function') {
             this.dependencies = undefined;
@@ -125,6 +140,13 @@ export class PointImpl implements Point, Versioned {
             this.dependencies = undefined;
         }
         this.y = y;
+        this.ownVersion = nextVersion();
+        this.notifyChanged();
+    }
+
+    setZ(z: number | (() => number)) {
+        if (typeof z === 'function') this.dependencies = undefined;
+        this.z = z;
         this.ownVersion = nextVersion();
         this.notifyChanged();
     }

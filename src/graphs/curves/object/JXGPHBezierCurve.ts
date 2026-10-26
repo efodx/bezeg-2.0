@@ -12,6 +12,7 @@ import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {JXGPointWrapper as PointWrapper} from "./JXGPointWrapper";
 import {constructionLevelColor} from "../../styles/GraphPalette";
+import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 interface JSXPHBezierCurveConstructorParams extends JSXBezierCurveConstructorParams {
     hodographs: number[][],
@@ -46,6 +47,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     }
 
     static override toDto(curve: JXGBezierCurve): any {
+        assertPlanarAdapter(curve);
         return {
             points: [curve.pointControlledCurve.getPoints().map(point => [point.X(), point.Y()])[0]],
             hodographs: (curve.getCurve() as PhBezierCurve).w.map(point => [point.X(), point.Y()]),
@@ -54,6 +56,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     }
 
     static override fromDto(params: JSXPHBezierCurveConstructorParams, board: Board): JXGBezierCurve {
+        assertPlanarDto(params);
         const curve = new JXGPHBezierCurve(params.points.concat(params.hodographs), board);
         if (params.state) {
             curve.importState(params.state);
