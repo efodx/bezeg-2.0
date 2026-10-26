@@ -2,6 +2,9 @@ import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import {familyChapters} from './familyChapters';
+import {exampleReferences, hasEquivalentExampleOrder, validateOrderedChapterContent} from '../chapter/orderedContent';
+import {retainedExampleHomes} from '../chapter/retainedExamples';
+import {bezierChapter} from './bezierChapter';
 
 function withoutMath(source: string) {
     let outside = '';
@@ -28,6 +31,58 @@ function withoutMath(source: string) {
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
 describe('family reading chapters', () => {
+    test('authors Foundations example placement in both languages with the audited graph meanings', () => {
+        const foundations = familyChapters.find(chapter => chapter.id === 'foundations')!;
+        const expected = {
+            'reading-bernstein': ['foundations.reading-bernstein.bernstein'],
+            'worked-weight': ['foundations.worked-weight.bernstein.degree-comparison'],
+            'complex-plane': ['foundations.complex-plane.complex-multiplication'],
+        } as const;
+        const known = new Set(retainedExampleHomes.map(home => home[0]));
+        for (const [sectionId, refs] of Object.entries(expected)) {
+            const section = foundations.sections.find(item => item.id === sectionId)!;
+            expect(section.orderedContent).toBeDefined();
+            expect(exampleReferences(section.orderedContent!)).toEqual(refs);
+            for (const block of section.orderedContent!) {
+                if (block.kind === 'paragraph') expect(block.text.sl.trim()).not.toBe('');
+                if (block.kind === 'paragraph') expect(block.text.en.trim()).not.toBe('');
+            }
+            expect(validateOrderedChapterContent(section.orderedContent!, known)).toEqual([]);
+        }
+
+        const worked = foundations.sections.find(item => item.id === 'worked-weight')!.orderedContent!;
+        expect(worked.map(block => block.kind)).toEqual(['paragraph', 'example', 'paragraph']);
+        expect(worked[2].kind === 'paragraph' && worked[2].text.sl).toContain('Uteži same ne povedo');
+        const reading = foundations.sections.find(item => item.id === 'reading-bernstein')!.orderedContent!;
+        expect(reading.map(block => block.kind)).toEqual(['paragraph', 'example', 'paragraph', 'figure']);
+        const complex = foundations.sections.find(item => item.id === 'complex-plane')!.orderedContent!;
+        expect(complex.map(block => block.kind)).toEqual(['paragraph', 'paragraph', 'example', 'paragraph', 'formula', 'figure']);
+        expect(exampleReferences(foundations.sections.find(item => item.id === 'why-weights')?.orderedContent ?? [])).toEqual([]);
+        expect(exampleReferences(foundations.sections.find(item => item.id === 'investigate-limits')?.orderedContent ?? [])).toEqual([]);
+    });
+
+    test('places every Bézier retained card at equivalent authored anchors in both languages', () => {
+        const known = new Set(retainedExampleHomes.map(home => home[0]));
+        for (const sectionId of bezierChapter.en.sections.map(section => section.id)) {
+            const en = bezierChapter.en.sections.find(section => section.id === sectionId)!.orderedContent!;
+            const sl = bezierChapter.sl.sections.find(section => section.id === sectionId)!.orderedContent!;
+            expect(hasEquivalentExampleOrder(sl, en), sectionId).toBe(true);
+            expect(validateOrderedChapterContent(en, known), sectionId).toEqual([]);
+            expect(validateOrderedChapterContent(sl, known), sectionId).toEqual([]);
+        }
+        const expectedNext = [
+            'bezier-curves.next-ideas.elevation', 'bezier-curves.next-ideas.subdivision',
+            'bezier-curves.next-ideas.repeated-subdivision', 'bezier-curves.next-ideas.extrapolation',
+        ];
+        for (const language of ['en', 'sl'] as const) {
+            const section = bezierChapter[language].sections.find(item => item.id === 'next-ideas')!;
+            expect(exampleReferences(section.orderedContent!)).toEqual(expectedNext);
+            expect(section.blocks.some(block => block.kind === 'paragraph' && block.text.includes(
+                language === 'en' ? 'These are related demonstrations for further exploration' : 'Te povezave vodijo na povezane prikaze',
+            ))).toBe(true);
+        }
+    });
+
     test('publishes seven bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
             'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'functions-and-calculus', 'analysis',

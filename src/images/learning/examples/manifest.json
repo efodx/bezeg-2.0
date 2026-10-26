@@ -1,0 +1,6983 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+    "dirty": true,
+    "inputs": "7a70357b97cce4a12da82216fac27940c1369e37c814be5ced10db787f89bbd4",
+    "output": "b63a1b53b13bec81ff03bc2a7759449cad57e4474bf18be54f2eaf9be9c96a01"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+    "stampDirty": true,
+    "localOutputHash": "b63a1b53b13bec81ff03bc2a7759449cad57e4474bf18be54f2eaf9be9c96a01",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Bmf3wzHJ.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-Bmf3wzHJ.js",
+        "sha256": "06ea834fac2e19085c970da8802db99013bc7526dd0447758cb6d244e17f5a81",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DgSBr0Ew.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-DgSBr0Ew.js",
+        "sha256": "3deb2eb53cd7f58962e3d55cf4b334e81b753fa08db6a47d05387f3a44e20211",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-Ci6_9flY.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-Ci6_9flY.css",
+        "sha256": "c32f7f6f027dbe437387305e008514ec49836ad23fee9d44714af05bcf7b9819",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "f1f8256f4cc673a0f42f9b5c267995c2524e1166c53f862f03e9f52a8d8635d2",
+    "presentation": "57e806680fef847f65ec999a633ba4ce4e5c3a2cbd303f76bbf20f8af842952a",
+    "buildOutput": "b63a1b53b13bec81ff03bc2a7759449cad57e4474bf18be54f2eaf9be9c96a01",
+    "buildInputs": "7a70357b97cce4a12da82216fac27940c1369e37c814be5ced10db787f89bbd4"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "boardOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "existing presentBoard capture-only camera, label sizing and construction-stroke treatment",
+    "entryFraming": [
+      {
+        "id": "analysis.convergence.fixed-point",
+        "demonstrationId": "fixed-point",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.15,
+            1.2,
+            1.2,
+            -0.15
+          ]
+        }
+      },
+      {
+        "id": "analysis.convergence.sequence",
+        "demonstrationId": "sequence",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0,
+            1.2,
+            18,
+            -0.2
+          ]
+        }
+      },
+      {
+        "id": "analysis.convergence.uniform-convergence",
+        "demonstrationId": "uniform-convergence",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.08,
+            1.1,
+            0.9,
+            -0.15
+          ]
+        }
+      },
+      {
+        "id": "analysis.derivative-results.convexity",
+        "demonstrationId": "convexity",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.4,
+            3,
+            1.9,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "analysis.derivative-results.extrema",
+        "demonstrationId": "extrema",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.4,
+            4.8,
+            2.4,
+            -1.8
+          ]
+        }
+      },
+      {
+        "id": "analysis.derivative-results.mean-value",
+        "demonstrationId": "mean-value",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.3,
+            4.8,
+            2.4,
+            -0.5
+          ]
+        }
+      },
+      {
+        "id": "analysis.existence.bisection",
+        "demonstrationId": "bisection",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.85,
+            2.3,
+            2.15,
+            -1.25
+          ]
+        }
+      },
+      {
+        "id": "analysis.integrability.darboux",
+        "demonstrationId": "darboux",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.3,
+            4.8,
+            2.4,
+            -0.5
+          ]
+        }
+      },
+      {
+        "id": "analysis.taylor.taylor",
+        "demonstrationId": "taylor",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.6,
+            5,
+            2.2,
+            -1.4
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.affine-transformations.affine",
+        "demonstrationId": "affine",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.2,
+            3.8,
+            4.2,
+            -3.8
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.bernstein-form.bernstein",
+        "demonstrationId": "bernstein",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.12,
+            1.12,
+            1.12,
+            -0.12
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.control-points.bezier",
+        "demonstrationId": "bezier",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.5,
+            4.5,
+            -4
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.geometric-properties.convex-hull",
+        "demonstrationId": "bezier",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.5,
+            4.5,
+            -4
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.interpolation.alternative-recursion",
+        "demonstrationId": "decasteljau-alternative",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "bezier-curves.interpolation.decasteljau",
+        "demonstrationId": "decasteljau",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "bezier-curves.interpolation.quartic-interpolation",
+        "demonstrationId": "decasteljau",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "bezier-curves.next-ideas.elevation",
+        "demonstrationId": "elevation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.3,
+            5,
+            -3.5
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.next-ideas.extrapolation",
+        "demonstrationId": "extrapolation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.5,
+            4.5,
+            -6
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.next-ideas.repeated-subdivision",
+        "demonstrationId": "repeated-subdivision",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.5,
+            4.5,
+            -4
+          ]
+        }
+      },
+      {
+        "id": "bezier-curves.next-ideas.subdivision",
+        "demonstrationId": "subdivision",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "bezier-curves.parameter.decasteljau-parameter",
+        "demonstrationId": "decasteljau",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "foundations.complex-plane.complex-multiplication",
+        "demonstrationId": "complex-multiplication",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2,
+            2.3,
+            2,
+            -1.6
+          ]
+        }
+      },
+      {
+        "id": "foundations.reading-bernstein.bernstein",
+        "demonstrationId": "bernstein",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.12,
+            1.12,
+            1.12,
+            -0.12
+          ]
+        }
+      },
+      {
+        "id": "foundations.worked-weight.bernstein.degree-comparison",
+        "demonstrationId": "bernstein",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.12,
+            1.12,
+            1.12,
+            -0.12
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.applications.arc-length",
+        "demonstrationId": "arc-length",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.4,
+            2,
+            3.6,
+            -0.7
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.applications.area-between-curves",
+        "demonstrationId": "area-between-curves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.1,
+            5,
+            3.9,
+            -0.5
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.continuity.continuity",
+        "demonstrationId": "continuity",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.3,
+            4.3,
+            3.2,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.derivatives.derivative",
+        "demonstrationId": "derivative",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.4,
+            5,
+            2.5,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.function-rules.exponential-function",
+        "demonstrationId": "exponential-function",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            5,
+            2.5,
+            -0.6
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.function-rules.linear-function",
+        "demonstrationId": "linear-function",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.8,
+            6.5,
+            3,
+            -1.5
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.function-rules.trigonometric-functions",
+        "demonstrationId": "trigonometric-functions",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.6,
+            1.8,
+            6.8,
+            -1.8
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.integrals.accumulation",
+        "demonstrationId": "accumulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.5,
+            2.6,
+            6.5,
+            -1.4
+          ]
+        }
+      },
+      {
+        "id": "functions-and-calculus.integrals.definite-integral",
+        "demonstrationId": "definite-integral",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.3,
+            4.8,
+            2.4,
+            -0.5
+          ]
+        }
+      },
+      {
+        "id": "parametrization.uniform-timing.uniform-parameterization",
+        "demonstrationId": "uniform-parameterization",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "parametrization.weighted-knot.spline-parameterization",
+        "demonstrationId": "spline-parameterization",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "parametrization.weighted-knot.weighted-parameterization",
+        "demonstrationId": "weighted-parameterization",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.arc-length-problem.ph-cubic-speed",
+        "demonstrationId": "ph-cubic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
+        "demonstrationId": "ph-quintic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.complex-hodograph.ph-cubic-generator",
+        "demonstrationId": "ph-cubic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.investigate-ph.ph-cubic-singularity",
+        "demonstrationId": "ph-cubic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.investigate-ph.ph-quintic-singularity",
+        "demonstrationId": "ph-quintic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.offsets.ph-quintic-offsets",
+        "demonstrationId": "ph-quintic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "ph-curves.worked-length.ph-cubic-offset-length",
+        "demonstrationId": "ph-cubic",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "rational-curves.homogeneous.rational-decasteljau",
+        "demonstrationId": "rational-decasteljau",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "rational-curves.investigate-rational.rational-extrapolation",
+        "demonstrationId": "rational-extrapolation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.5,
+            4.5,
+            -4
+          ]
+        }
+      },
+      {
+        "id": "rational-curves.operations.farin",
+        "demonstrationId": "farin",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "rational-curves.operations.rational-elevation",
+        "demonstrationId": "rational-elevation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5,
+            4.3,
+            5,
+            -3.5
+          ]
+        }
+      },
+      {
+        "id": "rational-curves.operations.rational-subdivision",
+        "demonstrationId": "rational-subdivision",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "rational-curves.why-rational.rational-weight",
+        "demonstrationId": "rational",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "rational-curves.worked-conic.circle",
+        "demonstrationId": "circle",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "splines.continuity-levels.spline-c1",
+        "demonstrationId": "spline-c1",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.6,
+            4.2,
+            4.6,
+            -4.2
+          ]
+        }
+      },
+      {
+        "id": "splines.continuity-levels.spline-c2",
+        "demonstrationId": "spline-c2",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5.1,
+            3,
+            5.2,
+            -3.8
+          ]
+        }
+      },
+      {
+        "id": "splines.geometric-vs-parametric.spline-g1",
+        "demonstrationId": "spline-g1",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -6.5,
+            4,
+            5.5,
+            -5
+          ]
+        }
+      },
+      {
+        "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
+        "demonstrationId": "spline-g1-symmetric",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "splines.piecewise.spline-cn",
+        "demonstrationId": "spline-cn",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "splines.worked-join.spline-c1.parabola-derivatives",
+        "demonstrationId": "spline-c1",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "analysis.convergence.fixed-point",
+      "demonstrationId": "fixed-point",
+      "path": "/bezeg-2.0/analysis/fixed-point?example=lesson.analysis.convergence.fixed-point",
+      "sceneFingerprint": "d327ba33dbea1317811a2671b27ee075308b144c30ab36683c65d7bc67e72585",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fixed-point-cobweb-scene\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fixed-point-bound\",\"visible\":false}"
+      ],
+      "file": "analysis.convergence.fixed-point.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f8e8ce7bad420fc10d37fa8f944e1e880073858212fd011ad6838c20271f85de",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 3,
+          "segment": 1,
+          "point": 3
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0.5
+            ],
+            [
+              0.5,
+              0.75
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 17,
+            "curve": 3,
+            "segment": 1,
+            "point": 3
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0.5
+              ],
+              [
+                0.5,
+                0.75
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 3,
+          "segment": 1,
+          "point": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.convergence.sequence",
+      "demonstrationId": "sequence",
+      "path": "/bezeg-2.0/analysis/sequence?example=lesson.analysis.convergence.sequence",
+      "sceneFingerprint": "7ff53193e6543450b57964a47bc36be1df1fb0df8e867ded77931387be45ac96",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sequence-definition-scene\",\"source\":\"demonstration-default\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"sequence-epsilon\",\"value\":0.25}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"sequence-certificate\",\"visible\":false}"
+      ],
+      "file": "analysis.convergence.sequence.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8f1db0ad4140385d46a10484100c83f5364cfe1f5b9481c38d9becda4b529c0d",
+      "scene": {
+        "visibleElementCount": 33,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "curve": 1,
+          "segment": 4,
+          "point": 12
+        },
+        "visiblePointCount": 12,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2.52,
+              -0.25
+            ],
+            [
+              9,
+              -0.25
+            ],
+            [
+              20.52,
+              -0.25
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 45,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 24,
+            "curve": 1,
+            "segment": 4,
+            "point": 12
+          },
+          "visiblePointCount": 12,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4.9,
+                -0.25
+              ],
+              [
+                19.05,
+                -0.25
+              ],
+              [
+                43,
+                -0.25
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "curve": 1,
+          "segment": 4,
+          "point": 12
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.convergence.uniform-convergence",
+      "demonstrationId": "uniform-convergence",
+      "path": "/bezeg-2.0/analysis/uniform-convergence?example=lesson.analysis.convergence.uniform-convergence",
+      "sceneFingerprint": "a288425619f68c0364c17e9607355bf2e84ae4181c2a49aaafda4156f4d323a3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"uniform-scaled-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"uniform-example\",\"value\":\"scaled\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"uniform-n\",\"value\":4}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"uniform-supremum\",\"visible\":false}"
+      ],
+      "file": "analysis.convergence.uniform-convergence.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d9fe89efb5d64dc1230e5075c987cfa2dccb1ade9e43bb15df0969992c545b6f",
+      "scene": {
+        "visibleElementCount": 14,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "segment": 4,
+          "point": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -0.1
+            ],
+            [
+              0.5,
+              -0.1
+            ],
+            [
+              1,
+              -0.1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.125
+            ],
+            [
+              1,
+              0.25
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 16,
+            "curve": 2,
+            "segment": 4,
+            "point": 4
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -0.1
+              ],
+              [
+                0.5,
+                -0.1
+              ],
+              [
+                1,
+                -0.1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                1,
+                0.25
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "segment": 4,
+          "point": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.derivative-results.convexity",
+      "demonstrationId": "convexity",
+      "path": "/bezeg-2.0/analysis/convexity?example=lesson.analysis.derivative-results.convexity",
+      "sceneFingerprint": "c922e79f739ad0d236449c8b54abef11606bc52ed1a04493dd28e0deaf402f08",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"convexity-prerequisites-scene\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"second-derivative\",\"visible\":false}"
+      ],
+      "file": "analysis.derivative-results.convexity.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0aa753311e110a492437f948ff1e1f581db5755af736b31c2be5d1c71bd1e344",
+      "scene": {
+        "visibleElementCount": 28,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "segment": 4,
+          "curve": 2,
+          "point": 6
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -0.25
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              0.75
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 17,
+            "segment": 4,
+            "curve": 2,
+            "point": 6
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -0.25
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                0.75
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "segment": 4,
+          "curve": 2,
+          "point": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.derivative-results.extrema",
+      "demonstrationId": "extrema",
+      "path": "/bezeg-2.0/analysis/extrema?example=lesson.analysis.derivative-results.extrema",
+      "sceneFingerprint": "230297d3f70eb59025c543dcb88263917ebd50a3f655cc35e2e5597d79285018",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"extrema-prerequisites-scene\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"extrema-classification\",\"visible\":false}"
+      ],
+      "file": "analysis.derivative-results.extrema.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "fc05276574305b6d3a875cd932d9d3d1e441786d0b136d7c0b2e75b9a5fd551a",
+      "scene": {
+        "visibleElementCount": 31,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "line": 3,
+          "curve": 1,
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 38,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 25,
+            "line": 3,
+            "curve": 1,
+            "point": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 18,
+          "line": 3,
+          "curve": 1,
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.derivative-results.mean-value",
+      "demonstrationId": "mean-value",
+      "path": "/bezeg-2.0/analysis/mean-value?example=lesson.analysis.derivative-results.mean-value",
+      "sceneFingerprint": "0bf8507dc9ad661101ab07aaaf2c6e8d9a2ef97924f8da3da6d5fe0cddce06b9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mean-value-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "analysis.derivative-results.mean-value.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "3b5e94da041453e7792fcfa854c51443454c793deb226502964a63a8f97c5b32",
+      "scene": {
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "curve": 3,
+          "segment": 2,
+          "point": 6
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -0.25
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              0.75
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "curve": 3,
+            "segment": 2,
+            "point": 6
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -0.25
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                0.75
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 12,
+          "curve": 3,
+          "segment": 2,
+          "point": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.existence.bisection",
+      "demonstrationId": "bisection",
+      "path": "/bezeg-2.0/analysis/bisection?example=lesson.analysis.existence.bisection",
+      "sceneFingerprint": "ebab5c66cc666b341049128b5c600e658c3516e05764296e83d5431a77f93ead",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bisection-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "analysis.existence.bisection.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "bcef7142be185983358e3b6d7838827db0c48203c602e9baffa67f3d7c820a96",
+      "scene": {
+        "visibleElementCount": 21,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 9,
+          "curve": 1,
+          "segment": 3,
+          "point": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -2
+            ],
+            [
+              0.5,
+              -1.75
+            ],
+            [
+              1,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 17,
+            "curve": 1,
+            "segment": 3,
+            "point": 4
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -2
+              ],
+              [
+                0.5,
+                -1.75
+              ],
+              [
+                1,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 9,
+          "curve": 1,
+          "segment": 3,
+          "point": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.integrability.darboux",
+      "demonstrationId": "darboux",
+      "path": "/bezeg-2.0/analysis/darboux?example=lesson.analysis.integrability.darboux",
+      "sceneFingerprint": "a36a42ba62fdf30f58fcecfaa5b38775cd6a81c4e2602646f1785d3e2ed61044",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"darboux-prerequisites-scene\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"lower-sum\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"upper-sum\",\"visible\":false}"
+      ],
+      "file": "analysis.integrability.darboux.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8894db1df708a8b92d7b093a4c321e99a22f96a558b1a1229fd19f2f48f0cc4e",
+      "scene": {
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 11,
+          "curve": 2,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 23,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 15,
+            "curve": 2,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 11,
+          "curve": 2,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analysis.taylor.taylor",
+      "demonstrationId": "taylor",
+      "path": "/bezeg-2.0/analysis/taylor?example=lesson.analysis.taylor.taylor",
+      "sceneFingerprint": "5fb59e39f955bde59ab2f35cfc788875405d35703986c8dc9d990a04d862ca29",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"taylor-prerequisites-scene\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"taylor-bound\",\"visible\":false}"
+      ],
+      "file": "analysis.taylor.taylor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1647f8e962e6dd3a2e920063826d6bbf976bb1b0dcee41366a0beb6afd241b9b",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 5,
+          "segment": 2,
+          "curve": 2,
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              1.5
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              1.648721
+            ],
+            [
+              1,
+              2.718282
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "segment": 2,
+            "curve": 2,
+            "point": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.5
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.648721
+              ],
+              [
+                1,
+                2.718282
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 5,
+          "segment": 2,
+          "curve": 2,
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.affine-transformations.affine",
+      "demonstrationId": "affine",
+      "path": "/bezeg-2.0/bezier/affine?example=lesson.bezier-curves.affine-transformations.affine",
+      "sceneFingerprint": "b34b4b887dc887c8c9b0e49c51036b8a022954442624384ee4429baf3d843643",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"affine-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[1,0],[2,3],[4,2],[5,-1]]},\"view\":[-5,7,9,-5]}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
+        "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
+      ],
+      "file": "bezier-curves.affine-transformations.affine.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "da81c79e7e3d7b96d0a1677e3b2daded83eed99ebd97686a9f52092a171dbae2",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              1.75
+            ],
+            [
+              5,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 22,
+            "point": 5,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                3,
+                1.75
+              ],
+              [
+                5,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1,
+          "segment": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.bernstein-form.bernstein",
+      "demonstrationId": "bernstein",
+      "path": "/bezeg-2.0/bernstein?example=lesson.bezier-curves.bernstein-form.bernstein",
+      "sceneFingerprint": "c902b50b6bbc32ca1245215bbdbbe3e8732e7f4425388295c8f874be00ddac9c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "bezier-curves.bernstein-form.bernstein.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "10808f0434c157dac02764c5a0c3db87a4d93993b35ee53b708be8c97a95fc30",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 20,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 14,
+            "curve": 2
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.control-points.bezier",
+      "demonstrationId": "bezier",
+      "path": "/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier",
+      "sceneFingerprint": "db5085e0254060ac741c9ba2193c8e731fe2a5d8e01a96462ac82636b8777f1d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-symmetric-cubic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[-3,2],[3,2],[3,-2]]},\"view\":[-4.5,4,4.5,-3.5]}"
+      ],
+      "file": "bezier-curves.control-points.bezier.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "456a26110c05cfa699234f49238b83f08d7666956c5100643f6db6e1c7011ab8",
+      "scene": {
+        "visibleElementCount": 5,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3,
+              -2
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 18,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.geometric-properties.convex-hull",
+      "demonstrationId": "bezier",
+      "path": "/bezeg-2.0/bezier/curve?example=activity.bezier-curves.geometric-properties.bezier",
+      "sceneFingerprint": "f3a7d2a642b76fefa2c665b4d86abecbac72c35f1da6138768008e8921ae1851",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-default\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"convex-hull\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":false}"
+      ],
+      "file": "bezier-curves.geometric-properties.convex-hull.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0e07f50545f35ac600e3a801b978292e5e1e8995f32f6c1b04060d1d601f4ada",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "point": 4,
+            "curve": 1,
+            "segment": 7,
+            "polygon": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.5,
+                0.875
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.interpolation.alternative-recursion",
+      "demonstrationId": "decasteljau-alternative",
+      "path": "/bezeg-2.0/bezier/decasteljau2?example=lesson.bezier-curves.interpolation.decasteljau-alternative",
+      "sceneFingerprint": "80c264c202407677b21aab573f8ccb07e5791c3f46b2c635209d6480e23527dd",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"da-cubic-half\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,4],[2,2],[4,-2]]},\"view\":[-6,6,6,-4]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "file": "bezier-curves.interpolation.alternative-recursion.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "20462332ffd98a000ff32a9be012be67b7bb1cef9ec68426633687d5188d16bd",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "point": 7,
+          "curve": 3,
+          "segment": 1
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              4
+            ],
+            [
+              1.5,
+              1.5
+            ],
+            [
+              4,
+              -2
+            ]
+          ],
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              -1.5,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 25,
+            "point": 7,
+            "curve": 3,
+            "segment": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                4
+              ],
+              [
+                1.5,
+                1.5
+              ],
+              [
+                4,
+                -2
+              ]
+            ],
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -1.5,
+                2
+              ],
+              [
+                2,
+                2
+              ]
+            ],
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 7,
+          "curve": 3,
+          "segment": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.interpolation.decasteljau",
+      "demonstrationId": "decasteljau",
+      "path": "/bezeg-2.0/bezier/decasteljau?example=lesson.bezier-curves.interpolation.decasteljau",
+      "sceneFingerprint": "378a26b526f5c3f43017a25d64bbc363e3e4660b0ff3a6a9f03632b9dbe7e975",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"decasteljau-quadratic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[0,4],[3,-2]]},\"view\":[-4.5,4.8,4.5,-3]}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "file": "bezier-curves.interpolation.decasteljau.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d1c707e8c83006f1df252df172419035353d3919c79305aee26cce8641758efe",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3,
+              -2
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "point": 6,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 1,
+          "segment": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.interpolation.quartic-interpolation",
+      "demonstrationId": "decasteljau",
+      "path": "/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.interpolation.decasteljau",
+      "sceneFingerprint": "8793270b1d977d2fd41b1bd1b727b326c9db7ad042c0319d66f3f31e879757a5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"decasteljau-quartic\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-full-curve\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
+      ],
+      "file": "bezier-curves.interpolation.quartic-interpolation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7e4f02b8dd66ac4ab7d3685951fc2e6ed4ff1c9b8d1be435c669219131036be6",
+      "scene": {
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        },
+        "visiblePointCount": 15,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 62,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 31,
+            "point": 15,
+            "curve": 2,
+            "segment": 10
+          },
+          "visiblePointCount": 15,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ],
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.next-ideas.elevation",
+      "demonstrationId": "elevation",
+      "path": "/bezeg-2.0/bezier/elevation?example=lesson.bezier-curves.next-ideas.elevation",
+      "sceneFingerprint": "f9d6ebb776a294f0b32787214f8b1f0247a5c9864a2c6d536802ebe3c07e9f16",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"elevation-default\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
+      ],
+      "file": "bezier-curves.next-ideas.elevation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2709a1fd122b0d91ab6806e7de13883a46786695228146c3780728b5d6d06a13",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "point": 9,
+          "curve": 1,
+          "segment": 7
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              -0.5,
+              1.75
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 46,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 25,
+            "point": 9,
+            "curve": 1,
+            "segment": 7
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -0.5,
+                1.75
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 9,
+          "curve": 1,
+          "segment": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.next-ideas.extrapolation",
+      "demonstrationId": "extrapolation",
+      "path": "/bezeg-2.0/bezier/extrapolation?example=lesson.bezier-curves.next-ideas.extrapolation",
+      "sceneFingerprint": "6d84f447a828ada05e47af5e7e0581267ca877a179e06b73174c2b2797352869",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ex-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "bezier-curves.next-ideas.extrapolation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e3ac3cc4e319c1772d05d3c87fb135486f53086ec4189b65ae924f8a98a260b5",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              -0.5,
+              1.875
+            ],
+            [
+              3,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 31,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 21,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -0.5,
+                1.875
+              ],
+              [
+                3,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.next-ideas.repeated-subdivision",
+      "demonstrationId": "repeated-subdivision",
+      "path": "/bezeg-2.0/bezier/subdivision?example=lesson.bezier-curves.next-ideas.repeated-subdivision",
+      "sceneFingerprint": "59413dd2121aa82d1090697e5bba98280740a3b5e88ce60ebb9d5e27f1455139",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "bezier-curves.next-ideas.repeated-subdivision.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "423c114bb5139afdb5e33bedaf9730ea173553e0226257ca7e139c6b08fd1c21",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "point": 4,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.5
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.next-ideas.subdivision",
+      "demonstrationId": "subdivision",
+      "path": "/bezeg-2.0/bezier/subdivision-2?example=lesson.bezier-curves.next-ideas.subdivision",
+      "sceneFingerprint": "4033a2ea97e9237c02a20358dc59b6a9eb7107d81fcde0c08ef8188977dfbc03",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sd-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "bezier-curves.next-ideas.subdivision.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "9100e0d393c4dcd65f3f8c9a0c65ef1a0251c008ba515b0db4ad63fe81040901",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "point": 10,
+          "curve": 2,
+          "segment": 6
+        },
+        "visiblePointCount": 10,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 48,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 26,
+            "point": 10,
+            "curve": 2,
+            "segment": 6
+          },
+          "visiblePointCount": 10,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.5
+              ],
+              [
+                4,
+                -3
+              ]
+            ],
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.5
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 10,
+          "curve": 2,
+          "segment": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-curves.parameter.decasteljau-parameter",
+      "demonstrationId": "decasteljau",
+      "path": "/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau",
+      "sceneFingerprint": "7d725347fa079d8c8dbfabd091b2f95f0c102bbec4f6943a0081265ef0e372d0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"decasteljau-quartic\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-full-curve\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
+      ],
+      "file": "bezier-curves.parameter.decasteljau-parameter.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7e4f02b8dd66ac4ab7d3685951fc2e6ed4ff1c9b8d1be435c669219131036be6",
+      "scene": {
+        "visibleElementCount": 27,
+        "visibleElementTypes": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        },
+        "visiblePointCount": 15,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 62,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 31,
+            "point": 15,
+            "curve": 2,
+            "segment": 10
+          },
+          "visiblePointCount": 15,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ],
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "foundations.complex-plane.complex-multiplication",
+      "demonstrationId": "complex-multiplication",
+      "path": "/bezeg-2.0/complex-multiplication?example=lesson.foundations.complex-plane.complex-multiplication",
+      "sceneFingerprint": "198c5443dc30bcc4a3adb325b4f4b8bf6659bc34fa3718172db624fcaaedf942",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"complex-point-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"complex-example\",\"value\":\"rotation-i\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-product\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-arguments\",\"visible\":true}"
+      ],
+      "file": "foundations.complex-plane.complex-multiplication.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6d9c87019d4cbbbbdfde210004bfaf64fdab0ba1087c1462ae27cb43c748a3fe",
+      "scene": {
+        "visibleElementCount": 26,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 16,
+          "curve": 4,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.5
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0.576,
+              0
+            ],
+            [
+              0.575913,
+              0.007068
+            ],
+            [
+              0.575827,
+              0.014136
+            ]
+          ],
+          [
+            [
+              0.8,
+              0
+            ],
+            [
+              0.799518,
+              0.019627
+            ],
+            [
+              0.799036,
+              0.039254
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "curve": 4,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0.444811,
+                0
+              ],
+              [
+                0.444744,
+                0.005458
+              ],
+              [
+                0.444677,
+                0.010916
+              ]
+            ],
+            [
+              [
+                0.652389,
+                0
+              ],
+              [
+                0.651996,
+                0.016006
+              ],
+              [
+                0.651603,
+                0.032011
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 16,
+          "curve": 4,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "foundations.reading-bernstein.bernstein",
+      "demonstrationId": "bernstein",
+      "path": "/bezeg-2.0/bernstein?example=lesson.foundations.reading-bernstein.bernstein",
+      "sceneFingerprint": "c902b50b6bbc32ca1245215bbdbbe3e8732e7f4425388295c8f874be00ddac9c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "foundations.reading-bernstein.bernstein.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "10808f0434c157dac02764c5a0c3db87a4d93993b35ee53b708be8c97a95fc30",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 20,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 14,
+            "curve": 2
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "foundations.worked-weight.bernstein.degree-comparison",
+      "demonstrationId": "bernstein",
+      "path": "/bezeg-2.0/bernstein?example=family.foundations.worked-weight.bernstein",
+      "sceneFingerprint": "f32eb0d6e0434ada3c1df626040211a95526aa46824a7fa6d6fca62677172ef1",
+      "actions": [
+        "bernstein-degree: {\"kind\":\"bernstein-degree\",\"degree\":2}",
+        "bernstein-stacked-area: {\"kind\":\"bernstein-stacked-area\",\"visible\":false}"
+      ],
+      "file": "foundations.worked-weight.bernstein.degree-comparison.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d1b305c648c482401412e99a0c5a5fa0fadc22007d69399f14c9c2631dd19a7",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 21,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 14,
+            "curve": 3
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.applications.arc-length",
+      "demonstrationId": "arc-length",
+      "path": "/bezeg-2.0/functions/arc-length?example=lesson.functions-and-calculus.applications.arc-length",
+      "sceneFingerprint": "09908b812bd5582a0891ffc2ca0afe3da63e9b33d5a0aec10a545eb9af78241d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"arc-chord-scene\",\"source\":\"demonstration-default\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"n\",\"value\":1}"
+      ],
+      "file": "functions-and-calculus.applications.arc-length.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "4d1476698efffe195a0f3cf4d8dc59fe0bb7558db274ac67016b0d03975f3ff8",
+      "scene": {
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 10,
+          "curve": 3,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.479426
+            ],
+            [
+              1,
+              0.841471
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1.570796,
+              0
+            ],
+            [
+              3.141593,
+              0
+            ]
+          ],
+          [
+            [
+              0.036571,
+              0
+            ],
+            [
+              0.031216,
+              0.014099
+            ],
+            [
+              0.02586,
+              0.028197
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "curve": 3,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479426
+              ],
+              [
+                1,
+                0.841471
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1.570796,
+                0
+              ],
+              [
+                3.141593,
+                0
+              ]
+            ],
+            [
+              [
+                0.017298,
+                0
+              ],
+              [
+                0.014765,
+                0.006116
+              ],
+              [
+                0.012232,
+                0.012232
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 10,
+          "curve": 3,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.applications.area-between-curves",
+      "demonstrationId": "area-between-curves",
+      "path": "/bezeg-2.0/functions/area-between?example=lesson.functions-and-calculus.applications.area-between-curves",
+      "sceneFingerprint": "2474bb371ab578d072ad1ea8eb8455fed62f0103dd391b1e0e8dda734a1a8a1e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"area-difference-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"area-mode\",\"value\":\"between\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"a\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"b\",\"value\":3}"
+      ],
+      "file": "functions-and-calculus.applications.area-between-curves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a5ee26a5517a8be97724f63d9bdd601e6dc354fce3a813edb7b57d39f3a28797",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3,
+          "segment": 2,
+          "point": 4,
+          "text": 2
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -1
+            ],
+            [
+              0.5,
+              0.75
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              4
+            ],
+            [
+              0.5,
+              2.25
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              1,
+              2
+            ],
+            [
+              1.025,
+              2.04875
+            ],
+            [
+              1.05,
+              2.0975
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 24,
+            "curve": 3,
+            "segment": 2,
+            "point": 4
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0.75
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                4
+              ],
+              [
+                0.5,
+                2.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                1,
+                2
+              ],
+              [
+                1.025,
+                2.04875
+              ],
+              [
+                1.05,
+                2.0975
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3,
+          "segment": 2,
+          "point": 4,
+          "text": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.continuity.continuity",
+      "demonstrationId": "continuity",
+      "path": "/bezeg-2.0/functions/continuity?example=lesson.functions-and-calculus.continuity.continuity",
+      "sceneFingerprint": "61fa504e346e3339a608cea407b4e7e6071300f2f280964f18aafdc3c33ca21c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"continuity-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.continuity.continuity.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "ef4af802550c5421c4d12f2ecf99cd0ff577eec59de0f8ed40cd80fdb589b69d",
+      "scene": {
+        "visibleElementCount": 14,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 2,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3.07,
+              9.4249
+            ],
+            [
+              -3.061521,
+              9.372982
+            ],
+            [
+              -3.053042,
+              9.321063
+            ]
+          ],
+          [
+            [
+              1,
+              2
+            ],
+            [
+              1.006188,
+              1.993812
+            ],
+            [
+              1.012375,
+              1.987625
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 24,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 16,
+            "curve": 2,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -3.952224,
+                15.620075
+              ],
+              [
+                -3.941907,
+                15.538737
+              ],
+              [
+                -3.93159,
+                15.457398
+              ]
+            ],
+            [
+              [
+                1,
+                2
+              ],
+              [
+                1.010317,
+                1.989683
+              ],
+              [
+                1.020634,
+                1.979366
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 2,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.derivatives.derivative",
+      "demonstrationId": "derivative",
+      "path": "/bezeg-2.0/functions/derivative?example=lesson.functions-and-calculus.derivatives.derivative",
+      "sceneFingerprint": "98ac887c2bc957a8aab7a17ced37ebbb60bafddf936d393bccb8764c51d01c0e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"derivative-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.derivatives.derivative.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1014640ee76bc315412368103382939cc55425f6f2b8bbd301f9bc777118f601",
+      "scene": {
+        "visibleElementCount": 14,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 1,
+          "point": 2,
+          "line": 1
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "curve": 1,
+            "point": 2,
+            "line": 1
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 6,
+          "curve": 1,
+          "point": 2,
+          "line": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.function-rules.exponential-function",
+      "demonstrationId": "exponential-function",
+      "path": "/bezeg-2.0/functions/exponential?example=lesson.functions-and-calculus.function-rules.exponential-function",
+      "sceneFingerprint": "f02447ba99fcbce39ef2c458d02b2ec10e2c8ba1f5dd2a43505317350572e649",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"exponential-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.function-rules.exponential-function.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b8479e474effec50ccabd2d98d61d51f1218a6295b446b37fd43269c26ea4e66",
+      "scene": {
+        "visibleElementCount": 14,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 7,
+          "curve": 1,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              1.414214
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "curve": 1,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.414214
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 7,
+          "curve": 1,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.function-rules.linear-function",
+      "demonstrationId": "linear-function",
+      "path": "/bezeg-2.0/functions/linear?example=lesson.functions-and-calculus.function-rules.linear-function",
+      "sceneFingerprint": "78fbefceb81adf008475294cb3b8bb4683a51bffe66882d1980c3a6d64c66f21",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.function-rules.linear-function.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a74660eb9ce7fac88a228656499be22579d05145d41420759a789be13e8af87e",
+      "scene": {
+        "visibleElementCount": 29,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 19,
+          "point": 3,
+          "line": 1,
+          "segment": 2
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 24,
+            "point": 3,
+            "line": 1,
+            "segment": 2
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 19,
+          "point": 3,
+          "line": 1,
+          "segment": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.function-rules.trigonometric-functions",
+      "demonstrationId": "trigonometric-functions",
+      "path": "/bezeg-2.0/functions/trigonometric?example=lesson.functions-and-calculus.function-rules.trigonometric-functions",
+      "sceneFingerprint": "7c94067a2ee0a8d7655981e970e81b2b328b4bf2f020add0259040d35bbeb4c5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"trig-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.function-rules.trigonometric-functions.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "186130b8553ec36d82e8bc0095e637e9c9e70db2976eae28a35b4cd4544a6723",
+      "scene": {
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 13,
+          "curve": 2
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.479426
+            ],
+            [
+              1,
+              0.841471
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 19,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 13,
+            "curve": 2
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479426
+              ],
+              [
+                1,
+                0.841471
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 13,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.integrals.accumulation",
+      "demonstrationId": "accumulation",
+      "path": "/bezeg-2.0/analysis/accumulation?example=lesson.functions-and-calculus.integrals.accumulation",
+      "sceneFingerprint": "4a1e4e32adbb6d426e6d25e24b784a4829030b6456be51351f188ecfd7b19f95",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"accumulation-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.integrals.accumulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6e683f4c003eec5ac50a4a988a132bcab82c088cb46655a381b124f46c3339d8",
+      "scene": {
+        "visibleElementCount": 21,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 11,
+          "curve": 2,
+          "segment": 1,
+          "point": 3
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.479426
+            ],
+            [
+              1,
+              0.841471
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "curve": 2,
+            "segment": 1,
+            "point": 3
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479426
+              ],
+              [
+                1,
+                0.841471
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 11,
+          "curve": 2,
+          "segment": 1,
+          "point": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "functions-and-calculus.integrals.definite-integral",
+      "demonstrationId": "definite-integral",
+      "path": "/bezeg-2.0/functions/integral?example=lesson.functions-and-calculus.integrals.definite-integral",
+      "sceneFingerprint": "a48a2bf5c62f3eac199460d4e178e44979b2b252a98dd3da8c15a103aefff4bd",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"integral-default\",\"source\":\"demonstration-default\"}"
+      ],
+      "file": "functions-and-calculus.integrals.definite-integral.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "72cb1f44d28165a369da97e6b07c9c754aa979cf230213375382195296b982ab",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "point": 2,
+          "text": 1
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0.5,
+              0
+            ],
+            [
+              0.5,
+              0.125
+            ],
+            [
+              0.5,
+              0.25
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "curve": 2,
+            "point": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0.5,
+                0
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                0.5,
+                0.25
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "point": 2,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "parametrization.uniform-timing.uniform-parameterization",
+      "demonstrationId": "uniform-parameterization",
+      "path": "/bezeg-2.0/param/param/uniform?example=lesson.parametrization.uniform-timing.uniform-parameterization",
+      "sceneFingerprint": "1670201f55dfb50eee62bef7b3da38cb111237bd30a3d02d7237b36a38fdc97b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"up-default\",\"source\":\"demonstration-default\"}",
+        "parameterization-mode: {\"kind\":\"parameterization-mode\",\"mode\":\"weighted\"}",
+        "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
+        "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
+      ],
+      "file": "parametrization.uniform-timing.uniform-parameterization.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d533e8347bcc358cf24510d8ff760b3998d567d3065ba83743dd5b181f428040",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "point": 9,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3,
+              -4
+            ],
+            [
+              0.025,
+              3.25
+            ],
+            [
+              3.05,
+              -4
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 26,
+            "point": 9,
+            "curve": 1
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [
+            [
+              [
+                -3,
+                -4
+              ],
+              [
+                0.025,
+                3.25
+              ],
+              [
+                3.05,
+                -4
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 9,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "parametrization.weighted-knot.spline-parameterization",
+      "demonstrationId": "spline-parameterization",
+      "path": "/bezeg-2.0/param/param/alphaparam2?example=lesson.parametrization.weighted-knot.spline-parameterization",
+      "sceneFingerprint": "a74c073a46688259df93649c4eaad812ffc1ed4174895a53396d6de98b1a9b46",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sp-default-scene\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-7,-2],[-7,1.5],[-5,0.5],[-4,1.5],[-3.2,-1],[4,2.5],[6,-1.5],[2,-3.5]]},\"view\":[-9,5,9,-5]}",
+        "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
+        "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":10}",
+        "spline-hide-fixed: {\"kind\":\"spline-hide-fixed\",\"hidden\":false}"
+      ],
+      "file": "parametrization.weighted-knot.spline-parameterization.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1f4ca54e193639f7d2ea22382e52b4e0d1ce02fb85e763775d910f1298a12bbe",
+      "scene": {
+        "visibleElementCount": 31,
+        "visibleElementTypes": {
+          "point": 30,
+          "curve": 1
+        },
+        "visiblePointCount": 30,
+        "sampledVisibleCurves": [
+          [
+            [
+              -7,
+              -2
+            ],
+            [
+              -2.245807,
+              0.063956
+            ],
+            [
+              2,
+              -3.5
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 77,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 42,
+            "point": 30,
+            "curve": 1
+          },
+          "visiblePointCount": 30,
+          "sampledVisibleCurves": [
+            [
+              [
+                -7,
+                -2
+              ],
+              [
+                -2.245807,
+                0.063956
+              ],
+              [
+                2,
+                -3.5
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 30,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "parametrization.weighted-knot.weighted-parameterization",
+      "demonstrationId": "weighted-parameterization",
+      "path": "/bezeg-2.0/param/param/alphaparam?example=lesson.parametrization.weighted-knot.weighted-parameterization",
+      "sceneFingerprint": "ca36be53864057c9a37f0bc0c01fddcac7a78dc919912f3046fc32b954413e49",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wp-identity-three\",\"source\":\"demonstration-default\"}",
+        "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
+        "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
+      ],
+      "file": "parametrization.weighted-knot.weighted-parameterization.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "86902bbb85eb4743e4c73ecefe6a62e3d28256afa07508f49715c13a0fe48312",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 7,
+          "curve": 1
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 23,
+            "point": 7,
+            "curve": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.5,
+                0.875
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 7,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.arc-length-problem.ph-cubic-speed",
+      "demonstrationId": "ph-cubic",
+      "path": "/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic",
+      "sceneFingerprint": "7f18402e602d5c7dfed45c208d5f048f89757646cb7c30532d8212663afdfab4",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
+      ],
+      "file": "ph-curves.arc-length-problem.ph-cubic-speed.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d2f5a9edbb448ecb34eaec0b5f8f3b0223845f3aea3a6ec4d6f18f7b04605ec",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.041667,
+              -0.5
+            ],
+            [
+              1.666667,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 21,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.041667,
+                -0.5
+              ],
+              [
+                1.666667,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
+      "demonstrationId": "ph-quintic",
+      "path": "/bezeg-2.0/ph/quintic?example=family.ph-curves.arc-length-problem.ph-quintic",
+      "sceneFingerprint": "8d51cbfacbdc77594d62db074edb6557d8f9c700d168bcbfa4f54e8af920c21e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
+      ],
+      "file": "ph-curves.arc-length-problem.ph-quintic-comparison.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6518a56e6cc63d403c387ecc6f38c4cab37734c64313ce866b38203d39714981",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.270833,
+              -0.216667
+            ],
+            [
+              0.333333,
+              1.066667
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 26,
+            "point": 6,
+            "curve": 1
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.270833,
+                -0.216667
+              ],
+              [
+                0.333333,
+                1.066667
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.complex-hodograph.ph-cubic-generator",
+      "demonstrationId": "ph-cubic",
+      "path": "/bezeg-2.0/ph/cubic?example=family.ph-curves.complex-hodograph.ph-cubic",
+      "sceneFingerprint": "437faef8b0597708b300fdb07c503fa770bb8198a16b2451f3431d29ae333860",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
+      ],
+      "file": "ph-curves.complex-hodograph.ph-cubic-generator.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d2f5a9edbb448ecb34eaec0b5f8f3b0223845f3aea3a6ec4d6f18f7b04605ec",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.041667,
+              -0.5
+            ],
+            [
+              1.666667,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 21,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.041667,
+                -0.5
+              ],
+              [
+                1.666667,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.investigate-ph.ph-cubic-singularity",
+      "demonstrationId": "ph-cubic",
+      "path": "/bezeg-2.0/ph/cubic?example=family.ph-curves.investigate-ph.ph-cubic",
+      "sceneFingerprint": "2a7afedc2e7f0c15266a71098c6519a97a08ae3e071233402897056578c18aea",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
+      ],
+      "file": "ph-curves.investigate-ph.ph-cubic-singularity.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d2f5a9edbb448ecb34eaec0b5f8f3b0223845f3aea3a6ec4d6f18f7b04605ec",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.041667,
+              -0.5
+            ],
+            [
+              1.666667,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 21,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.041667,
+                -0.5
+              ],
+              [
+                1.666667,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.investigate-ph.ph-quintic-singularity",
+      "demonstrationId": "ph-quintic",
+      "path": "/bezeg-2.0/ph/quintic?example=family.ph-curves.investigate-ph.ph-quintic",
+      "sceneFingerprint": "d02f13320c9ede5213c8e25268dedbdc145bf1a53efce90bfed49673101af424",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
+      ],
+      "file": "ph-curves.investigate-ph.ph-quintic-singularity.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6518a56e6cc63d403c387ecc6f38c4cab37734c64313ce866b38203d39714981",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.270833,
+              -0.216667
+            ],
+            [
+              0.333333,
+              1.066667
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 26,
+            "point": 6,
+            "curve": 1
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.270833,
+                -0.216667
+              ],
+              [
+                0.333333,
+                1.066667
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.offsets.ph-quintic-offsets",
+      "demonstrationId": "ph-quintic",
+      "path": "/bezeg-2.0/ph/quintic?example=lesson.ph-curves.offsets.ph-quintic",
+      "sceneFingerprint": "53a65a5ec138157476e8b90dbf9bb3d2a07f2b7e0d0195a91178645f077d2e28",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
+      ],
+      "file": "ph-curves.offsets.ph-quintic-offsets.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6518a56e6cc63d403c387ecc6f38c4cab37734c64313ce866b38203d39714981",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.270833,
+              -0.216667
+            ],
+            [
+              0.333333,
+              1.066667
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 26,
+            "point": 6,
+            "curve": 1
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.270833,
+                -0.216667
+              ],
+              [
+                0.333333,
+                1.066667
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "ph-curves.worked-length.ph-cubic-offset-length",
+      "demonstrationId": "ph-cubic",
+      "path": "/bezeg-2.0/ph/cubic?example=family.ph-curves.worked-length.ph-cubic",
+      "sceneFingerprint": "3dd95a0cf7ab67b40225f851a24885e78ee2f28d9ee41d0d924b3ecb8d8bb9cc",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
+      ],
+      "file": "ph-curves.worked-length.ph-cubic-offset-length.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d2f5a9edbb448ecb34eaec0b5f8f3b0223845f3aea3a6ec4d6f18f7b04605ec",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.041667,
+              -0.5
+            ],
+            [
+              1.666667,
+              1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 21,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.041667,
+                -0.5
+              ],
+              [
+                1.666667,
+                1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.homogeneous.rational-decasteljau",
+      "demonstrationId": "rational-decasteljau",
+      "path": "/bezeg-2.0/rational/rational-decasteljau?example=lesson.rational-curves.homogeneous.rational-decasteljau",
+      "sceneFingerprint": "62d7d7c764a35bcadcf920249dcb33c2194ea2e90902ed18f7055c519a24dd6c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rational-decasteljau-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-3],[0,3],[4,-3]],\"weights\":[1,1,1]},\"view\":[-6,5,6,-4.5]}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "file": "rational-curves.homogeneous.rational-decasteljau.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "938363703c2b7d12aef58cc2661b7aafe47c70dc424ba27a97d5fab0b7226104",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 1,
+          "segment": 3,
+          "text": 3
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 27,
+            "point": 6,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 1,
+          "segment": 3,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.investigate-rational.rational-extrapolation",
+      "demonstrationId": "rational-extrapolation",
+      "path": "/bezeg-2.0/rational/rational-extrapolation?example=lesson.rational-curves.operations.rational-extrapolation",
+      "sceneFingerprint": "13f080781adea4fd29055587fe92c91520a75205462cfa40181da9cdb70191ae",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rex-default\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+      ],
+      "file": "rational-curves.investigate-rational.rational-extrapolation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d7027463d0f0931388617f184b379a405c0879839d02a2a52cfab7db02c1e499",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1,
+          "text": 4
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.818182,
+              2.090909
+            ],
+            [
+              4,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 25,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.818182,
+                2.090909
+              ],
+              [
+                4,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.operations.farin",
+      "demonstrationId": "farin",
+      "path": "/bezeg-2.0/rational/farin-points?example=lesson.rational-curves.operations.farin",
+      "sceneFingerprint": "4c34b5acef297aea9a3ba537d95dde14257aaacf128caa83c02eb5890a1ea514",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"farin-weights\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+      ],
+      "file": "rational-curves.operations.farin.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e8e93ab428d5349c8ed590030b8d5267e73feb2829ded27e9400b828dcb8ca61",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "text": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.818182,
+              1.909091
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 24,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.818182,
+                1.909091
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.operations.rational-elevation",
+      "demonstrationId": "rational-elevation",
+      "path": "/bezeg-2.0/rational/rational-elevation?example=lesson.rational-curves.operations.rational-elevation",
+      "sceneFingerprint": "60c7105d06df34506c556312e41cd7c93fbf2bf832d4296c511abe9fef575fc0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rational-elevation-default\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+      ],
+      "file": "rational-curves.operations.rational-elevation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "ac5c704af48570fe0966d8c695beea9b492cfbd942673695c7293ab60c7e45b6",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3,
+          "text": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.818182,
+              1.909091
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 24,
+            "point": 4,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.818182,
+                1.909091
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.operations.rational-subdivision",
+      "demonstrationId": "rational-subdivision",
+      "path": "/bezeg-2.0/rational/rational-subdivision?example=lesson.rational-curves.operations.rational-subdivision",
+      "sceneFingerprint": "88ba4900b6f31a7dfe8a96ba5e2ce07a913d96232087d54b01a0fa797c6b8739",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rsd-default\",\"source\":\"demonstration-default\"}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+      ],
+      "file": "rational-curves.operations.rational-subdivision.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6c69fd81c469843c9333a4b6fabbbefe81c8737e30cbd5587bd15e3ddd002c52",
+      "scene": {
+        "visibleElementCount": 22,
+        "visibleElementTypes": {
+          "point": 10,
+          "curve": 2,
+          "segment": 6,
+          "text": 4
+        },
+        "visiblePointCount": 10,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.818182,
+              1.909091
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.818182,
+              1.909091
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 52,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 30,
+            "point": 10,
+            "curve": 2,
+            "segment": 6
+          },
+          "visiblePointCount": 10,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.818182,
+                1.909091
+              ],
+              [
+                4,
+                -3
+              ]
+            ],
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.818182,
+                1.909091
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 10,
+          "curve": 2,
+          "segment": 6,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.why-rational.rational-weight",
+      "demonstrationId": "rational",
+      "path": "/bezeg-2.0/rational/base?example=lesson.rational-curves.why-rational.rational",
+      "sceneFingerprint": "2790f23bb38f3c280a6060a3f5fcf91e541b7bf0996390af9317eebd67b51e34",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rational-base-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-3],[-3,3],[3,3],[4,-3]],\"weights\":[1,1,1,1]},\"view\":[-6,5,6,-4.5]}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
+        "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
+      ],
+      "file": "rational-curves.why-rational.rational-weight.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6733c2c33bdb68ee151862820c763efda48074e066adf2ca6249adb198722842",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1,
+          "segment": 3,
+          "text": 4
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 27,
+            "point": 5,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.5
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1,
+          "segment": 3,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "rational-curves.worked-conic.circle",
+      "demonstrationId": "circle",
+      "path": "/bezeg-2.0/rational/circlen?example=lesson.rational-curves.worked-conic.circle",
+      "sceneFingerprint": "348ef56ca8dcec60602270e79d7841d5a3420c9535a533bb0c5057efd45900b6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"circle-default\",\"source\":\"demonstration-default\",\"view\":[-7,8,7,-5]}"
+      ],
+      "file": "rational-curves.worked-conic.circle.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "ee6732a35c2918f4bb9e62ad44522f169fda9161f3f15d363e618f3bf5e3f195",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 9,
+          "curve": 3
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [
+          [
+            [
+              -2.598076,
+              1.5
+            ],
+            [
+              -2.598076,
+              -1.5
+            ],
+            [
+              0,
+              -3
+            ]
+          ],
+          [
+            [
+              0,
+              -3
+            ],
+            [
+              2.598076,
+              -1.5
+            ],
+            [
+              2.598076,
+              1.5
+            ]
+          ],
+          [
+            [
+              2.598076,
+              1.5
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              -2.598076,
+              1.5
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 44,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 28,
+            "point": 9,
+            "curve": 3
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [
+            [
+              [
+                -2.598076,
+                1.5
+              ],
+              [
+                -2.598076,
+                -1.5
+              ],
+              [
+                0,
+                -3
+              ]
+            ],
+            [
+              [
+                0,
+                -3
+              ],
+              [
+                2.598076,
+                -1.5
+              ],
+              [
+                2.598076,
+                1.5
+              ]
+            ],
+            [
+              [
+                2.598076,
+                1.5
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                -2.598076,
+                1.5
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 9,
+          "curve": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.continuity-levels.spline-c1",
+      "demonstrationId": "spline-c1",
+      "path": "/bezeg-2.0/spline/c1spline?example=lesson.splines.continuity-levels.spline-c1",
+      "sceneFingerprint": "12432fe3700a7e7e91bc7d80a4cf75e576c0474d730b7fa5a60f46fc045a9243",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,2],[2,2],[3,-1]]},\"view\":[-6,4,6,-4]}",
+        "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
+      ],
+      "file": "splines.continuity-levels.spline-c1.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "69488029a9991f4380ba0b64ec802e4e306490b2b2e1c7677223221c9e41f0b7",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              3,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                3,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.continuity-levels.spline-c2",
+      "demonstrationId": "spline-c2",
+      "path": "/bezeg-2.0/spline/c2spline?example=lesson.splines.continuity-levels.spline-c2",
+      "sceneFingerprint": "5ab86c5aed2571e1af833469cd225c4d307f6a3a8b35b3705ef77249a8a5861c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c2-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-6,-1],[-5,3],[-3,-3],[3,0],[5,2],[6,-2]]},\"view\":[-8,5,8,-5]}",
+        "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
+      ],
+      "file": "splines.continuity-levels.spline-c2.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "fcd9e8ba422407d3ee4163d9fe3e6a2567a3c33a0ef7cb834a88e2bbe77d2a8c",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 12,
+          "curve": 1
+        },
+        "visiblePointCount": 12,
+        "sampledVisibleCurves": [
+          [
+            [
+              -6,
+              -1
+            ],
+            [
+              0,
+              -1.25
+            ],
+            [
+              6,
+              -2
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 47,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 30,
+            "point": 12,
+            "curve": 1
+          },
+          "visiblePointCount": 12,
+          "sampledVisibleCurves": [
+            [
+              [
+                -6,
+                -1
+              ],
+              [
+                0,
+                -1.25
+              ],
+              [
+                6,
+                -2
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 12,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.geometric-vs-parametric.spline-g1",
+      "demonstrationId": "spline-g1",
+      "path": "/bezeg-2.0/spline/g1spline?example=lesson.splines.geometric-vs-parametric.spline-g1",
+      "sceneFingerprint": "48b3370574f4e5e42d2c27b192bf2b4dad5ad539994739667fac6507fc89393c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"g1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-1],[-2,2],[0,0],[4,-1]],\"splineRatios\":[1]},\"view\":[-6,4,7,-7]}",
+        "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
+      ],
+      "file": "splines.geometric-vs-parametric.spline-g1.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "11947b2dec1f82317d9d0df19293d6d2966558b9a4588ccd034e421ab01827d9",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              4,
+              -1
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 20,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                4,
+                -1
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
+      "demonstrationId": "spline-g1-symmetric",
+      "path": "/bezeg-2.0/spline/g1-sym-spline?example=lesson.splines.geometric-vs-parametric.spline-g1-symmetric",
+      "sceneFingerprint": "2392c433cc59db6d476c61c46a6cfe7100918d12ee541f0a1b7b6d9948913b77",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"g1s-default-polygon\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-5,-1],[-2,2],[2,0],[5,3]],\"splineRatios\":[0.5]},\"view\":[-7,5,7,-3]}",
+        "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
+      ],
+      "file": "splines.geometric-vs-parametric.spline-g1-symmetric.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "06b11322a6bcbdb9958625e2a3ab4d8bc200d19f086663c814dae34d851049f6",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1,
+          "segment": 4
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -5,
+              -1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              5,
+              3
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "point": 5,
+            "curve": 1,
+            "segment": 4
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -5,
+                -1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1,
+          "segment": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.piecewise.spline-cn",
+      "demonstrationId": "spline-cn",
+      "path": "/bezeg-2.0/spline/spline?example=lesson.splines.piecewise.spline-cn",
+      "sceneFingerprint": "34193c8e91be4ba9adcf8fc18f6b5971b233c40a875c3c737978f75cefbb251a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cn-two-pieces-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,1],[-2,-2],[0,-3],[4,0]],\"degree\":2,\"continuity\":1},\"view\":[-6,3,6,-5]}",
+        "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
+      ],
+      "file": "splines.piecewise.spline-cn.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "85c568f17d00affecaefd72b5f9dc5891867b0adad3807aa4cd1f38ea6447787",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              1
+            ],
+            [
+              0,
+              -3
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        ],
+        "checks": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 19,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                1
+              ],
+              [
+                0,
+                -3
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          ],
+          "checks": []
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "splines.worked-join.spline-c1.parabola-derivatives",
+      "demonstrationId": "spline-c1",
+      "path": "/bezeg-2.0/spline/c1spline?example=family.splines.worked-join.spline-c1",
+      "sceneFingerprint": "b28357f573660046a49940ef3dcf0cac702e4edce7c1ded8fb423db3ce7ce26e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"worked-parabola-join\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[0,0],[0.5,0],[1.5,2],[2,4]],\"degree\":2,\"continuity\":1},\"view\":[-0.25,4.5,2.25,-0.5]}"
+      ],
+      "file": "splines.worked-join.spline-c1.parabola-derivatives.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2d37b57106fd80cb7a8b5f1a4b6a82048fab3f204761137cd0cb5db8864bc05b",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              4
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:0.5,0",
+          "point:1.5,2",
+          "point:2,4",
+          "point:1,1",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "text": 23,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:0.5,0",
+            "point:1.5,2",
+            "point:2,4",
+            "point:1,1",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "sourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "pageErrors": []
+      }
+    }
+  ]
+}

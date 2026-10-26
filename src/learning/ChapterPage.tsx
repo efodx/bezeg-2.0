@@ -6,8 +6,8 @@ import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {bezierChapter} from './content/bezierChapter';
-import type {ChapterBlock} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
+import {type OrderedChapterContent, type OrderedChapterFigure} from './chapter/orderedContent';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
 import './ChapterPage.css';
@@ -35,9 +35,18 @@ function renderParagraph(text: string, links?: readonly {label: string; href: st
     return result;
 }
 
-function ChapterBlockView({block}: {block: ChapterBlock}) {
-    if (block.kind === 'activity') return null;
-    if (block.kind === 'formula') return <div className="chapter-formula" role="region" aria-label={block.label} tabIndex={0}><span className="chapter-formula-label">{block.label}</span><div className="chapter-math">\[{block.latex}\]</div></div>;
+function ChapterContentView({block, chapterId, sectionId, language}: {
+    block: OrderedChapterContent<string, OrderedChapterFigure>;
+    chapterId: string;
+    sectionId: string;
+    language: 'sl' | 'en';
+}) {
+    if (block.kind === 'example') return <ChapterGuidedLessons chapterId={chapterId} sectionId={sectionId} language={language} exampleId={block.exampleId}/>;
+    if (block.kind === 'figure') return <figure className="chapter-activity-figure">
+        <img src={block.figure.src} alt={block.figure.alt[language]} width="720" height="440" loading="lazy"/>
+        <figcaption>{block.figure.caption[language]}</figcaption>
+    </figure>;
+    if (block.kind === 'formula') return <div className="chapter-formula" role="region" aria-label={block.label ?? ''} tabIndex={0}>{block.label && <span className="chapter-formula-label">{block.label}</span>}<div className="chapter-math">\[{block.latex}\]</div></div>;
     return <p className="chapter-paragraph">{renderParagraph(block.text, block.links)}</p>;
 }
 
@@ -139,8 +148,7 @@ export function ChapterPage() {
                 </header>
                 {copy.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
                     <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}>¶</a></div>
-                    <div className="chapter-section-body">{section.blocks.map((block, blockIndex) => <ChapterBlockView block={block} key={`${section.id}-${block.kind}-${blockIndex}`}/>)}</div>
-                    <ChapterGuidedLessons chapterId="bezier-curves" sectionId={section.id} language={language}/>
+                    <div className="chapter-section-body">{(section.orderedContent ?? []).map((block, blockIndex) => <ChapterContentView block={block} chapterId="bezier-curves" sectionId={section.id} language={language} key={`${section.id}-${block.kind}-${block.kind === 'example' ? block.exampleId : blockIndex}`}/>)}</div>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}
                 <footer className="chapter-source"><h2>{language === 'sl' ? 'Vir' : 'Source'}</h2><p>{copy.source}</p>

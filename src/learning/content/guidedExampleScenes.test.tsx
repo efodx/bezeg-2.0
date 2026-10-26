@@ -2,6 +2,7 @@ import {act} from '@testing-library/react';
 import {graphFactories} from '../../graphs/graphFactories';
 import {installBoardShims, mountGraph} from '../../graphs/base/realGraphTestHarness';
 import type {DemonstrationId} from '../../demonstrations';
+import baseline from '../../../docs/reviews/illustrated-chapter-examples/baseline-examples.json';
 import {familyChapters} from './familyChapters';
 import type {LessonAction} from '../model';
 import {resolveGuidedExample} from '../chapter/guidedExamples';
@@ -12,6 +13,11 @@ const familyExamples = familyChapters.flatMap(chapter => chapter.sections.flatMa
     Object.keys(section.investigationPrompts ?? {}).map(demonstrationId => ({
         chapterId: chapter.id, sectionId: section.id, demonstrationId: demonstrationId as DemonstrationId,
     })).filter(example => section.demonstrationIds?.includes(example.demonstrationId))));
+
+type BaselineAlias = {chapterId: string; sectionId: string; demonstrationId: string; sourceKind: string; retainedKey: string};
+type BaselineHome = {retainedKey: string; chapterId: string; sectionId: string};
+const baselineAliases = baseline.rows as BaselineAlias[];
+const baselineHomes = baseline.retainedHomes as BaselineHome[];
 
 function applyExample(id: DemonstrationId, actions: readonly LessonAction[]): Readonly<Record<string, unknown>> {
     const mounted = mountGraph(graphFactories[id]());
@@ -56,10 +62,14 @@ describe('family guided examples apply to their real demonstration graphs', () =
             const id = rawId as DemonstrationId;
             const resolved = resolveGuidedExample(`?explore=${encodeURIComponent(`${chapterId}.${sectionId}.${id}`)}`, id);
             const actions = resolved?.lesson.steps[0].scene?.actions;
-            expect(resolved?.owner).toEqual({chapterId, sectionId});
+            const alias = baselineAliases.find(row => row.sourceKind === 'family'
+                && row.chapterId === chapterId && row.sectionId === sectionId && row.demonstrationId === id);
+            const home = baselineHomes.find(row => row.retainedKey === alias?.retainedKey);
+            expect(alias, `${chapterId}.${sectionId}.${id} has a baseline disposition`).toBeDefined();
+            expect(home, `${chapterId}.${sectionId}.${id} resolves to an audited retained home`).toBeDefined();
+            expect(resolved?.owner).toEqual({chapterId: home?.chapterId, sectionId: home?.sectionId});
             expect(resolved?.lesson.steps[0].prompt).toBeDefined();
             expect(actions?.length).toBeGreaterThan(0);
-            expect(actions?.[0]?.kind).toBe('prepared-scene');
             const initialState = applyExample(id, actions!);
             if (id === 'continuity') expect(initialState).toMatchObject({a: 1});
             if (id === 'derivative') expect(initialState).toMatchObject({fn: 'square', x0: 1, h: 1});
@@ -67,4 +77,15 @@ describe('family guided examples apply to their real demonstration graphs', () =
             if (id === 'arc-length') expect(initialState).toMatchObject({a: 0, b: Math.PI, n: 1});
         },
     );
+
+    test('retained Foundations weighted-Bernstein scene applies both actions synchronously', () => {
+        const resolved = resolveGuidedExample('?example=family.foundations.worked-weight.bernstein', 'bernstein');
+        const actions = resolved?.lesson.steps[0].scene?.actions;
+        expect(resolved?.owner).toEqual({chapterId: 'foundations', sectionId: 'worked-weight'});
+        expect(actions).toEqual([
+            {kind: 'bernstein-degree', degree: 2},
+            {kind: 'bernstein-stacked-area', visible: false},
+        ]);
+        expect(applyExample('bernstein', actions!)).toMatchObject({n: 3, isSumGraph: false});
+    });
 });

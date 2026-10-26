@@ -1,6 +1,6 @@
 # 03 — Rewrite Bézier and foundations chapter sequences
 
-Status: planned. Source: [spec A1–A8](../../specs/illustrated-chapter-examples.md). Dependencies: 00–02 accepted. Role: chapter content/scene implementation worker; handler assigns shared-file ownership.
+Status: implemented; final media and browser acceptance in progress. See the [acceptance record](../../reviews/illustrated-chapter-examples/acceptance.md). Source: [spec A1–A8](../../specs/illustrated-chapter-examples.md). Dependencies: 00–02 accepted. Role: chapter content/scene implementation worker; handler assigns shared-file ownership.
 
 Scope: `bezier-curves` and `foundations`. Start at the audited sections in `content/bezierChapter.ts`, `content/familyChapters.ts`, related prepared activities, guided definitions and example mappings. Coordinate any shared registry/type change with its owner.
 

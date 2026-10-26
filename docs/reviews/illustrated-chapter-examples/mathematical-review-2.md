@@ -1,0 +1,17 @@
+# Mathematical review 2
+
+Reviewed the dirty implementation at `ad37517a9e43fb043e514b5044b7d3ac2065bd2c` against A1–A8 of `docs/specs/illustrated-chapter-examples.md`, the curriculum audit, authored chapter content, retained-example scene data, and the capture inventory. This is a read-only mathematical review; it does not certify the not-yet-captured images.
+
+## Finding
+
+- **P2 — worked parabola preview is the `a=1` case, so it cannot illustrate the advertised second-derivative contrast or coefficient variation.** `src/learning/chapter/guidedExamples.ts:55-56` prepares controls `[(0,0),(.5,0),(1.5,2),(2,4)]`. The real-graph regression at `src/learning/content/guidedExampleScenes.test.tsx:25-45` confirms that both pieces trace `y=x²` and have equal second derivatives (8 with the graph's normalized parameter). The chapter's useful symbolic calculation at `src/learning/content/familyChapters.ts:307` gives left second derivative `(0,2)` and right `(0,2a)`, but the initial graph has `a=1`, and no graph control varies `a`. The preview caption at `src/learning/content/guidedExamplePreviewCopy.ts:72-78` asks readers to compare both derivatives. This leaves the image showing no curvature change and no visible coefficient experiment, despite the audit's requirement to preserve the pair and coefficient variation (`docs/reviews/illustrated-chapter-examples/curriculum-audit.md:81,88`). Consider preparing a C1-but-not-C2 instance such as `a=2` (right endpoint `(2,5)`, with the existing shared join and tangent controls) and aligning the prose/test to that case, or make the coefficient change explicitly an algebra-only reflection and adjust the preview caption. The formulas themselves are correct.
+
+## Math checks and gaps
+
+The foundations weighted point `(2,1)` is correctly calculated from quadratic Bernstein weights `1/4, 1/2, 1/4`; the degree-two graph is explicitly three scalar basis functions, with its stacked view off. PH identities, cubic speed `1+t²`, exact length `4/3`, normal orientation, and distinction between source and offset length are consistent. The integral signs and left-rectangle value `55/27 ≈ 2.037`, mean-value/extrema hypotheses, Darboux bounds, convexity condition, and uniform-convergence quantifiers/examples checked out.
+
+Ran `just --list`, then focused tests for guided routes/scenes, spline examples, PH examples, family sequences, and analysis lessons. Five of six test files passed; `guidedExampleScenes.test.tsx` failed 38 cases (226 passed overall) because it still expects each legacy `explore` alias to own its original section, while retained routing correctly returns the new canonical card section. That is a stale ownership assertion, not a mathematical counterexample. The worked-join numerical assertions themselves passed when reached. Final captured PNG comparison and actual board inspection remain pending.
+
+## Targeted closeout
+
+The P2 concern is closed by choosing the paper-reflection option. The updated bilingual prompt says to vary the \(s^2\) coefficient on paper and explicitly says the graph has no such control; the caption now states that the initial pieces trace the same parabola and match through second derivatives. This accurately describes the \(a=1\) scene and separates its initial geometry from the symbolic \(a\)-variation. The handler reports the stale owner assertions have been corrected and the full scene test now passes; I did not rerun that test during this targeted closeout. PNG review remains pending capture.

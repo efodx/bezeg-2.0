@@ -1,4 +1,5 @@
 import type {Language} from '../../localization';
+import type {OrderedChapterContent, OrderedChapterFigure} from '../chapter/orderedContent';
 
 export type BezierSectionId = 'motivation' | 'control-points' | 'parameter' | 'interpolation' | 'bernstein-form' | 'geometric-properties' | 'affine-transformations' | 'next-ideas';
 export type BezierActivityId = 'shape-control' | 'curve-parameter' | 'repeated-interpolation' | 'blending-coefficients' | 'geometric-bounds' | 'transform-shape';
@@ -7,7 +8,55 @@ export type ChapterParagraph = {kind: 'paragraph'; text: string; links?: readonl
 export type ChapterFormula = {kind: 'formula'; latex: string; label: string};
 export type ChapterActivity = {kind: 'activity'; id: BezierActivityId};
 export type ChapterBlock = ChapterParagraph | ChapterFormula | ChapterActivity;
-export type ChapterSection = {id: BezierSectionId; title: string; blocks: ChapterBlock[]};
+export type ChapterSection = {id: BezierSectionId; title: string; blocks: ChapterBlock[]; orderedContent?: readonly OrderedChapterContent<string, OrderedChapterFigure>[]};
+
+const retainedByActivity: Readonly<Record<BezierActivityId, string>> = {
+    'shape-control': 'bezier-curves.control-points.bezier',
+    'curve-parameter': 'bezier-curves.parameter.decasteljau-parameter',
+    'repeated-interpolation': 'bezier-curves.interpolation.quartic-interpolation',
+    'blending-coefficients': 'bezier-curves.bernstein-form.bernstein',
+    'geometric-bounds': 'bezier-curves.geometric-properties.convex-hull',
+    'transform-shape': 'bezier-curves.affine-transformations.affine',
+};
+
+function authoredBezierSequence(section: ChapterSection, language: Language): OrderedChapterContent<string, OrderedChapterFigure>[] {
+    const insertions: Readonly<Record<string, readonly OrderedChapterContent<string, OrderedChapterFigure>[]>> = section.id === 'interpolation'
+        ? {
+            [language === 'sl' ? 'Tri kontrolne točke zahtevajo dva kroga interpolacije' : 'Three controls need two interpolation rounds']: [
+                {kind: 'example', exampleId: 'bezier-curves.interpolation.decasteljau'},
+                {kind: 'paragraph', text: language === 'sl'
+                    ? 'Primerjaj rekurzivno računanje z interpolacijo s premikanjem točke po krivulji. Obe poti uporabita isti parameter, vendar drugače organizirata vmesne krivulje.'
+                    : 'Compare recursive evaluation with interpolation as a point moves along the curve. Both use the same parameter, but organize the intermediate curves differently.'},
+                {kind: 'example', exampleId: 'bezier-curves.interpolation.alternative-recursion'},
+            ],
+        }
+        : section.id === 'next-ideas'
+            ? {
+                [language === 'sl' ? 'Te povezave vodijo na povezane prikaze' : 'These are related demonstrations for further exploration']: [
+                    {kind: 'example', exampleId: 'bezier-curves.next-ideas.elevation'},
+                    {kind: 'paragraph', text: language === 'sl' ? 'Dvig stopnje spremeni zapis in število kontrolnih točk, geometrijska sled pa ostane enaka.' : 'Degree elevation changes the representation and number of controls while preserving the geometric trace.'},
+                    {kind: 'example', exampleId: 'bezier-curves.next-ideas.subdivision'},
+                    {kind: 'paragraph', text: language === 'sl' ? 'En rez ustvari dva odseka, ki skupaj ohranita izvirno krivuljo.' : 'One cut creates two segments that together preserve the original curve.'},
+                    {kind: 'example', exampleId: 'bezier-curves.next-ideas.repeated-subdivision'},
+                    {kind: 'paragraph', text: language === 'sl' ? 'Ponavljanje reza izpopolni kontrolni poligon in približuje ga krivulji.' : 'Repeating the cut refines the control polygon toward the curve.'},
+                    {kind: 'example', exampleId: 'bezier-curves.next-ideas.extrapolation'},
+                    {kind: 'paragraph', text: language === 'sl' ? 'Ekstrapolacija nadaljuje konstrukcijo zunaj \\(0\\le t\\le1\\), kjer uteži niso več nujno nenegativne.' : 'Extrapolation continues the construction outside \\(0\\le t\\le1\\), where the weights are no longer necessarily nonnegative.'},
+                ],
+            }
+            : {};
+
+    return section.blocks.flatMap(block => {
+        const ordered: OrderedChapterContent<string, OrderedChapterFigure> = block.kind === 'activity'
+            ? {kind: 'example', exampleId: retainedByActivity[block.id]}
+            : block.kind === 'formula'
+                ? {kind: 'formula', latex: block.latex, label: block.label}
+                : {kind: 'paragraph', text: block.text, links: block.links};
+        const insertion = block.kind === 'paragraph'
+            ? Object.entries(insertions).find(([anchor]) => block.text.includes(anchor))?.[1] ?? []
+            : [];
+        return [ordered, ...insertion];
+    });
+}
 
 export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: string; title: string; purpose: string; prerequisites: string; sections: ChapterSection[]; source: string}> = {
     en: {
@@ -43,7 +92,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
                 {kind: 'formula', label: 'First interpolation row for three control points', latex: String.raw`Q_0(t)=(1-t)P_0+tP_1,\qquad Q_1(t)=(1-t)P_1+tP_2`},
                 {kind: 'paragraph', text: 'Then interpolate those results with the same parameter:'},
                 {kind: 'formula', label: 'Quadratic Bézier curve derived by repeated interpolation', latex: String.raw`\begin{aligned}B(t)&=(1-t)Q_0(t)+tQ_1(t)\\&=(1-t)^2P_0+2t(1-t)P_1+t^2P_2.\end{aligned}`},
-                {kind: 'paragraph', text: 'The middle coefficient appears twice because \\(P_1\\) contributes through both first-row interpolations. Three controls need two interpolation rounds and give representation degree two. The same rule extends to five controls by adding more rounds; the activity below returns to the prepared five-control, degree-four example.'},
+                {kind: 'paragraph', text: 'The middle coefficient appears twice because \\(P_1\\) contributes through both first-row interpolations. Three controls need two interpolation rounds and give representation degree two.'},
+                {kind: 'paragraph', text: 'The same rule extends to five controls by adding more rounds; the activity below returns to the prepared five-control, degree-four example.'},
                 {kind: 'activity', id: 'repeated-interpolation'},
                 {kind: 'paragraph', text: 'Compare the two constructions: the three-control derivation ends after two rounds, while the five-control activity has more rows. In both, repeated interpolation leaves one final point on the curve for the chosen parameter.'},
             ]},
@@ -125,7 +175,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
                 {kind: 'formula', label: 'Prva interpolacijska vrstica za tri kontrolne točke', latex: String.raw`Q_0(t)=(1-t)P_0+tP_1,\qquad Q_1(t)=(1-t)P_1+tP_2`},
                 {kind: 'paragraph', text: 'Nato z istim parametrom interpoliramo rezultata:'},
                 {kind: 'formula', label: 'Izpeljava kvadratne Bézierjeve krivulje s ponovljeno interpolacijo', latex: String.raw`\begin{aligned}B(t)&=(1-t)Q_0(t)+tQ_1(t)\\&=(1-t)^2P_0+2t(1-t)P_1+t^2P_2.\end{aligned}`},
-                {kind: 'paragraph', text: 'Srednji koeficient se pojavi dvakrat, ker \\(P_1\\) prispeva k obema interpolacijama v prvi vrstici. Tri kontrolne točke zahtevajo dva kroga interpolacije in dajo predstavitveno stopnjo dve. Isto pravilo se razširi na pet kontrolnih točk z dodatnimi krogi; dejavnost spodaj se vrne k vnaprej pripravljenemu primeru s petimi točkami in stopnjo štiri.'},
+                {kind: 'paragraph', text: 'Srednji koeficient se pojavi dvakrat, ker \\(P_1\\) prispeva k obema interpolacijama v prvi vrstici. Tri kontrolne točke zahtevajo dva kroga interpolacije in dajo predstavitveno stopnjo dve.'},
+                {kind: 'paragraph', text: 'Isto pravilo se razširi na pet kontrolnih točk z dodatnimi krogi; dejavnost spodaj se vrne k vnaprej pripravljenemu primeru s petimi točkami in stopnjo štiri.'},
                 {kind: 'activity', id: 'repeated-interpolation'},
                 {kind: 'paragraph', text: 'Primerjaj obe konstrukciji: izpeljava za tri kontrolne točke se konča po dveh krogih, dejavnost s petimi točkami pa ima več vrstic. V obeh ponovljena interpolacija pusti eno končno točko na krivulji za izbrani parameter.'},
             ]},
@@ -175,6 +226,10 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
         source: 'Po Kevinu Štamparju, Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj (magistrsko delo, Univerza v Ljubljani, 2024), zlasti §§1, 2.1 in 2.3–2.5.'
     }
 };
+
+for (const language of ['en', 'sl'] as const) {
+    for (const section of bezierChapter[language].sections) section.orderedContent = authoredBezierSequence(section, language);
+}
 
 export const bezierActivityCopy: Record<BezierActivityId, Record<Language, {title: string; prompt: string; sectionId: BezierSectionId; demoHref: string}>> = {
     'shape-control': {

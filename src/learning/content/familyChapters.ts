@@ -1,6 +1,8 @@
+import {authorFamilyChapterSequence} from './familyChapterSequences';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import type {LocalizedText} from '../model';
+import type {OrderedChapterContent} from '../chapter/orderedContent';
 
 export interface FamilyChapterFigure {
     src: string;
@@ -16,6 +18,7 @@ export interface FamilyChapterSection {
     demonstrationIds?: readonly DemonstrationId[];
     figures?: readonly FamilyChapterFigure[];
     investigationPrompts?: Partial<Record<DemonstrationId, LocalizedText>>;
+    orderedContent?: readonly OrderedChapterContent<LocalizedText, FamilyChapterFigure>[];
 }
 
 export interface FamilyChapter {
@@ -35,7 +38,7 @@ const section = (
     paragraphs: readonly LocalizedText[],
     formula?: string,
     demonstrationIds?: readonly DemonstrationId[],
-    extras: Pick<FamilyChapterSection, 'figures' | 'investigationPrompts'> = {},
+    extras: Pick<FamilyChapterSection, 'figures' | 'investigationPrompts' | 'orderedContent'> = {},
 ) => ({id, title: text(titleSl, titleEn), paragraphs, ...(formula ? {formula} : {}), ...(demonstrationIds ? {demonstrationIds} : {}), ...extras});
 
 const bernsteinFigure: FamilyChapterFigure = {
@@ -171,7 +174,7 @@ const phQuinticFigure: FamilyChapterFigure = {
 };
 
 /** Original bilingual reading chapters for the seven non-Bézier demonstration families. */
-export const familyChapters: readonly FamilyChapter[] = [
+const chapterDrafts: readonly FamilyChapter[] = [
     {
         id: 'foundations', family: 'basics',
         title: text('Osnove: uteži, polinomi in ravnina', 'Foundations: weights, polynomials, and the plane'),
@@ -187,20 +190,57 @@ export const familyChapters: readonly FamilyChapter[] = [
             section('reading-bernstein', 'Kako brati Bernsteinovo utež', 'Reading a Bernstein weight', [
                 text('Za nenegativno celo stopnjo \\(n\\) in \\(0\\le i\\le n\\) je \\(\\binom ni=n!/(i!(n-i)!)\\), kjer \\(n!\\) pomeni produkt celih števil od ena do \\(n\\), za nič pa določimo \\(0!=1\\). V zapisu je \\(n\\) stopnja, \\(i\\) izbere eno funkcijo, \\(t\\) pa teče od nič do ena. Binomski koeficient \\(\\binom{n}{i}\\) izberemo tako, da se vse kombinacije seštejejo v eno: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). Za \\(n=2\\) dobimo uteži \\((1-t)^2\\), \\(2t(1-t)\\) in \\(t^2\\). Pri \\(t=\\frac12\\) so njihove vrednosti \\(\\frac14,\\frac12,\\frac14\\), zato srednja utež prispeva polovico vsote.', 'For a nonnegative integer degree \\(n\\) and \\(0\\le i\\le n\\), \\(\\binom ni=n!/(i!(n-i)!)\\), where \\(n!\\) is the product of the integers from one to \\(n\\), with \\(0!=1\\). In this notation, \\(n\\) is the degree, \\(i\\) selects one function, and \\(t\\) runs from zero to one. The binomial coefficient \\(\\binom{n}{i}\\) is chosen so all the functions sum to one: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). For \\(n=2\\), the weights are \\((1-t)^2\\), \\(2t(1-t)\\), and \\(t^2\\). At \\(t=\\frac12\\), their values are \\(\\frac14,\\frac12,\\frac14\\), so the middle weight contributes half the total.'),
                 text('Ko spreminjaš stopnjo, opazuj število funkcij in položaj njihovih vrhov. Graf prikazuje skalarne uteži, ne geometrijske krivulje. Njihova vsota ena pojasni, zakaj lahko utežena vsota točk ohrani translacijo: če vse točke premaknemo za isti vektor, se rezultat premakne za isti vektor.', 'As you change the degree, watch the number of functions and where their peaks occur. The graph shows scalar weights, not a geometric curve. Their sum of one explains why a weighted sum of points preserves translation: moving every point by the same vector moves the result by that same vector.'),
-            ], undefined, ['bernstein'], {figures: [bernsteinFigure], investigationPrompts: {
+            ], undefined, ['bernstein'], {figures: [bernsteinFigure], orderedContent: [
+                {kind: 'paragraph', text: text(
+                    'Za nenegativno celo stopnjo \\(n\\) in \\(0\\le i\\le n\\) je \\(\\binom ni=n!/(i!(n-i)!)\\), kjer \\(n!\\) pomeni produkt celih števil od ena do \\(n\\), za nič pa določimo \\(0!=1\\). V zapisu je \\(n\\) stopnja, \\(i\\) izbere eno funkcijo, \\(t\\) pa teče od nič do ena. Binomski koeficient \\(\\binom{n}{i}\\) izberemo tako, da se vse kombinacije seštejejo v eno: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). Za \\(n=2\\) dobimo uteži \\((1-t)^2\\), \\(2t(1-t)\\) in \\(t^2\\). Pri \\(t=\\frac12\\) so njihove vrednosti \\(\\frac14,\\frac12,\\frac14\\), zato srednja utež prispeva polovico vsote.',
+                    'For a nonnegative integer degree \\(n\\) and \\(0\\le i\\le n\\), \\(\\binom ni=n!/(i!(n-i)!)\\), where \\(n!\\) is the product of the integers from one to \\(n\\), with \\(0!=1\\). In this notation, \\(n\\) is the degree, \\(i\\) selects one function, and \\(t\\) runs from zero to one. The binomial coefficient \\(\\binom{n}{i}\\) is chosen so all the functions sum to one: \\(\\sum_{i=0}^{n}b_i^n(t)=1\\). For \\(n=2\\), the weights are \\((1-t)^2\\), \\(2t(1-t)\\), and \\(t^2\\). At \\(t=\\frac12\\), their values are \\(\\frac14,\\frac12,\\frac14\\), so the middle weight contributes half the total.',
+                )},
+                {kind: 'example', exampleId: 'foundations.reading-bernstein.bernstein'},
+                {kind: 'paragraph', text: text(
+                    'Ko spreminjaš stopnjo, opazuj število funkcij in položaj njihovih vrhov. Graf prikazuje skalarne uteži, ne geometrijske krivulje. Njihova vsota ena pojasni, zakaj lahko utežena vsota točk ohrani translacijo: če vse točke premaknemo za isti vektor, se rezultat premakne za isti vektor.',
+                    'As you change the degree, watch the number of functions and where their peaks occur. The graph shows scalar weights, not a geometric curve. Their sum of one explains why a weighted sum of points preserves translation: moving every point by the same vector moves the result by that same vector.',
+                )},
+                {kind: 'figure', figure: bernsteinFigure},
+            ], investigationPrompts: {
                 bernstein: text('Izberi stopnjo dve in primerjaj tri narisane funkcije z zapisi v formuli. Njihova nenegativnost in vsota ena pojasnita, zakaj so uteži primerne za tehtano povprečje.', 'Select degree two and compare the three plotted functions with the formula. Their nonnegativity and sum of one explain why these weights form a weighted average.'),
             }}),
             section('worked-weight', 'Izračunan primer uteževanja', 'A worked weighting example', [
                 text('Vzemimo tri točke \\(P_0=(0,0)\\), \\(P_1=(2,2)\\) in \\(P_2=(4,0)\\). Kvadratna Bernsteinova vsota pri \\(t=\\frac12\\) je \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Koordinate izračunamo ločeno: \\(x=0+1+1=2\\) ter \\(y=0+1+0=1\\), zato je rezultat \\((2,1)\\). Ni naključje, da leži na sredini simetričnega loka.', 'Take three points \\(P_0=(0,0)\\), \\(P_1=(2,2)\\), and \\(P_2=(4,0)\\). The quadratic Bernstein sum at \\(t=\\frac12\\) is \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Calculate coordinates separately: \\(x=0+1+1=2\\) and \\(y=0+1+0=1\\), so the result is \\((2,1)\\). It lies at the midpoint of the symmetric arc for a reason.'),
                 text('Ta račun je primer sestave točke iz uteži; Bézierjeva parametrizacija uporabi isti princip za vsako vrednost parametra. Uteži same ne povedo, kje so kontrolne točke, zato iz grafa uteži ne moremo sklepati o obliki določene krivulje brez podatkov o točkah.', 'This calculation shows how weights combine points; a Bézier parametrization uses the same principle for every parameter value. Weights alone do not say where the control points are, so a weight plot cannot determine the shape of a particular curve without the point data.'),
-            ], undefined, ['bernstein'], {investigationPrompts: {
-                bernstein: text('Spremeni stopnjo na dve in nato na tri: primerjaj tri kvadratne uteži s štirimi kubičnimi v zgornji sliki. Izračunana točka \\((2,1)\\) uporablja tri kontrolne točke in kvadratne uteži.', 'Change the degree to two and then three: compare the three quadratic weights with the four cubic weights in the figure above. The worked point \\((2,1)\\) uses three control points and quadratic weights.'),
+            ], undefined, ['bernstein'], {orderedContent: [
+                {kind: 'paragraph', text: text(
+                    'Vzemimo tri točke \\(P_0=(0,0)\\), \\(P_1=(2,2)\\) in \\(P_2=(4,0)\\). Kvadratna Bernsteinova vsota pri \\(t=\\frac12\\) je \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Koordinate izračunamo ločeno: \\(x=0+1+1=2\\) ter \\(y=0+1+0=1\\), zato je rezultat \\((2,1)\\). Ni naključje, da leži na sredini simetričnega loka.',
+                    'Take three points \\(P_0=(0,0)\\), \\(P_1=(2,2)\\), and \\(P_2=(4,0)\\). The quadratic Bernstein sum at \\(t=\\frac12\\) is \\(\\frac14P_0+\\frac12P_1+\\frac14P_2\\). Calculate coordinates separately: \\(x=0+1+1=2\\) and \\(y=0+1+0=1\\), so the result is \\((2,1)\\). It lies at the midpoint of the symmetric arc for a reason.',
+                )},
+                {kind: 'example', exampleId: 'foundations.worked-weight.bernstein.degree-comparison'},
+                {kind: 'paragraph', text: text(
+                    'Ta račun je primer sestave točke iz uteži; Bézierjeva parametrizacija uporabi isti princip za vsako vrednost parametra. Uteži same ne povedo, kje so kontrolne točke, zato iz grafa uteži ne moremo sklepati o obliki določene krivulje brez podatkov o točkah.',
+                    'This calculation shows how weights combine points; a Bézier parametrization uses the same principle for every parameter value. Weights alone do not say where the control points are, so a weight plot cannot determine the shape of a particular curve without the point data.',
+                )},
+            ], investigationPrompts: {
+                bernstein: text('Spremeni stopnjo na dve in nato na tri: primerjaj tri kvadratne uteži s štirimi kubičnimi. Uteži same ne določijo kontrolnih točk; za obliko krivulje moramo poznati še njihove lege.', 'Change the degree to two and then three: compare the three quadratic weights with the four cubic weights. The weights alone do not determine the control points; we also need their locations to know the curve’s shape.'),
             }}),
             section('complex-plane', 'Kompleksna števila kot geometrijske preslikave', 'Complex numbers as geometric maps', [
                 text('Radian je mera kota, določena kot predznačena dolžina loka na enotski krožnici od pozitivne realne osi; nasprotna smer urinega kazalca je pozitivna. Poln obrat meri \\(2\\pi\\), četrt obrata pa \\(\\frac{\\pi}{2}\\). Na enotski krožnici sta koordinati točke v smeri \\(\\theta\\) \\((\\cos\\theta,\\sin\\theta)\\); pri \\(\\theta=\\frac{\\pi}{2}\\) je točka \\((0,1)\\), ki predstavlja \\(i\\). Vsako neničelno kompleksno število lahko zapišemo v polarni obliki \\(z=r(\\cos\\theta+i\\sin\\theta)\\), kjer je \\(r=|z|>0\\) razdalja od izhodišča. Število nič nima določenega argumenta, zato njegove polarne smeri ne določimo.', 'A radian measures an angle as the signed arc length on the unit circle from the positive real axis; counterclockwise is positive. A full turn measures \\(2\\pi\\), and a quarter turn measures \\(\\frac{\\pi}{2}\\). On the unit circle, the coordinates of the point in direction \\(\\theta\\) are \\((\\cos\\theta,\\sin\\theta)\\); at \\(\\theta=\\frac{\\pi}{2}\\), the point is \\((0,1)\\), which represents \\(i\\). Every nonzero complex number has polar form \\(z=r(\\cos\\theta+i\\sin\\theta)\\), where \\(r=|z|>0\\) is its distance from the origin. Zero has no defined argument, so it has no polar direction.'),
                 text('Za neničelni \\(z=r(\\cos\\theta+i\\sin\\theta)\\) in \\(w=s(\\cos\\phi+i\\sin\\phi)\\) zmnožek pomnoži razdalji, kota pa sešteje modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). Če je eden od faktorjev nič, je zmnožek nič, katerega argument ni določen; pravilo o vsoti argumentov velja le za neničelna faktorja. Množenje z \\(i\\) zato pomeni faktor dolžine ena in zasuk za \\(\\frac{\\pi}{2}\\): \\(i(x+iy)=-y+ix\\), kar je točka \\((-y,x)\\).', 'For nonzero \\(z=r(\\cos\\theta+i\\sin\\theta)\\) and \\(w=s(\\cos\\phi+i\\sin\\phi)\\), multiplication scales the distances and adds the angles modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). If either factor is zero, the product is zero and its argument is undefined; the argument-sum rule applies only to nonzero factors. Multiplication by \\(i\\) therefore uses scale one and a quarter-turn: \\(i(x+iy)=-y+ix\\), the point \\((-y,x)\\).'),
                 text('Množenje z neničelnim faktorjem je zasuk in enakomerno skaliranje okrog izhodišča; množenje z nič pošlje vse točke v izhodišče. Ta preslikava ni splošna afina preslikava: ne more neodvisno raztegniti vodoravne in navpične osi ali striči ravnine. V naslednjih poglavjih se množenje s kompleksnimi števili vrne kot način za obračanje in skaliranje točk krivulje.', 'Multiplication by a nonzero factor is a rotation and uniform scaling about the origin; multiplication by zero sends every point to the origin. This is not a general affine map: it cannot independently stretch the horizontal and vertical axes or shear the plane. Later curve chapters use complex multiplication again to rotate and scale curve points.'),
-            ], String.raw`(x+iy)(u+iv)=(xu-yv)+i(xv+yu)`, ['complex-multiplication'], {figures: [complexMultiplicationFigure], investigationPrompts: {
+            ], String.raw`(x+iy)(u+iv)=(xu-yv)+i(xv+yu)`, ['complex-multiplication'], {figures: [complexMultiplicationFigure], orderedContent: [
+                {kind: 'paragraph', text: text(
+                    'Radian je mera kota, določena kot predznačena dolžina loka na enotski krožnici od pozitivne realne osi; nasprotna smer urinega kazalca je pozitivna. Poln obrat meri \\(2\\pi\\), četrt obrata pa \\(\\frac{\\pi}{2}\\). Na enotski krožnici sta koordinati točke v smeri \\(\\theta\\) \\((\\cos\\theta,\\sin\\theta)\\); pri \\(\\theta=\\frac{\\pi}{2}\\) je točka \\((0,1)\\), ki predstavlja \\(i\\). Vsako neničelno kompleksno število lahko zapišemo v polarni obliki \\(z=r(\\cos\\theta+i\\sin\\theta)\\), kjer je \\(r=|z|>0\\) razdalja od izhodišča. Število nič nima določenega argumenta, zato njegove polarne smeri ne določimo.',
+                    'A radian measures an angle as the signed arc length on the unit circle from the positive real axis; counterclockwise is positive. A full turn measures \\(2\\pi\\), and a quarter turn measures \\(\\frac{\\pi}{2}\\). On the unit circle, the coordinates of the point in direction \\(\\theta\\) are \\((\\cos\\theta,\\sin\\theta)\\); at \\(\\theta=\\frac{\\pi}{2}\\), the point is \\((0,1)\\), which represents \\(i\\). Every nonzero complex number has polar form \\(z=r(\\cos\\theta+i\\sin\\theta)\\), where \\(r=|z|>0\\) is its distance from the origin. Zero has no defined argument, so it has no polar direction.',
+                )},
+                {kind: 'paragraph', text: text(
+                    'Za neničelni \\(z=r(\\cos\\theta+i\\sin\\theta)\\) in \\(w=s(\\cos\\phi+i\\sin\\phi)\\) zmnožek pomnoži razdalji, kota pa sešteje modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). Če je eden od faktorjev nič, je zmnožek nič, katerega argument ni določen; pravilo o vsoti argumentov velja le za neničelna faktorja. Množenje z \\(i\\) zato pomeni faktor dolžine ena in zasuk za \\(\\frac{\\pi}{2}\\): \\(i(x+iy)=-y+ix\\), kar je točka \\((-y,x)\\).',
+                    'For nonzero \\(z=r(\\cos\\theta+i\\sin\\theta)\\) and \\(w=s(\\cos\\phi+i\\sin\\phi)\\), multiplication scales the distances and adds the angles modulo \\(2\\pi\\): \\(zw=rs(\\cos(\\theta+\\phi)+i\\sin(\\theta+\\phi))\\). If either factor is zero, the product is zero and its argument is undefined; the argument-sum rule applies only to nonzero factors. Multiplication by \\(i\\) therefore uses scale one and a quarter-turn: \\(i(x+iy)=-y+ix\\), the point \\((-y,x)\\).',
+                )},
+                {kind: 'example', exampleId: 'foundations.complex-plane.complex-multiplication'},
+                {kind: 'paragraph', text: text(
+                    'Množenje z neničelnim faktorjem je zasuk in enakomerno skaliranje okrog izhodišča; množenje z nič pošlje vse točke v izhodišče. Ta preslikava ni splošna afina preslikava: ne more neodvisno raztegniti vodoravne in navpične osi ali striči ravnine. V naslednjih poglavjih se množenje s kompleksnimi števili vrne kot način za obračanje in skaliranje točk krivulje.',
+                    'Multiplication by a nonzero factor is a rotation and uniform scaling about the origin; multiplication by zero sends every point to the origin. This is not a general affine map: it cannot independently stretch the horizontal and vertical axes or shear the plane. Later curve chapters use complex multiplication again to rotate and scale curve points.',
+                )},
+                {kind: 'formula', latex: String.raw`(x+iy)(u+iv)=(xu-yv)+i(xv+yu)`, label: text('Množenje v kartezičnih koordinatah', 'Multiplication in Cartesian coordinates')},
+                {kind: 'figure', figure: complexMultiplicationFigure},
+            ], investigationPrompts: {
                 'complex-multiplication': text('Vključi prikaz zmnožka in argumentov. Nato spremeni argument faktorja \\(w\\) z njegovim polarnim vnosom: točka zmnožka se zavrti, njen prikazani argument pa je vsota argumentov faktorjev modulo \\(2\\pi\\).', 'Reveal the product and arguments. Then change the argument of factor \\(w\\) with its polar input: the product point rotates, and its displayed argument is the sum of the factor arguments modulo \\(2\\pi\\).'),
             }}),
             section('investigate-limits', 'Preiskovanje in meje modela', 'Investigating the model and its limits', [
@@ -406,3 +446,16 @@ export const familyChapters: readonly FamilyChapter[] = [
         ],
     },
 ];
+
+
+export const familyChapters: readonly FamilyChapter[] = chapterDrafts.map(chapter => ({
+    ...chapter,
+    sections: chapter.sections.map(section => ({
+        ...section,
+        orderedContent: authorFamilyChapterSequence(chapter.id, section) ?? section.orderedContent ?? [
+            ...section.paragraphs.map(text => ({kind: 'paragraph' as const, text})),
+            ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
+            ...(section.figures ?? []).map(figure => ({kind: 'figure' as const, figure})),
+        ],
+    })),
+}));

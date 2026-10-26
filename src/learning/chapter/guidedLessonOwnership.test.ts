@@ -17,7 +17,8 @@ test('every reviewed guided lesson has a real chapter section owner and a stable
 
 test('chapter sections expose their authored guided lesson owners', () => {
     expect(authoredGuidedLessonIds('bezier-curves', 'control-points')).toContain('bezier');
-    expect(authoredGuidedLessonIds('foundations', 'why-weights')).toEqual(['bernstein']);
+    expect(authoredGuidedLessonIds('foundations', 'why-weights')).toEqual([]);
+    expect(authoredGuidedLessonIds('foundations', 'reading-bernstein')).toEqual(['bernstein']);
     expect(authoredGuidedLessonIds('analysis', 'convergence')).toContain('fixed-point');
     expect(authoredGuidedLessonIds('bezier-curves', 'bernstein-form')).toContain('bernstein');
 });
@@ -27,6 +28,8 @@ test('valid legacy investigation links retain their precise authored section own
         .toEqual({chapterId: 'splines', sectionId: 'piecewise'});
     expect(resolveGuidedLessonOwner('?learn=1&explore=bezier-curves.bernstein-form.bernstein', 'bernstein'))
         .toEqual({chapterId: 'bezier-curves', sectionId: 'bernstein-form'});
+    expect(resolveGuidedLessonOwner('?learn=1&explore=foundations.why-weights.bernstein', 'bernstein'))
+        .toEqual({chapterId: 'foundations', sectionId: 'reading-bernstein'});
     expect(resolveGuidedLessonOwner('?learn=1&explore=wrong.section.spline-cn', 'spline-cn'))
         .toEqual({chapterId: 'splines', sectionId: 'continuity-levels'});
 });

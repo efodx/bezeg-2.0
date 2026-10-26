@@ -110,9 +110,19 @@ test.each(familyChapters.map(chapter => [chapter.id, chapter] as const))('%s has
         expect(screen.getAllByRole('link', {name: section.title.sl})[0]).toHaveAttribute('href', `#${section.id}`);
     }
     const graphLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
-    const expected = chapter.sections.flatMap(section => getChapterGuidedExamples(id, section.id));
+    const expected = chapter.sections.flatMap(section => {
+        const examples = getChapterGuidedExamples(id, section.id);
+        const byId = new Map(examples.map(example => [example.id, example]));
+        return (section.orderedContent ?? [])
+            .filter((block): block is Extract<NonNullable<typeof section.orderedContent>[number], {kind: 'example'}> => block.kind === 'example')
+            .map(block => {
+                const example = byId.get(block.exampleId);
+                expect(example, `${id}#${section.id} has a published reference for ${block.exampleId}`).toBeDefined();
+                return example?.path ?? '';
+            });
+    });
     expect(graphLinks).toHaveLength(expected.length);
-    expect(graphLinks.map(link => link.getAttribute('href'))).toEqual(expected.map(entry => entry.path));
+    expect(graphLinks.map(link => link.getAttribute('href'))).toEqual(expected);
     expect(graphLinks.every(link => link.textContent?.includes('Vodeni primer'))).toBe(true);
     expect(container.querySelectorAll('.learning-lessons, .chapter-activity-list')).toHaveLength(0);
     await waitFor(() => expect(document.getElementById(`${chapter.sections[0].id}-heading`)).toHaveFocus());

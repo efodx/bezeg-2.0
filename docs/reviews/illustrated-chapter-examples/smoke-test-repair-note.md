@@ -1,0 +1,7 @@
+# Smoke test repair note
+
+`tests/standalone-learning.smoke.spec.cjs` now follows the consolidated Bézier curriculum. Its card inventory uses the 12 stable retained keys and canonical destinations in `baseline-examples.json`; the link selector handles authored keys containing dots. It asserts 12 chapter cards and 3 activity-backed canonical URLs. The baseline contains 12 Bézier retained homes, with three `sourceKind: activity` rows; the other nine are lesson-backed. `authoredChapterCoverage.test.ts` independently requires each language's authored sequence to place all 12 Bézier homes exactly once as part of the 56-home chapter inventory.
+
+The smoke case still opens each card, checks chapter ownership, route, graph availability, and scene-specific math: the retained Bernstein lesson opens at degree one with two basis graphs; the two quartic De Casteljau entries end at `(0, 7/4)` while the quadratic lesson ends at `(0, 1)`; the control-point lesson uses its symmetric cubic fixture; and the affine lesson uses its separately prepared control points. The remaining standalone smoke cases retain their return-focus, history, keyboard, responsive, enlarged-text, legacy-link, and direct-section checks. A focused search found no consolidation-dependent assertion in `guided-lessons.smoke.spec.cjs` or `unified-learning.smoke.spec.cjs` requiring repair.
+
+`node --check tests/standalone-learning.smoke.spec.cjs` passed. Browser smoke was not run here because the final smoke worker owns browser-suite execution; all runtime assertions remain pending that rerun.

@@ -4,20 +4,21 @@ import {bezierActivityCopy, bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
 import type {LessonAction, LessonDefinition, LocalizedText} from '../model';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
-import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {activities, findActivity} from './activities';
 import {getGuidedLessonOwners, resolveGuidedLessonOwner} from './guidedLessonOwnership';
+import {
+    getRetainedExampleForLegacyActivity,
+    getRetainedExampleForLegacyIdentity,
+    getRetainedExampleHome,
+    legacyExampleAliases,
+    retainedExampleHomes,
+} from './retainedExamples';
 
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 export type GuidedExampleLink = Readonly<{id: string; demonstrationId: DemonstrationId; title: LocalizedText; prompt?: LocalizedText; path: string}>;
 export type ResolvedGuidedExample = {lesson: LessonDefinition; owner: GuidedLessonOwner};
 
 const words = (sl: string, en: string): LocalizedText => ({sl, en});
-const queryPath = (id: DemonstrationId, chapterId: string, sectionId: string, kind: string): string => {
-    const demo = getDemonstrationCatalog().demonstrations.find(item => item.id === id)!;
-    return `${demo.path}?example=${encodeURIComponent(`${kind}.${chapterId}.${sectionId}.${id}`)}`;
-};
-
 function sectionTitle(chapterId: string, sectionId: string): LocalizedText | undefined {
     if (chapterId === 'bezier-curves') {
         const section = bezierChapter.en.sections.find(item => item.id === sectionId);
@@ -26,10 +27,6 @@ function sectionTitle(chapterId: string, sectionId: string): LocalizedText | und
     }
     const section = familyChapters.find(item => item.id === chapterId)?.sections.find(item => item.id === sectionId);
     return section?.title;
-}
-
-function exampleId(chapterId: string, sectionId: string, id: DemonstrationId): string {
-    return `${chapterId}.${sectionId}.${id}`;
 }
 
 function actionLesson(id: DemonstrationId, title: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], lessonId: string): LessonDefinition {
@@ -50,7 +47,10 @@ function cachedShortLesson(key: string, create: () => LessonDefinition): LessonD
     return lesson;
 }
 
-function preparedFamilyActions(id: DemonstrationId): readonly LessonAction[] {
+function preparedFamilyActions(id: DemonstrationId, chapterId: string, sectionId: string): readonly LessonAction[] {
+    if (id === 'bernstein' && chapterId === 'foundations' && sectionId === 'worked-weight') {
+        return [{kind: 'bernstein-degree', degree: 2}, {kind: 'bernstein-stacked-area', visible: false}];
+    }
     if (id === 'spline-c1') {
         return [{kind: 'prepared-scene', sceneId: 'worked-parabola-join', source: 'lesson-fixture',
             curve: {points: [[0, 0], [0.5, 0], [1.5, 2], [2, 4]], degree: 2, continuity: 1}, view: [-0.25, 4.5, 2.25, -0.5]}];
@@ -66,8 +66,8 @@ function preparedFamilyActions(id: DemonstrationId): readonly LessonAction[] {
 function familyPrompt(chapterId: string, sectionId: string, id: DemonstrationId, prompt: LocalizedText): LocalizedText {
     if (chapterId === 'splines' && sectionId === 'worked-join' && id === 'spline-c1') {
         return words(
-            'Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Kaj se zgodi, če koeficient pri \\(s^2\\) spremeniš?',
-            'Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). What changes if you change the coefficient of \\(s^2\\)?',
+            'Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Nato na papirju spremeni koeficient pri \\(s^2\\) in ponovno izračunaj odvode; graf tega koeficienta nima kot krmilnika.',
+            'Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). Then change the coefficient of \\(s^2\\) on paper and recompute the derivatives; the graph has no control for this coefficient.',
         );
     }
     return prompt;
@@ -75,6 +75,7 @@ function familyPrompt(chapterId: string, sectionId: string, id: DemonstrationId,
 
 function activityExample(search: string, id: DemonstrationId): ResolvedGuidedExample | undefined {
     const query = new URLSearchParams(search);
+    if (query.has('example') || query.has('explore') || query.has('learn')) return undefined;
     const activityIds = query.getAll('activity');
     const chapters = query.getAll('chapter');
     if (activityIds.length !== 1 || chapters.length !== 1 || chapters[0] !== 'bezier-curves') return undefined;
@@ -89,10 +90,39 @@ function activityExample(search: string, id: DemonstrationId): ResolvedGuidedExa
 }
 
 const activityPrompts = Object.fromEntries(Object.entries(bezierActivityCopy).map(([id, copy]) => [id, words(copy.sl.prompt, copy.en.prompt)])) as Readonly<Record<string, LocalizedText>>;
-const activityTitles = Object.fromEntries(Object.entries(bezierActivityCopy).map(([id, copy]) => [id, words(copy.sl.title, copy.en.title)])) as Readonly<Record<string, LocalizedText>>;
-
+const retainedLessonPrompts: Readonly<Record<string, LocalizedText>> = {
+    'bezier-curves.interpolation.alternative-recursion': words(
+        'Spremljaj alternativno rekurzijo in primerjaj, kako se zaporedje vmesnih točk konča v točki krivulje pri izbranem parametru.',
+        'Follow the alternative recursion and compare how its sequence of intermediate points ends at the curve point for the chosen parameter.',
+    ),
+    'bezier-curves.interpolation.decasteljau': words(
+        'Premikaj parameter in spremljaj zaporedne interpolacije. Katera končna točka leži na krivulji pri izbranem parametru?',
+        'Move the parameter and follow the successive interpolations. Which final point lies on the curve at the selected parameter?',
+    ),
+    'bezier-curves.next-ideas.elevation': words(
+        'Primerjaj krmilne točke pred in po višanju stopnje. Kaj se spremeni v predstavitvi in kaj ostane enako na krivulji?',
+        'Compare the control points before and after degree elevation. What changes in the representation, and what stays the same on the curve?',
+    ),
+    'bezier-curves.next-ideas.extrapolation': words(
+        'Premakni parameter zunaj intervala od nič do ena. Opazuj ekstrapolacijsko točko in preveri, ali zanjo še velja lastnost konveksne ovojnice.',
+        'Move the parameter outside the interval from zero to one. Watch the extrapolated point and check whether the convex-hull property still applies.',
+    ),
+    'bezier-curves.next-ideas.repeated-subdivision': words(
+        'Povečuj število korakov subdivizije in primerjaj nove kontrolne poligone. Kako se približujejo nespremenjeni krivulji?',
+        'Increase the number of subdivision steps and compare the refined control polygons. How do they approach the unchanged curve?',
+    ),
+    'bezier-curves.next-ideas.subdivision': words(
+        'Premakni parameter delitve in primerjaj oba nova kontrolna poligona. Katera točka je skupni konec obeh delov na prvotni krivulji?',
+        'Move the subdivision parameter and compare the two new control polygons. Which point is the shared endpoint of both pieces on the original curve?',
+    ),
+    'ph-curves.arc-length-problem.ph-cubic-speed': words(
+        'Opazuj hitrost kubične PH-krivulje. Pojasni, kako pogoj za PH-krivuljo omogoči, da je hitrost polinom in je dolžino loka mogoče izračunati z integracijo.',
+        'Inspect the cubic PH curve’s speed. Explain how the PH condition makes speed a polynomial, so its arc length can be computed by integration.',
+    ),
+};
 function familyExample(search: string, id: DemonstrationId): ResolvedGuidedExample | undefined {
     const params = new URLSearchParams(search);
+    if (params.has('example') || params.has('learn')) return undefined;
     const values = params.getAll('explore');
     if (values.length !== 1 || params.has('chapter') || params.has('activity')) return undefined;
     const identity = values[0].split('.');
@@ -105,12 +135,13 @@ function familyExample(search: string, id: DemonstrationId): ResolvedGuidedExamp
     const prompt = sourcePrompt && familyPrompt(chapterId, sectionId, id, sourcePrompt);
     const title = sectionTitle(chapterId, sectionId);
     if (!section || !prompt || !title) return undefined;
-    const lesson = cachedShortLesson(`family:${chapterId}.${sectionId}.${id}`, () => actionLesson(id, title, prompt, preparedFamilyActions(id), `explore-${chapterId}-${sectionId}-${id}`));
+    const lesson = cachedShortLesson(`family:${chapterId}.${sectionId}.${id}`, () => actionLesson(id, title, prompt, preparedFamilyActions(id, chapterId, sectionId), `explore-${chapterId}-${sectionId}-${id}`));
     return {owner: {chapterId, sectionId}, lesson};
 }
 
 function canonicalExample(search: string, id: DemonstrationId): ResolvedGuidedExample | undefined {
     const params = new URLSearchParams(search);
+    if (params.has('explore') || params.has('activity') || params.has('chapter') || params.has('learn')) return undefined;
     const values = params.getAll('example');
     if (values.length !== 1) return undefined;
     const identity = values[0].split('.');
@@ -132,47 +163,121 @@ function canonicalExample(search: string, id: DemonstrationId): ResolvedGuidedEx
     return undefined;
 }
 
+function retainedHomeFromSearch(search: string, demonstrationId: DemonstrationId) {
+    const params = new URLSearchParams(search);
+    const examples = params.getAll('example');
+    if (examples.length === 1 && !params.has('explore') && !params.has('activity') && !params.has('chapter')) {
+        return getRetainedExampleForLegacyIdentity(examples[0], demonstrationId);
+    }
+    const explores = params.getAll('explore');
+    if (explores.length === 1 && !params.has('example') && !params.has('activity') && !params.has('chapter')) {
+        return getRetainedExampleForLegacyIdentity(`family.${explores[0]}`, demonstrationId);
+    }
+    const activities = params.getAll('activity');
+    const chapters = params.getAll('chapter');
+    if (activities.length === 1 && chapters.length === 1 && chapters[0] === 'bezier-curves'
+        && !params.has('example') && !params.has('explore')) {
+        return getRetainedExampleForLegacyActivity(activities[0], demonstrationId);
+    }
+    return undefined;
+}
+
+// Session ownership depends on definition identity. Re-resolving a route during a
+// graph update must reuse the merged definition rather than restart its session.
+const retainedLessonCache = new WeakMap<LessonDefinition, Map<string, LessonDefinition>>();
+function addRetainedExploration(lesson: LessonDefinition, home: ReturnType<typeof getRetainedExampleHome>): LessonDefinition {
+    if (!home || home[5] !== 'lesson') return lesson;
+    const cached = retainedLessonCache.get(lesson)?.get(home[0]);
+    if (cached) return cached;
+    const mergedAliases = legacyExampleAliases.filter(alias => alias[6] === home[0] && alias[5] !== 'lesson');
+    if (!mergedAliases.length) return lesson;
+    const first = lesson.steps[0];
+    if (!first) return lesson;
+    const frames = [...(first.frames ?? [])];
+    for (const [index, alias] of mergedAliases.entries()) {
+        const prompt = alias[4] === 'shape-control' ? activityPrompts['shape-control']
+            : alias[4] === 'blending-coefficients' ? activityPrompts['blending-coefficients']
+                : alias[4] === 'transform-shape' ? activityPrompts['transform-shape']
+                    : alias[5] === 'family' ? familyChapters.find(chapter => chapter.id === alias[1])?.sections.find(section => section.id === alias[2])?.investigationPrompts?.[home[3]]
+                        : undefined;
+        if (!prompt) continue;
+        frames.push({
+            id: `retained-exploration-${index + 1}`,
+            kind: 'observation',
+            title: words('Razišči še to opažanje', 'Explore this observation'),
+            prompt,
+        });
+    }
+    if (frames.length === (first.frames?.length ?? 0)) return lesson;
+    const merged = {
+        ...lesson,
+        steps: [{...first, frames}, ...lesson.steps.slice(1)],
+    };
+    let definitions = retainedLessonCache.get(lesson);
+    if (!definitions) { definitions = new Map(); retainedLessonCache.set(lesson, definitions); }
+    definitions.set(home[0], merged);
+    return merged;
+}
+
+function resolveRetainedHome(home: ReturnType<typeof getRetainedExampleHome>): ResolvedGuidedExample | undefined {
+    if (!home) return undefined;
+    const [, chapterId, sectionId, demonstrationId, sourceId, sourceKind] = home;
+    if (sourceKind === 'lesson') {
+        const lesson = getLessonForDemonstration(demonstrationId);
+        return lesson ? {lesson: addRetainedExploration(lesson, home), owner: {chapterId, sectionId}} : undefined;
+    }
+    if (sourceKind === 'activity') return activityExample(`?chapter=bezier-curves&activity=${encodeURIComponent(sourceId)}`, demonstrationId);
+    return familyExample(`?explore=${encodeURIComponent(`${chapterId}.${sectionId}.${demonstrationId}`)}`, demonstrationId);
+}
+
 export function resolveGuidedExample(search: string, demonstrationId: DemonstrationId): ResolvedGuidedExample | undefined {
     const params = new URLSearchParams(search);
-    if (params.getAll('learn').length === 1 && params.get('learn') === '1') {
+    if (!params.has('learn') && (params.has('learnChapter') || params.has('learnSection'))) return undefined;
+    if (params.has('learn')) {
+        if (params.getAll('learn').length !== 1 || params.get('learn') !== '1'
+            || params.has('example') || params.has('explore') || params.has('activity') || params.has('chapter')
+            || params.getAll('learnChapter').length > 1 || params.getAll('learnSection').length > 1) return undefined;
         const lesson = getLessonForDemonstration(demonstrationId);
-        return lesson ? {lesson, owner: resolveGuidedLessonOwner(search, demonstrationId)} : undefined;
+        if (!lesson) return undefined;
+        const owner = resolveGuidedLessonOwner(search, demonstrationId);
+        const home = getRetainedExampleForLegacyIdentity(`lesson.${owner.chapterId}.${owner.sectionId}.${demonstrationId}`, demonstrationId);
+        return {lesson: home ? addRetainedExploration(lesson, home) : lesson, owner};
     }
-    return canonicalExample(search, demonstrationId) ?? activityExample(search, demonstrationId) ?? familyExample(search, demonstrationId);
+    return resolveRetainedHome(retainedHomeFromSearch(search, demonstrationId))
+        ?? canonicalExample(search, demonstrationId)
+        ?? activityExample(search, demonstrationId)
+        ?? familyExample(search, demonstrationId);
 }
 
 export function getChapterGuidedExamples(chapterId: string, sectionId: string): readonly GuidedExampleLink[] {
-    const results: GuidedExampleLink[] = [];
-    const seen = new Set<string>();
-    const push = (id: DemonstrationId, title: LocalizedText, prompt?: LocalizedText, actions?: readonly LessonAction[], stableId?: string) => {
-        const structural = actions ? JSON.stringify(actions) : `lesson:${id}`;
-        const key = `${id}:${structural}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        const kind = stableId && activities.some(activity => activity.id === stableId) ? 'activity' : stableId === 'family' ? 'family' : 'lesson';
-        const linkId = kind === 'activity' ? stableId! : `${kind}.${exampleId(chapterId, sectionId, id)}`;
-        results.push({id: linkId, demonstrationId: id, title, prompt, path: queryPath(id, chapterId, sectionId, kind)});
-    };
-    if (chapterId === 'bezier-curves') {
-        for (const activity of activities.filter(item => item.sectionId === sectionId)) {
-            push(activity.demonstrationId, activityTitles[activity.id], activityPrompts[activity.id], activity.actions, activity.id);
+    return retainedExampleHomes.filter(home => home[1] === chapterId && home[2] === sectionId).flatMap((home): GuidedExampleLink[] => {
+        const [, , , id, sourceId, sourceKind, path] = home;
+        if (sourceKind === 'lesson') {
+            const lesson = getLessonForDemonstration(id);
+            return lesson ? [{id: home[0], demonstrationId: id, title: lesson.title, prompt: retainedMergedPrompt(home[0]), path}] : [];
         }
-    }
-    const chapter = familyChapters.find(item => item.id === chapterId);
-    const section = chapter?.sections.find(item => item.id === sectionId);
-    for (const id of section?.demonstrationIds ?? []) {
-        const sourcePrompt = section?.investigationPrompts?.[id];
-        const prompt = sourcePrompt && familyPrompt(chapterId, sectionId, id, sourcePrompt);
-        if (prompt) {
-            const sectionName = sectionTitle(chapterId, sectionId)!;
-            const demoName = getDemonstrationCatalog().demonstrations.find(demo => demo.id === id)!.workspaceTitle;
-            push(id, words(`${sectionName.sl} · ${demoName}`, `${sectionName.en} · ${demoName}`), prompt, preparedFamilyActions(id), 'family');
+        if (sourceKind === 'activity') {
+            const copy = bezierActivityCopy[sourceId as keyof typeof bezierActivityCopy];
+            return copy ? [{id: home[0], demonstrationId: id, title: words(copy.sl.title, copy.en.title), prompt: words(copy.sl.prompt, copy.en.prompt), path}] : [];
         }
+        const sectionName = sectionTitle(chapterId, sectionId);
+        const demoName = getDemonstrationCatalog().demonstrations.find(demo => demo.id === id)?.workspaceTitle;
+        const prompt = familyChapters.find(chapter => chapter.id === chapterId)?.sections.find(section => section.id === sectionId)?.investigationPrompts?.[id];
+        return sectionName && demoName && prompt
+            ? [{id: home[0], demonstrationId: id, title: words(`${sectionName.sl} · ${demoName}`, `${sectionName.en} · ${demoName}`), prompt: familyPrompt(chapterId, sectionId, id, prompt), path}]
+            : [];
+    });
+}
+
+function retainedMergedPrompt(key: string): LocalizedText | undefined {
+    const authoredPrompt = retainedLessonPrompts[key];
+    if (authoredPrompt) return authoredPrompt;
+    const alias = legacyExampleAliases.find(entry => entry[6] === key && entry[5] !== 'lesson');
+    if (!alias) return undefined;
+    if (alias[4] === 'shape-control' || alias[4] === 'blending-coefficients' || alias[4] === 'transform-shape') {
+        return activityPrompts[alias[4]];
     }
-    for (const id of GUIDED_LESSON_AVAILABLE_IDS) {
-        if (!getGuidedLessonOwners(id).some(owner => owner.chapterId === chapterId && owner.sectionId === sectionId)) continue;
-        const lesson = getLessonForDemonstration(id);
-        if (lesson) push(id, lesson.title, undefined, undefined, 'lesson');
-    }
-    return results;
+    return alias[5] === 'family'
+        ? familyChapters.find(chapter => chapter.id === alias[1])?.sections.find(section => section.id === alias[2])?.investigationPrompts?.[alias[3]]
+        : undefined;
 }

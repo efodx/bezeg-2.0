@@ -4,43 +4,64 @@ h.failOnRuntimeErrors();
 
 const chapter = '/bezeg-2.0/learn/bezier-curves';
 const examples = [
-    ['shape-control', 'control-points', 'bezier/curve', 'bezier'],
-    ['curve-parameter', 'parameter', 'bezier/decasteljau', 'decasteljau'],
-    ['repeated-interpolation', 'interpolation', 'bezier/decasteljau', 'decasteljau'],
-    ['blending-coefficients', 'bernstein-form', 'bernstein', 'bernstein'],
-    ['geometric-bounds', 'geometric-properties', 'bezier/curve', 'bezier'],
-    ['transform-shape', 'affine-transformations', 'bezier/affine', 'affine'],
+    ['bezier-curves.control-points.bezier', 'control-points', '/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier'],
+    ['bezier-curves.parameter.decasteljau-parameter', 'parameter', '/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau'],
+    ['bezier-curves.interpolation.quartic-interpolation', 'interpolation', '/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.interpolation.decasteljau'],
+    ['bezier-curves.interpolation.decasteljau', 'interpolation', '/bezeg-2.0/bezier/decasteljau?example=lesson.bezier-curves.interpolation.decasteljau'],
+    ['bezier-curves.interpolation.alternative-recursion', 'interpolation', '/bezeg-2.0/bezier/decasteljau2?example=lesson.bezier-curves.interpolation.decasteljau-alternative'],
+    ['bezier-curves.bernstein-form.bernstein', 'bernstein-form', '/bezeg-2.0/bernstein?example=lesson.bezier-curves.bernstein-form.bernstein'],
+    ['bezier-curves.geometric-properties.convex-hull', 'geometric-properties', '/bezeg-2.0/bezier/curve?example=activity.bezier-curves.geometric-properties.bezier'],
+    ['bezier-curves.affine-transformations.affine', 'affine-transformations', '/bezeg-2.0/bezier/affine?example=lesson.bezier-curves.affine-transformations.affine'],
+    ['bezier-curves.next-ideas.elevation', 'next-ideas', '/bezeg-2.0/bezier/elevation?example=lesson.bezier-curves.next-ideas.elevation'],
+    ['bezier-curves.next-ideas.subdivision', 'next-ideas', '/bezeg-2.0/bezier/subdivision-2?example=lesson.bezier-curves.next-ideas.subdivision'],
+    ['bezier-curves.next-ideas.repeated-subdivision', 'next-ideas', '/bezeg-2.0/bezier/subdivision?example=lesson.bezier-curves.next-ideas.repeated-subdivision'],
+    ['bezier-curves.next-ideas.extrapolation', 'next-ideas', '/bezeg-2.0/bezier/extrapolation?example=lesson.bezier-curves.next-ideas.extrapolation'],
 ];
-const exampleLink = (page, section, id) => page.locator(`#example-bezier-curves-${section}-${id}`);
+const exampleLink = (page, section, id) => page.locator(`[id="example-bezier-curves-${section}-${id}"]`);
 const panel = page => h.lessonPanel(page);
+const decasteljauMidpoints = new Map([
+    ['bezier-curves.parameter.decasteljau-parameter', [0, 1.75]],
+    ['bezier-curves.interpolation.quartic-interpolation', [0, 1.75]],
+    ['bezier-curves.interpolation.decasteljau', [0, 1]],
+]);
 
 test('each Bézier chapter example opens the shared guided-example surface with its authored graph', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.goto(chapter);
-    await expect(page.locator('.chapter-guided-lessons a[href*="example=activity."]')).toHaveCount(6);
-    for (const [id, section, route, demonstrationId] of examples) {
+    await expect(page.locator('.chapter-guided-lessons a[href*="example=activity."]')).toHaveCount(3);
+    await expect(page.locator('.chapter-guided-lessons a[href*="?example="]')).toHaveCount(12);
+    for (const [id, section, destination] of examples) {
         await page.goto(`${chapter}#${section}`);
         const link = exampleLink(page, section, id);
         await expect(link).toBeVisible();
         await expect(link).toContainText('Guided example');
+        await expect(link).toHaveAttribute('href', destination);
         await link.click();
         await expect(panel(page)).toBeVisible();
         await expect(panel(page).locator('.guided-lesson-owner')).toContainText(/Bézier curves: shaping a curve with control points ·/);
         await expect(page.locator('.chapter-activity-context')).toHaveCount(0);
         await expect(page.locator('#jgbox')).toBeVisible();
         await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);
-        await expect(page).toHaveURL(new RegExp(`${route}\\?example=activity\\.bezier-curves\\.${section}\\.${demonstrationId}$`));
+        await expect(page).toHaveURL(destination);
 
-        if (route === 'bezier/decasteljau') {
+        if (destination.startsWith('/bezeg-2.0/bezier/decasteljau?')) {
             await expect(page.locator('.decasteljau-animation-heading output')).toHaveText('t = 0.50');
-            await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[0, 1.75]]));
+            const midpoint = decasteljauMidpoints.get(id);
+            expect(midpoint, `${id} has an authored midpoint check`).toBeDefined();
+            await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([midpoint]));
         }
-        if (id === 'blending-coefficients') expect(await h.countSetterValue(page, 0)).toBe(2);
-        if (id === 'shape-control' || id === 'geometric-bounds') {
+        if (id === 'bezier-curves.bernstein-form.bernstein') {
+            expect(await h.countSetterValue(page, 0)).toBe(1);
+            expect((await h.boardStats(page)).curves).toBe(2);
+        }
+        if (id === 'bezier-curves.control-points.bezier') {
+            expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, -2], [-3, 2], [3, 2], [3, -2]]));
+        }
+        if (id === 'bezier-curves.geometric-properties.convex-hull') {
             expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-4, -3], [-3, 2], [2, 2], [3, -2]]));
         }
-        if (id === 'transform-shape') {
-            expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[-3, 2], [0, -2], [1, 2], [3, -2]]));
+        if (id === 'bezier-curves.affine-transformations.affine') {
+            expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[1, 0], [2, 3], [4, 2], [5, -1]]));
         }
     }
 });
@@ -116,6 +137,21 @@ test('a guided example stays keyboard-accessible at narrow width and enlarged te
     await next.focus();
     await page.keyboard.press('Enter');
     await expect(panel(page).locator('.guided-lesson-progress')).toContainText('Frame 2 of 2');
+});
+
+test('a Splines chapter prompt does not widen the page with enlarged text', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 844});
+    await h.useLanguage(page, 'en');
+    await page.goto('/bezeg-2.0/learn/splines#worked-join');
+    await expect(page.locator('#worked-join .chapter-exploration-prompt')).toBeVisible();
+    await page.evaluate(async () => {
+        document.documentElement.style.fontSize = '200%';
+        await document.fonts.ready;
+        await window.MathJax?.startup?.promise;
+        await window.MathJax?.typesetPromise?.([document.querySelector('.chapter-article')]);
+    });
+    const dimensions = await page.evaluate(() => ({width: innerWidth, scrollWidth: document.documentElement.scrollWidth}));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width + 1);
 });
 
 async function editFirstPoint(page, x) {

@@ -3,6 +3,7 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
+import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retainedExamples';
 
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
@@ -63,25 +64,35 @@ export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLesso
     const familyOwners = familyChapters.flatMap(chapter => chapter.sections
         .filter(section => section.demonstrationIds?.includes(id))
         .map(section => ({chapterId: chapter.id, sectionId: section.id})));
-    const all = [guidedLessonOwners[id], ...(additionalOwners[id] ?? []), ...familyOwners];
+    const retainedOwners = retainedExampleHomes.filter(home => home[3] === id)
+        .map(home => ({chapterId: home[1], sectionId: home[2]}));
+    const all = [guidedLessonOwners[id], ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners];
     return all.filter((owner, index) => all.findIndex(item => item.chapterId === owner.chapterId && item.sectionId === owner.sectionId) === index);
 }
 
 export function getGuidedLessonOwner(id: DemonstrationId, requested?: GuidedLessonOwner): GuidedLessonOwner {
-    return requested && getGuidedLessonOwners(id).some(owner => owner.chapterId === requested.chapterId && owner.sectionId === requested.sectionId)
-        ? requested : guidedLessonOwners[id];
+    const candidate = requested ?? guidedLessonOwners[id];
+    if (!getGuidedLessonOwners(id).some(owner => owner.chapterId === candidate.chapterId && owner.sectionId === candidate.sectionId)) {
+        return canonicalOwner(id, guidedLessonOwners[id]);
+    }
+    return canonicalOwner(id, candidate);
+}
+
+function canonicalOwner(id: DemonstrationId, owner: GuidedLessonOwner): GuidedLessonOwner {
+    const home = getRetainedExampleForLegacyOwner(owner.chapterId, owner.sectionId, id);
+    return home ? {chapterId: home[1], sectionId: home[2]} : owner;
 }
 
 export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): GuidedLessonOwner {
     const query = new URLSearchParams(search);
     const explicit = {chapterId: query.get('learnChapter') ?? '', sectionId: query.get('learnSection') ?? ''};
-    if (getGuidedLessonOwners(id).some(owner => owner.chapterId === explicit.chapterId && owner.sectionId === explicit.sectionId)) return explicit;
+    if (getGuidedLessonOwners(id).some(owner => owner.chapterId === explicit.chapterId && owner.sectionId === explicit.sectionId)) return canonicalOwner(id, explicit);
     const legacy = query.getAll('explore');
     if (legacy.length === 1) {
         const [chapterId, sectionId, demonstrationId] = legacy[0].split('.');
         if (demonstrationId === id) {
             const owner = getGuidedLessonOwners(id).find(item => item.chapterId === chapterId && item.sectionId === sectionId);
-            if (owner) return owner;
+            if (owner) return canonicalOwner(id, owner);
         }
     }
     return guidedLessonOwners[id];
@@ -108,10 +119,11 @@ export function guidedLessonLaunchPath(id: DemonstrationId, owner = getGuidedLes
 }
 
 export function authoredGuidedLessonIds(chapterId: string, sectionId: string): DemonstrationId[] {
-    return GUIDED_LESSON_AVAILABLE_IDS.filter(id => getGuidedLessonOwners(id)
-        .some(owner => owner.chapterId === chapterId && owner.sectionId === sectionId));
+    return GUIDED_LESSON_AVAILABLE_IDS.filter(id => retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id));
 }
 
 export function getGuidedLessonOwnerForSection(id: DemonstrationId, chapterId: string, sectionId: string): GuidedLessonOwner | undefined {
-    return getGuidedLessonOwners(id).find(owner => owner.chapterId === chapterId && owner.sectionId === sectionId);
+    return retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id)
+        ? {chapterId, sectionId}
+        : undefined;
 }

@@ -1,10 +1,12 @@
 import React from "react";
 import {act, fireEvent, render, screen, waitFor} from "@testing-library/react";
 import {MemoryRouter, useLocation} from "react-router-dom";
+import {afterEach} from 'vitest';
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {SiteContext} from "../context/react/SiteContext";
 import {setLanguage} from '../../localization';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
+import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import type {MockedFunction} from 'vitest';
 import type {LessonDefinition} from '../../learning/model';
 
@@ -26,6 +28,13 @@ beforeEach(() => {
     setLanguage('sl');
     lessonLookup.mockImplementation(actualLessonLookup);
 });
+
+afterEach(() => vi.unstubAllGlobals());
+
+function preferReducedMotion() {
+    vi.stubGlobal('matchMedia', vi.fn(() => ({matches: true, media: '(prefers-reduced-motion: reduce)', onchange: null,
+        addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn()})));
+}
 
 test("inspector sections remain mounted and retain values when switched or collapsed", () => {
     render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
@@ -112,8 +121,12 @@ test('valid family investigation URLs resolve into the chapter-owned guided exam
 
     expect(document.querySelector('.guided-lesson')).toBeInTheDocument();
     expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
-    expect(screen.getByText(/Change the degree with its selector/)).toBeVisible();
-    expect(screen.getByRole('link', {name: 'Return to chapter'})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#why-weights');
+    const resolved = resolveGuidedExample('?explore=foundations.why-weights.bernstein', 'bernstein');
+    const retainedPrompt = resolved?.lesson.steps.flatMap(step => step.frames ?? [])
+        .find(frame => frame.prompt?.en.includes('Change the degree with its selector'));
+    expect(resolved?.owner).toEqual({chapterId: 'foundations', sectionId: 'reading-bernstein'});
+    expect(retainedPrompt?.kind).toBe('observation');
+    expect(screen.getByRole('link', {name: 'Return to chapter'})).toHaveAttribute('href', '/bezeg-2.0/learn/foundations#reading-bernstein');
 });
 
 test('invalid family context is removed while unrelated query values and the hash survive', async () => {
@@ -122,7 +135,7 @@ test('invalid family context is removed while unrelated query values and the has
         <LocationReadout/>
     </MemoryRouter>);
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/bernstein?school=west&learn=1&learnChapter=foundations&learnSection=why-weights#figure'));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/bezeg-2.0/bernstein?school=west&learn=1&learnChapter=foundations&learnSection=reading-bernstein#figure'));
     expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
 });
 
@@ -135,7 +148,7 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
 });
 
-test('direct guided family context exits back to its investigation prompt and preserves the frame through hide', async () => {
+test('direct guided family context preserves its frame through hide and returns to the retained chapter home', async () => {
     setLanguage('en');
     const lesson: LessonDefinition = {
         id: 'workspace-hide-test', demonstrationId: 'spline-cn', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
@@ -146,11 +159,13 @@ test('direct guided family context exits back to its investigation prompt and pr
     };
     lessonLookup.mockReturnValue(lesson);
     const capabilities = {captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()};
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1&explore=splines.piecewise.spline-cn']}><DemonstrationWorkspace title="Spline" description="Explore"
+    preferReducedMotion();
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?explore=splines.piecewise.spline-cn']}><DemonstrationWorkspace title="Spline" description="Explore"
         edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} lessonCapabilities={capabilities}/>
         <LocationReadout/></MemoryRouter>);
 
     await screen.findByRole('heading', {name: 'Introduction'});
+    const directFrameCount = resolveGuidedExample('?explore=splines.piecewise.spline-cn', 'spline-cn')?.lesson.steps[0].frames?.length;
     fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
@@ -158,7 +173,7 @@ test('direct guided family context exits back to its investigation prompt and pr
 
     fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
     await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
-    const reopen = screen.getByRole('button', {name: /Guided path.*Step 1 of 1.*Frame 2 of 2.*Back to the instructions/});
+    const reopen = screen.getByRole('button', {name: new RegExp(`Guided path.*Step 1 of 1.*Frame 2 of ${directFrameCount}.*Back to the instructions`)});
     await waitFor(() => expect(reopen).toHaveFocus());
     expect(screen.queryByRole('button', {name: 'Learn this demonstration'})).not.toBeInTheDocument();
     expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
@@ -185,9 +200,11 @@ test('direct guided family context exits back to its investigation prompt and pr
     expect(capabilities.restoreState).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
-    const compactTab = screen.getByRole('button', {name: /Guided path.*Frame 2 of 2/});
+    const compactTab = screen.getByRole('button', {name: new RegExp(`Guided path.*Frame 2 of ${directFrameCount}`)});
     fireEvent.click(compactTab);
-    fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
+    for (let frame = 1; frame < (directFrameCount ?? 2); frame += 1) {
+        fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
+    }
     expect(await screen.findByText('Example complete')).toBeVisible();
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -209,6 +226,7 @@ test('direct guided family context exits back to its investigation prompt and pr
 
 test('minimized lesson exposes one focused reopen tab over the graph', async () => {
     setLanguage('en');
+    preferReducedMotion();
     const lesson: LessonDefinition = {
         id: 'workspace-tab-test', demonstrationId: 'bezier', title: {sl: 'Učna pot', en: 'Guided path'}, summary: {sl: 'Povzetek', en: 'Summary'},
         steps: [{id: 'step', title: {sl: 'Korak', en: 'Step'}, body: {sl: 'Razlaga', en: 'Explanation'}, frames: [
@@ -223,9 +241,10 @@ test('minimized lesson exposes one focused reopen tab over the graph', async () 
 
     fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
     await screen.findByRole('heading', {name: 'Introduction'});
+    const frameCount = resolveGuidedExample('?learn=1&learnChapter=bezier-curves&learnSection=control-points', 'bezier')?.lesson.steps[0].frames?.length;
     fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
     fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
-    const tab = await screen.findByRole('button', {name: /Guided path.*Step 1 of 1.*Frame 2 of 2/i});
+    const tab = await screen.findByRole('button', {name: new RegExp(`Guided path.*Step 1 of 1.*Frame 2 of ${frameCount}`, 'i')});
     expect(tab.closest('.guided-lesson-layer')).not.toBeNull();
     expect(tab.closest('.demonstration-workspace')).not.toBeNull();
     await waitFor(() => expect(tab).toHaveFocus());

@@ -1,0 +1,9 @@
+# Captured copy review: first 21 previews
+
+Reviewed the actual capture sheets for these IDs: `analysis.convergence.fixed-point`, `analysis.convergence.sequence`, `analysis.convergence.uniform-convergence`, `analysis.derivative-results.convexity`, `analysis.derivative-results.extrema`, `analysis.derivative-results.mean-value`, `analysis.existence.bisection`, `analysis.integrability.darboux`, `analysis.taylor.taylor`; `bezier-curves.affine-transformations.affine`, `bezier-curves.bernstein-form.bernstein`, `bezier-curves.control-points.bezier`, `bezier-curves.geometric-properties.convex-hull`, `bezier-curves.interpolation.alternative-recursion`, `bezier-curves.interpolation.decasteljau`, `bezier-curves.interpolation.quartic-interpolation`, `bezier-curves.next-ideas.elevation`, `bezier-curves.next-ideas.extrapolation`, `bezier-curves.next-ideas.repeated-subdivision`, `bezier-curves.next-ideas.subdivision`, and `bezier-curves.parameter.decasteljau-parameter`.
+
+Found three copy mismatches. The fixed-point capture has the function, identity line, and initial value x₀, before any iteration path appears; its Slovenian and English alt text and caption now describe that opening scene. The Bézier starter capture is framed without the coordinate grid, so the bilingual alt text no longer claims one. The subdivision capture already shows two colored curve portions and their construction, so its bilingual alt text and caption now describe that visible split.
+
+The other 18 inspected captures had no clear bilingual copy mismatch. Review of the remaining 35 captures is unverified.
+
+Verification: `just --list`; added a concrete fixed-point assertion first and confirmed it failed against the old copy; then `just unit src/learning/content/guidedExamplePreviewCopy.test.ts` passed after the copy changes. The handler’s integrated check also passed before these edits: 192 files, 3,682 tests, and production build.

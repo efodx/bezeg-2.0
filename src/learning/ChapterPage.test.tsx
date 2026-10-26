@@ -5,7 +5,16 @@ import {afterEach, beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {bezierChapter} from './content/bezierChapter';
 import {getChapterGuidedExamples} from './chapter/guidedExamples';
+import {exampleReferences} from './chapter/orderedContent';
 import {ChapterPage} from './ChapterPage';
+
+vi.mock('./chapter/guidedExamplePreviews', () => ({
+    resolveGuidedExamplePreview: (id: string, _demonstrationId: string, language: 'sl' | 'en') => ({
+        src: `/preview/${id}.png`,
+        alt: `${language}:${id} alt`,
+        caption: `${language}:${id} caption`,
+    }),
+}));
 
 type TestMathJax = {
     startup: {promise: Promise<void>};
@@ -47,14 +56,18 @@ test('direct chapter entry loads MathJax and typesets again after a language cha
     expect(document.getElementById('MathJax-script')).toBe(script);
 });
 
-test('Bézier sections show one compact guided-example card per activity with bilingual previews', async () => {
+test('Bézier sections show all retained cards with stable bilingual preview bindings', async () => {
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
         <ChapterPage/>
     </MemoryRouter>);
     const figures = [...container.querySelectorAll('.chapter-activity-figure')];
-    expect(figures).toHaveLength(6);
     const explorations = [...container.querySelectorAll('.chapter-exploration--guided-example')];
-    const expectedExamples = bezierChapter.sl.sections.flatMap(section => getChapterGuidedExamples('bezier-curves', section.id));
+    const expectedExamples = bezierChapter.sl.sections.flatMap(section => {
+        const links = getChapterGuidedExamples('bezier-curves', section.id);
+        return exampleReferences(section.orderedContent ?? []).map(id => links.find(example => example.id === id)!);
+    });
+    expect(expectedExamples).toHaveLength(12);
+    expect(figures).toHaveLength(expectedExamples.length);
     expect(explorations).toHaveLength(expectedExamples.length);
     expect(explorations.every(item => item.getAttribute('aria-label') === `Vodeni primer: ${item.querySelector('h3')?.textContent}`)).toBe(true);
     expect(explorations.map(item => item.getAttribute('aria-label'))).toEqual(expectedExamples.map(example => `Vodeni primer: ${example.title.sl}`));
@@ -65,24 +78,19 @@ test('Bézier sections show one compact guided-example card per activity with bi
     expect(exampleLinks.map(link => link.getAttribute('href'))).toEqual(expectedExamples.map(example => example.path));
     expect(new Set(exampleLinks.map(link => link.getAttribute('href'))).size).toBe(exampleLinks.length);
     const images = figures.map(figure => figure.querySelector('img')!);
-    expect(images.map(image => image.getAttribute('src'))).toEqual(expect.arrayContaining([
-        expect.stringMatching(/shape-control/), expect.stringMatching(/curve-parameter/),
-        expect.stringMatching(/repeated-interpolation/), expect.stringMatching(/blending-coefficients/),
-        expect.stringMatching(/geometric-bounds/), expect.stringMatching(/transform-shape/),
-    ]));
-    for (const image of images) {
+    expect(images.map(image => image.getAttribute('src'))).toEqual(expectedExamples.map(example => `/preview/${example.id}.png`));
+    for (const [index, image] of images.entries()) {
         expect(image).toHaveAttribute('width', '720');
         expect(image).toHaveAttribute('height', '440');
         expect(image).toHaveAttribute('loading', 'lazy');
-        expect(image.alt).toBeTruthy();
-        expect(image.closest('figure')?.querySelector('figcaption')?.textContent).toBeTruthy();
+        expect(image.alt).toBe(`sl:${expectedExamples[index].id} alt`);
+        expect(image.closest('figure')?.querySelector('figcaption')?.textContent).toBe(`sl:${expectedExamples[index].id} caption`);
     }
-    expect(container.textContent).toContain('Začetni kubični primer');
     setLanguage('en');
     await waitFor(() => {
         expect(explorations.map(item => item.getAttribute('aria-label'))).toEqual(expectedExamples.map(example => `Guided example: ${example.title.en}`));
         expect(exampleLinks.every(link => link.textContent?.includes('Guided example'))).toBe(true);
-        expect(images[0].alt).toContain('cubic Bézier curve');
-        expect(figures[5].querySelector('figcaption')?.textContent).toContain('starting cubic example');
+        expect(images.map(image => image.alt)).toEqual(expectedExamples.map(example => `en:${example.id} alt`));
+        expect(figures.map(figure => figure.querySelector('figcaption')?.textContent)).toEqual(expectedExamples.map(example => `en:${example.id} caption`));
     });
 });

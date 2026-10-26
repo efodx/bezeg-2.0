@@ -2,6 +2,7 @@ import React from 'react';
 import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {setLanguage} from '../../localization';
+import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {DemonstrationWorkspace} from './DemonstrationWorkspace';
 
 test('legacy activity URLs resolve to one chapter-owned guided example', async () => {
@@ -22,13 +23,20 @@ test('legacy activity URLs resolve to one chapter-owned guided example', async (
     </MemoryRouter>);
 
     await waitFor(() => expect(document.querySelector('.guided-lesson')).not.toBeNull());
-    expect(screen.getByText(/Drag an interior control, then drag an endpoint control/)).toBeVisible();
+    const resolved = resolveGuidedExample('?chapter=bezier-curves&activity=shape-control', 'bezier');
+    const legacyPrompt = resolved?.lesson.steps.flatMap(step => step.frames ?? [])
+        .find(frame => frame.prompt?.en.includes('Drag an interior control, then drag an endpoint control'));
+    expect(resolved?.owner).toEqual({chapterId: 'bezier-curves', sectionId: 'control-points'});
+    expect(legacyPrompt?.kind).toBe('observation');
     fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
-    expect(screen.getByText(/Drag an interior control, then drag an endpoint control/)).toBeVisible();
     expect(screen.getByRole('button', {name: 'Observe on the graph'})).toBeVisible();
     expect(document.querySelector('.chapter-activity-context')).not.toBeInTheDocument();
     expect(screen.getByRole('link', {name: /Return to chapter/})).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#control-points');
-    expect(lifecycle.some(entry => entry === 'apply:curve-visibility:control-polygon')).toBe(true);
+    const preparedAction = resolved?.lesson.steps.flatMap(step => step.scene?.actions ?? [])[0];
+    expect(preparedAction).toBeDefined();
+    if (!preparedAction) throw new Error('The resolved legacy activity has no prepared scene action');
+    const actionTarget = 'sceneId' in preparedAction ? preparedAction.sceneId : 'target' in preparedAction ? preparedAction.target : '';
+    expect(lifecycle).toContain(`apply:${preparedAction.kind}:${actionTarget}`);
     expect(lifecycle.some(entry => entry.startsWith('capture:'))).toBe(true);
     expect(lifecycle.findIndex(entry => entry.startsWith('capture:'))).toBeLessThan(lifecycle.findIndex(entry => entry.startsWith('apply:')));
     fireEvent.click(document.querySelector('.guided-lesson-owner a')!);
