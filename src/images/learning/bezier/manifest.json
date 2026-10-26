@@ -1,0 +1,587 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-chapter-figures.cjs",
+  "sourceRevision": "007c286a0290cf84d18508c049e13ba7594c5f7e",
+  "sourceTree": "captures record this checkout revision; activity URLs and source actions are listed per asset",
+  "buildStamp": {
+    "version": 1,
+    "revision": "3c96183758b4325dbd10df81cd61c99fc2cbf4ca",
+    "dirty": true,
+    "inputs": "b53c26e6412aa05edfb5882a38b7018c6f949466547fba89ec4696edf1472121",
+    "output": "d3ae38f3a329bf9c26370b3ebcde0b193df67a717bba5dd2e18e02816d671691"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "3c96183758b4325dbd10df81cd61c99fc2cbf4ca",
+    "stampDirty": true,
+    "localOutputHash": "d3ae38f3a329bf9c26370b3ebcde0b193df67a717bba5dd2e18e02816d671691",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BZuOJpKN.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BZuOJpKN.js",
+        "sha256": "58201397be0f3d92e8f0da21b4403e9841d9109575c4f09882c0741f6693bdbd",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-CbJvaDJA.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-CbJvaDJA.js",
+        "sha256": "a5fa9fd7b194252d024ed25d5734a46f6082479b7d0acb35480d663f5a6b9835",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-Ci6_9flY.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-Ci6_9flY.css",
+        "sha256": "c32f7f6f027dbe437387305e008514ec49836ad23fee9d44714af05bcf7b9819",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "baseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "capture": {
+    "cleanContextPerActivity": true,
+    "boardOnly": true,
+    "frame": {
+      "width": 360,
+      "height": 220
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact chapter activity query URL; no manually applied graph state",
+    "presentation": "existing presentBoard capture-only camera, label sizing and construction-stroke treatment"
+  },
+  "captures": [
+    {
+      "id": "shape-control",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/curve?chapter=bezier-curves&activity=shape-control",
+      "demonstrationId": "bezier",
+      "actions": [
+        "prepare bezier-default",
+        "show control-polygon",
+        "hide convex-hull"
+      ],
+      "file": "shape-control.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "58f36f7c232e810fad5e21fce3942263d27565cbddbda2225c2d41fab3682d79",
+      "scene": {
+        "visibleElementCount": 32,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 20,
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 4,
+        "checkedControlPoints": [
+          [
+            -4,
+            -3
+          ],
+          [
+            -3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            -2
+          ]
+        ],
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": [
+          "cubic-curve",
+          "four-control-points",
+          "control-polygon"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        }
+      }
+    },
+    {
+      "id": "curve-parameter",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/decasteljau?chapter=bezier-curves&activity=curve-parameter",
+      "demonstrationId": "decasteljau",
+      "actions": [
+        "prepare decasteljau-quartic",
+        "show decasteljau-scheme",
+        "show decasteljau-full-curve",
+        "set t=0.5",
+        "pause animation"
+      ],
+      "file": "curve-parameter.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "20899eabc9d693b3d9def9915aee8749da484941eeb9702a981829f791efec39",
+      "scene": {
+        "visibleElementCount": 62,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 31,
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        },
+        "visiblePointCount": 15,
+        "checkedControlPoints": [
+          [
+            -4,
+            -3
+          ],
+          [
+            -3,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            -3
+          ]
+        ],
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": [
+          "quartic-controls",
+          "decasteljau-levels",
+          "parameter-0.5"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        }
+      }
+    },
+    {
+      "id": "repeated-interpolation",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/decasteljau?chapter=bezier-curves&activity=repeated-interpolation",
+      "demonstrationId": "decasteljau",
+      "actions": [
+        "prepare decasteljau-quartic",
+        "show decasteljau-scheme",
+        "show decasteljau-full-curve",
+        "set t=0.5",
+        "pause animation"
+      ],
+      "file": "repeated-interpolation.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "ff55fe645c77959f5effb6f13d841f3cdbf3b86132c192fd5e7371cc131bf23c",
+      "scene": {
+        "visibleElementCount": 62,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 31,
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        },
+        "visiblePointCount": 15,
+        "checkedControlPoints": [
+          [
+            -4,
+            -3
+          ],
+          [
+            -3,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            -3
+          ]
+        ],
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              1.75
+            ],
+            [
+              4,
+              -3
+            ]
+          ]
+        ],
+        "checks": [
+          "quartic-controls",
+          "decasteljau-levels",
+          "parameter-0.5"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "point": 15,
+          "curve": 2,
+          "segment": 10
+        }
+      }
+    },
+    {
+      "id": "blending-coefficients",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bernstein?chapter=bezier-curves&activity=blending-coefficients",
+      "demonstrationId": "bernstein",
+      "actions": [
+        "prepare bernstein-default",
+        "set degree=2",
+        "hide stacked-area"
+      ],
+      "file": "blending-coefficients.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "d7c83a4daffaa3025874bb33463b13dc2ffa2997e0dcd22b617dc63262142276",
+      "scene": {
+        "visibleElementCount": 21,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 14,
+          "curve": 3
+        },
+        "visiblePointCount": 0,
+        "checkedControlPoints": [],
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "three-visible-degree-two-basis-functions"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3
+        }
+      }
+    },
+    {
+      "id": "geometric-bounds",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/curve?chapter=bezier-curves&activity=geometric-bounds",
+      "demonstrationId": "bezier",
+      "actions": [
+        "prepare bezier-default",
+        "show control-polygon",
+        "show convex-hull",
+        "hide decasteljau-scheme"
+      ],
+      "file": "geometric-bounds.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "9592919b0499f14146421107f2d5f400f2202f5163add1c7a7542515f1ae71df",
+      "scene": {
+        "visibleElementCount": 37,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 20,
+          "point": 4,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
+        },
+        "visiblePointCount": 4,
+        "checkedControlPoints": [
+          [
+            -4,
+            -3
+          ],
+          [
+            -3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            -2
+          ]
+        ],
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -3
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": [
+          "cubic-curve",
+          "four-control-points",
+          "control-polygon",
+          "convex-hull"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
+        }
+      }
+    },
+    {
+      "id": "transform-shape",
+      "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/affine?chapter=bezier-curves&activity=transform-shape",
+      "demonstrationId": "affine",
+      "actions": [
+        "prepare affine-default",
+        "show control-polygon"
+      ],
+      "file": "transform-shape.png",
+      "width": 720,
+      "height": 440,
+      "sha256": "31d1efb97dc32a94d0f294fd53c675b14d514a70bad0612848a732c3acb72a48",
+      "scene": {
+        "visibleElementCount": 32,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "text": 20,
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 4,
+        "checkedControlPoints": [
+          [
+            -3,
+            2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            -2
+          ]
+        ],
+        "sampledVisibleCurves": [
+          [
+            [
+              -3,
+              2
+            ],
+            [
+              0.375,
+              0
+            ],
+            [
+              3,
+              -2
+            ]
+          ]
+        ],
+        "checks": [
+          "original-affine-cubic",
+          "four-control-points",
+          "control-polygon"
+        ]
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 360,
+        "height": 220,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1,
+          "segment": 3
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Bézier capture math/tooling review
+
+No actionable findings.
+
+Reviewed `scripts/capture-chapter-figures.cjs`, the six manifest records and PNGs, authored activity recipes in `src/learning/chapter/activities.ts`, the Bézier activity URLs/copy, and the live graph defaults. The generator samples actual visible JSXGraph curves at `t = 0, 0.5, 1`, requires the expected control/interpolation points and curve counts, and compares geometry again after capture presentation. These assertions are non-vacuous for the captured scenes: each control set is checked against live board points; the quartic requires all ten `t=0.5` interpolation points; cubic, quartic, affine, and each of the three quadratic Bernstein functions have independent expected samples; the bounds scene requires a visible polygon.
+
+The independently checked geometry matches the authored examples: cubic midpoint `(-0.5, 0.875)`, quartic midpoint `(0, 1.75)` with four De Casteljau rows, Bernstein basis values `(1, 0, 0)`, `(0.25, 0.5, 0.25)`, `(0, 0, 1)` at the sampled parameters in their respective sample columns, and affine starting midpoint `(0.375, 0)`. Recipe actions and all six exact query URLs agree with authored activities. The affine capture shows the untransformed starting curve. The presentation changes camera, visibility of viewport context and label styling; inspected curve/control geometry is unchanged, and all six images show the intended construction without clipping.
+
+Checks: visual inspection of all PNGs; manifest SHA-256 compared with each file; static comparison with authored scene/default and URL sources. No tests or files other than this review note were changed. Limit: I did not rerun the capture generator or production/browser checks; the worker note records its capture run and build provenance, and handler acceptance owns final rebuild/browser verification.

@@ -44,3 +44,30 @@ test('direct chapter entry loads MathJax and typesets again after a language cha
     await waitFor(() => expect(api.typesetPromise).toHaveBeenCalledTimes(2));
     expect(document.getElementById('MathJax-script')).toBe(script);
 });
+
+test('activity figures use full-size captures with bilingual alternatives and captions', async () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
+        <ChapterPage/>
+    </MemoryRouter>);
+    const figures = [...container.querySelectorAll('.chapter-activity-figure')];
+    expect(figures).toHaveLength(6);
+    const images = figures.map(figure => figure.querySelector('img')!);
+    expect(images.map(image => image.getAttribute('src'))).toEqual(expect.arrayContaining([
+        expect.stringMatching(/shape-control/), expect.stringMatching(/curve-parameter/),
+        expect.stringMatching(/repeated-interpolation/), expect.stringMatching(/blending-coefficients/),
+        expect.stringMatching(/geometric-bounds/), expect.stringMatching(/transform-shape/),
+    ]));
+    for (const image of images) {
+        expect(image).toHaveAttribute('width', '720');
+        expect(image).toHaveAttribute('height', '440');
+        expect(image).toHaveAttribute('loading', 'lazy');
+        expect(image.alt).toBeTruthy();
+        expect(image.closest('figure')?.querySelector('figcaption')?.textContent).toBeTruthy();
+    }
+    expect(container.textContent).toContain('Začetni kubični primer');
+    setLanguage('en');
+    await waitFor(() => {
+        expect(images[0].alt).toContain('cubic Bézier curve');
+        expect(figures[5].querySelector('figcaption')?.textContent).toContain('starting cubic example');
+    });
+});

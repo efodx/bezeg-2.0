@@ -9,6 +9,12 @@ import type {BezierActivityId, ChapterBlock, ChapterSection} from './content/bez
 import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
+import shapeControlFigure from '../images/learning/bezier/shape-control.png';
+import curveParameterFigure from '../images/learning/bezier/curve-parameter.png';
+import repeatedInterpolationFigure from '../images/learning/bezier/repeated-interpolation.png';
+import blendingCoefficientsFigure from '../images/learning/bezier/blending-coefficients.png';
+import geometricBoundsFigure from '../images/learning/bezier/geometric-bounds.png';
+import transformShapeFigure from '../images/learning/bezier/transform-shape.png';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -18,63 +24,32 @@ function restoreSectionAnchor(anchor: SectionScrollAnchor) {
     if (section) window.scrollTo(0, Math.max(0, window.scrollY + section.getBoundingClientRect().top - anchor.top));
 }
 
-type Point = readonly [number, number];
-const ordinaryCubic: readonly Point[] = [[-4, -3], [-3, 2], [2, 2], [3, -2]];
-const quartic: readonly Point[] = [[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]];
-const affineCubic: readonly Point[] = [[-3, 2], [0, -2], [1, 2], [3, -2]];
-function choose(n: number, i: number): number {
-    let result = 1;
-    for (let step = 1; step <= i; step++) result = result * (n - step + 1) / step;
-    return result;
-}
-function bezierAt(points: readonly Point[], t: number): Point {
-    const degree = points.length - 1;
-    return points.reduce<[number, number]>((sum, point, index) => {
-        const weight = choose(degree, index) * (1 - t) ** (degree - index) * t ** index;
-        return [sum[0] + point[0] * weight, sum[1] + point[1] * weight];
-    }, [0, 0]);
-}
-function plot([x, y]: Point): Point { return [20 + (x + 4) * 18.5, 90 - (y + 3) * 11]; }
-function pathFor(points: readonly Point[], transformX = 0): string {
-    return Array.from({length: 33}, (_, index) => {
-        const [x, y] = plot(bezierAt(points, index / 32));
-        return `${index === 0 ? 'M' : 'L'}${(x + transformX).toFixed(1)} ${y.toFixed(1)}`;
-    }).join(' ');
-}
-function polygonFor(points: readonly Point[], transformX = 0): string {
-    return points.map(point => { const [x, y] = plot(point); return `${(x + transformX).toFixed(1)},${y.toFixed(1)}`; }).join(' ');
-}
-function dots(points: readonly Point[], transformX = 0) {
-    return points.map((point, index) => { const [x, y] = plot(point); return <circle key={index} cx={x + transformX} cy={y} r="3.5"/>; });
-}
-function ActivityIllustration({activity, language}: {activity: BezierActivityId; language: Language}) {
-    const labels: Record<BezierActivityId, Record<Language, string>> = {
-        'shape-control': {sl: 'Kubična Bézierjeva krivulja, kontrolni poligon in štiri kontrolne točke', en: 'Cubic Bézier curve, its control polygon, and four control points'},
-        'curve-parameter': {sl: 'Krivulja stopnje štiri z označeno točko pri sredinskem parametru', en: 'Degree-four curve with its point marked at the midpoint parameter'},
-        'repeated-interpolation': {sl: 'Pet kontrolnih točk in zaporedne vrstice interpolacije pri sredinskem parametru', en: 'Five control points and successive interpolation rows at the midpoint parameter'},
-        'blending-coefficients': {sl: 'Tri Bernsteinove bazne funkcije stopnje dve', en: 'The three degree-two Bernstein basis functions'},
-        'geometric-bounds': {sl: 'Kubična Bézierjeva krivulja znotraj konveksne ovojnice kontrolnih točk', en: 'Cubic Bézier curve within the convex hull of its control points'},
-        'transform-shape': {sl: 'Kubična Bézierjeva krivulja in ista krivulja po vodoravnem premiku', en: 'Cubic Bézier curve and the same curve after a horizontal translation'},
-    };
-    const mid = (points: readonly Point[]) => points.slice(0, -1).map((point, index) => [(point[0] + points[index + 1][0]) / 2, (point[1] + points[index + 1][1]) / 2] as Point);
-    const [pointX, pointY] = plot(bezierAt(quartic, .5));
-    const paths: Record<BezierActivityId, React.ReactNode> = {
-        'shape-control': <><path d={pathFor(ordinaryCubic)}/><polyline className="chapter-preview-guide" points={polygonFor(ordinaryCubic)}/><g className="chapter-preview-points">{dots(ordinaryCubic)}</g></>,
-        'curve-parameter': <><path d={pathFor(quartic)}/><path className="chapter-preview-track" d={pathFor(quartic)}/><circle className="chapter-preview-moving" cx={pointX} cy={pointY} r="5"/><path className="chapter-preview-guide" d={`M${pointX} ${pointY}V90`}/><text x={pointX + 6} y="105">t = 1/2</text></>,
-        'repeated-interpolation': (() => {
-            const rows: Point[][] = [Array.from(quartic)];
-            while (rows[rows.length - 1].length > 1) rows.push(mid(rows[rows.length - 1]));
-            return <>{rows.map((row, index) => <g key={index} className={index === rows.length - 1 ? 'chapter-preview-points' : 'chapter-preview-row'}><polyline points={polygonFor(row)}/>{dots(row)}</g>)}</>;
-        })(),
-        'blending-coefficients': <><path className="chapter-preview-axis" d="M20 90H168M20 90V20"/>{[0, 1, 2].map(index => {
-            const points = Array.from({length: 33}, (_, sample) => { const t = sample / 32; return [t, choose(2, index) * (1 - t) ** (2 - index) * t ** index] as Point; });
-            const d = points.map(([t, value], sample) => `${sample ? 'L' : 'M'}${(20 + 148 * t).toFixed(1)} ${(90 - 66 * value).toFixed(1)}`).join(' ');
-            return <path key={index} className={`chapter-preview-basis chapter-preview-basis-${index}`} d={d}/>;
-        })}<text x="171" y="94">t</text></>,
-        'geometric-bounds': <><polygon className="chapter-preview-hull" points={polygonFor(ordinaryCubic)}/><path d={pathFor(ordinaryCubic)}/><polyline className="chapter-preview-guide" points={polygonFor(ordinaryCubic)}/></>,
-        'transform-shape': <><path d={pathFor(affineCubic)}/><path className="chapter-preview-alt" d={pathFor(affineCubic, 9.25)}/><polyline className="chapter-preview-guide" points={polygonFor(affineCubic)}/><polyline className="chapter-preview-guide chapter-preview-guide-alt" points={polygonFor(affineCubic, 9.25)}/></>,
-    };
-    return <svg className="chapter-activity-art" viewBox="0 0 190 112" role="img" aria-label={labels[activity][language]} focusable="false">{paths[activity]}</svg>;
+const activityFigures: Record<BezierActivityId, {src: string; alt: Record<Language, string>; caption: Record<Language, string>}> = {
+    'shape-control': {src: shapeControlFigure,
+        alt: {sl: 'Kubična Bézierjeva krivulja, štiri kontrolne točke in črtkani kontrolni poligon.', en: 'A cubic Bézier curve, its four control points, and the dashed control polygon.'},
+        caption: {sl: 'Pripravljena kubična krivulja s kontrolnim poligonom in kontrolnimi točkami.', en: 'The prepared cubic curve with its control polygon and control points.'}},
+    'curve-parameter': {src: curveParameterFigure,
+        alt: {sl: 'Krivulja stopnje štiri in zaporedne točke De Casteljaujeve konstrukcije.', en: 'A degree-four curve with successive points from the De Casteljau construction.'},
+        caption: {sl: 'Pri parametru \\(t = 0{,}5\\) končna interpolirana točka leži na krivulji stopnje štiri.', en: 'At \\(t = 0.5\\), the final interpolated point lies on the degree-four curve.'}},
+    'repeated-interpolation': {src: repeatedInterpolationFigure,
+        alt: {sl: 'Pet kontrolnih točk in vse zaporedne vrstice interpolacije do točke na krivulji.', en: 'Five control points and each successive interpolation row ending at the curve point.'},
+        caption: {sl: 'Pri \\(t = 0{,}5\\) pet kontrolnih točk da štiri, tri, dve in nazadnje eno interpolirano točko.', en: 'At \\(t = 0.5\\), five controls produce rows of four, three, two, then one interpolated point.'}},
+    'blending-coefficients': {src: blendingCoefficientsFigure,
+        alt: {sl: 'Trije grafi Bernsteinovih baznih funkcij stopnje dve na intervalu od nič do ena.', en: 'Three graphs of the degree-two Bernstein basis functions on the interval from zero to one.'},
+        caption: {sl: 'Tri Bernsteinove bazne funkcije druge stopnje na intervalu od nič do ena.', en: 'The three degree-two Bernstein basis functions on the interval from zero to one.'}},
+    'geometric-bounds': {src: geometricBoundsFigure,
+        alt: {sl: 'Kubična Bézierjeva krivulja v osenčeni konveksni ovojnici svojih kontrolnih točk.', en: 'A cubic Bézier curve inside the shaded convex hull of its control points.'},
+        caption: {sl: 'Krivulja leži v konveksni ovojnici kontrolnih točk; prikazan je en konkreten primer.', en: 'The curve lies in the convex hull of its control points; this shows one example.'}},
+    'transform-shape': {src: transformShapeFigure,
+        alt: {sl: 'Začetna kubična Bézierjeva krivulja s kontrolnimi točkami in kontrolnim poligonom.', en: 'The starting cubic Bézier curve with its control points and control polygon.'},
+        caption: {sl: 'Začetni kubični primer za raziskovanje premika, spremembe merila, vrtenja ali zrcaljenja.', en: 'The starting cubic example for exploring translation, scaling, rotation, or reflection.'}},
+};
+function ActivityFigure({activity, language}: {activity: BezierActivityId; language: Language}) {
+    const figure = activityFigures[activity];
+    return <figure className="chapter-activity-figure">
+        <img src={figure.src} alt={figure.alt[language]} width={720} height={440} loading="lazy" decoding="async"/>
+        <figcaption>{figure.caption[language]}</figcaption>
+    </figure>;
 }
 
 function renderParagraph(text: string, links?: readonly {label: string; href: string}[]) {
@@ -98,9 +73,8 @@ function ActivityCard({id, sectionId, language}: {id: BezierActivityId; sectionI
     const copy = bezierActivityCopy[id][language];
     const linkId = `activity-${id}`;
     return <aside className="chapter-activity-card" aria-label={language === 'sl' ? 'Dejavnost za raziskovanje' : 'Graph exploration activity'}>
-        <ActivityIllustration activity={id} language={language}/>
+        <ActivityFigure activity={id} language={language}/>
         <div className="chapter-activity-copy">
-            <p className="chapter-activity-eyebrow">{language === 'sl' ? 'RAZIŠČI' : 'EXPLORE'}</p>
             <h3>{copy.title}</h3>
             <p>{copy.prompt}</p>
             <p className="chapter-activity-return"><span>{language === 'sl' ? 'Vrni se k:' : 'Return to:'}</span> <a href={`#${sectionId}`}>{sectionId === 'control-points' ? (language === 'sl' ? 'razlagi kontrolnih točk' : 'the control-point explanation') : bezierChapter[language].sections.find(section => section.id === sectionId)?.title}</a></p>
