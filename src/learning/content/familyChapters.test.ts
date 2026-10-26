@@ -1,5 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../demonstrations';
+import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import {familyChapters} from './familyChapters';
 
 function withoutMath(source: string) {
@@ -74,5 +75,27 @@ describe('family reading chapters', () => {
                 }
             }
         }
+    });
+
+    test('gives every rational graph link a bilingual investigation prompt and uses its catalog figures', () => {
+        const chapter = familyChapters.find(entry => entry.id === 'rational-curves')!;
+        for (const section of chapter.sections) {
+            for (const id of section.demonstrationIds ?? []) {
+                const prompt = section.investigationPrompts?.[id];
+                expect(prompt?.sl, `${section.id}/${id} Slovenian prompt`).toBeTruthy();
+                expect(prompt?.en, `${section.id}/${id} English prompt`).toBeTruthy();
+            }
+        }
+
+        const figures = chapter.sections.flatMap(section => section.figures ?? []);
+        expect(figures.map(figure => figure.src)).toEqual([
+            demonstrationPreviewAssets.rational,
+            demonstrationPreviewAssets.circle,
+        ]);
+        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
+        expect(captions).toContain('kubični');
+        expect(captions).toContain('three');
+        expect(captions).toContain('kvadratičen');
+        expect(captions).toContain('quarter');
     });
 });
