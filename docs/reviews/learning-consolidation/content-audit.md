@@ -1,0 +1,11 @@
+# Guided example content audit
+
+Every family investigation prompt registered by `familyChapters` is exercised as its own guided example against the real graph factory for its demonstration. The matrix checks its chapter/section owner, requires a prepared scene, applies the complete action sequence to the graph, and checks explicit initial values where the prose relies on them. It covers all 78 prompt/section entries, including repeated prompts in different sections. The per-row comparison is in [content-acceptance-inventory.md](content-acceptance-inventory.md).
+
+The audit found and fixed one starting-display mismatch: the first authored scenes for `spline-cn` and `spline-c2` enabled point labels before their family prompts asked learners to turn labels on (or hide computed points). The family examples now append a hidden-label action, so the label instruction is actionable. Authored multi-frame lesson scenes keep their original state. The inventory lists the prompt, prepared scene and actual extra actions for every row.
+
+The `worked-join` prompt uses the chapter's calculated example. Its left segment is \(L(t)=(t,t^2)\), and its right segment is \(R(s)=(1+s,1+2s+s^2)\), joined at \((1,1)\). The prepared `spline-c1` fixture uses free controls \((0,0),(\tfrac12,0),(\tfrac32,2),(2,4)\), degree two, and continuity one. A real graph test confirms points on both parabolas, the shared join, matching first derivatives, and matching local second derivatives \((0,2)\) (global parameter second derivative \((0,8)\) on each side).
+
+Canonical route identities require exact segment counts, matching demonstrations and true owners. Activity identities require the Bézier chapter and the registered section/demo pair. Temporarily removing both identity-length guards made the added extra-segment family URL regression fail.
+
+Checks: `just unit src/learning/chapter/guidedExamples.test.ts src/learning/content/guidedExampleScenes.test.tsx` passed with 84 tests; `just typecheck` passed. The initial malformed-route test used a wrong fixture because `decasteljau` legitimately owns an activity in the interpolation section; it was corrected to geometric-properties. No content mismatch remains in the audited matrix.

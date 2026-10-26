@@ -1,0 +1,123 @@
+unit: failed (1) in 7.3s; revision dd7c414f6d19b6fb66e8339753a7a8d6fb0e07a9; dirty; log .command-logs\2026-10-26T11-50-53-542Z-68472-9f3407da.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExamples.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.worktrees/consolidated-learning
+
+ ❯ src/learning/chapter/guidedExamples.test.ts (5 tests | 1 failed) 17ms
+   ❯ chapter guided examples (5)
+     × rejects canonical identities with extra segments or a false chapter owner 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamples.test.ts > chapter guided examples > rejects canonical identities with extra segments or a false chapter owner
+AssertionError: expected { owner: { …(2) }, lesson: { …(5) } } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "lesson": {
+    "demonstrationId": "spline-c1",
+    "id": "explore-splines-worked-join-spline-c1",
+    "steps": [
+      {
+        "body": {
+          "en": "Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). What changes if you change the coefficient of \\(s^2\\)?",
+          "sl": "Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Kaj se zgodi, če koeficient pri \\(s^2\\) spremeniš?",
+        },
+        "frames": [
+          {
+            "body": {
+              "en": "Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). What changes if you change the coefficient of \\(s^2\\)?",
+              "sl": "Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Kaj se zgodi, če koeficient pri \\(s^2\\) spremeniš?",
+            },
+            "id": "instruction",
+            "kind": "explanation",
+            "title": {
+              "en": "A worked join of two parabolas",
+              "sl": "Izračunan spoj dveh parabol",
+            },
+          },
+          {
+            "id": "observe",
+            "kind": "observation",
+            "prompt": {
+              "en": "Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). What changes if you change the coefficient of \\(s^2\\)?",
+              "sl": "Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Kaj se zgodi, če koeficient pri \\(s^2\\) spremeniš?",
+            },
+            "title": {
+              "en": "A worked join of two parabolas",
+              "sl": "Izračunan spoj dveh parabol",
+            },
+          },
+        ],
+        "id": "guided-example",
+        "prompt": {
+          "en": "Follow the left piece \\(L(t)=(t,t^2)\\) and right piece \\(R(s)=(1+s,1+2s+s^2)\\). At the join \\((1,1)\\), compare the first derivatives \\((1,2)\\) and second derivatives \\((0,2)\\). What changes if you change the coefficient of \\(s^2\\)?",
+          "sl": "Sledi levemu odseku \\(L(t)=(t,t^2)\\) in desnemu \\(R(s)=(1+s,1+2s+s^2)\\). Pri spoju \\((1,1)\\) primerjaj prve odvode \\((1,2)\\) in druge odvode \\((0,2)\\). Kaj se zgodi, če koeficient pri \\(s^2\\) spremeniš?",
+        },
+        "scene": {
+          "actions": [
+            {
+              "curve": {
+                "continuity": 1,
+                "degree": 2,
+                "points": [Array],
+              },
+              "kind": "prepared-scene",
+              "sceneId": "worked-parabola-join",
+              "source": "lesson-fixture",
+              "view": [
+                -0.25,
+                4.5,
+                2.25,
+                -0.5,
+              ],
+            },
+          ],
+        },
+        "title": {
+          "en": "A worked join of two parabolas",
+          "sl": "Izračunan spoj dveh parabol",
+        },
+      },
+    ],
+    "summary": {
+      "en": "",
+      "sl": "",
+    },
+    "title": {
+      "en": "A worked join of two parabolas",
+      "sl": "Izračunan spoj dveh parabol",
+    },
+  },
+  "owner": {
+    "chapterId": "splines",
+    "sectionId": "worked-join",
+  },
+}
+
+ ❯ src/learning/chapter/guidedExamples.test.ts:28:99
+     26|
+     27|     it('rejects canonical identities with extra segments or a false ch…
+     28|         expect(resolveGuidedExample('?explore=splines.worked-join.spli…
+       |                                                                                                   ^
+     29|         expect(resolveGuidedExample('?example=family.splines.worked-jo…
+     30|         expect(resolveGuidedExample('?example=activity.splines.paramet…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  12:50:55
+   Duration  4.47s (environment 49%, transform 26%, setup 21%, import 3%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
