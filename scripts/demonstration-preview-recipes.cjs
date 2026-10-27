@@ -50,22 +50,49 @@ const targets = {
     sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
-    // Placeholder until task 13 adds surface-view capture; the catalog image is a hand-made neutral placeholder.
-    'patch-tensor': ['Default bicubic dome with control net, boundary curves and iso-curves', []],
+    'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
 };
+
+// Surface demonstrations (`view: 'surface'`) are framed by a camera, not a board window. The camera is the one the
+// route's default Preset ships (patchPresetCollections.ts, bicubic dome: az -0.9, el 0.5, target [0, 0, 1.25]) with the
+// distance "Ponastavi pogled" fits to the 360:220 preview host; the capture asserts the live view has exactly this camera.
+const surfaceCameras = {
+    'patch-tensor': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
+};
+// Projected control points must clear the frame edge by this many CSS pixels, so no control sphere is cropped.
+const SURFACE_FRAME_MARGIN_PX = 6;
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
     id, intent, actions, checkpoint: actions.length ? 'after-explicit-setup' : 'keep-default',
-    framing: window ? {kind: 'coordinate-window', window} : {kind: 'finite-geometry-fit'},
-    annotations: id.startsWith('rational') || id === 'farin' ? 'retain-weight-text-hide-point-names' : 'hide-point-names-retain-concept-text',
+    framing: surfaceCameras[id] ? {kind: 'surface-view', camera: surfaceCameras[id]}
+        : window ? {kind: 'coordinate-window', window} : {kind: 'finite-geometry-fit'},
+    annotations: surfaceCameras[id] ? 'retain-surface-view-native-labels'
+        : id.startsWith('rational') || id === 'farin' ? 'retain-weight-text-hide-point-names' : 'hide-point-names-retain-concept-text',
 }]));
+
+function sameCamera(a, b, tolerance = 1e-9) {
+    return [a.az - b.az, a.el - b.el, a.distance - b.distance, ...a.target.map((v, i) => v - b.target[i])].every(d => Math.abs(d) <= tolerance);
+}
+
+/** Every projected control point lies inside the frame, clear of its edges by the margin. Returns the offenders. */
+function pointsOutsideFrame(points, width, height, margin = SURFACE_FRAME_MARGIN_PX) {
+    return points.filter(p => !(Number.isFinite(p.x) && Number.isFinite(p.y) && p.inFrustum !== false &&
+        p.x >= margin && p.x <= width - margin && p.y >= margin && p.y <= height - margin)).map(p => p.id);
+}
 
 function validateRecipes(demonstrations, registry = recipes) {
     assert.deepEqual(Object.keys(registry).sort(), demonstrations.map(d => d.id).sort(), 'Recipes must exhaustively match shipped IDs');
     for (const [id, recipe] of Object.entries(registry)) {
         assert.equal(recipe.id, id);
         assert.ok(recipe.intent && recipe.annotations && recipe.checkpoint);
-        assert.ok(['coordinate-window', 'finite-geometry-fit'].includes(recipe.framing.kind));
+        const surface = demonstrations.find(d => d.id === id).view === 'surface';
+        assert.ok(surface ? recipe.framing.kind === 'surface-view' : ['coordinate-window', 'finite-geometry-fit'].includes(recipe.framing.kind),
+            `${id}: framing kind ${recipe.framing.kind} does not fit a ${surface ? 'surface' : 'board'} demonstration`);
+        if (surface) {
+            const camera = recipe.framing.camera;
+            assert.ok([camera.az, camera.el, camera.distance].every(Number.isFinite) && camera.distance > 0 &&
+                Array.isArray(camera.target) && camera.target.length === 3 && camera.target.every(Number.isFinite), `${id}: invalid surface camera`);
+        }
         for (const action of recipe.actions) assert.ok(['button', 'toggle', 'range', 'number', 'select'].includes(action.kind), `Unsupported action ${action.kind}`);
     }
 }
@@ -137,6 +164,34 @@ function readLocalizedNumber(value) {
     return Number(normalized);
 }
 
+/** The real surface view publishes its framing on the host; the fake view and a failed WebGL start do not. */
+async function readSurfaceFraming(page) {
+    return page.locator('#jgbox').evaluate(host => {
+        const raw = host.getAttribute('data-surface-framing');
+        return raw ? JSON.parse(raw) : null;
+    });
+}
+
+async function surfaceOutcome(page, id) {
+    await page.waitForFunction(() => {
+        const host = document.querySelector('#jgbox');
+        const raw = host?.getAttribute('data-surface-framing');
+        return !!host?.querySelector('canvas') && !!raw && JSON.parse(raw).points.length > 0;
+    });
+    const framing = await readSurfaceFraming(page);
+    const evidence = await page.locator('#jgbox').evaluate(host => {
+        const canvas = host.querySelector('canvas');
+        // getContext returns the existing context for its own type and null for another: this identifies real WebGL.
+        const contextType = canvas.getContext('webgl2') ? 'webgl2' : canvas.getContext('webgl') ? 'webgl' : 'none';
+        return {contextType, canvas: {width: canvas.clientWidth, height: canvas.clientHeight},
+            readouts: Object.fromEntries([...document.querySelectorAll('[data-readout]')].map(e => [e.dataset.readout, e.querySelector('dd')?.textContent])),
+            controls: [...document.querySelectorAll('input,select')].filter(e => e.closest('main')).map(e => ({label: e.getAttribute('aria-label') || e.labels?.[0]?.textContent, value: e.value, checked: e.type === 'checkbox' ? e.checked : undefined}))};
+    });
+    const result = {view: 'surface', ...evidence, camera: framing.camera, controlPointCount: framing.points.length};
+    assertOutcomeEvidence(id, result);
+    return result;
+}
+
 async function outcome(page, id) {
     const evidence = await page.locator('#jgbox').evaluate(container => {
         const board = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
@@ -154,6 +209,12 @@ async function outcome(page, id) {
 }
 
 function assertOutcomeEvidence(id, evidence) {
+    if (evidence?.view === 'surface') {
+        assert.ok(['webgl', 'webgl2'].includes(evidence.contextType), `${id} surface is not drawn by a real WebGL context`);
+        assert.ok(evidence.controlPointCount > 0 && evidence.camera && Array.isArray(evidence.camera.target), `${id} missing surface control net or camera`);
+        assert.ok(evidence.readouts && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
+        return evidence;
+    }
     assert.ok(evidence && Array.isArray(evidence.points) && evidence.readouts && evidence.reveals && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
     assert.ok(evidence.curves > 0 || id === 'linear-function' && evidence.lines > 0, `${id} has no visible defining curve/line`);
     if (id === 'bernstein') {
@@ -177,7 +238,8 @@ function assertOutcomeEvidence(id, evidence) {
 
 async function applyRecipe(page, recipe) {
     for (const action of recipe.actions) await applyAction(page, action);
-    return outcome(page, recipe.id);
+    return recipe.framing.kind === 'surface-view' ? surfaceOutcome(page, recipe.id) : outcome(page, recipe.id);
 }
 
-module.exports = {recipes, validateRecipes, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence};
+module.exports = {recipes, validateRecipes, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
+    readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX};

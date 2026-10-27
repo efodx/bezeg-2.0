@@ -9,7 +9,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {chromium} = require('playwright');
 const demonstrations = require('../tests/smoke-catalog.cjs');
-const {recipes, validateRecipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
+const {recipes, validateRecipes, applyRecipe, applyAction, settle, readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX} = require('./demonstration-preview-recipes.cjs');
+const {assertNonUniformPixels} = require('./demonstration-preview-png.cjs');
 
 const previewCapture = require('./demonstration-preview-capture-api.cjs');
 const {generateMotions} = previewCapture;
@@ -106,6 +107,70 @@ async function servedBuildProvenance() {
     const actual = crypto.createHash('sha256').update(Buffer.from(await response.arrayBuffer())).digest('hex');
     assert.equal(actual, sha256, 'Capture server module bytes differ from the local production build');
     return {file, sha256};
+}
+
+/**
+ * Surface demonstrations are drawn by WebGL, not JSXGraph: only the host is resized to the preview frame, the recipe
+ * camera is checked against the view's own published framing, and the screenshot of the host is the poster.
+ */
+async function captureSurface(page, demonstration, recipe, outputDirectory) {
+    const host = page.locator('#jgbox');
+    await host.waitFor({state: 'visible'});
+    await host.evaluate((container, size) => {
+        for (const [property, value] of [['border', '0px'], ['width', size.width + 'px'], ['height', size.height + 'px'],
+            ['min-width', size.width + 'px'], ['max-width', size.width + 'px'], ['min-height', size.height + 'px'], ['max-height', size.height + 'px']]) {
+            container.style.setProperty(property, value, 'important');
+        }
+    }, frame);
+    await page.waitForFunction(size => {
+        const raw = document.querySelector('#jgbox')?.getAttribute('data-surface-framing');
+        const framing = raw && JSON.parse(raw);
+        return !!framing && framing.width === size.width && framing.height === size.height;
+    }, frame);
+    await settle(page);
+    // The recipe runs after the resize: a camera fit ("Ponastavi pogled") is computed from the host's aspect ratio.
+    const evidence = await applyRecipe(page, recipe);
+    await settle(page);
+    const framing = await readSurfaceFraming(page);
+    assert.deepEqual([framing.width, framing.height], [frame.width, frame.height], demonstration.id + ' did not resize to the preview frame');
+    assert.ok(sameCamera(framing.camera, recipe.framing.camera), demonstration.id + ' camera differs from its recipe: ' + JSON.stringify(framing.camera));
+    assert.deepEqual(pointsOutsideFrame(framing.points, frame.width, frame.height), [], demonstration.id + ' has control points outside the preview frame');
+
+    const fileName = demonstration.id + '.png';
+    const filePath = path.join(outputDirectory, fileName);
+    const clip = await host.evaluate(container => {
+        const rect = container.getBoundingClientRect();
+        return {x: rect.left, y: rect.top, width: container.clientWidth, height: container.clientHeight};
+    });
+    assert.deepEqual([clip.width, clip.height], [frame.width, frame.height], demonstration.id + ' clip does not match the preview frame');
+    await page.screenshot({path: filePath, clip, animations: 'disabled', caret: 'hide', scale: 'device'});
+    const dimensions = pngDimensions(filePath);
+    assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor},
+        demonstration.id + ' did not capture at the expected 2x preview resolution');
+    const pixelStats = assertNonUniformPixels(fs.readFileSync(filePath), demonstration.id + ' preview');
+    const policy = demonstrations.coordinateContextPolicy(demonstration);
+    return {
+        id: demonstration.id,
+        path: demonstration.path,
+        file: fileName,
+        sha256: hashFile(filePath),
+        image: dimensions,
+        recipe,
+        evidence,
+        posterCheckpoint: recipe.checkpoint,
+        coordinateContextPolicy: policy,
+        axesAndGrid: policy,
+        framing: {
+            kind: 'surface-view',
+            frameCssPixels: frame,
+            camera: framing.camera,
+            projectedControlPoints: framing.points,
+            controlPointMarginCssPixels: SURFACE_FRAME_MARGIN_PX,
+            pixelStats,
+            outOfFrameElements: [],
+        },
+        board: {width: frame.width, height: frame.height, view: 'surface', contextType: evidence.contextType, controlPointCount: evidence.controlPointCount},
+    };
 }
 
 async function presentBoard(boardLocator, demonstration, recipe, configuration = {}) {
@@ -537,6 +602,15 @@ async function main() {
                     `${demonstration.id} did not stay on its exact metadata route`);
                 assert.equal(new URL(page.url()).search, '', `${demonstration.id} unexpectedly has query settings`);
 
+                if (demonstration.view === 'surface') {
+                    const capture = await captureSurface(page, demonstration, recipes[demonstration.id], output);
+                    assert.deepEqual(pageErrors, [], demonstration.id + ' raised a browser error');
+                    if (!expectedDimensions) expectedDimensions = capture.image;
+                    assert.deepEqual(capture.image, expectedDimensions, demonstration.id + ' differs from the common capture dimensions');
+                    captures.push(capture);
+                    console.log('Captured ' + demonstration.id + ': ' + capture.image.width + '×' + capture.image.height + ', surface view, ' + capture.board.controlPointCount + ' control points framed');
+                    continue;
+                }
                 const boardLocator = page.locator('#jgbox');
                 await boardLocator.waitFor({state: 'visible'});
                 await page.waitForFunction(() => {

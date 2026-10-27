@@ -80,6 +80,7 @@ export class ThreeSurfaceView implements SurfaceView {
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
     private lastLayoutKey = '';
+    private lastFramingKey = '';
     private readonly cleanups: Array<() => void> = [];
 
     private disposed = false;
@@ -222,6 +223,7 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.host && this.hostPrev) {
             this.restoreAttr(this.host, 'tabindex', this.hostPrev.tabIndex);
             this.restoreAttr(this.host, 'aria-label', this.hostPrev.aria);
+            this.host.removeAttribute('data-surface-framing');
         }
         this.renderer = null;
         this.canvas = null;
@@ -424,6 +426,30 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.disposed || !this.renderer || !this.glScene || !this.glCamera) return;
         this.renderer.render(this.glScene, this.glCamera);
         this.publishLayout();
+        this.publishFraming();
+    }
+
+    /**
+     * Mirrors the rendered framing onto the host as one read-only `data-surface-framing` attribute: the canvas size, the
+     * camera and every control point projected into canvas pixels. The catalog preview capture reads it as evidence
+     * that the whole net is in frame; nothing in the app reads it back.
+     */
+    private publishFraming(): void {
+        if (!this.host || !this.scene) return;
+        const round = (v: number) => Math.round(v * 1000) / 1000;
+        const camera = this.scene.camera;
+        const framing = {
+            width: this.width, height: this.height,
+            camera: {az: camera.az, el: camera.el, distance: camera.distance, target: [...camera.target]},
+            points: this.scene.points.map(p => {
+                const s = this.project(p.xyz);
+                return {id: p.id, x: round(s.x), y: round(s.y), inFrustum: s.inFrustum};
+            }),
+        };
+        const key = JSON.stringify(framing);
+        if (key === this.lastFramingKey) return;
+        this.lastFramingKey = key;
+        this.host.setAttribute('data-surface-framing', key);
     }
 
     // ---- projection and picking ---------------------------------------

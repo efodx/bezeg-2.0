@@ -121,7 +121,7 @@ const demonstrations = definitions.elements.map(element => {
     const title = messages[entry.title];
     if (!title || title.includes('{')) throw new Error(`Missing plain English catalog title for ${entry.id}: ${entry.title}`);
     if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
-    return {id: entry.id, path: entry.path, family: entry.family, title, heading,
+    return {id: entry.id, path: entry.path, family: entry.family, view: entry.view === 'surface' ? 'surface' : 'board', title, heading,
         hasLesson: availableLessonIds.has(entry.id) && lessonContentIds.has(entry.id)};
 });
 const families = familyCatalog.map(family => {
@@ -202,7 +202,8 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
     if (manifest.version !== 2) throw new Error('Preview manifest must use recipe provenance version 2.');
     if(!/^[a-f0-9]{64}$/.test(manifest.presentationFingerprint || '')) throw new Error('Missing capture-presentation fingerprint.');
     if (!/^[a-f0-9]{40}$/.test(manifest.graphSourceRevision || '') || !/^[a-f0-9]{64}$/.test(manifest.graphSourceFingerprint || '') || !Array.isArray(manifest.graphDirtyFiles)) throw new Error('Missing source revision/fingerprint provenance.');
-    const {recipes, validateRecipes, assertOutcomeEvidence} = require('../scripts/demonstration-preview-recipes.cjs');
+    const {recipes, validateRecipes, assertOutcomeEvidence, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX} = require('../scripts/demonstration-preview-recipes.cjs');
+    const {assertNonUniformPixels} = require('../scripts/demonstration-preview-png.cjs');
     validateRecipes(activeDemonstrations);
     if (manifest.generator !== 'scripts/capture-demonstration-previews.cjs') throw new Error('Preview manifest generator provenance is missing or stale.');
     if (!manifest.capture || manifest.capture.source !== 'live #jgbox from each Demonstration metadata route') {
@@ -269,6 +270,25 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         const digest = crypto.createHash('sha256').update(png).digest('hex');
         if (digest !== capture.sha256) throw new Error(`PNG checksum for ${capture.id} does not match its manifest.`);
         const framing = capture.framing;
+        if (demonstration.view === 'surface') {
+            // A WebGL surface has no board: its evidence is a real render, the recipe camera and a fully framed control net.
+            if (framing?.kind !== 'surface-view' || recipes[capture.id].framing.kind !== 'surface-view') throw new Error(`Surface capture ${capture.id} must carry surface-view framing.`);
+            assertNonUniformPixels(png, `Surface preview ${capture.id}`);
+            if (!framing.camera || !sameCamera(framing.camera, recipes[capture.id].framing.camera) || !sameCamera(capture.evidence.camera, recipes[capture.id].framing.camera)) {
+                throw new Error(`Surface preview camera for ${capture.id} differs from its recipe camera.`);
+            }
+            const points = framing.projectedControlPoints;
+            if (!Array.isArray(points) || points.length === 0 || points.length !== capture.evidence.controlPointCount ||
+                framing.controlPointMarginCssPixels !== SURFACE_FRAME_MARGIN_PX) {
+                throw new Error(`Surface preview ${capture.id} is missing its projected control points.`);
+            }
+            const outside = pointsOutsideFrame(points, frame.width, frame.height);
+            if (outside.length || !Array.isArray(framing.outOfFrameElements) || framing.outOfFrameElements.length !== 0) {
+                throw new Error(`Surface preview ${capture.id} has control points outside its frame: ${outside.join(', ')}.`);
+            }
+            capturesById.set(capture.id, capture);
+            continue;
+        }
         if (!framing || !Array.isArray(framing.boardBoundingBox) || framing.boardBoundingBox.length !== 4 ||
             !framing.boardBoundingBox.every(Number.isFinite) || !framing.sceneBounds ||
             !Number.isFinite(framing.sceneBounds.minX) || !Number.isFinite(framing.sceneBounds.maxX) ||
