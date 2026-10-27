@@ -66,12 +66,13 @@ describe("edits", () => {
         expect(view.last.camera).toEqual(camera);
         expect(view.last.revision).toBe(revision);
     });
-    it("selecting marks the point without a revision bump and is transient, not in the Preset", () => {
+    it("selecting marks and highlights the point with a revision bump (the view redraws polylines on one) and is transient, not in the Preset", () => {
         const {graph, view} = mount();
         const revision = view.last.revision;
         view.emit({kind: "select", pointId: "p-2-2"});
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["p-2-2"]);
-        expect(view.last.revision).toBe(revision);
+        expect(view.last.polylines.filter(p => p.role === "highlight")).toHaveLength(2);
+        expect(view.last.revision).toBeGreaterThan(revision);
         expect(JSON.stringify(graph.getLessonCapabilities().captureState().value)).toContain('"selectedPoint":"p-2-2"');
         expect(JSON.stringify(graph.exportPreset())).not.toContain("p-2-2");
     });
@@ -119,8 +120,9 @@ describe("degree changes", () => {
 
 describe("Presets", () => {
     it("exports the whole patch state in the DTO and re-imports it unchanged", () => {
-        const {graph} = mount();
+        const {graph, view} = mount();
         act(() => graph.setDegree("u", 2));
+        act(() => view.emit({kind: "camera", camera: {...graph.state.camera, az: 1.1, el: 0.3, distance: 13}}));
         act(() => { graph.setParameter("u", 0.3); graph.setParameter("v", 0.8); graph.setDensity("iso", 16); graph.setDensity("shading", 8); graph.setVisibility("showShading", false); });
         act(() => graph.setZMode(true));
         const preset = graph.exportPreset();
@@ -134,6 +136,8 @@ describe("Presets", () => {
         const other = mount();
         act(() => other.graph.importPreset(JSON.parse(JSON.stringify(preset))));
         expect(other.graph.exportPresetData()).toEqual(graph.exportPresetData());
+        expect(other.graph.state.camera).toEqual(graph.state.camera);
+        expect(other.graph.state.camera).toMatchObject({az: 1.1, el: 0.3, distance: 13});
         expect(other.graph.state.zMode).toBe(false);
         expect(other.view.last.mesh).toBeUndefined();
         expect(other.view.last.polylines.filter(p => p.id.startsWith("iso-u-"))).toHaveLength(17);

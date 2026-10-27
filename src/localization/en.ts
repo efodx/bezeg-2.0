@@ -1221,5 +1221,17 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_view_isometric": "Isometric",
     "patch_view_reset": "Reset view",
     "patch_move_height": "Move points in height (z)",
-    "patch_move_height_help": "On touch screens, dragging a point changes only its height z."
+    "patch_move_height_help": "On touch screens, dragging a point changes only its height z.",
+    "patch_parameter_inset_label": "Parameter domain (u, v)",
+    "patch_parameter_inset_help": "Drag the dot inside the unit square to set u and v. Use the sliders above to set them with the keyboard.",
+    "patch_control_point_heading": "Control point",
+    "patch_index_i": "Index i (net row)",
+    "patch_index_j": "Index j (net column)",
+    "patch_no_selection": "No selection",
+    "patch_select_point_help": "Choose a point by its indices or by clicking it in the view to edit its coordinates x, y and z.",
+    "patch_bernstein_heading": "Bernstein weight",
+    "patch_bernstein_weight": "Weight of point b({value0}, {value1})",
+    "patch_bernstein_help": "The weight with which this point contributes to the point S(u, v): the product of the Bernstein polynomials B_i^m(u) · B_j^n(v). All weights together add up to 1.",
+    "patch_camera_azimuth": "Azimuth (°)",
+    "patch_camera_elevation": "Elevation (°)"
 };

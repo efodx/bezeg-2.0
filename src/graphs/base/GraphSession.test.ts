@@ -186,3 +186,58 @@ test('a throwing main-view disposer does not stop the rest of the disposal', () 
     expect(() => session.dispose()).not.toThrow();
     expect(later).toHaveBeenCalledTimes(1);
 });
+
+describe('auxiliary boards', () => {
+    function sessionWithAuxiliaries() {
+        const main = createBoard();
+        const first = createBoard();
+        const second = createBoard();
+        const boards = [main, first, second];
+        const initBoard = vi.fn(() => boards.shift() as Board);
+        const freeBoard = vi.fn();
+        const session = new GraphSession({initBoard, freeBoard} as GraphSessionDependencies);
+        return {session, main, first, second, freeBoard};
+    }
+
+    test('frees each auxiliary board exactly once on release or disposal, before the main board', () => {
+        const {session, main, first, second, freeBoard} = sessionWithAuxiliaries();
+        session.createBoard('jgbox', {} as any);
+        const one = session.createAuxiliaryBoard(document.createElement('div'), {} as any);
+        const two = session.createAuxiliaryBoard(document.createElement('div'), {} as any);
+        expect(one.board).toBe(first);
+
+        one.release();
+        one.release();
+        expect(freeBoard).toHaveBeenCalledTimes(1);
+        expect(freeBoard).toHaveBeenLastCalledWith(first);
+
+        session.dispose();
+        session.dispose();
+        two.release();
+        expect(freeBoard.mock.calls.map(call => call[0])).toEqual([first, second, main]);
+    });
+
+    test('removes the pointer-origin refresh with the board and refreshes it while the board lives', () => {
+        const {session, first} = sessionWithAuxiliaries();
+        session.createBoard('jgbox', {} as any);
+        const aux = session.createAuxiliaryBoard(document.createElement('div'), {} as any);
+        first.cPos = [1, 2];
+        first.containerObj.dispatchEvent(new Event('pointerdown'));
+        expect(first.cPos).toEqual([]);
+        aux.release();
+        first.cPos = [1, 2];
+        first.containerObj.dispatchEvent(new Event('pointerdown'));
+        expect(first.cPos).toEqual([1, 2]);
+        session.dispose();
+    });
+
+    test('is refused on a session without a main view and on a disposed session', () => {
+        const {session} = sessionWithAuxiliaries();
+        expect(() => session.createAuxiliaryBoard(document.createElement('div'), {} as any)).toThrow();
+        session.adoptMainView(() => undefined);
+        const aux = session.createAuxiliaryBoard(document.createElement('div'), {} as any);
+        session.dispose();
+        expect(() => session.createAuxiliaryBoard(document.createElement('div'), {} as any)).toThrow();
+        aux.release();
+    });
+});

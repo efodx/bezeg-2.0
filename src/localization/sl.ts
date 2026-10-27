@@ -1220,5 +1220,17 @@ export const sl = {
     "patch_view_isometric": "Izometrično",
     "patch_view_reset": "Ponastavi pogled",
     "patch_move_height": "Premikanje točk po višini (z)",
-    "patch_move_height_help": "Na zaslonih na dotik povlečenje točke spremeni samo njeno višino z."
+    "patch_move_height_help": "Na zaslonih na dotik povlečenje točke spremeni samo njeno višino z.",
+    "patch_parameter_inset_label": "Parametrično območje (u, v)",
+    "patch_parameter_inset_help": "Povleci piko po enotskem kvadratu, da nastaviš u in v. Za nastavljanje s tipkovnico uporabi drsnika zgoraj.",
+    "patch_control_point_heading": "Kontrolna točka",
+    "patch_index_i": "Indeks i (vrstica mreže)",
+    "patch_index_j": "Indeks j (stolpec mreže)",
+    "patch_no_selection": "Brez izbire",
+    "patch_select_point_help": "Izberi točko z indeksoma ali s klikom v pogledu, da urediš njene koordinate x, y in z.",
+    "patch_bernstein_heading": "Bernsteinova utež",
+    "patch_bernstein_weight": "Utež točke b({value0}, {value1})",
+    "patch_bernstein_help": "Utež, s katero ta točka prispeva k točki S(u, v): produkt Bernsteinovih polinomov B_i^m(u) · B_j^n(v). Vse uteži skupaj dajo 1.",
+    "patch_camera_azimuth": "Azimut (°)",
+    "patch_camera_elevation": "Višinski kot (°)"
 } as const;

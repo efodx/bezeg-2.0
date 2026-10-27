@@ -1,11 +1,14 @@
+import type {Board, Point} from "jsxgraph";
 import type React from "react";
+import type {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
-import {TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPatchPanelActions} from "./TensorPatchPanels";
+import {PatchSelection, TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPatchPanelActions} from "./TensorPatchPanels";
+import {patchBernsteinWeight} from "./patchBernstein";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
-import {buildTensorScene, patchFromNet, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
-import {CameraPresetName, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
+import {buildTensorScene, patchFromNet, patchPointId, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
+import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
 export const MIN_PATCH_DEGREE = 1;
@@ -30,6 +33,12 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     /** Vertical-drag mode of the view; a mode of the session, not saved in Presets. */
     zMode: boolean;
 }
+
+const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
+const INSET_BOARD_OPTIONS = {
+    boundingBox: INSET_BOUNDING_BOX, axis: false, keepAspectRatio: true, showNavigation: false, showCopyright: false,
+    showScreenshot: false, showFullscreen: false, pan: {enabled: false}, zoom: {wheel: false, pinch: false},
+};
 
 const DEFAULT_ISO_DENSITY: PatchDensity = 8;
 const DEFAULT_SHADING_DENSITY: PatchDensity = 16;
@@ -157,6 +166,36 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         this.setState(parameter === "u" ? {u: clamped} : {v: clamped});
     }
 
+    /** Sets both parameters in one write (the inset drag); non-finite values are ignored, others clamp to [0, 1]. */
+    setParameters(u: number, v: number): void {
+        if (!Number.isFinite(u) || !Number.isFinite(v)) return;
+        this.setState({u: clamp(u, 0, 1), v: clamp(v, 0, 1)});
+    }
+
+    /** Selects control point `b_ij` like a click in the view; an index outside the net, or undefined, clears the selection. */
+    selectIndex(i: number | undefined, j: number | undefined): void {
+        if (i === undefined && j === undefined) {
+            this.selectPoint(undefined);
+            return;
+        }
+        const current = this.selectedPointId === undefined ? undefined : parsePatchPointId(this.selectedPointId);
+        this.selectPoint(patchPointId(i ?? current?.[0] ?? 0, j ?? current?.[1] ?? 0));
+    }
+
+    /** Moves the selected control point to `xyz`; nothing happens without a selection or for a non-finite coordinate. */
+    setSelectedCoordinates(xyz: Xyz): void {
+        if (this.selectedPointId !== undefined) this.movePoint(this.selectedPointId, xyz);
+    }
+
+    /** Sets the orbit az or el from degrees; el stays within the range of the preset views. */
+    setCameraAngle(angle: "az" | "el", degrees: number): void {
+        if (!Number.isFinite(degrees)) return;
+        const radians = degrees * Math.PI / 180;
+        const camera = this.state.camera;
+        const maxElevation = CAMERA_PRESETS.top.el;
+        this.setSurfaceState({camera: angle === "az" ? {...camera, az: radians} : {...camera, el: clamp(radians, -maxElevation, maxElevation)}});
+    }
+
     setVisibility(key: PatchVisibility, visible: boolean): void {
         this.setState({[key]: visible});
     }
@@ -198,10 +237,99 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         applyCameraPreset: name => this.applyCameraPreset(name),
         resetView: () => this.resetView(),
         setZMode: zMode => this.setZMode(zMode),
+        selectIndex: (i, j) => this.selectIndex(i, j),
+        setSelectedCoordinates: coordinates => this.setSelectedCoordinates(coordinates),
+        setCameraAngle: (angle, degrees) => this.setCameraAngle(angle, degrees),
+        setInsetContainer: container => this.setInsetContainer(container),
     };
 
+    private selection(): PatchSelection | undefined {
+        const index = this.selectedPointId === undefined ? undefined : parsePatchPointId(this.selectedPointId);
+        if (index === undefined || index[0] > this.state.m || index[1] > this.state.n) return undefined;
+        const [i, j] = index;
+        const {m, n, u, v, net} = this.state;
+        return {i, j, xyz: net[i][j], weight: patchBernsteinWeight(m, n, i, j, u, v)};
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} actions={this.panelActions}/></>;
+        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions}/></>;
+    }
+
+    // ---- Parameter-domain inset --------------------------------------------------------------------------------
+
+    private insetContainer?: HTMLElement;
+    protected inset?: {board: Board; point: Point; release: () => void};
+
+    /**
+     * Shows the unit square of (u, v) in `container`, a JSXGraph board owned by the session; null (or a new container)
+     * releases the previous board. The panel calls this from a ref, so the board lives as long as the control does.
+     */
+    protected setInsetContainer(container: HTMLElement | null): void {
+        if (container === (this.insetContainer ?? null) && this.inset) return;
+        this.releaseInset();
+        this.insetContainer = container ?? undefined;
+        this.mountInset();
+    }
+
+    private releaseInset(): void {
+        const inset = this.inset;
+        this.inset = undefined;
+        inset?.release();
+    }
+
+    private mountInset(): void {
+        const session = this.graphSession, container = this.insetContainer;
+        if (!container || !session?.isAlive || this.inset) return;
+        const {board, release} = session.createAuxiliaryBoard(container, INSET_BOARD_OPTIONS);
+        board.create("polygon", [[0, 0], [1, 0], [1, 1], [0, 1]], {
+            vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "#eef2e6", fillOpacity: 1,
+            highlightFillColor: "#eef2e6", highlightFillOpacity: 1, borders: {strokeColor: "#526950", strokeWidth: 2, highlight: false, fixed: true},
+        });
+        board.create("text", [1.04, -0.09, "u"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
+        board.create("text", [-0.09, 1.04, "v"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
+        const point = board.create("point", [this.state.u, this.state.v], {
+            name: "", size: 6, fillColor: "#ca5c37", strokeColor: "#ca5c37", highlightFillColor: "#ca5c37", highlightStrokeColor: "#ca5c37",
+            showInfobox: false, snapToGrid: false,
+        });
+        point.on("drag", () => {
+            const u = clamp(point.X(), 0, 1), v = clamp(point.Y(), 0, 1);
+            // Keep the dot inside the square while the pointer is outside it.
+            if (u !== point.X() || v !== point.Y()) point.moveTo([u, v]);
+            this.setParameters(u, v);
+        });
+        let observer: ResizeObserver | undefined;
+        if (typeof ResizeObserver !== "undefined") {
+            observer = new ResizeObserver(entries => {
+                const {width, height} = entries[0]?.contentRect ?? {width: 0, height: 0};
+                if (width <= 0 || height <= 0 || this.inset?.board !== board) return;
+                board.resizeContainer(width, height, true, true);
+                board.setBoundingBox(INSET_BOUNDING_BOX, true);
+            });
+            observer.observe(container);
+        }
+        const stop = session.registerCleanup(() => {
+            observer?.disconnect();
+            if (this.inset?.board === board) this.inset = undefined;
+        });
+        this.inset = {board, point, release: () => { stop(); release(); }};
+    }
+
+    /** The inset dot follows the store: sliders, Reset, Presets and lesson scene writes all move it. */
+    private syncInset(): void {
+        const point = this.inset?.point;
+        if (!point || (point.X() === this.state.u && point.Y() === this.state.v)) return;
+        point.moveTo([this.state.u, this.state.v]);
+    }
+
+    protected override createMainView(session: GraphSession, container: HTMLElement): void {
+        super.createMainView(session, container);
+        // A panel that stayed mounted across a remount asks again for its board.
+        this.mountInset();
+    }
+
+    protected override onStateChange(previous: Readonly<TensorPatchGraphState>): void {
+        super.onStateChange(previous);
+        this.syncInset();
     }
 
     protected override workspaceDisplay(): React.ReactNode {

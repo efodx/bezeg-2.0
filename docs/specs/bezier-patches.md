@@ -175,6 +175,8 @@ Slovenian is the default. `sl.ts` and `en.ts` stay in lockstep with typed keys.
 | iso-curve (isoparametric curve) | **izoparametrična krivulja** | diameter.si *Krivulje in ploskve* "izo-parametričnih krivulj". Prose may say *krivulja pri stalnem \(u\)* |
 | parameter domain | **parametrično območje** (unit square / reference triangle: *enotski kvadrat* / *referenčni trikotnik*) | Chosen; standard analysis wording |
 | barycentric coordinates | **baricentrične koordinate** | Standard |
+| Bernstein weight of a control point | **Bernsteinova utež točke** | Reuses *Bernsteinovi polinomi* and the app's *utež*; the weight is the product \(B_i^m(u)B_j^n(v)\) |
+| camera azimuth / elevation | **azimut** / **višinski kot** | Standard spherical-angle wording (geodesy, astronomy; sl.wikipedia *Višinski kot*); no UL CAGD source covers camera angles |
 | partial derivative | **parcialni odvod** | Standard |
 | tangent plane / normal | **tangentna ravnina** / **normala** | Standard |
 | twist vector | **mešani odvod** (on first mention: *mešani odvod oz. vektor zasuka, angl. twist*) | No Slovenian source found. The mixed partial \(S_{uv}\) is standard calculus vocabulary, so it is primary; *vektor zasuka* is a gloss only. |

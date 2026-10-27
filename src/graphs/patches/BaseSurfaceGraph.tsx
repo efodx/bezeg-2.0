@@ -105,6 +105,8 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         const next = pointId !== undefined && this.hasPoint(pointId) ? pointId : undefined;
         if (next === this.selectedPointIdValue) return;
         this.selectedPointIdValue = next;
+        // The selected point's row and column are scene polylines, which the view rebuilds only on a new revision.
+        this.revision++;
         this.reconcileView();
         this.requestRender();
     }

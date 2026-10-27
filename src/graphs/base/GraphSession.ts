@@ -61,14 +61,41 @@ export class GraphSession {
         const board = this.dependencies.initBoard(container, options);
         this.board = board;
         sessionsByBoard.set(board, this);
-        // JSXGraph caches the container position for a second (and throughout drags).
-        // A scroll or inspector layout change can move it before the next gesture.
-        // Capture runs before JSXGraph's native target listener and our board handlers,
-        // so both dragging and curve editing use the same fresh pointer origin.
+        this.refreshPointerOriginOnPointerDown(board);
+        return board;
+    }
+
+    /**
+     * Create a JSXGraph board that the session owns besides its main view (for example a parameter-domain inset).
+     * The board is freed exactly once: by the returned `release` (for example when the control showing it unmounts) or
+     * when the session is disposed, whichever comes first.
+     */
+    createAuxiliaryBoard(container: string | HTMLElement, options: GraphBoardOptions): {board: Board; release: () => void} {
+        if (!this.isAlive) throw new Error("An inactive graph session cannot create an auxiliary board.");
+        const board = this.dependencies.initBoard(container, options);
+        const stopRefreshingOrigin = this.refreshPointerOriginOnPointerDown(board);
+        let released = false;
+        const release = () => {
+            if (released) return;
+            released = true;
+            stopRefreshingOrigin();
+            unregister();
+            this.dependencies.freeBoard(board);
+        };
+        const unregister = this.registerCleanup(release);
+        return {board, release};
+    }
+
+    /**
+     * JSXGraph caches the container position for a second (and throughout drags).
+     * A scroll or inspector layout change can move it before the next gesture.
+     * Capture runs before JSXGraph's native target listener and our board handlers,
+     * so both dragging and curve editing use the same fresh pointer origin.
+     */
+    private refreshPointerOriginOnPointerDown(board: Board): () => void {
         const refreshPointerOrigin = () => { board.cPos = []; };
         board.containerObj.addEventListener('pointerdown', refreshPointerOrigin, true);
-        this.registerCleanup(() => board.containerObj.removeEventListener('pointerdown', refreshPointerOrigin, true));
-        return board;
+        return this.registerCleanup(() => board.containerObj.removeEventListener('pointerdown', refreshPointerOrigin, true));
     }
 
     /**

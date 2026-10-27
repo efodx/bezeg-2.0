@@ -52,6 +52,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 | robna krivulja | boundary curve |
 | izoparametrična krivulja | isoparametric curve (iso-curve) |
 | baricentrične koordinate | barycentric coordinates |
+| Bernsteinova utež točke | Bernstein weight of a control point |
+| azimut / višinski kot | azimuth / elevation (camera) |
 | mešani odvod | twist (mixed partial derivative) |
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).

@@ -1,4 +1,5 @@
 import {defaultPatchPresets} from "./patchPresetCollections";
+import {bernstein, patchBernsteinWeight} from "./patchBernstein";
 import {buildTensorScene, CURVE_SAMPLES, parsePatchPointId, patchPointId, TensorSceneInput} from "./patchSceneBuilder";
 import type {SurfaceCamera, Xyz} from "./surface-view/surfaceScene";
 import {assertFiniteScene} from "./surface-view/surfaceScene";
@@ -73,5 +74,47 @@ describe("buildTensorScene", () => {
         const scene = buildTensorScene(input({net, u: 0.5, v: 0.5}), 1);
         expect(scene.points).toHaveLength(16);
         expect(scene.markers[0].xyz[2]).toBeGreaterThan(1);
+    });
+    it("highlights the row and column of the selected point with the net's own points", () => {
+        // net[i][j]: row i holds b_i0..b_in, column j holds b_0j..b_mj.
+        const net: Xyz[][] = [[[0, 0, 0], [0, 1, 0], [0, 2, 0]], [[1, 0, 0], [1, 1, 5], [1, 2, 0]]];
+        const scene = buildTensorScene(input({net, selectedPointId: "p-1-2"}), 1);
+        const highlights = scene.polylines.filter(p => p.role === "highlight");
+        expect(highlights.map(p => p.id)).toEqual(["highlight-row", "highlight-col"]);
+        expect(highlights[0].points).toEqual(net[1]);
+        expect(highlights[1].points).toEqual([[0, 2, 0], [1, 2, 0]]);
+    });
+    it("highlights nothing without a selection, with the net hidden, or for an index the net lacks", () => {
+        const count = (over: Partial<TensorSceneInput>) => buildTensorScene(input(over), 1).polylines.filter(p => p.role === "highlight").length;
+        expect(count({})).toBe(0);
+        expect(count({selectedPointId: "p-0-0", showControlNet: false})).toBe(0);
+        expect(count({selectedPointId: "p-2-0"})).toBe(0);
+        expect(count({selectedPointId: "p-0-2"})).toBe(0);
+        expect(buildTensorScene(input({selectedPointId: "p-2-0"}), 1).points.some(p => p.selected)).toBe(false);
+        expect(count({selectedPointId: "p-0-1"})).toBe(2);
+    });
+});
+
+describe("Bernstein weights", () => {
+    it("sum to one over all (i, j) at any (u, v), for every degree pair", () => {
+        for (let m = 1; m <= 4; m++) for (let n = 1; n <= 4; n++) for (const [u, v] of [[0, 0], [0.13, 0.9], [0.5, 0.5], [1, 0.37]]) {
+            let sum = 0;
+            for (let i = 0; i <= m; i++) for (let j = 0; j <= n; j++) sum += patchBernsteinWeight(m, n, i, j, u, v);
+            expect(sum).toBeCloseTo(1, 12);
+        }
+    });
+    it("has exact known values", () => {
+        // B_1^3(0.25) = 3 * 0.25 * 0.75^2 = 27/64; B_2^2(0.5) = 1/4
+        expect(bernstein(3, 1, 0.25)).toBeCloseTo(27 / 64, 14);
+        expect(patchBernsteinWeight(3, 2, 1, 2, 0.25, 0.5)).toBeCloseTo(27 / 256, 14);
+        expect(patchBernsteinWeight(1, 1, 0, 1, 0.25, 0.75)).toBeCloseTo(0.75 * 0.75, 14);
+    });
+    it("reproduces S(u, v) as the weighted sum of the net", () => {
+        const net: Xyz[][] = [[[0, 0, 0], [0, 1, 2], [0, 2, 0]], [[1, 0, 1], [1, 1, 5], [1, 2, 1]], [[3, 0, 0], [3, 1, 2], [3, 2, 0]]];
+        const [u, v] = [0.3, 0.8];
+        const sum: number[] = [0, 0, 0];
+        net.forEach((row, i) => row.forEach((p, j) => p.forEach((c, k) => { sum[k] += patchBernsteinWeight(2, 2, i, j, u, v) * c; })));
+        const marker = buildTensorScene(input({net, u, v}), 1).markers[0].xyz;
+        sum.forEach((c, k) => expect(c).toBeCloseTo(marker[k], 12));
     });
 });

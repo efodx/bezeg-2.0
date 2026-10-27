@@ -63,10 +63,19 @@ export function buildTensorScene(input: TensorSceneInput, revision: number): Sur
         input.net.forEach((row, i) => polylines.push({id: `net-row-${i}`, role: "net", points: row.map(p => [...p])}));
         for (let j = 0; j <= n; j++) polylines.push({id: `net-col-${j}`, role: "net", points: input.net.map(row => [...row[j]])});
     }
+    const selected = input.selectedPointId === undefined ? undefined : parsePatchPointId(input.selectedPointId);
+    // A selection the net no longer has (a lowered degree, before the host clears it) marks and highlights nothing.
+    const selectedIndex = selected !== undefined && selected[0] < input.net.length && selected[1] <= n ? selected : undefined;
+    if (input.showControlNet && selectedIndex !== undefined) {
+        const [i, j] = selectedIndex;
+        polylines.push({id: "highlight-row", role: "highlight", points: input.net[i].map(p => [...p])});
+        polylines.push({id: "highlight-col", role: "highlight", points: input.net.map(row => [...row[j]])});
+    }
+    const selectedId = selectedIndex === undefined ? undefined : patchPointId(selectedIndex[0], selectedIndex[1]);
     const points = input.showControlNet
         ? input.net.flatMap((row, i) => row.map((p, j) => {
             const id = patchPointId(i, j);
-            return {id, xyz: [...p] as Xyz, ...(id === input.selectedPointId ? {selected: true} : {})};
+            return {id, xyz: [...p] as Xyz, ...(id === selectedId ? {selected: true} : {})};
         }))
         : [];
     const mesh = input.showShading ? patch.sampleMesh(input.shadingDensity) : undefined;
