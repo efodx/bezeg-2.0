@@ -4,6 +4,7 @@ import type {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {PatchSelection, TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPatchPanelActions} from "./TensorPatchPanels";
 import {patchBernsteinWeight} from "./patchBernstein";
+import {lowerNetDegree} from "./patchDegree";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
@@ -131,14 +132,17 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         const index = parsePatchPointId(pointId);
         if (index === undefined || !position.every(Number.isFinite)) return;
         const [i, j] = index;
+        // A drag's start repeats the point's own position; keeping the net avoids a pointless geometry rebuild.
+        if (this.state.net[i]?.[j]?.every((value, axis) => value === position[axis])) return;
         this.setState({net: this.state.net.map((row, r) => r === i ? row.map((p, c): Xyz => c === j ? [...position] : p) : row)});
     }
 
     // ---- Operations the controls call --------------------------------------------------------------------------
 
     /**
-     * Raising a degree is exact elevation. Lowering resamples the current surface at (i/m', j/n'): the corners are
-     * kept, the interior is an approximation.
+     * Raising a degree is exact elevation. Lowering changes only the chosen direction: each row or column curve is
+     * replaced by the lower-degree curve that interpolates it at k/degree. That is exact when the surface already has
+     * the lower degree and keeps the corners; the other direction's control points are untouched.
      */
     setDegree(direction: PatchDirection, degree: number): void {
         const current = direction === "u" ? this.state.m : this.state.n;
@@ -150,11 +154,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
             for (let d = current; d < degree; d++) raised = raised.elevate(direction);
             net = raised.getControlNet().map(row => row.map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0]));
         } else {
-            const m = direction === "u" ? degree : this.state.m, n = direction === "v" ? degree : this.state.n;
-            net = Array.from({length: m + 1}, (_, i) => Array.from({length: n + 1}, (_, j): Xyz => {
-                const p = source.eval(i / m, j / n);
-                return [p.X(), p.Y(), p.Z()];
-            }));
+            net = lowerNetDegree(this.state.net, direction, degree);
         }
         this.setState({m: net.length - 1, n: net[0].length - 1, net});
         this.selectPoint(this.selectedPointId);

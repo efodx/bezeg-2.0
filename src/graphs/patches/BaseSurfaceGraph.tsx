@@ -72,6 +72,8 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.view = view;
         this.host = container;
         this.viewIsNew = true;
+        // A fresh view starts available, whatever an earlier view (or a restored checkpoint) left in the store.
+        this.setViewUnavailable(session, false);
         const overlay = new SurfaceLabelOverlay(container, this.typeset);
         this.labelOverlay = overlay;
         session.adoptMainView(() => {
@@ -90,11 +92,23 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
             // The listener also fires on figure-export state changes; only an actual language change needs a new label.
             if (currentLanguage() === language) return;
             language = currentLanguage();
-            view.setAriaLabel(t("surface_view_label"));
+            view.setAriaLabel(t("surface_view_label"), t("surface_view_keys"));
         }));
-        view.attach(container, {ariaLabel: t("surface_view_label")}).catch(() => {
-            if (this.graphSession === session && session.isAlive) this.setSurfaceState({surfaceUnavailable: true});
+        view.attach(container, {
+            ariaLabel: t("surface_view_label"),
+            description: t("surface_view_keys"),
+            onContextLost: () => this.setViewUnavailable(session, true),
+            onContextRestored: () => this.setViewUnavailable(session, false),
+        }).catch((error: unknown) => {
+            console.warn("The surface view could not start.", error);
+            this.setViewUnavailable(session, true);
         });
+    }
+
+    private setViewUnavailable(session: GraphSession, unavailable: boolean): void {
+        if (this.graphSession !== session || !session.isAlive) return;
+        this.viewUnavailable = unavailable;
+        if (this.state.surfaceUnavailable !== unavailable) this.setSurfaceState({surfaceUnavailable: unavailable});
     }
 
     private applyEdit(session: GraphSession, edit: SurfaceEdit): void {
@@ -148,9 +162,16 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.reconcileView();
     }
 
+    /**
+     * Whether the live view cannot draw (it failed to start, or its WebGL context is lost). The store flag
+     * `surfaceUnavailable` shows it; a scene replacement may bring a stale flag back, so this is what it is checked against.
+     */
+    private viewUnavailable = false;
+
     /** A scene replacement (Preset, reset, lesson checkpoint) always changes the geometry. */
     protected override syncReplacedScene(): void {
         this.revision++;
+        if (this.state.surfaceUnavailable !== this.viewUnavailable) this.setSurfaceState({surfaceUnavailable: this.viewUnavailable});
         this.reconcileView();
     }
 
@@ -171,6 +192,14 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     /** All surface state lives in the Preset data (`state`); the Preset's `graphState` only marks it initialized. */
     override exportPreset(): Preset<D> {
         return {id: this.presets()!, graphState: {initialized: true}, data: this.exportPresetData()};
+    }
+
+    /**
+     * Only the Preset's `data` (checked by the patch collection) sets surface state. A stored or imported `graphState`
+     * is ignored, so it cannot put a degree or density into the state that the net does not match.
+     */
+    override importPreset(preset: Preset): void {
+        super.importPreset({...preset, graphState: {initialized: true}});
     }
 
     /** A figure scene replaces the whole state after importing, so it must keep the imported surface. */

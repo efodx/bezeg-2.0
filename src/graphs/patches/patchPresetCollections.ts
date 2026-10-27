@@ -57,6 +57,13 @@ function patchCollection(key: string, type: PatchTypeName): PresetCollection<Pat
     };
     return Object.freeze({
         key,
+        /** A patch Preset keeps its whole state in `data`; `graphState` only marks it initialized. */
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const unknown = Object.keys(graphState).find(field => field !== "initialized");
+            if (unknown !== undefined) return message("unknown_patch_field", {value0: `graphState.${unknown}`});
+            return graphState.initialized === undefined || typeof graphState.initialized === "boolean" ? undefined : message("invalid_state");
+        },
         check(data: unknown): PresetDataCheck<PatchCollectionPresetData> {
             const rejection = check(data);
             // The entry was checked above against its patch type's DTO rules.

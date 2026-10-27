@@ -41,6 +41,13 @@ describe('surface camera math', () => {
         expect(CAMERA_PRESETS.isometric.az).toBeCloseTo(Math.PI / 4, 12);
     });
 
+    it('every preset lies within the orbit limit, so a drag from a preset does not jump', () => {
+        for (const preset of Object.values(CAMERA_PRESETS)) {
+            expect(orbit({...camera, ...preset}, 0, 0).el).toBe(preset.el);
+        }
+        expect(orbit({...camera, ...CAMERA_PRESETS.top}, 0, 1).el).toBe(CAMERA_PRESETS.top.el);
+    });
+
     it('clamps elevation and distance', () => {
         expect(clampElevation(5)).toBe(MAX_ELEVATION);
         expect(orbit(camera, 0, 100000).el).toBe(MAX_ELEVATION);

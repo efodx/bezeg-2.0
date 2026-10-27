@@ -22,6 +22,28 @@ export interface TensorSceneInput {
     readonly selectedPointId?: string;
 }
 
+/**
+ * The facets of a density-d mesh deviate from the surface by up to a chord error. This samples it where it is largest
+ * for a smooth cell, the cell centre against the midpoint of the facets' shared diagonal, and doubles it to cover the
+ * edge midpoints and grazing views. Cached per net, so camera events do not resample.
+ */
+const chordToleranceCache = new WeakMap<object, Map<number, number>>();
+function chordTolerance(patch: TensorProductBezierPatch, net: object, mesh: {vertices: readonly Point[]}, density: number): number {
+    const perNet = chordToleranceCache.get(net) ?? new Map<number, number>();
+    chordToleranceCache.set(net, perNet);
+    const cached = perNet.get(density);
+    if (cached !== undefined) return cached;
+    const stride = density + 1;
+    let deviation = 0;
+    for (let i = 0; i < density; i++) for (let j = 0; j < density; j++) {
+        const b = mesh.vertices[(i + 1) * stride + j], d = mesh.vertices[i * stride + j + 1];
+        const centre = patch.eval((i + 0.5) / density, (j + 0.5) / density);
+        deviation = Math.max(deviation, Math.hypot(centre.X() - (b.X() + d.X()) / 2, centre.Y() - (b.Y() + d.Y()) / 2, centre.Z() - ((b.Z?.() ?? 0) + (d.Z?.() ?? 0)) / 2));
+    }
+    perNet.set(density, 2 * deviation);
+    return 2 * deviation;
+}
+
 /** Samples per iso and boundary curve; enough for degree 4 to look smooth. */
 export const CURVE_SAMPLES = 32;
 
@@ -88,7 +110,8 @@ export function buildTensorScene(input: TensorSceneInput, revision: number): Sur
         revision,
         points,
         polylines,
-        ...(mesh ? {mesh: {positions: mesh.vertices.flatMap(xyz), faces: mesh.faces.flatMap(face => [...face]), visible: true}} : {}),
+        ...(mesh ? {mesh: {positions: mesh.vertices.flatMap(xyz), faces: mesh.faces.flatMap(face => [...face]), visible: true,
+            chordTolerance: chordTolerance(patch, input.net, mesh, input.shadingDensity)}} : {}),
         markers: [{id: "evaluated", xyz: anchor, role: "evaluated"}],
         labels: [
             {id: "surface-point", text: "S(u,v)", anchor},

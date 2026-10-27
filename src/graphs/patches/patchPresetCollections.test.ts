@@ -9,6 +9,7 @@ import {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-pa
 import {tensorPatchFromDto, tensorPatchToDto, triangularPatchFromDto, triangularPatchToDto} from "./patchDto";
 import {fitCameraTo} from "./surface-view/surfaceMath";
 import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
+import {preflightPresetImport} from "../base/presets/PresetImport";
 
 afterEach(() => setLanguage("sl"));
 const collection = patchPresetCollections["patch-tensor"];
@@ -148,5 +149,27 @@ describe("rejections carry exact localized reasons", () => {
 
     it("an unknown camera field names the field", () => {
         expect(texts(tensor({state: {camera: {...camera, fov: 1}}})).en).toBe("unknown patch field: camera.fov");
+    });
+});
+
+describe("graphState of a file", () => {
+    const file = (graphState: unknown) => JSON.stringify({"preset-patch-tensor": {data: [{id: "mine", graphState}]}});
+    const reasonFor = (graphState: unknown): string | undefined => {
+        try { preflightPresetImport(file(graphState), window.localStorage); } catch (error) { return (error as Error).message; }
+        return undefined;
+    };
+
+    it("accepts the marker the exporter writes", () => {
+        expect(reasonFor({initialized: true})).toBeUndefined();
+    });
+    it.each([
+        ["degree", {m: 99}, "m"],
+        ["density", {isoDensity: 100000}, "isoDensity"],
+        ["parameter", {u: 7}, "u"],
+    ])("rejects a %s with the field named", (_name, graphState, field) => {
+        expect(reasonFor(graphState)).toContain(`graphState.${field}`);
+    });
+    it("rejects a non-object", () => {
+        expect(reasonFor(5)).toBeDefined();
     });
 });

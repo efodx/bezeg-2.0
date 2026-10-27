@@ -12,6 +12,8 @@ export interface PresetCollection<D> {
     readonly key: string;
     /** Checks one Preset's `data` (present, not null). */
     check(data: unknown): PresetDataCheck<D>;
+    /** Replaces the generic `graphState` check for collections whose Preset keeps all scene state in `data`. */
+    checkGraphState?(graphState: unknown): Message | undefined;
 }
 
 export const isRecord = (value: unknown): value is Record<string, unknown> =>

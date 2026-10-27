@@ -9,6 +9,9 @@ export class FakeSurfaceView implements SurfaceView {
     scenes: SurfaceScene[] = [];
     disposed = 0;
     labels: string[] = [];
+    descriptions: string[] = [];
+    /** The options of the last `attach`, so tests can fire the context callbacks. */
+    attachOptions?: AttachOptions;
     attached?: HTMLElement;
     /** What `capture()` returns; unset, it rejects. */
     captureResult?: SurfaceCapture;
@@ -19,12 +22,14 @@ export class FakeSurfaceView implements SurfaceView {
     constructor(private readonly attachResult: Promise<void> = Promise.resolve()) {}
     attach(host: HTMLElement, options?: AttachOptions): Promise<void> {
         this.attached = host;
+        this.attachOptions = options;
         this.labels.push(options?.ariaLabel ?? "");
+        this.descriptions.push(options?.description ?? "");
         return this.attachResult;
     }
     reconcile(scene: SurfaceScene): void { this.scenes.push(scene); }
     onEdit(listener: (edit: SurfaceEdit) => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
-    setAriaLabel(label: string): void { this.labels.push(label); }
+    setAriaLabel(label: string, description?: string): void { this.labels.push(label); this.descriptions.push(description ?? ""); }
     onLayout(listener: (labels: LabelLayout[]) => void): () => void { this.layoutListeners.add(listener); return () => { this.layoutListeners.delete(listener); }; }
     capture(): Promise<SurfaceCapture> {
         this.captures++;

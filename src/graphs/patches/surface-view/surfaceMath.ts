@@ -1,13 +1,14 @@
 import type {SurfaceCamera, Xyz} from './surfaceScene';
 
 export const FOV_DEG = 38;
-export const MAX_ELEVATION = 1.35;
+/** The steepest elevation: the top preset sits exactly at the orbit limit, so the first drag from it does not jump. */
+export const MAX_ELEVATION = 1.54;
 export const MIN_DISTANCE = 1.5;
 export const MAX_DISTANCE = 80;
 
 export const CAMERA_PRESETS = {
     front: {az: 0, el: 0},
-    top: {az: 0, el: 1.54},
+    top: {az: 0, el: MAX_ELEVATION},
     side: {az: Math.PI / 2, el: 0.06},
     isometric: {az: Math.PI / 4, el: 0.55},
 } as const;

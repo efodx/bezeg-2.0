@@ -1,6 +1,6 @@
 import {defaultPatchPresets} from "./patchPresetCollections";
 import {bernstein, patchBernsteinWeight} from "./patchBernstein";
-import {buildTensorScene, CURVE_SAMPLES, parsePatchPointId, patchPointId, TensorSceneInput} from "./patchSceneBuilder";
+import {buildTensorScene, CURVE_SAMPLES, patchFromNet, parsePatchPointId, patchPointId, TensorSceneInput} from "./patchSceneBuilder";
 import type {SurfaceCamera, Xyz} from "./surface-view/surfaceScene";
 import {assertFiniteScene} from "./surface-view/surfaceScene";
 
@@ -130,5 +130,31 @@ describe("scene labels", () => {
         expect(selectedLabel({})).toBeUndefined();
         expect(selectedLabel({selectedPointId: "p-0-0", showControlNet: false})).toBeUndefined();
         expect(selectedLabel({selectedPointId: "p-5-5"})).toBeUndefined();
+    });
+});
+
+describe("mesh chord tolerance", () => {
+    const bump: Xyz[][] = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map((j): Xyz => [i, j, i === 0 || i === 3 || j === 0 || j === 3 ? 0 : 6]));
+    const flat: Xyz[][] = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map((j): Xyz => [i, j, 0]));
+
+    it("is zero for a flat patch and covers the facet sag of a strongly curved one", () => {
+        expect(buildTensorScene(input({net: flat}), 1).mesh?.chordTolerance).toBeCloseTo(0, 12);
+        const scene = buildTensorScene(input({net: bump}), 1);
+        const tolerance = scene.mesh!.chordTolerance!;
+        expect(tolerance).toBeGreaterThan(0);
+        // The middle cell's centre: the surface against the midpoint of the facets' shared diagonal, read from the mesh.
+        const p = scene.mesh!.positions;
+        const z = (i: number, j: number) => p[(i * 9 + j) * 3 + 2];
+        const sag = Math.abs(patchFromNet(bump).eval(4.5 / 8, 4.5 / 8).Z() - (z(5, 4) + z(4, 5)) / 2);
+        expect(sag).toBeGreaterThan(0.1);
+        expect(sag).toBeLessThan(tolerance);
+    });
+    it("shrinks as the mesh gets denser", () => {
+        const coarse = buildTensorScene(input({net: bump, shadingDensity: 8}), 1).mesh!.chordTolerance!;
+        const fine = buildTensorScene(input({net: bump, shadingDensity: 16}), 1).mesh!.chordTolerance!;
+        expect(fine).toBeLessThan(coarse / 2);
+    });
+    it("is omitted with the mesh", () => {
+        expect(buildTensorScene(input({showShading: false}), 1).mesh).toBeUndefined();
     });
 });

@@ -68,9 +68,9 @@ function harness(deferred = false): Harness {
     return Object.assign(h, {view, host, renderer, release: release ?? (() => undefined)});
 }
 
-function fire(el: EventTarget, type: string, x: number, y: number, init: MouseEventInit = {}): void {
+function fire(el: EventTarget, type: string, x: number, y: number, init: MouseEventInit = {}, pointerId = 1): void {
     const e = new MouseEvent(type, {clientX: x, clientY: y, bubbles: true, cancelable: true, ...init});
-    Object.assign(e, {pointerId: 1, pointerType: 'touch'});
+    Object.assign(e, {pointerId, pointerType: 'touch'});
     el.dispatchEvent(e);
 }
 
@@ -328,6 +328,135 @@ describe('ThreeSurfaceView interaction', () => {
         const open = await h.view.capture();
         expect(open.labels.find(l => l.id === 'l-p11')!.visible).toBe(true);
         h.view.dispose();
+    });
+});
+
+describe('ThreeSurfaceView touch zoom', () => {
+    async function ready() {
+        const h = harness();
+        await h.view.attach(h.host);
+        h.view.reconcile(makeScene());
+        const edits: SurfaceEdit[] = [];
+        h.view.onEdit(e => edits.push(e));
+        const canvas = h.host.querySelector('canvas')!;
+        const capture = vi.fn();
+        const release = vi.fn();
+        canvas.setPointerCapture = capture;
+        canvas.releasePointerCapture = release;
+        return {h, edits, canvas, capture, release};
+    }
+    const distanceOf = (edit: SurfaceEdit | undefined) => (edit as Extract<SurfaceEdit, { kind: 'camera' }>).camera.distance;
+
+    it('two fingers moving apart zoom in, together zoom out, and no orbit edit is emitted', async () => {
+        const {h, edits, canvas} = await ready();
+        const base = makeScene().camera.distance;
+        fire(canvas, 'pointerdown', 10, 100, {}, 1);
+        fire(canvas, 'pointerdown', 50, 100, {}, 2);
+        fire(canvas, 'pointermove', 90, 100, {}, 2);
+        expect(edits.map(e => e.kind)).toEqual(['camera']);
+        expect(distanceOf(edits[0])).toBeCloseTo(base * 40 / 80, 9);
+        fire(canvas, 'pointermove', 20, 100, {}, 2);
+        expect(distanceOf(edits[1])).toBeGreaterThan(distanceOf(edits[0]));
+        h.view.dispose();
+    });
+
+    it('a second finger during a point drag ends the drag where it is and releases its capture', async () => {
+        const {h, edits, canvas, release} = await ready();
+        const p = await screenOf(h.view, 'p11');
+        fire(canvas, 'pointerdown', p.x, p.y, {}, 1);
+        fire(canvas, 'pointermove', p.x + 15, p.y + 5, {}, 1);
+        const before = edits.length;
+        fire(canvas, 'pointerdown', 200, 150, {}, 2);
+        const ended = edits.slice(before);
+        expect(ended).toHaveLength(1);
+        expect(ended[0]).toMatchObject({kind: 'point', pointId: 'p11', phase: 'end'});
+        expect(release).toHaveBeenCalledWith(1);
+        // Neither finger drags the point any more.
+        fire(canvas, 'pointermove', p.x + 40, p.y, {}, 1);
+        expect(edits.slice(before + 1).every(e => e.kind === 'camera')).toBe(true);
+        h.view.dispose();
+    });
+
+    it('lifting a finger ends the pinch, releases both captures and the other finger does not orbit', async () => {
+        const {h, edits, canvas, release} = await ready();
+        fire(canvas, 'pointerdown', 10, 100, {}, 1);
+        fire(canvas, 'pointerdown', 50, 100, {}, 2);
+        fire(canvas, 'pointerup', 50, 100, {}, 2);
+        expect(release).toHaveBeenCalledWith(1);
+        expect(release).toHaveBeenCalledWith(2);
+        fire(canvas, 'pointermove', 80, 100, {}, 1);
+        expect(edits).toEqual([]);
+        // A new gesture works again.
+        fire(canvas, 'pointerdown', 30, 100, {}, 3);
+        fire(canvas, 'pointermove', 60, 100, {}, 3);
+        expect(edits.map(e => e.kind)).toEqual(['camera']);
+        h.view.dispose();
+    });
+});
+
+describe('ThreeSurfaceView accessibility and context loss', () => {
+    it('the host is an application region with a short name and key help as its description, restored on dispose', async () => {
+        const h = harness();
+        h.host.setAttribute('role', 'group');
+        await h.view.attach(h.host, {ariaLabel: 'Surface', description: 'Arrow keys orbit.'});
+        expect(h.host.getAttribute('role')).toBe('application');
+        expect(h.host.getAttribute('aria-label')).toBe('Surface');
+        const describedBy = h.host.getAttribute('aria-describedby')!;
+        expect(document.getElementById(describedBy)?.textContent).toBe('Arrow keys orbit.');
+        h.view.setAriaLabel('Ploskev', 'Tipke.');
+        expect(document.getElementById(describedBy)?.textContent).toBe('Tipke.');
+        h.view.dispose();
+        expect(h.host.getAttribute('role')).toBe('group');
+        expect(h.host.hasAttribute('aria-describedby')).toBe(false);
+        expect(document.getElementById(describedBy)).toBeNull();
+    });
+
+    it('reports a lost context, stops drawing, and draws again once it is restored', async () => {
+        const h = harness();
+        const lost = vi.fn(), restored = vi.fn();
+        await h.view.attach(h.host, {onContextLost: lost, onContextRestored: restored});
+        h.view.reconcile(makeScene());
+        const canvas = h.host.querySelector('canvas')!;
+        const event = new Event('webglcontextlost', {cancelable: true});
+        canvas.dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(true);
+        expect(lost).toHaveBeenCalledTimes(1);
+        const drawn = h.renderer.rendered.length;
+        h.view.reconcile(makeScene({revision: 2}));
+        await new Promise(resolve => setTimeout(resolve, 40));
+        expect(h.renderer.rendered).toHaveLength(drawn);
+        canvas.dispatchEvent(new Event('webglcontextrestored'));
+        expect(restored).toHaveBeenCalledTimes(1);
+        await vi.waitFor(() => expect(h.renderer.rendered.length).toBeGreaterThan(drawn));
+        h.view.dispose();
+    });
+});
+
+describe('ThreeSurfaceView surface label occlusion', () => {
+    // A coarse facet at z = 0 seen from above; the label sits on the "true" surface just behind it.
+    const scene = (anchorZ: number, chordTolerance?: number) => makeScene({
+        mesh: {positions: [-20, -20, 0, 20, -20, 0, 0, 20, 0], faces: [0, 1, 2], visible: true, ...(chordTolerance === undefined ? {} : {chordTolerance})},
+        camera: {az: 0, el: 0.6, distance: 12, projection: 'perspective', target: [0, 0, 0]},
+        labels: [{id: 'surface', text: 'S', anchor: [0, 0, anchorZ]}],
+    });
+    const visibleLabel = async (s: SurfaceScene) => {
+        const h = harness();
+        await h.view.attach(h.host);
+        h.view.reconcile(s);
+        const cap = await h.view.capture();
+        h.view.dispose();
+        return cap.labels[0].visible;
+    };
+
+    it('is hidden by a facet in front of it without a tolerance, shown within the chord tolerance, hidden beyond it', async () => {
+        expect(await visibleLabel(scene(-0.05))).toBe(false);
+        expect(await visibleLabel(scene(-0.05, 0.1))).toBe(true);
+        expect(await visibleLabel(scene(-0.5, 0.1))).toBe(false);
+    });
+    it('a control point label keeps the strict test', async () => {
+        const s = scene(-0.05, 0.1);
+        s.labels = [{id: 'p', text: 'P', anchor: [0, 0, -0.05], pointId: 'p00'}];
+        expect(await visibleLabel(s)).toBe(false);
     });
 });
 

@@ -61,6 +61,19 @@ const OCCLUSION_EPS = 1e-3;
 const DEFAULT_WIDTH = 300;
 const DEFAULT_HEIGHT = 200;
 
+interface PinchState {
+    /** The two pointers, by id, with their last canvas position. */
+    pointers: Map<number, { x: number; y: number }>;
+    lastDistance: number;
+}
+
+let descriptionCounter = 0;
+
+function pinchDistance(pointers: Map<number, { x: number; y: number }>): number {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
 interface DragState {
     kind: 'point' | 'orbit';
     pointerId: number;
@@ -86,12 +99,16 @@ export class ThreeSurfaceView implements SurfaceView {
     private disposed = false;
     private attachStarted = false;
     private ariaLabel = '';
+    private description = '';
+    private contextCallbacks: Pick<AttachOptions, 'onContextLost' | 'onContextRestored'> = {};
+    private contextLost = false;
+    private descriptionEl: HTMLElement | null = null;
     private scene: SurfaceScene | null = null;
     private appliedRevision = -1;
 
     private three: Three | null = null;
     private host: HTMLElement | null = null;
-    private hostPrev: { tabIndex: string | null; aria: string | null } | null = null;
+    private hostPrev: { tabIndex: string | null; aria: string | null; role: string | null; describedBy: string | null } | null = null;
     private canvas: HTMLCanvasElement | null = null;
     private renderer: RendererLike | null = null;
     private glScene: ThreeNs.Scene | null = null;
@@ -105,6 +122,8 @@ export class ThreeSurfaceView implements SurfaceView {
     private width = DEFAULT_WIDTH;
     private height = DEFAULT_HEIGHT;
     private drag: DragState | null = null;
+    /** Two touches that zoom; while it is set no drag is active. */
+    private pinch: PinchState | null = null;
 
     // Shared resources, disposed in dispose().
     private shared: Array<{ dispose(): void }> = [];
@@ -129,6 +148,8 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.attachStarted) throw new Error('Surface view is already attached');
         this.attachStarted = true;
         if (options.ariaLabel !== undefined) this.ariaLabel = options.ariaLabel;
+        if (options.description !== undefined) this.description = options.description;
+        this.contextCallbacks = {onContextLost: options.onContextLost, onContextRestored: options.onContextRestored};
         const three = await this.loadThree();
         if (this.disposed) return;
         this.three = three;
@@ -162,9 +183,13 @@ export class ThreeSurfaceView implements SurfaceView {
         };
     }
 
-    setAriaLabel(label: string): void {
+    setAriaLabel(label: string, description?: string): void {
         this.ariaLabel = label;
-        if (this.host && !this.disposed) this.host.setAttribute('aria-label', label);
+        if (description !== undefined) this.description = description;
+        if (this.host && !this.disposed) {
+            this.host.setAttribute('aria-label', label);
+            if (this.descriptionEl) this.descriptionEl.textContent = this.description;
+        }
     }
 
     async capture(): Promise<SurfaceCapture> {
@@ -179,7 +204,10 @@ export class ThreeSurfaceView implements SurfaceView {
         const labels: LabelLayout[] = [];
         for (const label of this.scene?.labels ?? []) {
             const p = this.project(label.anchor);
-            const visible = p.inFrustum && !this.isOccluded(label.anchor, label.pointId);
+            // A label on the surface itself (no control point) sits on the true surface, which the faceted mesh may
+            // overlap by its chord error; a control point label is off the surface and keeps the strict test.
+            const slack = label.pointId === undefined ? this.scene?.mesh?.chordTolerance ?? 0 : 0;
+            const visible = p.inFrustum && !this.isOccluded(label.anchor, label.pointId, slack);
             labels.push({id: label.id, text: label.text, x: p.x, y: p.y, visible});
         }
         return labels;
@@ -223,6 +251,9 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.host && this.hostPrev) {
             this.restoreAttr(this.host, 'tabindex', this.hostPrev.tabIndex);
             this.restoreAttr(this.host, 'aria-label', this.hostPrev.aria);
+            this.restoreAttr(this.host, 'role', this.hostPrev.role);
+            this.restoreAttr(this.host, 'aria-describedby', this.hostPrev.describedBy);
+            this.descriptionEl?.remove();
             this.host.removeAttribute('data-surface-framing');
         }
         this.renderer = null;
@@ -234,6 +265,8 @@ export class ThreeSurfaceView implements SurfaceView {
         this.surfaceMesh = null;
         this.editListeners.clear();
         this.drag = null;
+        this.pinch = null;
+        this.descriptionEl = null;
         this.host = null;
         this.three = null;
     }
@@ -271,9 +304,22 @@ export class ThreeSurfaceView implements SurfaceView {
         renderer.setClearColor(0xffffff, 1);
         renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 2));
 
-        this.hostPrev = {tabIndex: host.getAttribute('tabindex'), aria: host.getAttribute('aria-label')};
+        this.hostPrev = {
+            tabIndex: host.getAttribute('tabindex'), aria: host.getAttribute('aria-label'),
+            role: host.getAttribute('role'), describedBy: host.getAttribute('aria-describedby'),
+        };
         host.tabIndex = 0;
+        // The host takes arrow, plus and minus keys itself, so it is an application region: a short name, with the
+        // key help as its description.
+        host.setAttribute('role', 'application');
         if (this.ariaLabel) host.setAttribute('aria-label', this.ariaLabel);
+        const description = document.createElement('span');
+        description.id = `surface-view-keys-${++descriptionCounter}`;
+        description.hidden = true;
+        description.textContent = this.description;
+        host.appendChild(description);
+        this.descriptionEl = description;
+        host.setAttribute('aria-describedby', description.id);
         host.appendChild(canvas);
 
         const scene = new T.Scene();
@@ -306,6 +352,8 @@ export class ThreeSurfaceView implements SurfaceView {
         this.listen(canvas, 'pointermove', (e: PointerEvent) => this.onPointerMove(e));
         this.listen(canvas, 'pointerup', (e: PointerEvent) => this.onPointerEnd(e, false));
         this.listen(canvas, 'pointercancel', (e: PointerEvent) => this.onPointerEnd(e, true));
+        this.listen(canvas, 'webglcontextlost', (e: Event) => this.onContextLost(e));
+        this.listen(canvas, 'webglcontextrestored', () => this.onContextRestored());
         this.listen(canvas, 'wheel', (e: WheelEvent) => this.onWheel(e), {passive: false});
         this.listen(host, 'keydown', (e: KeyboardEvent) => this.onKey(e));
         if (typeof ResizeObserver !== 'undefined') {
@@ -423,7 +471,7 @@ export class ThreeSurfaceView implements SurfaceView {
     }
 
     private renderNow(): void {
-        if (this.disposed || !this.renderer || !this.glScene || !this.glCamera) return;
+        if (this.disposed || this.contextLost || !this.renderer || !this.glScene || !this.glCamera) return;
         this.renderer.render(this.glScene, this.glCamera);
         this.publishLayout();
         this.publishFraming();
@@ -464,8 +512,11 @@ export class ThreeSurfaceView implements SurfaceView {
         };
     }
 
-    /** True when the mesh or another control point lies between the camera and xyz. */
-    private isOccluded(xyz: Xyz, ownPointId?: string): boolean {
+    /**
+     * True when the mesh or another control point lies between the camera and xyz. The mesh must lie more than
+     * `meshSlack` in front of xyz to count, so an anchor on the true surface is not hidden by its own facets.
+     */
+    private isOccluded(xyz: Xyz, ownPointId?: string, meshSlack = 0): boolean {
         const T = this.three!;
         const origin = this.glCamera!.position;
         const target = new T.Vector3(...xyz);
@@ -476,7 +527,7 @@ export class ThreeSurfaceView implements SurfaceView {
         const blockers: ThreeNs.Object3D[] = [];
         if (this.surfaceMesh?.visible) blockers.push(this.surfaceMesh);
         for (const [id, m] of this.pointMeshes) if (id !== ownPointId) blockers.push(m);
-        return ray.intersectObjects(blockers, false).some(h => h.distance < dist - OCCLUSION_EPS);
+        return ray.intersectObjects(blockers, false).some(h => h.distance < dist - OCCLUSION_EPS - (h.object === this.surfaceMesh ? meshSlack : 0));
     }
 
     private pickPoint(x: number, y: number): string | null {
@@ -504,6 +555,23 @@ export class ThreeSurfaceView implements SurfaceView {
 
     // ---- input ---------------------------------------------------------
 
+    /** The browser dropped the GL context (GPU reset): keep it restorable, stop drawing and say so. */
+    private onContextLost(e: Event): void {
+        e.preventDefault();
+        if (this.disposed) return;
+        this.contextLost = true;
+        this.contextCallbacks.onContextLost?.();
+    }
+
+    /** Three re-creates its GL state itself; the next frame draws the scene again. */
+    private onContextRestored(): void {
+        if (this.disposed) return;
+        this.contextLost = false;
+        this.lastLayoutKey = '';
+        this.requestRender();
+        this.contextCallbacks.onContextRestored?.();
+    }
+
     private emit(edit: SurfaceEdit): void {
         for (const l of [...this.editListeners]) l(edit);
     }
@@ -517,6 +585,11 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.disposed || !this.scene || (e.pointerType === 'mouse' && e.button !== 0)) return;
         this.host?.focus?.({preventScroll: true});
         const {x, y} = this.local(e);
+        if (this.pinch) return;
+        if (this.drag) {
+            this.startPinch(e.pointerId, x, y);
+            return;
+        }
         this.canvas!.setPointerCapture?.(e.pointerId);
         const pointId = this.pickPoint(x, y);
         const base = {pointerId: e.pointerId, startX: x, startY: y, lastX: x, lastY: y};
@@ -536,6 +609,32 @@ export class ThreeSurfaceView implements SurfaceView {
         this.emit({kind: 'point', pointId, xyz: [...start], phase: 'start'});
     }
 
+    /**
+     * A second pointer while one is dragging: the gesture becomes a pinch. A point drag ends where it is, so the
+     * edit's start/end pair stays balanced, and the first pointer's capture is released.
+     */
+    private startPinch(secondId: number, x: number, y: number): void {
+        const first = this.drag!;
+        this.drag = null;
+        this.canvas?.releasePointerCapture?.(first.pointerId);
+        this.canvas?.setPointerCapture?.(secondId);
+        if (first.kind === 'point') this.emit({kind: 'point', pointId: first.pointId!, xyz: first.last ?? first.startXyz!, phase: 'end'});
+        const pointers = new Map([[first.pointerId, {x: first.lastX, y: first.lastY}], [secondId, {x, y}]]);
+        this.pinch = {pointers, lastDistance: pinchDistance(pointers)};
+    }
+
+    private movePinch(id: number, x: number, y: number): void {
+        const pinch = this.pinch!;
+        const finger = pinch.pointers.get(id);
+        if (!finger || !this.scene) return;
+        finger.x = x;
+        finger.y = y;
+        const distance = pinchDistance(pinch.pointers);
+        // Fingers moving apart (a larger distance) bring the camera closer.
+        if (pinch.lastDistance > 0 && distance > 0) this.emit({kind: 'camera', camera: zoom(this.scene.camera, pinch.lastDistance / distance)});
+        pinch.lastDistance = distance;
+    }
+
     private dragPosition(d: DragState, x: number, y: number, shift: boolean): Xyz {
         const start = d.startXyz!;
         if (shift || this.scene?.interaction.zMode) {
@@ -547,6 +646,11 @@ export class ThreeSurfaceView implements SurfaceView {
     }
 
     private onPointerMove(e: PointerEvent): void {
+        if (this.pinch && !this.disposed) {
+            const {x, y} = this.local(e);
+            this.movePinch(e.pointerId, x, y);
+            return;
+        }
         const d = this.drag;
         if (this.disposed || !d || d.pointerId !== e.pointerId || !this.scene) return;
         const {x, y} = this.local(e);
@@ -562,8 +666,21 @@ export class ThreeSurfaceView implements SurfaceView {
     }
 
     private onPointerEnd(e: PointerEvent, cancelled: boolean): void {
+        if (this.disposed) return;
+        if (this.pinch) {
+            // Either finger lifting ends the pinch; the other one does not start a drag.
+            if (this.pinch.pointers.has(e.pointerId)) {
+                for (const id of this.pinch.pointers.keys()) this.canvas?.releasePointerCapture?.(id);
+                this.pinch = null;
+            }
+            return;
+        }
         const d = this.drag;
-        if (this.disposed || !d || d.pointerId !== e.pointerId) return;
+        if (!d || d.pointerId !== e.pointerId) {
+            // A pointer that never became a drag (a locked point) still holds its capture.
+            this.canvas?.releasePointerCapture?.(e.pointerId);
+            return;
+        }
         this.drag = null;
         this.canvas?.releasePointerCapture?.(e.pointerId);
         if (d.kind !== 'point' || !this.scene) return;

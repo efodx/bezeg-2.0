@@ -26,7 +26,7 @@ function isBoundingBox(value: unknown) {
 function checkPreset(collection: PresetCollection<unknown>, preset: Record<string, unknown>) {
     if (preset.boardState !== undefined && !(isRecord(preset.boardState) && isBoundingBox(preset.boardState.boundingBox))) fail(message("invalid_graph_bounds"));
     if (preset.graphState !== undefined) {
-        const invalid = checkSceneState(preset.graphState);
+        const invalid = collection.checkGraphState ? collection.checkGraphState(preset.graphState) : checkSceneState(preset.graphState);
         if (invalid) fail(invalid);
     }
     if (preset.data !== undefined) {

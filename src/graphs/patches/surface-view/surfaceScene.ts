@@ -28,6 +28,11 @@ export interface SceneMesh {
     /** Triangle vertex indices (multiple of 3). */
     faces: number[];
     visible: boolean;
+    /**
+     * How far the facets may lie in front of the surface they approximate (world units). A label anchored on the true
+     * surface is not hidden by facets that close; unset means 0.
+     */
+    chordTolerance?: number;
 }
 
 export interface SceneMarker {
@@ -91,6 +96,11 @@ export interface SurfaceCapture {
 export interface AttachOptions {
     /** Accessible name for the focusable host; supplied by the host (localized). */
     ariaLabel?: string;
+    /** Keyboard help for the host, exposed through `aria-describedby`; supplied by the host (localized). */
+    description?: string;
+    /** The WebGL context was lost: the view cannot draw until `onContextRestored`. */
+    onContextLost?: () => void;
+    onContextRestored?: () => void;
 }
 
 export interface SurfaceView {
@@ -98,7 +108,7 @@ export interface SurfaceView {
     /** Renders plain data; never emits edits. May be called before attach resolves. */
     reconcile(scene: SurfaceScene): void;
     onEdit(listener: (edit: SurfaceEdit) => void): () => void;
-    setAriaLabel(label: string): void;
+    setAriaLabel(label: string, description?: string): void;
     /**
      * Subscribes to the projected, occlusion-tested label layout. It is delivered after a render in which the layout
      * changed (camera, scene or resize), never for an unchanged layout, and not after dispose. Returns an unsubscribe.

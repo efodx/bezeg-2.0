@@ -14,6 +14,7 @@ afterEach(() => setLanguage("sl"));
 
 class ExposedGraph extends TensorPatchGraph {
     figureState() { return this.figurePresetGraphState(); }
+    replaceScene() { this.syncReplacedScene(); }
 }
 
 function mount(view = new FakeSurfaceView()) {
@@ -37,11 +38,23 @@ describe("default scene", () => {
         expect(graph.state.m).toBe(3);
         expect(view.last.markers[0].xyz[2]).toBeGreaterThan(1);
         expect(view.labels).toEqual([t("surface_view_label")]);
+        expect(view.descriptions).toEqual([t("surface_view_keys")]);
         expect(graph.getWorkspacePanels({}).title).toBeDefined();
     });
 });
 
 describe("edits", () => {
+    it("a drag start at the point's own position keeps the net and does not rebuild the geometry", () => {
+        const {graph, view} = mount();
+        const net = graph.state.net;
+        view.emit({kind: "select", pointId: "p-1-2"});
+        const revision = view.last.revision;
+        view.emit({kind: "point", pointId: "p-1-2", xyz: [...net[1][2]], phase: "start"});
+        expect(graph.state.net).toBe(net);
+        expect(view.last.revision).toBe(revision);
+        view.emit({kind: "point", pointId: "p-1-2", xyz: [net[1][2][0], net[1][2][1], 9], phase: "move"});
+        expect(graph.state.net).not.toBe(net);
+    });
     it("a point move changes the net and bumps the revision", () => {
         const {graph, view} = mount();
         const before = view.last.revision;
@@ -107,6 +120,25 @@ describe("degree changes", () => {
         expect([graph.state.m, graph.state.n]).toEqual([1, 2]);
         corners.forEach(([u, v], k) => close(at(graph, u, v), before[k]));
     });
+    it("lowering u leaves the v direction untouched and lowering after raising restores the net", () => {
+        const {graph} = mount();
+        const original = graph.state.net;
+        act(() => graph.setDegree("u", 4));
+        act(() => graph.setDegree("u", 3));
+        graph.state.net.forEach((row, i) => row.forEach((p, j) => close(p, original[i][j], 12)));
+        act(() => graph.setDegree("u", 2));
+        expect(graph.state.net[0]).toHaveLength(4);
+        expect(graph.state.net[0].map(p => p[1])).toEqual(original[0].map(p => p[1]));
+    });
+    it("lowering u of a net that is ruled in u keeps the surface (z = 0, 2, 0 along v)", () => {
+        const {graph} = mount();
+        const net: Xyz[][] = [0, 1, 2].map(i => [0, 1, 2].map((j): Xyz => [j, i, [0, 2, 0][j]]));
+        act(() => graph.setState({m: 2, n: 2, net}));
+        const before = samples.map(([u, v]) => at(graph, u, v));
+        act(() => graph.setDegree("u", 1));
+        expect([graph.state.m, graph.state.n]).toEqual([1, 2]);
+        samples.forEach(([u, v], k) => close(at(graph, u, v), before[k], 12));
+    });
     it("ignores degrees outside 1 to 4 and clears a selection the smaller net no longer has", () => {
         const {graph, view} = mount();
         act(() => graph.setDegree("u", 5));
@@ -142,6 +174,15 @@ describe("Presets", () => {
         expect(other.view.last.mesh).toBeUndefined();
         expect(other.view.last.polylines.filter(p => p.id.startsWith("iso-u-"))).toHaveLength(17);
     });
+    it("a Preset's graphState cannot inject surface state", () => {
+        const {graph} = mount();
+        const net = graph.state.net;
+        act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"m": 99, "isoDensity": 100000, "u": 7}}')));
+        expect(graph.state.m).toBe(3);
+        expect(graph.state.isoDensity).toBe(8);
+        expect(graph.state.u).not.toBe(7);
+        expect(graph.state.net).toHaveLength(net.length);
+    });
     it("a figure Preset keeps the imported surface", () => {
         const {graph} = mount();
         act(() => graph.setDegree("v", 1));
@@ -168,6 +209,39 @@ describe("view lifecycle", () => {
     it("a language switch relabels the view", () => {
         const {view} = mount();
         act(() => setLanguage("en"));
-        expect(view.labels[view.labels.length - 1]).toBe("Three-dimensional view of the patch. Arrow keys orbit the view; plus and minus keys zoom it.");
+        expect(view.labels[view.labels.length - 1]).toBe("Three-dimensional view of the patch");
+        expect(view.descriptions[view.descriptions.length - 1]).toBe("Arrow keys orbit the view; plus and minus keys zoom it.");
+    });
+    it("logs the attach error instead of swallowing it", async () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        const failure = new Error("no webgl");
+        mount(new FakeSurfaceView(Promise.reject(failure)));
+        await act(async () => { await Promise.resolve(); });
+        expect(warn).toHaveBeenCalledWith(expect.any(String), failure);
+        warn.mockRestore();
+    });
+    it("a lost WebGL context shows the unavailable notice and a restored one clears it", () => {
+        const {graph, view} = mount();
+        expect(graph.state.surfaceUnavailable).toBe(false);
+        act(() => view.attachOptions!.onContextLost!());
+        expect(graph.state.surfaceUnavailable).toBe(true);
+        expect(screen.getByRole("alert").textContent).toBe(t("surface_unavailable"));
+        act(() => view.attachOptions!.onContextRestored!());
+        expect(graph.state.surfaceUnavailable).toBe(false);
+        expect(screen.queryByRole("alert")).toBeNull();
+    });
+    it("a scene replacement cannot bring back a stale unavailable flag, and a failed view stays flagged", async () => {
+        const {graph} = mount();
+        act(() => graph.setState({surfaceUnavailable: true}));
+        act(() => graph.replaceScene());
+        expect(graph.state.surfaceUnavailable).toBe(false);
+
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        const failed = mount(new FakeSurfaceView(Promise.reject(new Error("no webgl"))));
+        await act(async () => { await Promise.resolve(); });
+        act(() => failed.graph.setState({surfaceUnavailable: false}));
+        act(() => failed.graph.replaceScene());
+        expect(failed.graph.state.surfaceUnavailable).toBe(true);
+        warn.mockRestore();
     });
 });
