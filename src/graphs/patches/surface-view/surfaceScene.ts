@@ -99,6 +99,11 @@ export interface SurfaceView {
     reconcile(scene: SurfaceScene): void;
     onEdit(listener: (edit: SurfaceEdit) => void): () => void;
     setAriaLabel(label: string): void;
+    /**
+     * Subscribes to the projected, occlusion-tested label layout. It is delivered after a render in which the layout
+     * changed (camera, scene or resize), never for an unchanged layout, and not after dispose. Returns an unsubscribe.
+     */
+    onLayout(listener: (labels: LabelLayout[]) => void): () => void;
     capture(): Promise<SurfaceCapture>;
     /** Refits the camera to the control net and emits a camera edit. */
     fitCamera(): void;

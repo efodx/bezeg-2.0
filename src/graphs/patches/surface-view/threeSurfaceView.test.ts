@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as THREE from 'three';
 import {ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
-import type {SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
+import type {LabelLayout, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
 import {fitCameraTo} from './surfaceMath';
 
 function makeScene(overrides: Partial<SurfaceScene> = {}): SurfaceScene {
@@ -328,5 +328,62 @@ describe('ThreeSurfaceView interaction', () => {
         const open = await h.view.capture();
         expect(open.labels.find(l => l.id === 'l-p11')!.visible).toBe(true);
         h.view.dispose();
+    });
+});
+
+describe('ThreeSurfaceView label layout', () => {
+    async function layoutHarness(scene = makeScene({
+        mesh: {positions: [-20, -20, 0.5, 20, -20, 0.5, 0, 20, 0.5], faces: [0, 1, 2], visible: true},
+        camera: {az: 0, el: 0.2, distance: 12, projection: 'perspective', target: [0, 0, 0]},
+    })) {
+        scene.points = scene.points.map(p => ({...p, xyz: [p.xyz[0], p.xyz[1], -1] as Xyz}));
+        scene.labels = [
+            {id: 'under', text: 'U', anchor: [0, 0, -1]},
+            {id: 'far', text: 'F', anchor: [500, 0, 0]},
+            {id: 'above', text: 'A', anchor: [2, 0, 1.5]},
+        ];
+        const h = harness();
+        await h.view.attach(h.host);
+        h.view.reconcile(scene);
+        const layouts: LabelLayout[][] = [];
+        const off = h.view.onLayout(labels => layouts.push(labels));
+        return {h, scene, layouts, off};
+    }
+
+    it('publishes the projected, occlusion-tested layout after a render, and only when it changes', async () => {
+        const {h, scene, layouts} = await layoutHarness();
+        await vi.waitFor(() => expect(layouts).toHaveLength(1));
+        const visible = Object.fromEntries(layouts[0].map(l => [l.id, l.visible]));
+        expect(visible).toEqual({under: false, far: false, above: true});
+        const capture = await h.view.capture();
+        expect(layouts[0]).toEqual(capture.labels);
+        // A render of the same layout publishes nothing new.
+        h.view.reconcile(scene);
+        await new Promise(resolve => setTimeout(resolve, 40));
+        expect(layouts).toHaveLength(1);
+        // A moved camera or a hidden mesh changes the layout and is published.
+        h.view.reconcile({...scene, mesh: {...scene.mesh!, visible: false}});
+        await vi.waitFor(() => expect(layouts).toHaveLength(2));
+        expect(layouts[1].find(l => l.id === 'under')!.visible).toBe(true);
+        h.view.reconcile({...scene, camera: {...scene.camera, az: 1.2}});
+        await vi.waitFor(() => expect(layouts).toHaveLength(3));
+        expect(layouts[2].find(l => l.id === 'above')!.x).not.toBeCloseTo(layouts[1].find(l => l.id === 'above')!.x, 1);
+        h.view.dispose();
+    });
+
+    it('stops publishing after unsubscribe and after dispose', async () => {
+        const {h, scene, layouts, off} = await layoutHarness();
+        await vi.waitFor(() => expect(layouts).toHaveLength(1));
+        off();
+        h.view.reconcile({...scene, camera: {...scene.camera, az: 0.7}});
+        await new Promise(resolve => setTimeout(resolve, 40));
+        expect(layouts).toHaveLength(1);
+        const second: LabelLayout[][] = [];
+        h.view.onLayout(labels => second.push(labels));
+        await vi.waitFor(() => expect(second).toHaveLength(1));
+        h.view.dispose();
+        h.view.reconcile(scene);
+        await new Promise(resolve => setTimeout(resolve, 40));
+        expect(second).toHaveLength(1);
     });
 });

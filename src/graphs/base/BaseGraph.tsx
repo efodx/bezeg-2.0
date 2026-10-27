@@ -19,6 +19,7 @@ import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import {AxisSelect, DisplaySettings} from "./DisplaySettings";
 import {GraphStyles, stylesFor} from "../styles/GraphStyles";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
+import type {FigureCaptureTarget} from "./export/FigureCapture";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 
 
@@ -123,6 +124,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
+
+    /**
+     * The element a figure export captures and locks against input while a batch runs, or undefined when this graph has
+     * nothing to export. The board's container by default; a graph with another kind of main view overrides it together
+     * with `createFigureCaptureTarget`.
+     */
+    protected figureContainer(): HTMLElement | undefined {
+        return this.hasBoard ? this.board.containerObj as HTMLElement : undefined;
+    }
     private initialFigureGraphState?: S;
     private figureSceneGeneration = 0;
     private figureBatchActive = false;
@@ -759,11 +769,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     saveAsSVG(fileName: string) {
         const session = this.getActiveGraphSession();
-        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !this.figureContainer() || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
         this.requestRender();
-        return downloadSVG(this.getFigureCaptureTarget(session), fileName)
+        return downloadSVG(this.createFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
                 this.requestRender();
@@ -857,11 +867,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     private saveAsPNG2(fileName: string): Promise<void> {
         const session = this.getActiveGraphSession();
-        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !this.figureContainer() || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
         this.requestRender();
-        return downloadPNG(this.getFigureCaptureTarget(session), fileName)
+        return downloadPNG(this.createFigureCaptureTarget(session), fileName)
             .finally(() => {
                 this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
                 this.requestRender();
@@ -869,7 +879,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             });
     }
 
-    private getFigureCaptureTarget(session: GraphSession) {
+    /** What a figure export captures now; get a new one after each scene replacement. */
+    protected createFigureCaptureTarget(session: GraphSession): FigureCaptureTarget {
         const board = this.board;
         return {
             container: board.containerObj as HTMLElement,
@@ -882,10 +893,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     private exportPresetFigures(presets: Preset[]): Promise<void> {
         const session = this.getActiveGraphSession();
-        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        const boardContainer = this.figureContainer();
+        if (!session || !boardContainer || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
 
         this.beforeFigureCapture();
-        const boardContainer = this.board.containerObj as HTMLElement;
         const previousPointerEvents = boardContainer.style.pointerEvents;
         this.figureBatchActive = true;
         this.graphInteractionLocked = true;
@@ -915,7 +926,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     isAlive: () => this.graphSession === session && session.isAlive,
                     signal: session.signal,
                     waitUntilReady: () => session.waitUntilReady(),
-                    getCaptureTarget: () => this.getFigureCaptureTarget(session),
+                    getCaptureTarget: () => this.createFigureCaptureTarget(session),
                     captureEntryState: () => ({
                         preset: cloneLessonValue(this.exportPreset()),
                         transientState: cloneLessonValue(this.captureTransientState()),

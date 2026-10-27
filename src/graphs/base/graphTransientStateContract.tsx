@@ -55,11 +55,6 @@ export const TRANSIENT_STATE_PARTS = 4;
 const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>([]);
 /** No browser-local Preset collection (`presets()` is undefined), so no stored Preset can be loaded or exported. */
 const NO_PRESET_COLLECTION = new Set<DemonstrationId>(['circle']);
-/**
- * No figure batch yet: `exportPresetFigures` is a board feature, and the surface view's image export is a later slice. The
- * batch tests run a no-op check instead; the exemption must go when the surface graph exports figures.
- */
-const NO_FIGURE_BATCH = new Set<DemonstrationId>(['patch-tensor']);
 /** The scene is described by its scene state alone: the Preset has no Preset data. */
 const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
 
@@ -108,18 +103,6 @@ async function loadedPresetScene(create: () => BaseGraph<BaseGraphState>, preset
     return loaded;
 }
 
-
-/** A graph without a figure batch leaves the batch call a no-op: it resolves, captures nothing and changes nothing. */
-async function expectNoFigureBatch(create: () => BaseGraph<BaseGraphState>): Promise<void> {
-    const mounted = mountGraph(create());
-    changeScene(mounted, 'a');
-    const captured = full(mounted);
-    (capturePNGBlob as Mock).mockClear();
-    await settle(() => internals(mounted.graph).exportPresetFigures([{id: 'figure'}]));
-    expect(capturePNGBlob).not.toHaveBeenCalled();
-    expect(full(mounted)).toEqual(captured);
-    mounted.view.unmount();
-}
 
 const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default', source: 'demonstration-default'};
 
@@ -230,7 +213,6 @@ export function describeGraphTransientState(part: number): void {
         });
 
         test('a figure batch shows each Preset as loading it would, and restores the entry scene', async () => {
-            if (NO_FIGURE_BATCH.has(id)) return expectNoFigureBatch(create);
             const reference = mountGraph(create());
             const freshScene = scene(reference.graph);
             const viewOnly = viewOnlyPreset(reference.graph);
@@ -265,7 +247,6 @@ export function describeGraphTransientState(part: number): void {
         });
 
         test('a figure batch cancelled by unmounting settles without restoring into the disposed board', async () => {
-            if (NO_FIGURE_BATCH.has(id)) return expectNoFigureBatch(create);
             const mounted = mountGraph(create());
             const {graph} = mounted;
             changeScene(mounted, 'a');

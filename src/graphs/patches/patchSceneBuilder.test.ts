@@ -118,3 +118,17 @@ describe("Bernstein weights", () => {
         sum.forEach((c, k) => expect(c).toBeCloseTo(marker[k], 12));
     });
 });
+
+
+describe("scene labels", () => {
+    const selectedLabel = (over: Partial<TensorSceneInput>) => buildTensorScene(input(over), 1).labels.find(label => label.id === "selected-point");
+    it("names the selected control point in LaTeX, anchored on it and tied to it for the occlusion test", () => {
+        const label = selectedLabel({selectedPointId: "p-1-0"});
+        expect(label).toEqual({id: "selected-point", text: "P_{10}", anchor: [1, -1, -1], pointId: "p-1-0"});
+    });
+    it("has no point label without a selection, with the net hidden, or for a point the net lacks", () => {
+        expect(selectedLabel({})).toBeUndefined();
+        expect(selectedLabel({selectedPointId: "p-0-0", showControlNet: false})).toBeUndefined();
+        expect(selectedLabel({selectedPointId: "p-5-5"})).toBeUndefined();
+    });
+});

@@ -2,9 +2,16 @@ import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {PresetSelector} from "../base/PresetSelector";
 import type {Preset} from "../base/presets/Presets";
+import type {FigureCaptureTarget} from "../base/export/FigureCapture";
 import {parsePatchPointId} from "./patchSceneBuilder";
+import {
+    OverlayTypesetter,
+    SURFACE_LABEL_COLOR,
+    SURFACE_LABEL_FONT_PX,
+    SURFACE_LABEL_OFFSET_X_PX,
+    SurfaceLabelOverlay,
+} from "./SurfaceLabelOverlay";
 import {SurfaceCamera, SurfaceEdit, SurfaceScene, SurfaceView, Xyz} from "./surface-view/surfaceScene";
 import {ThreeSurfaceView} from "./surface-view/threeSurfaceView";
 
@@ -18,6 +25,8 @@ export interface SurfaceGraphState extends BaseGraphState {
 export interface SurfaceGraphOptions {
     /** Creates the view; tests pass a fake so nothing loads WebGL. Defaults to the Three view. */
     viewFactory?: () => SurfaceView;
+    /** Typesets the on-screen labels; tests pass a stub so no MathJax loads. Defaults to the app's MathJax pipeline. */
+    typeset?: OverlayTypesetter;
 }
 
 /**
@@ -30,6 +39,9 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     private readonly viewFactory: () => SurfaceView;
     private view?: SurfaceView;
     private host?: HTMLElement;
+    /** The DOM labels over the view; created and disposed with the view. */
+    private labelOverlay?: SurfaceLabelOverlay;
+    private readonly typeset?: OverlayTypesetter;
     /** Counts geometry changes; the view rebuilds its geometry when this changes. */
     private revision = 0;
     private viewIsNew = false;
@@ -39,6 +51,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     protected constructor(options: SurfaceGraphOptions = {}) {
         super();
         this.viewFactory = options.viewFactory ?? (() => new ThreeSurfaceView());
+        this.typeset = options.typeset;
     }
 
     // ---- Subclass contract -------------------------------------------------------------------------------------
@@ -59,13 +72,18 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.view = view;
         this.host = container;
         this.viewIsNew = true;
+        const overlay = new SurfaceLabelOverlay(container, this.typeset);
+        this.labelOverlay = overlay;
         session.adoptMainView(() => {
             if (this.view === view) {
                 this.view = undefined;
                 this.host = undefined;
+                this.labelOverlay = undefined;
             }
             view.dispose();
+            overlay.dispose();
         });
+        session.registerCleanup(view.onLayout(labels => overlay.update(labels)));
         session.registerCleanup(view.onEdit(edit => this.applyEdit(session, edit)));
         let language = currentLanguage();
         session.registerCleanup(onLanguageChange(() => {
@@ -164,14 +182,33 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         return null;
     }
 
-    /** Save panel: browser-local Presets and file import/export; surface image export is added by its own slice. */
-    protected override workspaceSave(): React.ReactNode {
-        return <div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
-            {this.presetService && <PresetSelector presetService={this.presetService}
-                selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion}
-                onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
-                onSave={name => this.saveCurrentPreset(name)} onDelete={() => { void this.deleteSelectedPreset(); }}
-                onImported={() => { void this.reloadAfterImport(); }}/>}</div>;
+    // ---- Figure export -----------------------------------------------------------------------------------------
+
+    /** The view's host is what a figure export captures and locks; nothing to export before the view exists. */
+    protected override figureContainer(): HTMLElement | undefined {
+        return this.view ? this.host : undefined;
+    }
+
+    /**
+     * The surface is drawn by WebGL, which a DOM-to-canvas capture cannot read: the target carries a still figure
+     * (the view's depth-correct render plus its label layout) instead of an SVG renderer root.
+     */
+    protected override createFigureCaptureTarget(session: GraphSession): FigureCaptureTarget {
+        const view = this.view, host = this.host, overlay = this.labelOverlay;
+        if (!view || !host || !overlay) throw new Error("The surface view is not available for export.");
+        return {
+            container: host,
+            // The still figure replaces the SVG renderer; the placeholder only satisfies the target's shape.
+            rendererRoot: document.createElementNS("http://www.w3.org/2000/svg", "svg"),
+            still: {
+                capture: () => view.capture(),
+                present: async work => overlay.showStill(await view.capture(), work),
+                labelStyle: {fontPx: SURFACE_LABEL_FONT_PX, offsetXPx: SURFACE_LABEL_OFFSET_X_PX, color: SURFACE_LABEL_COLOR},
+            },
+            isAlive: () => this.graphSession === session && session.isAlive,
+            signal: session.signal,
+            waitUntilReady: () => session.waitUntilReady(),
+        };
     }
 
     /** Shown at the top of the edit panel when the view could not start. */

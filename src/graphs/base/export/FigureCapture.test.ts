@@ -219,3 +219,107 @@ test("SVG export serializes the owned renderer root and keeps the requested file
     expect(blob.type).toBe("image/svg+xml");
     expect(blob.size).toBe(expectedSvg.length);
 });
+
+
+describe("a target with a still figure (a view that draws raster pixels)", () => {
+    const figure = {
+        dataUrl: "data:image/png;base64,QUJD",
+        width: 320,
+        height: 200,
+        labels: [
+            {id: "seen", text: "S(u,v)", x: 40, y: 50, visible: true},
+            {id: "hidden", text: "P_{00}", x: 60, y: 70, visible: false},
+        ],
+    };
+    const labelStyle = {fontPx: 16, offsetXPx: 8, color: "#000"};
+    function makeStillTarget(controller = new AbortController()) {
+        const events: string[] = [];
+        const base = makeTarget(document.createElement("div"), controller);
+        const target: FigureCaptureTarget = {
+            ...base,
+            still: {
+                capture: vi.fn(async () => figure),
+                present: async work => {
+                    events.push("present");
+                    try { return await work(); } finally { events.push("restored"); }
+                },
+                labelStyle,
+            },
+        };
+        return {target, events};
+    }
+
+    test("SVG export is one image of the render with only the visible labels, ignoring the empty renderer root", async () => {
+        const {target} = makeStillTarget();
+        target.rendererRoot.innerHTML = '<circle cx="2" cy="3" r="4"></circle>';
+        const serializeSvg = vi.fn((root: SVGSVGElement) => new XMLSerializer().serializeToString(root));
+        const download = vi.fn();
+        const loadSvgTypesetter = async () => (tex: string) => ({viewBox: "0 -1000 2000 1000", body: `<g data-tex="${tex}"></g>`});
+
+        await downloadSVG(target, "surface.svg", {serializeSvg, download, loadSvgTypesetter});
+
+        const svg = serializeSvg.mock.calls[0][0];
+        expect(svg.querySelectorAll("image")).toHaveLength(1);
+        expect(svg.querySelector("image")?.getAttribute("href")).toBe(figure.dataUrl);
+        expect(svg.querySelector("circle")).toBeNull();
+        expect(Array.from(svg.querySelectorAll("g.bezeg-math-labels > svg")).map(label => label.getAttribute("data-label-id"))).toEqual(["seen"]);
+        expect(download).toHaveBeenCalledTimes(1);
+        expect((download.mock.calls[0] as [Blob, string])[1]).toBe("surface.svg");
+    });
+
+    test("PNG export renders the container inside the still presentation and restores it afterwards", async () => {
+        const {target, events} = makeStillTarget();
+        const renderedBlob = new Blob(["png"]);
+        const renderToCanvas = vi.fn(async () => {
+            events.push("render");
+            return makeCanvas(renderedBlob);
+        });
+
+        await expect(capturePNGBlob(target, {renderToCanvas})).resolves.toBe(renderedBlob);
+
+        expect(renderToCanvas).toHaveBeenCalledWith(target.container);
+        expect(events).toEqual(["present", "render", "restored"]);
+    });
+
+    test("PNG export restores the live view when rendering fails", async () => {
+        const {target, events} = makeStillTarget();
+        const renderToCanvas = vi.fn(async () => { throw new Error("render failed"); });
+
+        await expect(capturePNGBlob(target, {renderToCanvas})).rejects.toThrow("render failed");
+        expect(events).toEqual(["present", "restored"]);
+    });
+
+    test("disposing the graph during a still PNG capture cancels it and downloads nothing", async () => {
+        const controller = new AbortController();
+        const {target, events} = makeStillTarget(controller);
+        const download = vi.fn();
+        let started!: () => void;
+        const rendering = new Promise<void>(resolve => { started = resolve; });
+        const renderToCanvas = vi.fn(() => { started(); return new Promise<HTMLCanvasElement>(() => undefined); });
+
+        const exported = downloadPNG(target, "surface.png", {renderToCanvas, download});
+        await rendering;
+        controller.abort();
+        await exported;
+
+        expect(download).not.toHaveBeenCalled();
+        await expect(capturePNGBlob(target, {renderToCanvas})).rejects.toBeInstanceOf(FigureExportCancelledError);
+        expect(events).toContain("present");
+    });
+
+    test("disposing the graph while the still presentation is still settling cancels the capture without waiting for it", async () => {
+        const controller = new AbortController();
+        const {target} = makeStillTarget(controller);
+        const presented = vi.fn();
+        target.still = {...target.still!, present: <T,>(_work: () => Promise<T>) => { presented(); return new Promise<T>(() => undefined); }};
+        const renderToCanvas = vi.fn();
+
+        const captured = capturePNGBlob(target, {renderToCanvas});
+        const outcome = captured.then(() => "resolved", error => error);
+        await vi.waitFor(() => expect(presented).toHaveBeenCalledTimes(1));
+        controller.abort();
+
+        expect(await outcome).toBeInstanceOf(FigureExportCancelledError);
+        expect(renderToCanvas).not.toHaveBeenCalled();
+    });
+});

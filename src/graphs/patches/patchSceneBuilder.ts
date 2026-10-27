@@ -26,6 +26,10 @@ export interface TensorSceneInput {
 export const CURVE_SAMPLES = 32;
 
 export const patchPointId = (i: number, j: number): string => `p-${i}-${j}`;
+
+/** LaTeX naming control point (i, j) as P_{ij}; a patch has degrees 1 to 4, so every index is one digit. */
+const pointLabelLatex = (i: number, j: number): string => `P_{${i}${j}}`;
+
 /** Parses `p-i-j`; undefined for any other id. */
 export function parsePatchPointId(id: string): [number, number] | undefined {
     const match = /^p-(\d+)-(\d+)$/.exec(id);
@@ -86,7 +90,14 @@ export function buildTensorScene(input: TensorSceneInput, revision: number): Sur
         polylines,
         ...(mesh ? {mesh: {positions: mesh.vertices.flatMap(xyz), faces: mesh.faces.flatMap(face => [...face]), visible: true}} : {}),
         markers: [{id: "evaluated", xyz: anchor, role: "evaluated"}],
-        labels: [{id: "surface-point", text: "S(u,v)", anchor}],
+        labels: [
+            {id: "surface-point", text: "S(u,v)", anchor},
+            // The selected control point is named on the surface; the view hides the name when the point is occluded.
+            ...(input.showControlNet && selectedIndex !== undefined
+                ? [{id: "selected-point", text: pointLabelLatex(selectedIndex[0], selectedIndex[1]), anchor: [...input.net[selectedIndex[0]][selectedIndex[1]]] as Xyz,
+                    pointId: patchPointId(selectedIndex[0], selectedIndex[1])}]
+                : []),
+        ],
         camera: {...input.camera, target: [...input.camera.target]},
         interaction: {zMode: input.zMode, editable: input.showControlNet},
     };

@@ -3,13 +3,18 @@
  * patch graph tests and the real-graph transient-state harness.
  */
 import {act} from "@testing-library/react";
-import type {AttachOptions, SurfaceEdit, SurfaceScene, SurfaceView} from "./surface-view/surfaceScene";
+import type {AttachOptions, LabelLayout, SurfaceCapture, SurfaceEdit, SurfaceScene, SurfaceView} from "./surface-view/surfaceScene";
 
 export class FakeSurfaceView implements SurfaceView {
     scenes: SurfaceScene[] = [];
     disposed = 0;
     labels: string[] = [];
     attached?: HTMLElement;
+    /** What `capture()` returns; unset, it rejects. */
+    captureResult?: SurfaceCapture;
+    captures = 0;
+    /** Mirrors the real view's layout subscription; `emitLayout` is a render with a new layout. */
+    layoutListeners = new Set<(labels: LabelLayout[]) => void>();
     private listeners = new Set<(edit: SurfaceEdit) => void>();
     constructor(private readonly attachResult: Promise<void> = Promise.resolve()) {}
     attach(host: HTMLElement, options?: AttachOptions): Promise<void> {
@@ -20,7 +25,12 @@ export class FakeSurfaceView implements SurfaceView {
     reconcile(scene: SurfaceScene): void { this.scenes.push(scene); }
     onEdit(listener: (edit: SurfaceEdit) => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
     setAriaLabel(label: string): void { this.labels.push(label); }
-    capture(): Promise<never> { return Promise.reject(new Error("not used")); }
+    onLayout(listener: (labels: LabelLayout[]) => void): () => void { this.layoutListeners.add(listener); return () => { this.layoutListeners.delete(listener); }; }
+    capture(): Promise<SurfaceCapture> {
+        this.captures++;
+        return this.captureResult ? Promise.resolve(this.captureResult) : Promise.reject(new Error("not used"));
+    }
+    emitLayout(labels: LabelLayout[]): void { [...this.layoutListeners].forEach(listener => listener(labels)); }
     fitCamera(): void {}
     dispose(): void { this.disposed++; }
     /** A user gesture in the view: the graph applies it (inside `act`, like any user event). */

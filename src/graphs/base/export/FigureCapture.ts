@@ -1,6 +1,8 @@
 import html2canvas from "html2canvas";
 import {beginFigureExport, reportFigureExportFailure} from "../../../localization";
 import {buildSvgWithMathLabels, loadSvgTypesetter as loadSvgTypesetterDefault, SvgTypesetter} from "./SvgMathLabels";
+import {buildStillFigureSvg} from "./StillFigureSvg";
+import type {StillFigure, StillLabelStyle} from "./StillFigureSvg";
 import {loadMathJax} from "../../../mathjax/loadMathJax";
 import type {MathJaxApi} from "../../../mathjax/loadMathJax";
 
@@ -12,10 +14,28 @@ export interface FigureExportLifecycle {
     waitUntilReady: () => Promise<void>;
 }
 
+/**
+ * The figure of a view that draws raster pixels (a WebGL surface) instead of an SVG tree. Such a view cannot be read
+ * back by html2canvas or cloned like a JSXGraph renderer, so it renders the current figure itself.
+ */
+export interface StillFigureSource {
+    /** Renders the current figure now: the depth-correct image and the label layout, in CSS pixels. */
+    capture(): Promise<StillFigure>;
+    /**
+     * Runs `work` (a DOM-to-canvas capture of the target container) while the container shows the current render as
+     * an ordinary image with its visible labels, then restores the live view, even when `work` fails.
+     */
+    present<T>(work: () => Promise<T>): Promise<T>;
+    labelStyle: StillLabelStyle;
+}
+
 /** A current capture target. Get a fresh target after each scene replacement. */
 export interface FigureCaptureTarget extends FigureExportLifecycle {
     container: HTMLElement;
+    /** The JSXGraph SVG renderer root. Unused (an empty placeholder) when the target has a `still` figure. */
     rendererRoot: SVGSVGElement;
+    /** Set for a view that draws raster pixels; the PNG and SVG exports then use it instead of the DOM and renderer root. */
+    still?: StillFigureSource;
 }
 
 export interface FigureCaptureDependencies {
@@ -226,14 +246,26 @@ export async function capturePNGBlob(
 ): Promise<Blob> {
     await waitForFigureCaptureReady(target);
     const renderToCanvas = dependencies.renderToCanvas ?? (container => html2canvas(container));
-    const blob = await withHiddenAssistiveMath(target.container, async () => {
+    const encode = () => withHiddenAssistiveMath(target.container, async () => {
         const canvas = await waitForOwned(renderToCanvas(target.container), target, "the graph to render as PNG");
         const result = await waitForOwned(createPngBlob(canvas), target, "the PNG image to encode");
         if (!result) throw new Error("PNG capture did not produce an image.");
         return result;
     });
+    const still = target.still;
+    const blob = still
+        ? await waitForOwned(still.present(encode), target, "the surface to render as PNG")
+        : await encode();
     assertActive(target);
     return blob;
+}
+
+async function buildSvgClone(target: FigureCaptureTarget, typeset: SvgTypesetter): Promise<SVGSVGElement> {
+    if (target.still) {
+        const figure = await waitForOwned(target.still.capture(), target, "the surface to render as SVG");
+        return buildStillFigureSvg(figure, typeset, target.still.labelStyle);
+    }
+    return buildSvgWithMathLabels(target.container, target.rendererRoot, typeset);
 }
 
 function serializeSvgDefault(rendererRoot: SVGSVGElement): string {
@@ -284,7 +316,7 @@ export function downloadSVG(
             target,
             "the SVG formula typesetter to load"
         );
-        const clone = buildSvgWithMathLabels(target.container, target.rendererRoot, typeset);
+        const clone = await buildSvgClone(target, typeset);
         const blob = new Blob([serializeSvg(clone)], {type: "image/svg+xml"});
         assertActive(target);
         (dependencies.download ?? downloadBlob)(blob, filename);

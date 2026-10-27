@@ -78,6 +78,8 @@ export class ThreeSurfaceView implements SurfaceView {
     private readonly loadThree: () => Promise<Three>;
     private readonly makeRenderer?: ThreeSurfaceViewOptions['createRenderer'];
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
+    private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
+    private lastLayoutKey = '';
     private readonly cleanups: Array<() => void> = [];
 
     private disposed = false;
@@ -149,6 +151,16 @@ export class ThreeSurfaceView implements SurfaceView {
         };
     }
 
+    onLayout(listener: (labels: LabelLayout[]) => void): () => void {
+        this.layoutListeners.add(listener);
+        // A new subscriber has seen no layout yet: the next frame delivers the current one.
+        this.lastLayoutKey = '';
+        this.requestRender();
+        return () => {
+            this.layoutListeners.delete(listener);
+        };
+    }
+
     setAriaLabel(label: string): void {
         this.ariaLabel = label;
         if (this.host && !this.disposed) this.host.setAttribute('aria-label', label);
@@ -158,13 +170,28 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.disposed || !this.renderer || !this.canvas) throw new Error('Surface view is not attached');
         this.renderNow();
         const dataUrl = this.canvas.toDataURL('image/png');
+        return {dataUrl, width: this.width, height: this.height, labels: this.computeLabels()};
+    }
+
+    /** Every scene label projected into canvas pixels, with whether it is in the frustum and not behind the surface. */
+    private computeLabels(): LabelLayout[] {
         const labels: LabelLayout[] = [];
         for (const label of this.scene?.labels ?? []) {
             const p = this.project(label.anchor);
             const visible = p.inFrustum && !this.isOccluded(label.anchor, label.pointId);
             labels.push({id: label.id, text: label.text, x: p.x, y: p.y, visible});
         }
-        return {dataUrl, width: this.width, height: this.height, labels};
+        return labels;
+    }
+
+    /** Tells the layout listeners about the layout of the frame just rendered, when it differs from the last one. */
+    private publishLayout(): void {
+        if (this.layoutListeners.size === 0 || !this.scene) return;
+        const labels = this.computeLabels();
+        const key = JSON.stringify(labels.map(l => [l.id, l.text, Math.round(l.x * 10), Math.round(l.y * 10), l.visible]));
+        if (key === this.lastLayoutKey) return;
+        this.lastLayoutKey = key;
+        for (const listener of [...this.layoutListeners]) listener(labels);
     }
 
     fitCamera(): void {
@@ -176,6 +203,7 @@ export class ThreeSurfaceView implements SurfaceView {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        this.layoutListeners.clear();
         for (const fn of this.cleanups.splice(0)) fn();
         this.observer?.disconnect();
         this.observer = null;
@@ -395,6 +423,7 @@ export class ThreeSurfaceView implements SurfaceView {
     private renderNow(): void {
         if (this.disposed || !this.renderer || !this.glScene || !this.glCamera) return;
         this.renderer.render(this.glScene, this.glCamera);
+        this.publishLayout();
     }
 
     // ---- projection and picking ---------------------------------------
