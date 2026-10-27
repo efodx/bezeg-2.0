@@ -1175,5 +1175,19 @@ export const en: Record<keyof typeof sl, string> = {
     "arc_length_value": "Arc length: {value0}",
     "arc_length_description": "The speed of a PH curve is a polynomial, so the arc length is an exact polynomial value rather than a numerical approximation.",
     "show_elevated_points_on_control_polygon": "Show new points on the control polygon",
-    "elevated_points_description": "Each new control point is a convex combination of neighbouring points and lies on an edge of the original control polygon."
+    "elevated_points_description": "Each new control point is a convex combination of neighbouring points and lies on an edge of the original control polygon.",
+    "invalid_patch_data": "invalid patch data",
+    "preset_has_no_patch": "preset must contain exactly one patch",
+    "unknown_patch_type": "unknown patch type",
+    "unknown_patch_field": "unknown patch field: {value0}",
+    "rational_patches_are_not_supported": "rational patches (weights) are not supported yet",
+    "patch_degree_out_of_range": "degree {value0} must be an integer from 1 to 4",
+    "invalid_patch_net": "the patch control net must be a list of points",
+    "patch_net_length_mismatch": "the control net has {value1} points, expected {value0}",
+    "patch_coordinates_must_be_finite_triples": "every net point must have three finite numbers (x, y, z)",
+    "invalid_patch_camera": "invalid patch camera view",
+    "invalid_patch_parameter": "parameter {value0} must be a number between 0 and 1",
+    "patch_type_does_not_match_collection": "patch type does not match collection {value0}",
+    "preset_bilinear_saddle": "Bilinear Bézier patch (saddle)",
+    "preset_bicubic_dome": "Bicubic Bézier patch (dome)"
 };

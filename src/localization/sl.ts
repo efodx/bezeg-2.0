@@ -1174,5 +1174,19 @@ export const sl = {
     "arc_length_value": "Dolžina loka: {value0}",
     "arc_length_description": "Hitrost PH krivulje je polinom, zato je dolžina loka natančna polinomska vrednost in ne numerični približek.",
     "show_elevated_points_on_control_polygon": "Pokaži nove točke na kontrolnem poligonu",
-    "elevated_points_description": "Vsaka nova kontrolna točka je konveksna kombinacija sosednjih točk in leži na stranici prvotnega kontrolnega poligona."
+    "elevated_points_description": "Vsaka nova kontrolna točka je konveksna kombinacija sosednjih točk in leži na stranici prvotnega kontrolnega poligona.",
+    "invalid_patch_data": "neveljavni podatki krpe",
+    "preset_has_no_patch": "prednastavitev mora vsebovati natanko eno krpo",
+    "unknown_patch_type": "neznana vrsta krpe",
+    "unknown_patch_field": "neznano polje krpe: {value0}",
+    "rational_patches_are_not_supported": "racionalne krpe (uteži) še niso podprte",
+    "patch_degree_out_of_range": "stopnja {value0} mora biti celo število od 1 do 4",
+    "invalid_patch_net": "kontrolna mreža krpe mora biti seznam točk",
+    "patch_net_length_mismatch": "kontrolna mreža ima {value1} točk, pričakovanih je {value0}",
+    "patch_coordinates_must_be_finite_triples": "vsaka točka mreže mora imeti tri končna števila (x, y, z)",
+    "invalid_patch_camera": "neveljaven pogled kamere krpe",
+    "invalid_patch_parameter": "parameter {value0} mora biti število med 0 in 1",
+    "patch_type_does_not_match_collection": "vrsta krpe se ne ujema z zbirko {value0}",
+    "preset_bilinear_saddle": "Bilinearna Bézierjeva krpa (sedlo)",
+    "preset_bicubic_dome": "Bikubična Bézierjeva krpa (kupola)"
 } as const;
