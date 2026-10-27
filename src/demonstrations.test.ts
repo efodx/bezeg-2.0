@@ -1,4 +1,4 @@
-import {findDemonstration, getDemonstrationCatalog} from './demonstrations';
+import {findDemonstration, getDemonstrationCatalog, resolveDemonstrationDefinition} from './demonstrations';
 import {setLanguage} from './localization';
 import {sl} from './localization/sl';
 import {en} from './localization/en';
@@ -107,4 +107,14 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
     expect(getDemonstrationCatalog().demonstrations).toHaveLength(45);
+});
+
+test('a surface definition has no pan or zoom actions and every catalog entry keeps the board view', () => {
+    setLanguage('en');
+    const fixture = {id: 'bezier', path: '/bezeg-2.0/fixture-surface', family: '/bezeg-2.0/bezier', title: 'bezier_curve', prompts: ['prompt_control_points', 'prompt_compare'], view: 'surface'} as const;
+    const surface = resolveDemonstrationDefinition(fixture);
+    expect(surface.view).toBe('surface');
+    expect(surface.navigationActions).toEqual([]);
+    expect(resolveDemonstrationDefinition({...fixture, view: undefined}).navigationActions).toContain('in');
+    expect(getDemonstrationCatalog().demonstrations.every(entry => entry.view === 'board' && entry.navigationActions.length >= 6)).toBe(true);
 });

@@ -140,3 +140,49 @@ test('refreshes pointer origin before native handlers and removes the capture li
     board.containerObj.dispatchEvent(new Event('pointerdown', {bubbles: true}));
     expect(origins).toEqual([[], [50, 60]]);
 });
+
+test('a board-less main view keeps the session alive and is disposed exactly once', () => {
+    const {dependencies, initBoard, freeBoard} = createDependencies(createBoard());
+    const session = new GraphSession(dependencies);
+    const dispose = vi.fn();
+
+    expect(session.isAlive).toBe(false);
+    session.adoptMainView(dispose);
+    session.markReady();
+
+    expect(session.isAlive).toBe(true);
+    expect(session.isReady).toBe(true);
+    expect(dispose).not.toHaveBeenCalled();
+    expect(() => session.adoptMainView(vi.fn())).toThrow();
+
+    session.dispose();
+    session.dispose();
+
+    expect(dispose).toHaveBeenCalledTimes(1);
+    expect(session.isAlive).toBe(false);
+    expect(initBoard).not.toHaveBeenCalled();
+    expect(freeBoard).not.toHaveBeenCalled();
+});
+
+test('adopting a main view after disposal disposes it immediately and stays dead', () => {
+    const session = new GraphSession(createDependencies(createBoard()).dependencies);
+    const dispose = vi.fn();
+    session.dispose();
+
+    session.adoptMainView(dispose);
+
+    expect(dispose).toHaveBeenCalledTimes(1);
+    expect(session.isAlive).toBe(false);
+    session.dispose();
+    expect(dispose).toHaveBeenCalledTimes(1);
+});
+
+test('a throwing main-view disposer does not stop the rest of the disposal', () => {
+    const session = new GraphSession(createDependencies(createBoard()).dependencies);
+    const later = vi.fn();
+    session.adoptMainView(() => { throw new Error('boom'); });
+    session.registerCleanup(later);
+
+    expect(() => session.dispose()).not.toThrow();
+    expect(later).toHaveBeenCalledTimes(1);
+});

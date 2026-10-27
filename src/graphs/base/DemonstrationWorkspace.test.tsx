@@ -16,6 +16,18 @@ vi.mock('../../learning/runtime/lessonCatalog', async () => {
     const actual = await vi.importActual<typeof import('../../learning/runtime/lessonCatalog')>('../../learning/runtime/lessonCatalog');
     return {...actual, getLessonForDemonstration: vi.fn(actual.getLessonForDemonstration)};
 });
+// A fixture surface demonstration for one path; the catalog has no surface entry yet.
+const surfaceFixture = vi.hoisted(() => ({path: '/bezeg-2.0/fixture-surface'}));
+vi.mock('../../demonstrations', async () => {
+    const actual = await vi.importActual<typeof import('../../demonstrations')>('../../demonstrations');
+    return {
+        ...actual,
+        findDemonstration: (pathname: string) => pathname === surfaceFixture.path
+            ? actual.resolveDemonstrationDefinition({id: 'bezier', path: surfaceFixture.path, family: '/bezeg-2.0/bezier', title: 'bezier_curve',
+                prompts: ['prompt_control_points', 'prompt_compare'], view: 'surface'})
+            : actual.findDemonstration(pathname),
+    };
+});
 const actualLessonLookup = (await vi.importActual<typeof import('../../learning/runtime/lessonCatalog')>('../../learning/runtime/lessonCatalog')).getLessonForDemonstration;
 const lessonLookup = getLessonForDemonstration as MockedFunction<typeof getLessonForDemonstration>;
 function LocationReadout() {
@@ -341,4 +353,19 @@ test('busy workspace exposes unavailable switcher without opening a picker', () 
     expect(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'})).toHaveAttribute('aria-disabled', 'true');
     fireEvent.click(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'}));
     expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+test('a surface demonstration hides pan and zoom and shows the surface gesture hint', () => {
+    setLanguage('en');
+    const surface = render(<MemoryRouter initialEntries={[surfaceFixture.path]}><DemonstrationWorkspace title="Surface" description="Explore"
+        edit={<p>Edit</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
+    expect(screen.queryByRole('group', {name: 'Graph pan and zoom'})).toBeNull();
+    expect(screen.queryByRole('button', {name: 'Zoom in'})).toBeNull();
+    expect(screen.getByText(/Drag empty space to orbit/)).toBeVisible();
+    surface.unmount();
+
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bezier" description="Explore"
+        edit={<p>Edit</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
+    expect(screen.getByRole('group', {name: 'Graph pan and zoom'})).toBeVisible();
+    expect(screen.queryByText(/Drag empty space to orbit/)).toBeNull();
 });

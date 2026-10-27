@@ -92,7 +92,7 @@ test('lesson checkpoints restore curve geometry, viewport, and selected editing 
     act(() => graph.selectWith(1, SelectedCurveOption.DELETE_POINTS));
     const selectedCurve = graph.curveAt(1);
     const savedPoints = selectedCurve.getCurve().getPoints().map(point => [point.X(), point.Y()]);
-    const savedView = graph.boardState().boundingBox;
+    const savedView = graph.boardState()?.boundingBox;
     act(() => { graph.setElementSize(2); graph.setAxisSelect(AxisSelect.NONE); graph.setPointLabelsVisible(false); });
     const checkpoint = graph.getLessonCapabilities().captureState();
 
@@ -106,7 +106,7 @@ test('lesson checkpoints restore curve geometry, viewport, and selected editing 
     expect(graph.state.selectedCurveOption).toBe(SelectedCurveOption.DELETE_POINTS);
     expect(view.getByRole('button', {name: t('delete_points')})).toHaveAttribute('aria-pressed', 'true');
     expect(graph.curveAt(1).getCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(savedPoints);
-    expect(graph.boardState().boundingBox).toEqual(savedView);
+    expect(graph.boardState()?.boundingBox).toEqual(savedView);
     expect(graph.displaySettings.getSize()).toBe(2);
     expect(graph.displaySettings.getAxisSelect()).toBe(AxisSelect.NONE);
     expect(graph.displaySettings.pointLabelsVisible).toBe(false);

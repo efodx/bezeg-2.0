@@ -18,6 +18,8 @@ export type FamilyId = typeof families[number]['id'];
 type Definition = {
     id: string; path: string; family: FamilyId; title: TextKey; heading?: TextKey;
     prompts: readonly [TextKey, TextKey]; fit?: false;
+    /** `'surface'` marks a demonstration whose main view is orbited, not panned: it has no pan or zoom actions. */
+    view?: 'surface';
 };
 
 // Order is the teaching catalog order, independent of wording and graph imports.
@@ -72,27 +74,32 @@ export type DemonstrationId = typeof definitions[number]['id'];
 export type Demonstration = Readonly<{
     id: DemonstrationId; path: string; family: FamilyId; catalogTitle: string; workspaceTitle: string;
     prompts: readonly [string, string]; navigationActions: readonly NavigationAction[];
+    /** The kind of main view: a pannable board, or a surface view with its own gestures. */
+    view: 'board' | 'surface';
 }>;
 
-function resolve(definition: Definition & {id: DemonstrationId}): Demonstration {
+/** Resolves one definition into its localized demonstration; exported so tests can resolve fixture definitions. */
+export function resolveDemonstrationDefinition(definition: Definition & {id: DemonstrationId}): Demonstration {
     const text = (key: TextKey) => renderMessage({key, params: {}});
     return {
         id: definition.id, path: definition.path, family: definition.family,
         catalogTitle: text(definition.title), workspaceTitle: text(definition.heading ?? definition.title),
         prompts: [text(definition.prompts[0]), text(definition.prompts[1])],
-        navigationActions: definition.fit === false ? navigationActions.filter(action => action !== 'fit') : [...navigationActions],
+        navigationActions: definition.view === 'surface' ? []
+            : definition.fit === false ? navigationActions.filter(action => action !== 'fit') : [...navigationActions],
+        view: definition.view ?? 'board',
     };
 }
 
 /** Exact lookup; home, catalog, and unsupported paths have no Demonstration. */
 export function findDemonstration(pathname: string): Demonstration | undefined {
     const definition = definitions.find(entry => entry.path === pathname);
-    return definition && resolve(definition);
+    return definition && resolveDemonstrationDefinition(definition);
 }
 
 /** Fresh localized values; callers keep their existing language subscriptions. */
 export function getDemonstrationCatalog() {
-    const demonstrations = definitions.map(resolve);
+    const demonstrations = definitions.map(resolveDemonstrationDefinition);
     const starting = [
         {id: 'bezier', title: 'bezier_curve_209', description: 'example_bezier', caption: 'points_to_shape'},
         {id: 'decasteljau', title: 'de_casteljau', description: 'example_decasteljau', caption: 'interpolation_to_curve'},

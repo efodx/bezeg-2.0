@@ -224,14 +224,14 @@ export function DemonstrationWorkspace(props: {
         <section className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <JGBox ref={setGraphContainer}/>
-            <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
+            {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
                     if (action === 'fit') return <button key={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
                     const [text, label] = navigationLabels[action];
                     return <button key={action} disabled={lessonOpen && lessonMode === 'content'} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                 })}
-            </div>
-            <p className="workspace-gesture-hint">{t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
+            </div>}
+            <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
         </section>
         <LearningPrompt key={pathname} pathname={pathname}/>
         <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}

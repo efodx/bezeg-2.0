@@ -20,6 +20,7 @@ const sessionsByBoard = new WeakMap<Board, GraphSession>();
 /** Owns one JSXGraph board and every lifecycle resource attached by the graph. */
 export class GraphSession {
     private board?: Board;
+    private adoptedMainView = false;
     private disposed = false;
     private ready = false;
     private resizeObserver?: ResizeObserver;
@@ -39,7 +40,7 @@ export class GraphSession {
     ) {}
 
     get isAlive(): boolean {
-        return !this.disposed && this.board !== undefined;
+        return !this.disposed && (this.board !== undefined || this.adoptedMainView);
     }
 
     get isReady(): boolean {
@@ -68,6 +69,20 @@ export class GraphSession {
         board.containerObj.addEventListener('pointerdown', refreshPointerOrigin, true);
         this.registerCleanup(() => board.containerObj.removeEventListener('pointerdown', refreshPointerOrigin, true));
         return board;
+    }
+
+    /**
+     * Make this session alive for a main view that is not a JSXGraph board (such as a Three surface view).
+     * `dispose` runs once, when the session is disposed; on an already disposed session it runs immediately.
+     */
+    adoptMainView(dispose: () => void): void {
+        if (this.disposed) {
+            dispose();
+            return;
+        }
+        if (this.board || this.adoptedMainView) throw new Error("A graph session can own only one main view.");
+        this.adoptedMainView = true;
+        this.registerCleanup(dispose);
     }
 
     /** Track a JSXGraph event subscription and return its idempotent unsubscribe function. */
@@ -184,6 +199,7 @@ export class GraphSession {
             }
         }
         this.cleanups.clear();
+        this.adoptedMainView = false;
         const board = this.board;
         this.board = undefined;
         if (board) this.dependencies.freeBoard(board);

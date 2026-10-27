@@ -42,11 +42,13 @@ function checkLessonView(view: LessonViewBox | undefined): void {
     }
 }
 
-function isLessonState(value: unknown): value is {boardState: BoardState; graphState: unknown; data: unknown; transientState?: TransientState;
+function isLessonState(value: unknown): value is {boardState?: BoardState; graphState: unknown; data: unknown; transientState?: TransientState;
     displayState?: {size: number; axis: AxisSelect; pointLabelsVisible: boolean}} {
     if (!value || typeof value !== 'object') return false;
     const candidate = value as {boardState?: {boundingBox?: unknown}};
-    const boundingBox = candidate.boardState?.boundingBox;
+    // A graph without a board captures no view, so the view is optional; a stored view must still be well formed.
+    if (candidate.boardState === undefined) return true;
+    const boundingBox = candidate.boardState.boundingBox;
     return Array.isArray(boundingBox) && boundingBox.length === 4;
 }
 
@@ -114,6 +116,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     protected workspaceRevision = 0;
     private displaySettingsInstance?: DisplaySettings;
     protected board!: Board;
+
+    /** Whether the main view is a JSXGraph board; a subclass whose `createMainView` makes none has no board to touch. */
+    protected get hasBoard(): boolean {
+        return this.board !== undefined;
+    }
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
     private initialFigureGraphState?: S;
@@ -228,19 +235,19 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     setElementSize(size: number): void {
         this.displaySettings.setSize(size);
         this.store.notify();
-        if (this.graphSession?.isAlive) this.board.fullUpdate();
+        if (this.graphSession?.isAlive && this.hasBoard) this.board.fullUpdate();
     }
 
     setAxisSelect(selected: AxisSelect): void {
         this.displaySettings.setAxisSelect(selected);
         this.store.notify();
-        if (this.graphSession?.isAlive) this.board.fullUpdate();
+        if (this.graphSession?.isAlive && this.hasBoard) this.board.fullUpdate();
     }
 
     setPointLabelsVisible(visible: boolean): void {
         this.displaySettings.pointLabelsVisible = visible;
         this.store.notify();
-        if (!this.graphSession?.isAlive) return;
+        if (!this.graphSession?.isAlive || !this.hasBoard) return;
         this.board.suspendUpdate();
         this.unsuspendBoardUpdate();
     }
@@ -319,7 +326,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         if (!stored) this.selectedPresetIdValue = "";
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
-        this.board.setBoundingBox(DEFAULT_BOUNDING_BOX, true);
+        if (this.hasBoard) this.board.setBoundingBox(DEFAULT_BOUNDING_BOX, true);
         return this.applyFigurePreset(session, stored ?? {id: ""}, session.signal)
             .catch(error => console.error("The preset could not be loaded.", error));
     }
@@ -592,7 +599,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         return {
             version: 1,
             value: cloneLessonValue({
-                boardState: this.boardState(),
+                ...(this.hasBoard ? {boardState: this.boardState()} : {}),
                 graphState: this.sceneGraphState(),
                 data: this.exportPresetData(),
                 transientState: this.captureTransientState(),
@@ -611,14 +618,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const state = checkpoint.value;
         // A checkpoint holds this graph's own exported Preset data, captured in memory by `captureLessonState`.
         if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D);
-        this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
+        if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
         // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
         this.replaceState({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true});
         if (state.displayState) {
             this.displaySettings.setSize(state.displayState.size);
             this.displaySettings.setAxisSelect(state.displayState.axis);
             this.displaySettings.pointLabelsVisible = state.displayState.pointLabelsVisible;
-            this.board.fullUpdate();
+            if (this.hasBoard) this.board.fullUpdate();
         }
         this.finishSceneReplacement(cloneLessonValue(state.transientState) ?? {});
     }
@@ -636,6 +643,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
      * canvas and drops the rest, so the view is widened to the canvas aspect around its centre; a canvas without size keeps the box.
      */
     private applyLessonView(view: LessonViewBox): void {
+        if (!this.hasBoard) return;
         const [left, top, right, bottom] = view;
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.equalAxisUnits ? fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) : undefined;
@@ -643,6 +651,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     private navigateBoard(action: string) {
+        if (!this.hasBoard) return;
         if (action === 'fit') {
             // JSXGraph's zoomAllPoints depends on the current zoom, so fit from the points and canvas size alone.
             const points: [number, number][] = [];
@@ -681,16 +690,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             this.hasBeenMounted = true;
             this.initialFigureGraphState = cloneLessonValue(this.state);
             // JXG.Options.text.display = 'internal';
-            this.board = session.createBoard(container, {
-                showFullscreen: false,
-                boundingBox: DEFAULT_BOUNDING_BOX,
-                axis: true,
-                keepAspectRatio: true,
-                showScreenshot: false,
-                showCopyright: false,
-                showNavigation: false,
-                defaultAxes: this.defaultAxesAttributes(),
-            });
+            this.createMainView(session, container);
 
             this.setBaseState({initialized: true});
             const preset = this.presetService?.getPreset(this.selectedPresetIdValue);
@@ -709,6 +709,23 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             session.observeResize(container);
             session.markReady();
         }
+    }
+
+    /**
+     * Creates the main view on the host's container and assigns `this.board`. A subclass with another kind of main view
+     * overrides this, adopts it with `session.adoptMainView(dispose)` and leaves `board` unset; the board paths then do nothing.
+     */
+    protected createMainView(session: GraphSession, container: HTMLElement): void {
+        this.board = session.createBoard(container, {
+            showFullscreen: false,
+            boundingBox: DEFAULT_BOUNDING_BOX,
+            axis: true,
+            keepAspectRatio: true,
+            showScreenshot: false,
+            showCopyright: false,
+            showNavigation: false,
+            defaultAxes: this.defaultAxesAttributes(),
+        });
     }
 
     /** The attributes of the board's default axes (the shared axis styles unless a graph needs its own tick labels). */
@@ -742,7 +759,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     saveAsSVG(fileName: string) {
         const session = this.getActiveGraphSession();
-        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
         this.requestRender();
@@ -774,7 +791,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     unsuspendBoardUpdate() {
         if (!this.graphSession?.isAlive) return;
         this.boardUpdate();
-        this.board.unsuspendUpdate();
+        if (this.hasBoard) this.board.unsuspendUpdate();
     }
 
     getGraphCommands(): JSX.Element[] {
@@ -782,7 +799,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     boardUpdate() {
-        if (!this.graphSession?.isAlive) return;
+        if (!this.graphSession?.isAlive || !this.hasBoard) return;
         this.board.update();
     }
 
@@ -804,7 +821,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     exportPreset(): Preset<D> {
         return {
             id: this.presets()!,
-            boardState: this.boardState(),
+            ...(this.hasBoard ? {boardState: this.boardState()} : {}),
             graphState: this.sceneGraphState(),
             data: this.exportPresetData()
         };
@@ -822,7 +839,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         }
     }
 
-    boardState(): BoardState {
+    /** The visible box of the board; undefined when the main view is not a board. */
+    boardState(): BoardState | undefined {
+        if (!this.hasBoard) return undefined;
         return {boundingBox: this.board.getBoundingBox()};
     }
 
@@ -838,7 +857,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     private saveAsPNG2(fileName: string): Promise<void> {
         const session = this.getActiveGraphSession();
-        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
         this.activeSingleFigureExports++;
         this.beforeFigureCapture();
         this.requestRender();
@@ -863,7 +882,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     private exportPresetFigures(presets: Preset[]): Promise<void> {
         const session = this.getActiveGraphSession();
-        if (!session || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !this.hasBoard || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
 
         this.beforeFigureCapture();
         const boardContainer = this.board.containerObj as HTMLElement;
@@ -942,16 +961,18 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             const releaseTransition = session.beginTransition();
             try {
                 this.stopLessonAnimations();
-                this.board.suspendUpdate();
+                if (this.hasBoard) this.board.suspendUpdate();
                 try {
                     this.disposeFigureScene();
-                    const preservedBoardObjects = this.boardInfrastructureObjectClosure();
-                    const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
-                    if (remainingObjects.length) this.board.removeObject(remainingObjects);
+                    if (this.hasBoard) {
+                        const preservedBoardObjects = this.boardInfrastructureObjectClosure();
+                        const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
+                        if (remainingObjects.length) this.board.removeObject(remainingObjects);
+                    }
                     if (!entry) this.importFigurePresetData(preset);
                     else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
                 } finally {
-                    if (this.graphSession === session && session.isAlive) this.board.unsuspendUpdate();
+                    if (this.graphSession === session && session.isAlive && this.hasBoard) this.board.unsuspendUpdate();
                 }
 
                 this.workspaceRevision++;
@@ -978,7 +999,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                             try {
                                 this.initialize();
                                 this.syncReplacedScene();
-                                if (preset.boardState) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
+                                if (preset.boardState && this.hasBoard) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
                                 this.boardUpdate();
                                 session.requestFullUpdate();
                                 finish(resolve);
@@ -1057,6 +1078,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     private importBoardState(boardState: BoardState) {
+        if (!this.hasBoard) return;
         this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
         this.board.fullUpdate();
     }
