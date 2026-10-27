@@ -110,6 +110,8 @@ for (const statement of lessonContentSource.statements) {
         collectLessonIds(importedSource, (specifier.propertyName || specifier.name).text);
     }
 }
+// Demonstrations whose catalog manifest carries a motion clip; the rest are still-poster only until their timelines ship.
+const manifestMotionIds = new Set((JSON.parse(fs.readFileSync(path.join(root, 'src/images/demonstrations/catalog/manifest.json'), 'utf8')).motions || []).map(motion => motion.id));
 const demonstrations = definitions.elements.map(element => {
     const entry = stringProperties(unwrapExpression(element), false);
     for (const required of ['id', 'path', 'family', 'title']) {
@@ -121,7 +123,7 @@ const demonstrations = definitions.elements.map(element => {
     const title = messages[entry.title];
     if (!title || title.includes('{')) throw new Error(`Missing plain English catalog title for ${entry.id}: ${entry.title}`);
     if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
-    return {id: entry.id, path: entry.path, family: entry.family, view: entry.view === 'surface' ? 'surface' : 'board', title, heading,
+    return {id: entry.id, path: entry.path, family: entry.family, view: entry.view === 'surface' ? 'surface' : 'board', title, heading, hasMotion: manifestMotionIds.has(entry.id),
         hasLesson: availableLessonIds.has(entry.id) && lessonContentIds.has(entry.id)};
 });
 const families = familyCatalog.map(family => {

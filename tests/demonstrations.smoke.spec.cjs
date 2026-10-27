@@ -19,18 +19,32 @@ async function expectRenderedWorkspace(page, demonstration) {
     await expect(graph).toBeVisible();
     const board = graph.locator('#jgbox');
     await expect(board).toBeVisible();
-    await expect.poll(async () => board.evaluate(container => {
-        const boards = Object.values(window.JXG?.boards || {});
-        const jxgBoard = boards.find(candidate => candidate.container === container.id || candidate.containerObj === container);
-        if (!jxgBoard) return 0;
-        return Object.values(jxgBoard.objects || {}).filter(object => {
-            if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
-            const node = object.rendNode;
-            if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false; // curves are paths; straight lines are SVG line elements
-            const style = getComputedStyle(node);
-            return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
-        }).length;
-    }), {timeout: 20_000}).toBeGreaterThan(0);
+    if (demonstration.view === 'surface') {
+        // A surface workspace hosts a Three canvas, not a JSXGraph board; the host publishes `data-surface-framing` once rendered.
+        await expect.poll(async () => board.evaluate(container => {
+            const canvas = container.querySelector('canvas');
+            let framing = null;
+            try {framing = JSON.parse(container.getAttribute('data-surface-framing') || 'null');} catch {/* not rendered yet */}
+            return {
+                canvas: !!canvas && canvas.clientWidth > 0 && canvas.clientHeight > 0,
+                framed: !!framing && framing.width > 0 && framing.height > 0 && Array.isArray(framing.points) && framing.points.length > 0,
+                projected: !!framing && framing.points.some(point => Number.isFinite(point.x) && Number.isFinite(point.y) && point.inFrustum),
+            };
+        }), {timeout: 20_000}).toEqual({canvas: true, framed: true, projected: true});
+    } else {
+        await expect.poll(async () => board.evaluate(container => {
+            const boards = Object.values(window.JXG?.boards || {});
+            const jxgBoard = boards.find(candidate => candidate.container === container.id || candidate.containerObj === container);
+            if (!jxgBoard) return 0;
+            return Object.values(jxgBoard.objects || {}).filter(object => {
+                if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+                const node = object.rendNode;
+                if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false; // curves are paths; straight lines are SVG line elements
+                const style = getComputedStyle(node);
+                return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+            }).length;
+        }), {timeout: 20_000}).toBeGreaterThan(0);
+    }
 
     const inspector = page.getByRole('complementary', {name: 'Demonstration tools'});
     await expect(inspector).toBeVisible();
