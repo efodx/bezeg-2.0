@@ -1187,6 +1187,7 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_coordinates_must_be_finite_triples": "every net point must have three finite numbers (x, y, z)",
     "invalid_patch_camera": "invalid patch camera view",
     "invalid_patch_parameter": "parameter {value0} must be a number between 0 and 1",
+    "invalid_patch_density": "density {value0} must be 8 or 16",
     "patch_type_does_not_match_collection": "patch type does not match collection {value0}",
     "preset_bilinear_saddle": "Bilinear Bézier patch (saddle)",
     "preset_bicubic_dome": "Bicubic Bézier patch (dome)",

@@ -218,9 +218,10 @@ test('adapts the five construction lessons into typed runtime actions', () => {
     expect(kinds('rational-extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
 });
 
-test('every active demonstration route has an available lesson', () => {
+test('every active demonstration route has an available lesson, except patches awaiting their lessons', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
+    // docs/tasks/bezier-patches task 11 adds the patch lessons and removes this exception.
+    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual(['patch-tensor']);
 });
 
 test('maps the spline, Farin and circle scene actions to typed runtime actions', () => {

@@ -11,6 +11,7 @@ const families = [
     {id: '/bezeg-2.0/spline', title: 'splines'},
     {id: '/bezeg-2.0/ph', title: 'ph_curves'},
     {id: '/bezeg-2.0/param', title: 'parametrizations'},
+    {id: '/bezeg-2.0/patches', title: 'bezier_patches'},
     {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
     {id: 'analysis', title: 'analysis'},
 ] as const;
@@ -51,6 +52,7 @@ const definitions = [
     {id: 'spline-parameterization', path: '/bezeg-2.0/param/param/alphaparam2', family: '/bezeg-2.0/param', title: 'parametrizations_233', prompts: ['prompt_parameterization', 'prompt_compare']},
     {id: 'weighted-parameterization', path: '/bezeg-2.0/param/param/alphaparam', family: '/bezeg-2.0/param', title: 'weighted_parametrization_234', prompts: ['prompt_parameterization', 'prompt_compare']},
     {id: 'uniform-parameterization', path: '/bezeg-2.0/param/param/uniform', family: '/bezeg-2.0/param', title: 'uniform_parametrization_235', prompts: ['prompt_parameterization', 'prompt_compare']},
+    {id: 'patch-tensor', path: '/bezeg-2.0/patches/tensor', family: '/bezeg-2.0/patches', title: 'tensor_product_bezier_patch', prompts: ['prompt_patch_net', 'prompt_patch_degree'], view: 'surface'},
     {id: 'linear-function', path: '/bezeg-2.0/functions/linear', family: '/bezeg-2.0/functions', title: 'linear_function', prompts: ['prompt_linear_function', 'prompt_compare']},
     {id: 'exponential-function', path: '/bezeg-2.0/functions/exponential', family: '/bezeg-2.0/functions', title: 'exponential_function', prompts: ['prompt_exponential_function', 'prompt_compare']},
     {id: 'trigonometric-functions', path: '/bezeg-2.0/functions/trigonometric', family: '/bezeg-2.0/functions', title: 'trigonometric_functions', prompts: ['prompt_trigonometric_functions', 'prompt_compare']},

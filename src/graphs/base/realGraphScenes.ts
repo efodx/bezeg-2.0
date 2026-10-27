@@ -8,7 +8,9 @@ import type BaseGraph from './BaseGraph';
 import type {BaseGraphState} from './BaseGraph';
 import type {LessonAction} from '../../learning/model';
 import type {Preset} from './presets/Presets';
-import {type MountedGraph, observe, observeScene} from './realGraphTestHarness';
+import TensorPatchGraph from '../patches/TensorPatchGraph';
+import type {Point3Dto} from '../patches/patchDto';
+import {type MountedGraph, observe, observeScene, surfaceViewOf} from './realGraphTestHarness';
 
 export type Internals = {
     board: JXG.Board;
@@ -55,8 +57,18 @@ export function mainScene({hodographView: view, transient: observed, ...main}: S
     return {...main, transient: {declared, fields: otherFields}, hodograph: view ?? pending ?? null};
 }
 
+/** Writes a patch's model the way a lesson scene write would: its first control point moves in height, the rest stays. */
+function perturbPatch(graph: TensorPatchGraph, variant: 'a' | 'b'): void {
+    const [entry] = graph.exportPresetData();
+    if (entry[0] !== 'TensorProductBezierPatch') return;
+    const dto = entry[1];
+    const net = dto.net.map((p, i): Point3Dto => i === 0 ? [p[0], p[1], p[2] + (variant === 'a' ? 0.75 : -0.5)] : p);
+    graph.importPresetData([[entry[0], {...dto, net}]]);
+}
+
 /** Edits a function graph's model the way its controls would: each numeric field the graph accepts a nearby value for. */
 export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
+    if (graph instanceof TensorPatchGraph) { perturbPatch(graph, variant); return; }
     const g = internals(graph);
     // Function graphs only: their Preset data is a model object, which their Preset collection checks.
     const collection = graph.presetCollection();
@@ -122,6 +134,18 @@ export function selectFirstCurve(mounted: MountedGraph): void {
     if (button) act(() => { fireEvent.click(button); });
 }
 
+/**
+ * Gestures in the main view of a graph without a board, sent the way the view reports them: orbiting the camera and
+ * moving a control point. The two variants differ from each other and from the default.
+ */
+export function changeSurfaceView(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
+    const view = surfaceViewOf(graph)!;
+    const a = variant === 'a';
+    view.emit({kind: 'camera', camera: {...view.last.camera, az: a ? 1.1 : -0.4, el: a ? 0.3 : 0.9, distance: a ? 11 : 15}});
+    // Absolute positions: a variant may follow one that hid the control net, so the point is not read back from the view.
+    view.emit({kind: 'point', pointId: 'p-1-1', xyz: a ? [0.25, -0.75, 3.5] : [-0.25, 0.5, -1.25], phase: 'end'});
+}
+
 /** Changes the scene: lesson actions, the curve selection, every switch, the view and the display settings. */
 export function changeScene(mounted: MountedGraph, variant: 'a' | 'b'): void {
     const {graph} = mounted;
@@ -129,11 +153,19 @@ export function changeScene(mounted: MountedGraph, variant: 'a' | 'b'): void {
         applyActions(graph, sceneActions(graph, variant));
         perturbModel(graph, variant);
     });
+    if (!internals(graph).board) changeSurfaceView(graph, variant);
     if (variant === 'a') selectFirstCurve(mounted);
     flipSwitches(mounted);
+    if (!internals(graph).board) return;
     act(() => {
         internals(graph).board.setBoundingBox(variant === 'a' ? [-6, 4, 6, -4] : [-3, 6, 6, 0], true);
         graph.setElementSize(variant === 'a' ? 4 : 2);
         hodograph(graph)?.setBoundingBox(variant === 'a' ? [-3, 2, 3, -2] : [-6, 7, 6, -1], true);
     });
+}
+
+/** A figure Preset that carries only the view: the board's bounding box, or nothing for a graph without a board. */
+export function viewOnlyPreset(reference: BaseGraph<BaseGraphState>): Preset {
+    const board = internals(reference).board;
+    return board ? {id: 'figure', boardState: {boundingBox: board.getBoundingBox() as [number, number, number, number]}} : {id: 'figure'};
 }

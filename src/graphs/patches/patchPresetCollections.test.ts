@@ -7,6 +7,7 @@ import {PointImpl} from "../../bezeg/impl/point/point-impl";
 import {TensorProductBezierPatch} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import {tensorPatchFromDto, tensorPatchToDto, triangularPatchFromDto, triangularPatchToDto} from "./patchDto";
+import {fitCameraTo} from "./surface-view/surfaceMath";
 import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
 
 afterEach(() => setLanguage("sl"));
@@ -84,9 +85,22 @@ describe("default Presets", () => {
     });
 });
 
+describe("default cameras", () => {
+    it.each(defaultPatchPresets.map(preset => [preset.id, preset] as const))("%s keeps its whole net in view on a 390x844 host (aspect 0.45)", (_id, preset) => {
+        const dto = preset.data()[0][1];
+        if (!("m" in dto) || !dto.state?.camera) throw new Error("tensor Preset with a camera expected");
+        const camera = {...dto.state.camera, target: [...dto.state.camera.target] as [number, number, number]};
+        const fitted = fitCameraTo(dto.net.map(p => [...p] as [number, number, number]), 0.45, camera);
+        expect(camera.distance).toBeGreaterThanOrEqual(fitted.distance);
+        expect(camera.distance).toBeLessThan(fitted.distance * 1.01);
+        camera.target.forEach((c, k) => expect(c).toBeCloseTo(fitted.target[k], 12));
+    });
+});
+
 describe("accepted data", () => {
     it("accepts a tensor patch with state and camera, and a triangular patch in its collection", () => {
         expect("data" in collection.check(tensor({state: {camera, u: 0, v: 1, showControlNet: true}}))).toBe(true);
+        expect("data" in collection.check(tensor({state: {isoDensity: 8, shadingDensity: 16}}))).toBe(true);
         const triangle = [["TriangularBezierPatch", {n: 1, net: net4.slice(0, 3)}]];
         expect("data" in patchPresetCollections["patch-triangular"].check(triangle)).toBe(true);
         expect(rejection(triangle)).toMatchObject({key: "patch_type_does_not_match_collection"});
@@ -113,6 +127,8 @@ describe("rejections carry exact localized reasons", () => {
         ["unknown state field", tensor({state: {zoom: 2}}), "neznano polje krpe: state.zoom", "unknown patch field: state.zoom"],
         ["u out of range", tensor({state: {u: 1.5}}), "parameter u mora biti število med 0 in 1", "parameter u must be a number between 0 and 1"],
         ["v negative", tensor({state: {v: -0.1}}), "parameter v mora biti število med 0 in 1", "parameter v must be a number between 0 and 1"],
+        ["iso density 9", tensor({state: {isoDensity: 9}}), "gostota isoDensity mora biti 8 ali 16", "density isoDensity must be 8 or 16"],
+        ["shading density string", tensor({state: {shadingDensity: "8"}}), "gostota shadingDensity mora biti 8 ali 16", "density shadingDensity must be 8 or 16"],
         ["show not boolean", tensor({state: {showNormal: 1}}), "neveljavna možnost showNormal", "invalid option showNormal"],
     ])("%s", (_name, data, sl, en) => {
         expect(texts(data)).toEqual({sl, en});

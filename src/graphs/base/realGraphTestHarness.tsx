@@ -8,6 +8,10 @@ import {act, render, RenderResult} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
+import {graphFactories} from '../graphFactories';
+import type {DemonstrationId} from '../../demonstrations';
+import TensorPatchGraph from '../patches/TensorPatchGraph';
+import {cameraSignature, FakeSurfaceView, sceneSignature} from '../patches/FakeSurfaceView';
 
 /**
  * Test budget for a file that mounts real graphs, set with `vi.setConfig({testTimeout})` beside
@@ -39,6 +43,24 @@ export function installBoardShims(): void {
 export interface MountedGraph {
     graph: BaseGraph<BaseGraphState>;
     view: RenderResult;
+}
+
+/** The fake views of graphs without a board (their main view is a surface view), by graph. */
+const surfaceViews = new WeakMap<object, FakeSurfaceView>();
+
+/** The fake surface view of a graph created by `createGraph`, or undefined for a graph with a JSXGraph board. */
+export const surfaceViewOf = (graph: BaseGraph<BaseGraphState>): FakeSurfaceView | undefined => surfaceViews.get(graph);
+
+/**
+ * A graph as `graphFactories` builds it, except that a graph with a surface view gets a fake one: jsdom has no WebGL,
+ * and the real view would fail to start. Every other graph is the factory's own.
+ */
+export function createGraph(id: DemonstrationId): BaseGraph<BaseGraphState> {
+    if (id !== 'patch-tensor') return graphFactories[id]();
+    const view = new FakeSurfaceView();
+    const graph = new TensorPatchGraph({viewFactory: () => view});
+    surfaceViews.set(graph, view);
+    return graph as unknown as BaseGraph<BaseGraphState>;
 }
 
 export function mountGraph(graph: BaseGraph<BaseGraphState>): MountedGraph {
@@ -121,7 +143,10 @@ export function boardSignature(board: JXG.Board): string[] {
     return lines.sort();
 }
 
-/** The graph-owned scene: Preset data, scene store, view, curve adapters and the drawn board. */
+/**
+ * The graph-owned scene: Preset data, scene store, view, curve adapters and the drawn board. For a graph without a
+ * board, `view` is the camera of the last scene its surface view was given and `board` is that scene's signature.
+ */
 export interface SceneObservation {
     data: unknown;
     state: unknown;
@@ -132,7 +157,12 @@ export interface SceneObservation {
 
 export function observeScene(graph: BaseGraph<BaseGraphState>): SceneObservation {
     const internals = graph as unknown as GraphInternals;
-    const board = internals.board!;
+    const board = internals.board;
+    if (!board) {
+        const last = surfaceViewOf(graph)?.last;
+        return {data: json(internals.exportPresetData() ?? null), state: json(graph.state), view: json(cameraSignature(last)),
+            curves: null, board: sceneSignature(last)};
+    }
     return {
         data: json(internals.exportPresetData() ?? null),
         state: json(graph.state),

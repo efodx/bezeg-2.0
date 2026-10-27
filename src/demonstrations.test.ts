@@ -32,6 +32,7 @@ const expected = [
     ['param/param/alphaparam2', '/bezeg-2.0/param', 'parametrizations_233', 'parametrizations_233', 'prompt_parameterization'],
     ['param/param/alphaparam', '/bezeg-2.0/param', 'weighted_parametrization_234', 'weighted_parametrization_234', 'prompt_parameterization'],
     ['param/param/uniform', '/bezeg-2.0/param', 'uniform_parametrization_235', 'uniform_parametrization_235', 'prompt_parameterization'],
+    ['patches/tensor', '/bezeg-2.0/patches', 'tensor_product_bezier_patch', 'tensor_product_bezier_patch', 'prompt_patch_net'],
     ['functions/linear', '/bezeg-2.0/functions', 'linear_function', 'linear_function', 'prompt_linear_function'],
     ['functions/exponential', '/bezeg-2.0/functions', 'exponential_function', 'exponential_function', 'prompt_exponential_function'],
     ['functions/trigonometric', '/bezeg-2.0/functions', 'trigonometric_functions', 'trigonometric_functions', 'prompt_trigonometric_functions'],
@@ -59,23 +60,23 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(45);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(46);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
         expect(demonstration.catalogTitle).toBe(messages[title]);
         expect(demonstration.workspaceTitle).toBe(messages[heading]);
-        expect(demonstration.prompts).toEqual([messages[prompt], messages[path === 'bezier/curve' ? 'prompt_control_polygon' : 'prompt_compare']]);
+        expect(demonstration.prompts).toEqual([messages[prompt], messages[path === 'bezier/curve' ? 'prompt_control_polygon' : path === 'patches/tensor' ? 'prompt_patch_degree' : 'prompt_compare']]);
         expect(demonstration.navigationActions).toEqual(path === 'bernstein'
             ? ['left', 'up', 'down', 'right', 'in', 'out']
-            : ['left', 'up', 'down', 'right', 'in', 'out', 'fit']);
+            : path === 'patches/tensor' ? [] : ['left', 'up', 'down', 'right', 'in', 'out', 'fit']);
         expect(catalog.demonstrations.find(entry => entry.path === demonstration.path)).toEqual(demonstration);
     }
-    expect(catalog.families.map(family => family.id)).toEqual(['basics', '/bezeg-2.0/bezier', '/bezeg-2.0/rational', '/bezeg-2.0/spline', '/bezeg-2.0/ph', '/bezeg-2.0/param', '/bezeg-2.0/functions', 'analysis']);
+    expect(catalog.families.map(family => family.id)).toEqual(['basics', '/bezeg-2.0/bezier', '/bezeg-2.0/rational', '/bezeg-2.0/spline', '/bezeg-2.0/ph', '/bezeg-2.0/param', '/bezeg-2.0/patches', '/bezeg-2.0/functions', 'analysis']);
     expect(catalog.families.map(family => family.title)).toEqual([
-        messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.functions_and_calculus, messages.analysis,
+        messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.bezier_patches, messages.functions_and_calculus, messages.analysis,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 8, 10]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 1, 8, 10]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -106,7 +107,7 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(45);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(46);
 });
 
 test('a surface definition has no pan or zoom actions and every catalog entry keeps the board view', () => {
@@ -116,5 +117,6 @@ test('a surface definition has no pan or zoom actions and every catalog entry ke
     expect(surface.view).toBe('surface');
     expect(surface.navigationActions).toEqual([]);
     expect(resolveDemonstrationDefinition({...fixture, view: undefined}).navigationActions).toContain('in');
-    expect(getDemonstrationCatalog().demonstrations.every(entry => entry.view === 'board' && entry.navigationActions.length >= 6)).toBe(true);
+    expect(getDemonstrationCatalog().demonstrations.filter(entry => entry.view === 'surface').map(entry => entry.id)).toEqual(['patch-tensor']);
+    expect(getDemonstrationCatalog().demonstrations.filter(entry => entry.view === 'board').every(entry => entry.navigationActions.length >= 6)).toBe(true);
 });

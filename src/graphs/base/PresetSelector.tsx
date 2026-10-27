@@ -191,7 +191,8 @@ export function PresetSelector(props: {
     onSave: (name: string) => void,
     onDelete: () => void,
     onImported: () => void,
-    batchExporter: (presets: Preset[]) => void | Promise<void>
+    /** Omitted by a graph with no figure export (the surface views): the image-batch dialog is then hidden. */
+    batchExporter?: (presets: Preset[]) => void | Promise<void>
 }) {
     const t = useT();
     const lessonActive = useContext(PresetLockContext);
@@ -222,11 +223,11 @@ export function PresetSelector(props: {
                         exportToFile(presetService.exportAllPresetsToString());
                     }}>{t("export_presets")}</ToolTippedButton>
                     <PresetImportDialog onImported={props.onImported} disabled={lessonActive}/>
-                    <ImageGenerationModal onConfirm={selectedIds => {
+                    {props.batchExporter && <ImageGenerationModal onConfirm={selectedIds => {
                         const allPresets = presetService.loadPresets();
                         const selected = allPresets.data.filter(preset => selectedIds.includes(preset.id));
-                        return props.batchExporter(selected);
-                    }} presetService={presetService}/>
+                        return props.batchExporter?.(selected);
+                    }} presetService={presetService}/>}
 
                 </ButtonGroup></ButtonGroup></Form.Group>
 

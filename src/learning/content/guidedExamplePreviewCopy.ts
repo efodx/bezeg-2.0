@@ -4,6 +4,10 @@ import type {LocalizedText} from '../model';
 
 export type GuidedExamplePreviewCopy = Readonly<{alt: LocalizedText; caption: LocalizedText}>;
 
+/** Demonstrations whose guided lesson is not written yet (the patches chapter, tasks 11–12); they get preview copy with their lesson. */
+export type DemonstrationWithoutLessonId = 'patch-tensor';
+export const isDemonstrationWithoutLesson = (id: DemonstrationId): id is DemonstrationWithoutLessonId => id === 'patch-tensor';
+
 const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string): GuidedExamplePreviewCopy => ({
     alt: {sl: altSl, en: altEn},
     caption: {sl: captionSl, en: captionEn},
@@ -56,7 +60,7 @@ export const guidedLessonPreviewCopyByDemonstration = {
     'uniform-convergence': copy('Graf družine funkcij v izbranem skaliranem primeru.', 'A graph of a function family in the selected scaled example.', 'Primerjaj narisane krivulje; supremum je v tem prizoru skrit, zato prikaz ne potrjuje enakomerne konvergence.', 'Compare the plotted curves; the supremum is hidden, so this scene does not establish uniform convergence.'),
     'complex-multiplication': copy('Kompleksni števili z označenima argumentoma.', 'Two complex numbers with their arguments marked.', 'Opazuj izbrani števili in njuna argumenta; produkt v tem začetnem prizoru ni prikazan.', 'Observe the selected numbers and their arguments; the product is not shown in this opening scene.'),
     'fixed-point': copy('Graf funkcije, identitetna premica in začetni približek \\(x_0\\); iteracijska pot še ni prikazana.', 'A function graph, identity line, and initial guess \\(x_0\\); the iteration path is not shown yet.', 'Opazuj začetni približek \\(x_0\\) in presečišče grafa z identitetno premico; iteracijska pot še ni prikazana.', 'Observe the initial guess \\(x_0\\) and the intersection of the graph with the identity line; the iteration path is not shown yet.'),
-} as const satisfies Record<DemonstrationId, GuidedExamplePreviewCopy>;
+} as const satisfies Record<Exclude<DemonstrationId, DemonstrationWithoutLessonId>, GuidedExamplePreviewCopy>;
 
 /** Scene-specific copy for the six Bézier activities, which have their own prepared actions. */
 export const guidedActivityPreviewCopyById = {

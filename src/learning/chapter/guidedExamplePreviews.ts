@@ -4,6 +4,7 @@ import type {ChapterExplorationPreview} from '../ChapterExploration';
 import {
     guidedActivityPreviewCopyById,
     guidedLessonPreviewCopyByDemonstration,
+    isDemonstrationWithoutLesson,
     workedParabolaJoinPreviewCopy,
     type GuidedExamplePreviewCopy,
 } from '../content/guidedExamplePreviewCopy';
@@ -35,6 +36,7 @@ function copyFor(id: string, demonstrationId: DemonstrationId): GuidedExamplePre
     if (home[5] === 'activity') {
         return guidedActivityPreviewCopyById[sourceId as keyof typeof guidedActivityPreviewCopyById];
     }
+    if (isDemonstrationWithoutLesson(demonstrationId)) return undefined;
     return guidedLessonPreviewCopyByDemonstration[demonstrationId];
 }
 

@@ -30,9 +30,12 @@ export interface PatchStateDto {
     readonly showTangentPlane?: boolean;
     readonly showNormal?: boolean;
     readonly showDeCasteljau?: boolean;
+    /** Iso-curve and shading mesh density (8 or 16 intervals); absent means the default. */
+    readonly isoDensity?: 8 | 16;
+    readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showDeCasteljau",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showDeCasteljau", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */

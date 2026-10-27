@@ -1,6 +1,6 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, TensorPatchDto} from "./patchDto";
+import {isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto} from "./patchDto";
 
 const MIN_DEGREE = 1;
 const MAX_DEGREE = 4;
@@ -22,9 +22,11 @@ function checkState(value: unknown): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
     const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: `state.${unknown}`});
-    const invalid = checkSceneState(value, ["camera"]);
+    const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity"]);
     if (invalid) return invalid;
     for (const key of ["u", "v"]) if (value[key] !== undefined && !isUnit(value[key])) return message("invalid_patch_parameter", {value0: key});
+    // `isoDensity` would otherwise be read as an `is*` switch by the shared state check.
+    for (const key of ["isoDensity", "shadingDensity"]) if (value[key] !== undefined && value[key] !== 8 && value[key] !== 16) return message("invalid_patch_density", {value0: key});
     return value.camera === undefined ? undefined : checkCamera(value.camera);
 }
 
@@ -69,19 +71,23 @@ export const patchPresetCollections = {
     "patch-triangular": patchCollection("patch-triangular", "TriangularBezierPatch"),
 } as const;
 
-const DEFAULT_CAMERA: PatchCameraDto = {az: -0.9, el: 0.5, distance: 9, projection: "perspective", target: [0, 0, 0.5]};
-const state = () => ({camera: {...DEFAULT_CAMERA}, u: 0.5, v: 0.5});
+/**
+ * Authored views. The distances come from `fitCameraTo(net, 0.45, ...)` (a 390x844 portrait host), so the whole net
+ * stays in view on a phone; wider hosts only see more margin. The saddle's bounds are 2x2x2 and the dome's 3x3x2.5.
+ */
+const camera = (distance: number, target: Point3Dto): PatchCameraDto => ({az: -0.9, el: 0.5, distance, projection: "perspective", target});
+const state = (view: PatchCameraDto) => ({camera: view, u: 0.5, v: 0.5});
 
 /** Hyperbolic paraboloid z = x*y over [-1,1]^2: bilinear with alternating corner heights. */
 const bilinearSaddle = (): TensorPatchDto => ({
-    m: 1, n: 1, state: state(),
+    m: 1, n: 1, state: state(camera(12.22, [0, 0, 0])),
     net: [[-1, -1, 1], [-1, 1, -1], [1, -1, -1], [1, 1, 1]],
 });
 
 /** 4x4 net over [-1.5,1.5]^2: boundary on the plane z = 0, the four interior points raised. */
 const bicubicDome = (): TensorPatchDto => {
     const heights = [[0, 0, 0, 0], [0, 2.5, 2.5, 0], [0, 2.5, 2.5, 0], [0, 0, 0, 0]];
-    return {m: 3, n: 3, state: state(), net: heights.flatMap((row, i) => row.map((z, j): [number, number, number] => [-1.5 + i, -1.5 + j, z]))};
+    return {m: 3, n: 3, state: state(camera(17.37, [0, 0, 1.25])), net: heights.flatMap((row, i) => row.map((z, j): [number, number, number] => [-1.5 + i, -1.5 + j, z]))};
 };
 
 export interface DefaultPatchPreset {

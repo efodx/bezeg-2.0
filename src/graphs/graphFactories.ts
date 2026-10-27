@@ -23,6 +23,7 @@ import RationalDecasteljauGraph from './curves/rational/RationalDecasteljauGraph
 import SubdivisionGraph from './curves/bezier/SubdivisionGraph';
 import CnSplineGraph from './curves/spline/CnSplineGraph';
 import SplineAlphaParametrizationGraph from './curves/parametrisations/SplineAlphaParametrizationGraph';
+import TensorPatchGraph from './patches/TensorPatchGraph';
 import { LinearFunctionGraph } from './functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './functions/ExponentialFunctionGraph';
 import { TrigonometricFunctionsGraph } from './functions/TrigonometricFunctionsGraph';
@@ -50,6 +51,7 @@ import type {DemonstrationId} from '../demonstrations';
 /** Executable graph constructors live behind graph-route lazy imports. */
 export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphState>> = {
     'bernstein': () => new BernsteinGraph(),
+    'patch-tensor': () => new TensorPatchGraph(),
     'complex-multiplication': () => new ComplexMultiplicationGraph(),
     'bezier': () => new BezierCurveGraph(),
     'decasteljau': () => new DecasteljauGraph(),

@@ -6,7 +6,7 @@
 import {graphFactories} from '../../graphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
+import {createGraph, installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
 import {commitPresetImport, preflightPresetImport, presetCollections} from './PresetImport';
 import {legacyCurvePresetCollections} from '../../curves/curvePresetCollections';
 
@@ -27,6 +27,8 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function",
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
     "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point"];
+/** Collections added after those files: the patch families (`patch-triangular` has no Demonstration yet). */
+const PATCH_KEYS = ["patch-tensor", "patch-triangular"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
 const rounded = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, item) =>
@@ -36,13 +38,13 @@ describe('Preset collection definitions', () => {
     test('the accepted collection keys are the file contract, each defined once', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
-        expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS].sort());
+        expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS].sort());
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {
         const used = new Set<unknown>();
         for (const id of ids) {
-            const collection = graphFactories[id]().presetCollection();
+            const collection = createGraph(id).presetCollection();
             if (NO_PRESET_COLLECTION.has(id)) {
                 expect(collection, id).toBeUndefined();
                 continue;
@@ -52,8 +54,8 @@ describe('Preset collection definitions', () => {
             used.add(collection);
         }
         const unused = presetCollections.filter(collection => !used.has(collection));
-        expect(unused).toEqual([...legacyCurvePresetCollections]);
-        expect(unused.map(collection => collection.key)).toEqual(['g1-spline']);
+        expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([...legacyCurvePresetCollections]);
+        expect(unused.map(collection => collection.key)).toEqual(['g1-spline', 'patch-triangular']);
     });
 
     test('definitions are static: frozen and usable without a graph or board', () => {
@@ -69,7 +71,7 @@ describe('Preset collection definitions', () => {
  * so every authored scene is a default Preset; it must pass its own collection, as a stored or exported copy will be checked.
  */
 test.each(ids)('%s: the default scene passes its own Preset collection', id => {
-    const graph = graphFactories[id]();
+    const graph = createGraph(id);
     const collection = graph.presetCollection();
     const data = JSON.parse(JSON.stringify(graph.defaultPreset()));
     if (collection) expect(collection.check(data)).toEqual({data});
@@ -96,7 +98,7 @@ test('rational-elevation: a stored Preset with a shorter curve state loads with 
 
 test.each(ids)('%s: the default Preset exports, preflights, imports and loads', async id => {
     const warn = vi.spyOn(console, 'warn');
-    const mounted = mountGraph(graphFactories[id]());
+    const mounted = mountGraph(createGraph(id));
     const {graph} = mounted;
     const collection = graph.presetCollection();
     if (!collection) {

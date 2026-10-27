@@ -1186,6 +1186,7 @@ export const sl = {
     "patch_coordinates_must_be_finite_triples": "vsaka točka mreže mora imeti tri končna števila (x, y, z)",
     "invalid_patch_camera": "neveljaven pogled kamere krpe",
     "invalid_patch_parameter": "parameter {value0} mora biti število med 0 in 1",
+    "invalid_patch_density": "gostota {value0} mora biti 8 ali 16",
     "patch_type_does_not_match_collection": "vrsta krpe se ne ujema z zbirko {value0}",
     "preset_bilinear_saddle": "Bilinearna Bézierjeva krpa (sedlo)",
     "preset_bicubic_dome": "Bikubična Bézierjeva krpa (kupola)",

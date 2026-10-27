@@ -15,6 +15,7 @@ import {capturePNGBlob} from './export/FigureCapture';
 import type {Mock} from 'vitest';
 import {
     controlsSignature,
+    createGraph,
     installBoardShims,
     mountGraph,
     REAL_GRAPH_TEST_TIMEOUT,
@@ -29,11 +30,13 @@ import {
     internals,
     mainScene,
     perturbModel,
+    viewOnlyPreset,
     scene,
     sceneActions,
     type SceneView,
 } from './realGraphScenes';
 import type {Preset} from './presets/Presets';
+import TensorPatchGraph from '../patches/TensorPatchGraph';
 
 vi.mock('./export/FigureCapture', async () => ({
     ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
@@ -52,6 +55,11 @@ export const TRANSIENT_STATE_PARTS = 4;
 const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>([]);
 /** No browser-local Preset collection (`presets()` is undefined), so no stored Preset can be loaded or exported. */
 const NO_PRESET_COLLECTION = new Set<DemonstrationId>(['circle']);
+/**
+ * No figure batch yet: `exportPresetFigures` is a board feature, and the surface view's image export is a later slice. The
+ * batch tests run a no-op check instead; the exemption must go when the surface graph exports figures.
+ */
+const NO_FIGURE_BATCH = new Set<DemonstrationId>(['patch-tensor']);
 /** The scene is described by its scene state alone: the Preset has no Preset data. */
 const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
 
@@ -61,6 +69,13 @@ const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
  * view of a curve graph; put them back for comparisons with a new graph.
  */
 function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<BaseGraphState>): void {
+    // A graph without a board keeps no board display preferences; its camera is scene state that every replacement path
+    // must restore, but the vertical-drag mode is a session preference that Preset replacement keeps.
+    if (graph instanceof TensorPatchGraph && reference instanceof TensorPatchGraph) {
+        act(() => graph.setZMode(reference.state.zMode));
+        return;
+    }
+    if (!internals(graph).board) return;
     act(() => {
         internals(graph).board.setBoundingBox(internals(reference).board.getBoundingBox() as [number, number, number, number], true);
         graph.setElementSize(reference.displaySettings.getSize());
@@ -71,7 +86,7 @@ function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<Bas
 
 /** Mounts a graph, changes its scene and returns it as a stored Preset with Preset data and scene state. */
 function storedPreset(id: DemonstrationId, presetId: string): Preset {
-    const source = mountGraph(graphFactories[id]());
+    const source = mountGraph(createGraph(id));
     changeScene(source, 'a');
     const preset = {...source.graph.exportPreset(), id: presetId};
     source.view.unmount();
@@ -94,6 +109,18 @@ async function loadedPresetScene(create: () => BaseGraph<BaseGraphState>, preset
 }
 
 
+/** A graph without a figure batch leaves the batch call a no-op: it resolves, captures nothing and changes nothing. */
+async function expectNoFigureBatch(create: () => BaseGraph<BaseGraphState>): Promise<void> {
+    const mounted = mountGraph(create());
+    changeScene(mounted, 'a');
+    const captured = full(mounted);
+    (capturePNGBlob as Mock).mockClear();
+    await settle(() => internals(mounted.graph).exportPresetFigures([{id: 'figure'}]));
+    expect(capturePNGBlob).not.toHaveBeenCalled();
+    expect(full(mounted)).toEqual(captured);
+    mounted.view.unmount();
+}
+
 const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default', source: 'demonstration-default'};
 
 /** Runs the contract for every `TRANSIENT_STATE_PARTS`-th Demonstration from `part` (0-based); the part files cover the catalog. */
@@ -105,7 +132,7 @@ export function describeGraphTransientState(part: number): void {
     const ids = (Object.keys(graphFactories) as DemonstrationId[]).filter((_id, index) => index % TRANSIENT_STATE_PARTS === part);
 
     describe.each(ids)('%s', id => {
-        const create = () => graphFactories[id]();
+        const create = () => createGraph(id);
 
         test('a lesson checkpoint restores the captured scene, transient state, board and controls', () => {
             const mounted = mountGraph(create());
@@ -203,9 +230,10 @@ export function describeGraphTransientState(part: number): void {
         });
 
         test('a figure batch shows each Preset as loading it would, and restores the entry scene', async () => {
+            if (NO_FIGURE_BATCH.has(id)) return expectNoFigureBatch(create);
             const reference = mountGraph(create());
             const freshScene = scene(reference.graph);
-            const viewOnly: Preset = {id: 'figure', boardState: {boundingBox: internals(reference.graph).board.getBoundingBox() as [number, number, number, number]}};
+            const viewOnly = viewOnlyPreset(reference.graph);
             // A Preset with Preset data and scene state, from a changed scene.
             const stored = NO_PRESET_COLLECTION.has(id) ? undefined : storedPreset(id, 'stored');
             const storedScene = stored && await loadedPresetScene(create, stored);
@@ -237,6 +265,7 @@ export function describeGraphTransientState(part: number): void {
         });
 
         test('a figure batch cancelled by unmounting settles without restoring into the disposed board', async () => {
+            if (NO_FIGURE_BATCH.has(id)) return expectNoFigureBatch(create);
             const mounted = mountGraph(create());
             const {graph} = mounted;
             changeScene(mounted, 'a');
@@ -285,8 +314,14 @@ export function describeGraphTransientState(part: number): void {
             const {graph} = mounted;
             changeScene(mounted, 'a');
             const preset = graph.exportPreset();
-            expect(Object.keys(preset).sort()).toEqual(['boardState', 'data', 'graphState', 'id']);
-            expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).sort());
+            if (internals(graph).board) {
+                expect(Object.keys(preset).sort()).toEqual(['boardState', 'data', 'graphState', 'id']);
+                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).sort());
+            } else {
+                // All surface state is Preset data; the Preset's graphState only marks the graph initialized.
+                expect(Object.keys(preset).sort()).toEqual(['data', 'graphState', 'id']);
+                expect(preset.graphState).toEqual({initialized: true});
+            }
             const declared = internals(graph).captureTransientState?.();
             if (declared && typeof declared === 'object') {
                 for (const key of Object.keys(declared)) expect(preset.graphState).not.toHaveProperty(key);
