@@ -12,6 +12,7 @@ import {defaultPatchPresets, type DerivativesStartingPatch, derivativesStartingP
 import {patchFromNet} from "./patchSceneBuilder";
 import {canElevate, SUBDIVISION_RANGE} from "./tensorSubdivision";
 import {clamp} from "./surface-view/surfaceMath";
+import type {TensorSubdivisionLessonHost} from "./patchLessonActions";
 import type {ScenePolyline, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
 export const DEFAULT_SUBDIVISION_DIRECTION: PatchDirection = "u";
@@ -120,6 +121,15 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
 
     setShowPieces(showPieces: boolean): void {
         this.setState({showPieces});
+    }
+
+    protected override lessonSubdivision(): TensorSubdivisionLessonHost {
+        return {
+            kind: "tensor",
+            canElevateIn: direction => this.canElevateIn(direction),
+            showSplit: (direction, value) => this.setState({subdivisionDirection: direction, subdivisionValue: value, showPieces: true}),
+            elevate: direction => this.elevate(direction),
+        };
     }
 
     /** Whether `elevate(direction)` would act: the degree in that direction is below the maximum 4. */

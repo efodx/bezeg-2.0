@@ -5,6 +5,10 @@ import {PatchSelection, TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPat
 import {mountParameterInset, ParameterInset} from "./parameterInset";
 import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
+import type {LessonPatchFixture} from "../../learning/model";
+import {lessonPatchPresetData} from "./lessonPatchFixture";
+import {patchLessonActions, type PatchVisibilityTarget, type TensorSubdivisionLessonHost} from "./patchLessonActions";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {DecasteljauOrder, type JoinCapstone, PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, type DerivativesStartingPatch, patchPresetCollections} from "./patchPresetCollections";
@@ -140,6 +144,37 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
 
     override exportPresetData(): PatchCollectionPresetData {
         return [["TensorProductBezierPatch", tensorPatchToDto(patchFromNet(this.state.net), this.stateDto())]];
+    }
+
+    /** The visibility switches this demonstration has; subclasses add theirs. */
+    protected lessonVisibilitySetters(): Partial<Record<PatchVisibilityTarget, (visible: boolean) => void>> {
+        return {
+            "control-net": visible => this.setVisibility("showControlNet", visible),
+            "iso-curves": visible => this.setVisibility("showIsoCurves", visible),
+            "boundary-curves": visible => this.setVisibility("showBoundaryCurves", visible),
+            "shading": visible => this.setVisibility("showShading", visible),
+        };
+    }
+
+    /** The split and elevation operations of the demonstrations that have them. */
+    protected lessonSubdivision(): TensorSubdivisionLessonHost | undefined {
+        return undefined;
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(patchLessonActions({
+            kind: "tensor",
+            visibilityTargets: () => new Set(Object.keys(this.lessonVisibilitySetters()) as PatchVisibilityTarget[]),
+            setVisibility: (target, visible) => this.lessonVisibilitySetters()[target]?.(visible),
+            setParameters: (u, v) => this.setParameters(u, v),
+            applyCameraPreset: view => this.applyCameraPreset(view),
+            subdivision: () => this.lessonSubdivision(),
+        }));
+    }
+
+    protected override lessonPatchData(patch: LessonPatchFixture): PatchCollectionPresetData {
+        return lessonPatchPresetData(patch, "tensor");
     }
 
     override importPresetData(data: PatchCollectionPresetData): void {

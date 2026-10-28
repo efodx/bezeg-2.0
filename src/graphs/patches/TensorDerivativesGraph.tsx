@@ -62,6 +62,15 @@ export default class TensorDerivativesGraph extends TensorPatchGraph {
         return {showTangentPlane, showNormal, showTwist};
     }
 
+    protected override lessonVisibilitySetters(): ReturnType<TensorPatchGraph["lessonVisibilitySetters"]> {
+        return {
+            ...super.lessonVisibilitySetters(),
+            "tangent-plane": visible => this.setDerivativesSwitch("showTangentPlane", visible),
+            "normal": visible => this.setDerivativesSwitch("showNormal", visible),
+            "twist": visible => this.setDerivativesSwitch("showTwist", visible),
+        };
+    }
+
     setDerivativesSwitch(key: DerivativesSwitch, visible: boolean): void {
         this.setState({[key]: visible});
     }

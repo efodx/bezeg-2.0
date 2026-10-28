@@ -7,6 +7,9 @@ import {maxVersion, nextVersion, VOLATILE} from "../versioning";
 
 export type Barycentric = readonly [number, number, number];
 
+/** How far outside the reference triangle (u + v = 1) evaluation still accepts rounding error. */
+export const BARYCENTRIC_TOLERANCE = 8 * Number.EPSILON;
+
 const MAX_CACHED_EVALUATIONS = 128;
 const MAX_CACHED_MESHES = 4;
 const MAX_MESH_INTERVALS = 256;
@@ -75,7 +78,7 @@ export class TriangularBezierPatch implements BezierPatch {
     private static barycentric(u: number, v: number): Barycentric {
         if (!Number.isFinite(u) || !Number.isFinite(v)) throw new RangeError("Barycentric parameters must be finite.");
         const sum = u + v;
-        const tolerance = 8 * Number.EPSILON;
+        const tolerance = BARYCENTRIC_TOLERANCE;
         if (u < 0 || v < 0 || sum > 1 + tolerance) {
             throw new RangeError("Barycentric parameters must lie inside the reference triangle (u + v ≤ 1).");
         }

@@ -1,5 +1,5 @@
 import React from "react";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, onLanguageChange, renderMessage, t} from "../../localization";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {Preset} from "../base/presets/Presets";
@@ -11,6 +11,8 @@ import {
     SURFACE_LABEL_OFFSET_X_PX,
     SurfaceLabelOverlay,
 } from "./SurfaceLabelOverlay";
+import {LessonAction, LessonPatchFixture, LessonView3D, UnsupportedLessonActionError} from "../../learning/model";
+import {clampDistance, clampElevation} from "./surface-view/surfaceMath";
 import {SurfaceCamera, SurfaceEdit, SurfaceScene, SurfaceView, Xyz} from "./surface-view/surfaceScene";
 import {ThreeSurfaceView} from "./surface-view/threeSurfaceView";
 
@@ -150,6 +152,50 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.selectedPointIdValue = next;
         // The selected point's row and column are scene polylines, which the view rebuilds only on a new revision.
         this.redrawGeometry();
+    }
+
+    // ---- Lesson patch scenes -----------------------------------------------------------------------------------
+
+    /**
+     * This graph's Preset data for a lesson patch fixture, or undefined when the graph has no patch fixture support.
+     * Throws when the fixture is of the other kind than the graph's own patch.
+     */
+    protected lessonPatchData(_patch: LessonPatchFixture): D | undefined {
+        return undefined;
+    }
+
+    /**
+     * The default scene with the fixture's net, then the lesson camera. Everything is checked before the scene store is
+     * replaced, so a rejected fixture or view leaves the current scene untouched. The fixture is imported after the
+     * fresh state is in place; it is not reverted by it.
+     */
+    protected override prepareLessonPatchScene(patch: LessonPatchFixture, view3d: LessonView3D | undefined, action: LessonAction): void {
+        if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        const data = this.lessonPatchData(patch);
+        if (data === undefined) throw new UnsupportedLessonActionError(action);
+        const collection = this.presetCollection();
+        if (!collection) throw new Error('This demonstration cannot check lesson geometry.');
+        const checked = collection.check(JSON.parse(JSON.stringify(data)) as unknown);
+        if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
+        const camera = view3d ? this.lessonCamera(view3d, this.getInitialState().camera) : undefined;
+        this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
+        this.importPresetData(checked.data);
+        if (camera) this.setSurfaceState({camera});
+        this.finishSceneReplacement(undefined);
+    }
+
+    /** Sets the camera of the current scene from a lesson 3D view (clamped like the user's camera). */
+    protected applyLessonView3D(view: LessonView3D): void {
+        this.setSurfaceState({camera: this.lessonCamera(view, this.state.camera)});
+    }
+
+    private lessonCamera(view: LessonView3D, from: SurfaceCamera): SurfaceCamera {
+        const target = view.target ? [view.target.x, view.target.y, view.target.z] as Xyz : from.target;
+        if (![view.az, view.el, view.distance, ...target].every(value => typeof value === "number" && Number.isFinite(value))
+            || (view.projection !== undefined && view.projection !== "perspective")) {
+            throw new Error("The lesson 3D view must have finite az, el, distance and target, and a perspective projection.");
+        }
+        return {az: view.az, el: clampElevation(view.el), distance: clampDistance(view.distance), projection: "perspective", target: [...target] as Xyz};
     }
 
     /** Redraws the view after a change of transient state (not of the scene store) that alters polylines, mesh or points. */

@@ -80,6 +80,31 @@ export interface LessonCurveFixture {
     readonly splineRatios?: readonly number[];
 }
 
+/** A point in the 3D scene of a surface (patch) demonstration. */
+export interface LessonPoint3 {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+}
+
+/**
+ * The control net of a lesson patch, degrees 1 to 4. Tensor nets are row-major, `(m + 1) * (n + 1)` points with `b_ij`
+ * at `i * (n + 1) + j`; triangular nets list `(n + 1)(n + 2) / 2` points in the graph's canonical order. The graph
+ * rejects nets its Preset collection rejects, and a fixture of the other kind than the graph's own.
+ */
+export type LessonPatchFixture =
+    | {readonly kind: 'tensor'; readonly m: number; readonly n: number; readonly net: readonly LessonPoint3[]}
+    | {readonly kind: 'triangular'; readonly n: number; readonly net: readonly LessonPoint3[]};
+
+/** A surface demonstration's camera (radians); elevation and distance are clamped like the user's own camera. */
+export interface LessonView3D {
+    readonly az: number;
+    readonly el: number;
+    readonly distance: number;
+    readonly target?: LessonPoint3;
+    readonly projection?: 'perspective';
+}
+
 export type LessonAction =
     | {readonly kind: 'function-parameter'; readonly name: FunctionParameterName; readonly value: number}
     | {readonly kind: 'function-visibility'; readonly target: FunctionVisibilityTarget; readonly visible: boolean}
@@ -88,8 +113,16 @@ export type LessonAction =
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'demonstration-default'; readonly view?: LessonViewBox}
     /** The default scene with the fixture's geometry; `view` sets the starting view, otherwise the current view stays. */
     | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'lesson-fixture'; readonly curve: LessonCurveFixture; readonly view?: LessonViewBox}
+    /** The patch graph's default scene with the fixture's net; `view3d` sets the camera, otherwise the default camera applies. */
+    | {readonly kind: 'prepared-scene'; readonly sceneId: string; readonly source: 'lesson-patch-fixture'; readonly patch: LessonPatchFixture; readonly view3d?: LessonView3D; readonly view?: undefined}
     | {readonly kind: 'curve-visibility'; readonly target: 'control-polygon' | 'convex-hull' | 'decasteljau-scheme' | 'decasteljau-full-curve' | 'ph-control-polygon' | 'offset-curve' | 'weights'; readonly visible: boolean}
     | {readonly kind: 'curve-evaluation'; readonly parameter: number}
+    | {readonly kind: 'patch-evaluation'; readonly u: number; readonly v: number; readonly w?: number}
+    | {readonly kind: 'patch-visibility'; readonly target: 'control-net' | 'iso-curves' | 'boundary-curves' | 'decasteljau-scheme' | 'tangent-plane' | 'normal' | 'twist' | 'shading'; readonly visible: boolean}
+    | {readonly kind: 'patch-subdivide'; readonly direction?: 'u' | 'v'; readonly value?: number}
+    | {readonly kind: 'patch-elevate'; readonly direction?: 'u' | 'v'}
+    | {readonly kind: 'camera-preset'; readonly view: 'front' | 'top' | 'side' | 'isometric'}
+
     | {readonly kind: 'degree-elevation'}
     | {readonly kind: 'affine-transform'; readonly operation: 'translate-x' | 'translate-y' | 'scale' | 'rotate'; readonly value: number}
     | {readonly kind: 'affine-transform'; readonly operation: 'reflect-x' | 'reflect-y'}

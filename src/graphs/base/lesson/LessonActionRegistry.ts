@@ -12,6 +12,7 @@ export type LessonActionHandler<A extends LessonAction = LessonAction> = (action
 /** Action kinds that share one handler per `name`/`target` instead of one per kind, and the field that tells them apart. */
 const DISCRIMINATORS = {
     'curve-visibility': 'target',
+    'patch-visibility': 'target',
     'parameter': 'name',
     'animation': 'animationId',
 } as const satisfies Partial<Record<LessonActionKind, string>>;

@@ -2,6 +2,10 @@ import type React from "react";
 import type {Polygon} from "jsxgraph";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {TransientState} from "../base/BaseGraph";
+import type {LessonPatchFixture} from "../../learning/model";
+import {lessonPatchPresetData} from "./lessonPatchFixture";
+import {patchLessonActions} from "./patchLessonActions";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, triangularPatchToDto} from "./patchDto";
 import {defaultTriangularPatchPresets, patchPresetCollections} from "./patchPresetCollections";
@@ -16,6 +20,11 @@ import {clampToTriangle} from "./triangleDomain";
 import type {GraphSession} from "../base/GraphSession";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
+
+const TRIANGULAR_VISIBILITY_KEYS = {
+    "control-net": "showControlNet", "iso-curves": "showIsoCurves", "boundary-curves": "showBoundaryCurves",
+    "shading": "showShading", "decasteljau-scheme": "showDeCasteljau",
+} as const;
 
 export interface TriangularPatchGraphState extends SurfaceGraphState {
     /** The degree; the net has `(n + 1)(n + 2) / 2` points. */
@@ -107,6 +116,28 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
             showDeCasteljau: s.showDeCasteljau, isoDensity: s.isoDensity, shadingDensity: s.shadingDensity,
         });
         return [["TriangularBezierPatch", dto]];
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(patchLessonActions({
+            kind: "triangular",
+            visibilityTargets: () => new Set(["control-net", "iso-curves", "boundary-curves", "shading", "decasteljau-scheme"] as const),
+            setVisibility: (target, visible) => this.setVisibility(TRIANGULAR_VISIBILITY_KEYS[target as keyof typeof TRIANGULAR_VISIBILITY_KEYS], visible),
+            setParameters: (u, v) => this.setParameters(u, v),
+            applyCameraPreset: view => this.applyCameraPreset(view),
+            subdivision: () => ({
+                kind: "triangular",
+                degree: () => this.state.n,
+                maxDegree: () => MAX_TRIANGULAR_DEGREE,
+                elevate: () => this.setDegree(this.state.n + 1),
+                showSplitPreview: () => this.setSubdivisionPreview(true),
+            }),
+        }));
+    }
+
+    protected override lessonPatchData(patch: LessonPatchFixture): PatchCollectionPresetData {
+        return lessonPatchPresetData(patch, "triangular");
     }
 
     override importPresetData(data: PatchCollectionPresetData): void {

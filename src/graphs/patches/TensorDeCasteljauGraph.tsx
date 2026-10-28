@@ -55,6 +55,10 @@ export default class TensorDeCasteljauGraph extends TensorPatchGraph {
         this.setState({decasteljauOrder: order});
     }
 
+    protected override lessonVisibilitySetters(): ReturnType<TensorPatchGraph["lessonVisibilitySetters"]> {
+        return {...super.lessonVisibilitySetters(), "decasteljau-scheme": visible => this.setShowDeCasteljau(visible)};
+    }
+
     setShowDeCasteljau(visible: boolean): void {
         this.setState({showDeCasteljau: visible});
     }

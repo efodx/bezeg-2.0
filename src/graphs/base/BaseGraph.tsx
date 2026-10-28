@@ -13,7 +13,7 @@ import {AxisSelector} from "./AxisSelector";
 import {SizeRange} from "./SizeRange";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
-import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonSceneCheckpoint, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
+import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonPatchFixture, LessonSceneCheckpoint, LessonView3D, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import {AxisSelect, DisplaySettings} from "./DisplaySettings";
@@ -481,10 +481,19 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 }
                 return;
             }
+            if (action.source === 'lesson-patch-fixture') {
+                this.prepareLessonPatchScene(action.patch, action.view3d, action);
+                return;
+            }
             const data = this.lessonFixtureData(action.curve);
             if (data === undefined) throw new UnsupportedLessonActionError(action);
             this.prepareLessonFixtureScene(data, action.view);
         });
+    }
+
+    /** Prepares a lesson patch scene; only graphs with a patch scene store support it. */
+    protected prepareLessonPatchScene(_patch: LessonPatchFixture, _view3d: LessonView3D | undefined, action: LessonAction): void {
+        throw new UnsupportedLessonActionError(action);
     }
 
     /**
@@ -540,7 +549,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
      * The synchronous end of a lesson scene replacement: transient state, then the drawing that depends on it, then a
      * workspace revision so scene-backed controls (and child boards keyed on it) re-seed from the new scene.
      */
-    private finishSceneReplacement(transientState: TransientState | undefined): void {
+    protected finishSceneReplacement(transientState: TransientState | undefined): void {
         this.restoreTransientState(transientState);
         this.syncReplacedScene();
         this.workspaceRevision++;
@@ -1050,7 +1059,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     /** Replaces the whole scene state synchronously; the deferred `onStateChange` still sees the state from before. */
-    private replaceState(next: S): void {
+    protected replaceState(next: S): void {
         const before = this.store.getState();
         if (this.pendingPreviousState === undefined) this.pendingPreviousState = before;
         this.store.replaceState(next);
