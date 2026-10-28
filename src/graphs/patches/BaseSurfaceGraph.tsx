@@ -28,6 +28,14 @@ export interface SurfaceGraphOptions {
     typeset?: OverlayTypesetter;
 }
 
+/** Whether two states are `===` on every key except `camera`. */
+const onlyCameraDiffers = (a: object, b: object): boolean => {
+    const x = a as Record<string, unknown>, y = b as Record<string, unknown>;
+    const keys = new Set([...Object.keys(x), ...Object.keys(y)]);
+    for (const key of keys) if (key !== "camera" && x[key] !== y[key]) return false;
+    return true;
+};
+
 /**
  * A graph whose main view is a `SurfaceView` instead of a JSXGraph board. It owns the view's lifecycle (created per
  * mount, disposed with the session), applies the view's edit intents to the scene store and reconciles the view after
@@ -44,6 +52,8 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     /** Counts geometry changes; the view rebuilds its geometry when this changes. */
     private revision = 0;
     private viewIsNew = false;
+    /** The last scene handed to the view with the inputs it was built from; reused when only the camera changed. */
+    private lastBuilt?: {scene: SurfaceScene; revision: number; selectedPointId: string | undefined; state: Readonly<S>};
     /** Transient: the selected control point id (`p-i-j`); not part of any Preset. */
     private selectedPointIdValue: string | undefined;
 
@@ -71,6 +81,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.view = view;
         this.host = container;
         this.viewIsNew = true;
+        this.lastBuilt = undefined;
         // A fresh view starts available, whatever an earlier view (or a restored checkpoint) left in the store.
         this.setViewUnavailable(session, false);
         const overlay = new SurfaceLabelOverlay(container, this.typeset);
@@ -81,6 +92,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
                 this.host = undefined;
                 this.labelOverlay = undefined;
             }
+            this.lastBuilt = undefined;
             view.dispose();
             overlay.dispose();
         });
@@ -143,6 +155,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     /** Redraws the view after a change of transient state (not of the scene store) that alters polylines, mesh or points. */
     protected redrawGeometry(): void {
         this.revision++;
+        this.lastBuilt = undefined;
         this.reconcileView();
         this.requestRender();
     }
@@ -155,7 +168,17 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
 
     private reconcileView(): void {
         if (!this.view || !this.graphSession?.isAlive) return;
-        this.view.reconcile(this.buildScene(this.revision, this.selectedPointIdValue));
+        const last = this.lastBuilt, state = this.state, selected = this.selectedPointIdValue;
+        if (last && last.revision === this.revision && last.selectedPointId === selected && last.state !== state && onlyCameraDiffers(last.state, state)) {
+            // Camera-only change: every scene builder copies `state.camera` unchanged (cloning the target), so reuse the geometry.
+            const camera = {...state.camera, target: [...state.camera.target] as Xyz};
+            this.view.reconcile({...last.scene, camera});
+            this.lastBuilt = {...last, scene: {...last.scene, camera}, state};
+            return;
+        }
+        const scene = this.buildScene(this.revision, selected);
+        this.lastBuilt = {scene, revision: this.revision, selectedPointId: selected, state};
+        this.view.reconcile(scene);
     }
 
     protected override onStateChange(previous: Readonly<S>): void {
@@ -175,6 +198,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     /** A scene replacement (Preset, reset, lesson checkpoint) always changes the geometry. */
     protected override syncReplacedScene(): void {
         this.revision++;
+        this.lastBuilt = undefined;
         if (this.state.surfaceUnavailable !== this.viewUnavailable) this.setSurfaceState({surfaceUnavailable: this.viewUnavailable});
         this.reconcileView();
     }
