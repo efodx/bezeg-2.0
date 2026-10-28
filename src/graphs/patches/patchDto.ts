@@ -32,8 +32,11 @@ export interface PatchStateDto {
     readonly showIsoCurves?: boolean;
     readonly showBoundaryCurves?: boolean;
     readonly showShading?: boolean;
+    /** The tangent plane and the normal of the `patch-derivatives` Demonstration; absent means shown there. */
     readonly showTangentPlane?: boolean;
     readonly showNormal?: boolean;
+    /** The twist vector `S_uv` of the `patch-derivatives` Demonstration; absent means shown there. */
+    readonly showTwist?: boolean;
     readonly showDeCasteljau?: boolean;
     /** The construction order of the tensor `patch-decasteljau` Demonstration; absent means `rows`. */
     readonly decasteljauOrder?: DecasteljauOrder;
@@ -42,7 +45,7 @@ export interface PatchStateDto {
     readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showDeCasteljau", "decasteljauOrder", "isoDensity", "shadingDensity",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */

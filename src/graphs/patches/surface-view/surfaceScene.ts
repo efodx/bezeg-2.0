@@ -11,8 +11,11 @@ export type Xyz = [number, number, number];
  * `iso-v` and `iso-w` are the second and third iso-line families of a triangular patch; `iso` is the first (and the tensor patch's only).
  * `compare` draws the tensor-product patch that the triangular workspace shows next to its own surface (curves and net only).
  * `construction-2` is the second stage of the tensor patch's de Casteljau construction (`construction` is the first).
+ * `vector-u`, `vector-v`, `twist` and `normal` are the arrows of the tensor patch's derivative demonstration: `S_u`, `S_v`,
+ * `S_uv` and the unit normal.
  */
-export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'construction-2' | 'highlight' | 'compare';
+export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'construction-2' | 'highlight' | 'compare'
+    | 'vector-u' | 'vector-v' | 'twist' | 'normal';
 export type MarkerRole = 'evaluated' | 'construction' | 'construction-2';
 
 export interface ScenePoint {
@@ -25,6 +28,12 @@ export interface ScenePolyline {
     id: string;
     role: PolylineRole;
     points: Xyz[];
+}
+
+/** A translucent planar quad (the tangent plane), seen from both sides; corners in cyclic order. */
+export interface ScenePlane {
+    id: string;
+    corners: [Xyz, Xyz, Xyz, Xyz];
 }
 
 export interface SceneMesh {
@@ -70,6 +79,8 @@ export interface SurfaceScene {
     points: ScenePoint[];
     polylines: ScenePolyline[];
     mesh?: SceneMesh;
+    /** Translucent quads; absent means none. */
+    planes?: ScenePlane[];
     markers: SceneMarker[];
     labels: SceneLabel[];
     camera: SurfaceCamera;
@@ -135,6 +146,7 @@ function finiteXyz(p: readonly number[], where: string): void {
 export function assertFiniteScene(scene: SurfaceScene): void {
     for (const p of scene.points) finiteXyz(p.xyz, `point ${p.id}`);
     for (const l of scene.polylines) l.points.forEach(p => finiteXyz(p, `polyline ${l.id}`));
+    for (const plane of scene.planes ?? []) plane.corners.forEach(p => finiteXyz(p, `plane ${plane.id}`));
     for (const m of scene.markers) finiteXyz(m.xyz, `marker ${m.id}`);
     for (const l of scene.labels) finiteXyz(l.anchor, `label ${l.id}`);
     const c = scene.camera;

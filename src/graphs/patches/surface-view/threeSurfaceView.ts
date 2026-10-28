@@ -53,6 +53,11 @@ export const SURFACE_COLORS = {
     'construction-2': 0xb02a73, // pink: the second stage of the tensor de Casteljau construction, also dashed
     highlight: 0x1f5fbf,
     compare: 0x0b7a75, // teal: the tensor patch beside the triangular one; 5.2:1 on white (5.18 computed)
+    'vector-u': 0x0b4f9c, // blue, solid: S_u of the derivative demonstration
+    'vector-v': 0xb3202a, // crimson, solid: S_v; blue and crimson differ strongly in hue
+    twist: 0x6a2c91, // violet, dotted: S_uv
+    normal: 0x2a2a2a, // near black, long-dashed: the unit normal
+    plane: 0x4f86c6, // the translucent tangent plane and its outline
     point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
     selected: 0x1f5fbf,
     marker: 0xca5c37,
@@ -63,13 +68,17 @@ export const SURFACE_COLORS = {
  * Dash pattern per role, as a fraction of the scene extent (the diagonal of the scene's bounding box),
  * so the dashes stay visible at any patch size. Roles not listed are drawn solid. The iso-curves are
  * told apart without colour: `iso` solid, `iso-v` dashed, `iso-w` dotted, `compare` long-dashed. The second
- * construction stage (`construction-2`) is short-dashed against the first stage's solid lines.
+ * construction stage (`construction-2`) is short-dashed against the first stage's solid lines. In the derivative
+ * demonstration `vector-u` and `vector-v` are solid (told apart by hue and their labels), `twist` is dotted and
+ * `normal` is long-dashed.
  */
 export const SURFACE_DASH = {
     'iso-v': {dash: 0.03, gap: 0.02},
     'iso-w': {dash: 0.014, gap: 0.014},
     compare: {dash: 0.07, gap: 0.03},
     'construction-2': {dash: 0.022, gap: 0.012},
+    twist: {dash: 0.008, gap: 0.01},
+    normal: {dash: 0.05, gap: 0.02},
 } as const satisfies Partial<Record<PolylineRole, {dash: number; gap: number}>>;
 
 function dashFor(role: PolylineRole): {dash: number; gap: number} | undefined {
@@ -162,6 +171,8 @@ export class ThreeSurfaceView implements SurfaceView {
     private constructionMaterial: ThreeNs.MeshBasicMaterial | null = null;
     private construction2Material: ThreeNs.MeshBasicMaterial | null = null;
     private surfaceMaterial: ThreeNs.MeshStandardMaterial | null = null;
+    private planeMaterial: ThreeNs.MeshBasicMaterial | null = null;
+    private planeOutlineMaterial: ThreeNs.LineBasicMaterial | null = null;
 
     constructor(options: ThreeSurfaceViewOptions = {}) {
         this.loadThree = options.loadThree ?? (() => import('three'));
@@ -374,6 +385,11 @@ export class ThreeSurfaceView implements SurfaceView {
             color: SURFACE_COLORS.surface, roughness: 0.74, metalness: 0, side: T.DoubleSide,
             polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
         }));
+        // Translucent and double-sided; it does not write depth, so the surface and the arrows behind it stay visible.
+        this.planeMaterial = this.track(new T.MeshBasicMaterial({
+            color: SURFACE_COLORS.plane, transparent: true, opacity: 0.3, side: T.DoubleSide, depthWrite: false,
+        }));
+        this.planeOutlineMaterial = this.track(new T.LineBasicMaterial({color: SURFACE_COLORS.plane}));
 
         this.measure();
         this.listen(canvas, 'pointerdown', (e: PointerEvent) => this.onPointerDown(e));
@@ -516,6 +532,19 @@ export class ThreeSurfaceView implements SurfaceView {
             if (dashFor(line.role)) obj.computeLineDistances();
             obj.userData.ownsGeometry = true;
             layer.add(obj);
+        }
+        for (const plane of scene.planes ?? []) {
+            const g = new T.BufferGeometry();
+            g.setAttribute('position', new T.Float32BufferAttribute(plane.corners.flat(), 3));
+            g.setIndex([0, 1, 2, 0, 2, 3]);
+            const quad = new T.Mesh(g, this.planeMaterial!);
+            quad.userData.ownsGeometry = true;
+            layer.add(quad);
+            const outline = new T.BufferGeometry();
+            outline.setAttribute('position', new T.Float32BufferAttribute([...plane.corners, plane.corners[0]].flat(), 3));
+            const loop = new T.Line(outline, this.planeOutlineMaterial!);
+            loop.userData.ownsGeometry = true;
+            layer.add(loop);
         }
         layer.updateMatrixWorld(true);
     }

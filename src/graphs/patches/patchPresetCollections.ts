@@ -2,6 +2,8 @@ import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {isDecasteljauOrder, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
 import {defaultTriangularNet} from "./TriangularPatchDegree";
+import {collapsedEdgeNet, parallelCornerNet} from "./tensorDerivatives";
+import type {Xyz} from "./surface-view/surfaceScene";
 
 const MIN_DEGREE = 1;
 const MAX_DEGREE = 4;
@@ -81,6 +83,7 @@ export const patchPresetCollections = {
     "patch-tensor": patchCollection("patch-tensor", "TensorProductBezierPatch"),
     "patch-triangular": patchCollection("patch-triangular", "TriangularBezierPatch"),
     "patch-decasteljau": patchCollection("patch-decasteljau", "TensorProductBezierPatch"),
+    "patch-derivatives": patchCollection("patch-derivatives", "TensorProductBezierPatch"),
 } as const;
 
 /**
@@ -112,6 +115,31 @@ export interface DefaultPatchPreset {
 export const defaultPatchPresets: readonly DefaultPatchPreset[] = [
     {id: "bilinear-saddle", name: "preset_bilinear_saddle", data: () => [["TensorProductBezierPatch", bilinearSaddle()]]},
     {id: "bicubic-dome", name: "preset_bicubic_dome", data: () => [["TensorProductBezierPatch", bicubicDome()]]},
+];
+
+const COLLAPSED_EDGE_DISTANCE = 17.55, COLLAPSED_EDGE_TARGET: Point3Dto = [1.5, 0, 0.3];
+const PARALLEL_CORNER_DISTANCE = 19, PARALLEL_CORNER_TARGET: Point3Dto = [2, 1.5, 1];
+
+/** A net given as rows `net[i][j]`, as the DTO stores it row-major. */
+const dtoOf = (rows: readonly (readonly Xyz[])[], view: PatchCameraDto, parameters: {u: number; v: number}): TensorPatchDto =>
+    ({m: rows.length - 1, n: rows[0].length - 1, net: rows.flat(), state: {camera: view, ...parameters}});
+
+export interface DerivativesStartingPatch {
+    readonly id: string;
+    readonly name: DefaultPatchPreset["name"] | "preset_collapsed_edge" | "preset_parallel_corner";
+    readonly data: () => PatchCollectionPresetData;
+}
+
+/**
+ * The starting patches of the `patch-derivatives` Demonstration: the two tensor Presets and two patches whose normal is
+ * undefined somewhere. The collapsed-edge patch has its whole `u = 0` row at one point (`S_v = 0` along that edge, yet
+ * a limit normal exists); the parallel-corner patch has parallel edge vectors at `(0, 0)`. Both start at the degenerate
+ * corner `(0, 0)` so the reason is visible at once. Cameras are fitted like the other Presets' (aspect 0.45).
+ */
+export const derivativesStartingPatches: readonly DerivativesStartingPatch[] = [
+    ...defaultPatchPresets,
+    {id: "collapsed-edge", name: "preset_collapsed_edge", data: () => [["TensorProductBezierPatch", dtoOf(collapsedEdgeNet(), camera(COLLAPSED_EDGE_DISTANCE, COLLAPSED_EDGE_TARGET), {u: 0, v: 0.5})]]},
+    {id: "parallel-corner", name: "preset_parallel_corner", data: () => [["TensorProductBezierPatch", dtoOf(parallelCornerNet(), camera(PARALLEL_CORNER_DISTANCE, PARALLEL_CORNER_TARGET), {u: 0, v: 0})]]},
 ];
 
 export interface DefaultTriangularPatchPreset {

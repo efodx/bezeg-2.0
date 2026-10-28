@@ -8,7 +8,7 @@ import {TensorProductBezierPatch} from "../../bezeg/impl/patch/tensor-product-be
 import {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import {tensorPatchFromDto, tensorPatchToDto, triangularPatchFromDto, triangularPatchToDto} from "./patchDto";
 import {fitCameraTo} from "./surface-view/surfaceMath";
-import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
+import {defaultPatchPresets, derivativesStartingPatches, patchPresetCollections} from "./patchPresetCollections";
 import {preflightPresetImport} from "../base/presets/PresetImport";
 
 afterEach(() => setLanguage("sl"));
@@ -205,5 +205,51 @@ describe("patch-decasteljau construction order", () => {
             sl: "vrstni red konstrukcije mora biti rows, columns ali bilinear",
             en: "the construction order must be rows, columns or bilinear",
         });
+    });
+});
+
+describe("patch-derivatives collection and starting patches", () => {
+    const derivatives = patchPresetCollections["patch-derivatives"];
+    const withState = (state: Record<string, unknown>) => tensor({state});
+
+    it("has its own key and accepts the tensor patch type only", () => {
+        expect(derivatives.key).toBe("patch-derivatives");
+        expect("rejection" in derivatives.check([["TriangularBezierPatch", {n: 1, net: net4.slice(0, 3)}]])).toBe(true);
+    });
+    it.each(derivativesStartingPatches.map(preset => [preset.id, preset] as const))("%s passes check and keeps its whole net in view (aspect 0.45)", (_id, preset) => {
+        const data = preset.data();
+        expect("data" in derivatives.check(JSON.parse(JSON.stringify(data)))).toBe(true);
+        const dto = data[0][1];
+        if (!("m" in dto) || !dto.state?.camera) throw new Error("tensor Preset with a camera expected");
+        const camera = {...dto.state.camera, target: [...dto.state.camera.target] as [number, number, number]};
+        const fitted = fitCameraTo(dto.net.map(p => [...p] as [number, number, number]), 0.45, camera);
+        expect(camera.distance).toBeGreaterThanOrEqual(fitted.distance);
+        expect(camera.distance).toBeLessThan(fitted.distance * 1.01);
+        camera.target.forEach((c, k) => expect(c).toBeCloseTo(fitted.target[k], 12));
+    });
+    it("reuses the two tensor Presets and adds two degenerate patches with names in both languages", () => {
+        expect(derivativesStartingPatches.map(preset => preset.id)).toEqual(["bilinear-saddle", "bicubic-dome", "collapsed-edge", "parallel-corner"]);
+        for (const preset of derivativesStartingPatches.slice(2)) {
+            setLanguage("en"); const en = renderMessage({key: preset.name, params: {}});
+            setLanguage("sl"); const sl = renderMessage({key: preset.name, params: {}});
+            expect(en).not.toBe(sl);
+            expect(sl).toMatch(/Bézierjeva krpa/i);
+        }
+    });
+    it("accepts the switches, an old Preset without them, and the round trip", () => {
+        const checked = derivatives.check(JSON.parse(JSON.stringify(withState({showTangentPlane: false, showNormal: true, showTwist: false}))));
+        if (!("data" in checked)) throw new Error("rejected");
+        expect(checked.data[0][1]).toMatchObject({state: {showTangentPlane: false, showNormal: true, showTwist: false}});
+        expect("data" in derivatives.check(withState({camera, u: 0.2, v: 0.4}))).toBe(true);
+        expect("data" in derivatives.check(tensor())).toBe(true);
+    });
+    it.each([["a number", 1], ["a string", "yes"], ["null", null]])("rejects showTwist as %s with the localized reason", (_name, value) => {
+        const checked = derivatives.check(withState({showTwist: value}));
+        if (!("rejection" in checked)) throw new Error("accepted");
+        const out: Record<string, string> = {};
+        for (const language of ["sl", "en"] as const) { setLanguage(language); out[language] = renderMessage(checked.rejection); }
+        expect(out.sl).toContain("showTwist");
+        expect(out.en).toContain("showTwist");
+        expect(out.sl).not.toBe(out.en);
     });
 });

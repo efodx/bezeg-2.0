@@ -6,7 +6,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
-import {defaultPatchPresets} from "./patchPresetCollections";
+import {defaultPatchPresets, type DerivativesStartingPatch} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
 import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
@@ -109,12 +109,18 @@ export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApp
     </form></div>;
 }
 
-/** `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. */
-export function TensorPatchEditPanel({state, selection, actions, pointExtra}: {state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode}) {
+/**
+ * `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. `startingPatches` are the buttons
+ * of the "Starting patch" group (the two tensor Presets unless the Demonstration offers more).
+ */
+export function TensorPatchEditPanel({state, selection, actions, pointExtra, startingPatches = defaultPatchPresets}: {
+    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode;
+    startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
+}) {
     const t = useT();
     return <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
-            <div className="workspace-curve-picker">{defaultPatchPresets.map((preset, index) =>
+            <div className="workspace-curve-picker">{startingPatches.map((preset, index) =>
                 <Button key={preset.id} onClick={() => actions.useStartingPatch(index)}>{t(preset.name)}</Button>)}</div>
         </div>
         <div className="inspector-group"><h3>{t("patch_degree_heading")}</h3>

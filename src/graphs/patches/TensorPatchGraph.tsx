@@ -7,7 +7,7 @@ import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {DecasteljauOrder, PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
-import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
+import {defaultPatchPresets, type DerivativesStartingPatch, patchPresetCollections} from "./patchPresetCollections";
 import {buildTensorScene, patchFromNet, patchPointId, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
@@ -36,6 +36,10 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     /** Only the `patch-decasteljau` Demonstration sets these (see {@link TensorDeCasteljauGraph}); `patch-tensor` leaves them out of its state and Presets. */
     showDeCasteljau?: boolean;
     decasteljauOrder?: DecasteljauOrder;
+    /** Only the `patch-derivatives` Demonstration sets these (see {@link TensorDerivativesGraph}); absent there means shown. */
+    showTangentPlane?: boolean;
+    showNormal?: boolean;
+    showTwist?: boolean;
 }
 
 const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
@@ -227,8 +231,13 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     }
 
     /** Replaces the patch with one of the default Presets (the Uredi "starting patch" buttons); the camera comes with it. */
+    /** The starting patches the Uredi buttons offer, in button order; a Demonstration may offer more. */
+    protected startingPatches(): ReadonlyArray<DerivativesStartingPatch> {
+        return defaultPatchPresets;
+    }
+
     useStartingPatch(index: number): void {
-        const preset = defaultPatchPresets[index];
+        const preset = this.startingPatches()[index];
         if (!preset) return;
         this.importPresetData(preset.data());
         this.selectPoint(this.selectedPointId);

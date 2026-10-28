@@ -54,9 +54,10 @@ export const guidedLessonOwners: Readonly<Record<DemonstrationId, GuidedLessonOw
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // Task 12 authors these patches chapter sections; patch-tensor, patch-decasteljau and patch-triangular have no available guided lesson until then.
+    // Task 12 authors these patches chapter sections; patch-tensor, patch-decasteljau, patch-derivatives and patch-triangular have no available guided lesson until then.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
+    'patch-derivatives': {chapterId: 'bezier-patches', sectionId: 'tensor-derivatives'},
     'patch-triangular': {chapterId: 'bezier-patches', sectionId: 'triangular-patches'},
 };
 

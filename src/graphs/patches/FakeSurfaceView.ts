@@ -60,6 +60,7 @@ export function sceneSignature(scene: SurfaceScene | undefined): string[] {
         const at = [0, 0.25, 0.5, 0.75, 1].map(fraction => Math.round(fraction * (n - 1)));
         lines.push(`polyline ${line.id} ${line.role} n=${n} ${n === 0 ? "" : at.map(i => xyz(line.points[i])).join(" ")}`);
     }
+    for (const plane of scene.planes ?? []) lines.push(`plane ${plane.id} ${plane.corners.map(xyz).join(" ")}`);
     for (const m of scene.markers) lines.push(`marker ${m.id} ${m.role} ${xyz(m.xyz)}`);
     for (const l of scene.labels) lines.push(`label ${l.id} ${l.text} ${xyz(l.anchor)}${l.pointId ? ` ${l.pointId}` : ""}`);
     if (scene.mesh) {

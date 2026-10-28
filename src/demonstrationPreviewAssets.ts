@@ -79,6 +79,8 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'patch-tensor': preview_patch_tensor,
     // No generated preview yet (task 13): the tensor patch's, whose workspace this route extends.
     'patch-decasteljau': preview_patch_tensor,
+    // No generated preview yet (task 13): the tensor patch's, whose workspace this route extends.
+    'patch-derivatives': preview_patch_tensor,
     'patch-triangular': preview_patch_triangular,
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,
