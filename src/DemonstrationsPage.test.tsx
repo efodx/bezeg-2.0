@@ -3,7 +3,6 @@ import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {createMemoryRouter, RouterProvider} from 'react-router-dom';
 import routes from './Routes';
 import {getDemonstrationCatalog} from './demonstrations';
-import {demonstrationPreviewSrc} from './demonstrationPreviewSrc';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
 
@@ -42,11 +41,8 @@ test('the catalogue shows the ordered collection and only supported lesson desti
         );
         expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(entry.catalogTitle);
         expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
-        if (demonstrationPreviewSrc(entry.id) === undefined) expect(card.querySelector('.demonstrations-catalog-preview')).toBeNull(); // no capture yet: the pale frame only
-        else {
-            expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
-            expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
-        }
+        expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
+        expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
         expect(card.querySelector('.demonstrations-catalog-lesson') !== null).toBe(isGuidedLessonAvailable(entry.id));
     });
     expect(view.container.querySelectorAll('.demonstrations-catalog-graph')).toHaveLength(catalog.demonstrations.length);

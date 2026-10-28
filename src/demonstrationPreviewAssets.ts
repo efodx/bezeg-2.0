@@ -28,6 +28,7 @@ import preview_spline_parameterization from './images/demonstrations/catalog/spl
 import preview_weighted_parameterization from './images/demonstrations/catalog/weighted-parameterization.png';
 import preview_uniform_parameterization from './images/demonstrations/catalog/uniform-parameterization.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
+import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_linear_function from './images/demonstrations/catalog/linear-function.png';
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
@@ -47,8 +48,7 @@ import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
 
-// patch-triangular has no capture yet (preview-capture work, task 13); catalog cards render the pale frame until the generator emits it.
-export const demonstrationPreviewAssets: Record<Exclude<DemonstrationId, 'patch-triangular'>, string> = {
+export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'bernstein': preview_bernstein,
     'complex-multiplication': preview_complex_multiplication,
     'bezier': preview_bezier,
@@ -77,6 +77,7 @@ export const demonstrationPreviewAssets: Record<Exclude<DemonstrationId, 'patch-
     'weighted-parameterization': preview_weighted_parameterization,
     'uniform-parameterization': preview_uniform_parameterization,
     'patch-tensor': preview_patch_tensor,
+    'patch-triangular': preview_patch_triangular,
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,
     'trigonometric-functions': preview_trigonometric_functions,

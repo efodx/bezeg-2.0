@@ -1,15 +1,13 @@
 {
   "generator": "scripts/capture-demonstration-previews.cjs",
   "version": 2,
-  "graphSourceRevision": "75c03e95f3d7c2f1c19265bfdd5e373e7d163ee1",
-  "graphSourceFingerprint": "cab6f973a768717dacbb7f7d6ff2a827973914cafcc687e35e9a5e22b176e811",
-  "graphDirtyFiles": [
-    "src/graphs/patches/surface-view/threeSurfaceView.ts"
-  ],
-  "presentationFingerprint": "2775f1ea63669f8a3b02229efd59c0a1d27cf9316ffacc2733eb8460f70620fd",
+  "graphSourceRevision": "39ad327b0a0e80a5a2121e77f434648ee4f1bbc7",
+  "graphSourceFingerprint": "5008c4e74be8b36c5b82bee60a89f4a68771f9ee405c9f78133f2f016eaaa630",
+  "graphDirtyFiles": [],
+  "presentationFingerprint": "6c2a5381b2f8b1a88f2165b30a10350bea6585323451189d99e42613b0293a31",
   "servedBuild": {
-    "file": "assets/index-DXN9gWnL.js",
-    "sha256": "9190b5af8f90c6192bad5c7e4ea152de01df23a4d2fe302be76dc1dcacfdd5a4"
+    "file": "assets/index-CVvJhG2T.js",
+    "sha256": "cf0e8a3666bc14a4ecb52e95133a00101a9f628f12f947f2c259fb90d6ddf366"
   },
   "capture": {
     "source": "live #jgbox from each Demonstration metadata route",
@@ -6332,6 +6330,244 @@
         "view": "surface",
         "contextType": "webgl2",
         "controlPointCount": 16
+      }
+    },
+    {
+      "id": "patch-triangular",
+      "path": "/bezeg-2.0/patches/triangular",
+      "file": "patch-triangular.png",
+      "sha256": "90d1cfde4a39c9d998e1c54dfda11cfe765571d1a014fea6d58948a0d61586b5",
+      "image": {
+        "width": 720,
+        "height": 440
+      },
+      "recipe": {
+        "id": "patch-triangular",
+        "intent": "Default cubic triangular patch, fitted to the preview frame, with control net, boundary curves and iso-curves",
+        "actions": [
+          {
+            "kind": "button",
+            "label": "Ponastavi pogled",
+            "count": 1
+          }
+        ],
+        "checkpoint": "after-explicit-setup",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 7.373018307821979,
+            "target": [
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "annotations": "retain-surface-view-native-labels"
+      },
+      "evidence": {
+        "view": "surface",
+        "contextType": "webgl2",
+        "canvas": {
+          "width": 360,
+          "height": 220
+        },
+        "readouts": {
+          "parameter-w": "0,33"
+        },
+        "controls": [
+          {
+            "label": "Stopnja krpe (n)",
+            "value": "3"
+          },
+          {
+            "label": "Parameter u, vrednost",
+            "value": "0,33"
+          },
+          {
+            "label": "Parameter u",
+            "value": "0.33"
+          },
+          {
+            "label": "Parameter v, vrednost",
+            "value": "0,33"
+          },
+          {
+            "label": "Parameter v",
+            "value": "0.33"
+          },
+          {
+            "label": "Pokaži delitev v točki (u, v, w)",
+            "value": "on",
+            "checked": false
+          },
+          {
+            "label": "Kontrolna mreža",
+            "value": "on",
+            "checked": true
+          },
+          {
+            "label": "Izoparametrične krivulje",
+            "value": "on",
+            "checked": true
+          },
+          {
+            "label": "Robne krivulje",
+            "value": "on",
+            "checked": true
+          },
+          {
+            "label": "De Casteljaujeva konstrukcija",
+            "value": "on",
+            "checked": false
+          },
+          {
+            "label": "Senčena krpa",
+            "value": "on",
+            "checked": true
+          },
+          {
+            "label": "Število izoparametričnih krivulj v vsaki smeri",
+            "value": "8"
+          },
+          {
+            "label": "Natančnost senčene krpe",
+            "value": "16"
+          },
+          {
+            "label": "Azimut (°), vrednost",
+            "value": "−52"
+          },
+          {
+            "label": "Azimut (°)",
+            "value": "-52"
+          },
+          {
+            "label": "Višinski kot (°), vrednost",
+            "value": "28,6"
+          },
+          {
+            "label": "Višinski kot (°)",
+            "value": "28.7644995498532"
+          },
+          {
+            "label": "Premikanje točk po višini (z)",
+            "value": "on",
+            "checked": false
+          },
+          {
+            "label": "Prednastavitve",
+            "value": ""
+          }
+        ],
+        "camera": {
+          "az": -0.9,
+          "el": 0.5,
+          "distance": 7.373018307821979,
+          "target": [
+            0,
+            0,
+            1
+          ]
+        },
+        "controlPointCount": 10
+      },
+      "posterCheckpoint": "after-explicit-setup",
+      "coordinateContextPolicy": "hide",
+      "axesAndGrid": "hide",
+      "framing": {
+        "kind": "surface-view",
+        "frameCssPixels": {
+          "width": 360,
+          "height": 220
+        },
+        "camera": {
+          "az": -0.9,
+          "el": 0.5,
+          "distance": 7.373018307821979,
+          "target": [
+            0,
+            0,
+            1
+          ]
+        },
+        "projectedControlPoints": [
+          {
+            "id": "t-3-0-0",
+            "x": 184.49,
+            "y": 205.561,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-1-0",
+            "x": 215.763,
+            "y": 139.074,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-0-1",
+            "x": 166.023,
+            "y": 135,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-2-0",
+            "x": 240.593,
+            "y": 119.102,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-1-1",
+            "x": 196.289,
+            "y": 74.084,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-0-2",
+            "x": 151.409,
+            "y": 112.578,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-3-0",
+            "x": 256.236,
+            "y": 137.422,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-2-1",
+            "x": 219.241,
+            "y": 99.939,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-1-2",
+            "x": 178.85,
+            "y": 97.27,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-0-3",
+            "x": 142.003,
+            "y": 128.29,
+            "inFrustum": true
+          }
+        ],
+        "controlPointMarginCssPixels": 6,
+        "pixelStats": {
+          "distinctColors": 3120,
+          "dominantColorShare": 0.928305
+        },
+        "outOfFrameElements": []
+      },
+      "board": {
+        "width": 360,
+        "height": 220,
+        "view": "surface",
+        "contextType": "webgl2",
+        "controlPointCount": 10
       }
     },
     {
@@ -13767,81 +14003,129 @@
   "selectiveRecapture": {
     "previousGraphSourceRevision": "75c03e95f3d7c2f1c19265bfdd5e373e7d163ee1",
     "previousGraphSourceFingerprint": "cab6f973a768717dacbb7f7d6ff2a827973914cafcc687e35e9a5e22b176e811",
-    "mixedGraphSource": false,
-    "previousPresentationFingerprint": "2d5feccbb16183b22efe22bd542e8eb0271792b192671d35ac705e29d70233de",
+    "mixedGraphSource": true,
+    "previousPresentationFingerprint": "2775f1ea63669f8a3b02229efd59c0a1d27cf9316ffacc2733eb8460f70620fd",
     "priorSelectiveRecapture": {
-      "previousGraphSourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
-      "previousGraphSourceFingerprint": "e5e4d73acccfb78b57d2ab4fb57b0ce117cd216fdee351b6e5034c49ce20af74",
-      "mixedGraphSource": true,
-      "previousPresentationFingerprint": "ee9ac01f8f96208c88f892e2715376ee4cd2d6170c1281cd76fa49c8d1493bf3",
+      "previousGraphSourceRevision": "75c03e95f3d7c2f1c19265bfdd5e373e7d163ee1",
+      "previousGraphSourceFingerprint": "cab6f973a768717dacbb7f7d6ff2a827973914cafcc687e35e9a5e22b176e811",
+      "mixedGraphSource": false,
+      "previousPresentationFingerprint": "2d5feccbb16183b22efe22bd542e8eb0271792b192671d35ac705e29d70233de",
       "priorSelectiveRecapture": {
-        "previousGraphSourceRevision": "e382aa3c0c86600d4656174910b22d4033440de5",
-        "previousGraphSourceFingerprint": "dbeb37b2f79053fc602d5dbe81d09eca4eec5f8a2c5b3414cd8c3d95a6dfc5a6",
+        "previousGraphSourceRevision": "ad37517a9e43fb043e514b5044b7d3ac2065bd2c",
+        "previousGraphSourceFingerprint": "e5e4d73acccfb78b57d2ab4fb57b0ce117cd216fdee351b6e5034c49ce20af74",
         "mixedGraphSource": true,
-        "previousPresentationFingerprint": "e13dada101c83caa606b004b6f6e1a8ed160da0df2ce3d48390c83f75879e734",
+        "previousPresentationFingerprint": "ee9ac01f8f96208c88f892e2715376ee4cd2d6170c1281cd76fa49c8d1493bf3",
         "priorSelectiveRecapture": {
           "previousGraphSourceRevision": "e382aa3c0c86600d4656174910b22d4033440de5",
-          "previousPresentationFingerprint": "3d0e538ca397dc3bb6847a34759b4943c70bb00682a5db6dbdb8957631772008",
+          "previousGraphSourceFingerprint": "dbeb37b2f79053fc602d5dbe81d09eca4eec5f8a2c5b3414cd8c3d95a6dfc5a6",
+          "mixedGraphSource": true,
+          "previousPresentationFingerprint": "e13dada101c83caa606b004b6f6e1a8ed160da0df2ce3d48390c83f75879e734",
           "priorSelectiveRecapture": {
             "previousGraphSourceRevision": "e382aa3c0c86600d4656174910b22d4033440de5",
-            "previousPresentationFingerprint": "4e7fce6552df1ab79e07f0a815474cf4e975e36621e651df9c79e9e2c3d6e607",
+            "previousPresentationFingerprint": "3d0e538ca397dc3bb6847a34759b4943c70bb00682a5db6dbdb8957631772008",
             "priorSelectiveRecapture": {
               "previousGraphSourceRevision": "e382aa3c0c86600d4656174910b22d4033440de5",
-              "previousPresentationFingerprint": "e730bb0d5d10ea98eba045000d771802fdb935316e58c2dcc8798d507f4cf27a",
+              "previousPresentationFingerprint": "4e7fce6552df1ab79e07f0a815474cf4e975e36621e651df9c79e9e2c3d6e607",
               "priorSelectiveRecapture": {
-                "previousGraphSourceRevision": "f8c42674fff3a8246594f4811bcc8737d0447d0f",
-                "previousPresentationFingerprint": "b4b260b962caf63eeacacf92074737aefbf7ce15d0247660f70bd110a7265fd4",
+                "previousGraphSourceRevision": "e382aa3c0c86600d4656174910b22d4033440de5",
+                "previousPresentationFingerprint": "e730bb0d5d10ea98eba045000d771802fdb935316e58c2dcc8798d507f4cf27a",
                 "priorSelectiveRecapture": {
-                  "previousGraphSourceRevision": "b8d48b812e3ba05421725b714c476c5d35308ad7",
-                  "previousPresentationFingerprint": "4e68d84ce8d4df4bd811c76047ee45e6913bc5702037bd062665938a5beb22f5",
+                  "previousGraphSourceRevision": "f8c42674fff3a8246594f4811bcc8737d0447d0f",
+                  "previousPresentationFingerprint": "b4b260b962caf63eeacacf92074737aefbf7ce15d0247660f70bd110a7265fd4",
                   "priorSelectiveRecapture": {
-                    "previousGraphSourceRevision": "d6ca5beb32ff884105da85f2d7f63b3f22d92ff6",
-                    "previousPresentationFingerprint": "50d6815bdaa7a6b53d306608785191f88590befa7d20a17ec3e9a3f28af91bc7",
-                    "priorSelectiveRecapture": null,
+                    "previousGraphSourceRevision": "b8d48b812e3ba05421725b714c476c5d35308ad7",
+                    "previousPresentationFingerprint": "4e68d84ce8d4df4bd811c76047ee45e6913bc5702037bd062665938a5beb22f5",
+                    "priorSelectiveRecapture": {
+                      "previousGraphSourceRevision": "d6ca5beb32ff884105da85f2d7f63b3f22d92ff6",
+                      "previousPresentationFingerprint": "50d6815bdaa7a6b53d306608785191f88590befa7d20a17ec3e9a3f28af91bc7",
+                      "priorSelectiveRecapture": null,
+                      "preservedCaptureIds": [
+                        "bernstein",
+                        "complex-multiplication",
+                        "bezier",
+                        "decasteljau",
+                        "decasteljau-alternative",
+                        "affine",
+                        "repeated-subdivision",
+                        "extrapolation",
+                        "elevation",
+                        "rational",
+                        "rational-decasteljau",
+                        "rational-elevation",
+                        "rational-extrapolation",
+                        "rational-subdivision",
+                        "farin",
+                        "circle",
+                        "spline-cn",
+                        "spline-c1",
+                        "spline-c2",
+                        "spline-g1",
+                        "spline-g1-symmetric",
+                        "ph-cubic",
+                        "spline-parameterization",
+                        "weighted-parameterization",
+                        "uniform-parameterization",
+                        "linear-function",
+                        "exponential-function",
+                        "trigonometric-functions",
+                        "continuity",
+                        "derivative",
+                        "definite-integral",
+                        "area-between-curves",
+                        "arc-length",
+                        "bisection",
+                        "mean-value",
+                        "accumulation",
+                        "darboux",
+                        "extrema",
+                        "convexity",
+                        "taylor",
+                        "sequence",
+                        "uniform-convergence",
+                        "fixed-point"
+                      ],
+                      "preservedMotionIds": [
+                        "repeated-subdivision",
+                        "bisection",
+                        "bezier",
+                        "affine",
+                        "elevation",
+                        "rational-elevation",
+                        "decasteljau",
+                        "decasteljau-alternative",
+                        "derivative",
+                        "farin",
+                        "weighted-parameterization",
+                        "complex-multiplication",
+                        "accumulation",
+                        "ph-cubic",
+                        "spline-g1",
+                        "trigonometric-functions",
+                        "darboux",
+                        "definite-integral"
+                      ]
+                    },
                     "preservedCaptureIds": [
-                      "bernstein",
                       "complex-multiplication",
                       "bezier",
                       "decasteljau",
                       "decasteljau-alternative",
                       "affine",
+                      "subdivision",
                       "repeated-subdivision",
-                      "extrapolation",
                       "elevation",
-                      "rational",
-                      "rational-decasteljau",
                       "rational-elevation",
-                      "rational-extrapolation",
-                      "rational-subdivision",
                       "farin",
-                      "circle",
-                      "spline-cn",
-                      "spline-c1",
-                      "spline-c2",
                       "spline-g1",
-                      "spline-g1-symmetric",
                       "ph-cubic",
-                      "spline-parameterization",
+                      "ph-quintic",
                       "weighted-parameterization",
-                      "uniform-parameterization",
-                      "linear-function",
-                      "exponential-function",
                       "trigonometric-functions",
-                      "continuity",
                       "derivative",
                       "definite-integral",
-                      "area-between-curves",
-                      "arc-length",
                       "bisection",
-                      "mean-value",
                       "accumulation",
-                      "darboux",
-                      "extrema",
-                      "convexity",
-                      "taylor",
-                      "sequence",
-                      "uniform-convergence",
-                      "fixed-point"
+                      "darboux"
                     ],
                     "preservedMotionIds": [
                       "repeated-subdivision",
@@ -13861,34 +14145,37 @@
                       "spline-g1",
                       "trigonometric-functions",
                       "darboux",
-                      "definite-integral"
+                      "definite-integral",
+                      "ph-quintic",
+                      "subdivision"
                     ]
                   },
                   "preservedCaptureIds": [
+                    "bernstein",
                     "complex-multiplication",
                     "bezier",
                     "decasteljau",
                     "decasteljau-alternative",
                     "affine",
-                    "subdivision",
-                    "repeated-subdivision",
                     "elevation",
+                    "rational-decasteljau",
                     "rational-elevation",
                     "farin",
                     "spline-g1",
+                    "spline-g1-symmetric",
                     "ph-cubic",
                     "ph-quintic",
+                    "spline-parameterization",
                     "weighted-parameterization",
+                    "linear-function",
+                    "exponential-function",
                     "trigonometric-functions",
+                    "continuity",
                     "derivative",
-                    "definite-integral",
-                    "bisection",
-                    "accumulation",
-                    "darboux"
+                    "area-between-curves",
+                    "extrema"
                   ],
                   "preservedMotionIds": [
-                    "repeated-subdivision",
-                    "bisection",
                     "bezier",
                     "affine",
                     "elevation",
@@ -13899,14 +14186,19 @@
                     "farin",
                     "weighted-parameterization",
                     "complex-multiplication",
-                    "accumulation",
                     "ph-cubic",
                     "spline-g1",
                     "trigonometric-functions",
-                    "darboux",
-                    "definite-integral",
                     "ph-quintic",
-                    "subdivision"
+                    "spline-parameterization",
+                    "extrema",
+                    "linear-function",
+                    "exponential-function",
+                    "bernstein",
+                    "rational-decasteljau",
+                    "spline-g1-symmetric",
+                    "continuity",
+                    "area-between-curves"
                   ]
                 },
                 "preservedCaptureIds": [
@@ -13916,25 +14208,47 @@
                   "decasteljau",
                   "decasteljau-alternative",
                   "affine",
+                  "subdivision",
+                  "repeated-subdivision",
+                  "extrapolation",
                   "elevation",
+                  "rational",
                   "rational-decasteljau",
                   "rational-elevation",
+                  "rational-extrapolation",
+                  "rational-subdivision",
                   "farin",
+                  "circle",
+                  "spline-cn",
+                  "spline-c1",
+                  "spline-c2",
                   "spline-g1",
                   "spline-g1-symmetric",
                   "ph-cubic",
                   "ph-quintic",
                   "spline-parameterization",
                   "weighted-parameterization",
+                  "uniform-parameterization",
                   "linear-function",
                   "exponential-function",
                   "trigonometric-functions",
                   "continuity",
                   "derivative",
+                  "definite-integral",
                   "area-between-curves",
-                  "extrema"
+                  "arc-length",
+                  "bisection",
+                  "mean-value",
+                  "darboux",
+                  "extrema",
+                  "taylor",
+                  "sequence",
+                  "uniform-convergence",
+                  "fixed-point"
                 ],
                 "preservedMotionIds": [
+                  "repeated-subdivision",
+                  "bisection",
                   "bezier",
                   "affine",
                   "elevation",
@@ -13948,16 +14262,34 @@
                   "ph-cubic",
                   "spline-g1",
                   "trigonometric-functions",
+                  "darboux",
+                  "definite-integral",
                   "ph-quintic",
+                  "subdivision",
                   "spline-parameterization",
                   "extrema",
                   "linear-function",
                   "exponential-function",
                   "bernstein",
+                  "extrapolation",
+                  "rational",
                   "rational-decasteljau",
+                  "rational-extrapolation",
+                  "rational-subdivision",
+                  "circle",
+                  "spline-cn",
+                  "spline-c1",
+                  "spline-c2",
                   "spline-g1-symmetric",
+                  "uniform-parameterization",
                   "continuity",
-                  "area-between-curves"
+                  "area-between-curves",
+                  "arc-length",
+                  "mean-value",
+                  "taylor",
+                  "sequence",
+                  "uniform-convergence",
+                  "fixed-point"
                 ]
               },
               "preservedCaptureIds": [
@@ -13997,9 +14329,10 @@
                 "area-between-curves",
                 "arc-length",
                 "bisection",
-                "mean-value",
+                "accumulation",
                 "darboux",
                 "extrema",
+                "convexity",
                 "taylor",
                 "sequence",
                 "uniform-convergence",
@@ -14018,6 +14351,7 @@
                 "farin",
                 "weighted-parameterization",
                 "complex-multiplication",
+                "accumulation",
                 "ph-cubic",
                 "spline-g1",
                 "trigonometric-functions",
@@ -14044,7 +14378,7 @@
                 "continuity",
                 "area-between-curves",
                 "arc-length",
-                "mean-value",
+                "convexity",
                 "taylor",
                 "sequence",
                 "uniform-convergence",
@@ -14069,7 +14403,6 @@
               "rational-subdivision",
               "farin",
               "circle",
-              "spline-cn",
               "spline-c1",
               "spline-c2",
               "spline-g1",
@@ -14088,6 +14421,7 @@
               "area-between-curves",
               "arc-length",
               "bisection",
+              "mean-value",
               "accumulation",
               "darboux",
               "extrema",
@@ -14129,7 +14463,6 @@
               "rational-extrapolation",
               "rational-subdivision",
               "circle",
-              "spline-cn",
               "spline-c1",
               "spline-c2",
               "spline-g1-symmetric",
@@ -14137,6 +14470,7 @@
               "continuity",
               "area-between-curves",
               "arc-length",
+              "mean-value",
               "convexity",
               "taylor",
               "sequence",
@@ -14155,19 +14489,16 @@
             "repeated-subdivision",
             "extrapolation",
             "elevation",
-            "rational",
-            "rational-decasteljau",
             "rational-elevation",
             "rational-extrapolation",
             "rational-subdivision",
             "farin",
             "circle",
+            "spline-cn",
             "spline-c1",
             "spline-c2",
             "spline-g1",
             "spline-g1-symmetric",
-            "ph-cubic",
-            "ph-quintic",
             "spline-parameterization",
             "weighted-parameterization",
             "uniform-parameterization",
@@ -14204,12 +14535,10 @@
             "weighted-parameterization",
             "complex-multiplication",
             "accumulation",
-            "ph-cubic",
             "spline-g1",
             "trigonometric-functions",
             "darboux",
             "definite-integral",
-            "ph-quintic",
             "subdivision",
             "spline-parameterization",
             "extrema",
@@ -14217,11 +14546,10 @@
             "exponential-function",
             "bernstein",
             "extrapolation",
-            "rational",
-            "rational-decasteljau",
             "rational-extrapolation",
             "rational-subdivision",
             "circle",
+            "spline-cn",
             "spline-c1",
             "spline-c2",
             "spline-g1-symmetric",
@@ -14248,6 +14576,8 @@
           "repeated-subdivision",
           "extrapolation",
           "elevation",
+          "rational",
+          "rational-decasteljau",
           "rational-elevation",
           "rational-extrapolation",
           "rational-subdivision",
@@ -14258,6 +14588,8 @@
           "spline-c2",
           "spline-g1",
           "spline-g1-symmetric",
+          "ph-cubic",
+          "ph-quintic",
           "spline-parameterization",
           "weighted-parameterization",
           "uniform-parameterization",
@@ -14294,10 +14626,12 @@
           "weighted-parameterization",
           "complex-multiplication",
           "accumulation",
+          "ph-cubic",
           "spline-g1",
           "trigonometric-functions",
           "darboux",
           "definite-integral",
+          "ph-quintic",
           "subdivision",
           "spline-parameterization",
           "extrema",
@@ -14305,6 +14639,8 @@
           "exponential-function",
           "bernstein",
           "extrapolation",
+          "rational",
+          "rational-decasteljau",
           "rational-extrapolation",
           "rational-subdivision",
           "circle",
@@ -14447,6 +14783,7 @@
       "spline-parameterization",
       "weighted-parameterization",
       "uniform-parameterization",
+      "patch-tensor",
       "linear-function",
       "exponential-function",
       "trigonometric-functions",

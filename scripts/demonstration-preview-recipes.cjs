@@ -51,13 +51,15 @@ const targets = {
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
+    'patch-triangular': ['Default cubic triangular patch, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
 };
 
 // Surface demonstrations (`view: 'surface'`) are framed by a camera, not a board window. The camera is the one the
-// route's default Preset ships (patchPresetCollections.ts, bicubic dome: az -0.9, el 0.5, target [0, 0, 1.25]) with the
+// route's default Preset ships (patchPresetCollections.ts; bicubic dome target [0, 0, 1.25], cubic triangular net target [0, 0, 1], az -0.9, el 0.5) with the
 // distance "Ponastavi pogled" fits to the 360:220 preview host; the capture asserts the live view has exactly this camera.
 const surfaceCameras = {
     'patch-tensor': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
+    'patch-triangular': {az: -0.9, el: 0.5, distance: 7.373018307821979, target: [0, 0, 1]},
 };
 // Projected control points must clear the frame edge by this many CSS pixels, so no control sphere is cropped.
 const SURFACE_FRAME_MARGIN_PX = 6;

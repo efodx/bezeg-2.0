@@ -3,7 +3,7 @@ import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {createMemoryRouter, RouterProvider} from 'react-router-dom';
 import routes from './Routes';
 import {getDemonstrationCatalog} from './demonstrations';
-import {demonstrationPreviewSrc} from './demonstrationPreviewSrc';
+import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import * as lessonCatalog from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
@@ -331,7 +331,7 @@ test('reduced-motion users get a manual-only carousel with the matching preview 
     const choices = within(within(opening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
     const first = openingDemonstrations()[0];
 
-    expect(opening.querySelector('.demonstrations-opening-image img')).toHaveAttribute('src', demonstrationPreviewSrc(first.id));
+    expect(opening.querySelector('.demonstrations-opening-image img')).toHaveAttribute('src', demonstrationPreviewAssets[first.id]);
     expect(choices.map(choice => choice.getAttribute('aria-label'))).toEqual(openingDemonstrations().map(demonstration => {
         const family = getDemonstrationCatalog().families.find(entry => entry.id === demonstration.family)!;
         return `${family.title}: ${demonstration.catalogTitle}`;

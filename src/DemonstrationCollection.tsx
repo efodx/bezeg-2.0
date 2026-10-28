@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
 import type {Demonstration, FamilyId} from './demonstrations';
-import {demonstrationPreviewSrc} from './demonstrationPreviewSrc';
+import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {demonstrationMotionAssets} from './demonstrationMotionAssets';
 import {DemonstrationPreview} from './DemonstrationPreview';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
@@ -132,7 +132,7 @@ export function DemonstrationCollection({topic, query, onTopicChange, onQueryCha
                         const motion = demonstrationMotionAssets[entry.id];
                         return <li className="demonstrations-catalog-card" id={`demonstration-card-${entry.id}`} key={entry.id}>
                             <div className="demonstration-preview-stage">
-                                {graphTarget(entry, <DemonstrationPreview src={demonstrationPreviewSrc(entry.id)} motion={motion}
+                                {graphTarget(entry, <DemonstrationPreview src={demonstrationPreviewAssets[entry.id]} motion={motion}
                                     loading={index < 3 ? 'eager' : 'lazy'}/>)}
                             </div>
                             <div className="demonstrations-catalog-copy">
