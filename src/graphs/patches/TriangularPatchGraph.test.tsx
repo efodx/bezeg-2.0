@@ -284,6 +284,17 @@ describe("Reset, Presets, language and one tick", () => {
         expect(other.graph.state.camera).toEqual(camera);
         expectAgreement(other.graph, other.view);
     });
+    it("a checked import whose u + v exceeds 1 within the DTO tolerance is clamped into the triangle", () => {
+        const {graph, view} = mount();
+        const net = triangularIndices(1).map(([i, j]): [number, number, number] => [i, j, 0]);
+        const data = [["TriangularBezierPatch", {n: 1, net, state: {u: 0.5, v: 0.5000000005}}]];
+        const checked = patchPresetCollections["patch-triangular"].check(data);
+        if (!("data" in checked)) throw new Error("the DTO tolerance should accept the pair");
+        act(() => graph.importPresetData(checked.data));
+        expect(graph.state.u).toBe(0.5);
+        expect(graph.state.v).toBe(0.5);
+        expectAgreement(graph, view);
+    });
     it("a hostile graphState cannot inject surface state", () => {
         const {graph} = mount();
         act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"n": 99, "u": 7, "isoDensity": 100000}}')));

@@ -46,14 +46,17 @@ const defaultDto = () => {
     return entry[1];
 };
 
-/** The state a triangular patch DTO describes; fields the DTO omits take the defaults, and a lone `u` or `v` keeps `u + v <= 1`. */
+/**
+ * The state a triangular patch DTO describes; fields the DTO omits take the defaults, and a lone `u` or `v` keeps `u + v <= 1`.
+ * The DTO check tolerates rounding of a pair summing to 1 that the evaluation rejects, so `v` is clamped to `1 - u`.
+ */
 function stateFromDto(dto: {n: number; net: ReadonlyArray<Point3Dto>; state?: PatchStateDto}): Omit<TriangularPatchGraphState, "initialized" | "zMode" | "surfaceUnavailable"> {
     const fallback = defaultDto().state;
     const state = dto.state ?? {};
     const camera = state.camera ?? fallback?.camera;
     if (!camera) throw new Error("The default triangular patch Preset has no camera.");
     const u = state.u ?? Math.min(CENTROID, 1 - (state.v ?? 0));
-    const v = state.v ?? Math.min(CENTROID, 1 - u);
+    const v = Math.min(state.v ?? CENTROID, 1 - u);
     return {
         n: dto.n, net: dto.net.map(xyz), camera: toCamera(camera), u, v,
         showControlNet: state.showControlNet ?? true, showIsoCurves: state.showIsoCurves ?? true,
