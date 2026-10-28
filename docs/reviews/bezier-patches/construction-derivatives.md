@@ -38,3 +38,24 @@ Mathematics (Sonnet medium, [report](t09b2-review-math.md)): arrows, common scal
 - Low, tolerance-zero tangent still drawn: fixed, the scene omits an arrow the classifier reports as zero; regression test observed failing without the fix.
 - Test gap, quad span: new test that the quad edges are parallel to `S_u` and `S_v` and centred at `S(u, v)`. Readout corner identities were already tested (`TensorDerivativesGraph.test.tsx:72`).
 - Low, sliver quad for very unequal `S_u`, `S_v`: accepted; it shows the true ratio.
+
+## Smoke and handler browser checks
+
+- First-pass smoke (`bezeg-smoke` Sonnet medium, [task09-smoke.md](task09-smoke.md)): all checks passed, 0 console errors on `/patches/decasteljau`, `/patches/derivatives` and `/patches/tensor`. Its preview reused the build from handler `just check` (labelled `c1ecbf1` dirty); that build ran after the last source edit, so its sources equal `7447559`.
+- Twist dots read faint: handler retuned `twist` 0.008/0.010 → 0.012/0.012 (still shorter than `iso-w`, order test unchanged) and confirmed by screenshot from below the dome (`.claude/scratch/smoke09/h16-twist-below.png`). On the default dome the twist points into the surface and is occluded; its short length on that Preset keeps it subtle.
+- Handler focused check on the rebuilt preview (`7447559` + retune): keyboard orbit changes the rendering on both routes; SVG export holds the rendered image plus vector labels (1 on `patch-decasteljau`, 4 on `patch-derivatives`); PNG downloads; 0 console errors.
+
+## Acceptance (handler 16)
+
+| Criterion | Evidence |
+|---|---|
+| Independent numerical checks bind rendered construction points/vectors to geometry | De Casteljau polylines compared point by point with an independent recurrence for all orders and m, n ∈ 1..4 (M3); arrow polylines equal `drawDifferentials`, directions equal `partialU/partialV/twist`; quad in the plane, spanned by `S_u`, `S_v`, centred at `S(u, v)`; readout corner identities `S_u(0,0) = m(P_10 − P_00)` etc. |
+| Mode switch, Reset, Presets, scene actions, language keep values in sync | Graph tests on both routes (order/switches through Reset and Preset restore, `startingPatchKept` single write, language relabel); smoke 1a–1e, 2c–2f. |
+| Keyboard/touch paths and exports usable | Keyboard orbit and SVG/PNG export observed on both routes (handler check); 390×844 in smoke; corner buttons and order select are native controls. Touch drag on these routes inherits the tensor workspace path (not re-exercised: gap, shared code unchanged). |
+| Hidden constructions disposed | Plane mesh/outline/material disposal and rebuild-without-leak tests; switches remove scene objects (graph tests, smoke 2d). |
+| Route metadata, prompts, initial scenes | Two prompts per route, default scenes (dome at `(0.3, 0.65)`), placeholder lesson sections for task 12, interim posters for task 13. |
+| Degenerate normal explained and handled | Status per reason, no plane/normal, tolerance-zero arrows omitted; parallel-corner wording corrected after math review. |
+| Gesture budgets (ADR 0018) | Software GL, 1440×1000: drag next-rAF p95 8,0–9,3 ms (≤ 60), orbit next-rAF p95 5,1–5,7 ms (≤ 16,7), drag frame p95 ≈ 33 ms (≤ 50). |
+| `just check` | 4494 tests passed on the integrated tree (sources = `7447559`); view tests 51/51 after the twist retune. |
+
+Deferred with impact: label overlap of `n` and `S(u, v)` at some orbit angles (task 13 framing/labels); real posters (task 13); patch smoke-checklist rows and a real-GPU look at the twist dots (task 14).

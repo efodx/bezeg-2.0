@@ -1,6 +1,6 @@
 # 09 — De Casteljau and differential demonstrations
 
-Status: ready after07. Source: [demonstrations and P5–P7](../../specs/bezier-patches.md#demonstrations). Depends on05/07; reuse the owned adapter and family scene model.
+Status: complete (2026-10-28, [evidence](../../reviews/bezier-patches/construction-derivatives.md#acceptance-handler-16)). Source: [demonstrations and P5–P7](../../specs/bezier-patches.md#demonstrations). Depends on05/07; reuse the owned adapter and family scene model.
 
 Add `patch-decasteljau` and `patch-derivatives` at their specified routes. Show the row-then-column, reversed order and direct bilinear constructions with exact intermediate geometry, parameter inset/sliders and unchanged final evaluation. Show partials, tangent plane, normal and twist at interior points and corners; explain and handle a degenerate normal. Controls belong in their specified inspector homes and work in both languages.
 
