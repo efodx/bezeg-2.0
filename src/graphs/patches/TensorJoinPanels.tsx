@@ -23,6 +23,19 @@ export function JoinScenesControls({scenes, onUse}: {scenes: ReadonlyArray<Pick<
 }
 
 /**
+ * The Uredi panel of the read-only capstone (the Utah teapot): what the scene is, why it has no net or parameter domain,
+ * where the data comes from, and the way back to the default pair of patches.
+ */
+export function JoinCapstonePanel({onBack}: {onBack: () => void}) {
+    const t = useT();
+    return <div className="inspector-group patch-join-capstone"><h3>{t("patch_join_capstone_heading")}</h3>
+        <p className="inspector-help">{t("patch_join_capstone_text")}</p>
+        <p className="inspector-help">{t("patch_join_capstone_source")}</p>
+        <Button data-join-capstone-back onClick={onBack}>{t("patch_join_capstone_back")}</Button>
+    </div>;
+}
+
+/**
  * The "Join" group of Uredi: the continuity mode, the ratio `alpha` (usable only in G1, with the reason stated otherwise)
  * and the `v` of the boundary point where the two cross-boundary arrows are drawn.
  */

@@ -1,10 +1,11 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {isDecasteljauOrder, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
+import {isDecasteljauOrder, isJoinCapstone, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
 import {defaultTriangularNet} from "./TriangularPatchDegree";
 import {collapsedEdgeNet, parallelCornerNet} from "./tensorDerivatives";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
 import {enforceJoin, JOIN_ALPHA_RANGE} from "./tensorJoins";
+import {resolveTeapotPatch, teapotControlPoints} from "./teapot/utahTeapot";
 import {fitCameraTo} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
@@ -31,7 +32,8 @@ const JOIN_CONTINUITY_NAMES: readonly unknown[] = ["none", "c0", "c1", "g1"];
  * load as a different scene. Patch `B` is given completely (`mB`, `nB` and exactly `(mB + 1) * (nB + 1)` points) or not at all.
  */
 function checkJoinState(value: Record<string, unknown>): Message | undefined {
-    const {joinContinuity, joinAlpha, joinV, mB, nB, netB} = value;
+    const {joinContinuity, joinAlpha, joinV, joinCapstone, mB, nB, netB} = value;
+    if (joinCapstone !== undefined && !isJoinCapstone(joinCapstone)) return message("invalid_patch_join_capstone");
     if (joinContinuity !== undefined && !JOIN_CONTINUITY_NAMES.includes(joinContinuity)) return message("invalid_patch_join_continuity");
     if (joinAlpha !== undefined && !(isFiniteNumber(joinAlpha) && joinAlpha >= JOIN_ALPHA_RANGE.min && joinAlpha <= JOIN_ALPHA_RANGE.max)) return message("invalid_patch_join_alpha");
     if (joinV !== undefined && !isUnit(joinV)) return message("invalid_patch_join_v");
@@ -176,7 +178,7 @@ export const derivativesStartingPatches: readonly DerivativesStartingPatch[] = [
 
 export interface JoinStartingScene {
     readonly id: string;
-    readonly name: "preset_join_c1" | "preset_join_g1" | "preset_join_c0_kink";
+    readonly name: "preset_join_c1" | "preset_join_g1" | "preset_join_c0_kink" | "preset_join_teapot";
     readonly data: () => PatchCollectionPresetData;
 }
 
@@ -208,13 +210,28 @@ function joinScene(mode: "c0" | "c1" | "g1", alpha: number, kink: boolean): Patc
 }
 
 /**
+ * The read-only capstone of `patch-joins`: all 32 patches of the Utah teapot (`joinCapstone: "teapot"`). The DTO's patch is
+ * the teapot's first rim patch, a placeholder the capstone scene does not draw; the net, iso curves and parameter point are
+ * off, the shading and boundary curves on, and the view is fitted to the whole teapot (aspect 0.45, as the other Presets).
+ */
+function teapotScene(): PatchCollectionPresetData {
+    const view = fitCameraTo(teapotControlPoints(), 0.45, {az: -0.9, el: 0.5, distance: 1, projection: "perspective", target: [0, 0, 0]});
+    const dto = dtoOf(resolveTeapotPatch(0), camera(view.distance, [view.target[0], view.target[1], view.target[2]]), {u: 0.5, v: 0.5});
+    return [["TensorProductBezierPatch", {...dto, state: {
+        ...dto.state, showControlNet: false, showIsoCurves: false, showBoundaryCurves: true, showShading: true, joinCapstone: "teapot",
+    }}]];
+}
+
+/**
  * The starting scenes of the `patch-joins` Demonstration: two bicubic patches joined C1 (the default), joined G1 with the
- * derivative ratio 2 (tangent planes agree, derivatives do not), and joined only C0 with a visible kink along the shared boundary.
+ * derivative ratio 2 (tangent planes agree, derivatives do not), joined only C0 with a visible kink along the shared boundary,
+ * and the read-only Utah teapot capstone.
  */
 export const joinStartingScenes: readonly JoinStartingScene[] = [
     {id: "join-c1", name: "preset_join_c1", data: () => joinScene("c1", 2, false)},
     {id: "join-g1", name: "preset_join_g1", data: () => joinScene("g1", 2, false)},
     {id: "join-c0-kink", name: "preset_join_c0_kink", data: () => joinScene("c0", 2, true)},
+    {id: "join-teapot", name: "preset_join_teapot", data: teapotScene},
 ];
 
 export interface DefaultTriangularPatchPreset {

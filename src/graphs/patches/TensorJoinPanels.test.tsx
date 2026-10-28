@@ -167,7 +167,7 @@ describe("patch B", () => {
 });
 
 describe("report wording", () => {
-    it("states the case of the three starting scenes honestly", () => {
+    it("states the pair cases honestly and lets the teapot Preset replace them", () => {
         const {graph} = mount();
         expect(joinReportCase(graph.joinReport())).toBe("c1");
         fireEvent.click(sceneButton("join-g1"));
@@ -294,6 +294,49 @@ describe("Reset, Preset restore and language", () => {
         expect(state()).toBe(t("patch_join_state_g1"));
     });
 
+    it("a saved teapot Preset restores the capstone scene, camera and read-only panel", async () => {
+        const {graph, view} = mount();
+        fireEvent.click(sceneButton("join-teapot"));
+        act(() => graph.setCameraAngle("az", 61));
+        const savedCamera = {...graph.state.camera, target: [...graph.state.camera.target]};
+        graph.presetService!.savePreset({...graph.exportPreset(), id: "teapot-mine"});
+
+        act(() => graph.useDefaultPair());
+        expect(graph.state.joinCapstone).toBeUndefined();
+        await settle(() => graph.selectPreset("teapot-mine"));
+
+        expect(graph.state.joinCapstone).toBe("teapot");
+        expect(graph.state.camera).toEqual(savedCamera);
+        expect(view.last.camera).toEqual(savedCamera);
+        expect(view.last.interaction.editable).toBe(false);
+        expect(view.last.points).toEqual([]);
+        expect(view.last.mesh?.positions.length).toBeGreaterThan(0);
+        expect(screen.getByText(t("patch_join_capstone_heading"))).toBeTruthy();
+        expect(document.querySelector(".patch-join-degree")).toBeNull();
+        expect(screen.queryByLabelText(t("patch_join_mode"))).toBeNull();
+        expect(screen.getByLabelText(t("patch_show_boundary_curves"))).toBeTruthy();
+        expect(screen.getByLabelText(t("patch_show_shading"))).toBeTruthy();
+    });
+
+    it("Reset from the active teapot capstone restores the default pair and its controls", async () => {
+        const {graph, view} = mount();
+        fireEvent.click(sceneButton("join-teapot"));
+        expect(graph.state.joinCapstone).toBe("teapot");
+        expect(view.last.interaction.editable).toBe(false);
+        expect(document.querySelector(".patch-join-degree")).toBeNull();
+
+        await settle(() => graph.reset());
+
+        expect(graph.state.joinCapstone).toBeUndefined();
+        expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, m: 3, n: 3, mB: 3, nB: 3});
+        expect(modeSelect().value).toBe("c1");
+        expect(degreeU().value).toBe("3");
+        expect(document.querySelector(".patch-join-degree")).toBeTruthy();
+        expect(view.last.interaction.editable).toBe(true);
+        expect(view.last.points.filter(point => point.id.startsWith("b-")).length).toBe(16);
+        expect(screen.queryByText(t("patch_join_capstone_heading"))).toBeNull();
+    });
+
     it("a language switch relabels the controls and the report and keeps the state", () => {
         const {graph} = mount();
         fireEvent.click(sceneButton("join-g1"));
@@ -310,6 +353,28 @@ describe("Reset, Preset restore and language", () => {
         act(() => setLanguage("sl"));
         expect(state()).toBe("G1, ne C1");
     });
+
+    it("shows the read-only teapot explanation, relabels it, and returns to the default pair", () => {
+        const {graph, view} = mount();
+        fireEvent.click(sceneButton("join-teapot"));
+        expect(graph.state.joinCapstone).toBe("teapot");
+        expect(view.last.interaction.editable).toBe(false);
+        expect(screen.getByText(t("patch_join_capstone_heading"))).toBeTruthy();
+        expect(screen.getByText(t("patch_join_capstone_source"))).toBeTruthy();
+        expect(document.querySelector(".patch-join-degree")).toBeNull();
+        expect(screen.queryByLabelText(t("patch_join_mode"))).toBeNull();
+        expect(screen.queryByLabelText(t("patch_show_control_net"))).toBeNull();
+        expect(screen.queryByLabelText(t("patch_show_iso_curves"))).toBeNull();
+        expect(screen.getByLabelText(t("patch_show_boundary_curves"))).toBeTruthy();
+        expect(screen.getByLabelText(t("patch_show_shading"))).toBeTruthy();
+        act(() => setLanguage("en"));
+        expect(screen.getByText(t("patch_join_capstone_heading"))).toBeTruthy();
+        expect(screen.getByText(t("patch_join_capstone_text"))).toBeTruthy();
+        fireEvent.click(document.querySelector<HTMLButtonElement>("[data-join-capstone-back]")!);
+        expect(graph.state.joinCapstone).toBeUndefined();
+        expect(modeSelect().value).toBe("c1");
+        expect(view.last.points.filter(point => point.id.startsWith('b-'))).toHaveLength(16);
+    });
 });
 
 describe("patch-joins Preset collection", () => {
@@ -321,9 +386,9 @@ describe("patch-joins Preset collection", () => {
         return "rejection" in checked ? checked.rejection : undefined;
     };
 
-    it("is keyed patch-joins, takes the graph's own export and offers the three starting scenes", () => {
+    it("is keyed patch-joins, takes the graph's own export and offers the four starting scenes", () => {
         expect(collection.key).toBe("patch-joins");
-        expect(joinStartingScenes.map(scene => scene.id)).toEqual(["join-c1", "join-g1", "join-c0-kink"]);
+        expect(joinStartingScenes.map(scene => scene.id)).toEqual(["join-c1", "join-g1", "join-c0-kink", "join-teapot"]);
         const {graph} = mount();
         fireEvent.click(sceneButton("join-g1"));
         const data = JSON.parse(JSON.stringify(graph.exportPresetData()));
@@ -338,6 +403,7 @@ describe("patch-joins Preset collection", () => {
         for (const joinAlpha of [0.25, 1, 4]) expect(rejected({joinAlpha})).toBeUndefined();
         for (const joinV of [0, 0.5, 1]) expect(rejected({joinV})).toBeUndefined();
         expect(rejected({mB: 1, nB: 2, netB: points(6)})).toBeUndefined();
+        expect(rejected({joinCapstone: "teapot"})).toBeUndefined();
         expect(rejected({})).toBeUndefined();
         expect("data" in collection.check(dto({}))).toBe(true);
     });
@@ -382,9 +448,15 @@ describe("patch-joins Preset collection", () => {
     it("gives the reasons in both languages", () => {
         const alpha = rejected({joinAlpha: 9})!;
         const incomplete = rejected({mB: 1})!;
+        const capstone = rejected({joinCapstone: "sphere"})!;
+        expect(capstone?.key).toBe("invalid_patch_join_capstone");
         expect(renderMessage(alpha)).toBe("razmerje α mora biti število med 0,25 in 4");
+        expect(renderMessage(capstone)).toContain("joinCapstone");
+        expect(renderMessage(capstone)).toContain("teapot");
         act(() => setLanguage("en"));
         expect(renderMessage(alpha)).toBe("the ratio α must be a number between 0.25 and 4");
         expect(renderMessage(incomplete)).toBe("patch B needs mB, nB and netB together");
+        expect(renderMessage(capstone)).toContain("joinCapstone");
+        expect(renderMessage(capstone)).toContain("teapot");
     });
 });

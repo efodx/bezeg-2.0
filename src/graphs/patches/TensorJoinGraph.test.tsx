@@ -9,6 +9,7 @@ import TensorJoinGraph, {type JoinStateDto} from "./TensorJoinGraph";
 import {buildJoinScene} from "./TensorJoinScene";
 import {patchFromNet} from "./patchSceneBuilder";
 import {type TensorPatchDto, tensorPatchToDto} from "./patchDto";
+import {joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {classifyJoin, enforceJoin, type JoinContinuity} from "./tensorJoins";
 import type {Xyz} from "./surface-view/surfaceScene";
 
@@ -352,5 +353,33 @@ describe("Presets and starting patches", () => {
         expect(graph.state.net).toEqual(initial.net);
         expect(graph.bNet()).toEqual(initial.netB);
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5});
+    });
+
+    it("restores, exports and exits the teapot Preset without exposing editable points", () => {
+        const {graph, view} = mount();
+        const capstone = joinStartingScenes.find(scene => scene.id === "join-teapot")!.data();
+        act(() => graph.importPresetData(capstone));
+        expect(graph.state.joinCapstone).toBe("teapot");
+        expect(graph.presetCollection()).toBe(patchPresetCollections["patch-joins"]);
+        expect(view.last.interaction.editable).toBe(false);
+        expect(view.last.points).toEqual([]);
+        expect(view.last.polylines.filter(line => line.role === "boundary")).toHaveLength(32 * 4);
+        expect(view.last.mesh?.positions).toHaveLength(32 * 9 * 9 * 3);
+        expect(exportedDto(graph).state?.joinCapstone).toBe("teapot");
+        expect("data" in patchPresetCollections["patch-joins"].check(graph.exportPresetData())).toBe(true);
+        const previousNet = graph.state.net;
+        act(() => {
+            graph.setJoinContinuity("g1");
+            graph.setJoinAlpha(3);
+            graph.setBDegree("u", 2);
+            graph.setDegree("v", 2);
+            graph.setJoinV(0.2);
+            drag(view, "p-0-0", [9, 9, 9]);
+        });
+        expect(graph.state.net).toBe(previousNet);
+        expect(graph.state.joinCapstone).toBe("teapot");
+        act(() => graph.useDefaultPair());
+        expect(graph.state.joinCapstone).toBeUndefined();
+        expect(view.last.points.filter(point => point.id.startsWith("b-")).length).toBeGreaterThan(0);
     });
 });

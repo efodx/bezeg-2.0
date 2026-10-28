@@ -162,22 +162,28 @@ const indexOptions = (degree: number, none: string) =>
     [{value: NO_INDEX, text: none}, ...Array.from({length: degree + 1}, (_, k) => ({value: String(k), text: String(k)}))];
 
 /** `visibilityExtra` is shown at the end of the "Shown elements" group. */
-export function TensorPatchDisplayPanel({state, actions, visibilityExtra}: {state: TensorPatchPanelState; actions: TensorPatchPanelActions; visibilityExtra?: ReactNode}) {
+export function TensorPatchDisplayPanel({state, actions, visibilityExtra, readOnly = false}: {
+    state: TensorPatchPanelState; actions: TensorPatchPanelActions; visibilityExtra?: ReactNode;
+    /** The read-only capstone: only the boundary-curve and shading switches and the camera (no net, iso curves, density or height-drag mode). */
+    readOnly?: boolean;
+}) {
     const t = useT();
     return <>
         <div className="inspector-group"><h3>{t("patch_visibility_heading")}</h3>
-            <OnOffSwitch label={t("patch_show_control_net")} checked={state.showControlNet} onChange={on => actions.setVisibility("showControlNet", on)}/>
-            <OnOffSwitch label={t("patch_show_iso_curves")} checked={state.showIsoCurves} onChange={on => actions.setVisibility("showIsoCurves", on)}/>
+            {readOnly ? null : <>
+                <OnOffSwitch label={t("patch_show_control_net")} checked={state.showControlNet} onChange={on => actions.setVisibility("showControlNet", on)}/>
+                <OnOffSwitch label={t("patch_show_iso_curves")} checked={state.showIsoCurves} onChange={on => actions.setVisibility("showIsoCurves", on)}/>
+            </>}
             <OnOffSwitch label={t("patch_show_boundary_curves")} checked={state.showBoundaryCurves} onChange={on => actions.setVisibility("showBoundaryCurves", on)}/>
             <OnOffSwitch label={t("patch_show_shading")} checked={state.showShading} onChange={on => actions.setVisibility("showShading", on)}/>
             {visibilityExtra}
         </div>
-        <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>
+        {readOnly ? null : <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>
             <ChoiceSelect label={t("patch_iso_density")} value={String(state.isoDensity)} options={DENSITIES}
                           onChange={value => actions.setDensity("iso", asDensity(value))}/>
             <ChoiceSelect label={t("patch_shading_density")} value={String(state.shadingDensity)} options={DENSITIES}
                           onChange={value => actions.setDensity("shading", asDensity(value))}/>
-        </div>
+        </div>}
         <div className="inspector-group"><h3>{t("patch_camera_heading")}</h3>
             <div className="workspace-curve-picker">
                 <Button onClick={() => actions.applyCameraPreset("front")}>{t("patch_view_front")}</Button>
@@ -190,8 +196,10 @@ export function TensorPatchDisplayPanel({state, actions, visibilityExtra}: {stat
                     onChange={degrees => actions.setCameraAngle("az", degrees)}/>
             <Slider customText={t("patch_camera_elevation")} min={-MAX_ELEVATION_DEGREES} max={MAX_ELEVATION_DEGREES} step={1} decimals={1}
                     value={radToDeg(state.camera.el)} onChange={degrees => actions.setCameraAngle("el", degrees)}/>
-            <OnOffSwitch label={t("patch_move_height")} checked={state.zMode} onChange={on => actions.setZMode(on)}/>
-            <p className="inspector-help">{t("patch_move_height_help")}</p>
+            {readOnly ? null : <>
+                <OnOffSwitch label={t("patch_move_height")} checked={state.zMode} onChange={on => actions.setZMode(on)}/>
+                <p className="inspector-help">{t("patch_move_height_help")}</p>
+            </>}
         </div>
     </>;
 }

@@ -1325,7 +1325,12 @@ export const sl = {
     "preset_join_c1": "Dve bikubični krpi, stik C1",
     "preset_join_g1": "Dve bikubični krpi, stik G1 (α = 2)",
     "preset_join_c0_kink": "Dve bikubični krpi z ostrim robom (samo C0)",
+    "preset_join_teapot": "Čajnik iz Utaha (32 krp, samo ogled)",
     "patch_join_scenes_heading": "Primeri stika",
+    "patch_join_capstone_heading": "Čajnik iz Utaha",
+    "patch_join_capstone_text": "Čajnik sestavlja 32 bikubičnih Bézierjevih krp, prikaz je samo za ogled in točk ni mogoče premikati. Ker ima vsaka krpa svojo mrežo točk in svoje območje parametrov (u, v), tu ni ene same mreže ali enega parametrskega območja, zato ni točke S(u, v) in ne vstavka. Robne krivulje kažejo šive med krpami: večina sosednjih krp si deli robne kontrolne točke, zato se stikajo brez vrzeli, na ročaju, kljunu in vrhu pokrova pa ostajajo prosti robovi.",
+    "patch_join_capstone_source": "Podatki: Utah teapot, Martin Newell, prek knjižnice three.js (TeapotGeometry, licenca MIT, © 2010–2025 avtorji three.js); izvirna koda temelji na programski opremi SPD.",
+    "patch_join_capstone_back": "Nazaj na dve krpi",
     "patch_join_heading": "Stik krp A in B",
     "patch_join_mode": "Zveznost stika",
     "patch_join_mode_none": "Brez pogoja (krpi sta neodvisni)",
@@ -1373,6 +1378,7 @@ export const sl = {
     "invalid_patch_join_continuity": "zveznost stika mora biti none, c0, c1 ali g1",
     "invalid_patch_join_alpha": "razmerje α mora biti število med 0,25 in 4",
     "invalid_patch_join_v": "mesto na robu v mora biti število med 0 in 1",
+    "invalid_patch_join_capstone": "prizor stika (joinCapstone) je lahko samo teapot",
     "patch_join_b_incomplete": "krpa B mora imeti hkrati mB, nB in netB",
     "patch_join_net_length_mismatch": "mreža krpe B ima {value1} točk, pričakovanih pa je {value0}"
 } as const;

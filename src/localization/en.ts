@@ -1326,7 +1326,12 @@ export const en: Record<keyof typeof sl, string> = {
     "preset_join_c1": "Two bicubic patches, C1 join",
     "preset_join_g1": "Two bicubic patches, G1 join (α = 2)",
     "preset_join_c0_kink": "Two bicubic patches with a sharp edge (C0 only)",
+    "preset_join_teapot": "Utah teapot (32 patches, view only)",
     "patch_join_scenes_heading": "Join examples",
+    "patch_join_capstone_heading": "The Utah teapot",
+    "patch_join_capstone_text": "The teapot is made of 32 bicubic Bézier patches. The view is read-only and no point can be moved. Each patch has its own net and its own parameter domain (u, v), so there is no single net or single parameter domain here, hence no point S(u, v) and no inset. The boundary curves show the seams between patches: most neighbouring patches share their boundary control points and therefore meet without a gap, while the handle, the spout and the top of the lid keep free edges.",
+    "patch_join_capstone_source": "Data: Utah teapot by Martin Newell, via three.js (TeapotGeometry, MIT licence, © 2010–2025 three.js authors); the source implementation is based on SPD software.",
+    "patch_join_capstone_back": "Back to the two patches",
     "patch_join_heading": "Join of patches A and B",
     "patch_join_mode": "Continuity of the join",
     "patch_join_mode_none": "No condition (independent patches)",
@@ -1374,6 +1379,7 @@ export const en: Record<keyof typeof sl, string> = {
     "invalid_patch_join_continuity": "the join continuity must be none, c0, c1 or g1",
     "invalid_patch_join_alpha": "the ratio α must be a number between 0.25 and 4",
     "invalid_patch_join_v": "the boundary position v must be a number between 0 and 1",
+    "invalid_patch_join_capstone": "the join capstone scene (joinCapstone) can only be teapot",
     "patch_join_b_incomplete": "patch B needs mB, nB and netB together",
     "patch_join_net_length_mismatch": "patch B's net has {value1} points but {value0} are expected"
 };

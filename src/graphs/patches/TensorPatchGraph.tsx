@@ -6,7 +6,7 @@ import {mountParameterInset, ParameterInset} from "./parameterInset";
 import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
-import {DecasteljauOrder, PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
+import {DecasteljauOrder, type JoinCapstone, PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, type DerivativesStartingPatch, patchPresetCollections} from "./patchPresetCollections";
 import {buildTensorScene, patchFromNet, patchPointId, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
@@ -52,6 +52,8 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     mB?: number;
     nB?: number;
     netB?: Xyz[][];
+    /** Only `patch-joins` sets this: the read-only capstone scene shown instead of the pair `A` and `B`; absent means the pair. */
+    joinCapstone?: JoinCapstone;
 }
 
 const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];

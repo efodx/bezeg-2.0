@@ -1,13 +1,15 @@
 import type React from "react";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {buildJoinScene, joinPointId, parseJoinPointId} from "./TensorJoinScene";
-import {JoinBDegreeControls, JoinBPointControls, JoinModeControls, JoinReportPanel, JoinScenesControls} from "./TensorJoinPanels";
+import {JoinBDegreeControls, JoinBPointControls, JoinCapstonePanel, JoinModeControls, JoinReportPanel, JoinScenesControls} from "./TensorJoinPanels";
 import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
 import TensorPatchGraph, {MAX_PATCH_DEGREE, MIN_PATCH_DEGREE, netWithDegree, type PatchDirection, TensorPatchGraphState} from "./TensorPatchGraph";
-import {PatchCollectionPresetData, PatchStateDto, Point3Dto, TensorPatchDto, tensorPatchToDto} from "./patchDto";
+import {isJoinCapstone, PatchCollectionPresetData, PatchStateDto, Point3Dto, TensorPatchDto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
 import {classifyJoin, enforceJoin, JOIN_ALPHA_RANGE, type JoinContinuity, type JoinReport, matchBoundaryDegree} from "./tensorJoins";
+import {buildTeapotScene} from "./TensorTeapotScene";
+import {teapotControlPoints} from "./teapot/utahTeapot";
 import {fitCameraTo} from "./surface-view/surfaceMath";
 import type {SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
@@ -64,7 +66,9 @@ function joinStateOf(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>; 
     const net = netFrom(dto.m + 1, dto.n + 1, dto.net);
     const hasB = s?.netB !== undefined && Number.isInteger(s.mB) && Number.isInteger(s.nB) && s.netB.length === ((s.mB ?? 0) + 1) * ((s.nB ?? 0) + 1);
     const netB = hasB && s?.netB && s.mB !== undefined && s.nB !== undefined ? netFrom(s.mB + 1, s.nB + 1, s.netB) : continuationOf(net);
-    return {joinContinuity, joinAlpha, joinV, ...joinedPatch(net, netB, joinContinuity, joinAlpha)};
+    // Written even when absent, so a Preset of the pair replaces a capstone state.
+    const joinCapstone = isJoinCapstone(s?.joinCapstone) ? s.joinCapstone : undefined;
+    return {joinContinuity, joinAlpha, joinV, joinCapstone, ...joinedPatch(net, netB, joinContinuity, joinAlpha)};
 }
 
 const defaultDto = (): TensorPatchDto => {
@@ -80,6 +84,9 @@ const defaultDto = (): TensorPatchDto => {
  * not draggable; every `A` edit, degree change and mode or ratio change re-derives them in the same state write. In `none`
  * the two `v` degrees are independent and `B` is stored as edited; in the other modes they are shared. The cross-boundary
  * readout uses the inherited-style parameter `joinV` (a separate field: `v` stays the parameter of `A`'s point `S(u, v)`).
+ *
+ * With `joinCapstone` set (`"teapot"`) the Demonstration shows a read-only scene of the 32 Utah teapot patches instead:
+ * no point exists or can be moved, the join and degree controls are hidden, and `net` is only the Preset's placeholder patch.
  */
 export default class TensorJoinGraph extends TensorPatchGraph {
     override getInitialState(): TensorPatchGraphState {
@@ -110,6 +117,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     }
 
     protected override stateDto(): JoinStateDto {
+        if (this.capstone()) return {...super.stateDto(), joinCapstone: this.state.joinCapstone};
         return {...super.stateDto(), ...this.joinFieldsOf({...this.state, netB: this.bNet()})};
     }
 
@@ -118,6 +126,16 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     }
 
     // ---- State -------------------------------------------------------------------------------------------------
+
+    /** Whether the read-only capstone scene replaces the pair of patches. */
+    capstone(): boolean {
+        return this.state.joinCapstone !== undefined;
+    }
+
+    /** Leaves the capstone for the default pair (the Reset state). */
+    useDefaultPair(): void {
+        this.importPresetData(this.defaultPreset());
+    }
 
     private mode(): JoinContinuity {
         return this.state.joinContinuity ?? DEFAULT_JOIN_CONTINUITY;
@@ -156,14 +174,14 @@ export default class TensorJoinGraph extends TensorPatchGraph {
 
     /** Switching from `none` with unequal `v` degrees elevates the lower net (exact: the surfaces do not change). */
     setJoinContinuity(mode: JoinContinuity): void {
-        if (!isJoinContinuity(mode) || mode === this.mode()) return;
+        if (this.capstone() || !isJoinContinuity(mode) || mode === this.mode()) return;
         this.setState({joinContinuity: mode, ...joinedPatch(this.state.net, this.bNet(), mode, this.alpha())});
         this.selectPoint(this.selectedPointId);
     }
 
     /** Non-finite values are ignored; others clamp to `JOIN_ALPHA_RANGE`. Only G1 uses it, but it is kept in every mode. */
     setJoinAlpha(alpha: number): void {
-        if (!Number.isFinite(alpha)) return;
+        if (this.capstone() || !Number.isFinite(alpha)) return;
         const clamped = Math.min(JOIN_ALPHA_RANGE.max, Math.max(JOIN_ALPHA_RANGE.min, alpha));
         if (clamped === this.alpha()) return;
         this.setState({joinAlpha: clamped, ...joinedPatch(this.state.net, this.bNet(), this.mode(), clamped)});
@@ -180,7 +198,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
      * in `none` it is `B`'s own.
      */
     setBDegree(direction: PatchDirection, degree: number): void {
-        if (!Number.isInteger(degree) || degree < MIN_PATCH_DEGREE || degree > MAX_PATCH_DEGREE) return;
+        if (this.capstone() || !Number.isInteger(degree) || degree < MIN_PATCH_DEGREE || degree > MAX_PATCH_DEGREE) return;
         if (direction === "v" && this.mode() !== "none") {
             this.setDegree("v", degree);
             return;
@@ -211,14 +229,21 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         this.selectPoint(this.selectedPointId);
     }
 
-    /** The view frames both patches. */
+    /** `A`'s degree; read-only in the capstone, whose patch is a placeholder. */
+    override setDegree(direction: PatchDirection, degree: number): void {
+        if (!this.capstone()) super.setDegree(direction, degree);
+    }
+
+    /** The view frames both patches, or the whole teapot. */
     protected override framedPoints(): Xyz[] {
+        if (this.capstone()) return teapotControlPoints();
         return [...this.state.net.flat(), ...this.bNet().flat()];
     }
 
     // ---- Surface contract --------------------------------------------------------------------------------------
 
     protected override buildScene(revision: number, selectedPointId: string | undefined): SurfaceScene {
+        if (this.capstone()) return buildTeapotScene(this.state, revision);
         return buildJoinScene({
             ...this.state, netB: this.bNet(), joinV: this.state.joinV ?? DEFAULT_JOIN_V,
             ...(selectedPointId === undefined ? {} : {selectedPointId}),
@@ -227,10 +252,11 @@ export default class TensorJoinGraph extends TensorPatchGraph {
 
     protected override geometryChanged(previous: Readonly<TensorPatchGraphState>): boolean {
         const s = this.state;
-        return super.geometryChanged(previous) || s.netB !== previous.netB || s.joinV !== previous.joinV;
+        return super.geometryChanged(previous) || s.netB !== previous.netB || s.joinV !== previous.joinV || s.joinCapstone !== previous.joinCapstone;
     }
 
     protected override hasPoint(pointId: string): boolean {
+        if (this.capstone()) return false;
         const index = parseJoinPointId(pointId);
         if (index === undefined) return super.hasPoint(pointId);
         const netB = this.bNet();
@@ -238,6 +264,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     }
 
     protected override movePoint(pointId: string, position: Xyz): void {
+        if (this.capstone()) return;
         const index = parseJoinPointId(pointId);
         if (index === undefined) {
             super.movePoint(pointId, position);
@@ -261,6 +288,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected override workspaceEdit(): React.ReactNode {
+        if (this.capstone()) return <>{this.unavailableNotice()}<JoinCapstonePanel onBack={() => this.useDefaultPair()}/></>;
         const netB = this.bNet();
         return <>
             {this.unavailableNotice()}
@@ -276,6 +304,6 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     }
 
     protected override workspaceDisplay(): React.ReactNode {
-        return <TensorPatchDisplayPanel state={this.state} actions={this.panelActions}/>;
+        return <TensorPatchDisplayPanel state={this.state} actions={this.panelActions} readOnly={this.capstone()}/>;
     }
 }

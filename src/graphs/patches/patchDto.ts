@@ -10,6 +10,11 @@ export const isPatchTypeName = (value: unknown): value is PatchTypeName => PATCH
 
 export type Point3Dto = readonly [number, number, number];
 
+/** The capstone scenes `patch-joins` can show instead of its pair of patches. */
+export const JOIN_CAPSTONES = ["teapot"] as const;
+export type JoinCapstone = typeof JOIN_CAPSTONES[number];
+export const isJoinCapstone = (value: unknown): value is JoinCapstone => JOIN_CAPSTONES.some(name => name === value);
+
 /** The authored view stored with a Preset. `el` is in radians within ±π/2; `target` is the orbit centre. */
 export interface PatchCameraDto {
     readonly az: number;
@@ -52,12 +57,14 @@ export interface PatchStateDto {
     readonly mB?: number;
     readonly nB?: number;
     readonly netB?: ReadonlyArray<Point3Dto>;
+    /** The read-only capstone scene of `patch-joins` (all 32 patches of the Utah teapot instead of the pair `A` and `B`); absent means the pair. The patch the DTO carries is then only a placeholder. */
+    readonly joinCapstone?: JoinCapstone;
     /** Iso-curve and shading mesh density (8 or 16 intervals); absent means the default. */
     readonly isoDensity?: 8 | 16;
     readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB", "isoDensity", "shadingDensity",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB", "joinCapstone", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */
