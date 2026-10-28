@@ -9,3 +9,5 @@ Add the reviewed licensed32-patch teapot as a capstone Preset/scene at tiling8, 
 Acceptance: independent samples verify piece maps, degree-elevated invariance and cross-boundary derivatives on the actual displayed pair, including non-C1 counterexamples. Render all32 actual capstone owners with no extra default surface. Exercise Reset, Preset restore and language switch; preserve synchronized controls and known files/routes.
 
 Verification: focused mathematical/scene/DTO tests, meaningful join mutation, `just check`, independent mathematical/engineering/UI review, `$smoke-tester` for affected routes, teapot orbit/export/resize and active-frame budget evidence. Record in `docs/reviews/bezier-patches/subdivision-joins.md`.
+
+Carried from task07 engineering review #9: `reconcileView` → `buildScene` re-samples every iso, boundary and mesh vertex on each orbit pointermove and selection change. Harmless for one patch; before the 32-patch capstone, reuse the last scene's geometry when the geometry `revision` is unchanged and measure orbit frames against ADR0018.
