@@ -51,6 +51,7 @@ export const SURFACE_COLORS = {
     boundary: 0x643f2f,
     construction: 0xc45f3b,
     highlight: 0x1f5fbf,
+    compare: 0x0b7a75, // teal: the tensor patch beside the triangular one; 5.4:1 on white
     point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
     selected: 0x1f5fbf,
     marker: 0xca5c37,

@@ -28,6 +28,8 @@ export interface TriangularPatchPanelState {
     zMode: boolean;
     /** Transient (not in a Preset): whether the three-piece split at (u, v, w) is drawn. */
     subdivisionPreview: boolean;
+    /** Transient (not in a Preset): whether the tensor patch derived from the net is drawn beside the triangular patch. */
+    compareTensor: boolean;
     /** Orbit angles in radians; the Prikaz controls show them in degrees. */
     camera: {az: number; el: number};
 }
@@ -48,6 +50,7 @@ export interface TriangularPatchPanelActions {
     setDegree(degree: number): void;
     setParameter(parameter: "u" | "v", value: number): void;
     setSubdivisionPreview(visible: boolean): void;
+    setTensorComparison(visible: boolean): void;
     /** Selects `b_ijk`; undefined clears the selection. */
     selectIndex(index: readonly [number, number, number] | undefined): void;
     /** Moves the selected point to the (finite) coordinates. */
@@ -132,6 +135,11 @@ export function TriangularPatchDisplayPanel({state, actions}: {state: Triangular
             <OnOffSwitch label={t("patch_show_boundary_curves")} checked={state.showBoundaryCurves} onChange={on => actions.setVisibility("showBoundaryCurves", on)}/>
             <OnOffSwitch label={t("de_casteljau_construction")} checked={state.showDeCasteljau} onChange={on => actions.setVisibility("showDeCasteljau", on)}/>
             <OnOffSwitch label={t("patch_show_shading")} checked={state.showShading} onChange={on => actions.setVisibility("showShading", on)}/>
+        </div>
+        <div className="inspector-group"><h3>{t("patch_compare_heading")}</h3>
+            <OnOffSwitch label={t("patch_compare_show")} checked={state.compareTensor} onChange={on => actions.setTensorComparison(on)}/>
+            <p className="inspector-help">{t("patch_compare_help")}</p>
+            {state.compareTensor && <p className="inspector-help" role="note">{t("patch_compare_domains")}</p>}
         </div>
         <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>
             <ChoiceSelect label={t("patch_iso_density")} value={String(state.isoDensity)} options={DENSITIES}

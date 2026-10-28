@@ -551,4 +551,10 @@ describe('surface palette', () => {
     it('draws small control points with margin over the 3:1 non-text contrast on the white clear colour', () => {
         expect(1.05 / (luminance(SURFACE_COLORS.point) + 0.05)).toBeGreaterThanOrEqual(4.5);
     });
+
+    it('gives the comparison tensor patch its own colour, with at least 3:1 on white', () => {
+        const others = Object.entries(SURFACE_COLORS).filter(([role]) => role !== 'compare').map(([, color]) => color);
+        expect(others).not.toContain(SURFACE_COLORS.compare);
+        expect(1.05 / (luminance(SURFACE_COLORS.compare) + 0.05)).toBeGreaterThanOrEqual(3);
+    });
 });

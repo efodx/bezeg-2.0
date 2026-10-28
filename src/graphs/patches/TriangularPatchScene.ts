@@ -1,7 +1,8 @@
 import type {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import type {Point} from "../../bezeg/api/point/point";
 import type {PointImpl} from "../../bezeg/impl/point/point-impl";
-import {CURVE_SAMPLES, PatchDensity} from "./patchSceneBuilder";
+import {buildTensorScene, CURVE_SAMPLES, PatchDensity} from "./patchSceneBuilder";
+import {tensorNetFromTriangular} from "./TriangularTensorComparison";
 import {LatticeRowFamily, parseTriangularPointId, triangularIndex, triangularIndices, triangularPointId, triangularRows} from "./TriangularPatchLattice";
 import {triangularFromNet} from "./TriangularPatchDegree";
 import type {SceneMarker, ScenePolyline, SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
@@ -25,6 +26,8 @@ export interface TriangularSceneInput {
     readonly selectedPointId?: string;
     /** Transient: the three sub-triangle nets and the three curves that cut the patch at `(u, v, w)`. */
     readonly subdivisionPreview?: boolean;
+    /** Transient: also draws the tensor-product patch derived from the net (curves and net only, role `compare`). */
+    readonly compareTensor?: boolean;
 }
 
 const xyz = (point: Point): Xyz => [point.X(), point.Y(), point.Z?.() ?? 0];
@@ -113,6 +116,15 @@ export function buildTriangularScene(input: TriangularSceneInput, revision: numb
         for (const [id, u1, v1] of cuts) {
             polylines.push({id: `split-${id}`, role: "boundary", points: sampled(s => patch.eval(input.u + s * (u1 - input.u), input.v + s * (v1 - input.v)))});
         }
+    }
+    if (input.compareTensor) {
+        // The tensor patch is drawn by the tensor scene builder (no mesh, no selection) and handed over in the `compare` role.
+        const tensor = buildTensorScene({
+            net: tensorNetFromTriangular(input.net, n), u: input.u, v: input.v, camera: input.camera, showControlNet: input.showControlNet,
+            showIsoCurves: input.showIsoCurves, showBoundaryCurves: input.showBoundaryCurves, showShading: false,
+            isoDensity: input.isoDensity, shadingDensity: input.shadingDensity, zMode: input.zMode,
+        }, revision);
+        polylines.push(...tensor.polylines.map((line): ScenePolyline => ({...line, id: `compare-${line.id}`, role: "compare"})));
     }
     const selected = input.selectedPointId === undefined ? undefined : parseTriangularPointId(input.selectedPointId);
     // A selection the net no longer has (a lowered degree, before the host clears it) marks nothing.

@@ -1,4 +1,5 @@
 import type React from "react";
+import type {Polygon} from "jsxgraph";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {TransientState} from "../base/BaseGraph";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
@@ -79,6 +80,8 @@ function stateFromDto(dto: {n: number; net: ReadonlyArray<Point3Dto>; state?: Pa
 export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPatchGraphState, PatchCollectionPresetData> {
     /** Transient: whether the split at (u, v, w) is drawn. */
     private subdivisionPreviewValue = false;
+    /** Transient: whether the tensor patch derived from the net is drawn, and the unit square shown in the inset. */
+    private tensorComparisonValue = false;
 
     constructor(options: SurfaceGraphOptions = {}) {
         super(options);
@@ -115,19 +118,21 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
     // ---- Transient state ---------------------------------------------------------------------------------------
 
     protected override captureTransientState(): TransientState {
-        return {...super.captureTransientState(), subdivisionPreview: this.subdivisionPreviewValue};
+        return {...super.captureTransientState(), subdivisionPreview: this.subdivisionPreviewValue, tensorComparison: this.tensorComparisonValue};
     }
 
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
         this.subdivisionPreviewValue = saved?.subdivisionPreview === true;
+        this.tensorComparisonValue = saved?.tensorComparison === true;
+        this.syncInsetSquare();
     }
 
     // ---- Surface contract --------------------------------------------------------------------------------------
 
     protected override buildScene(revision: number, selectedPointId: string | undefined): SurfaceScene {
         return buildTriangularScene({
-            ...this.state, subdivisionPreview: this.subdivisionPreviewValue, ...(selectedPointId === undefined ? {} : {selectedPointId}),
+            ...this.state, subdivisionPreview: this.subdivisionPreviewValue, compareTensor: this.tensorComparisonValue, ...(selectedPointId === undefined ? {} : {selectedPointId}),
         }, revision);
     }
 
@@ -200,6 +205,14 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         this.redrawGeometry();
     }
 
+    /** Shows or hides the tensor patch derived from the net and the unit square in the inset; transient. */
+    setTensorComparison(visible: boolean): void {
+        if (visible === this.tensorComparisonValue) return;
+        this.tensorComparisonValue = visible;
+        this.syncInsetSquare();
+        this.redrawGeometry();
+    }
+
     /** Sets the orbit az or el from degrees; el stays within the range of the preset views. */
     setCameraAngle(angle: "az" | "el", degrees: number): void {
         if (!Number.isFinite(degrees)) return;
@@ -246,6 +259,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         setDegree: degree => this.setDegree(degree),
         setParameter: (parameter, value) => this.setParameter(parameter, value),
         setSubdivisionPreview: visible => this.setSubdivisionPreview(visible),
+        setTensorComparison: visible => this.setTensorComparison(visible),
         selectIndex: index => this.selectIndex(index),
         setSelectedCoordinates: coordinates => this.setSelectedCoordinates(coordinates),
         setVisibility: (key, visible) => this.setVisibility(key, visible),
@@ -265,18 +279,20 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}}
+        return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue, compareTensor: this.tensorComparisonValue}}
                                                                  selection={this.selection()} actions={this.panelActions}/></>;
     }
 
     protected override workspaceDisplay(): React.ReactNode {
-        return <TriangularPatchDisplayPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}} actions={this.panelActions}/>;
+        return <TriangularPatchDisplayPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue, compareTensor: this.tensorComparisonValue}} actions={this.panelActions}/>;
     }
 
     // ---- Parameter-domain inset --------------------------------------------------------------------------------
 
     private insetContainer?: HTMLElement;
     protected inset?: ParameterInset;
+    /** The unit square of the tensor patch's domain around the triangle; drawn only while the comparison is on. */
+    protected insetSquare?: Polygon;
 
     /**
      * Shows the reference triangle of (u, v) in `container`, a JSXGraph board owned by the session; null (or a new
@@ -292,6 +308,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
     private releaseInset(): void {
         const inset = this.inset;
         this.inset = undefined;
+        this.insetSquare = undefined;
         inset?.release();
     }
 
@@ -301,6 +318,12 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         const inset = mountParameterInset(session, container, {
             boundingBox: INSET_BOUNDING_BOX,
             build: board => {
+                // Below the triangle, so the filled triangle reads as the lower-left half of the square.
+                this.insetSquare = board.create("polygon", [[0, 0], [1, 0], [1, 1], [0, 1]], {
+                    vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "none", highlight: false,
+                    borders: {strokeColor: "#0b7a75", strokeWidth: 2, dash: 2, highlight: false, fixed: true},
+                });
+                this.syncInsetSquare();
                 board.create("polygon", [[0, 0], [1, 0], [0, 1]], {
                     vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "#eef2e6", fillOpacity: 1,
                     highlightFillColor: "#eef2e6", highlightFillOpacity: 1, borders: {strokeColor: "#526950", strokeWidth: 2, highlight: false, fixed: true},
@@ -316,9 +339,14 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
             },
             constrain: clampToTriangle,
             onDrag: (u, v) => this.setParameters(u, v),
-            onSessionEnd: () => { if (this.inset === inset) this.inset = undefined; },
+            onSessionEnd: () => { if (this.inset === inset) { this.inset = undefined; this.insetSquare = undefined; } },
         });
         this.inset = inset;
+    }
+
+    /** The square outline follows the comparison switch. */
+    private syncInsetSquare(): void {
+        this.insetSquare?.setAttribute({visible: this.tensorComparisonValue});
     }
 
     /** The inset dot follows the store: sliders, Reset, Presets and lesson scene writes all move it. */

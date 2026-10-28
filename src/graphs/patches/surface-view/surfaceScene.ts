@@ -7,8 +7,11 @@
 
 export type Xyz = [number, number, number];
 
-/** `iso-v` and `iso-w` are the second and third iso-line families of a triangular patch; `iso` is the first (and the tensor patch's only). */
-export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'highlight';
+/**
+ * `iso-v` and `iso-w` are the second and third iso-line families of a triangular patch; `iso` is the first (and the tensor patch's only).
+ * `compare` draws the tensor-product patch that the triangular workspace shows next to its own surface (curves and net only).
+ */
+export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'highlight' | 'compare';
 export type MarkerRole = 'evaluated' | 'construction';
 
 export interface ScenePoint {

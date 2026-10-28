@@ -1258,5 +1258,9 @@ export const sl = {
     "patch_subdivision_heading": "Delitev na tri dele",
     "patch_subdivision_show": "Pokaži delitev v točki (u, v, w)",
     "patch_subdivision_help": "Točka S(u, v, w) razdeli krpo na tri trikotne krpe, ki se stikajo v njej. Prikazani so njihovi kontrolni mreži in tri krivulje reza; krpa ostane nespremenjena.",
-    "patch_subdivision_interior_required": "Delitev zahteva točko v notranjosti trikotnika (u, v in w večji od 0)."
+    "patch_subdivision_interior_required": "Delitev zahteva točko v notranjosti trikotnika (u, v in w večji od 0).",
+    "patch_compare_heading": "Primerjava s tenzorsko krpo",
+    "patch_compare_show": "Pokaži tenzorsko krpo iste stopnje",
+    "patch_compare_help": "Tenzorska krpa je izpeljana iz iste mreže in je narisana modrozeleno. S trikotno krpo si delita robni krivulji u = 0 in v = 0. Ni shranjena v prednastavitvah in je ni mogoče urejati.",
+    "patch_compare_domains": "Trikotna krpa je definirana na trikotniku z baricentričnimi koordinatami (u, v, w), tenzorska na kvadratu [0, 1] × [0, 1] s koordinatama (u, v). Tenzorska krpa ima štiri robne krivulje, trikotna tri, vse stopnje n."
 } as const;

@@ -1259,5 +1259,9 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_subdivision_heading": "Subdivision into three",
     "patch_subdivision_show": "Show the split at (u, v, w)",
     "patch_subdivision_help": "The point S(u, v, w) splits the patch into three triangular patches that meet in it. Their control nets and the three cutting curves are shown; the patch itself is unchanged.",
-    "patch_subdivision_interior_required": "Subdivision needs a point inside the triangle (u, v and w greater than 0)."
+    "patch_subdivision_interior_required": "Subdivision needs a point inside the triangle (u, v and w greater than 0).",
+    "patch_compare_heading": "Comparison with a tensor patch",
+    "patch_compare_show": "Show the tensor patch of the same degree",
+    "patch_compare_help": "The tensor patch is derived from the same net and drawn in teal. It shares the boundary curves u = 0 and v = 0 with the triangular patch. It is not saved in Presets and cannot be edited.",
+    "patch_compare_domains": "The triangular patch is defined on the triangle with barycentric coordinates (u, v, w), the tensor patch on the square [0, 1] × [0, 1] with coordinates (u, v). The tensor patch has four boundary curves, the triangular patch three, all of degree n."
 };
