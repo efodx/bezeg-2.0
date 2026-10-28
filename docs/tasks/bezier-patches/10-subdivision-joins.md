@@ -1,6 +1,6 @@
 # 10 — Subdivision, elevation and joining demonstrations
 
-Status: ready after07/09. Source: [demonstrations and P5–P8](../../specs/bezier-patches.md#demonstrations), [ADR0018 capstone](../../adr/0018-three-surface-view-adapter.md#defaults-budgets-and-capstone).
+Status: complete. Routes, review repairs and the licensed teapot capstone are on master; source CI [run 40787953802](https://github.com/efodx/bezeg-2.0/actions/runs/40787953802) passed. Evidence: [subdivision-joins](../../reviews/bezier-patches/subdivision-joins.md); browser limits carried to task 14, teapot framing to task 13. Source: [demonstrations and P5–P8](../../specs/bezier-patches.md#demonstrations), [ADR0018 capstone](../../adr/0018-three-surface-view-adapter.md#defaults-budgets-and-capstone).
 
 Add `patch-subdivision` and `patch-joins` at the specified routes. Expose per-direction split/elevation with exact original/piece correspondence. Show two tensor patches with a shared boundary, C0/C1 net conditions and the G1 distinction; never silently describe tangent-plane agreement as matching derivatives. Define degree/orientation handling through the mathematical model and review it before building controls.
 
