@@ -10,6 +10,7 @@ import {DecasteljauOrder, PatchCameraDto, PatchCollectionPresetData, PatchStateD
 import {defaultPatchPresets, type DerivativesStartingPatch, patchPresetCollections} from "./patchPresetCollections";
 import {buildTensorScene, patchFromNet, patchPointId, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
+import type {JoinContinuity} from "./tensorJoins";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
 export const MIN_PATCH_DEGREE = 1;
@@ -40,6 +41,17 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     showTangentPlane?: boolean;
     showNormal?: boolean;
     showTwist?: boolean;
+    /** Only the `patch-subdivision` Demonstration sets these (see `TensorSubdivisionGraph`). */
+    subdivisionDirection?: PatchDirection;
+    subdivisionValue?: number;
+    showPieces?: boolean;
+    /** Only the `patch-joins` Demonstration sets these (see `TensorJoinGraph`); `B` is the second patch, joined along `A`'s `u = 1` boundary. */
+    joinContinuity?: JoinContinuity;
+    joinAlpha?: number;
+    joinV?: number;
+    mB?: number;
+    nB?: number;
+    netB?: Xyz[][];
 }
 
 const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
@@ -59,6 +71,18 @@ const defaultDto = () => {
     if (entry[0] !== "TensorProductBezierPatch") throw new Error("The default patch Preset is not a tensor patch.");
     return entry[1];
 };
+
+/**
+ * `net` at `degree` in `direction`. Raising is exact elevation. Lowering replaces each row or column curve by the
+ * lower-degree curve that interpolates it at k/degree (exact when the surface already has that degree, corners kept).
+ */
+export function netWithDegree(net: ReadonlyArray<ReadonlyArray<Xyz>>, direction: PatchDirection, degree: number): Xyz[][] {
+    const current = direction === "u" ? net.length - 1 : net[0].length - 1;
+    if (degree <= current) return degree === current ? net.map(row => row.map((p): Xyz => [...p])) : lowerNetDegree(net, direction, degree);
+    let raised = patchFromNet(net);
+    for (let d = current; d < degree; d++) raised = raised.elevate(direction);
+    return raised.getControlNet().map(row => row.map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0]));
+}
 
 /** The state a tensor patch DTO describes; fields the DTO omits take the defaults. */
 function stateFromDto(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>; state?: PatchStateDto}): Omit<TensorPatchGraphState, "initialized" | "zMode" | "surfaceUnavailable"> {
@@ -146,7 +170,15 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         const [i, j] = index;
         // A drag's start repeats the point's own position; keeping the net avoids a pointless geometry rebuild.
         if (this.state.net[i]?.[j]?.every((value, axis) => value === position[axis])) return;
-        this.setState({net: this.state.net.map((row, r) => r === i ? row.map((p, c): Xyz => c === j ? [...position] : p) : row)});
+        this.setState(this.settleNet({net: this.state.net.map((row, r) => r === i ? row.map((p, c): Xyz => c === j ? [...position] : p) : row)}));
+    }
+
+    /**
+     * The state patch to write for a change of the control net (a point move or a degree change), with whatever a
+     * Demonstration derives from the new net added in the same update; `patch.net` is the new net. Nothing by default.
+     */
+    protected settleNet(patch: Partial<TensorPatchGraphState> & {net: Xyz[][]}): Partial<TensorPatchGraphState> {
+        return patch;
     }
 
     // ---- Operations the controls call --------------------------------------------------------------------------
@@ -159,16 +191,8 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     setDegree(direction: PatchDirection, degree: number): void {
         const current = direction === "u" ? this.state.m : this.state.n;
         if (!Number.isInteger(degree) || degree < MIN_PATCH_DEGREE || degree > MAX_PATCH_DEGREE || degree === current) return;
-        const source = patchFromNet(this.state.net);
-        let net: Xyz[][];
-        if (degree > current) {
-            let raised = source;
-            for (let d = current; d < degree; d++) raised = raised.elevate(direction);
-            net = raised.getControlNet().map(row => row.map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0]));
-        } else {
-            net = lowerNetDegree(this.state.net, direction, degree);
-        }
-        this.setState({m: net.length - 1, n: net[0].length - 1, net});
+        const net = netWithDegree(this.state.net, direction, degree);
+        this.setState(this.settleNet({m: net.length - 1, n: net[0].length - 1, net}));
         this.selectPoint(this.selectedPointId);
     }
 
