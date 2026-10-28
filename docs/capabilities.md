@@ -83,11 +83,11 @@ The [concept-led preview revision](specs/concept-led-demonstration-previews.md) 
 
 `/patches/triangular` (`TriangularPatchGraph`, built on `BaseSurfaceGraph`) edits a triangular Bézier patch of degree 1–4 with a canonical indexed net of `(n + 1)(n + 2)/2` points `P_ijk`, `i + j + k = n` ([spec](specs/bezier-patches.md)). View, camera, dragging, labels, export and failure handling are those of the [tensor workspace](#tensor-patch-workspace).
 
-- **View**: control net, three iso-line families (`u`, `v`, `w` constant; told apart by colour), boundary curves, shading and the barycentric de Casteljau scheme at the current point; a transient three-piece split at `(u, v, w)`, drawn only for an interior point.
+- **View**: control net, three iso-line families (`u`, `v`, `w` constant; told apart by colour and dash pattern: solid, dashed, short-dashed), boundary curves, shading and the barycentric de Casteljau scheme at the current point; a transient three-piece split at `(u, v, w)`, drawn only for an interior point.
 - **Evaluation**: `u`, `v` sliders clamped so that `u + v ≤ 1`, with read-only `w = 1 − u − v`; a triangle-domain inset whose dot lands on the nearest point of the triangle when dragged outside it.
 - **Editing**: a point is chosen in the view or from a list of valid `(i, j, k)`; its x, y, z are typed (finite values only). The three net lines through it, parallel to the triangle edges, are highlighted, and its Bernstein weight `n!/(i! j! k!) uⁱ vʲ wᵏ` at `(u, v, w)` is shown.
 - **Degree**: elevation is exact; lowering interpolates the patch at the lattice points of the lower degree, exact only when the patch already has that degree.
-- **Comparison**: a transient switch also draws the `n × n` tensor patch with net `P_ab = b_(a,0,n−a) + b_(0,b,n−b) − b_(0,0,n)` (a translational surface). It shares the boundary curves `u = 0` and `v = 0` with the triangular patch; the inset then shows the square domain around the triangle. It is not stored in Presets and cannot be edited.
+- **Comparison**: a transient switch also draws the `n × n` tensor patch with net `P_ab = b_(a,0,n−a) + b_(0,b,n−b) − b_(0,0,n)` (a translational surface). It shares the boundary curves `u = 0` and `v = 0` with the triangular patch and is drawn in teal long dashes; the inset then shows the square domain around the triangle. It is not stored in Presets and cannot be edited.
 - **Presets**: one default per degree (the cubic opens first); a Preset stores net, `u`, `v`, switches, densities and camera. An imported `u + v` slightly above 1 from rounding is clamped into the triangle.
 
 ## Shared user workflows
