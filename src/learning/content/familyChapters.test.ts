@@ -83,13 +83,14 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes seven bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes eight bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'functions-and-calculus', 'analysis',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'functions-and-calculus', 'analysis',
         ]);
         for (const chapter of familyChapters) {
             expect(chapter.sections.length).toBeGreaterThanOrEqual(5);
-            expect(chapter.sections.length).toBeLessThanOrEqual(8);
+            // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
+            expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);
             expect(chapter.sections.every(section => /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(section.id))).toBe(true);
             for (const language of ['sl', 'en'] as const) {

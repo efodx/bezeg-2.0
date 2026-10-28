@@ -1,4 +1,5 @@
 import {authorFamilyChapterSequence} from './familyChapterSequences';
+import {patchChapter} from './patchChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import type {LocalizedText} from '../model';
@@ -383,6 +384,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['spline-parameterization', 'weighted-parameterization', 'uniform-parameterization'], {investigationPrompts: parametrizationPrompts}),
         ],
     },
+    patchChapter, // Placed after the curve families (parametrization), before the analysis-style chapters.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',
         title: text('Funkcije in računanje', 'Functions and calculus'),

@@ -50,6 +50,13 @@ const topicPreviews = {
         connection: 'splines',
         connectionReason: {sl: 'ki združijo več lokalno parametriziranih odsekov.', en: 'which combine several locally parametrized segments.'},
     },
+    'bezier-patches': {
+        demonstration: 'patch-tensor',
+        alt: {sl: 'Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', en: 'A tensor-product Bézier patch with its control net in a three-dimensional view.'},
+        caption: {sl: 'Kontrolna mreža oblikuje ploskev z dvema parametroma, tako kot kontrolni poligon oblikuje krivuljo.', en: 'A control net shapes a surface with two parameters, just as a control polygon shapes a curve.'},
+        connection: 'bezier-curves',
+        connectionReason: {sl: 'ki jih krpa posploši na dva parametra.', en: 'which a patch generalizes to two parameters.'},
+    },
     'functions-and-calculus': {
         demonstration: 'derivative',
         alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'},

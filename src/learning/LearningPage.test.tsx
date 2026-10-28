@@ -28,12 +28,11 @@ beforeEach(() => {
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
-    // The patches family gets its chapter in task 12 of docs/tasks/bezier-patches; until then it is the only family without one.
-    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id).filter(id => id !== '/bezeg-2.0/patches');
+    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id);
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(8);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(8);
-    expect(container.querySelectorAll('.learning-preview img[loading="lazy"]')).toHaveLength(8);
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(9);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(9);
+    expect(container.querySelectorAll('.learning-preview img[loading="lazy"]')).toHaveLength(9);
     for (const chapter of learningChapters) {
         expect(screen.getByRole('heading', {name: chapter.title.sl, level: 2})).toBeInTheDocument();
         expect(within(container.querySelector(`#${chapter.id}`)!).getByRole('link', {name: 'Preberi poglavje'})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);

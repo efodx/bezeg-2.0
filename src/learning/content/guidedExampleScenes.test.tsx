@@ -9,7 +9,8 @@ import {resolveGuidedExample} from '../chapter/guidedExamples';
 
 beforeAll(installBoardShims);
 
-const familyExamples = familyChapters.flatMap(chapter => chapter.sections.flatMap(section =>
+// The patches chapter has no audited baseline homes yet; its generic Explore links are covered by patchChapter.test.ts until task 13 authors scenes.
+const familyExamples = familyChapters.filter(chapter => chapter.id !== 'bezier-patches').flatMap(chapter => chapter.sections.flatMap(section =>
     Object.keys(section.investigationPrompts ?? {}).map(demonstrationId => ({
         chapterId: chapter.id, sectionId: section.id, demonstrationId: demonstrationId as DemonstrationId,
     })).filter(example => section.demonstrationIds?.includes(example.demonstrationId))));
