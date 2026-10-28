@@ -578,7 +578,7 @@ describe('surface palette', () => {
 
     it('gives the derivative arrows and the tangent plane colours with at least 3:1 on white, distinct from every other colour', () => {
         const derivative = ['vector-u', 'vector-v', 'twist', 'normal', 'plane'] as const;
-        const polylineRoles = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal'] as const satisfies readonly PolylineRole[];
+        const polylineRoles = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal', 'net-2'] as const satisfies readonly PolylineRole[];
         for (const role of derivative) {
             expect(1.05 / (luminance(SURFACE_COLORS[role]) + 0.05), role).toBeGreaterThanOrEqual(3);
             // `selected` deliberately shares the highlight blue.
@@ -589,6 +589,12 @@ describe('surface palette', () => {
         expect(new Set(colours).size).toBe(polylineRoles.length);
     });
 
+    it('gives the second control net its own colour, with at least 3:1 on white', () => {
+        const others = Object.entries(SURFACE_COLORS).filter(([role]) => role !== 'net-2').map(([, color]) => color);
+        expect(others).not.toContain(SURFACE_COLORS['net-2']);
+        expect(1.05 / (luminance(SURFACE_COLORS['net-2']) + 0.05)).toBeGreaterThanOrEqual(3);
+    });
+
     it('draws only S_u and S_v solid among the new roles, the other two with their own dash patterns', () => {
         const solid = (['vector-u', 'vector-v', 'twist', 'normal'] as const).filter(role => !(role in SURFACE_DASH));
         expect(solid).toEqual(['vector-u', 'vector-v']);
@@ -597,8 +603,8 @@ describe('surface palette', () => {
 });
 
 describe('ThreeSurfaceView line dashes', () => {
-    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal'];
-    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare', 'construction-2', 'twist', 'normal'];
+    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal', 'net-2'];
+    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare', 'construction-2', 'twist', 'normal', 'net-2'];
 
     /** One polyline per role, the whole scene spanning `size` along x. */
     function dashScene(size: number, revision = 1): SurfaceScene {
@@ -640,14 +646,16 @@ describe('ThreeSurfaceView line dashes', () => {
             else expect(material instanceof THREE.LineDashedMaterial, role).toBe(false);
             expect(material.color.getHex(), role).toBe(SURFACE_COLORS[role]);
         }
-        // The six dashed roles differ from one another in pattern.
+        // The seven dashed roles differ from one another in pattern.
         const patterns = dashed.map(role => `${SURFACE_DASH[role as keyof typeof SURFACE_DASH].dash}/${SURFACE_DASH[role as keyof typeof SURFACE_DASH].gap}`);
-        expect(new Set(patterns).size).toBe(6);
+        expect(new Set(patterns).size).toBe(7);
         expect(SURFACE_DASH.twist.dash).toBeLessThan(SURFACE_DASH['iso-w'].dash);
         expect(SURFACE_DASH['iso-w'].dash).toBeLessThan(SURFACE_DASH['construction-2'].dash);
         expect(SURFACE_DASH['construction-2'].dash).toBeLessThan(SURFACE_DASH['iso-v'].dash);
         expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH.normal.dash);
         expect(SURFACE_DASH.normal.dash).toBeLessThan(SURFACE_DASH.compare.dash);
+        expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH['net-2'].dash);
+        expect(SURFACE_DASH['net-2'].dash).toBeLessThan(SURFACE_DASH.normal.dash);
         h.view.dispose();
     });
 

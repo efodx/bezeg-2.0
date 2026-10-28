@@ -57,6 +57,7 @@ export const SURFACE_COLORS = {
     'vector-v': 0xb3202a, // crimson, solid: S_v; blue and crimson differ strongly in hue
     twist: 0x6a2c91, // violet, dotted: S_uv
     normal: 0x2a2a2a, // near black, long-dashed: the unit normal
+    'net-2': 0x9a4f12, // burnt orange, dashed: a second control net (subdivision piece, join patch B); 6.0:1 on white
     plane: 0x4f86c6, // the translucent tangent plane and its outline
     point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
     selected: 0x1f5fbf,
@@ -70,7 +71,7 @@ export const SURFACE_COLORS = {
  * told apart without colour: `iso` solid, `iso-v` dashed, `iso-w` dotted, `compare` long-dashed. The second
  * construction stage (`construction-2`) is short-dashed against the first stage's solid lines. In the derivative
  * demonstration `vector-u` and `vector-v` are solid (told apart by hue and their labels), `twist` is dotted and
- * `normal` is long-dashed.
+ * `normal` is long-dashed. A second control net (`net-2`) is medium-dashed against the solid `net`.
  */
 export const SURFACE_DASH = {
     'iso-v': {dash: 0.03, gap: 0.02},
@@ -79,6 +80,7 @@ export const SURFACE_DASH = {
     'construction-2': {dash: 0.022, gap: 0.012},
     twist: {dash: 0.012, gap: 0.012},
     normal: {dash: 0.05, gap: 0.02},
+    'net-2': {dash: 0.04, gap: 0.015},
 } as const satisfies Partial<Record<PolylineRole, {dash: number; gap: number}>>;
 
 function dashFor(role: PolylineRole): {dash: number; gap: number} | undefined {

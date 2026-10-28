@@ -12,10 +12,11 @@ export type Xyz = [number, number, number];
  * `compare` draws the tensor-product patch that the triangular workspace shows next to its own surface (curves and net only).
  * `construction-2` is the second stage of the tensor patch's de Casteljau construction (`construction` is the first).
  * `vector-u`, `vector-v`, `twist` and `normal` are the arrows of the tensor patch's derivative demonstration: `S_u`, `S_v`,
- * `S_uv` and the unit normal.
+ * `S_uv` and the unit normal. `net-2` is a second control net beside `net`: the right subdivision piece, or patch `B`
+ * of a join.
  */
 export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'construction-2' | 'highlight' | 'compare'
-    | 'vector-u' | 'vector-v' | 'twist' | 'normal';
+    | 'vector-u' | 'vector-v' | 'twist' | 'normal' | 'net-2';
 export type MarkerRole = 'evaluated' | 'construction' | 'construction-2';
 
 export interface ScenePoint {
