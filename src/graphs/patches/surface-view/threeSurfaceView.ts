@@ -162,6 +162,7 @@ export class ThreeSurfaceView implements SurfaceView {
     private shared: Array<{ dispose(): void }> = [];
     private sphereGeometry: ThreeNs.SphereGeometry | null = null;
     private markerGeometry: ThreeNs.SphereGeometry | null = null;
+    private marker2Geometry: ThreeNs.OctahedronGeometry | null = null;
     private lineMaterials = new Map<PolylineRole, ThreeNs.LineBasicMaterial>();
     /** Diagonal of the bounding box of the last built scene; the dash sizes are fractions of it. */
     private sceneExtent = 1;
@@ -376,6 +377,8 @@ export class ThreeSurfaceView implements SurfaceView {
 
         this.sphereGeometry = this.track(new T.SphereGeometry(POINT_RADIUS, 14, 10));
         this.markerGeometry = this.track(new T.SphereGeometry(POINT_RADIUS * 0.8, 12, 8));
+        // Stage-2 markers are diamonds, larger than the stage-1 spheres, so the stages differ in shape and not only hue.
+        this.marker2Geometry = this.track(new T.OctahedronGeometry(POINT_RADIUS * 1.25));
         this.pointMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.point}));
         this.selectedMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.selected}));
         this.evaluatedMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.marker}));
@@ -461,7 +464,7 @@ export class ThreeSurfaceView implements SurfaceView {
         }
         for (const m of scene.markers) {
             const material = m.role === 'evaluated' ? this.evaluatedMaterial! : m.role === 'construction-2' ? this.construction2Material! : this.constructionMaterial!;
-            const mesh = new T.Mesh(this.markerGeometry!, material);
+            const mesh = new T.Mesh(m.role === 'construction-2' ? this.marker2Geometry! : this.markerGeometry!, material);
             mesh.position.set(...m.xyz);
             this.dynamicLayer.add(mesh);
         }

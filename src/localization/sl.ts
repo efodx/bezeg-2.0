@@ -1277,7 +1277,7 @@ export const sl = {
     "patch_decasteljau_help_bilinear": "Bilinearno: vsaka celica 2 × 2 mreže se naenkrat zmanjša v eno točko, min(m, n)-krat. Vmesne mreže so oranžne in polne. Ostanek, enorazsežna vrsta točk, se zmanjša z običajnim De Casteljaujevim postopkom v rožnatih črtkanih črtah. Zadnja točka je S(u, v).",
     "patch_derivatives_title": "Odvodi in tangentna ravnina krpe",
     "prompt_patch_derivatives_tangents": "Premikaj (u, v) in opazuj tangentna vektorja S_u in S_v ter tangentno ravnino. V katero smer po krpi kaže vsak od njiju?",
-    "prompt_patch_derivatives_normal": "Primerjaj normalo v štirih ogliščih in ob strnjenem robu. Kdaj normala ni določena in zakaj je mejna normala vseeno lahko določena?",
+    "prompt_patch_derivatives_normal": "Primerjaj normalo v štirih ogliščih, ob strnjenem robu in v oglišču z vzporednima robnima vektorjema. Kdaj normala ni določena? Kje mejna normala vseeno obstaja in kje je normala odvisna od smeri približevanja?",
     "preset_collapsed_edge": "Bézierjeva krpa s strnjenim robom",
     "preset_parallel_corner": "Bézierjeva krpa z vzporednima robnima vektorjema v oglišču",
     "patch_show_tangent_plane": "Tangentna ravnina",
@@ -1289,7 +1289,7 @@ export const sl = {
     "patch_derivatives_normal_label": "Enotska normala n",
     "patch_derivatives_normal_undefined": "ni določena",
     "patch_derivatives_legend": "Modra polna puščica je S_u (odvod po u), rdeča polna puščica je S_v (odvod po v), vijoličasta pikčasta puščica je mešani odvod S_uv, črna črtkana puščica je enotska normala n, prosojni modri lik pa tangentna ravnina. Puščice S_u, S_v in S_uv so narisane v istem merilu, normala ima vedno enako dolžino.",
-    "patch_derivatives_degenerate_parallel": "Normala tukaj ni določena: S_u in S_v sta vzporedna, zato ne razpenjata ravnine. Mejna normala ob približevanju tej točki vseeno lahko obstaja.",
+    "patch_derivatives_degenerate_parallel": "Normala tukaj ni določena: S_u in S_v sta vzporedna, zato ne razpenjata ravnine. Ko se tej točki približuješ, se normala lahko ustali pri mejni normali, lahko pa je odvisna od smeri približevanja.",
     "patch_derivatives_degenerate_zero_su": "Normala tukaj ni določena: S_u je ničelni vektor, zato tangentna vektorja ne razpenjata ravnine. Mejna normala ob približevanju tej točki (na primer ob strnjenem robu) vseeno lahko obstaja.",
     "patch_derivatives_degenerate_zero_sv": "Normala tukaj ni določena: S_v je ničelni vektor, zato tangentna vektorja ne razpenjata ravnine. Mejna normala ob približevanju tej točki (na primer ob strnjenem robu) vseeno lahko obstaja.",
     "patch_derivatives_degenerate_both_zero": "Normala tukaj ni določena: S_u in S_v sta ničelna vektorja, zato ne razpenjata ravnine. Mejna normala ob približevanju tej točki vseeno lahko obstaja."

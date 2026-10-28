@@ -20,6 +20,9 @@ const randomNet = (m: number, n: number, rand: () => number): Xyz[][] =>
 
 const sub = (a: Xyz, b: Xyz): Xyz => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const dot = (a: Xyz, b: Xyz): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const add = (a: Xyz, b: Xyz): Xyz => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const cross = (a: Xyz, b: Xyz): Xyz => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const binomial = (n: number, k: number): number => (k === 0 ? 1 : (binomial(n, k - 1) * (n - k + 1)) / k);
 const len = (a: Xyz): number => Math.hypot(a[0], a[1], a[2]);
 const lin = (k: number, a: Xyz): Xyz => [k * a[0], k * a[1], k * a[2]];
 const expectVec = (actual: Xyz, expected: Xyz, digits = 12) => {
@@ -146,11 +149,42 @@ describe("degeneracy classification", () => {
         expect(reasonOf(scaledNet(collapsedEdgeNet(), 1e-6), 0, 0.5)).toBe("zero-sv");
     });
     it("uses the cross product of nearly parallel but distinct tangents relative to the net size", () => {
-        // Tilt the v tangent by an angle far above the tolerance: still defined, at any scale.
-        const tilt = (k: number): Xyz[][] => scaledNet([[[0, 0, 0], [0, 1, 0]], [[1, 0, 0], [1, 1, 1e-4]]], k);
-        expect(reasonOf(tilt(1), 0, 0)).toBe("defined");
-        expect(reasonOf(tilt(1e-3), 0, 0)).toBe("defined");
-        expect(reasonOf(tilt(1e3), 0, 0)).toBe("defined");
+        // At (0,0) S_u = P10 - P00 = (1,0,0) and S_v = P01 - P00 = (1,sinTheta,0): sin of the angle between them is ~sinTheta.
+        const nearlyParallel = (sinTheta: number): Xyz[][] => [[[0, 0, 0], [1, sinTheta, 0]], [[1, 0, 0], [2, 0, 1]]];
+        const sine = (net: Xyz[][]) => {
+            const d = tensorDifferentials(patchFromNet(net), 0, 0);
+            return len(cross(d.su, d.sv)) / (len(d.su) * len(d.sv));
+        };
+        expect(sine(nearlyParallel(1e-4))).toBeCloseTo(1e-4, 9);
+        // Far above the relative tolerance (1e-9 * D^2 ~ 1e-8), at any scale: an absolute cross tolerance fails the 1e-3 scale,
+        // a tolerance of 1e-3 relative or more fails every scale.
+        for (const k of [1, 1e-3, 1e3, 1e-6, 1e6]) expect(reasonOf(scaledNet(nearlyParallel(1e-4), k), 0, 0)).toBe("defined");
+        // Far below it: the same net with an angle of 1e-12 is parallel at every scale.
+        for (const k of [1, 1e-3, 1e3]) expect(reasonOf(scaledNet(nearlyParallel(1e-12), k), 0, 0)).toBe("parallel");
+    });
+    it("has a limit normal along the collapsed edge: unit S_u x S_uv at u = 0", () => {
+        const net = collapsedEdgeNet();
+        const v = 0.5;
+        const bernstein = (n: number, k: number, t: number) => binomial(n, k) * t ** k * (1 - t) ** (n - k);
+        // Row 0 is collapsed to the origin, so S_u(0, v) = 3 * sum_j B3j(v) P1j and S_uv(0, v) = d/dv of that.
+        const q = net[1];
+        let su: Xyz = [0, 0, 0], suv: Xyz = [0, 0, 0];
+        for (let j = 0; j <= 3; j++) su = add(su, lin(3 * bernstein(3, j, v), q[j]));
+        for (let j = 0; j <= 2; j++) suv = add(suv, lin(9 * bernstein(2, j, v), sub(q[j + 1], q[j])));
+        const c = cross(su, suv);
+        const limit = lin(1 / len(c), c);
+        expect(len(c)).toBeGreaterThan(1e-3);
+        const distance = (u: number) => {
+            const normal = tensorDifferentials(patchFromNet(net), u, v).normal;
+            if (normal.kind !== "defined") throw new Error(`normal not defined at u = ${u}`);
+            return len(sub(normal.unit, limit));
+        };
+        // S_v = u * S_uv + O(u^2), so the normal converges linearly to the limit as u tends to 0.
+        expect(distance(1e-2)).toBeLessThan(0.1);
+        expect(distance(1e-4)).toBeLessThan(1e-2);
+        expect(distance(1e-6)).toBeLessThan(1e-4);
+        expect(distance(1e-6)).toBeLessThan(distance(1e-2) / 100);
+        expect(tensorDifferentials(patchFromNet(net), 0, v).normal.kind).toBe("degenerate");
     });
 });
 

@@ -25,10 +25,15 @@ const ARROWS = {
 
 const isPoint = ([a, b]: readonly [Xyz, Xyz]) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
+/** Whether the normal classifier treats this tangent as zero; it uses a tolerance, so such an arrow may not be exactly a point. */
+const vanishes = (name: DifferentialArrow["name"], normal: TensorDifferentials["normal"]) => normal.kind === "degenerate"
+    && ((name === "su" && (normal.reason === "zero-su" || normal.reason === "both-zero"))
+        || (name === "sv" && (normal.reason === "zero-sv" || normal.reason === "both-zero")));
+
 /**
  * The derivatives of the tensor patch at (u, v) as scene objects, from `drawDifferentials`: each arrow is a shaft and
  * two head segments (three polylines `deriv-<name>-shaft`, `-head-0`, `-head-1`) with a label at its tip, and the
- * tangent plane is a quad. An arrow of length 0 is omitted (a vanishing `S_u`, `S_v` or `S_uv`), as are the normal and
+ * tangent plane is a quad. An arrow of length 0 is omitted (a vanishing `S_u`, `S_v` or `S_uv`, or a tangent the normal classifier reports as zero), as are the normal and
  * the plane where the normal is undefined (the tangent vectors do not span a plane).
  */
 export function buildDerivativesScene(patch: TensorProductBezierPatch, u: number, v: number, visibility: DerivativesVisibility): DerivativesScene {
@@ -38,7 +43,7 @@ export function buildDerivativesScene(patch: TensorProductBezierPatch, u: number
     for (const arrow of drawing.arrows) {
         if (arrow.name === "normal" && !visibility.showNormal) continue;
         if (arrow.name === "twist" && !visibility.showTwist) continue;
-        if (isPoint(arrow.shaft)) continue;
+        if (isPoint(arrow.shaft) || vanishes(arrow.name, differentials.normal)) continue;
         const {role, label} = ARROWS[arrow.name];
         const id = `deriv-${arrow.name}`;
         polylines.push({id: `${id}-shaft`, role, points: [...arrow.shaft]});

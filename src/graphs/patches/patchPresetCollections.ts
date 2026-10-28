@@ -133,7 +133,8 @@ export interface DerivativesStartingPatch {
 /**
  * The starting patches of the `patch-derivatives` Demonstration: the two tensor Presets and two patches whose normal is
  * undefined somewhere. The collapsed-edge patch has its whole `u = 0` row at one point (`S_v = 0` along that edge, yet
- * a limit normal exists); the parallel-corner patch has parallel edge vectors at `(0, 0)`. Both start at the degenerate
+ * a limit normal exists); the parallel-corner patch has parallel edge vectors at `(0, 0)`, where the normal approached depends on the direction
+ * of approach, so no limit normal exists there. Both start at the degenerate
  * corner `(0, 0)` so the reason is visible at once. Cameras are fitted like the other Presets' (aspect 0.45).
  */
 export const derivativesStartingPatches: readonly DerivativesStartingPatch[] = [

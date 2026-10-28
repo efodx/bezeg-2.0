@@ -206,6 +206,14 @@ describe("degenerate normals", () => {
         expect(graph.state).toMatchObject({showTwist: false, m: 3, n: 3});
         expect(sw("patch_show_twist").checked).toBe(false);
     });
+    it("a starting patch writes the state once, net and switches together", () => {
+        const {graph} = mount();
+        fireEvent.click(sw("patch_show_normal"));
+        const setState = vi.spyOn(graph, "setState");
+        fireEvent.click(startingPatch("preset_collapsed_edge"));
+        expect(setState).toHaveBeenCalledTimes(1);
+        expect(graph.state).toMatchObject({showNormal: false, showTangentPlane: true, m: 3, n: 3});
+    });
 });
 
 describe("language", () => {

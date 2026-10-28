@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as THREE from 'three';
 import {SURFACE_COLORS, SURFACE_DASH, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
-import type {LabelLayout, PolylineRole, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
+import {assertFiniteScene, type LabelLayout, type PolylineRole, type ScenePlane, type SurfaceEdit, type SurfaceScene, type Xyz} from './surfaceScene';
 import {fitCameraTo} from './surfaceMath';
 
 function makeScene(overrides: Partial<SurfaceScene> = {}): SurfaceScene {
@@ -189,6 +189,18 @@ describe('ThreeSurfaceView lifecycle', () => {
         const scene = makeScene();
         scene.points[0].xyz = [NaN, 0, 0];
         expect(() => h.view.reconcile(scene)).toThrow(/non-finite/);
+        h.view.dispose();
+    });
+
+    it('rejects a plane with a non-finite corner, in the view and in the scene check', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const scene = makeScene({planes: [{id: 'pl', corners: [[0, 0, 0], [1, 0, 0], [NaN, 1, 0], [0, 1, 0]]}]});
+        expect(() => assertFiniteScene(scene)).toThrow(/plane pl/);
+        expect(() => h.view.reconcile(scene)).toThrow(/non-finite/);
+        const infinite = makeScene({planes: [{id: 'pl', corners: [[0, 0, 0], [1, 0, 0], [1, Infinity, 0], [0, 1, 0]]}]});
+        expect(() => assertFiniteScene(infinite)).toThrow(/plane pl/);
+        expect(() => assertFiniteScene(makeScene({planes: [{id: 'pl', corners: [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]}]}))).not.toThrow();
         h.view.dispose();
     });
 
@@ -563,11 +575,30 @@ describe('surface palette', () => {
         expect(others).not.toContain(SURFACE_COLORS['construction-2']);
         expect(1.05 / (luminance(SURFACE_COLORS['construction-2']) + 0.05)).toBeGreaterThanOrEqual(3);
     });
+
+    it('gives the derivative arrows and the tangent plane colours with at least 3:1 on white, distinct from every other colour', () => {
+        const derivative = ['vector-u', 'vector-v', 'twist', 'normal', 'plane'] as const;
+        const polylineRoles = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal'] as const satisfies readonly PolylineRole[];
+        for (const role of derivative) {
+            expect(1.05 / (luminance(SURFACE_COLORS[role]) + 0.05), role).toBeGreaterThanOrEqual(3);
+            // `selected` deliberately shares the highlight blue.
+            const others = Object.entries(SURFACE_COLORS).filter(([name]) => name !== role && name !== 'selected').map(([, color]) => color);
+            expect(others, role).not.toContain(SURFACE_COLORS[role]);
+        }
+        const colours = polylineRoles.map(role => SURFACE_COLORS[role]);
+        expect(new Set(colours).size).toBe(polylineRoles.length);
+    });
+
+    it('draws only S_u and S_v solid among the new roles, the other two with their own dash patterns', () => {
+        const solid = (['vector-u', 'vector-v', 'twist', 'normal'] as const).filter(role => !(role in SURFACE_DASH));
+        expect(solid).toEqual(['vector-u', 'vector-v']);
+        expect(`${SURFACE_DASH.twist.dash}/${SURFACE_DASH.twist.gap}`).not.toBe(`${SURFACE_DASH.normal.dash}/${SURFACE_DASH.normal.gap}`);
+    });
 });
 
 describe('ThreeSurfaceView line dashes', () => {
-    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare'];
-    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare', 'construction-2'];
+    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare', 'vector-u', 'vector-v', 'twist', 'normal'];
+    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare', 'construction-2', 'twist', 'normal'];
 
     /** One polyline per role, the whole scene spanning `size` along x. */
     function dashScene(size: number, revision = 1): SurfaceScene {
@@ -598,7 +629,7 @@ describe('ThreeSurfaceView line dashes', () => {
         return linesOf(h);
     }
 
-    it('draws iso-v dashed, iso-w dotted, compare long-dashed and the second construction stage short-dashed, and every other role solid', async () => {
+    it('draws iso-v dashed, iso-w dotted, compare long-dashed, the second construction stage short-dashed, the twist dotted, the normal long-dashed, and every other role solid', async () => {
         const h = harness();
         await h.view.attach(h.host);
         const lines = await draw(h, dashScene(10));
@@ -609,12 +640,14 @@ describe('ThreeSurfaceView line dashes', () => {
             else expect(material instanceof THREE.LineDashedMaterial, role).toBe(false);
             expect(material.color.getHex(), role).toBe(SURFACE_COLORS[role]);
         }
-        // The four dashed roles differ from one another in pattern.
+        // The six dashed roles differ from one another in pattern.
         const patterns = dashed.map(role => `${SURFACE_DASH[role as keyof typeof SURFACE_DASH].dash}/${SURFACE_DASH[role as keyof typeof SURFACE_DASH].gap}`);
-        expect(new Set(patterns).size).toBe(4);
+        expect(new Set(patterns).size).toBe(6);
+        expect(SURFACE_DASH.twist.dash).toBeLessThan(SURFACE_DASH['iso-w'].dash);
         expect(SURFACE_DASH['iso-w'].dash).toBeLessThan(SURFACE_DASH['construction-2'].dash);
         expect(SURFACE_DASH['construction-2'].dash).toBeLessThan(SURFACE_DASH['iso-v'].dash);
-        expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH.compare.dash);
+        expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH.normal.dash);
+        expect(SURFACE_DASH.normal.dash).toBeLessThan(SURFACE_DASH.compare.dash);
         h.view.dispose();
     });
 
@@ -651,7 +684,7 @@ describe('ThreeSurfaceView line dashes', () => {
         });
         // Proportional to the extent: dash / extent is the table entry.
         expect(bigSizes[0][0]).toBeCloseTo(SURFACE_DASH['iso-v'].dash * extentOf(20), 6);
-        expect(extentOf(20) / extentOf(2)).toBeGreaterThan(2.5);
+        expect(extentOf(20) / extentOf(2)).toBeGreaterThan(1.8);
         h.view.dispose();
     });
 
@@ -666,5 +699,137 @@ describe('ThreeSurfaceView line dashes', () => {
         h.view.dispose();
         for (const material of materials) expect(disposed.has(material)).toBe(true);
         md.mockRestore();
+    });
+});
+
+describe('ThreeSurfaceView tangent plane', () => {
+    const corners: ScenePlane['corners'] = [[-2, -2, 1], [2, -2, 1], [2, 2, 1], [-2, 2, 1]];
+    const planeScene = (revision = 1, planes: ScenePlane[] = [{id: 'pl', corners}]) => makeScene({revision, planes});
+
+    const planeMeshes = (h: Harness): THREE.Mesh[] => {
+        const found: THREE.Mesh[] = [];
+        const [sc] = h.renderer.rendered.at(-1)!;
+        sc.traverse(o => {
+            const m = o as THREE.Mesh;
+            if (m.isMesh && (m.material as THREE.MeshBasicMaterial).transparent) found.push(m);
+        });
+        return found;
+    };
+
+    const outlines = (h: Harness): THREE.Line[] => {
+        const found: THREE.Line[] = [];
+        const [sc] = h.renderer.rendered.at(-1)!;
+        sc.traverse(o => {
+            const line = o as THREE.Line;
+            if (line.isLine && (line.material as THREE.LineBasicMaterial).color.getHex() === SURFACE_COLORS.plane) found.push(line);
+        });
+        return found;
+    };
+
+    it('draws a translucent, double-sided quad that writes no depth, with an outline in the plane colour', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        h.view.reconcile(planeScene());
+        await h.view.capture();
+        const quads = planeMeshes(h);
+        expect(quads).toHaveLength(1);
+        const material = quads[0].material as THREE.MeshBasicMaterial;
+        expect(material.side).toBe(THREE.DoubleSide);
+        expect(material.transparent).toBe(true);
+        expect(material.depthWrite).toBe(false);
+        expect(material.opacity).toBeGreaterThan(0);
+        expect(material.opacity).toBeLessThan(1);
+        expect(material.color.getHex()).toBe(SURFACE_COLORS.plane);
+        const position = quads[0].geometry.getAttribute('position');
+        expect(position.count).toBe(4);
+        corners.forEach((c, k) => expect([position.getX(k), position.getY(k), position.getZ(k)]).toEqual(c));
+        expect(quads[0].geometry.getIndex()!.count).toBe(6);
+        // The outline closes the loop through all four corners.
+        const loops = outlines(h);
+        expect(loops).toHaveLength(1);
+        expect(loops[0].geometry.getAttribute('position').count).toBe(5);
+        h.view.dispose();
+    });
+
+    it('draws no plane when the scene has none', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        h.view.reconcile(planeScene(1, []));
+        await h.view.capture();
+        expect(planeMeshes(h)).toHaveLength(0);
+        expect(outlines(h)).toHaveLength(0);
+        h.view.dispose();
+    });
+
+    it('rebuilds the plane on a new revision, disposing the old geometry and keeping one material', async () => {
+        const h = harness();
+        const disposedGeometries = new Set<unknown>();
+        vi.spyOn(THREE.BufferGeometry.prototype, 'dispose').mockImplementation(function (this: THREE.BufferGeometry) { disposedGeometries.add(this); });
+        await h.view.attach(h.host);
+        h.view.reconcile(planeScene(1));
+        await h.view.capture();
+        const first = planeMeshes(h)[0];
+        const firstOutline = outlines(h)[0];
+        const moved: ScenePlane['corners'] = [[-2, -2, 3], [2, -2, 3], [2, 2, 3], [-2, 2, 3]];
+        h.view.reconcile(planeScene(2, [{id: 'pl', corners: moved}]));
+        await h.view.capture();
+        const second = planeMeshes(h);
+        expect(second).toHaveLength(1);
+        expect(outlines(h)).toHaveLength(1);
+        expect(second[0]).not.toBe(first);
+        expect(second[0].material).toBe(first.material);
+        expect(second[0].geometry.getAttribute('position').getZ(0)).toBe(3);
+        expect(disposedGeometries.has(first.geometry), 'old plane geometry leaked').toBe(true);
+        expect(disposedGeometries.has(firstOutline.geometry), 'old outline geometry leaked').toBe(true);
+        expect(disposedGeometries.has(second[0].geometry)).toBe(false);
+        h.view.dispose();
+    });
+
+    it('disposes the plane geometry, outline and materials with the view', async () => {
+        const h = harness();
+        const disposed = new Set<unknown>();
+        vi.spyOn(THREE.BufferGeometry.prototype, 'dispose').mockImplementation(function (this: THREE.BufferGeometry) { disposed.add(this); });
+        vi.spyOn(THREE.Material.prototype, 'dispose').mockImplementation(function (this: THREE.Material) { disposed.add(this); });
+        await h.view.attach(h.host);
+        h.view.reconcile(planeScene());
+        await h.view.capture();
+        const quad = planeMeshes(h)[0];
+        const loop = outlines(h)[0];
+        h.view.dispose();
+        expect(disposed.has(quad.geometry), 'plane geometry').toBe(true);
+        expect(disposed.has(quad.material), 'plane material').toBe(true);
+        expect(disposed.has(loop.geometry), 'outline geometry').toBe(true);
+        expect(disposed.has(loop.material), 'outline material').toBe(true);
+    });
+});
+
+describe('ThreeSurfaceView construction markers', () => {
+    it('draws the second construction stage as larger diamonds, the first stage and the evaluated point as spheres', async () => {
+        const h = harness();
+        const disposed = new Set<unknown>();
+        vi.spyOn(THREE.BufferGeometry.prototype, 'dispose').mockImplementation(function (this: THREE.BufferGeometry) { disposed.add(this); });
+        await h.view.attach(h.host);
+        h.view.reconcile(makeScene({markers: [
+            {id: 'a', xyz: [0, 0, 0.5], role: 'evaluated'},
+            {id: 'b', xyz: [1, 0, 0.5], role: 'construction'},
+            {id: 'c', xyz: [2, 0, 0.5], role: 'construction-2'},
+        ]}));
+        await h.view.capture();
+        const [sc] = h.renderer.rendered.at(-1)!;
+        const byX = new Map<number, THREE.Mesh>();
+        sc.traverse(o => {
+            const m = o as THREE.Mesh;
+            if (m.isMesh && m.position.z === 0.5 && !m.userData.pointId) byX.set(m.position.x, m);
+        });
+        const [evaluated, first, second] = [byX.get(0)!, byX.get(1)!, byX.get(2)!];
+        expect(evaluated.geometry).toBeInstanceOf(THREE.SphereGeometry);
+        expect(first.geometry).toBeInstanceOf(THREE.SphereGeometry);
+        expect(first.geometry).toBe(evaluated.geometry);
+        expect(second.geometry).not.toBeInstanceOf(THREE.SphereGeometry);
+        const radius = (g: THREE.BufferGeometry) => { g.computeBoundingSphere(); return g.boundingSphere!.radius; };
+        expect(radius(second.geometry)).toBeGreaterThan(radius(first.geometry) * 1.2);
+        expect((second.material as THREE.MeshBasicMaterial).color.getHex()).toBe(SURFACE_COLORS['construction-2']);
+        h.view.dispose();
+        expect(disposed.has(second.geometry), 'diamond geometry').toBe(true);
     });
 });

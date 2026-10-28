@@ -46,10 +46,9 @@ export default class TensorDeCasteljauGraph extends TensorPatchGraph {
     }
 
     /** The starting patches replace the net, not the construction the student chose. */
-    override useStartingPatch(index: number): void {
+    protected override startingPatchKept(): Partial<TensorPatchGraphState> {
         const {showDeCasteljau, decasteljauOrder} = this.state;
-        super.useStartingPatch(index);
-        this.setState({showDeCasteljau, decasteljauOrder});
+        return {showDeCasteljau, decasteljauOrder};
     }
 
     setDecasteljauOrder(order: DecasteljauOrder): void {

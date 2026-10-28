@@ -230,16 +230,23 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         this.setState({zMode});
     }
 
-    /** Replaces the patch with one of the default Presets (the Uredi "starting patch" buttons); the camera comes with it. */
     /** The starting patches the Uredi buttons offer, in button order; a Demonstration may offer more. */
     protected startingPatches(): ReadonlyArray<DerivativesStartingPatch> {
         return defaultPatchPresets;
     }
 
+    /** State a starting patch leaves as the student chose it; a Demonstration returns its switches here, written in the same update as the net. */
+    protected startingPatchKept(): Partial<TensorPatchGraphState> {
+        return {};
+    }
+
+    /** Replaces the patch with one of the starting patches (the Uredi buttons); the camera comes with it. */
     useStartingPatch(index: number): void {
         const preset = this.startingPatches()[index];
         if (!preset) return;
-        this.importPresetData(preset.data());
+        const entry = preset.data()[0];
+        if (entry?.[0] !== "TensorProductBezierPatch") return;
+        this.setState({...this.stateOf(entry[1]), ...this.startingPatchKept()});
         this.selectPoint(this.selectedPointId);
     }
 

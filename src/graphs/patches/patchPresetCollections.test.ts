@@ -250,6 +250,9 @@ describe("patch-derivatives collection and starting patches", () => {
         for (const language of ["sl", "en"] as const) { setLanguage(language); out[language] = renderMessage(checked.rejection); }
         expect(out.sl).toContain("showTwist");
         expect(out.en).toContain("showTwist");
+        // A known field with a wrong value, not an unknown field.
+        expect(out.en).toContain("invalid option");
+        expect(out.en).not.toContain("unknown patch field");
         expect(out.sl).not.toBe(out.en);
     });
 });

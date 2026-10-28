@@ -80,6 +80,32 @@ describe("tangent plane", () => {
         const normal = unit(cross(xyzOf(patch.partialU(0.3, 0.65)), xyzOf(patch.partialV(0.3, 0.65))));
         for (const corner of scene.planes[0].corners) expect(dot(sub(corner, point), normal)).toBeCloseTo(0, 9);
     });
+    it("is spanned by S_u and S_v and centred at S(u, v)", () => {
+        const patch = dome();
+        const [c0, c1, c2, c3] = buildDerivativesScene(patch, 0.3, 0.65, ALL).planes[0].corners;
+        const su = xyzOf(patch.partialU(0.3, 0.65));
+        const sv = xyzOf(patch.partialV(0.3, 0.65));
+        const along = sub(c1, c0);
+        const across = sub(c3, c0);
+        expect(Math.hypot(...along)).toBeGreaterThan(0);
+        expect(Math.hypot(...across)).toBeGreaterThan(0);
+        expectClose(cross(along, su), [0, 0, 0]);
+        expect(dot(along, su)).toBeGreaterThan(0);
+        expectClose(cross(across, sv), [0, 0, 0]);
+        expect(dot(across, sv)).toBeGreaterThan(0);
+        expectClose([0, 1, 2].map(k => (c0[k] + c1[k] + c2[k] + c3[k]) / 4), xyzOf(patch.eval(0.3, 0.65)));
+    });
+    it("draws no arrow for a tangent the classifier reports as zero, even if it is not exactly zero", () => {
+        const net = collapsedEdgeNet();
+        net[0] = net[0].map(([x, y, z], j): Xyz => [x + j * 1e-13, y, z]);
+        const patch = patchFromNet(net);
+        const scene = buildDerivativesScene(patch, 0, 0.5, ALL);
+        expect(scene.differentials.normal).toEqual({kind: "degenerate", reason: "zero-sv"});
+        expect(xyzOf(patch.partialV(0, 0.5))).not.toEqual([0, 0, 0]);
+        expect(scene.polylines.some(line => line.id.startsWith("deriv-sv"))).toBe(false);
+        expect(scene.labels.some(label => label.id === "deriv-sv-label")).toBe(false);
+        expect(scene.polylines.some(line => line.id === "deriv-su-shaft")).toBe(true);
+    });
     it("is omitted where the normal is undefined, and so is the normal arrow", () => {
         const parallel = buildDerivativesScene(patchFromNet(parallelCornerNet()), 0, 0, ALL);
         expect(parallel.differentials.normal).toEqual({kind: "degenerate", reason: "parallel"});

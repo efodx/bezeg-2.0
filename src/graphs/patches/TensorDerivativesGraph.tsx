@@ -57,10 +57,9 @@ export default class TensorDerivativesGraph extends TensorPatchGraph {
     }
 
     /** The starting patches replace the net, not the switches the student chose. */
-    override useStartingPatch(index: number): void {
+    protected override startingPatchKept(): Partial<TensorPatchGraphState> {
         const {showTangentPlane, showNormal, showTwist} = this.state;
-        super.useStartingPatch(index);
-        this.setState({showTangentPlane, showNormal, showTwist});
+        return {showTangentPlane, showNormal, showTwist};
     }
 
     setDerivativesSwitch(key: DerivativesSwitch, visible: boolean): void {
@@ -92,8 +91,11 @@ export default class TensorDerivativesGraph extends TensorPatchGraph {
         return <>
             {this.unavailableNotice()}
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
-                                  pointExtra={<DerivativesCornerButtons onCorner={(cornerU, cornerV) => this.setParameters(cornerU, cornerV)}/>}/>
-            <DerivativesReadout differentials={tensorDifferentials(patchFromNet(net), u, v)}/>
+                                  pointExtra={<>
+                                      <DerivativesCornerButtons onCorner={(cornerU, cornerV) => this.setParameters(cornerU, cornerV)}/>
+                                      {/* Next to the controls that change it, not after the Bernstein readout. */}
+                                      <DerivativesReadout differentials={tensorDifferentials(patchFromNet(net), u, v)}/>
+                                  </>}/>
         </>;
     }
 

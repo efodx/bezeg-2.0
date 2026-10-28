@@ -1278,7 +1278,7 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_decasteljau_help_bilinear": "Bilinear: every 2 × 2 cell of the net is reduced to one point at once, min(m, n) times. The intermediate nets are orange and solid. The remainder, a one-dimensional row of points, is reduced by the ordinary De Casteljau scheme in pink dashed lines. The last point is S(u, v).",
     "patch_derivatives_title": "Derivatives and tangent plane of a patch",
     "prompt_patch_derivatives_tangents": "Move (u, v) and watch the tangent vectors S_u and S_v and the tangent plane. Which way along the patch does each of them point?",
-    "prompt_patch_derivatives_normal": "Compare the normal at the four corners and along a collapsed edge. When is the normal undefined, and why can a limit normal still exist?",
+    "prompt_patch_derivatives_normal": "Compare the normal at the four corners, along a collapsed edge and at a corner with parallel edge vectors. When is the normal undefined? Where does a limit normal still exist, and where does the normal depend on the direction of approach?",
     "preset_collapsed_edge": "Bézier patch with a collapsed edge",
     "preset_parallel_corner": "Bézier patch with parallel edge vectors at a corner",
     "patch_show_tangent_plane": "Tangent plane",
@@ -1290,7 +1290,7 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_derivatives_normal_label": "Unit normal n",
     "patch_derivatives_normal_undefined": "undefined",
     "patch_derivatives_legend": "The blue solid arrow is S_u (the derivative in u), the red solid arrow is S_v (the derivative in v), the violet dotted arrow is the twist S_uv, the black dashed arrow is the unit normal n, and the translucent blue quad is the tangent plane. The arrows S_u, S_v and S_uv are drawn at one common scale; the normal always has the same length.",
-    "patch_derivatives_degenerate_parallel": "The normal is not defined here: S_u and S_v are parallel, so they do not span a plane. A limit normal may still exist as you approach this point.",
+    "patch_derivatives_degenerate_parallel": "The normal is not defined here: S_u and S_v are parallel, so they do not span a plane. As you approach this point, the normal may tend to a limit normal, or it may depend on the direction you come from.",
     "patch_derivatives_degenerate_zero_su": "The normal is not defined here: S_u is the zero vector, so the tangent vectors do not span a plane. A limit normal may still exist as you approach this point (for example at a collapsed edge).",
     "patch_derivatives_degenerate_zero_sv": "The normal is not defined here: S_v is the zero vector, so the tangent vectors do not span a plane. A limit normal may still exist as you approach this point (for example at a collapsed edge).",
     "patch_derivatives_degenerate_both_zero": "The normal is not defined here: S_u and S_v are both zero vectors, so they do not span a plane. A limit normal may still exist as you approach this point."

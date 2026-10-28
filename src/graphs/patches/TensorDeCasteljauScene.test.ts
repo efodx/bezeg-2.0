@@ -17,19 +17,29 @@ const levels = (points: readonly (readonly number[])[], t: number): number[][][]
     return out;
 };
 
-/** The expected markers of the construction by id, from the independent recurrence. */
-function expectedMarkers(net: Xyz[][], order: DecasteljauOrder): Map<string, {role: string; xyz: number[]}> {
+/** The expected markers and polylines of the construction by id, from the independent recurrence. */
+function expectedMarkers(net: Xyz[][], order: DecasteljauOrder): {markers: Map<string, {role: string; xyz: number[]}>; lines: Map<string, number[][]>} {
     const out = new Map<string, {role: string; xyz: number[]}>();
+    const lines = new Map<string, number[][]>();
+    const addLine = (id: string, points: number[][]) => {
+        if (points.length >= 2) lines.set(id, points);
+    };
     const m = net.length - 1, n = net[0].length - 1;
     const second = (results: readonly (readonly number[])[], t: number) => {
         const scheme = levels(results, t);
-        for (let level = 0; level < scheme.length - 1; level++) scheme[level].forEach((xyz, k) => out.set(`dc2-${level}-${k}`, {role: "construction-2", xyz}));
+        for (let level = 0; level < scheme.length - 1; level++) {
+            addLine(`dc2-${level}`, scheme[level]);
+            scheme[level].forEach((xyz, k) => out.set(`dc2-${level}-${k}`, {role: "construction-2", xyz}));
+        }
     };
     const lineage = (family: "row" | "col", lines: Xyz[][], t1: number, t2: number) => {
         const results: number[][] = [];
         lines.forEach((line, index) => {
             const scheme = levels(line, t1);
-            for (let level = 1; level < scheme.length - 1; level++) scheme[level].forEach((xyz, k) => out.set(`dc1-${family}${index}-${level}-${k}`, {role: "construction", xyz}));
+            for (let level = 1; level < scheme.length - 1; level++) {
+                addLine(`dc1-${family}${index}-${level}`, scheme[level]);
+                scheme[level].forEach((xyz, k) => out.set(`dc1-${family}${index}-${level}-${k}`, {role: "construction", xyz}));
+            }
             results.push(scheme[scheme.length - 1][0]);
         });
         second(results, t2);
@@ -41,12 +51,18 @@ function expectedMarkers(net: Xyz[][], order: DecasteljauOrder): Map<string, {ro
         for (let level = 1; level <= Math.min(m, n); level++) {
             current = Array.from({length: current.length - 1}, (_, i) => Array.from({length: current[0].length - 1}, (_, j) =>
                 blend(blend(current[i][j], current[i + 1][j], U), blend(current[i][j + 1], current[i + 1][j + 1], U), V)));
-            if (level < Math.min(m, n)) current.forEach((row, i) => row.forEach((xyz, j) => out.set(`dc1-${level}-${i}-${j}`, {role: "construction", xyz})));
+            if (level < Math.min(m, n)) {
+                current.forEach((row, i) => {
+                    addLine(`dc1-${level}-row-${i}`, row);
+                    row.forEach((xyz, j) => out.set(`dc1-${level}-${i}-${j}`, {role: "construction", xyz}));
+                });
+                current[0].forEach((_, j) => addLine(`dc1-${level}-col-${j}`, current.map(row => row[j])));
+            }
         }
         // What is left is a single row or column of points, reduced along the direction it still has.
         second(current.length > 1 ? current.map(row => row[0]) : current[0], current.length > 1 ? U : V);
     }
-    return out;
+    return {markers: out, lines};
 }
 
 const sizes = [1, 2, 3, 4];
@@ -56,7 +72,7 @@ describe("de Casteljau construction scene", () => {
     it.each(cases)("m=%i n=%i %s: the markers are the scheme points level by level, in the stage roles", (m, n, order) => {
         const net = netOf(m, n);
         const {markers} = buildDeCasteljauConstruction(patchFromNet(net), U, V, order);
-        const expected = expectedMarkers(net, order);
+        const expected = expectedMarkers(net, order).markers;
         expect(markers.map(marker => marker.id).sort()).toEqual([...expected.keys()].sort());
         for (const marker of markers) {
             const want = expected.get(marker.id)!;
@@ -104,6 +120,18 @@ describe("de Casteljau construction scene", () => {
             expect(line.role).toBe(line.id.startsWith("dc2-") ? "construction-2" : "construction");
         }
         expect(markers.every(marker => marker.role === "construction" || marker.role === "construction-2")).toBe(true);
+    });
+
+    it.each(cases)("m=%i n=%i %s: the polylines pass through the scheme points in order", (m, n, order) => {
+        const net = netOf(m, n);
+        const {polylines} = buildDeCasteljauConstruction(patchFromNet(net), U, V, order);
+        const expected = expectedMarkers(net, order).lines;
+        expect(polylines.map(polyline => polyline.id).sort()).toEqual([...expected.keys()].sort());
+        for (const polyline of polylines) {
+            const want = expected.get(polyline.id)!;
+            expect(polyline.points, polyline.id).toHaveLength(want.length);
+            polyline.points.forEach((point, k) => point.forEach((value, d) => expect(Math.abs(value - want[k][d]), `${polyline.id}[${k}]`).toBeLessThan(1e-9)));
+        }
     });
 
     it("rows and columns end at the same point but pass through different intermediate points", () => {

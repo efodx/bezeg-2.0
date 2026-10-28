@@ -140,6 +140,19 @@ describe("construction follows the state", () => {
     });
 });
 
+describe("starting patch", () => {
+    it("keeps the order and the switch and writes the state once", () => {
+        const {graph, view} = mount();
+        chooseOrder("columns");
+        fireEvent.click(screen.getByLabelText(t("de_casteljau_construction")));
+        const setState = vi.spyOn(graph, "setState");
+        fireEvent.click(screen.getByRole("button", {name: t("preset_bicubic_dome")}));
+        expect(setState).toHaveBeenCalledTimes(1);
+        expect(graph.state).toMatchObject({showDeCasteljau: false, decasteljauOrder: "columns", m: 3, n: 3});
+        expect(constructionLines(view.last)).toEqual([]);
+    });
+});
+
 describe("construction switch", () => {
     it.each(["rows", "columns", "bilinear"] as const)("switching off in %s order leaves no construction polylines or markers, and on draws them again", order => {
         const {graph, view} = mount();
