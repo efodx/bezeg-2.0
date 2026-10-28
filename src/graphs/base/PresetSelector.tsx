@@ -24,8 +24,9 @@ function exportToFile(data: string) {
 function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => void | Promise<void>, presetService: PresetService }) {
     const {exporting} = useLanguage();
     const [show, setShow] = useState(false);
-    const allPresets = props.presetService.loadPresets();
-    const [selectedPresets, setSelectedPresets] = useState<string[]>(() => allPresets.data.map(preset => preset.id));
+    // Read again each time the dialog opens, so Presets saved or deleted since the last opening are listed and selected.
+    const [presetIds, setPresetIds] = useState<string[]>([]);
+    const [selectedPresets, setSelectedPresets] = useState<string[]>([]);
     const trigger = useRef<HTMLSpanElement>(null);
     const returnFocusAfterExport = useRef(false);
     const exportFinished = useRef(false);
@@ -39,7 +40,7 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
 
     const handleClose = () => setShow(false);
     const handleConfirm = () => {
-        if (exporting) return;
+        if (exporting || selectedPresets.length === 0) return;
         returnFocusAfterExport.current = true;
         exportFinished.current = false;
         modalExited.current = false;
@@ -58,7 +59,13 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
             restoreTriggerFocus();
         });
     };
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        const ids = props.presetService.loadPresets().data.map(preset => preset.id);
+        setPresetIds(ids);
+        setSelectedPresets(ids);
+        setShow(true);
+    };
+    const nothingSelected = selectedPresets.length === 0;
 
     return (
         <>
@@ -76,25 +83,30 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
                         e.preventDefault();
                         handleConfirm();
                     }}>
-                        {allPresets.data.map(preset => <Form.Check
+                        {presetIds.map(id => <Form.Check
                                 type={'checkbox'}
-                                id={`default-checkbox` + preset.id}
-                                label={preset.id}
-                                checked={selectedPresets.includes(preset.id)}
+                                key={id}
+                                id={`default-checkbox` + id}
+                                label={id}
+                                checked={selectedPresets.includes(id)}
                                 onChange={event => {
                                     if (event.target.checked) {
-                                        setSelectedPresets(current => [...current, preset.id]);
+                                        setSelectedPresets(current => [...current, id]);
                                     } else {
-                                        setSelectedPresets(current => current.filter(presetId => preset.id !== presetId));
+                                        setSelectedPresets(current => current.filter(presetId => id !== presetId));
                                     }
                                 }}
                             />
                         )}
+                        {nothingSelected && <p id="figure-batch-empty" className="inspector-help" role="status">
+                            {presetIds.length === 0 ? t("there_are_no_saved_presets_to_generate_figures_from") : t("select_at_least_one_preset_to_generate_figures")}
+                        </p>}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>{t("close")}</Button>
-                    <Button disabled={exporting} onClick={handleConfirm}>{t("generate")}</Button>
+                    <Button disabled={exporting || nothingSelected} aria-describedby={nothingSelected ? "figure-batch-empty" : undefined}
+                            onClick={handleConfirm}>{t("generate")}</Button>
                 </Modal.Footer>
             </Modal>
         </>

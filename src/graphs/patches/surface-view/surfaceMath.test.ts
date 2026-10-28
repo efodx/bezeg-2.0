@@ -14,6 +14,7 @@ import {
     MAX_ELEVATION,
     orbit,
     zModeDrag,
+    Z_DRAG_MIN_COS_ELEVATION,
     zoom,
 } from './surfaceMath';
 import type {SurfaceCamera, Xyz} from './surfaceScene';
@@ -88,10 +89,34 @@ describe('surface camera math', () => {
         expect(horizontalDrag([1, 2, 3.5], [1.2, 2, 3.5], [2.2, 3, 3.5])).toEqual([2, 3, 3.5]);
     });
 
-    it('z-mode drag changes only z, upward screen motion raising z', () => {
-        const out = zModeDrag([1, 2, 3], -50, 10, 500);
+    it('z-mode drag changes only z, upward screen motion raising z, at the real field of view', () => {
+        const worldPerPx = (2 * Math.tan((FOV_DEG * Math.PI) / 360) * 10) / 500;
+        const out = zModeDrag([1, 2, 3], -50, 10, 500, 0, FOV_DEG);
         expect(out[0]).toBe(1);
         expect(out[1]).toBe(2);
-        expect(out[2]).toBeCloseTo(4, 12);
+        expect(out[2]).toBeCloseTo(3 + 50 * worldPerPx, 12);
+    });
+
+    it('z-mode drag keeps the point under the cursor through the real projection', () => {
+        const heightPx = 500;
+        for (const el of [0, 0.55, 1.0]) {
+            const cam = new THREE.PerspectiveCamera(FOV_DEG, 1, 0.05, 500);
+            const [cx, cy, cz] = cameraPosition(0.3, el, 10);
+            cam.position.set(cx, cy, cz);
+            cam.up.set(0, 0, 1);
+            cam.lookAt(0, 0, 0);
+            cam.updateMatrixWorld(true);
+            cam.updateProjectionMatrix();
+            const screenY = (z: number) => -new THREE.Vector3(0, 0, z).project(cam).y * (heightPx / 2);
+            const dz = zModeDrag([0, 0, 0], -20, 10, heightPx, el)[2];
+            // Dragging the cursor 20 px up must move the point 20 px up on screen (small offset from the centre).
+            expect(Math.abs(screenY(0) - screenY(dz) - 20)).toBeLessThan(1.5); // perspective foreshortening of the moved point
+        }
+    });
+
+    it('z-mode drag stays bounded at the top preset', () => {
+        const worldPerPx = (2 * Math.tan((FOV_DEG * Math.PI) / 360) * 10) / 500;
+        const top = zModeDrag([0, 0, 0], -100, 10, 500, CAMERA_PRESETS.top.el)[2];
+        expect(top).toBeCloseTo((100 * worldPerPx) / Z_DRAG_MIN_COS_ELEVATION, 12);
     });
 });

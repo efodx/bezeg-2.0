@@ -216,6 +216,8 @@ export const sl = {
     "generate_figures": "Generiraj slike",
     "close": "Zapri",
     "generate": "Generiraj",
+    "there_are_no_saved_presets_to_generate_figures_from": "Ni shranjenih prednastavitev, iz katerih bi lahko generirali slike.",
+    "select_at_least_one_preset_to_generate_figures": "Izberi vsaj eno prednastavitev za generiranje slik.",
     "save_preset": "Shrani prednastavitev",
     "preset_name": "Ime prednastavitve",
     "mycurveexample": "zelo-licna-prednastavitev",
@@ -1230,7 +1232,7 @@ export const sl = {
     "patch_no_selection": "Brez izbire",
     "patch_select_point_help": "Izberi točko z indeksoma ali s klikom v pogledu, da urediš njene koordinate x, y in z.",
     "patch_bernstein_heading": "Bernsteinova utež",
-    "patch_bernstein_weight": "Utež točke b({value0}, {value1})",
+    "patch_bernstein_weight": "Utež točke P{value0}{value1}",
     "patch_bernstein_help": "Utež, s katero ta točka prispeva k točki S(u, v): produkt Bernsteinovih polinomov B_i^m(u) · B_j^n(v). Vse uteži skupaj dajo 1.",
     "patch_camera_azimuth": "Azimut (°)",
     "patch_camera_elevation": "Višinski kot (°)"

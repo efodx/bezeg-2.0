@@ -49,7 +49,7 @@ export const SURFACE_COLORS = {
     boundary: 0x643f2f,
     construction: 0xc45f3b,
     highlight: 0x1f5fbf,
-    point: 0x7d9d61,
+    point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
     selected: 0x1f5fbf,
     marker: 0xca5c37,
     surface: 0xdcae78,
@@ -94,6 +94,9 @@ export class ThreeSurfaceView implements SurfaceView {
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
     private lastLayoutKey = '';
     private lastFramingKey = '';
+    /** The inputs the published framing was computed from; while they are unchanged nothing is projected again. */
+    private lastFramingInputs = '';
+    private lastFramingPoints: unknown = null;
     private readonly cleanups: Array<() => void> = [];
 
     private disposed = false;
@@ -484,8 +487,12 @@ export class ThreeSurfaceView implements SurfaceView {
      */
     private publishFraming(): void {
         if (!this.host || !this.scene) return;
-        const round = (v: number) => Math.round(v * 1000) / 1000;
         const camera = this.scene.camera;
+        const inputs = [this.width, this.height, camera.az, camera.el, camera.distance, ...camera.target].join(',');
+        if (inputs === this.lastFramingInputs && this.scene.points === this.lastFramingPoints) return;
+        this.lastFramingInputs = inputs;
+        this.lastFramingPoints = this.scene.points;
+        const round = (v: number) => Math.round(v * 1000) / 1000;
         const framing = {
             width: this.width, height: this.height,
             camera: {az: camera.az, el: camera.el, distance: camera.distance, target: [...camera.target]},
@@ -638,7 +645,7 @@ export class ThreeSurfaceView implements SurfaceView {
     private dragPosition(d: DragState, x: number, y: number, shift: boolean): Xyz {
         const start = d.startXyz!;
         if (shift || this.scene?.interaction.zMode) {
-            return zModeDrag(start, y - d.startY, this.scene?.camera.distance ?? 1, this.height);
+            return zModeDrag(start, y - d.startY, this.scene?.camera.distance ?? 1, this.height, this.scene?.camera.el ?? 0, FOV_DEG);
         }
         const {origin, dir} = this.rayAt(x, y);
         const hit = intersectHorizontalPlane(origin, dir, start[2]);

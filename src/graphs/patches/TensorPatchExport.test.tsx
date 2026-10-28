@@ -188,13 +188,36 @@ describe("Preset figure batch", () => {
         vi.mocked(html2canvas).mockImplementation(async () => fakeCanvas());
         const before = graph.state;
         fireEvent.click(button(t("generate_preset_figures")));
-        // The modal lists the Presets saved when the selector mounted, so the Preset saved above starts unselected.
-        fireEvent.click(await screen.findByLabelText("mine"));
+        // The modal lists the Presets saved after it mounted, and selects them.
+        expect(await screen.findByLabelText("mine")).toBeChecked();
         const confirm = await screen.findByRole("button", {name: t("generate")});
         await settle(async () => { fireEvent.click(confirm); });
         await waitFor(() => expect(downloads).toHaveLength(1));
         expect(vi.mocked(html2canvas)).toHaveBeenCalledTimes(1);
         expect(Object.keys((await JSZip.loadAsync(downloads[0])).files)).toEqual(["mine.png"]);
         expect(graph.state).toEqual(before);
+    });
+
+    it("does not offer to generate an empty archive when nothing is selected", async () => {
+        const {graph} = mount();
+        graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
+        vi.mocked(html2canvas).mockImplementation(async () => fakeCanvas());
+        fireEvent.click(button(t("generate_preset_figures")));
+        fireEvent.click(await screen.findByLabelText("mine"));
+        const confirm = await screen.findByRole("button", {name: t("generate")});
+        expect(confirm).toBeDisabled();
+        expect(screen.getByText(t("select_at_least_one_preset_to_generate_figures"))).toBeTruthy();
+        await settle(async () => { fireEvent.click(confirm); });
+        expect(downloads).toHaveLength(0);
+        expect(vi.mocked(html2canvas)).not.toHaveBeenCalled();
+    });
+
+    it("explains that there is nothing to generate when no Preset is saved", async () => {
+        mount();
+        fireEvent.click(button(t("generate_preset_figures")));
+        const confirm = await screen.findByRole("button", {name: t("generate")});
+        expect(confirm).toBeDisabled();
+        expect(screen.getByText(t("there_are_no_saved_presets_to_generate_figures_from"))).toBeTruthy();
+        expect(downloads).toHaveLength(0);
     });
 });

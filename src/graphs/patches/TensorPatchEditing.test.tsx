@@ -174,7 +174,8 @@ describe("highlight and Bernstein weight", () => {
         expect(weightText()).toBe("0,1406");
         choose(0, 0);
         expect(weightText()).toBe("0,0156");
-        expect(screen.getByText(t("patch_bernstein_weight", {value0: 0, value1: 0}))).toBeTruthy();
+        expect(screen.getByText(t("patch_bernstein_weight", {value0: "₀", value1: "₀"}))).toBeTruthy();
+        expect(screen.getByText("Utež točke P₀₀")).toBeTruthy();
         act(() => setLanguage("en"));
         expect(weightText()).toBe("0.0156");
     });

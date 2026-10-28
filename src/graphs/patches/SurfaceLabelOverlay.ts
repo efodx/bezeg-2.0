@@ -13,6 +13,20 @@ export const SURFACE_LABEL_OFFSET_X_PX = 8;
 /** Label colour on screen and in the SVG. */
 export const SURFACE_LABEL_COLOR = "#2f2a22";
 
+/** The longest `ready` and a still image's decode wait; past it capture goes on with what is on screen. */
+export const SURFACE_LABEL_SETTLE_TIMEOUT_MS = 3000;
+
+/** Resolves when `promise` settles or after `ms`, whichever is first; the timer never outlives the call. */
+async function settleWithin(promise: Promise<unknown>, ms: number): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<void>(resolve => { timer = setTimeout(resolve, ms); });
+    try {
+        await Promise.race([promise.catch(() => undefined), timeout]);
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 /** Typesets the formulas below `element` (the app's MathJax pipeline); injected so tests need no MathJax. */
 export type OverlayTypesetter = (element: HTMLElement, isActive: () => boolean) => Promise<void>;
 
@@ -77,9 +91,16 @@ export class SurfaceLabelOverlay {
         }
     }
 
-    /** Resolves once every formula placed so far is typeset (or failed to be; a failed label stays as TeX text). */
+    /**
+     * Resolves once every formula placed so far is typeset (or failed to be; a failed label stays as TeX text). A
+     * typesetter that never settles is given up on after `SURFACE_LABEL_SETTLE_TIMEOUT_MS`: the labels then stay as
+     * TeX text and capture goes on, rather than hanging.
+     */
     async ready(): Promise<void> {
-        while (this.pending.size > 0) await Promise.all([...this.pending]);
+        const drained = (async () => {
+            while (this.pending.size > 0) await Promise.all([...this.pending]);
+        })();
+        await settleWithin(drained, SURFACE_LABEL_SETTLE_TIMEOUT_MS);
     }
 
     /**
@@ -99,8 +120,8 @@ export class SurfaceLabelOverlay {
         image.src = capture.dataUrl;
         host.insertBefore(image, this.element);
         try {
-            // A broken image is settled too; the browser's fallback rendering is stable even when decode rejects.
-            if (typeof image.decode === "function") await image.decode().catch(() => undefined);
+            // A broken image is settled too, and one that never settles is given up on: the image is still in the DOM.
+            if (typeof image.decode === "function") await settleWithin(image.decode(), SURFACE_LABEL_SETTLE_TIMEOUT_MS);
             return await work();
         } finally {
             image.remove();

@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as THREE from 'three';
-import {ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
+import {SURFACE_COLORS, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
 import type {LabelLayout, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
 import {fitCameraTo} from './surfaceMath';
 
@@ -514,5 +514,41 @@ describe('ThreeSurfaceView label layout', () => {
         h.view.reconcile(scene);
         await new Promise(resolve => setTimeout(resolve, 40));
         expect(second).toHaveLength(1);
+    });
+});
+
+describe('ThreeSurfaceView framing attribute', () => {
+    it('is projected again only when the camera, size or points change', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const scene = makeScene();
+        h.view.reconcile(scene);
+        await h.view.capture();
+        const first = h.host.getAttribute('data-surface-framing');
+        expect(JSON.parse(first!).points).toHaveLength(16);
+        const projected = vi.spyOn(scene.points, 'map');
+        await h.view.capture();
+        await h.view.capture();
+        expect(projected).not.toHaveBeenCalled();
+        expect(h.host.getAttribute('data-surface-framing')).toBe(first);
+        h.view.reconcile({...scene, camera: {...scene.camera, az: scene.camera.az + 0.5}});
+        await h.view.capture();
+        expect(h.host.getAttribute('data-surface-framing')).not.toBe(first);
+        expect(JSON.parse(h.host.getAttribute('data-surface-framing')!).camera.az).toBeCloseTo(scene.camera.az + 0.5, 12);
+        h.view.dispose();
+    });
+});
+
+describe('surface palette', () => {
+    const luminance = (hex: number) => {
+        const [r, g, b] = [hex >> 16, hex >> 8, hex].map(v => {
+            const c = (v & 255) / 255;
+            return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+
+    it('draws small control points with margin over the 3:1 non-text contrast on the white clear colour', () => {
+        expect(1.05 / (luminance(SURFACE_COLORS.point) + 0.05)).toBeGreaterThanOrEqual(4.5);
     });
 });

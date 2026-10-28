@@ -67,6 +67,9 @@ const DEGREES = [1, 2, 3, 4].map(degree => ({value: String(degree), text: String
 const DENSITIES = [8, 16].map(density => ({value: String(density), text: String(density)}));
 const asDensity = (value: string): PatchDensity => value === "16" ? 16 : 8;
 
+/** Renders a non-negative integer index with Unicode subscript digits (P₁₂), matching the P_{ij} scene labels. */
+export const subscriptDigits = (index: number): string => String(index).replace(/[0-9]/g, digit => String.fromCharCode(0x2080 + Number(digit)));
+
 /** The square the graph draws its parameter board in; the graph owns the board and frees it when this goes away. */
 function ParameterInset({attach, label}: {attach: (container: HTMLElement | null) => void; label: string}) {
     const ref = useCallback((container: HTMLDivElement | null) => attach(container), [attach]);
@@ -135,7 +138,7 @@ export function TensorPatchEditPanel({state, selection, actions}: {state: Tensor
                 : <p className="inspector-help">{t("patch_select_point_help")}</p>}
         </div>
         {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{
-            id: "bernstein-weight", label: t("patch_bernstein_weight", {value0: selection.i, value1: selection.j}),
+            id: "bernstein-weight", label: t("patch_bernstein_weight", {value0: subscriptDigits(selection.i), value1: subscriptDigits(selection.j)}),
             value: formatNumber(selection.weight, currentLanguage(), 4),
         }]} note={t("patch_bernstein_help")}/>}
     </>;

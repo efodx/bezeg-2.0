@@ -1,4 +1,4 @@
-import {SurfaceLabelOverlay} from "./SurfaceLabelOverlay";
+import {SURFACE_LABEL_SETTLE_TIMEOUT_MS, SurfaceLabelOverlay} from "./SurfaceLabelOverlay";
 import type {LabelLayout} from "./surface-view/surfaceScene";
 
 const layout = (id: string, x: number, y: number, visible = true, text = id): LabelLayout => ({id, text, x, y, visible});
@@ -87,5 +87,39 @@ describe("SurfaceLabelOverlay", () => {
         await expect(overlay.showStill({dataUrl: "data:,", width: 1, height: 1, labels: []}, () => Promise.reject(new Error("boom"))))
             .rejects.toThrow("boom");
         expect(host.querySelector("img")).toBeNull();
+    });
+
+    describe("with promises that never settle", () => {
+        beforeEach(() => { vi.useFakeTimers(); });
+        afterEach(() => { vi.useRealTimers(); });
+
+        it("ready gives up on a typesetter that never resolves", async () => {
+            const host = document.createElement("div");
+            document.body.appendChild(host);
+            const overlay = new SurfaceLabelOverlay(host, () => new Promise<void>(() => undefined));
+            overlay.update([layout("a", 5, 5)]);
+            let done = false;
+            void overlay.ready().then(() => { done = true; });
+            await vi.advanceTimersByTimeAsync(SURFACE_LABEL_SETTLE_TIMEOUT_MS - 1);
+            expect(done).toBe(false);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(done).toBe(true);
+            expect(host.querySelector('[data-label-id="a"]')?.textContent).toBe("\\(a\\)");
+        });
+
+        it("showStill runs the work after a decode that never settles, and removes the image", async () => {
+            const {host, overlay} = setup();
+            // jsdom has no decode(); a real browser's can stay pending for an image that is neither loaded nor failed.
+            Object.defineProperty(HTMLImageElement.prototype, "decode", {configurable: true, value: () => new Promise<void>(() => undefined)});
+            let ran = false;
+            const result = overlay.showStill({dataUrl: "data:,", width: 1, height: 1, labels: []}, async () => { ran = true; return "ok"; });
+            await vi.advanceTimersByTimeAsync(SURFACE_LABEL_SETTLE_TIMEOUT_MS - 1);
+            expect(ran).toBe(false);
+            await vi.advanceTimersByTimeAsync(1);
+            await expect(result).resolves.toBe("ok");
+            expect(ran).toBe(true);
+            expect(host.querySelector("img")).toBeNull();
+            delete (HTMLImageElement.prototype as {decode?: unknown}).decode;
+        });
     });
 });

@@ -91,7 +91,20 @@ export function horizontalDrag(start: Xyz, grabHit: Xyz, currentHit: Xyz): Xyz {
     return [start[0] + currentHit[0] - grabHit[0], start[1] + currentHit[1] - grabHit[1], start[2]];
 }
 
-/** Z-mode drag: only z changes, from vertical screen displacement (up = +z). */
-export function zModeDrag(start: Xyz, dyPx: number, distance: number, heightPx: number): Xyz {
-    return [start[0], start[1], start[2] - (dyPx * distance) / Math.max(1, heightPx)];
+/** Smallest cos(elevation) used by z-mode drag, so above 60° elevation the scale stays at most 2x the side view rather than diverging (a 5x cap moved a point ~8 units for a 40 px drag in the top view). */
+export const Z_DRAG_MIN_COS_ELEVATION = 0.5;
+
+/**
+ * Z-mode drag: only z changes, from vertical screen displacement (up = +z).
+ * A screen pixel at the target's depth spans 2*tan(fov/2)*distance/height world units perpendicular to the view
+ * direction; a vertical z move projects onto the screen with factor cos(elevation), so dz divides by it. The
+ * factor is clamped (see Z_DRAG_MIN_COS_ELEVATION) because z is nearly along the line of sight in the top view.
+ */
+export function zModeDrag(
+    start: Xyz, dyPx: number, distance: number, heightPx: number,
+    elevation: number = 0, fovDeg: number = FOV_DEG,
+): Xyz {
+    const worldPerPx = (2 * Math.tan((fovDeg * Math.PI) / 360) * distance) / Math.max(1, heightPx);
+    const cosEl = Math.max(Math.cos(elevation), Z_DRAG_MIN_COS_ELEVATION);
+    return [start[0], start[1], start[2] - (dyPx * worldPerPx) / cosEl];
 }

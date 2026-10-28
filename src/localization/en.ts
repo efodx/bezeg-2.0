@@ -217,6 +217,8 @@ export const en: Record<keyof typeof sl, string> = {
     "generate_figures": "Generate figures",
     "close": "Close",
     "generate": "Generate",
+    "there_are_no_saved_presets_to_generate_figures_from": "There are no saved presets to generate figures from.",
+    "select_at_least_one_preset_to_generate_figures": "Select at least one preset to generate figures.",
     "save_preset": "Save preset",
     "preset_name": "Preset name",
     "mycurveexample": "my-curve-example",
@@ -1231,7 +1233,7 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_no_selection": "No selection",
     "patch_select_point_help": "Choose a point by its indices or by clicking it in the view to edit its coordinates x, y and z.",
     "patch_bernstein_heading": "Bernstein weight",
-    "patch_bernstein_weight": "Weight of point b({value0}, {value1})",
+    "patch_bernstein_weight": "Weight of point P{value0}{value1}",
     "patch_bernstein_help": "The weight with which this point contributes to the point S(u, v): the product of the Bernstein polynomials B_i^m(u) · B_j^n(v). All weights together add up to 1.",
     "patch_camera_azimuth": "Azimuth (°)",
     "patch_camera_elevation": "Elevation (°)"
