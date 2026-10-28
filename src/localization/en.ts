@@ -1247,6 +1247,7 @@ export const en: Record<keyof typeof sl, string> = {
     "preset_triangular_quartic": "Quartic triangular Bézier patch",
     "patch_triangular_degree": "Patch degree (n)",
     "patch_triangular_degree_help": "Raising the degree keeps the surface exactly. Lowering interpolates the patch at the lattice points (i, j, k)/n of the lower degree: it is exact when the patch already has that degree, otherwise it only approximates the patch and keeps the corners.",
+    "patch_triangular_inset_help": "Drag the dot inside the triangle to set u and v; w = 1 − u − v follows. Outside the triangle the dot lands on the nearest point of its edge. Use the sliders above to set them with the keyboard.",
     "patch_parameter_w": "Parameter w (= 1 − u − v)",
     "patch_parameter_w_help": "The parameter w is determined by u and v, so you do not set it directly. The parameters u and v together may not exceed 1.",
     "patch_triangular_iso_help": "Lines at constant u are green, at constant v purple, at constant w amber.",

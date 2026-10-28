@@ -1,8 +1,8 @@
-import type {Board, Point} from "jsxgraph";
 import type React from "react";
 import type {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {PatchSelection, TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPatchPanelActions} from "./TensorPatchPanels";
+import {mountParameterInset, ParameterInset} from "./parameterInset";
 import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
@@ -36,10 +36,6 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
 }
 
 const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
-const INSET_BOARD_OPTIONS = {
-    boundingBox: INSET_BOUNDING_BOX, axis: false, keepAspectRatio: true, showNavigation: false, showCopyright: false,
-    showScreenshot: false, showFullscreen: false, pan: {enabled: false}, zoom: {wheel: false, pinch: false},
-};
 
 const DEFAULT_ISO_DENSITY: PatchDensity = 8;
 const DEFAULT_SHADING_DENSITY: PatchDensity = 16;
@@ -258,7 +254,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     // ---- Parameter-domain inset --------------------------------------------------------------------------------
 
     private insetContainer?: HTMLElement;
-    protected inset?: {board: Board; point: Point; release: () => void};
+    protected inset?: ParameterInset;
 
     /**
      * Shows the unit square of (u, v) in `container`, a JSXGraph board owned by the session; null (or a new container)
@@ -280,38 +276,25 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     private mountInset(): void {
         const session = this.graphSession, container = this.insetContainer;
         if (!container || !session?.isAlive || this.inset) return;
-        const {board, release} = session.createAuxiliaryBoard(container, INSET_BOARD_OPTIONS);
-        board.create("polygon", [[0, 0], [1, 0], [1, 1], [0, 1]], {
-            vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "#eef2e6", fillOpacity: 1,
-            highlightFillColor: "#eef2e6", highlightFillOpacity: 1, borders: {strokeColor: "#526950", strokeWidth: 2, highlight: false, fixed: true},
+        const inset = mountParameterInset(session, container, {
+            boundingBox: INSET_BOUNDING_BOX,
+            build: board => {
+                board.create("polygon", [[0, 0], [1, 0], [1, 1], [0, 1]], {
+                    vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "#eef2e6", fillOpacity: 1,
+                    highlightFillColor: "#eef2e6", highlightFillOpacity: 1, borders: {strokeColor: "#526950", strokeWidth: 2, highlight: false, fixed: true},
+                });
+                board.create("text", [1.04, -0.09, "u"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
+                board.create("text", [-0.09, 1.04, "v"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
+                return board.create("point", [this.state.u, this.state.v], {
+                    name: "", size: 6, fillColor: "#ca5c37", strokeColor: "#ca5c37", highlightFillColor: "#ca5c37", highlightStrokeColor: "#ca5c37",
+                    showInfobox: false, snapToGrid: false,
+                });
+            },
+            constrain: (u, v) => [clamp(u, 0, 1), clamp(v, 0, 1)],
+            onDrag: (u, v) => this.setParameters(u, v),
+            onSessionEnd: () => { if (this.inset === inset) this.inset = undefined; },
         });
-        board.create("text", [1.04, -0.09, "u"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
-        board.create("text", [-0.09, 1.04, "v"], {fixed: true, fontSize: 14, strokeColor: "#2f3b2e", highlight: false});
-        const point = board.create("point", [this.state.u, this.state.v], {
-            name: "", size: 6, fillColor: "#ca5c37", strokeColor: "#ca5c37", highlightFillColor: "#ca5c37", highlightStrokeColor: "#ca5c37",
-            showInfobox: false, snapToGrid: false,
-        });
-        point.on("drag", () => {
-            const u = clamp(point.X(), 0, 1), v = clamp(point.Y(), 0, 1);
-            // Keep the dot inside the square while the pointer is outside it.
-            if (u !== point.X() || v !== point.Y()) point.moveTo([u, v]);
-            this.setParameters(u, v);
-        });
-        let observer: ResizeObserver | undefined;
-        if (typeof ResizeObserver !== "undefined") {
-            observer = new ResizeObserver(entries => {
-                const {width, height} = entries[0]?.contentRect ?? {width: 0, height: 0};
-                if (width <= 0 || height <= 0 || this.inset?.board !== board) return;
-                board.resizeContainer(width, height, true, true);
-                board.setBoundingBox(INSET_BOUNDING_BOX, true);
-            });
-            observer.observe(container);
-        }
-        const stop = session.registerCleanup(() => {
-            observer?.disconnect();
-            if (this.inset?.board === board) this.inset = undefined;
-        });
-        this.inset = {board, point, release: () => { stop(); release(); }};
+        this.inset = inset;
     }
 
     /** The inset dot follows the store: sliders, Reset, Presets and lesson scene writes all move it. */

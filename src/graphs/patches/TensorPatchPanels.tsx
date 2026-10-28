@@ -71,7 +71,7 @@ const asDensity = (value: string): PatchDensity => value === "16" ? 16 : 8;
 export const subscriptDigits = (index: number): string => String(index).replace(/[0-9]/g, digit => String.fromCharCode(0x2080 + Number(digit)));
 
 /** The square the graph draws its parameter board in; the graph owns the board and frees it when this goes away. */
-function ParameterInset({attach, label}: {attach: (container: HTMLElement | null) => void; label: string}) {
+export function ParameterInset({attach, label}: {attach: (container: HTMLElement | null) => void; label: string}) {
     const ref = useCallback((container: HTMLDivElement | null) => attach(container), [attach]);
     return <div className="patch-parameter-inset" ref={ref} role="group" aria-label={label}/>;
 }

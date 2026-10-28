@@ -9,6 +9,9 @@ import {TriangularPatchDisplayPanel, TriangularPatchEditPanel, TriangularPatchPa
 import {changeTriangularDegree, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
 import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
 import {buildTriangularScene} from "./TriangularPatchScene";
+import {mountParameterInset, ParameterInset} from "./parameterInset";
+import {clampToTriangle} from "./triangleDomain";
+import type {GraphSession} from "../base/GraphSession";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
@@ -34,6 +37,8 @@ export interface TriangularPatchGraphState extends SurfaceGraphState {
 const DEFAULT_ISO_DENSITY: PatchDensity = 8;
 const DEFAULT_SHADING_DENSITY: PatchDensity = 16;
 const CENTROID = 1 / 3;
+const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.2, 1.2, 1.2, -0.2];
+const INSET_TEXT = {fixed: true, fontSize: 13, strokeColor: "#2f3b2e", highlight: false};
 
 const xyz = ([x, y, z]: Point3Dto): Xyz => [x, y, z];
 const toCamera = (dto: PatchCameraDto): SurfaceCamera => ({az: dto.az, el: dto.el, distance: dto.distance, projection: dto.projection, target: xyz(dto.target)});
@@ -170,6 +175,13 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         this.setState(parameter === "u" ? {u: clamped} : {v: clamped});
     }
 
+    /** Sets both parameters in one write (the inset drag); non-finite values are ignored, others move to the nearest point of the triangle. */
+    setParameters(u: number, v: number): void {
+        if (!Number.isFinite(u) || !Number.isFinite(v)) return;
+        const [clampedU, clampedV] = clampToTriangle(u, v);
+        this.setState({u: clampedU, v: clampedV});
+    }
+
     /** Selects control point `b_ijk` like a click in the view; an index outside the net, or undefined, clears the selection. */
     selectIndex(index: readonly [number, number, number] | undefined): void {
         this.selectPoint(index === undefined ? undefined : triangularPointId(...index));
@@ -239,6 +251,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         resetView: () => this.resetView(),
         setZMode: zMode => this.setZMode(zMode),
         setCameraAngle: (angle, degrees) => this.setCameraAngle(angle, degrees),
+        setInsetContainer: container => this.setInsetContainer(container),
     };
 
     protected override workspaceEdit(): React.ReactNode {
@@ -247,5 +260,71 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
 
     protected override workspaceDisplay(): React.ReactNode {
         return <TriangularPatchDisplayPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}} actions={this.panelActions}/>;
+    }
+
+    // ---- Parameter-domain inset --------------------------------------------------------------------------------
+
+    private insetContainer?: HTMLElement;
+    protected inset?: ParameterInset;
+
+    /**
+     * Shows the reference triangle of (u, v) in `container`, a JSXGraph board owned by the session; null (or a new
+     * container) releases the previous board. The panel calls this from a ref, so the board lives as long as the control does.
+     */
+    protected setInsetContainer(container: HTMLElement | null): void {
+        if (container === (this.insetContainer ?? null) && this.inset) return;
+        this.releaseInset();
+        this.insetContainer = container ?? undefined;
+        this.mountInset();
+    }
+
+    private releaseInset(): void {
+        const inset = this.inset;
+        this.inset = undefined;
+        inset?.release();
+    }
+
+    private mountInset(): void {
+        const session = this.graphSession, container = this.insetContainer;
+        if (!container || !session?.isAlive || this.inset) return;
+        const inset = mountParameterInset(session, container, {
+            boundingBox: INSET_BOUNDING_BOX,
+            build: board => {
+                board.create("polygon", [[0, 0], [1, 0], [0, 1]], {
+                    vertices: {visible: false}, fixed: true, hasInnerPoints: false, fillColor: "#eef2e6", fillOpacity: 1,
+                    highlightFillColor: "#eef2e6", highlightFillOpacity: 1, borders: {strokeColor: "#526950", strokeWidth: 2, highlight: false, fixed: true},
+                });
+                // Each vertex is where one barycentric coordinate is 1.
+                board.create("text", [0.8, -0.13, "u = 1"], INSET_TEXT);
+                board.create("text", [0.05, 1.06, "v = 1"], INSET_TEXT);
+                board.create("text", [-0.17, -0.13, "w = 1"], INSET_TEXT);
+                return board.create("point", [this.state.u, this.state.v], {
+                    name: "", size: 6, fillColor: "#ca5c37", strokeColor: "#ca5c37", highlightFillColor: "#ca5c37", highlightStrokeColor: "#ca5c37",
+                    showInfobox: false, snapToGrid: false,
+                });
+            },
+            constrain: clampToTriangle,
+            onDrag: (u, v) => this.setParameters(u, v),
+            onSessionEnd: () => { if (this.inset === inset) this.inset = undefined; },
+        });
+        this.inset = inset;
+    }
+
+    /** The inset dot follows the store: sliders, Reset, Presets and lesson scene writes all move it. */
+    private syncInset(): void {
+        const point = this.inset?.point;
+        if (!point || (point.X() === this.state.u && point.Y() === this.state.v)) return;
+        point.moveTo([this.state.u, this.state.v]);
+    }
+
+    protected override createMainView(session: GraphSession, container: HTMLElement): void {
+        super.createMainView(session, container);
+        // A panel that stayed mounted across a remount asks again for its board.
+        this.mountInset();
+    }
+
+    protected override onStateChange(previous: Readonly<TriangularPatchGraphState>): void {
+        super.onStateChange(previous);
+        this.syncInset();
     }
 }

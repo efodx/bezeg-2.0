@@ -7,7 +7,7 @@ import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {defaultTriangularPatchPresets} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
-import {azimuthDegrees} from "./TensorPatchPanels";
+import {azimuthDegrees, ParameterInset} from "./TensorPatchPanels";
 import {isInteriorPoint} from "./TriangularPatchScene";
 import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
 
@@ -44,6 +44,8 @@ export interface TriangularPatchPanelActions {
     resetView(): void;
     setZMode(zMode: boolean): void;
     setCameraAngle(angle: "az" | "el", degrees: number): void;
+    /** The element that shows the parameter-domain inset, or null when it goes away. */
+    setInsetContainer(container: HTMLElement | null): void;
 }
 
 const radToDeg = (radians: number) => radians * 180 / Math.PI;
@@ -72,6 +74,8 @@ export function TriangularPatchEditPanel({state, actions}: {state: TriangularPat
                     onChange={value => actions.setParameter("u", value)}/>
             <Slider customText={t("patch_parameter_v")} min={0} max={Math.max(0, 1 - state.u)} step={0.01} value={state.v}
                     onChange={value => actions.setParameter("v", value)}/>
+            <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
+            <p className="inspector-help">{t("patch_triangular_inset_help")}</p>
         </div>
         <FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
                          note={t("patch_parameter_w_help")}/>

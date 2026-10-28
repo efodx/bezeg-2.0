@@ -1246,6 +1246,7 @@ export const sl = {
     "preset_triangular_quartic": "Kvartična trikotna Bézierjeva krpa",
     "patch_triangular_degree": "Stopnja krpe (n)",
     "patch_triangular_degree_help": "Višanje stopnje ohrani ploskev natančno. Nižanje krpo interpolira v točkah (i, j, k)/n nižje stopnje: je natančno, če ima krpa že to stopnjo, sicer krpo le približa, oglišča pa ostanejo.",
+    "patch_triangular_inset_help": "Povleci piko po trikotniku, da nastaviš u in v; w = 1 − u − v se izračuna sam. Zunaj trikotnika se pika postavi na najbližjo točko roba. Za nastavljanje s tipkovnico uporabi drsnika zgoraj.",
     "patch_parameter_w": "Parameter w (= 1 − u − v)",
     "patch_parameter_w_help": "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1.",
     "patch_triangular_iso_help": "Črte pri stalnem u so zelene, pri stalnem v vijoličaste, pri stalnem w rumenorjave.",
