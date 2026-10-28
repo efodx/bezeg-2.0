@@ -28,6 +28,8 @@ import preview_spline_parameterization from './images/demonstrations/catalog/spl
 import preview_weighted_parameterization from './images/demonstrations/catalog/weighted-parameterization.png';
 import preview_uniform_parameterization from './images/demonstrations/catalog/uniform-parameterization.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
+import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
+import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_linear_function from './images/demonstrations/catalog/linear-function.png';
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
@@ -77,10 +79,8 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'weighted-parameterization': preview_weighted_parameterization,
     'uniform-parameterization': preview_uniform_parameterization,
     'patch-tensor': preview_patch_tensor,
-    // No generated preview yet (task 13): the tensor patch's, whose workspace this route extends.
-    'patch-decasteljau': preview_patch_tensor,
-    // No generated preview yet (task 13): the tensor patch's, whose workspace this route extends.
-    'patch-derivatives': preview_patch_tensor,
+    'patch-decasteljau': preview_patch_decasteljau,
+    'patch-derivatives': preview_patch_derivatives,
     'patch-triangular': preview_patch_triangular,
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,
