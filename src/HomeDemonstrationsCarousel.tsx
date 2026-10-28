@@ -2,7 +2,7 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
 import type {DemonstrationId} from './demonstrations';
-import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
+import {demonstrationPreviewSrc} from './demonstrationPreviewSrc';
 import {demonstrationMotionAssets} from './demonstrationMotionAssets';
 import {DemonstrationPreview} from './DemonstrationPreview';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
@@ -164,7 +164,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                     className="demonstrations-opening-image"
                     data-selected={selectedIndex === index}
                     aria-hidden="true">
-                    <DemonstrationPreview src={demonstrationPreviewAssets[entry.demonstration.id]}
+                    <DemonstrationPreview src={demonstrationPreviewSrc(entry.demonstration.id)}
                         motion={selectedIndex === index ? demonstrationMotionAssets[entry.demonstration.id] : undefined}
                         loading={index < 3 ? 'eager' : 'lazy'} focusTargetRef={graphActionRef}/>
                 </div>)}

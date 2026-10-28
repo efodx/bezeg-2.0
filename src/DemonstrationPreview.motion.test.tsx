@@ -287,3 +287,17 @@ test.each(['catalogue', 'picker'] as const)('%s graph navigation focus activates
     fireEvent.blur(navigation);
     expect(view.container.querySelector('#demonstration-card-bezier video')).toBeNull();
 });
+
+test('a preview without a capture renders its frame and no image', () => {
+    const view = render(<DemonstrationPreview/>);
+    expect(view.container.querySelector('.demonstration-preview-media')).not.toBeNull();
+    expect(view.container.querySelector('img')).toBeNull();
+});
+
+test('the triangular patch card has its frame but no image until a capture exists', () => {
+    const view = render(<MemoryRouter><DemonstrationCollection topic={null} query="" onTopicChange={() => {}} onQueryChange={() => {}} mode="catalogue"/></MemoryRouter>);
+    const card = view.container.querySelector('#demonstration-card-patch-triangular')!;
+    expect(card.querySelector('.demonstration-preview-media')).not.toBeNull();
+    expect(card.querySelector('img')).toBeNull();
+    expect(view.container.querySelector('#demonstration-card-bezier img')).not.toBeNull();
+});

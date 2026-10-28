@@ -7,7 +7,8 @@
 
 export type Xyz = [number, number, number];
 
-export type PolylineRole = 'net' | 'iso' | 'boundary' | 'construction' | 'highlight';
+/** `iso-v` and `iso-w` are the second and third iso-line families of a triangular patch; `iso` is the first (and the tensor patch's only). */
+export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'highlight';
 export type MarkerRole = 'evaluated' | 'construction';
 
 export interface ScenePoint {

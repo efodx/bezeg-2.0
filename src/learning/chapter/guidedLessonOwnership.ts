@@ -54,8 +54,9 @@ export const guidedLessonOwners: Readonly<Record<DemonstrationId, GuidedLessonOw
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // Task 12 authors this patches chapter section; patch-tensor has no available guided lesson until then.
+    // Task 12 authors these patches chapter sections; patch-tensor and patch-triangular have no available guided lesson until then.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
+    'patch-triangular': {chapterId: 'bezier-patches', sectionId: 'triangular-patches'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {

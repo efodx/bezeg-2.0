@@ -27,7 +27,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function",
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
     "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point"];
-/** Collections added after those files: the patch families (`patch-triangular` has no Demonstration yet). */
+/** Collections added after those files: the patch families . */
 const PATCH_KEYS = ["patch-tensor", "patch-triangular"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
@@ -55,7 +55,7 @@ describe('Preset collection definitions', () => {
         }
         const unused = presetCollections.filter(collection => !used.has(collection));
         expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([...legacyCurvePresetCollections]);
-        expect(unused.map(collection => collection.key)).toEqual(['g1-spline', 'patch-triangular']);
+        expect(unused.map(collection => collection.key)).toEqual(['g1-spline']);
     });
 
     test('definitions are static: frozen and usable without a graph or board', () => {

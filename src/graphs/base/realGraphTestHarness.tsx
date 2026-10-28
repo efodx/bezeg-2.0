@@ -11,6 +11,7 @@ import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {graphFactories} from '../graphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
+import TriangularPatchGraph from '../patches/TriangularPatchGraph';
 import {cameraSignature, FakeSurfaceView, sceneSignature} from '../patches/FakeSurfaceView';
 
 /**
@@ -56,9 +57,9 @@ export const surfaceViewOf = (graph: BaseGraph<BaseGraphState>): FakeSurfaceView
  * and the real view would fail to start. Every other graph is the factory's own.
  */
 export function createGraph(id: DemonstrationId): BaseGraph<BaseGraphState> {
-    if (id !== 'patch-tensor') return graphFactories[id]();
+    if (id !== 'patch-tensor' && id !== 'patch-triangular') return graphFactories[id]();
     const view = new FakeSurfaceView();
-    const graph = new TensorPatchGraph({viewFactory: () => view});
+    const graph = id === 'patch-tensor' ? new TensorPatchGraph({viewFactory: () => view}) : new TriangularPatchGraph({viewFactory: () => view});
     surfaceViews.set(graph, view);
     return graph as unknown as BaseGraph<BaseGraphState>;
 }

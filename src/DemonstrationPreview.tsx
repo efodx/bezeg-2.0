@@ -3,7 +3,7 @@ import type {DemonstrationMotionAsset} from './demonstrationMotionAssets';
 import './DemonstrationPreview.css';
 
 export function DemonstrationPreview({src, motion, loading = 'lazy', className = '', focusTargetRef}: {
-    src: string;
+    src?: string;
     motion?: DemonstrationMotionAsset;
     loading?: 'eager' | 'lazy';
     className?: string;
@@ -93,7 +93,7 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
     return <span ref={frameRef} className={`demonstration-preview-media demonstrations-catalog-preview-frame ${className}`} aria-hidden="true"
         onPointerEnter={event => { if (event.pointerType !== 'touch') setHovered(true); }}
         onPointerLeave={event => { if (event.pointerType !== 'touch') setHovered(false); }}>
-        <img className={`demonstration-preview-poster demonstrations-catalog-preview${imageState === 'ready' ? ' is-ready' : ''}${imageState === 'failed' ? ' is-failed' : ''}`}
+        {src !== undefined && <img className={`demonstration-preview-poster demonstrations-catalog-preview${imageState === 'ready' ? ' is-ready' : ''}${imageState === 'failed' ? ' is-failed' : ''}`}
             src={src} width="360" height="220" alt="" loading={loading}
             onLoad={event => {
                 const image = event.currentTarget;
@@ -104,7 +104,7 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
             }}
             onError={event => {
                 if (event.currentTarget.getAttribute('src') === src) setImageState('failed');
-            }}/>
+            }}/>}
         {shouldPlay && motion && <ActiveDemonstrationVideo key={motion.src} motion={motion}/>}
     </span>;
 }

@@ -46,6 +46,8 @@ export interface ThreeSurfaceViewOptions {
 export const SURFACE_COLORS = {
     net: 0x526950,
     iso: 0x547957,
+    'iso-v': 0x7b4aa0, // purple; 6.3:1 on white
+    'iso-w': 0xa86a00, // amber; 4.4:1 on white (non-text needs 3:1)
     boundary: 0x643f2f,
     construction: 0xc45f3b,
     highlight: 0x1f5fbf,

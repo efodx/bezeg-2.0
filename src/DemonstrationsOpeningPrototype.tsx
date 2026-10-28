@@ -3,7 +3,7 @@ import {Link, useLocation, useNavigate} from 'react-router-dom';
 import type {Demonstration} from './demonstrations';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {useT} from './localization';
-import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
+import {demonstrationPreviewSrc} from './demonstrationPreviewSrc';
 
 type Catalog = ReturnType<typeof import('./demonstrations').getDemonstrationCatalog>;
 type Family = Catalog['families'][number];
@@ -214,7 +214,7 @@ function VariantC({entries}: {entries: OpeningEntry[]}) {
     }}>
         <article key={selectedEntry.demonstration.id} className="demonstrations-prototype-c-preview" aria-live="polite">
             <img className="demonstrations-prototype-c-image"
-                src={demonstrationPreviewAssets[selectedEntry.demonstration.id]}
+                src={demonstrationPreviewSrc(selectedEntry.demonstration.id)}
                 alt="" width="360" height="220"/>
             <div className="demonstrations-prototype-c-copy">
                 <span className="demonstrations-prototype-family">{selectedEntry.family.title}</span>

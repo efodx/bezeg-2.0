@@ -4,7 +4,6 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {Preset} from "../base/presets/Presets";
 import type {FigureCaptureTarget} from "../base/export/FigureCapture";
-import {parsePatchPointId} from "./patchSceneBuilder";
 import {
     OverlayTypesetter,
     SURFACE_LABEL_COLOR,
@@ -138,6 +137,11 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         if (next === this.selectedPointIdValue) return;
         this.selectedPointIdValue = next;
         // The selected point's row and column are scene polylines, which the view rebuilds only on a new revision.
+        this.redrawGeometry();
+    }
+
+    /** Redraws the view after a change of transient state (not of the scene store) that alters polylines, mesh or points. */
+    protected redrawGeometry(): void {
         this.revision++;
         this.reconcileView();
         this.requestRender();
@@ -184,7 +188,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
         const id = saved?.selectedPoint;
-        this.selectedPointIdValue = typeof id === "string" && parsePatchPointId(id) !== undefined && this.hasPoint(id) ? id : undefined;
+        this.selectedPointIdValue = typeof id === "string" && this.hasPoint(id) ? id : undefined;
     }
 
     // ---- Presets and panels ------------------------------------------------------------------------------------

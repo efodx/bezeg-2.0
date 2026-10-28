@@ -1,0 +1,248 @@
+import type React from "react";
+import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {TransientState} from "../base/BaseGraph";
+import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
+import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, triangularPatchToDto} from "./patchDto";
+import {defaultTriangularPatchPresets, patchPresetCollections} from "./patchPresetCollections";
+import type {PatchDensity} from "./patchSceneBuilder";
+import {TriangularPatchDisplayPanel, TriangularPatchEditPanel, TriangularPatchPanelActions, TriangularVisibilityKey} from "./TriangularPatchPanels";
+import {changeTriangularDegree, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
+import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
+import {buildTriangularScene} from "./TriangularPatchScene";
+import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
+import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
+
+export interface TriangularPatchGraphState extends SurfaceGraphState {
+    /** The degree; the net has `(n + 1)(n + 2) / 2` points. */
+    n: number;
+    /** Canonical order (index 0 is `b_(n,0,0)`); replaced (never edited in place) on every change. */
+    net: Xyz[];
+    /** The barycentric parameters of the point `S(u, v, w)`; `w = 1 - u - v`, so `u, v >= 0` and `u + v <= 1`. */
+    u: number;
+    v: number;
+    showControlNet: boolean;
+    showIsoCurves: boolean;
+    showBoundaryCurves: boolean;
+    showShading: boolean;
+    showDeCasteljau: boolean;
+    isoDensity: PatchDensity;
+    shadingDensity: PatchDensity;
+    /** Vertical-drag mode of the view; a mode of the session, not saved in Presets. */
+    zMode: boolean;
+}
+
+const DEFAULT_ISO_DENSITY: PatchDensity = 8;
+const DEFAULT_SHADING_DENSITY: PatchDensity = 16;
+const CENTROID = 1 / 3;
+
+const xyz = ([x, y, z]: Point3Dto): Xyz => [x, y, z];
+const toCamera = (dto: PatchCameraDto): SurfaceCamera => ({az: dto.az, el: dto.el, distance: dto.distance, projection: dto.projection, target: xyz(dto.target)});
+const fromCamera = (camera: SurfaceCamera): PatchCameraDto => ({az: camera.az, el: camera.el, distance: camera.distance, projection: camera.projection, target: [...camera.target]});
+
+/** The cubic patch: the scene a fresh Demonstration starts with. */
+const defaultDto = () => {
+    const entry = defaultTriangularPatchPresets[2].data()[0];
+    if (entry[0] !== "TriangularBezierPatch") throw new Error("The default triangular patch Preset is not a triangular patch.");
+    return entry[1];
+};
+
+/** The state a triangular patch DTO describes; fields the DTO omits take the defaults, and a lone `u` or `v` keeps `u + v <= 1`. */
+function stateFromDto(dto: {n: number; net: ReadonlyArray<Point3Dto>; state?: PatchStateDto}): Omit<TriangularPatchGraphState, "initialized" | "zMode" | "surfaceUnavailable"> {
+    const fallback = defaultDto().state;
+    const state = dto.state ?? {};
+    const camera = state.camera ?? fallback?.camera;
+    if (!camera) throw new Error("The default triangular patch Preset has no camera.");
+    const u = state.u ?? Math.min(CENTROID, 1 - (state.v ?? 0));
+    const v = state.v ?? Math.min(CENTROID, 1 - u);
+    return {
+        n: dto.n, net: dto.net.map(xyz), camera: toCamera(camera), u, v,
+        showControlNet: state.showControlNet ?? true, showIsoCurves: state.showIsoCurves ?? true,
+        showBoundaryCurves: state.showBoundaryCurves ?? true, showShading: state.showShading ?? true, showDeCasteljau: state.showDeCasteljau ?? false,
+        isoDensity: state.isoDensity ?? DEFAULT_ISO_DENSITY, shadingDensity: state.shadingDensity ?? DEFAULT_SHADING_DENSITY,
+    };
+}
+
+/**
+ * The triangular Bezier patch Demonstration: a triangular control net, its surface, three iso-line families, the
+ * boundary curves and the point S(u, v, w), shown in a Three surface view. The scene store holds every piece of patch
+ * state; Presets store it in the DTO `state`. The three-piece split preview is transient (not in a Preset).
+ */
+export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPatchGraphState, PatchCollectionPresetData> {
+    /** Transient: whether the split at (u, v, w) is drawn. */
+    private subdivisionPreviewValue = false;
+
+    constructor(options: SurfaceGraphOptions = {}) {
+        super(options);
+    }
+
+    override getInitialState(): TriangularPatchGraphState {
+        return {initialized: false, surfaceUnavailable: false, zMode: false, ...stateFromDto(defaultDto())};
+    }
+
+    override presetCollection(): PresetCollection<PatchCollectionPresetData> {
+        return patchPresetCollections["patch-triangular"];
+    }
+
+    override defaultPreset(): PatchCollectionPresetData {
+        return defaultTriangularPatchPresets[2].data();
+    }
+
+    override exportPresetData(): PatchCollectionPresetData {
+        const s = this.state;
+        const dto = triangularPatchToDto(triangularFromNet(s.net), {
+            camera: fromCamera(s.camera), u: s.u, v: s.v,
+            showControlNet: s.showControlNet, showIsoCurves: s.showIsoCurves, showBoundaryCurves: s.showBoundaryCurves, showShading: s.showShading,
+            showDeCasteljau: s.showDeCasteljau, isoDensity: s.isoDensity, shadingDensity: s.shadingDensity,
+        });
+        return [["TriangularBezierPatch", dto]];
+    }
+
+    override importPresetData(data: PatchCollectionPresetData): void {
+        const entry = data[0];
+        if (entry?.[0] !== "TriangularBezierPatch") return;
+        this.setState(stateFromDto(entry[1]));
+    }
+
+    // ---- Transient state ---------------------------------------------------------------------------------------
+
+    protected override captureTransientState(): TransientState {
+        return {...super.captureTransientState(), subdivisionPreview: this.subdivisionPreviewValue};
+    }
+
+    protected override restoreTransientState(saved: TransientState | undefined): void {
+        super.restoreTransientState(saved);
+        this.subdivisionPreviewValue = saved?.subdivisionPreview === true;
+    }
+
+    // ---- Surface contract --------------------------------------------------------------------------------------
+
+    protected override buildScene(revision: number, selectedPointId: string | undefined): SurfaceScene {
+        return buildTriangularScene({
+            ...this.state, subdivisionPreview: this.subdivisionPreviewValue, ...(selectedPointId === undefined ? {} : {selectedPointId}),
+        }, revision);
+    }
+
+    protected override geometryChanged(previous: Readonly<TriangularPatchGraphState>): boolean {
+        const s = this.state;
+        // The construction and the split follow (u, v), so they make a parameter change a geometry change too.
+        return s.net !== previous.net || s.showControlNet !== previous.showControlNet || s.showIsoCurves !== previous.showIsoCurves
+            || s.showBoundaryCurves !== previous.showBoundaryCurves || s.showShading !== previous.showShading || s.showDeCasteljau !== previous.showDeCasteljau
+            || s.isoDensity !== previous.isoDensity || s.shadingDensity !== previous.shadingDensity
+            || ((s.showDeCasteljau || this.subdivisionPreviewValue) && (s.u !== previous.u || s.v !== previous.v));
+    }
+
+    protected override hasPoint(pointId: string): boolean {
+        const index = parseTriangularPointId(pointId);
+        return index !== undefined && index[0] + index[1] + index[2] === this.state.n;
+    }
+
+    protected override movePoint(pointId: string, position: Xyz): void {
+        const index = parseTriangularPointId(pointId);
+        if (index === undefined || !this.hasPoint(pointId) || !position.every(Number.isFinite)) return;
+        const at = triangularIndex(this.state.n, index[0], index[1]);
+        // A drag's start repeats the point's own position; keeping the net avoids a pointless geometry rebuild.
+        if (this.state.net[at].every((value, axis) => value === position[axis])) return;
+        this.setState({net: this.state.net.map((p, k): Xyz => k === at ? [...position] : p)});
+    }
+
+    // ---- Operations the controls call --------------------------------------------------------------------------
+
+    /**
+     * Raising the degree is exact elevation. Lowering interpolates the surface at the lattice points `(i, j, k)/degree`:
+     * exact when the surface already has the lower degree, otherwise an approximation that keeps the three corners.
+     * A selected point of the old degree is cleared (its index names no point of the new net).
+     */
+    setDegree(degree: number): void {
+        const current = this.state.n;
+        if (!Number.isInteger(degree) || degree < MIN_TRIANGULAR_DEGREE || degree > MAX_TRIANGULAR_DEGREE || degree === current) return;
+        this.setState({n: degree, net: changeTriangularDegree(this.state.net, current, degree)});
+        this.selectPoint(this.selectedPointId);
+    }
+
+    /** Sets `u` or `v`, clamped so that `u, v >= 0` and `u + v <= 1` (`w = 1 - u - v` follows). Non-finite values are ignored. */
+    setParameter(parameter: "u" | "v", value: number): void {
+        if (!Number.isFinite(value)) return;
+        const other = parameter === "u" ? this.state.v : this.state.u;
+        const clamped = clamp(value, 0, Math.max(0, 1 - other));
+        this.setState(parameter === "u" ? {u: clamped} : {v: clamped});
+    }
+
+    /** Selects control point `b_ijk` like a click in the view; an index outside the net, or undefined, clears the selection. */
+    selectIndex(index: readonly [number, number, number] | undefined): void {
+        this.selectPoint(index === undefined ? undefined : triangularPointId(...index));
+    }
+
+    /** Moves the selected control point to `xyz`; nothing happens without a selection or for a non-finite coordinate. */
+    setSelectedCoordinates(position: Xyz): void {
+        if (this.selectedPointId !== undefined) this.movePoint(this.selectedPointId, position);
+    }
+
+    /** Shows or hides the split of the patch into three at (u, v, w); transient. */
+    setSubdivisionPreview(visible: boolean): void {
+        if (visible === this.subdivisionPreviewValue) return;
+        this.subdivisionPreviewValue = visible;
+        this.redrawGeometry();
+    }
+
+    /** Sets the orbit az or el from degrees; el stays within the range of the preset views. */
+    setCameraAngle(angle: "az" | "el", degrees: number): void {
+        if (!Number.isFinite(degrees)) return;
+        const radians = degrees * Math.PI / 180;
+        const camera = this.state.camera;
+        const maxElevation = CAMERA_PRESETS.top.el;
+        this.setSurfaceState({camera: angle === "az" ? {...camera, az: radians} : {...camera, el: clamp(radians, -maxElevation, maxElevation)}});
+    }
+
+    setVisibility(key: TriangularVisibilityKey, visible: boolean): void {
+        this.setState({[key]: visible});
+    }
+
+    setDensity(kind: "iso" | "shading", density: PatchDensity): void {
+        this.setState(kind === "iso" ? {isoDensity: density} : {shadingDensity: density});
+    }
+
+    applyCameraPreset(name: CameraPresetName): void {
+        this.setSurfaceState({camera: presetCamera(name, this.state.camera)});
+    }
+
+    /** The authored az/el again, fitted to the whole net for the host's current shape. */
+    resetView(): void {
+        const authored = toCamera(defaultDto().state?.camera ?? fromCamera(this.state.camera));
+        this.setSurfaceState({camera: fitCameraTo(this.state.net, this.hostAspect(), authored)});
+    }
+
+    setZMode(zMode: boolean): void {
+        this.setState({zMode});
+    }
+
+    /** Replaces the patch with the canonical default net of a degree (the Uredi "starting patch" buttons); the camera comes with it. */
+    useStartingPatch(index: number): void {
+        const preset = defaultTriangularPatchPresets[index];
+        if (!preset) return;
+        this.importPresetData(preset.data());
+        this.selectPoint(this.selectedPointId);
+    }
+
+    // ---- Panels ------------------------------------------------------------------------------------------------
+
+    private readonly panelActions: TriangularPatchPanelActions = {
+        useStartingPatch: index => this.useStartingPatch(index),
+        setDegree: degree => this.setDegree(degree),
+        setParameter: (parameter, value) => this.setParameter(parameter, value),
+        setSubdivisionPreview: visible => this.setSubdivisionPreview(visible),
+        setVisibility: (key, visible) => this.setVisibility(key, visible),
+        setDensity: (kind, density) => this.setDensity(kind, density),
+        applyCameraPreset: name => this.applyCameraPreset(name),
+        resetView: () => this.resetView(),
+        setZMode: zMode => this.setZMode(zMode),
+        setCameraAngle: (angle, degrees) => this.setCameraAngle(angle, degrees),
+    };
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}} actions={this.panelActions}/></>;
+    }
+
+    protected override workspaceDisplay(): React.ReactNode {
+        return <TriangularPatchDisplayPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}} actions={this.panelActions}/>;
+    }
+}

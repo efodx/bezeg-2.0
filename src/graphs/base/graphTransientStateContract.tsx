@@ -37,6 +37,7 @@ import {
 } from './realGraphScenes';
 import type {Preset} from './presets/Presets';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
+import TriangularPatchGraph from '../patches/TriangularPatchGraph';
 
 vi.mock('./export/FigureCapture', async () => ({
     ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
@@ -66,7 +67,7 @@ const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
 function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<BaseGraphState>): void {
     // A graph without a board keeps no board display preferences; its camera is scene state that every replacement path
     // must restore, but the vertical-drag mode is a session preference that Preset replacement keeps.
-    if (graph instanceof TensorPatchGraph && reference instanceof TensorPatchGraph) {
+    if ((graph instanceof TensorPatchGraph || graph instanceof TriangularPatchGraph) && (reference instanceof TensorPatchGraph || reference instanceof TriangularPatchGraph)) {
         act(() => graph.setZMode(reference.state.zMode));
         return;
     }

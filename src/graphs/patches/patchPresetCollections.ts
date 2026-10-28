@@ -1,6 +1,7 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto} from "./patchDto";
+import {isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
+import {defaultTriangularNet} from "./TriangularPatchDegree";
 
 const MIN_DEGREE = 1;
 const MAX_DEGREE = 4;
@@ -18,7 +19,7 @@ function checkCamera(value: unknown): Message | undefined {
     return valid ? undefined : message("invalid_patch_camera");
 }
 
-function checkState(value: unknown): Message | undefined {
+function checkState(value: unknown, triangular: boolean): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
     const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: `state.${unknown}`});
@@ -27,6 +28,8 @@ function checkState(value: unknown): Message | undefined {
     for (const key of ["u", "v"]) if (value[key] !== undefined && !isUnit(value[key])) return message("invalid_patch_parameter", {value0: key});
     // `isoDensity` would otherwise be read as an `is*` switch by the shared state check.
     for (const key of ["isoDensity", "shadingDensity"]) if (value[key] !== undefined && value[key] !== 8 && value[key] !== 16) return message("invalid_patch_density", {value0: key});
+    // The triangle domain u, v >= 0, u + v <= 1 (w = 1 - u - v >= 0); the tolerance absorbs rounding of an exported pair.
+    if (triangular && typeof value.u === "number" && typeof value.v === "number" && value.u + value.v > 1 + 1e-9) return message("invalid_triangular_parameters", {value0: value.u, value1: value.v});
     return value.camera === undefined ? undefined : checkCamera(value.camera);
 }
 
@@ -42,7 +45,7 @@ function checkPatch(type: PatchTypeName, dto: Record<string, unknown>): Message 
     const expected = tensor ? (Number(m) + 1) * (n + 1) : (n + 1) * (n + 2) / 2;
     if (net.length !== expected) return message("patch_net_length_mismatch", {value0: expected, value1: net.length});
     if (!net.every(isPoint3)) return message("patch_coordinates_must_be_finite_triples");
-    return dto.state === undefined ? undefined : checkState(dto.state);
+    return dto.state === undefined ? undefined : checkState(dto.state, !tensor);
 }
 
 /** A collection holds exactly one patch of its type (a Demonstration edits one patch). */
@@ -107,4 +110,31 @@ export interface DefaultPatchPreset {
 export const defaultPatchPresets: readonly DefaultPatchPreset[] = [
     {id: "bilinear-saddle", name: "preset_bilinear_saddle", data: () => [["TensorProductBezierPatch", bilinearSaddle()]]},
     {id: "bicubic-dome", name: "preset_bicubic_dome", data: () => [["TensorProductBezierPatch", bicubicDome()]]},
+];
+
+export interface DefaultTriangularPatchPreset {
+    readonly id: string;
+    readonly degree: number;
+    readonly name: "preset_triangular_linear" | "preset_triangular_quadratic" | "preset_triangular_cubic" | "preset_triangular_quartic";
+    readonly data: () => PatchCollectionPresetData;
+}
+
+/**
+ * The camera distances come from `fitCameraTo(net, 0.45, ...)` like the tensor Presets' (a 390x844 portrait host); the
+ * targets are the nets' bounding-box centres.
+ */
+const TRIANGULAR_CAMERAS: ReadonlyArray<readonly [number, Point3Dto]> = [
+    [14.63, [0, 0, 0.6]], [14.97, [0, 0, 0.75]], [15.68, [0, 0, 1]], [14.97, [0, 0, 0.75]],
+];
+const triangularPreset = (degree: number): TriangularPatchDto => {
+    const [distance, target] = TRIANGULAR_CAMERAS[degree - 1];
+    return {n: degree, net: defaultTriangularNet(degree), state: {camera: camera(distance, target), u: 1 / 3, v: 1 / 3}};
+};
+
+/** The canonical default net of each degree 1 to 4; the cubic is the Demonstration's starting patch. Fresh data per call. */
+export const defaultTriangularPatchPresets: readonly DefaultTriangularPatchPreset[] = [
+    {id: "triangular-linear", degree: 1, name: "preset_triangular_linear", data: () => [["TriangularBezierPatch", triangularPreset(1)]]},
+    {id: "triangular-quadratic", degree: 2, name: "preset_triangular_quadratic", data: () => [["TriangularBezierPatch", triangularPreset(2)]]},
+    {id: "triangular-cubic", degree: 3, name: "preset_triangular_cubic", data: () => [["TriangularBezierPatch", triangularPreset(3)]]},
+    {id: "triangular-quartic", degree: 4, name: "preset_triangular_quartic", data: () => [["TriangularBezierPatch", triangularPreset(4)]]},
 ];

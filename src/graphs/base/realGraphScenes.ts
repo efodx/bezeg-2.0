@@ -9,6 +9,7 @@ import type {BaseGraphState} from './BaseGraph';
 import type {LessonAction} from '../../learning/model';
 import type {Preset} from './presets/Presets';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
+import TriangularPatchGraph from '../patches/TriangularPatchGraph';
 import type {Point3Dto} from '../patches/patchDto';
 import {type MountedGraph, observe, observeScene, surfaceViewOf} from './realGraphTestHarness';
 
@@ -58,17 +59,16 @@ export function mainScene({hodographView: view, transient: observed, ...main}: S
 }
 
 /** Writes a patch's model the way a lesson scene write would: its first control point moves in height, the rest stays. */
-function perturbPatch(graph: TensorPatchGraph, variant: 'a' | 'b'): void {
+function perturbPatch(graph: TensorPatchGraph | TriangularPatchGraph, variant: 'a' | 'b'): void {
     const [entry] = graph.exportPresetData();
-    if (entry[0] !== 'TensorProductBezierPatch') return;
-    const dto = entry[1];
-    const net = dto.net.map((p, i): Point3Dto => i === 0 ? [p[0], p[1], p[2] + (variant === 'a' ? 0.75 : -0.5)] : p);
-    graph.importPresetData([[entry[0], {...dto, net}]]);
+    const lift = (p: Point3Dto, i: number): Point3Dto => i === 0 ? [p[0], p[1], p[2] + (variant === 'a' ? 0.75 : -0.5)] : p;
+    if (entry[0] === 'TensorProductBezierPatch') graph.importPresetData([[entry[0], {...entry[1], net: entry[1].net.map(lift)}]]);
+    else if (entry[0] === 'TriangularBezierPatch') graph.importPresetData([[entry[0], {...entry[1], net: entry[1].net.map(lift)}]]);
 }
 
 /** Edits a function graph's model the way its controls would: each numeric field the graph accepts a nearby value for. */
 export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
-    if (graph instanceof TensorPatchGraph) { perturbPatch(graph, variant); return; }
+    if (graph instanceof TensorPatchGraph || graph instanceof TriangularPatchGraph) { perturbPatch(graph, variant); return; }
     const g = internals(graph);
     // Function graphs only: their Preset data is a model object, which their Preset collection checks.
     const collection = graph.presetCollection();

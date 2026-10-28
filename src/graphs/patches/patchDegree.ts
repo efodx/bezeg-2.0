@@ -3,7 +3,7 @@ import {bernstein} from "./patchBernstein";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 /** Solves the square system `a x = b` in place by Gaussian elimination with partial pivoting. */
-function solve(a: number[][], b: number[]): number[] {
+export function solveLinearSystem(a: number[][], b: number[]): number[] {
     const size = b.length;
     for (let col = 0; col < size; col++) {
         let pivot = col;
@@ -43,7 +43,7 @@ export function lowerCurveDegree(points: readonly Xyz[], target: number): Xyz[] 
     });
     const coordinates = [0, 1, 2].map(axis => {
         const matrix = parameters.map(t => Array.from({length: target + 1}, (_, i) => bernstein(target, i, t)));
-        return solve(matrix, samples.map(s => s[axis]));
+        return solveLinearSystem(matrix, samples.map(s => s[axis]));
     });
     return Array.from({length: target + 1}, (_, i): Xyz => [coordinates[0][i], coordinates[1][i], coordinates[2][i]]);
 }

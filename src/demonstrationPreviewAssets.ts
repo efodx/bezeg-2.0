@@ -47,7 +47,8 @@ import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
 
-export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
+// patch-triangular has no capture yet (preview-capture work, task 13); catalog cards render the pale frame until the generator emits it.
+export const demonstrationPreviewAssets: Record<Exclude<DemonstrationId, 'patch-triangular'>, string> = {
     'bernstein': preview_bernstein,
     'complex-multiplication': preview_complex_multiplication,
     'bezier': preview_bezier,
