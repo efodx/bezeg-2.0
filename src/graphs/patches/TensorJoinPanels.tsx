@@ -40,8 +40,8 @@ export function JoinModeControls({mode, alpha, joinV, onMode, onAlpha, onJoinV}:
         <ChoiceSelect label={t("patch_join_mode")} value={mode} options={options} help={t("patch_join_mode_help")}
                       onChange={next => onMode(next === "c0" || next === "c1" || next === "g1" ? next : "none")}/>
         <Slider customText={t("patch_join_alpha")} min={JOIN_ALPHA_RANGE.min} max={JOIN_ALPHA_RANGE.max} step={0.05} value={alpha}
-                disabled={!g1} help={t("patch_join_alpha_help")} onChange={onAlpha}/>
-        {!g1 && <p className="inspector-help patch-join-alpha-reason" role="status">{t("patch_join_alpha_disabled")}</p>}
+                disabled={!g1} help={g1 ? t("patch_join_alpha_help") : `${t("patch_join_alpha_help")} ${t("patch_join_alpha_disabled")}`}
+                onChange={onAlpha}/>
         <Slider customText={t("patch_join_v")} min={0} max={1} step={0.01} value={joinV} help={t("patch_join_v_help")} onChange={onJoinV}/>
     </div>;
 }
@@ -62,15 +62,21 @@ export function JoinBDegreeControls({mode, mB, nB, onDegree}: {
  * Selecting a control point `Q_ij` of patch `B` (the `A` points are the inherited group). A derived row can be chosen to be
  * explained, but it has no editor: it follows `A` and is not movable. `selected` is the graph's selection (a movable point).
  */
-export function JoinBPointControls({netB, isDerivedRow, selected, aSelected, onSelect, onApply}: {
+export function JoinBPointControls(props: JoinBPointControlsProps) {
+    // Choosing a point of `A` leaves the explanation of the derived `B` point that was chosen before: the keyed remount drops
+    // the remembered choice, so it neither shows meanwhile nor comes back when the `A` selection is cleared.
+    return <JoinBPointControlsBody key={props.aSelected ? "a-selected" : "b"} {...props}/>;
+}
+
+interface JoinBPointControlsProps {
     netB: ReadonlyArray<ReadonlyArray<Xyz>>; isDerivedRow: (row: number) => boolean; selected: readonly [number, number] | undefined; aSelected: boolean;
     onSelect: (i: number | undefined, j: number | undefined) => void; onApply: (xyz: Xyz) => void;
-}) {
+}
+
+function JoinBPointControlsBody({netB, isDerivedRow, selected, onSelect, onApply}: JoinBPointControlsProps) {
     const t = useT();
     // A derived point is never the graph's selection, so the chosen index is remembered here to explain it.
     const [chosen, setChosen] = useState<readonly [number, number] | undefined>();
-    // Choosing a point of `A` leaves the explanation of the derived `B` point that was chosen before.
-    if (aSelected && chosen) setChosen(undefined);
     const mB = netB.length - 1, nB = netB[0].length - 1;
     const focus = chosen && chosen[0] <= mB && chosen[1] <= nB && isDerivedRow(chosen[0]) ? chosen : undefined;
     const index = selected ?? focus;
@@ -106,19 +112,26 @@ export function JoinBPointControls({netB, isDerivedRow, selected, aSelected, onS
  * What the report says, from the displayed nets alone. C1 (equal derivatives across the boundary) implies G1, but G1 with a
  * ratio other than 1 is not C1. When both derivatives vanish C1 holds formally and the tangent plane is not determined by them.
  */
-export type JoinReportCase = "no-c0" | "vanish" | "c1" | "g1" | "c0-no-ratio" | "c0";
+export type JoinReportCase = "no-c0" | "vanish" | "c1" | "g1" | "c0-no-ratio" | "c0-planes" | "c0";
+/**
+ * Largest normal angle (radians) still read as "the tangent planes coincide". The report has no angular tolerance, and
+ * `acos` of a rounded dot product of equal unit normals is already about 1.5e-8, so this is far above rounding yet below
+ * the 0.001 degree shown in the report.
+ */
+const COINCIDENT_PLANES_ANGLE = 1e-6;
 export function joinReportCase(report: JoinReport): JoinReportCase {
     if (!report.c0) return "no-c0";
     if (report.derivativesVanish) return "vanish";
     if (report.c1) return "c1";
     if (report.g1) return "g1";
-    return report.alphaStar === undefined ? "c0-no-ratio" : "c0";
+    if (report.alphaStar === undefined) return "c0-no-ratio";
+    return report.maxNormalAngle !== undefined && report.maxNormalAngle <= COINCIDENT_PLANES_ANGLE ? "c0-planes" : "c0";
 }
 
 const STATE_KEYS = {
     "no-c0": "patch_join_state_none", vanish: "patch_join_state_vanish", c1: "patch_join_state_c1",
-    g1: "patch_join_state_g1", "c0-no-ratio": "patch_join_state_c0", c0: "patch_join_state_c0",
-} as const satisfies Record<JoinReportCase, "patch_join_state_none" | "patch_join_state_vanish" | "patch_join_state_c1" | "patch_join_state_g1" | "patch_join_state_c0">;
+    g1: "patch_join_state_g1", "c0-no-ratio": "patch_join_state_c0", "c0-planes": "patch_join_state_c0_planes", c0: "patch_join_state_c0",
+} as const satisfies Record<JoinReportCase, "patch_join_state_none" | "patch_join_state_vanish" | "patch_join_state_c1" | "patch_join_state_g1" | "patch_join_state_c0" | "patch_join_state_c0_planes">;
 
 /** The measured join of the displayed patches, stated honestly: C1 is equal derivatives, G1 only agreeing tangent planes. */
 export function JoinReportPanel({report}: {report: JoinReport}) {
@@ -138,7 +151,8 @@ export function JoinReportPanel({report}: {report: JoinReport}) {
         : kind === "vanish" ? t("patch_join_report_vanish")
         : kind === "c1" ? t("patch_join_report_c1", {value0: number(report.derivativeGap)})
         : kind === "g1" ? t("patch_join_report_g1", {value0: number(report.alphaStar ?? 0)})
-        : kind === "c0-no-ratio" ? t("patch_join_report_c0_no_ratio") : t("patch_join_report_c0");
+        : kind === "c0-no-ratio" ? t("patch_join_report_c0_no_ratio")
+        : kind === "c0-planes" ? t("patch_join_report_c0_planes") : t("patch_join_report_c0");
     return <>
         <FunctionReadout title={t("patch_join_report_heading")} rows={rows} note={note}/>
         <p className="inspector-help patch-join-legend">{t("patch_join_legend")}</p>

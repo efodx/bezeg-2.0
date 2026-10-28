@@ -102,6 +102,27 @@ describe("editing the original points", () => {
         expect(graph.state.net).toBe(before);
     });
 
+    it("offers no coordinate editor (and so no Apply that does nothing) for a selected point while the pieces are shown", () => {
+        const {graph} = mount();
+        const editor = () => document.querySelector(".patch-point-editor");
+        const pointLocked = () => document.querySelector(".patch-point-locked");
+        // Selected before the pieces were switched off, and while they are shown.
+        fireEvent.click(piecesSwitch());
+        act(() => graph.selectIndex(1, 1));
+        expect(editor()).not.toBeNull();
+        expect(pointLocked()).toBeNull();
+        fireEvent.click(piecesSwitch());
+        expect(screen.getByLabelText<HTMLSelectElement>(t("patch_index_i")).value).toBe("1");
+        expect(editor()).toBeNull();
+        expect(screen.queryByRole("button", {name: t("apply_coordinates")})).toBeNull();
+        expect(pointLocked()!.textContent).toBe(t("patch_pieces_locked"));
+        act(() => graph.selectIndex(2, 0));
+        expect(editor()).toBeNull();
+        fireEvent.click(piecesSwitch());
+        expect(editor()).not.toBeNull();
+        expect(pointLocked()).toBeNull();
+    });
+
     it("after the pieces are switched off the note is gone and a point moves", () => {
         const {graph} = mount();
         fireEvent.click(piecesSwitch());

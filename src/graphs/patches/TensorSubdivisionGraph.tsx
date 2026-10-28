@@ -3,6 +3,7 @@ import type {TransientState} from "../base/BaseGraph";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import {withSubdivisionPieces, pieceCorrespondence, type PieceCorrespondence} from "./TensorSubdivisionScene";
+import {t} from "../../localization";
 import TensorPatchGraph, {TensorPatchGraphState} from "./TensorPatchGraph";
 import {SubdivisionElevateControls, SubdivisionReadout, SubdivisionSplitControls, SubdivisionVisibilityControls} from "./TensorSubdivisionPanels";
 import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
@@ -187,7 +188,8 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
                                       onValue={value => this.setSubdivisionValue(value)}/>
             <SubdivisionElevateControls canElevateU={this.canElevateIn("u")} canElevateV={this.canElevateIn("v")} onElevate={direction => this.elevate(direction)}/>
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
-                                  pointExtra={<SubdivisionReadout correspondence={correspondence} point={[point.X(), point.Y(), point.Z?.() ?? 0]}/>}/>
+                                  pointExtra={<SubdivisionReadout correspondence={correspondence} point={[point.X(), point.Y(), point.Z?.() ?? 0]}/>}
+                                  pointLocked={(showPieces ?? true) ? t("patch_pieces_locked") : undefined}/>
         </>;
     }
 

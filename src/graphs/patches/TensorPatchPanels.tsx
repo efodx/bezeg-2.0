@@ -111,10 +111,11 @@ export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApp
 
 /**
  * `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. `startingPatches` are the buttons
- * of the "Starting patch" group (the two tensor Presets unless the Demonstration offers more).
+ * of the "Starting patch" group (the two tensor Presets unless the Demonstration offers more). `pointLocked` is the reason the
+ * selected point cannot be edited right now; it replaces the coordinate editor so that no Apply is offered that does nothing.
  */
-export function TensorPatchEditPanel({state, selection, actions, pointExtra, startingPatches = defaultPatchPresets}: {
-    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode;
+export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, startingPatches = defaultPatchPresets}: {
+    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string;
     startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
 }) {
     const t = useT();
@@ -143,7 +144,9 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, sta
                           onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(Number(value), selection?.j)}/>
             <ChoiceSelect label={t("patch_index_j")} value={selection ? String(selection.j) : NO_INDEX} options={indexOptions(state.n, t("patch_no_selection"))}
                           onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(selection?.i, Number(value))}/>
-            {selection
+            {selection && pointLocked !== undefined
+                ? <p className="inspector-help patch-point-locked" role="note">{pointLocked}</p>
+                : selection
                 ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} name={`P${subscriptDigits(selection.i)}${subscriptDigits(selection.j)}`} xyz={selection.xyz}
                              onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_select_point_help")}</p>}

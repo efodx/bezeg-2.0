@@ -33,7 +33,9 @@ const alphaSlider = () => screen.getByLabelText<HTMLInputElement>(t("patch_join_
 const alphaField = () => screen.getByRole<HTMLInputElement>("spinbutton", {name: t("number_field_label", {value0: t("patch_join_alpha")})});
 const state = () => document.querySelector('[data-readout="state"] dd')!.textContent;
 const note = () => document.querySelector('[role="note"]')!.textContent!;
-const alphaReason = () => document.querySelector(".patch-join-alpha-reason");
+/** The paragraph the alpha slider points at with aria-describedby (its help, which carries the reason while disabled). */
+const alphaDescription = () => alphaSlider().getAttribute("aria-describedby")!.split(" ")
+    .map(id => document.getElementById(id)!.textContent!).join(" ");
 const degreeU = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_degree_u"));
 const degreeV = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_degree_v"));
 const rowSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_i"));
@@ -85,12 +87,13 @@ describe("the ratio alpha", () => {
             fireEvent.change(modeSelect(), {target: {value: mode}});
             expect(alphaSlider().disabled).toBe(true);
             expect(alphaField().disabled).toBe(true);
-            expect(alphaReason()!.textContent).toBe(t("patch_join_alpha_disabled"));
+            expect(alphaDescription()).toContain(t("patch_join_alpha_disabled"));
         }
         fireEvent.change(modeSelect(), {target: {value: "g1"}});
         expect(alphaSlider().disabled).toBe(false);
         expect(alphaField().disabled).toBe(false);
-        expect(alphaReason()).toBeNull();
+        expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
+        expect(alphaDescription()).toContain(t("patch_join_alpha_help"));
         fireEvent.change(alphaField(), {target: {value: "1,5"}});
         expect(graph.state.joinAlpha).toBeCloseTo(1.5, 12);
         expect(alphaSlider().min).toBe("0.25");
@@ -141,6 +144,9 @@ describe("patch B", () => {
         fireEvent.change(columnSelect(), {target: {value: "0"}});
         expect(derivedNote()).not.toBeNull();
         act(() => graph.selectIndex(1, 1));
+        expect(derivedNote()).toBeNull();
+        // Leaving the A selection again must not bring the old explanation back.
+        act(() => graph.selectIndex(undefined, undefined));
         expect(derivedNote()).toBeNull();
     });
 
@@ -208,6 +214,33 @@ describe("report wording", () => {
         expect(note()).toContain("neither C1 nor G1");
     });
 
+    it("equal tangent planes without a constant ratio is its own case, and never says the derivatives match", () => {
+        // Flat sheet z = 0, boundary along y: S_u is parallel to x everywhere, but B's length varies along the boundary.
+        const a: Xyz[][] = [[[-1, 0, 0], [-1, 1, 0], [-1, 2, 0]], [[0, 0, 0], [0, 1, 0], [0, 2, 0]]];
+        const bNet: Xyz[][] = [[[0, 0, 0], [0, 1, 0], [0, 2, 0]], [[1, 0, 0], [2, 1, 0], [3, 2, 0]]];
+        const report = classifyJoin(a, bNet);
+        expect(report).toMatchObject({c0: true, c1: false, g1: false});
+        expect(report.maxNormalAngle!).toBeLessThan(1e-6);
+        expect(joinReportCase(report)).toBe("c0-planes");
+        const rendered = render(<JoinReportPanel report={report}/>);
+        expect(rendered.container.querySelector('[data-readout="state"] dd')!.textContent).toBe(t("patch_join_state_c0_planes"));
+        const text = rendered.container.querySelector('[role="note"]')!.textContent!;
+        expect(text).toBe(t("patch_join_report_c0_planes"));
+        expect(text).toContain("tangentni ravnini");
+        expect(text).toContain("ni C1 in ni G1 s stalnim razmerjem");
+        expect(text).not.toContain("ostri rob.");
+        act(() => setLanguage("en"));
+        expect(rendered.container.querySelector('[role="note"]')!.textContent).toContain("neither C1 nor G1 with a constant ratio");
+    });
+
+    it("the C1 and G1 texts only claim tangent planes where they are defined", () => {
+        for (const language of ["sl", "en"] as const) {
+            setLanguage(language);
+            for (const key of ["patch_join_report_c1", "patch_join_report_g1"] as const)
+                expect(t(key, {value0: "1"})).toMatch(language === "sl" ? /kjer sta določeni/ : /wherever they are defined/);
+        }
+    });
+
     it("both derivatives zero has its own message: C1 formally, tangent plane not determined", () => {
         const sheet = (...xs: number[]): Xyz[][] => xs.map(x => [[x, 0, 0], [x, 1, 0]]);
         const a = sheet(0, 1, 1);
@@ -271,7 +304,7 @@ describe("Reset, Preset restore and language", () => {
         expect(screen.getByText(t("patch_join_heading"))).toBeTruthy();
         expect(state()).toBe("G1, not C1");
         expect(note()).toBe(t("patch_join_report_g1", {value0: "2"}));
-        expect(alphaReason()).toBeNull();
+        expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
         expect(modeSelect().value).toBe("g1");
         expect(graph.state.joinAlpha).toBe(2);
         act(() => setLanguage("sl"));

@@ -62,6 +62,19 @@ describe("buildSubdivisionScene", () => {
             curve.points.forEach((p, k) => near(p, at(k / 32)));
         }
     });
+    it("on the cut the right piece at local 0 and the left piece at local 1 are the same point S(cut), both directions", () => {
+        for (const direction of ["u", "v"] as const) {
+            const value = 0.4;
+            const [left, right] = buildSubdivisionScene(patchFromNet(NET), direction, value).pieces;
+            for (const t of [0, 0.15, 0.5, 0.9, 1]) {
+                const expected = direction === "u" ? evalNet(NET, value, t) : evalNet(NET, t, value);
+                const onLeft = direction === "u" ? left.eval(1, t) : left.eval(t, 1);
+                const onRight = direction === "u" ? right.eval(0, t) : right.eval(t, 0);
+                near([onLeft.X(), onLeft.Y(), onLeft.Z?.() ?? 0], expected);
+                near([onRight.X(), onRight.Y(), onRight.Z?.() ?? 0], expected);
+            }
+        }
+    });
     it("rejects a split value outside (0, 1)", () => {
         expect(() => buildSubdivisionScene(patchFromNet(NET), "u", 1)).toThrow(RangeError);
     });
