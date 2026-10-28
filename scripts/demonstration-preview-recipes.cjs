@@ -53,6 +53,7 @@ const targets = {
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
+    'patch-subdivision': ['Default bicubic dome, fitted to the preview frame, split at u0 = 0.4 in the subdivision workspace with the two piece nets, the cut curve and the iso-curves', [button('Ponastavi pogled')]],
     'patch-triangular': ['Default cubic triangular patch, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
 };
 
@@ -64,14 +65,20 @@ const surfaceCameras = {
     // Both tensor-patch workspaces start from the same default bicubic dome Preset as `patch-tensor`.
     'patch-decasteljau': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     'patch-derivatives': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
+    'patch-subdivision': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     'patch-triangular': {az: -0.9, el: 0.5, distance: 7.373018307821979, target: [0, 0, 1]},
 };
+// Surfaces whose default scene publishes no editable control points: `patch-subdivision` shows the piece nets instead
+// (the original points are not editable then, so the view's scene has `points: []`). The count is declared, not assumed;
+// every other surface must publish at least one. The camera is still the one fitted to the original net, whose convex
+// hull contains both piece nets, so the pieces are framed too.
+const surfaceControlPointCounts = {'patch-subdivision': 0};
 // Projected control points must clear the frame edge by this many CSS pixels, so no control sphere is cropped.
 const SURFACE_FRAME_MARGIN_PX = 6;
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
     id, intent, actions, checkpoint: actions.length ? 'after-explicit-setup' : 'keep-default',
-    framing: surfaceCameras[id] ? {kind: 'surface-view', camera: surfaceCameras[id]}
+    framing: surfaceCameras[id] ? {kind: 'surface-view', camera: surfaceCameras[id], controlPointCount: surfaceControlPointCounts[id]}
         : window ? {kind: 'coordinate-window', window} : {kind: 'finite-geometry-fit'},
     annotations: surfaceCameras[id] ? 'retain-surface-view-native-labels'
         : id.startsWith('rational') || id === 'farin' ? 'retain-weight-text-hide-point-names' : 'hide-point-names-retain-concept-text',
@@ -180,11 +187,14 @@ async function readSurfaceFraming(page) {
 }
 
 async function surfaceOutcome(page, id) {
-    await page.waitForFunction(() => {
+    const expected = recipes[id].framing.controlPointCount;
+    await page.waitForFunction(declared => {
         const host = document.querySelector('#jgbox');
         const raw = host?.getAttribute('data-surface-framing');
-        return !!host?.querySelector('canvas') && !!raw && JSON.parse(raw).points.length > 0;
-    });
+        if (!host?.querySelector('canvas') || !raw) return false;
+        const count = JSON.parse(raw).points.length;
+        return declared === undefined ? count > 0 : count === declared;
+    }, expected);
     const framing = await readSurfaceFraming(page);
     const evidence = await page.locator('#jgbox').evaluate(host => {
         const canvas = host.querySelector('canvas');
@@ -218,7 +228,8 @@ async function outcome(page, id) {
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
         assert.ok(['webgl', 'webgl2'].includes(evidence.contextType), `${id} surface is not drawn by a real WebGL context`);
-        assert.ok(evidence.controlPointCount > 0 && evidence.camera && Array.isArray(evidence.camera.target), `${id} missing surface control net or camera`);
+        const declared = recipes[id]?.framing.controlPointCount;
+        assert.ok((declared === undefined ? evidence.controlPointCount > 0 : evidence.controlPointCount === declared) && evidence.camera && Array.isArray(evidence.camera.target), `${id} missing surface control net or camera`);
         assert.ok(evidence.readouts && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
         return evidence;
     }

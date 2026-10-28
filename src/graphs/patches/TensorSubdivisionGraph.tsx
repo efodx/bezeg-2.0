@@ -1,20 +1,17 @@
+import type React from "react";
 import type {TransientState} from "../base/BaseGraph";
+import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import {withSubdivisionPieces, pieceCorrespondence, type PieceCorrespondence} from "./TensorSubdivisionScene";
 import TensorPatchGraph, {TensorPatchGraphState} from "./TensorPatchGraph";
-import {PatchStateDto, Point3Dto} from "./patchDto";
-import {type DerivativesStartingPatch, derivativesStartingPatches} from "./patchPresetCollections";
+import {SubdivisionElevateControls, SubdivisionReadout, SubdivisionSplitControls, SubdivisionVisibilityControls} from "./TensorSubdivisionPanels";
+import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
+import {PatchCollectionPresetData, PatchStateDto, Point3Dto} from "./patchDto";
+import {defaultPatchPresets, type DerivativesStartingPatch, derivativesStartingPatches, patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
 import {canElevate, SUBDIVISION_RANGE} from "./tensorSubdivision";
 import {clamp} from "./surface-view/surfaceMath";
 import type {ScenePolyline, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
-
-/** The Preset `state` of this Demonstration: the shared patch state plus the split. */
-interface SubdivisionStateDto extends PatchStateDto {
-    readonly subdivisionDirection?: PatchDirection;
-    readonly subdivisionValue?: number;
-    readonly showPieces?: boolean;
-}
 
 export const DEFAULT_SUBDIVISION_DIRECTION: PatchDirection = "u";
 export const DEFAULT_SUBDIVISION_VALUE = 0.4;
@@ -39,17 +36,27 @@ const isNet = (value: unknown): value is Xyz[][] => Array.isArray(value) && valu
  * The tensor-product patch Demonstration with a subdivision: split at `u0` or `v0`, the two piece nets drawn instead of
  * the control net, and exact degree elevation with the previous net kept as a ghost. The split settings are saved in
  * Presets; the ghost is transient (declared via `captureTransientState`, cleared by every net change, Preset load and Reset).
- * Starting patches are `derivativesStartingPatches` (the two tensor Presets and the two degenerate patches). The Preset
- * collection is still the inherited `patch-tensor`; the route's own collection belongs to the panels slice.
+ * Starting patches are `derivativesStartingPatches` (the two tensor Presets and the two degenerate patches).
  */
 export default class TensorSubdivisionGraph extends TensorPatchGraph {
     private ghost?: ElevationGhost;
+
+    override presetCollection(): PresetCollection<PatchCollectionPresetData> {
+        return patchPresetCollections["patch-subdivision"];
+    }
+
+    /** The bicubic dome split at `u0 = 0.4` with the pieces shown: the scene this Demonstration starts with. */
+    override defaultPreset(): PatchCollectionPresetData {
+        const entry = defaultPatchPresets[1].data()[0];
+        if (entry[0] !== "TensorProductBezierPatch") throw new Error("The default patch Preset is not a tensor patch.");
+        return [["TensorProductBezierPatch", {...entry[1], state: {...entry[1].state, subdivisionDirection: DEFAULT_SUBDIVISION_DIRECTION, subdivisionValue: DEFAULT_SUBDIVISION_VALUE, showPieces: true}}]];
+    }
 
     override getInitialState(): TensorPatchGraphState {
         return {...super.getInitialState(), subdivisionDirection: DEFAULT_SUBDIVISION_DIRECTION, subdivisionValue: DEFAULT_SUBDIVISION_VALUE, showPieces: true};
     }
 
-    protected override stateDto(): SubdivisionStateDto {
+    protected override stateDto(): PatchStateDto {
         const s = this.state;
         return {
             ...super.stateDto(),
@@ -60,7 +67,7 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
     }
 
     /** A Preset without the split settings gets the defaults; a value outside the range is clamped, an unknown direction falls back to `u`. */
-    protected override stateOf(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>; state?: SubdivisionStateDto}): Partial<TensorPatchGraphState> {
+    protected override stateOf(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>; state?: PatchStateDto}): Partial<TensorPatchGraphState> {
         const {subdivisionDirection, subdivisionValue, showPieces} = dto.state ?? {};
         return {
             ...super.stateOf(dto),
@@ -165,5 +172,27 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
         const s = this.state;
         return super.geometryChanged(previous) || s.subdivisionDirection !== previous.subdivisionDirection
             || s.subdivisionValue !== previous.subdivisionValue || s.showPieces !== previous.showPieces;
+    }
+
+    // ---- Panels ------------------------------------------------------------------------------------------------
+
+    protected override workspaceEdit(): React.ReactNode {
+        const {u, v, subdivisionDirection, subdivisionValue, showPieces} = this.state;
+        const correspondence = this.correspondence();
+        const point = patchFromNet(this.state.net).eval(u, v);
+        return <>
+            {this.unavailableNotice()}
+            <SubdivisionSplitControls direction={subdivisionDirection ?? DEFAULT_SUBDIVISION_DIRECTION} value={subdivisionValue ?? DEFAULT_SUBDIVISION_VALUE}
+                                      showPieces={showPieces ?? true} onDirection={direction => this.setSubdivisionDirection(direction)}
+                                      onValue={value => this.setSubdivisionValue(value)}/>
+            <SubdivisionElevateControls canElevateU={this.canElevateIn("u")} canElevateV={this.canElevateIn("v")} onElevate={direction => this.elevate(direction)}/>
+            <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
+                                  pointExtra={<SubdivisionReadout correspondence={correspondence} point={[point.X(), point.Y(), point.Z?.() ?? 0]}/>}/>
+        </>;
+    }
+
+    protected override workspaceDisplay(): React.ReactNode {
+        return <TensorPatchDisplayPanel state={this.state} actions={this.panelActions}
+            visibilityExtra={<SubdivisionVisibilityControls showPieces={this.state.showPieces ?? true} onChange={visible => this.setShowPieces(visible)}/>}/>;
     }
 }

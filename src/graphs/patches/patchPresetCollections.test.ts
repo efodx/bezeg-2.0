@@ -256,3 +256,44 @@ describe("patch-derivatives collection and starting patches", () => {
         expect(out.sl).not.toBe(out.en);
     });
 });
+
+describe("patch-subdivision collection", () => {
+    const subdivision = patchPresetCollections["patch-subdivision"];
+    const withState = (state: Record<string, unknown>) => tensor({state});
+    const reason = (state: Record<string, unknown>) => {
+        const checked = subdivision.check(withState(state));
+        if (!("rejection" in checked)) throw new Error("accepted");
+        const out: Record<string, string> = {};
+        for (const language of ["sl", "en"] as const) { setLanguage(language); out[language] = renderMessage(checked.rejection); }
+        return out;
+    };
+
+    it("has its own key and accepts the tensor patch type only", () => {
+        expect(subdivision.key).toBe("patch-subdivision");
+        expect("rejection" in subdivision.check([["TriangularBezierPatch", {n: 1, net: net4.slice(0, 3)}]])).toBe(true);
+    });
+    it("accepts the split fields, their range ends and an old Preset without them", () => {
+        const checked = subdivision.check(JSON.parse(JSON.stringify(withState({subdivisionDirection: "v", subdivisionValue: 0.05, showPieces: false}))));
+        if (!("data" in checked)) throw new Error("rejected");
+        expect(checked.data[0][1]).toMatchObject({state: {subdivisionDirection: "v", subdivisionValue: 0.05, showPieces: false}});
+        expect("data" in subdivision.check(withState({subdivisionValue: 0.95}))).toBe(true);
+        expect("data" in subdivision.check(withState({camera, u: 0.2, v: 0.4}))).toBe(true);
+        expect("data" in subdivision.check(tensor())).toBe(true);
+    });
+    it.each([0.049, 0.951, 0, 1, -1, Number.NaN, "0.4", null])("rejects the split position %s without clamping, with an actionable reason", value => {
+        const out = reason({subdivisionValue: value});
+        expect(out.sl).toBe("mesto delitve mora biti število med 0,05 in 0,95");
+        expect(out.en).toBe("the split position must be a number between 0.05 and 0.95");
+    });
+    it.each(["w", "", 0, null])("rejects the split direction %j", value => {
+        const out = reason({subdivisionDirection: value});
+        expect(out.sl).toBe("smer delitve mora biti u ali v");
+        expect(out.en).toBe("the split direction must be u or v");
+    });
+    it("rejects showPieces that is not a boolean as a known field with a wrong value", () => {
+        expect(reason({showPieces: "yes"}).en).toContain("invalid option");
+    });
+    it("other collections accept the same fields (they are in the shared state list), so a file round trips", () => {
+        expect("data" in collection.check(withState({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true}))).toBe(true);
+    });
+});

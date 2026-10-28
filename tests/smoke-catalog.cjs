@@ -280,7 +280,8 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
                 throw new Error(`Surface preview camera for ${capture.id} differs from its recipe camera.`);
             }
             const points = framing.projectedControlPoints;
-            if (!Array.isArray(points) || points.length === 0 || points.length !== capture.evidence.controlPointCount ||
+            const declared = recipes[capture.id].framing.controlPointCount;
+            if (!Array.isArray(points) || (declared === undefined ? points.length === 0 : points.length !== declared) || points.length !== capture.evidence.controlPointCount ||
                 framing.controlPointMarginCssPixels !== SURFACE_FRAME_MARGIN_PX) {
                 throw new Error(`Surface preview ${capture.id} is missing its projected control points.`);
             }

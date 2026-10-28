@@ -3,6 +3,7 @@ import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataC
 import {isDecasteljauOrder, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
 import {defaultTriangularNet} from "./TriangularPatchDegree";
 import {collapsedEdgeNet, parallelCornerNet} from "./tensorDerivatives";
+import {SUBDIVISION_RANGE} from "./tensorSubdivision";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 const MIN_DEGREE = 1;
@@ -25,6 +26,10 @@ function checkState(value: unknown, triangular: boolean): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
     const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: `state.${unknown}`});
+    // The split fields are checked first so that their own reason is given. A position outside the range is rejected, not clamped: the file would otherwise load as a different scene.
+    if (value.subdivisionDirection !== undefined && value.subdivisionDirection !== "u" && value.subdivisionDirection !== "v") return message("invalid_patch_subdivision_direction");
+    const split = value.subdivisionValue;
+    if (split !== undefined && !(isFiniteNumber(split) && split >= SUBDIVISION_RANGE.min && split <= SUBDIVISION_RANGE.max)) return message("invalid_patch_subdivision_value");
     const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity", "decasteljauOrder"]);
     if (invalid) return invalid;
     for (const key of ["u", "v"]) if (value[key] !== undefined && !isUnit(value[key])) return message("invalid_patch_parameter", {value0: key});
@@ -84,6 +89,7 @@ export const patchPresetCollections = {
     "patch-triangular": patchCollection("patch-triangular", "TriangularBezierPatch"),
     "patch-decasteljau": patchCollection("patch-decasteljau", "TensorProductBezierPatch"),
     "patch-derivatives": patchCollection("patch-derivatives", "TensorProductBezierPatch"),
+    "patch-subdivision": patchCollection("patch-subdivision", "TensorProductBezierPatch"),
 } as const;
 
 /**

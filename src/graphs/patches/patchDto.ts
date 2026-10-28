@@ -40,12 +40,16 @@ export interface PatchStateDto {
     readonly showDeCasteljau?: boolean;
     /** The construction order of the tensor `patch-decasteljau` Demonstration; absent means `rows`. */
     readonly decasteljauOrder?: DecasteljauOrder;
+    /** The split of the `patch-subdivision` Demonstration: direction (absent means `u`), position in [0.05, 0.95] (absent means 0.4) and whether the pieces are drawn (absent means shown there). */
+    readonly subdivisionDirection?: "u" | "v";
+    readonly subdivisionValue?: number;
+    readonly showPieces?: boolean;
     /** Iso-curve and shading mesh density (8 or 16 intervals); absent means the default. */
     readonly isoDensity?: 8 | 16;
     readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "isoDensity", "shadingDensity",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */

@@ -191,7 +191,7 @@ describe("elevation", () => {
         });
         it("a Preset load", async () => {
             const {graph, view} = withGhost();
-            // The inherited `patch-tensor` collection does not know the split fields yet (slice 10W adds them), so the saved Preset omits them.
+            // A Preset saved without the split fields (an older file) loads with the defaults.
             const [type, dto] = graph.exportPresetData()[0];
             const {subdivisionDirection, subdivisionValue, showPieces, ...rest} = JSON.parse(JSON.stringify(dto.state));
             void subdivisionDirection; void subdivisionValue; void showPieces;
