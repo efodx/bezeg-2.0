@@ -1,6 +1,6 @@
 # Bézier patches handler handoff 17 — 2026-10-28
 
-Current entry point; supersedes [handoff 16](handler-handoff-16.md). Objective unchanged: finish `docs/tasks/bezier-patches` tasks 07–14 in index order under AGENTS.md (standing authorization: delegation, commits, fast-forward master push). Tasks 07–09 are complete; task 10 is in progress.
+Superseded by [handoff 18](handler-handoff-18.md); was the entry point after [handoff 16](handler-handoff-16.md). Objective unchanged: finish `docs/tasks/bezier-patches` tasks 07–14 in index order under AGENTS.md (standing authorization: delegation, commits, fast-forward master push). Tasks 07–09 are complete; task 10 is in progress.
 
 ## Successor rule (owner instruction, 2026-10-28)
 
