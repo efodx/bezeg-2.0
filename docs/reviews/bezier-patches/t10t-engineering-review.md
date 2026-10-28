@@ -1,0 +1,10 @@
+# 10T engineering/UI review
+
+Reviewed committed `b43fdb6` camera reuse and the stable capstone diff. No implementation blocker found. The cache compares every non-camera state key, preserves the builder-produced geometry, and clears on view creation/disposal, geometry redraw, and scene replacement. The scene builders copy the input camera unchanged apart from cloning its target. Capstone hides edit/join controls, has no point objects, keeps boundary/shading switches, exposes a named return button, and carries the capstone discriminator through DTO export. Localization and source attribution are present in both languages / the production asset.
+
+- **P2 — missing acceptance-path coverage:** `src/graphs/patches/TensorJoinGraph.test.tsx:358` imports the example data directly, while `src/graphs/patches/TensorJoinPanels.test.tsx:267` resets only from the pair scene. Add a capstone saved-Preset restore/export round trip and call `graph.reset()` while the capstone is active, asserting return to the default pair. The implementation appears wired for both paths, but the specified behaviors are not exercised.
+- **Accepted low:** capstone DTOs retain the first teapot patch as an internal placeholder; the UI and scene explain/omit it as intended. The interactive/browser and orbit measurement evidence belongs to the assigned smoke worker and was not reviewed here.
+
+The asset fixture and scene assertions are non-vacuous: they check source extent/order, exact shared-edge groups and sampled correspondence, expected cusp-face filtering, all 32 owners, and absent edit geometry. No source edits or test runs were made during this review.
+
+Handler disposition: the P2 coverage gap is closed by [review repairs](t10t-review-repairs.md), with saved-Preset selection and Reset from the active capstone exercised against graph, view and controls. The discriminator mutation failed the new restore assertion; the restored focused suite passed. The repair changes tests only, so no independent re-review is required.

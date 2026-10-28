@@ -50,6 +50,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | trikotna Bézierjeva krpa | triangular Bézier patch |
 | kontrolna mreža | control net |
 | robna krivulja | boundary curve |
+| čajnik iz Utaha | Utah teapot |
 | izoparametrična krivulja | isoparametric curve (iso-curve) |
 | baricentrične koordinate | barycentric coordinates |
 | Bernsteinova utež točke | Bernstein weight of a control point |

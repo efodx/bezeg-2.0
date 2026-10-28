@@ -48,6 +48,8 @@ The selected-curve mode selector also offers **Dodajaj točke** and **Briši to�
 
 Selection may also expose subdivision, extrapolation, shrinking, degree elevation, and De Casteljau previews according to attributes. Several previews are shown only while hovering over their controls. See [selection handling](../src/graphs/base/BaseCurveGraph.tsx), [transform handling](../src/graphs/curves/object/AbstractJXGPointControlledCurve.ts), and [shared command composition](../src/graphs/base/BaseCurveGraph.tsx).
 
+The Utah teapot starting scene/Presets on `/patches/joins` show 32 read-only bicubic patches at tiling 8. Uredi explains the capstone and provides a return-to-pair button; Prikaz offers shading, boundary curves and camera controls. There are no point, degree, join, density or parameter-inset controls in this mode. Reset restores the default pair. Camera, Preset file exchange and figure export remain available.
+
 ## Demonstration-specific controls
 
 The [detailed capability inventory](capabilities.md#demonstration-controls-and-effects) describes the mathematical controls by topic. Their central UI patterns are count buttons, parameter sliders, construction visibility switches, and action buttons. Parameter sliders alter a construction or sampling distribution; action buttons can replace or add curve objects.
