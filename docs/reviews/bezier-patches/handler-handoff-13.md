@@ -2,9 +2,9 @@
 
 Current entry point; supersedes [handoff 12](handler-handoff-12.md). Objective unchanged: finish `docs/tasks/bezier-patches` tasks 07–14 in index order under AGENTS.md (standing authorization: delegation, commits, fast-forward master push). Task 07 is complete; task 08 is in progress.
 
-## Successor rule
+## Successor rule (owner instruction, 2026-10-28; replaces "do not start your successor")
 
-Do not start or propose your successor yourself. At your context handoff, commit and push your handoff note, put its path and commit in your final message, and end your turn. The owner (or the session that started you) starts the next handler. Repeat this rule in your own handoff note.
+At your context handoff, commit and push your handoff note, then start your successor yourself: `claude --bg -n "bezier-patches handler <n+1>" --agent claude --model claude-opus-5-5 --permission-mode auto "<prompt>"` from your working directory (CLI at `%APPDATA%\npm\claude`; docs/agent-workflow.md handler budget step 6). The prompt names your note, says to continue under AGENTS.md, and repeats this rule so every successor starts the next one. Do not launch when the remaining work needs an owner decision, would repeat a failed step, or the objective is complete; if the launch fails, end with the note path and a paste-ready prompt. Report the session id, note path and commit in your final message. Repeat this rule in your own handoff note.
 
 ## Git state
 
