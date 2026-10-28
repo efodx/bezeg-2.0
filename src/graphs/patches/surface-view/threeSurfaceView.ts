@@ -77,7 +77,7 @@ export const SURFACE_DASH = {
     'iso-w': {dash: 0.014, gap: 0.014},
     compare: {dash: 0.07, gap: 0.03},
     'construction-2': {dash: 0.022, gap: 0.012},
-    twist: {dash: 0.008, gap: 0.01},
+    twist: {dash: 0.012, gap: 0.012},
     normal: {dash: 0.05, gap: 0.02},
 } as const satisfies Partial<Record<PolylineRole, {dash: number; gap: number}>>;
 
