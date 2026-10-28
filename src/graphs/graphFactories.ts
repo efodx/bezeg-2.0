@@ -26,6 +26,7 @@ import SplineAlphaParametrizationGraph from './curves/parametrisations/SplineAlp
 import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
 import TensorSubdivisionGraph from './patches/TensorSubdivisionGraph';
+import TensorJoinGraph from './patches/TensorJoinGraph';
 import TensorPatchGraph from './patches/TensorPatchGraph';
 import TriangularPatchGraph from './patches/TriangularPatchGraph';
 import { LinearFunctionGraph } from './functions/LinearFunctionGraph';
@@ -59,6 +60,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'patch-decasteljau': () => new TensorDeCasteljauGraph(),
     'patch-derivatives': () => new TensorDerivativesGraph(),
     'patch-subdivision': () => new TensorSubdivisionGraph(),
+    'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
     'complex-multiplication': () => new ComplexMultiplicationGraph(),
     'bezier': () => new BezierCurveGraph(),

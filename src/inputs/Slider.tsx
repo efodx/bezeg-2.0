@@ -18,6 +18,8 @@ interface SliderProps {
     decimals?: number;
     /** Formats the shown value and the min/max labels (for example as multiples of π) as read-only text; a precise number field is then not offered. */
     formatValue?: (value: number) => string
+    /** Disables the slider and its number field; the caller says why (for example in `help`). */
+    disabled?: boolean
 }
 
 /** Decimal places of a step as written (0.05 has 2, 0.015 has 3); a step in exponent notation counts as 6. */
@@ -40,11 +42,11 @@ export default function Slider(props: SliderProps) {
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={props.min} max={props.max}
-                               step={step} decimals={decimals} integer={integer}
+                               step={step} decimals={decimals} integer={integer} disabled={props.disabled}
                                onChange={value => props.onChange(value)}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
         <Form.Range id={id} aria-describedby={`${id}-range${props.help ? ` ${id}-help` : ""}`} min={props.min}
-                    max={props.max} value={props.value}
+                    max={props.max} value={props.value} disabled={props.disabled}
                     step={step} aria-valuetext={show(props.value)}
                     onChange={e => props.onChange(Number(e.target.value))}></Form.Range>
         <div id={`${id}-range`} className="slider-range"><span>{t("min")} {show(props.min)}</span><span>{t("max")} {show(props.max)}</span></div>

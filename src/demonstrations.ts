@@ -56,6 +56,7 @@ const definitions = [
     {id: 'patch-decasteljau', path: '/bezeg-2.0/patches/decasteljau', family: '/bezeg-2.0/patches', title: 'patch_decasteljau_algorithm', prompts: ['prompt_patch_decasteljau_order', 'prompt_patch_decasteljau_levels'], view: 'surface'},
     {id: 'patch-derivatives', path: '/bezeg-2.0/patches/derivatives', family: '/bezeg-2.0/patches', title: 'patch_derivatives_title', prompts: ['prompt_patch_derivatives_tangents', 'prompt_patch_derivatives_normal'], view: 'surface'},
     {id: 'patch-subdivision', path: '/bezeg-2.0/patches/subdivision', family: '/bezeg-2.0/patches', title: 'patch_subdivision_title', prompts: ['prompt_patch_subdivision_pieces', 'prompt_patch_subdivision_elevation'], view: 'surface'},
+    {id: 'patch-joins', path: '/bezeg-2.0/patches/joins', family: '/bezeg-2.0/patches', title: 'patch_joins_title', prompts: ['prompt_patch_joins_c1', 'prompt_patch_joins_g1'], view: 'surface'},
     {id: 'patch-triangular', path: '/bezeg-2.0/patches/triangular', family: '/bezeg-2.0/patches', title: 'triangular_bezier_patch', prompts: ['prompt_patch_triangular_net', 'prompt_patch_barycentric'], view: 'surface'},
     {id: 'linear-function', path: '/bezeg-2.0/functions/linear', family: '/bezeg-2.0/functions', title: 'linear_function', prompts: ['prompt_linear_function', 'prompt_compare']},
     {id: 'exponential-function', path: '/bezeg-2.0/functions/exponential', family: '/bezeg-2.0/functions', title: 'exponential_function', prompts: ['prompt_exponential_function', 'prompt_compare']},

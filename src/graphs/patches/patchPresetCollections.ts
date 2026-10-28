@@ -4,6 +4,8 @@ import {isDecasteljauOrder, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto,
 import {defaultTriangularNet} from "./TriangularPatchDegree";
 import {collapsedEdgeNet, parallelCornerNet} from "./tensorDerivatives";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
+import {enforceJoin, JOIN_ALPHA_RANGE} from "./tensorJoins";
+import {fitCameraTo} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 const MIN_DEGREE = 1;
@@ -22,6 +24,26 @@ function checkCamera(value: unknown): Message | undefined {
     return valid ? undefined : message("invalid_patch_camera");
 }
 
+const JOIN_CONTINUITY_NAMES: readonly unknown[] = ["none", "c0", "c1", "g1"];
+
+/**
+ * The join fields of a `patch-joins` state. Outside their ranges they are rejected, not clamped: the file would otherwise
+ * load as a different scene. Patch `B` is given completely (`mB`, `nB` and exactly `(mB + 1) * (nB + 1)` points) or not at all.
+ */
+function checkJoinState(value: Record<string, unknown>): Message | undefined {
+    const {joinContinuity, joinAlpha, joinV, mB, nB, netB} = value;
+    if (joinContinuity !== undefined && !JOIN_CONTINUITY_NAMES.includes(joinContinuity)) return message("invalid_patch_join_continuity");
+    if (joinAlpha !== undefined && !(isFiniteNumber(joinAlpha) && joinAlpha >= JOIN_ALPHA_RANGE.min && joinAlpha <= JOIN_ALPHA_RANGE.max)) return message("invalid_patch_join_alpha");
+    if (joinV !== undefined && !isUnit(joinV)) return message("invalid_patch_join_v");
+    const given = [mB, nB, netB].filter(field => field !== undefined).length;
+    if (given === 0) return undefined;
+    if (given < 3) return message("patch_join_b_incomplete");
+    if (!isDegree(mB)) return message("patch_degree_out_of_range", {value0: "mB"});
+    if (!isDegree(nB)) return message("patch_degree_out_of_range", {value0: "nB"});
+    if (!Array.isArray(netB) || netB.length !== (mB + 1) * (nB + 1)) return message("patch_join_net_length_mismatch", {value0: (mB + 1) * (nB + 1), value1: Array.isArray(netB) ? netB.length : 0});
+    return netB.every(isPoint3) ? undefined : message("patch_coordinates_must_be_finite_triples");
+}
+
 function checkState(value: unknown, triangular: boolean): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
     const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
@@ -30,7 +52,9 @@ function checkState(value: unknown, triangular: boolean): Message | undefined {
     if (value.subdivisionDirection !== undefined && value.subdivisionDirection !== "u" && value.subdivisionDirection !== "v") return message("invalid_patch_subdivision_direction");
     const split = value.subdivisionValue;
     if (split !== undefined && !(isFiniteNumber(split) && split >= SUBDIVISION_RANGE.min && split <= SUBDIVISION_RANGE.max)) return message("invalid_patch_subdivision_value");
-    const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity", "decasteljauOrder"]);
+    const joinInvalid = checkJoinState(value);
+    if (joinInvalid) return joinInvalid;
+    const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity", "decasteljauOrder", "netB"]);
     if (invalid) return invalid;
     for (const key of ["u", "v"]) if (value[key] !== undefined && !isUnit(value[key])) return message("invalid_patch_parameter", {value0: key});
     // `isoDensity` would otherwise be read as an `is*` switch by the shared state check.
@@ -90,6 +114,7 @@ export const patchPresetCollections = {
     "patch-decasteljau": patchCollection("patch-decasteljau", "TensorProductBezierPatch"),
     "patch-derivatives": patchCollection("patch-derivatives", "TensorProductBezierPatch"),
     "patch-subdivision": patchCollection("patch-subdivision", "TensorProductBezierPatch"),
+    "patch-joins": patchCollection("patch-joins", "TensorProductBezierPatch"),
 } as const;
 
 /**
@@ -147,6 +172,49 @@ export const derivativesStartingPatches: readonly DerivativesStartingPatch[] = [
     ...defaultPatchPresets,
     {id: "collapsed-edge", name: "preset_collapsed_edge", data: () => [["TensorProductBezierPatch", dtoOf(collapsedEdgeNet(), camera(COLLAPSED_EDGE_DISTANCE, COLLAPSED_EDGE_TARGET), {u: 0, v: 0.5})]]},
     {id: "parallel-corner", name: "preset_parallel_corner", data: () => [["TensorProductBezierPatch", dtoOf(parallelCornerNet(), camera(PARALLEL_CORNER_DISTANCE, PARALLEL_CORNER_TARGET), {u: 0, v: 0})]]},
+];
+
+export interface JoinStartingScene {
+    readonly id: string;
+    readonly name: "preset_join_c1" | "preset_join_g1" | "preset_join_c0_kink";
+    readonly data: () => PatchCollectionPresetData;
+}
+
+const joinRows = (): Xyz[][] => {
+    const entry = bicubicDome();
+    return Array.from({length: entry.m + 1}, (_, i) => entry.net.slice(i * (entry.n + 1), (i + 1) * (entry.n + 1)).map((p): Xyz => [p[0], p[1], p[2]]));
+};
+/** `net` shifted by its own `u` extent, so the copy starts where `net` ends: the second patch of a join. */
+const continuation = (net: readonly (readonly Xyz[])[]): Xyz[][] => {
+    const last = net[net.length - 1], first = net[0];
+    return net.map(row => row.map((p, j): Xyz => [p[0] + last[j][0] - first[j][0], p[1] + last[j][1] - first[j][1], p[2] + last[j][2] - first[j][2]]));
+};
+
+/** The nets of `A` (the bicubic dome) and `B` (its continuation with `mode` enforced, so the derived rows are exact). */
+function joinScene(mode: "c0" | "c1" | "g1", alpha: number, kink: boolean): PatchCollectionPresetData {
+    const a = joinRows();
+    let b = continuation(a);
+    if (kink) {
+        // Row 1 mirrors the cross-boundary step of `A` in z (it rises again where `A` came down): both patches meet in C0 but with a kink along the shared boundary.
+        b = b.map((row, i) => i === 1 ? row.map((p, j): Xyz => [p[0], p[1], a[2][j][2]]) : row);
+    }
+    b = enforceJoin(a, b, mode, alpha);
+    const points = [...a.flat(), ...b.flat()];
+    const view = fitCameraTo(points, 0.45, {az: -0.9, el: 0.5, distance: 1, projection: "perspective", target: [0, 0, 0]});
+    const dto = dtoOf(a, camera(view.distance, [view.target[0], view.target[1], view.target[2]]), {u: 0.5, v: 0.5});
+    return [["TensorProductBezierPatch", {...dto, state: {
+        ...dto.state, joinContinuity: mode, joinAlpha: alpha, joinV: 0.5, mB: b.length - 1, nB: b[0].length - 1, netB: b.flat(),
+    }}]];
+}
+
+/**
+ * The starting scenes of the `patch-joins` Demonstration: two bicubic patches joined C1 (the default), joined G1 with the
+ * derivative ratio 2 (tangent planes agree, derivatives do not), and joined only C0 with a visible kink along the shared boundary.
+ */
+export const joinStartingScenes: readonly JoinStartingScene[] = [
+    {id: "join-c1", name: "preset_join_c1", data: () => joinScene("c1", 2, false)},
+    {id: "join-g1", name: "preset_join_g1", data: () => joinScene("g1", 2, false)},
+    {id: "join-c0-kink", name: "preset_join_c0_kink", data: () => joinScene("c0", 2, true)},
 ];
 
 export interface DefaultTriangularPatchPreset {

@@ -13,6 +13,7 @@ import type {DemonstrationId} from '../../demonstrations';
 import TensorDeCasteljauGraph from '../patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from '../patches/TensorDerivativesGraph';
 import TensorSubdivisionGraph from '../patches/TensorSubdivisionGraph';
+import TensorJoinGraph from '../patches/TensorJoinGraph';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
 import TriangularPatchGraph from '../patches/TriangularPatchGraph';
 import {cameraSignature, FakeSurfaceView, sceneSignature} from '../patches/FakeSurfaceView';
@@ -60,10 +61,10 @@ export const surfaceViewOf = (graph: BaseGraph<BaseGraphState>): FakeSurfaceView
  * and the real view would fail to start. Every other graph is the factory's own.
  */
 export function createGraph(id: DemonstrationId): BaseGraph<BaseGraphState> {
-    if (id !== 'patch-tensor' && id !== 'patch-decasteljau' && id !== 'patch-derivatives' && id !== 'patch-subdivision' && id !== 'patch-triangular') return graphFactories[id]();
+    if (id !== 'patch-tensor' && id !== 'patch-decasteljau' && id !== 'patch-derivatives' && id !== 'patch-subdivision' && id !== 'patch-joins' && id !== 'patch-triangular') return graphFactories[id]();
     const view = new FakeSurfaceView();
     const options = {viewFactory: () => view};
-    const graph = id === 'patch-tensor' ? new TensorPatchGraph(options) : id === 'patch-decasteljau' ? new TensorDeCasteljauGraph(options) : id === 'patch-derivatives' ? new TensorDerivativesGraph(options) : id === 'patch-subdivision' ? new TensorSubdivisionGraph(options) : new TriangularPatchGraph(options);
+    const graph = id === 'patch-tensor' ? new TensorPatchGraph(options) : id === 'patch-decasteljau' ? new TensorDeCasteljauGraph(options) : id === 'patch-derivatives' ? new TensorDerivativesGraph(options) : id === 'patch-subdivision' ? new TensorSubdivisionGraph(options) : id === 'patch-joins' ? new TensorJoinGraph(options) : new TriangularPatchGraph(options);
     surfaceViews.set(graph, view);
     return graph as unknown as BaseGraph<BaseGraphState>;
 }

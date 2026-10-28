@@ -1,7 +1,11 @@
-import {buildJoinScene, parseJoinPointId} from "./TensorJoinScene";
+import type React from "react";
+import type {PresetCollection} from "../base/presets/PresetCollection";
+import {buildJoinScene, joinPointId, parseJoinPointId} from "./TensorJoinScene";
+import {JoinBDegreeControls, JoinBPointControls, JoinModeControls, JoinReportPanel, JoinScenesControls} from "./TensorJoinPanels";
+import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
 import TensorPatchGraph, {MAX_PATCH_DEGREE, MIN_PATCH_DEGREE, netWithDegree, type PatchDirection, TensorPatchGraphState} from "./TensorPatchGraph";
 import {PatchCollectionPresetData, PatchStateDto, Point3Dto, TensorPatchDto, tensorPatchToDto} from "./patchDto";
-import {defaultPatchPresets} from "./patchPresetCollections";
+import {defaultPatchPresets, joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
 import {classifyJoin, enforceJoin, JOIN_ALPHA_RANGE, type JoinContinuity, type JoinReport, matchBoundaryDegree} from "./tensorJoins";
 import {fitCameraTo} from "./surface-view/surfaceMath";
@@ -14,15 +18,8 @@ export const DEFAULT_JOIN_CONTINUITY: JoinContinuity = "c1";
 export const DEFAULT_JOIN_ALPHA = 2;
 export const DEFAULT_JOIN_V = 0.5;
 
-/** The `state` of a `patch-joins` Preset: `PatchStateDto` plus patch `B` (`netB` row-major, `(mB + 1) * (nB + 1)` points) and the join settings. */
-export interface JoinStateDto extends PatchStateDto {
-    readonly joinContinuity?: JoinContinuity;
-    readonly joinAlpha?: number;
-    readonly joinV?: number;
-    readonly mB?: number;
-    readonly nB?: number;
-    readonly netB?: ReadonlyArray<Point3Dto>;
-}
+/** The `state` of a `patch-joins` Preset: `PatchStateDto` with patch `B` (`netB` row-major, `(mB + 1) * (nB + 1)` points) and the join settings. */
+export type JoinStateDto = PatchStateDto;
 
 type Net = Xyz[][];
 
@@ -90,7 +87,9 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         return {...state, camera: fitCameraTo([...state.net.flat(), ...(state.netB ?? []).flat()], 1, state.camera)};
     }
 
-    // `presetCollection()` stays the tensor collection until slice 10W adds `patch-joins`; it rejects the `B` state fields on import.
+    override presetCollection(): PresetCollection<PatchCollectionPresetData> {
+        return patchPresetCollections["patch-joins"];
+    }
 
     override defaultPreset(): PatchCollectionPresetData {
         const state = this.getInitialState();
@@ -131,6 +130,16 @@ export default class TensorJoinGraph extends TensorPatchGraph {
     /** `B`'s net; a state written without one (an old scene) shows a continuation of `A`. */
     bNet(): Net {
         return this.state.netB ?? continuationOf(this.state.net);
+    }
+
+    /** Selects `Q_ij` of `B` like a click; a derived point (or an index outside `B`), or both undefined, clears the selection. */
+    selectBIndex(i: number | undefined, j: number | undefined): void {
+        this.selectPoint(i === undefined && j === undefined ? undefined : joinPointId(i ?? 0, j ?? 0));
+    }
+
+    /** The selected point of `B`, if the selection is one. */
+    selectedBIndex(): [number, number] | undefined {
+        return this.selectedPointId === undefined ? undefined : parseJoinPointId(this.selectedPointId);
     }
 
     /** The join of the displayed pair, classified from the nets themselves (never from the chosen mode). */
@@ -182,6 +191,14 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         this.selectPoint(this.selectedPointId);
     }
 
+    /** Replaces both patches and the join settings with a starting scene (the "Join examples" buttons); the camera comes with it. */
+    useJoinScene(index: number): void {
+        const entry = joinStartingScenes[index]?.data()[0];
+        if (entry?.[0] !== "TensorProductBezierPatch") return;
+        this.setState(this.stateOf(entry[1]));
+        this.selectPoint(this.selectedPointId);
+    }
+
     /** The starting patches replace `A`; the join settings stay and `B` becomes the continuation of the new `A`, joined in the current mode. */
     override useStartingPatch(index: number): void {
         const entry = this.startingPatches()[index]?.data()[0];
@@ -192,6 +209,11 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         const camera = state.camera && state.net ? fitCameraTo([...state.net.flat(), ...(state.netB ?? []).flat()], this.hostAspect(), state.camera) : state.camera;
         this.setState({...state, ...(camera ? {camera} : {})});
         this.selectPoint(this.selectedPointId);
+    }
+
+    /** The view frames both patches. */
+    protected override framedPoints(): Xyz[] {
+        return [...this.state.net.flat(), ...this.bNet().flat()];
     }
 
     // ---- Surface contract --------------------------------------------------------------------------------------
@@ -234,5 +256,26 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         let netB = this.bNet();
         if (patch.n !== undefined && patch.n !== this.state.n && mode !== "none") netB = netWithDegree(netB, "v", patch.n);
         return {...patch, ...joinedPatch(patch.net, netB, mode, this.alpha())};
+    }
+
+    // ---- Panels ------------------------------------------------------------------------------------------------
+
+    protected override workspaceEdit(): React.ReactNode {
+        const netB = this.bNet();
+        return <>
+            {this.unavailableNotice()}
+            <JoinScenesControls scenes={joinStartingScenes} onUse={index => this.useJoinScene(index)}/>
+            <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V}
+                              onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}/>
+            <JoinReportPanel report={this.joinReport()}/>
+            <JoinBDegreeControls mode={this.mode()} mB={netB.length - 1} nB={netB[0].length - 1} onDegree={(direction, degree) => this.setBDegree(direction, degree)}/>
+            <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}/>
+            <JoinBPointControls netB={netB} isDerivedRow={row => this.isDerivedRow(row)} selected={this.selectedBIndex()} aSelected={this.selection() !== undefined}
+                                onSelect={(i, j) => this.selectBIndex(i, j)} onApply={xyz => this.setSelectedCoordinates(xyz)}/>
+        </>;
+    }
+
+    protected override workspaceDisplay(): React.ReactNode {
+        return <TensorPatchDisplayPanel state={this.state} actions={this.panelActions}/>;
     }
 }

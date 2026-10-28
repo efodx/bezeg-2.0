@@ -54,6 +54,7 @@ const targets = {
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-subdivision': ['Default bicubic dome, fitted to the preview frame, split at u0 = 0.4 in the subdivision workspace with the two piece nets, the cut curve and the iso-curves', [button('Ponastavi pogled')]],
+    'patch-joins': ['Default C1 join of two bicubic patches, fitted to the preview frame, in the joins workspace with both control nets, the shared boundary, the two cross-boundary derivative arrows and the iso-curves', [button('Ponastavi pogled')]],
     'patch-triangular': ['Default cubic triangular patch, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
 };
 
@@ -66,6 +67,8 @@ const surfaceCameras = {
     'patch-decasteljau': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     'patch-derivatives': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     'patch-subdivision': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
+    // Two patches side by side: fitCameraTo over both nets at the 360:220 host, the fit "Ponastavi pogled" (resetView) makes.
+    'patch-joins': {az: -0.9, el: 0.5, distance: 13.877168517348197, target: [1.5, 0, 0]},
     'patch-triangular': {az: -0.9, el: 0.5, distance: 7.373018307821979, target: [0, 0, 1]},
 };
 // Surfaces whose default scene publishes no editable control points: `patch-subdivision` shows the piece nets instead

@@ -31,6 +31,7 @@ import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.p
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
 import preview_patch_subdivision from './images/demonstrations/catalog/patch-subdivision.png';
+import preview_patch_joins from './images/demonstrations/catalog/patch-joins.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_linear_function from './images/demonstrations/catalog/linear-function.png';
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
@@ -83,6 +84,7 @@ export const demonstrationPreviewAssets: Record<DemonstrationId, string> = {
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
     'patch-subdivision': preview_patch_subdivision,
+    'patch-joins': preview_patch_joins,
     'patch-triangular': preview_patch_triangular,
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,

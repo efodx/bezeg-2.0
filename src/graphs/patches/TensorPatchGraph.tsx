@@ -244,10 +244,15 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         this.setSurfaceState({camera: presetCamera(name, this.state.camera)});
     }
 
-    /** The authored az/el again, fitted to the whole net for the host's current shape. */
+    /** The points the view is fitted to: the control net; a Demonstration with a second net adds it. */
+    protected framedPoints(): Xyz[] {
+        return this.state.net.flat();
+    }
+
+    /** The authored az/el again, fitted to everything the view shows for the host's current shape. */
     resetView(): void {
         const authored = toCamera(defaultDto().state?.camera ?? fromCamera(this.state.camera));
-        this.setSurfaceState({camera: fitCameraTo(this.state.net.flat(), this.hostAspect(), authored)});
+        this.setSurfaceState({camera: fitCameraTo(this.framedPoints(), this.hostAspect(), authored)});
     }
 
     setZMode(zMode: boolean): void {

@@ -2,6 +2,7 @@ import {Point} from "../../bezeg/api/point/point";
 import {PointImpl} from "../../bezeg/impl/point/point-impl";
 import {TensorProductBezierPatch} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
+import type {JoinContinuity} from "./tensorJoins";
 
 export const PATCH_TYPE_NAMES = ["TensorProductBezierPatch", "TriangularBezierPatch"] as const;
 export type PatchTypeName = typeof PATCH_TYPE_NAMES[number];
@@ -44,12 +45,19 @@ export interface PatchStateDto {
     readonly subdivisionDirection?: "u" | "v";
     readonly subdivisionValue?: number;
     readonly showPieces?: boolean;
+    /** The join of the `patch-joins` Demonstration: continuity (absent means `c1`), the ratio `alpha` in [0.25, 4] (absent means 2), the readout `v` in [0, 1] (absent means 0.5), and patch `B` (`netB` row-major, `(mB + 1) * (nB + 1)` points, degrees 1 to 4; all three together). A file without `B` gets a continuation of `A`. */
+    readonly joinContinuity?: JoinContinuity;
+    readonly joinAlpha?: number;
+    readonly joinV?: number;
+    readonly mB?: number;
+    readonly nB?: number;
+    readonly netB?: ReadonlyArray<Point3Dto>;
     /** Iso-curve and shading mesh density (8 or 16 intervals); absent means the default. */
     readonly isoDensity?: 8 | 16;
     readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "isoDensity", "shadingDensity",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */
