@@ -7,9 +7,11 @@ import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {defaultTriangularPatchPresets} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
-import {azimuthDegrees, ParameterInset} from "./TensorPatchPanels";
+import {azimuthDegrees, ParameterInset, PointEditor, subscriptDigits} from "./TensorPatchPanels";
+import {parseTriangularPointId, triangularIndices, triangularPointId} from "./TriangularPatchLattice";
 import {isInteriorPoint} from "./TriangularPatchScene";
 import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
+import type {Xyz} from "./surface-view/surfaceScene";
 
 /** What the triangular patch panels show; read from the scene store on every render. */
 export interface TriangularPatchPanelState {
@@ -30,6 +32,14 @@ export interface TriangularPatchPanelState {
     camera: {az: number; el: number};
 }
 
+/** The selected control point `b_ijk` as the Uredi editor shows it. */
+export interface TriangularSelection {
+    index: readonly [number, number, number];
+    xyz: Xyz;
+    /** The Bernstein weight `n!/(i! j! k!) u^i v^j w^k` at the current `(u, v, w)`. */
+    weight: number;
+}
+
 export type TriangularVisibilityKey = "showControlNet" | "showIsoCurves" | "showBoundaryCurves" | "showShading" | "showDeCasteljau";
 
 /** What the controls ask the graph to do; the graph owns every change. */
@@ -38,6 +48,10 @@ export interface TriangularPatchPanelActions {
     setDegree(degree: number): void;
     setParameter(parameter: "u" | "v", value: number): void;
     setSubdivisionPreview(visible: boolean): void;
+    /** Selects `b_ijk`; undefined clears the selection. */
+    selectIndex(index: readonly [number, number, number] | undefined): void;
+    /** Moves the selected point to the (finite) coordinates. */
+    setSelectedCoordinates(xyz: Xyz): void;
     setVisibility(key: TriangularVisibilityKey, visible: boolean): void;
     setDensity(kind: "iso" | "shading", density: PatchDensity): void;
     applyCameraPreset(name: CameraPresetName): void;
@@ -57,7 +71,13 @@ const asDensity = (value: string): PatchDensity => value === "16" ? 16 : 8;
 /** The third barycentric coordinate; the clamp absorbs a rounding error of `1 - u - v` just below 0. */
 export const barycentricW = (u: number, v: number): number => Math.max(0, 1 - u - v);
 
-export function TriangularPatchEditPanel({state, actions}: {state: TriangularPatchPanelState; actions: TriangularPatchPanelActions}) {
+const NO_INDEX = "";
+
+/** One option per valid triple `(i, j, k)` with `i + j + k = n`, in the canonical net order, after the "none" choice. */
+const indexOptions = (degree: number, none: string) =>
+    [{value: NO_INDEX, text: none}, ...triangularIndices(degree).map(index => ({value: triangularPointId(...index), text: `(${index.join(", ")})`}))];
+
+export function TriangularPatchEditPanel({state, selection, actions}: {state: TriangularPatchPanelState; selection?: TriangularSelection; actions: TriangularPatchPanelActions}) {
     const t = useT();
     const interior = isInteriorPoint(state.u, state.v);
     return <>
@@ -79,6 +99,21 @@ export function TriangularPatchEditPanel({state, actions}: {state: TriangularPat
         </div>
         <FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
                          note={t("patch_parameter_w_help")}/>
+        <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
+            <ChoiceSelect label={t("patch_triangular_index")} value={selection ? triangularPointId(...selection.index) : NO_INDEX}
+                          options={indexOptions(state.n, t("patch_no_selection"))} help={t("patch_triangular_index_help")}
+                          onChange={value => actions.selectIndex(value === NO_INDEX ? undefined : parseTriangularPointId(value))}/>
+            {selection
+                ? <PointEditor key={`${selection.index.join("-")}-${selection.xyz.join(",")}`} name={`b${selection.index.join("")}`} xyz={selection.xyz}
+                               onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
+                : <p className="inspector-help">{t("patch_triangular_select_point_help")}</p>}
+        </div>
+        {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{
+            id: "bernstein-weight", label: t("patch_triangular_bernstein_weight", {
+                value0: subscriptDigits(selection.index[0]), value1: subscriptDigits(selection.index[1]), value2: subscriptDigits(selection.index[2]),
+            }),
+            value: formatNumber(selection.weight, currentLanguage(), 4),
+        }]} note={t("patch_triangular_bernstein_help")}/>}
         <div className="inspector-group"><h3>{t("patch_subdivision_heading")}</h3>
             <OnOffSwitch label={t("patch_subdivision_show")} checked={state.subdivisionPreview} onChange={on => actions.setSubdivisionPreview(on)}/>
             <p className="inspector-help">{t("patch_subdivision_help")}</p>

@@ -79,11 +79,13 @@ export function ParameterInset({attach, label}: {attach: (container: HTMLElement
 const AXES = ["x", "y", "z"] as const;
 const NO_INDEX = "";
 
-/** The coordinates of the selected point; remounts (and so shows the store's values) whenever they change elsewhere. */
-function PointEditor({selection, actions}: {selection: PatchSelection; actions: TensorPatchPanelActions}) {
+/**
+ * The coordinates of the selected control point `name`; remounts (and so shows the store's values) whenever they change
+ * elsewhere. Shared by the tensor and triangular patch panels.
+ */
+export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApply: (xyz: Xyz) => void}) {
     const t = useT();
     const [error, setError] = useState(false);
-    const name = `b${selection.i}${selection.j}`;
     return <div className="point-coordinate-editor patch-point-editor"><form className="point-coordinate-form" onSubmit={event => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -94,12 +96,12 @@ function PointEditor({selection, actions}: {selection: PatchSelection; actions: 
             return;
         }
         setError(false);
-        actions.setSelectedCoordinates([next[0], next[1], next[2]]);
+        onApply([next[0], next[1], next[2]]);
     }}>
         <fieldset className="point-coordinate-row"><legend><span className="point-coordinate-name" aria-hidden="true">{name}</span><span className="visually-hidden">{name}</span></legend>
             <div className="point-coordinate-values patch-xyz-values">
                 {AXES.map((axis, k) => <label key={axis}><span className="point-coordinate-axis" aria-hidden="true">{axis}</span>
-                    <input aria-label={`${name} ${axis}`} name={axis} type="number" step="any" required defaultValue={selection.xyz[k]}/></label>)}
+                    <input aria-label={`${name} ${axis}`} name={axis} type="number" step="any" required defaultValue={xyz[k]}/></label>)}
             </div>
         </fieldset>
         <button className="point-coordinate-submit" type="submit">{t("apply_coordinates")}</button>
@@ -134,7 +136,8 @@ export function TensorPatchEditPanel({state, selection, actions}: {state: Tensor
             <ChoiceSelect label={t("patch_index_j")} value={selection ? String(selection.j) : NO_INDEX} options={indexOptions(state.n, t("patch_no_selection"))}
                           onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(selection?.i, Number(value))}/>
             {selection
-                ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} selection={selection} actions={actions}/>
+                ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} name={`b${selection.i}${selection.j}`} xyz={selection.xyz}
+                             onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_select_point_help")}</p>}
         </div>
         {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{

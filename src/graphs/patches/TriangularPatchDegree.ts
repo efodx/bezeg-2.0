@@ -2,6 +2,7 @@
 import {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import {PointImpl} from "../../bezeg/impl/point/point-impl";
 import {solveLinearSystem} from "./patchDegree";
+import {triangularBernsteinWeight} from "./patchBernstein";
 import {triangularIndices} from "./TriangularPatchLattice";
 import type {Xyz} from "./surface-view/surfaceScene";
 
@@ -12,13 +13,6 @@ export const triangularFromNet = (net: ReadonlyArray<Xyz>): TriangularBezierPatc
     new TriangularBezierPatch(net.map(([x, y, z]) => new PointImpl(x, y, undefined, z)));
 
 const netOf = (patch: TriangularBezierPatch): Xyz[] => patch.getControlNet().map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0]);
-
-const factorial = (n: number): number => n <= 1 ? 1 : n * factorial(n - 1);
-
-/** The trivariate Bernstein polynomial `n!/(i!j!k!) u^i v^j w^k`, with `(u, v, w)` the lattice point `(a, b, c)/n`. */
-function bernsteinAtLattice(degree: number, [i, j, k]: readonly [number, number, number], [a, b, c]: readonly [number, number, number]): number {
-    return factorial(degree) / (factorial(i) * factorial(j) * factorial(k)) * (a / degree) ** i * (b / degree) ** j * (c / degree) ** k;
-}
 
 /** Exact degree elevation by one (`b'_ijk = (i b_(i-1)jk + j b_i(j-1)k + k b_ij(k-1)) / (n+1)`); the surface is unchanged. */
 export const elevateTriangularNet = (net: ReadonlyArray<Xyz>): Xyz[] => netOf(triangularFromNet(net).elevate());
@@ -36,7 +30,7 @@ export function lowerTriangularNet(net: ReadonlyArray<Xyz>, target: number): Xyz
         return [point.X(), point.Y(), point.Z?.() ?? 0];
     });
     const coordinates = [0, 1, 2].map(axis => solveLinearSystem(
-        lattice.map(point => lattice.map(index => bernsteinAtLattice(target, index, point))),
+        lattice.map(point => lattice.map(index => triangularBernsteinWeight(target, index, [point[0] / target, point[1] / target, point[2] / target]))),
         samples.map(sample => sample[axis])));
     return lattice.map((_, index): Xyz => [coordinates[0][index], coordinates[1][index], coordinates[2][index]]);
 }

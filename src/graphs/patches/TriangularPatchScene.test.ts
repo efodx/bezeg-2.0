@@ -355,3 +355,52 @@ describe("three-piece split", () => {
         expect(buildTriangularScene(input(net, {u, v}), 1).polylines.some(line => line.id.startsWith("piece-") || line.id.startsWith("split-"))).toBe(false);
     });
 });
+
+describe("highlight lines through the selected point", () => {
+    const net = defaultTriangularNet(3);
+    const at = (...index: [number, number, number]): Xyz => [...net[triangularIndex(3, index[0], index[1])]] as Xyz;
+    const lines = (scene: SurfaceScene) => Object.fromEntries(scene.polylines.filter(line => line.role === "highlight").map(line => [line.id, line.points]));
+
+    it("draws the lattice lines i, j and k constant through an interior point, each parallel to a triangle edge", () => {
+        const found = lines(buildTriangularScene(input(net, {selectedPointId: "t-1-1-1"}), 1));
+        expect(found).toEqual({
+            "highlight-i": [at(1, 2, 0), at(1, 1, 1), at(1, 0, 2)],
+            "highlight-j": [at(2, 1, 0), at(1, 1, 1), at(0, 1, 2)],
+            "highlight-k": [at(2, 0, 1), at(1, 1, 1), at(0, 2, 1)],
+        });
+    });
+
+    it("draws the three lines through an edge point, the one along the edge reaching both corners", () => {
+        const found = lines(buildTriangularScene(input(net, {selectedPointId: "t-2-1-0"}), 1));
+        expect(found).toEqual({
+            "highlight-i": [at(2, 1, 0), at(2, 0, 1)],
+            "highlight-j": [at(2, 1, 0), at(1, 1, 1), at(0, 1, 2)],
+            "highlight-k": [at(3, 0, 0), at(2, 1, 0), at(1, 2, 0), at(0, 3, 0)],
+        });
+    });
+
+    it("omits the one-point line of a vertex", () => {
+        const found = lines(buildTriangularScene(input(net, {selectedPointId: "t-3-0-0"}), 1));
+        expect(found).toEqual({
+            "highlight-j": [at(3, 0, 0), at(2, 0, 1), at(1, 0, 2), at(0, 0, 3)],
+            "highlight-k": [at(3, 0, 0), at(2, 1, 0), at(1, 2, 0), at(0, 3, 0)],
+        });
+    });
+
+    it("follows the net, the degree and the net's visibility; a stale or absent selection draws nothing", () => {
+        const moved = net.map((p): Xyz => [...p]);
+        moved[triangularIndex(3, 1, 1)] = [7, 8, 9];
+        expect(lines(buildTriangularScene(input(moved, {selectedPointId: "t-1-1-1"}), 1))["highlight-j"][1]).toEqual([7, 8, 9]);
+
+        const quadratic = defaultTriangularNet(2);
+        const atQuadratic = (i: number, j: number): Xyz => quadratic[triangularIndex(2, i, j)];
+        expect(lines(buildTriangularScene(input(quadratic, {selectedPointId: "t-1-1-0"}), 1))).toEqual({
+            "highlight-i": [atQuadratic(1, 1), atQuadratic(1, 0)],
+            "highlight-j": [atQuadratic(1, 1), atQuadratic(0, 1)],
+            "highlight-k": [atQuadratic(2, 0), atQuadratic(1, 1), atQuadratic(0, 2)],
+        });
+        expect(lines(buildTriangularScene(input(quadratic, {selectedPointId: "t-1-1-1"}), 1))).toEqual({});
+        expect(lines(buildTriangularScene(input(net, {selectedPointId: "t-1-1-1", showControlNet: false}), 1))).toEqual({});
+        expect(lines(buildTriangularScene(input(net), 1))).toEqual({});
+    });
+});

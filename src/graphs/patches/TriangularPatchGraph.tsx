@@ -5,7 +5,8 @@ import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSu
 import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, triangularPatchToDto} from "./patchDto";
 import {defaultTriangularPatchPresets, patchPresetCollections} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
-import {TriangularPatchDisplayPanel, TriangularPatchEditPanel, TriangularPatchPanelActions, TriangularVisibilityKey} from "./TriangularPatchPanels";
+import {barycentricW, TriangularPatchDisplayPanel, TriangularPatchEditPanel, TriangularPatchPanelActions, TriangularSelection, TriangularVisibilityKey} from "./TriangularPatchPanels";
+import {triangularBernsteinWeight} from "./patchBernstein";
 import {changeTriangularDegree, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
 import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
 import {buildTriangularScene} from "./TriangularPatchScene";
@@ -245,6 +246,8 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         setDegree: degree => this.setDegree(degree),
         setParameter: (parameter, value) => this.setParameter(parameter, value),
         setSubdivisionPreview: visible => this.setSubdivisionPreview(visible),
+        selectIndex: index => this.selectIndex(index),
+        setSelectedCoordinates: coordinates => this.setSelectedCoordinates(coordinates),
         setVisibility: (key, visible) => this.setVisibility(key, visible),
         setDensity: (kind, density) => this.setDensity(kind, density),
         applyCameraPreset: name => this.applyCameraPreset(name),
@@ -254,8 +257,16 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         setInsetContainer: container => this.setInsetContainer(container),
     };
 
+    private selection(): TriangularSelection | undefined {
+        const index = this.selectedPointId === undefined ? undefined : parseTriangularPointId(this.selectedPointId);
+        if (index === undefined || index[0] + index[1] + index[2] !== this.state.n) return undefined;
+        const {n, u, v, net} = this.state;
+        return {index, xyz: net[triangularIndex(n, index[0], index[1])], weight: triangularBernsteinWeight(n, index, [u, v, barycentricW(u, v)])};
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}} actions={this.panelActions}/></>;
+        return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue}}
+                                                                 selection={this.selection()} actions={this.panelActions}/></>;
     }
 
     protected override workspaceDisplay(): React.ReactNode {

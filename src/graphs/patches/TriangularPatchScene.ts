@@ -2,7 +2,7 @@ import type {TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezi
 import type {Point} from "../../bezeg/api/point/point";
 import type {PointImpl} from "../../bezeg/impl/point/point-impl";
 import {CURVE_SAMPLES, PatchDensity} from "./patchSceneBuilder";
-import {parseTriangularPointId, triangularIndex, triangularIndices, triangularPointId, triangularRows} from "./TriangularPatchLattice";
+import {LatticeRowFamily, parseTriangularPointId, triangularIndex, triangularIndices, triangularPointId, triangularRows} from "./TriangularPatchLattice";
 import {triangularFromNet} from "./TriangularPatchDegree";
 import type {SceneMarker, ScenePolyline, SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
@@ -118,6 +118,15 @@ export function buildTriangularScene(input: TriangularSceneInput, revision: numb
     // A selection the net no longer has (a lowered degree, before the host clears it) marks nothing.
     const selectedIndex = selected !== undefined && selected[0] + selected[1] + selected[2] === n ? selected : undefined;
     const selectedId = selectedIndex === undefined ? undefined : triangularPointId(...selectedIndex);
+    if (input.showControlNet && selectedIndex !== undefined) {
+        // The three lattice lines through b_ijk, each parallel to one triangle edge. A vertex has a one-point line, which is left out.
+        const through: Record<LatticeRowFamily, number> = {i: selectedIndex[0], j: selectedIndex[1], k: selectedIndex[2]};
+        const rows = triangularRows(n);
+        for (const family of ["i", "j", "k"] as const) {
+            const row = rows.find(candidate => candidate.family === family && candidate.value === through[family]);
+            if (row) polylines.push(rowPolyline(`highlight-${family}`, "highlight", input.net, row.indices));
+        }
+    }
     const points = input.showControlNet
         ? triangularIndices(n).map(([i, j, k], index) => {
             const id = triangularPointId(i, j, k);
