@@ -9,3 +9,5 @@ Complete family catalog metadata/investigation prompts, posters and motion previ
 Acceptance: lesson prose passes notation checks and mathematical review; all scenes run synchronously and restore/cancel correctly. Every demonstration has valid entry links, images/clips, alternatives and coverage rows. Capture claims use nonempty rendered owners and expected geometry, not incidental canvas color or empty arrays.
 
 Verification: focused content/recipe/runtime tests, `just check`, mathematical and engineering/UI review, `$smoke-tester` for every patch example plus language/keyboard/touch/return and preview assets. Record full source-to-scene/capture mapping in `docs/reviews/bezier-patches/examples-previews.md`.
+
+Carried in: the `patch-triangular` catalog preview sits right of centre, and both patch workspaces open with the portrait-fitted authored camera (triangular 15.68 vs 7.37 after "Ponastavi pogled" on desktop; [08A disposition S2](../../reviews/bezier-patches/triangular-workspace.md#08a-review-dispositions-handler-14-2026-10-28)). Decide whether a fresh Demonstration fits its opening view to the host.
