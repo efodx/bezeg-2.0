@@ -40,7 +40,7 @@ const choose = (i: number, j: number) => {
 };
 const highlights = (view: FakeSurfaceView) => view.last.polylines.filter(line => line.role === "highlight");
 const weightText = () => document.querySelector('[data-readout="bernstein-weight"] dd')?.textContent;
-const apply = (x: string, y: string, z: string, name = "b21") => {
+const apply = (x: string, y: string, z: string, name = "P₂₁") => {
     fireEvent.change(input(`${name} x`), {target: {value: x}});
     fireEvent.change(input(`${name} y`), {target: {value: y}});
     fireEvent.change(input(`${name} z`), {target: {value: z}});
@@ -55,12 +55,12 @@ describe("index selection", () => {
         choose(2, 1);
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["p-2-1"]);
         const [x, y, z] = graph.state.net[2][1];
-        expect([input("b21 x").value, input("b21 y").value, input("b21 z").value]).toEqual([String(x), String(y), String(z)]);
+        expect([input("P₂₁ x").value, input("P₂₁ y").value, input("P₂₁ z").value]).toEqual([String(x), String(y), String(z)]);
 
         view.emit({kind: "select", pointId: "p-1-3"});
         expect(select("patch_index_i").value).toBe("1");
         expect(select("patch_index_j").value).toBe("3");
-        expect(input("b13 z").value).toBe(String(graph.state.net[1][3][2]));
+        expect(input("P₁₃ z").value).toBe(String(graph.state.net[1][3][2]));
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["p-1-3"]);
 
         fireEvent.change(select("patch_index_i"), {target: {value: ""}});
@@ -87,7 +87,7 @@ describe("numeric xyz editor", () => {
         apply("0.5", "-1.25", "3");
         expect(graph.state.net[2][1]).toEqual([0.5, -1.25, 3]);
         expect(view.last.points.find(p => p.id === "p-2-1")?.xyz).toEqual([0.5, -1.25, 3]);
-        expect(input("b21 y").value).toBe("-1.25");
+        expect(input("P₂₁ y").value).toBe("-1.25");
     });
 
     it("rejects a non-finite or empty coordinate with the localized message and leaves the net alone", () => {
@@ -111,16 +111,16 @@ describe("numeric xyz editor", () => {
         const {graph, view} = mount();
         choose(1, 1);
         view.emit({kind: "point", pointId: "p-1-1", xyz: [0.75, 0.5, 4], phase: "move"});
-        expect([input("b11 x").value, input("b11 z").value]).toEqual(["0.75", "4"]);
+        expect([input("P₁₁ x").value, input("P₁₁ z").value]).toEqual(["0.75", "4"]);
 
         act(() => graph.setDegree("v", 4));
-        expect(input("b11 z").value).toBe(String(graph.state.net[1][1][2]));
+        expect(input("P₁₁ z").value).toBe(String(graph.state.net[1][1][2]));
 
         act(() => graph.setState({net: graph.state.net.map(row => row.map((): [number, number, number] => [9, 8, 7]))}));
-        expect(input("b11 x").value).toBe("9");
+        expect(input("P₁₁ x").value).toBe("9");
 
         act(() => setLanguage("en"));
-        expect(input("b11 x").value).toBe("9");
+        expect(input("P₁₁ x").value).toBe("9");
         expect(select("patch_index_i").value).toBe("1");
 
         await settle(() => graph.reset());
@@ -134,12 +134,12 @@ describe("numeric xyz editor", () => {
         act(() => graph.setSelectedCoordinates([4, 5, 6]));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         act(() => graph.setSelectedCoordinates([0, 0, 0]));
-        expect(input("b12 x").value).toBe("0");
+        expect(input("P₁₂ x").value).toBe("0");
         await settle(() => graph.selectPreset("mine"));
         expect(graph.state.net[1][2]).toEqual([4, 5, 6]);
         expect(select("patch_index_i").value).toBe("");
         choose(1, 2);
-        expect(input("b12 x").value).toBe("4");
+        expect(input("P₁₂ x").value).toBe("4");
     });
 });
 

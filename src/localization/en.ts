@@ -1247,7 +1247,7 @@ export const en: Record<keyof typeof sl, string> = {
     "preset_triangular_quartic": "Quartic triangular Bézier patch",
     "patch_triangular_index": "Point indices (i, j, k)",
     "patch_triangular_index_help": "The indices choose the point P_ijk; i + j + k = n must hold, so only valid triples are offered.",
-    "patch_triangular_select_point_help": "Choose a point by its indices or by clicking it in the view to edit its coordinates x, y and z. The three net lines parallel to the triangle edges are highlighted through it.",
+    "patch_triangular_select_point_help": "Choose a point by its indices or by clicking it in the view to edit its coordinates x, y and z. The net lines with constant i, j or k through it are highlighted.",
     "patch_triangular_bernstein_weight": "Weight of point P{value0}{value1}{value2}",
     "patch_triangular_bernstein_help": "The weight with which this point contributes to the point S(u, v, w): the trivariate Bernstein polynomial n!/(i! j! k!) · u^i · v^j · w^k. All weights together add up to 1.",
     "patch_triangular_degree": "Patch degree (n)",
@@ -1255,13 +1255,14 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_triangular_inset_help": "Drag the dot inside the triangle to set u and v; w = 1 − u − v follows. Outside the triangle the dot lands on the nearest point of its edge. Use the sliders above to set them with the keyboard.",
     "patch_parameter_w": "Parameter w (= 1 − u − v)",
     "patch_parameter_w_help": "The parameter w is determined by u and v, so you do not set it directly. The parameters u and v together may not exceed 1.",
-    "patch_triangular_iso_help": "Lines at constant u are green, at constant v purple, at constant w amber.",
+    "patch_triangular_iso_help": "Lines at constant u are green and solid, at constant v purple and dashed, at constant w amber and dotted.",
     "patch_subdivision_heading": "Subdivision into three",
     "patch_subdivision_show": "Show the split at (u, v, w)",
     "patch_subdivision_help": "The point S(u, v, w) splits the patch into three triangular patches that meet in it. Their control nets and the three cutting curves are shown; the patch itself is unchanged.",
     "patch_subdivision_interior_required": "Subdivision needs a point inside the triangle (u, v and w greater than 0).",
     "patch_compare_heading": "Comparison with a tensor patch",
     "patch_compare_show": "Show the tensor patch of the same degree",
-    "patch_compare_help": "The tensor patch is derived from the same net and drawn in teal. It shares the boundary curves u = 0 and v = 0 with the triangular patch. It is not saved in Presets and cannot be edited.",
-    "patch_compare_domains": "The triangular patch is defined on the triangle with barycentric coordinates (u, v, w), the tensor patch on the square [0, 1] × [0, 1] with coordinates (u, v). The tensor patch has four boundary curves, the triangular patch three, all of degree n."
+    "patch_compare_help": "The tensor patch is derived from the same net and drawn in teal with long dashes. It shares the boundary curves u = 0 and v = 0 with the triangular patch. It is not saved in Presets and cannot be edited.",
+    "patch_compare_domains": "The triangular patch is defined on the triangle with barycentric coordinates (u, v, w), the tensor patch on the square [0, 1] × [0, 1] with coordinates (u, v).",
+    "patch_compare_boundaries": "The tensor patch has four boundary curves, the triangular patch three; all are of degree n."
 };

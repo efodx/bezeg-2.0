@@ -30,12 +30,14 @@ describe("clampToTriangle", () => {
         expect(clampToTriangle(-0.5, 1.5)).toEqual([0, 1]);
     });
 
-    it("never returns negative zero or u + v above 1", () => {
+    it("returns non-negative coordinates and no negative zero for points outside the triangle", () => {
         expect(Object.is(clampToTriangle(-1, -1)[0], 0)).toBe(true);
         for (const [u, v] of [[0.6000000000000001, 0.5], [0.9, 0.9], [0.1, 3], [3, 0.1]]) {
             const [x, y] = clampToTriangle(u, v);
             expect(x).toBeGreaterThanOrEqual(0);
             expect(y).toBeGreaterThanOrEqual(0);
+            // Holds without the `min` guard in clampToTriangle too: fl(fl(1 - t) + t) <= 1 for t in [0, 1] (searched 5e7 values, no
+            // counterexample; 1 - t is exact for t >= 0.5 and its error is below half an ulp of 1 otherwise), so the guard is only defensive.
             expect(x + y).toBeLessThanOrEqual(1);
         }
     });

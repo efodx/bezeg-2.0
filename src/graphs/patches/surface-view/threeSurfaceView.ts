@@ -51,12 +51,27 @@ export const SURFACE_COLORS = {
     boundary: 0x643f2f,
     construction: 0xc45f3b,
     highlight: 0x1f5fbf,
-    compare: 0x0b7a75, // teal: the tensor patch beside the triangular one; 5.4:1 on white
+    compare: 0x0b7a75, // teal: the tensor patch beside the triangular one; 5.2:1 on white (5.18 computed)
     point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
     selected: 0x1f5fbf,
     marker: 0xca5c37,
     surface: 0xdcae78,
 } as const;
+
+/**
+ * Dash pattern per role, as a fraction of the scene extent (the diagonal of the scene's bounding box),
+ * so the dashes stay visible at any patch size. Roles not listed are drawn solid. The iso-curves are
+ * told apart without colour: `iso` solid, `iso-v` dashed, `iso-w` dotted, `compare` long-dashed.
+ */
+export const SURFACE_DASH = {
+    'iso-v': {dash: 0.03, gap: 0.02},
+    'iso-w': {dash: 0.014, gap: 0.014},
+    compare: {dash: 0.07, gap: 0.03},
+} as const satisfies Partial<Record<PolylineRole, {dash: number; gap: number}>>;
+
+function dashFor(role: PolylineRole): {dash: number; gap: number} | undefined {
+    return (SURFACE_DASH as Partial<Record<PolylineRole, {dash: number; gap: number}>>)[role];
+}
 
 const POINT_RADIUS = 0.105;
 const PICK_RADIUS_PX = 20;
@@ -136,6 +151,8 @@ export class ThreeSurfaceView implements SurfaceView {
     private sphereGeometry: ThreeNs.SphereGeometry | null = null;
     private markerGeometry: ThreeNs.SphereGeometry | null = null;
     private lineMaterials = new Map<PolylineRole, ThreeNs.LineBasicMaterial>();
+    /** Diagonal of the bounding box of the last built scene; the dash sizes are fractions of it. */
+    private sceneExtent = 1;
     private pointMaterial: ThreeNs.MeshBasicMaterial | null = null;
     private selectedMaterial: ThreeNs.MeshBasicMaterial | null = null;
     private evaluatedMaterial: ThreeNs.MeshBasicMaterial | null = null;
@@ -434,17 +451,48 @@ export class ThreeSurfaceView implements SurfaceView {
 
     private lineMaterial(T: Three, role: PolylineRole): ThreeNs.LineBasicMaterial {
         let m = this.lineMaterials.get(role);
+        const dash = dashFor(role);
         if (!m) {
-            m = this.track(new T.LineBasicMaterial({color: SURFACE_COLORS[role]}));
+            const color = SURFACE_COLORS[role];
+            m = this.track(dash
+                ? new T.LineDashedMaterial({color, dashSize: 1, gapSize: 1})
+                : new T.LineBasicMaterial({color}));
             this.lineMaterials.set(role, m);
         }
+        if (dash && m instanceof T.LineDashedMaterial) {
+            // Uniforms: updating them follows the extent without recreating (or leaking) the material.
+            m.dashSize = dash.dash * this.sceneExtent;
+            m.gapSize = dash.gap * this.sceneExtent;
+        }
         return m;
+    }
+
+    private measureExtent(scene: SurfaceScene): number {
+        const min = [Infinity, Infinity, Infinity];
+        const max = [-Infinity, -Infinity, -Infinity];
+        const add = (x: number, y: number, z: number) => {
+            if (x < min[0]) min[0] = x;
+            if (y < min[1]) min[1] = y;
+            if (z < min[2]) min[2] = z;
+            if (x > max[0]) max[0] = x;
+            if (y > max[1]) max[1] = y;
+            if (z > max[2]) max[2] = z;
+        };
+        for (const p of scene.points) add(...p.xyz);
+        for (const line of scene.polylines) for (const q of line.points) add(...q);
+        if (scene.mesh) {
+            const a = scene.mesh.positions;
+            for (let i = 0; i + 2 < a.length; i += 3) add(a[i], a[i + 1], a[i + 2]);
+        }
+        const d = Math.hypot(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
+        return Number.isFinite(d) && d > 1e-9 ? d : 1;
     }
 
     private rebuildGeometry(T: Three, scene: SurfaceScene): void {
         const layer = this.geometryLayer!;
         this.clearLayer(layer);
         this.surfaceMesh = null;
+        this.sceneExtent = this.measureExtent(scene);
         if (scene.mesh) {
             const g = new T.BufferGeometry();
             g.setAttribute('position', new T.Float32BufferAttribute(Array.from(scene.mesh.positions), 3));
@@ -460,6 +508,7 @@ export class ThreeSurfaceView implements SurfaceView {
             const g = new T.BufferGeometry();
             g.setAttribute('position', new T.Float32BufferAttribute(line.points.flat(), 3));
             const obj = new T.Line(g, this.lineMaterial(T, line.role));
+            if (dashFor(line.role)) obj.computeLineDistances();
             obj.userData.ownsGeometry = true;
             layer.add(obj);
         }

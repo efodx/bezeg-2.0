@@ -107,7 +107,7 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
                           options={indexOptions(state.n, t("patch_no_selection"))} help={t("patch_triangular_index_help")}
                           onChange={value => actions.selectIndex(value === NO_INDEX ? undefined : parseTriangularPointId(value))}/>
             {selection
-                ? <PointEditor key={`${selection.index.join("-")}-${selection.xyz.join(",")}`} name={`b${selection.index.join("")}`} xyz={selection.xyz}
+                ? <PointEditor key={`${selection.index.join("-")}-${selection.xyz.join(",")}`} name={`P${selection.index.map(subscriptDigits).join("")}`} xyz={selection.xyz}
                                onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_triangular_select_point_help")}</p>}
         </div>
@@ -139,7 +139,10 @@ export function TriangularPatchDisplayPanel({state, actions}: {state: Triangular
         <div className="inspector-group"><h3>{t("patch_compare_heading")}</h3>
             <OnOffSwitch label={t("patch_compare_show")} checked={state.compareTensor} onChange={on => actions.setTensorComparison(on)}/>
             <p className="inspector-help">{t("patch_compare_help")}</p>
-            {state.compareTensor && <p className="inspector-help" role="note">{t("patch_compare_domains")}</p>}
+            {state.compareTensor && <>
+                <p className="inspector-help" role="note">{t("patch_compare_domains")}</p>
+                <p className="inspector-help" role="note">{t("patch_compare_boundaries")}</p>
+            </>}
         </div>
         <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>
             <ChoiceSelect label={t("patch_iso_density")} value={String(state.isoDensity)} options={DENSITIES}

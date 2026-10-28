@@ -136,7 +136,7 @@ export function TensorPatchEditPanel({state, selection, actions}: {state: Tensor
             <ChoiceSelect label={t("patch_index_j")} value={selection ? String(selection.j) : NO_INDEX} options={indexOptions(state.n, t("patch_no_selection"))}
                           onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(selection?.i, Number(value))}/>
             {selection
-                ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} name={`b${selection.i}${selection.j}`} xyz={selection.xyz}
+                ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} name={`P${subscriptDigits(selection.i)}${subscriptDigits(selection.j)}`} xyz={selection.xyz}
                              onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_select_point_help")}</p>}
         </div>

@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as THREE from 'three';
-import {SURFACE_COLORS, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
-import type {LabelLayout, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
+import {SURFACE_COLORS, SURFACE_DASH, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
+import type {LabelLayout, PolylineRole, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
 import {fitCameraTo} from './surfaceMath';
 
 function makeScene(overrides: Partial<SurfaceScene> = {}): SurfaceScene {
@@ -556,5 +556,108 @@ describe('surface palette', () => {
         const others = Object.entries(SURFACE_COLORS).filter(([role]) => role !== 'compare').map(([, color]) => color);
         expect(others).not.toContain(SURFACE_COLORS.compare);
         expect(1.05 / (luminance(SURFACE_COLORS.compare) + 0.05)).toBeGreaterThanOrEqual(3);
+    });
+});
+
+describe('ThreeSurfaceView line dashes', () => {
+    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'highlight', 'compare'];
+    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare'];
+
+    /** One polyline per role, the whole scene spanning `size` along x. */
+    function dashScene(size: number, revision = 1): SurfaceScene {
+        return makeScene({
+            revision,
+            polylines: roles.map((role, k) => ({id: role, role, points: [[0, k, 0], [size, k, 0], [size, k, 1]] as Xyz[]})),
+            mesh: undefined,
+            points: [{id: 'a', xyz: [0, 0, 0]}, {id: 'b', xyz: [size, 0, 0]}],
+            labels: [],
+        });
+    }
+
+    /** The bounding-box diagonal of `dashScene(size)`. */
+    const extentOf = (size: number) => Math.hypot(size, roles.length - 1, 1);
+
+    const linesOf = (h: Harness): Map<string, THREE.Line> => {
+        const found = new Map<string, THREE.Line>();
+        const [sc] = h.renderer.rendered.at(-1)!;
+        sc.traverse(o => {
+            if ((o as THREE.Line).isLine) found.set(roles[found.size], o as THREE.Line);
+        });
+        return found;
+    };
+
+    async function draw(h: Harness, scene: SurfaceScene): Promise<Map<string, THREE.Line>> {
+        h.view.reconcile(scene);
+        await h.view.capture();
+        return linesOf(h);
+    }
+
+    it('draws iso-v dashed, iso-w dotted and compare long-dashed, and every other role solid', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const lines = await draw(h, dashScene(10));
+        expect(lines.size).toBe(roles.length);
+        for (const role of roles) {
+            const material = lines.get(role)!.material as THREE.LineBasicMaterial;
+            if (dashed.includes(role)) expect(material, role).toBeInstanceOf(THREE.LineDashedMaterial);
+            else expect(material instanceof THREE.LineDashedMaterial, role).toBe(false);
+            expect(material.color.getHex(), role).toBe(SURFACE_COLORS[role]);
+        }
+        // The three dashed roles differ from one another in pattern.
+        const patterns = dashed.map(role => `${SURFACE_DASH[role as keyof typeof SURFACE_DASH].dash}/${SURFACE_DASH[role as keyof typeof SURFACE_DASH].gap}`);
+        expect(new Set(patterns).size).toBe(3);
+        expect(SURFACE_DASH['iso-w'].dash).toBeLessThan(SURFACE_DASH['iso-v'].dash);
+        expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH.compare.dash);
+        h.view.dispose();
+    });
+
+    it('computes the line distances of dashed lines only', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const lines = await draw(h, dashScene(10));
+        for (const role of roles) {
+            const distance = lines.get(role)!.geometry.getAttribute('lineDistance');
+            if (dashed.includes(role)) {
+                expect(distance, role).toBeDefined();
+                expect(distance.getX(distance.count - 1), role).toBeCloseTo(11, 6);
+            } else expect(distance, role).toBeUndefined();
+        }
+        h.view.dispose();
+    });
+
+    it('scales dash and gap with the scene extent, also when the extent changes', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const sizes = (lines: Map<string, THREE.Line>, role: PolylineRole) => {
+            const m = lines.get(role)!.material as THREE.LineDashedMaterial;
+            return [m.dashSize, m.gapSize, m];
+        };
+        const small = await draw(h, dashScene(2));
+        const smallSizes = dashed.map(role => sizes(small, role));
+        const big = await draw(h, dashScene(20, 2));
+        const bigSizes = dashed.map(role => sizes(big, role));
+        dashed.forEach((role, k) => {
+            const ratio = (bigSizes[k][0] as number) / (smallSizes[k][0] as number);
+            expect(ratio, role).toBeCloseTo(extentOf(20) / extentOf(2), 9);
+            expect((bigSizes[k][1] as number) / (smallSizes[k][1] as number), role).toBeCloseTo(ratio, 9);
+            expect(bigSizes[k][2], `${role} material is reused, not recreated`).toBe(smallSizes[k][2]);
+        });
+        // Proportional to the extent: dash / extent is the table entry.
+        expect(bigSizes[0][0]).toBeCloseTo(SURFACE_DASH['iso-v'].dash * extentOf(20), 6);
+        expect(extentOf(20) / extentOf(2)).toBeGreaterThan(2.5);
+        h.view.dispose();
+    });
+
+    it('disposes the dashed materials with the view', async () => {
+        const h = harness();
+        const disposed = new Set<unknown>();
+        const md = vi.spyOn(THREE.Material.prototype, 'dispose').mockImplementation(function (this: THREE.Material) { disposed.add(this); });
+        await h.view.attach(h.host);
+        await draw(h, dashScene(10));
+        await draw(h, dashScene(30, 2));
+        const materials = dashed.map(role => linesOf(h).get(role)!.material);
+        h.view.dispose();
+        for (const material of materials) expect(disposed.has(material)).toBe(true);
+        md.mockRestore();
     });
 });

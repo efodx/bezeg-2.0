@@ -56,11 +56,11 @@ describe("index selection", () => {
         choose(2, 1, 0);
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["t-2-1-0"]);
         const [x, y, z] = netPoint(graph, 2, 1);
-        expect([input("b210 x").value, input("b210 y").value, input("b210 z").value]).toEqual([String(x), String(y), String(z)]);
+        expect([input("P₂₁₀ x").value, input("P₂₁₀ y").value, input("P₂₁₀ z").value]).toEqual([String(x), String(y), String(z)]);
 
         view.emit({kind: "select", pointId: "t-1-1-1"});
         expect(select().value).toBe("t-1-1-1");
-        expect(input("b111 z").value).toBe(String(netPoint(graph, 1, 1)[2]));
+        expect(input("P₁₁₁ z").value).toBe(String(netPoint(graph, 1, 1)[2]));
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["t-1-1-1"]);
 
         fireEvent.change(select(), {target: {value: ""}});
@@ -84,10 +84,10 @@ describe("numeric xyz editor", () => {
     it("applies finite coordinates to the net and the reconciled point", () => {
         const {graph, view} = mount();
         choose(2, 1, 0);
-        apply("b210", "0.5", "-1.25", "3");
+        apply("P₂₁₀", "0.5", "-1.25", "3");
         expect(netPoint(graph, 2, 1)).toEqual([0.5, -1.25, 3]);
         expect(view.last.points.find(p => p.id === "t-2-1-0")?.xyz).toEqual([0.5, -1.25, 3]);
-        expect(input("b210 y").value).toBe("-1.25");
+        expect(input("P₂₁₀ y").value).toBe("-1.25");
     });
 
     it("rejects a non-finite or empty coordinate with the localized message and leaves the net alone", () => {
@@ -95,10 +95,10 @@ describe("numeric xyz editor", () => {
         choose(2, 1, 0);
         for (const invalid of ["abc", "", "Infinity"]) {
             const current = graph.state.net;
-            apply("b210", invalid, "1", "1");
+            apply("P₂₁₀", invalid, "1", "1");
             expect(graph.state.net).toBe(current);
             expect(screen.getByRole("alert").textContent).toBe(t("enter_finite_numeric_coordinates"));
-            apply("b210", "1", "2", "3");
+            apply("P₂₁₀", "1", "2", "3");
             expect(netPoint(graph, 2, 1)).toEqual([1, 2, 3]);
             expect(screen.queryByRole("alert")).toBeNull();
         }
@@ -108,13 +108,13 @@ describe("numeric xyz editor", () => {
         const {graph, view} = mount();
         choose(1, 1, 1);
         view.emit({kind: "point", pointId: "t-1-1-1", xyz: [0.75, 0.5, 4], phase: "move"});
-        expect([input("b111 x").value, input("b111 z").value]).toEqual(["0.75", "4"]);
+        expect([input("P₁₁₁ x").value, input("P₁₁₁ z").value]).toEqual(["0.75", "4"]);
 
         act(() => graph.setState({net: graph.state.net.map((): Xyz => [9, 8, 7])}));
-        expect(input("b111 x").value).toBe("9");
+        expect(input("P₁₁₁ x").value).toBe("9");
 
         act(() => setLanguage("en"));
-        expect(input("b111 x").value).toBe("9");
+        expect(input("P₁₁₁ x").value).toBe("9");
         expect(select().value).toBe("t-1-1-1");
         expect(screen.getByLabelText("Point indices (i, j, k)")).toBe(select());
 
@@ -125,7 +125,7 @@ describe("numeric xyz editor", () => {
         });
         expect(netPoint(graph, 2, 0)).toEqual([1, 2, 3]);
         expect(view.last.points.find(p => p.id === "t-2-0-1")).toMatchObject({xyz: [1, 2, 3], selected: true});
-        expect(input("b201 y").value).toBe("2");
+        expect(input("P₂₀₁ y").value).toBe("2");
         // 3 * 0.5^2 * 0.25 (w = 0.25)
         expect(weightText()).toBe("0.1875");
 
@@ -140,12 +140,12 @@ describe("numeric xyz editor", () => {
         act(() => graph.setSelectedCoordinates([4, 5, 6]));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         act(() => graph.setSelectedCoordinates([0, 0, 0]));
-        expect(input("b120 x").value).toBe("0");
+        expect(input("P₁₂₀ x").value).toBe("0");
         await settle(() => graph.selectPreset("mine"));
         expect(netPoint(graph, 1, 2)).toEqual([4, 5, 6]);
         expect(select().value).toBe("");
         choose(1, 2, 0);
-        expect(input("b120 x").value).toBe("4");
+        expect(input("P₁₂₀ x").value).toBe("4");
     });
 });
 

@@ -1246,7 +1246,7 @@ export const sl = {
     "preset_triangular_quartic": "Kvartična trikotna Bézierjeva krpa",
     "patch_triangular_index": "Indeksi točke (i, j, k)",
     "patch_triangular_index_help": "Indeksi izberejo točko P_ijk; veljati mora i + j + k = n, zato so ponujene samo veljavne trojice.",
-    "patch_triangular_select_point_help": "Izberi točko z indeksi ali s klikom v pogledu, da urediš njene koordinate x, y in z. Skoznjo se poudarijo tri črte mreže, vzporedne robovom trikotnika.",
+    "patch_triangular_select_point_help": "Izberi točko z indeksi ali s klikom v pogledu, da urediš njene koordinate x, y in z. Skoznjo se poudarijo črte mreže s stalnim i, j ali k.",
     "patch_triangular_bernstein_weight": "Utež točke P{value0}{value1}{value2}",
     "patch_triangular_bernstein_help": "Utež, s katero ta točka prispeva k točki S(u, v, w): Bernsteinov polinom v treh spremenljivkah n!/(i! j! k!) · u^i · v^j · w^k. Vse uteži skupaj dajo 1.",
     "patch_triangular_degree": "Stopnja krpe (n)",
@@ -1254,13 +1254,14 @@ export const sl = {
     "patch_triangular_inset_help": "Povleci piko po trikotniku, da nastaviš u in v; w = 1 − u − v se izračuna sam. Zunaj trikotnika se pika postavi na najbližjo točko roba. Za nastavljanje s tipkovnico uporabi drsnika zgoraj.",
     "patch_parameter_w": "Parameter w (= 1 − u − v)",
     "patch_parameter_w_help": "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1.",
-    "patch_triangular_iso_help": "Črte pri stalnem u so zelene, pri stalnem v vijoličaste, pri stalnem w rumenorjave.",
+    "patch_triangular_iso_help": "Črte pri stalnem u so zelene in polne, pri stalnem v vijoličaste in črtkane, pri stalnem w rumenorjave in pikčaste.",
     "patch_subdivision_heading": "Delitev na tri dele",
     "patch_subdivision_show": "Pokaži delitev v točki (u, v, w)",
     "patch_subdivision_help": "Točka S(u, v, w) razdeli krpo na tri trikotne krpe, ki se stikajo v njej. Prikazani so njihovi kontrolni mreži in tri krivulje reza; krpa ostane nespremenjena.",
     "patch_subdivision_interior_required": "Delitev zahteva točko v notranjosti trikotnika (u, v in w večji od 0).",
     "patch_compare_heading": "Primerjava s tenzorsko krpo",
     "patch_compare_show": "Pokaži tenzorsko krpo iste stopnje",
-    "patch_compare_help": "Tenzorska krpa je izpeljana iz iste mreže in je narisana modrozeleno. S trikotno krpo si delita robni krivulji u = 0 in v = 0. Ni shranjena v prednastavitvah in je ni mogoče urejati.",
-    "patch_compare_domains": "Trikotna krpa je definirana na trikotniku z baricentričnimi koordinatami (u, v, w), tenzorska na kvadratu [0, 1] × [0, 1] s koordinatama (u, v). Tenzorska krpa ima štiri robne krivulje, trikotna tri, vse stopnje n."
+    "patch_compare_help": "Tenzorska krpa je izpeljana iz iste mreže in je narisana modrozeleno z dolgimi črtami. S trikotno krpo si delita robni krivulji u = 0 in v = 0. Ni shranjena v prednastavitvah in je ni mogoče urejati.",
+    "patch_compare_domains": "Trikotna krpa je definirana na trikotniku z baricentričnimi koordinatami (u, v, w), tenzorska na kvadratu [0, 1] × [0, 1] s koordinatama (u, v).",
+    "patch_compare_boundaries": "Tenzorska krpa ima štiri robne krivulje, trikotna tri; vse so stopnje n."
 } as const;
