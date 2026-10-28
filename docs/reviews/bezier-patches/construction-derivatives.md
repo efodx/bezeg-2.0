@@ -16,3 +16,25 @@ Evidence for [task 09](../../tasks/bezier-patches/09-construction-derivatives.md
 - E2 `construction-2` (0xb02a73, 6.13:1 on white) vs `construction` (0xc45f3b) is 1.47:1 between them; lines differ by dash, but **markers** differ only by hue. Give stage-2 markers a different size or shape. Repair before smoke.
 - E3 catalog card reuses the `patch-tensor` poster (`demonstrationPreviewAssets.ts:80`) — interim until task 13; acceptable, record it.
 - E4 `useStartingPatch` sets state twice (base import, then construction fields) — transient re-render; fold into one write if cheap.
+
+## 09A/B1 low findings — dispositions (handler 16)
+
+- M1–M3 fixed by 09C-Y ([brief](t09c-brief.md)): near-parallel pair at sin θ ≈ 1e-4 across scales; collapsed-edge normal converges to unit `S_u × S_uv` as `u → 0`; de Casteljau polylines compared point by point with an independent recurrence for all three orders, m, n ∈ 1..4. Observed failures: three cross-tolerance mutations, reversed and shifted polylines.
+- E1 decided: keep one shared `PATCH_STATE_FIELDS`; route fields in other files are validated and ignored, documented in [capabilities](../../capabilities.md#patch-constructions-and-derivatives).
+- E2 fixed by 09C-X: `construction-2` markers are octahedra at 1.25 × the point radius; spheres elsewhere. Observed failure with the distinction removed.
+- E3 recorded: both routes reuse the `patch-tensor` poster until task 13.
+- E4 fixed by 09C-Y: one `setState` through the protected `startingPatchKept()`; "writes once" tests observed failing with two writes.
+
+## 09B2 reviews (handler 16)
+
+Engineering + UI/a11y (Sonnet medium, [report](t09b2-review-eng.md)), no high:
+- Medium, readout at the end of Uredi: fixed, it now sits under the corner buttons in the point group.
+- Medium, `S_u`/`S_v` both solid: kept as the brief allowed (blue `0x0b4f9c` vs crimson `0xb3202a`, strong hue and luminance difference, each with a tip label; the legend names both).
+- Medium, vacuous `showTwist` rejection test: now asserts the `invalid_option` reason and not `unknown_patch_field`; observed 4 failures with `showTwist` removed from the field list.
+- Low: orphaned JSDoc fixed. Deferred: scene extent ignores planes (the quad is at most the display length around a surface point); corner-button label-in-name (visible "(0, 0)" is part of the accessible name); legend plain text vs `<var>` readout. Fine twist dots go to the smoke check.
+
+Mathematics (Sonnet medium, [report](t09b2-review-math.md)): arrows, common scale, quad in the plane, omission rules and reason texts correct.
+- Medium, parallel-corner limit normal: at `(0, 0)` of that Preset the approached normal depends on direction, so no limit normal exists. Fixed: the parallel status text (sl/en) now says the normal may tend to a limit or depend on the direction of approach; the prompt asks where each happens; the Preset comment says no limit exists there.
+- Low, tolerance-zero tangent still drawn: fixed, the scene omits an arrow the classifier reports as zero; regression test observed failing without the fix.
+- Test gap, quad span: new test that the quad edges are parallel to `S_u` and `S_v` and centred at `S(u, v)`. Readout corner identities were already tested (`TensorDerivativesGraph.test.tsx:72`).
+- Low, sliver quad for very unequal `S_u`, `S_v`: accepted; it shows the true ratio.

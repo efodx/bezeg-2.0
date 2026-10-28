@@ -42,6 +42,8 @@ All 45 shipped demonstrations have genuine representative route captures. The ca
 | Parameterization | `/param/param/uniform` | Uniform / weighted PH parameterization |
 | Patches | `/patches/tensor` | Tensor-product Bézier patch (`TensorPatchGraph`), a WebGL surface workspace; see [Tensor patch workspace](#tensor-patch-workspace) |
 | Patches | `/patches/triangular` | Triangular Bézier patch (`TriangularPatchGraph`) on the same surface view; see [Triangular patch workspace](#triangular-patch-workspace) |
+| Patches | `/patches/decasteljau` | De Casteljau construction on a tensor patch (`TensorDeCasteljauGraph`); see [Patch constructions and derivatives](#patch-constructions-and-derivatives) |
+| Patches | `/patches/derivatives` | Partial derivatives, twist, tangent plane and normal of a tensor patch (`TensorDerivativesGraph`); see [Patch constructions and derivatives](#patch-constructions-and-derivatives) |
 | Functions | `/functions/linear` | Linear function through two points (`LinearFunctionGraph`) |
 | Functions | `/functions/exponential` | Exponential function (`ExponentialFunctionGraph`) |
 | Functions | `/functions/trigonometric` | Trigonometric functions (`TrigonometricFunctionsGraph`) |
@@ -89,6 +91,15 @@ The [concept-led preview revision](specs/concept-led-demonstration-previews.md) 
 - **Degree**: elevation is exact; lowering interpolates the patch at the lattice points of the lower degree, exact only when the patch already has that degree.
 - **Comparison**: a transient switch also draws the `n × n` tensor patch with net `P_ab = b_(a,0,n−a) + b_(0,b,n−b) − b_(0,0,n)` (a translational surface). It shares the boundary curves `u = 0` and `v = 0` with the triangular patch and is drawn in teal long dashes; the inset then shows the square domain around the triangle. It is not stored in Presets and cannot be edited.
 - **Presets**: one default per degree (the cubic opens first); a Preset stores net, `u`, `v`, switches, densities and camera. An imported `u + v` slightly above 1 from rounding is clamped into the triangle.
+
+## Patch constructions and derivatives
+
+Both routes subclass `TensorPatchGraph` and keep the [tensor workspace](#tensor-patch-workspace) view, editing, degree, Preset, label, export and failure behaviour.
+
+- **`/patches/decasteljau`**: at the current `(u, v)` an order switch in Uredi chooses rows first, columns first, or bilinear. Rows first reduces each row of the net along `v` (orange, solid; first stage), then the resulting column along `u` (pink, dashed; second stage, with larger diamond markers instead of spheres); columns first is the reverse; bilinear reduces every 2 × 2 cell `min(m, n)` times and finishes the remaining row with the curve scheme. All three end at `S(u, v)`. Help text per order names the colours and line styles. The order is stored in Presets as `decasteljauOrder`.
+- **`/patches/derivatives`**: at `(u, v)` arrows for `S_u` (blue, solid), `S_v` (red, solid), the twist `S_uv` (violet, dotted) and the unit normal `n` (black, dashed), plus a translucent tangent-plane quad. Uredi adds four corner buttons and a readout of `S_u`, `S_v`, `S_uv` and `n` to three decimals. Where `S_u` and `S_v` do not span a plane (parallel or zero), a status message names the reason, the normal reads "undefined" and the plane and normal are not drawn. Prikaz switches for the plane, normal and twist; `showTwist` is stored in Presets (absent means on). Two extra starting patches show a collapsed edge and parallel edge vectors at a corner.
+- **Stored state**: all tensor patch routes share one Preset field list, so a tensor or triangular file may carry `decasteljauOrder` or `showTwist`; they are validated and ignored there, as `showDeCasteljau` already was. Existing Presets and files load unchanged.
+- **Catalog previews**: both routes reuse the `patch-tensor` poster until [task 13](tasks/bezier-patches/13-examples-previews.md) adds their own.
 
 ## Shared user workflows
 
