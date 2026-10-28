@@ -23,6 +23,7 @@ import RationalDecasteljauGraph from './curves/rational/RationalDecasteljauGraph
 import SubdivisionGraph from './curves/bezier/SubdivisionGraph';
 import CnSplineGraph from './curves/spline/CnSplineGraph';
 import SplineAlphaParametrizationGraph from './curves/parametrisations/SplineAlphaParametrizationGraph';
+import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorPatchGraph from './patches/TensorPatchGraph';
 import TriangularPatchGraph from './patches/TriangularPatchGraph';
 import { LinearFunctionGraph } from './functions/LinearFunctionGraph';
@@ -53,6 +54,7 @@ import type {DemonstrationId} from '../demonstrations';
 export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphState>> = {
     'bernstein': () => new BernsteinGraph(),
     'patch-tensor': () => new TensorPatchGraph(),
+    'patch-decasteljau': () => new TensorDeCasteljauGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
     'complex-multiplication': () => new ComplexMultiplicationGraph(),
     'bezier': () => new BezierCurveGraph(),

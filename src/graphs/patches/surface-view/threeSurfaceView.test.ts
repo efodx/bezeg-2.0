@@ -557,11 +557,17 @@ describe('surface palette', () => {
         expect(others).not.toContain(SURFACE_COLORS.compare);
         expect(1.05 / (luminance(SURFACE_COLORS.compare) + 0.05)).toBeGreaterThanOrEqual(3);
     });
+
+    it('gives the second construction stage its own colour, with at least 3:1 on white', () => {
+        const others = Object.entries(SURFACE_COLORS).filter(([role]) => role !== 'construction-2').map(([, color]) => color);
+        expect(others).not.toContain(SURFACE_COLORS['construction-2']);
+        expect(1.05 / (luminance(SURFACE_COLORS['construction-2']) + 0.05)).toBeGreaterThanOrEqual(3);
+    });
 });
 
 describe('ThreeSurfaceView line dashes', () => {
-    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'highlight', 'compare'];
-    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare'];
+    const roles: PolylineRole[] = ['net', 'iso', 'iso-v', 'iso-w', 'boundary', 'construction', 'construction-2', 'highlight', 'compare'];
+    const dashed: PolylineRole[] = ['iso-v', 'iso-w', 'compare', 'construction-2'];
 
     /** One polyline per role, the whole scene spanning `size` along x. */
     function dashScene(size: number, revision = 1): SurfaceScene {
@@ -592,7 +598,7 @@ describe('ThreeSurfaceView line dashes', () => {
         return linesOf(h);
     }
 
-    it('draws iso-v dashed, iso-w dotted and compare long-dashed, and every other role solid', async () => {
+    it('draws iso-v dashed, iso-w dotted, compare long-dashed and the second construction stage short-dashed, and every other role solid', async () => {
         const h = harness();
         await h.view.attach(h.host);
         const lines = await draw(h, dashScene(10));
@@ -603,10 +609,11 @@ describe('ThreeSurfaceView line dashes', () => {
             else expect(material instanceof THREE.LineDashedMaterial, role).toBe(false);
             expect(material.color.getHex(), role).toBe(SURFACE_COLORS[role]);
         }
-        // The three dashed roles differ from one another in pattern.
+        // The four dashed roles differ from one another in pattern.
         const patterns = dashed.map(role => `${SURFACE_DASH[role as keyof typeof SURFACE_DASH].dash}/${SURFACE_DASH[role as keyof typeof SURFACE_DASH].gap}`);
-        expect(new Set(patterns).size).toBe(3);
-        expect(SURFACE_DASH['iso-w'].dash).toBeLessThan(SURFACE_DASH['iso-v'].dash);
+        expect(new Set(patterns).size).toBe(4);
+        expect(SURFACE_DASH['iso-w'].dash).toBeLessThan(SURFACE_DASH['construction-2'].dash);
+        expect(SURFACE_DASH['construction-2'].dash).toBeLessThan(SURFACE_DASH['iso-v'].dash);
         expect(SURFACE_DASH['iso-v'].dash).toBeLessThan(SURFACE_DASH.compare.dash);
         h.view.dispose();
     });

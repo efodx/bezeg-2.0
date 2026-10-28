@@ -18,6 +18,11 @@ export interface PatchCameraDto {
     readonly target: Point3Dto;
 }
 
+/** How the tensor patch's de Casteljau construction proceeds; absent means `rows`. */
+export const DECASTELJAU_ORDERS = ["rows", "columns", "bilinear"] as const;
+export type DecasteljauOrder = typeof DECASTELJAU_ORDERS[number];
+export const isDecasteljauOrder = (value: unknown): value is DecasteljauOrder => DECASTELJAU_ORDERS.some(order => order === value);
+
 /** Scene state stored beside a patch: parameter point `u`, `v` in [0,1], display switches and the camera. */
 export interface PatchStateDto {
     readonly camera?: PatchCameraDto;
@@ -30,12 +35,14 @@ export interface PatchStateDto {
     readonly showTangentPlane?: boolean;
     readonly showNormal?: boolean;
     readonly showDeCasteljau?: boolean;
+    /** The construction order of the tensor `patch-decasteljau` Demonstration; absent means `rows`. */
+    readonly decasteljauOrder?: DecasteljauOrder;
     /** Iso-curve and shading mesh density (8 or 16 intervals); absent means the default. */
     readonly isoDensity?: 8 | 16;
     readonly shadingDensity?: 8 | 16;
 }
 export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showDeCasteljau", "isoDensity", "shadingDensity",
+    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showDeCasteljau", "decasteljauOrder", "isoDensity", "shadingDensity",
 ];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */

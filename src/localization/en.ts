@@ -1264,5 +1264,16 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_compare_show": "Show the tensor patch of the same degree",
     "patch_compare_help": "The tensor patch is derived from the same net and drawn in teal with long dashes. It shares the boundary curves u = 0 and v = 0 with the triangular patch. It is not saved in Presets and cannot be edited.",
     "patch_compare_domains": "The triangular patch is defined on the triangle with barycentric coordinates (u, v, w), the tensor patch on the square [0, 1] × [0, 1] with coordinates (u, v).",
-    "patch_compare_boundaries": "The tensor patch has four boundary curves, the triangular patch three; all are of degree n."
+    "patch_compare_boundaries": "The tensor patch has four boundary curves, the triangular patch three; all are of degree n.",
+    "patch_decasteljau_algorithm": "De Casteljau algorithm for a patch",
+    "prompt_patch_decasteljau_order": "Compare the construction orders at the same (u, v). Which intermediate points change, and which final point stays the same?",
+    "prompt_patch_decasteljau_levels": "Move u and v and watch the intermediate levels. How many levels does the construction have for degrees m and n, and how do rows first and bilinear differ?",
+    "invalid_patch_decasteljau_order": "the construction order must be rows, columns or bilinear",
+    "patch_decasteljau_order": "Construction order",
+    "patch_decasteljau_order_rows": "Rows first",
+    "patch_decasteljau_order_columns": "Columns first",
+    "patch_decasteljau_order_bilinear": "Bilinear",
+    "patch_decasteljau_help_rows": "Rows first: each row of the net (constant i) is reduced along v in orange solid lines. The resulting points are joined and reduced along u in pink dashed lines. The last point is S(u, v).",
+    "patch_decasteljau_help_columns": "Columns first: each column of the net (constant j) is reduced along u in orange solid lines. The resulting points are joined and reduced along v in pink dashed lines. The last point is S(u, v).",
+    "patch_decasteljau_help_bilinear": "Bilinear: every 2 × 2 cell of the net is reduced to one point at once, min(m, n) times. The intermediate nets are orange and solid. The remainder, a one-dimensional row of points, is reduced by the ordinary De Casteljau scheme in pink dashed lines. The last point is S(u, v)."
 };

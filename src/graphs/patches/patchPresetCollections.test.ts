@@ -173,3 +173,37 @@ describe("graphState of a file", () => {
         expect(reasonFor(5)).toBeDefined();
     });
 });
+
+describe("patch-decasteljau construction order", () => {
+    const decasteljau = patchPresetCollections["patch-decasteljau"];
+    const withState = (state: Record<string, unknown>) => tensor({state});
+    const reasons = (state: Record<string, unknown>) => {
+        const checked = decasteljau.check(withState(state));
+        if (!("rejection" in checked)) throw new Error(`accepted: ${JSON.stringify(state)}`);
+        const out: Record<string, string> = {};
+        for (const language of ["sl", "en"] as const) { setLanguage(language); out[language] = renderMessage(checked.rejection); }
+        return out;
+    };
+
+    it.each(["rows", "columns", "bilinear"])("accepts %s and keeps it through the round trip", order => {
+        const checked = decasteljau.check(JSON.parse(JSON.stringify(withState({decasteljauOrder: order, showDeCasteljau: true}))));
+        if (!("data" in checked)) throw new Error("rejected");
+        expect(checked.data[0][1]).toMatchObject({state: {decasteljauOrder: order, showDeCasteljau: true}});
+        expect("data" in decasteljau.check(JSON.parse(JSON.stringify(checked.data)))).toBe(true);
+    });
+    it("accepts an old Preset without the order or the switch", () => {
+        expect("data" in decasteljau.check(withState({camera, u: 0.2, v: 0.4}))).toBe(true);
+        expect("data" in decasteljau.check(tensor())).toBe(true);
+    });
+    it.each([
+        ["an unknown order", "diagonal"],
+        ["a number", 1],
+        ["null", null],
+        ["an empty string", ""],
+    ])("rejects %s with the localized reason", (_name, order) => {
+        expect(reasons({decasteljauOrder: order})).toEqual({
+            sl: "vrstni red konstrukcije mora biti rows, columns ali bilinear",
+            en: "the construction order must be rows, columns or bilinear",
+        });
+    });
+});

@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react";
+import {type ReactNode, useCallback, useState} from "react";
 import {Button} from "react-bootstrap";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -109,7 +109,8 @@ export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApp
     </form></div>;
 }
 
-export function TensorPatchEditPanel({state, selection, actions}: {state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions}) {
+/** `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. */
+export function TensorPatchEditPanel({state, selection, actions, pointExtra}: {state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode}) {
     const t = useT();
     return <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
@@ -127,6 +128,7 @@ export function TensorPatchEditPanel({state, selection, actions}: {state: Tensor
                     onChange={value => actions.setParameter("u", value)}/>
             <Slider customText={t("patch_parameter_v")} min={0} max={1} step={0.01} value={state.v}
                     onChange={value => actions.setParameter("v", value)}/>
+            {pointExtra}
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
             <p className="inspector-help">{t("patch_parameter_inset_help")}</p>
         </div>
@@ -150,7 +152,8 @@ export function TensorPatchEditPanel({state, selection, actions}: {state: Tensor
 const indexOptions = (degree: number, none: string) =>
     [{value: NO_INDEX, text: none}, ...Array.from({length: degree + 1}, (_, k) => ({value: String(k), text: String(k)}))];
 
-export function TensorPatchDisplayPanel({state, actions}: {state: TensorPatchPanelState; actions: TensorPatchPanelActions}) {
+/** `visibilityExtra` is shown at the end of the "Shown elements" group. */
+export function TensorPatchDisplayPanel({state, actions, visibilityExtra}: {state: TensorPatchPanelState; actions: TensorPatchPanelActions; visibilityExtra?: ReactNode}) {
     const t = useT();
     return <>
         <div className="inspector-group"><h3>{t("patch_visibility_heading")}</h3>
@@ -158,6 +161,7 @@ export function TensorPatchDisplayPanel({state, actions}: {state: TensorPatchPan
             <OnOffSwitch label={t("patch_show_iso_curves")} checked={state.showIsoCurves} onChange={on => actions.setVisibility("showIsoCurves", on)}/>
             <OnOffSwitch label={t("patch_show_boundary_curves")} checked={state.showBoundaryCurves} onChange={on => actions.setVisibility("showBoundaryCurves", on)}/>
             <OnOffSwitch label={t("patch_show_shading")} checked={state.showShading} onChange={on => actions.setVisibility("showShading", on)}/>
+            {visibilityExtra}
         </div>
         <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>
             <ChoiceSelect label={t("patch_iso_density")} value={String(state.isoDensity)} options={DENSITIES}

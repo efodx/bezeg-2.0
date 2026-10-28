@@ -28,7 +28,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
     "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point"];
 /** Collections added after those files: the patch families . */
-const PATCH_KEYS = ["patch-tensor", "patch-triangular"];
+const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-triangular"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
 const rounded = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, item) =>

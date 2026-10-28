@@ -1263,5 +1263,16 @@ export const sl = {
     "patch_compare_show": "Pokaži tenzorsko krpo iste stopnje",
     "patch_compare_help": "Tenzorska krpa je izpeljana iz iste mreže in je narisana modrozeleno z dolgimi črtami. S trikotno krpo si delita robni krivulji u = 0 in v = 0. Ni shranjena v prednastavitvah in je ni mogoče urejati.",
     "patch_compare_domains": "Trikotna krpa je definirana na trikotniku z baricentričnimi koordinatami (u, v, w), tenzorska na kvadratu [0, 1] × [0, 1] s koordinatama (u, v).",
-    "patch_compare_boundaries": "Tenzorska krpa ima štiri robne krivulje, trikotna tri; vse so stopnje n."
+    "patch_compare_boundaries": "Tenzorska krpa ima štiri robne krivulje, trikotna tri; vse so stopnje n.",
+    "patch_decasteljau_algorithm": "De Casteljaujev algoritem za krpo",
+    "prompt_patch_decasteljau_order": "Primerjaj vrstne rede konstrukcije pri istem (u, v). Katere vmesne točke se spremenijo in katera končna točka ostane enaka?",
+    "prompt_patch_decasteljau_levels": "Premikaj u in v ter opazuj vmesne stopnje. Koliko stopenj ima konstrukcija pri stopnjah m in n ter kako se razlikujeta vrstice najprej in bilinearno?",
+    "invalid_patch_decasteljau_order": "vrstni red konstrukcije mora biti rows, columns ali bilinear",
+    "patch_decasteljau_order": "Vrstni red konstrukcije",
+    "patch_decasteljau_order_rows": "Vrstice najprej",
+    "patch_decasteljau_order_columns": "Stolpci najprej",
+    "patch_decasteljau_order_bilinear": "Bilinearno",
+    "patch_decasteljau_help_rows": "Vrstice najprej: vsaka vrstica mreže (stalni i) se po v zmanjšuje v oranžnih polnih črtah. Dobljene točke se povežejo in po u zmanjšujejo v rožnatih črtkanih črtah. Zadnja točka je S(u, v).",
+    "patch_decasteljau_help_columns": "Stolpci najprej: vsak stolpec mreže (stalni j) se po u zmanjšuje v oranžnih polnih črtah. Dobljene točke se povežejo in po v zmanjšujejo v rožnatih črtkanih črtah. Zadnja točka je S(u, v).",
+    "patch_decasteljau_help_bilinear": "Bilinearno: vsaka celica 2 × 2 mreže se naenkrat zmanjša v eno točko, min(m, n)-krat. Vmesne mreže so oranžne in polne. Ostanek, enorazsežna vrsta točk, se zmanjša z običajnim De Casteljaujevim postopkom v rožnatih črtkanih črtah. Zadnja točka je S(u, v)."
 } as const;

@@ -50,6 +50,7 @@ export const SURFACE_COLORS = {
     'iso-w': 0xa86a00, // amber; 4.4:1 on white (non-text needs 3:1)
     boundary: 0x643f2f,
     construction: 0xc45f3b,
+    'construction-2': 0xb02a73, // pink: the second stage of the tensor de Casteljau construction, also dashed
     highlight: 0x1f5fbf,
     compare: 0x0b7a75, // teal: the tensor patch beside the triangular one; 5.2:1 on white (5.18 computed)
     point: 0x5f8046, // 4.5:1 on the white clear colour (WCAG non-text needs 3:1); the former 0x7d9d61 was 3.06:1
@@ -61,12 +62,14 @@ export const SURFACE_COLORS = {
 /**
  * Dash pattern per role, as a fraction of the scene extent (the diagonal of the scene's bounding box),
  * so the dashes stay visible at any patch size. Roles not listed are drawn solid. The iso-curves are
- * told apart without colour: `iso` solid, `iso-v` dashed, `iso-w` dotted, `compare` long-dashed.
+ * told apart without colour: `iso` solid, `iso-v` dashed, `iso-w` dotted, `compare` long-dashed. The second
+ * construction stage (`construction-2`) is short-dashed against the first stage's solid lines.
  */
 export const SURFACE_DASH = {
     'iso-v': {dash: 0.03, gap: 0.02},
     'iso-w': {dash: 0.014, gap: 0.014},
     compare: {dash: 0.07, gap: 0.03},
+    'construction-2': {dash: 0.022, gap: 0.012},
 } as const satisfies Partial<Record<PolylineRole, {dash: number; gap: number}>>;
 
 function dashFor(role: PolylineRole): {dash: number; gap: number} | undefined {
@@ -157,6 +160,7 @@ export class ThreeSurfaceView implements SurfaceView {
     private selectedMaterial: ThreeNs.MeshBasicMaterial | null = null;
     private evaluatedMaterial: ThreeNs.MeshBasicMaterial | null = null;
     private constructionMaterial: ThreeNs.MeshBasicMaterial | null = null;
+    private construction2Material: ThreeNs.MeshBasicMaterial | null = null;
     private surfaceMaterial: ThreeNs.MeshStandardMaterial | null = null;
 
     constructor(options: ThreeSurfaceViewOptions = {}) {
@@ -365,6 +369,7 @@ export class ThreeSurfaceView implements SurfaceView {
         this.selectedMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.selected}));
         this.evaluatedMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.marker}));
         this.constructionMaterial = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS.construction}));
+        this.construction2Material = this.track(new T.MeshBasicMaterial({color: SURFACE_COLORS['construction-2']}));
         this.surfaceMaterial = this.track(new T.MeshStandardMaterial({
             color: SURFACE_COLORS.surface, roughness: 0.74, metalness: 0, side: T.DoubleSide,
             polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
@@ -439,8 +444,8 @@ export class ThreeSurfaceView implements SurfaceView {
             this.pointMeshes.set(p.id, mesh);
         }
         for (const m of scene.markers) {
-            const mesh = new T.Mesh(
-                this.markerGeometry!, m.role === 'evaluated' ? this.evaluatedMaterial! : this.constructionMaterial!);
+            const material = m.role === 'evaluated' ? this.evaluatedMaterial! : m.role === 'construction-2' ? this.construction2Material! : this.constructionMaterial!;
+            const mesh = new T.Mesh(this.markerGeometry!, material);
             mesh.position.set(...m.xyz);
             this.dynamicLayer.add(mesh);
         }

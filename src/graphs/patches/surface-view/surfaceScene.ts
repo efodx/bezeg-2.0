@@ -10,9 +10,10 @@ export type Xyz = [number, number, number];
 /**
  * `iso-v` and `iso-w` are the second and third iso-line families of a triangular patch; `iso` is the first (and the tensor patch's only).
  * `compare` draws the tensor-product patch that the triangular workspace shows next to its own surface (curves and net only).
+ * `construction-2` is the second stage of the tensor patch's de Casteljau construction (`construction` is the first).
  */
-export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'highlight' | 'compare';
-export type MarkerRole = 'evaluated' | 'construction';
+export type PolylineRole = 'net' | 'iso' | 'iso-v' | 'iso-w' | 'boundary' | 'construction' | 'construction-2' | 'highlight' | 'compare';
+export type MarkerRole = 'evaluated' | 'construction' | 'construction-2';
 
 export interface ScenePoint {
     id: string;

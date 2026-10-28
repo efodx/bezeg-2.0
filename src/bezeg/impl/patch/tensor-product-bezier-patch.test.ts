@@ -61,6 +61,36 @@ describe("TensorProductBezierPatch", () => {
         }
     });
 
+    it("columnsFirstScheme keeps every column's levels and ends at evalByColumns and the Bernstein sum", () => {
+        const within = (actual: number[], expected: number[]) => actual.forEach((value, d) => expect(Math.abs(value - expected[d])).toBeLessThan(1e-12));
+        for (let m = 1; m <= 4; m++) for (let n = 1; n <= 4; n++) {
+            const net = makeNet(m, n), patch = new TensorProductBezierPatch(net);
+            for (const [u, v] of [[0, 0], [1, 1], [0.17, 0.63], [0.5, 0.5], [0.9, 0.05]]) {
+                const scheme = patch.columnsFirstScheme(u, v);
+                within(scheme.result, coords(patch.evalByColumns(u, v)));
+                within(scheme.result, bernsteinNet(numeric(net), u, v));
+                within(scheme.result, coords(patch.eval(u, v)));
+                // One scheme per v-column, each with m + 1 levels along u; the column results have n + 1 levels along v.
+                expect(scheme.columnsAlongU).toHaveLength(n + 1);
+                expect(scheme.columnResultsAlongV).toHaveLength(n + 1);
+                scheme.columnsAlongU.forEach((levels, j) => {
+                    expect(levels).toHaveLength(m + 1);
+                    // Level 0 is the column of the net; every later level blends the previous one along u.
+                    levels[0].forEach((p, i) => within(p, coords(net[i][j])));
+                    for (let r = 1; r <= m; r++) for (let i = 0; i < m + 1 - r; i++) {
+                        within(levels[r][i], levels[r - 1][i].map((x, d) => (1 - u) * x + u * levels[r - 1][i + 1][d]));
+                    }
+                    // The column's last level is the point of the iso-curve v = const at its own column index.
+                    within(scheme.columnResultsAlongV[0][j], levels[m][0]);
+                });
+                for (let r = 1; r <= n; r++) for (let j = 0; j < n + 1 - r; j++) {
+                    within(scheme.columnResultsAlongV[r][j], scheme.columnResultsAlongV[r - 1][j].map((x, d) => (1 - v) * x + v * scheme.columnResultsAlongV[r - 1][j + 1][d]));
+                }
+                within(scheme.columnResultsAlongV[n][0], scheme.result);
+            }
+        }
+    });
+
     it("interpolates four corners and all four exact boundaries", () => {
         const net = makeNet(3, 2), patch = new TensorProductBezierPatch(net);
         close(coords(patch.eval(0, 0)), coords(net[0][0]));

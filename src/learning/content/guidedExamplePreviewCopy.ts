@@ -5,8 +5,8 @@ import type {LocalizedText} from '../model';
 export type GuidedExamplePreviewCopy = Readonly<{alt: LocalizedText; caption: LocalizedText}>;
 
 /** Demonstrations whose guided lesson is not written yet (the patches chapter, tasks 11–12); they get preview copy with their lesson. */
-export type DemonstrationWithoutLessonId = 'patch-tensor' | 'patch-triangular';
-export const isDemonstrationWithoutLesson = (id: DemonstrationId): id is DemonstrationWithoutLessonId => id === 'patch-tensor' || id === 'patch-triangular';
+export type DemonstrationWithoutLessonId = 'patch-tensor' | 'patch-decasteljau' | 'patch-triangular';
+export const isDemonstrationWithoutLesson = (id: DemonstrationId): id is DemonstrationWithoutLessonId => id === 'patch-tensor' || id === 'patch-decasteljau' || id === 'patch-triangular';
 
 const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string): GuidedExamplePreviewCopy => ({
     alt: {sl: altSl, en: altEn},

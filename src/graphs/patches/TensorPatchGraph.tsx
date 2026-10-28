@@ -6,7 +6,7 @@ import {mountParameterInset, ParameterInset} from "./parameterInset";
 import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
-import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
+import {DecasteljauOrder, PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, patchPresetCollections} from "./patchPresetCollections";
 import {buildTensorScene, patchFromNet, patchPointId, PatchDensity, parsePatchPointId} from "./patchSceneBuilder";
 import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
@@ -33,6 +33,9 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     shadingDensity: PatchDensity;
     /** Vertical-drag mode of the view; a mode of the session, not saved in Presets. */
     zMode: boolean;
+    /** Only the `patch-decasteljau` Demonstration sets these (see {@link TensorDeCasteljauGraph}); `patch-tensor` leaves them out of its state and Presets. */
+    showDeCasteljau?: boolean;
+    decasteljauOrder?: DecasteljauOrder;
 }
 
 const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
@@ -90,20 +93,29 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         return defaultPatchPresets[1].data();
     }
 
-    override exportPresetData(): PatchCollectionPresetData {
+    /** The `state` a Preset stores; a Demonstration with more state adds to it. */
+    protected stateDto(): PatchStateDto {
         const s = this.state;
-        const dto = tensorPatchToDto(patchFromNet(s.net), {
+        return {
             camera: fromCamera(s.camera), u: s.u, v: s.v,
             showControlNet: s.showControlNet, showIsoCurves: s.showIsoCurves, showBoundaryCurves: s.showBoundaryCurves, showShading: s.showShading,
             isoDensity: s.isoDensity, shadingDensity: s.shadingDensity,
-        });
-        return [["TensorProductBezierPatch", dto]];
+        };
+    }
+
+    /** The state a Preset's patch DTO sets; a Demonstration with more state adds to it. */
+    protected stateOf(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>; state?: PatchStateDto}): Partial<TensorPatchGraphState> {
+        return stateFromDto(dto);
+    }
+
+    override exportPresetData(): PatchCollectionPresetData {
+        return [["TensorProductBezierPatch", tensorPatchToDto(patchFromNet(this.state.net), this.stateDto())]];
     }
 
     override importPresetData(data: PatchCollectionPresetData): void {
         const entry = data[0];
         if (entry?.[0] !== "TensorProductBezierPatch") return;
-        this.setState(stateFromDto(entry[1]));
+        this.setState(this.stateOf(entry[1]));
     }
 
     // ---- Surface contract --------------------------------------------------------------------------------------
@@ -224,7 +236,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
 
     // ---- Panels ------------------------------------------------------------------------------------------------
 
-    private readonly panelActions: TensorPatchPanelActions = {
+    protected readonly panelActions: TensorPatchPanelActions = {
         useStartingPatch: index => this.useStartingPatch(index),
         setDegree: (direction, degree) => this.setDegree(direction, degree),
         setParameter: (parameter, value) => this.setParameter(parameter, value),
@@ -239,7 +251,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         setInsetContainer: container => this.setInsetContainer(container),
     };
 
-    private selection(): PatchSelection | undefined {
+    protected selection(): PatchSelection | undefined {
         const index = this.selectedPointId === undefined ? undefined : parsePatchPointId(this.selectedPointId);
         if (index === undefined || index[0] > this.state.m || index[1] > this.state.n) return undefined;
         const [i, j] = index;

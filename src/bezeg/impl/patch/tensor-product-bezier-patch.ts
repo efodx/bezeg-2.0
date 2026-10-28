@@ -16,6 +16,14 @@ export interface TensorDeCasteljauScheme {
     result: number[];
 }
 
+export interface TensorColumnsDeCasteljauScheme {
+    /** One de Casteljau scheme per v-column, evaluating each column along u. */
+    columnsAlongU: number[][][][];
+    /** Scheme of the column results, evaluated along v. */
+    columnResultsAlongV: number[][][];
+    result: number[];
+}
+
 export interface TensorBilinearScheme {
     /** Initial control net followed by each simultaneous bilinear reduction net. */
     reducedNets: number[][][][];
@@ -171,6 +179,22 @@ export class TensorProductBezierPatch implements BezierPatch {
         const rowResultsAlongU: number[][][] = [];
         deCasteljauInPlace(u, rowResults, undefined, rowResultsAlongU);
         return {rowsAlongV, rowResultsAlongU, result: [...rowResults[0]]};
+    }
+
+    /** The columns-first mirror of {@link decasteljauScheme}: each v-column along u, then the column results along v. */
+    columnsFirstScheme(u: number, v: number): TensorColumnsDeCasteljauScheme {
+        TensorProductBezierPatch.checkParameter(u, "u");
+        TensorProductBezierPatch.checkParameter(v, "v");
+        const net = this.coordinateNet();
+        const columnsAlongU = net[0].map((_, j) => {
+            const scheme: number[][][] = [];
+            deCasteljauInPlace(u, net.map(row => [...row[j]]), undefined, scheme);
+            return scheme;
+        });
+        const columnResults = columnsAlongU.map(scheme => [...scheme[scheme.length - 1][0]]);
+        const columnResultsAlongV: number[][][] = [];
+        deCasteljauInPlace(v, columnResults, undefined, columnResultsAlongV);
+        return {columnsAlongU, columnResultsAlongV, result: [...columnResults[0]]};
     }
 
     /** Evaluate using columns first, an equivalent recurrence useful for numerical cross-checks. */

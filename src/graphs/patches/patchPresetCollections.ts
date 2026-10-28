@@ -1,6 +1,6 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
+import {isDecasteljauOrder, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
 import {defaultTriangularNet} from "./TriangularPatchDegree";
 
 const MIN_DEGREE = 1;
@@ -23,11 +23,12 @@ function checkState(value: unknown, triangular: boolean): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
     const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: `state.${unknown}`});
-    const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity"]);
+    const invalid = checkSceneState(value, ["camera", "isoDensity", "shadingDensity", "decasteljauOrder"]);
     if (invalid) return invalid;
     for (const key of ["u", "v"]) if (value[key] !== undefined && !isUnit(value[key])) return message("invalid_patch_parameter", {value0: key});
     // `isoDensity` would otherwise be read as an `is*` switch by the shared state check.
     for (const key of ["isoDensity", "shadingDensity"]) if (value[key] !== undefined && value[key] !== 8 && value[key] !== 16) return message("invalid_patch_density", {value0: key});
+    if (value.decasteljauOrder !== undefined && !isDecasteljauOrder(value.decasteljauOrder)) return message("invalid_patch_decasteljau_order");
     // The triangle domain u, v >= 0, u + v <= 1 (w = 1 - u - v >= 0); the tolerance absorbs rounding of an exported pair.
     if (triangular && typeof value.u === "number" && typeof value.v === "number" && value.u + value.v > 1 + 1e-9) return message("invalid_triangular_parameters", {value0: value.u, value1: value.v});
     return value.camera === undefined ? undefined : checkCamera(value.camera);
@@ -79,6 +80,7 @@ function patchCollection(key: string, type: PatchTypeName): PresetCollection<Pat
 export const patchPresetCollections = {
     "patch-tensor": patchCollection("patch-tensor", "TensorProductBezierPatch"),
     "patch-triangular": patchCollection("patch-triangular", "TriangularBezierPatch"),
+    "patch-decasteljau": patchCollection("patch-decasteljau", "TensorProductBezierPatch"),
 } as const;
 
 /**
