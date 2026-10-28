@@ -1,6 +1,6 @@
 # Bézier patches (Bézierjeve krpe)
 
-Status: in progress. Tasks01–06 are complete, including [tensor](../reviews/bezier-patches/tensor-geometry.md) and [triangular geometry acceptance](../reviews/bezier-patches/triangular-geometry.md). [ADR0018](../adr/0018-three-surface-view-adapter.md) selects Three for patch views after [completed prototype measurements](../reviews/bezier-patches/renderer-measurements.md). Production [tasks07–14](../tasks/bezier-patches/README.md) remain, with the adapter/tensor workspace next. No production patch route has shipped. Sources:
+Status: in progress. Tasks01–07 are complete, including [tensor](../reviews/bezier-patches/tensor-geometry.md) and [triangular geometry acceptance](../reviews/bezier-patches/triangular-geometry.md). [ADR0018](../adr/0018-three-surface-view-adapter.md) selects Three for patch views after [completed prototype measurements](../reviews/bezier-patches/renderer-measurements.md). Task07 shipped the surface adapter and `patch-tensor` at `/bezeg-2.0/patches/tensor`; production [tasks08–14](../tasks/bezier-patches/README.md) remain, with the triangular workspace next. Sources:
 - [teaching research](../research/bezier-surfaces.md): mathematics, lesson outline, misconceptions, library facts;
 - [architecture research](../research/bezier-surfaces-architecture.md): layer-by-layer requirements.
 

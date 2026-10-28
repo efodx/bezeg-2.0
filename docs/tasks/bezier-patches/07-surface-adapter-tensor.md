@@ -1,6 +1,6 @@
 # 07 — Surface-view adapter and tensor workspace
 
-Status: ready after05. Source: [rendering contract, Presets, P6–P8](../../specs/bezier-patches.md#rendering-and-interaction-contract), [ADR0018](../../adr/0018-three-surface-view-adapter.md). Depends on02/04/05. First production surface integration; one owner for session/graph interfaces.
+Status: complete 2026-10-28 ([handoff 12](../../reviews/bezier-patches/handler-handoff-12.md), R2 repairs and browser recheck in [task07-r2.md](../../reviews/bezier-patches/task07-r2.md)). Source: [rendering contract, Presets, P6–P8](../../specs/bezier-patches.md#rendering-and-interaction-contract), [ADR0018](../../adr/0018-three-surface-view-adapter.md). Depends on02/04/05. First production surface integration; one owner for session/graph interfaces.
 
 Add the pinned lazy-loaded Three dependency through normal package/lock workflow, the plain-data surface interface and owned adapter, and the graph/session composition for `patch-tensor` at `/bezeg-2.0/patches/tensor`. Keep curve paths unchanged. Reconcile exact geometry revisions; emit edit intents without graph-field state mirrors. Add net/iso/boundary/shading controls, preset cameras/reset, pointer/touch XY/z, numeric xyz, index selection, square inset and keyboard u/v sliders. Fit the default net at narrow widths. Add bilinear saddle/bicubic dome Presets with validated additive DTOs, camera save/restore and transient selection declarations.
 

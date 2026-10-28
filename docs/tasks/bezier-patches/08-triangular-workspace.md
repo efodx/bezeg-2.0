@@ -1,6 +1,6 @@
 # 08 — Triangular workspace and comparison
 
-Status: ready after06/07. Source: [demonstrations, rendering contract, P6–P8](../../specs/bezier-patches.md#demonstrations), [ADR0018](../../adr/0018-three-surface-view-adapter.md). Reuse the surface adapter and family Preset owner.
+Status: ready (06 and07 complete); in progress from 2026-10-28, slice 08A [brief](../../reviews/bezier-patches/t08a-brief.md). Source: [demonstrations, rendering contract, P6–P8](../../specs/bezier-patches.md#demonstrations), [ADR0018](../../adr/0018-three-surface-view-adapter.md). Reuse the surface adapter and family Preset owner.
 
 Add `patch-triangular` at `/bezeg-2.0/patches/triangular`: degree1–4 canonical indexed net, barycentric de Casteljau, three distinct iso families, boundary curves, elevation and three-piece subdivision. Provide triangle inset, clamped keyboard u/v with read-only w, three edge-parallel selection lines and Bernstein weight. Add validated triangular Presets/camera restoration through the existing envelope.
 
