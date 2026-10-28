@@ -1,6 +1,7 @@
 # Current capabilities
 
-**Learn / Učenje** leads through eight bilingual chapters into chapter-owned **Guided examples / Vodeni primeri**. Each section contains matching prepared graph examples, from a single exploration prompt to multi-frame explanations and observations. All use the same instructional surface and session. Return midway to the owning section with reading position and focus restored, or complete the example and experiment with its graph before choosing **Continue in chapter / Nadaljuj v poglavju**. Catalog guidance opens the same chapter-owned examples; independent catalog graph exploration remains available. Existing activity and lesson entry URLs remain compatible, without preset/storage changes. See [chapter-owned guided learning](specs/chapter-owned-guided-learning.md). Examples are placed in an authored reading sequence, with overlapping prompts consolidated into 56 retained homes. Their board previews describe the exact prepared opening scene in both languages; original entry URLs resolve to the retained section.
+**Learn / Učenje** leads through eight bilingual chapters into chapter-owned **Guided examples / Vodeni primeri**. Each section contains matching prepared graph examples, from a single exploration prompt to multi-frame explanations and observations. All use the same instructional surface and session. Return midway to the owning section with reading position and focus restored, or complete the example and experiment with its graph before choosing **Continue in chapter / Nadaljuj v poglavju**. Catalog guidance opens the same chapter-owned examples; independent catalog graph exploration remains available. Existing activity and lesson entry URLs remain compatible, without preset/storage changes. See [chapter-owned guided learning](specs/chapter-owned-guided-learning.md).
+ Examples are placed in an authored reading sequence, with overlapping prompts consolidated into 56 retained homes. Their board previews describe the exact prepared opening scene in both languages; original entry URLs resolve to the retained section.
 
 Source inventory as of 2026-10-15. Routes below come from the ordered [`Demonstration metadata`](../src/demonstrations.ts), registered lazily by [`src/Routes.tsx`](../src/Routes.tsx) and bound to graphs by [`graphFactories`](../src/graphs/graphFactories.ts); unexposed implementations are excluded. The table identifies topics and components, not a claim that every interaction has passed runtime validation.
 
@@ -40,6 +41,7 @@ All 45 shipped demonstrations have genuine representative route captures. The ca
 | Parameterization | `/param/param/alphaparam` | Weighted parameterization |
 | Parameterization | `/param/param/uniform` | Uniform / weighted PH parameterization |
 | Patches | `/patches/tensor` | Tensor-product Bézier patch (`TensorPatchGraph`), a WebGL surface workspace; see [Tensor patch workspace](#tensor-patch-workspace) |
+| Patches | `/patches/triangular` | Triangular Bézier patch (`TriangularPatchGraph`) on the same surface view; see [Triangular patch workspace](#triangular-patch-workspace) |
 | Functions | `/functions/linear` | Linear function through two points (`LinearFunctionGraph`) |
 | Functions | `/functions/exponential` | Exponential function (`ExponentialFunctionGraph`) |
 | Functions | `/functions/trigonometric` | Trigonometric functions (`TrigonometricFunctionsGraph`) |
@@ -76,6 +78,17 @@ The [concept-led preview revision](specs/concept-led-demonstration-previews.md) 
 - **Presets**: bilinear saddle and bicubic dome defaults; a Preset stores the net and the camera, and opening it restores both. Import rejects invalid `graphState`.
 - **Labels and export**: MathJax labels are an HTML overlay positioned from the projected, occlusion-tested anchors. SVG export embeds the rendered image plus vector labels; PNG and the Preset batch (`slike.zip`) use the same still source.
 - **Failure**: if WebGL is unavailable or the context is lost, the `surface_unavailable` alert is shown (the same notice for startup failure and context loss; restoring the context clears it).
+
+## Triangular patch workspace
+
+`/patches/triangular` (`TriangularPatchGraph`, built on `BaseSurfaceGraph`) edits a triangular Bézier patch of degree 1–4 with a canonical indexed net of `(n + 1)(n + 2)/2` points `P_ijk`, `i + j + k = n` ([spec](specs/bezier-patches.md)). View, camera, dragging, labels, export and failure handling are those of the [tensor workspace](#tensor-patch-workspace).
+
+- **View**: control net, three iso-line families (`u`, `v`, `w` constant; told apart by colour), boundary curves, shading and the barycentric de Casteljau scheme at the current point; a transient three-piece split at `(u, v, w)`, drawn only for an interior point.
+- **Evaluation**: `u`, `v` sliders clamped so that `u + v ≤ 1`, with read-only `w = 1 − u − v`; a triangle-domain inset whose dot lands on the nearest point of the triangle when dragged outside it.
+- **Editing**: a point is chosen in the view or from a list of valid `(i, j, k)`; its x, y, z are typed (finite values only). The three net lines through it, parallel to the triangle edges, are highlighted, and its Bernstein weight `n!/(i! j! k!) uⁱ vʲ wᵏ` at `(u, v, w)` is shown.
+- **Degree**: elevation is exact; lowering interpolates the patch at the lattice points of the lower degree, exact only when the patch already has that degree.
+- **Comparison**: a transient switch also draws the `n × n` tensor patch with net `P_ab = b_(a,0,n−a) + b_(0,b,n−b) − b_(0,0,n)` (a translational surface). It shares the boundary curves `u = 0` and `v = 0` with the triangular patch; the inset then shows the square domain around the triangle. It is not stored in Presets and cannot be edited.
+- **Presets**: one default per degree (the cubic opens first); a Preset stores net, `u`, `v`, switches, densities and camera. An imported `u + v` slightly above 1 from rounding is clamped into the triangle.
 
 ## Shared user workflows
 

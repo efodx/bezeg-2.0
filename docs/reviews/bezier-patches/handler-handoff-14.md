@@ -1,0 +1,37 @@
+# Bézier patches handler handoff 14 — 2026-10-28
+
+Current entry point; supersedes [handoff 13](handler-handoff-13.md). Objective unchanged: finish `docs/tasks/bezier-patches` tasks 07–14 in index order under AGENTS.md (standing authorization: delegation, commits, fast-forward master push). Task 08 implementation is complete; acceptance is in progress.
+
+## Successor rule (owner instruction, 2026-10-28)
+
+At your context handoff, commit and push your handoff note, then start your successor yourself: `claude --bg -n "bezier-patches handler <n+1>" --agent claude --model claude-opus-5-5 --permission-mode auto "<prompt>"` from your working directory (CLI at `%APPDATA%\npm\claude`; docs/agent-workflow.md handler budget step 6). The prompt names your note, says to continue under AGENTS.md, and repeats this rule so every successor starts the next one. Do not launch when the remaining work needs an owner decision, would repeat a failed step, or the objective is complete; if the launch fails, end with the note path and a paste-ready prompt. Report the session id, note path and commit in your final message. Repeat this rule in your own handoff note.
+
+## Git state
+
+- `origin/master` = `45f6914` (08A review repairs: `dcb4e2f` clamp imported triangular `v`, `45f6914` dispositions). Master CI (Browser smoke) for `45f6914`: success.
+- `origin/bezier-patches-wip` = this note's commit: master + `0a2d7ef` (08B1 inset), `334973b` (08B2 selection/editor/weight), `66efc0c` (08C tensor comparison), then the docs/acceptance commit and this note. **Not on master yet** — push after the acceptance repairs below (fast-forward: `git fetch`, `git merge-base --is-ancestor origin/master HEAD`, `git push origin HEAD:master`).
+- Worktree `.claude/worktrees/bezier-patches-r2`, branch `worktree-bezier-patches-r2`. Old `tmp-*` worker scratch moved to the worktree's `.claude/scratch/` (lint scanned it at the root and failed `just check`); keep new scratch there.
+- Main checkout: leave `debug.log` and the stale uncommitted R2 diff (superseded by `e309b99`) for the owner.
+
+## Done this phase
+
+- 08A dispositions recorded in [triangular-workspace.md](triangular-workspace.md): M1+E2 fixed with observed pre-fix `RangeError`; M2, S1 no change (reasons there); E1 kept; E3 done by 08B2; E4 carried (below); S2 deferred to task 13 (note added to task 13).
+- 08B1 [brief](t08b1-brief.md), 08B2 [brief](t08b2-brief.md), 08C [brief](t08c-brief.md): one Sonnet-high worker each, all complete in one pass (19, 35, 46 tool uses; peaks ≈59k, 96k, 101k; no handoffs). Each reported observed mutation failures. Handler fixes during integration: Slovenian "se pika postavi", help `b_ijk`→`P_ijk`, "S trikotno krpo", "prednastavitvah". After 08C: 55 files / 1068 tests in `src/graphs/patches src/graphs/base src/localization`, tsc and eslint clean. Last full `just check` was at `45f6914` (4128 tests); run it again before the master push.
+- Docs updated (committed with this note): `docs/capabilities.md` (route row + "Triangular patch workspace"), `docs/ui-functionality.md` ("Surface (triangular patch) controls"), `docs/current-architecture.md` (triangular route, shared `parameterInset.ts`).
+
+## Task 08 acceptance ([brief](t08-acceptance-brief.md), diff `45f6914..66efc0c`)
+
+- **R1 math (Sonnet medium):** no defects; clamp, weight (6/27 for `P_111`), highlight families, shared tensor boundaries and localized claims verified; tests non-vacuous. Nits: help "three net lines parallel to the triangle edges" holds in the index lattice, not the 3D net (reword: "the net lines with constant i, j or k"); `triangleDomain.test.ts` "never u+v>1" case would pass without the `min` guard (add an input whose projection rounds above 1, or drop the claim).
+- **R2 engineering + UI/a11y (Sonnet medium):** no blocking; lifecycle, transient state, Preset compatibility clean. Findings: **E4 medium** — `iso`/`iso-v`/`iso-w` and `compare` differ by colour only (`threeSurfaceView.ts:435-440, 459-463`); remedy: `LineDashedMaterial` for `iso-v` (dash), `iso-w` (dot), `compare` (long dash), `computeLineDistances()` in `rebuildGeometry`, dash sizes scaled to scene extent, palette tests, and a dash clause in `patch_triangular_iso_help`/`patch_compare_help` (sl+en lockstep); check SVG/PNG export keeps the dashes. Low: comment `threeSurfaceView.ts:54` says 5.4:1, actual ≈5.2:1; editor legend `b111` vs weight/label `P₁₁₁` (tensor inherits the same split — use `P` in both editors); split the dense `patch_compare_domains` note into two sentences.
+- **R3 smoke + ADR0018 measurement (`bezeg-smoke` Sonnet medium):** all 5 checks passed, 0 console errors; full record [task08-smoke.md](task08-smoke.md), scripts/screens `.claude/scratch/smoke08b/` (build of `66efc0c`). Inset clamps (hypotenuse projection, vertices, legs), index select 10 triples, `P_111` weight 0,2222, xyz apply, comparison on/off and not restored by Presets, tensor inset, English, 390×844 touch without overflow. ADR0018 at 1440×1000 with de Casteljau, split and comparison on: drag next-rAF p95 14,7 ms (≤ 60), orbit next-rAF p95 7,6 ms (≤ 16,7), active frame p95 16,7–16,8 ms (≤ 50), inset drag next-rAF p95 10,5 ms — all pass (second-rAF p95 ≈ 25 ms recorded, not the budget metric). Gaps: xyz rejection message not reached in the browser (`type=number` blocks text; unit tests cover it), keyboard-only inset/select not exercised, shared-boundary exactness judged by eye (unit tests cover it), the graph is small at the default camera (S2, task 13). Observation: on the tensor inset a single pointer jump outside the board is not tracked (continuous moves clamp); compare with `45f6914` before treating it as a regression.
+
+## Remaining steps, in order
+
+1. One repair slice (`bezeg-worker` Sonnet high, ≤20 turns) for E4 + the low findings above + any R3 failures; observed failures for new assertions; handler confirms locally. Re-review only the E4 rendering change (shared surface view), Haiku or Sonnet medium, plus a narrow Haiku smoke recheck of dashes on both patch routes.
+2. `just check`, push master (fast-forward), mirror wip, check CI (`curl -s "https://api.github.com/repos/efodx/bezeg-2.0/actions/runs?branch=master&per_page=3"`; `just ci` needs `gh`, not installed).
+3. Close task 08: complete `triangular-workspace.md` (acceptance table: reviews, smoke, measurements vs budgets), evaluation-log record for task 08 (08A's two budget handoffs; 08B1/B2/C one-pass each), mark task 08 complete in the task file and `docs/tasks/bezier-patches/README.md`.
+4. Tasks 09–14 in index order. Carried: task 13 owns triangular preview framing and the opening-camera policy (S2); task 12 owns the placeholder `triangular-patches` section in `guidedLessonOwnership.ts`. Smoke checklist (`docs/smoke-tests.md`) has no patch rows yet — task 14 should add them.
+
+## Settings
+
+Handler Opus 5.5, auto mode. Handler self watcher soft threshold 175k (owner override of 150k; also in project memory), then 190k closeout. Workers: `bezeg-worker` Sonnet high for implementation/repairs, Sonnet medium for math/engineering review; `bezeg-smoke` Sonnet medium for first-pass smoke, Haiku medium for narrow rechecks (name the inspector tab: Uredi/Prikaz/Shrani; import is a modal). Watchers 135k / Haiku 78k (the launch hook prints the command). At most three workers at once; give one worker preview/build ownership. Slices of ~20 turns completed in one pass this phase — keep that size.
