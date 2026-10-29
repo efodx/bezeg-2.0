@@ -13,5 +13,3 @@ Run 2026-10-29 07:54–08:03 UTC. Target: production preview `http://127.0.0.1:4
 | Narrow viewport and keyboard | **Passed** — 3 lesson graph tests plus 4 chapter tests covered 390 px, enlarged text, Presentation/touch, Tab+Enter, and visible focus. |
 
 Playwright batches: 22/22 (`guided-lessons.smoke.spec.cjs` and selected `curve-ownership.smoke.spec.cjs` rows); 66/66 (`demonstrations`, `workflows`, `curve-editing-modes`); 3/3 (`lesson-graph-access`); 4/4 (`standalone-learning`/rational weight). Custom scripts: `.claude/scratch/t11-codex-smoke/{completion-edit,polynomial-drag,unique-preset}.cjs`; config `playwright.config.cjs`. No runtime errors. The first drag invocation used the wrong locale selector and was corrected; retry passed. All browser contexts closed; temporary preset deleted; handler-owned preview left running. Skipped the full lesson-content corpus walk because task 13 has not authored the patch chapter; existing lessons cover the shared runtime. Physical-device use and GitHub Pages hosting remain unverified.
-
-

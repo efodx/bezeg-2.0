@@ -1,6 +1,6 @@
 # Bézier patches chapter: section map and verification
 
-Task 12 (`docs/tasks/bezier-patches/12-patches-chapter.md`). Sections 1-4 written by writer A; 5-8 written by writer B, 9-11 placeholders (pending writer C). Content: `src/learning/content/patchChapter*.ts`. Registered in `familyChapters.ts` directly after `parametrization`; prerequisite Bézier curves. No `example` blocks and no authored scenes until task 13; catalog figure captions say the previews show default scenes.
+Task 12 (`docs/tasks/bezier-patches/12-patches-chapter.md`). All eleven sections are authored; sections 9–11 were recovered from the interrupted writer's working tree. Content: `src/learning/content/patchChapter*.ts`. Registered in `familyChapters.ts` directly after `parametrization`; prerequisite Bézier curves. No `example` blocks and no authored scenes until task 13; catalog figure captions say the previews show default scenes. Independent [content/mathematical review](t12-codex-content-review.md) checked all eleven sections and identified two repairs, tracked [here](t12-codex-repairs.md).
 
 | # | Section id | Takeaway (outcome stated in prose) | Misconceptions addressed | Demonstration | Verification |
 | --- | --- | --- | --- | --- | --- |
@@ -9,12 +9,12 @@ Task 12 (`docs/tasks/bezier-patches/12-patches-chapter.md`). Sections 1-4 writte
 | 3 | `control-net` | (m+1)(n+1) points; partition of unity; only corners interpolated | M1, M3, M4 | `patch-tensor` | Script: quadratic weights at u=1/4 are 9,6,1 over 16; at v=1/2 are 1/4,1/2,1/4; nine products sum to 1 |
 | 4 | `boundary-iso-curves` | Iso-curve control points Q_j(u) are computed, not read off | M2, M1 | `patch-tensor` | Script: 3x3 net, h11=4; Q=(.5,0,0),(.5,.5,2),(.5,1,0); iso-curve midpoint height 1 = S(.5,.5) height 1 |
 | 5 | `tensor-decasteljau` | Two-stage evaluation; order independent | M3, M4 | `patch-decasteljau` | Script: 3x3 net h11=4, S(1/4,1/2)=(.25,.5,.75) u-first, v-first and direct; 12 lerps each order |
-| 6 | `properties` | Hull of whole net; affine invariance; variation diminishing has no general bivariate analogue (no numeric counterexample asserted, decision 4) | M4, M8, M1 | `patch-tensor` | Script: max surface height 1 vs net height 4; z->2z+1 gives S(.5,.5) height 3 |
+| 6 | `properties` | Hull of whole net; affine invariance; an explicitly scoped line-versus-wireframe bound fails on a bilinear saddle (one intersection vs zero) | M4, M8, M1 | `patch-tensor` | Script: max surface height 1 vs net height 4; z->2z+1 gives S(.5,.5) height 3 |
 | 7 | `tensor-derivatives` | Saddle partials, normal, twist; normal undefined at degenerate corner | M9 | `patch-derivatives` | Script: see below |
 | 8 | `tensor-subdivision` | Elevate to (2,1), split at u=1/2, exact piece correspondence | M1 | `patch-subdivision` | Script: see below |
-| 9 | `tensor-joins` | pending (writer C) | M6 | `patch-joins` | pending |
-| 10 | `triangular-patches` | pending (writer C) | M7 | `patch-triangular` | pending |
-| 11 | `square-vs-triangular` | pending (writer C) | M7, M9 | `patch-triangular` (comparison view) | pending |
+| 9 | `tensor-joins` | Distinguish C0, degree-scaled C1 derivatives and sufficient constant-ratio G1; 32-patch read-only teapot | M6 | `patch-joins` | Independent reviewer checked bilinear matching/scaled differences and mixed-degree example |
+| 10 | `triangular-patches` | Barycentric weights, six-point quadratic centroid and boundary | M7 | `patch-triangular` | Independent reviewer checked centroid (1,1,2), first de Casteljau level and boundary midpoint height 3/2 |
+| 11 | `square-vs-triangular` | Separate variable degree vs total degree; count nets and compare the same surface | M7, M9 | `patch-triangular` (comparison view) | Independent reviewer checked 16 vs 10 cubic controls and six-point quadratic representation of z=xy |
 
 Misconception keys follow `docs/research/bezier-surfaces.md` section 2.3 (M1 passes through all control points, M2 iso-curve is a net row, M3 tensor is a product of two curves, M4 hull of each row, M5 diagonal degree, M6 C1 means tangent line-up, M7 triangular is tensor minus an edge, M8 variation diminishing holds, M9 3D perception).
 
@@ -36,12 +36,18 @@ All terms come from the spec/`docs/localization.md` approved list (Bézierjeva k
 ## Gaps
 
 - No authored scenes or `example` blocks (task 13); the generic Explore prompts use `demonstration-default`. `guidedExampleScenes.test.tsx` excludes `bezier-patches` from its baseline-alias check for this reason.
-- Sections 9-11 are placeholders.
+- Both independent review findings are repaired: the interior iso-curve claim is qualified with boundary exceptions, and an exact bilinear saddle refutes the stated line-versus-wireframe upper bound. The handler checked the final prose against the separately reviewed premise ([math review](t12-counterexample-review.md)). Focused content/notation tests and typecheck passed; integrated checks and chapter browser acceptance are being completed. Task 13 still owns authored scenes/figures.
+
+## Codex continuation verification — 2026-10-29
+
+Both repairs are implemented and the handler compared their final wording with the independent mathematical premise review. The new authored-text regression failed before the prose repair, then focused content/notation tests (nine tests) and typecheck passed. `just check` subsequently passed TypeScript, lint and 4,802 tests in 239 files, and production build passed. Tested revision: `4dd5f22fd8f4400e080c9ab0d14b6767cbf60207` with only these chapter source edits dirty. Logs: `.command-logs/2026-10-29T08-07-42-551Z-36676-a13001e4.log` and build `.command-logs/2026-10-29T08-11-03-367Z-36676-a83ea691.log` (existing Sass/JSXGraph build warnings).
+
+Acceptance is partial: the handler reached the context boundary before starting a fresh chapter browser pass against this final build. Existing shared-runtime smoke used the earlier build and does not certify this chapter's final prose/navigation/layout. Next: check all eleven sections in both languages, desktop/390-pixel reading, math layout, default figure and activity return/focus. Task13 must still replace default-scene exploration with authored scenes, figure captures and guided-example links before their acceptance is complete.
 
 ## Carried obligations
 
 - Task 13 must remove the temporary `bezier-patches` exclusion in `src/learning/content/guidedExampleScenes.test.tsx` once its authored guided-example scenes give every prompted section an audited baseline home (handler 20).
-- The chapter is not pushed to `master` while sections 5–11 are placeholders; it ships with writers B and C.
+- All eleven sections must be substantive before publication; the recovered sections 9–11 satisfy that content requirement, subject to the review repairs and verification above.
 
 ## Independent computation (sections 5-8, writer B)
 

@@ -65,4 +65,53 @@ describe('Bézier patches chapter', () => {
         const bilinear = (u: number, v: number) => [u * (1 - v) + u * v, (1 - u) * v + u * v, u * v];
         expect(bilinear(0.5, 0.5)).toEqual([0.5, 0.5, 0.25]);
     });
+
+    test('explains iso-curve boundary exceptions and the limited variation-diminishing counterexample', () => {
+        const byId = (id: string) => patchChapter.sections.find(section => section.id === id)!;
+        const isoCurve = byId('boundary-iso-curves').paragraphs.map(paragraph => paragraph.sl).join(' ');
+        const isoCurveEn = byId('boundary-iso-curves').paragraphs.map(paragraph => paragraph.en).join(' ');
+        expect(isoCurve).toMatch(/praviloma/u);
+        expect(isoCurve).toContain('u=0');
+        expect(isoCurve).toContain('u=1');
+        expect(isoCurveEn).toMatch(/generally/u);
+        expect(isoCurveEn).toContain('u=0');
+        expect(isoCurveEn).toContain('u=1');
+
+        const properties = byId('properties').paragraphs;
+        const sl = properties.map(paragraph => paragraph.sl).join(' ');
+        const en = properties.map(paragraph => paragraph.en).join(' ');
+        for (const prose of [sl, en]) {
+            expect(prose).toContain('P_{00}=(0,0,1)');
+            expect(prose).toContain('P_{01}=(0,1,-1)');
+            expect(prose).toContain('P_{10}=(1,0,-1)');
+            expect(prose).toContain('P_{11}=(1,1,1)');
+            expect(prose).toContain('S(u,v)=(u,v,(1-2u)(1-2v))');
+            expect(prose).toContain('t\\in\\mathbb R');
+            expect(prose).toContain('tfrac12,\\tfrac12,0');
+            expect(prose).toContain('1\\le0');
+        }
+        expect(en).toContain('control-net wireframe');
+        expect(en).toContain('planar Bézier curve');
+        expect(en).toContain('does not rule out every possible bivariate formulation');
+        expect(sl).toContain('žično kontrolno mrežo');
+        expect(sl).toContain('ravninsko Bézierjevo krivuljo');
+        expect(sl).toContain('ne izključuje vseh mogočih dvorazsežnih različic');
+    });
+
+    test('the explicit bilinear saddle gives one line-patch intersection and no line-net intersections', () => {
+        const saddle = (u: number, v: number): [number, number, number] => [u, v, (1 - 2 * u) * (1 - 2 * v)];
+        const linePoint: [number, number, number] = [0.5, 0.5, 0];
+        expect(saddle(0.5, 0.5)).toEqual(linePoint);
+
+        // x=u and y=v force the only possible patch parameter pair on this vertical line.
+        const net: [number, number, number][] = [[0, 0, 1], [0, 1, -1], [1, 0, -1], [1, 1, 1]];
+        const netEdges: [number, number][] = [[0, 1], [0, 2], [1, 3], [2, 3]];
+        for (const [a, b] of netEdges) {
+            const first = net[a];
+            const second = net[b];
+            // Each net edge fixes x or y to 0 or 1, so cannot reach x=y=1/2 on the line.
+            expect(first[0] === second[0] && (first[0] === 0 || first[0] === 1)
+                || first[1] === second[1] && (first[1] === 0 || first[1] === 1)).toBe(true);
+        }
+    });
 });
