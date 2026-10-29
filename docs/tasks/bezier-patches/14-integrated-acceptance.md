@@ -1,6 +1,6 @@
 # 14 — Integrated patch-family acceptance
 
-Status: ready after05–13. Source: [P1–P10 and delivery](../../specs/bezier-patches.md#acceptance-criteria). Handler owns acceptance, review, commits and master push; do not declare completion from draft availability alone.
+Status: complete and deployed (2026-10-29). Source fdf0dd8d5236d75887b7f2378f4aaafa21f1cdf5: all4868 unit tests, typecheck/lint/build,273/273 complete production browser tests,22 bilingual patch walks,60 capture-tool tests including actual VP9, independent reviews, production timing/settled geometry, persistence/import/export and touch checks passed. CI40936771299 passed every job including deploy; hosted entry bytes, all6 deep-link refreshes, authored figure and6 playing clips verified. [Acceptance and explicit limits](../../reviews/bezier-patches/acceptance.md). Source: [P1–P10 and delivery](../../specs/bezier-patches.md#acceptance-criteria).
 
 Audit every criterion against exact production source/build evidence. Run `just check` and full `$smoke-tester` checklist for the integrated workspace/lesson changes. Exercise all patch routes, old curve routes, bilingual chapter/examples, keyboard/touch/narrow/projection layouts, Reset, Presets/import/export, camera/transient restore, cancel/remount and invalid inputs. Production surface exports must contain current geometry and MathJax labels with the accepted SVG tradeoff.
 

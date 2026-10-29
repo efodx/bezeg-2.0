@@ -1,0 +1,11 @@
+# Task 13 final media and UI review — H26
+
+Read-only review of the six published VP9 clips, three repaired authored figures, bilingual guided-preview copy, and triangular motion owner fixture. Decoded frames 0 and 48 from each actual WebM to `.claude/scratch/patch-final-media-review-h26/`; no app source, Git, build, or browser changes/checks.
+
+- **P2 — Joins alt text describes a kink absent from the published clip.** `src/learning/content/patchGuidedPreviewCopy.ts:19` says the two patches have a tangent-direction kink. `patch-joins.webm` rotates the C1 continuation: the encoded frames show a continuous join, and its owner geometry is the continued net. Change the alt to describe the C1 scene or publish a C0-kink capture; the current alt asserts the wrong visible feature.
+- The six decoded clips are nonblank and visibly change orientation between first and middle frames; the surfaces and their construction/derivative/subdivision overlays remain readable. Join labels overlap the geometry slightly but remain legible at native frame size. The three repaired triangle/join figures are substantially larger and fully framed; selected labels still sit over the surfaces, but I found no clipping or control loss.
+- The other five bilingual preview descriptions match their visible subject/purpose. `patch-tensor`’s moving-section caption points learners to the interactive example; its catalog clip itself is an orbit.
+- **Triangle owner fixture is independent and consistent.** `scripts/patch-surface-motion.test.cjs:23-33` constructs the shipped cubic net from the stated corners and `z=3-max(i,j,k)`, then compares the literal motion samples to `expectedSamples`, which evaluates a separate Bernstein sum (`scripts/patch-guided-example-expectations.cjs:41-68`). The three fixed values match the density-16 mesh; the check is not derived from the runtime’s reported owner samples.
+- Manifest records six 96-frame, four-second VP9 clips, each at or below 300 KiB. This review did not run browser, build, or smoke validation.
+
+Handler disposition: the catalog/default joins clip now has its own bilingual C1 description in guidedExamplePreviewCopy.ts. The authored chapter C0-kink PNG retains its accurate section-specific description. This is a copy-only repair; no geometry or capture recipe changed.

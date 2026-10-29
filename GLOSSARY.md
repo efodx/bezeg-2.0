@@ -23,6 +23,15 @@ The signed accumulated integral A(x) of a function f from a fixed lower bound a 
 An interactive mathematical example through which a learner explores a curve concept or construction.
 _Avoid_: Tool (when referring to the whole example)
 
+**Bézier patch**:
+A parameterized surface defined by a control net and Bernstein weights. Tensor-product patches use two independent parameter directions; triangular patches use three nonnegative barycentric parameters that sum to one.
+
+**Control net**:
+The indexed grid or triangular array of control points that determines a Bézier curve or patch.
+
+**Barycentric coordinates**:
+Nonnegative weights whose sum is one, used to identify a point in a triangle; a triangular Bézier patch uses these as its parameters.
+
 **Preset**:
 A named saved configuration of a demonstration that can be reopened or exchanged as a file.
 

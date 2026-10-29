@@ -1,0 +1,9 @@
+# Task 13 patch lesson smoke rows — handoff H26
+
+Added all 11 registered patch lesson entries to the existing guided-lesson table. The six default demonstration IDs are `patch-tensor`, `patch-decasteljau`, `patch-derivatives`, `patch-subdivision`, `patch-joins`, and `patch-triangular`; five additional section rows cover the other tensor and square/triangle examples. Each row has its authored bilingual title, step/frame minimum, canonical example query, and per-frame owner/camera probe. Shared helpers read `data-rendered-surface-owners` and `data-surface-framing`; they check WebGL, owner identity/kind, finite xyz samples, projected mesh bounds, camera, and available fixture-derived expected samples. Surface walks no longer treat the host as a JSXGraph board. The coverage unit invariant now keeps one row per available demonstration ID and explicitly checks the five section extras.
+
+Validation: `node --check tests/guided-lessons.smoke.spec.cjs`, `node --check tests/lesson-smoke-helpers.cjs`, and `node --check src/learning/runtime/lessonSmokeCoverage.test.ts` passed. No unit tests, browser runs, build, or preview were run, per handoff; the handler owns the new-build browser check.
+
+Remaining evidence gaps: exact expected owner geometry samples are currently pinned for the tensor fixture rows, while the triangular rows, join meshes, and 32 teapot owners check identities/kinds and require nonempty finite rendered samples but lack independent numeric sample expectations. The join default camera and the six canonical patch route paths also need the handler’s browser/build verification against the updated catalog. Triangular controls were not exempted from the shared visibility check.
+
+Handler closure: independent expectations were extended to all17 authored steps/51 owners, including triangle, joins and all32 teapot owners. Final22/22 bilingual walks and complete273-row production suite passed; see t14-integrated-checks-h26.md and acceptance.md.
