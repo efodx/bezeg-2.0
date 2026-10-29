@@ -1,0 +1,11 @@
+# Task 13 surface evidence adapter review
+
+Finding — P1: [scripts/guided-example-surface-evidence.cjs:33](../../scripts/guided-example-surface-evidence.cjs) rejects every valid teapot scene because it requires a nonempty projected control-point array. `buildTeapotScene` intentionally publishes `points: []` ([TensorTeapotScene.ts:56](../../src/graphs/patches/TensorTeapotScene.ts)); the teapot has no control net or point owners, while its required evidence is the 32 patch owners in the merged mesh. Make framing-point nonemptiness conditional on the authored example/expected evidence policy (and retain validation when points are expected), then add a teapot fixture with empty framing points and explicit nonempty teapot owner samples. The current passing `teapot` unit case uses a synthetic point, so it misses this producer-contract failure.
+
+The helper's owner checks otherwise enforce nonempty finite samples, unique IDs, exact owner count/identity/kind and ordered finite sample matching; camera matching is finite and tolerance-bound. `node --test scripts/guided-example-surface-evidence.test.cjs` passes (4 tests), but these are fixtures only.
+
+Integration remains intentionally incomplete: `readPublishedSurfaceEvidence` reads framing and WebGL context only; the app does not publish logical rendered owners/samples. No production capture or successful guided example is evidenced by this slice. After a scene-sourced owner producer exists, wire it into the capture runner and validate against authored expected samples while keeping the served-build freshness check.
+# Handler repair disposition
+
+The implementation worker added the actual teapot framing shape (`points: []`) with 32 explicit logical owners. Its regression failed before repair, then passed. The handler inspected the repaired guard and ran all five Node tests successfully. Empty projected points are allowed only with complete expected/rendered teapot ownership, while subsequent identity, nonempty finite geometry and camera checks still apply. This resolves the finding locally without changing the producer interface. The first test's label now explicitly says unit evidence; these fixtures are not live capture results. No independent re-review was needed for this local guard repair. Runtime producer and capture-runner integration remain open.
+

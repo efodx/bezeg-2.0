@@ -1,6 +1,6 @@
 # 13 — Guided examples, catalog and motion previews
 
-Status: ready after11/12. Source: [chapter and P6/P9](../../specs/bezier-patches.md#chapter-and-guided-lessons). Own authored scenes/content and capture recipes/assets; runtime owner remains11.
+Status: in progress after task11 and task12 prose/reading checks. The isolated surface-evidence helper is implemented, independently reviewed/repaired and unit tested; it has no live producer or runner integration yet ([evidence](../../reviews/bezier-patches/t13-surface-evidence.md)). Authored scenes, links, images and motion captures remain; task12's patch activity return/focus and clickable prerequisite integration close here. Source: [chapter and P6/P9](../../specs/bezier-patches.md#chapter-and-guided-lessons). Own authored scenes/content and capture recipes/assets; runtime owner remains11.
 
 Give every patch demonstration chapter-owned guided examples with the specified measurable takeaways, complete bilingual frames and smoke rows. Cover all11 chapter concepts, including triangular evaluation and the square/triangle comparison; use exact authored fixtures and camera state. Keep existing independent graph/catalog entry and chapter return semantics.
 
