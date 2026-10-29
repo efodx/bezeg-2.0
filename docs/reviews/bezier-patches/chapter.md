@@ -36,7 +36,7 @@ All terms come from the spec/`docs/localization.md` approved list (Bézierjeva k
 ## Gaps
 
 - No authored scenes or `example` blocks (task 13); the generic Explore prompts use `demonstration-default`. `guidedExampleScenes.test.tsx` excludes `bezier-patches` from its baseline-alias check for this reason.
-- Both independent review findings are repaired: the interior iso-curve claim is qualified with boundary exceptions, and an exact bilinear saddle refutes the stated line-versus-wireframe upper bound. The handler checked the final prose against the separately reviewed premise ([math review](t12-counterexample-review.md)). Focused content/notation tests and typecheck passed; integrated checks and chapter browser acceptance are being completed. Task 13 still owns authored scenes/figures.
+- Both independent review findings are repaired: the interior iso-curve claim is qualified with boundary exceptions, and an exact bilinear saddle refutes the stated line-versus-wireframe upper bound. The handler checked the final prose against the separately reviewed premise ([math review](t12-counterexample-review.md)). Focused content/notation tests, typecheck, integrated checks and production build passed; chapter browser acceptance remains pending. Task 13 still owns authored scenes/figures.
 
 ## Codex continuation verification — 2026-10-29
 

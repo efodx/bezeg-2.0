@@ -1,0 +1,47 @@
+# Bézier patches Codex handoff 21 — 2026-10-29
+
+Continue the same authorized objective: implement, independently review, verify, document, commit and publish tasks11–14 under AGENTS.md. This note supersedes handoff19's remaining-work list and historical Claude launch instructions. Task11 is now complete locally; task12 prose is implemented/reviewed, with acceptance gaps below. Tasks13–14 remain. Do not restart accepted work.
+
+## Checkout and publication
+
+- Work ONLY in `C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\bezier-patches-r2`, branch `worktree-bezier-patches-r2`.
+- Published `4dd5f22fd8f4400e080c9ab0d14b6767cbf60207` (task11 content bridge/acceptance) and `27330ef4a7af79e20d18d74a1dfa094fa9a70177` (chapter prose and repairs) to both `origin/master` and `origin/bezier-patches-wip`. Fetch found master still at d7b2886; rebase was already up to date, so no existing commits were rewritten. This also publishes predecessor task11/task12 commits57fd4d7/f805c2a/7a0e104/12ca8f5 to master.
+- Source CI: [Browser smoke run40840496778](https://github.com/efodx/bezeg-2.0/actions/runs/40840496778), exact HEAD27330ef. At this handoff it is **in progress**: scope passed, build/unit/checks running. Confirm this source run, not the later docs-only handoff run; deployed Pages success is not yet claimed.
+- `just ci 27330ef` failed because `gh` is absent (`spawn gh ENOENT`). GitHub connector fallback worked: `github.fetch` GET `https://api.github.com/repos/efodx/bezeg-2.0/actions/runs?head_sha=27330ef4a7af79e20d18d74a1dfa094fa9a70177&per_page=5`, then `/actions/runs/40840496778/jobs`. Its result JSON is in `structuredContent.content`. The specialized commit-workflow wrapper filters PR-triggered runs and is unsuitable for this push.
+
+## Accepted evidence
+
+- Task11: [runtime record](surface-lesson-runtime.md), independent [engineering](t11-codex-engineering-review.md) and [math](t11-codex-math-review.md) reviews: no blocking defects. S1/S2 code is predecessor work; S3 bridge and its real-graph/malformed-payload tests are now committed. Predecessor mutation results remain attributed to the predecessor.
+- First `just check`:4800tests/239files, TypeScript/lint/build passed at12ca8f5 + dirtyS3/chapter9–11. Logs `.command-logs/2026-10-29T07-49-48-815Z-33736-b3cccf23.log`, build `2026-10-29T07-53-17-887Z-33736-9255e7f6.log`.
+- [Task11 browser smoke](t11-codex-smoke.md):95selected Playwright checks passed plus direct polynomial drag, post-completion parameter edit changing actual rendered geometry, and temporary preset save/change/reopen/delete. Chapter return restored reading position and invoker focus. Existing curve lessons exercise shared lesson runtime; authored patch lessons do not exist yet and remain task13. Explicit optional coverage gap: a fixture-slot→canonical-tuple bridge assertion would strengthen existing kernel/lattice coverage; no mapping bug found.
+- Task12: all11 bilingual sections now substantive, including recovered dirty9–11. [Independent content/math review](t12-codex-content-review.md) checked every section/example and found two defects, now repaired: qualify iso-curve control-point claims with boundary exceptions; add an exact variation-diminishing intuition counterexample. [Premise review](t12-counterexample-review.md) and [repair evidence](t12-codex-repairs.md) define the precise failed line-versus-wireframe bound. Bilinear net heights1,-1,-1,1 gives S=(u,v,(1-2u)(1-2v)); vertical line x=y=1/2 meets patch once and no net edge. This does not refute the curve theorem or every bivariate formulation. Handler checked final prose against independent premise review.
+- Repair regression failed before prose correction, then9focused content/notation tests and typecheck passed. Final `just check`:4802tests/239files, TypeScript/lint/build passed at4dd5f22 + exactly the chapter source edits later committed as27330ef. Logs `.command-logs/2026-10-29T08-07-42-551Z-36676-a13001e4.log` and build `2026-10-29T08-11-03-367Z-36676-a83ea691.log`. Existing Sass/JSXGraph warnings remain. No source change followed these checks.
+
+## Remaining acceptance in order
+
+1. Confirm source CI40840496778. Diagnose real failure if any; do not declare deployment green from docs-only CI. No broad local retest is justified unless code changes/fails; final source has a passing full check/build.
+2. Finish task12 browser acceptance against final production build: all11sections both languages; desktop/390px reading/math overflow/figure; prerequisite/chapter navigation and activity return focus. Last shared-runtime smoke predates chapter prose repairs and is not evidence of this final chapter. [Chapter record](chapter.md) explicitly marks acceptance partial. Authored scenes, exact scene figures and activity wiring belong to13; do not claim those already implemented or hide them behind a draft label.
+3. Then task13, using the bounded read-only [implementation map](t13-codex-implementation-boundaries.md) rather than repeating exploration. Key gaps: surface-aware guided-example capture (existing capture assumes JSXGraph board evidence), authored bilingual examples for all11concepts/6demonstrations, smoke rows, all6surface motion clips, actual-scene figures and retained source/build/asset provenance. Existing6surface posters/recipes/metadata exist. Host-fit/reset seam and carried poster framing/label issues are mapped there. Remove temporary `bezier-patches` exclusions in authored-example coverage once actual scenes exist. All captures must come from verified production builds and actual nonempty owner geometry. Never manufacture manifest evidence.
+4. Then task14: fullP1–P10audit, old curves plus patch routes, all bilingual lessons/navigation/keyboard/touch/projection/emulated widths, current SVG/PNG/MathJax, presets/invalid imports, lifecycle/reset/camera/transients, default+16density performance and32owner teapot. Carry earlier documented limits from task14/handoff19. Update capabilities/architecture/UI/roadmap/glossary; required independent reviews and full checklist. Physical device/projector/classroom observations remain optional; emulation is not physical-device evidence.
+
+## Ownership and context
+
+- All workers completed; all watcher completion events consumed. Handler-owned preview4391/session62147 was stopped with Ctrl+C. Check43766 finished successfully. No owned browser/source writer remains. Worker scratch under `.claude/scratch/` is preserved and untracked; never stage/delete it wholesale. The primary checkout's stale R2 diff and debug.log were not edited.
+- Task11 reviewers requested GPT-6 Luna high; smoke Luna max; task12 reviewer/repair and task13 exploration Luna high, fresh contexts and handoff-v12 briefs. Independent task12 premise review reused the still-below-budget math worker. No worker delegation, commits or pushes. Settings are requested, not resolved telemetry. Current-task evaluation entries are appended to `docs/agent-workflow/evaluation-log.md`.
+- Handler self monitor: startup33896input,149219at final integrated-check boundary,151418during closeout. No new slice/worker after threshold. Initial worker dispatch clock capture was missed, so no elapsed-time comparison is claimed. Worker completion input samples and source are in evaluation entries.
+- User asked whether patches used JSXGraph. Answered: patches use Three.js, existing curves JSXGraph; this follows prior ADR0018, not a renderer change in this continuation. User did not request a renderer migration.
+- `list_projects` found only primary Bezeg at `C:\Users\1337Hacker\Desktop\bezeg-2.0`, plus two unrelated projects. No saved project matches this exact worktree, so automatic fresh-chat creation is unavailable under the owner rule. Do not create a primary-checkout successor or background CLI workaround. Return the committed note and [paste-ready prompt](handler21-continuation-prompt.md).
+
+## Codex successor rule — owner authorization, carried forward in full
+
+I explicitly authorize you and every successor to create fresh Codex successor chats solely to continue this same objective.
+
+Follow docs/agent-workflow.md's Codex handler budget: self-check at startup and bounded phases, prepare handoff at150k input, escalation190k. Do not carry forward the historical175k Claude threshold.
+
+At a context handoff:
+
+1. Collect worker notes and record accepted progress, unfinished edits, checks/tested revision, process ownership, risks and exact next steps in a new numbered docs/reviews/bezier-patches/handler-handoff-<n>.md.
+2. Commit and push the handoff note and completed verified work; preserve unfinished changes explicitly.
+3. Use list_projects and create_thread to start a FRESH LOCAL Codex chat in this EXACT checkout. Verify the saved project path matches this worktree. Do not silently switch to the primary checkout, create another worktree, or fork accumulated history.
+4. Give the successor the new note, original objective, remaining acceptance and this entire Codex successor rule. Confirm creation and report its thread ID/link, note path and handoff commit, then stop writing in the old chat.
+5. If no matching saved project exists or fresh-chat creation is unavailable/fails, return the committed handoff and a paste-ready continuation prompt. Do not substitute a background Claude or Codex CLI process. Do not launch a successor when the objective is complete or an owner decision blocks continuation.
