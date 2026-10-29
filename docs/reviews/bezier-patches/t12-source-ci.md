@@ -1,5 +1,9 @@
 # Task 12 exact source CI
 
+## Mesh framing and basics preparation exact-source run
+
+Handler 25 verified [run 40910691933](https://github.com/efodx/bezeg-2.0/actions/runs/40910691933) through the GitHub connector on 2026-10-29. The exact source is `5f423d0893dae917223c44b94e44716ae436e802`, including basics preparation `17e9518` and mesh framing `ed4e727`. All jobs completed successfully: scope, checks, build, both unit shards, all three lesson Chromium shards, other-specs Chromium, aggregate smoke, and deploy. This confirms deployment of that source; it does not establish completion of task13 authored examples/media or task14. Later documentation-only CI is not substituted for this evidence.
+
 Handler checked [run 40840496778](https://github.com/efodx/bezeg-2.0/actions/runs/40840496778) through the GitHub connector on 2026-10-29. The push run's exact source is `27330ef4a7af79e20d18d74a1dfa094fa9a70177`, not the subsequent documentation-only handoff commit.
 
 Build, both unit shards, checks, and all three guided-lesson Chromium shards passed. The other-specs Chromium shard passed 119 tests and failed one: `tests/unified-learning.smoke.spec.cjs:10` expected eight `.learning-family` cards but received nine after the patches chapter was added. The aggregate smoke gate failed and deployment was skipped. This run does not establish a successful Pages deployment.
