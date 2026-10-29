@@ -1,0 +1,15 @@
+Continue the existing authorized Bézier patches objective through completion of tasks11–14 under AGENTS.md. Work ONLY in C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\bezier-patches-r2, expected branch worktree-bezier-patches-r2. Read docs/reviews/bezier-patches/handler-handoff-24.md FIRST, then applicable AGENTS.md and docs/agent-workflow.md. Inspect Git/later evidence and do not repeat accepted work. Task11 complete; task12 prose/reading accepted but links/figures/return integration remain task13. Exact CI40904168769 at0f72761 passed including deploy. New mesh crop evidence and first4 unintegrated authored definitions have checks/reviews; see handoff24 for new commits, exact CI and gaps. Actual moving-curve visualization, remaining7 examples, registry/link/figure/focus integration, independent expected inventory, real guided/reader captures and all6motion clips/posters and task14 remain. Never manufacture capture evidence or claim full publication without required media. Delegate bounded implementation/reviews with Codex subagents and watcher per worker; handler owns verification/Git. Preserve scratch and primary stale diff/debug.log. Fetch/rebase ONLY new commits on origin/master, stop on conflicts, push fast-forward master and maintain bezier-patches-wip. No live worker/preview ownership transfers. No saved project matched this exact worktree; do not silently use primary project. Continue autonomously until complete or documented owner stop condition.
+## Codex successor rule — owner authorization, carried forward in full
+
+I explicitly authorize you and every successor to create fresh Codex successor chats solely to continue this same objective.
+
+Follow docs/agent-workflow.md's Codex handler budget: self-check at startup and bounded phases, prepare handoff at150k input, escalation190k. Do not carry forward the historical175k Claude threshold.
+
+At a context handoff:
+
+1. Collect worker notes and record accepted progress, unfinished edits, checks/tested revision, process ownership, risks and exact next steps in a new numbered docs/reviews/bezier-patches/handler-handoff-<n>.md.
+2. Commit and push the handoff note and completed verified work; preserve unfinished changes explicitly.
+3. Use list_projects and create_thread to start a FRESH LOCAL Codex chat in this EXACT checkout. Verify the saved project path matches this worktree. Do not silently switch to the primary checkout, create another worktree, or fork accumulated history.
+4. Give the successor the new note, original objective, remaining acceptance and this entire Codex successor rule. Confirm creation and report its thread ID/link, note path and handoff commit, then stop writing in the old chat.
+5. If no matching saved project exists or fresh-chat creation is unavailable/fails, return the committed handoff and a paste-ready continuation prompt. Do not substitute a background Claude or Codex CLI process. Do not launch a successor when the objective is complete or an owner decision blocks continuation.
+
