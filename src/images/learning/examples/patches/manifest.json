@@ -1,0 +1,3412 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+    "dirty": true,
+    "inputs": "eea05c7a0fecabf004cba2b6a3d8060678c5b361ff2e19ffe8d76c4cd1a4e3c8",
+    "output": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4396/bezeg-2.0/",
+    "stampRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+    "stampDirty": true,
+    "localOutputHash": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-DHuAGLaN.js",
+        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/index-DHuAGLaN.js",
+        "sha256": "5a470527e742458cdf37847bd90d667af2d2087614b33a4a78125915e3a74ceb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-BOV79mws.js",
+        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/jsx-runtime-BOV79mws.js",
+        "sha256": "15d5a4cde982d58cce5591db65d2fb7172fae521887ace943ecfe40eb1000ad6",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-3PxAN9kg.css",
+        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/index-3PxAN9kg.css",
+        "sha256": "e4575c48cd4045b8fb53cea20ebc4d98c7b2db4fb8614756fd58e90eab739a05",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4396/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "763fe326be8e2fbfdf572dd54c49ec57c6b5f44c5e2b51c18ecd8c4f058a78e9",
+    "presentation": "5aa615ac2c72c3a7fce4da7b3dcc8b56f34d45fbcc528423e581110efea93049",
+    "buildOutput": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d",
+    "buildInputs": "eea05c7a0fecabf004cba2b6a3d8060678c5b361ff2e19ffe8d76c4cd1a4e3c8"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "bezier-patches.curve-to-patch.patch-tensor",
+        "demonstrationId": "patch-tensor",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.bilinear-patch.patch-tensor",
+        "demonstrationId": "patch-tensor",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.control-net.patch-tensor",
+        "demonstrationId": "patch-tensor",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.boundary-iso-curves.patch-tensor",
+        "demonstrationId": "patch-tensor",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
+        "demonstrationId": "patch-decasteljau",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.properties.patch-tensor",
+        "demonstrationId": "patch-tensor",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.tensor-derivatives.patch-derivatives",
+        "demonstrationId": "patch-derivatives",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.tensor-subdivision.patch-subdivision",
+        "demonstrationId": "patch-subdivision",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 8.167849250854438,
+            "target": [
+              0,
+              0,
+              1.25
+            ]
+          },
+          "controlPointCount": 0
+        }
+      },
+      {
+        "id": "bezier-patches.tensor-joins.patch-joins",
+        "demonstrationId": "patch-joins",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 13.877168517348197,
+            "target": [
+              1.5,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.triangular-patches.patch-triangular",
+        "demonstrationId": "patch-triangular",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 7.373018307821979,
+            "target": [
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "id": "bezier-patches.square-vs-triangular.patch-triangular",
+        "demonstrationId": "patch-triangular",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 7.373018307821979,
+            "target": [
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "bezier-patches.curve-to-patch.patch-tensor",
+      "demonstrationId": "patch-tensor",
+      "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.curve-to-patch.patch-tensor",
+      "sceneFingerprint": "8b0bf5323bec0c47197a3eaa3ddc5064124d6da61f2c9d235de4c884818dbf05",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"patch-basics-curve-sweep-prepared\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":1,\"net\":[{\"x\":-1,\"y\":-1,\"z\":0},{\"x\":-1,\"y\":1,\"z\":0},{\"x\":0,\"y\":-1,\"z\":-0.25},{\"x\":0,\"y\":1,\"z\":0.25},{\"x\":1,\"y\":-1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0,\"y\":0,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"iso-curves\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.curve-to-patch.patch-tensor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "03d78c92a409e8c44fead8ccc3e578390e74680c630b34f7e218f53cae13a688",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 110.60421475664839,
+          "top": 86.99246950221566,
+          "right": 306.4458237728948,
+          "bottom": 196.85833842924274,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                -1,
+                -1,
+                0
+              ],
+              [
+                0,
+                -1,
+                -0.125
+              ],
+              [
+                1,
+                0.875,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 111.663,
+            "y": 132.974,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 204.832,
+            "y": 93.56,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 159.693,
+            "y": 173.405,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 251.139,
+            "y": 94.505,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 218.214,
+            "y": 187.913,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 305.448,
+            "y": 127.113,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 119.9609375,
+            "right": 270.875,
+            "bottom": 140.0390625
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 268.9490706049445,
+            "top": 203.09395764555734,
+            "right": 726.1639039621044,
+            "bottom": 459.58850548673206,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  -1,
+                  -1,
+                  0
+                ],
+                [
+                  0,
+                  -1,
+                  -0.125
+                ],
+                [
+                  1,
+                  0.875,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 271.421,
+              "y": 310.443,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 488.935,
+              "y": 218.427,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 383.553,
+              "y": 404.834,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 597.044,
+              "y": 220.633,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 520.175,
+              "y": 438.705,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 723.836,
+              "y": 296.761,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 119.9609375,
+            "right": 270.875,
+            "bottom": 140.0390625
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.bilinear-patch.patch-tensor",
+      "demonstrationId": "patch-tensor",
+      "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.bilinear-patch.patch-tensor",
+      "sceneFingerprint": "00da447807497127b48e7e02a5f474ce14fcd44f62cfbdbf46eb9425d34834d4",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"patch-basics-bilinear-midpoint-prepared\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0,\"y\":0,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"iso-curves\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.bilinear-patch.patch-tensor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "57ba64604618944aaeb7d501441f32c1af993df3bbec01198c6976e0c33c0edd",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 210,
+          "top": 48.32611801708269,
+          "right": 314.0567775162028,
+          "bottom": 153.3888979020368,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                1,
+                0.9375,
+                0.9375
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 210,
+            "y": 130,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 250.369,
+            "y": 108.746,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 267.749,
+            "y": 153.389,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 314.057,
+            "y": 61.449,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 267.09375,
+            "top": 103.0546875,
+            "right": 319.96875,
+            "bottom": 123.1328125
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 501,
+            "top": 112.82289860141998,
+            "right": 743.9325536628273,
+            "bottom": 358.10408087129366,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.5,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0.9375,
+                  0.9375
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 501,
+              "y": 303.5,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 595.246,
+              "y": 253.879,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 635.821,
+              "y": 358.104,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 743.933,
+              "y": 143.459,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 267.09375,
+            "top": 103.0546875,
+            "right": 319.96875,
+            "bottom": 123.1328125
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.control-net.patch-tensor",
+      "demonstrationId": "patch-tensor",
+      "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.control-net.patch-tensor",
+      "sceneFingerprint": "437799cdbd4933587f18f969021c04b480d698a1db9a03d7b814ad6bdf4b0ace",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"patch-basics-control-net-prepared\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":-1,\"y\":-1,\"z\":0},{\"x\":-1,\"y\":0,\"z\":0},{\"x\":-1,\"y\":1,\"z\":0},{\"x\":0,\"y\":-1,\"z\":0},{\"x\":0,\"y\":0,\"z\":1.2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":-1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0,\"y\":0,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"iso-curves\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.control-net.patch-tensor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "14e9371379ca6018b4d4941bd03d99d277589e5fb0c4ad0de31271ef3f03c5cc",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 109.08279699245635,
+          "top": 77.60516772220119,
+          "right": 307.87762308541375,
+          "bottom": 187.913284210841,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                -1,
+                -1,
+                0
+              ],
+              [
+                0,
+                -1,
+                0
+              ],
+              [
+                1,
+                0.875,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 111.663,
+            "y": 132.974,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 163.353,
+            "y": 111.107,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-2",
+            "x": 204.832,
+            "y": 93.56,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 158.491,
+            "y": 157.119,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 210,
+            "y": 48.748,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-2",
+            "x": 250.369,
+            "y": 108.746,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 218.214,
+            "y": 187.913,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 267.749,
+            "y": 153.389,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-2",
+            "x": 305.448,
+            "y": 127.113,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 193.09375,
+            "top": 96.5546875,
+            "right": 245.96875,
+            "bottom": 116.6328125
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 265.39714528623466,
+            "top": 181.17821848990818,
+            "right": 729.5066046647929,
+            "bottom": 438.70524429223263,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  -1,
+                  -1,
+                  0
+                ],
+                [
+                  0,
+                  -1,
+                  0
+                ],
+                [
+                  1,
+                  0.875,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 271.421,
+              "y": 310.443,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 392.097,
+              "y": 259.393,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-2",
+              "x": 488.935,
+              "y": 218.427,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 380.747,
+              "y": 366.814,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 501,
+              "y": 113.809,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-2",
+              "x": 595.246,
+              "y": 253.879,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 520.175,
+              "y": 438.705,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 635.821,
+              "y": 358.104,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-2",
+              "x": 723.836,
+              "y": 296.761,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 193.09375,
+            "top": 96.5546875,
+            "right": 245.96875,
+            "bottom": 116.6328125
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.boundary-iso-curves.patch-tensor",
+      "demonstrationId": "patch-tensor",
+      "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.boundary-iso-curves.patch-tensor",
+      "sceneFingerprint": "c0ac5a57c052100f44a3a9b2f09c3af285b0f5ed20c44ba1c4c75f8c57f51221",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"patch-basics-boundary-iso-curves-prepared\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":-1,\"y\":-1,\"z\":0},{\"x\":-1,\"y\":0,\"z\":0},{\"x\":-1,\"y\":1,\"z\":0},{\"x\":0,\"y\":-1,\"z\":0},{\"x\":0,\"y\":0,\"z\":1.2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":-1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0,\"y\":0,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"iso-curves\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.boundary-iso-curves.patch-tensor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1808e12ab3efaca5ef3e01838f238e3a844d2fd2b8245ce459ec547fb42b91a1",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 109.08279699245635,
+          "top": 77.60516772220119,
+          "right": 307.87762308541375,
+          "bottom": 187.913284210841,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                -1,
+                -1,
+                0
+              ],
+              [
+                0,
+                -1,
+                0
+              ],
+              [
+                1,
+                0.875,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 111.663,
+            "y": 132.974,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 163.353,
+            "y": 111.107,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-2",
+            "x": 204.832,
+            "y": 93.56,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 158.491,
+            "y": 157.119,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 210,
+            "y": 48.748,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-2",
+            "x": 250.369,
+            "y": 108.746,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 218.214,
+            "y": 187.913,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 267.749,
+            "y": 153.389,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-2",
+            "x": 305.448,
+            "y": 127.113,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 101.2578125,
+            "right": 270.875,
+            "bottom": 121.3359375
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 265.39714528623466,
+            "top": 181.17821848990818,
+            "right": 729.5066046647929,
+            "bottom": 438.70524429223263,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  -1,
+                  -1,
+                  0
+                ],
+                [
+                  0,
+                  -1,
+                  0
+                ],
+                [
+                  1,
+                  0.875,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 271.421,
+              "y": 310.443,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 392.097,
+              "y": 259.393,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-2",
+              "x": 488.935,
+              "y": 218.427,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 380.747,
+              "y": 366.814,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 501,
+              "y": 113.809,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-2",
+              "x": 595.246,
+              "y": 253.879,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 520.175,
+              "y": 438.705,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 635.821,
+              "y": 358.104,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-2",
+              "x": 723.836,
+              "y": 296.761,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 101.2578125,
+            "right": 270.875,
+            "bottom": 121.3359375
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
+      "demonstrationId": "patch-decasteljau",
+      "path": "/bezeg-2.0/patches/decasteljau?example=lesson.bezier-patches.tensor-decasteljau.patch-decasteljau",
+      "sceneFingerprint": "88b2daf26d3e06041a75d4a74b8632f9be00ac184f54847460f6fd7a7aed3bd6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"order-independence\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.tensor-decasteljau.patch-decasteljau.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "74c8996ebec031e6ede498992dc37d9cb8a01ab914c198728d219b8f22cb0fe0",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 15,
+          "target": [
+            0.5,
+            0.5,
+            2
+          ]
+        },
+        "meshBounds": {
+          "left": 192.72490373236795,
+          "top": 143.1695325187931,
+          "right": 227.18374737159908,
+          "bottom": 181.82356116917322,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                1,
+                0.9375,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 193.227,
+            "y": 172.677,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 201.248,
+            "y": 167.758,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-2",
+            "x": 208.946,
+            "y": 163.037,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 202.016,
+            "y": 177.165,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 210,
+            "y": 82.419,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-2",
+            "x": 217.657,
+            "y": 167.167,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 211.14,
+            "y": 181.824,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 219.079,
+            "y": 176.525,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-2",
+            "x": 226.687,
+            "y": 171.449,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 15,
+            "target": [
+              0.5,
+              0.5,
+              2
+            ]
+          },
+          "meshBounds": {
+            "left": 460.6692944828744,
+            "top": 334.24579322656695,
+            "right": 541.1174409790794,
+            "bottom": 424.4880831911082,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.5,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0.9375,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 461.842,
+              "y": 403.135,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 480.568,
+              "y": 391.651,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-2",
+              "x": 498.539,
+              "y": 380.63,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 482.36,
+              "y": 413.611,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 501,
+              "y": 192.418,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-2",
+              "x": 518.875,
+              "y": 390.271,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 503.663,
+              "y": 424.488,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 522.197,
+              "y": 412.119,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-2",
+              "x": 539.957,
+              "y": 400.267,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": []
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.properties.patch-tensor",
+      "demonstrationId": "patch-tensor",
+      "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.properties.patch-tensor",
+      "sceneFingerprint": "9737c27aa8f8998515c8fbe5b32dbc1e2f887a763772cbfba4b4c40dcd16b715",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-affine\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"shading\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.properties.patch-tensor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c388684dda65c7c7081847dd0101c72b96c1c2630b5bd268b388d847730a910b",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 15,
+          "target": [
+            0.5,
+            0.5,
+            2
+          ]
+        },
+        "meshBounds": {
+          "left": 192.72490373236795,
+          "top": 143.1695325187931,
+          "right": 227.18374737159908,
+          "bottom": 181.82356116917322,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                1,
+                0.9375,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 193.227,
+            "y": 172.677,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 201.248,
+            "y": 167.758,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-2",
+            "x": 208.946,
+            "y": 163.037,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 202.016,
+            "y": 177.165,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 210,
+            "y": 82.419,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-2",
+            "x": 217.657,
+            "y": 167.167,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 211.14,
+            "y": 181.824,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 219.079,
+            "y": 176.525,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-2",
+            "x": 226.687,
+            "y": 171.449,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 141.6484375,
+            "right": 270.875,
+            "bottom": 161.7265625
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 15,
+            "target": [
+              0.5,
+              0.5,
+              2
+            ]
+          },
+          "meshBounds": {
+            "left": 460.6692944828744,
+            "top": 334.24579322656695,
+            "right": 541.1174409790794,
+            "bottom": 424.4880831911082,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.5,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0.9375,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 461.842,
+              "y": 403.135,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 480.568,
+              "y": 391.651,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-2",
+              "x": 498.539,
+              "y": 380.63,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 482.36,
+              "y": 413.611,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 501,
+              "y": 192.418,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-2",
+              "x": 518.875,
+              "y": 390.271,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 503.663,
+              "y": 424.488,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 522.197,
+              "y": 412.119,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-2",
+              "x": 539.957,
+              "y": 400.267,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 141.6484375,
+            "right": 270.875,
+            "bottom": 161.7265625
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.tensor-derivatives.patch-derivatives",
+      "demonstrationId": "patch-derivatives",
+      "path": "/bezeg-2.0/patches/derivatives?example=lesson.bezier-patches.tensor-derivatives.patch-derivatives",
+      "sceneFingerprint": "5f0c465a4ea1beb56f6c8ec09b0a76e79d7822403fdd3dc8a61a7350221b0d4e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"saddle-derivatives\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"tangent-plane\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"normal\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"twist\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
+      ],
+      "file": "bezier-patches.tensor-derivatives.patch-derivatives.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a30b019a960d41b682537612116ade335d6ee2c2f9a4d6e568f03e12c84c869c",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "meshBounds": {
+          "left": 159.04563281846367,
+          "top": 80.72794408261598,
+          "right": 260.1677365263277,
+          "bottom": 186.89628999927388,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                1,
+                0.9375,
+                0.9375
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 163.181,
+            "y": 160.844,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 207.255,
+            "y": 136.989,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 213.418,
+            "y": 186.896,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 260.168,
+            "y": 96.95,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 134.8515625,
+            "right": 270.875,
+            "bottom": 154.9296875
+          },
+          {
+            "id": "deriv-su-label",
+            "left": 238.6875,
+            "top": 133.078125,
+            "right": 257.09375,
+            "bottom": 150.921875
+          },
+          {
+            "id": "deriv-sv-label",
+            "left": 234.6875,
+            "top": 115.578125,
+            "right": 251.984375,
+            "bottom": 133.421875
+          },
+          {
+            "id": "deriv-twist-label",
+            "left": 218,
+            "top": 112.578125,
+            "right": 242.609375,
+            "bottom": 130.421875
+          },
+          {
+            "id": "deriv-normal-label",
+            "left": 200.6875,
+            "top": 116.09375,
+            "right": 212.25,
+            "bottom": 132.09375
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "meshBounds": {
+            "left": 382.04115046464403,
+            "top": 188.46870022364578,
+            "right": 618.1223695056958,
+            "bottom": 436.33095395984327,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.5,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0.9375,
+                  0.9375
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 391.696,
+              "y": 375.508,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 494.592,
+              "y": 319.816,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 508.979,
+              "y": 436.331,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 618.122,
+              "y": 226.341,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 134.8515625,
+            "right": 270.875,
+            "bottom": 154.9296875
+          },
+          {
+            "id": "deriv-su-label",
+            "left": 238.6875,
+            "top": 133.078125,
+            "right": 257.09375,
+            "bottom": 150.921875
+          },
+          {
+            "id": "deriv-sv-label",
+            "left": 234.6875,
+            "top": 115.578125,
+            "right": 251.984375,
+            "bottom": 133.421875
+          },
+          {
+            "id": "deriv-twist-label",
+            "left": 218,
+            "top": 112.578125,
+            "right": 242.609375,
+            "bottom": 130.421875
+          },
+          {
+            "id": "deriv-normal-label",
+            "left": 200.6875,
+            "top": 116.09375,
+            "right": 212.25,
+            "bottom": 132.09375
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.tensor-subdivision.patch-subdivision",
+      "demonstrationId": "patch-subdivision",
+      "path": "/bezeg-2.0/patches/subdivision?example=lesson.bezier-patches.tensor-subdivision.patch-subdivision",
+      "sceneFingerprint": "83bec29e80d38c2b9de9eef7ee6d28904afee035d5e29dbdfc2ae1689501f8eb",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"advanced-saddle-elevation\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}",
+        "patch-elevate: {\"kind\":\"patch-elevate\",\"direction\":\"u\"}"
+      ],
+      "file": "bezier-patches.tensor-subdivision.patch-subdivision.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e2feede2afeef013920c953742fea1048ec7247be83775073f71877a62b2b68b",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.72,
+          "el": 0.48,
+          "distance": 5.5,
+          "target": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "meshBounds": {
+          "left": 159.04563281846367,
+          "top": 80.72794408261598,
+          "right": 260.1677365263277,
+          "bottom": 186.89628999927388,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "tensor-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "tensor-patch-0",
+            "kind": "tensor",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                1,
+                0.9375,
+                0.9375
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 205.796875,
+            "top": 136.5546875,
+            "right": 258.671875,
+            "bottom": 156.6328125
+          },
+          {
+            "id": "piece-l-label",
+            "left": 203.5,
+            "top": 138.1484375,
+            "right": 223.296875,
+            "bottom": 155.8515625
+          },
+          {
+            "id": "piece-r-label",
+            "left": 228.390625,
+            "top": 134.40625,
+            "right": 249.1875,
+            "bottom": 152.375
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.72,
+            "el": 0.48,
+            "distance": 5.5,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "meshBounds": {
+            "left": 382.04115046464403,
+            "top": 188.46870022364578,
+            "right": 618.1223695056958,
+            "bottom": 436.33095395984327,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "tensor-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "tensor-patch-0",
+              "kind": "tensor",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.5,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0.9375,
+                  0.9375
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": []
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "tensor-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 205.796875,
+            "top": 136.5546875,
+            "right": 258.671875,
+            "bottom": 156.6328125
+          },
+          {
+            "id": "piece-l-label",
+            "left": 203.5,
+            "top": 138.1484375,
+            "right": 223.296875,
+            "bottom": 155.8515625
+          },
+          {
+            "id": "piece-r-label",
+            "left": 228.390625,
+            "top": 134.40625,
+            "right": 249.1875,
+            "bottom": 152.375
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.tensor-joins.patch-joins",
+      "demonstrationId": "patch-joins",
+      "path": "/bezeg-2.0/patches/joins?example=lesson.bezier-patches.tensor-joins.patch-joins",
+      "sceneFingerprint": "8c96ba8d188bca5156665183c705b140b9bf2087eec5abf5f702e6713cdf2d49",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"advanced-join-c0\",\"source\":\"demonstration-default\"}",
+        "patch-join-scene: {\"kind\":\"patch-join-scene\",\"scene\":\"join-c0-kink\",\"view3d\":{\"az\":-1.5,\"el\":-1.54,\"distance\":11.5,\"target\":{\"x\":1.5,\"y\":0,\"z\":0}}}"
+      ],
+      "file": "bezier-patches.tensor-joins.patch-joins.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "dc56d2e14d9f16d6ead48d3c05b3a8d70f7a8bbdb14b3ac1ed4d4f0ceb80bf6b",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": -1.5,
+          "el": -1.54,
+          "distance": 11.5,
+          "target": [
+            1.5,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 153.4742439034919,
+          "top": 27.47020902010825,
+          "right": 265.6587568598249,
+          "bottom": 230.84250598611726,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "join-patch-a",
+          "join-patch-b"
+        ],
+        "renderedOwners": [
+          {
+            "id": "join-patch-a",
+            "kind": "join",
+            "geometrySamples": [
+              [
+                -1.5,
+                -1.5,
+                0
+              ],
+              [
+                0,
+                -1.5,
+                0
+              ],
+              [
+                1.5,
+                1.3125,
+                0
+              ]
+            ]
+          },
+          {
+            "id": "join-patch-b",
+            "kind": "join",
+            "geometrySamples": [
+              [
+                1.5,
+                -1.5,
+                0
+              ],
+              [
+                3,
+                -1.5,
+                0
+              ],
+              [
+                4.5,
+                1.3125,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "p-0-0",
+            "x": 252.508,
+            "y": 27.47,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-1",
+            "x": 219.484,
+            "y": 29.83,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-2",
+            "x": 186.473,
+            "y": 32.189,
+            "inFrustum": true
+          },
+          {
+            "id": "p-0-3",
+            "x": 153.474,
+            "y": 34.547,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-0",
+            "x": 254.729,
+            "y": 60.663,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-1",
+            "x": 219.679,
+            "y": 72.936,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-2",
+            "x": 192.658,
+            "y": 74.86,
+            "inFrustum": true
+          },
+          {
+            "id": "p-1-3",
+            "x": 155.96,
+            "y": 67.702,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-0",
+            "x": 256.938,
+            "y": 93.678,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-1",
+            "x": 221.57,
+            "y": 100.013,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-2",
+            "x": 194.608,
+            "y": 101.928,
+            "inFrustum": true
+          },
+          {
+            "id": "p-2-3",
+            "x": 158.433,
+            "y": 100.679,
+            "inFrustum": true
+          },
+          {
+            "id": "p-3-0",
+            "x": 259.136,
+            "y": 126.517,
+            "inFrustum": true
+          },
+          {
+            "id": "p-3-1",
+            "x": 226.376,
+            "y": 128.839,
+            "inFrustum": true
+          },
+          {
+            "id": "p-3-2",
+            "x": 193.628,
+            "y": 131.16,
+            "inFrustum": true
+          },
+          {
+            "id": "p-3-3",
+            "x": 160.892,
+            "y": 133.481,
+            "inFrustum": true
+          },
+          {
+            "id": "b-0-0",
+            "x": 259.136,
+            "y": 126.517,
+            "inFrustum": true
+          },
+          {
+            "id": "b-0-1",
+            "x": 226.376,
+            "y": 128.839,
+            "inFrustum": true
+          },
+          {
+            "id": "b-0-2",
+            "x": 193.628,
+            "y": 131.16,
+            "inFrustum": true
+          },
+          {
+            "id": "b-0-3",
+            "x": 160.892,
+            "y": 133.481,
+            "inFrustum": true
+          },
+          {
+            "id": "b-1-0",
+            "x": 261.322,
+            "y": 159.181,
+            "inFrustum": true
+          },
+          {
+            "id": "b-1-1",
+            "x": 225.327,
+            "y": 153.81,
+            "inFrustum": true
+          },
+          {
+            "id": "b-1-2",
+            "x": 198.483,
+            "y": 155.709,
+            "inFrustum": true
+          },
+          {
+            "id": "b-1-3",
+            "x": 163.338,
+            "y": 166.108,
+            "inFrustum": true
+          },
+          {
+            "id": "b-2-0",
+            "x": 263.496,
+            "y": 191.671,
+            "inFrustum": true
+          },
+          {
+            "id": "b-2-1",
+            "x": 227.193,
+            "y": 180.532,
+            "inFrustum": true
+          },
+          {
+            "id": "b-2-2",
+            "x": 200.407,
+            "y": 182.422,
+            "inFrustum": true
+          },
+          {
+            "id": "b-2-3",
+            "x": 165.771,
+            "y": 198.561,
+            "inFrustum": true
+          },
+          {
+            "id": "b-3-0",
+            "x": 265.659,
+            "y": 223.989,
+            "inFrustum": true
+          },
+          {
+            "id": "b-3-1",
+            "x": 233.158,
+            "y": 226.274,
+            "inFrustum": true
+          },
+          {
+            "id": "b-3-2",
+            "x": 200.669,
+            "y": 228.559,
+            "inFrustum": true
+          },
+          {
+            "id": "b-3-3",
+            "x": 168.192,
+            "y": 230.843,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 214.890625,
+            "top": 74.7578125,
+            "right": 267.765625,
+            "bottom": 94.8359375
+          },
+          {
+            "id": "join-su-a-label",
+            "left": 220.296875,
+            "top": 153.5703125,
+            "right": 251.84375,
+            "bottom": 173.8046875
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": -1.5,
+            "el": -1.54,
+            "distance": 11.5,
+            "target": [
+              1.5,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 369.0341001900754,
+            "top": 64.13237259694503,
+            "right": 630.9417900535142,
+            "bottom": 538.9284658983584,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "join-patch-a",
+            "join-patch-b"
+          ],
+          "renderedOwners": [
+            {
+              "id": "join-patch-a",
+              "kind": "join",
+              "geometrySamples": [
+                [
+                  -1.5,
+                  -1.5,
+                  0
+                ],
+                [
+                  0,
+                  -1.5,
+                  0
+                ],
+                [
+                  1.5,
+                  1.3125,
+                  0
+                ]
+              ]
+            },
+            {
+              "id": "join-patch-b",
+              "kind": "join",
+              "geometrySamples": [
+                [
+                  1.5,
+                  -1.5,
+                  0
+                ],
+                [
+                  3,
+                  -1.5,
+                  0
+                ],
+                [
+                  4.5,
+                  1.3125,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "p-0-0",
+              "x": 600.239,
+              "y": 64.132,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-1",
+              "x": 523.141,
+              "y": 69.642,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-2",
+              "x": 446.073,
+              "y": 75.149,
+              "inFrustum": true
+            },
+            {
+              "id": "p-0-3",
+              "x": 369.034,
+              "y": 80.654,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-0",
+              "x": 605.425,
+              "y": 141.625,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-1",
+              "x": 523.596,
+              "y": 170.278,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-2",
+              "x": 460.514,
+              "y": 174.77,
+              "inFrustum": true
+            },
+            {
+              "id": "p-1-3",
+              "x": 374.838,
+              "y": 158.058,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-0",
+              "x": 610.583,
+              "y": 218.703,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-1",
+              "x": 528.011,
+              "y": 233.491,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-2",
+              "x": 465.067,
+              "y": 237.963,
+              "inFrustum": true
+            },
+            {
+              "id": "p-2-3",
+              "x": 380.61,
+              "y": 235.048,
+              "inFrustum": true
+            },
+            {
+              "id": "p-3-0",
+              "x": 615.713,
+              "y": 295.369,
+              "inFrustum": true
+            },
+            {
+              "id": "p-3-1",
+              "x": 539.231,
+              "y": 300.79,
+              "inFrustum": true
+            },
+            {
+              "id": "p-3-2",
+              "x": 462.777,
+              "y": 306.209,
+              "inFrustum": true
+            },
+            {
+              "id": "p-3-3",
+              "x": 386.352,
+              "y": 311.626,
+              "inFrustum": true
+            },
+            {
+              "id": "b-0-0",
+              "x": 615.713,
+              "y": 295.369,
+              "inFrustum": true
+            },
+            {
+              "id": "b-0-1",
+              "x": 539.231,
+              "y": 300.79,
+              "inFrustum": true
+            },
+            {
+              "id": "b-0-2",
+              "x": 462.777,
+              "y": 306.209,
+              "inFrustum": true
+            },
+            {
+              "id": "b-0-3",
+              "x": 386.352,
+              "y": 311.626,
+              "inFrustum": true
+            },
+            {
+              "id": "b-1-0",
+              "x": 620.817,
+              "y": 371.626,
+              "inFrustum": true
+            },
+            {
+              "id": "b-1-1",
+              "x": 536.782,
+              "y": 359.087,
+              "inFrustum": true
+            },
+            {
+              "id": "b-1-2",
+              "x": 474.112,
+              "y": 363.52,
+              "inFrustum": true
+            },
+            {
+              "id": "b-1-3",
+              "x": 392.063,
+              "y": 387.797,
+              "inFrustum": true
+            },
+            {
+              "id": "b-2-0",
+              "x": 625.893,
+              "y": 447.478,
+              "inFrustum": true
+            },
+            {
+              "id": "b-2-1",
+              "x": 541.138,
+              "y": 421.473,
+              "inFrustum": true
+            },
+            {
+              "id": "b-2-2",
+              "x": 478.605,
+              "y": 425.886,
+              "inFrustum": true
+            },
+            {
+              "id": "b-2-3",
+              "x": 397.743,
+              "y": 463.564,
+              "inFrustum": true
+            },
+            {
+              "id": "b-3-0",
+              "x": 630.942,
+              "y": 522.928,
+              "inFrustum": true
+            },
+            {
+              "id": "b-3-1",
+              "x": 555.064,
+              "y": 528.264,
+              "inFrustum": true
+            },
+            {
+              "id": "b-3-2",
+              "x": 479.215,
+              "y": 533.597,
+              "inFrustum": true
+            },
+            {
+              "id": "b-3-3",
+              "x": 403.394,
+              "y": 538.928,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "join-patch-a",
+          "join-patch-b"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 214.890625,
+            "top": 74.7578125,
+            "right": 267.765625,
+            "bottom": 94.8359375
+          },
+          {
+            "id": "join-su-a-label",
+            "left": 220.296875,
+            "top": 153.5703125,
+            "right": 251.84375,
+            "bottom": 173.8046875
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.triangular-patches.patch-triangular",
+      "demonstrationId": "patch-triangular",
+      "path": "/bezeg-2.0/patches/triangular?example=lesson.bezier-patches.triangular-patches.patch-triangular",
+      "sceneFingerprint": "207fd0f4907b2c479da0044269233e7a722f485662526accf4f3def058486553",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"advanced-triangular-centroid\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"triangular\",\"n\":3,\"net\":[{\"x\":1,\"y\":0,\"z\":0},{\"x\":0.6666666666666666,\"y\":0.3333333333333333,\"z\":0},{\"x\":0.6666666666666666,\"y\":0,\"z\":0},{\"x\":0.3333333333333333,\"y\":0.6666666666666666,\"z\":0},{\"x\":0.3333333333333333,\"y\":0.3333333333333333,\"z\":4.5},{\"x\":0.3333333333333333,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0,\"y\":0.6666666666666666,\"z\":0},{\"x\":0,\"y\":0.3333333333333333,\"z\":0},{\"x\":0,\"y\":0,\"z\":0}]},\"view3d\":{\"az\":0.6,\"el\":-1.39,\"distance\":3,\"target\":{\"x\":0.3333333333333333,\"y\":0.3333333333333333,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.3333333333333333,\"v\":0.3333333333333333,\"w\":0.3333333333333333}"
+      ],
+      "file": "bezier-patches.triangular-patches.patch-triangular.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "abe11495e3866de1376ddacc6e4cf301d6723420abb3340db76d56b249fbff43",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.6,
+          "el": -1.39,
+          "distance": 3,
+          "target": [
+            0.3333333333333333,
+            0.3333333333333333,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 151.38552828260788,
+          "top": 46.06279487935723,
+          "right": 325.41608606303845,
+          "bottom": 217.54241301050814,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "triangular-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "triangular-patch-0",
+            "kind": "triangular",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.25,
+                0.5,
+                0.84375
+              ],
+              [
+                0.9375,
+                0,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "t-3-0-0",
+            "x": 257.41,
+            "y": 46.063,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-1-0",
+            "x": 245.018,
+            "y": 106.434,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-0-1",
+            "x": 221.248,
+            "y": 71.003,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-2-0",
+            "x": 233.302,
+            "y": 163.506,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-1-1",
+            "x": 210,
+            "y": 88.865,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-0-2",
+            "x": 185.916,
+            "y": 95.371,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-3-0",
+            "x": 222.21,
+            "y": 217.542,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-2-1",
+            "x": 199.359,
+            "y": 185.809,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-1-2",
+            "x": 175.764,
+            "y": 153.041,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-0-3",
+            "x": 151.386,
+            "y": 119.186,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 102.9609375,
+            "right": 291.859375,
+            "bottom": 123.0390625
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.6,
+            "el": -1.39,
+            "distance": 3,
+            "target": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 364.1577525674731,
+            "top": 107.53890958373015,
+            "right": 770.4521701548629,
+            "bottom": 507.8778642206863,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "triangular-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "triangular-patch-0",
+              "kind": "triangular",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.25,
+                  0.5,
+                  0.84375
+                ],
+                [
+                  0.9375,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "t-3-0-0",
+              "x": 611.684,
+              "y": 107.539,
+              "inFrustum": true
+            },
+            {
+              "id": "t-2-1-0",
+              "x": 582.753,
+              "y": 248.482,
+              "inFrustum": true
+            },
+            {
+              "id": "t-2-0-1",
+              "x": 527.261,
+              "y": 165.764,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-2-0",
+              "x": 555.402,
+              "y": 381.723,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-1-1",
+              "x": 501,
+              "y": 207.466,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-0-2",
+              "x": 444.774,
+              "y": 222.654,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-3-0",
+              "x": 529.506,
+              "y": 507.878,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-2-1",
+              "x": 476.159,
+              "y": 433.792,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-1-2",
+              "x": 421.071,
+              "y": 357.291,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-0-3",
+              "x": 364.158,
+              "y": 278.253,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "triangular-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 102.9609375,
+            "right": 291.859375,
+            "bottom": 123.0390625
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "bezier-patches.square-vs-triangular.patch-triangular",
+      "demonstrationId": "patch-triangular",
+      "path": "/bezeg-2.0/patches/triangular?example=lesson.bezier-patches.square-vs-triangular.patch-triangular",
+      "sceneFingerprint": "49efa18a044466e5fdf5d957d5997de329aa6b00eb600c6a4e5c8cbaa72b81c6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"advanced-square-triangular\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"triangular\",\"n\":3,\"net\":[{\"x\":1,\"y\":0,\"z\":0},{\"x\":0.6666666666666666,\"y\":0.3333333333333333,\"z\":0},{\"x\":0.6666666666666666,\"y\":0,\"z\":0},{\"x\":0.3333333333333333,\"y\":0.6666666666666666,\"z\":0},{\"x\":0.3333333333333333,\"y\":0.3333333333333333,\"z\":4.5},{\"x\":0.3333333333333333,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0,\"y\":0.6666666666666666,\"z\":0},{\"x\":0,\"y\":0.3333333333333333,\"z\":0},{\"x\":0,\"y\":0,\"z\":0}]},\"view3d\":{\"az\":0.6,\"el\":-1.39,\"distance\":3,\"target\":{\"x\":0.3333333333333333,\"y\":0.3333333333333333,\"z\":0}}}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
+        "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
+        "patch-tensor-comparison: {\"kind\":\"patch-tensor-comparison\",\"visible\":true}",
+        "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.3333333333333333,\"v\":0.3333333333333333,\"w\":0.3333333333333333}"
+      ],
+      "file": "bezier-patches.square-vs-triangular.patch-triangular.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7ade8fdd60eb6a7a0424d37f6c3233d26d6b61771c940f7f02ca80af40de9545",
+      "scene": {
+        "view": "surface",
+        "webglContextType": "webgl2",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0.6,
+          "el": -1.39,
+          "distance": 3,
+          "target": [
+            0.3333333333333333,
+            0.3333333333333333,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 151.38552828260788,
+          "top": 46.06279487935723,
+          "right": 325.41608606303845,
+          "bottom": 217.54241301050814,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "triangular-patch-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "triangular-patch-0",
+            "kind": "triangular",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0.25,
+                0.5,
+                0.84375
+              ],
+              [
+                0.9375,
+                0,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [
+          {
+            "id": "t-3-0-0",
+            "x": 257.41,
+            "y": 46.063,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-1-0",
+            "x": 245.018,
+            "y": 106.434,
+            "inFrustum": true
+          },
+          {
+            "id": "t-2-0-1",
+            "x": 221.248,
+            "y": 71.003,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-2-0",
+            "x": 233.302,
+            "y": 163.506,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-1-1",
+            "x": 210,
+            "y": 88.865,
+            "inFrustum": true
+          },
+          {
+            "id": "t-1-0-2",
+            "x": 185.916,
+            "y": 95.371,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-3-0",
+            "x": 222.21,
+            "y": 217.542,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-2-1",
+            "x": 199.359,
+            "y": 185.809,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-1-2",
+            "x": 175.764,
+            "y": 153.041,
+            "inFrustum": true
+          },
+          {
+            "id": "t-0-0-3",
+            "x": 151.386,
+            "y": 119.186,
+            "inFrustum": true
+          }
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 102.9609375,
+            "right": 291.859375,
+            "bottom": 123.0390625
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "webglContextType": "webgl2",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": 0.6,
+            "el": -1.39,
+            "distance": 3,
+            "target": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 364.1577525674731,
+            "top": 107.53890958373015,
+            "right": 770.4521701548629,
+            "bottom": 507.8778642206863,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "triangular-patch-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "triangular-patch-0",
+              "kind": "triangular",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0.25,
+                  0.5,
+                  0.84375
+                ],
+                [
+                  0.9375,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": [
+            {
+              "id": "t-3-0-0",
+              "x": 611.684,
+              "y": 107.539,
+              "inFrustum": true
+            },
+            {
+              "id": "t-2-1-0",
+              "x": 582.753,
+              "y": 248.482,
+              "inFrustum": true
+            },
+            {
+              "id": "t-2-0-1",
+              "x": 527.261,
+              "y": 165.764,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-2-0",
+              "x": 555.402,
+              "y": 381.723,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-1-1",
+              "x": 501,
+              "y": 207.466,
+              "inFrustum": true
+            },
+            {
+              "id": "t-1-0-2",
+              "x": 444.774,
+              "y": 222.654,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-3-0",
+              "x": 529.506,
+              "y": 507.878,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-2-1",
+              "x": 476.159,
+              "y": 433.792,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-1-2",
+              "x": 421.071,
+              "y": 357.291,
+              "inFrustum": true
+            },
+            {
+              "id": "t-0-0-3",
+              "x": 364.158,
+              "y": 278.253,
+              "inFrustum": true
+            }
+          ]
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "triangular-patch-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "surface-point",
+            "left": 218,
+            "top": 102.9609375,
+            "right": 291.859375,
+            "bottom": 123.0390625
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "pageErrors": []
+      }
+    }
+  ]
+}

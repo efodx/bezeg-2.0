@@ -8,7 +8,8 @@ import {getChapterGuidedExamples} from './chapter/guidedExamples';
 import {exampleReferences} from './chapter/orderedContent';
 import {ChapterPage} from './ChapterPage';
 
-vi.mock('./chapter/guidedExamplePreviews', () => ({
+vi.mock('./chapter/guidedExamplePreviews', async importOriginal => ({
+    ...await importOriginal<typeof import('./chapter/guidedExamplePreviews')>(),
     resolveGuidedExamplePreview: (id: string, _demonstrationId: string, language: 'sl' | 'en') => ({
         src: `/preview/${id}.png`,
         alt: `${language}:${id} alt`,

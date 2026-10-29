@@ -5,7 +5,7 @@ import type {TransientState} from "../base/BaseGraph";
 import type {LessonPatchFixture} from "../../learning/model";
 import {lessonPatchPresetData} from "./lessonPatchFixture";
 import {PatchSweeps} from "./patchSweep";
-import {patchLessonActions} from "./patchLessonActions";
+import {patchLessonActions, triangularComparisonLessonActions} from "./patchLessonActions";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
 import {PatchCameraDto, PatchCollectionPresetData, PatchStateDto, Point3Dto, triangularPatchToDto} from "./patchDto";
@@ -151,6 +151,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
                 showSplitPreview: () => this.setSubdivisionPreview(true),
             }),
         }));
+        registry.use(triangularComparisonLessonActions({setComparison: visible => this.setTensorComparison(visible)}));
     }
 
     protected override lessonPatchData(patch: LessonPatchFixture): PatchCollectionPresetData {

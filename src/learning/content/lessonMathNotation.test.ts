@@ -13,6 +13,7 @@ import {pilotGuidedLessons} from './guidedLessons';
 import {familyChapters} from './familyChapters';
 import {patchGuidedExamplesBasics} from './patchGuidedExamplesBasics';
 import {patchGuidedExamplesEvaluation} from './patchGuidedExamplesEvaluation';
+import {patchGuidedExamplesAdvanced} from './patchGuidedExamplesAdvanced';
 
 /**
  * Guards the lesson math typography contract.
@@ -42,6 +43,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['analysisGuidedLessons', analysisGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
     ['patchGuidedExamplesEvaluation', Object.values(patchGuidedExamplesEvaluation)],
+    ['patchGuidedExamplesAdvanced', Object.values(patchGuidedExamplesAdvanced)],
 ];
 
 const TEX_FIELDS = new Set(['latex', 'calculationLatex', 'resultLatex']);
@@ -151,7 +153,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'weighted-parameterization',
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
-            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives'].sort(),
+            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular'].sort(),
     );
 });
 

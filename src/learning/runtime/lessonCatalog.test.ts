@@ -52,7 +52,7 @@ test('returns a stable lesson object so the workspace does not restart its sessi
 
 test('uses an exact availability allowlist across the full demonstration catalog', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation', 'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point']);
+    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation', 'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-decasteljau', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular']);
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
     expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);
@@ -218,10 +218,10 @@ test('adapts the five construction lessons into typed runtime actions', () => {
     expect(kinds('rational-extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
 });
 
-test('every active demonstration route has an available lesson, except patches awaiting their lessons', () => {
+test('every active demonstration route has an available lesson', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    // docs/tasks/bezier-patches task 11 adds the patch lessons and removes this exception.
-    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual(['patch-tensor', 'patch-decasteljau', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular']);
+    // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
+    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
 });
 
 test('maps the spline, Farin and circle scene actions to typed runtime actions', () => {

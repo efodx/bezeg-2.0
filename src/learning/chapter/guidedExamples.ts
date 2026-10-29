@@ -2,6 +2,8 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import {bezierActivityCopy, bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
+import {patchChapter} from '../content/patchChapter';
+import {patchGuidedExamplePath, patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 import type {LessonAction, LessonDefinition, LocalizedText} from '../model';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {activities, findActivity} from './activities';
@@ -25,8 +27,14 @@ function sectionTitle(chapterId: string, sectionId: string): LocalizedText | und
         const slSection = bezierChapter.sl.sections.find(item => item.id === sectionId);
         return section && slSection ? words(slSection.title, section.title) : undefined;
     }
-    const section = familyChapters.find(item => item.id === chapterId)?.sections.find(item => item.id === sectionId);
+    const section = (chapterId === 'bezier-patches' ? patchChapter : familyChapters.find(item => item.id === chapterId))?.sections.find(item => item.id === sectionId);
     return section?.title;
+}
+
+function patchLesson(sectionId: string): LessonDefinition | undefined {
+    return Object.prototype.hasOwnProperty.call(patchGuidedExampleRegistry, sectionId)
+        ? patchGuidedExampleRegistry[sectionId as keyof typeof patchGuidedExampleRegistry]
+        : undefined;
 }
 
 function actionLesson(id: DemonstrationId, title: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], lessonId: string): LessonDefinition {
@@ -129,6 +137,10 @@ function familyExample(search: string, id: DemonstrationId): ResolvedGuidedExamp
     if (identity.length !== 3) return undefined;
     const [chapterId, sectionId, demo] = identity;
     if (demo !== id) return undefined;
+    if (chapterId === 'bezier-patches') {
+        const lesson = patchLesson(sectionId);
+        return lesson && id === lesson.demonstrationId ? {owner: {chapterId, sectionId}, lesson} : undefined;
+    }
     const chapter = familyChapters.find(item => item.id === chapterId);
     const section = chapter?.sections.find(item => item.id === sectionId && item.demonstrationIds?.includes(id));
     const sourcePrompt = section?.investigationPrompts?.[id];
@@ -149,6 +161,10 @@ function canonicalExample(search: string, id: DemonstrationId): ResolvedGuidedEx
     const [kind, chapterId, sectionId, demo] = identity;
     if (demo !== id) return undefined;
     if (kind === 'lesson') {
+        if (chapterId === 'bezier-patches') {
+            const lesson = patchLesson(sectionId);
+            return lesson && id === lesson.demonstrationId ? {lesson, owner: {chapterId, sectionId}} : undefined;
+        }
         const owner = getGuidedLessonOwners(id).find(item => item.chapterId === chapterId && item.sectionId === sectionId);
         if (!owner) return undefined;
         const lesson = getLessonForDemonstration(id);
@@ -237,9 +253,11 @@ export function resolveGuidedExample(search: string, demonstrationId: Demonstrat
         if (params.getAll('learn').length !== 1 || params.get('learn') !== '1'
             || params.has('example') || params.has('explore') || params.has('activity') || params.has('chapter')
             || params.getAll('learnChapter').length > 1 || params.getAll('learnSection').length > 1) return undefined;
-        const lesson = getLessonForDemonstration(demonstrationId);
-        if (!lesson) return undefined;
+        if (params.get('learnChapter') === 'bezier-patches'
+            && !(patchLesson(params.get('learnSection') ?? '')?.demonstrationId === demonstrationId)) return undefined;
         const owner = resolveGuidedLessonOwner(search, demonstrationId);
+        const lesson = owner.chapterId === 'bezier-patches' ? patchLesson(owner.sectionId) : getLessonForDemonstration(demonstrationId);
+        if (!lesson) return undefined;
         const home = getRetainedExampleForLegacyIdentity(`lesson.${owner.chapterId}.${owner.sectionId}.${demonstrationId}`, demonstrationId);
         return {lesson: home ? addRetainedExploration(lesson, home) : lesson, owner};
     }
@@ -250,7 +268,7 @@ export function resolveGuidedExample(search: string, demonstrationId: Demonstrat
 }
 
 export function getChapterGuidedExamples(chapterId: string, sectionId: string): readonly GuidedExampleLink[] {
-    return retainedExampleHomes.filter(home => home[1] === chapterId && home[2] === sectionId).flatMap((home): GuidedExampleLink[] => {
+    const retained = retainedExampleHomes.filter(home => home[1] === chapterId && home[2] === sectionId).flatMap((home): GuidedExampleLink[] => {
         const [, , , id, sourceId, sourceKind, path] = home;
         if (sourceKind === 'lesson') {
             const lesson = getLessonForDemonstration(id);
@@ -267,6 +285,13 @@ export function getChapterGuidedExamples(chapterId: string, sectionId: string): 
             ? [{id: home[0], demonstrationId: id, title: words(`${sectionName.sl} · ${demoName}`, `${sectionName.en} · ${demoName}`), prompt: familyPrompt(chapterId, sectionId, id, prompt), path}]
             : [];
     });
+    const patch = chapterId === 'bezier-patches' ? patchLesson(sectionId) : undefined;
+    if (!patch) return retained;
+    return [...retained, {
+        id: `bezier-patches.${sectionId}.${patch.demonstrationId}`, demonstrationId: patch.demonstrationId, title: patch.title,
+        prompt: patch.steps[0]?.frames?.find(frame => frame.kind === 'observation')?.prompt ?? patch.steps[0]?.body,
+        path: patchGuidedExamplePath(sectionId as keyof typeof patchGuidedExampleRegistry),
+    }];
 }
 
 function retainedMergedPrompt(key: string): LocalizedText | undefined {

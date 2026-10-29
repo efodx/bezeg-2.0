@@ -12,6 +12,8 @@ import {buildTeapotScene} from "./TensorTeapotScene";
 import {teapotControlPoints} from "./teapot/utahTeapot";
 import {fitCameraTo} from "./surface-view/surfaceMath";
 import type {SurfaceScene, Xyz} from "./surface-view/surfaceScene";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {patchJoinLessonActions} from "./patchLessonActions";
 
 export const JOIN_CONTINUITIES: readonly JoinContinuity[] = ["none", "c0", "c1", "g1"];
 const isJoinContinuity = (value: unknown): value is JoinContinuity => JOIN_CONTINUITIES.some(mode => mode === value);
@@ -89,6 +91,23 @@ const defaultDto = (): TensorPatchDto => {
  * no point exists or can be moved, the join and degree controls are hidden, and `net` is only the Preset's placeholder patch.
  */
 export default class TensorJoinGraph extends TensorPatchGraph {
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.use(patchJoinLessonActions({
+            isCapstone: () => this.capstone(),
+            supportsScene: scene => joinStartingScenes.some(entry => entry.id === scene),
+            showScene: (scene, view3d) => {
+                const index = joinStartingScenes.findIndex(entry => entry.id === scene);
+                if (index >= 0) {
+                    this.useJoinScene(index);
+                    if (view3d) this.applyLessonView3D(view3d);
+                }
+            },
+            setMode: mode => this.setJoinContinuity(mode),
+            setAlpha: alpha => this.setJoinAlpha(alpha),
+        }));
+    }
+
     override getInitialState(): TensorPatchGraphState {
         const state = {...super.getInitialState(), ...this.stateOf(defaultDto())};
         return {...state, camera: fitCameraTo([...state.net.flat(), ...(state.netB ?? []).flat()], 1, state.camera)};

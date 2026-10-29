@@ -11,6 +11,18 @@ import {FamilyChapterPage} from './FamilyChapterPage';
 
 afterEach(() => setLanguage('sl'));
 
+test('patch prerequisites link to the curve chapter in both languages', async () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-patches']}>
+        <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
+    </MemoryRouter>);
+    const prerequisiteLink = () => container.querySelector('.chapter-prerequisites a');
+    expect(prerequisiteLink()).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves');
+    expect(prerequisiteLink()).toHaveTextContent('Bézierjeve krivulje');
+    await act(async () => setLanguage('en'));
+    expect(prerequisiteLink()).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves');
+    expect(prerequisiteLink()).toHaveTextContent('Bézier curves');
+});
+
 function renderedOrder(container: HTMLElement, sectionId: string): string[] {
     return [...container.querySelectorAll(`#${sectionId} .chapter-section-body > *`)].map(item => {
         if (item.matches('.chapter-paragraph')) return `paragraph:${item.textContent}`;

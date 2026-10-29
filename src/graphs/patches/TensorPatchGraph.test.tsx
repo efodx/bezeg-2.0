@@ -41,6 +41,50 @@ describe("default scene", () => {
         expect(view.descriptions).toEqual([t("surface_view_keys")]);
         expect(graph.getWorkspacePanels({}).title).toBeDefined();
     });
+
+    it("renders the current-v iso-curve and its derived control polygon from the net", () => {
+        const {graph, view} = mount();
+        const capabilities = graph.getLessonCapabilities();
+        expect(view.last.polylines.some(line => line.id === "sweep-v-curve" || line.id === "sweep-v-controls")).toBe(false);
+        act(() => {
+            capabilities.apply({kind: "animation", animationId: "patch-v-sweep", command: "play"});
+            capabilities.apply({kind: "animation", animationId: "patch-v-sweep", command: "pause"});
+        });
+        const bernstein = (degree: number, t: number) => Array.from({length: degree + 1}, (_, i) => {
+            const choose = degree === 1 ? 1 : i === 0 || i === degree ? 1 : degree;
+            return choose * (1 - t) ** (degree - i) * t ** i;
+        });
+        const expected = (u: number, v: number): Xyz => {
+            const bu = bernstein(graph.state.m, u), bv = bernstein(graph.state.n, v);
+            return graph.state.net.flat().reduce((sum, p, k) => {
+                const weight = bu[Math.floor(k / (graph.state.n + 1))] * bv[k % (graph.state.n + 1)];
+                return sum.map((value, axis) => value + weight * p[axis]) as Xyz;
+            }, [0, 0, 0] as Xyz);
+        };
+        const expectedControls = (v: number): Xyz[] => {
+            const bv = bernstein(graph.state.n, v);
+            return graph.state.net.map(row => row.reduce((sum, p, j) => sum.map((value, axis) => value + bv[j] * p[axis]) as Xyz, [0, 0, 0] as Xyz));
+        };
+        const movingCurve = () => view.last.polylines.find(line => line.id === "sweep-v-curve");
+        const movingControls = () => view.last.polylines.find(line => line.id === "sweep-v-controls");
+        expect(movingCurve()).toBeDefined();
+        expect(movingControls()).toBeDefined();
+        const initialRevision = view.last.revision;
+        const curveAt = movingCurve()!.points;
+        const controlsAt = movingControls()!.points;
+        expect(curveAt).toHaveLength(33);
+        curveAt.forEach((point, k) => close(point, expected(k / 32, graph.state.v)));
+        controlsAt.forEach((point, i) => close(point, expectedControls(graph.state.v)[i]));
+
+        act(() => graph.setParameter("v", 0.8));
+        expect(view.last.revision).toBeGreaterThan(initialRevision);
+        expect(movingCurve()!.points).not.toEqual(curveAt);
+        expect(movingControls()!.points).not.toEqual(controlsAt);
+        movingCurve()!.points.forEach((point, k) => close(point, expected(k / 32, 0.8)));
+        movingControls()!.points.forEach((point, i) => close(point, expectedControls(0.8)[i]));
+        act(() => capabilities.apply({kind: "animation", animationId: "patch-v-sweep", command: "stop"}));
+        expect(view.last.polylines.some(line => line.id === "sweep-v-curve" || line.id === "sweep-v-controls")).toBe(false);
+    });
 });
 
 describe("edits", () => {
@@ -93,6 +137,7 @@ describe("edits", () => {
         const {graph, view} = mount();
         const revision = view.last.revision;
         act(() => graph.setParameter("u", 0.2));
+        expect(view.last.revision).toBe(revision);
         act(() => graph.setParameter("v", 7));
         expect(graph.state.v).toBe(1);
         close(view.last.markers[0].xyz, at(graph, 0.2, 1));

@@ -18,8 +18,15 @@ test('both published languages place every audited home exactly once in its owni
             for (const section of chapter.sections) {
                 const content = section.orderedContent;
                 expect(content, `${language}/${chapter.id}/${section.id}: authored sequence`).toBeDefined();
-                const expected = baseline.retainedHomes.filter(home => home.retainedKey.startsWith(chapter.id + '.' + section.id + '.'))
-                    .map(home => home.retainedKey).sort();
+                const expected = [
+                    ...baseline.retainedHomes.filter(home => home.retainedKey.startsWith(chapter.id + '.' + section.id + '.')).map(home => home.retainedKey),
+                    ...(chapter.id === 'bezier-patches' ? [
+                        'curve-to-patch.patch-tensor', 'bilinear-patch.patch-tensor', 'control-net.patch-tensor',
+                        'boundary-iso-curves.patch-tensor', 'tensor-decasteljau.patch-decasteljau', 'properties.patch-tensor',
+                        'tensor-derivatives.patch-derivatives', 'tensor-subdivision.patch-subdivision', 'tensor-joins.patch-joins',
+                        'triangular-patches.patch-triangular', 'square-vs-triangular.patch-triangular',
+                    ].filter(id => id.startsWith(`${section.id}.`)).map(id => `bezier-patches.${id}`) : []),
+                ].sort();
                 const references = exampleReferences<unknown, unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
                 const known = new Set(getChapterGuidedExamples(chapter.id, section.id).map(example => example.id));
@@ -27,7 +34,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(56);
-        expect(new Set(allReferences).size).toBe(56);
+        expect(allReferences).toHaveLength(67);
+        expect(new Set(allReferences).size).toBe(67);
     }
 });

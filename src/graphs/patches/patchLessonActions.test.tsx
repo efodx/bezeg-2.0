@@ -5,11 +5,12 @@ import {installBoardShims} from "../base/realGraphTestHarness";
 import {UnsupportedLessonActionError, type LessonAction, type LessonPatchFixture, type LessonPoint3} from "../../learning/model";
 import {BARYCENTRIC_TOLERANCE, TriangularBezierPatch} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import {PointImpl} from "../../bezeg/impl/point/point-impl";
-import {FakeSurfaceView} from "./FakeSurfaceView";
+import {FakeSurfaceView, sceneSignature} from "./FakeSurfaceView";
 import TensorPatchGraph from "./TensorPatchGraph";
 import TensorDeCasteljauGraph from "./TensorDeCasteljauGraph";
 import TensorDerivativesGraph from "./TensorDerivativesGraph";
 import TensorSubdivisionGraph from "./TensorSubdivisionGraph";
+import TensorJoinGraph from "./TensorJoinGraph";
 import TriangularPatchGraph from "./TriangularPatchGraph";
 import {patchFromNet} from "./patchSceneBuilder";
 import {presetCamera} from "./surface-view/surfaceMath";
@@ -27,7 +28,7 @@ const scene = (patch: LessonPatchFixture): LessonAction => ({kind: "prepared-sce
 const rows = (fixture: LessonPatchFixture & {kind: "tensor"}): Xyz[][] =>
     Array.from({length: fixture.m + 1}, (_, i) => fixture.net.slice(i * (fixture.n + 1), (i + 1) * (fixture.n + 1)).map((p): Xyz => [p.x, p.y, p.z]));
 
-function mount<G extends TensorPatchGraph | TriangularPatchGraph>(create: (view: FakeSurfaceView) => G) {
+function mount<G extends TensorPatchGraph | TriangularPatchGraph | TensorJoinGraph>(create: (view: FakeSurfaceView) => G) {
     const view = new FakeSurfaceView();
     const graph = create(view);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
@@ -45,6 +46,7 @@ function mount<G extends TensorPatchGraph | TriangularPatchGraph>(create: (view:
 }
 const make = {
     tensor: () => mount(view => new TensorPatchGraph({viewFactory: () => view})),
+    joins: () => mount(view => new TensorJoinGraph({viewFactory: () => view})),
     subdivision: () => mount(view => new TensorSubdivisionGraph({viewFactory: () => view})),
     derivatives: () => mount(view => new TensorDerivativesGraph({viewFactory: () => view})),
     decasteljau: () => mount(view => new TensorDeCasteljauGraph({viewFactory: () => view})),
@@ -227,5 +229,72 @@ describe("camera-preset", () => {
         const {rejects} = make.tensor();
         rejects({kind: "camera-preset", view: "back" as unknown as "front"});
         rejects({kind: "camera-preset", view: "toString" as unknown as "front"});
+    });
+});
+
+describe("patch-join-mode and patch-join-scene", () => {
+    it("applies a validated lesson camera with the selected join scene", () => {
+        const {graph, apply, rejects} = make.joins();
+        const view3d = {az: 0.7, el: 0.9, distance: 6, target: pt(1, 0.5, 0.25)};
+        apply({kind: "patch-join-scene", scene: "join-c1", view3d});
+        expect(graph.state.camera).toMatchObject({az: 0.7, el: 0.9, distance: 6, target: [1, 0.5, 0.25]});
+        rejects({kind: "patch-join-scene", scene: "join-c1", view3d: {...view3d, distance: NaN}});
+        rejects({kind: "patch-join-scene", scene: "join-c1", view3d: {...view3d, target: pt(1, Infinity, 0)}});
+    });
+
+    it("applies C0, C1, then G1 with an explicit ratio synchronously and restores the exact joined scene", () => {
+        const {graph, view, apply} = make.joins();
+        const caps = graph.getLessonCapabilities();
+        apply(
+            {kind: "patch-join-scene", scene: "join-c1"},
+            {kind: "patch-join-mode", mode: "c0"},
+            {kind: "patch-join-mode", mode: "c1"},
+            {kind: "patch-join-mode", mode: "g1", alpha: 3},
+        );
+        expect(graph.state.joinContinuity).toBe("g1");
+        expect(graph.state.joinAlpha).toBe(3);
+        expect(graph.joinReport()).toMatchObject({c0: true, g1: true, alphaStar: 3});
+        const checkpoint = caps.captureState();
+        const savedState = JSON.stringify(graph.exportPresetData());
+        const savedScene = sceneSignature(view.last);
+        apply({kind: "patch-join-scene", scene: "join-teapot"});
+        expect(graph.capstone()).toBe(true);
+        act(() => caps.restoreState(checkpoint));
+        expect(graph.capstone()).toBe(false);
+        expect(JSON.stringify(graph.exportPresetData())).toBe(savedState);
+        expect(sceneSignature(view.last)).toEqual(savedScene);
+    });
+
+    it("rejects invalid alpha before a write and rejects continuity actions while the teapot is shown", () => {
+        const {graph, view, apply, rejects} = make.joins();
+        apply({kind: "patch-join-mode", mode: "c1"});
+        for (const alpha of [NaN, Infinity, 0.249, 4.001]) rejects({kind: "patch-join-mode", mode: "g1", alpha});
+        apply({kind: "patch-join-scene", scene: "join-teapot"});
+        rejects({kind: "patch-join-mode", mode: "g1", alpha: 1}, UnsupportedLessonActionError);
+        expect(graph.capstone()).toBe(true);
+        expect(view.last.meshOwners?.some(owner => owner.kind === "teapot")).toBe(true);
+        make.triangular().rejects({kind: "patch-join-scene", scene: "join-teapot"}, UnsupportedLessonActionError);
+        make.tensor().rejects({kind: "patch-join-mode", mode: "c0"}, UnsupportedLessonActionError);
+    });
+});
+
+describe("patch-tensor-comparison", () => {
+    it("toggles the square overlay and restores the captured transient state", () => {
+        const {graph, view, apply} = make.triangular();
+        const caps = graph.getLessonCapabilities();
+        apply({kind: "patch-tensor-comparison", visible: true});
+        const saved = sceneSignature(view.last);
+        const checkpoint = caps.captureState();
+        apply({kind: "patch-tensor-comparison", visible: false});
+        expect(sceneSignature(view.last)).not.toEqual(saved);
+        act(() => caps.restoreState(checkpoint));
+        expect(sceneSignature(view.last)).toEqual(saved);
+        make.tensor().rejects({kind: "patch-tensor-comparison", visible: true}, UnsupportedLessonActionError);
+        make.joins().rejects({kind: "patch-tensor-comparison", visible: true}, UnsupportedLessonActionError);
+    });
+
+    it("rejects a non-boolean payload before changing the scene", () => {
+        const m = make.triangular();
+        m.rejects({kind: "patch-tensor-comparison", visible: "true" as unknown as boolean});
     });
 });

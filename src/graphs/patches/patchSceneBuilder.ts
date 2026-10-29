@@ -16,6 +16,7 @@ export interface TensorSceneInput {
     readonly showIsoCurves: boolean;
     readonly showBoundaryCurves: boolean;
     readonly showShading: boolean;
+    readonly showMovingVSection?: boolean;
     readonly isoDensity: PatchDensity;
     readonly shadingDensity: PatchDensity;
     readonly zMode: boolean;
@@ -63,6 +64,11 @@ export function patchFromNet(net: ReadonlyArray<ReadonlyArray<Xyz>>): TensorProd
 }
 
 const xyz = (point: Point): Xyz => [point.X(), point.Y(), point.Z?.() ?? 0];
+const choose = (n: number, k: number): number => {
+    let value = 1;
+    for (let i = 1; i <= k; i++) value = value * (n - i + 1) / i;
+    return value;
+};
 
 /** Builds the whole scene. `revision` is the host's monotonic counter for geometry changes. */
 export function buildTensorScene(input: TensorSceneInput, revision: number): SurfaceScene {
@@ -76,6 +82,14 @@ export function buildTensorScene(input: TensorSceneInput, revision: number): Sur
             const t = k / input.isoDensity;
             polylines.push({id: `iso-u-${k}`, role: "iso", points: sampled(s => patch.eval(t, s))});
             polylines.push({id: `iso-v-${k}`, role: "iso", points: sampled(s => patch.eval(s, t))});
+        }
+        if (input.showMovingVSection) {
+            // The lesson's v sweep is an actual moving u-isoparametric curve. Its control points
+            // are evaluated across the net rows at the current v, so they are generally not net points.
+            polylines.push({id: "sweep-v-curve", role: "iso", points: sampled(u => patch.eval(u, input.v))});
+            const vWeights = Array.from({length: n + 1}, (_, j) => choose(n, j) * (1 - input.v) ** (n - j) * input.v ** j);
+            const controls = input.net.map(row => row.reduce((sum, point, j) => sum.map((value, axis) => value + vWeights[j] * point[axis]) as Xyz, [0, 0, 0] as Xyz));
+            polylines.push({id: "sweep-v-controls", role: "construction", points: controls});
         }
     }
     if (input.showBoundaryCurves) {

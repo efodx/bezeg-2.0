@@ -3,6 +3,28 @@ import {getChapterGuidedExamples, resolveGuidedExample} from './guidedExamples';
 import {retainedExampleHomes} from './retainedExamples';
 
 describe('chapter guided examples', () => {
+    it('publishes section-owned patch basics examples through canonical and legacy routes', () => {
+        const sections = ['curve-to-patch', 'bilinear-patch', 'control-net', 'boundary-iso-curves'] as const;
+        for (const sectionId of sections) {
+            const link = getChapterGuidedExamples('bezier-patches', sectionId).find(item => item.demonstrationId === 'patch-tensor');
+            expect(link, sectionId).toBeDefined();
+            expect(link?.id).toBe(`bezier-patches.${sectionId}.patch-tensor`);
+            expect(link?.path).toContain(`example=lesson.bezier-patches.${sectionId}.patch-tensor`);
+            const search = new URL(link!.path, 'https://example.test').search;
+            const canonical = resolveGuidedExample(search, 'patch-tensor');
+            expect(canonical?.owner).toEqual({chapterId: 'bezier-patches', sectionId});
+            expect(canonical?.lesson.id).toBe(`patch-basics-${sectionId === 'curve-to-patch' ? 'curve-sweep' : sectionId === 'bilinear-patch' ? 'bilinear-midpoint' : sectionId === 'control-net' ? 'control-net' : 'boundary-iso-curves'}`);
+            expect(resolveGuidedExample(search, 'patch-tensor')?.lesson).toBe(canonical?.lesson);
+            expect(resolveGuidedExample(`?learn=1&learnChapter=bezier-patches&learnSection=${sectionId}`, 'patch-tensor')?.lesson).toBe(canonical?.lesson);
+            expect(resolveGuidedExample(`?explore=bezier-patches.${sectionId}.patch-tensor`, 'patch-tensor')?.lesson).toBe(canonical?.lesson);
+        }
+        expect(resolveGuidedExample('?example=lesson.bezier-patches.bilinear-patch.patch-tensor', 'patch-tensor')?.owner.sectionId).toBe('bilinear-patch');
+        expect(resolveGuidedExample('?example=lesson.bezier-patches.invalid.patch-tensor', 'patch-tensor')).toBeUndefined();
+        expect(resolveGuidedExample('?example=lesson.bezier-patches.constructor.patch-tensor', 'patch-tensor')).toBeUndefined();
+        expect(resolveGuidedExample('?example=lesson.bezier-patches.control-net.patch-tensor', 'patch-decasteljau')).toBeUndefined();
+        expect(getChapterGuidedExamples('bezier-patches', 'constructor')).toEqual([]);
+    });
+
     it('publishes a meaningful prompt in both languages for every retained card', () => {
         const links = [...new Map(retainedExampleHomes.flatMap(([, chapterId, sectionId]) => getChapterGuidedExamples(chapterId, sectionId))
             .map(link => [link.id, link])).values()];

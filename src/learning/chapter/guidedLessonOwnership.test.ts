@@ -21,6 +21,8 @@ test('chapter sections expose their authored guided lesson owners', () => {
     expect(authoredGuidedLessonIds('foundations', 'reading-bernstein')).toEqual(['bernstein']);
     expect(authoredGuidedLessonIds('analysis', 'convergence')).toContain('fixed-point');
     expect(authoredGuidedLessonIds('bezier-curves', 'bernstein-form')).toContain('bernstein');
+    expect(authoredGuidedLessonIds('bezier-patches', 'bilinear-patch')).toEqual(['patch-tensor']);
+    expect(authoredGuidedLessonIds('bezier-patches', 'tensor-decasteljau')).toEqual(['patch-decasteljau']);
 });
 
 test('valid legacy investigation links retain their precise authored section owner', () => {
@@ -32,4 +34,6 @@ test('valid legacy investigation links retain their precise authored section own
         .toEqual({chapterId: 'foundations', sectionId: 'reading-bernstein'});
     expect(resolveGuidedLessonOwner('?learn=1&explore=wrong.section.spline-cn', 'spline-cn'))
         .toEqual({chapterId: 'splines', sectionId: 'continuity-levels'});
+    expect(resolveGuidedLessonOwner('?learn=1&learnChapter=bezier-patches&learnSection=boundary-iso-curves', 'patch-tensor'))
+        .toEqual({chapterId: 'bezier-patches', sectionId: 'boundary-iso-curves'});
 });

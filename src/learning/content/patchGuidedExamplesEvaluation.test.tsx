@@ -1,11 +1,13 @@
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import * as THREE from 'three';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {installBoardShims} from '../../graphs/base/realGraphTestHarness';
 import {FakeSurfaceView} from '../../graphs/patches/FakeSurfaceView';
 import TensorDeCasteljauGraph from '../../graphs/patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from '../../graphs/patches/TensorDerivativesGraph';
 import TensorPatchGraph from '../../graphs/patches/TensorPatchGraph';
+import {cameraPosition, FOV_DEG} from '../../graphs/patches/surface-view/surfaceMath';
 import {LessonSession} from '../runtime/LessonSession';
 import {patchChapterSectionIds} from './patchChapter';
 import {patchGuidedExamplesEvaluation, type PatchEvaluationExampleSectionId} from './patchGuidedExamplesEvaluation';
@@ -28,6 +30,30 @@ const closeVector = (actual: readonly number[], expected: readonly number[]) => 
     expect(actual.every(Number.isFinite)).toBe(true);
     actual.forEach((value, i) => expect(value).toBeCloseTo(expected[i], 6));
 };
+function expectPatchInView(scene: FakeSurfaceView['last']): void {
+    for (const aspect of [390 / 844, 1440 / 900]) {
+        const camera = new THREE.PerspectiveCamera(FOV_DEG, aspect, 0.05, 500);
+        camera.up.set(0, 0, 1);
+        camera.position.set(...cameraPosition(scene.camera.az, scene.camera.el, scene.camera.distance, scene.camera.target));
+        camera.lookAt(...scene.camera.target);
+        camera.updateMatrixWorld(true);
+        camera.updateProjectionMatrix();
+        const coordinates = [
+            ...scene.points.map(({xyz}) => xyz),
+            ...(scene.mesh?.positions ? Array.from({length: scene.mesh.positions.length / 3}, (_, index) => [
+                scene.mesh!.positions[index * 3], scene.mesh!.positions[index * 3 + 1], scene.mesh!.positions[index * 3 + 2],
+            ] as const) : []),
+        ];
+        expect(coordinates.length).toBeGreaterThan(0);
+        for (const xyz of coordinates) {
+            const projected = new THREE.Vector3(...xyz).project(camera);
+            expect(Math.abs(projected.x)).toBeLessThanOrEqual(1);
+            expect(Math.abs(projected.y)).toBeLessThanOrEqual(1);
+            expect(projected.z).toBeGreaterThanOrEqual(-1);
+            expect(projected.z).toBeLessThanOrEqual(1);
+        }
+    }
+}
 const direction = (actual: readonly number[], expected: readonly number[]) => {
     const length = Math.hypot(...actual);
     expect(length).toBeGreaterThan(0);
@@ -95,6 +121,7 @@ describe('patch evaluation guided examples', () => {
         closeVector(expectedColumns, expectedBernstein);
         closeVector(expectedRows, expectedBernstein);
         expect(graph.state).toMatchObject({m: 2, n: 2, u: 0.25, v: 0.5, showDeCasteljau: true});
+        expectPatchInView(view.last);
         const rows = view.last.markers.find(marker => marker.role === 'evaluated')!.xyz;
         closeVector(rows, expectedRows);
         act(() => graph.setDecasteljauOrder('columns'));
@@ -113,6 +140,7 @@ describe('patch evaluation guided examples', () => {
         const session = new LessonSession(patchGuidedExamplesEvaluation.properties, capabilities);
         act(() => session.start());
         expect(graph.state).toMatchObject({m: 2, n: 2, u: 0.5, v: 0.5, showControlNet: true});
+        expectPatchInView(view.last);
         const z = Array.from(view.last.mesh!.positions).filter((_, index) => index % 3 === 2);
         expect(z.length).toBeGreaterThan(0);
         expect(z.every(Number.isFinite)).toBe(true);
@@ -123,12 +151,14 @@ describe('patch evaluation guided examples', () => {
         act(() => session.next());
         act(() => session.next());
         expect(graph.state).toMatchObject({m: 1, n: 1, u: 0.5, v: 0.5});
+        expectPatchInView(view.last);
         const saddle = view.last.markers.find(marker => marker.role === 'evaluated')!.xyz;
         closeVector(saddle, [0.5, 0.5, 0]);
         act(() => session.next());
         act(() => session.next());
         expect(graph.state).toMatchObject({m: 2, n: 2, u: 0.5, v: 0.5});
         const transformedCenter = view.last.markers.find(marker => marker.role === 'evaluated')!.xyz;
+        expectPatchInView(view.last);
         closeVector(transformedCenter, [0.5, 0.5, 3]);
         const mappedNet = graph.state.net.flat().map(([x, y, z]) => [x, y, z] as const);
         closeVector(bernsteinEvaluation(mappedNet, 2, 2, 0.5, 0.5), transformedCenter);

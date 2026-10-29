@@ -1,4 +1,5 @@
 import type {DemonstrationId} from '../../demonstrations';
+import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
 import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
@@ -387,6 +388,8 @@ const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS)
 /** Stable lookup seam for the reviewed content module. */
 export function getLessonForDemonstration(id: DemonstrationId): LessonDefinition | undefined {
     if (!availableLessonIds.has(id)) return undefined;
+    const patch = Object.values(patchGuidedExampleRegistry).find(lesson => lesson.demonstrationId === id);
+    if (patch) return patch;
     if (!adaptedLessons.has(id)) adaptedLessons.set(id, adaptContent(id));
     return adaptedLessons.get(id);
 }

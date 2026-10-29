@@ -35,6 +35,8 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     showIsoCurves: boolean;
     showBoundaryCurves: boolean;
     showShading: boolean;
+    /** Lesson-only current-v section overlay, enabled while the patch-v-sweep is shown; not stored in Presets. */
+    showMovingVSection: boolean;
     isoDensity: PatchDensity;
     shadingDensity: PatchDensity;
     /** Vertical-drag mode of the view; a mode of the session, not saved in Presets. */
@@ -102,6 +104,7 @@ function stateFromDto(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>;
         u: state.u ?? 0.5, v: state.v ?? 0.5,
         showControlNet: state.showControlNet ?? true, showIsoCurves: state.showIsoCurves ?? true,
         showBoundaryCurves: state.showBoundaryCurves ?? true, showShading: state.showShading ?? true,
+        showMovingVSection: false,
         isoDensity: state.isoDensity ?? DEFAULT_ISO_DENSITY, shadingDensity: state.shadingDensity ?? DEFAULT_SHADING_DENSITY,
     };
 }
@@ -181,7 +184,11 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
             visibilityTargets: () => new Set(Object.keys(this.lessonVisibilitySetters()) as PatchVisibilityTarget[]),
             setVisibility: (target, visible) => this.lessonVisibilitySetters()[target]?.(visible),
             setParameters: (u, v) => this.setParameters(u, v),
-            sweep: (parameter, command) => this.sweeps.apply(parameter, command),
+            sweep: (parameter, command) => {
+                if (command === "play" || command === "replay") this.setState({showMovingVSection: parameter === "v"});
+                else if (command === "stop" && parameter === "v") this.setState({showMovingVSection: false});
+                this.sweeps.apply(parameter, command);
+            },
             applyCameraPreset: view => this.applyCameraPreset(view),
             subdivision: () => this.lessonSubdivision(),
         }));
@@ -207,7 +214,9 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         const s = this.state;
         return s.net !== previous.net || s.showControlNet !== previous.showControlNet || s.showIsoCurves !== previous.showIsoCurves
             || s.showBoundaryCurves !== previous.showBoundaryCurves || s.showShading !== previous.showShading
-            || s.isoDensity !== previous.isoDensity || s.shadingDensity !== previous.shadingDensity;
+            || s.isoDensity !== previous.isoDensity || s.shadingDensity !== previous.shadingDensity
+            || s.showMovingVSection !== previous.showMovingVSection
+            || ((s.showMovingVSection || previous.showMovingVSection) && s.v !== previous.v);
     }
 
     protected override hasPoint(pointId: string): boolean {

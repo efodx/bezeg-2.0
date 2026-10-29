@@ -1,12 +1,10 @@
+import {patchGuidedPreviewCopy} from './patchGuidedPreviewCopy';
 import type {DemonstrationId} from '../../demonstrations';
 import type {BezierActivityId} from './bezierChapter';
 import type {LocalizedText} from '../model';
 
 export type GuidedExamplePreviewCopy = Readonly<{alt: LocalizedText; caption: LocalizedText}>;
 
-/** Demonstrations whose guided lesson is not written yet (the patches chapter, tasks 11–12); they get preview copy with their lesson. */
-export type DemonstrationWithoutLessonId = 'patch-tensor' | 'patch-decasteljau' | 'patch-derivatives' | 'patch-subdivision' | 'patch-joins' | 'patch-triangular';
-export const isDemonstrationWithoutLesson = (id: DemonstrationId): id is DemonstrationWithoutLessonId => id === 'patch-tensor' || id === 'patch-decasteljau' || id === 'patch-derivatives' || id === 'patch-subdivision' || id === 'patch-joins' || id === 'patch-triangular';
 
 const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string): GuidedExamplePreviewCopy => ({
     alt: {sl: altSl, en: altEn},
@@ -15,6 +13,12 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 
 /** Bilingual descriptions of the first prepared scene for each available long guided lesson. */
 export const guidedLessonPreviewCopyByDemonstration = {
+    'patch-tensor': patchGuidedPreviewCopy['curve-to-patch'],
+    'patch-decasteljau': patchGuidedPreviewCopy['tensor-decasteljau'],
+    'patch-derivatives': patchGuidedPreviewCopy['tensor-derivatives'],
+    'patch-subdivision': patchGuidedPreviewCopy['tensor-subdivision'],
+    'patch-joins': copy('Dve krpi s skupnim robom in zveznim tangentnim prehodom.', 'Two patches sharing an edge with a continuous tangent transition.', 'Primerjaj skupni rob in tangentni smeri pri spoju razreda C1.', 'Compare the shared edge and tangent directions at the C1 join.'),
+    'patch-triangular': patchGuidedPreviewCopy['triangular-patches'],
     bezier: copy('Začetna Bézierjeva krivulja s kontrolnimi točkami.', 'The starting Bézier curve with its control points.', 'Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je odvisna tudi od vmesnih točk.', 'Trace the curve from the first to the last control point; the intermediate points also shape it.'),
     decasteljau: copy('Bézierjeva krivulja in prikaz točk, pripravljenih za De Casteljaujevo interpolacijo.', 'A Bézier curve and points prepared for De Casteljau interpolation.', 'Opazuj zaporedje interpoliranih točk; prikaz pokaže konkreten primer konstrukcije.', 'Follow the successive interpolated points; the display shows one instance of the construction.'),
     affine: copy('Bézierjeva krivulja s kontrolnimi točkami in njenim kontrolnim poligonom.', 'A Bézier curve with its control points and control polygon.', 'Primerjaj obliko krivulje z obliko kontrolnega poligona pred transformacijo.', 'Compare the curve with its control polygon before applying a transformation.'),
@@ -60,7 +64,7 @@ export const guidedLessonPreviewCopyByDemonstration = {
     'uniform-convergence': copy('Graf družine funkcij v izbranem skaliranem primeru.', 'A graph of a function family in the selected scaled example.', 'Primerjaj narisane krivulje; supremum je v tem prizoru skrit, zato prikaz ne potrjuje enakomerne konvergence.', 'Compare the plotted curves; the supremum is hidden, so this scene does not establish uniform convergence.'),
     'complex-multiplication': copy('Kompleksni števili z označenima argumentoma.', 'Two complex numbers with their arguments marked.', 'Opazuj izbrani števili in njuna argumenta; produkt v tem začetnem prizoru ni prikazan.', 'Observe the selected numbers and their arguments; the product is not shown in this opening scene.'),
     'fixed-point': copy('Graf funkcije, identitetna premica in začetni približek \\(x_0\\); iteracijska pot še ni prikazana.', 'A function graph, identity line, and initial guess \\(x_0\\); the iteration path is not shown yet.', 'Opazuj začetni približek \\(x_0\\) in presečišče grafa z identitetno premico; iteracijska pot še ni prikazana.', 'Observe the initial guess \\(x_0\\) and the intersection of the graph with the identity line; the iteration path is not shown yet.'),
-} as const satisfies Record<Exclude<DemonstrationId, DemonstrationWithoutLessonId>, GuidedExamplePreviewCopy>;
+} as const satisfies Record<DemonstrationId, GuidedExamplePreviewCopy>;
 
 /** Scene-specific copy for the six Bézier activities, which have their own prepared actions. */
 export const guidedActivityPreviewCopyById = {

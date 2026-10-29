@@ -9,14 +9,14 @@
  */
 import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
-import {graphFactories} from '../../graphs/graphFactories';
 import BaseGraph, {BaseGraphState} from '../../graphs/base/BaseGraph';
-import {installBoardShims, type MountedGraph, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph, installBoardShims, type MountedGraph, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {applyActions, changeScene, flipSwitches, full, hodograph, internals, sceneActions} from '../../graphs/base/realGraphScenes';
 import type {DemonstrationId} from '../../demonstrations';
 import {appStorage} from '../../storage/appStorage';
 import {framesForLessonStep, type LessonAction, type LessonAnimationId} from '../model';
 import {AnimationDriver} from './animation';
+import {PatchSweeps} from '../../graphs/patches/patchSweep';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from './lessonCatalog';
 import {LessonSession} from './LessonSession';
 
@@ -24,9 +24,13 @@ import {LessonSession} from './LessonSession';
 export const LESSON_RESTORATION_PARTS = 4;
 
 /** Animation drivers the graph owns, directly or through a controller (an iteration controller's driver). */
-function drivers(graph: BaseGraph<BaseGraphState>): AnimationDriver[] {
+function drivers(graph: BaseGraph<BaseGraphState>): Pick<AnimationDriver, 'isRunning'>[] {
     return Object.values(graph as object).flatMap(value => {
         if (value instanceof AnimationDriver) return [value];
+        if (value instanceof PatchSweeps) return [
+            {isRunning: () => value.isRunning('u')},
+            {isRunning: () => value.isRunning('v')},
+        ];
         const nested = (value as {driver?: unknown} | null)?.driver;
         return nested instanceof AnimationDriver ? [nested] : [];
     });
@@ -125,7 +129,7 @@ export function describeLessonRestoration(part: number): void {
 
     describe.each(ids)('%s', id => {
         test('closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene', () => {
-            const mounted = mountGraph(graphFactories[id]());
+            const mounted = mountGraph(createGraph(id));
             changeScene(mounted, 'a');
             // The edit can leave hidden leftovers a restore does not rebuild (the Elevation overlay's replaced polygon), so
             // the baseline is the edited scene as its own checkpoint restores it; the scene itself is unchanged by that.
@@ -151,7 +155,7 @@ export function describeLessonRestoration(part: number): void {
 
             // Restorable state that is not drawn shows only after a later change: the same change on a twin that never
             // ran the lesson must look the same.
-            const twin = mountGraph(graphFactories[id]());
+            const twin = mountGraph(createGraph(id));
             changeScene(twin, 'a');
             expect(full(twin)).toEqual(captured);
             for (const graph of [mounted, twin]) {
@@ -182,7 +186,7 @@ export function describeLessonRestoration(part: number): void {
         }, 120000);
 
         test('closing the lesson after its graph is disposed leaves the graph alone', () => {
-            const mounted = mountGraph(graphFactories[id]());
+            const mounted = mountGraph(createGraph(id));
             const lesson = session(id, mounted);
             act(() => lesson.start());
             act(() => lesson.next());

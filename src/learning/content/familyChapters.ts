@@ -28,6 +28,7 @@ export interface FamilyChapter {
     title: LocalizedText;
     purpose: LocalizedText;
     prerequisites: LocalizedText;
+    prerequisiteLinks?: readonly {path: string; title: LocalizedText}[];
     sections: readonly FamilyChapterSection[];
 }
 

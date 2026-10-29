@@ -4,8 +4,73 @@ import {guidedLessonOwners} from '../chapter/guidedLessonOwnership';
 import {familyChapters} from './familyChapters';
 import {learningChapters} from '../learningChapters';
 import {patchChapter, patchChapterSectionIds} from './patchChapter';
+import {exampleReferences} from '../chapter/orderedContent';
+import {
+    getGuidedExamplePreviewCopy,
+    getPatchGuidedExamplePreviewSource,
+    GUIDED_EXAMPLE_PREVIEW_IDS,
+    PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES,
+    PATCH_GUIDED_EXAMPLE_PREVIEW_IDS,
+} from '../chapter/guidedExamplePreviews';
+import {patchGuidedPreviewCopy} from './patchGuidedPreviewCopy';
 
 describe('Bézier patches chapter', () => {
+    test('keeps the retained root inventory at 56 and registers all eleven patch fixtures separately', () => {
+        expect(GUIDED_EXAMPLE_PREVIEW_IDS).toHaveLength(56);
+        expect(PATCH_GUIDED_EXAMPLE_PREVIEW_IDS).toEqual([
+            'bezier-patches.curve-to-patch.patch-tensor',
+            'bezier-patches.bilinear-patch.patch-tensor',
+            'bezier-patches.control-net.patch-tensor',
+            'bezier-patches.boundary-iso-curves.patch-tensor',
+            'bezier-patches.tensor-decasteljau.patch-decasteljau',
+            'bezier-patches.properties.patch-tensor',
+            'bezier-patches.tensor-derivatives.patch-derivatives',
+            'bezier-patches.tensor-subdivision.patch-subdivision',
+            'bezier-patches.tensor-joins.patch-joins',
+            'bezier-patches.triangular-patches.patch-triangular',
+            'bezier-patches.square-vs-triangular.patch-triangular',
+        ]);
+        expect(GUIDED_EXAMPLE_PREVIEW_IDS.some(id => id.startsWith('bezier-patches.'))).toBe(false);
+        for (const fixture of PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES) {
+            const copy = getGuidedExamplePreviewCopy(fixture.id, fixture.demonstrationId);
+            expect(copy, fixture.id).toBeDefined();
+            for (const language of ['sl', 'en'] as const) {
+                expect(copy!.alt[language].trim(), `${fixture.id} ${language} alt`).not.toBe('');
+                expect(copy!.caption[language].trim(), `${fixture.id} ${language} caption`).not.toBe('');
+            }
+        }
+    });
+
+    test('maps every captured patch fixture to its chapter section and same-named subdirectory asset', () => {
+        expect(PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.map(({sectionId, demonstrationId}) => [sectionId, demonstrationId])).toEqual([
+            ['curve-to-patch', 'patch-tensor'], ['bilinear-patch', 'patch-tensor'], ['control-net', 'patch-tensor'],
+            ['boundary-iso-curves', 'patch-tensor'], ['tensor-decasteljau', 'patch-decasteljau'], ['properties', 'patch-tensor'],
+            ['tensor-derivatives', 'patch-derivatives'], ['tensor-subdivision', 'patch-subdivision'],
+            ['tensor-joins', 'patch-joins'], ['triangular-patches', 'patch-triangular'], ['square-vs-triangular', 'patch-triangular'],
+        ]);
+        const resolvedAssets = PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.flatMap(fixture => {
+            const section = patchChapter.sections.find(item => item.id === fixture.sectionId)!;
+            expect(section, fixture.id).toBeDefined();
+            const asset = getPatchGuidedExamplePreviewSource(fixture.id);
+            if (asset) {
+                const figure = section.figures?.find(item => item.src === asset);
+                expect(figure, fixture.id).toBeDefined();
+                expect(figure!.alt).toEqual(patchGuidedPreviewCopy[fixture.sectionId].alt);
+                expect(figure!.caption).toEqual(patchGuidedPreviewCopy[fixture.sectionId].caption);
+                const content = section.orderedContent ?? [];
+                const figureIndex = content.findIndex(item => item.kind === 'figure' && item.figure.src === asset);
+                const exampleIndex = content.findIndex(item => item.kind === 'example');
+                expect(figureIndex, `${fixture.id} ordered figure`).toBeGreaterThanOrEqual(0);
+                expect(exampleIndex, `${fixture.id} ordered example`).toBeGreaterThan(figureIndex);
+                return [fixture.id];
+            }
+            return [];
+        });
+        // Captures may not exist during development; once any are checked in, require the complete fixture set.
+        if (resolvedAssets.length > 0) expect(resolvedAssets).toHaveLength(PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.length);
+        expect(getPatchGuidedExamplePreviewSource('bezier-patches.not-a-fixture.patch-tensor')).toBeUndefined();
+    });
+
     test('has eleven sections in spec order with the reserved ids', () => {
         expect(patchChapter.sections.map(section => section.id)).toEqual([...patchChapterSectionIds]);
         expect(patchChapterSectionIds).toHaveLength(11);
@@ -35,9 +100,11 @@ describe('Bézier patches chapter', () => {
         }
     });
 
-    test('has no example blocks before the guided frames and keeps figure text bilingual', () => {
+    test('places each prepared patch example in its own section and keeps figure text bilingual', () => {
+        const expected = ["bezier-patches.curve-to-patch.patch-tensor","bezier-patches.bilinear-patch.patch-tensor","bezier-patches.control-net.patch-tensor","bezier-patches.boundary-iso-curves.patch-tensor","bezier-patches.tensor-decasteljau.patch-decasteljau","bezier-patches.properties.patch-tensor","bezier-patches.tensor-derivatives.patch-derivatives","bezier-patches.tensor-subdivision.patch-subdivision","bezier-patches.tensor-joins.patch-joins","bezier-patches.triangular-patches.patch-triangular","bezier-patches.square-vs-triangular.patch-triangular"];
         for (const section of familyChapters.find(chapter => chapter.id === 'bezier-patches')!.sections) {
-            expect(section.orderedContent?.some(block => block.kind === 'example')).toBe(false);
+            const refs = exampleReferences(section.orderedContent ?? []);
+            expect(refs).toEqual(expected.filter(id => id.includes(`.${section.id}.`)));
             for (const figure of section.figures ?? []) {
                 for (const language of ['sl', 'en'] as const) {
                     expect(figure.alt[language].trim()).not.toBe('');

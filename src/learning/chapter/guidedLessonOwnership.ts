@@ -2,6 +2,8 @@ import type {DemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
+import {patchChapter} from '../content/patchChapter';
+import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retainedExamples';
 
@@ -54,7 +56,7 @@ export const guidedLessonOwners: Readonly<Record<DemonstrationId, GuidedLessonOw
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // Task 12 authors these patches chapter sections; patch-tensor, patch-decasteljau, patch-derivatives, patch-subdivision, patch-joins and patch-triangular have no available guided lesson until then.
+    // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
     'patch-derivatives': {chapterId: 'bezier-patches', sectionId: 'tensor-derivatives'},
@@ -73,7 +75,9 @@ export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLesso
         .map(section => ({chapterId: chapter.id, sectionId: section.id})));
     const retainedOwners = retainedExampleHomes.filter(home => home[3] === id)
         .map(home => ({chapterId: home[1], sectionId: home[2]}));
-    const all = [guidedLessonOwners[id], ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners];
+    const patchOwners = Object.entries(patchGuidedExampleRegistry).filter(([, lesson]) => lesson.demonstrationId === id)
+        .map(([sectionId]) => ({chapterId: 'bezier-patches', sectionId}));
+    const all = [guidedLessonOwners[id], ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...patchOwners];
     return all.filter((owner, index) => all.findIndex(item => item.chapterId === owner.chapterId && item.sectionId === owner.sectionId) === index);
 }
 
@@ -107,11 +111,13 @@ export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): G
 
 export function getGuidedLessonChapterTitle(owner: GuidedLessonOwner, language: 'sl' | 'en'): string {
     if (owner.chapterId === 'bezier-curves') return bezierChapter[language].title;
+    if (owner.chapterId === 'bezier-patches') return patchChapter.title[language];
     return familyChapters.find(chapter => chapter.id === owner.chapterId)!.title[language];
 }
 
 export function getGuidedLessonSectionTitle(owner: GuidedLessonOwner, language: 'sl' | 'en'): string {
     if (owner.chapterId === 'bezier-curves') return bezierChapter[language].sections.find(section => section.id === owner.sectionId)!.title;
+    if (owner.chapterId === 'bezier-patches') return patchChapter.sections.find(section => section.id === owner.sectionId)!.title[language];
     return familyChapters.find(chapter => chapter.id === owner.chapterId)!.sections.find(section => section.id === owner.sectionId)!.title[language];
 }
 
@@ -126,10 +132,14 @@ export function guidedLessonLaunchPath(id: DemonstrationId, owner = getGuidedLes
 }
 
 export function authoredGuidedLessonIds(chapterId: string, sectionId: string): DemonstrationId[] {
-    return GUIDED_LESSON_AVAILABLE_IDS.filter(id => retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id));
+    const retained = GUIDED_LESSON_AVAILABLE_IDS.filter(id => retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id));
+    return chapterId === 'bezier-patches' && Object.prototype.hasOwnProperty.call(patchGuidedExampleRegistry, sectionId)
+        ? [...retained, patchGuidedExampleRegistry[sectionId as keyof typeof patchGuidedExampleRegistry].demonstrationId] : retained;
 }
 
 export function getGuidedLessonOwnerForSection(id: DemonstrationId, chapterId: string, sectionId: string): GuidedLessonOwner | undefined {
+    if (chapterId === 'bezier-patches' && Object.prototype.hasOwnProperty.call(patchGuidedExampleRegistry, sectionId)
+        && patchGuidedExampleRegistry[sectionId as keyof typeof patchGuidedExampleRegistry].demonstrationId === id) return {chapterId, sectionId};
     return retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id)
         ? {chapterId, sectionId}
         : undefined;

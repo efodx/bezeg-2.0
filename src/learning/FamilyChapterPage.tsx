@@ -74,7 +74,9 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     <Link className="learning-back" to={`/bezeg-2.0/learn#${chapter.id}`}>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}<span aria-hidden="true"> ←</span></Link>
                     <h1 id="chapter-title" tabIndex={-1}>{chapter.title[language]}</h1>
                     <p className="chapter-purpose">{chapter.purpose[language]}</p>
-                    <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{chapter.prerequisites[language]}</p></div>
+                    <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{chapter.prerequisites[language]}</p>
+                        {chapter.prerequisiteLinks?.map(link => <p key={link.path}><Link to={link.path}>{link.title[language]}</Link></p>)}
+                    </div>
                 </header>
                 {chapter.sections.map(section => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
                     <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title[language]}`}>¶</a></div>

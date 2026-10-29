@@ -122,6 +122,9 @@ export type LessonAction =
     | {readonly kind: 'patch-subdivide'; readonly direction?: 'u' | 'v'; readonly value?: number}
     | {readonly kind: 'patch-elevate'; readonly direction?: 'u' | 'v'}
     | {readonly kind: 'camera-preset'; readonly view: 'front' | 'top' | 'side' | 'isometric'}
+    | {readonly kind: 'patch-join-scene'; readonly scene: 'join-c1' | 'join-g1' | 'join-c0-kink' | 'join-teapot'; readonly view3d?: LessonView3D}
+    | {readonly kind: 'patch-join-mode'; readonly mode: 'c0' | 'c1' | 'g1'; readonly alpha?: number}
+    | {readonly kind: 'patch-tensor-comparison'; readonly visible: boolean}
 
     | {readonly kind: 'degree-elevation'}
     | {readonly kind: 'affine-transform'; readonly operation: 'translate-x' | 'translate-y' | 'scale' | 'rotate'; readonly value: number}

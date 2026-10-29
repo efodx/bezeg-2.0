@@ -1,9 +1,11 @@
 import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
+import type {LessonView3D} from "../../learning/model";
 import {BARYCENTRIC_TOLERANCE} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import type {LessonActionFeature} from "../base/lesson/LessonActionRegistry";
 import {CAMERA_PRESETS, type CameraPresetName} from "./surface-view/surfaceMath";
 import {isSweepCommand, type SweepCommand, type SweepParameter} from "./patchSweep";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
+import {JOIN_ALPHA_RANGE} from "./tensorJoins";
 
 type PatchAction<K extends LessonAction['kind']> = Extract<LessonAction, {kind: K}>;
 export type PatchVisibilityTarget = PatchAction<'patch-visibility'>['target'];
@@ -38,6 +40,58 @@ export interface PatchLessonHost {
     applyCameraPreset(view: CameraPresetName): void;
     /** Present on graphs that can split and elevate. */
     subdivision(): TensorSubdivisionLessonHost | TriangularSubdivisionLessonHost | undefined;
+}
+
+type JoinLessonAction<K extends LessonAction["kind"]> = Extract<LessonAction, {kind: K}>;
+export type PatchJoinMode = JoinLessonAction<"patch-join-mode">["mode"];
+export type PatchJoinScene = JoinLessonAction<"patch-join-scene">["scene"];
+
+export interface PatchJoinLessonHost {
+    isCapstone(): boolean;
+    supportsScene(scene: PatchJoinScene): boolean;
+    showScene(scene: PatchJoinScene, view3d?: LessonView3D): void;
+    setMode(mode: PatchJoinMode): void;
+    setAlpha(alpha: number): void;
+}
+
+/** Continuity and the teapot scene are registered only by the tensor join graph. */
+export function patchJoinLessonActions(host: PatchJoinLessonHost): LessonActionFeature {
+    return registry => {
+        registry.on("patch-join-scene", action => host.showScene(action.scene, action.view3d === undefined ? undefined : checkedView3D(action.view3d)), {
+            supports: action => host.supportsScene(action.scene),
+        });
+        registry.on("patch-join-mode", action => {
+            if (!["c0", "c1", "g1"].includes(action.mode)) throw new Error("The join mode must be c0, c1 or g1.");
+            if (action.alpha !== undefined && (!isFiniteNumber(action.alpha) || action.alpha < JOIN_ALPHA_RANGE.min || action.alpha > JOIN_ALPHA_RANGE.max)) {
+                throw new Error(`The join alpha must be a finite number from ${JOIN_ALPHA_RANGE.min} to ${JOIN_ALPHA_RANGE.max}.`);
+            }
+            if (action.alpha !== undefined) host.setAlpha(action.alpha);
+            host.setMode(action.mode);
+        }, {supports: () => !host.isCapstone()});
+    };
+}
+
+function checkedView3D(view: LessonView3D): LessonView3D {
+    if (!view || typeof view !== "object" || !isFiniteNumber(view.az) || !isFiniteNumber(view.el) || !isFiniteNumber(view.distance) || view.distance <= 0) {
+        throw new Error("The 3D view needs finite az and el and a positive distance.");
+    }
+    if (view.projection !== undefined && view.projection !== "perspective") throw new Error('The 3D view projection must be "perspective".');
+    if (view.target !== undefined && (!view.target || !isFiniteNumber(view.target.x) || !isFiniteNumber(view.target.y) || !isFiniteNumber(view.target.z))) {
+        throw new Error("The 3D view target needs finite x, y and z coordinates.");
+    }
+    return {az: view.az, el: view.el, distance: view.distance, ...(view.target ? {target: {...view.target}} : {}), ...(view.projection ? {projection: view.projection} : {})};
+}
+
+export interface TriangularComparisonLessonHost {
+    setComparison(visible: boolean): void;
+}
+
+/** The square overlay is specific to the triangular patch graph. */
+export function triangularComparisonLessonActions(host: TriangularComparisonLessonHost): LessonActionFeature {
+    return registry => registry.on("patch-tensor-comparison", action => {
+        if (typeof action.visible !== "boolean") throw new Error("The tensor comparison visibility must be true or false.");
+        host.setComparison(action.visible);
+    });
 }
 
 function isFiniteNumber(value: unknown): value is number {
