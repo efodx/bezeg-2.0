@@ -33,7 +33,8 @@ function captureRecipeForEntry(entry, recipe) {
 function presentationHelpers() {
     return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
         isViewportSpanningHorizontalCurve, isCameraScaledCurve,
-        isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry];
+        isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry,
+        readPublishedSurfaceEvidence, validateSurfaceEvidence];
 }
 
 function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers = presentationHelpers()} = {}) {
@@ -238,7 +239,7 @@ async function prepareSurfaceCaptureFrame(page) {
     const evidence = await readPublishedSurfaceEvidence(page);
     const visibleLabelBounds = await readSurfaceVisibleLabelBounds(page);
     validateSurfacePresentation('surface capture', {width: evidence.framing.width, height: evidence.framing.height},
-        evidence.framing.points, visibleLabelBounds);
+        evidence.framing.points, visibleLabelBounds, evidence.framing.meshBounds);
     return {evidence, visibleLabelBounds};
 }
 

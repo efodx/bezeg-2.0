@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import {SURFACE_COLORS, SURFACE_DASH, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
 import {assertFiniteScene, type LabelLayout, type PolylineRole, type ScenePlane, type SurfaceEdit, type SurfaceScene, type Xyz} from './surfaceScene';
 import {fitCameraTo} from './surfaceMath';
+import {buildTeapotScene} from '../TensorTeapotScene';
+import {buildTensorScene, patchFromNet} from '../patchSceneBuilder';
+import {withSubdivisionPieces} from '../TensorSubdivisionScene';
 
 function makeScene(overrides: Partial<SurfaceScene> = {}): SurfaceScene {
     const points = [] as SurfaceScene['points'];
@@ -110,7 +113,8 @@ describe('ThreeSurfaceView lifecycle', () => {
         const h = harness();
         const mesh = {positions: [0.1, 0.2, 0.3, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3], faces: [0, 1, 2, 1, 3, 2, 0, 2, 3], visible: true};
         const owner = {id: 'tensor-patch-0', kind: 'tensor' as const, faceStart: 0, faceCount: 9};
-        const scene = makeScene({mesh, meshOwners: [owner]});
+        const scene = makeScene({mesh, meshOwners: [owner],
+            polylines: [{id: 'far-optional-line', role: 'net', points: [[-500, 0, 0], [500, 0, 0]]}]});
         await h.view.attach(h.host);
         h.view.reconcile(scene);
         await h.view.capture();
@@ -119,9 +123,16 @@ describe('ThreeSurfaceView lifecycle', () => {
             [Math.fround(1.1), Math.fround(1.2), Math.fround(1.3)],
             [Math.fround(0.1), Math.fround(0.2), Math.fround(0.3)],
         ]}]);
+        const framing = JSON.parse(h.host.getAttribute('data-surface-framing')!);
+        expect(framing.meshBounds).toMatchObject({left: expect.any(Number), top: expect.any(Number), right: expect.any(Number), bottom: expect.any(Number)});
+        expect(framing.meshBounds.left).toBeGreaterThan(0);
+        expect(framing.meshBounds.right).toBeLessThan(framing.width);
+        expect(framing.meshBounds.right).toBeGreaterThan(framing.meshBounds.left);
+        expect(framing.meshBounds.bottom).toBeGreaterThan(framing.meshBounds.top);
         vi.spyOn(h.renderer, 'render').mockImplementationOnce(() => { throw new Error('render failed'); });
         await expect(h.view.capture()).rejects.toThrow('render failed');
         expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+        expect(h.host.hasAttribute('data-surface-framing')).toBe(false);
 
         const invalid = makeScene({mesh, meshOwners: [owner]});
         invalid.points[0].xyz[0] = Number.NaN;
@@ -564,14 +575,49 @@ describe('ThreeSurfaceView label layout', () => {
 });
 
 describe('ThreeSurfaceView framing attribute', () => {
+    it('publishes full-mesh framing for point-free rendered teapot and subdivision scenes', async () => {
+        const subdivisionNet: Xyz[][] = Array.from({length: 4}, (_, i) => Array.from({length: 4}, (_, j) => {
+            const x = i - 1.5, y = j - 1.5;
+            return [x, y, 0.3 * x * x - 0.2 * y * y] as Xyz;
+        }));
+        const preliminaryCamera = {az: 0.3, el: 0.8, distance: 12, projection: 'perspective' as const, target: [0, 0, 0] as Xyz};
+        const rawSubdivision = buildTensorScene({net: subdivisionNet, u: 0.5, v: 0.5, camera: preliminaryCamera,
+            showControlNet: true, showIsoCurves: false, showBoundaryCurves: false, showShading: true,
+            isoDensity: 8, shadingDensity: 8, zMode: false}, 1);
+        const subdivision = withSubdivisionPieces(rawSubdivision, patchFromNet(subdivisionNet), 'u', 0.4, true);
+        const teapot = buildTeapotScene({camera: preliminaryCamera, showBoundaryCurves: true, showShading: true}, 2);
+        for (const sourceScene of [subdivision, teapot]) {
+            expect(sourceScene.points).toHaveLength(0);
+            const positions = sourceScene.mesh!.positions;
+            const vertices: Xyz[] = [];
+            for (let i = 0; i < positions.length; i += 3) vertices.push([positions[i], positions[i + 1], positions[i + 2]]);
+            const scene = {...sourceScene, camera: fitCameraTo(vertices, 300 / 200, sourceScene.camera)};
+            const h = harness();
+            await h.view.attach(h.host);
+            h.view.reconcile(scene);
+            await h.view.capture();
+            const framing = JSON.parse(h.host.getAttribute('data-surface-framing')!);
+            expect(framing.meshBounds.inFrustum).toBe(true);
+            expect(framing.meshBounds.left).toBeGreaterThanOrEqual(0);
+            expect(framing.meshBounds.top).toBeGreaterThanOrEqual(0);
+            expect(framing.meshBounds.right).toBeLessThanOrEqual(framing.width);
+            expect(framing.meshBounds.bottom).toBeLessThanOrEqual(framing.height);
+            expect(JSON.parse(h.host.getAttribute('data-rendered-surface-owners')!)).toHaveLength(scene.meshOwners!.length);
+            h.view.dispose();
+        }
+    });
+
     it('is projected again only when the camera, size or points change', async () => {
         const h = harness();
         await h.view.attach(h.host);
         const scene = makeScene();
+        scene.mesh = {positions: [-3, -3, 0, 3, -3, 0, 0, 3, 0], faces: [0, 1, 2], visible: true};
+        scene.meshOwners = [{id: 'tensor-patch-0', kind: 'tensor', faceStart: 0, faceCount: 3}];
         h.view.reconcile(scene);
         await h.view.capture();
         const first = h.host.getAttribute('data-surface-framing');
         expect(JSON.parse(first!).points).toHaveLength(16);
+        expect(JSON.parse(first!).meshBounds).toMatchObject({inFrustum: true});
         const projected = vi.spyOn(scene.points, 'map');
         await h.view.capture();
         await h.view.capture();
@@ -581,6 +627,23 @@ describe('ThreeSurfaceView framing attribute', () => {
         await h.view.capture();
         expect(h.host.getAttribute('data-surface-framing')).not.toBe(first);
         expect(JSON.parse(h.host.getAttribute('data-surface-framing')!).camera.az).toBeCloseTo(scene.camera.az + 0.5, 12);
+        h.view.dispose();
+    });
+
+    it('reuses indexed geometry bounds during camera-only framing updates', async () => {
+        const h = harness();
+        await h.view.attach(h.host);
+        const scene = makeScene({
+            mesh: {positions: [-3, -3, 0, 3, -3, 0, 0, 3, 0], faces: [0, 1, 2], visible: true},
+            meshOwners: [{id: 'tensor-patch-0', kind: 'tensor', faceStart: 0, faceCount: 3}],
+            labels: [],
+        });
+        h.view.reconcile(scene);
+        await h.view.capture();
+        const readVertex = vi.spyOn(THREE.BufferAttribute.prototype, 'getX');
+        h.view.reconcile({...scene, camera: {...scene.camera, az: scene.camera.az + 0.3}});
+        await h.view.capture();
+        expect(readVertex).not.toHaveBeenCalled();
         h.view.dispose();
     });
 });

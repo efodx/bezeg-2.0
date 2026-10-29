@@ -36,13 +36,17 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     const camera = framing.camera;
     if (!camera || ![camera.az, camera.el, camera.distance].every(Number.isFinite) || camera.distance <= 0) fail('missing or invalid published camera');
     finiteTuple(camera.target, 'published camera target');
+    const meshBounds = framing.meshBounds;
+    if (!meshBounds || typeof meshBounds.inFrustum !== 'boolean'
+        || ![meshBounds.left, meshBounds.top, meshBounds.right, meshBounds.bottom].every(Number.isFinite)
+        || meshBounds.right <= meshBounds.left || meshBounds.bottom <= meshBounds.top) fail('missing or invalid projected full-mesh bounds');
+    if (!meshBounds.inFrustum || meshBounds.left < 0 || meshBounds.top < 0
+        || meshBounds.right > framing.width || meshBounds.bottom > framing.height) fail('projected full-mesh bounds are cropped or behind the camera');
     if (!Array.isArray(framing.points)) fail('published framing has no projected control points');
     if (framing.points.length === 0) {
-        const completeTeapotOwners = expected?.owners?.length === TEAPOT_PATCH_COUNT &&
-            renderedOwners?.length === TEAPOT_PATCH_COUNT &&
-            expected.owners.every(owner => owner?.kind === 'teapot' && Array.isArray(owner.geometrySamples) && owner.geometrySamples.length > 0) &&
-            renderedOwners.every(owner => owner?.kind === 'teapot' && Array.isArray(owner.geometrySamples) && owner.geometrySamples.length > 0);
-        if (!completeTeapotOwners) fail('published framing has no projected control points or complete teapot owner evidence');
+        if (!Array.isArray(expected?.owners) || expected.owners.length === 0 || !Array.isArray(renderedOwners) || renderedOwners.length === 0) {
+            fail('point-free surface framing requires expected and rendered mesh owners');
+        }
     }
     framing.points.forEach((point, index) => {
         if (!point || typeof point.id !== 'string' || !point.id || ![point.x, point.y].every(Number.isFinite)
@@ -50,6 +54,11 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     });
     if (!expected || !Array.isArray(expected.owners) || expected.owners.length === 0) fail('expected owners are empty');
     if (!Array.isArray(renderedOwners) || renderedOwners.length === 0) fail('rendered owners are empty');
+    if (expected.owners.some(owner => owner?.kind === 'teapot')
+        && (expected.owners.length !== TEAPOT_PATCH_COUNT || renderedOwners.length !== TEAPOT_PATCH_COUNT
+            || expected.owners.some(owner => owner?.kind !== 'teapot') || renderedOwners.some(owner => owner?.kind !== 'teapot'))) {
+        fail(`teapot framing requires all ${TEAPOT_PATCH_COUNT} expected and rendered patch owners`);
+    }
     if (renderedOwners.length !== expected.owners.length) fail(`expected ${expected.owners.length} rendered owners, received ${renderedOwners.length}`);
     const byId = new Map();
     for (const owner of renderedOwners) {
@@ -82,6 +91,7 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     const actualCamera = cameraValues(camera);
     if (wantedCamera.length !== actualCamera.length || !wantedCamera.every(Number.isFinite) || wantedCamera.some((value, index) => Math.abs(value - actualCamera[index]) > cameraTolerance)) fail('published camera differs from expected camera');
     return {view: 'surface', webglContextType, frame: {width: framing.width, height: framing.height}, camera,
+        meshBounds: {...meshBounds},
         ownerIds: [...byId.keys()], renderedOwners: renderedOwners.map(owner => ({id: owner.id, kind: owner.kind,
             geometrySamples: owner.geometrySamples.map(sample => [...sample])})),
         projectedControlPoints: framing.points.map(point => ({id: point.id, x: point.x, y: point.y, inFrustum: point.inFrustum}))};

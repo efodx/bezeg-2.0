@@ -11,16 +11,18 @@ function fixture(kind = 'tensor') {
     const owner = {id: `${kind}-owner-0`, kind, geometrySamples: samples};
     return {
         webglContextType: 'webgl2',
-        framing: {width: 360, height: 220, camera, points: [{id: 'P00', x: 142, y: 103, inFrustum: true}]},
+        framing: {width: 360, height: 220, camera, meshBounds: {left: 50, top: 40, right: 300, bottom: 190, inFrustum: true},
+            points: [{id: 'P00', x: 142, y: 103, inFrustum: true}]},
         renderedOwners: [owner],
         expected: {camera: {...camera, target: [...camera.target]}, owners: [{id: owner.id, kind, geometrySamples: samples.map(point => [...point])}]},
     };
 }
 
 test('accepts valid unit evidence records for supported patch owner families', () => {
-    for (const kind of ['tensor', 'triangular', 'join', 'teapot']) {
+    for (const kind of ['tensor', 'triangular', 'join']) {
         const result = validateSurfaceEvidence(fixture(kind));
         assert.deepEqual(result.ownerIds, [`${kind}-owner-0`]);
+        assert.equal(result.meshBounds.inFrustum, true);
         assert.equal(result.view, 'surface');
     }
 });
@@ -31,12 +33,14 @@ test('reads published owner JSON from the route host with the existing WebGL con
     globalThis.WebGL2RenderingContext = function WebGL2RenderingContext() {};
     try {
         Object.setPrototypeOf(gl, WebGL2RenderingContext.prototype);
-        const attrs = {'data-surface-framing': JSON.stringify({width: 420, height: 260}),
+        const attrs = {'data-surface-framing': JSON.stringify({width: 420, height: 260,
+            meshBounds: {left: 4, top: 5, right: 400, bottom: 250, inFrustum: true}}),
             'data-rendered-surface-owners': JSON.stringify([owner])};
         const host = {getAttribute: name => attrs[name] || null, querySelector: () => ({getContext: () => gl})};
         const page = {locator: () => ({evaluate: callback => callback(host)})};
         assert.deepEqual(await readPublishedSurfaceEvidence(page), {
-            framing: {width: 420, height: 260}, webglContextType: 'webgl2', renderedOwners: [owner],
+            framing: {width: 420, height: 260, meshBounds: {left: 4, top: 5, right: 400, bottom: 250, inFrustum: true}},
+            webglContextType: 'webgl2', renderedOwners: [owner],
         });
         delete attrs['data-rendered-surface-owners'];
         await assert.rejects(readPublishedSurfaceEvidence(page), /missing published data-rendered-surface-owners/);
@@ -45,7 +49,7 @@ test('reads published owner JSON from the route host with the existing WebGL con
     } finally { delete globalThis.WebGL2RenderingContext; }
 });
 
-test('accepts the teapot scene contract with no control points and 32 explicit owners', () => {
+test('accepts point-free teapot and subdivision scenes with independently expected rendered owners', () => {
     const e = fixture('teapot');
     e.framing.points = [];
     e.renderedOwners = Array.from({length: 32}, (_, index) => ({
@@ -62,11 +66,15 @@ test('accepts the teapot scene contract with no control points and 32 explicit o
     assert.equal(result.ownerIds.length, 32);
     assert.deepEqual(result.ownerIds, e.expected.owners.map(owner => owner.id));
 
+    const subdivision = fixture('tensor');
+    subdivision.framing.points = [];
+    assert.equal(validateSurfaceEvidence(subdivision).ownerIds.length, 1);
+
     const incomplete = fixture('teapot');
     incomplete.framing.points = [];
     incomplete.renderedOwners = e.renderedOwners.slice(0, 31);
     incomplete.expected.owners = e.expected.owners.slice(0, 31);
-    assert.throws(() => validateSurfaceEvidence(incomplete), /complete teapot owner evidence/);
+    assert.throws(() => validateSurfaceEvidence(incomplete), /all 32 expected and rendered patch owners/);
 });
 
 test('rejects absent WebGL, framing, camera, owners, or owner geometry', () => {
@@ -102,6 +110,7 @@ test('rejects nonfinite published frame coordinates and projected camera values'
     for (const mutate of [
         e => { e.framing.points[0].x = NaN; },
         e => { e.framing.camera.distance = Infinity; },
+        e => { e.framing.meshBounds.right = Infinity; },
     ]) {
         const e = fixture(); mutate(e);
         assert.throws(() => validateSurfaceEvidence(e), /Invalid guided surface evidence/);

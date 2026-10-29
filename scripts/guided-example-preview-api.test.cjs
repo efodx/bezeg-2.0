@@ -20,6 +20,7 @@ const surfaceExample = () => example({id: 'patch-tensor-midpoint', demonstration
 const surfaceCapture = entry => {
     const surface = entry.expected.surface;
     const scene = {view: 'surface', webglContextType: 'webgl2', frame: {width: 420, height: 260}, camera: surface.camera,
+        meshBounds: {left: 50, top: 40, right: 400, bottom: 250, inFrustum: true},
         ownerIds: ['tensor-patch-0'], renderedOwners: structuredClone(surface.owners),
         projectedControlPoints: [{id: 'P00', x: 100, y: 100, inFrustum: true}],
         visibleLabelBounds: [{id: 'p00-label', left: 10, top: 10, right: 30, bottom: 20}]};
@@ -68,11 +69,15 @@ test('published and retained surface records revalidate owner samples, crop evid
         value => { value.initialFrame.preparedSurfaceEvidence.renderedOwners = []; },
         value => { value.scene.visibleLabelBounds[0].right = 421; },
         value => { value.scene.projectedControlPoints[0].inFrustum = false; },
+        value => { value.scene.meshBounds.left = -1; },
+        value => { value.initialFrame.preparedSurfaceEvidence.meshBounds = null; },
+        value => { value.initialFrame.preparedSurfaceEvidence.meshBounds.left = -50; },
+        value => { value.initialFrame.preparedSurfaceEvidence.meshBounds.inFrustum = false; },
         value => { value.width = 839; },
         value => { value.captureEvidence.servedBuildVerified = false; },
     ]) {
         const changed = structuredClone(good); mutate(changed);
-        assert.throws(() => validatePublishedSet([entry], [changed], directory), /surface|owner|frame|dimension|provenance|label/i);
+        assert.throws(() => validatePublishedSet([entry], [changed], directory), /surface|owner|frame|dimension|provenance|label|cropped/i);
     }
     const curve = example({id: 'ordinary-example'});
     const curveCapture = capture(curve);

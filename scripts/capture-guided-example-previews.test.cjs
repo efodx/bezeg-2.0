@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {assertPresentationGeometryStable, captureRecipeForEntry, presentationFingerprint, presentationHelpers,
     resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
+const {readPublishedSurfaceEvidence: readSurface, validateSurfaceEvidence: validateSurface} = require('./guided-example-surface-evidence.cjs');
 
 const before = {
     points: [[0, 0.5]],
@@ -136,6 +137,7 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
     const attrs = {
         'data-surface-framing': JSON.stringify({width: 700, height: 400,
             camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]},
+            meshBounds: {left: 50, top: 40, right: 400, bottom: 250, inFrustum: true},
             points: [{id: 'P00', x: 421, y: 100, inFrustum: false}]}),
         'data-rendered-surface-owners': JSON.stringify([{id: 'tensor-patch-0', kind: 'tensor',
             geometrySamples: [[0, 1, 2], [1, 2, 3], [2, 3, 4]]}]),
@@ -150,8 +152,25 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
     await assert.rejects(prepareSurfaceCaptureFrame(page), /outside the capture frame or frustum/);
     assert.equal(properties.get('width'), '420px', 'negative crop check must run after capture-only host resize');
     attrs['data-surface-framing'] = JSON.stringify({width: 700, height: 400,
-        camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]}, points: []});
+        camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]},
+        meshBounds: {left: 50, top: 40, right: 500, bottom: 280, inFrustum: true}, points: []});
     attrs['data-rendered-surface-owners'] = JSON.stringify(Array.from({length: 32}, (_, index) => ({id: `teapot-patch-${index}`,
         kind: 'teapot', geometrySamples: [[index, 0, 0], [index, 1, 0], [index, 2, 0]]})));
-    await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh crop framing is unavailable/);
+    await assert.doesNotReject(prepareSurfaceCaptureFrame(page));
+    const expectedTeapot = {camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]},
+        owners: Array.from({length: 32}, (_, index) => ({id: `teapot-patch-${index}`, kind: 'teapot',
+            geometrySamples: [[index, 0, 0], [index + 1, 0, 0], [index, 1, 0]]}))};
+    attrs['data-rendered-surface-owners'] = JSON.stringify(expectedTeapot.owners);
+    assert.equal(validateSurface({...await readSurface(page), expected: expectedTeapot}).ownerIds.length, 32);
+    const subdivision = {camera: expectedTeapot.camera, owners: [{id: 'tensor-patch-0', kind: 'tensor',
+        geometrySamples: [[0, 0, 0], [1, 0, 0], [0, 1, 0]]}]};
+    attrs['data-rendered-surface-owners'] = JSON.stringify(subdivision.owners);
+    assert.equal(validateSurface({...await readSurface(page), expected: subdivision}).ownerIds.length, 1);
+    const clipped = JSON.parse(attrs['data-surface-framing']);
+    clipped.meshBounds.left = -1;
+    attrs['data-surface-framing'] = JSON.stringify(clipped);
+    await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh bounds are cropped or behind/);
+    clipped.meshBounds.left = 50; clipped.meshBounds.inFrustum = false;
+    attrs['data-surface-framing'] = JSON.stringify(clipped);
+    await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh bounds are cropped or behind/);
 });

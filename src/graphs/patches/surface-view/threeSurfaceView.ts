@@ -154,6 +154,8 @@ export class ThreeSurfaceView implements SurfaceView {
     private renderedOwnersGeometry: ThreeNs.BufferGeometry | null = null;
     private renderedOwnersSignature = '';
     private renderedOwnersJson = '';
+    private renderedBoundsGeometry: ThreeNs.BufferGeometry | null = null;
+    private renderedBoundsLocal: {min: Xyz; max: Xyz} | null = null;
     private pointMeshes = new Map<string, ThreeNs.Mesh>();
     private observer: ResizeObserver | null = null;
     private raf = 0;
@@ -206,6 +208,10 @@ export class ThreeSurfaceView implements SurfaceView {
     reconcile(scene: SurfaceScene): void {
         if (this.disposed) return;
         this.clearRenderedOwners();
+        this.host?.removeAttribute('data-surface-framing');
+        this.lastFramingKey = '';
+        this.lastFramingInputs = '';
+        this.lastFramingPoints = null;
         assertFiniteScene(scene);
         this.scene = scene;
         if (this.renderer) this.applyScene(scene);
@@ -312,6 +318,8 @@ export class ThreeSurfaceView implements SurfaceView {
         this.renderedOwnersGeometry = null;
         this.renderedOwnersSignature = '';
         this.renderedOwnersJson = '';
+        this.renderedBoundsGeometry = null;
+        this.renderedBoundsLocal = null;
         this.editListeners.clear();
         this.drag = null;
         this.pinch = null;
@@ -529,6 +537,8 @@ export class ThreeSurfaceView implements SurfaceView {
         this.renderedOwnersGeometry = null;
         this.renderedOwnersSignature = '';
         this.renderedOwnersJson = '';
+        this.renderedBoundsGeometry = null;
+        this.renderedBoundsLocal = null;
         this.sceneExtent = this.measureExtent(scene);
         if (scene.mesh) {
             const g = new T.BufferGeometry();
@@ -581,6 +591,10 @@ export class ThreeSurfaceView implements SurfaceView {
             this.renderer.render(this.glScene, this.glCamera);
         } catch (error) {
             this.clearRenderedOwners();
+            this.host?.removeAttribute('data-surface-framing');
+            this.lastFramingKey = '';
+            this.lastFramingInputs = '';
+            this.lastFramingPoints = null;
             this.renderedOwnersJson = '';
             throw error;
         }
@@ -591,6 +605,47 @@ export class ThreeSurfaceView implements SurfaceView {
 
     private clearRenderedOwners(): void {
         this.host?.removeAttribute('data-rendered-surface-owners');
+    }
+
+    /** Cached bounds over indexed surface triangles only; camera changes project the eight corners, not every triangle. */
+    private projectRenderedMeshBounds(): {left: number; top: number; right: number; bottom: number; inFrustum: boolean} | null {
+        const mesh = this.surfaceMesh;
+        const geometry = mesh?.geometry;
+        const position = geometry?.getAttribute('position');
+        const index = geometry?.getIndex();
+        if (!mesh?.visible || !geometry || !position || !index || index.count < 3 || index.count % 3 !== 0) return null;
+        if (this.renderedBoundsGeometry !== geometry || !this.renderedBoundsLocal) {
+            const min: [number, number, number] = [Infinity, Infinity, Infinity];
+            const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+            for (let offset = 0; offset < index.count; offset++) {
+                const vertex = index.getX(offset);
+                if (!Number.isInteger(vertex) || vertex < 0 || vertex >= position.count) return null;
+                const xyz = [position.getX(vertex), position.getY(vertex), position.getZ(vertex)];
+                if (!xyz.every(Number.isFinite)) return null;
+                for (let axis = 0; axis < 3; axis++) {
+                    min[axis] = Math.min(min[axis], xyz[axis]);
+                    max[axis] = Math.max(max[axis], xyz[axis]);
+                }
+            }
+            if (![...min, ...max].every(Number.isFinite)) return null;
+            this.renderedBoundsGeometry = geometry;
+            this.renderedBoundsLocal = {min, max};
+        }
+        mesh.updateWorldMatrix(true, false);
+        const T = this.three!;
+        const {min, max} = this.renderedBoundsLocal;
+        const projected: Array<{x: number; y: number; z: number}> = [];
+        for (const x of [min[0], max[0]]) for (const y of [min[1], max[1]]) for (const z of [min[2], max[2]]) {
+            const point = new T.Vector3(x, y, z).applyMatrix4(mesh.matrixWorld).project(this.glCamera!);
+            if (![point.x, point.y, point.z].every(Number.isFinite)) return null;
+            projected.push({x: ((point.x + 1) / 2) * this.width, y: ((1 - point.y) / 2) * this.height, z: point.z});
+        }
+        return {
+            left: Math.min(...projected.map(point => point.x)), top: Math.min(...projected.map(point => point.y)),
+            right: Math.max(...projected.map(point => point.x)), bottom: Math.max(...projected.map(point => point.y)),
+            inFrustum: projected.every(point => Math.abs((point.x / this.width) * 2 - 1) <= 1
+                && Math.abs(1 - (point.y / this.height) * 2) <= 1 && point.z >= -1 && point.z <= 1),
+        };
     }
 
     /** Publishes first-vertex xyz samples from the first, middle and last drawable owner triangles after the mesh rendered. */
@@ -654,6 +709,14 @@ export class ThreeSurfaceView implements SurfaceView {
      */
     private publishFraming(): void {
         if (!this.host || !this.scene) return;
+        const meshBounds = this.projectRenderedMeshBounds();
+        if (!meshBounds || !this.scene.meshOwners?.length) {
+            this.host.removeAttribute('data-surface-framing');
+            this.lastFramingKey = '';
+            this.lastFramingInputs = '';
+            this.lastFramingPoints = null;
+            return;
+        }
         const camera = this.scene.camera;
         const inputs = [this.width, this.height, camera.az, camera.el, camera.distance, ...camera.target].join(',');
         if (inputs === this.lastFramingInputs && this.scene.points === this.lastFramingPoints) return;
@@ -663,6 +726,7 @@ export class ThreeSurfaceView implements SurfaceView {
         const framing = {
             width: this.width, height: this.height,
             camera: {az: camera.az, el: camera.el, distance: camera.distance, target: [...camera.target]},
+            meshBounds,
             points: this.scene.points.map(p => {
                 const s = this.project(p.xyz);
                 return {id: p.id, x: round(s.x), y: round(s.y), inFrustum: s.inFrustum};
@@ -735,6 +799,10 @@ export class ThreeSurfaceView implements SurfaceView {
         if (this.disposed) return;
         this.contextLost = true;
         this.clearRenderedOwners();
+        this.host?.removeAttribute('data-surface-framing');
+        this.lastFramingKey = '';
+        this.lastFramingInputs = '';
+        this.lastFramingPoints = null;
         this.renderedOwnersGeometry = null;
         this.renderedOwnersSignature = '';
         this.renderedOwnersJson = '';

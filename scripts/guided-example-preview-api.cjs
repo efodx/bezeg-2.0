@@ -164,7 +164,8 @@ function validatePublishedSet(inventory, captures, destination) {
 function validateStoredSurfaceEvidence(entry, record, label) {
     assert.ok(record && record.view === 'surface', `${entry.id}: ${label} surface evidence is missing`);
     const validated = validateSurfaceEvidence({
-        framing: {width: record.frame?.width, height: record.frame?.height, camera: record.camera, points: record.projectedControlPoints},
+        framing: {width: record.frame?.width, height: record.frame?.height, camera: record.camera,
+            points: record.projectedControlPoints, meshBounds: record.meshBounds},
         webglContextType: record.webglContextType, renderedOwners: record.renderedOwners, expected: entry.expected.surface,
     });
     assert.deepEqual(record.ownerIds, validated.ownerIds, `${entry.id}: ${label} owner IDs do not match observed owner samples`);
@@ -187,7 +188,7 @@ function validateSurfaceCaptureRecord(entry, capture) {
     assert.deepEqual([capture.width, capture.height], [framing.width * framing.scale, framing.height * framing.scale],
         `${entry.id}: surface image dimensions do not match capture framing`);
     assert.deepEqual(framing.visibleLabelBounds, capture.scene.visibleLabelBounds, `${entry.id}: visible label bounds differ from scene evidence`);
-    validateSurfacePresentation(entry.id, scene.frame, scene.projectedControlPoints, capture.scene.visibleLabelBounds);
+    validateSurfacePresentation(entry.id, scene.frame, scene.projectedControlPoints, capture.scene.visibleLabelBounds, scene.meshBounds);
     const provenance = capture.captureEvidence;
     assert.ok(provenance && typeof provenance.browserVersion === 'string' && provenance.browserVersion.length > 0
         && provenance.servedBuildVerified === true && typeof provenance.buildRevision === 'string' && provenance.buildRevision.length > 0
@@ -196,9 +197,15 @@ function validateSurfaceCaptureRecord(entry, capture) {
     `${entry.id}: surface capture provenance is missing or invalid`);
 }
 
-function validateSurfacePresentation(id, frame, points, visibleLabelBounds) {
-    assert.ok(Array.isArray(points) && points.length > 0,
-        `${id}: surface mesh crop framing is unavailable for this point-free view; refusing capture without producer bounds evidence`);
+function validateSurfacePresentation(id, frame, points, visibleLabelBounds, meshBounds) {
+    assert.ok(meshBounds && typeof meshBounds.inFrustum === 'boolean'
+        && [meshBounds.left, meshBounds.top, meshBounds.right, meshBounds.bottom].every(Number.isFinite)
+        && meshBounds.right > meshBounds.left && meshBounds.bottom > meshBounds.top,
+    `${id}: projected full-mesh crop bounds are missing or malformed`);
+    assert.ok(meshBounds.inFrustum && meshBounds.left >= 0 && meshBounds.top >= 0
+        && meshBounds.right <= frame.width && meshBounds.bottom <= frame.height,
+    `${id}: projected full-mesh bounds are cropped or behind the camera`);
+    assert.ok(Array.isArray(points), `${id}: projected surface points are missing`);
     for (const [index, point] of points.entries()) {
         assert.ok(point && typeof point.id === 'string' && point.id && point.inFrustum === true
             && [point.x, point.y].every(Number.isFinite) && point.x >= 0 && point.y >= 0 && point.x <= frame.width && point.y <= frame.height,
