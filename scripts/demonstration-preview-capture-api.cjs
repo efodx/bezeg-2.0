@@ -5,6 +5,7 @@ const {capture} = require('./demonstration-preview-motion.cjs');
 module.exports = Object.freeze({
     generateMotions: capture.generateMotions,
     motionIds: capture.motionIds,
+    surfaceMotionIds: capture.surfaceMotionIds,
     isRecipeAligned: capture.isRecipeAligned,
     recipeAlignedMotionIds: capture.recipeAlignedMotionIds,
     assertMotionEvidence: capture.assertMotionEvidence,

@@ -54,6 +54,18 @@ function alignMotionCameras(captures, motions) {
     for (const motion of motions) {
         const poster = captures.find(capture => capture.id === motion.id);
         assert.ok(poster, `Missing poster camera for ${motion.id}`);
+        if (poster.framing?.kind === 'surface-view') {
+            const camera = poster.framing.camera;
+            const validSurfaceCamera = value => value && typeof value === 'object' && !Array.isArray(value) &&
+                Object.keys(value).sort().join(',') === 'az,distance,el,target' &&
+                Number.isFinite(value.az) && Number.isFinite(value.el) && Number.isFinite(value.distance) && value.distance > 0 &&
+                Array.isArray(value.target) && value.target.length === 3 && value.target.every(Number.isFinite);
+            assert.ok(validSurfaceCamera(camera) && motion.mode === 'surface-orbit' && validSurfaceCamera(motion.camera) &&
+                sameCamera(motion.camera, camera, 1e-10), `Poster and clip cameras differ: ${motion.id}`);
+            // Keep retained records byte-for-byte equivalent when they already match.
+            returnSurfaceCamera(motion, camera);
+            continue;
+        }
         const camera = poster.framing.boardBoundingBox;
         assert.ok(Array.isArray(motion.camera) && motion.camera.length === 4 && camera.length === 4 &&
             motion.camera.every((value, index) => Number.isFinite(value) && Number.isFinite(camera[index]) && Math.abs(value - camera[index]) < 1e-10),
@@ -62,6 +74,11 @@ function alignMotionCameras(captures, motions) {
         if (motion.camera.some((value, index) => value !== camera[index])) motion.camera = [...camera];
     }
     return motions;
+}
+
+function returnSurfaceCamera(motion, camera) {
+    // Canonicalize only floating-point roundoff, retaining the exact poster framing.
+    if (!sameCamera(motion.camera, camera, 0)) motion.camera = structuredClone(camera);
 }
 
 /** Keep numeric evidence intact without duplicating SVG paths already covered by hashes. */
@@ -510,6 +527,7 @@ async function main() {
     const servedBuild = await servedBuildProvenance();
     const presentationFingerprint=crypto.createHash('sha256').update(presentBoard.toString())
         .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
+        .update(hashFile(path.join(__dirname,'patch-surface-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-capture-api.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
         .update(hashFile(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))

@@ -30,6 +30,28 @@ test('camera provenance canonicalizes only numerical roundoff and rejects a real
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[-1.001,2,3,-4]}]),/cameras differ/);
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[NaN,2,3,-4]}]),/cameras differ/);
 });
+test('surface camera provenance validates orbit cameras while retaining board cameras',()=>{
+    const camera={az:-0.9,el:0.5,distance:8.2,target:[0,0,1.25]};
+    const poster={id:'patch-tensor',framing:{kind:'surface-view',camera}};
+    const exact={id:'patch-tensor',mode:'surface-orbit',camera:structuredClone(camera)};
+    alignMotionCameras([poster],[exact]);
+    assert.deepEqual(exact.camera,camera);
+    const rounded={id:'patch-tensor',mode:'surface-orbit',camera:{...camera,az:camera.az+1e-14,target:[...camera.target]}};
+    alignMotionCameras([poster],[rounded]);
+    assert.deepEqual(rounded.camera,camera);
+    for (const invalid of [
+        {id:'patch-tensor',mode:'surface-orbit',camera:{...camera,target:[0,0]}},
+        {id:'patch-tensor',mode:'surface-orbit',camera:{...camera,target:[0,0,1.26]}},
+        {id:'patch-tensor',mode:'pointer-drag',camera},
+        {id:'patch-tensor',mode:'surface-orbit',camera:{...camera,extra:true}},
+    ]) assert.throws(()=>alignMotionCameras([poster],[invalid]),/cameras differ/);
+
+    const board=[-1,2,3,-4],boardPoster={id:'test',framing:{boardBoundingBox:board}};
+    const retained={id:'test',camera:[...board]};
+    alignMotionCameras([boardPoster],[retained]);
+    assert.deepEqual(retained.camera,board);
+    assert.throws(()=>alignMotionCameras([boardPoster],[{id:'test',camera:[-1,2,4,-4]}]),/cameras differ/);
+});
 const catalog=require('../tests/smoke-catalog.cjs');
 
 test('registry exhaustively matches the live catalog and rejects missing/unknown recipes',()=>{

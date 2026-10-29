@@ -45,6 +45,12 @@ import motion_taylor from './images/demonstrations/catalog/taylor.webm?no-inline
 import motion_sequence from './images/demonstrations/catalog/sequence.webm?no-inline';
 import motion_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.webm?no-inline';
 import motion_fixed_point from './images/demonstrations/catalog/fixed-point.webm?no-inline';
+import motion_patch_tensor from './images/demonstrations/catalog/patch-tensor.webm?no-inline';
+import motion_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.webm?no-inline';
+import motion_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.webm?no-inline';
+import motion_patch_subdivision from './images/demonstrations/catalog/patch-subdivision.webm?no-inline';
+import motion_patch_joins from './images/demonstrations/catalog/patch-joins.webm?no-inline';
+import motion_patch_triangular from './images/demonstrations/catalog/patch-triangular.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -93,4 +99,10 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'sequence': {src: motion_sequence, type: 'video/webm', duration: 4},
     'uniform-convergence': {src: motion_uniform_convergence, type: 'video/webm', duration: 4},
     'fixed-point': {src: motion_fixed_point, type: 'video/webm', duration: 4},
+    'patch-tensor': {src: motion_patch_tensor, type: 'video/webm', duration: 4},
+    'patch-decasteljau': {src: motion_patch_decasteljau, type: 'video/webm', duration: 4},
+    'patch-derivatives': {src: motion_patch_derivatives, type: 'video/webm', duration: 4},
+    'patch-subdivision': {src: motion_patch_subdivision, type: 'video/webm', duration: 4},
+    'patch-joins': {src: motion_patch_joins, type: 'video/webm', duration: 4},
+    'patch-triangular': {src: motion_patch_triangular, type: 'video/webm', duration: 4},
 };

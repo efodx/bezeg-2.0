@@ -1,8 +1,27 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {assertPresentationGeometryStable, captureRecipeForEntry, presentationFingerprint, presentationHelpers,
+const path = require('node:path');
+const {assertPresentationGeometryStable, assertInventoryFamily, captureOutputPath, captureRecipeForEntry, destinationForFamily, parseArgs, presentationFingerprint, presentationHelpers,
     resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
 const {readPublishedSurfaceEvidence: readSurface, validateSurfaceEvidence: validateSurface} = require('./guided-example-surface-evidence.cjs');
+
+test('patch capture family uses its fixed subdirectory and rejects retained inventories', () => {
+    const inventory = [{id: 'bezier-patches.curve-to-patch.patch-tensor',
+        path: '/bezeg-2.0/patches/curve-to-patch?example=lesson.bezier-patches.curve-to-patch.patch-tensor'}];
+    assert.equal(parseArgs(['inventory.json']).family, 'retained');
+    assert.equal(destinationForFamily('retained'), path.join(path.resolve(__dirname, '..'), 'src/images/learning/examples'));
+    assert.equal(destinationForFamily('patches'), path.join(path.resolve(__dirname, '..'), 'src/images/learning/examples/patches'));
+    assert.equal(captureOutputPath(destinationForFamily('patches'), inventory[0].id),
+        path.join(path.resolve(__dirname, '..'), 'src/images/learning/examples/patches', `${inventory[0].id}.png`));
+    assert.deepEqual(parseArgs(['inventory.json', '--family', 'patches', '--id', inventory[0].id]), {
+        inventoryPath: path.resolve('inventory.json'), ids: [inventory[0].id], family: 'patches'});
+    assert.doesNotThrow(() => assertInventoryFamily(inventory, 'patches'));
+    assert.throws(() => assertInventoryFamily(inventory, 'retained'), /require explicit --family patches/);
+    assert.doesNotThrow(() => assertInventoryFamily([{...inventory[0], path: '/bezeg-2.0/patches?example=lesson.bezier-patches.curve-to-patch.patch-tensor'}], 'patches'));
+    assert.throws(() => assertInventoryFamily([{...inventory[0], id: 'chapter.example'}], 'patches'), /requires a patch inventory/);
+    assert.throws(() => assertInventoryFamily([{...inventory[0], path: '/bezeg-2.0/curves?example=chapter.example'}], 'patches'), /requires a patch inventory/);
+    assert.throws(() => parseArgs(['inventory.json', '--family', 'retained']), /Unsupported capture family: retained/);
+});
 
 const before = {
     points: [[0, 0.5]],

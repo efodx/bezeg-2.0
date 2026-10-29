@@ -1,5 +1,5 @@
 // Capture only the exact prepared initial scenes from a complete generated inventory.
-// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter]
+// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches]
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -14,12 +14,11 @@ const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet
 const {readPublishedSurfaceEvidence, validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
 
 const root = path.resolve(__dirname, '..');
-const destination = path.join(root, 'src/images/learning/examples');
+const defaultDestination = path.join(root, 'src/images/learning/examples');
 const appBaseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4387/bezeg-2.0').replace(/\/$/, '');
 const frame = {width: 420, height: 260};
 const viewport = {width: 1440, height: 920};
 const deviceScaleFactor = 2;
-const manifestPath = path.join(destination, 'manifest.json');
 const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 
 function captureRecipeForEntry(entry, recipe) {
@@ -49,15 +48,43 @@ function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers
 
 function parseArgs(argv) {
     const [inventoryPath, ...rest] = argv;
-    assert.ok(inventoryPath && !inventoryPath.startsWith('--'), 'Usage: node scripts/capture-guided-example-previews.cjs <inventory.json> [--id <id>]');
+    assert.ok(inventoryPath && !inventoryPath.startsWith('--'), 'Usage: node scripts/capture-guided-example-previews.cjs <inventory.json> [--id <id>] [--family patches]');
     const ids = [];
+    let family = 'retained';
     for (let index = 0; index < rest.length; index++) {
-        if (rest[index] !== '--id' || !rest[index + 1]) throw new Error(`Unknown or incomplete option: ${rest[index]}`);
-        ids.push(rest[++index]);
+        if (rest[index] === '--id' && rest[index + 1]) ids.push(rest[++index]);
+        else if (rest[index] === '--family' && rest[index + 1]) {
+            assert.equal(family, 'retained', '--family may be specified only once');
+            family = rest[++index];
+            assert.equal(family, 'patches', `Unsupported capture family: ${family}`);
+        } else throw new Error(`Unknown or incomplete option: ${rest[index]}`);
     }
     const envIds = process.env.PREVIEW_EXAMPLE_IDS?.split(',').map(value => value.trim()).filter(Boolean) || [];
     assert.ok(!ids.length || !envIds.length, 'Choose either --id or PREVIEW_EXAMPLE_IDS, not both');
-    return {inventoryPath: path.resolve(process.cwd(), inventoryPath), ids: ids.length ? ids : envIds};
+    return {inventoryPath: path.resolve(process.cwd(), inventoryPath), ids: ids.length ? ids : envIds, family};
+}
+
+function destinationForFamily(family) {
+    if (family === 'retained') return defaultDestination;
+    assert.equal(family, 'patches', `Unsupported capture family: ${family}`);
+    return path.join(defaultDestination, 'patches');
+}
+
+function assertInventoryFamily(inventory, family) {
+    const isPatchEntry = entry => entry.id.startsWith('bezier-patches.')
+        || /^\/bezeg-2\.0\/patches(?:\/|$)/.test(new URL(entry.path, 'https://bezeg.invalid').pathname);
+    if (family === 'retained') {
+        assert.ok(!inventory.some(isPatchEntry), 'Patch inventories require explicit --family patches to protect the retained manifest');
+        return;
+    }
+    assert.ok(family === 'patches' && inventory.length > 0 && inventory.every(entry => {
+        const pathname = new URL(entry.path, 'https://bezeg.invalid').pathname;
+        return entry.id.startsWith('bezier-patches.') && /^\/bezeg-2\.0\/patches(?:\/|$)/.test(pathname);
+    }), 'The patches destination requires a patch inventory (bezier-patches.* ids on /bezeg-2.0/patches)');
+}
+
+function captureOutputPath(destination, id) {
+    return path.join(destination, `${id}.png`);
 }
 
 function readInventory(file) {
@@ -243,7 +270,7 @@ async function prepareSurfaceCaptureFrame(page) {
     return {evidence, visibleLabelBounds};
 }
 
-async function captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors) {
+async function captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination) {
     assert.ok(entry.expected?.surface, `${entry.id}: expected.surface authored camera and owner geometry are required`);
     const initial = await readPublishedSurfaceEvidence(page);
     const preparedSurfaceEvidence = validateSurfaceEvidence({...initial, expected: entry.expected.surface});
@@ -265,7 +292,7 @@ async function captureSurfaceExample(page, entry, browserVersion, servedBuild, b
     });
     assert.deepEqual([clip.width, clip.height], [frame.width, frame.height], `${entry.id}: surface clip does not match capture frame`);
     const file = `${entry.id}.png`;
-    const output = path.join(destination, file);
+    const output = captureOutputPath(destination, entry.id);
     await page.screenshot({path: output, clip, animations: 'disabled', caret: 'hide', scale: 'device'});
     const dimensions = pngDimensions(output);
     assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor});
@@ -313,7 +340,7 @@ async function verifyServedBuild(build) {
         localOutputHash: build.output, localOutputHashVerified: true, bundles};
 }
 
-async function captureExample(page, entry, demonstration, recipe, browserVersion, servedBuild, build, sourceRevision) {
+async function captureExample(page, entry, demonstration, recipe, browserVersion, servedBuild, build, sourceRevision, destination) {
     const target = new URL(entry.path, new URL(appBaseUrl).origin).toString();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
@@ -329,7 +356,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     const progress = await page.locator('.guided-lesson-progress').innerText();
     assert.match(progress, /Korak 1 od \d+\s*·\s*Okvir 1 od \d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
     await settle(page);
-    if (demonstration.view === 'surface') return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors);
+    if (demonstration.view === 'surface') return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination);
     const initial = await inspectBoard(page);
     verifyEvidence(entry, initial);
     await page.waitForTimeout(250);
@@ -347,7 +374,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     assert.deepEqual(scene.outOfFrameElements, [], `${entry.id}: cropped board labels or geometry`);
     assert.deepEqual(pageErrors, [], `${entry.id}: browser runtime errors`);
     const file = `${entry.id}.png`;
-    const output = path.join(destination, file);
+    const output = captureOutputPath(destination, entry.id);
     await page.screenshot({path: output, clip: await board.evaluate(container => {
         const rect = container.getBoundingClientRect(); const style = getComputedStyle(container);
         return {x: rect.left + parseFloat(style.borderLeftWidth), y: rect.top + parseFloat(style.borderTopWidth), width: container.clientWidth, height: container.clientHeight};
@@ -367,8 +394,11 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
 }
 
 async function main(argv = process.argv.slice(2)) {
-    const {inventoryPath, ids} = parseArgs(argv);
+    const {inventoryPath, ids, family} = parseArgs(argv);
     const inventory = readInventory(inventoryPath);
+    assertInventoryFamily(inventory, family);
+    const destination = destinationForFamily(family);
+    const manifestPath = path.join(destination, 'manifest.json');
     const inventoryIds = inventory.map(entry => entry.id);
     const selectedIds = ids.length ? [...new Set(ids)] : inventoryIds;
     assert.equal(selectedIds.length, ids.length || inventoryIds.length, 'Duplicate selected guided-example id');
@@ -401,7 +431,7 @@ async function main(argv = process.argv.slice(2)) {
             try {
                 const page = await context.newPage();
                 page.setDefaultNavigationTimeout(90_000);
-                captures.push(await captureExample(page, entry, demonstration, recipe, browser.version(), servedBuild, build, sourceRevision));
+                captures.push(await captureExample(page, entry, demonstration, recipe, browser.version(), servedBuild, build, sourceRevision, destination));
                 console.log(`${entry.id}: ${captures.at(-1).width}x${captures.at(-1).height} sha256=${captures.at(-1).sha256}`);
             } finally { await context.close(); }
         }
@@ -421,7 +451,7 @@ async function main(argv = process.argv.slice(2)) {
     console.log(`Wrote ${allCaptures.length} guided-example previews to ${path.relative(root, destination)}.`);
 }
 
-module.exports = {parseArgs, readInventory, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
+module.exports = {parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
     prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample};

@@ -9,6 +9,51 @@ const learnButton = page => page.getByRole('button', {name: 'Learn this demonstr
 const reopenButton = page => page.locator('button.guided-lesson-tab');
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
 
+// Patch lessons use the Three.js surface owner and framing evidence on the same host.
+function surfaceEvidence(page) {
+    return page.locator('#jgbox').evaluate(host => {
+        const parse = name => {
+            const raw = host.getAttribute(name);
+            if (!raw) throw new Error(`surface lesson is missing ${name}`);
+            try { return JSON.parse(raw); }
+            catch { throw new Error(`surface lesson has malformed ${name}`); }
+        };
+        const canvas = host.querySelector('canvas');
+        const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+        if (!gl) throw new Error('surface lesson has no WebGL context');
+        return {framing: parse('data-surface-framing'), owners: parse('data-rendered-surface-owners'),
+            webglContextType: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext ? 'webgl2' : 'webgl'};
+    });
+}
+
+async function assertSurfaceEvidence(page, expected, label) {
+    const evidence = await surfaceEvidence(page);
+    expect(evidence.webglContextType, `WebGL context at ${label}`).toMatch(/^webgl2?$/);
+    const {framing, owners} = evidence;
+    expect(framing.camera, `published camera at ${label}`).toMatchObject(expected.camera);
+    expect(framing.meshBounds.inFrustum, `full mesh in frustum at ${label}`).toBe(true);
+    expect(framing.meshBounds.left, `mesh left edge at ${label}`).toBeGreaterThanOrEqual(0);
+    expect(framing.meshBounds.top, `mesh top edge at ${label}`).toBeGreaterThanOrEqual(0);
+    expect(framing.meshBounds.right, `mesh right edge at ${label}`).toBeLessThanOrEqual(framing.width);
+    expect(framing.meshBounds.bottom, `mesh bottom edge at ${label}`).toBeLessThanOrEqual(framing.height);
+    expect(owners.map(({id, kind}) => ({id, kind})), `surface owners at ${label}`).toEqual(expected.owners.map(({id, kind}) => ({id, kind})));
+    for (const owner of owners) {
+        expect(owner.geometrySamples, `${owner.id} rendered numerical samples at ${label}`).toHaveLength(3);
+        for (const [index, sample] of owner.geometrySamples.entries()) {
+            expect(sample.length, `${owner.id} sample ${index} xyz width at ${label}`).toBe(3);
+            expect(sample.every(Number.isFinite), `${owner.id} sample ${index} finite at ${label}`).toBe(true);
+        }
+    }
+    for (const wanted of expected.owners) {
+        if (wanted.geometrySamples) {
+            const actual = owners.find(owner => owner.id === wanted.id);
+            wanted.geometrySamples.forEach((sample, index) => sample.forEach((value, axis) =>
+                expect(Math.abs(actual.geometrySamples[index][axis] - value), `${wanted.id} fixture sample ${index}.${axis} at ${label}`).toBeLessThanOrEqual(1e-6)));
+        }
+    }
+    return evidence;
+}
+
 // Uncaught page errors and console errors fail every test. Call once at file level.
 function failOnRuntimeErrors() {
     let runtimeErrors;
@@ -31,6 +76,7 @@ async function useLanguage(page, language) {
 // Counts live JSXGraph objects whose SVG node is attached to the main board.
 function boardStats(page) {
     return page.locator('#jgbox').evaluate(container => {
+        if (container.hasAttribute('data-surface-framing')) return {curves: 0, visibleCurves: 0, drawnCurves: 0, curveIds: [], points: 0, sliders: 0, labels: 0, total: 0};
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         if (!board) throw new Error('main board missing');
         // JSXGraph adds default axes, ticks, and axis labels to board.objects. Their
@@ -94,6 +140,7 @@ function boardWeights(page) {
 // Visible board points as [x, y] pairs rounded to 2 decimals.
 function visiblePoints(page) {
     return page.locator('#jgbox').evaluate(container => {
+        if (container.hasAttribute('data-surface-framing')) return [];
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         return Object.values(board.objects)
             .filter(object => object.elType === 'point' && object.rendNode?.isConnected && object.visPropCalc?.visible !== false)
@@ -105,6 +152,10 @@ function visiblePoints(page) {
 // every visible point at any canvas aspect; an empty list for a missing board would hide a broken scene, so throw.
 function offscreenPoints(page) {
     return page.locator('#jgbox').evaluate(container => {
+        if (container.hasAttribute('data-surface-framing')) {
+            const framing = JSON.parse(container.getAttribute('data-surface-framing'));
+            return framing.points.filter(point => !point.inFrustum).map(point => `${point.id} outside surface view`);
+        }
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         if (!board) throw new Error('main board missing');
         const [left, top, right, bottom] = board.getBoundingBox();
@@ -231,7 +282,7 @@ async function pressNextWithKeyboard(page) {
 
 module.exports = {
     lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, reopenButton, lessonHeading,
-    failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, offscreenPoints, settle, reveal, progress, stepNumber, isFinishing,
+    failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, offscreenPoints, surfaceEvidence, assertSurfaceEvidence, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
     openInspectorTab, countSetterValue,
 };

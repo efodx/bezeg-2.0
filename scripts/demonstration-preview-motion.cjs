@@ -4,8 +4,9 @@ const path = require('node:path');
 const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
+const patchSurfaceMotion = require('./patch-surface-motion.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral'];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -1129,6 +1130,17 @@ const motionSpecs = {
     },
 };
 
+for (const id of patchSurfaceMotion.surfaceMotionIds) {
+    // The de Casteljau construction adds colored lines/markers: measured CRF 41 is
+    // 311693 B and CRF 42 is 286811 B on the same 96 real frames (300 KiB ceiling).
+    const crf = id === 'patch-decasteljau' ? 42 : 40;
+    motionSpecs[id] = {mode:'surface-orbit', recipeAligned:true,
+        crf, backgroundSample:{x:40,y:40,rgb:[255,255,255]},
+        encoderBudget:{maxBytes:300*1024,crf},
+        schedule:{kind:'surface-pointer-orbit-and-reset',peakFrame:43,resetFrame:88},
+        invariants:['Actual camera moves while rendered owner geometry remains equal to the independent default fixture','Camera and rendered frame return to the recipe state']};
+}
+
 function assertPointSet(actual, expected, message) {
     assert.equal(actual.length, expected.length, `${message} (count)`);
     const used = new Set();
@@ -1324,6 +1336,11 @@ function assertMotionEvidence(motion, specifications = motionSpecs) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
     assert.equal(motion.duration,4);
+    if (motion.mode === 'surface-orbit') {
+        assert.ok(patchSurfaceMotion.surfaceMotionIds.includes(motion.id), `${motion.id}: unknown surface orbit`);
+        patchSurfaceMotion.assertSurfaceMotionEvidence(motion);
+        return;
+    }
     const checkpointSpec = specifications[motion.id];
     if (checkpointSpec?.recipeAligned) {
         assert.ok(motion.schedule && typeof motion.schedule.kind === 'string', `${motion.id}: missing manifest schedule`);
@@ -1438,12 +1455,14 @@ async function openRoute(browser, demonstration, baseUrl) {
     const page = await context.newPage();
     page.setDefaultTimeout(20000);
     await page.goto(baseUrl + demonstration.path.slice('/bezeg-2.0'.length));
-    await page.waitForFunction(id => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve' || id === 'linear-function' && o.elType === 'line')), demonstration.id);
+    if (demonstration.view === 'surface') await page.waitForFunction(require('./patch-surface-motion.cjs').surfaceRouteReadyInPage);
+    else await page.waitForFunction(id => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve' || id === 'linear-function' && o.elType === 'line')), demonstration.id);
     await settle(page);
     return {page,context};
 }
 
 function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 0}) {
+    const expectedBackground = sample.rgb || backgroundPixel;
     const ffmpeg = process.env.PREVIEW_FFMPEG || 'ffmpeg';
     const ffprobe = process.env.PREVIEW_FFPROBE || 'ffprobe';
     const inputPattern = path.join(framesDirectory,'%03d.png');
@@ -1470,12 +1489,12 @@ function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 
     assert.equal(sourcePixels.length,frameCount*3,'Expected one source background pixel for every frame');
     assert.equal(decodedPixels.length,sourcePixels.length,'Decoded background sample count changed');
     for(let i=0;i<sourcePixels.length;i+=3) {
-        assert.deepEqual([...decodedPixels.subarray(i,i+3)],backgroundPixel,`Decoded background changed at frame ${i/3}`);
-        assert.deepEqual([...sourcePixels.subarray(i,i+3)],backgroundPixel,`Source background changed at frame ${i/3}`);
+        assert.deepEqual([...decodedPixels.subarray(i,i+3)],expectedBackground,`Decoded background changed at frame ${i/3}`);
+        assert.deepEqual([...sourcePixels.subarray(i,i+3)],expectedBackground,`Source background changed at frame ${i/3}`);
     }
     return {file:path.basename(output),sha256:digest(output),type:'video/webm',duration,bytes,width:video.width,height:video.height,codec:video.codec_name,
         pixelFormat:video.pix_fmt,colorRange:video.color_range,colorSpace:video.color_space,colorPrimaries:video.color_primaries,colorTransfer:video.color_transfer,
-        backgroundPixel:{rgb:backgroundPixel,checked:sample.x===0&&sample.y===0?'upper-left pixel of every source and decoded frame':`pixel (${sample.x},${sample.y}) of every source and decoded frame`,...(sample.x||sample.y?{x:sample.x,y:sample.y}:{})},
+        backgroundPixel:{rgb:expectedBackground,checked:sample.x===0&&sample.y===0?'upper-left pixel of every source and decoded frame':`pixel (${sample.x},${sample.y}) of every source and decoded frame`,...(sample.x||sample.y?{x:sample.x,y:sample.y}:{})},
         encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
 }
 
@@ -1731,6 +1750,14 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                     record({checkpoint:checkpoint===1?1:0,actions,...await captureHold(page,d,recipes[id].framing.window,presentBoard,directory,[0,24,72][checkpoint],[24,48,24][checkpoint])});
                 }finally{await context.close();}
             }
+        } else if(spec?.mode === 'surface-orbit') {
+            const {page,context}=await openRoute(browser,d,baseUrl);
+            try {
+                await patchSurfaceMotion.presentSurface(page,id);
+                await applyRecipe(page,recipes[id]);
+                const orbit=await patchSurfaceMotion.captureSurfaceOrbit(page,id,directory,recipes[id]);
+                fixedBox=orbit.camera;sampleEvidence=orbit.samples;
+            } finally {await context.close();}
         } else {
             const result=spec.mode==='pointer-drag'
                 ? await captureDrag(browser,d,spec,directory,baseUrl,presentBoard)
@@ -1758,6 +1785,8 @@ function createMotionEvidenceValidator(fixtures = {}) {
 const captureInterface = Object.freeze({
     generateMotions,
     motionIds: Object.freeze([...motionIds]),
+    surfaceMotionIds: patchSurfaceMotion.surfaceMotionIds,
+    surfaceRouteReadyInPage: patchSurfaceMotion.surfaceRouteReadyInPage,
     isRecipeAligned: id => motionSpecs[id]?.recipeAligned === true,
     recipeAlignedMotionIds: () => Object.freeze(Object.entries(motionSpecs)
         .filter(([, spec]) => spec.recipeAligned).map(([id]) => id)),
@@ -1769,6 +1798,9 @@ const testSupport = Object.freeze({
     countPaths, boardSnapshot, screenshotBoard, openRoute, encode, assertMotionEvidence,
     createMotionEvidenceValidator,
     motionIds: Object.freeze([...motionIds]),
+    surfaceMotionIds: patchSurfaceMotion.surfaceMotionIds,
+    surfaceMotionFixtures: patchSurfaceMotion.ownerFixtures,
+    assertSurfaceMotionEvidence: patchSurfaceMotion.assertSurfaceMotionEvidence,
     motionSpecs: Object.freeze({...motionSpecs}),
     sweepValue, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
     alphaParameterizationValue, weightedParameterizationMarkers, deCasteljauLevels,

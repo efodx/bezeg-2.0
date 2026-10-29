@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const {validateInventory} = require('./guided-example-preview-api.cjs');
+const {generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
 
 const root = path.resolve(__dirname, '..');
 const defaultOutput = 'docs/reviews/illustrated-chapter-examples/capture-inventory.json';
@@ -93,12 +94,34 @@ async function generateInventory() {
     }
 }
 
+async function generatePatchInventory() {
+    const {createServer} = await import('vite');
+    const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
+    try {
+        const registry = await server.ssrLoadModule('/src/learning/content/patchGuidedExampleRegistry.ts');
+        const presets = await server.ssrLoadModule('/src/graphs/patches/patchPresetCollections.ts');
+        const teapot = await server.ssrLoadModule('/src/graphs/patches/teapot/utahTeapot.ts');
+        const joinScenes = Object.fromEntries(presets.joinStartingScenes.map(item => [item.id, item.data()]));
+        joinScenes['join-c0'] = joinScenes['join-c0-kink'];
+        const inventory = generatePatchGuidedExampleInventory(registry.patchGuidedExampleRegistry,
+            {joinScenes, teapotPatches: Array.from({length: 32}, (_, index) => teapot.resolveTeapotPatch(index)),
+                pathForSection: registry.patchGuidedExamplePath});
+        validateInventory(inventory.examples);
+        assert.equal(inventory.examples.length, 11, 'Expected all eleven section-owned patch examples');
+        return inventory;
+    } finally {
+        await server.close();
+    }
+}
+
 async function main() {
-    const output = path.resolve(process.cwd(), process.argv[2] || defaultOutput);
-    const inventory = await generateInventory();
+    const patchMode = process.argv.includes('--patches');
+    const args = process.argv.slice(2).filter(arg => arg !== '--patches');
+    const output = path.resolve(process.cwd(), args[0] || (patchMode ? 'docs/reviews/bezier-patches/guided-example-inventory.json' : defaultOutput));
+    const inventory = patchMode ? await generatePatchInventory() : await generateInventory();
     fs.mkdirSync(path.dirname(output), {recursive: true});
     fs.writeFileSync(output, `${JSON.stringify(inventory, null, 2)}\n`);
-    process.stdout.write(`Wrote ${inventory.examples.length} retained examples to ${path.relative(process.cwd(), output)}\n`);
+    process.stdout.write(`Wrote ${inventory.examples.length} ${patchMode ? 'patch' : 'retained'} examples to ${path.relative(process.cwd(), output)}\n`);
 }
 
 if (require.main === module) main().catch(error => {
@@ -106,4 +129,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {fingerprintFor, readableActions, expectedFor, generateInventory};
+module.exports = {fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory};

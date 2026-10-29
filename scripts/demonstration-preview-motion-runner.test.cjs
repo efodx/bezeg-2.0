@@ -6,7 +6,9 @@ const captureApi = require('./demonstration-preview-capture-api.cjs');
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');
     assert.equal(new Set(motionIds).size, motionIds.length);
-    // Demonstrations without a manifest motion entry are poster-only until their timelines ship (the smoke suite exempts them the same way).
+    const configuredSurfaceIds = catalog.filter(d => d.view === 'surface').map(d => d.id);
+    assert.deepEqual([...captureApi.surfaceMotionIds].sort(), configuredSurfaceIds.sort());
+    assert.equal(catalog.filter(d => d.hasMotion).length, 51);
     assert.deepEqual([...motionIds].sort(), catalog.filter(d => d.hasMotion).map(d => d.id).sort());
     for (const [id, spec] of Object.entries(motionSpecs).filter(([, spec]) => spec.recipeAligned)) {
         assert.equal(typeof spec.schedule?.kind, 'string', `${id} needs a manifest schedule`);
@@ -23,11 +25,12 @@ test('every shipped demonstration has a configured motion timeline', () => {
 });
 
 test('capture consumers receive only motion generation and coverage queries', () => {
-    assert.deepEqual(Object.keys(captureApi).sort(), ['assertMotionEvidence', 'generateMotions', 'isRecipeAligned', 'motionIds', 'recipeAlignedMotionIds']);
-    assert.equal(captureApi.motionIds.length, 45);
+    assert.deepEqual(Object.keys(captureApi).sort(), ['assertMotionEvidence', 'generateMotions', 'isRecipeAligned', 'motionIds', 'recipeAlignedMotionIds', 'surfaceMotionIds']);
+    assert.equal(captureApi.motionIds.length, 51);
     assert.equal(captureApi.motionIds.length, new Set(captureApi.motionIds).size);
     assert.equal(typeof captureApi.generateMotions, 'function');
     assert.equal(typeof captureApi.assertMotionEvidence, 'function');
+    assert.deepEqual(captureApi.surfaceMotionIds, ['patch-tensor','patch-decasteljau','patch-derivatives','patch-subdivision','patch-joins','patch-triangular']);
     assert.equal('bernsteinPoint' in captureApi, false);
     assert.deepEqual([...captureApi.recipeAlignedMotionIds()].sort(), Object.entries(motionSpecs)
         .filter(([, spec]) => spec.recipeAligned).map(([id]) => id).sort());

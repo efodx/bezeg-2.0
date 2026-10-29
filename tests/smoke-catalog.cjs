@@ -2,8 +2,28 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const path = require('node:path');
 const ts = require('typescript');
+const {sameCamera} = require('../scripts/demonstration-preview-recipes.cjs');
 
 const root = path.resolve(__dirname, '..');
+
+function assertMotionPosterCamera(demonstration, capture, motion) {
+    if (demonstration.view === 'surface') {
+        const validCamera = camera => camera && typeof camera === 'object' && !Array.isArray(camera) &&
+            Object.keys(camera).sort().join(',') === 'az,distance,el,target' &&
+            Number.isFinite(camera.az) && Number.isFinite(camera.el) && Number.isFinite(camera.distance) && camera.distance > 0 &&
+            Array.isArray(camera.target) && camera.target.length === 3 && camera.target.every(Number.isFinite);
+        if (motion.mode !== 'surface-orbit' || capture.framing?.kind !== 'surface-view' ||
+            !validCamera(capture.framing.camera) || !validCamera(motion.camera) ||
+            !sameCamera(motion.camera, capture.framing.camera, 0)) {
+            throw new Error(`Surface poster and clip cameras differ: ${motion.id}`);
+        }
+        return;
+    }
+    if (motion.mode === 'surface-orbit' || !Array.isArray(capture.framing?.boardBoundingBox) ||
+        JSON.stringify(motion.camera) !== JSON.stringify(capture.framing.boardBoundingBox)) {
+        throw new Error(`Poster and clip cameras differ: ${motion.id}`);
+    }
+}
 
 function propertyName(node) {
     if (ts.isIdentifier(node) || ts.isStringLiteral(node) || ts.isNumericLiteral(node)) return node.text;
@@ -338,13 +358,23 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         const src = values.get('src'), type = values.get('type'), duration = values.get('duration');
         const motion = motions.find(m => m.id === id);
         if (!motion || !src || !ts.isIdentifier(src) || motionImports.get(src.text) !== motion.file || !type || !ts.isStringLiteral(type) || type.text !== motion.type || !duration || !ts.isNumericLiteral(duration) || Number(duration.text) !== motion.duration) throw new Error(`Motion delivery/provenance mismatch: ${id}`);
-        if(JSON.stringify(motion.camera)!==JSON.stringify(capturesById.get(id).framing.boardBoundingBox)) throw new Error(`Poster and clip cameras differ: ${id}`);
+        const demonstration = demonstrationsById.get(id);
+        const capture = capturesById.get(id);
+        assertMotionPosterCamera(demonstration, capture, motion);
         if (previewCapture.isRecipeAligned(id) &&
             (motion.samples?.[0]?.capture?.sha256 !== capturesById.get(id).sha256 || motion.samples?.at(-1)?.capture?.sha256 !== capturesById.get(id).sha256)) {
             throw new Error(`Motion loop does not return to its recipe poster: ${id}`);
         }
         previewCapture.assertMotionEvidence(motion);
-        if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration !== 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 96 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !Array.isArray(motion.camera) || motion.camera.length !== 4 || !motion.camera.every(Number.isFinite)) throw new Error(`Invalid motion budget/provenance: ${id}`);
+        const expectedBackground = demonstration.view === 'surface' ? [255, 255, 255] : [255, 253, 245];
+        if (JSON.stringify(motion.backgroundPixel?.rgb) !== JSON.stringify(expectedBackground)) throw new Error(`Invalid motion background provenance: ${id}`);
+        const validCamera = demonstration.view === 'surface'
+            ? motion.camera && typeof motion.camera === 'object' && !Array.isArray(motion.camera) &&
+                Object.keys(motion.camera).sort().join(',') === 'az,distance,el,target' &&
+                Number.isFinite(motion.camera.az) && Number.isFinite(motion.camera.el) && Number.isFinite(motion.camera.distance) && motion.camera.distance > 0 &&
+                Array.isArray(motion.camera.target) && motion.camera.target.length === 3 && motion.camera.target.every(Number.isFinite)
+            : Array.isArray(motion.camera) && motion.camera.length === 4 && motion.camera.every(Number.isFinite);
+        if (motion.type !== 'video/webm' || motion.width !== 720 || motion.height !== 440 || motion.duration !== 4 || motion.bytes > 300*1024 || motion.bytes <= 0 || motion.frameCount !== 96 || motion.sampleRate !== 24 || !motion.encoder || !Array.isArray(motion.arguments) || !Array.isArray(motion.samples) || !motion.samples.length || !validCamera) throw new Error(`Invalid motion budget/provenance: ${id}`);
         const file = path.join(catalogDirectory,motion.file);
         if (fs.statSync(file).size !== motion.bytes || crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') !== motion.sha256) throw new Error(`Motion checksum/size mismatch: ${id}`);
         for(const sample of motion.samples) if (!/^[a-f0-9]{64}$/.test(sample.capture?.sha256 || '') || sample.capture.width !== 720 || sample.capture.height !== 440) throw new Error(`Missing lossless frame provenance: ${id}`);
@@ -361,4 +391,5 @@ module.exports.familyIds = familyIds;
 module.exports.families = families;
 module.exports.availableLessonIds = [...availableLessonIds];
 module.exports.coordinateContextPolicy = coordinateContextPolicy;
+module.exports.assertMotionPosterCamera = assertMotionPosterCamera;
 module.exports.validateGeneratedPreviews = options => validateGeneratedPreviews(demonstrations, options);

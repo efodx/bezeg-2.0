@@ -1555,7 +1555,50 @@ const phQuinticPilot = phPilotRow({
     controls: [[-2, -1], [0.33, 1.07]], offsetFromStep: 3,
 });
 
-const LESSONS = [bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// These lesson routes share the surface workspace. The expected mesh samples are independently
+// evaluated from each authored fixture at the vertices selected by the surface evidence producer.
+const patchInventory = require('../docs/reviews/bezier-patches/guided-example-inventory.json');
+const patchDemoPaths = {
+    'patch-tensor': `${BASE}/patches/tensor`,
+    'patch-decasteljau': `${BASE}/patches/decasteljau`,
+    'patch-derivatives': `${BASE}/patches/derivatives`,
+    'patch-subdivision': `${BASE}/patches/subdivision`,
+    'patch-joins': `${BASE}/patches/joins`,
+    'patch-triangular': `${BASE}/patches/triangular`,
+};
+const patchRow = ({id, section, demonstration, titles, steps, minFrames}) => ({
+    id,
+    path: `${patchDemoPaths[demonstration]}?example=lesson.bezier-patches.${section}.${demonstration}`,
+    titles, steps, minFrames,
+    setup: async page => {
+        await expect.poll(async () => (await h.surfaceEvidence(page)).owners.length, {message: 'patch surface mesh owner is rendered'}).toBeGreaterThan(0);
+        return {};
+    },
+    stepProbe: async (page, ctx, step, label) => {
+        const id = `bezier-patches.${section}.${demonstration}`;
+        const entry = patchInventory.examples.find(item => item.id === id);
+        expect(entry, `generated inventory row ${id}`).toBeTruthy();
+        const expected = entry.steps[step - 1]?.expected?.surface;
+        expect(expected, `independent generated surface expectation for ${id} at ${label}`).toBeTruthy();
+        await h.assertSurfaceEvidence(page, expected, label);
+    },
+});
+const patchBasics = {sl: 'Krivulja se premika', en: 'A curve in motion'};
+const patchRows = [
+    patchRow({id: 'patch-tensor', section: 'curve-to-patch', demonstration: 'patch-tensor', titles: patchBasics, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-bilinear-patch', section: 'bilinear-patch', demonstration: 'patch-tensor', titles: {sl: 'Središče bilinearne krpe', en: 'The bilinear patch midpoint'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-control-net', section: 'control-net', demonstration: 'patch-tensor', titles: {sl: 'Uteži določijo točko krpe', en: 'Weights determine a patch point'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-boundary-iso-curves', section: 'boundary-iso-curves', demonstration: 'patch-tensor', titles: {sl: 'Notranja izoparametrična krivulja', en: 'An interior iso-curve'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-decasteljau', section: 'tensor-decasteljau', demonstration: 'patch-decasteljau', titles: {sl: 'Dve smeri, ista točka', en: 'Two directions, one point'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-properties', section: 'properties', demonstration: 'patch-tensor', titles: {sl: 'Lastnosti mreže in krpe', en: 'Properties of the net and patch'}, steps: 3, minFrames: 6}),
+    patchRow({id: 'patch-derivatives', section: 'tensor-derivatives', demonstration: 'patch-derivatives', titles: {sl: 'Odvodi sedlaste krpe', en: 'Derivatives of a saddle patch'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-subdivision', section: 'tensor-subdivision', demonstration: 'patch-subdivision', titles: {sl: 'Višanje stopnje in subdivizija', en: 'Degree elevation and subdivision'}, steps: 2, minFrames: 4}),
+    patchRow({id: 'patch-joins', section: 'tensor-joins', demonstration: 'patch-joins', titles: {sl: 'Zveznost spojev in čajnik', en: 'Join continuity and the teapot'}, steps: 4, minFrames: 8}),
+    patchRow({id: 'patch-triangular', section: 'triangular-patches', demonstration: 'patch-triangular', titles: {sl: 'Trikotna mreža in baricentrične koordinate', en: 'Triangular nets and barycentric coordinates'}, steps: 1, minFrames: 2}),
+    patchRow({id: 'patch-square-vs-triangular', section: 'square-vs-triangular', demonstration: 'patch-triangular', titles: {sl: 'Kvadratno in trikotno območje', en: 'Square and triangular domains'}, steps: 1, minFrames: 2}),
+];
+
+const LESSONS = [bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
@@ -1563,7 +1606,9 @@ const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin',
 // ---------------------------------------------------------------- Generic tests
 async function openLesson(page, row, language) {
     await h.useLanguage(page, language);
-    await page.goto(`${row.path}?learn=1`, {waitUntil: 'domcontentloaded'});
+    const separator = row.path.includes('?') ? '&' : '?';
+    const canonical = new URL(row.path, 'https://bezeg.invalid').searchParams.has('example');
+    await page.goto(canonical ? row.path : `${row.path}${separator}learn=1`, {waitUntil: 'domcontentloaded'});
     await expect(lessonPanel(page)).toBeVisible();
 }
 
