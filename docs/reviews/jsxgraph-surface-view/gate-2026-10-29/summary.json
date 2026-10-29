@@ -1,0 +1,3735 @@
+{
+  "generatedAt": "2026-10-29T21:14:55.798Z",
+  "p95Definition": "sorted[min(n-1, floor(n*0.95))] over events pooled across repetitions (as measure.mjs of ADR 0018)",
+  "budgetMs": 16.666666666666668,
+  "verdict": {
+    "board2d": {
+      "gatingCells": 8,
+      "worstTensorTriangularOrbitP95Ms": 3.600000023841858,
+      "allTensorTriangularOrbitWithinBudget": true,
+      "teapotOrbitP95Ms": [
+        {
+          "viewport": "desktop",
+          "p95": 6.299999952316284
+        },
+        {
+          "viewport": "narrow",
+          "p95": 6.700000047683716
+        }
+      ],
+      "cellsWithFailures": 0
+    },
+    "view3d": {
+      "gatingCells": 8,
+      "worstTensorTriangularOrbitP95Ms": 4.300000071525574,
+      "allTensorTriangularOrbitWithinBudget": true,
+      "teapotOrbitP95Ms": [
+        {
+          "viewport": "desktop",
+          "p95": 7.799999952316284
+        },
+        {
+          "viewport": "narrow",
+          "p95": 7.899999976158142
+        }
+      ],
+      "cellsWithFailures": 0
+    },
+    "three": {
+      "gatingCells": 8,
+      "worstTensorTriangularOrbitP95Ms": 3.100000023841858,
+      "allTensorTriangularOrbitWithinBudget": true,
+      "teapotOrbitP95Ms": [
+        {
+          "viewport": "desktop",
+          "p95": 2.600000023841858
+        },
+        {
+          "viewport": "narrow",
+          "p95": 2.5
+        }
+      ],
+      "cellsWithFailures": 0
+    }
+  },
+  "cells": [
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.1999999284744263,
+        "p95": 3.3000000715255737,
+        "max": 3.899999976158142
+      },
+      "perRepetitionP95Ms": [
+        3.899999976158142,
+        3.3000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 8,
+        "p95": 9.600000023841858,
+        "max": 10.100000023841858
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 17.700000047683716,
+        "p95": 20.899999976158142,
+        "max": 21.300000071525574
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 31.700000047683716,
+        "p95": 34,
+        "max": 34.700000047683716
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 16,
+        "later": 16
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 87,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 107,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.399999976158142,
+        "p95": 3.600000023841858,
+        "max": 3.600000023841858
+      },
+      "perRepetitionP95Ms": [
+        3.600000023841858,
+        3.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 12.200000047683716,
+        "p95": 14.799999952316284,
+        "max": 15.900000095367432
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 25.700000047683716,
+        "p95": 36,
+        "max": 36.299999952316284
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.299999952316284,
+        "p95": 49.5,
+        "max": 50.199999928474426
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 33.40000000000009
+      },
+      "allFrameIntervalMs": {
+        "count": 120,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 33.40000000000009
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 5.600000023841858,
+        "p95": 6.599999904632568,
+        "max": 6.599999904632568
+      },
+      "perRepetitionP95Ms": [
+        6.599999904632568,
+        6.599999904632568
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 2.899999976158142,
+        "p95": 3.6999999284744263,
+        "max": 3.799999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 19,
+        "p95": 34.699999928474426,
+        "max": 34.799999952316284
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.299999952316284,
+        "p95": 49.199999928474426,
+        "max": 49.39999997615814
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 6.799999952316284,
+        "p95": 8.100000023841858,
+        "max": 8.299999952316284
+      },
+      "perRepetitionP95Ms": [
+        8.299999952316284,
+        8.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 3.100000023841858,
+        "p95": 3.899999976158142,
+        "max": 4
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 30,
+        "p95": 36.60000002384186,
+        "max": 37.299999952316284
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.39999997615814,
+        "p95": 49.700000047683716,
+        "max": 49.799999952316284
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 102,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000728,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2,
+        "p95": 2.700000047683716,
+        "max": 2.799999952316284
+      },
+      "perRepetitionP95Ms": [
+        2.799999952316284,
+        2.700000047683716
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 7.400000095367432,
+        "p95": 8.300000071525574,
+        "max": 8.5
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 14.699999928474426,
+        "p95": 19,
+        "max": 34.199999928474426
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.40000009536743,
+        "p95": 33.700000047683716,
+        "max": 48.89999997615814
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 29,
+        "later": 3
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 73,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 93,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.399999976158142,
+        "p95": 3.4000000953674316,
+        "max": 4.100000023841858
+      },
+      "perRepetitionP95Ms": [
+        3.4000000953674316,
+        4.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 12.400000095367432,
+        "p95": 16.300000071525574,
+        "max": 16.600000023841858
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 25.699999928474426,
+        "p95": 35.90000009536743,
+        "max": 37.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.39999997615814,
+        "p95": 50,
+        "max": 50.700000047683716
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 101,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 5.5,
+        "p95": 6.600000023841858,
+        "max": 6.700000047683716
+      },
+      "perRepetitionP95Ms": [
+        6.700000047683716,
+        6.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 2.899999976158142,
+        "p95": 3.700000047683716,
+        "max": 3.899999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 19,
+        "p95": 34.799999952316284,
+        "max": 35.200000047683716
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.199999928474426,
+        "p95": 49.299999952316284,
+        "max": 49.90000009536743
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 7.099999904632568,
+        "p95": 8.200000047683716,
+        "max": 8.600000023841858
+      },
+      "perRepetitionP95Ms": [
+        8.200000047683716,
+        8.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 3.299999952316284,
+        "p95": 4.100000023841858,
+        "max": 4.399999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 30.700000047683716,
+        "p95": 52.59999990463257,
+        "max": 53.199999928474426
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.09999990463257,
+        "p95": 68.09999990463257,
+        "max": 68.59999990463257
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 102,
+        "median": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 33.30000000000018
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 33.30000000000018
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.200000047683716,
+        "p95": 3.200000047683716,
+        "max": 3.5
+      },
+      "perRepetitionP95Ms": [
+        3.5,
+        2.8000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 8.5,
+        "p95": 11.799999952316284,
+        "max": 13.399999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 18.5,
+        "p95": 25,
+        "max": 35.39999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 32.199999928474426,
+        "p95": 33.800000071525574,
+        "max": 49
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 14,
+        "later": 18
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 91,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 111,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.5,
+        "p95": 3.299999952316284,
+        "max": 3.899999976158142
+      },
+      "perRepetitionP95Ms": [
+        3.299999952316284,
+        3.899999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 13.100000023841858,
+        "p95": 15.300000071525574,
+        "max": 15.799999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 28.100000023841858,
+        "p95": 36.89999997615814,
+        "max": 38.39999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.200000047683716,
+        "p95": 49.39999997615814,
+        "max": 50.89999997615814
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 101,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 123,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 6.199999928474426,
+        "p95": 8.299999952316284,
+        "max": 8.799999952316284
+      },
+      "perRepetitionP95Ms": [
+        8.299999952316284,
+        8.799999952316284
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 2.899999976158142,
+        "p95": 3.5,
+        "max": 3.5999999046325684
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 20.600000023841858,
+        "p95": 34.700000047683716,
+        "max": 35.200000047683716
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.200000047683716,
+        "p95": 48.39999997615814,
+        "max": 49.700000047683716
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999727
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 9.599999904632568,
+        "p95": 11.100000023841858,
+        "max": 11.399999976158142
+      },
+      "perRepetitionP95Ms": [
+        11.399999976158142,
+        11.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 3.399999976158142,
+        "p95": 4.100000023841858,
+        "max": 4.200000047683716
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 35.200000047683716,
+        "p95": 52.200000047683716,
+        "max": 52.59999990463257
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.800000071525574,
+        "p95": 65.19999992847443,
+        "max": 65.80000007152557
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 109,
+        "median": 16.699999999999818,
+        "p95": 33.30000000000018,
+        "max": 33.5
+      },
+      "allFrameIntervalMs": {
+        "count": 133,
+        "median": 16.699999999999818,
+        "p95": 33.30000000000018,
+        "max": 33.5
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.200000047683716,
+        "p95": 2.8000000715255737,
+        "max": 2.9000000953674316
+      },
+      "perRepetitionP95Ms": [
+        2.9000000953674316,
+        2.8000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 8.199999928474426,
+        "p95": 9,
+        "max": 9.800000071525574
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 16.399999976158142,
+        "p95": 21.399999976158142,
+        "max": 34.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 17.600000023841858,
+        "p95": 33.700000047683716,
+        "max": 50
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 18,
+        "later": 14
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 87,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 107,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.4000000953674316,
+        "p95": 3.3000000715255737,
+        "max": 3.5
+      },
+      "perRepetitionP95Ms": [
+        3.299999952316284,
+        3.5
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 12.600000023841858,
+        "p95": 14.200000047683716,
+        "max": 15
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 26.300000071525574,
+        "p95": 35.199999928474426,
+        "max": 36.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.299999952316284,
+        "p95": 49.39999997615814,
+        "max": 50.60000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 120,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 6.299999952316284,
+        "p95": 8.900000095367432,
+        "max": 9.299999952316284
+      },
+      "perRepetitionP95Ms": [
+        8.900000095367432,
+        9.299999952316284
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 2.899999976158142,
+        "p95": 3.700000047683716,
+        "max": 4.299999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 21,
+        "p95": 34.10000002384186,
+        "max": 34.89999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.10000002384186,
+        "p95": 49.199999928474426,
+        "max": 49.40000009536743
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 9.399999976158142,
+        "p95": 11.399999976158142,
+        "max": 12.199999928474426
+      },
+      "perRepetitionP95Ms": [
+        12.199999928474426,
+        11.399999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 3.399999976158142,
+        "p95": 4.100000023841858,
+        "max": 4.799999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 34.60000002384186,
+        "p95": 42.40000009536743,
+        "max": 51.39999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.90000009536743,
+        "p95": 54.299999952316284,
+        "max": 65.70000004768372
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 108,
+        "median": 16.699999999999818,
+        "p95": 33.399999999999636,
+        "max": 33.40000000000009
+      },
+      "allFrameIntervalMs": {
+        "count": 132,
+        "median": 16.699999999999818,
+        "p95": 33.30000000000018,
+        "max": 33.40000000000009
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 3,
+        "p95": 6.299999952316284,
+        "max": 6.700000047683716
+      },
+      "perRepetitionP95Ms": [
+        6.299999952316284,
+        6.700000047683716
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 43.300000071525574,
+        "p95": 47.800000071525574,
+        "max": 49.699999928474426
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 43.300000071525574,
+        "p95": 47.800000071525574,
+        "max": 49.699999928474426
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 99.69999992847443,
+        "p95": 111.5,
+        "max": 112.5
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 31,
+        "later": 1
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 83.19999999999982,
+        "p95": 100,
+        "max": 100.09999999999991
+      },
+      "allFrameIntervalMs": {
+        "count": 135,
+        "median": 16.699999999999818,
+        "p95": 100,
+        "max": 100.09999999999991
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 3.100000023841858,
+        "p95": 6.700000047683716,
+        "max": 7.299999952316284
+      },
+      "perRepetitionP95Ms": [
+        7.299999952316284,
+        6.700000047683716
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 44.60000002384186,
+        "p95": 64.40000009536743,
+        "max": 65
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 44.60000002384186,
+        "p95": 64.40000009536743,
+        "max": 65
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 100.5,
+        "p95": 128.10000002384186,
+        "max": 136.60000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 83.19999999999982,
+        "p95": 100,
+        "max": 133.30000000000018
+      },
+      "allFrameIntervalMs": {
+        "count": 128,
+        "median": 16.699999999999818,
+        "p95": 100,
+        "max": 133.30000000000018
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.399999976158142,
+        "p95": 3,
+        "max": 3.100000023841858
+      },
+      "perRepetitionP95Ms": [
+        3,
+        3.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 13.899999976158142,
+        "p95": 15.100000023841858,
+        "max": 15.100000023841858
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 21.5,
+        "p95": 37.199999928474426,
+        "max": 37.40000009536743
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.10000002384186,
+        "p95": 49,
+        "max": 49.199999928474426
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.799999952316284,
+        "p95": 3.6999999284744263,
+        "max": 3.899999976158142
+      },
+      "perRepetitionP95Ms": [
+        3.6999999284744263,
+        3.899999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 26.399999976158142,
+        "p95": 29.100000023841858,
+        "max": 30.600000023841858
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 39.700000047683716,
+        "p95": 71.60000002384186,
+        "max": 72.30000007152557
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.90000009536743,
+        "p95": 83.10000002384186,
+        "max": 83.60000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 98,
+        "median": 16.700000000000273,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allFrameIntervalMs": {
+        "count": 124,
+        "median": 16.700000000000273,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 13,
+        "p95": 14.5,
+        "max": 17.399999976158142
+      },
+      "perRepetitionP95Ms": [
+        14.199999928474426,
+        17.399999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 10.300000071525574,
+        "p95": 11.600000023841858,
+        "max": 13.299999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 38.59999990463257,
+        "p95": 54.200000047683716,
+        "max": 60.59999990463257
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.799999952316284,
+        "p95": 66.09999990463257,
+        "max": 66.60000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 99,
+        "median": 16.700000000000273,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allFrameIntervalMs": {
+        "count": 125,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 23.600000023841858,
+        "p95": 25.300000071525574,
+        "max": 25.600000023841858
+      },
+      "perRepetitionP95Ms": [
+        25.300000071525574,
+        25.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 19,
+        "p95": 20.600000023841858,
+        "max": 21
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 75.59999990463257,
+        "p95": 103.79999995231628,
+        "max": 105.79999995231628
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 83.19999992847443,
+        "p95": 116.10000002384186,
+        "max": 116.39999997615814
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 66.59999999999945,
+        "p95": 66.79999999999973,
+        "max": 83.30000000000018
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 66.70000000000073,
+        "max": 83.30000000000018
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.299999952316284,
+        "p95": 3.200000047683716,
+        "max": 3.3000000715255737
+      },
+      "perRepetitionP95Ms": [
+        3,
+        3.3000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 14.200000047683716,
+        "p95": 18.200000047683716,
+        "max": 18.5
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 21.800000071525574,
+        "p95": 36.60000002384186,
+        "max": 37
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.09999990463257,
+        "p95": 49.5,
+        "max": 49.800000071525574
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 123,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.600000023841858,
+        "p95": 3.600000023841858,
+        "max": 4
+      },
+      "perRepetitionP95Ms": [
+        4,
+        3.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 25.5,
+        "p95": 27.899999976158142,
+        "max": 28.899999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 38.90000009536743,
+        "p95": 69,
+        "max": 69.40000009536743
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 50,
+        "p95": 83.80000007152557,
+        "max": 84.70000004768372
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 98,
+        "median": 16.700000000000273,
+        "p95": 33.40000000000009,
+        "max": 33.5
+      },
+      "allFrameIntervalMs": {
+        "count": 124,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 33.5
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 13.799999952316284,
+        "p95": 18.899999976158142,
+        "max": 19
+      },
+      "perRepetitionP95Ms": [
+        19,
+        14.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 10.900000095367432,
+        "p95": 15.299999952316284,
+        "max": 15.300000071525574
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 42.300000071525574,
+        "p95": 56.699999928474426,
+        "max": 62.90000009536743
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 50,
+        "p95": 66.29999995231628,
+        "max": 67
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 99,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allFrameIntervalMs": {
+        "count": 125,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 23.59999990463257,
+        "p95": 26.299999952316284,
+        "max": 26.299999952316284
+      },
+      "perRepetitionP95Ms": [
+        26.299999952316284,
+        26.199999928474426
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 19.299999952316284,
+        "p95": 21.600000023841858,
+        "max": 22
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 76.19999992847443,
+        "p95": 103.80000007152557,
+        "max": 110.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 83.39999997615814,
+        "p95": 115.89999997615814,
+        "max": 118.10000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 66.59999999999945,
+        "p95": 66.69999999999982,
+        "max": 83.30000000000018
+      },
+      "allFrameIntervalMs": {
+        "count": 129,
+        "median": 16.699999999999818,
+        "p95": 66.69999999999982,
+        "max": 83.30000000000018
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.399999976158142,
+        "p95": 3.4000000953674316,
+        "max": 3.5
+      },
+      "perRepetitionP95Ms": [
+        3.5,
+        3.4000000953674316
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 15.300000071525574,
+        "p95": 18,
+        "max": 22.199999928474426
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 23.299999952316284,
+        "p95": 41.299999952316284,
+        "max": 45.700000047683716
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.60000002384186,
+        "p95": 49.89999997615814,
+        "max": 50.199999928474426
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.799999952316284,
+        "p95": 3.5,
+        "max": 3.600000023841858
+      },
+      "perRepetitionP95Ms": [
+        3.5,
+        3.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 28.699999928474426,
+        "p95": 30.90000009536743,
+        "max": 31.5
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 42.5,
+        "p95": 92.69999992847443,
+        "max": 95.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 50.200000047683716,
+        "p95": 100.70000004768372,
+        "max": 102.79999995231628
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 98,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allFrameIntervalMs": {
+        "count": 125,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 33.40000000000009
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 14.600000023841858,
+        "p95": 18.399999976158142,
+        "max": 19.40000009536743
+      },
+      "perRepetitionP95Ms": [
+        19.40000009536743,
+        18.299999952316284
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 11.199999928474426,
+        "p95": 12.799999952316284,
+        "max": 13.5
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 43.5,
+        "p95": 59.39999997615814,
+        "max": 59.60000002384186
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.699999928474426,
+        "p95": 66.5,
+        "max": 67
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 28,
+        "p95": 33.700000047683716,
+        "max": 33.90000009536743
+      },
+      "perRepetitionP95Ms": [
+        33.700000047683716,
+        33.90000009536743
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 21.399999976158142,
+        "p95": 25.5,
+        "max": 27.799999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 86.60000002384186,
+        "p95": 121.80000007152557,
+        "max": 124
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 99.60000002384186,
+        "p95": 132.5,
+        "max": 132.79999995231628
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 66.59999999999945,
+        "p95": 83.40000000000009,
+        "max": 83.40000000000055
+      },
+      "allFrameIntervalMs": {
+        "count": 132,
+        "median": 16.699999999999818,
+        "p95": 83.30000000000018,
+        "max": 83.40000000000055
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.200000047683716,
+        "p95": 3.100000023841858,
+        "max": 3.5
+      },
+      "perRepetitionP95Ms": [
+        3.100000023841858,
+        3.5
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 15.100000023841858,
+        "p95": 16.799999952316284,
+        "max": 17.300000071525574
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 23.300000071525574,
+        "p95": 40.10000002384186,
+        "max": 41.299999952316284
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 33.299999952316284,
+        "p95": 49.699999928474426,
+        "max": 50
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 100,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 122,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 2.9000000953674316,
+        "p95": 4.300000071525574,
+        "max": 4.399999976158142
+      },
+      "perRepetitionP95Ms": [
+        4.100000023841858,
+        4.399999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 30.300000071525574,
+        "p95": 44.299999952316284,
+        "max": 46
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 45.800000071525574,
+        "p95": 87.89999997615814,
+        "max": 95.60000002384186
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 50.199999928474426,
+        "p95": 100.70000004768372,
+        "max": 103.10000002384186
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 98,
+        "median": 16.700000000000273,
+        "p95": 50,
+        "max": 66.5
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 50,
+        "max": 66.5
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 14.799999952316284,
+        "p95": 18,
+        "max": 22.300000071525574
+      },
+      "perRepetitionP95Ms": [
+        18,
+        22.300000071525574
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 11.199999928474426,
+        "p95": 12.600000023841858,
+        "max": 16.90000009536743
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 43.700000047683716,
+        "p95": 61.89999997615814,
+        "max": 62.200000047683716
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 49.89999997615814,
+        "p95": 66,
+        "max": 66.19999992847443
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 98,
+        "median": 16.700000000000273,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allFrameIntervalMs": {
+        "count": 124,
+        "median": 16.699999999999818,
+        "p95": 33.40000000000009,
+        "max": 50
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 27.399999976158142,
+        "p95": 30.700000047683716,
+        "max": 37.10000002384186
+      },
+      "perRepetitionP95Ms": [
+        29.299999952316284,
+        37.10000002384186
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 21.09999990463257,
+        "p95": 24.399999976158142,
+        "max": 30.5
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 85.70000004768372,
+        "p95": 114.09999990463257,
+        "max": 118.09999990463257
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 99.60000002384186,
+        "p95": 115.59999990463257,
+        "max": 132.5
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 32
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 66.60000000000036,
+        "p95": 83.39999999999964,
+        "max": 83.40000000000055
+      },
+      "allFrameIntervalMs": {
+        "count": 132,
+        "median": 16.699999999999818,
+        "p95": 83.30000000000018,
+        "max": 83.40000000000055
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": true,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 4.5,
+        "p95": 7.799999952316284,
+        "max": 8.100000023841858
+      },
+      "perRepetitionP95Ms": [
+        7.799999952316284,
+        8.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 111.80000007152557,
+        "p95": 144.39999997615814,
+        "max": 146.89999997615814
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 111.80000007152557,
+        "p95": 293.5,
+        "max": 298.39999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 168,
+        "p95": 332,
+        "max": 338.2000000476837
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 30,
+        "later": 2
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 149.89999999999964,
+        "p95": 166.70000000000027,
+        "max": 200.10000000000036
+      },
+      "allFrameIntervalMs": {
+        "count": 123,
+        "median": 16.699999999999818,
+        "p95": 166.69999999999982,
+        "max": 200.10000000000036
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 4.600000023841858,
+        "p95": 7.899999976158142,
+        "max": 8.299999952316284
+      },
+      "perRepetitionP95Ms": [
+        7.899999976158142,
+        8.299999952316284
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 112.89999997615814,
+        "p95": 153.70000004768372,
+        "max": 154.39999997615814
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 113,
+        "p95": 261,
+        "max": 300.39999997615814
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 169.5,
+        "p95": 299.10000002384186,
+        "max": 339
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 30,
+        "later": 2
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/32",
+      "activeFrameIntervalMs": {
+        "count": 64,
+        "median": 149.89999999999964,
+        "p95": 166.69999999999982,
+        "max": 216.69999999999982
+      },
+      "allFrameIntervalMs": {
+        "count": 126,
+        "median": 16.699999999999818,
+        "p95": 166.69999999999982,
+        "max": 216.69999999999982
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "view3d",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.7999999523162842,
+        "p95": 2.600000023841858,
+        "max": 2.9000000953674316
+      },
+      "perRepetitionP95Ms": [
+        2.600000023841858,
+        2.9000000953674316
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.7000000476837158,
+        "p95": 2.399999976158142,
+        "max": 2.4000000953674316
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2.200000047683716,
+        "p95": 3.100000023841858,
+        "max": 3.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.700000047683716,
+        "p95": 18,
+        "max": 18.399999976158142
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999955,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999955,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.600000023841858,
+        "p95": 2.600000023841858,
+        "max": 2.8000000715255737
+      },
+      "perRepetitionP95Ms": [
+        2.600000023841858,
+        2.8000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.5,
+        "p95": 2.299999952316284,
+        "max": 2.399999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 1.899999976158142,
+        "p95": 3.1999999284744263,
+        "max": 3.700000047683716
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.600000023841858,
+        "p95": 17.699999928474426,
+        "max": 18.399999976158142
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.600000023841858,
+        "p95": 2.3000000715255737,
+        "max": 2.399999976158142
+      },
+      "perRepetitionP95Ms": [
+        2.399999976158142,
+        2.3000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.5,
+        "p95": 2,
+        "max": 2.1999999284744263
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2,
+        "p95": 3,
+        "max": 3.399999976158142
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.699999928474426,
+        "p95": 17.5,
+        "max": 17.899999976158142
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999955
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999955
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.600000023841858,
+        "p95": 2.3000000715255737,
+        "max": 2.399999976158142
+      },
+      "perRepetitionP95Ms": [
+        2.3000000715255737,
+        2.399999976158142
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.5,
+        "p95": 2,
+        "max": 2.0999999046325684
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 1.899999976158142,
+        "p95": 3,
+        "max": 3
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.5,
+        "p95": 17.699999928474426,
+        "max": 17.899999976158142
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.899999976158142,
+        "p95": 3.100000023841858,
+        "max": 3.1999999284744263
+      },
+      "perRepetitionP95Ms": [
+        3.1999999284744263,
+        3.100000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.8000000715255737,
+        "p95": 2.700000047683716,
+        "max": 2.799999952316284
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2.399999976158142,
+        "p95": 3.8000000715255737,
+        "max": 4.100000023841858
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.5,
+        "p95": 17.199999928474426,
+        "max": 18
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.7999999523162842,
+        "p95": 2.5999999046325684,
+        "max": 2.8000000715255737
+      },
+      "perRepetitionP95Ms": [
+        2.5999999046325684,
+        2.8000000715255737
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.6999999284744263,
+        "p95": 2.1999999284744263,
+        "max": 2.399999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2.200000047683716,
+        "p95": 3.299999952316284,
+        "max": 3.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.5,
+        "p95": 18.300000071525574,
+        "max": 18.799999952316284
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999955
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.5999999046325684,
+        "p95": 2.100000023841858,
+        "max": 2.200000047683716
+      },
+      "perRepetitionP95Ms": [
+        2.100000023841858,
+        2.200000047683716
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.5,
+        "p95": 1.899999976158142,
+        "max": 1.9000000953674316
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2,
+        "p95": 2.8000000715255737,
+        "max": 2.8000000715255737
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.700000047683716,
+        "p95": 17.699999928474426,
+        "max": 17.799999952316284
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.600000023841858,
+        "p95": 2.3000000715255737,
+        "max": 2.6999999284744263
+      },
+      "perRepetitionP95Ms": [
+        2.3000000715255737,
+        2.6999999284744263
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.5999999046325684,
+        "p95": 2,
+        "max": 2.5999999046325684
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 1.9000000953674316,
+        "p95": 3,
+        "max": 3.899999976158142
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.700000047683716,
+        "p95": 17.399999976158142,
+        "max": 17.700000047683716
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999955
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.799999999999955
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso8/shading8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "density": "iso16/shading16",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.8000000715255737,
+        "p95": 2.600000023841858,
+        "max": 2.6999999284744263
+      },
+      "perRepetitionP95Ms": [
+        2.6999999284744263,
+        2.600000023841858
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.7000000476837158,
+        "p95": 2.299999952316284,
+        "max": 2.3000000715255737
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2.299999952316284,
+        "p95": 3.399999976158142,
+        "max": 3.4000000953674316
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.399999976158142,
+        "p95": 17.600000023841858,
+        "max": 17.700000047683716
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "desktop",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "orbit",
+      "repetitions": 2,
+      "failed": 0,
+      "skipped": 0,
+      "eventToNextRafMs": {
+        "count": 32,
+        "median": 1.6999999284744263,
+        "p95": 2.5,
+        "max": 2.6999999284744263
+      },
+      "perRepetitionP95Ms": [
+        2.6999999284744263,
+        2.5
+      ],
+      "eventToFirstDomMutationMs": {
+        "count": 32,
+        "median": 1.600000023841858,
+        "p95": 2.200000047683716,
+        "max": 2.399999976158142
+      },
+      "eventToLastDomMutationMs": {
+        "count": 32,
+        "median": 2,
+        "p95": 3.200000047683716,
+        "max": 3.5
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 32,
+        "median": 16.600000023841858,
+        "p95": 17.59999990463257,
+        "max": 17.800000071525574
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 32,
+        "inNextFrame": 0,
+        "inSecondFrame": 32,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "32/32",
+      "activeFrameIntervalMs": {
+        "count": 70,
+        "median": 16.699999999999818,
+        "p95": 16.700000000000273,
+        "max": 16.800000000000182
+      },
+      "allFrameIntervalMs": {
+        "count": 88,
+        "median": 16.699999999999818,
+        "p95": 16.799999999999727,
+        "max": 16.800000000000182
+      },
+      "allRepetitionsChangedExpectedState": true,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": 16.67,
+      "orbitP95WithinBudget": true,
+      "failures": []
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "density": "fixed8",
+      "viewport": "narrow",
+      "gesture": "drag",
+      "repetitions": 0,
+      "failed": 0,
+      "skipped": 2,
+      "eventToNextRafMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "perRepetitionP95Ms": [],
+      "eventToFirstDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToLastDomMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "eventToFrameAfterLastMutationMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "framesUntilDrawVisible": {
+        "eventsWithDrawSeen": 0,
+        "inNextFrame": 0,
+        "inSecondFrame": 0,
+        "later": 0
+      },
+      "eventsWithDomMutationBeforeNextRaf": "0/0",
+      "activeFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allFrameIntervalMs": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "max": null
+      },
+      "allRepetitionsChangedExpectedState": null,
+      "dragCameraFixedInAllRepetitions": null,
+      "orbitBudgetMs": null,
+      "orbitP95WithinBudget": null,
+      "failures": []
+    }
+  ]
+}
