@@ -17,4 +17,3 @@ Target: local production preview `http://127.0.0.1:4391/bezeg-2.0/` (GET 200 con
 | Browser errors | Passed | No page errors, console errors, or failed requests captured. |
 
 Focused follow-up used the same preview/build/source; no app files changed. Cleanup: all browser contexts closed; no preset was saved and no app/source file was changed. Temporary Playwright scripts were removed from `.claude/scratch`; the subdivision screenshot remains there as visual evidence. Local production preview evidence does not establish hosted deployment behavior.
-
