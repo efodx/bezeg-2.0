@@ -1,6 +1,6 @@
 # Bézier patches (Bézierjeve krpe)
 
-Status: in progress. Tasks01–10 are complete, including [tensor](../reviews/bezier-patches/tensor-geometry.md) and [triangular geometry acceptance](../reviews/bezier-patches/triangular-geometry.md). [ADR0018](../adr/0018-three-surface-view-adapter.md) selects Three for patch views after [completed prototype measurements](../reviews/bezier-patches/renderer-measurements.md). Task07 shipped the surface adapter and `patch-tensor` at `/bezeg-2.0/patches/tensor`; task08 the triangular workspace; task09 `patch-decasteljau` and `patch-derivatives`; task10 `patch-subdivision`, `patch-joins` and the teapot capstone ([evidence](../reviews/bezier-patches/subdivision-joins.md)). Production [tasks11–14](../tasks/bezier-patches/README.md) remain, with the surface lesson runtime next. Sources:
+Status: in progress. Tasks01–11 are complete, including [tensor](../reviews/bezier-patches/tensor-geometry.md) and [triangular geometry acceptance](../reviews/bezier-patches/triangular-geometry.md). [ADR0018](../adr/0018-three-surface-view-adapter.md) selects Three for patch views after [completed prototype measurements](../reviews/bezier-patches/renderer-measurements.md). Task07 shipped the surface adapter and `patch-tensor` at `/bezeg-2.0/patches/tensor`; task08 the triangular workspace; task09 `patch-decasteljau` and `patch-derivatives`; task10 `patch-subdivision`, `patch-joins` and the teapot capstone ([evidence](../reviews/bezier-patches/subdivision-joins.md)). The surface lesson runtime is complete ([evidence](../reviews/bezier-patches/surface-lesson-runtime.md)); production [tasks12–14](../tasks/bezier-patches/README.md) remain. Sources:
 - [teaching research](../research/bezier-surfaces.md): mathematics, lesson outline, misconceptions, library facts;
 - [architecture research](../research/bezier-surfaces-architecture.md): layer-by-layer requirements.
 
@@ -138,19 +138,21 @@ The chapter is prerequisite-linked to Bézier curves and is placed after the cur
   - unknown fields;
 
   with localized reasons. The existing file envelope, names and import flow are unchanged. This additive vocabulary change is recorded in the capabilities doc; existing Presets and files are unaffected.
-- **Camera:** saved in scene state (az, el, zoom/distance, projection, 3D box), so Presets and lessons reopen at the authored view.
-- **Transient state:** the selected point, the de Casteljau drawing cache and subdivision previews, declared through `captureTransientState`/`restoreTransientState` and covered by the transient-state contract.
+- **Camera:** saved in scene state (az, el, zoom/distance, projection), so Presets and lessons reopen at the authored view. There is no 3D box: `target` and `distance` are the framing, and a box would change the Preset DTO with no consumer.
+- **Transient state:** the selected point and subdivision previews, declared through `captureTransientState`/`restoreTransientState` and covered by the transient-state contract. No de Casteljau drawing cache exists (the construction is rebuilt from state), so nothing extra is captured.
 - **Lesson model additions:**
   - `LessonPoint3`;
   - `LessonPatchFixture` (kind, degrees, net);
-  - `LessonView3D` (camera and 3D box), with a 3D counterpart of `applyLessonView`.
+  - `LessonView3D`, the camera only (`{az, el, distance, target?, projection?}`), applied through an explicit lesson `view3d`; the 2D `view` is ignored on surface graphs.
 - **Lesson actions**, registered as shared `patchLessonActions`:
   - `patch-evaluation` `{u, v}` or `{u, v, w}`, validated so `u+v+w = 1` within tolerance;
-  - `patch-visibility` (`control-net`, `iso-curves`, `boundary-curves`, `decasteljau-scheme`, `tangent-plane`, `normal`, `shading`);
-  - `patch-subdivide` `{direction, value}`;
-  - `patch-elevate` `{direction}`;
+  - `patch-visibility` (`control-net`, `iso-curves`, `boundary-curves`, `decasteljau-scheme`, `tangent-plane`, `normal`, `twist`, `shading`; each graph supports only the switches it has);
+  - `patch-subdivide`: `{direction, value}` on the tensor subdivision graph (`0.05 <= value <= 0.95`), `{}` on the triangular graph (the three-piece preview at the current `(u, v, w)`); subdivision never changes the net;
+  - `patch-elevate`: `{direction}` on the tensor subdivision graph, `{}` on the triangular graph (exact, to one degree higher, rejected at degree 4); a wrong or missing direction is rejected;
   - `camera-preset` `{view}`;
-  - `u`/`v` sweep animations.
+  - `patch-u-sweep` and `patch-v-sweep` animation ids (`play`, `pause`, `replay`, `stop`).
+
+  Reason for the decisions: the triangular patch has one degree and no parametric directions, and a camera-only view avoids a Preset change. Guided-lesson content reaches these through `show-patch-point`, `show-patch-element`, `subdivide-patch`, `elevate-patch`, `set-camera-preset` and `run-patch-u-sweep`/`run-patch-v-sweep` scene actions, and a `lesson-patch-fixture` scene (`patch`, optional `view3d`), mapped by `sceneAction()`/`sceneActions()` in `lessonCatalog.ts`.
 
   Scenes stay synchronous within one tick.
 

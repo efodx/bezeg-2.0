@@ -13,7 +13,7 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAnimationId, LessonCurveFixture, LessonViewBox} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonAnimationId, LessonCurveFixture, LessonPatchFixture, LessonView3D, LessonViewBox} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
@@ -78,6 +78,12 @@ export type WorkedExample = Readonly<{
  * - show-function-element -> function graphs' optional elements (value {name, value}: name is a FunctionVisibilityTarget, value a boolean)
  * - set-function-choice -> function graphs' named choices, value {name, value} (name is a FunctionChoiceName, value one of the strings allowed for that name; the graph maps it)
  * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
+ * - show-patch-point -> surface graphs' evaluation, value {u, v} (tensor patches, both in [0, 1]) or {u, v, w?} (triangular, barycentric); the graph enforces the domain
+ * - show-patch-element -> surface graphs' visibility switches, value {name, value} (name is a patch visibility target, value a boolean; a graph without that switch reports the action unsupported)
+ * - subdivide-patch -> the patch split, value {direction: 'u' | 'v', value} for a tensor patch or {} for a triangular one (its fixed three-piece preview)
+ * - elevate-patch -> exact patch degree elevation, value {direction: 'u' | 'v'} for a tensor patch or {} for a triangular one
+ * - set-camera-preset -> a named 3D camera view: front, top, side or isometric
+ * - run-patch-u-sweep / run-patch-v-sweep -> the patch u or v sweep animation, value play, pause, replay or stop
  * - run-bisection-command -> BisectionGraph's iteration, value 'next-step' (one revealed step) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions: playback is initially stopped and under the learner's control
  * - run-fixed-point-command -> FixedPointGraph's iteration, value 'next-step' (one more iterate) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions
  * - run-sequence-command -> SequenceGraph's revealed terms, value 'next-step' (one more term) or 'reset' (back to one term); a scene repeats 'next-step' once per term it adds. Play and pause are not scene actions
@@ -122,6 +128,13 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'run-bisection-command',
     'run-sequence-command',
     'run-fixed-point-command',
+    'show-patch-point',
+    'show-patch-element',
+    'subdivide-patch',
+    'elevate-patch',
+    'set-camera-preset',
+    'run-patch-u-sweep',
+    'run-patch-v-sweep',
 ] as const;
 
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
@@ -134,7 +147,13 @@ export type SceneActionValue =
     | Readonly<{index: number; value: number}>
     | Readonly<{name: FunctionParameterName; value: number}>
     | Readonly<{name: FunctionVisibilityTarget; value: boolean}>
-    | Readonly<{name: FunctionChoiceName; value: string}>;
+    | Readonly<{name: FunctionChoiceName; value: string}>
+    | Readonly<{u: number; v: number; w?: number}>
+    | Readonly<{direction?: 'u' | 'v'; value?: number}>
+    | Readonly<{name: PatchElementName; value: boolean}>;
+
+/** The patch visibility switches content can address (mirrors the runtime `patch-visibility` targets). */
+export type PatchElementName = Extract<LessonAction, {kind: 'patch-visibility'}>['target'];
 
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;
@@ -152,6 +171,7 @@ export type LessonScene = Readonly<{
 } & (
     | {basedOn: 'demonstration-default'; view?: LessonViewBox}
     | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view: LessonViewBox}
+    | {basedOn: 'lesson-patch-fixture'; patch: LessonPatchFixture; view3d?: LessonView3D}
 )>;
 
 /** Existing UI gesture, recorded for the learner but never simulated by content. */

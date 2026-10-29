@@ -1,6 +1,6 @@
 # Bézier patches: implementation tasks
 
-Status: tasks01–10 complete; [ADR0018](../../adr/0018-three-surface-view-adapter.md) selects Three for patch views. Production tasks11–14 remain. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
+Status: tasks01–11 complete; [ADR0018](../../adr/0018-three-surface-view-adapter.md) selects Three for patch views. Production tasks12–14 remain. Source: [Bézier patches (Bézierjeve krpe)](../../specs/bezier-patches.md).
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |
@@ -14,11 +14,11 @@ Status: tasks01–10 complete; [ADR0018](../../adr/0018-three-surface-view-adapt
 | [08 Triangular workspace](08-triangular-workspace.md) |06,07| Complete: triangle inset/operations, Presets, comparison view, dash-distinguished iso families (P6–P8) |
 | [09 Constructions and derivatives](09-construction-derivatives.md) |05,07| Two teaching routes with exact constructions/vectors |
 | [10 Subdivision and joins](10-subdivision-joins.md) |07,09| Complete: two teaching routes and licensed32-patch capstone |
-| [11 Surface lesson runtime](11-surface-lesson-runtime.md) |08,10| Synchronous capabilities/actions/checkpoints |
+| [11 Surface lesson runtime](11-surface-lesson-runtime.md) |08,10| Complete: synchronous capabilities/actions/checkpoints and shared-runtime smoke |
 | [12 Chapter](12-patches-chapter.md) |08,10| Bilingual11-section chapter and reviewed figures |
 | [13 Examples and previews](13-examples-previews.md) |11,12| Every demonstration's guided examples and capture assets |
 | [14 Acceptance](14-integrated-acceptance.md) |05–13| Full P1–P10 audit, app checks and documentation |
 
-Execute11 next, then12,13,14. Tasks may have bounded delegated slices with a single owner for shared interfaces; serialize dependencies and browser/timing resources. Task03's historical overlap with [architecture-deepening task06](../architecture-deepening-backlog/06-curve-gesture-mathematics.md) is already resolved by its completion. `patch-tensor` is the first shipped surface route.
+Execute12 next, then13,14. Tasks may have bounded delegated slices with a single owner for shared interfaces; serialize dependencies and browser/timing resources. Task03's historical overlap with [architecture-deepening task06](../architecture-deepening-backlog/06-curve-gesture-mathematics.md) is already resolved by its completion. `patch-tensor` is the first shipped surface route.
 
 Read the source spec and the assigned task before implementing. The handler owns dispatch, review, integration, checks and Git. Implementation workers do not delegate or commit. Follow the [agent workflow](../../agent-workflow.md) for bounded assignments and evidence. Return at most 400 words summarizing changed paths, acceptance covered, check results, unresolved risks and the durable evidence path. Keep bulky output in files under `docs/reviews/bezier-patches/`.

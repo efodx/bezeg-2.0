@@ -1,7 +1,8 @@
 import type {DemonstrationId} from '../../demonstrations';
 import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
+import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
-import {getGuidedLesson, SceneAction} from '../content/guidedLessons';
+import {getGuidedLesson, SceneAction, type LessonScene} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from './lessonAvailability';
 export {GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonAvailability';
@@ -23,6 +24,111 @@ function integerValue(action: SceneAction): number {
         throw new Error(`The scene action “${action.name}” needs an integer value.`);
     }
     return action.value;
+}
+
+
+const PATCH_VISIBILITY_TARGETS = ['control-net', 'iso-curves', 'boundary-curves', 'decasteljau-scheme', 'tangent-plane', 'normal', 'twist', 'shading'] as const;
+const CAMERA_PRESET_NAMES = ['front', 'top', 'side', 'isometric'] as const;
+const SWEEP_COMMAND_NAMES = ['play', 'pause', 'replay', 'stop'] as const;
+
+function objectValue(action: SceneAction, shape: string): Record<string, unknown> {
+    const value: unknown = action.value;
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        throw new Error(`The scene action “${action.name}” needs a value of the form ${shape}.`);
+    }
+    return value as Record<string, unknown>;
+}
+
+function checkOnlyKeys(action: SceneAction, value: Record<string, unknown>, allowed: readonly string[]): void {
+    const extra = Object.keys(value).filter(key => !allowed.includes(key));
+    if (extra.length > 0) throw new Error(`The scene action “${action.name}” does not take ${extra.join(', ')}.`);
+}
+
+function patchDirection(action: SceneAction, direction: unknown): 'u' | 'v' {
+    if (direction !== 'u' && direction !== 'v') throw new Error(`The scene action “${action.name}” needs the direction "u" or "v".`);
+    return direction;
+}
+
+const isFinite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+
+/** Translates a patch scene action; returns undefined for names that are not patch actions. */
+function patchSceneAction(action: SceneAction): LessonAction | undefined {
+    if (action.name === 'show-patch-point') {
+        const value = objectValue(action, '{u, v} or {u, v, w}');
+        checkOnlyKeys(action, value, ['u', 'v', 'w']);
+        const {u, v, w} = value;
+        if (!isFinite(u) || !isFinite(v) || (w !== undefined && !isFinite(w))) throw new Error('The patch point needs finite numbers u and v, and optionally w.');
+        return w === undefined ? {kind: 'patch-evaluation', u, v} : {kind: 'patch-evaluation', u, v, w};
+    }
+    if (action.name === 'show-patch-element') {
+        const value = objectValue(action, '{name, value}');
+        checkOnlyKeys(action, value, ['name', 'value']);
+        const {name, value: visible} = value;
+        if (typeof name !== 'string' || !(PATCH_VISIBILITY_TARGETS as readonly string[]).includes(name)) {
+            throw new Error(`The patch element name must be one of ${PATCH_VISIBILITY_TARGETS.join(', ')}.`);
+        }
+        if (typeof visible !== 'boolean') throw new Error('The patch element value must be true or false.');
+        return {kind: 'patch-visibility', target: name as typeof PATCH_VISIBILITY_TARGETS[number], visible};
+    }
+    if (action.name === 'subdivide-patch') {
+        const value = objectValue(action, '{direction, value} or {}');
+        checkOnlyKeys(action, value, ['direction', 'value']);
+        if (value.direction === undefined && value.value === undefined) return {kind: 'patch-subdivide'};
+        const direction = patchDirection(action, value.direction);
+        if (!isFinite(value.value)) throw new Error('The patch subdivision value must be a finite number.');
+        return {kind: 'patch-subdivide', direction, value: value.value};
+    }
+    if (action.name === 'elevate-patch') {
+        const value = objectValue(action, '{direction} or {}');
+        checkOnlyKeys(action, value, ['direction']);
+        return value.direction === undefined ? {kind: 'patch-elevate'} : {kind: 'patch-elevate', direction: patchDirection(action, value.direction)};
+    }
+    if (action.name === 'set-camera-preset') {
+        if (typeof action.value !== 'string' || !(CAMERA_PRESET_NAMES as readonly string[]).includes(action.value)) {
+            throw new Error(`The camera preset must be one of ${CAMERA_PRESET_NAMES.join(', ')}.`);
+        }
+        return {kind: 'camera-preset', view: action.value as typeof CAMERA_PRESET_NAMES[number]};
+    }
+    if (action.name === 'run-patch-u-sweep' || action.name === 'run-patch-v-sweep') {
+        if (typeof action.value !== 'string' || !(SWEEP_COMMAND_NAMES as readonly string[]).includes(action.value)) {
+            throw new Error(`The sweep command must be one of ${SWEEP_COMMAND_NAMES.join(', ')}.`);
+        }
+        return {kind: 'animation', animationId: action.name === 'run-patch-u-sweep' ? 'patch-u-sweep' : 'patch-v-sweep',
+            command: action.value as typeof SWEEP_COMMAND_NAMES[number]};
+    }
+    return undefined;
+}
+
+function checkPoint3(point: unknown): LessonPoint3 {
+    const p = point as {x?: unknown; y?: unknown; z?: unknown} | null;
+    if (typeof p !== 'object' || p === null || !isFinite(p.x) || !isFinite(p.y) || !isFinite(p.z)) {
+        throw new Error('Every patch control point needs finite x, y and z.');
+    }
+    return {x: p.x, y: p.y, z: p.z};
+}
+
+/** Checks a content patch fixture's shape: degrees 1 to 4 and the net size; the graph checks the rest. */
+export function patchFixture(patch: LessonPatchFixture): LessonPatchFixture {
+    const degree = (d: unknown): number => {
+        if (typeof d !== 'number' || !Number.isInteger(d) || d < 1 || d > 4) throw new Error('A lesson patch degree must be an integer from 1 to 4.');
+        return d;
+    };
+    if (!Array.isArray(patch.net)) throw new Error('A lesson patch needs a list of control points.');
+    let expected: number;
+    if (patch.kind === 'tensor') expected = (degree(patch.m) + 1) * (degree(patch.n) + 1);
+    else if (patch.kind === 'triangular') expected = (degree(patch.n) + 1) * (patch.n + 2) / 2;
+    else throw new Error('A lesson patch must be tensor or triangular.');
+    if (patch.net.length !== expected) throw new Error(`This lesson patch needs ${expected} control points, got ${patch.net.length}.`);
+    const net = patch.net.map(checkPoint3);
+    return patch.kind === 'tensor' ? {kind: 'tensor', m: patch.m, n: patch.n, net} : {kind: 'triangular', n: patch.n, net};
+}
+
+/** Checks a content 3D camera: finite angles and a positive distance; the graph clamps like the user's own camera. */
+export function view3dFixture(view: LessonView3D): LessonView3D {
+    if (!isFinite(view.az) || !isFinite(view.el) || !isFinite(view.distance) || view.distance <= 0) throw new Error('The 3D view needs finite az and el and a positive distance.');
+    if (view.projection !== undefined && view.projection !== 'perspective') throw new Error('The 3D view projection must be "perspective".');
+    return {az: view.az, el: view.el, distance: view.distance, ...(view.target ? {target: checkPoint3(view.target)} : {}),
+        ...(view.projection ? {projection: view.projection} : {})};
 }
 
 /** Translates a content scene action into the typed action a graph applies, checking the value's type and shape. */
@@ -186,7 +292,24 @@ export function sceneAction(action: SceneAction): LessonAction {
         if (action.value !== 'next-step' && action.value !== 'reset') throw new Error('The fixed-point command must be "next-step" or "reset".');
         return {kind: 'animation', animationId: 'fixed-point', command: action.value};
     }
+    const patchAction = patchSceneAction(action);
+    if (patchAction) return patchAction;
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
+}
+
+/** The actions a content scene runs: its prepared scene, then its authored actions in order. */
+export function sceneActions(scene: LessonScene): LessonAction[] {
+    return [
+        scene.basedOn === 'lesson-patch-fixture'
+            ? {kind: 'prepared-scene', sceneId: scene.id, source: 'lesson-patch-fixture', patch: patchFixture(scene.patch),
+                ...(scene.view3d ? {view3d: view3dFixture(scene.view3d)} : {})}
+            : scene.basedOn === 'lesson-fixture'
+            ? {kind: 'prepared-scene', sceneId: scene.id, source: 'lesson-fixture', curve: scene.curve,
+                ...(scene.view ? {view: scene.view} : {})}
+            : {kind: 'prepared-scene', sceneId: scene.id, source: 'demonstration-default',
+                ...(scene.view ? {view: scene.view} : {})},
+        ...scene.actions.map(sceneAction),
+    ];
 }
 
 function frameForStep(
@@ -245,16 +368,7 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
             workedExample: step.workedExampleId ? workedExamples.get(step.workedExampleId) : undefined,
             prompt: step.observationPrompt as LocalizedText,
             frames: step.frames.map(frame => frameForStep(step, frame, formulas, workedExamples)),
-            scene: step.scene ? {
-                actions: [
-                    step.scene.basedOn === 'lesson-fixture'
-                        ? {kind: 'prepared-scene', sceneId: step.scene.id, source: 'lesson-fixture', curve: step.scene.curve,
-                            ...(step.scene.view ? {view: step.scene.view} : {})}
-                        : {kind: 'prepared-scene', sceneId: step.scene.id, source: 'demonstration-default',
-                            ...(step.scene.view ? {view: step.scene.view} : {})},
-                    ...step.scene.actions.map(sceneAction),
-                ],
-            } : undefined,
+            scene: step.scene ? {actions: sceneActions(step.scene)} : undefined,
         })),
     };
 }
