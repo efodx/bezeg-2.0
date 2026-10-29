@@ -84,12 +84,17 @@ for (const chapter of chapters) {
             }
             await expect(page.locator('.chapter-prerequisites')).toContainText('Bézierjeve krivulje');
             await expect(page.locator('.chapter-prerequisites')).toContainText('/bezeg-2.0/learn/bezier-curves');
-            await expect(page.locator('#curve-to-patch .chapter-activity-figure img')).toHaveCount(1);
-            const preview = page.locator('#curve-to-patch .chapter-activity-figure');
-            await preview.scrollIntoViewIfNeeded();
-            await expect.poll(() => preview.locator('img').evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-            await expect(preview.locator('img')).toHaveAttribute('alt', /Tenzorska Bézierjeva krpa/);
-            await expect(preview.locator('figcaption')).toContainText('katalogov predogled privzetega prikaza');
+            const sectionFigures = page.locator('#curve-to-patch > .chapter-section-body > .chapter-activity-figure');
+            await expect(sectionFigures).toHaveCount(2);
+            const catalogPreview = sectionFigures.nth(0);
+            await expect(catalogPreview.locator('img')).toHaveAttribute('alt', /Tenzorska Bézierjeva krpa/);
+            await expect(catalogPreview.locator('figcaption')).toContainText('katalogov predogled privzetega prikaza');
+            const authoredPreview = sectionFigures.nth(1);
+            await expect(authoredPreview.locator('img')).toHaveAttribute('src', /bezier-patches\.curve-to-patch\.patch-tensor/);
+            await expect(authoredPreview.locator('img')).toHaveAttribute('alt', /Krpa s šestimi kontrolnimi točkami/);
+            await expect(authoredPreview.locator('figcaption')).toContainText('Mreža določa družino krivulj');
+            await authoredPreview.scrollIntoViewIfNeeded();
+            await expect.poll(() => authoredPreview.locator('img').evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
         }
         await expect(page.locator('#jgbox')).toHaveCount(0);
         await expect(page.locator('mjx-container').first()).toBeVisible();
@@ -108,9 +113,15 @@ for (const chapter of chapters) {
             }
             await expect(page.locator('.chapter-prerequisites')).toContainText('Bézier curves:');
             await expect(page.locator('.chapter-prerequisites')).toContainText('/bezeg-2.0/learn/bezier-curves');
-            await expect(page.locator('#curve-to-patch .chapter-activity-figure figcaption'))
-                .toContainText('catalog preview of the default scene');
-            await expect(page.locator('#curve-to-patch .chapter-activity-figure img')).toHaveAttribute('alt', /A tensor-product Bézier patch/);
+            const englishSectionFigures = page.locator('#curve-to-patch > .chapter-section-body > .chapter-activity-figure');
+            await expect(englishSectionFigures).toHaveCount(2);
+            const englishCatalogPreview = englishSectionFigures.nth(0);
+            const englishAuthoredPreview = englishSectionFigures.nth(1);
+            await expect(englishCatalogPreview.locator('figcaption')).toContainText('catalog preview of the default scene');
+            await expect(englishCatalogPreview.locator('img')).toHaveAttribute('alt', /A tensor-product Bézier patch/);
+            await expect(englishAuthoredPreview.locator('img')).toHaveAttribute('src', /bezier-patches\.curve-to-patch\.patch-tensor/);
+            await expect(englishAuthoredPreview.locator('img')).toHaveAttribute('alt', /A patch with six control points and iso-curves/);
+            await expect(englishAuthoredPreview.locator('figcaption')).toContainText('The net defines a family of curves');
         }
         await expect(page.locator('mjx-container').first()).toBeVisible();
         await expect(page.locator('mjx-merror, .mjx-merror')).toHaveCount(0);

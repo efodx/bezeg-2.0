@@ -103,33 +103,6 @@ const availableLessonIds = new Set(lessonIdsExpression.elements.map(element => {
     if (!ts.isStringLiteral(value)) throw new Error(`Expected a string lesson id: ${value.getText()}`);
     return value.text;
 }));
-const lessonContentSource = parseSource('src/learning/content/guidedLessons.ts');
-const lessonContentIds = new Set();
-function collectLessonIds(sourceFile, variableName) {
-    const lessonArray = variableInitializer(sourceFile, variableName);
-    if (!ts.isArrayLiteralExpression(lessonArray)) throw new Error(`${variableName} must remain an array literal.`);
-    for (const element of lessonArray.elements) {
-        const unwrapped = unwrapExpression(element);
-        const lesson = ts.isIdentifier(unwrapped) ? variableInitializer(sourceFile, unwrapped.text) : unwrapped;
-        if (!ts.isObjectLiteralExpression(lesson)) continue;
-        for (const property of lesson.properties) {
-            if (ts.isPropertyAssignment(property) && propertyName(property.name) === 'demonstrationId') {
-                const value = unwrapExpression(property.initializer);
-                if (ts.isStringLiteral(value)) lessonContentIds.add(value.text);
-            }
-        }
-    }
-}
-collectLessonIds(lessonContentSource, 'pilotGuidedLessons');
-for (const statement of lessonContentSource.statements) {
-    if (!ts.isImportDeclaration(statement) || statement.importClause?.isTypeOnly
-        || !ts.isStringLiteral(statement.moduleSpecifier) || !statement.moduleSpecifier.text.startsWith('./')
-        || !statement.importClause?.namedBindings || !ts.isNamedImports(statement.importClause.namedBindings)) continue;
-    const importedSource = parseSource(path.join('src/learning/content', `${statement.moduleSpecifier.text.slice(2)}.ts`));
-    for (const specifier of statement.importClause.namedBindings.elements) {
-        collectLessonIds(importedSource, (specifier.propertyName || specifier.name).text);
-    }
-}
 // Demonstrations whose catalog manifest carries a motion clip; the rest are still-poster only until their timelines ship.
 const manifestMotionIds = new Set((JSON.parse(fs.readFileSync(path.join(root, 'src/images/demonstrations/catalog/manifest.json'), 'utf8')).motions || []).map(motion => motion.id));
 const demonstrations = definitions.elements.map(element => {
@@ -144,7 +117,7 @@ const demonstrations = definitions.elements.map(element => {
     if (!title || title.includes('{')) throw new Error(`Missing plain English catalog title for ${entry.id}: ${entry.title}`);
     if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
     return {id: entry.id, path: entry.path, family: entry.family, view: entry.view === 'surface' ? 'surface' : 'board', title, heading, hasMotion: manifestMotionIds.has(entry.id),
-        hasLesson: availableLessonIds.has(entry.id) && lessonContentIds.has(entry.id)};
+        hasLesson: availableLessonIds.has(entry.id)};
 });
 const families = familyCatalog.map(family => {
     const title = messages[family.titleKey];
