@@ -7,6 +7,7 @@ import {patchBernsteinWeight} from "./patchBernstein";
 import {lowerNetDegree} from "./patchDegree";
 import type {LessonPatchFixture} from "../../learning/model";
 import {lessonPatchPresetData} from "./lessonPatchFixture";
+import {PatchSweeps} from "./patchSweep";
 import {patchLessonActions, type PatchVisibilityTarget, type TensorSubdivisionLessonHost} from "./patchLessonActions";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
@@ -111,9 +112,21 @@ function stateFromDto(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>;
  * DTO `state`.
  */
 export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphState, PatchCollectionPresetData> {
+    /** The u and v sweep animations; they write through `setParameter`, the parameters stay in the scene store. */
+    private readonly sweeps: PatchSweeps;
+
     constructor(options: SurfaceGraphOptions = {}) {
         super(options);
+        this.sweeps = new PatchSweeps({
+            read: parameter => this.state[parameter],
+            range: () => [0, 1],
+            write: (parameter, value) => this.setParameter(parameter, value),
+        }, options.scheduler);
     }
+
+    protected override stopSweeps(): void { this.sweeps.stopAll(); }
+
+    protected override pauseSweeps(): void { this.sweeps.pauseAll(); }
 
     override getInitialState(): TensorPatchGraphState {
         return {initialized: false, surfaceUnavailable: false, zMode: false, ...stateFromDto(defaultDto())};
@@ -168,6 +181,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
             visibilityTargets: () => new Set(Object.keys(this.lessonVisibilitySetters()) as PatchVisibilityTarget[]),
             setVisibility: (target, visible) => this.lessonVisibilitySetters()[target]?.(visible),
             setParameters: (u, v) => this.setParameters(u, v),
+            sweep: (parameter, command) => this.sweeps.apply(parameter, command),
             applyCameraPreset: view => this.applyCameraPreset(view),
             subdivision: () => this.lessonSubdivision(),
         }));

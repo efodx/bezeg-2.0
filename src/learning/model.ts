@@ -50,7 +50,7 @@ export const FUNCTION_CHOICE_NAMES = Object.keys(FUNCTION_CHOICE_VALUES) as Func
  * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'patch-u-sweep', 'patch-v-sweep'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**

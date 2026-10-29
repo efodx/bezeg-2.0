@@ -4,6 +4,7 @@ import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {TransientState} from "../base/BaseGraph";
 import type {LessonPatchFixture} from "../../learning/model";
 import {lessonPatchPresetData} from "./lessonPatchFixture";
+import {PatchSweeps} from "./patchSweep";
 import {patchLessonActions} from "./patchLessonActions";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {SurfaceGraphOptions, SurfaceGraphState} from "./BaseSurfaceGraph";
@@ -92,9 +93,24 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
     /** Transient: whether the tensor patch derived from the net is drawn, and the unit square shown in the inset. */
     private tensorComparisonValue = false;
 
+    /**
+     * The u and v sweep animations. A sweep of u runs from 0 to 1 - v with v fixed (and v from 0 to 1 - u), a segment
+     * of the triangle that keeps w = 1 - u - v non-negative; the value is written through `setParameter`.
+     */
+    private readonly sweeps: PatchSweeps;
+
     constructor(options: SurfaceGraphOptions = {}) {
         super(options);
+        this.sweeps = new PatchSweeps({
+            read: parameter => this.state[parameter],
+            range: parameter => [0, Math.max(0, 1 - this.state[parameter === "u" ? "v" : "u"])],
+            write: (parameter, value) => this.setParameter(parameter, value),
+        }, options.scheduler);
     }
+
+    protected override stopSweeps(): void { this.sweeps.stopAll(); }
+
+    protected override pauseSweeps(): void { this.sweeps.pauseAll(); }
 
     override getInitialState(): TriangularPatchGraphState {
         return {initialized: false, surfaceUnavailable: false, zMode: false, ...stateFromDto(defaultDto())};
@@ -125,6 +141,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
             visibilityTargets: () => new Set(["control-net", "iso-curves", "boundary-curves", "shading", "decasteljau-scheme"] as const),
             setVisibility: (target, visible) => this.setVisibility(TRIANGULAR_VISIBILITY_KEYS[target as keyof typeof TRIANGULAR_VISIBILITY_KEYS], visible),
             setParameters: (u, v) => this.setParameters(u, v),
+            sweep: (parameter, command) => this.sweeps.apply(parameter, command),
             applyCameraPreset: view => this.applyCameraPreset(view),
             subdivision: () => ({
                 kind: "triangular",

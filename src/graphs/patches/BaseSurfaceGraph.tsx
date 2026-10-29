@@ -14,6 +14,7 @@ import {
 import {LessonAction, LessonPatchFixture, LessonView3D, UnsupportedLessonActionError} from "../../learning/model";
 import {clampDistance, clampElevation} from "./surface-view/surfaceMath";
 import {SurfaceCamera, SurfaceEdit, SurfaceScene, SurfaceView, Xyz} from "./surface-view/surfaceScene";
+import type {AnimationScheduler} from "../../learning/runtime/animation";
 import {ThreeSurfaceView} from "./surface-view/threeSurfaceView";
 
 /** State every surface graph has: the authored camera and the "view could not start" flag. */
@@ -28,6 +29,8 @@ export interface SurfaceGraphOptions {
     viewFactory?: () => SurfaceView;
     /** Typesets the on-screen labels; tests pass a stub so no MathJax loads. Defaults to the app's MathJax pipeline. */
     typeset?: OverlayTypesetter;
+    /** Drives the u/v sweep animations; tests pass a manual one. Defaults to requestAnimationFrame. */
+    scheduler?: AnimationScheduler;
 }
 
 /** Whether two states are `===` on every key except `camera`. */
@@ -51,6 +54,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     /** The DOM labels over the view; created and disposed with the view. */
     private labelOverlay?: SurfaceLabelOverlay;
     private readonly typeset?: OverlayTypesetter;
+    protected readonly scheduler?: AnimationScheduler;
     /** Counts geometry changes; the view rebuilds its geometry when this changes. */
     private revision = 0;
     private viewIsNew = false;
@@ -63,6 +67,34 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         super();
         this.viewFactory = options.viewFactory ?? (() => new ThreeSurfaceView());
         this.typeset = options.typeset;
+        this.scheduler = options.scheduler;
+    }
+
+    /** Ends running sweep animations without touching the parameters; graphs with sweeps override it. */
+    protected stopSweeps(): void {
+    }
+
+    protected pauseSweeps(): void {
+    }
+
+    /** Sweeps are transient: every scene replacement, lesson stop and unmount ends them. */
+    protected override stopLessonAnimations(): void {
+        this.stopSweeps();
+    }
+
+    override unmount(): void {
+        this.stopSweeps();
+        super.unmount();
+    }
+
+    override pausePlayback(): void {
+        this.pauseSweeps();
+        super.pausePlayback();
+    }
+
+    protected override prepareLessonDefaultScene(): void {
+        this.stopSweeps();
+        super.prepareLessonDefaultScene();
     }
 
     // ---- Subclass contract -------------------------------------------------------------------------------------
@@ -171,6 +203,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
      */
     protected override prepareLessonPatchScene(patch: LessonPatchFixture, view3d: LessonView3D | undefined, action: LessonAction): void {
         if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        this.stopSweeps();
         const data = this.lessonPatchData(patch);
         if (data === undefined) throw new UnsupportedLessonActionError(action);
         const collection = this.presetCollection();
@@ -257,6 +290,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
 
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
+        this.stopSweeps();
         const id = saved?.selectedPoint;
         this.selectedPointIdValue = typeof id === "string" && this.hasPoint(id) ? id : undefined;
     }

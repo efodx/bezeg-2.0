@@ -2,6 +2,7 @@ import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
 import {BARYCENTRIC_TOLERANCE} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import type {LessonActionFeature} from "../base/lesson/LessonActionRegistry";
 import {CAMERA_PRESETS, type CameraPresetName} from "./surface-view/surfaceMath";
+import {isSweepCommand, type SweepCommand, type SweepParameter} from "./patchSweep";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
 
 type PatchAction<K extends LessonAction['kind']> = Extract<LessonAction, {kind: K}>;
@@ -32,6 +33,8 @@ export interface PatchLessonHost {
     visibilityTargets(): ReadonlySet<PatchVisibilityTarget>;
     setVisibility(target: PatchVisibilityTarget, visible: boolean): void;
     setParameters(u: number, v: number): void;
+    /** Runs a u or v sweep animation command. */
+    sweep(parameter: SweepParameter, command: SweepCommand): void;
     applyCameraPreset(view: CameraPresetName): void;
     /** Present on graphs that can split and elevate. */
     subdivision(): TensorSubdivisionLessonHost | TriangularSubdivisionLessonHost | undefined;
@@ -109,6 +112,11 @@ export function patchLessonActions(host: PatchLessonHost): LessonActionFeature {
             if (!sub.canElevateIn(action.direction)) throw new Error('The patch already has the highest degree in this direction.');
             sub.elevate(action.direction);
         }, {supports: () => host.subdivision() !== undefined});
+        for (const [id, parameter] of [['patch-u-sweep', 'u'], ['patch-v-sweep', 'v']] as const) {
+            // The sweep has no iteration; `next-step` and `reset` are rejected rather than ignored.
+            registry.onDiscriminated('animation', id, action => { if (isSweepCommand(action.command)) host.sweep(parameter, action.command); },
+                {supports: action => isSweepCommand(action.command)});
+        }
         registry.on('camera-preset', action => {
             if (typeof action.view !== 'string' || !Object.prototype.hasOwnProperty.call(CAMERA_PRESETS, action.view)) {
                 throw new Error(`The camera view must be one of ${Object.keys(CAMERA_PRESETS).join(', ')}.`);
