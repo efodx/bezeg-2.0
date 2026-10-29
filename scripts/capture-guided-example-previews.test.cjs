@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {assertPresentationGeometryStable, captureRecipeForEntry, presentationFingerprint} = require('./capture-guided-example-previews.cjs');
+const {assertPresentationGeometryStable, captureRecipeForEntry, presentationFingerprint, presentationHelpers,
+    resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
 
 const before = {
     points: [[0, 0.5]],
@@ -120,4 +121,37 @@ test('presentation fingerprint changes when a framing entry or a presentation he
         helpers: [function inspectBoard() { return 'board-v1'; }]});
     assert.notEqual(baseline, changedHelper);
     assert.notEqual(baseline, changedEntry);
+});
+
+test('presentation fingerprint includes resize behavior', () => {
+    const helpers = presentationHelpers();
+    assert.ok(helpers.includes(resizeSurfaceCaptureHost));
+    const baseline = presentationFingerprint({helpers});
+    const changed = presentationFingerprint({helpers: helpers.map(helper => helper === resizeSurfaceCaptureHost
+        ? function resizeSurfaceCaptureHost() { return 'changed'; } : helper)});
+    assert.notEqual(baseline, changed);
+});
+
+test('surface capture resizes before rejecting an out-of-frame projected point', async () => {
+    const attrs = {
+        'data-surface-framing': JSON.stringify({width: 700, height: 400,
+            camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]},
+            points: [{id: 'P00', x: 421, y: 100, inFrustum: false}]}),
+        'data-rendered-surface-owners': JSON.stringify([{id: 'tensor-patch-0', kind: 'tensor',
+            geometrySamples: [[0, 1, 2], [1, 2, 3], [2, 3, 4]]}]),
+    };
+    const properties = new Map();
+    const gl = {};
+    const host = {style: {setProperty: (name, value) => properties.set(name, value)},
+        getAttribute: name => attrs[name] || null, querySelector: () => ({getContext: type => type === 'webgl' ? gl : null}),
+        querySelectorAll: () => [], getBoundingClientRect: () => ({left: 0, top: 0, right: 420, bottom: 260})};
+    const page = {locator: () => ({waitFor: async () => {}, evaluate: async (callback, argument) => callback(host, argument)}),
+        waitForFunction: async () => {}, evaluate: async () => {}};
+    await assert.rejects(prepareSurfaceCaptureFrame(page), /outside the capture frame or frustum/);
+    assert.equal(properties.get('width'), '420px', 'negative crop check must run after capture-only host resize');
+    attrs['data-surface-framing'] = JSON.stringify({width: 700, height: 400,
+        camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]}, points: []});
+    attrs['data-rendered-surface-owners'] = JSON.stringify(Array.from({length: 32}, (_, index) => ({id: `teapot-patch-${index}`,
+        kind: 'teapot', geometrySamples: [[index, 0, 0], [index, 1, 0], [index, 2, 0]]})));
+    await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh crop framing is unavailable/);
 });

@@ -10,7 +10,8 @@ const demonstrations = require('../tests/smoke-catalog.cjs');
 const {recipes, settle} = require('./demonstration-preview-recipes.cjs');
 const {presentBoard, hashFile, pngDimensions} = require('./capture-demonstration-previews.cjs');
 const {digestBuild, digestInputs} = require('./commands.cjs');
-const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet} = require('./guided-example-preview-api.cjs');
+const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateSurfacePresentation} = require('./guided-example-preview-api.cjs');
+const {readPublishedSurfaceEvidence, validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
 
 const root = path.resolve(__dirname, '..');
 const destination = path.join(root, 'src/images/learning/examples');
@@ -30,7 +31,8 @@ function captureRecipeForEntry(entry, recipe) {
 }
 
 function presentationHelpers() {
-    return [presentBoard, inspectBoard, isViewportSpanningHorizontalCurve, isCameraScaledCurve,
+    return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
+        isViewportSpanningHorizontalCurve, isCameraScaledCurve,
         isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry];
 }
 
@@ -39,6 +41,7 @@ function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers
         .update(helpers.map(helper => helper.toString()).join('\0'))
         .update(hashFile(path.join(__dirname, 'capture-demonstration-previews.cjs')))
         .update(hashFile(path.join(__dirname, 'guided-example-preview-api.cjs')))
+        .update(hashFile(path.join(__dirname, 'guided-example-surface-evidence.cjs')))
         .update(JSON.stringify({frame, viewport, deviceScaleFactor, recipeFraming, entryFraming}))
         .digest('hex');
 }
@@ -199,6 +202,82 @@ async function hideGuidedLessonOverlay(page) {
     });
 }
 
+async function resizeSurfaceCaptureHost(page) {
+    const host = page.locator('#jgbox');
+    await host.waitFor({state: 'visible'});
+    await host.evaluate((container, size) => {
+        for (const [property, value] of [['border', '0px'], ['width', size.width + 'px'], ['height', size.height + 'px'],
+            ['min-width', size.width + 'px'], ['max-width', size.width + 'px'], ['min-height', size.height + 'px'], ['max-height', size.height + 'px']]) {
+            container.style.setProperty(property, value, 'important');
+        }
+    }, frame);
+    await page.waitForFunction(size => {
+        const raw = document.querySelector('#jgbox')?.getAttribute('data-surface-framing');
+        const framing = raw && JSON.parse(raw);
+        return !!framing && framing.width === size.width && framing.height === size.height;
+    }, frame);
+    await settle(page);
+}
+
+async function readSurfaceVisibleLabelBounds(page) {
+    return page.locator('#jgbox').evaluate(host => {
+        const hostRect = host.getBoundingClientRect();
+        return [...host.querySelectorAll('[data-label-id]')].filter(label => {
+            const style = getComputedStyle(label);
+            return !label.hidden && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+        }).map(label => {
+            const rect = label.getBoundingClientRect();
+            return {id: label.getAttribute('data-label-id'), left: rect.left - hostRect.left, top: rect.top - hostRect.top,
+                right: rect.right - hostRect.left, bottom: rect.bottom - hostRect.top};
+        });
+    });
+}
+
+async function prepareSurfaceCaptureFrame(page) {
+    await resizeSurfaceCaptureHost(page);
+    const evidence = await readPublishedSurfaceEvidence(page);
+    const visibleLabelBounds = await readSurfaceVisibleLabelBounds(page);
+    validateSurfacePresentation('surface capture', {width: evidence.framing.width, height: evidence.framing.height},
+        evidence.framing.points, visibleLabelBounds);
+    return {evidence, visibleLabelBounds};
+}
+
+async function captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors) {
+    assert.ok(entry.expected?.surface, `${entry.id}: expected.surface authored camera and owner geometry are required`);
+    const initial = await readPublishedSurfaceEvidence(page);
+    const preparedSurfaceEvidence = validateSurfaceEvidence({...initial, expected: entry.expected.surface});
+    await page.waitForTimeout(250);
+    const settled = await readPublishedSurfaceEvidence(page);
+    assert.deepEqual(settled, initial, `${entry.id}: surface changed after initial-frame settling; refusing a later or animated frame`);
+    assert.equal(page.url(), new URL(entry.path, new URL(appBaseUrl).origin).toString(), `${entry.id}: route or example identity changed before capture`);
+    await page.evaluate(async () => { await document.fonts.ready; });
+    const guidedLessonOverlayHidden = await hideGuidedLessonOverlay(page);
+    const {evidence, visibleLabelBounds} = await prepareSurfaceCaptureFrame(page);
+    const sceneEvidence = validateSurfaceEvidence({...evidence, expected: entry.expected.surface});
+    assert.deepEqual(evidence.framing.camera, initial.framing.camera, `${entry.id}: capture frame sizing changed the authored surface camera`);
+    assert.deepEqual([evidence.framing.width, evidence.framing.height], [frame.width, frame.height], `${entry.id}: surface capture frame size`);
+    assert.deepEqual(pageErrors, [], `${entry.id}: browser runtime errors`);
+    const host = page.locator('#jgbox');
+    const clip = await host.evaluate(container => {
+        const rect = container.getBoundingClientRect();
+        return {x: rect.left, y: rect.top, width: container.clientWidth, height: container.clientHeight};
+    });
+    assert.deepEqual([clip.width, clip.height], [frame.width, frame.height], `${entry.id}: surface clip does not match capture frame`);
+    const file = `${entry.id}.png`;
+    const output = path.join(destination, file);
+    await page.screenshot({path: output, clip, animations: 'disabled', caret: 'hide', scale: 'device'});
+    const dimensions = pngDimensions(output);
+    assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor});
+    return {id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path, sceneFingerprint: entry.sceneFingerprint,
+        actions: entry.actions || [], file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
+        scene: {...sceneEvidence, visibleLabelBounds}, initialFrame: {firstFrame: true, backNavigationDisabled: true, stableAcrossMs: 250,
+            preparedSurfaceEvidence},
+        framing: {surfaceHostOnly: true, width: frame.width, height: frame.height, scale: deviceScaleFactor, guidedLessonOverlayHidden,
+            authoredCameraPreserved: true, geometryOwners: sceneEvidence.ownerIds, visibleLabelBounds},
+        captureEvidence: {browserVersion, servedBuildVerified: true, buildRevision: build.revision,
+            sourceRevision, pageErrors}};
+}
+
 function entryBundles(html) {
     return [...new Set([...html.matchAll(/(?:src|href)="([^"]+\.(?:m?js|css)(?:\?[^"]*)?)"/g)].map(match => match[1]))]
         .filter(ref => /(?:^|\/)assets\/[^/]+\.(?:m?js|css)(?:\?|$)/.test(ref));
@@ -249,6 +328,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     const progress = await page.locator('.guided-lesson-progress').innerText();
     assert.match(progress, /Korak 1 od \d+\s*·\s*Okvir 1 od \d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
     await settle(page);
+    if (demonstration.view === 'surface') return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors);
     const initial = await inspectBoard(page);
     verifyEvidence(entry, initial);
     await page.waitForTimeout(250);
@@ -331,16 +411,17 @@ async function main(argv = process.argv.slice(2)) {
         sourceTree: 'prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately',
         sourceStateDirty: Boolean(sourceState), buildStamp: build, servedBuild, appBaseUrl,
         browserVersion: browser.version(), locale: 'sl-SI', colorScheme: 'light', fingerprints,
-        capture: {cleanContextPerExample: true, boardOnly: true, frame, viewport, deviceScaleFactor,
+        capture: {cleanContextPerExample: true, capturedHostOnly: true, frame, viewport, deviceScaleFactor,
             sceneSource: 'exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed',
             initialFrame: 'first guided-lesson frame with previous disabled and stable prepared board across 250 ms',
             guidedLessonOverlay: 'capture-only visibility hidden before framing; first frame and scene remain untouched',
-            presentation: 'existing presentBoard capture-only camera, label sizing and construction-stroke treatment', entryFraming}, captures: allCaptures};
+            presentation: 'JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry', entryFraming}, captures: allCaptures};
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
     console.log(`Wrote ${allCaptures.length} guided-example previews to ${path.relative(root, destination)}.`);
 }
 
 module.exports = {parseArgs, readInventory, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
-    verifyServedBuild, captureRecipeForEntry, presentationHelpers, presentationFingerprint, captureExample};
+    verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
+    prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample};
 if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });

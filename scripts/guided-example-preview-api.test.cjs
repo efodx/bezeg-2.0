@@ -12,6 +12,24 @@ const example = (overrides = {}) => ({id: 'splines.worked-join.spline-c1', demon
     expected: {types: {functiongraph: 1}, curveCount: 1, points: [[1, 1]]}, ...overrides});
 const capture = (entry, bytes = 'png') => ({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
     sceneFingerprint: entry.sceneFingerprint, file: `${entry.id}.png`, sha256: digest(bytes)});
+const surfaceExample = () => example({id: 'patch-tensor-midpoint', demonstrationId: 'patch-tensor',
+    path: '/bezeg-2.0/patches?example=family.patches.patch-tensor',
+    expected: {surface: {camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]}, owners: [
+        {id: 'tensor-patch-0', kind: 'tensor', geometrySamples: [[0, 1, 2], [1, 2, 3], [2, 3, 4]]},
+    ]}}});
+const surfaceCapture = entry => {
+    const surface = entry.expected.surface;
+    const scene = {view: 'surface', webglContextType: 'webgl2', frame: {width: 420, height: 260}, camera: surface.camera,
+        ownerIds: ['tensor-patch-0'], renderedOwners: structuredClone(surface.owners),
+        projectedControlPoints: [{id: 'P00', x: 100, y: 100, inFrustum: true}],
+        visibleLabelBounds: [{id: 'p00-label', left: 10, top: 10, right: 30, bottom: 20}]};
+    return {...capture(entry), width: 840, height: 520, scene: structuredClone(scene),
+        initialFrame: {firstFrame: true, backNavigationDisabled: true, stableAcrossMs: 250, preparedSurfaceEvidence: structuredClone(scene)},
+        framing: {surfaceHostOnly: true, guidedLessonOverlayHidden: true, authoredCameraPreserved: true,
+            width: 420, height: 260, scale: 2, geometryOwners: [...scene.ownerIds], visibleLabelBounds: structuredClone(scene.visibleLabelBounds)},
+        captureEvidence: {browserVersion: 'mock-browser', servedBuildVerified: true, buildRevision: 'build-hash',
+            sourceRevision: 'revision', pageErrors: []}};
+};
 
 test('inventory rejects an empty set, noncanonical routes, duplicates, and missing scene fingerprints', () => {
     assert.throws(() => validateInventory([]), /nonempty array/);
@@ -21,6 +39,50 @@ test('inventory rejects an empty set, noncanonical routes, duplicates, and missi
     assert.throws(() => validateInventory([example({path: '/bezeg-2.0/splines?example=family.splines.worked-join.spline-c1&activity=x'})]), /must not mix example identity/);
     assert.throws(() => validateInventory([example({path: '/bezeg-2.0/splines?example=family.splines.worked-join.other-demo'})]), /must end with demonstrationId/);
     assert.throws(() => validateInventory([example(), example()]), /Duplicate guided-example id/);
+});
+
+test('surface inventories require independently authored camera and exact nonempty owner samples', () => {
+    const surface = {camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]}, owners: [
+        {id: 'tensor-patch-0', kind: 'tensor', geometrySamples: [[0, 1, 2], [1, 2, 3], [2, 3, 4]]},
+    ], cameraTolerance: 1e-6, geometryTolerance: 1e-6};
+    assert.equal(validateInventory([example({expected: {surface}})])[0].expected.surface, surface);
+    for (const invalid of [
+        {...surface, owners: []},
+        {...surface, camera: undefined},
+        {...surface, owners: [{...surface.owners[0], geometrySamples: []}]},
+        {...surface, owners: [{...surface.owners[0], geometrySamples: [[0, NaN, 2], [1, 2, 3], [2, 3, 4]]}]},
+        {...surface, owners: [{...surface.owners[0], id: 'tensor-patch-1', geometrySamples: [[0, 1]]}]},
+        {...surface, geometryTolerance: -1},
+    ]) assert.throws(() => validateInventory([example({expected: {surface: invalid}})]), /expected(?:\.surface| surface)/);
+});
+
+test('published and retained surface records revalidate owner samples, crop evidence, dimensions and provenance', t => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'guided-surface-preview-'));
+    t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
+    const entry = surfaceExample();
+    const good = surfaceCapture(entry);
+    fs.writeFileSync(path.join(directory, good.file), 'png');
+    assert.doesNotThrow(() => validatePublishedSet([entry], [good], directory));
+    for (const mutate of [
+        value => { value.scene.renderedOwners[0].geometrySamples[0][0] += 0.2; },
+        value => { value.initialFrame.preparedSurfaceEvidence.renderedOwners = []; },
+        value => { value.scene.visibleLabelBounds[0].right = 421; },
+        value => { value.scene.projectedControlPoints[0].inFrustum = false; },
+        value => { value.width = 839; },
+        value => { value.captureEvidence.servedBuildVerified = false; },
+    ]) {
+        const changed = structuredClone(good); mutate(changed);
+        assert.throws(() => validatePublishedSet([entry], [changed], directory), /surface|owner|frame|dimension|provenance|label/i);
+    }
+    const curve = example({id: 'ordinary-example'});
+    const curveCapture = capture(curve);
+    fs.writeFileSync(path.join(directory, curveCapture.file), 'png');
+    const fingerprints = {inventory: digest('i'), presentation: digest('p'), buildOutput: digest('b'), buildInputs: digest('bi')};
+    const manifest = {captures: [good, curveCapture], fingerprints};
+    assert.doesNotThrow(() => validateRetained([entry, curve], manifest, directory, [curve.id], fingerprints));
+    const tampered = structuredClone(good);
+    tampered.scene.renderedOwners[0].geometrySamples[0][1] = -10;
+    assert.throws(() => validateRetained([entry, curve], {captures: [tampered, curveCapture], fingerprints}, directory, [curve.id], fingerprints), /geometry sample/);
 });
 
 test('scene evidence rejects an empty board and checks visible function graphs and prepared geometry', () => {

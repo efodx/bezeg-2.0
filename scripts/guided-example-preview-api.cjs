@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {hashFile} = require('./capture-demonstration-previews.cjs');
+const {validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
 
 const idPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
 const graphGeometryTypes = new Set(['curve', 'functiongraph', 'circle', 'point', 'line', 'segment', 'arrow',
@@ -49,6 +50,32 @@ function validateExpected(id, expected) {
     for (const [index, curve] of (expected.curves || []).entries()) {
         assert.ok(Array.isArray(curve) && curve.length === 3 && curve.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)),
             `${id}: expected.curves[${index}] must contain three finite [x,y] samples`);
+    }
+    if (expected.surface !== undefined) validateExpectedSurface(id, expected.surface);
+}
+
+function validateExpectedSurface(id, surface) {
+    assert.ok(surface && typeof surface === 'object' && !Array.isArray(surface), `${id}: expected.surface must be an object`);
+    assert.ok(Array.isArray(surface.owners) && surface.owners.length > 0, `${id}: expected.surface.owners must be nonempty authored evidence`);
+    const kinds = new Set(['tensor', 'triangular', 'join', 'teapot']);
+    const ids = new Set();
+    for (const [index, owner] of surface.owners.entries()) {
+        assert.ok(owner && typeof owner === 'object' && typeof owner.id === 'string' && owner.id.length > 0,
+            `${id}: expected.surface.owners[${index}] needs an exact owner id`);
+        assert.ok(!ids.has(owner.id), `${id}: duplicate expected surface owner ${owner.id}`);
+        ids.add(owner.id);
+        assert.ok(kinds.has(owner.kind), `${id}: unsupported expected surface owner kind for ${owner.id}`);
+        assert.ok(Array.isArray(owner.geometrySamples) && owner.geometrySamples.length === 3
+            && owner.geometrySamples.every(sample => Array.isArray(sample) && sample.length === 3 && sample.every(Number.isFinite)),
+        `${id}: expected surface owner ${owner.id} needs three finite authored xyz samples`);
+    }
+    const camera = surface.camera;
+    assert.ok(camera && [camera.az, camera.el, camera.distance].every(Number.isFinite) && camera.distance > 0
+        && Array.isArray(camera.target) && camera.target.length === 3 && camera.target.every(Number.isFinite),
+    `${id}: expected.surface.camera must include finite az, el, distance and xyz target`);
+    for (const field of ['cameraTolerance', 'geometryTolerance']) {
+        if (surface[field] !== undefined) assert.ok(Number.isFinite(surface[field]) && surface[field] >= 0,
+            `${id}: expected.surface.${field} must be a nonnegative finite number`);
     }
 }
 
@@ -102,6 +129,7 @@ function validateRetained(inventory, previousManifest, destination, selectedIds,
         assert.equal(capture.demonstrationId, entry.demonstrationId, `${entry.id}: stale demonstration mapping in prior manifest`);
         assert.equal(capture.path, entry.path, `${entry.id}: stale scene URL in prior manifest`);
         assert.equal(capture.sceneFingerprint, entry.sceneFingerprint, `${entry.id}: prepared scene/actions changed; recapture this image`);
+        if (entry.expected?.surface) validateSurfaceCaptureRecord(entry, capture);
         const file = path.join(destination, capture.file || '');
         assert.ok(capture.file && fs.existsSync(file), `${entry.id}: missing preview asset ${capture.file}`);
         assert.equal(hashFile(file), capture.sha256, `${entry.id}: retained preview checksum differs from its manifest`);
@@ -125,6 +153,7 @@ function validatePublishedSet(inventory, captures, destination) {
         assert.equal(capture.file, `${entry.id}.png`, `${entry.id}: stale or unsafe preview filename`);
         assert.equal(capture.path, entry.path, `${entry.id}: stale scene URL mapping`);
         assert.equal(capture.sceneFingerprint, entry.sceneFingerprint, `${entry.id}: stale scene fingerprint mapping`);
+        if (entry.expected?.surface) validateSurfaceCaptureRecord(entry, capture);
         const file = path.join(destination, capture.file || '');
         assert.ok(capture.file && fs.existsSync(file), `${entry.id}: missing preview asset ${capture.file}`);
         assert.equal(hashFile(file), capture.sha256, `${entry.id}: image checksum mismatch`);
@@ -132,4 +161,60 @@ function validatePublishedSet(inventory, captures, destination) {
     assert.equal(captures.length, inventory.length, 'Capture manifest includes mappings outside the complete inventory');
 }
 
-module.exports = {validateInventory, verifyEvidence, validateRetained, validatePublishedSet};
+function validateStoredSurfaceEvidence(entry, record, label) {
+    assert.ok(record && record.view === 'surface', `${entry.id}: ${label} surface evidence is missing`);
+    const validated = validateSurfaceEvidence({
+        framing: {width: record.frame?.width, height: record.frame?.height, camera: record.camera, points: record.projectedControlPoints},
+        webglContextType: record.webglContextType, renderedOwners: record.renderedOwners, expected: entry.expected.surface,
+    });
+    assert.deepEqual(record.ownerIds, validated.ownerIds, `${entry.id}: ${label} owner IDs do not match observed owner samples`);
+    return validated;
+}
+
+function validateSurfaceCaptureRecord(entry, capture) {
+    const scene = validateStoredSurfaceEvidence(entry, capture.scene, 'captured scene');
+    validateStoredSurfaceEvidence(entry, capture.initialFrame?.preparedSurfaceEvidence, 'prepared first-frame');
+    assert.equal(capture.initialFrame?.firstFrame, true, `${entry.id}: missing first-frame capture evidence`);
+    assert.equal(capture.initialFrame?.backNavigationDisabled, true, `${entry.id}: missing initial navigation evidence`);
+    assert.equal(capture.initialFrame?.stableAcrossMs, 250, `${entry.id}: missing first-frame stability evidence`);
+    const framing = capture.framing;
+    assert.ok(framing?.surfaceHostOnly === true && framing.guidedLessonOverlayHidden === true && framing.authoredCameraPreserved === true,
+        `${entry.id}: surface presentation evidence is missing`);
+    assert.deepEqual([scene.frame.width, scene.frame.height], [framing.width, framing.height], `${entry.id}: surface evidence frame differs from presentation`);
+    assert.deepEqual(framing.geometryOwners, scene.ownerIds, `${entry.id}: surface framing owner list differs from observed evidence`);
+    assert.ok(Number.isInteger(framing.width) && framing.width > 0 && Number.isInteger(framing.height) && framing.height > 0
+        && Number.isInteger(framing.scale) && framing.scale > 0, `${entry.id}: invalid surface capture dimensions`);
+    assert.deepEqual([capture.width, capture.height], [framing.width * framing.scale, framing.height * framing.scale],
+        `${entry.id}: surface image dimensions do not match capture framing`);
+    assert.deepEqual(framing.visibleLabelBounds, capture.scene.visibleLabelBounds, `${entry.id}: visible label bounds differ from scene evidence`);
+    validateSurfacePresentation(entry.id, scene.frame, scene.projectedControlPoints, capture.scene.visibleLabelBounds);
+    const provenance = capture.captureEvidence;
+    assert.ok(provenance && typeof provenance.browserVersion === 'string' && provenance.browserVersion.length > 0
+        && provenance.servedBuildVerified === true && typeof provenance.buildRevision === 'string' && provenance.buildRevision.length > 0
+        && typeof provenance.sourceRevision === 'string' && provenance.sourceRevision.length > 0
+        && Array.isArray(provenance.pageErrors) && provenance.pageErrors.length === 0,
+    `${entry.id}: surface capture provenance is missing or invalid`);
+}
+
+function validateSurfacePresentation(id, frame, points, visibleLabelBounds) {
+    assert.ok(Array.isArray(points) && points.length > 0,
+        `${id}: surface mesh crop framing is unavailable for this point-free view; refusing capture without producer bounds evidence`);
+    for (const [index, point] of points.entries()) {
+        assert.ok(point && typeof point.id === 'string' && point.id && point.inFrustum === true
+            && [point.x, point.y].every(Number.isFinite) && point.x >= 0 && point.y >= 0 && point.x <= frame.width && point.y <= frame.height,
+        `${id}: projected surface point ${index} is outside the capture frame or frustum`);
+    }
+    assert.ok(Array.isArray(visibleLabelBounds), `${id}: visible surface label bounds are missing`);
+    const ids = new Set();
+    for (const [index, label] of visibleLabelBounds.entries()) {
+        assert.ok(label && typeof label.id === 'string' && label.id && !ids.has(label.id), `${id}: visible surface label ${index} has a missing or duplicate identity`);
+        ids.add(label.id);
+        assert.ok([label.left, label.top, label.right, label.bottom].every(Number.isFinite)
+            && label.left >= 0 && label.top >= 0 && label.right <= frame.width && label.bottom <= frame.height
+            && label.right > label.left && label.bottom > label.top,
+        `${id}: visible surface label ${label.id} is outside the capture frame`);
+    }
+}
+
+module.exports = {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateExpectedSurface,
+    validateSurfaceCaptureRecord, validateSurfacePresentation};

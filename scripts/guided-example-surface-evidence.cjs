@@ -16,11 +16,16 @@ async function readPublishedSurfaceEvidence(page) {
         let framing;
         try { framing = JSON.parse(raw); }
         catch { throw new Error('Invalid guided surface evidence: malformed published data-surface-framing'); }
+        const ownersRaw = host.getAttribute('data-rendered-surface-owners');
+        if (!ownersRaw) throw new Error('Invalid guided surface evidence: missing published data-rendered-surface-owners');
+        let renderedOwners;
+        try { renderedOwners = JSON.parse(ownersRaw); }
+        catch { throw new Error('Invalid guided surface evidence: malformed published data-rendered-surface-owners'); }
         const canvas = host.querySelector('canvas');
         const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
         if (!gl) throw new Error('Invalid guided surface evidence: missing WebGL context');
         const isWebgl2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
-        return {framing, webglContextType: isWebgl2 ? 'webgl2' : 'webgl'};
+        return {framing, webglContextType: isWebgl2 ? 'webgl2' : 'webgl', renderedOwners};
     });
 }
 
@@ -40,7 +45,8 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
         if (!completeTeapotOwners) fail('published framing has no projected control points or complete teapot owner evidence');
     }
     framing.points.forEach((point, index) => {
-        if (!point || typeof point.id !== 'string' || !point.id || ![point.x, point.y].every(Number.isFinite)) fail(`projected point ${index} is invalid`);
+        if (!point || typeof point.id !== 'string' || !point.id || ![point.x, point.y].every(Number.isFinite)
+            || typeof point.inFrustum !== 'boolean') fail(`projected point ${index} is invalid`);
     });
     if (!expected || !Array.isArray(expected.owners) || expected.owners.length === 0) fail('expected owners are empty');
     if (!Array.isArray(renderedOwners) || renderedOwners.length === 0) fail('rendered owners are empty');
@@ -49,7 +55,7 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     for (const owner of renderedOwners) {
         if (!owner || !OWNER_KINDS.has(owner.kind) || typeof owner.id !== 'string' || !owner.id) fail('rendered owner lacks a supported kind or identity');
         if (byId.has(owner.id)) fail(`duplicate rendered owner ${owner.id}`);
-        if (!Array.isArray(owner.geometrySamples) || owner.geometrySamples.length === 0) fail(`owner ${owner.id} has no geometry samples`);
+        if (!Array.isArray(owner.geometrySamples) || owner.geometrySamples.length !== 3) fail(`owner ${owner.id} must publish three geometry samples`);
         owner.geometrySamples.forEach((sample, index) => finiteTuple(sample, `owner ${owner.id} geometry sample ${index}`));
         byId.set(owner.id, owner);
     }
@@ -57,7 +63,7 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     const tolerance = expected.geometryTolerance ?? 1e-6;
     if (!Number.isFinite(tolerance) || tolerance < 0) fail('geometry tolerance is invalid');
     for (const wanted of expected.owners) {
-        if (!wanted || !OWNER_KINDS.has(wanted.kind) || !Array.isArray(wanted.geometrySamples) || wanted.geometrySamples.length === 0) fail('expected owner geometry is empty or unsupported');
+        if (!wanted || !OWNER_KINDS.has(wanted.kind) || !Array.isArray(wanted.geometrySamples) || wanted.geometrySamples.length !== 3) fail('expected owner geometry must contain three samples or use an unsupported kind');
         if (typeof wanted.id !== 'string' || !wanted.id || expectedIds.has(wanted.id)) fail('expected owner identities are missing or duplicated');
         expectedIds.add(wanted.id);
         const actual = byId.get(wanted.id);
@@ -75,7 +81,10 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     const wantedCamera = cameraValues(expected.camera);
     const actualCamera = cameraValues(camera);
     if (wantedCamera.length !== actualCamera.length || !wantedCamera.every(Number.isFinite) || wantedCamera.some((value, index) => Math.abs(value - actualCamera[index]) > cameraTolerance)) fail('published camera differs from expected camera');
-    return {view: 'surface', webglContextType, frame: {width: framing.width, height: framing.height}, camera, ownerIds: [...byId.keys()]};
+    return {view: 'surface', webglContextType, frame: {width: framing.width, height: framing.height}, camera,
+        ownerIds: [...byId.keys()], renderedOwners: renderedOwners.map(owner => ({id: owner.id, kind: owner.kind,
+            geometrySamples: owner.geometrySamples.map(sample => [...sample])})),
+        projectedControlPoints: framing.points.map(point => ({id: point.id, x: point.x, y: point.y, inFrustum: point.inFrustum}))};
 }
 
 module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence};
