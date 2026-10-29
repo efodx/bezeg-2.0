@@ -15,7 +15,7 @@ import {LessonAction, LessonPatchFixture, LessonView3D, UnsupportedLessonActionE
 import {clampDistance, clampElevation} from "./surface-view/surfaceMath";
 import {SurfaceCamera, SurfaceEdit, SurfaceScene, SurfaceView, Xyz} from "./surface-view/surfaceScene";
 import type {AnimationScheduler} from "../../learning/runtime/animation";
-import {ThreeSurfaceView} from "./surface-view/threeSurfaceView";
+import {createDefaultSurfaceView} from "./surface-view/defaultSurfaceView";
 
 /** State every surface graph has: the authored camera and the "view could not start" flag. */
 export interface SurfaceGraphState extends BaseGraphState {
@@ -65,7 +65,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
 
     protected constructor(options: SurfaceGraphOptions = {}) {
         super();
-        this.viewFactory = options.viewFactory ?? (() => new ThreeSurfaceView());
+        this.viewFactory = options.viewFactory ?? (() => createDefaultSurfaceView());
         this.typeset = options.typeset;
         this.scheduler = options.scheduler;
     }
