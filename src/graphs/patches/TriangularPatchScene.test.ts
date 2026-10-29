@@ -97,6 +97,7 @@ describe("shaded mesh", () => {
         for (const density of [8, 16] as const) {
             const scene = buildTriangularScene(input(net, {showShading: true, shadingDensity: density}), 1);
             const positions = scene.mesh!.positions;
+            expect(scene.meshOwners).toEqual([{id: "triangular-patch-0", kind: "triangular", faceStart: 0, faceCount: scene.mesh!.faces.length}]);
             expect(positions).toHaveLength(3 * (density + 1) * (density + 2) / 2);
             let vertex = 0;
             for (let i = 0; i <= density; i++) for (let j = 0; j <= density - i; j++) {

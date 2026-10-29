@@ -50,6 +50,14 @@ export interface SceneMesh {
     chordTolerance?: number;
 }
 
+/** A logical owner of triangles in a mesh. Face offsets address `mesh.faces`; the renderer samples first vertices of the first, middle and last drawable triangles after Float32 upload. */
+export interface SceneMeshOwner {
+    id: string;
+    kind: 'tensor' | 'triangular' | 'join' | 'teapot';
+    faceStart: number;
+    faceCount: number;
+}
+
 export interface SceneMarker {
     id: string;
     xyz: Xyz;
@@ -80,6 +88,8 @@ export interface SurfaceScene {
     points: ScenePoint[];
     polylines: ScenePolyline[];
     mesh?: SceneMesh;
+    /** Explicit ownership for read-only rendered geometry evidence; lines and control nets are never mesh owners. */
+    meshOwners?: SceneMeshOwner[];
     /** Translucent quads; absent means none. */
     planes?: ScenePlane[];
     markers: SceneMarker[];

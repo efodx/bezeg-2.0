@@ -106,6 +106,40 @@ afterEach(() => {
 });
 
 describe('ThreeSurfaceView lifecycle', () => {
+    it('publishes finite geometry samples from the rendered mesh owner and clears them on hide or empty ownership', async () => {
+        const h = harness();
+        const mesh = {positions: [0.1, 0.2, 0.3, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3], faces: [0, 1, 2, 1, 3, 2, 0, 2, 3], visible: true};
+        const owner = {id: 'tensor-patch-0', kind: 'tensor' as const, faceStart: 0, faceCount: 9};
+        const scene = makeScene({mesh, meshOwners: [owner]});
+        await h.view.attach(h.host);
+        h.view.reconcile(scene);
+        await h.view.capture();
+        expect(JSON.parse(h.host.getAttribute('data-rendered-surface-owners')!)).toEqual([{id: owner.id, kind: owner.kind, geometrySamples: [
+            [Math.fround(0.1), Math.fround(0.2), Math.fround(0.3)],
+            [Math.fround(1.1), Math.fround(1.2), Math.fround(1.3)],
+            [Math.fround(0.1), Math.fround(0.2), Math.fround(0.3)],
+        ]}]);
+        vi.spyOn(h.renderer, 'render').mockImplementationOnce(() => { throw new Error('render failed'); });
+        await expect(h.view.capture()).rejects.toThrow('render failed');
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+
+        const invalid = makeScene({mesh, meshOwners: [owner]});
+        invalid.points[0].xyz[0] = Number.NaN;
+        expect(() => h.view.reconcile(invalid)).toThrow(/non-finite/);
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+
+        h.view.reconcile({...scene, revision: 2, mesh: {...mesh, visible: false}});
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+        h.view.reconcile({...scene, revision: 3, meshOwners: [{...owner, faceCount: 0}]});
+        await h.view.capture();
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+        h.view.reconcile({...scene, revision: 4, mesh: {...mesh, faces: [0, 0, 0]}, meshOwners: [{...owner, faceCount: 3}]});
+        await h.view.capture();
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+        h.view.dispose();
+        expect(h.host.hasAttribute('data-rendered-surface-owners')).toBe(false);
+    });
+
     it('applies a scene reconciled before attach resolves', async () => {
         const h = harness(true);
         const attached = h.view.attach(h.host, {ariaLabel: 'Surface'});

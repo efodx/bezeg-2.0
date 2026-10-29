@@ -31,6 +31,7 @@ export function buildTeapotScene(input: TeapotSceneInput, revision: number): Sur
     const polylines: ScenePolyline[] = [];
     const positions: number[] = [];
     const faces: number[] = [];
+    const meshOwners: NonNullable<SurfaceScene["meshOwners"]> = [];
     for (let k = 0; k < TEAPOT_PATCH_COUNT; k++) {
         const patch = patchFromNet(resolveTeapotPatch(k));
         if (input.showBoundaryCurves) {
@@ -45,11 +46,13 @@ export function buildTeapotScene(input: TeapotSceneInput, revision: number): Sur
         if (input.showShading) {
             const mesh = patch.sampleMesh(TEAPOT_SHADING_CELLS);
             const offset = positions.length / 3;
+            const faceStart = faces.length;
             for (const vertex of mesh.vertices) positions.push(...xyz(vertex));
             for (const [a, b, c] of mesh.faces) {
                 const [ia, ib, ic] = [a + offset, b + offset, c + offset];
                 if (!coincident(positions, ia, ib) && !coincident(positions, ib, ic) && !coincident(positions, ia, ic)) faces.push(ia, ib, ic);
             }
+            meshOwners.push({id: `teapot-patch-${k}`, kind: "teapot", faceStart, faceCount: faces.length - faceStart});
         }
     }
     return {
@@ -57,6 +60,7 @@ export function buildTeapotScene(input: TeapotSceneInput, revision: number): Sur
         points: [],
         polylines,
         ...(input.showShading ? {mesh: {positions, faces, visible: true}} : {}),
+        ...(input.showShading ? {meshOwners} : {}),
         markers: [],
         labels: [],
         camera: {...input.camera, target: [...input.camera.target]},

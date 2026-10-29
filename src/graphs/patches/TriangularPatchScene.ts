@@ -155,6 +155,7 @@ export function buildTriangularScene(input: TriangularSceneInput, revision: numb
         polylines,
         ...(mesh ? {mesh: {positions: mesh.vertices.flatMap(xyz), faces: mesh.faces.flatMap(face => [...face]), visible: true,
             chordTolerance: chordTolerance(patch, input.net, input.shadingDensity)}} : {}),
+        ...(mesh ? {meshOwners: [{id: "triangular-patch-0", kind: "triangular" as const, faceStart: 0, faceCount: mesh.faces.length * 3}]} : {}),
         markers,
         labels: [
             {id: "surface-point", text: "S(u,v,w)", anchor},

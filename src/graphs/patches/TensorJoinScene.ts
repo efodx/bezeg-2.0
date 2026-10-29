@@ -134,6 +134,10 @@ export function buildJoinScene(input: JoinSceneInput, revision: number): Surface
         visible: meshA.visible && meshB.visible,
         chordTolerance: Math.max(meshA.chordTolerance ?? 0, meshB.chordTolerance ?? 0),
     } : undefined;
+    const meshOwners = mesh ? [
+        {id: "join-patch-a", kind: "join" as const, faceStart: 0, faceCount: meshA!.faces.length},
+        {id: "join-patch-b", kind: "join" as const, faceStart: meshA!.faces.length, faceCount: meshB!.faces.length},
+    ] : undefined;
 
     return {
         ...sceneA,
@@ -141,5 +145,6 @@ export function buildJoinScene(input: JoinSceneInput, revision: number): Surface
         polylines: [...sceneA.polylines, ...bPolylines, ...boundaries, ...arrowLines],
         labels: [...sceneA.labels, ...bLabels, ...arrowLabels],
         ...(mesh ? {mesh} : {}),
+        ...(meshOwners ? {meshOwners} : {}),
     };
 }

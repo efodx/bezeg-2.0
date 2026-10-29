@@ -110,6 +110,11 @@ describe("read-only capstone scene", () => {
         expect(scene.polylines.every(line => line.role === "boundary")).toBe(true);
         expect(scene.mesh?.positions).toHaveLength(32 * (TEAPOT_SHADING_CELLS + 1) ** 2 * 3);
         expect(scene.mesh?.faces).toHaveLength((32 * 2 * TEAPOT_SHADING_CELLS ** 2 - 64) * 3);
+        expect(scene.meshOwners).toHaveLength(32);
+        expect(scene.meshOwners?.map(owner => owner.id)).toEqual(Array.from({length: 32}, (_, k) => `teapot-patch-${k}`));
+        expect(scene.meshOwners?.every(owner => owner.kind === "teapot" && owner.faceCount > 0 && owner.faceCount % 3 === 0)).toBe(true);
+        expect(scene.meshOwners?.[0].faceStart).toBe(0);
+        expect(scene.meshOwners?.slice(1).every((owner, index) => owner.faceStart === scene.meshOwners![index].faceStart + scene.meshOwners![index].faceCount)).toBe(true);
         expect(scene.interaction).toMatchObject({editable: false, zMode: false});
         expect(scene.mesh?.visible).toBe(true);
     });

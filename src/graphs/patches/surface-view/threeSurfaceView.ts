@@ -151,6 +151,9 @@ export class ThreeSurfaceView implements SurfaceView {
     private geometryLayer: ThreeNs.Group | null = null;
     private dynamicLayer: ThreeNs.Group | null = null;
     private surfaceMesh: ThreeNs.Mesh | null = null;
+    private renderedOwnersGeometry: ThreeNs.BufferGeometry | null = null;
+    private renderedOwnersSignature = '';
+    private renderedOwnersJson = '';
     private pointMeshes = new Map<string, ThreeNs.Mesh>();
     private observer: ResizeObserver | null = null;
     private raf = 0;
@@ -202,6 +205,7 @@ export class ThreeSurfaceView implements SurfaceView {
 
     reconcile(scene: SurfaceScene): void {
         if (this.disposed) return;
+        this.clearRenderedOwners();
         assertFiniteScene(scene);
         this.scene = scene;
         if (this.renderer) this.applyScene(scene);
@@ -296,6 +300,7 @@ export class ThreeSurfaceView implements SurfaceView {
             this.restoreAttr(this.host, 'aria-describedby', this.hostPrev.describedBy);
             this.descriptionEl?.remove();
             this.host.removeAttribute('data-surface-framing');
+            this.host.removeAttribute('data-rendered-surface-owners');
         }
         this.renderer = null;
         this.canvas = null;
@@ -304,6 +309,9 @@ export class ThreeSurfaceView implements SurfaceView {
         this.geometryLayer = null;
         this.dynamicLayer = null;
         this.surfaceMesh = null;
+        this.renderedOwnersGeometry = null;
+        this.renderedOwnersSignature = '';
+        this.renderedOwnersJson = '';
         this.editListeners.clear();
         this.drag = null;
         this.pinch = null;
@@ -518,6 +526,9 @@ export class ThreeSurfaceView implements SurfaceView {
         const layer = this.geometryLayer!;
         this.clearLayer(layer);
         this.surfaceMesh = null;
+        this.renderedOwnersGeometry = null;
+        this.renderedOwnersSignature = '';
+        this.renderedOwnersJson = '';
         this.sceneExtent = this.measureExtent(scene);
         if (scene.mesh) {
             const g = new T.BufferGeometry();
@@ -566,9 +577,74 @@ export class ThreeSurfaceView implements SurfaceView {
 
     private renderNow(): void {
         if (this.disposed || this.contextLost || !this.renderer || !this.glScene || !this.glCamera) return;
-        this.renderer.render(this.glScene, this.glCamera);
+        try {
+            this.renderer.render(this.glScene, this.glCamera);
+        } catch (error) {
+            this.clearRenderedOwners();
+            this.renderedOwnersJson = '';
+            throw error;
+        }
         this.publishLayout();
         this.publishFraming();
+        this.publishRenderedOwners();
+    }
+
+    private clearRenderedOwners(): void {
+        this.host?.removeAttribute('data-rendered-surface-owners');
+    }
+
+    /** Publishes first-vertex xyz samples from the first, middle and last drawable owner triangles after the mesh rendered. */
+    private publishRenderedOwners(): void {
+        const host = this.host, sceneMesh = this.scene?.mesh, mesh = this.surfaceMesh;
+        const position = mesh?.geometry.getAttribute('position');
+        const index = mesh?.geometry.getIndex();
+        if (!host || !sceneMesh?.visible || !mesh?.visible || !position || !index || index.count < 3) {
+            this.clearRenderedOwners();
+            return;
+        }
+        const ownerIds = new Set<string>();
+        const sourceOwners = this.scene?.meshOwners ?? [];
+        const signature = JSON.stringify(sourceOwners.map(({id, kind, faceStart, faceCount}) => [id, kind, faceStart, faceCount]));
+        if (this.renderedOwnersGeometry === mesh.geometry && this.renderedOwnersSignature === signature && this.renderedOwnersJson) {
+            host.setAttribute('data-rendered-surface-owners', this.renderedOwnersJson);
+            return;
+        }
+        const owners = sourceOwners.flatMap(owner => {
+            const {faceStart, faceCount} = owner;
+            if (!owner.id || ownerIds.has(owner.id) || !Number.isInteger(faceStart) || !Number.isInteger(faceCount) || faceStart < 0 || faceStart % 3 !== 0 || faceCount < 3 || faceCount % 3 !== 0 || faceStart + faceCount > index.count) return [];
+            ownerIds.add(owner.id);
+            const drawableFaces: Array<{offset: number; vertices: number[]}> = [];
+            for (let offset = faceStart; offset < faceStart + faceCount; offset += 3) {
+                const vertices = [index.getX(offset), index.getX(offset + 1), index.getX(offset + 2)];
+                if (!vertices.every(vertex => Number.isInteger(vertex) && vertex >= 0 && vertex < position.count) || new Set(vertices).size !== 3) continue;
+                const xyz = vertices.map(vertex => [position.getX(vertex), position.getY(vertex), position.getZ(vertex)]);
+                if (!xyz.flat().every(Number.isFinite)) continue;
+                const [a, b, c] = xyz;
+                const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+                const ac = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+                const cross = [ab[1] * ac[2] - ab[2] * ac[1], ab[2] * ac[0] - ab[0] * ac[2], ab[0] * ac[1] - ab[1] * ac[0]];
+                if (Math.hypot(...cross) > 0) drawableFaces.push({offset, vertices});
+            }
+            if (drawableFaces.length === 0) return [];
+            const selectedFaces = [...new Set([0, Math.floor(drawableFaces.length / 2), drawableFaces.length - 1])].map(index => drawableFaces[index]);
+            const geometrySamples = selectedFaces.map(face => {
+                const vertex = face.vertices[0];
+                return [position.getX(vertex), position.getY(vertex), position.getZ(vertex)];
+            });
+            if (!geometrySamples.every(sample => sample.length === 3 && sample.every(Number.isFinite))) return [];
+            return [{id: owner.id, kind: owner.kind, geometrySamples}];
+        });
+        if (owners.length === 0) {
+            this.clearRenderedOwners();
+            this.renderedOwnersGeometry = null;
+            this.renderedOwnersSignature = '';
+            this.renderedOwnersJson = '';
+            return;
+        }
+        this.renderedOwnersGeometry = mesh.geometry;
+        this.renderedOwnersSignature = signature;
+        this.renderedOwnersJson = JSON.stringify(owners);
+        host.setAttribute('data-rendered-surface-owners', this.renderedOwnersJson);
     }
 
     /**
@@ -658,6 +734,10 @@ export class ThreeSurfaceView implements SurfaceView {
         e.preventDefault();
         if (this.disposed) return;
         this.contextLost = true;
+        this.clearRenderedOwners();
+        this.renderedOwnersGeometry = null;
+        this.renderedOwnersSignature = '';
+        this.renderedOwnersJson = '';
         this.contextCallbacks.onContextLost?.();
     }
 

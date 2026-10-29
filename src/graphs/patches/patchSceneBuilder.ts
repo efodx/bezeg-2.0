@@ -112,6 +112,7 @@ export function buildTensorScene(input: TensorSceneInput, revision: number): Sur
         polylines,
         ...(mesh ? {mesh: {positions: mesh.vertices.flatMap(xyz), faces: mesh.faces.flatMap(face => [...face]), visible: true,
             chordTolerance: chordTolerance(patch, input.net, mesh, input.shadingDensity)}} : {}),
+        ...(mesh ? {meshOwners: [{id: "tensor-patch-0", kind: "tensor" as const, faceStart: 0, faceCount: mesh.faces.length * 3}]} : {}),
         markers: [{id: "evaluated", xyz: anchor, role: "evaluated"}],
         labels: [
             {id: "surface-point", text: "S(u,v)", anchor},

@@ -88,6 +88,10 @@ describe("two patches in one scene", () => {
         expect(scene.mesh!.faces.slice(a.faces.length)).toEqual(b.faces.map(index => index + vertices));
         expect(Math.max(...scene.mesh!.faces)).toBe(2 * vertices - 1);
         expect(scene.mesh!.chordTolerance).toBeGreaterThan(0);
+        expect(scene.meshOwners).toEqual([
+            {id: "join-patch-a", kind: "join", faceStart: 0, faceCount: a.faces.length},
+            {id: "join-patch-b", kind: "join", faceStart: a.faces.length, faceCount: b.faces.length},
+        ]);
     });
     it("draws no mesh with the shading off and no net, points or markers beyond A's when the net is off", () => {
         const off = buildJoinScene({...joined("c1"), showShading: false, showControlNet: false}, 1);
