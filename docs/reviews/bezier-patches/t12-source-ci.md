@@ -1,0 +1,7 @@
+# Task 12 exact source CI
+
+Handler checked [run 40840496778](https://github.com/efodx/bezeg-2.0/actions/runs/40840496778) through the GitHub connector on 2026-10-29. The push run's exact source is `27330ef4a7af79e20d18d74a1dfa094fa9a70177`, not the subsequent documentation-only handoff commit.
+
+Build, both unit shards, checks, and all three guided-lesson Chromium shards passed. The other-specs Chromium shard passed 119 tests and failed one: `tests/unified-learning.smoke.spec.cjs:10` expected eight `.learning-family` cards but received nine after the patches chapter was added. The aggregate smoke gate failed and deployment was skipped. This run does not establish a successful Pages deployment.
+
+Job evidence: `123335812270`, “chromium (other-specs, **/guided-lessons.smoke.spec.cjs)”; failing assertion `toHaveCount(8)`, received `9`, timeout 10000 ms. The same file's chapter walk inventory also omitted `bezier-patches`. The task12 acceptance worker owns the bounded inventory/assertion repair and current chapter browser verification. Later repair checks and publication must be recorded separately; they do not change this original run's outcome.
