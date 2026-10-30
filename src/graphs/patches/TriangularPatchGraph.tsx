@@ -84,7 +84,7 @@ function stateFromDto(dto: {n: number; net: ReadonlyArray<Point3Dto>; state?: Pa
 
 /**
  * The triangular Bezier patch Demonstration: a triangular control net, its surface, three iso-line families, the
- * boundary curves and the point S(u, v, w), shown in a Three surface view. The scene store holds every piece of patch
+ * boundary curves and the point S(u, v, w), shown in the JSXGraph surface view. The scene store holds every piece of patch
  * state; Presets store it in the DTO `state`. The three-piece split preview is transient (not in a Preset).
  */
 export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPatchGraphState, PatchCollectionPresetData> {

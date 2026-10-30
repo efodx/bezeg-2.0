@@ -1201,7 +1201,7 @@ export const en: Record<keyof typeof sl, string> = {
     "surface_view_label": "Three-dimensional view of the patch",
     "surface_view_keys": "Arrow keys orbit the view; plus and minus keys zoom it.",
     "surface_gesture_hint": "Drag empty space to orbit, use the mouse wheel or pinch to zoom, and drag a point to move it. Shift moves the point in height.",
-    "surface_unavailable": "The three-dimensional view could not be created. This browser may not support WebGL.",
+    "surface_unavailable": "The three-dimensional view could not be created. Reload the page to try again.",
     "patch_degree_heading": "Patch degree",
     "patch_degree_u": "Degree in the u direction (m)",
     "patch_degree_v": "Degree in the v direction (n)",

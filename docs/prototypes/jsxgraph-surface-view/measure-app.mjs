@@ -2,7 +2,9 @@
 // (docs/prototypes/bezier-patches/measure.mjs): a parent process enforces a hard deadline, a worker runs one fresh
 // browser context per repetition, and pointermove -> next requestAnimationFrame plus rAF intervals are sampled in page.
 // Unlike the prototype it drives the real production app through its UI (tabs, switches, selects, buttons, mouse), not
-// through internals. The three builds are served separately (VITE_SURFACE_VIEW picks the view at build time).
+// through internals. The three builds are served separately (VITE_SURFACE_VIEW picked the view at build time).
+// HISTORICAL after task 07A: the default build is the JSX view and VITE_SURFACE_VIEW no longer exists, so the `three`
+// reference strategy needs a build from a revision before 07A (for example 67d8538 with VITE_SURFACE_VIEW=three).
 //
 //   BEZEG_MEASURE_MODE=measure (default) | depth | summarize
 //   BEZEG_MEASURE_OUT, BEZEG_MEASURE_DEADLINE_MS, BEZEG_MEASURE_STRATEGIES=board2d,view3d,three

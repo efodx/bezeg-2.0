@@ -265,16 +265,6 @@ describe("view lifecycle", () => {
         expect(warn).toHaveBeenCalledWith(expect.any(String), failure);
         warn.mockRestore();
     });
-    it("a lost WebGL context shows the unavailable notice and a restored one clears it", () => {
-        const {graph, view} = mount();
-        expect(graph.state.surfaceUnavailable).toBe(false);
-        act(() => view.attachOptions!.onContextLost!());
-        expect(graph.state.surfaceUnavailable).toBe(true);
-        expect(screen.getByRole("alert").textContent).toBe(t("surface_unavailable"));
-        act(() => view.attachOptions!.onContextRestored!());
-        expect(graph.state.surfaceUnavailable).toBe(false);
-        expect(screen.queryByRole("alert")).toBeNull();
-    });
     it("a scene replacement cannot bring back a stale unavailable flag, and a failed view stays flagged", async () => {
         const {graph} = mount();
         act(() => graph.setState({surfaceUnavailable: true}));

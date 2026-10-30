@@ -1,7 +1,7 @@
 /**
  * The DOM overlay that shows a surface view's labels. The view projects and occlusion-tests every label
  * (`LabelLayout`); the overlay only places typeset formulas at those pixels. It owns its elements, and `dispose`
- * removes them and restores the host. No Three object is involved.
+ * removes them and restores the host.
  */
 import {typesetMath} from "../../mathjax/loadMathJax";
 import type {LabelLayout, SurfaceCapture} from "./surface-view/surfaceScene";
@@ -104,9 +104,8 @@ export class SurfaceLabelOverlay {
     }
 
     /**
-     * Runs `work` with the host showing `capture` as an ordinary image (a WebGL canvas cannot be read back by a
-     * DOM-to-canvas capture) and its labels placed as the capture laid them out; the image is removed afterwards, even
-     * when `work` fails.
+     * Runs `work` with the host showing `capture` (the view's still capture) as an ordinary image and its labels
+     * placed as the capture laid them out; the image is removed afterwards, even when `work` fails.
      */
     async showStill<T>(capture: SurfaceCapture, work: () => Promise<T>): Promise<T> {
         const host = this.element.parentElement;

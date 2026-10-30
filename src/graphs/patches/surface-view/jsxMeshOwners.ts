@@ -9,7 +9,7 @@ export interface RenderedOwner {
 }
 
 /**
- * Read-only evidence for the catalog preview validator, in the format the Three view publishes: per mesh owner, the
+ * Read-only evidence for the catalog preview validator, in the format the former Three view published: per mesh owner, the
  * first vertex of the first, middle and last drawable (non-degenerate) triangle, after Float32 rounding as if uploaded
  * to a GPU. Invalid owners (bad ranges, duplicate ids, no drawable triangle) are left out.
  */

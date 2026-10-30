@@ -125,9 +125,6 @@ export interface AttachOptions {
     ariaLabel?: string;
     /** Keyboard help for the host, exposed through `aria-describedby`; supplied by the host (localized). */
     description?: string;
-    /** The WebGL context was lost: the view cannot draw until `onContextRestored`. */
-    onContextLost?: () => void;
-    onContextRestored?: () => void;
 }
 
 export interface SurfaceView {

@@ -8,7 +8,7 @@ import type {SurfaceCamera, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene
  * only turns gestures into `SurfaceEdit`s and never writes to the scene.
  *  - A control point is a JSXGraph `point3d`; JSXGraph itself moves it. A press on it is reported as `select` and a
  *    `point` `start`, every board update that changed it as `move`, the release as `end` with the final coordinates.
- *  - A press that hits no point is an orbit drag; wheel zooms; arrow keys orbit and +/- zoom (same steps as the Three view).
+ *  - A press that hits no point is an orbit drag; wheel zooms; arrow keys orbit and +/- zoom (same steps as the former Three view).
  *  - z-mode: JSXGraph drags a point along z while `view3d.isVerticalDrag()` is true, which by default means the Shift key
  *    is held (view3d attribute `verticalDrag: {enabled: true, key: 'shift'}`). Touch has no Shift key, so `bindView`
  *    makes the scene's `interaction.zMode` count as "vertical drag" too: with it on, every drag moves z; with it off, a

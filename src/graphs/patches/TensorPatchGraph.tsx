@@ -111,7 +111,7 @@ function stateFromDto(dto: {m: number; n: number; net: ReadonlyArray<Point3Dto>;
 
 /**
  * The tensor-product Bezier patch Demonstration: a control net, its surface, iso-parameter curves and the point
- * S(u,v), shown in a Three surface view. The scene store holds every piece of patch state; Presets store it in the
+ * S(u,v), shown in the JSXGraph surface view. The scene store holds every piece of patch state; Presets store it in the
  * DTO `state`.
  */
 export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphState, PatchCollectionPresetData> {

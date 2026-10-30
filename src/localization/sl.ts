@@ -1200,7 +1200,7 @@ export const sl = {
     "surface_view_label": "Tridimenzionalni prikaz krpe",
     "surface_view_keys": "Puščične tipke vrtijo pogled, tipki plus in minus ga približata in oddaljita.",
     "surface_gesture_hint": "Povleci prazen prostor za vrtenje pogleda, kolesce miške ali ščipanje za povečavo, povleci točko za premik. Shift premika točko po višini.",
-    "surface_unavailable": "Tridimenzionalnega prikaza ni mogoče ustvariti. Brskalnik morda ne podpira WebGL.",
+    "surface_unavailable": "Tridimenzionalnega prikaza ni mogoče ustvariti. Za ponoven poskus znova naložite stran.",
     "patch_degree_heading": "Stopnja krpe",
     "patch_degree_u": "Stopnja v smeri u (m)",
     "patch_degree_v": "Stopnja v smeri v (n)",

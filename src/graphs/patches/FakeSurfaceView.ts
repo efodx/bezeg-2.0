@@ -1,5 +1,5 @@
 /**
- * Test support: a `SurfaceView` that records what the graph tells it, so no WebGL or Three is loaded. Shared by the
+ * Test support: a `SurfaceView` that records what the graph tells it, so no board is created. Shared by the
  * patch graph tests and the real-graph transient-state harness.
  */
 import {act} from "@testing-library/react";

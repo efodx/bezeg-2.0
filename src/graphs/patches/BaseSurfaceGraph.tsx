@@ -20,12 +20,12 @@ import {createDefaultSurfaceView} from "./surface-view/defaultSurfaceView";
 /** State every surface graph has: the authored camera and the "view could not start" flag. */
 export interface SurfaceGraphState extends BaseGraphState {
     camera: SurfaceCamera;
-    /** True once the surface view failed to start (no WebGL, or the renderer failed to load). */
+    /** True once the surface view failed to start (the renderer failed to load). */
     surfaceUnavailable: boolean;
 }
 
 export interface SurfaceGraphOptions {
-    /** Creates the view; tests pass a fake so nothing loads WebGL. Defaults to the Three view. */
+    /** Creates the view; tests pass a fake so no board is created. Defaults to the JSXGraph view. */
     viewFactory?: () => SurfaceView;
     /** Typesets the on-screen labels; tests pass a stub so no MathJax loads. Defaults to the app's MathJax pipeline. */
     typeset?: OverlayTypesetter;
@@ -142,8 +142,6 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         view.attach(container, {
             ariaLabel: t("surface_view_label"),
             description: t("surface_view_keys"),
-            onContextLost: () => this.setViewUnavailable(session, true),
-            onContextRestored: () => this.setViewUnavailable(session, false),
         }).catch((error: unknown) => {
             console.warn("The surface view could not start.", error);
             this.setViewUnavailable(session, true);
@@ -269,7 +267,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     }
 
     /**
-     * Whether the live view cannot draw (it failed to start, or its WebGL context is lost). The store flag
+     * Whether the live view cannot draw (it failed to start). The store flag
      * `surfaceUnavailable` shows it; a scene replacement may bring a stale flag back, so this is what it is checked against.
      */
     private viewUnavailable = false;
@@ -327,8 +325,9 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
     }
 
     /**
-     * The surface is drawn by WebGL, which a DOM-to-canvas capture cannot read: the target carries a still figure
-     * (the view's depth-correct render plus its label layout) instead of an SVG renderer root.
+     * The target carries a still figure (the view's rasterised, depth-correct render plus its label layout) instead
+     * of an SVG renderer root: the labels live in the host's overlay, not on the board, and figure export keeps a raster
+     * surface (task 05 of docs/specs/jsxgraph-surface-view.md).
      */
     protected override createFigureCaptureTarget(session: GraphSession): FigureCaptureTarget {
         const view = this.view, host = this.host, overlay = this.labelOverlay;
