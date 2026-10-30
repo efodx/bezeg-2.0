@@ -1,0 +1,84 @@
+{
+  "mode": "depth",
+  "evidenceWriteRetries": [],
+  "startedAt": "2026-10-30T20:38:01.319Z",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 5 7600 6-Core Processor              ",
+    "cpus": 12,
+    "totalMemGiB": 63
+  },
+  "git": {
+    "head": "afe6f3ebc74788a720a728ed405fd0cf322bbc33",
+    "dirty": true,
+    "dirtyEntries": [
+      "?? docs/reviews/jsxgraph-surface-view/measure-2026-10-30-03d/measure.json",
+      "?? docs/reviews/jsxgraph-surface-view/measure-2026-10-30-03d/summary.json"
+    ]
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "156.0.8078.4"
+  },
+  "jsxgraph": null,
+  "builds": {
+    "board2d": {
+      "dir": "C:/Users/1337Hacker/.claude/jobs/5326e32a/tmp/build-head",
+      "port": "4202",
+      "indexSha256": "e4bb1f8d25a6dff429295142c77911b5d37008083d9a1fce2af7ba48bc26c884",
+      "servedMatchesDir": true,
+      "status": 200
+    },
+    "three": {
+      "dir": "C:/Users/1337Hacker/.claude/jobs/5326e32a/tmp/build-three",
+      "port": "4203",
+      "indexSha256": "c90acea7cc08b59520021d0403631f1a71de5a7322af6d422799a7be9ade0d90",
+      "servedMatchesDir": true,
+      "status": 200
+    }
+  },
+  "parameters": {
+    "strategies": [
+      "board2d",
+      "three"
+    ],
+    "kinds": [
+      "tensor",
+      "triangular",
+      "teapot"
+    ],
+    "densities": [
+      "8",
+      "16"
+    ],
+    "viewports": [
+      "desktop",
+      "narrow"
+    ],
+    "gestures": [
+      "orbit",
+      "drag"
+    ],
+    "repeats": 2,
+    "samples": 16,
+    "operationTimeout": 20000,
+    "settleMs": 600,
+    "ports": {
+      "board2d": "4202",
+      "three": "4203"
+    }
+  },
+  "caveats": [
+    "Headless Chromium (software GL path) on this host; narrow viewport is an emulation, not a physical phone.",
+    "Pointer-to-next-rAF is a scheduling proxy as in ADR 0018: it does not measure compositor presentation. eventToFirstDomMutationMs / eventToLastDomMutationMs / eventToFrameAfterLastMutationMs / framesUntilDrawVisible additionally record when DOM mutations inside the surface host followed each pointermove (MutationObserver on the host subtree, mutations attributed to the latest pointermove) and in which rAF frame they could first be presented. Because the harness gates each move on an rAF callback, the move lands shortly before the next frame; a draw that finishes after that frame is first visible one frame later. The WebGL (three) build has no DOM mutations, so these are null for it.",
+    "Playwright mouse events are dispatched one per rAF gate; the app was driven through tabs, switches, selects and buttons with English UI language (localStorage), not through internals.",
+    "Active frame intervals are rAF timestamp deltas whose interval starts no later than 50 ms after the last pointermove (so a long frame caused by a move counts); they are not CPU render time. frameIntervalsMs holds all intervals of the run (including idle settle).",
+    "Teapot density is fixed at 8 by the app (no density control in the capstone); recorded as density \"fixed8\"."
+  ],
+  "runs": [],
+  "failures": [],
+  "depthScreenshots": 32,
+  "finishedAt": "2026-10-30T20:38:38.999Z"
+}

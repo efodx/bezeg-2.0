@@ -1,0 +1,877 @@
+{
+  "generatedAt": "2026-10-30T20:38:38.961Z",
+  "git": {
+    "head": "afe6f3ebc74788a720a728ed405fd0cf322bbc33",
+    "dirty": true,
+    "dirtyEntries": [
+      "?? docs/reviews/jsxgraph-surface-view/measure-2026-10-30-03d/measure.json",
+      "?? docs/reviews/jsxgraph-surface-view/measure-2026-10-30-03d/summary.json"
+    ]
+  },
+  "builds": {
+    "board2d": {
+      "dir": "C:/Users/1337Hacker/.claude/jobs/5326e32a/tmp/build-head",
+      "port": "4202",
+      "indexSha256": "e4bb1f8d25a6dff429295142c77911b5d37008083d9a1fce2af7ba48bc26c884",
+      "servedMatchesDir": true,
+      "status": 200
+    },
+    "three": {
+      "dir": "C:/Users/1337Hacker/.claude/jobs/5326e32a/tmp/build-three",
+      "port": "4203",
+      "indexSha256": "c90acea7cc08b59520021d0403631f1a71de5a7322af6d422799a7be9ade0d90",
+      "servedMatchesDir": true,
+      "status": 200
+    }
+  },
+  "screenshots": [
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "preset": "front",
+      "file": "depth/board2d-tensor-front.png",
+      "status": "ok",
+      "bytes": 24660,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 912,
+        "ellipses": 80,
+        "polygons": 0,
+        "pathHash": 903911163,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "preset": "top",
+      "file": "depth/board2d-tensor-top.png",
+      "status": "ok",
+      "bytes": 32440,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 912,
+        "ellipses": 80,
+        "polygons": 0,
+        "pathHash": 466941035,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "preset": "side",
+      "file": "depth/board2d-tensor-side.png",
+      "status": "ok",
+      "bytes": 25426,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 912,
+        "ellipses": 80,
+        "polygons": 0,
+        "pathHash": 929344966,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "tensor",
+      "preset": "isometric",
+      "file": "depth/board2d-tensor-isometric.png",
+      "status": "ok",
+      "bytes": 37261,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 912,
+        "ellipses": 80,
+        "polygons": 0,
+        "pathHash": -598604626,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "preset": "front",
+      "file": "depth/board2d-triangular-front.png",
+      "status": "ok",
+      "bytes": 23580,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 994,
+        "ellipses": 74,
+        "polygons": 0,
+        "pathHash": -422784401,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "preset": "top",
+      "file": "depth/board2d-triangular-top.png",
+      "status": "ok",
+      "bytes": 28553,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 994,
+        "ellipses": 74,
+        "polygons": 0,
+        "pathHash": -1085072134,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "preset": "side",
+      "file": "depth/board2d-triangular-side.png",
+      "status": "ok",
+      "bytes": 20825,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 994,
+        "ellipses": 74,
+        "polygons": 0,
+        "pathHash": -1382675365,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "triangular",
+      "preset": "isometric",
+      "file": "depth/board2d-triangular-isometric.png",
+      "status": "ok",
+      "bytes": 29140,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 994,
+        "ellipses": 74,
+        "polygons": 0,
+        "pathHash": 1732445564,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "joins",
+      "preset": "front",
+      "file": "depth/board2d-joins-front.png",
+      "status": "ok",
+      "bytes": 53666,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 1950,
+        "ellipses": 96,
+        "polygons": 0,
+        "pathHash": -1085951767,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "joins",
+      "preset": "top",
+      "file": "depth/board2d-joins-top.png",
+      "status": "ok",
+      "bytes": 70540,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 1950,
+        "ellipses": 96,
+        "polygons": 0,
+        "pathHash": -1111074546,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "joins",
+      "preset": "side",
+      "file": "depth/board2d-joins-side.png",
+      "status": "ok",
+      "bytes": 48017,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 1950,
+        "ellipses": 96,
+        "polygons": 0,
+        "pathHash": 1888007324,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "joins",
+      "preset": "isometric",
+      "file": "depth/board2d-joins-isometric.png",
+      "status": "ok",
+      "bytes": 86074,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 1950,
+        "ellipses": 96,
+        "polygons": 0,
+        "pathHash": 26985970,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "preset": "front",
+      "file": "depth/board2d-teapot-front.png",
+      "status": "ok",
+      "bytes": 22109,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 8128,
+        "ellipses": 63,
+        "polygons": 0,
+        "pathHash": -1033221748,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "preset": "top",
+      "file": "depth/board2d-teapot-top.png",
+      "status": "ok",
+      "bytes": 28922,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 8128,
+        "ellipses": 63,
+        "polygons": 0,
+        "pathHash": 571055095,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "preset": "side",
+      "file": "depth/board2d-teapot-side.png",
+      "status": "ok",
+      "bytes": 17914,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 8128,
+        "ellipses": 63,
+        "polygons": 0,
+        "pathHash": 174792283,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "board2d",
+      "kind": "teapot",
+      "preset": "isometric",
+      "file": "depth/board2d-teapot-isometric.png",
+      "status": "ok",
+      "bytes": 25563,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 8128,
+        "ellipses": 63,
+        "polygons": 0,
+        "pathHash": -755130017,
+        "canvas": null
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "preset": "front",
+      "file": "depth/three-tensor-front.png",
+      "status": "ok",
+      "bytes": 16440,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "preset": "top",
+      "file": "depth/three-tensor-top.png",
+      "status": "ok",
+      "bytes": 22307,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "preset": "side",
+      "file": "depth/three-tensor-side.png",
+      "status": "ok",
+      "bytes": 17526,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "tensor",
+      "preset": "isometric",
+      "file": "depth/three-tensor-isometric.png",
+      "status": "ok",
+      "bytes": 26778,
+      "host": [
+        55,
+        383,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "preset": "front",
+      "file": "depth/three-triangular-front.png",
+      "status": "ok",
+      "bytes": 19599,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "preset": "top",
+      "file": "depth/three-triangular-top.png",
+      "status": "ok",
+      "bytes": 24251,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "preset": "side",
+      "file": "depth/three-triangular-side.png",
+      "status": "ok",
+      "bytes": 17331,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "triangular",
+      "preset": "isometric",
+      "file": "depth/three-triangular-isometric.png",
+      "status": "ok",
+      "bytes": 24325,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "joins",
+      "preset": "front",
+      "file": "depth/three-joins-front.png",
+      "status": "ok",
+      "bytes": 41424,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "joins",
+      "preset": "top",
+      "file": "depth/three-joins-top.png",
+      "status": "ok",
+      "bytes": 55516,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "joins",
+      "preset": "side",
+      "file": "depth/three-joins-side.png",
+      "status": "ok",
+      "bytes": 36117,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "joins",
+      "preset": "isometric",
+      "file": "depth/three-joins-isometric.png",
+      "status": "ok",
+      "bytes": 72548,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "preset": "front",
+      "file": "depth/three-teapot-front.png",
+      "status": "ok",
+      "bytes": 16999,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        -0.23550045014677
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "preset": "top",
+      "file": "depth/three-teapot-top.png",
+      "status": "ok",
+      "bytes": 22614,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        0,
+        87.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "preset": "side",
+      "file": "depth/three-teapot-side.png",
+      "status": "ok",
+      "bytes": 13246,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        90,
+        3.76449954985323
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    },
+    {
+      "strategy": "three",
+      "kind": "teapot",
+      "preset": "isometric",
+      "file": "depth/three-teapot-isometric.png",
+      "status": "ok",
+      "bytes": 20921,
+      "host": [
+        55,
+        324,
+        1002,
+        660
+      ],
+      "camera": [
+        45,
+        31.7644995498532
+      ],
+      "drawn": {
+        "paths": 0,
+        "ellipses": 0,
+        "polygons": 0,
+        "pathHash": 5381,
+        "canvas": [
+          1002,
+          660
+        ]
+      }
+    }
+  ]
+}
