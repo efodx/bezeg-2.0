@@ -188,7 +188,7 @@ if (mode === 'summarize') {
       await bounded(page.goto(url(strategy, kind), { waitUntil: 'load', timeout: operationTimeout }), 'navigation');
       await bounded(page.waitForSelector('[role="application"]', { timeout: operationTimeout }), 'surface host');
       if (strategy === 'three') await bounded(page.waitForSelector('[role="application"] canvas', { timeout: operationTimeout }), 'canvas');
-      else await bounded(page.waitForFunction(() => document.querySelectorAll('[role="application"] path').length > 20, null, { timeout: operationTimeout }), 'board content');
+      else await bounded(page.waitForFunction(() => document.querySelectorAll('[role="application"] polygon, [role="application"] polyline').length > 20, null, { timeout: operationTimeout }), 'board content');
       await page.waitForTimeout(settleMs);
       if (kind === 'teapot') {
         await bounded(page.getByRole('button', { name: 'Edit', exact: true }).click(), 'edit tab');
@@ -225,8 +225,8 @@ if (mode === 'summarize') {
     const sliders = [...document.querySelectorAll('input[type=range]')].map(x => ({ label: document.querySelector(`label[for="${x.id}"]`)?.innerText ?? '', value: Number(x.value) }));
     const camera = sliders.filter(s => /azimuth|elevation/i.test(s.label)).map(s => s.value);
     const points = [...host.querySelectorAll('ellipse')].filter(e => [pointFill, selectedFill].includes(e.getAttribute('fill')) && e.getBoundingClientRect().width >= 9 && getComputedStyle(e).visibility !== 'hidden').map(e => { const b = e.getBoundingClientRect(); return { id: e.id, x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, selected: e.getAttribute('fill') === selectedFill }; });
-    const paths = [...host.querySelectorAll('path')].filter(p => (p.getAttribute('d') || '').length > 2);
-    let h = 5381; for (const p of paths) { const d = p.getAttribute('d'); for (let i = 0; i < d.length; i++) h = (h * 33 + d.charCodeAt(i)) | 0; }
+    const paths = [...host.querySelectorAll('polygon, polyline')].filter(p => (p.getAttribute('points') || '').length > 2 && p.getAttribute('display') !== 'none');
+    let h = 5381; for (const p of paths) { const d = p.getAttribute('points'); for (let i = 0; i < d.length; i++) h = (h * 33 + d.charCodeAt(i)) | 0; }
     const canvas = host.querySelector('canvas');
     return { host: [r.x, r.y, r.width, r.height], camera, points, drawn: { paths: paths.length, ellipses: host.querySelectorAll('ellipse').length, polygons: host.querySelectorAll('polygon').length, pathHash: h, canvas: canvas ? [canvas.width, canvas.height] : null }, scrollY: scrollY };
   }, [POINT_FILL, SELECTED_FILL]);

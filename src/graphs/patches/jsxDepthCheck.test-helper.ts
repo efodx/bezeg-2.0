@@ -11,7 +11,7 @@ import type {PolylineRole, SurfaceScene, Xyz} from './surface-view/surfaceScene'
 import type {FramingViewport} from './jsxFraming.test-helper';
 
 interface Internals {
-    draw: {elements: Array<{rendNode?: SVGElement}>; nodes: Array<SVGElement | null | undefined>};
+    draw: {elements: SVGElement[]; nodes: Array<SVGElement | null | undefined>};
     pool: {verts: Float64Array; tris: Uint32Array; planes: Uint32Array; segs: Uint32Array; segRoles: PolylineRole[]};
 }
 
@@ -76,7 +76,7 @@ export async function checkDepthOrder(
         const rankOf = new Map<Node, number>();
         Array.from(parent.childNodes).forEach((nd, k) => rankOf.set(nd, k));
         const rank = (element: number): number => {
-            const node = draw.elements[element]?.rendNode;
+            const node = draw.elements[element];
             const r = node ? rankOf.get(node) : undefined;
             if (r === undefined) throw new Error(`element ${element} is not in the drawn order`);
             return r;

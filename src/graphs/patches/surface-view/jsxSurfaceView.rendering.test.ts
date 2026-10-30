@@ -143,10 +143,10 @@ describe('JsxSurfaceView camera redraw', () => {
         raf.mockClear();
         const {frames, createdElements, rebuilds} = view.stats;
         const nodes = internals(view).draw.nodes;
-        const before = nodes[0]!.getAttribute('d');
+        const before = nodes[0]!.getAttribute('points');
         view.reconcile(withCamera(makeScene(3), {az: 1.4}));
         expect(view.stats.frames).toBe(frames + 1);
-        expect(nodes[0]!.getAttribute('d')).not.toBe(before);
+        expect(nodes[0]!.getAttribute('points')).not.toBe(before);
         expect(view.stats.createdElements).toBe(createdElements);
         expect(view.stats.rebuilds).toBe(rebuilds);
         expect(raf).not.toHaveBeenCalled();
@@ -207,6 +207,47 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         expect(hidden()).toBe(0);
         expect(view.stats.frames).toBe(frames + 3);
         expect(view.stats.createdElements).toBe(createdElements);
+    });
+
+    it('draws runs of segment pieces as one line while orbiting and every piece again once settled', async () => {
+        vi.useFakeTimers({toFake: ['setTimeout', 'clearTimeout']});
+        const orbit = withCamera(makeScene(TEAPOT_GRID - 1), {az: 1.0});
+        // The same scene drawn in full at the orbit camera: what every piece must show, reduced or not.
+        const reference = await mount(orbit);
+        const refInternals = internals(reference.view);
+        const nPiece = refInternals.pool.segs.length / 2;
+        const pieceBase = refInternals.pool.tris.length / 3 + refInternals.pool.planes.length / 4;
+        const ends = (node: SVGElement): string[] => node.getAttribute('points')!.split(' ');
+        const refPieces = refInternals.draw.nodes.slice(pieceBase, pieceBase + nPiece).map(n => ends(n!));
+        expect(nPiece).toBeGreaterThan(ROLES.length * 4);
+
+        const {view} = await mount(makeScene(TEAPOT_GRID - 1));
+        const nodes = internals(view).draw.nodes;
+        const pieces = (): SVGElement[] => nodes.slice(pieceBase, pieceBase + nPiece) as SVGElement[];
+        const start = (internals(view).pool as unknown as {pieceStart: Uint8Array}).pieceStart;
+        view.reconcile(orbit);
+        expect(view.stats.reducedFrames).toBe(1);
+
+        const hidden = pieces().map(n => n.getAttribute('display') === 'none');
+        expect(hidden.filter(Boolean).length).toBeGreaterThan(nPiece / 2);
+        let heads = 0;
+        for (let p = 0; p < nPiece;) {
+            expect(hidden[p], `piece ${p} starts a run`).toBe(false);
+            let last = p;
+            while (last + 1 < nPiece && hidden[last + 1] && !start[last + 1]) last++;
+            expect(last - p + 1, `run at ${p}`).toBeLessThanOrEqual(3);
+            // The run is one line from its first piece's start to its last piece's end.
+            expect(ends(pieces()[p])).toEqual([refPieces[p][0], refPieces[last][1]]);
+            heads++;
+            p = last + 1;
+        }
+        expect(heads).toBeLessThan(nPiece);
+
+        vi.advanceTimersByTime(200);
+        expect(pieces().map(n => n.getAttribute('display'))).toEqual(Array(nPiece).fill(null));
+        expect(pieces().map(ends)).toEqual(refPieces);
+        reference.view.dispose();
+        view.dispose();
     });
 
     it('restores full detail after the node list was re-collected during an orbit', async () => {

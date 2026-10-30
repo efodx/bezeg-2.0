@@ -1,5 +1,5 @@
 /**
- * Framing of the JSXGraph surface view on the real patch routes: where the board's SVG paths and point3d elements
+ * Framing of the JSXGraph surface view on the real patch routes: where the board's SVG polygons, polylines and point3d elements
  * sit, read from the board (not from the pure projection), against the independent pinhole oracle.
  */
 import {afterAll, beforeAll, describe, expect, it} from 'vitest';

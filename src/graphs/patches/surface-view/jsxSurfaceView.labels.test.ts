@@ -161,7 +161,7 @@ describe('JsxSurfaceView capture', () => {
         const root = doc.documentElement;
         expect(root.getAttribute('xmlns')).toBe('http://www.w3.org/2000/svg');
         expect([root.getAttribute('width'), root.getAttribute('height'), root.getAttribute('viewBox')]).toEqual(['640', '480', '0 0 640 480']);
-        expect(root.querySelectorAll('path').length).toBeGreaterThan(3);
+        expect(root.querySelectorAll('polygon, polyline').length).toBeGreaterThan(3);
         expect(root.querySelector('foreignObject, image, script, use, style')).toBeNull();
         const refs = Array.from(root.querySelectorAll('*')).flatMap(el => Array.from(el.attributes))
             .filter(a => /^(href|xlink:href|src)$/.test(a.name) || /url\((?!["']?#)/.test(a.value));

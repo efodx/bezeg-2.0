@@ -1,7 +1,7 @@
 /**
  * Test support for the framing checks of the JSXGraph surface view: the real patch graphs' scenes (stored and fitted
- * cameras, at a narrow and a wide host) and a reader that measures where a `JsxSurfaceView` actually put them (SVG
- * path data and point3d coordinates, not the pure projection).
+ * cameras, at a narrow and a wide host) and a reader that measures where a `JsxSurfaceView` actually put them (the SVG
+ * `points` of the polygons and polylines and point3d coordinates, not the pure projection).
  */
 import {act} from '@testing-library/react';
 import {createGraph, mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
@@ -92,7 +92,7 @@ export interface ScreenSample {
 
 interface Internals {
     draw: {
-        elements: Array<{rendNode?: SVGElement}>;
+        elements: SVGElement[];
         markers: Array<{element2D: {coords: {usrCoords: number[]}}}>;
         points: Map<string, {element2D: {coords: {usrCoords: number[]}}}>;
     };
@@ -102,7 +102,7 @@ interface Internals {
 const numbersIn = (d: string): number[] => (d.match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/g) ?? []).map(Number);
 
 export interface JsxMeasurement {
-    /** Every drawn vertex and point, as JSXGraph's SVG (path data) and point3d elements have it. */
+    /** Every drawn vertex and point, as the SVG `points` of the drawn polygons and polylines and the point3d elements have it. */
     samples: ScreenSample[];
     /** Screen positions of the segment endpoints by role. */
     segmentSamples: Array<{role: string; sample: ScreenSample}>;
@@ -123,8 +123,8 @@ export async function measureJsx(scene: SurfaceScene, viewport: FramingViewport)
         const segmentSamples: JsxMeasurement['segmentSamples'] = [];
         const at = (i: number): Xyz => [pool.verts[3 * i], pool.verts[3 * i + 1], pool.verts[3 * i + 2]];
         const read = (element: number, vertices: number[]): ScreenSample[] => {
-            const values = numbersIn(draw.elements[element].rendNode?.getAttribute('d') ?? '');
-            if (values.length < 2 * vertices.length) throw new Error(`path of element ${element} has ${values.length / 2} vertices, expected ${vertices.length}`);
+            const values = numbersIn(draw.elements[element]?.getAttribute('points') ?? '');
+            if (values.length < 2 * vertices.length) throw new Error(`points of element ${element} has ${values.length / 2} vertices, expected ${vertices.length}`);
             return vertices.map((vertex, k) => ({world: at(vertex), x: values[2 * k], y: values[2 * k + 1]}));
         };
         let e = 0;

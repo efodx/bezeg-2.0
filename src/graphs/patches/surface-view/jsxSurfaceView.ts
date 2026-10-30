@@ -17,8 +17,10 @@ import {
 /**
  * Feasibility-gate `SurfaceView` drawn with JSXGraph 1.14.1 (task 01 of docs/specs/jsxgraph-surface-view.md).
  *
- * Mesh triangles, planes and line segments are plain 2D `curve` elements: the adapter projects them itself
- * (`jsxProjection.ts`, the one projection also used for depth order) and writes their path. Control points and markers
+ * Mesh triangles, planes and line segments are plain SVG `polygon` and `polyline` nodes that the adapter owns: it creates
+ * them in JSXGraph's SVG layer group, projects them itself (`jsxProjection.ts`, the one projection also used for depth
+ * order) and writes their `points` (an SVG path `d` is a CSS property, so every write costs a style recalculation; `points`
+ * costs none). Control points and markers
  * are `point3d` elements of a central-projection `view3d` that is kept only so JSXGraph's built-in 3D point drag keeps
  * working; `jsxView3dMapping.ts` makes it coincide with the pure projection.
  * Elements are created once per topology and reused: a camera change reprojects, sorts and reorders the SVG nodes.
@@ -29,11 +31,6 @@ import {
 /** The slice of JSXGraph's untyped 3D API that this adapter uses. */
 interface JxgElement {
     rendNode?: SVGElement;
-    hasPoint?: (...args: unknown[]) => boolean;
-    needsRegularUpdate?: boolean;
-    updateDataArray?: () => void;
-    dataX?: number[];
-    dataY?: number[];
     on: (event: string, handler: () => void) => void;
 }
 interface JxgPoint3D {
@@ -63,6 +60,8 @@ interface JxgBoard {
     setBoundingBox: (bbox: number[], keepAspect?: boolean) => void;
     on: (event: string, handler: () => void) => void;
     objectsList: unknown[];
+    /** The SVG renderer; `layer[n]` is the group that holds the elements of layer n, in painter's order. */
+    renderer: {layer: SVGElement[]};
     downObjects: unknown[];
     /** The elements that currently hold a pointer (mouse, pen or finger): `obj` is the dragged element. */
     touches: Array<{obj: unknown; targets: Array<{num: number}>}>;
@@ -75,6 +74,9 @@ const pointColor = (selected: boolean | undefined): string => cssColor(selected 
 const LAYER = 12;
 const DEFAULT_WIDTH = 640;
 const DEFAULT_HEIGHT = 480;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+/** JSXGraph's `dash` index patterns (`AbstractRenderer.dashArray`; `dashScale` is off, so they are used unscaled). */
+const DASH_ARRAYS: ReadonlyArray<readonly number[]> = [[2, 2], [5, 5], [10, 10], [20, 20], [20, 10, 10, 10], [20, 5, 10, 5], [0, 5]];
 
 type Style = DrawableStyle;
 
@@ -113,7 +115,8 @@ interface Pool {
 interface Drawables {
     /** Triangles, planes, segments, markers, points in the draw-list layout. */
     nodes: (SVGElement | null | undefined)[];
-    elements: JxgElement[];
+    /** The SVG nodes this view created for triangles, planes and segment pieces; removed with the drawables. */
+    elements: SVGElement[];
     markers: JxgPoint3D[];
     points: Map<string, JxgPoint3D>;
 }
@@ -157,6 +160,11 @@ export class JsxSurfaceView implements SurfaceView {
     private settleTimer: ReturnType<typeof setTimeout> | null = null;
     /** Detail state the triangle nodes carry; null after the node list was re-collected, so the next frame reapplies it. */
     private detailReduced: boolean | null = false;
+    /**
+     * While reduced: per segment piece, how many consecutive pieces of its segment the piece's node draws as one line
+     * (0 = the piece is covered by the run before it and hidden). Null at full detail.
+     */
+    private pieceRun: Uint8Array | null = null;
     /** `draw.nodes` with the hidden triangles of a reduced frame left out (null); equals `draw.nodes` at full detail. */
     private orderNodes: (SVGElement | null | undefined)[] = [];
     private observer: ResizeObserver | null = null;
@@ -429,6 +437,7 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     private destroyBoard(): void {
+        for (const node of this.draw?.elements ?? []) node.remove();
         if (this.board) {
             try {
                 JSXGraph.freeBoard(this.board as never);
@@ -509,14 +518,14 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     private createDrawables(pool: Pool, draw: Drawables): void {
-        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE));
-        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE));
-        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(polylineStyle(pool.segRoles[s / 2])));
+        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE, 'polygon'));
+        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE, 'polygon'));
+        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(polylineStyle(pool.segRoles[s / 2]), 'polyline'));
     }
 
     /**
      * Mesh, plane or polyline topology changed but the control points and markers did not (selecting a point adds its
-     * highlighted row and column): swap the 2D curves and keep the board and every `point3d`. A new board would end a
+     * highlighted row and column): swap the SVG nodes and keep the board and every `point3d`. A new board would end a
      * running point drag, because JSXGraph holds the pressed element of the old one.
      */
     private rebuildDrawables(scene: SurfaceScene): void {
@@ -526,7 +535,7 @@ export class JsxSurfaceView implements SurfaceView {
         this.detailReduced = false;
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
-        for (const el of draw.elements) board.removeObject(el);
+        for (const el of draw.elements) el.remove();
         draw.elements = [];
         this.createDrawables(pool, draw);
         this.syncPoints(scene);
@@ -695,27 +704,24 @@ export class JsxSurfaceView implements SurfaceView {
         return false;
     }
 
-    private makeDrawable(style: Style): JxgElement {
-        const attributes = {
-            strokeColor: style.stroke, strokeWidth: style.width, fillColor: style.fill ?? 'none',
-            fillOpacity: style.fillOpacity ?? 0, highlight: false, fixed: true, layer: LAYER, visible: true,
-            withLabel: false, dash: style.dash,
-        };
+    /**
+     * One adapter-owned SVG node in the board's drawable layer, styled as JSXGraph styled the `curve` it replaces (colour,
+     * width, fill, dash pattern, round caps and joins). Its geometry is written by `writePaths`.
+     */
+    private makeDrawable(style: Style, tag: 'polygon' | 'polyline'): SVGElement {
         this.stats.createdElements++;
-        // A 2D curve whose path the adapter writes itself; JSXGraph only hosts the SVG node and
-        // regenerates it from the cached projection if it ever redraws the curve on its own.
-        const curve = this.board!.create('curve', [[0], [0]], attributes) as JxgElement;
-        // Segments of one polyline meet end to end; round caps close the notches between them.
-        if (!style.fill) curve.rendNode?.setAttribute('stroke-linecap', 'round');
-        curve.hasPoint = () => false;
-        curve.needsRegularUpdate = false;
-        const index = this.draw!.elements.length;
-        curve.updateDataArray = () => {
-            const [xs, ys] = this.cachedCurve(index);
-            curve.dataX = xs;
-            curve.dataY = ys;
+        const layer = this.board!.renderer.layer[LAYER];
+        const node = layer.ownerDocument.createElementNS(SVG_NS, tag);
+        const attributes: Record<string, string> = {
+            stroke: style.stroke, 'stroke-opacity': '1', 'stroke-width': String(style.width),
+            fill: style.fill ?? 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'fill-rule': 'evenodd',
+            'pointer-events': style.fill ? 'visiblePainted' : 'visibleStroke', tabindex: '-1',
         };
-        return curve;
+        if (style.fill) attributes['fill-opacity'] = String(style.fillOpacity ?? 0);
+        if (style.dash > 0) attributes['stroke-dasharray'] = DASH_ARRAYS[style.dash - 1].join(',');
+        for (const name in attributes) node.setAttribute(name, attributes[name]);
+        layer.appendChild(node);
+        return node;
     }
 
     private makePoint(xyz: Xyz, color: string, size: number, fixed: boolean): JxgPoint3D {
@@ -730,7 +736,7 @@ export class JsxSurfaceView implements SurfaceView {
     private collectNodes(): void {
         const draw = this.draw!;
         const nodes: (SVGElement | null | undefined)[] = [];
-        for (const el of draw.elements) nodes.push(el.rendNode);
+        for (const el of draw.elements) nodes.push(el);
         for (const m of draw.markers) nodes.push(m.element2D.rendNode);
         for (const p of this.scene!.points) nodes.push(draw.points.get(p.id)?.element2D.rendNode);
         draw.nodes = nodes;
@@ -738,30 +744,6 @@ export class JsxSurfaceView implements SurfaceView {
         this.dashPeriods = [];
         this.dashOffsets = [];
         this.detailReduced = null;
-    }
-
-    /** Last projected screen coordinates of curve `index` as board user coordinates (JSXGraph's own redraw path). */
-    private cachedCurve(index: number): [number[], number[]] {
-        const pool = this.pool;
-        if (!pool || this.sx.length === 0) return [[0], [0]];
-        const idx = this.primitiveVertices(index);
-        const hw = this.appliedWidth / 2, hh = this.appliedHeight / 2;
-        return [idx.map(i => this.sx[i] - hw), idx.map(i => hh - this.sy[i])];
-    }
-
-    private primitiveVertices(index: number): number[] {
-        const pool = this.pool!;
-        const nTri = pool.tris.length / 3, nPlane = pool.planes.length / 4;
-        if (index < nTri) {
-            const t = index * 3;
-            return [pool.tris[t], pool.tris[t + 1], pool.tris[t + 2], pool.tris[t]];
-        }
-        if (index < nTri + nPlane) {
-            const q = (index - nTri) * 4;
-            return [pool.planes[q], pool.planes[q + 1], pool.planes[q + 2], pool.planes[q + 3], pool.planes[q]];
-        }
-        const s = (index - nTri - nPlane) * 2;
-        return [pool.segs[s], pool.segs[s + 1]];
     }
 
     /** Puts the 3D view onto the camera. Cheap when nothing but the angles changed. */
@@ -811,9 +793,10 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     /**
-     * Switches the triangles between full and reduced detail (only the node state is touched, and only on a switch):
-     * reduced hides all but every third triangle and widens the kept ones' outline in the facet colour to about one
-     * projected edge, so the surface stays closed while it orbits.
+     * Switches between full and reduced detail (only the node state is touched, and only on a switch). Reduced hides all
+     * but every third triangle and widens the kept ones' outline in the facet colour to about one projected edge, so the
+     * surface stays closed while it orbits; it also draws runs of up to REDUCED_TRIANGLE_STRIDE consecutive pieces of a
+     * line segment as one line (the first piece's node), hiding the others.
      */
     private applyDetail(reduced: boolean): void {
         if (reduced === this.detailReduced) return;
@@ -837,12 +820,34 @@ export class JsxSurfaceView implements SurfaceView {
             } else {
                 node.removeAttribute('display');
                 node.setAttribute('stroke-width', String(seam));
-                if (reduced) node.setAttribute('stroke-linejoin', 'round');
-                else node.removeAttribute('stroke-linejoin');
             }
         }
-        this.orderNodes = reduced ? nodes.map((n, i) => (i < nTri && i % REDUCED_TRIANGLE_STRIDE !== 0 ? null : n)) : nodes;
+        const pieceBase = nTri + pool.planes.length / 4;
+        const runs = reduced ? this.segmentRuns() : null;
+        for (let piece = 0; piece < pool.pieceStart.length; piece++) {
+            const node = nodes[pieceBase + piece];
+            if (!node) continue;
+            if (runs && runs[piece] === 0) node.setAttribute('display', 'none');
+            else node.removeAttribute('display');
+        }
+        this.pieceRun = runs;
+        this.orderNodes = reduced
+            ? nodes.map((n, i) => (i < nTri ? (i % REDUCED_TRIANGLE_STRIDE !== 0 ? null : n)
+                : i >= pieceBase && i < pieceBase + pool.pieceStart.length && runs![i - pieceBase] === 0 ? null : n))
+            : nodes;
         this.detailReduced = reduced;
+    }
+
+    /** Reduced-detail runs: per piece, the number of consecutive pieces of its segment it draws (0 = covered by an earlier piece). */
+    private segmentRuns(): Uint8Array {
+        const start = this.pool!.pieceStart;
+        const runs = new Uint8Array(start.length);
+        let head = -1;
+        for (let piece = 0; piece < start.length; piece++) {
+            if (start[piece] || head < 0 || runs[head] >= REDUCED_TRIANGLE_STRIDE) head = piece;
+            runs[head]++;
+        }
+        return runs;
     }
 
     private projectVertices(model: JsxCameraModel): void {
@@ -888,31 +893,39 @@ export class JsxSurfaceView implements SurfaceView {
             if (e % stride !== 0) continue;
             this.stats.drawn++;
             const a = pool.tris[t], b = pool.tris[t + 1], c = pool.tris[t + 2];
-            nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}L${f(sx[c])} ${f(sy[c])}Z`);
+            nodes[e]?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])} ${f(sx[c])},${f(sy[c])}`);
         }
         for (let q = 0; q < pool.planes.length; q += 4, e++) {
             this.stats.drawn++;
             const a = pool.planes[q], b = pool.planes[q + 1], c = pool.planes[q + 2], d = pool.planes[q + 3];
-            nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}L${f(sx[c])} ${f(sy[c])}L${f(sx[d])} ${f(sy[d])}Z`);
+            nodes[e]?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])} ${f(sx[c])},${f(sy[c])} ${f(sx[d])},${f(sy[d])}`);
         }
+        const runs = this.detailReduced ? this.pieceRun : null;
         let phase = 0;
         for (let s = 0; s < pool.segs.length; s += 2, e++) {
-            this.stats.drawn++;
-            const a = pool.segs[s], b = pool.segs[s + 1];
-            const node = nodes[e];
-            node?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}`);
-            // Pieces of one segment continue its dash pattern instead of each restarting it.
             const piece = s / 2;
             if (pool.pieceStart[piece]) phase = 0;
-            const period = this.dashPeriodOf(piece, node);
-            if (period > 0) {
-                const offset = f(phase % period);
-                if (this.dashOffsets[piece] !== offset) {
-                    this.dashOffsets[piece] = offset;
-                    node?.setAttribute('stroke-dashoffset', String(offset));
+            const run = runs ? runs[piece] : 1;
+            // A run of pieces is collinear on the screen too (a projected line is a line): one line from its first
+            // piece's start to its last piece's end.
+            const a = pool.segs[s];
+            if (run > 0) {
+                const b = pool.segs[s + 2 * run - 1];
+                this.stats.drawn++;
+                const node = nodes[e];
+                node?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])}`);
+                // Pieces of one segment continue its dash pattern instead of each restarting it.
+                const period = this.dashPeriodOf(piece, node);
+                if (period > 0) {
+                    const offset = f(phase % period);
+                    if (this.dashOffsets[piece] !== offset) {
+                        this.dashOffsets[piece] = offset;
+                        node?.setAttribute('stroke-dashoffset', String(offset));
+                    }
                 }
             }
-            phase += Math.hypot(sx[b] - sx[a], sy[b] - sy[a]);
+            // Hidden pieces of a run still advance the phase: their length is part of the run's line.
+            phase += Math.hypot(sx[pool.segs[s + 1]] - sx[a], sy[pool.segs[s + 1]] - sy[a]);
         }
     }
 
@@ -928,7 +941,14 @@ export class JsxSurfaceView implements SurfaceView {
         for (let q = 0; q < pool.planes.length; q += 4) {
             d[e++] = (dv[pool.planes[q]] + dv[pool.planes[q + 1]] + dv[pool.planes[q + 2]] + dv[pool.planes[q + 3]]) / 4;
         }
-        for (let s = 0; s < pool.segs.length; s += 2) d[e++] = (dv[pool.segs[s]] + dv[pool.segs[s + 1]]) / 2 - pool.lineBias;
+        const runs = this.detailReduced ? this.pieceRun : null;
+        for (let s = 0; s < pool.segs.length; s += 2) {
+            // A reduced run is sorted as one element at the mean depth of its pieces; the pieces it covers are not ordered.
+            const run = runs ? runs[s / 2] : 1;
+            let sum = 0;
+            for (let k = 0; k < run; k++) sum += dv[pool.segs[s + 2 * k]] + dv[pool.segs[s + 2 * k + 1]];
+            d[e++] = run > 0 ? sum / (2 * run) - pool.lineBias : 0;
+        }
         for (const m of scene.markers) d[e++] = projectToScreen(model, m.xyz[0], m.xyz[1], m.xyz[2], this.projected).depth - pool.pointBias;
         for (const p of scene.points) d[e++] = projectToScreen(model, p.xyz[0], p.xyz[1], p.xyz[2], this.projected).depth - 2 * pool.pointBias;
         const order = orderBackToFront(d);
