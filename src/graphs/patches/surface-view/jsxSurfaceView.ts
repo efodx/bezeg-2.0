@@ -4,13 +4,14 @@ import {meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} 
 import {JsxInteraction} from './jsxInteraction';
 import {computeLabelLayout, labelLayoutKey} from './jsxLabels';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
+import {FRAMING_ATTRIBUTE, indexedMeshBounds, type LocalBounds, surfaceFraming} from './jsxFraming';
 import {RENDERED_OWNERS_ATTRIBUTE, renderedOwnerEvidence} from './jsxMeshOwners';
 import {cssColor, DrawableStyle, markerColor, MESH_SEAM_WIDTH, MESH_STYLE, PLANE_STYLE, polylineStyle} from './jsxStyles';
 import {bboxHalfSide, view3dAngles, view3dFrame, viewRadiusFor} from './jsxView3dMapping';
 import {FOV_DEG, fitCameraTo} from './surfaceMath';
 import {SURFACE_COLORS} from './surfaceStyles';
 import {
-    assertFiniteScene, AttachOptions, LabelLayout, PolylineRole, SurfaceCamera, SurfaceCapture, SurfaceEdit,
+    assertFiniteScene, AttachOptions, LabelLayout, PolylineRole, SceneMesh, SurfaceCamera, SurfaceCapture, SurfaceEdit,
     SurfaceScene, SurfaceView, Xyz,
 } from './surfaceScene';
 
@@ -203,6 +204,11 @@ export class JsxSurfaceView implements SurfaceView {
     private ellipses: Node[] = [];
     private ellipseRank: number[] = [];
     private observer: ResizeObserver | null = null;
+    /** Framing evidence: the indexed mesh's box (cached per mesh), the inputs it was last computed for, and the value last written. */
+    private framingMesh: SceneMesh | null = null;
+    private framingBounds: LocalBounds | null = null;
+    private framingInputs = '';
+    private framingValue = '';
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
     /** Key of the layout last delivered to the listeners; empty until the first delivery. */
@@ -324,6 +330,7 @@ export class JsxSurfaceView implements SurfaceView {
         }
         this.clearSettleTimer();
         this.host?.removeAttribute(RENDERED_OWNERS_ATTRIBUTE);
+        this.host?.removeAttribute(FRAMING_ATTRIBUTE);
         this.destroyBoard();
         this.container?.remove();
         this.container = null;
@@ -372,6 +379,8 @@ export class JsxSurfaceView implements SurfaceView {
         this.appliedCameraKey = this.cameraKey(scene.camera);
         if (!cameraOnly) this.publishOwners(scene);
         this.renderFrame(scene.camera, reduced);
+        // A reduced orbit frame leaves the evidence of the last full frame; the settle frame publishes the new one.
+        if (!reduced) this.publishFraming(scene);
         this.stats.frames++;
         if (reduced) this.stats.reducedFrames++;
         this.publishLayout(scene);
@@ -429,6 +438,40 @@ export class JsxSurfaceView implements SurfaceView {
         const owners = scene.mesh?.visible && scene.meshOwners?.length ? renderedOwnerEvidence(scene.mesh, scene.meshOwners) : [];
         if (owners.length === 0) host.removeAttribute(RENDERED_OWNERS_ATTRIBUTE);
         else host.setAttribute(RENDERED_OWNERS_ATTRIBUTE, JSON.stringify(owners));
+    }
+
+    /**
+     * Mirrors the framing onto the host as the read-only `data-surface-framing` attribute (see `jsxFraming.ts`). The
+     * mesh box is computed once per mesh; a frame with unchanged inputs computes nothing.
+     */
+    private publishFraming(scene: SurfaceScene): void {
+        const host = this.host;
+        if (!host) return;
+        if (scene.mesh !== this.framingMesh) {
+            this.framingMesh = scene.mesh ?? null;
+            this.framingBounds = scene.mesh ? indexedMeshBounds(scene.mesh) : null;
+            this.framingInputs = '';
+        }
+        if (!this.framingBounds || !scene.meshOwners?.length) {
+            host.removeAttribute(FRAMING_ATTRIBUTE);
+            this.framingValue = '';
+            this.framingInputs = '';
+            return;
+        }
+        const c = scene.camera;
+        const inputs = `${this.width},${this.height},${c.az},${c.el},${c.distance},${c.target.join(',')}|${this.appliedKey}`;
+        if (inputs === this.framingInputs) return;
+        this.framingInputs = inputs;
+        const framing = surfaceFraming(scene, this.framingBounds, {width: this.width, height: this.height});
+        if (!framing) {
+            host.removeAttribute(FRAMING_ATTRIBUTE);
+            this.framingValue = '';
+            return;
+        }
+        const value = JSON.stringify(framing);
+        if (value === this.framingValue) return;
+        this.framingValue = value;
+        host.setAttribute(FRAMING_ATTRIBUTE, value);
     }
 
     private requestRender(): void {
