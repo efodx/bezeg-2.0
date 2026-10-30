@@ -1,6 +1,6 @@
 # JSXGraph surface view: implementation tasks
 
-Status: proposed, 2026-10-29. Source: [JSXGraph surface view](../../specs/jsxgraph-surface-view.md). Task 01 is a go/no-go gate; tasks 02–07 start only after it passes or the owner chooses a path.
+Status: task 01 done (gate passed under owner option A, 2026-10-30, [record](../../reviews/jsxgraph-surface-view/gate.md)); 02–07 in progress. Source: [JSXGraph surface view](../../specs/jsxgraph-surface-view.md). The gate adapter (`src/graphs/patches/surface-view/jsx*.ts`, `board2d` strategy) is the base; the dev switch is the build-time `VITE_SURFACE_VIEW` (`jsx-board2d`, `jsx-view3d`), and the app-route harness is `docs/prototypes/jsxgraph-surface-view/measure-app.mjs`.
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |

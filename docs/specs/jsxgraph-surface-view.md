@@ -1,6 +1,6 @@
 # JSXGraph surface view for Bézier patches
 
-Status: proposed, 2026-10-29. Planned to supersede [ADR 0018](../adr/0018-three-surface-view-adapter.md) after the [task 01 feasibility gate](../tasks/jsxgraph-surface-view/01-feasibility-gate.md) passes. Tasks: [jsxgraph-surface-view](../tasks/jsxgraph-surface-view/README.md).
+Status: in progress. The [task 01 gate](../reviews/jsxgraph-surface-view/gate.md) passed under owner option A (2026-10-30): [ADR 0019](../adr/0019-jsxgraph-surface-view.md) supersedes [ADR 0018](../adr/0018-three-surface-view-adapter.md) with the `board2d` strategy, 2–3 frames of accepted orbit latency, and a reduced-detail teapot orbit. Tasks: [jsxgraph-surface-view](../tasks/jsxgraph-surface-view/README.md).
 
 ## Owner decision
 

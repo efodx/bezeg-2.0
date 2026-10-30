@@ -1,7 +1,7 @@
 # Task 01 feasibility gate: JSXGraph surface view
 
 Date: 2026-10-29. Source: [criterion 1](../../specs/jsxgraph-surface-view.md#acceptance-criteria), [task 01](../../tasks/jsxgraph-surface-view/01-feasibility-gate.md).
-Status: **owner decision required.** The criterion's literal metric passes, but the visible-update and frame-interval evidence shows a miss for the teapot and a weaker result than the metric suggests for tensor and triangular. ADR 0019 is not accepted yet; the gate code stays on branch `worktree-jsxgraph-surface-view` and is not merged.
+Status: **passed under owner option A (2026-10-30).** The criterion's literal metric passes, but the visible-update and frame-interval evidence shows a miss for the teapot and a weaker result than the metric suggests for tensor and triangular. The owner chose option A below: [ADR 0019](../../adr/0019-jsxgraph-surface-view.md) is accepted with the `board2d` strategy, and the gate code becomes the base for task 02.
 
 ## What was measured
 

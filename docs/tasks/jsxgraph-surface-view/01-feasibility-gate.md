@@ -1,6 +1,6 @@
 # 01 — Feasibility gate
 
-Status: proposed. Source: [criterion 1](../../specs/jsxgraph-surface-view.md#acceptance-criteria).
+Status: done, 2026-10-30 — passed under owner option A; see the [gate record](../../reviews/jsxgraph-surface-view/gate.md) and [ADR 0019](../../adr/0019-jsxgraph-surface-view.md). Source: [criterion 1](../../specs/jsxgraph-surface-view.md#acceptance-criteria).
 
 Build the smallest `JsxSurfaceView` that renders the mesh, control net, points and iso lines from a real `SurfaceScene`, orbits from `SurfaceCamera`, and drags a point with JSXGraph's built-in 3D point drag. Wire it through `viewFactory` on `/patches/tensor`, `/patches/triangular` and the teapot scene of `/patches/joins`. No labels, export or full styling yet.
 
