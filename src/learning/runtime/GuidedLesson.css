@@ -8,6 +8,13 @@
     min-height: 0;
     pointer-events: none;
 }
+.guided-lesson-graph-catcher {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    cursor: pointer;
+    pointer-events: auto;
+}
 .guided-lesson {
     position: relative;
     z-index: 3;

@@ -191,6 +191,32 @@ test('hides instructions without ending the session and reopens the same frame',
     }
 });
 
+test('clicking the graph beside an exploration panel observes the graph', () => {
+    vi.useFakeTimers();
+    setLanguage('sl');
+    try {
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        // Reading frames keep the graph locked and do not hide on a graph click.
+        expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
+        act(() => vi.advanceTimersByTime(250));
+
+        const catcher = container.querySelector('.guided-lesson-graph-catcher');
+        expect(catcher).toHaveAttribute('aria-hidden', 'true');
+        fireEvent.click(catcher!);
+        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
+        expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
+        act(() => vi.advanceTimersByTime(250));
+        expect(container.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', {name: /Nazaj na navodila/})).toBeVisible();
+    } finally {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('preserves reading position on reopen and starts a new frame at its introduction', () => {
     vi.useFakeTimers();
     setLanguage('sl');

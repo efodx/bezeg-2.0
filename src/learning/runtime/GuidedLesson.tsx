@@ -412,6 +412,9 @@ export function GuidedLesson(props: {
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
     return <>
     <div className="guided-lesson-layer">
+    {/* In exploration frames the visible graph around the panel is a pointer target for the observe action;
+        keyboard and screen-reader users keep the button, so the catcher stays out of the accessibility tree. */}
+    {isExploring && overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('observe_on_graph')} onClick={hideOverlay}/>}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
         <div className="guided-lesson-heading">
             <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
