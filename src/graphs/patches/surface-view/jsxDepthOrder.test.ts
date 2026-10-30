@@ -68,4 +68,43 @@ describe('applyDomOrder', () => {
         expect(ids(parent)).toEqual(['n3', 'n2', 'n1', 'n0']);
         expect(moves).toBe(3);
     });
+
+    it('moves a rotated order once, not once per node', () => {
+        const {parent, nodes} = build(6);
+        expect(applyDomOrder(nodes, [1, 2, 3, 4, 5, 0], parent)).toBe(1);
+        expect(ids(parent)).toEqual(['n1', 'n2', 'n3', 'n4', 'n5', 'n0']);
+    });
+
+    it('keeps other children in place and the placed nodes before the trailing one', () => {
+        const {parent, nodes} = build(4);
+        const before = document.createElement('i'), after = document.createElement('i');
+        before.id = 'before';
+        after.id = 'after';
+        parent.insertBefore(before, parent.firstChild);
+        parent.appendChild(after);
+        applyDomOrder(nodes, [3, 0, 2, 1], parent);
+        expect(ids(parent)).toEqual(['before', 'n3', 'n0', 'n2', 'n1', 'after']);
+    });
+
+    it('reaches any order with the fewest moves (count minus longest increasing run)', () => {
+        let seed = 7;
+        const random = (): number => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        const lisLength = (xs: number[]): number => {
+            const best = xs.map(() => 1);
+            for (let i = 0; i < xs.length; i++) for (let j = 0; j < i; j++) if (xs[j] < xs[i]) best[i] = Math.max(best[i], best[j] + 1);
+            return Math.max(0, ...best);
+        };
+        for (let trial = 0; trial < 50; trial++) {
+            const count = 1 + Math.floor(random() * 40);
+            const {parent, nodes} = build(count);
+            const order = nodes.map((_, i) => i);
+            for (let i = count - 1; i > 0; i--) {
+                const j = Math.floor(random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            const moves = applyDomOrder(nodes, order, parent);
+            expect(ids(parent)).toEqual(order.map(i => `n${i}`));
+            expect(moves).toBe(count - lisLength(order));
+        }
+    });
 });
