@@ -6,6 +6,7 @@ import type {SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
 const camera = {az: 0.7, el: 0.5, distance: 14, projection: 'perspective' as const, target: [0, 0, 0] as Xyz};
 
 function setup(overrides: {editable?: boolean; zMode?: boolean} = {}) {
+    const chosen: {element: unknown} = {element: undefined};
     const container = document.createElement('div');
     const keyTarget = document.createElement('div');
     document.body.append(container, keyTarget);
@@ -16,12 +17,13 @@ function setup(overrides: {editable?: boolean; zMode?: boolean} = {}) {
     };
     const interaction = new JsxInteraction({
         container, keyTarget, scene: () => state.scene, pressedObjects: () => state.pressed,
-        emit: e => edits.push(e), isDisposed: () => state.disposed,
+        emit: e => edits.push(e), isDisposed: () => state.disposed, draggedObject: () => chosen.element,
     });
-    const handlers = new Map<string, () => void>();
+    const handlers = new Map<string, (event?: {pointerId?: number}) => void>();
     const point = {xyz: [1, 2, 3] as Xyz, X() { return this.xyz[0]; }, Y() { return this.xyz[1]; }, Z() { return this.xyz[2]; }};
-    interaction.wirePoint('p', point, {on: (event, handler) => handlers.set(event, handler)});
-    return {interaction, container, keyTarget, edits, state, point, handlers};
+    const element = {on: (event: string, handler: (event?: {pointerId?: number}) => void) => handlers.set(event, handler)};
+    interaction.wirePoint('p', point, element);
+    return {interaction, container, keyTarget, edits, state, point, handlers, chosen, element};
 }
 
 const pointer = (target: HTMLElement, type: string, x: number, y: number): void => {
@@ -129,5 +131,35 @@ describe('JsxInteraction', () => {
         shift = false;
         state.scene = {...state.scene, interaction: {editable: true, zMode: true}};
         expect(view.isVerticalDrag()).toBe(true);
+    });
+
+    it('keeps the drag where it is when JSXGraph drags the point that fired first', async () => {
+        const {interaction, edits, handlers, chosen, point, element} = setup();
+        const near = {X: () => 1.1, Y: () => 2.1, Z: () => 3};
+        const nearElement = {on: () => undefined};
+        interaction.wirePoint('q', near, nearElement);
+        chosen.element = element;
+        handlers.get('down')!({pointerId: 1});
+        await Promise.resolve();
+        expect(interaction.draggedPointId).toBe('p');
+        expect(edits).toEqual([{kind: 'select', pointId: 'p'}, {kind: 'point', pointId: 'p', xyz: [1, 2, 3], phase: 'start'}]);
+        expect(point.xyz).toEqual([1, 2, 3]);
+    });
+
+    it('moves the drag and the selection to the point JSXGraph chose when another point fired first', async () => {
+        const {interaction, edits, handlers, chosen} = setup();
+        const other = {X: () => 4, Y: () => 5, Z: () => 6};
+        const otherElement = {on: () => undefined};
+        interaction.wirePoint('r', other, otherElement);
+        chosen.element = otherElement;
+        handlers.get('down')!({pointerId: 1});
+        expect(interaction.draggedPointId).toBe('p');
+        await Promise.resolve();
+        expect(interaction.draggedPointId).toBe('r');
+        expect(edits).toEqual([
+            {kind: 'select', pointId: 'p'}, {kind: 'point', pointId: 'p', xyz: [1, 2, 3], phase: 'start'},
+            {kind: 'point', pointId: 'p', xyz: [1, 2, 3], phase: 'end'},
+            {kind: 'select', pointId: 'r'}, {kind: 'point', pointId: 'r', xyz: [4, 5, 6], phase: 'start'},
+        ]);
     });
 });

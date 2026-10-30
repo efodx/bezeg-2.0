@@ -10,6 +10,7 @@
 //   BEZEG_MEASURE_GESTURES=orbit,drag  BEZEG_MEASURE_REPEATS=2  BEZEG_MEASURE_SAMPLES=16
 //   BEZEG_PORTS=board2d:4191,view3d:4192,three:4193  BEZEG_BUILD_DIRS=board2d:<dir>,view3d:<dir>,three:<dir>
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
@@ -24,6 +25,15 @@ const deadlineMs = numberEnv('BEZEG_MEASURE_DEADLINE_MS', 90000, 1000, 7200000);
 const script = fileURLToPath(import.meta.url);
 const mode = process.env.BEZEG_MEASURE_MODE || 'measure';
 const BUDGET_MS = 1000 / 60;
+// Control points are filled with SURFACE_COLORS.point / .selected (src/graphs/patches/surface-view/surfaceStyles.ts); read
+// them from that file so a palette change cannot silently make the drag gesture find no point.
+const palette = readFileSync(resolve(repoRoot, 'src/graphs/patches/surface-view/surfaceStyles.ts'), 'utf8');
+const paletteHex = name => {
+  const m = palette.match(new RegExp(`^[ \\t]+${name}: 0x([0-9a-fA-F]{6})`, 'm'));
+  if (!m) throw Error(`SURFACE_COLORS.${name} not found in surfaceStyles.ts`);
+  return '#' + m[1].toLowerCase();
+};
+const POINT_FILL = paletteHex('point'), SELECTED_FILL = paletteHex('selected');
 const reportFile = mode === 'depth' ? 'depth-run.json' : 'measure.json';
 
 function numberEnv(name, fallback, min, max) {
@@ -209,17 +219,17 @@ if (mode === 'summarize') {
     } catch (error) { await context.close().catch(() => {}); throw error; }
   }
 
-  const readState = page => page.evaluate(() => {
+  const readState = page => page.evaluate(([pointFill, selectedFill]) => {
     const host = document.querySelector('[role="application"]');
     const r = host.getBoundingClientRect();
     const sliders = [...document.querySelectorAll('input[type=range]')].map(x => ({ label: document.querySelector(`label[for="${x.id}"]`)?.innerText ?? '', value: Number(x.value) }));
     const camera = sliders.filter(s => /azimuth|elevation/i.test(s.label)).map(s => s.value);
-    const points = [...host.querySelectorAll('ellipse')].filter(e => ['#1d4f91', '#d6362b'].includes(e.getAttribute('fill')) && e.getBoundingClientRect().width >= 9 && getComputedStyle(e).visibility !== 'hidden').map(e => { const b = e.getBoundingClientRect(); return { id: e.id, x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, selected: e.getAttribute('fill') === '#d6362b' }; });
+    const points = [...host.querySelectorAll('ellipse')].filter(e => [pointFill, selectedFill].includes(e.getAttribute('fill')) && e.getBoundingClientRect().width >= 9 && getComputedStyle(e).visibility !== 'hidden').map(e => { const b = e.getBoundingClientRect(); return { id: e.id, x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, selected: e.getAttribute('fill') === selectedFill }; });
     const paths = [...host.querySelectorAll('path')].filter(p => (p.getAttribute('d') || '').length > 2);
     let h = 5381; for (const p of paths) { const d = p.getAttribute('d'); for (let i = 0; i < d.length; i++) h = (h * 33 + d.charCodeAt(i)) | 0; }
     const canvas = host.querySelector('canvas');
     return { host: [r.x, r.y, r.width, r.height], camera, points, drawn: { paths: paths.length, ellipses: host.querySelectorAll('ellipse').length, polygons: host.querySelectorAll('polygon').length, pathHash: h, canvas: canvas ? [canvas.width, canvas.height] : null }, scrollY: scrollY };
-  });
+  }, [POINT_FILL, SELECTED_FILL]);
 
   async function runOne(strategy, kind, viewportName, density, gesture, repeat) {
     const densityLabel = kind === 'teapot' ? 'fixed8' : `iso${density}/shading${density}`;
@@ -244,13 +254,13 @@ if (mode === 'summarize') {
       let start = { x: visible.right - 34, y: visible.top + 34 };
       let target = null;
       if (gesture === 'drag') {
-        target = await bounded(page.evaluate(() => {
+        target = await bounded(page.evaluate(([pointFill]) => {
           const host = document.querySelector('[role="application"]'), hb = host.getBoundingClientRect();
-          const cands = [...host.querySelectorAll('ellipse')].filter(e => e.getAttribute('fill') === '#1d4f91' && getComputedStyle(e).visibility !== 'hidden');
+          const cands = [...host.querySelectorAll('ellipse')].filter(e => e.getAttribute('fill') === pointFill && getComputedStyle(e).visibility !== 'hidden');
           const scored = cands.map((e, index) => { const b = e.getBoundingClientRect(); const x = b.x + b.width / 2, y = b.y + b.height / 2; const inside = x > hb.x + 60 && x < hb.right - 60 && y > Math.max(hb.y, 0) + 60 && y < Math.min(hb.bottom, innerHeight) - 60; const top = document.elementFromPoint(x, y) === e; return { id: e.id, index, x, y, inside, top, d: Math.hypot(x - (hb.x + hb.width / 2), y - (hb.y + hb.height / 2)) }; });
           const ok = scored.filter(c => c.inside && c.top).sort((a, b) => a.d - b.d);
           return { chosen: ok[0] ?? null, candidates: scored.length, hittable: ok.length };
-        }), 'locate control point');
+        }, [POINT_FILL]), 'locate control point');
         if (!target.chosen) throw Error(`No hittable control point inside the visible host: ${JSON.stringify(target)}`);
         entry.target = target;
         // Cold attempt: press-drag on a not-yet-selected point exactly like a user. Recorded as a diagnostic, not measured.

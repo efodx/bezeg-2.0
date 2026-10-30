@@ -56,3 +56,30 @@ export function applyDomOrder(nodes: ReadonlyArray<Node | null | undefined>, ord
     }
     return moves;
 }
+
+/** Most pieces one polyline segment is split into; bounds the drawable count when a control net is long. */
+export const MAX_SEGMENT_PIECES = 16;
+
+/** Mean edge length over all triangle edges of an indexed mesh (0 for no triangles). */
+export function meanTriangleEdge(positions: ArrayLike<number>, faces: ArrayLike<number>): number {
+    let sum = 0;
+    const triangles = Math.floor(faces.length / 3);
+    for (let t = 0; t < triangles * 3; t += 3) {
+        for (let k = 0; k < 3; k++) {
+            const a = faces[t + k] * 3, b = faces[t + (k + 1) % 3] * 3;
+            sum += Math.hypot(positions[a] - positions[b], positions[a + 1] - positions[b + 1], positions[a + 2] - positions[b + 2]);
+        }
+    }
+    return triangles ? sum / (3 * triangles) : 0;
+}
+
+/**
+ * How many pieces a line segment of `length` is drawn as so that no piece is much longer than a mesh edge. A painter's
+ * order gives one drawable one depth, so a long segment that crosses many triangles (a control-net edge hovering over
+ * the surface) cannot be ordered correctly against all of them; pieces of about one mesh edge can. Without a mesh
+ * (`meshEdge` 0) there is nothing to order against and a segment stays whole.
+ */
+export function segmentPieceCount(length: number, meshEdge: number): number {
+    if (!(meshEdge > 0) || !(length > meshEdge)) return 1;
+    return Math.min(MAX_SEGMENT_PIECES, Math.ceil(length / meshEdge));
+}

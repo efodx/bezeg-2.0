@@ -36,6 +36,8 @@ export interface InteractionHost {
     scene: () => SurfaceScene | null;
     /** JSXGraph lists the elements under a press in `downObjects`; empty means the press hit no control point. */
     pressedObjects: () => readonly unknown[];
+    /** The element JSXGraph picked to drag for this pointer (the last of `pressedObjects` that is draggable), if any. */
+    draggedObject?: (pointerId: number) => unknown;
     emit: (edit: SurfaceEdit) => void;
     isDisposed: () => boolean;
 }
@@ -43,6 +45,7 @@ export interface InteractionHost {
 export class JsxInteraction {
     private orbitDrag: {id: number; x: number; y: number; moved: boolean} | null = null;
     private drag: {id: string; point: DraggablePoint; last: Xyz} | null = null;
+    private readonly wired = new WeakMap<object, {id: string; point: DraggablePoint}>();
     private readonly cleanups: Array<() => void> = [];
 
     constructor(private readonly host: InteractionHost) {
@@ -68,18 +71,39 @@ export class JsxInteraction {
     }
 
     /** Reports the press, drag and release of a control point; call once per created `point3d` and drop it with the board. */
-    wirePoint(id: string, point: DraggablePoint, element2D: {on: (event: string, handler: () => void) => void}): void {
-        element2D.on('down', () => {
+    wirePoint(id: string, point: DraggablePoint, element2D: {on: (event: string, handler: (event?: {pointerId?: number}) => void) => void}): void {
+        this.wired.set(element2D, {id, point});
+        element2D.on('down', event => {
             if (this.host.isDisposed() || this.drag || !this.host.scene()?.interaction.editable) return;
-            const last: Xyz = [point.X(), point.Y(), point.Z()];
-            this.drag = {id, point, last};
-            this.host.emit({kind: 'select', pointId: id});
-            this.host.emit({kind: 'point', pointId: id, xyz: [...last], phase: 'start'});
+            this.beginDrag(id, point);
+            const pointerId = event?.pointerId;
+            // JSXGraph is still going through the points under the pointer; it has chosen one when its listener returns.
+            if (typeof pointerId === 'number') queueMicrotask(() => { if (this.drag?.id === id) this.followDraggedObject(pointerId); });
         });
         element2D.on('up', () => {
             if (this.drag?.id !== id) return;
             this.endDrag();
         });
+    }
+
+    private beginDrag(id: string, point: DraggablePoint): void {
+        const last: Xyz = [point.X(), point.Y(), point.Z()];
+        this.drag = {id, point, last};
+        this.host.emit({kind: 'select', pointId: id});
+        this.host.emit({kind: 'point', pointId: id, xyz: [...last], phase: 'start'});
+    }
+
+    /**
+     * JSXGraph fires `down` on every point within its hit tolerance (30 px for touch, so neighbouring points of a dense net
+     * all fire) but drags only one of them. The first `down` started a drag of whichever point came first in the board's
+     * list; once JSXGraph has chosen, move the drag (and the selection) to the point it actually drags.
+     */
+    private followDraggedObject(pointerId: number): void {
+        const chosen = this.host.draggedObject?.(pointerId);
+        const wired = typeof chosen === 'object' && chosen !== null ? this.wired.get(chosen) : undefined;
+        if (!wired || !this.drag || wired.id === this.drag.id) return;
+        this.endDrag();
+        this.beginDrag(wired.id, wired.point);
     }
 
     /** Runs after every board update; while a point is dragged, reports its new place. */

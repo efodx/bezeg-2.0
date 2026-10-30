@@ -6,6 +6,7 @@ import {installBoardShims, settle} from "../base/realGraphTestHarness";
 import {appStorage} from "../../storage/appStorage";
 import {setLanguage, t} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
+import {newJsxHandle, type JsxHandle} from "./jsxPatchEditing.test-helper";
 import {patchBernsteinWeight} from "./patchBernstein";
 import TensorPatchGraph from "./TensorPatchGraph";
 import {azimuthDegrees} from "./TensorPatchPanels";
@@ -290,5 +291,137 @@ describe("az/el controls in Prikaz", () => {
         expect(azimuthDegrees(Math.PI * 2.5)).toBeCloseTo(90, 10);
         expect(azimuthDegrees(-Math.PI * 1.5)).toBeCloseTo(90, 10);
         expect(azimuthDegrees(0)).toBe(0);
+    });
+});
+
+/** The same editing, driven through the JSX surface view's own point drag (task 04 of docs/specs/jsxgraph-surface-view.md). */
+describe("JSX surface view", () => {
+    const sub = (n: number) => "₀₁₂₃₄₅₆₇₈₉"[n];
+    async function mountJsx() {
+        const jsx = newJsxHandle();
+        const graph = new ExposedGraph({viewFactory: () => jsx.view});
+        mountGraph(graph);
+        await jsx.ready();
+        return {graph, jsx};
+    }
+    /** Every place that holds a control point agrees with what the view shows; `selected` also checks the numeric editor. */
+    function expectInAgreement(graph: ExposedGraph, jsx: JsxHandle, selected?: [number, number]) {
+        const {m, n} = graph.state;
+        const net = (graph.exportPreset().data ?? []).flatMap(([, dto]) => [...dto.net]);
+        for (let i = 0; i <= m; i++) for (let j = 0; j <= n; j++) {
+            const shown = jsx.shown(`p-${i}-${j}`);
+            expect(graph.state.net[i][j], `net ${i},${j}`).toEqual(shown);
+            expect(net[i * (n + 1) + j], `Preset ${i},${j}`).toEqual(shown);
+        }
+        if (selected) {
+            const [i, j] = selected, name = `P${sub(i)}${sub(j)}`;
+            expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value]).toEqual(jsx.shown(`p-${i}-${j}`).map(String));
+        }
+    }
+
+    it("selects a point on its first press without rebuilding the board, and the drag that began there goes on", async () => {
+        const {graph, jsx} = await mountJsx();
+        const rebuilds = jsx.view.stats.rebuilds;
+        jsx.press("p-2-1");
+        expect(select("patch_index_i").value).toBe("2");
+        expect(select("patch_index_j").value).toBe("1");
+        expect(jsx.view.stats.rebuilds).toBe(rebuilds);
+        const [x, y, z] = jsx.shown("p-2-1");
+        jsx.dragTo("p-2-1", [x + 0.4, y - 0.3, z]);
+        expect(jsx.shown("p-2-1")[0]).toBeCloseTo(x + 0.4, 6);
+        expectInAgreement(graph, jsx, [2, 1]);
+        jsx.release("p-2-1");
+        expect(jsx.view.stats.rebuilds).toBe(rebuilds);
+        expectInAgreement(graph, jsx, [2, 1]);
+    });
+
+    it("a plain drag moves x and y in the horizontal plane through the point, never z, and leaves the camera alone", async () => {
+        const {graph, jsx} = await mountJsx();
+        const camera = graph.state.camera;
+        jsx.press("p-1-2");
+        const start = jsx.shown("p-1-2");
+        for (const [dx, dy] of [[0.2, 0.1], [0.5, -0.2], [0.8, -0.6]]) {
+            jsx.dragTo("p-1-2", [start[0] + dx, start[1] + dy, start[2]]);
+            const now = jsx.shown("p-1-2");
+            expect(now[0]).toBeCloseTo(start[0] + dx, 6);
+            expect(now[1]).toBeCloseTo(start[1] + dy, 6);
+            expect(now[2]).toBeCloseTo(start[2], 9);
+            expectInAgreement(graph, jsx, [1, 2]);
+            expect(graph.state.camera).toBe(camera);
+        }
+        jsx.release("p-1-2");
+        expectInAgreement(graph, jsx, [1, 2]);
+        expect(jsx.camerasEmitted()).toEqual([]);
+        expect(graph.state.camera).toBe(camera);
+    });
+
+    it("Shift and the height switch make a drag change only z", async () => {
+        const {graph, jsx} = await mountJsx();
+        const camera = graph.state.camera;
+        const drag = (target: number, shift: boolean) => {
+            const start = jsx.shown("p-2-2");
+            jsx.press("p-2-2");
+            jsx.dragTo("p-2-2", [start[0], start[1], target], shift);
+            const now = jsx.shown("p-2-2");
+            expect([now[0], now[1]]).toEqual([start[0], start[1]]);
+            expect(now[2]).toBeCloseTo(target, 6);
+            expectInAgreement(graph, jsx, [2, 2]);
+            jsx.release("p-2-2");
+        };
+        drag(2.5, true);
+        expect(graph.state.zMode).toBe(false);
+        fireEvent.click(screen.getByLabelText<HTMLInputElement>(t("patch_move_height")));
+        expect(graph.state.zMode).toBe(true);
+        drag(-0.5, false);
+        // With the switch on, Shift does not change that a drag is vertical.
+        drag(0.75, true);
+        fireEvent.click(screen.getByLabelText<HTMLInputElement>(t("patch_move_height")));
+        const start = jsx.shown("p-2-2");
+        jsx.press("p-2-2");
+        jsx.dragTo("p-2-2", [start[0] + 0.3, start[1] + 0.3, start[2]]);
+        expect(jsx.shown("p-2-2")[2]).toBeCloseTo(start[2], 9);
+        expect(jsx.shown("p-2-2")[0]).toBeCloseTo(start[0] + 0.3, 6);
+        jsx.release("p-2-2");
+        expect(graph.state.camera).toBe(camera);
+        expect(jsx.camerasEmitted()).toEqual([]);
+    });
+
+    it("keeps the numeric editor and index selection working on a point that was dragged", async () => {
+        const {graph, jsx} = await mountJsx();
+        choose(1, 1);
+        jsx.press("p-3-0");
+        expect(select("patch_index_i").value).toBe("3");
+        expect(select("patch_index_j").value).toBe("0");
+        const [x, y, z] = jsx.shown("p-3-0");
+        jsx.dragTo("p-3-0", [x - 0.5, y + 0.5, z]);
+        jsx.release("p-3-0");
+        expectInAgreement(graph, jsx, [3, 0]);
+        apply("1.25", "-0.5", "2", "P₃₀");
+        jsx.flush();
+        expect(jsx.shown("p-3-0")).toEqual([1.25, -0.5, 2]);
+        expectInAgreement(graph, jsx, [3, 0]);
+        // A drag after a typed value starts from the typed point.
+        jsx.press("p-3-0");
+        jsx.dragTo("p-3-0", [1.75, -0.5, 2]);
+        jsx.release("p-3-0");
+        expect(jsx.shown("p-3-0")[0]).toBeCloseTo(1.75, 6);
+        expectInAgreement(graph, jsx, [3, 0]);
+        choose(0, 2);
+        jsx.flush();
+        expect([select("patch_index_i").value, select("patch_index_j").value]).toEqual(["0", "2"]);
+        expectInAgreement(graph, jsx, [0, 2]);
+    });
+
+    it("stops a drag at the face of the view's drag cube, and the state still holds exactly what the view shows", async () => {
+        const {graph, jsx} = await mountJsx();
+        jsx.press("p-1-2");
+        const start = jsx.shown("p-1-2");
+        jsx.dragTo("p-1-2", [start[0] + 50, start[1], start[2]]);
+        const now = jsx.shown("p-1-2");
+        expect(now[0]).toBeGreaterThan(start[0]);
+        expect(now[0]).toBeLessThan(start[0] + 50);
+        expect([now[1], now[2]].map(v => Math.round(v * 1e6))).toEqual([start[1], start[2]].map(v => Math.round(v * 1e6)));
+        jsx.release("p-1-2");
+        expectInAgreement(graph, jsx, [1, 2]);
     });
 });

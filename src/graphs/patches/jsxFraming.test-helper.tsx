@@ -177,3 +177,34 @@ export function measuredNetBounds(scene: SurfaceScene, measurement: JsxMeasureme
     });
     return screenBounds(found);
 }
+
+/**
+ * The scenes of the depth check: tensor, triangular and joins (first Preset) and the teapot capstone, each at the four
+ * camera presets on the desktop host, fitted first as a user's "reset view" would.
+ */
+export function collectDepthCases(): FramingCase[] {
+    const cases: FramingCase[] = [];
+    const wanted: Array<{label: string; preset: (name: string, index: number) => boolean}> = [
+        {label: 'tensor', preset: (_, i) => i === 0},
+        {label: 'triangular', preset: (_, i) => i === 0},
+        {label: 'joins', preset: (name, i) => i === 0 || name === 'join-teapot'},
+    ];
+    for (const {label, preset} of wanted) {
+        const source = SOURCES.find(s => s.label === label)!;
+        const graph = createGraph(source.id);
+        mountGraph(graph);
+        const view = surfaceViewOf(graph)!;
+        const fitting = graph as unknown as FittingGraph;
+        source.presets.forEach((p, index) => {
+            if (!preset(p.name, index)) return;
+            act(() => fitting.importPresetData(p.data()));
+            sizeHost(view.attached!, DESKTOP);
+            act(() => fitting.resetView());
+            for (const name of ['front', 'top', 'side', 'isometric'] as const) {
+                act(() => fitting.applyCameraPreset(name));
+                cases.push({name: `${label}/${p.name}/${name}`, scene: last(view), viewports: [DESKTOP]});
+            }
+        });
+    }
+    return cases;
+}

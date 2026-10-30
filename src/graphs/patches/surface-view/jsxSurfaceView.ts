@@ -1,5 +1,5 @@
 import {JSXGraph} from 'jsxgraph';
-import {applyDomOrder, orderBackToFront} from './jsxDepthOrder';
+import {applyDomOrder, meanTriangleEdge, orderBackToFront, segmentPieceCount} from './jsxDepthOrder';
 import {JsxInteraction} from './jsxInteraction';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
 import {RENDERED_OWNERS_ATTRIBUTE, renderedOwnerEvidence} from './jsxMeshOwners';
@@ -61,6 +61,8 @@ interface JxgBoard {
     on: (event: string, handler: () => void) => void;
     objectsList: unknown[];
     downObjects: unknown[];
+    /** The elements that currently hold a pointer (mouse, pen or finger): `obj` is the dragged element. */
+    touches: Array<{obj: unknown; targets: Array<{num: number}>}>;
     _change3DView?: boolean;
 }
 
@@ -91,6 +93,12 @@ interface Pool {
     segRoles: PolylineRole[];
     /** Offset of the first polyline point of every polyline in the pool. */
     polylineBase: number[];
+    /** Pieces every polyline segment is drawn as (fixed with the topology, so a point drag only moves vertices). */
+    pieces: number[];
+    /** 1 for the first piece of a polyline segment, 0 for its continuations (dash phase restarts only at 1). */
+    pieceStart: Uint8Array;
+    /** Per interior split vertex: its pool index and the world segment it divides at fraction `t`. */
+    splits: Array<{index: number; a: number; b: number; t: number}>;
     markerIds: string[];
     pointIds: string[];
     min: Xyz;
@@ -120,6 +128,8 @@ export class JsxSurfaceView implements SurfaceView {
     private view: JxgView3D | null = null;
     private draw: Drawables | null = null;
     private pool: Pool | null = null;
+    /** Dash cycle length per segment piece, read lazily from the node (see `dashPeriodOf`). */
+    private dashPeriods: number[] = [];
     private scene: SurfaceScene | null = null;
     private appliedKey = '';
     /** `pointSignature` of the scene the current board was built for. */
@@ -180,6 +190,7 @@ export class JsxSurfaceView implements SurfaceView {
         this.measure();
         this.interaction = new JsxInteraction({
             container, keyTarget: host, scene: () => this.scene, pressedObjects: () => this.board?.downObjects ?? [],
+            draggedObject: pointerId => this.board?.touches.find(touch => touch.targets.some(target => target.num === pointerId))?.obj,
             emit: edit => this.emit(edit), isDisposed: () => this.disposed,
         });
         if (typeof ResizeObserver !== 'undefined') {
@@ -512,7 +523,7 @@ export class JsxSurfaceView implements SurfaceView {
         }
     }
 
-    private buildPool(scene: SurfaceScene): Pool {
+    private buildPool(scene: SurfaceScene, fixedPieces?: number[]): Pool {
         const mesh = scene.mesh?.visible ? scene.mesh : undefined;
         const meshVerts = mesh ? mesh.positions.length / 3 : 0;
         let count = meshVerts;
@@ -523,23 +534,54 @@ export class JsxSurfaceView implements SurfaceView {
         }
         const planeBase = count;
         count += (scene.planes?.length ?? 0) * 4;
+        // Every segment is split at mesh resolution (see `segmentPieceCount`); the interior vertices follow the planes.
+        const meshEdge = fixedPieces ? 0 : mesh ? meanTriangleEdge(mesh.positions, mesh.faces) : 0;
+        const pieces: number[] = fixedPieces ?? [];
+        const splits: Pool['splits'] = [];
+        let segment = 0;
+        scene.polylines.forEach((l, i) => {
+            for (let j = 0; j + 1 < l.points.length; j++, segment++) {
+                if (!fixedPieces) {
+                    const p = l.points[j], q = l.points[j + 1];
+                    pieces.push(segmentPieceCount(Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]), meshEdge));
+                }
+                for (let p = 1; p < pieces[segment]; p++) {
+                    splits.push({index: count++, a: polylineBase[i] + j, b: polylineBase[i] + j + 1, t: p / pieces[segment]});
+                }
+            }
+        });
         const verts = new Float64Array(count * 3);
         if (mesh) for (let i = 0; i < mesh.positions.length; i++) verts[i] = mesh.positions[i];
         scene.polylines.forEach((l, i) => l.points.forEach((p, j) => verts.set(p, 3 * (polylineBase[i] + j))));
         (scene.planes ?? []).forEach((plane, i) => plane.corners.forEach((p, j) => verts.set(p, 3 * (planeBase + 4 * i + j))));
+        for (const sp of splits) {
+            for (let k = 0; k < 3; k++) verts[3 * sp.index + k] = verts[3 * sp.a + k] + sp.t * (verts[3 * sp.b + k] - verts[3 * sp.a + k]);
+        }
         const segs: number[] = [];
         const segRoles: PolylineRole[] = [];
+        const starts: number[] = [];
+        let splitAt = 0;
+        segment = 0;
         scene.polylines.forEach((l, i) => {
-            for (let j = 0; j + 1 < l.points.length; j++) {
-                segs.push(polylineBase[i] + j, polylineBase[i] + j + 1);
+            for (let j = 0; j + 1 < l.points.length; j++, segment++) {
+                let from = polylineBase[i] + j;
+                for (let p = 1; p < pieces[segment]; p++) {
+                    segs.push(from, splits[splitAt].index);
+                    from = splits[splitAt++].index;
+                    segRoles.push(l.role);
+                    starts.push(p === 1 ? 1 : 0);
+                }
+                segs.push(from, polylineBase[i] + j + 1);
                 segRoles.push(l.role);
+                starts.push(pieces[segment] === 1 ? 1 : 0);
             }
         });
+        const pieceStart = Uint8Array.from(starts);
         const planes = new Uint32Array((scene.planes?.length ?? 0) * 4);
         for (let i = 0; i < planes.length; i++) planes[i] = planeBase + i;
         const pool: Pool = {
             signature: this.topologySignature(scene), verts, tris: Uint32Array.from(mesh?.faces ?? []), planes,
-            segs: Uint32Array.from(segs), segRoles, polylineBase,
+            segs: Uint32Array.from(segs), segRoles, polylineBase, pieces, splits, pieceStart,
             markerIds: scene.markers.map(m => m.id), pointIds: scene.points.map(p => p.id),
             min: [0, 0, 0], max: [0, 0, 0], lineBias: 0, pointBias: 0,
         };
@@ -583,7 +625,7 @@ export class JsxSurfaceView implements SurfaceView {
     /** Same topology, new coordinates (a point drag, a moving marker): rewrite the pool and the elements in place. */
     private updateGeometry(scene: SurfaceScene): void {
         const pool = this.pool!;
-        const fresh = this.buildPool(scene);
+        const fresh = this.buildPool(scene, pool.pieces);
         pool.verts = fresh.verts;
         pool.min = fresh.min;
         pool.max = fresh.max;
@@ -633,6 +675,7 @@ export class JsxSurfaceView implements SurfaceView {
         for (const p of this.scene!.points) nodes.push(draw.points.get(p.id)?.element2D.rendNode);
         draw.nodes = nodes;
         this.orderNodes = nodes;
+        this.dashPeriods = [];
         this.detailReduced = null;
     }
 
@@ -758,6 +801,18 @@ export class JsxSurfaceView implements SurfaceView {
         }
     }
 
+    /** Length of one dash cycle of the segment piece's node (0 for a solid line); read once from the node. */
+    private dashPeriodOf(piece: number, node: SVGElement | null | undefined): number {
+        let period = this.dashPeriods[piece];
+        if (period === undefined) {
+            const values = (node?.getAttribute('stroke-dasharray') ?? '').split(/[ ,]+/).map(Number).filter(v => Number.isFinite(v) && v > 0);
+            const cycle = values.reduce((a, b) => a + b, 0);
+            period = values.length % 2 ? 2 * cycle : cycle;
+            this.dashPeriods[piece] = period;
+        }
+        return period;
+    }
+
     private writePaths(): void {
         const pool = this.pool!, nodes = this.draw!.nodes;
         const sx = this.sx, sy = this.sy;
@@ -776,10 +831,18 @@ export class JsxSurfaceView implements SurfaceView {
             const a = pool.planes[q], b = pool.planes[q + 1], c = pool.planes[q + 2], d = pool.planes[q + 3];
             nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}L${f(sx[c])} ${f(sy[c])}L${f(sx[d])} ${f(sy[d])}Z`);
         }
+        let phase = 0;
         for (let s = 0; s < pool.segs.length; s += 2, e++) {
             this.stats.drawn++;
             const a = pool.segs[s], b = pool.segs[s + 1];
-            nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}`);
+            const node = nodes[e];
+            node?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}`);
+            // Pieces of one segment continue its dash pattern instead of each restarting it.
+            const piece = s / 2;
+            if (pool.pieceStart[piece]) phase = 0;
+            const period = this.dashPeriodOf(piece, node);
+            if (period > 0) node?.setAttribute('stroke-dashoffset', String(f(phase % period)));
+            phase += Math.hypot(sx[b] - sx[a], sy[b] - sy[a]);
         }
     }
 

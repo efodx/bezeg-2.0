@@ -4,10 +4,9 @@
  */
 import {afterAll, beforeAll, describe, expect, it} from 'vitest';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
-import {collectFramingCases, controlNetPoints, measureJsx, measuredNetBounds, screenBounds, type FramingCase} from './jsxFraming.test-helper';
-import {pinholeProject} from './surface-view/pinholeOracle.test-helper';
+import {collectFramingCases, measureJsx, NARROW, type FramingCase} from './jsxFraming.test-helper';
+import {expectJsxFramingMatchesOracle, framingHalf} from './jsxFramingOracle.test-helper';
 
-const TOLERANCE_PX = 0.5;
 let cases: FramingCase[] = [];
 
 describe('JSXGraph surface view framing on the patch routes', () => {
@@ -28,29 +27,25 @@ describe('JSXGraph surface view framing on the patch routes', () => {
     });
 
     it('draws every vertex and point where the oracle puts it', async () => {
-        let checked = 0, worst = 0;
-        for (const framing of cases) {
-            for (const viewport of framing.viewports) {
-                const measurement = await measureJsx(framing.scene, viewport);
-                expect(measurement.samples.length, `${framing.name} ${viewport.name} drew nothing`).toBeGreaterThan(0);
-                expect(controlNetPoints(framing.scene).length, `${framing.name} has no control net`).toBeGreaterThan(0);
-                for (const sample of measurement.samples) {
-                    const expected = pinholeProject(framing.scene.camera, viewport, sample.world);
-                    const dx = Math.abs(sample.x - expected.x), dy = Math.abs(sample.y - expected.y);
-                    worst = Math.max(worst, dx, dy);
-                    if (dx > TOLERANCE_PX || dy > TOLERANCE_PX) {
-                        throw new Error(`${framing.name} @ ${viewport.name}: world ${sample.world.join(',')} drawn at ${sample.x.toFixed(2)},${sample.y.toFixed(2)}, oracle ${expected.x.toFixed(2)},${expected.y.toFixed(2)}`);
-                    }
-                    checked++;
-                }
-                const net = measuredNetBounds(framing.scene, measurement);
-                const oracle = screenBounds(controlNetPoints(framing.scene).map(p => pinholeProject(framing.scene.camera, viewport, p)));
-                for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) {
-                    expect(Math.abs(net[key] - oracle[key]), `${framing.name} @ ${viewport.name} net ${key}`).toBeLessThanOrEqual(TOLERANCE_PX);
-                }
+        await expectJsxFramingMatchesOracle(framingHalf(cases, 0));
+    }, 300_000);
+
+    it('shows every control point of the tensor and triangular default views inside a 390x844 host', async () => {
+        const defaults = cases.filter(c => /^(tensor|triangular)\/default\/stored$/.test(c.name));
+        expect(defaults.map(c => c.name).sort()).toEqual(['tensor/default/stored', 'triangular/default/stored']);
+        const fits = cases.filter(c => /^(tensor|triangular)\/.+\/fit narrow/.test(c.name));
+        expect(fits.length).toBeGreaterThanOrEqual(2);
+        for (const framing of [...defaults, ...fits]) {
+            const measurement = await measureJsx(framing.scene, NARROW);
+            expect(framing.scene.points.length, framing.name).toBeGreaterThan(0);
+            for (const point of framing.scene.points) {
+                const sample = measurement.samples.find(s => s.world.every((v, k) => Math.abs(v - point.xyz[k]) < 1e-9));
+                expect(sample, `${framing.name} point ${point.id} was not drawn`).toBeDefined();
+                expect(sample!.x, `${framing.name} ${point.id} x`).toBeGreaterThanOrEqual(0);
+                expect(sample!.x, `${framing.name} ${point.id} x`).toBeLessThanOrEqual(NARROW.width);
+                expect(sample!.y, `${framing.name} ${point.id} y`).toBeGreaterThanOrEqual(0);
+                expect(sample!.y, `${framing.name} ${point.id} y`).toBeLessThanOrEqual(NARROW.height);
             }
         }
-        expect(checked).toBeGreaterThan(1000);
-        console.log(`framing: ${cases.length} cases, ${checked} samples, worst ${worst.toExponential(2)} px`);
-    }, 300_000);
+    }, 120_000);
 });
