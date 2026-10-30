@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {hashFile} = require('./capture-demonstration-previews.cjs');
-const {validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
+const {validateSurfaceEvidence, LEGACY_WEBGL_RENDERER} = require('./guided-example-surface-evidence.cjs');
 
 const idPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
 const graphGeometryTypes = new Set(['curve', 'functiongraph', 'circle', 'point', 'line', 'segment', 'arrow',
@@ -166,7 +166,7 @@ function validateStoredSurfaceEvidence(entry, record, label) {
     const validated = validateSurfaceEvidence({
         framing: {width: record.frame?.width, height: record.frame?.height, camera: record.camera,
             points: record.projectedControlPoints, meshBounds: record.meshBounds},
-        webglContextType: record.webglContextType, renderedOwners: record.renderedOwners, expected: entry.expected.surface,
+        surfaceRenderer: record.surfaceRenderer ?? (['webgl', 'webgl2'].includes(record.webglContextType) ? LEGACY_WEBGL_RENDERER : undefined), renderedOwners: record.renderedOwners, expected: entry.expected.surface,
     });
     assert.deepEqual(record.ownerIds, validated.ownerIds, `${entry.id}: ${label} owner IDs do not match observed owner samples`);
     return validated;

@@ -1,5 +1,6 @@
 // Capture-only choreography. Labels are the shipped Slovenian controls, never React/graph internals.
 const assert = require('node:assert/strict');
+const {waitForSurfaceViewDrawn} = require('./surface-view-evidence.cjs');
 const button = (label, count = 1) => ({kind: 'button', label, count});
 const toggle = (label, value = true) => ({kind: 'toggle', label, value});
 const field = (label, value, kind = 'range', index = 0) => ({kind, label, value, index});
@@ -181,7 +182,7 @@ function readLocalizedNumber(value) {
     return Number(normalized);
 }
 
-/** The real surface view publishes its framing on the host; the fake view and a failed WebGL start do not. */
+/** The real surface view publishes its framing on the host; a fake view or a failed start does not. */
 async function readSurfaceFraming(page) {
     return page.locator('#jgbox').evaluate(host => {
         const raw = host.getAttribute('data-surface-framing');
@@ -194,20 +195,18 @@ async function surfaceOutcome(page, id) {
     await page.waitForFunction(declared => {
         const host = document.querySelector('#jgbox');
         const raw = host?.getAttribute('data-surface-framing');
-        if (!host?.querySelector('canvas') || !raw) return false;
+        if (!host?.querySelector('[data-jsx-surface-view]') || !raw) return false;
         const count = JSON.parse(raw).points.length;
         return declared === undefined ? count > 0 : count === declared;
     }, expected);
+    const drawn = await waitForSurfaceViewDrawn(page);
     const framing = await readSurfaceFraming(page);
-    const evidence = await page.locator('#jgbox').evaluate(host => {
-        const canvas = host.querySelector('canvas');
-        // getContext returns the existing context for its own type and null for another: this identifies real WebGL.
-        const contextType = canvas.getContext('webgl2') ? 'webgl2' : canvas.getContext('webgl') ? 'webgl' : 'none';
-        return {contextType, canvas: {width: canvas.clientWidth, height: canvas.clientHeight},
+    const evidence = await page.locator('#jgbox').evaluate(() => {
+        return {
             readouts: Object.fromEntries([...document.querySelectorAll('[data-readout]')].map(e => [e.dataset.readout, e.querySelector('dd')?.textContent])),
             controls: [...document.querySelectorAll('input,select')].filter(e => e.closest('main')).map(e => ({label: e.getAttribute('aria-label') || e.labels?.[0]?.textContent, value: e.value, checked: e.type === 'checkbox' ? e.checked : undefined}))};
     });
-    const result = {view: 'surface', ...evidence, camera: framing.camera, controlPointCount: framing.points.length};
+    const result = {view: 'surface', ...evidence, surfaceView: drawn.view, svg: drawn.svg, drawables: drawn.drawables, camera: framing.camera, controlPointCount: framing.points.length};
     assertOutcomeEvidence(id, result);
     return result;
 }
@@ -230,7 +229,9 @@ async function outcome(page, id) {
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
-        assert.ok(['webgl', 'webgl2'].includes(evidence.contextType), `${id} surface is not drawn by a real WebGL context`);
+        // Retained manifests captured before task 07A carry the WebGL `contextType`; a live read (surfaceOutcome) never does. Drop this branch once they are recaptured.
+        const legacyWebgl = evidence.surfaceView === undefined && ['webgl', 'webgl2'].includes(evidence.contextType);
+        assert.ok(legacyWebgl || (evidence.surfaceView === 'board2d' && evidence.svg?.width > 0 && evidence.svg?.height > 0 && evidence.drawables > 0), `${id} surface is not drawn by the JSXGraph SVG surface view`);
         const declared = recipes[id]?.framing.controlPointCount;
         assert.ok((declared === undefined ? evidence.controlPointCount > 0 : evidence.controlPointCount === declared) && evidence.camera && Array.isArray(evidence.camera.target), `${id} missing surface control net or camera`);
         assert.ok(evidence.readouts && Array.isArray(evidence.controls), `${id} missing semantic evidence`);

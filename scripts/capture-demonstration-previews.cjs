@@ -127,7 +127,7 @@ async function servedBuildProvenance() {
 }
 
 /**
- * Surface demonstrations are drawn by WebGL, not JSXGraph: only the host is resized to the preview frame, the recipe
+ * Surface demonstrations are drawn by the JSXGraph SVG surface view, not a curve board: only the host is resized to the preview frame, the recipe
  * camera is checked against the view's own published framing, and the screenshot of the host is the poster.
  */
 async function captureSurface(page, demonstration, recipe, outputDirectory) {
@@ -186,7 +186,7 @@ async function captureSurface(page, demonstration, recipe, outputDirectory) {
             pixelStats,
             outOfFrameElements: [],
         },
-        board: {width: frame.width, height: frame.height, view: 'surface', contextType: evidence.contextType, controlPointCount: evidence.controlPointCount},
+        board: {width: frame.width, height: frame.height, view: 'surface', surfaceView: evidence.surfaceView, controlPointCount: evidence.controlPointCount},
     };
 }
 

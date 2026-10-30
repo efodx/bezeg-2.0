@@ -1,7 +1,13 @@
 'use strict';
 
+const {inspectSurfaceViewInPage} = require('./surface-view-evidence.cjs');
+
 const OWNER_KINDS = new Set(['tensor', 'triangular', 'join', 'teapot']);
 const TEAPOT_PATCH_COUNT = 32;
+/** Set by readPublishedSurfaceEvidence only after the in-page check found a drawn SVG surface view. */
+const SVG_RENDERER = 'jsx-svg';
+/** Only for retained manifests captured before task 07A, which stored `webglContextType`; a live read never yields it. */
+const LEGACY_WEBGL_RENDERER = 'legacy-webgl';
 
 function fail(message) { throw new Error(`Invalid guided surface evidence: ${message}`); }
 function finiteTuple(value, where) {
@@ -10,7 +16,9 @@ function finiteTuple(value, where) {
 
 /** Read the existing route-owned DOM evidence from a Playwright page. */
 async function readPublishedSurfaceEvidence(page) {
-    return page.locator('#jgbox').evaluate(host => {
+    const view = await page.locator('#jgbox').evaluate(inspectSurfaceViewInPage);
+    if (!view.ok) fail(`surface is not drawn by the JSXGraph SVG surface view: ${view.reason}`);
+    const published = await page.locator('#jgbox').evaluate(host => {
         const raw = host.getAttribute('data-surface-framing');
         if (!raw) throw new Error('Invalid guided surface evidence: missing published data-surface-framing');
         let framing;
@@ -21,17 +29,14 @@ async function readPublishedSurfaceEvidence(page) {
         let renderedOwners;
         try { renderedOwners = JSON.parse(ownersRaw); }
         catch { throw new Error('Invalid guided surface evidence: malformed published data-rendered-surface-owners'); }
-        const canvas = host.querySelector('canvas');
-        const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-        if (!gl) throw new Error('Invalid guided surface evidence: missing WebGL context');
-        const isWebgl2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
-        return {framing, webglContextType: isWebgl2 ? 'webgl2' : 'webgl', renderedOwners};
+        return {framing, renderedOwners};
     });
+    return {...published, surfaceRenderer: SVG_RENDERER};
 }
 
 /** Validate evidence read from a live surface route; this function never derives evidence from image pixels. */
-function validateSurfaceEvidence({framing, webglContextType, renderedOwners, expected}) {
-    if (!['webgl', 'webgl2', 'experimental-webgl'].includes(webglContextType)) fail('missing WebGL context');
+function validateSurfaceEvidence({framing, surfaceRenderer, renderedOwners, expected}) {
+    if (![SVG_RENDERER, LEGACY_WEBGL_RENDERER].includes(surfaceRenderer)) fail('surface was not drawn by the JSXGraph SVG surface view');
     if (!framing || !Number.isFinite(framing.width) || !Number.isFinite(framing.height) || framing.width <= 0 || framing.height <= 0) fail('missing or invalid published framing');
     const camera = framing.camera;
     if (!camera || ![camera.az, camera.el, camera.distance].every(Number.isFinite) || camera.distance <= 0) fail('missing or invalid published camera');
@@ -90,11 +95,11 @@ function validateSurfaceEvidence({framing, webglContextType, renderedOwners, exp
     const wantedCamera = cameraValues(expected.camera);
     const actualCamera = cameraValues(camera);
     if (wantedCamera.length !== actualCamera.length || !wantedCamera.every(Number.isFinite) || wantedCamera.some((value, index) => Math.abs(value - actualCamera[index]) > cameraTolerance)) fail('published camera differs from expected camera');
-    return {view: 'surface', webglContextType, frame: {width: framing.width, height: framing.height}, camera,
+    return {view: 'surface', surfaceRenderer, frame: {width: framing.width, height: framing.height}, camera,
         meshBounds: {...meshBounds},
         ownerIds: [...byId.keys()], renderedOwners: renderedOwners.map(owner => ({id: owner.id, kind: owner.kind,
             geometrySamples: owner.geometrySamples.map(sample => [...sample])})),
         projectedControlPoints: framing.points.map(point => ({id: point.id, x: point.x, y: point.y, inFrustum: point.inFrustum}))};
 }
 
-module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence};
+module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence, SVG_RENDERER, LEGACY_WEBGL_RENDERER};

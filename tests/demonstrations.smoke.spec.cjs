@@ -20,19 +20,18 @@ async function expectRenderedWorkspace(page, demonstration) {
     const board = graph.locator('#jgbox');
     await expect(board).toBeVisible();
     if (demonstration.view === 'surface') {
-        // A surface workspace hosts a Three canvas, not a JSXGraph board; the host publishes `data-surface-framing` once rendered.
+        // A surface workspace hosts the JSXGraph SVG surface view (drawn polygons/polylines), not a curve board; the host publishes `data-surface-framing` once rendered.
         // A route may declare that its default scene publishes no editable points (patch-subdivision shows its piece nets): the count is then exact and the camera stands in for the projection.
         const declared = require('../scripts/demonstration-preview-recipes.cjs').recipes[demonstration.id]?.framing.controlPointCount;
-        await expect.poll(async () => board.evaluate((container, declaredPoints) => {
-            const canvas = container.querySelector('canvas');
+        const {inspectSurfaceViewInPage} = require('../scripts/surface-view-evidence.cjs');
+        await expect.poll(async () => ({drawn: (await board.evaluate(inspectSurfaceViewInPage)).ok, ...await board.evaluate((container, declaredPoints) => {
             let framing = null;
             try {framing = JSON.parse(container.getAttribute('data-surface-framing') || 'null');} catch {/* not rendered yet */}
             return {
-                canvas: !!canvas && canvas.clientWidth > 0 && canvas.clientHeight > 0,
                 framed: !!framing && framing.width > 0 && framing.height > 0 && Array.isArray(framing.points) && (declaredPoints === undefined ? framing.points.length > 0 : framing.points.length === declaredPoints),
                 projected: !!framing && (declaredPoints === 0 ? Number.isFinite(framing.camera?.distance) : framing.points.some(point => Number.isFinite(point.x) && Number.isFinite(point.y) && point.inFrustum)),
             };
-        }, declared), {timeout: 20_000}).toEqual({canvas: true, framed: true, projected: true});
+        }, declared)}), {timeout: 20_000}).toEqual({drawn: true, framed: true, projected: true});
     } else {
         await expect.poll(async () => board.evaluate(container => {
             const boards = Object.values(window.JXG?.boards || {});

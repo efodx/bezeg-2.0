@@ -32,21 +32,34 @@ test('triangular motion pins the shipped cubic dome rather than a unit reference
         expectedSamples({kind: 'triangular', n: 3, net}, 16));
 });
 
-test('surface route readiness uses published WebGL owner evidence without requiring SVG',async()=>{
+test('surface route readiness needs a drawn SVG surface view and published owner evidence',async()=>{
     let readiness;
     const page={setDefaultTimeout(){},goto:async()=>{},waitForFunction:async fn=>{readiness=fn;},evaluate:async()=>{}};
     const context={addInitScript:async()=>{},newPage:async()=>page};
     await testSupport.openRoute({newContext:async()=>context},{id:'patch-tensor',view:'surface',path:'/bezeg-2.0/patches'},'http://localhost/bezeg-2.0');
     const owner={id:'tensor-patch-0',kind:'tensor',geometrySamples:[[0,0,0]]};
+    const shape={getAttribute:name=>name==='points'?'1,2 3,4 5,6':null};
+    const svg={getBoundingClientRect:()=>({width:360,height:220}),querySelectorAll:()=>[shape]};
     const host={getAttribute:name=>name==='data-surface-framing'?JSON.stringify({width:360,height:220,camera:{az:0.2,el:0.4}}):name==='data-rendered-surface-owners'?JSON.stringify([owner]):null,
-        querySelector:selector=>selector==='canvas'?{getContext:type=>type==='webgl2'?{}:null}:null};
+        querySelector:selector=>selector==='[data-jsx-surface-view] svg'?svg:null};
     const previous=globalThis.document;
     globalThis.document={querySelector:selector=>selector==='#jgbox'?host:null};
     try {
         assert.equal(readiness,surfaceRouteReadyInPage);
-        assert.equal(surfaceRouteReadyInPage(),true,'A WebGL surface with rendered owners is ready even without SVG');
+        assert.equal(surfaceRouteReadyInPage(),true,'A drawn SVG surface with rendered owners is ready');
+        const restore=host.getAttribute;
         host.getAttribute=name=>name==='data-surface-framing'?JSON.stringify({width:360,height:220,camera:{az:0.2,el:0.4}}):'[]';
         assert.equal(surfaceRouteReadyInPage(),false,'An empty owner list is not ready');
+        host.getAttribute=restore;
+        shape.getAttribute=name=>name==='points'?'':null;
+        assert.equal(surfaceRouteReadyInPage(),false,'An SVG with no drawn points is not ready');
+        shape.getAttribute=name=>name==='points'?'1,2 3,4':name==='display'?'none':null;
+        assert.equal(surfaceRouteReadyInPage(),false,'An SVG whose drawables are all hidden is not ready');
+        shape.getAttribute=name=>name==='points'?'1,2 3,4':null;
+        svg.getBoundingClientRect=()=>({width:0,height:220});
+        assert.equal(surfaceRouteReadyInPage(),false,'A zero-size SVG is not ready');
+        host.querySelector=()=>null;
+        assert.equal(surfaceRouteReadyInPage(),false,'A missing surface view is not ready');
     } finally {if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
 });
 

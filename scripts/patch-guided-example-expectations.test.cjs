@@ -115,7 +115,7 @@ test('surface expectations reject a mutated sample and a camera mismatch', () =>
     const renderedOwners = structuredClone(expected.owners);
     const framing = {width: 800, height: 600, camera: structuredClone(expected.camera), points: [],
         meshBounds: {left: 10, top: 10, right: 790, bottom: 590, inFrustum: true}};
-    const base = {framing, webglContextType: 'webgl2', renderedOwners, expected};
+    const base = {framing, surfaceRenderer: 'jsx-svg', renderedOwners, expected};
     assert.doesNotThrow(() => validateSurfaceEvidence(base));
     const wrongSample = structuredClone(expected);
     wrongSample.owners[0].geometrySamples[0][2] += 0.1;

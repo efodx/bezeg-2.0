@@ -40,13 +40,17 @@ function assertOwnerGeometry(actual, expected, id, tolerance = 1e-6) {
 
 function surfaceRouteReadyInPage() {
     const host = document.querySelector('#jgbox');
-    const canvas = host?.querySelector('canvas');
-    if (!canvas) return false;
+    // Self-contained (Playwright serializes it): the host's SVG surface view has a size and a shown polygon/polyline with points.
+    const svg = host?.querySelector('[data-jsx-surface-view] svg');
+    if (!svg) return false;
+    const rect = svg.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return false;
+    const drawn = [...svg.querySelectorAll('polygon, polyline')].some(node => node.getAttribute('display') !== 'none' && (node.getAttribute('points') || '').trim().split(/\s+/).length >= 2);
+    if (!drawn) return false;
     try {
         const framing = JSON.parse(host.getAttribute('data-surface-framing') || 'null');
         const owners = JSON.parse(host.getAttribute('data-rendered-surface-owners') || 'null');
-        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        return !!gl && Number.isFinite(framing?.camera?.az) && Number.isFinite(framing?.camera?.el)
+        return Number.isFinite(framing?.camera?.az) && Number.isFinite(framing?.camera?.el)
             && Number.isFinite(framing?.width) && Number.isFinite(framing?.height)
             && Array.isArray(owners) && owners.length > 0 && owners.every(owner => Array.isArray(owner.geometrySamples) && owner.geometrySamples.length > 0);
     } catch { return false; }
@@ -118,15 +122,15 @@ async function captureSurfaceOrbit(page, id, directory, recipe) {
     const evidence = await readPublishedSurfaceEvidence(page);
     const valid = validateSurfaceEvidence({...evidence, expected:{camera:recipe.framing.camera, owners:expected,cameraTolerance:1e-6}});
     const startCamera = valid.camera;
-    const box = await page.locator('#jgbox canvas').boundingBox();
-    assert.ok(box && box.width > 0 && box.height > 0, `${id}: missing surface canvas bounds`);
+    const box = await page.locator('#jgbox [data-jsx-surface-view]').boundingBox();
+    assert.ok(box && box.width > 0 && box.height > 0, `${id}: missing surface view bounds`);
     const bounds = evidence.framing.meshBounds;
     const candidates = [[box.x+4,box.y+4],[box.x+box.width-4,box.y+4],[box.x+4,box.y+box.height-4],[box.x+box.width-4,box.y+box.height-4]];
     const start = candidates.find(([x,y]) => {
         const localX=x-box.x,localY=y-box.y;
         return localX < bounds.left-4 || localX > bounds.right+4 || localY < bounds.top-4 || localY > bounds.bottom+4;
     });
-    assert.ok(start, `${id}: cannot find a clear canvas corner outside the rendered mesh for orbit input`);
+    assert.ok(start, `${id}: cannot find a clear surface-view corner outside the rendered mesh for orbit input`);
     const [mouseX,mouseY] = start;
     const samples = [];
     await page.mouse.move(mouseX, mouseY);

@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {readPublishedSurfaceEvidence, validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
+const {fakeSurfaceHost} = require('./surface-view-fixture.cjs');
 
 function fixture(kind = 'tensor') {
     const sample = [0.25, -0.5, 0.75];
@@ -10,7 +11,7 @@ function fixture(kind = 'tensor') {
     const samples = [sample, [0.3, -0.4, 0.8], [0.4, -0.3, 0.9]];
     const owner = {id: `${kind}-owner-0`, kind, geometrySamples: samples};
     return {
-        webglContextType: 'webgl2',
+        surfaceRenderer: 'jsx-svg',
         framing: {width: 360, height: 220, camera, meshBounds: {left: 50, top: 40, right: 300, bottom: 190, inFrustum: true},
             points: [{id: 'P00', x: 142, y: 103, inFrustum: true}]},
         renderedOwners: [owner],
@@ -27,26 +28,27 @@ test('accepts valid unit evidence records for supported patch owner families', (
     }
 });
 
-test('reads published owner JSON from the route host with the existing WebGL context', async () => {
+test('reads published owner JSON from a route host whose SVG surface view is drawn', async () => {
     const owner = {id: 'tensor-patch-0', kind: 'tensor', geometrySamples: [[0, 1, 2]]};
-    const gl = {};
-    globalThis.WebGL2RenderingContext = function WebGL2RenderingContext() {};
-    try {
-        Object.setPrototypeOf(gl, WebGL2RenderingContext.prototype);
+    {
         const attrs = {'data-surface-framing': JSON.stringify({width: 420, height: 260,
             meshBounds: {left: 4, top: 5, right: 400, bottom: 250, inFrustum: true}}),
             'data-rendered-surface-owners': JSON.stringify([owner])};
-        const host = {getAttribute: name => attrs[name] || null, querySelector: () => ({getContext: () => gl})};
+        const host = fakeSurfaceHost({attrs});
         const page = {locator: () => ({evaluate: callback => callback(host)})};
         assert.deepEqual(await readPublishedSurfaceEvidence(page), {
             framing: {width: 420, height: 260, meshBounds: {left: 4, top: 5, right: 400, bottom: 250, inFrustum: true}},
-            webglContextType: 'webgl2', renderedOwners: [owner],
+            renderedOwners: [owner], surfaceRenderer: 'jsx-svg',
         });
         delete attrs['data-rendered-surface-owners'];
         await assert.rejects(readPublishedSurfaceEvidence(page), /missing published data-rendered-surface-owners/);
         attrs['data-rendered-surface-owners'] = '{';
         await assert.rejects(readPublishedSurfaceEvidence(page), /malformed published data-rendered-surface-owners/);
-    } finally { delete globalThis.WebGL2RenderingContext; }
+        const blank = fakeSurfaceHost({attrs, shapes: [{points: ''}]});
+        await assert.rejects(readPublishedSurfaceEvidence({locator: () => ({evaluate: callback => callback(blank)})}), /not drawn by the JSXGraph SVG surface view: .*no drawn polygon/);
+        const missing = fakeSurfaceHost({attrs, view: null});
+        await assert.rejects(readPublishedSurfaceEvidence({locator: () => ({evaluate: callback => callback(missing)})}), /no \[data-jsx-surface-view\] element/);
+    }
 });
 
 test('accepts point-free teapot and subdivision scenes with independently expected rendered owners', () => {
@@ -77,9 +79,10 @@ test('accepts point-free teapot and subdivision scenes with independently expect
     assert.throws(() => validateSurfaceEvidence(incomplete), /all 32 expected and rendered patch owners/);
 });
 
-test('rejects absent WebGL, framing, camera, owners, or owner geometry', () => {
+test('rejects an undrawn surface renderer, absent framing, camera, owners, or owner geometry', () => {
     for (const mutate of [
-        e => { e.webglContextType = null; },
+        e => { e.surfaceRenderer = null; },
+        e => { e.surfaceRenderer = 'webgl2'; },
         e => { e.framing = null; },
         e => { e.framing.camera = null; },
         e => { e.renderedOwners = []; },

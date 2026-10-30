@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {assertPresentationGeometryStable, assertInventoryFamily, captureOutputPath, captureRecipeForEntry, destinationForFamily, parseArgs, presentationFingerprint, presentationHelpers,
     resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
+const {fakeSurfaceHost} = require('./surface-view-fixture.cjs');
 const {readPublishedSurfaceEvidence: readSurface, validateSurfaceEvidence: validateSurface} = require('./guided-example-surface-evidence.cjs');
 
 test('patch capture family uses its fixed subdirectory and rejects retained inventories', () => {
@@ -162,10 +163,8 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
             geometrySamples: [[0, 1, 2], [1, 2, 3], [2, 3, 4]]}]),
     };
     const properties = new Map();
-    const gl = {};
-    const host = {style: {setProperty: (name, value) => properties.set(name, value)},
-        getAttribute: name => attrs[name] || null, querySelector: () => ({getContext: type => type === 'webgl' ? gl : null}),
-        querySelectorAll: () => [], getBoundingClientRect: () => ({left: 0, top: 0, right: 420, bottom: 260})};
+    const host = Object.assign(fakeSurfaceHost({attrs}), {style: {setProperty: (name, value) => properties.set(name, value)},
+        querySelectorAll: () => [], getBoundingClientRect: () => ({left: 0, top: 0, right: 420, bottom: 260})});
     const page = {locator: () => ({waitFor: async () => {}, evaluate: async (callback, argument) => callback(host, argument)}),
         waitForFunction: async () => {}, evaluate: async () => {}};
     await assert.rejects(prepareSurfaceCaptureFrame(page), /outside the capture frame or frustum/);

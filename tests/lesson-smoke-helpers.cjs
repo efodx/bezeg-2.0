@@ -9,26 +9,28 @@ const learnButton = page => page.getByRole('button', {name: 'Learn this demonstr
 const reopenButton = page => page.locator('button.guided-lesson-tab');
 const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
 
-// Patch lessons use the Three.js surface owner and framing evidence on the same host.
-function surfaceEvidence(page) {
-    return page.locator('#jgbox').evaluate(host => {
+// Patch lessons use the JSXGraph SVG surface view: drawn-view, owner and framing evidence all sit on the same host.
+const {inspectSurfaceViewInPage} = require('../scripts/surface-view-evidence.cjs');
+
+async function surfaceEvidence(page) {
+    const view = await page.locator('#jgbox').evaluate(inspectSurfaceViewInPage);
+    const published = await page.locator('#jgbox').evaluate(host => {
         const parse = name => {
             const raw = host.getAttribute(name);
             if (!raw) throw new Error(`surface lesson is missing ${name}`);
             try { return JSON.parse(raw); }
             catch { throw new Error(`surface lesson has malformed ${name}`); }
         };
-        const canvas = host.querySelector('canvas');
-        const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-        if (!gl) throw new Error('surface lesson has no WebGL context');
-        return {framing: parse('data-surface-framing'), owners: parse('data-rendered-surface-owners'),
-            webglContextType: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext ? 'webgl2' : 'webgl'};
+        return {framing: parse('data-surface-framing'), owners: parse('data-rendered-surface-owners')};
     });
+    return {...published, view};
 }
 
 async function assertSurfaceEvidence(page, expected, label) {
     const evidence = await surfaceEvidence(page);
-    expect(evidence.webglContextType, `WebGL context at ${label}`).toMatch(/^webgl2?$/);
+    expect(evidence.view.ok, `drawn SVG surface view at ${label}: ${evidence.view.reason}`).toBe(true);
+    expect(evidence.view.view, `surface view kind at ${label}`).toBe('board2d');
+    expect(evidence.view.drawables, `drawn polygons/polylines at ${label}`).toBeGreaterThan(0);
     const {framing, owners} = evidence;
     expect(framing.camera, `published camera at ${label}`).toMatchObject(expected.camera);
     expect(framing.meshBounds.inFrustum, `full mesh in frustum at ${label}`).toBe(true);

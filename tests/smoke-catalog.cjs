@@ -266,7 +266,7 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         if (digest !== capture.sha256) throw new Error(`PNG checksum for ${capture.id} does not match its manifest.`);
         const framing = capture.framing;
         if (demonstration.view === 'surface') {
-            // A WebGL surface has no board: its evidence is a real render, the recipe camera and a fully framed control net.
+            // A surface view has no curve board: its evidence is a real render, the recipe camera and a fully framed control net.
             if (framing?.kind !== 'surface-view' || recipes[capture.id].framing.kind !== 'surface-view') throw new Error(`Surface capture ${capture.id} must carry surface-view framing.`);
             assertNonUniformPixels(png, `Surface preview ${capture.id}`);
             if (!framing.camera || !sameCamera(framing.camera, recipes[capture.id].framing.camera) || !sameCamera(capture.evidence.camera, recipes[capture.id].framing.camera)) {

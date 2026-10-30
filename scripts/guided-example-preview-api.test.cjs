@@ -19,7 +19,7 @@ const surfaceExample = () => example({id: 'patch-tensor-midpoint', demonstration
     ]}}});
 const surfaceCapture = entry => {
     const surface = entry.expected.surface;
-    const scene = {view: 'surface', webglContextType: 'webgl2', frame: {width: 420, height: 260}, camera: surface.camera,
+    const scene = {view: 'surface', surfaceRenderer: 'jsx-svg', frame: {width: 420, height: 260}, camera: surface.camera,
         meshBounds: {left: 50, top: 40, right: 400, bottom: 250, inFrustum: true},
         ownerIds: ['tensor-patch-0'], renderedOwners: structuredClone(surface.owners),
         projectedControlPoints: [{id: 'P00', x: 100, y: 100, inFrustum: true}],
@@ -74,6 +74,8 @@ test('published and retained surface records revalidate owner samples, crop evid
         value => { value.initialFrame.preparedSurfaceEvidence.meshBounds.left = -50; },
         value => { value.initialFrame.preparedSurfaceEvidence.meshBounds.inFrustum = false; },
         value => { value.width = 839; },
+        value => { delete value.scene.surfaceRenderer; },
+        value => { value.initialFrame.preparedSurfaceEvidence.surfaceRenderer = 'canvas'; },
         value => { value.captureEvidence.servedBuildVerified = false; },
     ]) {
         const changed = structuredClone(good); mutate(changed);
@@ -85,6 +87,12 @@ test('published and retained surface records revalidate owner samples, crop evid
     const fingerprints = {inventory: digest('i'), presentation: digest('p'), buildOutput: digest('b'), buildInputs: digest('bi')};
     const manifest = {captures: [good, curveCapture], fingerprints};
     assert.doesNotThrow(() => validateRetained([entry, curve], manifest, directory, [curve.id], fingerprints));
+    // Manifests captured before the SVG surface view stored `webglContextType`; retaining them stays valid until recaptured.
+    const legacy = structuredClone(good);
+    for (const scene of [legacy.scene, legacy.initialFrame.preparedSurfaceEvidence]) { delete scene.surfaceRenderer; scene.webglContextType = 'webgl2'; }
+    assert.doesNotThrow(() => validateRetained([entry, curve], {captures: [legacy, curveCapture], fingerprints}, directory, [curve.id], fingerprints));
+    legacy.scene.webglContextType = 'none';
+    assert.throws(() => validateRetained([entry, curve], {captures: [legacy, curveCapture], fingerprints}, directory, [curve.id], fingerprints), /surface was not drawn/);
     const tampered = structuredClone(good);
     tampered.scene.renderedOwners[0].geometrySamples[0][1] = -10;
     assert.throws(() => validateRetained([entry, curve], {captures: [tampered, curveCapture], fingerprints}, directory, [curve.id], fingerprints), /geometry sample/);
