@@ -30,13 +30,12 @@ test('camera provenance canonicalizes only numerical roundoff and rejects a real
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[-1.001,2,3,-4]}]),/cameras differ/);
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[NaN,2,3,-4]}]),/cameras differ/);
 });
-test('surface outcome evidence requires a drawn SVG surface view; retained WebGL manifests stay valid',()=>{
+test('surface outcome evidence requires a drawn SVG surface view',()=>{
     const camera={az:-0.9,el:0.5,distance:8.2,target:[0,0,1.25]};
     const base={view:'surface',surfaceView:'board2d',svg:{width:360,height:220},drawables:12,readouts:{},controls:[],camera,controlPointCount:recipes["patch-tensor"].framing.controlPointCount??16};
     assert.doesNotThrow(()=>assertOutcomeEvidence('patch-tensor',base));
     const {surfaceView:_view,svg:_svg,drawables:_drawables,...legacy}=base;
-    assert.doesNotThrow(()=>assertOutcomeEvidence('patch-tensor',{...legacy,contextType:'webgl2'}));
-    for(const bad of [{...legacy},{...legacy,contextType:'none'},{...base,drawables:0},{...base,svg:{width:0,height:220}},{...base,surfaceView:'canvas'}]){
+    for(const bad of [{...legacy},{...legacy,contextType:'webgl2'},{...base,drawables:0},{...base,svg:{width:0,height:220}},{...base,surfaceView:'canvas'}]){
         assert.throws(()=>assertOutcomeEvidence('patch-tensor',bad),/not drawn by the JSXGraph SVG surface view/);
     }
 });

@@ -339,7 +339,7 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
             throw new Error(`Motion loop does not return to its recipe poster: ${id}`);
         }
         previewCapture.assertMotionEvidence(motion);
-        const expectedBackground = demonstration.view === 'surface' ? [255, 255, 255] : [255, 253, 245];
+        const expectedBackground = [255, 253, 245];
         if (JSON.stringify(motion.backgroundPixel?.rgb) !== JSON.stringify(expectedBackground)) throw new Error(`Invalid motion background provenance: ${id}`);
         const validCamera = demonstration.view === 'surface'
             ? motion.camera && typeof motion.camera === 'object' && !Array.isArray(motion.camera) &&

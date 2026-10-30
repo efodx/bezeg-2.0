@@ -6,8 +6,6 @@ const OWNER_KINDS = new Set(['tensor', 'triangular', 'join', 'teapot']);
 const TEAPOT_PATCH_COUNT = 32;
 /** Set by readPublishedSurfaceEvidence only after the in-page check found a drawn SVG surface view. */
 const SVG_RENDERER = 'jsx-svg';
-/** Only for retained manifests captured before task 07A, which stored `webglContextType`; a live read never yields it. */
-const LEGACY_WEBGL_RENDERER = 'legacy-webgl';
 
 function fail(message) { throw new Error(`Invalid guided surface evidence: ${message}`); }
 function finiteTuple(value, where) {
@@ -36,7 +34,7 @@ async function readPublishedSurfaceEvidence(page) {
 
 /** Validate evidence read from a live surface route; this function never derives evidence from image pixels. */
 function validateSurfaceEvidence({framing, surfaceRenderer, renderedOwners, expected}) {
-    if (![SVG_RENDERER, LEGACY_WEBGL_RENDERER].includes(surfaceRenderer)) fail('surface was not drawn by the JSXGraph SVG surface view');
+    if (surfaceRenderer !== SVG_RENDERER) fail('surface was not drawn by the JSXGraph SVG surface view');
     if (!framing || !Number.isFinite(framing.width) || !Number.isFinite(framing.height) || framing.width <= 0 || framing.height <= 0) fail('missing or invalid published framing');
     const camera = framing.camera;
     if (!camera || ![camera.az, camera.el, camera.distance].every(Number.isFinite) || camera.distance <= 0) fail('missing or invalid published camera');
@@ -102,4 +100,4 @@ function validateSurfaceEvidence({framing, surfaceRenderer, renderedOwners, expe
         projectedControlPoints: framing.points.map(point => ({id: point.id, x: point.x, y: point.y, inFrustum: point.inFrustum}))};
 }
 
-module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence, SVG_RENDERER, LEGACY_WEBGL_RENDERER};
+module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence, SVG_RENDERER};

@@ -87,11 +87,9 @@ test('published and retained surface records revalidate owner samples, crop evid
     const fingerprints = {inventory: digest('i'), presentation: digest('p'), buildOutput: digest('b'), buildInputs: digest('bi')};
     const manifest = {captures: [good, curveCapture], fingerprints};
     assert.doesNotThrow(() => validateRetained([entry, curve], manifest, directory, [curve.id], fingerprints));
-    // Manifests captured before the SVG surface view stored `webglContextType`; retaining them stays valid until recaptured.
+    // Manifests without a surfaceRenderer (including WebGL-era ones) are rejected.
     const legacy = structuredClone(good);
     for (const scene of [legacy.scene, legacy.initialFrame.preparedSurfaceEvidence]) { delete scene.surfaceRenderer; scene.webglContextType = 'webgl2'; }
-    assert.doesNotThrow(() => validateRetained([entry, curve], {captures: [legacy, curveCapture], fingerprints}, directory, [curve.id], fingerprints));
-    legacy.scene.webglContextType = 'none';
     assert.throws(() => validateRetained([entry, curve], {captures: [legacy, curveCapture], fingerprints}, directory, [curve.id], fingerprints), /surface was not drawn/);
     const tampered = structuredClone(good);
     tampered.scene.renderedOwners[0].geometrySamples[0][1] = -10;

@@ -1,58 +1,58 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+  "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+    "revision": "b625888358448e6ad4893a98219e3aad410cca26",
     "dirty": true,
-    "inputs": "eea05c7a0fecabf004cba2b6a3d8060678c5b361ff2e19ffe8d76c4cd1a4e3c8",
-    "output": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d"
+    "inputs": "2a9e1e86cc80f3704695274752ff33961452c528788e72bdaa3bfb2a89a8b738",
+    "output": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4396/bezeg-2.0/",
-    "stampRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "b625888358448e6ad4893a98219e3aad410cca26",
     "stampDirty": true,
-    "localOutputHash": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d",
+    "localOutputHash": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DHuAGLaN.js",
-        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/index-DHuAGLaN.js",
-        "sha256": "5a470527e742458cdf37847bd90d667af2d2087614b33a4a78125915e3a74ceb",
+        "name": "index-CVz0-Ojq.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-CVz0-Ojq.js",
+        "sha256": "8327901db6b01e8ed8dc4f9f448204ebbeba700022369443038dd3670ec13e87",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BOV79mws.js",
-        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/jsx-runtime-BOV79mws.js",
-        "sha256": "15d5a4cde982d58cce5591db65d2fb7172fae521887ace943ecfe40eb1000ad6",
+        "name": "jsx-runtime-BtpGEvSk.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-BtpGEvSk.js",
+        "sha256": "cab294c9353fe8440d061ec64297ef080318357aaea4f96da146d8a2e4828b9d",
         "matchesLocalBuild": true
       },
       {
         "name": "index-3PxAN9kg.css",
-        "url": "http://127.0.0.1:4396/bezeg-2.0/assets/index-3PxAN9kg.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-3PxAN9kg.css",
         "sha256": "e4575c48cd4045b8fb53cea20ebc4d98c7b2db4fb8614756fd58e90eab739a05",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4396/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
     "inventory": "763fe326be8e2fbfdf572dd54c49ec57c6b5f44c5e2b51c18ecd8c4f058a78e9",
-    "presentation": "5aa615ac2c72c3a7fce4da7b3dcc8b56f34d45fbcc528423e581110efea93049",
-    "buildOutput": "e901eed74c542bf7ae2a75e06f4820fc2024274a84719b674748426b3363c19d",
-    "buildInputs": "eea05c7a0fecabf004cba2b6a3d8060678c5b361ff2e19ffe8d76c4cd1a4e3c8"
+    "presentation": "c5067ff74ae9668293300467b40c4dee60b05611ba139c3706d3fc23044cddab",
+    "buildOutput": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87",
+    "buildInputs": "2a9e1e86cc80f3704695274752ff33961452c528788e72bdaa3bfb2a89a8b738"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -277,10 +277,10 @@
       "file": "bezier-patches.curve-to-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "03d78c92a409e8c44fead8ccc3e578390e74680c630b34f7e218f53cae13a688",
+      "sha256": "63a45a33f7f8927afb2491af0f15bd7a9dba1348e5ba690deeed6b18c6bde6e8",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -296,10 +296,10 @@
           ]
         },
         "meshBounds": {
-          "left": 110.60421475664839,
-          "top": 86.99246950221566,
-          "right": 306.4458237728948,
-          "bottom": 196.85833842924274,
+          "left": 110.604,
+          "top": 86.992,
+          "right": 306.446,
+          "bottom": 196.859,
           "inFrustum": true
         },
         "ownerIds": [
@@ -382,7 +382,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -398,10 +398,10 @@
             ]
           },
           "meshBounds": {
-            "left": 268.9490706049445,
-            "top": 203.09395764555734,
-            "right": 726.1639039621044,
-            "bottom": 459.58850548673206,
+            "left": 268.949,
+            "top": 203.093,
+            "right": 726.164,
+            "bottom": 459.589,
             "inFrustum": true
           },
           "ownerIds": [
@@ -493,8 +493,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -513,10 +513,10 @@
       "file": "bezier-patches.bilinear-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "57ba64604618944aaeb7d501441f32c1af993df3bbec01198c6976e0c33c0edd",
+      "sha256": "5d3869435a195adff23e8513594403c58673a275118e1ca7a0c814d81bfa18aa",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -533,9 +533,9 @@
         },
         "meshBounds": {
           "left": 210,
-          "top": 48.32611801708269,
-          "right": 314.0567775162028,
-          "bottom": 153.3888979020368,
+          "top": 48.326,
+          "right": 314.057,
+          "bottom": 153.389,
           "inFrustum": true
         },
         "ownerIds": [
@@ -606,7 +606,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -623,9 +623,9 @@
           },
           "meshBounds": {
             "left": 501,
-            "top": 112.82289860141998,
-            "right": 743.9325536628273,
-            "bottom": 358.10408087129366,
+            "top": 112.822,
+            "right": 743.933,
+            "bottom": 358.105,
             "inFrustum": true
           },
           "ownerIds": [
@@ -705,8 +705,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -725,10 +725,10 @@
       "file": "bezier-patches.control-net.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "14e9371379ca6018b4d4941bd03d99d277589e5fb0c4ad0de31271ef3f03c5cc",
+      "sha256": "939c3e6af1b2ba21c29d592c1d9156dce55dda9327e010dc041699437946b11a",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -744,10 +744,10 @@
           ]
         },
         "meshBounds": {
-          "left": 109.08279699245635,
-          "top": 77.60516772220119,
-          "right": 307.87762308541375,
-          "bottom": 187.913284210841,
+          "left": 109.082,
+          "top": 77.605,
+          "right": 307.878,
+          "bottom": 187.914,
           "inFrustum": true
         },
         "ownerIds": [
@@ -848,7 +848,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -864,10 +864,10 @@
             ]
           },
           "meshBounds": {
-            "left": 265.39714528623466,
-            "top": 181.17821848990818,
-            "right": 729.5066046647929,
-            "bottom": 438.70524429223263,
+            "left": 265.397,
+            "top": 181.178,
+            "right": 729.507,
+            "bottom": 438.706,
             "inFrustum": true
           },
           "ownerIds": [
@@ -977,8 +977,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -997,10 +997,10 @@
       "file": "bezier-patches.boundary-iso-curves.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "1808e12ab3efaca5ef3e01838f238e3a844d2fd2b8245ce459ec547fb42b91a1",
+      "sha256": "43bcf930c92fdb141fe2d5cc988c6c6f4f486f4c0aa1e397ece0bfabd4fb7b08",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -1016,10 +1016,10 @@
           ]
         },
         "meshBounds": {
-          "left": 109.08279699245635,
-          "top": 77.60516772220119,
-          "right": 307.87762308541375,
-          "bottom": 187.913284210841,
+          "left": 109.082,
+          "top": 77.605,
+          "right": 307.878,
+          "bottom": 187.914,
           "inFrustum": true
         },
         "ownerIds": [
@@ -1120,7 +1120,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -1136,10 +1136,10 @@
             ]
           },
           "meshBounds": {
-            "left": 265.39714528623466,
-            "top": 181.17821848990818,
-            "right": 729.5066046647929,
-            "bottom": 438.70524429223263,
+            "left": 265.397,
+            "top": 181.178,
+            "right": 729.507,
+            "bottom": 438.706,
             "inFrustum": true
           },
           "ownerIds": [
@@ -1249,8 +1249,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -1267,10 +1267,10 @@
       "file": "bezier-patches.tensor-decasteljau.patch-decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "74c8996ebec031e6ede498992dc37d9cb8a01ab914c198728d219b8f22cb0fe0",
+      "sha256": "497718f20ad07ac5f6d5276edfda9220ebc1843bdb07f82068892b3b2685dd39",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -1286,10 +1286,10 @@
           ]
         },
         "meshBounds": {
-          "left": 192.72490373236795,
-          "top": 143.1695325187931,
-          "right": 227.18374737159908,
-          "bottom": 181.82356116917322,
+          "left": 192.724,
+          "top": 143.169,
+          "right": 227.184,
+          "bottom": 181.824,
           "inFrustum": true
         },
         "ownerIds": [
@@ -1382,7 +1382,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -1398,10 +1398,10 @@
             ]
           },
           "meshBounds": {
-            "left": 460.6692944828744,
-            "top": 334.24579322656695,
-            "right": 541.1174409790794,
-            "bottom": 424.4880831911082,
+            "left": 460.669,
+            "top": 334.245,
+            "right": 541.118,
+            "bottom": 424.489,
             "inFrustum": true
           },
           "ownerIds": [
@@ -1503,8 +1503,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -1522,10 +1522,10 @@
       "file": "bezier-patches.properties.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "c388684dda65c7c7081847dd0101c72b96c1c2630b5bd268b388d847730a910b",
+      "sha256": "871e617cf914a262a4dde78a186fabb8bf3a856094e0c4d0ebc90e5db75801c6",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -1541,10 +1541,10 @@
           ]
         },
         "meshBounds": {
-          "left": 192.72490373236795,
-          "top": 143.1695325187931,
-          "right": 227.18374737159908,
-          "bottom": 181.82356116917322,
+          "left": 192.724,
+          "top": 143.169,
+          "right": 227.184,
+          "bottom": 181.824,
           "inFrustum": true
         },
         "ownerIds": [
@@ -1645,7 +1645,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -1661,10 +1661,10 @@
             ]
           },
           "meshBounds": {
-            "left": 460.6692944828744,
-            "top": 334.24579322656695,
-            "right": 541.1174409790794,
-            "bottom": 424.4880831911082,
+            "left": 460.669,
+            "top": 334.245,
+            "right": 541.118,
+            "bottom": 424.489,
             "inFrustum": true
           },
           "ownerIds": [
@@ -1774,8 +1774,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -1794,10 +1794,10 @@
       "file": "bezier-patches.tensor-derivatives.patch-derivatives.png",
       "width": 840,
       "height": 520,
-      "sha256": "a30b019a960d41b682537612116ade335d6ee2c2f9a4d6e568f03e12c84c869c",
+      "sha256": "f5b24536a30e17fb8503fa2918f8e059ece57b9cd11e049d535432dc6f938fda",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -1813,10 +1813,10 @@
           ]
         },
         "meshBounds": {
-          "left": 159.04563281846367,
-          "top": 80.72794408261598,
-          "right": 260.1677365263277,
-          "bottom": 186.89628999927388,
+          "left": 159.045,
+          "top": 80.727,
+          "right": 260.168,
+          "bottom": 186.897,
           "inFrustum": true
         },
         "ownerIds": [
@@ -1915,7 +1915,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -1931,10 +1931,10 @@
             ]
           },
           "meshBounds": {
-            "left": 382.04115046464403,
-            "top": 188.46870022364578,
-            "right": 618.1223695056958,
-            "bottom": 436.33095395984327,
+            "left": 382.041,
+            "top": 188.468,
+            "right": 618.123,
+            "bottom": 436.331,
             "inFrustum": true
           },
           "ownerIds": [
@@ -2042,8 +2042,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -2061,10 +2061,10 @@
       "file": "bezier-patches.tensor-subdivision.patch-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "e2feede2afeef013920c953742fea1048ec7247be83775073f71877a62b2b68b",
+      "sha256": "34ba7b6b5e5c9ed238a79441d0fb168eec367ca634bcb176f076e1f0b5b75fd4",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -2080,10 +2080,10 @@
           ]
         },
         "meshBounds": {
-          "left": 159.04563281846367,
-          "top": 80.72794408261598,
-          "right": 260.1677365263277,
-          "bottom": 186.89628999927388,
+          "left": 159.045,
+          "top": 80.727,
+          "right": 260.168,
+          "bottom": 186.897,
           "inFrustum": true
         },
         "ownerIds": [
@@ -2143,7 +2143,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -2159,10 +2159,10 @@
             ]
           },
           "meshBounds": {
-            "left": 382.04115046464403,
-            "top": 188.46870022364578,
-            "right": 618.1223695056958,
-            "bottom": 436.33095395984327,
+            "left": 382.041,
+            "top": 188.468,
+            "right": 618.123,
+            "bottom": 436.331,
             "inFrustum": true
           },
           "ownerIds": [
@@ -2231,8 +2231,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -2248,10 +2248,10 @@
       "file": "bezier-patches.tensor-joins.patch-joins.png",
       "width": 840,
       "height": 520,
-      "sha256": "dc56d2e14d9f16d6ead48d3c05b3a8d70f7a8bbdb14b3ac1ed4d4f0ceb80bf6b",
+      "sha256": "702326318c4abe9d52b2ea880290512fad49afbcb7e390af511b241d90d97a63",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -2267,10 +2267,10 @@
           ]
         },
         "meshBounds": {
-          "left": 153.4742439034919,
-          "top": 27.47020902010825,
-          "right": 265.6587568598249,
-          "bottom": 230.84250598611726,
+          "left": 153.474,
+          "top": 27.47,
+          "right": 265.659,
+          "bottom": 230.843,
           "inFrustum": true
         },
         "ownerIds": [
@@ -2538,7 +2538,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -2554,10 +2554,10 @@
             ]
           },
           "meshBounds": {
-            "left": 369.0341001900754,
-            "top": 64.13237259694503,
-            "right": 630.9417900535142,
-            "bottom": 538.9284658983584,
+            "left": 369.034,
+            "top": 64.132,
+            "right": 630.942,
+            "bottom": 538.929,
             "inFrustum": true
           },
           "ownerIds": [
@@ -2835,8 +2835,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -2855,10 +2855,10 @@
       "file": "bezier-patches.triangular-patches.patch-triangular.png",
       "width": 840,
       "height": 520,
-      "sha256": "abe11495e3866de1376ddacc6e4cf301d6723420abb3340db76d56b249fbff43",
+      "sha256": "c381f4e2898877c07dbc6cd28c6408f4c453377c8206fd94880c36cf4ac45794",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -2874,10 +2874,10 @@
           ]
         },
         "meshBounds": {
-          "left": 151.38552828260788,
-          "top": 46.06279487935723,
-          "right": 325.41608606303845,
-          "bottom": 217.54241301050814,
+          "left": 151.385,
+          "top": 46.062,
+          "right": 325.417,
+          "bottom": 217.543,
           "inFrustum": true
         },
         "ownerIds": [
@@ -2984,7 +2984,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -3000,10 +3000,10 @@
             ]
           },
           "meshBounds": {
-            "left": 364.1577525674731,
-            "top": 107.53890958373015,
-            "right": 770.4521701548629,
-            "bottom": 507.8778642206863,
+            "left": 364.157,
+            "top": 107.538,
+            "right": 770.453,
+            "bottom": 507.878,
             "inFrustum": true
           },
           "ownerIds": [
@@ -3119,8 +3119,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     },
@@ -3139,10 +3139,10 @@
       "file": "bezier-patches.square-vs-triangular.patch-triangular.png",
       "width": 840,
       "height": 520,
-      "sha256": "7ade8fdd60eb6a7a0424d37f6c3233d26d6b61771c940f7f02ca80af40de9545",
+      "sha256": "2272119004fd54a0ec54e35c033e210d7e592bdb641d8b10b00cab41ee120ec5",
       "scene": {
         "view": "surface",
-        "webglContextType": "webgl2",
+        "surfaceRenderer": "jsx-svg",
         "frame": {
           "width": 420,
           "height": 260
@@ -3158,10 +3158,10 @@
           ]
         },
         "meshBounds": {
-          "left": 151.38552828260788,
-          "top": 46.06279487935723,
-          "right": 325.41608606303845,
-          "bottom": 217.54241301050814,
+          "left": 151.385,
+          "top": 46.062,
+          "right": 325.417,
+          "bottom": 217.543,
           "inFrustum": true
         },
         "ownerIds": [
@@ -3268,7 +3268,7 @@
         "stableAcrossMs": 250,
         "preparedSurfaceEvidence": {
           "view": "surface",
-          "webglContextType": "webgl2",
+          "surfaceRenderer": "jsx-svg",
           "frame": {
             "width": 1002,
             "height": 607
@@ -3284,10 +3284,10 @@
             ]
           },
           "meshBounds": {
-            "left": 364.1577525674731,
-            "top": 107.53890958373015,
-            "right": 770.4521701548629,
-            "bottom": 507.8778642206863,
+            "left": 364.157,
+            "top": 107.538,
+            "right": 770.453,
+            "bottom": 507.878,
             "inFrustum": true
           },
           "ownerIds": [
@@ -3403,8 +3403,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
-        "sourceRevision": "e917d2caac4962e96e9129773c46c83d8eeba1b9",
+        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
         "pageErrors": []
       }
     }

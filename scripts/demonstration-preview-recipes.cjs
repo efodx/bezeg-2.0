@@ -229,9 +229,7 @@ async function outcome(page, id) {
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
-        // Retained manifests captured before task 07A carry the WebGL `contextType`; a live read (surfaceOutcome) never does. Drop this branch once they are recaptured.
-        const legacyWebgl = evidence.surfaceView === undefined && ['webgl', 'webgl2'].includes(evidence.contextType);
-        assert.ok(legacyWebgl || (evidence.surfaceView === 'board2d' && evidence.svg?.width > 0 && evidence.svg?.height > 0 && evidence.drawables > 0), `${id} surface is not drawn by the JSXGraph SVG surface view`);
+        assert.ok((evidence.surfaceView === 'board2d' && evidence.svg?.width > 0 && evidence.svg?.height > 0 && evidence.drawables > 0), `${id} surface is not drawn by the JSXGraph SVG surface view`);
         const declared = recipes[id]?.framing.controlPointCount;
         assert.ok((declared === undefined ? evidence.controlPointCount > 0 : evidence.controlPointCount === declared) && evidence.camera && Array.isArray(evidence.camera.target), `${id} missing surface control net or camera`);
         assert.ok(evidence.readouts && Array.isArray(evidence.controls), `${id} missing semantic evidence`);

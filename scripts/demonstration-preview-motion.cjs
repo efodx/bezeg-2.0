@@ -1135,7 +1135,7 @@ for (const id of patchSurfaceMotion.surfaceMotionIds) {
     // 311693 B and CRF 42 is 286811 B on the same 96 real frames (300 KiB ceiling).
     const crf = id === 'patch-decasteljau' ? 42 : 40;
     motionSpecs[id] = {mode:'surface-orbit', recipeAligned:true,
-        crf, backgroundSample:{x:40,y:40,rgb:[255,255,255]},
+        crf, backgroundSample:{x:40,y:40},
         encoderBudget:{maxBytes:300*1024,crf},
         schedule:{kind:'surface-pointer-orbit-and-reset',peakFrame:43,resetFrame:88},
         invariants:['Actual camera moves while rendered owner geometry remains equal to the independent default fixture','Camera and rendered frame return to the recipe state']};
