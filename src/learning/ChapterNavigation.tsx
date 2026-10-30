@@ -5,7 +5,28 @@ import {learningChapters} from './learningChapters';
 
 type SectionLink = {id: string; title: string};
 
-export function ChapterContents({sections, showNumbers = false}: {sections: readonly SectionLink[]; showNumbers?: boolean}) {
+export function ChapterTrail({chapterId}: {chapterId: string}) {
+    const {language} = useLanguage();
+    const position = learningChapters.findIndex(chapter => chapter.id === chapterId) + 1;
+    return <p className="chapter-trail">
+        <Link className="learning-back" to={`/bezeg-2.0/learn#${chapterId}`}><span aria-hidden="true">←</span>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}</Link>
+        <span className="chapter-trail-position">{language === 'sl' ? `Poglavje ${position} od ${learningChapters.length}` : `Chapter ${position} of ${learningChapters.length}`}</span>
+    </p>;
+}
+
+function SidebarNeighbors({chapterId}: {chapterId: string}) {
+    const {language} = useLanguage();
+    const index = learningChapters.findIndex(chapter => chapter.id === chapterId);
+    const neighbors = [
+        {chapter: learningChapters[index - 1], label: language === 'sl' ? 'Prejšnje poglavje' : 'Previous chapter'},
+        {chapter: learningChapters[index + 1], label: language === 'sl' ? 'Naslednje poglavje' : 'Next chapter'},
+    ].filter(entry => entry.chapter);
+    return <nav className="chapter-toc-neighbors" aria-label={language === 'sl' ? 'Sosednji poglavji' : 'Adjacent chapters'}>
+        {neighbors.map(({chapter, label}) => <Link key={chapter.id} to={`/bezeg-2.0/learn/${chapter.id}`}><span>{label}</span>{chapter.title[language]}</Link>)}
+    </nav>;
+}
+
+export function ChapterContents({sections, chapterId, showNumbers = false}: {sections: readonly SectionLink[]; chapterId: string; showNumbers?: boolean}) {
     const {language} = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
@@ -49,13 +70,14 @@ export function ChapterContents({sections, showNumbers = false}: {sections: read
 
     const contents = <nav className="chapter-toc" aria-label={language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}>
         <p className="chapter-toc-title">{language === 'sl' ? 'V tem poglavju' : 'In this chapter'}</p>
-        <ol>{sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`} aria-current={currentSection === section.id ? 'location' : undefined} onClick={event => goToSection(event, section.id)}>{section.title}{showNumbers && <span className="chapter-toc-number">{index + 1}</span>}</a></li>)}</ol>
+        <ol>{sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`} aria-current={currentSection === section.id ? 'location' : undefined} onClick={event => goToSection(event, section.id)}><span>{section.title}</span>{showNumbers && <span className="chapter-toc-number">{index + 1}</span>}</a></li>)}</ol>
     </nav>;
 
+    const currentIndex = sections.findIndex(section => section.id === currentSection);
     return <>
-        <aside className="chapter-sidebar">{contents}</aside>
+        <aside className="chapter-sidebar">{contents}<SidebarNeighbors chapterId={chapterId}/></aside>
         <details ref={mobileContentsRef} className="chapter-contents-mobile learning-mobile-contents">
-            <summary>{language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}</summary>
+            <summary><span>{language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}</span>{currentIndex >= 0 && <span className="chapter-contents-position">{language === 'sl' ? `razdelek ${currentIndex + 1} od ${sections.length}` : `section ${currentIndex + 1} of ${sections.length}`}</span>}</summary>
             <div id="chapter-mobile-toc">{contents}</div>
         </details>
     </>;

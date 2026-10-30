@@ -9,7 +9,7 @@ import type {FamilyChapter} from './content/familyChapters';
 import type {FamilyChapterFigure} from './content/familyChapters';
 import type {LocalizedText} from './model';
 import {type OrderedChapterContent} from './chapter/orderedContent';
-import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
+import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import './ChapterPage.css';
@@ -68,10 +68,10 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
 
     return <main className="chapter-page">
         <div className="chapter-layout">
-            <ChapterContents sections={contentsSections}/>
+            <ChapterContents sections={contentsSections} chapterId={chapter.id}/>
             <article className="chapter-article" ref={articleRef}>
                 <header className="chapter-heading">
-                    <Link className="learning-back" to={`/bezeg-2.0/learn#${chapter.id}`}>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}<span aria-hidden="true"> ←</span></Link>
+                    <ChapterTrail chapterId={chapter.id}/>
                     <h1 id="chapter-title" tabIndex={-1}>{chapter.title[language]}</h1>
                     <p className="chapter-purpose">{chapter.purpose[language]}</p>
                     <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{chapter.prerequisites[language]}</p>

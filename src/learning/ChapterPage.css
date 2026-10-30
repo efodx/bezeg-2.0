@@ -21,6 +21,16 @@
 .chapter-article { min-width: 0; max-width: 780px; }
 .chapter-page h1, .chapter-page h2, .chapter-page h3 { overflow-wrap: anywhere; }
 .chapter-heading { padding: 0 0 20px; border-bottom: 1px solid var(--chapter-border); }
+.chapter-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0 0 14px; }
+.chapter-trail-position { color: var(--chapter-muted); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: #b88a43; vertical-align: middle; }
+/* The title receives reading focus programmatically; it is not an interactive control. */
+.chapter-heading h1:focus { outline: none; }
+.chapter-toc-neighbors { display: grid; gap: 4px; margin-top: 18px; padding: 14px 0 0 14px; border-top: 1px solid var(--chapter-border); }
+.chapter-toc-neighbors a { display: grid; gap: 2px; min-height: 44px; padding: 7px 8px; box-sizing: border-box; border-radius: 6px; color: #315d3b; line-height: 1.35; text-decoration: none; }
+.chapter-toc-neighbors a:hover { background: #edf2e5; }
+.chapter-toc-neighbors span { color: var(--chapter-muted); font-size: .78rem; }
+.chapter-toc-neighbors a:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
 .chapter-heading h1 { max-width: 24ch; margin: 0; color: #25402b; font: 700 clamp(1.9rem, 3.2vw, 2.65rem)/1.14 Georgia, "Times New Roman", serif; }
 .chapter-purpose { margin: 12px 0 15px; max-width: 70ch; font-size: 1.06rem; line-height: 1.6; }
 .chapter-prerequisites { max-width: 70ch; padding: 12px 15px; border-left: 1px solid #c7973b; background: #f2f4e8; line-height: 1.55; }
@@ -74,9 +84,15 @@
     .chapter-page { padding: 16px 16px 48px; }
     .chapter-layout { display: block; }
     .chapter-sidebar { display: none; }
-    .chapter-contents-mobile { display: block; margin-bottom: 16px; }
-    .chapter-contents-mobile summary { min-height: 46px; box-sizing: border-box; padding: 12px; border: 1px solid var(--chapter-border); border-radius: 7px; background: var(--chapter-paper); color: var(--chapter-ink); font-weight: 700; line-height: 1.35; cursor: pointer; }
+    .chapter-contents-mobile { display: block; position: sticky; top: 0; z-index: 4; margin: 0 -16px 16px; padding: 8px 16px; background: var(--bezeg-canvas, #f4f0df); }
+    .chapter-section { scroll-margin-top: 76px; }
+    .chapter-contents-mobile summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; min-height: 46px; box-sizing: border-box; padding: 12px; border: 1px solid var(--chapter-border); border-radius: 7px; background: var(--chapter-paper); color: var(--chapter-ink); font-weight: 700; line-height: 1.35; cursor: pointer; }
     .chapter-contents-mobile[open] > div { max-height: min(62vh, 30rem); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; padding: 10px 12px; border: 1px solid var(--chapter-border); border-radius: 7px; background: var(--chapter-paper); }
+    .chapter-contents-mobile summary::-webkit-details-marker { display: none; }
+    .chapter-contents-mobile summary > span:first-child { display: inline-flex; align-items: center; gap: 10px; }
+    .chapter-contents-mobile summary > span:first-child::before { content: ""; width: 7px; height: 7px; margin-left: 2px; border-right: 2px solid #b88a43; border-bottom: 2px solid #b88a43; transform: rotate(-45deg); transition: transform .15s ease-out; }
+    .chapter-contents-mobile[open] summary > span:first-child::before { transform: rotate(45deg); }
+    .chapter-contents-position { color: var(--chapter-muted); font-size: .88rem; font-weight: 400; font-variant-numeric: tabular-nums; }
     .chapter-contents-mobile .chapter-toc { padding: 0; border: 0; }
     .chapter-contents-mobile .chapter-toc-title { display: none; }
     .chapter-contents-mobile .chapter-toc a[aria-current="location"] { margin-left: -14px; }

@@ -5,7 +5,7 @@ import {beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
-import {LearningPage} from './LearningPage';
+import {LearningPage, learningStrands} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
 import {familyChapters} from './content/familyChapters';
@@ -32,11 +32,19 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(familiesWithChapters.sort());
     expect(container.querySelectorAll('.learning-family')).toHaveLength(9);
     expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(9);
-    expect(container.querySelectorAll('.learning-preview img[loading="lazy"]')).toHaveLength(9);
+    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(9);
+    expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
+    expect([...container.querySelectorAll('.learning-step')].map(step => step.textContent)).toEqual(learningChapters.map((_, index) => `${index + 1}`));
     for (const chapter of learningChapters) {
-        expect(screen.getByRole('heading', {name: chapter.title.sl, level: 2})).toBeInTheDocument();
-        expect(within(container.querySelector(`#${chapter.id}`)!).getByRole('link', {name: 'Preberi poglavje'})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);
+        const row = container.querySelector<HTMLElement>(`#${chapter.id}`)!;
+        expect(screen.getByRole('heading', {name: chapter.title.sl, level: 3})).toBeInTheDocument();
+        expect(within(row).getByRole('link', {name: 'Preberi poglavje'})).toHaveAttribute('href', `/bezeg-2.0/learn/${chapter.id}`);
+        const sectionIds = chapter.id === 'bezier-curves' ? bezierChapter.sl.sections.map(section => section.id) : chapter.sections.map(section => section.id);
+        expect([...row.querySelectorAll('.learning-outline li a')].map(link => link.getAttribute('href')))
+            .toEqual(sectionIds.map(id => `/bezeg-2.0/learn/${chapter.id}#${id}`));
     }
+    expect(container.querySelector('#bezier-curves .learning-outline-meta')).toHaveTextContent('8 razdelkov · 12 vodenih primerov');
+    expect(container.querySelector('#foundations .learning-outline-meta')).toHaveTextContent('5 razdelkov · 3 vodeni primeri');
     expect(container.querySelectorAll('.learning-lessons')).toHaveLength(0);
     expect([...container.querySelectorAll('a')].filter(link => link.search.includes('learn=1'))).toHaveLength(0);
     expect(container.querySelector('#jgbox')).toBeNull();
@@ -72,6 +80,10 @@ test.each(learningChapters.map((chapter, index) => [chapter.id, chapter, learnin
             ...(previous ? [`Prejšnje poglavje: ${previous.title.sl}`] : []),
             ...(next ? [`Naslednje poglavje: ${next.title.sl}`] : []),
         ]);
+        const sidebar = within(screen.getByRole('navigation', {name: 'Sosednji poglavji'})).getAllByRole('link');
+        expect(sidebar.map(link => link.getAttribute('href'))).toEqual(links.map(link => link.getAttribute('href')));
+        expect(screen.getByRole('link', {name: /Vsa učna vsebina/})).toHaveAttribute('href', `/bezeg-2.0/learn#${id}`);
+        expect(container.querySelector('.chapter-trail-position')).toHaveTextContent(`Poglavje ${learningChapters.indexOf(chapter) + 1} od ${learningChapters.length}`);
         expect(container.querySelector('#jgbox')).toBeNull();
     },
 );

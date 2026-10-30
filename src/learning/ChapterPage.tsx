@@ -9,7 +9,7 @@ import {bezierChapter} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
 import {type OrderedChapterContent, type OrderedChapterFigure} from './chapter/orderedContent';
 import {typesetMath} from '../mathjax/loadMathJax';
-import {ChapterContents, ChapterNeighbors} from './ChapterNavigation';
+import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -134,12 +134,12 @@ export function ChapterPage() {
 
     return <main className="chapter-page">
         <div className="chapter-layout">
-            <ChapterContents sections={copy.sections} showNumbers/>
+            <ChapterContents sections={copy.sections} chapterId="bezier-curves" showNumbers/>
             <article className="chapter-article" ref={articleRef}>
                 <header className="chapter-heading">
-                    <Link className="learning-back" to="/bezeg-2.0/learn">{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}<span aria-hidden="true"> ←</span></Link>
+                    <ChapterTrail chapterId="bezier-curves"/>
                     {graphReturnPath && <div className="chapter-graph-return">
-                        <Link to={graphReturnPath} state={{...state, chapterRestore: true}}>{language === 'sl' ? 'Nazaj na graf' : 'Back to your graph'}<span aria-hidden="true"> ←</span></Link>
+                        <Link to={graphReturnPath} state={{...state, chapterRestore: true}}><span aria-hidden="true">←</span>{language === 'sl' ? 'Nazaj na graf' : 'Back to your graph'}</Link>
                         {!graphReturnIsMemory && <p role="note">{language === 'sl' ? 'Po ponovnem nalaganju prejšnjega stanja grafa ni bilo mogoče obnoviti; prikaz se bo odprl z začetnimi nastavitvami.' : 'The earlier graph state could not be restored after reload; the demonstration will open with its default settings.'}</p>}
                     </div>}
                     <h1 id="chapter-title" tabIndex={-1}>{copy.title}</h1>

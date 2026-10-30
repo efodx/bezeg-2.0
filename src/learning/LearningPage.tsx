@@ -1,84 +1,56 @@
 import React, {useEffect, useRef} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import {useLanguage} from '../localization';
-import {getDemonstrationCatalog} from '../demonstrations';
 import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
+import type {DemonstrationId} from '../demonstrations';
 import {learningChapters} from './learningChapters';
+import {bezierChapter} from './content/bezierChapter';
+import {getChapterGuidedExamples} from './chapter/guidedExamples';
+import type {LessonLanguage, LocalizedText} from './model';
 import {useTypesetMath} from './useTypesetMath';
 import './LearningPage.css';
 
-const topicPreviews = {
-    foundations: {
-        demonstration: 'bernstein',
-        alt: {sl: 'Grafi Bernsteinovih baznih polinomov na intervalu od 0 do 1.', en: 'Graphs of the Bernstein basis polynomials on the interval from 0 to 1.'},
-        caption: {sl: 'Bernsteinovi polinomi sestavijo uteženo kombinacijo, iz katere nastane Bézierjeva krivulja.', en: 'Bernstein polynomials form the weighted combination that defines a Bézier curve.'},
-        connection: 'bezier-curves',
-        connectionReason: {sl: 'kjer iz njih sestavimo krivuljo.', en: 'where they are combined to construct the curve.'},
-    },
-    'bezier-curves': {
-        demonstration: 'bezier',
-        alt: {sl: 'Bézierjeva krivulja in črtkana povezava njenih kontrolnih točk.', en: 'A Bézier curve with the dashed polygon connecting its control points.'},
-        caption: {sl: 'Kontrolni poligon pomaga razložiti, kako točke vplivajo na obliko krivulje.', en: 'The control polygon helps explain how points influence the curve shape.'},
-        connection: 'foundations',
-        connectionReason: {sl: 'za pogled na bazne polinome, ki jo določajo.', en: 'to see the basis polynomials that define it.'},
-    },
-    'rational-curves': {
-        demonstration: 'rational',
-        alt: {sl: 'Racionalna Bézierjeva krivulja s kontrolnim poligonom in prikazanimi utežmi.', en: 'A rational Bézier curve with its control polygon and displayed weights.'},
-        caption: {sl: 'Uteži spremenijo vpliv kontrolnih točk na racionalno Bézierjevo krivuljo.', en: 'Weights change how control points influence a rational Bézier curve.'},
-        connection: 'bezier-curves',
-        connectionReason: {sl: 'ki jih racionalna oblika posploši z utežmi.', en: 'which the rational form extends with weights.'},
-    },
-    splines: {
-        demonstration: 'spline-cn',
-        alt: {sl: 'Zlepek dveh krivuljnih odsekov s kontrolnimi točkami na obeh straneh spoja.', en: 'A spline joining two curve segments, with control points on both sides of the join.'},
-        caption: {sl: 'Zlepek sestavi več odsekov in določa, kako se stikajo pri skupnem vozlišču.', en: 'A spline combines several segments and specifies how they meet at a shared knot.'},
-        connection: 'parametrization',
-        connectionReason: {sl: 'saj lokalni parametri vplivajo na pogoje v spoju.', en: 'because local parameters affect conditions at each join.'},
-    },
-    'ph-curves': {
-        demonstration: 'ph-cubic',
-        alt: {sl: 'Kubična PH-krivulja z dvema prikazanima krivuljama in dolžino loka.', en: 'A cubic PH curve with two displayed curves and an arc-length value.'},
-        caption: {sl: 'Kubična PH-krivulja ima polinomsko določeno dolžino loka.', en: 'A cubic PH curve has a polynomially determined arc length.'},
-        connection: 'bezier-curves',
-        connectionReason: {sl: 'katerih konstrukcijo uporabimo tudi pri PH-krivuljah.', en: 'whose construction also appears in PH curves.'},
-    },
-    parametrization: {
-        demonstration: 'uniform-parameterization',
-        alt: {sl: 'Vzorčne točke na krivulji so označene z razmiki, ki se po loku razlikujejo.', en: 'Sample points are marked along a curve with visibly varying distances along the arc.'},
-        caption: {sl: 'Enakomeren korak parametra ne pomeni nujno enake razdalje po krivulji.', en: 'Equal parameter steps do not necessarily mean equal distances along the curve.'},
-        connection: 'splines',
-        connectionReason: {sl: 'ki združijo več lokalno parametriziranih odsekov.', en: 'which combine several locally parametrized segments.'},
-    },
-    'bezier-patches': {
-        demonstration: 'patch-tensor',
-        alt: {sl: 'Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', en: 'A tensor-product Bézier patch with its control net in a three-dimensional view.'},
-        caption: {sl: 'Kontrolna mreža oblikuje ploskev z dvema parametroma, tako kot kontrolni poligon oblikuje krivuljo.', en: 'A control net shapes a surface with two parameters, just as a control polygon shapes a curve.'},
-        connection: 'bezier-curves',
-        connectionReason: {sl: 'ki jih krpa posploši na dva parametra.', en: 'which a patch generalizes to two parameters.'},
-    },
-    'functions-and-calculus': {
-        demonstration: 'derivative',
-        alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'},
-        caption: {sl: 'Odvod opiše naklon tangente in lokalno spreminjanje funkcije.', en: 'The derivative describes the tangent slope and local change of a function.'},
-        connection: 'analysis',
-        connectionReason: {sl: 'kjer metode uporabijo lastnosti funkcij.', en: 'where methods use properties of functions.'},
-    },
-    analysis: {
-        demonstration: 'bisection',
-        alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'},
-        caption: {sl: 'Bisekcija zožuje interval, v katerem leži ničla funkcije.', en: 'Bisection narrows the interval that contains a function root.'},
-        connection: 'functions-and-calculus',
-        connectionReason: {sl: 'saj bisekcija išče ničlo funkcije.', en: 'because bisection searches for a function root.'},
-    },
-} as const;
+const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: LocalizedText}> = {
+    foundations: {demonstration: 'bernstein', alt: {sl: 'Grafi Bernsteinovih baznih polinomov na intervalu od 0 do 1.', en: 'Graphs of the Bernstein basis polynomials on the interval from 0 to 1.'}},
+    'bezier-curves': {demonstration: 'bezier', alt: {sl: 'Bézierjeva krivulja in črtkana povezava njenih kontrolnih točk.', en: 'A Bézier curve with the dashed polygon connecting its control points.'}},
+    'rational-curves': {demonstration: 'rational', alt: {sl: 'Racionalna Bézierjeva krivulja s kontrolnim poligonom in prikazanimi utežmi.', en: 'A rational Bézier curve with its control polygon and displayed weights.'}},
+    splines: {demonstration: 'spline-cn', alt: {sl: 'Zlepek dveh krivuljnih odsekov s kontrolnimi točkami na obeh straneh spoja.', en: 'A spline joining two curve segments, with control points on both sides of the join.'}},
+    'ph-curves': {demonstration: 'ph-cubic', alt: {sl: 'Kubična PH-krivulja z dvema prikazanima krivuljama in dolžino loka.', en: 'A cubic PH curve with two displayed curves and an arc-length value.'}},
+    parametrization: {demonstration: 'uniform-parameterization', alt: {sl: 'Vzorčne točke na krivulji so označene z razmiki, ki se po loku razlikujejo.', en: 'Sample points are marked along a curve with visibly varying distances along the arc.'}},
+    'bezier-patches': {demonstration: 'patch-tensor', alt: {sl: 'Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', en: 'A tensor-product Bézier patch with its control net in a three-dimensional view.'}},
+    'functions-and-calculus': {demonstration: 'derivative', alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'}},
+    analysis: {demonstration: 'bisection', alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'}},
+};
+
+// Strands group the suggested order; together they list every chapter exactly once.
+export const learningStrands: readonly {id: string; title: LocalizedText; chapters: readonly string[]}[] = [
+    {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization']},
+    {id: 'surfaces', title: {sl: 'Ploskve', en: 'Surfaces'}, chapters: ['bezier-patches']},
+    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'analysis']},
+];
+
+function chapterOutline(chapterId: string, language: LessonLanguage) {
+    const chapter = learningChapters.find(entry => entry.id === chapterId)!;
+    const sections = chapterId === 'bezier-curves'
+        ? bezierChapter[language].sections.map(section => ({id: section.id, title: section.title}))
+        : chapter.sections.map(section => ({id: section.id, title: section.title[language]}));
+    return sections.map(section => ({...section, examples: getChapterGuidedExamples(chapterId, section.id).length}));
+}
+
+// Slovenian nouns take singular, dual, small plural (3–4) and genitive plural forms.
+function countLabel(count: number, language: LessonLanguage, sl: readonly [string, string, string, string], en: readonly [string, string]) {
+    if (language === 'en') return `${count} ${count === 1 ? en[0] : en[1]}`;
+    const rest = count % 100;
+    return `${count} ${rest === 1 ? sl[0] : rest === 2 ? sl[1] : rest === 3 || rest === 4 ? sl[2] : sl[3]}`;
+}
+const sectionCount = (count: number, language: LessonLanguage) => countLabel(count, language, ['razdelek', 'razdelka', 'razdelki', 'razdelkov'], ['section', 'sections']);
+const exampleCount = (count: number, language: LessonLanguage) => countLabel(count, language, ['vodeni primer', 'vodena primera', 'vodeni primeri', 'vodenih primerov'], ['guided example', 'guided examples']);
 
 export function LearningPage() {
     const {language} = useLanguage();
     const location = useLocation();
     const mainRef = useRef<HTMLElement>(null);
     useTypesetMath(mainRef, language);
-    const catalog = getDemonstrationCatalog();
     useEffect(() => {
         const topic = document.getElementById(location.hash.slice(1));
         if (topic && learningChapters.some(chapter => `#${chapter.id}` === location.hash)) topic.scrollIntoView();
@@ -92,36 +64,42 @@ export function LearningPage() {
                 <p>{language === 'sl'
                     ? 'Preberi razdelek poglavja, odpri vodeni primer ob grafu in se vrni k branju.'
                     : 'Read a chapter section, open its guided example on the graph, then return to continue reading.'}</p>
+                <p>{language === 'sl'
+                    ? 'Teme si sledijo v predlaganem vrstnem redu, vsako poglavje pa lahko odpreš tudi samostojno.'
+                    : 'Topics follow a suggested order, but you can open any chapter on its own.'}</p>
                 <Link className="learning-open learning-start" to="/bezeg-2.0/learn/foundations">
                     {language === 'sl' ? 'Začni pri osnovah' : 'Start with Foundations'}<span aria-hidden="true"> →</span>
                 </Link>
-                <nav className="learning-topic-links" aria-label={language === 'sl' ? 'Učne teme' : 'Learning topics'}>
-                    {learningChapters.map(chapter => {
-                        const family = catalog.families.find(entry => entry.id === chapter.family)!;
-                        return <a key={chapter.id} href={`#${chapter.id}`}>{family.title}</a>;
-                    })}
-                </nav>
             </header>
-            {learningChapters.map(chapter => {
-                const preview = topicPreviews[chapter.id as keyof typeof topicPreviews];
-                const relatedChapter = learningChapters.find(entry => entry.id === preview.connection)!;
-                return <section className="learning-family" id={chapter.id} key={chapter.id} aria-labelledby={`${chapter.id}-heading`}>
-                    <h2 className="learning-topic-heading" id={`${chapter.id}-heading`}>{chapter.title[language]}</h2>
-                    <div className="learning-family-content">
-                        <figure className="learning-preview">
-                            <img src={demonstrationPreviewAssets[preview.demonstration]} alt={preview.alt[language]} width="720" height="440" loading="lazy" />
-                            <figcaption>{preview.caption[language]}</figcaption>
-                        </figure>
-                        <div className="learning-card-copy">
-                            <p>{chapter.purpose[language]}</p>
-                            <p className="learning-connection">{language === 'sl' ? 'Sorodna tema:' : 'Related topic:'} <Link to={`/bezeg-2.0/learn/${relatedChapter.id}`}>{relatedChapter.title[language]}</Link> {preview.connectionReason[language]}</p>
-                            <Link className="learning-open" to={`/bezeg-2.0/learn/${chapter.id}`}>
-                                {language === 'sl' ? 'Preberi poglavje' : 'Read the chapter'}<span aria-hidden="true"> →</span>
+            {learningStrands.map(strand => <section className="learning-strand" key={strand.id} aria-labelledby={`strand-${strand.id}`}>
+                <h2 id={`strand-${strand.id}`}>{strand.title[language]}</h2>
+                <ol className="learning-path" start={learningChapters.findIndex(chapter => chapter.id === strand.chapters[0]) + 1}>
+                    {strand.chapters.map(chapterId => {
+                        const chapter = learningChapters.find(entry => entry.id === chapterId)!;
+                        const number = learningChapters.indexOf(chapter) + 1;
+                        const preview = topicPreviews[chapter.id];
+                        const outline = chapterOutline(chapter.id, language);
+                        const examples = outline.reduce((total, section) => total + section.examples, 0);
+                        const path = `/bezeg-2.0/learn/${chapter.id}`;
+                        return <li className="learning-family" id={chapter.id} key={chapter.id}>
+                            <span className="learning-step" aria-hidden="true">{number}</span>
+                            <Link className="learning-thumb" to={path} tabIndex={-1}>
+                                <img src={demonstrationPreviewAssets[preview.demonstration]} alt={preview.alt[language]} width="720" height="440" loading="lazy"/>
                             </Link>
-                        </div>
-                    </div>
-                </section>;
-            })}
+                            <h3 className="learning-topic-heading" id={`${chapter.id}-heading`}><Link to={path}>{chapter.title[language]}</Link></h3>
+                            <p className="learning-topic-body">{chapter.purpose[language]}</p>
+                            <Link className="learning-read" to={path}>{language === 'sl' ? 'Preberi poglavje' : 'Read the chapter'}<span aria-hidden="true"> →</span></Link>
+                            <details className="learning-outline">
+                                <summary>{language === 'sl' ? 'Vsebina' : 'Contents'}<span className="learning-outline-meta">{sectionCount(outline.length, language)} · {exampleCount(examples, language)}</span></summary>
+                                <ol>{outline.map(section => <li key={section.id}>
+                                    <Link to={`${path}#${section.id}`}>{section.title}</Link>
+                                    {section.examples > 0 && <span className="learning-outline-examples">{exampleCount(section.examples, language)}</span>}
+                                </li>)}</ol>
+                            </details>
+                        </li>;
+                    })}
+                </ol>
+            </section>)}
         </div>
     </main>;
 }
