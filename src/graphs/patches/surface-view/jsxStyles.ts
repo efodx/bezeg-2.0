@@ -50,8 +50,16 @@ function dashIndex(role: PolylineRole): number {
     return 4;
 }
 
+const polylineStyles = new Map<PolylineRole, DrawableStyle>();
+
+/** The style of a role. One object per role: the view compares styles by identity to skip rewriting a slot's attributes. */
 export function polylineStyle(role: PolylineRole): DrawableStyle {
-    return {stroke: cssColor(SURFACE_COLORS[role]), width: ROLE_WEIGHT[role], dash: dashIndex(role)};
+    let style = polylineStyles.get(role);
+    if (!style) {
+        style = {stroke: cssColor(SURFACE_COLORS[role]), width: ROLE_WEIGHT[role], dash: dashIndex(role)};
+        polylineStyles.set(role, style);
+    }
+    return style;
 }
 
 export const MESH_STYLE: DrawableStyle = {

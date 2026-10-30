@@ -1,6 +1,6 @@
 import {JSXGraph} from 'jsxgraph';
 import {browserRasterServices, rasterizeBoard, type RasterServices} from './jsxCapture';
-import {applyDomOrder, meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
+import {meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
 import {JsxInteraction} from './jsxInteraction';
 import {computeLabelLayout, labelLayoutKey} from './jsxLabels';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
@@ -75,10 +75,22 @@ const LAYER = 12;
 const DEFAULT_WIDTH = 640;
 const DEFAULT_HEIGHT = 480;
 const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function roundTenth(v: number): number {
+    return Math.round(v * 10) / 10;
+}
 /** JSXGraph's `dash` index patterns (`AbstractRenderer.dashArray`; `dashScale` is off, so they are used unscaled). */
 const DASH_ARRAYS: ReadonlyArray<readonly number[]> = [[2, 2], [5, 5], [10, 10], [20, 20], [20, 10, 10, 10], [20, 5, 10, 5], [0, 5]];
 
 type Style = DrawableStyle;
+
+/** Length of one dash cycle of a style, in the units of `stroke-dashoffset` (0 for a solid line); an odd pattern repeats mirrored. */
+function dashPeriod(style: Style): number {
+    if (style.dash <= 0) return 0;
+    const values = DASH_ARRAYS[style.dash - 1].filter(v => v > 0);
+    const cycle = values.reduce((a, b) => a + b, 0);
+    return values.length % 2 ? 2 * cycle : cycle;
+}
 
 /** Meshes with at least this many triangles (the 32-patch teapot at tiling 8 has 4096) orbit at reduced detail. */
 const REDUCED_DETAIL_MIN_TRIANGLES = 1500;
@@ -113,10 +125,30 @@ interface Pool {
 }
 
 interface Drawables {
-    /** Triangles, planes, segments, markers, points in the draw-list layout. */
+    /**
+     * Triangles, planes, segments, markers, points in the draw-list layout. A drawable's entry is the slot that shows it
+     * in the latest frame (hidden reduced-detail drawables map to hidden slots); markers and points are their ellipses.
+     */
     nodes: (SVGElement | null | undefined)[];
-    /** The SVG nodes this view created for triangles, planes and segment pieces; removed with the drawables. */
+    /**
+     * The slots: SVG `polyline` nodes this view created, one per triangle, plane and segment piece. They keep their DOM
+     * positions for good; a frame hands the k-th drawable of the painter's order to slot k by writing its geometry (and
+     * its style where the slot's differs). Removed with the drawables.
+     */
     elements: SVGElement[];
+    /** An always hidden slot after the others: the anchor for point nodes that paint after every drawable. */
+    tail: SVGElement;
+    /** Style of every drawable (triangle, plane, piece order) and the dash cycle length of every segment piece (0 = solid). */
+    styles: Style[];
+    periods: Float64Array;
+    /** What each slot currently carries, so a frame writes only what differs (a style attribute write restyles the node). */
+    slotStyle: (Style | null)[];
+    /** The filled style whose fill and fill opacity the slot last got (the slot starts with no fill). */
+    slotFill: (Style | null)[];
+    slotWidth: Float64Array;
+    /** `stroke-dashoffset` of the slot; NaN = attribute absent. */
+    slotOffset: Float64Array;
+    slotShown: Uint8Array;
     markers: JxgPoint3D[];
     points: Map<string, JxgPoint3D>;
 }
@@ -134,10 +166,8 @@ export class JsxSurfaceView implements SurfaceView {
     private view: JxgView3D | null = null;
     private draw: Drawables | null = null;
     private pool: Pool | null = null;
-    /** Dash cycle length per segment piece, read lazily from the node (see `dashPeriodOf`). */
-    private dashPeriods: Array<{role: PolylineRole; period: number}> = [];
-    /** Last `stroke-dashoffset` written per segment piece; the write is skipped while it does not change. */
-    private dashOffsets: Array<number | undefined> = [];
+    /** Dash phase (`stroke-dashoffset`) of every segment piece this frame; NaN for a solid piece. Belongs to the drawable. */
+    private pieceOffset = new Float64Array(0);
     /** Segment lengths outgrew their piece counts during a point drag; the split is redone once the drag is over. */
     private resplitPending = false;
     private scene: SurfaceScene | null = null;
@@ -165,8 +195,13 @@ export class JsxSurfaceView implements SurfaceView {
      * (0 = the piece is covered by the run before it and hidden). Null at full detail.
      */
     private pieceRun: Uint8Array | null = null;
-    /** `draw.nodes` with the hidden triangles of a reduced frame left out (null); equals `draw.nodes` at full detail. */
-    private orderNodes: (SVGElement | null | undefined)[] = [];
+    /** 1 for every drawable a reduced frame leaves out (hidden triangles and covered pieces); null at full detail. */
+    private hidden: Uint8Array | null = null;
+    /** Outline width of the mesh triangles in the current detail state. */
+    private seam = MESH_SEAM_WIDTH;
+    /** Scratch: this frame's point and marker ellipses in paint order, each with the count of drawables painted before it. */
+    private ellipses: Node[] = [];
+    private ellipseRank: number[] = [];
     private observer: ResizeObserver | null = null;
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
@@ -180,7 +215,7 @@ export class JsxSurfaceView implements SurfaceView {
     private sy = new Float64Array(0);
     private readonly projected = newScreenPoint();
     /** Counters read by tests and the measurement harness. */
-    readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0, drawn: 0, reducedFrames: 0, drawableRebuilds: 0};
+    readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0, drawn: 0, reducedFrames: 0, drawableRebuilds: 0, slotRestyles: 0};
 
     /** `rasterServices` replaces the browser's image decoder and canvas in tests. */
     constructor(private readonly rasterServices?: RasterServices) {}
@@ -431,6 +466,7 @@ export class JsxSurfaceView implements SurfaceView {
 
     private destroyBoard(): void {
         for (const node of this.draw?.elements ?? []) node.remove();
+        this.draw?.tail.remove();
         if (this.board) {
             try {
                 JSXGraph.freeBoard(this.board as never);
@@ -485,14 +521,13 @@ export class JsxSurfaceView implements SurfaceView {
         const board = this.board!, view = this.view!;
         const pool = this.buildPool(scene);
         this.pool = pool;
-        const draw: Drawables = {nodes: [], elements: [], markers: [], points: new Map()};
+        const draw: Drawables = {nodes: [], markers: [], points: new Map(), ...this.createSlots(pool)};
         this.draw = draw;
         // New nodes are all visible.
         this.detailReduced = false;
         // Positions first, so the elements are created at their final place; the first frame then only reorders.
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
-        this.createDrawables(pool, draw);
         for (const marker of scene.markers) {
             draw.markers.push(this.makePoint(marker.xyz, markerColor(marker.role), 3, true));
         }
@@ -510,10 +545,26 @@ export class JsxSurfaceView implements SurfaceView {
         view.needsUpdate = true;
     }
 
-    private createDrawables(pool: Pool, draw: Drawables): void {
-        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE, 'polygon'));
-        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE, 'polygon'));
-        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(polylineStyle(pool.segRoles[s / 2]), 'polyline'));
+    /** One slot per drawable (triangles, planes, segment pieces, in that order) plus the hidden tail slot. */
+    private createSlots(pool: Pool): Pick<Drawables, 'elements' | 'tail' | 'styles' | 'periods' | 'slotStyle' | 'slotFill' | 'slotWidth' | 'slotOffset' | 'slotShown'> {
+        const styles: Style[] = [];
+        for (let t = 0; t < pool.tris.length; t += 3) styles.push(MESH_STYLE);
+        for (let q = 0; q < pool.planes.length; q += 4) styles.push(PLANE_STYLE);
+        const periods = new Float64Array(pool.segs.length / 2);
+        for (let s = 0; s < pool.segs.length; s += 2) {
+            const style = polylineStyle(pool.segRoles[s / 2]);
+            styles.push(style);
+            periods[s / 2] = dashPeriod(style);
+        }
+        const elements: SVGElement[] = [];
+        for (let i = 0; i < styles.length; i++) elements.push(this.makeSlot());
+        const tail = this.makeSlot();
+        tail.setAttribute('display', 'none');
+        return {
+            elements, tail, styles, periods, slotStyle: styles.map(() => null), slotFill: styles.map(() => null),
+            slotWidth: new Float64Array(styles.length).fill(NaN), slotOffset: new Float64Array(styles.length).fill(NaN),
+            slotShown: new Uint8Array(styles.length).fill(1),
+        };
     }
 
     /**
@@ -529,8 +580,8 @@ export class JsxSurfaceView implements SurfaceView {
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
         for (const el of draw.elements) el.remove();
-        draw.elements = [];
-        this.createDrawables(pool, draw);
+        draw.tail.remove();
+        Object.assign(draw, this.createSlots(pool));
         this.syncPoints(scene);
         board.unsuspendUpdate();
         this.stats.drawableRebuilds++;
@@ -698,20 +749,20 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     /**
-     * One adapter-owned SVG node in the board's drawable layer, styled as JSXGraph styled the `curve` it replaces (colour,
-     * width, fill, dash pattern, round caps and joins). Its geometry is written by `writePaths`.
+     * One adapter-owned SVG node in the board's drawable layer. It starts bare: `styleSlot` gives it the colour, width,
+     * fill, dash pattern and pointer behaviour of the drawable it shows (styled as JSXGraph styled the `curve` it replaces,
+     * round caps and joins); `writeDrawable` writes its geometry. Triangles and planes are closed polylines (the first
+     * point is repeated), which fill and join like a polygon.
      */
-    private makeDrawable(style: Style, tag: 'polygon' | 'polyline'): SVGElement {
+    private makeSlot(): SVGElement {
         this.stats.createdElements++;
         const layer = this.board!.renderer.layer[LAYER];
-        const node = layer.ownerDocument.createElementNS(SVG_NS, tag);
+        const node = layer.ownerDocument.createElementNS(SVG_NS, 'polyline');
         const attributes: Record<string, string> = {
-            stroke: style.stroke, 'stroke-opacity': '1', 'stroke-width': String(style.width),
-            fill: style.fill ?? 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'fill-rule': 'evenodd',
-            'pointer-events': style.fill ? 'visiblePainted' : 'visibleStroke', tabindex: '-1',
+            'stroke-opacity': '1', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'fill-rule': 'evenodd', tabindex: '-1',
+            // Painted fill or stroke: a line has no fill, so this is the same as its stroke alone.
+            'pointer-events': 'visiblePainted', fill: 'none',
         };
-        if (style.fill) attributes['fill-opacity'] = String(style.fillOpacity ?? 0);
-        if (style.dash > 0) attributes['stroke-dasharray'] = DASH_ARRAYS[style.dash - 1].join(',');
         for (const name in attributes) node.setAttribute(name, attributes[name]);
         layer.appendChild(node);
         return node;
@@ -733,9 +784,6 @@ export class JsxSurfaceView implements SurfaceView {
         for (const m of draw.markers) nodes.push(m.element2D.rendNode);
         for (const p of this.scene!.points) nodes.push(draw.points.get(p.id)?.element2D.rendNode);
         draw.nodes = nodes;
-        this.orderNodes = nodes;
-        this.dashPeriods = [];
-        this.dashOffsets = [];
         this.detailReduced = null;
     }
 
@@ -781,8 +829,7 @@ export class JsxSurfaceView implements SurfaceView {
         if (draw.nodes.length === 0 || draw.nodes.some(n => !n)) this.collectNodes();
         this.projectVertices(model);
         this.applyDetail(reduced);
-        this.writePaths();
-        this.sortAndReorder(model, scene);
+        this.paint(model, scene);
     }
 
     /**
@@ -793,7 +840,7 @@ export class JsxSurfaceView implements SurfaceView {
      */
     private applyDetail(reduced: boolean): void {
         if (reduced === this.detailReduced) return;
-        const pool = this.pool!, nodes = this.draw!.nodes;
+        const pool = this.pool!, draw = this.draw!;
         const nTri = pool.tris.length / 3;
         let seam = MESH_SEAM_WIDTH;
         if (reduced) {
@@ -805,29 +852,30 @@ export class JsxSurfaceView implements SurfaceView {
             }
             seam = Math.min(14, Math.max(MESH_SEAM_WIDTH, n ? edge / n : MESH_SEAM_WIDTH));
         }
-        for (let t = 0; t < nTri; t++) {
-            const node = nodes[t];
-            if (!node) continue;
-            if (reduced && t % REDUCED_TRIANGLE_STRIDE !== 0) {
-                node.setAttribute('display', 'none');
-            } else {
-                node.removeAttribute('display');
-                node.setAttribute('stroke-width', String(seam));
-            }
-        }
+        this.seam = seam;
         const pieceBase = nTri + pool.planes.length / 4;
         const runs = reduced ? this.segmentRuns() : null;
-        for (let piece = 0; piece < pool.pieceStart.length; piece++) {
-            const node = nodes[pieceBase + piece];
-            if (!node) continue;
-            if (runs && runs[piece] === 0) node.setAttribute('display', 'none');
-            else node.removeAttribute('display');
-        }
         this.pieceRun = runs;
-        this.orderNodes = reduced
-            ? nodes.map((n, i) => (i < nTri ? (i % REDUCED_TRIANGLE_STRIDE !== 0 ? null : n)
-                : i >= pieceBase && i < pieceBase + pool.pieceStart.length && runs![i - pieceBase] === 0 ? null : n))
-            : nodes;
+        if (!runs) {
+            this.hidden = null;
+        } else {
+            const hidden = new Uint8Array(draw.styles.length);
+            for (let t = 0; t < nTri; t++) hidden[t] = t % REDUCED_TRIANGLE_STRIDE !== 0 ? 1 : 0;
+            for (let piece = 0; piece < runs.length; piece++) hidden[pieceBase + piece] = runs[piece] === 0 ? 1 : 0;
+            this.hidden = hidden;
+            // Drawn drawables take the first slots in a frame; the hidden ones stay on the slots after them, hidden once.
+            let slot = 0;
+            for (let i = 0; i < hidden.length; i++) if (!hidden[i]) slot++;
+            for (let i = 0; i < hidden.length; i++) {
+                if (!hidden[i]) continue;
+                draw.nodes[i] = draw.elements[slot];
+                if (draw.slotShown[slot]) {
+                    draw.elements[slot].setAttribute('display', 'none');
+                    draw.slotShown[slot] = 0;
+                }
+                slot++;
+            }
+        }
         this.detailReduced = reduced;
     }
 
@@ -860,73 +908,103 @@ export class JsxSurfaceView implements SurfaceView {
         }
     }
 
-    /** Length of one dash cycle of the segment piece's node (0 for a solid line); read once from the node. */
-    private dashPeriodOf(piece: number, node: SVGElement | null | undefined): number {
-        const role = this.pool!.segRoles[piece];
-        let entry = this.dashPeriods[piece];
-        // Keyed by the piece's role (which picks its style): a piece restyled without a rebuild is read again.
-        if (!entry || entry.role !== role) {
-            this.dashOffsets[piece] = undefined;
-            const values = (node?.getAttribute('stroke-dasharray') ?? '').split(/[ ,]+/).map(Number).filter(v => Number.isFinite(v) && v > 0);
-            const cycle = values.reduce((a, b) => a + b, 0);
-            entry = {role, period: values.length % 2 ? 2 * cycle : cycle};
-            this.dashPeriods[piece] = entry;
+    /** Dash phase of every segment piece: continues along its segment, restarts at the segment's first piece. */
+    private computePieceOffsets(): void {
+        const pool = this.pool!, periods = this.draw!.periods;
+        const sx = this.sx, sy = this.sy;
+        const n = pool.pieceStart.length;
+        if (this.pieceOffset.length !== n) this.pieceOffset = new Float64Array(n);
+        let phase = 0;
+        for (let piece = 0; piece < n; piece++) {
+            if (pool.pieceStart[piece]) phase = 0;
+            const period = periods[piece];
+            this.pieceOffset[piece] = period > 0 ? roundTenth(phase % period) : NaN;
+            // Hidden pieces of a run still advance the phase: their length is part of the run's line.
+            const a = pool.segs[2 * piece], b = pool.segs[2 * piece + 1];
+            phase += Math.hypot(sx[b] - sx[a], sy[b] - sy[a]);
         }
-        return entry.period;
     }
 
-    private writePaths(): void {
-        const pool = this.pool!, nodes = this.draw!.nodes;
+    /**
+     * Writes drawable `i` onto slot `slot`: its screen geometry, and the style attributes that differ from what the slot
+     * carries (a style write restyles the node, a `points` write does not).
+     */
+    private writeDrawable(i: number, slot: number): void {
+        const pool = this.pool!, draw = this.draw!;
         const sx = this.sx, sy = this.sy;
-        const f = (v: number): number => Math.round(v * 10) / 10;
-        let e = 0;
-        const stride = this.detailReduced ? REDUCED_TRIANGLE_STRIDE : 1;
-        this.stats.drawn = 0;
-        for (let t = 0; t < pool.tris.length; t += 3, e++) {
-            if (e % stride !== 0) continue;
-            this.stats.drawn++;
+        const node = draw.elements[slot];
+        const nTri = pool.tris.length / 3, nPlane = pool.planes.length / 4;
+        const style = draw.styles[i];
+        let width = style.width, offset = NaN;
+        if (i < nTri) {
+            const t = 3 * i;
             const a = pool.tris[t], b = pool.tris[t + 1], c = pool.tris[t + 2];
-            nodes[e]?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])} ${f(sx[c])},${f(sy[c])}`);
-        }
-        for (let q = 0; q < pool.planes.length; q += 4, e++) {
-            this.stats.drawn++;
+            const pa = `${roundTenth(sx[a])},${roundTenth(sy[a])}`;
+            node.setAttribute('points', `${pa} ${roundTenth(sx[b])},${roundTenth(sy[b])} ${roundTenth(sx[c])},${roundTenth(sy[c])} ${pa}`);
+            width = this.seam;
+        } else if (i < nTri + nPlane) {
+            const q = 4 * (i - nTri);
             const a = pool.planes[q], b = pool.planes[q + 1], c = pool.planes[q + 2], d = pool.planes[q + 3];
-            nodes[e]?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])} ${f(sx[c])},${f(sy[c])} ${f(sx[d])},${f(sy[d])}`);
-        }
-        const runs = this.detailReduced ? this.pieceRun : null;
-        let phase = 0;
-        for (let s = 0; s < pool.segs.length; s += 2, e++) {
-            const piece = s / 2;
-            if (pool.pieceStart[piece]) phase = 0;
-            const run = runs ? runs[piece] : 1;
+            const pa = `${roundTenth(sx[a])},${roundTenth(sy[a])}`;
+            node.setAttribute('points', `${pa} ${roundTenth(sx[b])},${roundTenth(sy[b])} ${roundTenth(sx[c])},${roundTenth(sy[c])} ${roundTenth(sx[d])},${roundTenth(sy[d])} ${pa}`);
+        } else {
+            const piece = i - nTri - nPlane, s = 2 * piece;
             // A run of pieces is collinear on the screen too (a projected line is a line): one line from its first
             // piece's start to its last piece's end.
-            const a = pool.segs[s];
-            if (run > 0) {
-                const b = pool.segs[s + 2 * run - 1];
-                this.stats.drawn++;
-                const node = nodes[e];
-                node?.setAttribute('points', `${f(sx[a])},${f(sy[a])} ${f(sx[b])},${f(sy[b])}`);
-                // Pieces of one segment continue its dash pattern instead of each restarting it.
-                const period = this.dashPeriodOf(piece, node);
-                if (period > 0) {
-                    const offset = f(phase % period);
-                    if (this.dashOffsets[piece] !== offset) {
-                        this.dashOffsets[piece] = offset;
-                        node?.setAttribute('stroke-dashoffset', String(offset));
-                    }
-                }
-            }
-            // Hidden pieces of a run still advance the phase: their length is part of the run's line.
-            phase += Math.hypot(sx[pool.segs[s + 1]] - sx[a], sy[pool.segs[s + 1]] - sy[a]);
+            const run = this.pieceRun ? this.pieceRun[piece] : 1;
+            const a = pool.segs[s], b = pool.segs[s + 2 * run - 1];
+            node.setAttribute('points', `${roundTenth(sx[a])},${roundTenth(sy[a])} ${roundTenth(sx[b])},${roundTenth(sy[b])}`);
+            offset = this.pieceOffset[piece];
         }
+        let restyled = false;
+        if (draw.slotStyle[slot] !== style) {
+            // Only what differs: a mesh slot that shows a line for a frame and a triangle again changes stroke and width.
+            const had = draw.slotStyle[slot];
+            if (!had || had.stroke !== style.stroke) node.setAttribute('stroke', style.stroke);
+            // A line is two points and has no interior, so it leaves the slot's fill alone; filled shapes write theirs.
+            if (style.fill && draw.slotFill[slot] !== style) {
+                node.setAttribute('fill', style.fill);
+                node.setAttribute('fill-opacity', String(style.fillOpacity ?? 0));
+                draw.slotFill[slot] = style;
+            }
+            if ((had?.dash ?? 0) !== style.dash) {
+                if (style.dash > 0) node.setAttribute('stroke-dasharray', DASH_ARRAYS[style.dash - 1].join(','));
+                else node.removeAttribute('stroke-dasharray');
+            }
+            draw.slotStyle[slot] = style;
+            restyled = true;
+        }
+        if (draw.slotWidth[slot] !== width) {
+            node.setAttribute('stroke-width', String(width));
+            draw.slotWidth[slot] = width;
+            restyled = true;
+        }
+        const had = draw.slotOffset[slot];
+        if (had !== offset && !(Number.isNaN(had) && Number.isNaN(offset))) {
+            if (Number.isNaN(offset)) node.removeAttribute('stroke-dashoffset');
+            else node.setAttribute('stroke-dashoffset', String(offset));
+            draw.slotOffset[slot] = offset;
+            restyled = true;
+        }
+        if (!draw.slotShown[slot]) {
+            node.removeAttribute('display');
+            draw.slotShown[slot] = 1;
+            restyled = true;
+        }
+        if (restyled) this.stats.slotRestyles++;
     }
 
-    private sortAndReorder(model: JsxCameraModel, scene: SurfaceScene): void {
+    /**
+     * Painter's order by rebinding: the drawables are sorted farthest first and the k-th drawn one is written onto slot k,
+     * whose DOM position never changes. Only the point and marker ellipses (JSXGraph's own nodes) are moved, each to just
+     * before the slot of the first drawable that paints over it.
+     */
+    private paint(model: JsxCameraModel, scene: SurfaceScene): void {
         const pool = this.pool!, draw = this.draw!;
         const dv = this.vertexDepth;
         const nTri = pool.tris.length / 3, nPlane = pool.planes.length / 4, nSeg = pool.segs.length / 2;
-        const total = nTri + nPlane + nSeg + scene.markers.length + scene.points.length;
+        const nDraw = nTri + nPlane + nSeg;
+        const total = nDraw + scene.markers.length + scene.points.length;
         if (this.depths.length !== total) this.depths = new Float64Array(total);
         const d = this.depths;
         let e = 0;
@@ -945,8 +1023,54 @@ export class JsxSurfaceView implements SurfaceView {
         for (const m of scene.markers) d[e++] = projectToScreen(model, m.xyz[0], m.xyz[1], m.xyz[2], this.projected).depth - pool.pointBias;
         for (const p of scene.points) d[e++] = projectToScreen(model, p.xyz[0], p.xyz[1], p.xyz[2], this.projected).depth - 2 * pool.pointBias;
         const order = orderBackToFront(d);
-        const parent = draw.nodes.find(n => n)?.parentNode;
-        if (parent) this.stats.domMoves += applyDomOrder(this.orderNodes, order, parent);
+        this.computePieceOffsets();
+        const hidden = this.hidden, nodes = draw.nodes;
+        const ellipses = this.ellipses, ranks = this.ellipseRank;
+        ellipses.length = 0;
+        ranks.length = 0;
+        let rank = 0;
+        for (let k = 0; k < order.length; k++) {
+            const i = order[k];
+            if (i < nDraw) {
+                if (hidden && hidden[i]) continue;
+                nodes[i] = draw.elements[rank];
+                this.writeDrawable(i, rank++);
+            } else {
+                const node = nodes[i];
+                if (node) {
+                    ellipses.push(node);
+                    ranks.push(rank);
+                }
+            }
+        }
+        this.stats.drawn = rank;
+        this.stats.domMoves += this.placeEllipses(draw);
+    }
+
+    /**
+     * Puts each ellipse of this frame (in paint order) just before the slot of the first drawable painted after it, with
+     * the fewest `insertBefore` calls: placed back to front, an ellipse that already sits right before its anchor stays.
+     */
+    private placeEllipses(draw: Drawables): number {
+        const ellipses = this.ellipses, ranks = this.ellipseRank, slots = draw.elements;
+        const layer = draw.tail.parentNode;
+        if (!layer) return 0;
+        let moves = 0, anchorRank = -1;
+        let anchor: Node = draw.tail;
+        for (let k = ellipses.length - 1; k >= 0; k--) {
+            const node = ellipses[k];
+            if (node.parentNode !== layer) continue;
+            if (ranks[k] !== anchorRank) {
+                anchorRank = ranks[k];
+                anchor = anchorRank < slots.length ? slots[anchorRank] : draw.tail;
+            }
+            if (anchor.previousSibling !== node) {
+                layer.insertBefore(node, anchor);
+                moves++;
+            }
+            anchor = node;
+        }
+        return moves;
     }
 
     // ---- Input ---------------------------------------------------------------------------------------------------

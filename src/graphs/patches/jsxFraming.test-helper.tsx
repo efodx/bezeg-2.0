@@ -92,7 +92,7 @@ export interface ScreenSample {
 
 interface Internals {
     draw: {
-        elements: SVGElement[];
+        nodes: Array<SVGElement | null | undefined>;
         markers: Array<{element2D: {coords: {usrCoords: number[]}}}>;
         points: Map<string, {element2D: {coords: {usrCoords: number[]}}}>;
     };
@@ -123,7 +123,7 @@ export async function measureJsx(scene: SurfaceScene, viewport: FramingViewport)
         const segmentSamples: JsxMeasurement['segmentSamples'] = [];
         const at = (i: number): Xyz => [pool.verts[3 * i], pool.verts[3 * i + 1], pool.verts[3 * i + 2]];
         const read = (element: number, vertices: number[]): ScreenSample[] => {
-            const values = numbersIn(draw.elements[element]?.getAttribute('points') ?? '');
+            const values = numbersIn(draw.nodes[element]?.getAttribute('points') ?? '');
             if (values.length < 2 * vertices.length) throw new Error(`points of element ${element} has ${values.length / 2} vertices, expected ${vertices.length}`);
             return vertices.map((vertex, k) => ({world: at(vertex), x: values[2 * k], y: values[2 * k + 1]}));
         };

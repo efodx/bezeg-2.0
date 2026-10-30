@@ -167,6 +167,40 @@ describe('JsxSurfaceView', () => {
         }
     });
 
+    it('orbit frames rebind fixed slots: only the point ellipses move, and the DOM order is still the depth order', async () => {
+        const scene = makeScene();
+        const {view} = await mount(scene);
+        const internals = view as unknown as {draw: {nodes: SVGElement[]; elements: SVGElement[]}; depths: Float64Array};
+        const slots = internals.draw.elements;
+        const parent = slots[0].parentNode!;
+        const position = (n: Node): number => Array.prototype.indexOf.call(parent.childNodes, n);
+        const ellipses = scene.points.length + scene.markers.length;
+        let restyles = 0;
+        for (let k = 1; k <= 5; k++) {
+            const moves = view.stats.domMoves, before = view.stats.slotRestyles;
+            view.reconcile(withCamera(scene, {az: 0.7 + k * 0.9, el: 0.5 - k * 0.12}));
+            view.flush();
+            restyles += view.stats.slotRestyles - before;
+            expect(view.stats.domMoves - moves).toBeLessThanOrEqual(ellipses);
+            // The slots never change places relative to one another.
+            const now = slots.map(position);
+            expect(now.every((v, i) => i === 0 || v > now[i - 1])).toBe(true);
+            expect(slots.every(n => n.parentNode === parent)).toBe(true);
+            // What is painted later is nearer: compare every pair that has a decisive depth difference.
+            const nodes = internals.draw.nodes, depth = internals.depths;
+            expect(new Set(nodes).size).toBe(nodes.length);
+            for (let a = 0; a < nodes.length; a++) {
+                for (let b = a + 1; b < nodes.length; b++) {
+                    if (depth[a] > depth[b] + 1e-9) expect(position(nodes[a])).toBeLessThan(position(nodes[b]));
+                    if (depth[b] > depth[a] + 1e-9) expect(position(nodes[b])).toBeLessThan(position(nodes[a]));
+                }
+            }
+        }
+        // Mixed styles (mesh, plane, lines) change hands between slots, but not on every slot of every frame.
+        expect(restyles).toBeGreaterThan(0);
+        expect(restyles).toBeLessThan(5 * slots.length);
+    });
+
     it('emits camera edits for keyboard orbit and zoom, wheel and background drag', async () => {
         const {host, view} = await mount();
         const edits: SurfaceEdit[] = [];
