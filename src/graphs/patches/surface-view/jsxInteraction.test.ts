@@ -26,9 +26,9 @@ function setup(overrides: {editable?: boolean; zMode?: boolean} = {}) {
     return {interaction, container, keyTarget, edits, state, point, handlers, chosen, element};
 }
 
-const pointer = (target: HTMLElement, type: string, x: number, y: number): void => {
+const pointer = (target: HTMLElement, type: string, x: number, y: number, pointerId = 1): void => {
     const e = new MouseEvent(type, {clientX: x, clientY: y, bubbles: true, cancelable: true});
-    Object.defineProperty(e, 'pointerId', {value: 1});
+    Object.defineProperty(e, 'pointerId', {value: pointerId});
     target.dispatchEvent(e);
 };
 
@@ -94,6 +94,24 @@ describe('JsxInteraction', () => {
         pointer(container, 'pointerdown', 10, 10);
         pointer(container, 'pointermove', 90, 90);
         expect(edits.filter(e => e.kind === 'camera')).toHaveLength(1);
+    });
+
+    it('turns a second background press into a pinch zoom that either finger ends without resuming the orbit', () => {
+        const {container, edits, state} = setup();
+        pointer(container, 'pointerdown', 100, 100, 1);
+        pointer(container, 'pointermove', 102, 100, 1);
+        pointer(container, 'pointerdown', 200, 100, 2);
+        expect(edits).toEqual([]);
+        pointer(container, 'pointermove', 290, 100, 2);
+        expect(edits).toEqual([{kind: 'camera', camera: zoom(camera, 98 / 188)}]);
+        state.scene = {...state.scene, camera: zoom(camera, 0.5)};
+        pointer(container, 'pointermove', 200, 100, 1);
+        expect(edits[1]).toEqual({kind: 'camera', camera: zoom(zoom(camera, 0.5), 188 / 90)});
+        pointer(container, 'pointerup', 290, 100, 2);
+        pointer(container, 'pointermove', 100, 140, 1);
+        pointer(container, 'pointerdown', 100, 100, 3);
+        pointer(container, 'pointermove', 100, 100, 3);
+        expect(edits).toHaveLength(2);
     });
 
     it('keeps the arrow, plus and minus key steps and the wheel zoom of the Three view', () => {

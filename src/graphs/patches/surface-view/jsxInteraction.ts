@@ -9,6 +9,8 @@ import type {SurfaceCamera, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene
  *  - A control point is a JSXGraph `point3d`; JSXGraph itself moves it. A press on it is reported as `select` and a
  *    `point` `start`, every board update that changed it as `move`, the release as `end` with the final coordinates.
  *  - A press that hits no point is an orbit drag; wheel zooms; arrow keys orbit and +/- zoom (same steps as the former Three view).
+ *  - A second press on empty space during an orbit drag turns the gesture into a pinch zoom, as in the former Three view;
+ *    lifting either finger ends it without resuming the orbit. A second finger during a point drag is left to JSXGraph.
  *  - z-mode: JSXGraph drags a point along z while `view3d.isVerticalDrag()` is true, which by default means the Shift key
  *    is held (view3d attribute `verticalDrag: {enabled: true, key: 'shift'}`). Touch has no Shift key, so `bindView`
  *    makes the scene's `interaction.zMode` count as "vertical drag" too: with it on, every drag moves z; with it off, a
@@ -43,7 +45,10 @@ export interface InteractionHost {
 }
 
 export class JsxInteraction {
-    private orbitDrag: {id: number; x: number; y: number; moved: boolean} | null = null;
+    /** `x`, `y` is where the orbit last moved the camera from; `at` is the pointer's latest position. */
+    private orbitDrag: {id: number; x: number; y: number; moved: boolean; at: {x: number; y: number}} | null = null;
+    /** Two background pointers that zoom; while it is set there is no orbit drag. */
+    private pinch: {pointers: Map<number, {x: number; y: number}>; lastDistance: number} | null = null;
     private drag: {id: string; point: DraggablePoint; last: Xyz} | null = null;
     private readonly wired = new WeakMap<object, {id: string; point: DraggablePoint}>();
     private readonly cleanups: Array<() => void> = [];
@@ -128,6 +133,7 @@ export class JsxInteraction {
     dispose(): void {
         this.drag = null;
         this.orbitDrag = null;
+        this.pinch = null;
         for (const fn of this.cleanups.splice(0)) fn();
     }
 
@@ -141,14 +147,27 @@ export class JsxInteraction {
     private onPointerDown(e: PointerEvent): void {
         if (this.host.isDisposed() || !this.host.scene() || this.drag) return;
         // JSXGraph handled the event first (its listener was registered first): a hit point is now in downObjects.
-        if (this.host.pressedObjects().length > 0) return;
-        this.orbitDrag = {id: e.pointerId, x: e.clientX, y: e.clientY, moved: false};
+        if (this.host.pressedObjects().length > 0 || this.pinch) return;
+        const first = this.orbitDrag;
+        if (first && first.id !== e.pointerId) {
+            const pointers = new Map([[first.id, {...first.at}], [e.pointerId, {x: e.clientX, y: e.clientY}]]);
+            this.orbitDrag = null;
+            this.pinch = {pointers, lastDistance: pinchDistance(pointers)};
+            this.host.container.setPointerCapture?.(e.pointerId);
+            return;
+        }
+        this.orbitDrag = {id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, at: {x: e.clientX, y: e.clientY}};
         this.host.container.setPointerCapture?.(e.pointerId);
     }
 
     private onPointerMove(e: PointerEvent): void {
+        if (this.pinch) {
+            this.movePinch(e);
+            return;
+        }
         const d = this.orbitDrag, scene = this.host.scene();
         if (this.host.isDisposed() || !d || d.id !== e.pointerId || !scene || this.drag) return;
+        d.at = {x: e.clientX, y: e.clientY};
         const dx = e.clientX - d.x, dy = e.clientY - d.y;
         if (!d.moved && Math.hypot(dx, dy) < ORBIT_START_PX) return;
         d.moved = true;
@@ -157,7 +176,25 @@ export class JsxInteraction {
         this.host.emit({kind: 'camera', camera: orbit(scene.camera, dx, dy)});
     }
 
+    private movePinch(e: PointerEvent): void {
+        const pinch = this.pinch!, finger = pinch.pointers.get(e.pointerId), scene = this.host.scene();
+        if (this.host.isDisposed() || !finger || !scene) return;
+        finger.x = e.clientX;
+        finger.y = e.clientY;
+        const distance = pinchDistance(pinch.pointers);
+        // Fingers moving apart (a larger distance) bring the camera closer.
+        if (pinch.lastDistance > 0 && distance > 0) this.host.emit({kind: 'camera', camera: zoom(scene.camera, pinch.lastDistance / distance)});
+        pinch.lastDistance = distance;
+    }
+
     private onPointerEnd(e: PointerEvent): void {
+        if (this.pinch) {
+            if (this.pinch.pointers.has(e.pointerId)) {
+                for (const id of this.pinch.pointers.keys()) this.host.container.releasePointerCapture?.(id);
+                this.pinch = null;
+            }
+            return;
+        }
         if (this.orbitDrag?.id === e.pointerId) {
             this.host.container.releasePointerCapture?.(e.pointerId);
             this.orbitDrag = null;
@@ -188,4 +225,9 @@ export class JsxInteraction {
         e.preventDefault();
         this.host.emit({kind: 'camera', camera: next});
     }
+}
+
+function pinchDistance(pointers: Map<number, {x: number; y: number}>): number {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
 }
