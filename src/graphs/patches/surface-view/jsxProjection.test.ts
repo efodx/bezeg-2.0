@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it} from 'vitest';
 import {JsxSurfaceView} from './jsxSurfaceView';
-import {makeCameraModel, projectToBoard} from './jsxProjection';
+import {makeCameraModel, projectToScreen} from './jsxProjection';
 import {MAX_DISTANCE, MAX_ELEVATION, MIN_DISTANCE} from './surfaceMath';
 import type {ScenePoint, SurfaceCamera, SurfaceScene, Xyz} from './surfaceScene';
 
@@ -31,7 +31,7 @@ afterEach(() => {
     document.body.innerHTML = '';
 });
 
-describe.each(['view3d', 'board2d'] as const)('jsxProjection vs view3d.project3DTo2D (%s)', strategy => {
+describe('jsxProjection vs the hosted view3d.project3DTo2D', () => {
     it('agrees over random cameras and aspect ratios', async () => {
         const sizes: Array<[number, number]> = [[800, 600], [1280, 400], [400, 900], [1000, 1000], [640, 360]];
         const probes: Xyz[] = [[0, 0, 0], [4, 0, 0.3], [2, 3, -0.5], [4, 4, 1], [1.3, 2.7, 0.2]];
@@ -41,7 +41,7 @@ describe.each(['view3d', 'board2d'] as const)('jsxProjection vs view3d.project3D
             Object.defineProperty(host, 'clientWidth', {configurable: true, value: w});
             Object.defineProperty(host, 'clientHeight', {configurable: true, value: h});
             document.body.appendChild(host);
-            const view = new JsxSurfaceView({strategy});
+            const view = new JsxSurfaceView();
             view.reconcile(sceneWith({az: 0, el: 0.3, distance: 12, projection: 'perspective', target: [2, 2, 0]}));
             await view.attach(host);
             for (let k = 0; k < 10; k++) {
@@ -57,15 +57,15 @@ describe.each(['view3d', 'board2d'] as const)('jsxProjection vs view3d.project3D
                 const model = makeCameraModel(camera, {width: w, height: h});
                 const jsxView = view.jsxView as ProjectingView;
                 for (const p of probes) {
-                    const mine = projectToBoard(model, ...p);
+                    const mine = projectToScreen(model, ...p);
                     const jsx = jsxView.project3DTo2D(...p);
-                    worst = Math.max(worst, Math.abs(mine[0] - jsx[1]), Math.abs(mine[1] - jsx[2]));
+                    worst = Math.max(worst, Math.abs(mine.x - w / 2 - jsx[1]), Math.abs(h / 2 - mine.y - jsx[2]));
                     count++;
                 }
             }
             view.dispose();
         }
-        console.log(`MAX_RESIDUAL ${strategy} ${worst} over ${count} projections`);
+        expect(count).toBe(sizes.length * 10 * probes.length);
         expect(worst).toBeLessThan(1e-6);
     });
 });

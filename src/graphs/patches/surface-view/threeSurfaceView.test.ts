@@ -2,7 +2,10 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as THREE from 'three';
 import {SURFACE_COLORS, SURFACE_DASH, ThreeSurfaceView, type RendererLike} from './threeSurfaceView';
 import {assertFiniteScene, type LabelLayout, type PolylineRole, type ScenePlane, type SurfaceEdit, type SurfaceScene, type Xyz} from './surfaceScene';
-import {fitCameraTo} from './surfaceMath';
+import {cameraPosition, fitCameraTo, FOV_DEG} from './surfaceMath';
+import {ORACLE_FAR, ORACLE_NEAR, ORACLE_PROBES, pinholeProject, randomOracleCameras} from './pinholeOracle.test-helper';
+import {installBoardShims} from '../../base/realGraphTestHarness';
+import {collectFramingCases, controlNetPoints, screenBounds} from '../jsxFraming.test-helper';
 import {buildTeapotScene} from '../TensorTeapotScene';
 import {buildTensorScene, patchFromNet} from '../patchSceneBuilder';
 import {withSubdivisionPieces} from '../TensorSubdivisionScene';
@@ -937,4 +940,64 @@ describe('ThreeSurfaceView construction markers', () => {
         h.view.dispose();
         expect(disposed.has(second.geometry), 'diamond geometry').toBe(true);
     });
+});
+
+describe('Three projection against the pinhole oracle', () => {
+    it('frames every camera and viewport exactly as the oracle does (so stored cameras keep their framing)', () => {
+        let worstNdc = 0, worstZ = 0, count = 0;
+        for (const {camera, viewport} of randomOracleCameras(240, 987654321)) {
+            const three = new THREE.PerspectiveCamera(FOV_DEG, viewport.width / viewport.height, ORACLE_NEAR, ORACLE_FAR);
+            three.up.set(0, 0, 1);
+            three.position.set(...cameraPosition(camera.az, camera.el, camera.distance, camera.target));
+            three.lookAt(...camera.target);
+            three.updateMatrixWorld(true);
+            three.updateProjectionMatrix();
+            for (const p of ORACLE_PROBES) {
+                const v = new THREE.Vector3(...p).project(three);
+                const ref = pinholeProject(camera, viewport, p);
+                worstNdc = Math.max(worstNdc, Math.abs(v.x - ref.ndcX), Math.abs(v.y - ref.ndcY));
+                worstZ = Math.max(worstZ, Math.abs(v.z - ref.ndcZ));
+                count++;
+            }
+        }
+        console.log(`THREE_VS_ORACLE ndc ${worstNdc} ndcZ ${worstZ} over ${count} projections`);
+        expect(count).toBe(240 * ORACLE_PROBES.length);
+        expect(worstNdc).toBeLessThan(1e-9);
+        expect(worstZ).toBeLessThan(1e-9);
+    });
+});
+
+describe('Three framing of the patch routes against the pinhole oracle', () => {
+    it('puts the control net of every route camera at the oracle screen bounds (within 0.5 px)', () => {
+        installBoardShims();
+        const cases = collectFramingCases();
+        expect(cases.length).toBeGreaterThanOrEqual(40);
+        let checked = 0, worst = 0;
+        for (const framing of cases) {
+            for (const viewport of framing.viewports) {
+                const camera = framing.scene.camera;
+                const three = new THREE.PerspectiveCamera(FOV_DEG, viewport.width / viewport.height, ORACLE_NEAR, ORACLE_FAR);
+                three.up.set(0, 0, 1);
+                three.position.set(...cameraPosition(camera.az, camera.el, camera.distance, camera.target));
+                three.lookAt(...camera.target);
+                three.updateMatrixWorld(true);
+                three.updateProjectionMatrix();
+                const net = controlNetPoints(framing.scene);
+                expect(net.length, `${framing.name} has no control net`).toBeGreaterThan(0);
+                const fromThree = screenBounds(net.map(p => {
+                    const v = new THREE.Vector3(...p).project(three);
+                    return {x: (v.x + 1) * viewport.width / 2, y: (1 - v.y) * viewport.height / 2};
+                }));
+                const fromOracle = screenBounds(net.map(p => pinholeProject(camera, viewport, p)));
+                for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) {
+                    const diff = Math.abs(fromThree[key] - fromOracle[key]);
+                    worst = Math.max(worst, diff);
+                    expect(diff, `${framing.name} @ ${viewport.name} ${key}`).toBeLessThanOrEqual(0.5);
+                }
+                checked++;
+            }
+        }
+        console.log(`THREE_NET_BOUNDS ${checked} case-viewports, worst ${worst} px`);
+        expect(checked).toBeGreaterThanOrEqual(cases.length);
+    }, 120_000);
 });

@@ -1,7 +1,7 @@
 import {boards} from 'jsxgraph';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
-import {JsxSurfaceStrategy, JsxSurfaceView} from './jsxSurfaceView';
-import {makeCameraModel, projectToBoard} from './jsxProjection';
+import {JsxSurfaceView} from './jsxSurfaceView';
+import {makeCameraModel, projectToScreen} from './jsxProjection';
 import {CAMERA_PRESETS} from './surfaceMath';
 import type {ScenePoint, SurfaceCamera, SurfaceEdit, SurfaceScene, Xyz} from './surfaceScene';
 
@@ -53,11 +53,11 @@ function sizeHost(host: HTMLElement, width: number, height: number): void {
     Object.defineProperty(host, 'clientHeight', {configurable: true, value: height});
 }
 
-async function mount(strategy: JsxSurfaceStrategy, scene = makeScene(), size: [number, number] = [800, 600]) {
+async function mount(scene = makeScene(), size: [number, number] = [800, 600]) {
     const host = document.createElement('div');
     sizeHost(host, size[0], size[1]);
     document.body.appendChild(host);
-    const view = new JsxSurfaceView({strategy});
+    const view = new JsxSurfaceView();
     view.reconcile(scene);
     await view.attach(host);
     view.flush();
@@ -73,50 +73,73 @@ afterEach(() => {
     document.body.innerHTML = '';
 });
 
-describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy => {
-    it('projects points like view3d.project3DTo2D and keeps point3d on the drawn net', async () => {
-        const {view} = await mount(strategy);
+describe('JsxSurfaceView', () => {
+    /** Board coordinates (y up, origin at the view centre) of the pure projection, comparable with view3d's. */
+    const boardOf = (camera: SurfaceCamera, size: [number, number], p: Xyz): [number, number] => {
+        const s = projectToScreen(makeCameraModel(camera, {width: size[0], height: size[1]}), ...p);
+        return [s.x - size[0] / 2, size[1] / 2 - s.y];
+    };
+    const probes: Xyz[] = [[0, 0, 0], [4, 0, 0.3], [2, 3, -0.5], [4, 4, 1], [1.3, 2.7, 0.2]];
+    const cameras = (): SurfaceCamera[] => [
+        makeScene().camera,
+        {...makeScene().camera, ...CAMERA_PRESETS.front},
+        {...makeScene().camera, ...CAMERA_PRESETS.top, distance: 9},
+        {...makeScene().camera, az: -2.4, el: -0.3, distance: 20, target: [1, 3, 0.5]},
+    ];
+    const resize = (view: JsxSurfaceView, host: HTMLElement, w: number, h: number): void => {
+        sizeHost(host, w, h);
+        (view as unknown as {measure: () => void}).measure();
+    };
+
+    it('view3d projects points like the pure projection after camera changes and resizes', async () => {
+        const sizes: Array<[number, number]> = [[800, 600], [390, 844], [1440, 1000]];
+        const {host, view} = await mount(makeScene(), sizes[0]);
         const jsxView = view.jsxView as ProjectingView;
-        const cameras: SurfaceCamera[] = [
-            makeScene().camera,
-            {...makeScene().camera, ...CAMERA_PRESETS.front},
-            {...makeScene().camera, ...CAMERA_PRESETS.top, distance: 9},
-            {...makeScene().camera, az: -2.4, el: -0.3, distance: 20, target: [1, 3, 0.5]},
-        ];
-        let worst = 0;
-        for (const camera of cameras) {
-            view.reconcile(withCamera(makeScene(), camera));
-            view.flush();
-            const model = makeCameraModel(camera, {width: 800, height: 600});
-            for (const p of [[0, 0, 0], [4, 0, 0.3], [2, 3, -0.5], [4, 4, 1], [1.3, 2.7, 0.2]] as Xyz[]) {
-                const mine = projectToBoard(model, ...p);
-                const jsx = jsxView.project3DTo2D(...p);
-                worst = Math.max(worst, Math.abs(mine[0] - jsx[1]), Math.abs(mine[1] - jsx[2]));
+        let worst = 0, count = 0;
+        for (const size of sizes) {
+            resize(view, host, ...size);
+            for (const camera of cameras()) {
+                view.reconcile(withCamera(makeScene(), camera));
+                view.flush();
+                for (const p of probes) {
+                    const mine = boardOf(camera, size, p);
+                    const jsx = jsxView.project3DTo2D(...p);
+                    worst = Math.max(worst, Math.abs(mine[0] - jsx[1]), Math.abs(mine[1] - jsx[2]));
+                    count++;
+                }
             }
         }
         // Board units are pixels; the adapter's projection and JSXGraph's agree to floating-point rounding.
+        expect(count).toBe(3 * 4 * probes.length);
         expect(worst).toBeLessThan(1e-6);
     });
 
-    it('keeps drawn control points at the adapter projection after a camera change', async () => {
-        const {view} = await mount(strategy);
-        const camera = {...makeScene().camera, az: 1.1, el: 0.3, distance: 11};
-        view.reconcile(withCamera(makeScene(), camera));
-        view.flush();
-        const model = makeCameraModel(camera, {width: 800, height: 600});
+    it('keeps drawn control points and markers at the pure projection after camera changes and resizes', async () => {
+        const sizes: Array<[number, number]> = [[800, 600], [390, 844]];
+        const {host, view} = await mount(makeScene(), sizes[0]);
         const scene = makeScene();
-        const internals = view as unknown as {draw: {points: Map<string, {element2D: {coords: {usrCoords: number[]}}}>}};
-        let worst = 0;
-        for (const p of scene.points) {
-            const mine = projectToBoard(model, ...p.xyz);
-            const u = internals.draw.points.get(p.id)!.element2D.coords.usrCoords;
-            worst = Math.max(worst, Math.abs(mine[0] - u[1]), Math.abs(mine[1] - u[2]));
+        const internals = view as unknown as {draw: {points: Map<string, {element2D: {coords: {usrCoords: number[]}}}>; markers: Array<{element2D: {coords: {usrCoords: number[]}}}>}};
+        let worst = 0, count = 0;
+        for (const size of sizes) {
+            resize(view, host, ...size);
+            for (const camera of cameras()) {
+                view.reconcile(withCamera(scene, camera));
+                view.flush();
+                const check = (xyz: Xyz, u: number[]): void => {
+                    const mine = boardOf(camera, size, xyz);
+                    worst = Math.max(worst, Math.abs(mine[0] - u[1]), Math.abs(mine[1] - u[2]));
+                    count++;
+                };
+                for (const p of scene.points) check(p.xyz, internals.draw.points.get(p.id)!.element2D.coords.usrCoords);
+                scene.markers.forEach((m, i) => check(m.xyz, internals.draw.markers[i].element2D.coords.usrCoords));
+            }
         }
+        expect(count).toBe(2 * 4 * (scene.points.length + scene.markers.length));
         expect(worst).toBeLessThan(1e-6);
     });
 
     it('creates no elements for a camera-only reconcile and moves few nodes', async () => {
-        const {view} = await mount(strategy);
+        const {view} = await mount();
         const before = view.elementCount;
         const created = view.stats.createdElements;
         const rebuilds = view.stats.rebuilds;
@@ -130,7 +153,7 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
     });
 
     it('draws in back-to-front order: DOM order follows view depth', async () => {
-        const {view} = await mount(strategy);
+        const {view} = await mount();
         const internals = view as unknown as {draw: {nodes: SVGElement[]}; depths: Float64Array};
         const nodes = internals.draw.nodes;
         const parent = nodes[0].parentNode!;
@@ -145,7 +168,7 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
     });
 
     it('emits camera edits for keyboard orbit and zoom, wheel and background drag', async () => {
-        const {host, view} = await mount(strategy);
+        const {host, view} = await mount();
         const edits: SurfaceEdit[] = [];
         view.onEdit(e => edits.push(e));
         host.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
@@ -172,7 +195,7 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
     });
 
     it('turns a point drag into select, start, move and end edits and leaves the camera alone', async () => {
-        const {view} = await mount(strategy);
+        const {view} = await mount();
         const edits: SurfaceEdit[] = [];
         view.onEdit(e => edits.push(e));
         const internals = view as unknown as {
@@ -193,7 +216,7 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
     });
 
     it('applies host-authoritative point positions on the next reconcile', async () => {
-        const {view} = await mount(strategy);
+        const {view} = await mount();
         const scene = makeScene();
         const moved = {...scene, revision: 2, points: scene.points.map(p => p.id === 'p-0-0' ? {...p, xyz: [0.1, 0.2, 0.3] as Xyz} : p)};
         view.reconcile(moved);
@@ -205,7 +228,7 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
     });
 
     it('disposes idempotently and frees the board, listeners and frame', async () => {
-        const {host, view} = await mount(strategy);
+        const {host, view} = await mount();
         expect(boardCount()).toBe(baseline + 1);
         view.reconcile(withCamera(makeScene(), {az: 2}));
         view.dispose();
@@ -220,14 +243,14 @@ describe.each(['view3d', 'board2d'] as const)('JsxSurfaceView (%s)', strategy =>
 
     it('survives three remounts with the board count back at baseline', async () => {
         for (let i = 0; i < 3; i++) {
-            const {view} = await mount(strategy);
+            const {view} = await mount();
             view.dispose();
         }
         expect(boardCount()).toBe(baseline);
     });
 
     it('rejects capture with a clear gate message', async () => {
-        const {view} = await mount(strategy);
+        const {view} = await mount();
         await expect(view.capture()).rejects.toThrow(/not implemented in the feasibility gate/);
     });
 });

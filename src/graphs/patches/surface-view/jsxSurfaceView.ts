@@ -1,8 +1,7 @@
 import {JSXGraph} from 'jsxgraph';
 import {applyDomOrder, orderBackToFront} from './jsxDepthOrder';
-import {
-    bboxHalfSide, JsxCameraModel, makeCameraModel, projectToBoard, viewDepth, viewRadiusFor,
-} from './jsxProjection';
+import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
+import {bboxHalfSide, view3dAngles, view3dFrame, viewRadiusFor} from './jsxView3dMapping';
 import {FOV_DEG, fitCameraTo, orbit, zoom} from './surfaceMath';
 import {
     assertFiniteScene, AttachOptions, LabelLayout, PolylineRole, SurfaceCamera, SurfaceCapture, SurfaceEdit,
@@ -12,20 +11,13 @@ import {
 /**
  * Feasibility-gate `SurfaceView` drawn with JSXGraph 1.14.1 (task 01 of docs/specs/jsxgraph-surface-view.md).
  *
- * Two drawing strategies, chosen at construction:
- *  - `view3d`: mesh triangles, planes and line segments are `curve3d` elements of a central-projection `view3d`;
- *    JSXGraph reprojects them on every camera change.
- *  - `board2d`: the same drawables are plain 2D `curve` elements; the adapter projects them itself
- *    (`jsxProjection.ts`) and writes their path. Control points and markers stay `point3d` elements of the same
- *    `view3d`, so JSXGraph's built-in 3D point drag keeps working.
+ * Mesh triangles, planes and line segments are plain 2D `curve` elements: the adapter projects them itself
+ * (`jsxProjection.ts`, the one projection also used for depth order) and writes their path. Control points and markers
+ * are `point3d` elements of a central-projection `view3d` that is kept only so JSXGraph's built-in 3D point drag keeps
+ * working; `jsxView3dMapping.ts` makes it coincide with the pure projection.
  * Elements are created once per topology and reused: a camera change reprojects, sorts and reorders the SVG nodes.
  * Gate scope: fixed styling, no labels, no export, no pinch zoom.
  */
-
-export type JsxSurfaceStrategy = 'view3d' | 'board2d';
-export interface JsxSurfaceViewOptions {
-    strategy?: JsxSurfaceStrategy;
-}
 
 /** The slice of JSXGraph's untyped 3D API that this adapter uses. */
 interface JxgElement {
@@ -36,12 +28,6 @@ interface JxgElement {
     dataX?: number[];
     dataY?: number[];
     on: (event: string, handler: () => void) => void;
-}
-interface JxgCurve3D {
-    element2D: JxgElement;
-    _X: number[];
-    _Y: number[];
-    _Z: number[];
 }
 interface JxgPoint3D {
     element2D: JxgElement & {coords: {usrCoords: number[]}};
@@ -120,7 +106,7 @@ interface Pool {
 interface Drawables {
     /** Triangles, planes, segments, markers, points in the draw-list layout. */
     nodes: (SVGElement | null | undefined)[];
-    elements: (JxgCurve3D | JxgElement)[];
+    elements: JxgElement[];
     markers: JxgPoint3D[];
     points: Map<string, JxgPoint3D>;
 }
@@ -128,7 +114,6 @@ interface Drawables {
 let descriptionCounter = 0;
 
 export class JsxSurfaceView implements SurfaceView {
-    readonly strategy: JsxSurfaceStrategy;
     private host: HTMLElement | null = null;
     private container: HTMLDivElement | null = null;
     private descriptionEl: HTMLElement | null = null;
@@ -161,12 +146,9 @@ export class JsxSurfaceView implements SurfaceView {
     private vertexDepth = new Float64Array(0);
     private sx = new Float64Array(0);
     private sy = new Float64Array(0);
+    private readonly projected = newScreenPoint();
     /** Counters read by tests and the measurement harness. */
     readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0};
-
-    constructor(options: JsxSurfaceViewOptions = {}) {
-        this.strategy = options.strategy ?? 'board2d';
-    }
 
     // ---- SurfaceView ---------------------------------------------------------------------------------------------
 
@@ -177,7 +159,7 @@ export class JsxSurfaceView implements SurfaceView {
         this.description = options.description ?? this.description;
         const container = document.createElement('div');
         container.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;position:relative;overflow:hidden;';
-        container.setAttribute('data-jsx-surface-view', this.strategy);
+        container.setAttribute('data-jsx-surface-view', 'board2d');
         this.container = container;
         host.appendChild(container);
 
@@ -347,7 +329,8 @@ export class JsxSurfaceView implements SurfaceView {
         };
         const board = JSXGraph.initBoard(container, boardOptions) as unknown as JxgBoard;
         this.board = board;
-        const view = board.create('view3d', [[-0.2 * w, -0.2 * h], [0.4 * w, 0.4 * h], [[-1, 1], [-1, 1], [-1, 1]]], {
+        const frame = view3dFrame({width: w, height: h});
+        const view = board.create('view3d', [frame.llftCorner, frame.size, [[-1, 1], [-1, 1], [-1, 1]]], {
             projection: 'central', fov: (FOV_DEG * Math.PI) / 180, axesPosition: 'none',
             xPlaneRear: {visible: false}, yPlaneRear: {visible: false}, zPlaneRear: {visible: false},
             xPlaneFront: {visible: false}, yPlaneFront: {visible: false}, zPlaneFront: {visible: false},
@@ -373,22 +356,9 @@ export class JsxSurfaceView implements SurfaceView {
         // Positions first, so the elements are created at their final place; the first frame then only reorders.
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
-        const make = (coords: Xyz[], style: Style): void => {
-            draw.elements.push(this.makeDrawable(coords, style));
-        };
-        const v = pool.verts;
-        const at = (i: number): Xyz => [v[3 * i], v[3 * i + 1], v[3 * i + 2]];
-        for (let t = 0; t < pool.tris.length; t += 3) {
-            const a = pool.tris[t], b = pool.tris[t + 1], c = pool.tris[t + 2];
-            make([at(a), at(b), at(c), at(a)], MESH_STYLE);
-        }
-        for (let q = 0; q < pool.planes.length; q += 4) {
-            const [a, b, c, d] = [pool.planes[q], pool.planes[q + 1], pool.planes[q + 2], pool.planes[q + 3]];
-            make([at(a), at(b), at(c), at(d), at(a)], PLANE_STYLE);
-        }
-        for (let s = 0; s < pool.segs.length; s += 2) {
-            make([at(pool.segs[s]), at(pool.segs[s + 1])], LINE_STYLES[pool.segRoles[s / 2]]);
-        }
+        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE));
+        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE));
+        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(LINE_STYLES[pool.segRoles[s / 2]]));
         for (const marker of scene.markers) {
             draw.markers.push(this.makePoint(marker.xyz, marker.role === 'evaluated' ? '#d6362b' : marker.role === 'construction' ? '#2e9e48' : '#8a56c8', 3, true));
         }
@@ -481,44 +451,19 @@ export class JsxSurfaceView implements SurfaceView {
         pool.max = fresh.max;
         pool.lineBias = fresh.lineBias;
         pool.pointBias = fresh.pointBias;
-        const v = pool.verts;
-        if (this.strategy === 'view3d') {
-            const write = (curve: JxgCurve3D, idx: number[]): void => {
-                idx.forEach((vi, k) => {
-                    curve._X[k] = v[3 * vi];
-                    curve._Y[k] = v[3 * vi + 1];
-                    curve._Z[k] = v[3 * vi + 2];
-                });
-            };
-            let e = 0;
-            for (let t = 0; t < pool.tris.length; t += 3, e++) {
-                write(draw.elements[e] as JxgCurve3D, [pool.tris[t], pool.tris[t + 1], pool.tris[t + 2], pool.tris[t]]);
-            }
-            for (let q = 0; q < pool.planes.length; q += 4, e++) {
-                write(draw.elements[e] as JxgCurve3D, [pool.planes[q], pool.planes[q + 1], pool.planes[q + 2], pool.planes[q + 3], pool.planes[q]]);
-            }
-            for (let s = 0; s < pool.segs.length; s += 2, e++) write(draw.elements[e] as JxgCurve3D, [pool.segs[s], pool.segs[s + 1]]);
-        }
         scene.markers.forEach((m, i) => draw.markers[i].setPosition(m.xyz));
         for (const p of scene.points) draw.points.get(p.id)?.setPosition(p.xyz);
         if (this.view) this.view.needsUpdate = true;
-        // The 3D curves must recompute from their new data, not only reproject.
-        this.board!.update();
     }
 
-    private makeDrawable(coords: Xyz[], style: Style): JxgCurve3D | JxgElement {
+    private makeDrawable(style: Style): JxgElement {
         const attributes = {
             strokeColor: style.stroke, strokeWidth: style.width, fillColor: style.fill ?? 'none',
             fillOpacity: style.fillOpacity ?? 0, highlight: false, fixed: true, layer: LAYER, visible: true,
             withLabel: false, dash: 0,
         };
         this.stats.createdElements++;
-        if (this.strategy === 'view3d') {
-            const curve = this.view!.create('curve3d', [coords], attributes) as JxgCurve3D;
-            curve.element2D.hasPoint = () => false;
-            return curve;
-        }
-        // board2d: a 2D curve whose path the adapter writes itself; JSXGraph only hosts the SVG node and
+        // A 2D curve whose path the adapter writes itself; JSXGraph only hosts the SVG node and
         // regenerates it from the cached projection if it ever redraws the curve on its own.
         const curve = this.board!.create('curve', [[0], [0]], attributes) as JxgElement;
         curve.hasPoint = () => false;
@@ -571,7 +516,7 @@ export class JsxSurfaceView implements SurfaceView {
     private collectNodes(): void {
         const draw = this.draw!;
         const nodes: (SVGElement | null | undefined)[] = [];
-        for (const el of draw.elements) nodes.push(((el as JxgCurve3D).element2D ?? (el as JxgElement)).rendNode);
+        for (const el of draw.elements) nodes.push(el.rendNode);
         for (const m of draw.markers) nodes.push(m.element2D.rendNode);
         for (const p of this.scene!.points) nodes.push(draw.points.get(p.id)?.element2D.rendNode);
         draw.nodes = nodes;
@@ -608,9 +553,9 @@ export class JsxSurfaceView implements SurfaceView {
         const t = camera.target;
         view.bbox3D = [[t[0] - h, t[0] + h], [t[1] - h, t[1] + h], [t[2] - h, t[2] + h]];
         view.r = viewRadiusFor(h, camera.distance);
-        const m = makeCameraModel(camera, {width: this.width, height: this.height});
-        view.az_slide.setValue(((m.jsxAz % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
-        view.el_slide.setValue(m.jsxEl);
+        const angles = view3dAngles(camera);
+        view.az_slide.setValue(angles.az);
+        view.el_slide.setValue(angles.el);
         view.needsUpdate = true;
     }
 
@@ -619,19 +564,20 @@ export class JsxSurfaceView implements SurfaceView {
         const w = this.width, h = this.height;
         board.resizeContainer(w, h, true, true, true);
         board.setBoundingBox([-w / 2, h / 2, w / 2, -h / 2], false);
-        view.size = [0.4 * w, 0.4 * h];
-        view.llftCorner = [-0.2 * w, -0.2 * h];
+        const frame = view3dFrame({width: w, height: h});
+        view.size = frame.size;
+        view.llftCorner = frame.llftCorner;
         this.appliedWidth = w;
         this.appliedHeight = h;
     }
 
-    /** One frame: view3d camera, per-strategy reprojection, painter's order. */
+    /** One frame: view3d camera, reprojection, painter's order. */
     private renderFrame(camera: SurfaceCamera): void {
         const board = this.board!, pool = this.pool!, draw = this.draw!, scene = this.scene!;
         if (this.appliedWidth !== this.width || this.appliedHeight !== this.height) this.resizeBoard();
         this.setCameraOnView(camera, pool);
         const model = makeCameraModel(camera, {width: this.width, height: this.height});
-        // Only 3D elements (points, and curve3d in the view3d strategy) need to follow the view.
+        // Only the 3D points and markers need to follow the view.
         const wasChanging = board._change3DView;
         board._change3DView = true;
         try {
@@ -641,7 +587,7 @@ export class JsxSurfaceView implements SurfaceView {
         }
         if (draw.nodes.length === 0 || draw.nodes.some(n => !n)) this.collectNodes();
         this.projectVertices(model);
-        if (this.strategy === 'board2d') this.writePaths();
+        this.writePaths();
         this.sortAndReorder(model, scene);
     }
 
@@ -653,16 +599,12 @@ export class JsxSurfaceView implements SurfaceView {
             this.sx = new Float64Array(n);
             this.sy = new Float64Array(n);
         }
-        const hw = this.width / 2, hh = this.height / 2;
-        const project = this.strategy === 'board2d';
+        const out = this.projected;
         for (let i = 0; i < n; i++) {
-            const x = verts[3 * i], y = verts[3 * i + 1], z = verts[3 * i + 2];
-            this.vertexDepth[i] = viewDepth(model, x, y, z);
-            if (project) {
-                const [bx, by] = projectToBoard(model, x, y, z);
-                this.sx[i] = bx + hw;
-                this.sy[i] = hh - by;
-            }
+            projectToScreen(model, verts[3 * i], verts[3 * i + 1], verts[3 * i + 2], out);
+            this.vertexDepth[i] = out.depth;
+            this.sx[i] = out.x;
+            this.sy[i] = out.y;
         }
     }
 
@@ -698,8 +640,8 @@ export class JsxSurfaceView implements SurfaceView {
             d[e++] = (dv[pool.planes[q]] + dv[pool.planes[q + 1]] + dv[pool.planes[q + 2]] + dv[pool.planes[q + 3]]) / 4;
         }
         for (let s = 0; s < pool.segs.length; s += 2) d[e++] = (dv[pool.segs[s]] + dv[pool.segs[s + 1]]) / 2 - pool.lineBias;
-        for (const m of scene.markers) d[e++] = viewDepth(model, m.xyz[0], m.xyz[1], m.xyz[2]) - pool.pointBias;
-        for (const p of scene.points) d[e++] = viewDepth(model, p.xyz[0], p.xyz[1], p.xyz[2]) - 2 * pool.pointBias;
+        for (const m of scene.markers) d[e++] = projectToScreen(model, m.xyz[0], m.xyz[1], m.xyz[2], this.projected).depth - pool.pointBias;
+        for (const p of scene.points) d[e++] = projectToScreen(model, p.xyz[0], p.xyz[1], p.xyz[2], this.projected).depth - 2 * pool.pointBias;
         const order = orderBackToFront(d);
         const parent = draw.nodes.find(n => n)?.parentNode;
         if (parent) this.stats.domMoves += applyDomOrder(draw.nodes, order, parent);

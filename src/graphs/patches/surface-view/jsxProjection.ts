@@ -2,16 +2,17 @@ import {FOV_DEG} from './surfaceMath';
 import type {SurfaceCamera, Xyz} from './surfaceScene';
 
 /**
- * Pure camera mathematics of the JSXGraph surface view (gate version).
+ * Pure camera projection of the surface view (renderer-free: no JSXGraph, no Three).
  *
- * Mapping of `SurfaceCamera` onto JSXGraph's `view3d` with `projection: 'central'` (JSXGraph 1.14.1):
- *  - Board units are CSS pixels, the board's bounding box is [-W/2, H/2, W/2, -H/2], y up.
- *  - View3d always looks at the centre of its bounding cube, so the cube is centred on `camera.target`.
- *  - View3d's camera distance is `diag(bbox) * r`, so `r = distance / diag(bbox)`.
- *  - View3d's azimuth is `PI - az` (its y axis is mirrored against the Three convention), elevation is `el`.
- *  - View3d maps NDC +-1 to +-size/0.8 board units, so the view size is 0.4 * [W, H] and `fov` is `FOV_DEG`,
- *    which makes the vertical field of view exactly the camera's.
- * `projectToBoard` reproduces `view3d.project3DTo2D` for that setup; the test compares both.
+ * `SurfaceCamera` has fixed semantics: perspective, z up, `az`/`el` in radians, `distance` from `target`, and a
+ * vertical field of view of `FOV_DEG`; the eye is `cameraPosition(az, el, distance, target)`. `makeCameraModel`
+ * turns a camera and a viewport (CSS pixels) into a model, and `projectToScreen` maps a world point to
+ *  - screen x/y in CSS pixels from the host's top-left corner, y down,
+ *  - NDC x/y in [-1, 1] (y up), the same convention as a Three `PerspectiveCamera` with aspect `width / height`,
+ *  - view depth, the distance along the view axis from the eye; larger is farther away.
+ * It is the single projection used for drawing, depth order, picking and labels. The horizontal field of view
+ * follows from the aspect ratio: one world unit spans the same number of pixels horizontally and vertically.
+ * `pinholeOracle.test-helper.ts` is an independent implementation that the tests compare this module against.
  */
 
 export interface JsxViewport {
@@ -24,15 +25,20 @@ export interface JsxCameraModel {
     distance: number;
     right: Xyz;
     up: Xyz;
-    /** Unit vector from the target towards the camera. */
+    /** Unit vector from the target towards the eye. */
     back: Xyz;
     /** 1 / tan(fov / 2). */
     focal: number;
-    halfWidth: number;
-    halfHeight: number;
-    /** View3d azimuth and elevation matching this camera. */
-    jsxAz: number;
-    jsxEl: number;
+    width: number;
+    height: number;
+}
+
+export interface ScreenPoint {
+    x: number;
+    y: number;
+    ndcX: number;
+    ndcY: number;
+    depth: number;
 }
 
 export function makeCameraModel(camera: SurfaceCamera, viewport: JsxViewport): JsxCameraModel {
@@ -45,36 +51,23 @@ export function makeCameraModel(camera: SurfaceCamera, viewport: JsxViewport): J
         up: [-se * sa, se * ca, ce],
         back: [ce * sa, -ce * ca, se],
         focal: 1 / Math.tan((FOV_DEG * Math.PI) / 360),
-        halfWidth: viewport.width / 2,
-        halfHeight: viewport.height / 2,
-        jsxAz: Math.PI - az,
-        jsxEl: el,
+        width: viewport.width,
+        height: viewport.height,
     };
 }
 
-/** Distance along the view axis from the camera to `p`; larger is farther away. */
-export function viewDepth(m: JsxCameraModel, x: number, y: number, z: number): number {
-    const dx = x - m.target[0], dy = y - m.target[1], dz = z - m.target[2];
-    return m.distance - (m.back[0] * dx + m.back[1] * dy + m.back[2] * dz);
-}
+export const newScreenPoint = (): ScreenPoint => ({x: 0, y: 0, ndcX: 0, ndcY: 0, depth: 0});
 
-/** Board coordinates (y up, origin at the view centre) of a world point. */
-export function projectToBoard(m: JsxCameraModel, x: number, y: number, z: number): [number, number] {
+/** Screen position, NDC and view depth of a world point; writes into `out` so frame loops allocate nothing. */
+export function projectToScreen(m: JsxCameraModel, x: number, y: number, z: number, out: ScreenPoint = newScreenPoint()): ScreenPoint {
     const dx = x - m.target[0], dy = y - m.target[1], dz = z - m.target[2];
     const w = m.distance - (m.back[0] * dx + m.back[1] * dy + m.back[2] * dz);
     const k = m.focal / w;
-    return [
-        (m.right[0] * dx + m.right[1] * dy + m.right[2] * dz) * k * m.halfWidth,
-        (m.up[0] * dx + m.up[1] * dy + m.up[2] * dz) * k * m.halfHeight,
-    ];
+    const aspect = m.width / m.height;
+    out.depth = w;
+    out.ndcX = (m.right[0] * dx + m.right[1] * dy + m.right[2] * dz) * k / aspect;
+    out.ndcY = (m.up[0] * dx + m.up[1] * dy + m.up[2] * dz) * k;
+    out.x = (out.ndcX + 1) * m.width / 2;
+    out.y = (1 - out.ndcY) * m.height / 2;
+    return out;
 }
-
-/** Half side of the cube that view3d clamps point drags to: it must contain the whole scene and the camera target. */
-export function bboxHalfSide(target: Xyz, min: Xyz, max: Xyz): number {
-    let far = 0;
-    for (let i = 0; i < 3; i++) far = Math.max(far, Math.abs(min[i] - target[i]), Math.abs(max[i] - target[i]));
-    return Math.max(2, far * 1.25);
-}
-
-/** The view3d `r` that puts the camera `distance` away from the cube centre. */
-export const viewRadiusFor = (halfSide: number, distance: number): number => distance / (2 * Math.sqrt(3) * halfSide);

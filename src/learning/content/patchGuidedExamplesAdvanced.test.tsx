@@ -1,13 +1,12 @@
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import * as THREE from 'three';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {installBoardShims} from '../../graphs/base/realGraphTestHarness';
 import {FakeSurfaceView} from '../../graphs/patches/FakeSurfaceView';
 import TensorJoinGraph from '../../graphs/patches/TensorJoinGraph';
 import TensorSubdivisionGraph from '../../graphs/patches/TensorSubdivisionGraph';
 import TriangularPatchGraph from '../../graphs/patches/TriangularPatchGraph';
-import {cameraPosition, FOV_DEG} from '../../graphs/patches/surface-view/surfaceMath';
+import {pinholeProject} from '../../graphs/patches/surface-view/pinholeOracle.test-helper';
 import {LessonSession} from '../runtime/LessonSession';
 import {patchChapterSectionIds} from './patchChapter';
 import {patchGuidedExamplesAdvanced, type PatchAdvancedExampleSectionId} from './patchGuidedExamplesAdvanced';
@@ -32,12 +31,7 @@ const closeVector = (actual: readonly number[], expected: readonly number[]) => 
 };
 function expectPatchInView(scene: FakeSurfaceView['last'], minimumMeshBounds?: {width: number; height: number}): void {
     for (const aspect of [390 / 844, 420 / 260]) {
-        const camera = new THREE.PerspectiveCamera(FOV_DEG, aspect, 0.05, 500);
-        camera.up.set(0, 0, 1);
-        camera.position.set(...cameraPosition(scene.camera.az, scene.camera.el, scene.camera.distance, scene.camera.target));
-        camera.lookAt(...scene.camera.target);
-        camera.updateMatrixWorld(true);
-        camera.updateProjectionMatrix();
+        const viewport = {width: aspect * 1000, height: 1000};
         const coordinates = [
             ...scene.points.map(({xyz}) => xyz),
             ...(scene.mesh?.positions ? Array.from({length: scene.mesh.positions.length / 3}, (_, index) => [
@@ -46,17 +40,17 @@ function expectPatchInView(scene: FakeSurfaceView['last'], minimumMeshBounds?: {
         ];
         expect(coordinates.length).toBeGreaterThan(0);
         for (const xyz of coordinates) {
-            const projected = new THREE.Vector3(...xyz).project(camera);
-            expect(Math.abs(projected.x)).toBeLessThanOrEqual(1);
-            expect(Math.abs(projected.y)).toBeLessThanOrEqual(1);
-            expect(projected.z).toBeGreaterThanOrEqual(-1);
-            expect(projected.z).toBeLessThanOrEqual(1);
+            const projected = pinholeProject(scene.camera, viewport, xyz);
+            expect(Math.abs(projected.ndcX)).toBeLessThanOrEqual(1);
+            expect(Math.abs(projected.ndcY)).toBeLessThanOrEqual(1);
+            expect(projected.ndcZ).toBeGreaterThanOrEqual(-1);
+            expect(projected.ndcZ).toBeLessThanOrEqual(1);
         }
         if (minimumMeshBounds && aspect > 1 && scene.mesh?.positions) {
             const projectedMesh = Array.from({length: scene.mesh.positions.length / 3}, (_, index) =>
-                new THREE.Vector3(scene.mesh!.positions[index * 3], scene.mesh!.positions[index * 3 + 1], scene.mesh!.positions[index * 3 + 2]).project(camera));
-            const width = Math.max(...projectedMesh.map(point => point.x)) - Math.min(...projectedMesh.map(point => point.x));
-            const height = Math.max(...projectedMesh.map(point => point.y)) - Math.min(...projectedMesh.map(point => point.y));
+                pinholeProject(scene.camera, viewport, [scene.mesh!.positions[index * 3], scene.mesh!.positions[index * 3 + 1], scene.mesh!.positions[index * 3 + 2]]));
+            const width = Math.max(...projectedMesh.map(point => point.ndcX)) - Math.min(...projectedMesh.map(point => point.ndcX));
+            const height = Math.max(...projectedMesh.map(point => point.ndcY)) - Math.min(...projectedMesh.map(point => point.ndcY));
             expect(width).toBeGreaterThan(minimumMeshBounds.width);
             expect(height).toBeGreaterThan(minimumMeshBounds.height);
         }

@@ -1,13 +1,12 @@
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import * as THREE from 'three';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {installBoardShims} from '../../graphs/base/realGraphTestHarness';
 import {FakeSurfaceView} from '../../graphs/patches/FakeSurfaceView';
 import TensorDeCasteljauGraph from '../../graphs/patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from '../../graphs/patches/TensorDerivativesGraph';
 import TensorPatchGraph from '../../graphs/patches/TensorPatchGraph';
-import {cameraPosition, FOV_DEG} from '../../graphs/patches/surface-view/surfaceMath';
+import {pinholeProject} from '../../graphs/patches/surface-view/pinholeOracle.test-helper';
 import {LessonSession} from '../runtime/LessonSession';
 import {patchChapterSectionIds} from './patchChapter';
 import {patchGuidedExamplesEvaluation, type PatchEvaluationExampleSectionId} from './patchGuidedExamplesEvaluation';
@@ -32,12 +31,7 @@ const closeVector = (actual: readonly number[], expected: readonly number[]) => 
 };
 function expectPatchInView(scene: FakeSurfaceView['last']): void {
     for (const aspect of [390 / 844, 1440 / 900]) {
-        const camera = new THREE.PerspectiveCamera(FOV_DEG, aspect, 0.05, 500);
-        camera.up.set(0, 0, 1);
-        camera.position.set(...cameraPosition(scene.camera.az, scene.camera.el, scene.camera.distance, scene.camera.target));
-        camera.lookAt(...scene.camera.target);
-        camera.updateMatrixWorld(true);
-        camera.updateProjectionMatrix();
+        const viewport = {width: aspect * 1000, height: 1000};
         const coordinates = [
             ...scene.points.map(({xyz}) => xyz),
             ...(scene.mesh?.positions ? Array.from({length: scene.mesh.positions.length / 3}, (_, index) => [
@@ -46,11 +40,11 @@ function expectPatchInView(scene: FakeSurfaceView['last']): void {
         ];
         expect(coordinates.length).toBeGreaterThan(0);
         for (const xyz of coordinates) {
-            const projected = new THREE.Vector3(...xyz).project(camera);
-            expect(Math.abs(projected.x)).toBeLessThanOrEqual(1);
-            expect(Math.abs(projected.y)).toBeLessThanOrEqual(1);
-            expect(projected.z).toBeGreaterThanOrEqual(-1);
-            expect(projected.z).toBeLessThanOrEqual(1);
+            const projected = pinholeProject(scene.camera, viewport, xyz);
+            expect(Math.abs(projected.ndcX)).toBeLessThanOrEqual(1);
+            expect(Math.abs(projected.ndcY)).toBeLessThanOrEqual(1);
+            expect(projected.ndcZ).toBeGreaterThanOrEqual(-1);
+            expect(projected.ndcZ).toBeLessThanOrEqual(1);
         }
     }
 }

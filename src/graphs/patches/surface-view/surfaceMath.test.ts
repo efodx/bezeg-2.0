@@ -1,5 +1,4 @@
 import {describe, expect, it} from 'vitest';
-import * as THREE from 'three';
 import {
     boundsOf,
     CAMERA_PRESETS,
@@ -17,6 +16,7 @@ import {
     Z_DRAG_MIN_COS_ELEVATION,
     zoom,
 } from './surfaceMath';
+import {pinholeProject} from './pinholeOracle.test-helper';
 import type {SurfaceCamera, Xyz} from './surfaceScene';
 
 const camera: SurfaceCamera = {az: 0.3, el: 0.4, distance: 10, projection: 'perspective', target: [0, 0, 0]};
@@ -60,16 +60,10 @@ describe('surface camera math', () => {
             const pts = netPoints();
             for (const name of ['front', 'top', 'side', 'isometric'] as const) {
                 const cam = fitCameraTo(pts, w / h, {...camera, ...CAMERA_PRESETS[name]});
-                const three = new THREE.PerspectiveCamera(FOV_DEG, w / h, 0.05, 500);
-                three.up.set(0, 0, 1);
-                three.position.set(...cameraPosition(cam.az, cam.el, cam.distance, cam.target));
-                three.lookAt(...cam.target);
-                three.updateMatrixWorld(true);
-                three.updateProjectionMatrix();
                 for (const p of pts) {
-                    const v = new THREE.Vector3(...p).project(three);
-                    expect(Math.abs(v.x), `${name} x`).toBeLessThanOrEqual(1);
-                    expect(Math.abs(v.y), `${name} y`).toBeLessThanOrEqual(1);
+                    const v = pinholeProject(cam, {width: w, height: h}, p);
+                    expect(Math.abs(v.ndcX), `${name} x`).toBeLessThanOrEqual(1);
+                    expect(Math.abs(v.ndcY), `${name} y`).toBeLessThanOrEqual(1);
                 }
             }
         });
@@ -100,14 +94,8 @@ describe('surface camera math', () => {
     it('z-mode drag keeps the point under the cursor through the real projection', () => {
         const heightPx = 500;
         for (const el of [0, 0.55, 1.0]) {
-            const cam = new THREE.PerspectiveCamera(FOV_DEG, 1, 0.05, 500);
-            const [cx, cy, cz] = cameraPosition(0.3, el, 10);
-            cam.position.set(cx, cy, cz);
-            cam.up.set(0, 0, 1);
-            cam.lookAt(0, 0, 0);
-            cam.updateMatrixWorld(true);
-            cam.updateProjectionMatrix();
-            const screenY = (z: number) => -new THREE.Vector3(0, 0, z).project(cam).y * (heightPx / 2);
+            const cam = {az: 0.3, el, distance: 10, target: [0, 0, 0] as Xyz};
+            const screenY = (z: number) => -pinholeProject(cam, {width: heightPx, height: heightPx}, [0, 0, z]).ndcY * (heightPx / 2);
             const dz = zModeDrag([0, 0, 0], -20, 10, heightPx, el)[2];
             // Dragging the cursor 20 px up must move the point 20 px up on screen (small offset from the centre).
             expect(Math.abs(screenY(0) - screenY(dz) - 20)).toBeLessThan(1.5); // perspective foreshortening of the moved point
