@@ -230,16 +230,9 @@ export class JsxSurfaceView implements SurfaceView {
         const cameraChanged = cameraOnly && this.cameraKey(scene.camera) !== this.appliedCameraKey;
         this.scene = scene;
         this.dirty = true;
-        if (cameraOnly && this.container) {
-            // Only the camera moved: reproject and reorder now (no frame of latency), nothing is rebuilt.
-            if (this.raf) {
-                cancelAnimationFrame(this.raf);
-                this.raf = 0;
-            }
-            if (cameraChanged && this.pool && this.pool.tris.length / 3 >= REDUCED_DETAIL_MIN_TRIANGLES) this.beginOrbit();
-            this.flush();
-            return;
-        }
+        // Only the camera moved: the next frame reprojects and reorders, nothing is rebuilt. Drawing inside the input event
+        // instead was measured (03D): it showed no frame sooner and blocked the event task for the whole draw.
+        if (cameraOnly && this.container && cameraChanged && this.pool && this.pool.tris.length / 3 >= REDUCED_DETAIL_MIN_TRIANGLES) this.beginOrbit();
         this.requestRender();
     }
 

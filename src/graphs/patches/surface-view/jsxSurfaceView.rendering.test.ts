@@ -137,21 +137,23 @@ describe('JsxSurfaceView styling', () => {
 });
 
 describe('JsxSurfaceView camera redraw', () => {
-    it('draws a camera-only reconcile in the same call without elements, rebuilds or a frame request', async () => {
+    it('draws camera-only reconciles in the next frame, once, without elements or rebuilds', async () => {
         const raf = vi.spyOn(globalThis, 'requestAnimationFrame');
         const {view} = await mount(makeScene(3));
         raf.mockClear();
         const {frames, createdElements, rebuilds} = view.stats;
         const nodes = internals(view).draw.nodes;
         const before = nodes[0]!.getAttribute('points');
+        view.reconcile(withCamera(makeScene(3), {az: 1.3}));
         view.reconcile(withCamera(makeScene(3), {az: 1.4}));
+        // Drawing inside the input event showed no frame sooner and blocked it (03D measurement): one frame request.
+        expect(view.stats.frames).toBe(frames);
+        expect(raf).toHaveBeenCalledTimes(1);
+        view.flush();
         expect(view.stats.frames).toBe(frames + 1);
         expect(nodes[0]!.getAttribute('points')).not.toBe(before);
         expect(view.stats.createdElements).toBe(createdElements);
         expect(view.stats.rebuilds).toBe(rebuilds);
-        expect(raf).not.toHaveBeenCalled();
-        view.flush();
-        expect(view.stats.frames).toBe(frames + 1);
     });
 
     it('keeps geometry changes coalesced into one frame', async () => {
@@ -192,11 +194,13 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         expect(hidden()).toBe(0);
 
         view.reconcile(withCamera(makeScene(TEAPOT_GRID - 1), {az: 1.0}));
+        view.flush();
         const reduced = view.stats.drawn;
         expect(reduced).toBeLessThan(full * 0.6);
         expect(hidden()).toBeGreaterThan(nTri / 2);
         expect(view.stats.reducedFrames).toBe(1);
         view.reconcile(withCamera(makeScene(TEAPOT_GRID - 1), {az: 1.1}));
+        view.flush();
         expect(view.stats.drawn).toBe(reduced);
         expect(view.stats.frames).toBe(frames + 2);
 
@@ -226,6 +230,7 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         const pieces = (): SVGElement[] => nodes.slice(pieceBase, pieceBase + nPiece) as SVGElement[];
         const start = (internals(view).pool as unknown as {pieceStart: Uint8Array}).pieceStart;
         view.reconcile(orbit);
+        view.flush();
         expect(view.stats.reducedFrames).toBe(1);
 
         const hidden = pieces().map(n => n.getAttribute('display') === 'none');
@@ -255,6 +260,7 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         const {view} = await mount(makeScene(TEAPOT_GRID - 1));
         const hidden = (): number => internals(view).draw.nodes.filter(n => n?.getAttribute('display') === 'none').length;
         view.reconcile(withCamera(makeScene(TEAPOT_GRID - 1), {az: 1.0}));
+        view.flush();
         expect(hidden()).toBeGreaterThan(0);
         internals(view).draw.nodes = [];
         vi.advanceTimersByTime(200);
@@ -267,6 +273,7 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         const {view} = await mount(scene);
         const full = view.stats.drawn;
         view.reconcile(withCamera(scene, {az: 1.0}));
+        view.flush();
         expect(view.stats.drawn).toBeLessThan(full);
         view.reconcile({...scene, revision: 2, points: [{id: 'p0', xyz: [0, 0, 1]}, scene.points[1]]});
         view.flush();
@@ -281,6 +288,7 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         const {view} = await mount(makeScene(16));
         const full = view.stats.drawn;
         view.reconcile(withCamera(makeScene(16), {az: 1.0}));
+        view.flush();
         expect(view.stats.drawn).toBe(full);
         expect(view.stats.reducedFrames).toBe(0);
         const frames = view.stats.frames;
@@ -294,6 +302,7 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         const set = vi.spyOn(globalThis, 'setTimeout');
         const clear = vi.spyOn(globalThis, 'clearTimeout');
         view.reconcile(withCamera(makeScene(TEAPOT_GRID - 1), {az: 1.0}));
+        view.flush();
         const call = set.mock.calls.findIndex(c => c[1] === 150);
         expect(call).toBeGreaterThanOrEqual(0);
         const id = set.mock.results[call].value;
