@@ -36,61 +36,6 @@ export function orderBackToFront(depths: ArrayLike<number>): Uint32Array {
     return order;
 }
 
-/**
- * Puts `nodes[order[0]]`, `nodes[order[1]]`, ... into that DOM order under their common parent with the fewest moves:
- * the nodes on a longest run already in increasing DOM position stay, every other node is moved. Each moved node costs
- * a style recalculation, so this matters while orbiting. Nodes that are missing or have another parent are skipped;
- * other children keep their places, and the placed nodes stay before the child that followed the last of them.
- * Returns the number of moves.
- */
-export function applyDomOrder(nodes: ReadonlyArray<Node | null | undefined>, order: ArrayLike<number>, parent: Node): number {
-    const position = new Map<Node, number>();
-    let p = 0;
-    for (let c = parent.firstChild; c; c = c.nextSibling) position.set(c, p++);
-    const wanted: Node[] = [];
-    const at: number[] = [];
-    let last: Node | null = null, lastAt = -1;
-    for (let k = 0; k < order.length; k++) {
-        const node = nodes[order[k]];
-        const i = node ? position.get(node) : undefined;
-        if (!node || i === undefined) continue;
-        wanted.push(node);
-        at.push(i);
-        if (i > lastAt) {
-            lastAt = i;
-            last = node;
-        }
-    }
-    const n = wanted.length;
-    if (n === 0) return 0;
-    // Longest increasing subsequence of `at` (patience sorting): `tails[l]` ends the best run of length l + 1.
-    const tails: number[] = [], prev = new Int32Array(n).fill(-1);
-    for (let k = 0; k < n; k++) {
-        let lo = 0, hi = tails.length;
-        while (lo < hi) {
-            const mid = (lo + hi) >> 1;
-            if (at[tails[mid]] < at[k]) lo = mid + 1;
-            else hi = mid;
-        }
-        if (lo > 0) prev[k] = tails[lo - 1];
-        tails[lo] = k;
-    }
-    const keep = new Uint8Array(n);
-    for (let k = tails[tails.length - 1]; k >= 0; k = prev[k]) keep[k] = 1;
-    // Back to front, so each moved node goes before its already placed successor.
-    let anchor: Node | null = last!.nextSibling;
-    let moves = 0;
-    for (let k = n - 1; k >= 0; k--) {
-        const node = wanted[k];
-        if (!keep[k]) {
-            parent.insertBefore(node, anchor);
-            moves++;
-        }
-        anchor = node;
-    }
-    return moves;
-}
-
 /** Most pieces one polyline segment is split into; bounds the drawable count when a control net is long. */
 export const MAX_SEGMENT_PIECES = 16;
 

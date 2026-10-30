@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {applyDomOrder, orderBackToFront} from './jsxDepthOrder';
+import {orderBackToFront} from './jsxDepthOrder';
 
 describe('orderBackToFront', () => {
     it('orders a known configuration farthest first with ties by ascending index', () => {
@@ -33,78 +33,5 @@ describe('orderBackToFront', () => {
         const depths = Array.from({length: 5000}, () => rnd() * 40 - 20);
         const expected = depths.map((_, i) => i).sort((a, b) => depths[b] - depths[a] || a - b);
         expect(Array.from(orderBackToFront(depths))).toEqual(expected);
-    });
-});
-
-describe('applyDomOrder', () => {
-    function build(count: number): {parent: HTMLElement; nodes: HTMLElement[]} {
-        const parent = document.createElement('div');
-        const nodes = Array.from({length: count}, (_, i) => {
-            const el = document.createElement('i');
-            el.id = `n${i}`;
-            parent.appendChild(el);
-            return el;
-        });
-        return {parent, nodes};
-    }
-    const ids = (parent: HTMLElement): string[] => Array.from(parent.children).map(c => c.id);
-
-    it('moves nothing when already in order', () => {
-        const {parent, nodes} = build(5);
-        expect(applyDomOrder(nodes, [0, 1, 2, 3, 4], parent)).toBe(0);
-    });
-
-    it('moves only out-of-place nodes', () => {
-        const {parent, nodes} = build(6);
-        const moves = applyDomOrder(nodes, [0, 5, 1, 2, 3, 4], parent);
-        expect(ids(parent)).toEqual(['n0', 'n5', 'n1', 'n2', 'n3', 'n4']);
-        expect(moves).toBe(1);
-    });
-
-    it('reverses fully and skips missing or foreign nodes', () => {
-        const {parent, nodes} = build(4);
-        const foreign = document.createElement('i');
-        const moves = applyDomOrder([...nodes, null, foreign], [3, 4, 2, 5, 1, 0], parent);
-        expect(ids(parent)).toEqual(['n3', 'n2', 'n1', 'n0']);
-        expect(moves).toBe(3);
-    });
-
-    it('moves a rotated order once, not once per node', () => {
-        const {parent, nodes} = build(6);
-        expect(applyDomOrder(nodes, [1, 2, 3, 4, 5, 0], parent)).toBe(1);
-        expect(ids(parent)).toEqual(['n1', 'n2', 'n3', 'n4', 'n5', 'n0']);
-    });
-
-    it('keeps other children in place and the placed nodes before the trailing one', () => {
-        const {parent, nodes} = build(4);
-        const before = document.createElement('i'), after = document.createElement('i');
-        before.id = 'before';
-        after.id = 'after';
-        parent.insertBefore(before, parent.firstChild);
-        parent.appendChild(after);
-        applyDomOrder(nodes, [3, 0, 2, 1], parent);
-        expect(ids(parent)).toEqual(['before', 'n3', 'n0', 'n2', 'n1', 'after']);
-    });
-
-    it('reaches any order with the fewest moves (count minus longest increasing run)', () => {
-        let seed = 7;
-        const random = (): number => (seed = (seed * 16807) % 2147483647) / 2147483647;
-        const lisLength = (xs: number[]): number => {
-            const best = xs.map(() => 1);
-            for (let i = 0; i < xs.length; i++) for (let j = 0; j < i; j++) if (xs[j] < xs[i]) best[i] = Math.max(best[i], best[j] + 1);
-            return Math.max(0, ...best);
-        };
-        for (let trial = 0; trial < 50; trial++) {
-            const count = 1 + Math.floor(random() * 40);
-            const {parent, nodes} = build(count);
-            const order = nodes.map((_, i) => i);
-            for (let i = count - 1; i > 0; i--) {
-                const j = Math.floor(random() * (i + 1));
-                [order[i], order[j]] = [order[j], order[i]];
-            }
-            const moves = applyDomOrder(nodes, order, parent);
-            expect(ids(parent)).toEqual(order.map(i => `n${i}`));
-            expect(moves).toBe(count - lisLength(order));
-        }
     });
 });
