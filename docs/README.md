@@ -16,6 +16,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 
 ## Direction and work queue
 
+- [JSXGraph surface view](tasks/jsxgraph-surface-view/README.md): complete. Patch views drawn with JSXGraph instead of Three.js ([spec](specs/jsxgraph-surface-view.md), [acceptance record](reviews/jsxgraph-surface-view/switch-over.md)).
 - [Bézier patches](tasks/bezier-patches/README.md): new *Bézierjeve krpe* family (tensor-product and triangular). Four planned foundation tasks (JSXGraph upgrade, renderer spike/ADR, shared curve kernels, 3D points) from the [spec](specs/bezier-patches.md); implementation unstarted.
 - [Future plan](future-plan.md), [product direction](product-direction.md) and [roadmap](roadmap.md): agreed direction and sequencing. Historical briefs within these documents do not reopen completed work.
 - [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled statuses, concrete gaps, proposals and recommended priorities. Recommendations do not authorize all listed work.

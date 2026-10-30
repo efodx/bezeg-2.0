@@ -105,7 +105,7 @@ The chapter is prerequisite-linked to Bézier curves and is placed after the cur
 
 ## Rendering and interaction contract
 
-- **Renderer:** [ADR0018](../adr/0018-three-surface-view-adapter.md) selects lazy-loaded Three isolated to this family, behind a surface-view adapter (`attach`, `reconcile(scene)`, `onEdit`, `dispose`). JSXGraph remains for existing curve graphs and the independently owned parameter board. Geometry, lessons and React never touch renderer objects. SVG surface geometry is raster with vector labels; the export tradeoff and production budgets are explicit in the ADR.
+- **Renderer:** [ADR 0018](../adr/0018-three-surface-view-adapter.md) defines the surface-view adapter (`attach`, `reconcile(scene)`, `onEdit`, `dispose`); [ADR 0019](../adr/0019-jsxgraph-surface-view.md) draws it with JSXGraph, the renderer of the curve graphs and the independently owned parameter board (it replaced the first Three.js view on 2026-10-30). Geometry, lessons and React never touch renderer objects. Figure SVG export embeds the captured view as a raster with vector labels; the accepted performance tradeoffs are in ADR 0019.
 - **View:** the control net, its points and the patch are visible, with optional shaded faces, iso-curve grid, boundary curves, normals and tangent plane. Lines and faces must be depth-ordered correctly enough that the net does not visibly overlap the wrong side of the patch at preset views.
 - **Camera:**
   - orbit by dragging empty space;

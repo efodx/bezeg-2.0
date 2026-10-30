@@ -40,7 +40,7 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Parameterization | `/param/param/alphaparam2` | Spline α parameterization |
 | Parameterization | `/param/param/alphaparam` | Weighted parameterization |
 | Parameterization | `/param/param/uniform` | Uniform / weighted PH parameterization |
-| Patches | `/patches/tensor` | Tensor-product Bézier patch (`TensorPatchGraph`), a WebGL surface workspace; see [Tensor patch workspace](#tensor-patch-workspace) |
+| Patches | `/patches/tensor` | Tensor-product Bézier patch (`TensorPatchGraph`), an SVG surface workspace drawn with JSXGraph; see [Tensor patch workspace](#tensor-patch-workspace) |
 | Patches | `/patches/triangular` | Triangular Bézier patch (`TriangularPatchGraph`) on the same surface view; see [Triangular patch workspace](#triangular-patch-workspace) |
 | Patches | `/patches/decasteljau` | De Casteljau construction on a tensor patch (`TensorDeCasteljauGraph`); see [Patch constructions and derivatives](#patch-constructions-and-derivatives) |
 | Patches | `/patches/derivatives` | Partial derivatives, twist, tangent plane and normal of a tensor patch (`TensorDerivativesGraph`); see [Patch constructions and derivatives](#patch-constructions-and-derivatives) |
@@ -73,15 +73,15 @@ The [concept-led preview revision](specs/concept-led-demonstration-previews.md) 
 
 ## Tensor patch workspace
 
-`/patches/tensor` (`TensorPatchGraph`, built on `BaseSurfaceGraph`) edits a tensor-product Bézier patch with degrees 1–4 per direction in a Three.js view instead of a JSXGraph board ([ADR 0018](adr/0018-three-surface-view-adapter.md), [spec](specs/bezier-patches.md)).
+`/patches/tensor` (`TensorPatchGraph`, built on `BaseSurfaceGraph`) edits a tensor-product Bézier patch with degrees 1–4 per direction in a JSXGraph surface view behind the surface-view adapter ([ADR 0019](adr/0019-jsxgraph-surface-view.md), [spec](specs/bezier-patches.md)).
 
-- **View**: switches for the control net, iso-parameter curves, boundary curves and the shaded surface, with iso and shading density controls. Camera azimuth/elevation fields, Top/Front/Side/Isometric presets and a reset that refits the authored view. Wheel and pinch zoom.
-- **Editing**: drag a control point in the horizontal plane at its height; with the height switch on or Shift held, the drag moves z. Selected point x, y, z are also typed (finite values only) and the point is chosen by index `i`, `j`. A second pointer during a point drag ends it (the point keeps its dragged position) and starts a pinch. In z mode a vertical screen motion moves the point by the camera's world-per-pixel scale divided by cos(elevation), clamped to at most 2× the side-view scale above 60° elevation.
+- **View**: switches for the control net, iso-parameter curves, boundary curves and the shaded surface, with iso and shading density controls. Camera azimuth/elevation fields, Top/Front/Side/Isometric presets and a reset that refits the authored view. Wheel and two-finger pinch zoom; dragging empty space orbits.
+- **Editing**: drag a control point in the horizontal plane at its height; with the height switch on or Shift held, the drag moves only z along the vertical line through the point (JSXGraph's own drag). A drag stops at the faces of a cube around the camera target (half side `max(2, 1.25 ×` the farthest scene extent)). Touch picks the nearest point within JSXGraph's 30 px tolerance, so on a dense net a neighbour can be grabbed; the numeric editor is the exact path. Selected point x, y, z are also typed (finite values only) and the point is chosen by index `i`, `j`.
 - **Evaluation**: parameters `u`, `v` by sliders (keyboard-operable) or inside a parameter-domain inset board (`createAuxiliaryBoard`); the surface point and its Bernstein terms are shown.
 - **Degree**: elevate or lower each direction separately (1–4). Elevation is exact; lowering interpolates each row at `k/degree` and keeps corners, so it reproduces the surface only when the surface already has that degree.
 - **Presets**: bilinear saddle and bicubic dome defaults; a Preset stores the net and the camera, and opening it restores both. Import rejects invalid `graphState`.
-- **Labels and export**: MathJax labels are an HTML overlay positioned from the projected, occlusion-tested anchors. SVG export embeds the rendered image plus vector labels; PNG and the Preset batch (`slike.zip`) use the same still source.
-- **Failure**: if WebGL is unavailable or the context is lost, the `surface_unavailable` alert is shown (the same notice for startup failure and context loss; restoring the context clears it).
+- **Labels and export**: MathJax labels are an HTML overlay positioned from the projected, occlusion-tested anchors; control points do not hide labels. SVG export embeds the captured image of the view plus vector labels; PNG and the Preset batch (`slike.zip`) use the same still source, with no tainted canvas.
+- **Failure**: if the view cannot start, the `surface_unavailable` alert asks the reader to reload the page.
 
 ## Triangular patch workspace
 

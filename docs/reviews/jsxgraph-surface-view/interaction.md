@@ -25,6 +25,7 @@ the "JSX surface view" blocks in `TensorPatchEditing.test.tsx` and `TriangularPa
   one. Defect found and fixed: the first `down` started the drag (and selection) of the wrong point, and the moved point was never
   committed. `JsxInteraction` now follows the point JSXGraph chose (`board.touches[].obj`) in a microtask after the press.
   The point grabbed can still be a neighbour of the one under the finger; that is JSXGraph's tolerance, not changed here.
+- Pinch zoom was missing from this task: the JSX view had no two-pointer handling. Task 07C restored it (`31a9d06`, [record](switch-over.md#pinch-regression-fixed)).
 
 ## Keyboard (host focused)
 
