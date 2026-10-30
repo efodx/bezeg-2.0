@@ -89,6 +89,10 @@ The lesson overlay uses the warm panel, ink, secondary ink, rule and forest acti
 - Keep geometry and graph colors independent from this shell palette.
 - Do not introduce marketing claims, replacement artwork, typography changes, dark mode, or new carousel behavior through this document.
 
+## Learning map and chapter wayfinding
+
+`/learn` is a numbered path grouped into strand headings with a hairline rule. Topic rows use `number-rule`/`number-ink` circular markers joined by a 1px `number-rule` line; the starting topic uses the `ochre` marker. Rows carry a small `preview-panel` thumbnail with a `media-rule` border, a Georgia heading link, `ink-secondary` purpose text, a quiet `panel` read action with a `control-rule` border, and a native contents disclosure with an ochre CSS chevron. Keep filled `action` treatment for the single start action. Chapter readers show a breadcrumb with the chapter position, previous/next chapter beneath the desktop contents, and a sticky narrow contents bar with the section position. See [the redesign spec](docs/specs/learn-navigation-redesign.md).
+
 ## Guided lesson reading panel
 
 The expanded graph overlay uses the shell's opaque `panel`, `ink`, `ink-secondary`, `rule`, `action` and `focus` roles. Its desktop width is bounded to a reading measure and inset from the graph edge. A smaller lesson title and quiet utility actions identify the session; the larger current-frame heading leads the explanation. Frame type accompanies step/frame progress in the footer. On wide screens navigation shares that footer row; narrow layouts stack it. Keep 44px action targets and bounded internal prose/formula scrolling, including enlarged text. The minimized graph tab and lesson interaction remain unchanged. See [the refinement spec](docs/specs/lesson-panel-visual-refinement.md).
