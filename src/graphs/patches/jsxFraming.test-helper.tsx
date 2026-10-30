@@ -9,6 +9,7 @@ import type {DemonstrationId} from '../../demonstrations';
 import {defaultPatchPresets, defaultTriangularPatchPresets, derivativesStartingPatches, joinStartingScenes, type DefaultPatchPreset} from './patchPresetCollections';
 import type {PatchCollectionPresetData} from './patchDto';
 import {JsxSurfaceView} from './surface-view/jsxSurfaceView';
+import {letBoardTimersFire} from './surface-view/jsxLifecycleProbe.test-helper';
 import type {SurfaceScene, Xyz} from './surface-view/surfaceScene';
 import type {CameraPresetName} from './surface-view/surfaceMath';
 
@@ -141,6 +142,7 @@ export async function measureJsx(scene: SurfaceScene, viewport: FramingViewport)
     } finally {
         view.dispose();
         host.remove();
+        await letBoardTimersFire();
     }
 }
 

@@ -5,7 +5,7 @@
 import {afterAll, beforeAll, describe, expect, it} from 'vitest';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {collectFramingCases, measureJsx, NARROW, type FramingCase} from './jsxFraming.test-helper';
-import {expectJsxFramingMatchesOracle, framingHalf} from './jsxFramingOracle.test-helper';
+import {expectJsxFramingMatchesOracle} from './jsxFramingOracle.test-helper';
 
 let cases: FramingCase[] = [];
 
@@ -27,7 +27,7 @@ describe('JSXGraph surface view framing on the patch routes', () => {
     });
 
     it('draws every vertex and point where the oracle puts it', async () => {
-        await expectJsxFramingMatchesOracle(framingHalf(cases, 0));
+        await expectJsxFramingMatchesOracle(cases);
     }, 300_000);
 
     it('shows every control point of the tensor and triangular default views inside a 390x844 host', async () => {

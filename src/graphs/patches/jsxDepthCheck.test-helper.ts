@@ -6,6 +6,7 @@
  */
 import {pinholeProject} from './surface-view/pinholeOracle.test-helper';
 import {JsxSurfaceView} from './surface-view/jsxSurfaceView';
+import {letBoardTimersFire} from './surface-view/jsxLifecycleProbe.test-helper';
 import type {PolylineRole, SurfaceScene, Xyz} from './surface-view/surfaceScene';
 import type {FramingViewport} from './jsxFraming.test-helper';
 
@@ -145,5 +146,6 @@ export async function checkDepthOrder(
     } finally {
         view.dispose();
         host.remove();
+        await letBoardTimersFire();
     }
 }

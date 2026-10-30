@@ -309,6 +309,8 @@ export class JsxSurfaceView implements SurfaceView {
 
     /** Draws now if anything changed. Tests call it directly; the browser path is the coalesced animation frame. */
     flush(): void {
+        // A direct call (tests, capture) leaves the queued frame behind: cancel it so it cannot outlive dispose.
+        if (this.raf) cancelAnimationFrame(this.raf);
         this.raf = 0;
         if (this.disposed || !this.container || !this.scene || !this.dirty) return;
         this.dirty = false;
