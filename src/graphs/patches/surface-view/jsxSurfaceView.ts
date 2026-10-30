@@ -1,8 +1,12 @@
 import {JSXGraph} from 'jsxgraph';
 import {applyDomOrder, orderBackToFront} from './jsxDepthOrder';
+import {JsxInteraction} from './jsxInteraction';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
+import {RENDERED_OWNERS_ATTRIBUTE, renderedOwnerEvidence} from './jsxMeshOwners';
+import {cssColor, DrawableStyle, markerColor, MESH_SEAM_WIDTH, MESH_STYLE, PLANE_STYLE, polylineStyle} from './jsxStyles';
 import {bboxHalfSide, view3dAngles, view3dFrame, viewRadiusFor} from './jsxView3dMapping';
-import {FOV_DEG, fitCameraTo, orbit, zoom} from './surfaceMath';
+import {FOV_DEG, fitCameraTo} from './surfaceMath';
+import {SURFACE_COLORS} from './surfaceStyles';
 import {
     assertFiniteScene, AttachOptions, LabelLayout, PolylineRole, SurfaceCamera, SurfaceCapture, SurfaceEdit,
     SurfaceScene, SurfaceView, Xyz,
@@ -30,7 +34,7 @@ interface JxgElement {
     on: (event: string, handler: () => void) => void;
 }
 interface JxgPoint3D {
-    element2D: JxgElement & {coords: {usrCoords: number[]}};
+    element2D: JxgElement & {coords: {usrCoords: number[]}; setAttribute: (attributes: object) => void};
     X: () => number;
     Y: () => number;
     Z: () => number;
@@ -44,12 +48,14 @@ interface JxgView3D {
     el_slide: {setValue: (v: number) => void};
     create: (type: string, parents: unknown[], attributes: object) => unknown;
     project3DTo2D: (x: number, y: number, z: number) => number[];
+    isVerticalDrag: () => boolean;
 }
 interface JxgBoard {
     create: (type: string, parents: unknown[], attributes: object) => unknown;
     update: () => void;
     suspendUpdate: () => void;
     unsuspendUpdate: () => void;
+    removeObject: (element: unknown) => void;
     resizeContainer: (w: number, h: number, dontSet?: boolean, dontSetCss?: boolean, dontSetBoundingBox?: boolean) => void;
     setBoundingBox: (bbox: number[], keepAspect?: boolean) => void;
     on: (event: string, handler: () => void) => void;
@@ -58,31 +64,21 @@ interface JxgBoard {
     _change3DView?: boolean;
 }
 
+/** Control point fill: the Three view's palette, so a selection reads the same in both views. */
+const pointColor = (selected: boolean | undefined): string => cssColor(selected ? SURFACE_COLORS.selected : SURFACE_COLORS.point);
+
 const LAYER = 12;
 const DEFAULT_WIDTH = 640;
 const DEFAULT_HEIGHT = 480;
-const KEY_STEP_PX = 0.1 / 0.008;
-const ORBIT_START_PX = 3;
 
-type Style = {stroke: string; width: number; fill?: string; fillOpacity?: number};
-const MESH_STYLE: Style = {stroke: '#efe6b8', width: 0.6, fill: '#efe6b8', fillOpacity: 1};
-const PLANE_STYLE: Style = {stroke: '#5b8fc7', width: 1, fill: '#5b8fc7', fillOpacity: 0.3};
-const LINE_STYLES: Record<PolylineRole, Style> = {
-    net: {stroke: '#3b6ea5', width: 1.2},
-    'net-2': {stroke: '#a5663b', width: 1.2},
-    iso: {stroke: '#7a6a2c', width: 0.9},
-    'iso-v': {stroke: '#2c7a5e', width: 0.9},
-    'iso-w': {stroke: '#7a2c6b', width: 0.9},
-    boundary: {stroke: '#222222', width: 1.6},
-    construction: {stroke: '#2e9e48', width: 1.2},
-    'construction-2': {stroke: '#8a56c8', width: 1.2},
-    highlight: {stroke: '#d6362b', width: 2.4},
-    compare: {stroke: '#999999', width: 1},
-    'vector-u': {stroke: '#d6362b', width: 2},
-    'vector-v': {stroke: '#2b7bd6', width: 2},
-    twist: {stroke: '#d68a2b', width: 2},
-    normal: {stroke: '#444444', width: 2},
-};
+type Style = DrawableStyle;
+
+/** Meshes with at least this many triangles (the 32-patch teapot at tiling 8 has 4096) orbit at reduced detail. */
+const REDUCED_DETAIL_MIN_TRIANGLES = 1500;
+/** While orbiting such a mesh, only every third triangle is drawn, the kept ones with a stroke that covers the gaps. */
+const REDUCED_TRIANGLE_STRIDE = 3;
+/** The camera counts as settled this long after the last camera-only change. */
+const ORBIT_SETTLE_MS = 150;
 
 /** Everything a scene turns into; coordinates live in one vertex pool so each vertex is projected once per frame. */
 interface Pool {
@@ -126,6 +122,10 @@ export class JsxSurfaceView implements SurfaceView {
     private pool: Pool | null = null;
     private scene: SurfaceScene | null = null;
     private appliedKey = '';
+    /** `pointSignature` of the scene the current board was built for. */
+    private pointSig = '';
+    /** Selection state each control point is currently styled with. */
+    private readonly pointSelected = new Map<string, boolean>();
     private width = DEFAULT_WIDTH;
     private height = DEFAULT_HEIGHT;
     private appliedWidth = 0;
@@ -133,14 +133,20 @@ export class JsxSurfaceView implements SurfaceView {
     private dirty = false;
     private raf = 0;
     private disposed = false;
+    /** What the last flush drew: the scene, its camera, and whether it was a reduced-detail orbit frame. */
+    private appliedScene: SurfaceScene | null = null;
+    private appliedCameraKey = '';
+    private orbiting = false;
+    private settleTimer: ReturnType<typeof setTimeout> | null = null;
+    /** Detail state the triangle nodes carry; null after the node list was re-collected, so the next frame reapplies it. */
+    private detailReduced: boolean | null = false;
+    /** `draw.nodes` with the hidden triangles of a reduced frame left out (null); equals `draw.nodes` at full detail. */
+    private orderNodes: (SVGElement | null | undefined)[] = [];
     private observer: ResizeObserver | null = null;
-    private readonly cleanups: Array<() => void> = [];
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
     private layoutDelivered = false;
-    private orbitDrag: {id: number; x: number; y: number; moved: boolean} | null = null;
-    private dragPointId: string | null = null;
-    private lastDragXyz: Xyz | null = null;
+    private interaction: JsxInteraction | null = null;
     /** Sorted draw list scratch, reused between frames. */
     private depths = new Float64Array(0);
     private vertexDepth = new Float64Array(0);
@@ -148,7 +154,7 @@ export class JsxSurfaceView implements SurfaceView {
     private sy = new Float64Array(0);
     private readonly projected = newScreenPoint();
     /** Counters read by tests and the measurement harness. */
-    readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0};
+    readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0, drawn: 0, reducedFrames: 0, drawableRebuilds: 0};
 
     // ---- SurfaceView ---------------------------------------------------------------------------------------------
 
@@ -172,12 +178,10 @@ export class JsxSurfaceView implements SurfaceView {
         this.applyAria();
 
         this.measure();
-        this.listen(container, 'pointerdown', (e: PointerEvent) => this.onPointerDown(e));
-        this.listen(container, 'pointermove', (e: PointerEvent) => this.onPointerMove(e));
-        this.listen(container, 'pointerup', (e: PointerEvent) => this.onPointerEnd(e));
-        this.listen(container, 'pointercancel', (e: PointerEvent) => this.onPointerEnd(e));
-        this.listen(container, 'wheel', (e: WheelEvent) => this.onWheel(e), {passive: false});
-        this.listen(host, 'keydown', (e: KeyboardEvent) => this.onKey(e));
+        this.interaction = new JsxInteraction({
+            container, keyTarget: host, scene: () => this.scene, pressedObjects: () => this.board?.downObjects ?? [],
+            emit: edit => this.emit(edit), isDisposed: () => this.disposed,
+        });
         if (typeof ResizeObserver !== 'undefined') {
             this.observer = new ResizeObserver(() => {
                 this.measure();
@@ -192,8 +196,20 @@ export class JsxSurfaceView implements SurfaceView {
     reconcile(scene: SurfaceScene): void {
         if (this.disposed) return;
         assertFiniteScene(scene);
+        const cameraOnly = this.isCameraOnly(scene);
+        const cameraChanged = cameraOnly && this.cameraKey(scene.camera) !== this.appliedCameraKey;
         this.scene = scene;
         this.dirty = true;
+        if (cameraOnly && this.container) {
+            // Only the camera moved: reproject and reorder now (no frame of latency), nothing is rebuilt.
+            if (this.raf) {
+                cancelAnimationFrame(this.raf);
+                this.raf = 0;
+            }
+            if (cameraChanged && this.pool && this.pool.tris.length / 3 >= REDUCED_DETAIL_MIN_TRIANGLES) this.beginOrbit();
+            this.flush();
+            return;
+        }
         this.requestRender();
     }
 
@@ -228,13 +244,16 @@ export class JsxSurfaceView implements SurfaceView {
         this.disposed = true;
         this.layoutListeners.clear();
         this.editListeners.clear();
-        for (const fn of this.cleanups.splice(0)) fn();
+        this.interaction?.dispose();
+        this.interaction = null;
         this.observer?.disconnect();
         this.observer = null;
         if (this.raf) {
             cancelAnimationFrame(this.raf);
             this.raf = 0;
         }
+        this.clearSettleTimer();
+        this.host?.removeAttribute(RENDERED_OWNERS_ATTRIBUTE);
         this.destroyBoard();
         this.container?.remove();
         this.container = null;
@@ -248,6 +267,7 @@ export class JsxSurfaceView implements SurfaceView {
         this.descriptionEl = null;
         this.host = null;
         this.scene = null;
+        this.appliedScene = null;
         this.pool = null;
     }
 
@@ -260,18 +280,74 @@ export class JsxSurfaceView implements SurfaceView {
         this.dirty = false;
         const scene = this.scene;
         const geometryKey = this.geometryKey(scene);
-        if (!this.board || this.pool?.signature !== this.topologySignature(scene)) {
+        let cameraOnly = false;
+        if (!this.board || this.pointSig !== this.pointSignature(scene)) {
             this.rebuild(scene);
+        } else if (this.pool?.signature !== this.topologySignature(scene)) {
+            this.rebuildDrawables(scene);
         } else if (geometryKey !== this.appliedKey) {
             this.updateGeometry(scene);
+        } else {
+            cameraOnly = true;
         }
+        // Reduced detail only ever serves a camera-only orbit frame; any other frame is drawn in full.
+        if (!cameraOnly) this.endOrbit();
+        const reduced = cameraOnly && this.orbiting;
         this.appliedKey = geometryKey;
-        this.renderFrame(scene.camera);
+        this.appliedScene = scene;
+        this.appliedCameraKey = this.cameraKey(scene.camera);
+        if (!cameraOnly) this.publishOwners(scene);
+        this.renderFrame(scene.camera, reduced);
         this.stats.frames++;
+        if (reduced) this.stats.reducedFrames++;
         if (!this.layoutDelivered) {
             this.layoutDelivered = true;
             for (const l of [...this.layoutListeners]) l([]);
         }
+    }
+
+    private cameraKey(c: SurfaceCamera): string {
+        return `${c.az},${c.el},${c.distance},${c.target.join(',')}`;
+    }
+
+    /** True when `scene` differs from the last drawn one at most in its camera (and nothing is pending but a redraw). */
+    private isCameraOnly(scene: SurfaceScene): boolean {
+        const prev = this.appliedScene;
+        if (!this.board || !this.pool || !prev) return false;
+        if (prev.revision === scene.revision && prev.points === scene.points && prev.markers === scene.markers
+            && prev.polylines === scene.polylines && prev.mesh === scene.mesh && prev.planes === scene.planes
+            && prev.interaction.editable === scene.interaction.editable) return true;
+        return this.pool.signature === this.topologySignature(scene) && this.appliedKey === this.geometryKey(scene);
+    }
+
+    private beginOrbit(): void {
+        this.orbiting = true;
+        this.clearSettleTimer();
+        this.settleTimer = setTimeout(() => {
+            this.settleTimer = null;
+            if (this.disposed) return;
+            this.orbiting = false;
+            this.dirty = true;
+            this.flush();
+        }, ORBIT_SETTLE_MS);
+    }
+
+    private endOrbit(): void {
+        this.orbiting = false;
+        this.clearSettleTimer();
+    }
+
+    private clearSettleTimer(): void {
+        if (this.settleTimer !== null) clearTimeout(this.settleTimer);
+        this.settleTimer = null;
+    }
+
+    private publishOwners(scene: SurfaceScene): void {
+        const host = this.host;
+        if (!host) return;
+        const owners = scene.mesh?.visible && scene.meshOwners?.length ? renderedOwnerEvidence(scene.mesh, scene.meshOwners) : [];
+        if (owners.length === 0) host.removeAttribute(RENDERED_OWNERS_ATTRIBUTE);
+        else host.setAttribute(RENDERED_OWNERS_ATTRIBUTE, JSON.stringify(owners));
     }
 
     private requestRender(): void {
@@ -284,6 +360,11 @@ export class JsxSurfaceView implements SurfaceView {
             + '|' + scene.markers.map(m => `${m.id}${m.xyz.join(',')}`).join(';')
             + '|' + (scene.planes ?? []).map(p => p.corners.flat().join(',')).join(';');
         return `${scene.revision}|${scene.interaction.editable ? 1 : 0}|${dyn}`;
+    }
+
+    /** What the persistent `point3d` elements (control points, markers) depend on; a change needs a new board. */
+    private pointSignature(scene: SurfaceScene): string {
+        return [scene.markers.map(m => `${m.id}:${m.role}`).join(','), scene.points.map(p => p.id).join(','), scene.interaction.editable ? 'e' : 'r'].join('|');
     }
 
     private topologySignature(scene: SurfaceScene): string {
@@ -335,6 +416,8 @@ export class JsxSurfaceView implements SurfaceView {
             xPlaneRear: {visible: false}, yPlaneRear: {visible: false}, zPlaneRear: {visible: false},
             xPlaneFront: {visible: false}, yPlaneFront: {visible: false}, zPlaneFront: {visible: false},
             trackball: {enabled: false}, depthOrder: {enabled: false},
+            // Shift drags a control point along z; JsxInteraction.bindView adds the scene's z-mode switch (touch has no Shift).
+            verticalDrag: {enabled: true, key: 'shift'},
             az: {pointer: {enabled: false}, keyboard: {enabled: false}, slider: {visible: false, min: 0, max: 2 * Math.PI, start: 0}},
             el: {pointer: {enabled: false}, keyboard: {enabled: false}, slider: {visible: false, min: -Math.PI / 2, max: Math.PI / 2, start: 0}},
             bank: {pointer: {enabled: false}, keyboard: {enabled: false}, slider: {visible: false, min: -Math.PI, max: Math.PI, start: 0}},
@@ -342,36 +425,91 @@ export class JsxSurfaceView implements SurfaceView {
         this.view = view;
         this.appliedWidth = w;
         this.appliedHeight = h;
-        board.on('update', () => this.onBoardUpdate());
+        this.interaction?.bindView(view);
+        board.on('update', () => this.interaction?.onBoardUpdate());
     }
 
     private rebuild(scene: SurfaceScene): void {
+        // A press on a point cannot outlive its board: close the gesture with the last place the point had.
+        this.interaction?.endDrag();
         this.destroyBoard();
+        this.pointSelected.clear();
         this.createBoard();
         const board = this.board!, view = this.view!;
         const pool = this.buildPool(scene);
         this.pool = pool;
         const draw: Drawables = {nodes: [], elements: [], markers: [], points: new Map()};
         this.draw = draw;
+        // New nodes are all visible.
+        this.detailReduced = false;
         // Positions first, so the elements are created at their final place; the first frame then only reorders.
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
-        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE));
-        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE));
-        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(LINE_STYLES[pool.segRoles[s / 2]]));
+        this.createDrawables(pool, draw);
         for (const marker of scene.markers) {
-            draw.markers.push(this.makePoint(marker.xyz, marker.role === 'evaluated' ? '#d6362b' : marker.role === 'construction' ? '#2e9e48' : '#8a56c8', 3, true));
+            draw.markers.push(this.makePoint(marker.xyz, markerColor(marker.role), 3, true));
         }
         for (const point of scene.points) {
-            const p3 = this.makePoint(point.xyz, point.selected ? '#d6362b' : '#1d4f91', 4, !scene.interaction.editable);
+            const p3 = this.makePoint(point.xyz, pointColor(point.selected), 4, !scene.interaction.editable);
             draw.points.set(point.id, p3);
-            this.wirePoint(point.id, p3);
+            this.pointSelected.set(point.id, point.selected === true);
+            this.interaction?.wirePoint(point.id, p3, p3.element2D);
         }
         board.unsuspendUpdate();
         this.stats.rebuilds++;
+        this.pointSig = this.pointSignature(scene);
         this.collectNodes();
         this.appliedKey = '';
         view.needsUpdate = true;
+    }
+
+    private createDrawables(pool: Pool, draw: Drawables): void {
+        for (let t = 0; t < pool.tris.length; t += 3) draw.elements.push(this.makeDrawable(MESH_STYLE));
+        for (let q = 0; q < pool.planes.length; q += 4) draw.elements.push(this.makeDrawable(PLANE_STYLE));
+        for (let s = 0; s < pool.segs.length; s += 2) draw.elements.push(this.makeDrawable(polylineStyle(pool.segRoles[s / 2])));
+    }
+
+    /**
+     * Mesh, plane or polyline topology changed but the control points and markers did not (selecting a point adds its
+     * highlighted row and column): swap the 2D curves and keep the board and every `point3d`. A new board would end a
+     * running point drag, because JSXGraph holds the pressed element of the old one.
+     */
+    private rebuildDrawables(scene: SurfaceScene): void {
+        const board = this.board!, view = this.view!, draw = this.draw!;
+        const pool = this.buildPool(scene);
+        this.pool = pool;
+        this.detailReduced = false;
+        this.setCameraOnView(scene.camera, pool);
+        board.suspendUpdate();
+        for (const el of draw.elements) board.removeObject(el);
+        draw.elements = [];
+        this.createDrawables(pool, draw);
+        this.syncPoints(scene);
+        board.unsuspendUpdate();
+        this.stats.drawableRebuilds++;
+        this.collectNodes();
+        this.appliedKey = '';
+        view.needsUpdate = true;
+    }
+
+    /**
+     * Writes the scene's marker and control point places onto the `point3d` elements. The point being dragged is left
+     * where JSXGraph has it: the scene lags the pointer by the edits still in flight, and moving it back would tear the
+     * point away from the pointer (the next `move` edit brings the scene up to it).
+     */
+    private syncPoints(scene: SurfaceScene): void {
+        const draw = this.draw!, dragged = this.interaction?.draggedPointId;
+        scene.markers.forEach((m, i) => draw.markers[i].setPosition(m.xyz));
+        for (const p of scene.points) {
+            const point = draw.points.get(p.id);
+            if (!point) continue;
+            if (p.id !== dragged) point.setPosition(p.xyz);
+            // Selection is a style change on the existing element: it must not touch the point under the pointer.
+            if (this.pointSelected.get(p.id) !== (p.selected === true)) {
+                this.pointSelected.set(p.id, p.selected === true);
+                point.element2D.setAttribute({fillColor: pointColor(p.selected)});
+            }
+        }
     }
 
     private buildPool(scene: SurfaceScene): Pool {
@@ -444,15 +582,14 @@ export class JsxSurfaceView implements SurfaceView {
 
     /** Same topology, new coordinates (a point drag, a moving marker): rewrite the pool and the elements in place. */
     private updateGeometry(scene: SurfaceScene): void {
-        const draw = this.draw!, pool = this.pool!;
+        const pool = this.pool!;
         const fresh = this.buildPool(scene);
         pool.verts = fresh.verts;
         pool.min = fresh.min;
         pool.max = fresh.max;
         pool.lineBias = fresh.lineBias;
         pool.pointBias = fresh.pointBias;
-        scene.markers.forEach((m, i) => draw.markers[i].setPosition(m.xyz));
-        for (const p of scene.points) draw.points.get(p.id)?.setPosition(p.xyz);
+        this.syncPoints(scene);
         if (this.view) this.view.needsUpdate = true;
     }
 
@@ -460,12 +597,14 @@ export class JsxSurfaceView implements SurfaceView {
         const attributes = {
             strokeColor: style.stroke, strokeWidth: style.width, fillColor: style.fill ?? 'none',
             fillOpacity: style.fillOpacity ?? 0, highlight: false, fixed: true, layer: LAYER, visible: true,
-            withLabel: false, dash: 0,
+            withLabel: false, dash: style.dash,
         };
         this.stats.createdElements++;
         // A 2D curve whose path the adapter writes itself; JSXGraph only hosts the SVG node and
         // regenerates it from the cached projection if it ever redraws the curve on its own.
         const curve = this.board!.create('curve', [[0], [0]], attributes) as JxgElement;
+        // Segments of one polyline meet end to end; round caps close the notches between them.
+        if (!style.fill) curve.rendNode?.setAttribute('stroke-linecap', 'round');
         curve.hasPoint = () => false;
         curve.needsRegularUpdate = false;
         const index = this.draw!.elements.length;
@@ -486,33 +625,6 @@ export class JsxSurfaceView implements SurfaceView {
         return p;
     }
 
-    private wirePoint(id: string, p: JxgPoint3D): void {
-        p.element2D.on('down', () => {
-            this.dragPointId = id;
-            this.lastDragXyz = [p.X(), p.Y(), p.Z()];
-            this.emit({kind: 'select', pointId: id});
-            this.emit({kind: 'point', pointId: id, xyz: [...this.lastDragXyz], phase: 'start'});
-        });
-        p.element2D.on('up', () => {
-            if (this.dragPointId !== id) return;
-            this.dragPointId = null;
-            this.emit({kind: 'point', pointId: id, xyz: [p.X(), p.Y(), p.Z()], phase: 'end'});
-            this.lastDragXyz = null;
-        });
-    }
-
-    /** Runs after every board update; while a point is dragged, reports its new place. */
-    private onBoardUpdate(): void {
-        if (this.disposed || !this.dragPointId || !this.draw) return;
-        const p = this.draw.points.get(this.dragPointId);
-        if (!p) return;
-        const xyz: Xyz = [p.X(), p.Y(), p.Z()];
-        const last = this.lastDragXyz;
-        if (last && last[0] === xyz[0] && last[1] === xyz[1] && last[2] === xyz[2]) return;
-        this.lastDragXyz = xyz;
-        this.emit({kind: 'point', pointId: this.dragPointId, xyz: [...xyz], phase: 'move'});
-    }
-
     private collectNodes(): void {
         const draw = this.draw!;
         const nodes: (SVGElement | null | undefined)[] = [];
@@ -520,6 +632,8 @@ export class JsxSurfaceView implements SurfaceView {
         for (const m of draw.markers) nodes.push(m.element2D.rendNode);
         for (const p of this.scene!.points) nodes.push(draw.points.get(p.id)?.element2D.rendNode);
         draw.nodes = nodes;
+        this.orderNodes = nodes;
+        this.detailReduced = null;
     }
 
     /** Last projected screen coordinates of curve `index` as board user coordinates (JSXGraph's own redraw path). */
@@ -572,7 +686,7 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     /** One frame: view3d camera, reprojection, painter's order. */
-    private renderFrame(camera: SurfaceCamera): void {
+    private renderFrame(camera: SurfaceCamera, reduced: boolean): void {
         const board = this.board!, pool = this.pool!, draw = this.draw!, scene = this.scene!;
         if (this.appliedWidth !== this.width || this.appliedHeight !== this.height) this.resizeBoard();
         this.setCameraOnView(camera, pool);
@@ -587,8 +701,44 @@ export class JsxSurfaceView implements SurfaceView {
         }
         if (draw.nodes.length === 0 || draw.nodes.some(n => !n)) this.collectNodes();
         this.projectVertices(model);
+        this.applyDetail(reduced);
         this.writePaths();
         this.sortAndReorder(model, scene);
+    }
+
+    /**
+     * Switches the triangles between full and reduced detail (only the node state is touched, and only on a switch):
+     * reduced hides all but every third triangle and widens the kept ones' outline in the facet colour to about one
+     * projected edge, so the surface stays closed while it orbits.
+     */
+    private applyDetail(reduced: boolean): void {
+        if (reduced === this.detailReduced) return;
+        const pool = this.pool!, nodes = this.draw!.nodes;
+        const nTri = pool.tris.length / 3;
+        let seam = MESH_SEAM_WIDTH;
+        if (reduced) {
+            let edge = 0, n = 0;
+            for (let t = 0; t < nTri; t += REDUCED_TRIANGLE_STRIDE * 8) {
+                const a = pool.tris[3 * t], b = pool.tris[3 * t + 1];
+                edge += Math.hypot(this.sx[a] - this.sx[b], this.sy[a] - this.sy[b]);
+                n++;
+            }
+            seam = Math.min(14, Math.max(MESH_SEAM_WIDTH, n ? edge / n : MESH_SEAM_WIDTH));
+        }
+        for (let t = 0; t < nTri; t++) {
+            const node = nodes[t];
+            if (!node) continue;
+            if (reduced && t % REDUCED_TRIANGLE_STRIDE !== 0) {
+                node.setAttribute('display', 'none');
+            } else {
+                node.removeAttribute('display');
+                node.setAttribute('stroke-width', String(seam));
+                if (reduced) node.setAttribute('stroke-linejoin', 'round');
+                else node.removeAttribute('stroke-linejoin');
+            }
+        }
+        this.orderNodes = reduced ? nodes.map((n, i) => (i < nTri && i % REDUCED_TRIANGLE_STRIDE !== 0 ? null : n)) : nodes;
+        this.detailReduced = reduced;
     }
 
     private projectVertices(model: JsxCameraModel): void {
@@ -613,15 +763,21 @@ export class JsxSurfaceView implements SurfaceView {
         const sx = this.sx, sy = this.sy;
         const f = (v: number): number => Math.round(v * 10) / 10;
         let e = 0;
+        const stride = this.detailReduced ? REDUCED_TRIANGLE_STRIDE : 1;
+        this.stats.drawn = 0;
         for (let t = 0; t < pool.tris.length; t += 3, e++) {
+            if (e % stride !== 0) continue;
+            this.stats.drawn++;
             const a = pool.tris[t], b = pool.tris[t + 1], c = pool.tris[t + 2];
             nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}L${f(sx[c])} ${f(sy[c])}Z`);
         }
         for (let q = 0; q < pool.planes.length; q += 4, e++) {
+            this.stats.drawn++;
             const a = pool.planes[q], b = pool.planes[q + 1], c = pool.planes[q + 2], d = pool.planes[q + 3];
             nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}L${f(sx[c])} ${f(sy[c])}L${f(sx[d])} ${f(sy[d])}Z`);
         }
         for (let s = 0; s < pool.segs.length; s += 2, e++) {
+            this.stats.drawn++;
             const a = pool.segs[s], b = pool.segs[s + 1];
             nodes[e]?.setAttribute('d', `M${f(sx[a])} ${f(sy[a])}L${f(sx[b])} ${f(sy[b])}`);
         }
@@ -644,7 +800,7 @@ export class JsxSurfaceView implements SurfaceView {
         for (const p of scene.points) d[e++] = projectToScreen(model, p.xyz[0], p.xyz[1], p.xyz[2], this.projected).depth - 2 * pool.pointBias;
         const order = orderBackToFront(d);
         const parent = draw.nodes.find(n => n)?.parentNode;
-        if (parent) this.stats.domMoves += applyDomOrder(draw.nodes, order, parent);
+        if (parent) this.stats.domMoves += applyDomOrder(this.orderNodes, order, parent);
     }
 
     // ---- Input ---------------------------------------------------------------------------------------------------
@@ -652,62 +808,6 @@ export class JsxSurfaceView implements SurfaceView {
     private emit(edit: SurfaceEdit): void {
         if (this.disposed) return;
         for (const l of [...this.editListeners]) l(edit);
-    }
-
-    private listen<K extends keyof HTMLElementEventMap>(
-        target: HTMLElement, type: K, handler: (e: HTMLElementEventMap[K]) => void, options?: AddEventListenerOptions,
-    ): void {
-        target.addEventListener(type, handler as EventListener, options);
-        this.cleanups.push(() => target.removeEventListener(type, handler as EventListener, options));
-    }
-
-    private onPointerDown(e: PointerEvent): void {
-        if (this.disposed || !this.scene || this.dragPointId) return;
-        // JSXGraph handled the event first (its listener was registered first): a hit point is now in downObjects.
-        if (this.board && this.board.downObjects.length > 0) return;
-        this.orbitDrag = {id: e.pointerId, x: e.clientX, y: e.clientY, moved: false};
-        this.container?.setPointerCapture?.(e.pointerId);
-    }
-
-    private onPointerMove(e: PointerEvent): void {
-        const d = this.orbitDrag;
-        if (this.disposed || !d || d.id !== e.pointerId || !this.scene || this.dragPointId) return;
-        const dx = e.clientX - d.x, dy = e.clientY - d.y;
-        if (!d.moved && Math.hypot(dx, dy) < ORBIT_START_PX) return;
-        d.moved = true;
-        d.x = e.clientX;
-        d.y = e.clientY;
-        this.emit({kind: 'camera', camera: orbit(this.scene.camera, dx, dy)});
-    }
-
-    private onPointerEnd(e: PointerEvent): void {
-        if (this.orbitDrag?.id === e.pointerId) {
-            this.container?.releasePointerCapture?.(e.pointerId);
-            this.orbitDrag = null;
-        }
-    }
-
-    private onWheel(e: WheelEvent): void {
-        if (this.disposed || !this.scene) return;
-        e.preventDefault();
-        this.emit({kind: 'camera', camera: zoom(this.scene.camera, Math.exp(e.deltaY * 0.001))});
-    }
-
-    private onKey(e: KeyboardEvent): void {
-        if (this.disposed || !this.scene || e.altKey || e.ctrlKey || e.metaKey) return;
-        const cam = this.scene.camera;
-        let next: SurfaceCamera;
-        switch (e.key) {
-            case 'ArrowLeft': next = orbit(cam, KEY_STEP_PX, 0); break;
-            case 'ArrowRight': next = orbit(cam, -KEY_STEP_PX, 0); break;
-            case 'ArrowUp': next = orbit(cam, 0, KEY_STEP_PX); break;
-            case 'ArrowDown': next = orbit(cam, 0, -KEY_STEP_PX); break;
-            case '+': case '=': next = zoom(cam, 0.9); break;
-            case '-': case '_': next = zoom(cam, 1 / 0.9); break;
-            default: return;
-        }
-        e.preventDefault();
-        this.emit({kind: 'camera', camera: next});
     }
 
     private applyAria(): void {
