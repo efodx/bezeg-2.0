@@ -179,14 +179,15 @@ export function measuredNetBounds(scene: SurfaceScene, measurement: JsxMeasureme
 }
 
 /**
- * The scenes of the depth check: tensor, triangular and joins (first Preset) and the teapot capstone, each at the four
+ * The scenes of the depth check: tensor, triangular (cubic) and joins (first Preset) and the teapot capstone, each at the four
  * camera presets on the desktop host, fitted first as a user's "reset view" would.
  */
 export function collectDepthCases(): FramingCase[] {
     const cases: FramingCase[] = [];
     const wanted: Array<{label: string; preset: (name: string, index: number) => boolean}> = [
         {label: 'tensor', preset: (_, i) => i === 0},
-        {label: 'triangular', preset: (_, i) => i === 0},
+        // The cubic preset: the linear patch's net lies in its surface, so a depth check on it has nothing to decide.
+        {label: 'triangular', preset: (_, i) => i === 2},
         {label: 'joins', preset: (name, i) => i === 0 || name === 'join-teapot'},
     ];
     for (const {label, preset} of wanted) {

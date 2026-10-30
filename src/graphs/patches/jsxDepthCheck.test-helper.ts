@@ -43,15 +43,21 @@ const EPS = 1e-9;
 /** `tolerance` is in mean mesh edges: lines closer than that to the surface are treated as lying on it. */
 export async function checkDepthOrder(
     scene: SurfaceScene, viewport: FramingViewport, tolerance: number, roles?: ReadonlyArray<PolylineRole>,
+    /** When given, this scene is drawn first and `scene` is then reconciled onto the same view (an edit, not a fresh build). */
+    before?: SurfaceScene,
 ): Promise<DepthReport> {
     const host = document.createElement('div');
     Object.defineProperty(host, 'clientWidth', {configurable: true, value: viewport.width});
     Object.defineProperty(host, 'clientHeight', {configurable: true, value: viewport.height});
     document.body.appendChild(host);
     const view = new JsxSurfaceView();
-    view.reconcile(scene);
+    view.reconcile(before ?? scene);
     await view.attach(host);
     view.flush();
+    if (before) {
+        view.reconcile(scene);
+        view.flush();
+    }
     try {
         const {draw, pool} = view as unknown as Internals;
         const n = pool.verts.length / 3;

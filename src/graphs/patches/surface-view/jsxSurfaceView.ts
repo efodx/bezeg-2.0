@@ -1,6 +1,8 @@
 import {JSXGraph} from 'jsxgraph';
-import {applyDomOrder, meanTriangleEdge, orderBackToFront, segmentPieceCount} from './jsxDepthOrder';
+import {browserRasterServices, rasterizeBoard, type RasterServices} from './jsxCapture';
+import {applyDomOrder, meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
 import {JsxInteraction} from './jsxInteraction';
+import {computeLabelLayout, labelLayoutKey} from './jsxLabels';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
 import {RENDERED_OWNERS_ATTRIBUTE, renderedOwnerEvidence} from './jsxMeshOwners';
 import {cssColor, DrawableStyle, markerColor, MESH_SEAM_WIDTH, MESH_STYLE, PLANE_STYLE, polylineStyle} from './jsxStyles';
@@ -20,7 +22,8 @@ import {
  * are `point3d` elements of a central-projection `view3d` that is kept only so JSXGraph's built-in 3D point drag keeps
  * working; `jsxView3dMapping.ts` makes it coincide with the pure projection.
  * Elements are created once per topology and reused: a camera change reprojects, sorts and reorders the SVG nodes.
- * Gate scope: fixed styling, no labels, no export, no pinch zoom.
+ * Labels (`jsxLabels.ts`, delivered through `onLayout`) and the still capture (`jsxCapture.ts`) are task 05; the label text itself
+ * is typeset by the host overlay, not drawn on the board.
  */
 
 /** The slice of JSXGraph's untyped 3D API that this adapter uses. */
@@ -129,7 +132,11 @@ export class JsxSurfaceView implements SurfaceView {
     private draw: Drawables | null = null;
     private pool: Pool | null = null;
     /** Dash cycle length per segment piece, read lazily from the node (see `dashPeriodOf`). */
-    private dashPeriods: number[] = [];
+    private dashPeriods: Array<{role: PolylineRole; period: number}> = [];
+    /** Last `stroke-dashoffset` written per segment piece; the write is skipped while it does not change. */
+    private dashOffsets: Array<number | undefined> = [];
+    /** Segment lengths outgrew their piece counts during a point drag; the split is redone once the drag is over. */
+    private resplitPending = false;
     private scene: SurfaceScene | null = null;
     private appliedKey = '';
     /** `pointSignature` of the scene the current board was built for. */
@@ -155,7 +162,8 @@ export class JsxSurfaceView implements SurfaceView {
     private observer: ResizeObserver | null = null;
     private readonly editListeners = new Set<(edit: SurfaceEdit) => void>();
     private readonly layoutListeners = new Set<(labels: LabelLayout[]) => void>();
-    private layoutDelivered = false;
+    /** Key of the layout last delivered to the listeners; empty until the first delivery. */
+    private lastLayoutKey = '';
     private interaction: JsxInteraction | null = null;
     /** Sorted draw list scratch, reused between frames. */
     private depths = new Float64Array(0);
@@ -165,6 +173,9 @@ export class JsxSurfaceView implements SurfaceView {
     private readonly projected = newScreenPoint();
     /** Counters read by tests and the measurement harness. */
     readonly stats = {frames: 0, rebuilds: 0, domMoves: 0, createdElements: 0, drawn: 0, reducedFrames: 0, drawableRebuilds: 0};
+
+    /** `rasterServices` replaces the browser's image decoder and canvas in tests. */
+    constructor(private readonly rasterServices?: RasterServices) {}
 
     // ---- SurfaceView ---------------------------------------------------------------------------------------------
 
@@ -237,11 +248,23 @@ export class JsxSurfaceView implements SurfaceView {
 
     onLayout(listener: (labels: LabelLayout[]) => void): () => void {
         this.layoutListeners.add(listener);
+        // A new subscriber has seen no layout yet: the next frame delivers the current one.
+        this.lastLayoutKey = '';
         return () => this.layoutListeners.delete(listener);
     }
 
-    capture(): Promise<SurfaceCapture> {
-        return Promise.reject(new Error('JsxSurfaceView.capture is not implemented in the feasibility gate'));
+    /** The depth-correct board as a PNG with the label layout of that frame; see `jsxCapture.ts` for why it cannot taint. */
+    async capture(): Promise<SurfaceCapture> {
+        const svg = this.container?.querySelector('svg');
+        if (this.disposed || !this.scene || !svg) throw new Error('Surface view is not attached');
+        // A figure is always drawn at full detail, even in the middle of an orbit.
+        this.endOrbit();
+        this.dirty = true;
+        this.flush();
+        const size = {width: this.width, height: this.height};
+        const dataUrl = await rasterizeBoard(svg, size, this.rasterServices ?? browserRasterServices());
+        if (this.disposed) throw new Error('Surface view is not attached');
+        return {dataUrl, ...size, labels: computeLabelLayout(this.appliedScene ?? this.scene, size)};
     }
 
     fitCamera(): void {
@@ -298,6 +321,8 @@ export class JsxSurfaceView implements SurfaceView {
             this.rebuildDrawables(scene);
         } else if (geometryKey !== this.appliedKey) {
             this.updateGeometry(scene);
+        } else if (this.resplitPending && !this.interaction?.draggedPointId) {
+            this.updateGeometry(scene);
         } else {
             cameraOnly = true;
         }
@@ -311,10 +336,17 @@ export class JsxSurfaceView implements SurfaceView {
         this.renderFrame(scene.camera, reduced);
         this.stats.frames++;
         if (reduced) this.stats.reducedFrames++;
-        if (!this.layoutDelivered) {
-            this.layoutDelivered = true;
-            for (const l of [...this.layoutListeners]) l([]);
-        }
+        this.publishLayout(scene);
+    }
+
+    /** Tells the layout listeners about the layout of the frame just drawn, when it differs from the last one delivered. */
+    private publishLayout(scene: SurfaceScene): void {
+        if (this.layoutListeners.size === 0) return;
+        const labels = computeLabelLayout(scene, {width: this.width, height: this.height});
+        const key = labelLayoutKey(labels);
+        if (key === this.lastLayoutKey) return;
+        this.lastLayoutKey = key;
+        for (const listener of [...this.layoutListeners]) listener(labels);
     }
 
     private cameraKey(c: SurfaceCamera): string {
@@ -625,6 +657,17 @@ export class JsxSurfaceView implements SurfaceView {
     /** Same topology, new coordinates (a point drag, a moving marker): rewrite the pool and the elements in place. */
     private updateGeometry(scene: SurfaceScene): void {
         const pool = this.pool!;
+        // Piece counts follow segment lengths; re-splitting replaces drawables, so never under a dragged point.
+        if (this.piecesStale(scene)) {
+            if (!this.interaction?.draggedPointId) {
+                this.resplitPending = false;
+                this.rebuildDrawables(scene);
+                return;
+            }
+            this.resplitPending = true;
+        } else {
+            this.resplitPending = false;
+        }
         const fresh = this.buildPool(scene, pool.pieces);
         pool.verts = fresh.verts;
         pool.min = fresh.min;
@@ -633,6 +676,21 @@ export class JsxSurfaceView implements SurfaceView {
         pool.pointBias = fresh.pointBias;
         this.syncPoints(scene);
         if (this.view) this.view.needsUpdate = true;
+    }
+
+    /** True when some polyline segment's piece count no longer suits its current length against the mesh edge. */
+    private piecesStale(scene: SurfaceScene): boolean {
+        const pieces = this.pool!.pieces, mesh = scene.mesh?.visible ? scene.mesh : undefined;
+        if (!mesh || pieces.length === 0) return false;
+        const meshEdge = meanTriangleEdge(mesh.positions, mesh.faces);
+        let segment = 0;
+        for (const l of scene.polylines) {
+            for (let j = 0; j + 1 < l.points.length; j++, segment++) {
+                const p = l.points[j], q = l.points[j + 1];
+                if (pieceCountStale(Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]), meshEdge, pieces[segment])) return true;
+            }
+        }
+        return false;
     }
 
     private makeDrawable(style: Style): JxgElement {
@@ -676,6 +734,7 @@ export class JsxSurfaceView implements SurfaceView {
         draw.nodes = nodes;
         this.orderNodes = nodes;
         this.dashPeriods = [];
+        this.dashOffsets = [];
         this.detailReduced = null;
     }
 
@@ -803,14 +862,17 @@ export class JsxSurfaceView implements SurfaceView {
 
     /** Length of one dash cycle of the segment piece's node (0 for a solid line); read once from the node. */
     private dashPeriodOf(piece: number, node: SVGElement | null | undefined): number {
-        let period = this.dashPeriods[piece];
-        if (period === undefined) {
+        const role = this.pool!.segRoles[piece];
+        let entry = this.dashPeriods[piece];
+        // Keyed by the piece's role (which picks its style): a piece restyled without a rebuild is read again.
+        if (!entry || entry.role !== role) {
+            this.dashOffsets[piece] = undefined;
             const values = (node?.getAttribute('stroke-dasharray') ?? '').split(/[ ,]+/).map(Number).filter(v => Number.isFinite(v) && v > 0);
             const cycle = values.reduce((a, b) => a + b, 0);
-            period = values.length % 2 ? 2 * cycle : cycle;
-            this.dashPeriods[piece] = period;
+            entry = {role, period: values.length % 2 ? 2 * cycle : cycle};
+            this.dashPeriods[piece] = entry;
         }
-        return period;
+        return entry.period;
     }
 
     private writePaths(): void {
@@ -841,7 +903,13 @@ export class JsxSurfaceView implements SurfaceView {
             const piece = s / 2;
             if (pool.pieceStart[piece]) phase = 0;
             const period = this.dashPeriodOf(piece, node);
-            if (period > 0) node?.setAttribute('stroke-dashoffset', String(f(phase % period)));
+            if (period > 0) {
+                const offset = f(phase % period);
+                if (this.dashOffsets[piece] !== offset) {
+                    this.dashOffsets[piece] = offset;
+                    node?.setAttribute('stroke-dashoffset', String(offset));
+                }
+            }
             phase += Math.hypot(sx[b] - sx[a], sy[b] - sy[a]);
         }
     }

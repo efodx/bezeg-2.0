@@ -83,3 +83,11 @@ export function segmentPieceCount(length: number, meshEdge: number): number {
     if (!(meshEdge > 0) || !(length > meshEdge)) return 1;
     return Math.min(MAX_SEGMENT_PIECES, Math.ceil(length / meshEdge));
 }
+
+/** A piece count is kept while it stays within the counts of a segment 25% shorter and 25% longer (no churn at a boundary). */
+const PIECE_HYSTERESIS = 1.25;
+
+/** True when `current` pieces no longer suit a segment of `length`: a drag has changed its length past the hysteresis band. */
+export function pieceCountStale(length: number, meshEdge: number, current: number): boolean {
+    return current < segmentPieceCount(length / PIECE_HYSTERESIS, meshEdge) || current > segmentPieceCount(length * PIECE_HYSTERESIS, meshEdge);
+}

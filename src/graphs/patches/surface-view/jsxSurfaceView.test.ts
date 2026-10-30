@@ -248,9 +248,4 @@ describe('JsxSurfaceView', () => {
         }
         expect(boardCount()).toBe(baseline);
     });
-
-    it('rejects capture with a clear gate message', async () => {
-        const {view} = await mount();
-        await expect(view.capture()).rejects.toThrow(/not implemented in the feasibility gate/);
-    });
 });
