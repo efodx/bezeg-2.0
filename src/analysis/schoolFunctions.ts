@@ -9,7 +9,7 @@
  */
 
 import {
-    mergeZeros, polyDegree, polyDerivativeText, polyDerivativeValue, polyText, polyValue, MAX_MULTIPLICITY, MAX_POLY_DEGREE,
+    mergeZeros, polyDerivativeText, polyDerivativeValue, polyText, polyValue, MAX_MULTIPLICITY, MAX_POLY_DEGREE,
 } from './polynomial';
 import {analyzeRational} from './rational';
 
