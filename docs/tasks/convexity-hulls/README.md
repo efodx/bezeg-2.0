@@ -35,4 +35,4 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 
 ## Later batches (task files written when the previous batch is accepted)
 - **Batch 2 (A3, A5):** kernels — point in polygon with half-open rule and winding number, pentagram lattice approximation (A3); the `<`/`<=` chain variants and duplicates (A5, the Kettner reference is in task 02); F2b, F3, F4 update, F5, F6.
-- **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, ready 2026-10-31; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.
+- **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, implemented 2026-10-31, math review pending; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.
