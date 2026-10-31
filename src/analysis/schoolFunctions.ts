@@ -5,8 +5,13 @@
  * mathematics: no React, JSXGraph or localization imports.
  *
  * The model is a flat record of plain numbers and closed ids so that it can be stored as Preset data. The kinds
- * `poly` and `rational` are declared here (their shape is final) and filled in by task 03.
+ * `poly` and `rational` are product-form polynomials (`polynomial.ts`) and quotients of two (`rational.ts`).
  */
+
+import {
+    mergeZeros, polyDegree, polyDerivativeText, polyDerivativeValue, polyText, polyValue, MAX_MULTIPLICITY, MAX_POLY_DEGREE,
+} from './polynomial';
+import {analyzeRational} from './rational';
 
 export const POWER_SHAPES = ['square', 'cube', 'sqrt', 'reciprocal', 'abs'] as const;
 export type PowerShape = typeof POWER_SHAPES[number];
@@ -22,7 +27,7 @@ export interface PowerFunction {readonly kind: 'power'; readonly shape: PowerSha
 export interface ExpFunction {readonly kind: 'exp'; readonly base: number}
 export interface LogFunction {readonly kind: 'log'; readonly base: number}
 export interface NamedFunction {readonly kind: 'named'; readonly id: NamedId}
-/** Product form k * prod (x - z_i)^m_i; total degree <= 5 (validated by task 03). */
+/** Product form k * prod (x - z_i)^m_i; total degree <= 5. */
 export interface PolySpec {readonly k: number; readonly zeros: readonly {readonly z: number; readonly m: 1 | 2 | 3}[]}
 export interface PolyFunction extends PolySpec {readonly kind: 'poly'}
 export interface RationalFunction {readonly kind: 'rational'; readonly numerator: PolySpec; readonly denominator: PolySpec}
@@ -181,11 +186,64 @@ const baseOps = (fn: SchoolBaseFunction): BaseOps => {
         case 'exp': return expOps(fn.base);
         case 'log': return logOps(fn.base);
         case 'named': return namedOps(fn.id);
-        case 'poly':
-        case 'rational':
-            throw new Error(`School function kind "${fn.kind}" is not implemented yet (task 03).`);
+        case 'poly': return polyOps(fn);
+        case 'rational': return rationalOps(fn);
     }
 };
+
+const polyOps = (fn: PolySpec): BaseOps => {
+    const spec = mergeZeros(fn).spec;
+    return {
+        domain: [ALL],
+        value: x => finite(polyValue(spec, x)),
+        derivative: x => finite(polyDerivativeValue(spec, x, 1)),
+        latexOf: a => polyText(spec, a, false), derivativeLatexOf: a => polyDerivativeText(spec, a, false),
+        plainOf: a => polyText(spec, a, true), derivativePlainOf: a => polyDerivativeText(spec, a, true),
+    };
+};
+
+/** Brackets a product or sum text used as a factor of a larger expression. */
+const bracketed = (text: string, plain: boolean): string =>
+    isSum(text) || text.startsWith('-') || text.startsWith('−') ? (plain ? `(${text})` : `\\left(${text}\\right)`) : text;
+
+const rationalOps = (fn: {readonly numerator: PolySpec; readonly denominator: PolySpec}): BaseOps => {
+    const an = analyzeRational(fn.numerator, fn.denominator);
+    const excluded = [...an.holes.map(h => h.x), ...an.poles.map(q => q.x)].sort((p, q) => p - q);
+    const domain: Interval[] = [];
+    let from = -Infinity;
+    for (const x of excluded) {
+        domain.push({min: from, max: x, minClosed: false, maxClosed: false});
+        from = x;
+    }
+    domain.push({min: from, max: Infinity, minClosed: false, maxClosed: false});
+    const {reducedNumerator: p, reducedDenominator: q} = an;
+    return {
+        domain,
+        value: x => excluded.includes(x) ? undefined : finite(polyValue(p, x) / polyValue(q, x)),
+        derivative: x => {
+            if (excluded.includes(x)) return undefined;
+            const qx = polyValue(q, x);
+            return finite((polyDerivativeValue(p, x, 1) * qx - polyValue(p, x) * polyDerivativeValue(q, x, 1)) / (qx * qx));
+        },
+        latexOf: a => `\\frac{${polyText(an.numerator, a, false)}}{${polyText(an.denominator, a, false)}}`,
+        derivativeLatexOf: a => {
+            const P = bracketed(polyText(p, a, false), false);
+            const Q = bracketed(polyText(q, a, false), false);
+            const dP = bracketed(polyDerivativeText(p, a, false), false);
+            const dQ = bracketed(polyDerivativeText(q, a, false), false);
+            return `\\frac{${dP}\\,${Q} - ${P}\\,${dQ}}{\\left(${polyText(q, a, false)}\\right)^{2}}`;
+        },
+        plainOf: a => `${plainFactor(polyText(an.numerator, a, true))}/${plainFactor(polyText(an.denominator, a, true))}`,
+        derivativePlainOf: a => {
+            const P = bracketed(polyText(p, a, true), true);
+            const Q = bracketed(polyText(q, a, true), true);
+            const dP = bracketed(polyDerivativeText(p, a, true), true);
+            const dQ = bracketed(polyDerivativeText(q, a, true), true);
+            return `(${dP}·${Q} − ${P}·${dQ})/(${polyText(q, a, true)})²`;
+        },
+    };
+};
+const plainFactor = (text: string): string => /^[\d.]+$/.test(text) || text === 'x' ? text : `(${text})`;
 
 /** Whether the text has a top-level + or - after its first character (a sum that a leading factor must bracket). */
 const isSum = (text: string): boolean => {
@@ -262,7 +320,8 @@ export const schoolFunctionModel = (fn: SchoolFunction): SchoolFunctionModel => 
 
 export type SchoolFunctionReason =
     | 'not-an-object' | 'missing' | 'not-a-number' | 'not-finite' | 'out-of-range' | 'excluded-value'
-    | 'unknown-kind' | 'unknown-shape' | 'unknown-id' | 'nested-transform' | 'unsupported-kind';
+    | 'unknown-kind' | 'unknown-shape' | 'unknown-id' | 'nested-transform' | 'unsupported-kind'
+    | 'not-an-array' | 'not-an-integer' | 'degree-too-high';
 
 export interface SchoolFunctionDiagnosis {
     readonly ok: false;
@@ -273,7 +332,12 @@ export interface SchoolFunctionDiagnosis {
     readonly min?: number;
     readonly max?: number;
 }
-export type SchoolFunctionValidation = {readonly ok: true; readonly value: SchoolFunction} | SchoolFunctionDiagnosis;
+/** `merged` is true when equal zeros of a polynomial were merged (multiplicities added) in the normalized copy. */
+export type SchoolFunctionValidation =
+    {readonly ok: true; readonly value: SchoolFunction; readonly merged?: boolean} | SchoolFunctionDiagnosis;
+
+/** Bounds of the polynomial coefficient k (k = 0 is excluded) and of the zeros. */
+export const POLY_BOUNDS = {k: [-10, 10], z: [-20, 20]} as const;
 
 const fail = (field: string, reason: SchoolFunctionReason, min?: number, max?: number): SchoolFunctionDiagnosis =>
     min === undefined ? {ok: false, field, reason} : {ok: false, field, reason, min, max};
@@ -291,7 +355,36 @@ const readNumber = (rec: Record<string, unknown>, key: string, path: string, min
     return v;
 };
 
-const validateBase = (input: unknown, path: string): {readonly ok: true; readonly value: SchoolBaseFunction} | SchoolFunctionDiagnosis => {
+/** Validates a product-form polynomial at `path` (e.g. `` or `numerator.`); returns it with equal zeros merged. */
+const validatePoly = (input: Record<string, unknown>, path: string):
+    {readonly ok: true; readonly value: PolySpec; readonly merged: boolean} | SchoolFunctionDiagnosis => {
+    const k = readNumber(input, 'k', path, POLY_BOUNDS.k[0], POLY_BOUNDS.k[1]);
+    if (typeof k !== 'number') return k;
+    if (k === 0) return fail(path + 'k', 'excluded-value');
+    const zs = input.zeros;
+    if (zs === undefined) return fail(path + 'zeros', 'missing');
+    if (!Array.isArray(zs)) return fail(path + 'zeros', 'not-an-array');
+    if (zs.length > MAX_POLY_DEGREE) return fail(path + 'zeros', 'degree-too-high', 0, MAX_POLY_DEGREE);
+    const read: {z: number; m: number}[] = [];
+    for (let i = 0; i < zs.length; i++) {
+        const item: unknown = zs[i];
+        const at = `${path}zeros.${i}.`;
+        if (!isRecord(item)) return fail(at.slice(0, -1), 'not-an-object');
+        const z = readNumber(item, 'z', at, POLY_BOUNDS.z[0], POLY_BOUNDS.z[1]);
+        if (typeof z !== 'number') return z;
+        const m = readNumber(item, 'm', at, 1, MAX_MULTIPLICITY);
+        if (typeof m !== 'number') return m;
+        if (!Number.isInteger(m)) return fail(at + 'm', 'not-an-integer');
+        const earlier = read.filter(e => e.z === z).reduce((sum, e) => sum + e.m, 0);
+        if (earlier + m > MAX_MULTIPLICITY) return fail(at + 'm', 'out-of-range', 1, MAX_MULTIPLICITY);
+        read.push({z, m});
+    }
+    if (read.reduce((sum, e) => sum + e.m, 0) > MAX_POLY_DEGREE) return fail(path + 'zeros', 'degree-too-high', 0, MAX_POLY_DEGREE);
+    const result = mergeZeros({k, zeros: read as unknown as PolySpec['zeros']});
+    return {ok: true, value: result.spec, merged: result.merged};
+};
+
+const validateBase = (input: unknown, path: string): {readonly ok: true; readonly value: SchoolBaseFunction; readonly merged?: boolean} | SchoolFunctionDiagnosis => {
     if (!isRecord(input)) return fail(path.slice(0, -1), 'not-an-object');
     const kind = input.kind;
     if (kind === undefined) return fail(path + 'kind', 'missing');
@@ -315,9 +408,24 @@ const validateBase = (input: unknown, path: string): {readonly ok: true; readonl
             if (typeof id !== 'string' || !(NAMED_IDS as readonly string[]).includes(id)) return fail(path + 'id', 'unknown-id');
             return {ok: true, value: {kind: 'named', id: id as NamedId}};
         }
-        case 'poly':
-        case 'rational':
-            return fail(path + 'kind', 'unsupported-kind');
+        case 'poly': {
+            const poly = validatePoly(input, path);
+            return poly.ok ? {ok: true, value: {kind: 'poly', ...poly.value}, merged: poly.merged} : poly;
+        }
+        case 'rational': {
+            const parts: PolySpec[] = [];
+            let merged = false;
+            for (const key of ['numerator', 'denominator'] as const) {
+                const part = input[key];
+                if (part === undefined) return fail(path + key, 'missing');
+                if (!isRecord(part)) return fail(path + key, 'not-an-object');
+                const poly = validatePoly(part, `${path}${key}.`);
+                if (!poly.ok) return poly;
+                parts.push(poly.value);
+                merged = merged || poly.merged;
+            }
+            return {ok: true, value: {kind: 'rational', numerator: parts[0], denominator: parts[1]}, merged};
+        }
         case 'transformed':
             return fail(path + 'kind', 'nested-transform');
         default:
@@ -340,7 +448,9 @@ export const validateSchoolFunction = (input: unknown): SchoolFunctionValidation
         if (key === 'b' && v === 0) return fail('b', 'excluded-value');
         nums[key] = v;
     }
-    return {ok: true, value: {kind: 'transformed', base: base.value, ...nums}};
+    return base.merged === undefined
+        ? {ok: true, value: {kind: 'transformed', base: base.value, ...nums}}
+        : {ok: true, value: {kind: 'transformed', base: base.value, ...nums}, merged: base.merged};
 };
 
 // ---------------------------------------------------------------------------------------------------------------
