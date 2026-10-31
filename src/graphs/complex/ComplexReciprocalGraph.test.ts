@@ -61,7 +61,7 @@ const visible = (object: any) => resolve(object.attributes.visible);
 
 // Creation order per type (see createScene): curves are the unit circle, the inversion circle and the arrows of z and w; points are the markers
 // of z-bar, 1/z, w/z and z', the centre and radius handles, then z and w; texts are the axis names and the caption.
-const [UNIT_CIRCLE, INVERSION_CIRCLE, ARROW_Z, ARROW_W] = [0, 1, 2, 3];
+const [UNIT_CIRCLE, INVERSION_CIRCLE, ARROW_Z] = [0, 1, 2];
 const [CONJUGATE, RECIPROCAL, QUOTIENT, IMAGE, CENTRE, RADIUS, Z_POINT, W_POINT] = [0, 1, 2, 3, 4, 5, 6, 7];
 const OBJECT_COUNT = 15;
 const curves = (graph: any) => ofType(graph, 'curve');
