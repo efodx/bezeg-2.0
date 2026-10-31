@@ -338,7 +338,7 @@ async function assertProvenance(root) {
     return stamp;
 }
 
-async function runPlan({root, scope, steps, env = process.env, longLived = false, onStart, provenance}) {
+async function runPlan({root, scope, steps, env = process.env, longLived = false, onStart, provenance, label}) {
     const log = logPath(root);
     const started = Date.now();
     let result = {code: 0, tail: '', warned: false};
@@ -363,7 +363,7 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
     }
     const status = result.code === 0 ? (longLived ? 'stopped' : 'passed') : `failed (${result.signal || result.code})`;
     const buildState = provenance ? `; reusing build from revision ${provenance.revision} (${provenance.dirty ? 'dirty' : 'clean'} at build time)` : '';
-    process.stdout.write(`${scope}: ${status} in ${duration}s; revision ${state.revision}; ${state.dirty === true ? 'dirty' : state.dirty === false ? 'clean' : 'working tree unknown'}${buildState}; log ${path.relative(root, log)}${warned ? '; warnings present (see log)' : ''}\n`);
+    process.stdout.write(`${scope}: ${status} in ${duration}s${label ? ` (${label})` : ''}; revision ${state.revision}; ${state.dirty === true ? 'dirty' : state.dirty === false ? 'clean' : 'working tree unknown'}${buildState}; log ${path.relative(root, log)}${warned ? '; warnings present (see log)' : ''}\n`);
     if (result.logError) process.stderr.write(`Could not write the complete run log: ${result.logError.message}\n`);
     else if (result.verboseError) process.stderr.write(`Could not stream verbose output: ${result.verboseError.message}\n`);
     else if (result.error) process.stderr.write(`Could not start child process: ${result.error.message}\n`);
@@ -371,10 +371,31 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
     return result.code;
 }
 
+// Commands that load the whole machine wait for a machine-wide test slot (see scripts/test-slots.cjs). A unit run
+// filtered to paths is short, so it skips the queue but keeps the per-slot worker cap.
+function needsSlot(command, args) {
+    if (command === 'unit') return !args.some(arg => /[\\/]|\.test\./.test(arg));
+    return ['check', 'build', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command);
+}
+
 async function execute(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
+    const {machineBudget, acquireSlot} = require('./test-slots.cjs');
+    if (!['unit', 'check', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    const baseEnv = options.env || process.env;
+    const slot = needsSlot(command, rawArgs) ? await acquireSlot({command, root, env: baseEnv}) : {...machineBudget({env: baseEnv}), release() {}};
+    // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
+    const env = {...baseEnv, BEZEG_TEST_WORKERS: String(slot.workers)};
+    const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${slot.workers} workers` : `${slot.workers} workers, no slot`;
+    try { return await executeCommand(command, rawArgs, {...options, root, env, label}); }
+    finally { slot.release(); }
+}
+
+async function executeCommand(command, rawArgs = [], options = {}) {
+    const root = options.root || ROOT;
     const args = [...rawArgs];
-    const run = (scope, steps, env = process.env, longLived = false, onStart, provenance) => runPlan({root, scope, steps, env, longLived, onStart, provenance});
+    const baseEnv = options.env || process.env;
+    const run = (scope, steps, env = baseEnv, longLived = false, onStart, provenance) => runPlan({root, scope, steps, env, longLived, onStart, provenance, label: options.label});
     const nodeStep = (label, file, argv = [], env = process.env) => ({label, executable: process.execPath, args: [file, ...argv], env});
     const tsc = () => nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false']);
     const lint = argv => nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']);
@@ -429,7 +450,7 @@ async function execute(command, rawArgs = [], options = {}) {
         const parsed = parsePortArgs(args, Number(process.env.SMOKE_PORT || 4173));
         let provenance;
         if (command === 'smoke-built') provenance = await assertProvenance(root);
-        const env = {...process.env, SMOKE_PORT: String(parsed.port)};
+        const env = {...baseEnv, SMOKE_PORT: String(parsed.port)};
         if (command === 'smoke') {
             const code = await buildWithProvenance('smoke build');
             if (code !== 0) return code;
@@ -445,7 +466,7 @@ async function execute(command, rawArgs = [], options = {}) {
         const rest = firstOption === -1 ? [] : parsed.args.slice(firstOption);
         const grep = lessonGrep(root, ids);
         const provenance = await assertProvenance(root);
-        return run('smoke-lesson', [smokeBuilt([LESSON_SPEC, '--grep', grep, ...rest])], {...process.env, SMOKE_PORT: String(parsed.port)}, false, undefined, provenance);
+        return run('smoke-lesson', [smokeBuilt([LESSON_SPEC, '--grep', grep, ...rest])], {...baseEnv, SMOKE_PORT: String(parsed.port)}, false, undefined, provenance);
     }
     if (command === 'preview') {
         if (args.length > 1) throw new Error('Usage: just preview [port]');
@@ -463,6 +484,7 @@ async function execute(command, rawArgs = [], options = {}) {
 async function main(argv = process.argv.slice(2)) {
     const [command, ...args] = argv;
     if (!command) throw new Error('Missing command. Use just to list available commands.');
+    require('./test-slots.cjs').lowerPriority();
     return execute(command, args);
 }
 

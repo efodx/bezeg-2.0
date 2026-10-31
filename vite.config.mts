@@ -52,6 +52,9 @@ export default defineConfig({
         // Jest ran serially with a 5 s timeout; Vitest runs files in parallel workers, and several slow component
         // tests (2-3 s alone) exceeded the 5 s default under CI load.
         testTimeout: 15000,
+        // The just runner sets BEZEG_TEST_WORKERS from its machine-wide test slot (scripts/test-slots.cjs); direct
+        // `npm test` and CI keep Vitest's default.
+        ...(process.env.BEZEG_TEST_WORKERS ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)} : {}),
         sequence: {sequencer: PartSequencer},
     },
 });

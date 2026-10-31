@@ -7,6 +7,12 @@ const {Writable} = require('node:stream');
 const {spawn, spawnSync} = require('node:child_process');
 const test = require('node:test');
 const commands = require('./commands.cjs');
+const slots = require('./test-slots.cjs');
+
+// Keep fixture runs out of the machine-wide slots held by real test runs.
+process.env.BEZEG_TEST_SLOT_DIR = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-test-slots-'));
+delete process.env.BEZEG_TEST_SLOTS;
+delete process.env.BEZEG_TEST_WORKERS;
 
 function fixture() {
     const root = fs.mkdtempSync(path.join(__dirname, '..', '.command-test-'));
@@ -163,6 +169,7 @@ test('CLI keeps a broken summary pipe from crashing or reporting success', {time
     const ready = path.join(root, 'cli-ready');
     fs.mkdirSync(path.join(root, 'scripts'), {recursive: true});
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
+    fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
     fs.writeFileSync(path.join(root, 'package.json'), '{}');
     fs.writeFileSync(npmCli, '');
     const wrapper = path.join(root, 'cli-wrapper.cjs');
@@ -380,6 +387,7 @@ test('real just preserves quoted recipe arguments when available', t => {
     fs.mkdirSync(path.join(root, 'scripts'), {recursive: true});
     fs.copyFileSync(path.join(__dirname, '..', 'justfile'), path.join(root, 'justfile'));
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
+    fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
     const npmCli = commands.resolveNpmCli();
     if (!npmCli) { cleanup(root); return t.skip('npm-cli.js is not available for the end-to-end argument check'); }
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({scripts: {test: 'node print-args.cjs'}}));
@@ -392,4 +400,65 @@ test('real just preserves quoted recipe arguments when available', t => {
         const failure = spawnSync(just, ['--justfile', 'justfile', 'unit', 'fail-child'], {cwd: root, encoding: 'utf8', env: {...process.env, npm_execpath: npmCli}});
         assert.equal(failure.status, 23, `${failure.stdout}\n${failure.stderr}`);
     } finally { cleanup(root); }
+});
+
+test('test-slot budget follows the machine and per-machine overrides', () => {
+    const GB = 1024 ** 3;
+    // Memory limits the 16 GB machine; threads limit the 64 GB one.
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {}}), {slots: 2, workers: 3});
+    assert.deepEqual(slots.machineBudget({threads: 32, memoryBytes: 64 * GB, env: {}}), {slots: 3, workers: 10});
+    assert.deepEqual(slots.machineBudget({threads: 8, memoryBytes: 12 * GB, env: {}}), {slots: 1, workers: 4});
+    assert.deepEqual(slots.machineBudget({threads: 2, memoryBytes: 4 * GB, env: {}}), {slots: 1, workers: 1});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_SLOTS: '1'}}), {slots: 1, workers: 6});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_WORKERS: '4'}}), {slots: 2, workers: 4});
+    assert.throws(() => slots.machineBudget({env: {BEZEG_TEST_SLOTS: '0'}}), /BEZEG_TEST_SLOTS must be a positive integer/);
+});
+
+test('test slots queue a third holder, reclaim dead holders and release on demand', async () => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-slot-case-'));
+    const env = {BEZEG_TEST_SLOTS: '2', BEZEG_TEST_WORKERS: '4', BEZEG_TEST_SLOT_DIR: dir};
+    const messages = [];
+    const stderr = {write: text => messages.push(text)};
+    try {
+        const first = await slots.acquireSlot({command: 'unit', root: 'a', env, stderr, pollMs: 20});
+        const second = await slots.acquireSlot({command: 'smoke', root: 'b', env, stderr, pollMs: 20});
+        assert.deepEqual([first.index, second.index, first.workers], [1, 2, 4]);
+        let thirdIndex;
+        const third = slots.acquireSlot({command: 'check', root: 'c', env, stderr, pollMs: 20}).then(slot => { thirdIndex = slot.index; return slot; });
+        await new Promise(resolve => setTimeout(resolve, 100));
+        assert.equal(thirdIndex, undefined);
+        assert.match(messages.join(''), /all 2 busy: unit in a \(pid \d+\); smoke in b/);
+        second.release();
+        assert.equal((await third).index, 2);
+        first.release();
+        (await third).release();
+        // A holder whose process is gone, or a long-abandoned unreadable file, does not keep its slot.
+        fs.writeFileSync(path.join(dir, 'slot-1.json'), JSON.stringify({pid: 2 ** 30, command: 'unit', root: 'x', started: Date.now()}));
+        fs.writeFileSync(path.join(dir, 'slot-2.json'), '{');
+        const old = new Date(Date.now() - 60_000);
+        fs.utimesSync(path.join(dir, 'slot-2.json'), old, old);
+        assert.equal(slots.tryAcquire(dir, 2, {pid: process.pid}).index, 1);
+        assert.equal(slots.tryAcquire(dir, 2, {pid: process.pid}).index, 2);
+    } finally { cleanup(dir); }
+});
+
+test('heavy commands take a slot and pass its worker cap; filtered unit runs skip the queue', async () => {
+    const root = fixture();
+    const priorNpmExecPath = process.env.npm_execpath;
+    const npmCli = path.join(root, 'npm-cli.js');
+    const received = path.join(root, 'received.log');
+    const slotDir = process.env.BEZEG_TEST_SLOT_DIR;
+    fs.writeFileSync(npmCli, `const fs = require('node:fs'); fs.appendFileSync(${JSON.stringify(received)}, JSON.stringify({workers: process.env.BEZEG_TEST_WORKERS, held: fs.readdirSync(${JSON.stringify(slotDir)}).length}) + '\\n')`);
+    process.env.npm_execpath = npmCli;
+    const env = {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '3'};
+    try {
+        assert.equal(await commands.execute('unit', [], {root, env}), 0);
+        assert.equal(await commands.execute('unit', ['src/a.test.ts'], {root, env}), 0);
+        assert.deepEqual(fs.readFileSync(received, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [{workers: '3', held: 1}, {workers: '3', held: 0}]);
+        assert.deepEqual(fs.readdirSync(slotDir), []);
+    } finally {
+        if (priorNpmExecPath === undefined) delete process.env.npm_execpath;
+        else process.env.npm_execpath = priorNpmExecPath;
+        cleanup(root);
+    }
 });

@@ -13,7 +13,8 @@ module.exports = defineConfig({
     expect: {timeout: 10_000},
     fullyParallel: false,
     // Specs own their pages and the preview server is stateless; lesson tests run in parallel (see guided-lessons spec).
-    workers: process.env.CI ? 3 : Math.min(6, Math.max(2, os.cpus().length - 2)),
+    // The just runner sets BEZEG_TEST_WORKERS from its machine-wide test slot (scripts/test-slots.cjs).
+    workers: process.env.CI ? 3 : Math.min(6, Number(process.env.BEZEG_TEST_WORKERS) || Math.max(2, os.cpus().length - 2)),
     retries: 0,
     globalTimeout: 30 * 60 * 1000,
     reporter: [
