@@ -4,6 +4,7 @@ import {t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {Preset} from "../../base/presets/Presets";
 import {
     clampParameter, CYCLOID_RADIUS_MAX, CYCLOID_RADIUS_MIN, curveViewBox, isParametricCurveId,
     PARAMETRIC_CATALOGUE, PARAMETRIC_CURVE_IDS, ParametricCurveId,
@@ -65,6 +66,16 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.stopRoll();
         this.setState({curve: data.curve, radius: data.radius, parameter: data.parameter});
         this.ensureScene();
+    }
+
+    /**
+     * A Preset with a saved view keeps it; one without (a hand-written file or another curve's Preset) is fitted to its
+     * curve, so the new curve is not shown in the previous curve's view box. `BaseGraph` applies the saved view before the
+     * data, so the fit cannot live in `importPresetData`.
+     */
+    override importPreset(preset: Preset) {
+        super.importPreset(preset);
+        if (!preset.boardState && preset.data) this.fitToCurve();
     }
 
     override initialize() {

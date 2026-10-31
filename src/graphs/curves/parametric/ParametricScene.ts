@@ -32,7 +32,13 @@ export class ParametricScene {
     constructor(private readonly settings: SceneSettings) {
         this.board = settings.board;
         this.curve = settings.curve;
-        this.build();
+        try {
+            this.build();
+        } catch (error) {
+            // A partly built scene still owns what it created and its language subscription.
+            this.dispose();
+            throw error;
+        }
     }
 
     ownedElements(): readonly GeometryElement[] {

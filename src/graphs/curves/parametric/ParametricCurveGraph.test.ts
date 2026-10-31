@@ -1,7 +1,7 @@
 import ParametricCurveGraph, {ROLL_DURATION_MS} from './ParametricCurveGraph';
 import {ParametricScene} from './ParametricScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
-import {PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
+import {curveViewBox, PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
 import {setLanguage} from '../../../localization';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the scene also guards its callback. */
@@ -67,6 +67,38 @@ describe('ParametricCurveGraph state and Presets', () => {
         expect(exported).toEqual({curve: 'rose', radius: 2, parameter: 1});
         const checked = parametricPresetCollection.check(JSON.parse(JSON.stringify(exported)));
         expect('data' in checked && checked.data).toEqual(exported);
+    });
+
+    test('a Preset without a saved view is fitted to its curve; one with a saved view keeps it', () => {
+        const graph = makeGraph();
+        graph.importPreset({id: 'rose', data: {curve: 'rose', radius: 1, parameter: 1}});
+        expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+        const fitted = graph.board.setBoundingBox.mock.calls[0][0];
+        const roseBox = curveViewBox({curve: 'rose', radius: 1});
+        expect(fitted).toEqual(roseBox);
+        expect(roseBox).not.toEqual(curveViewBox({curve: 'cycloid', radius: 1}));
+
+        const saved = [-7, 6, 9, -4];
+        graph.board.setBoundingBox.mockClear();
+        graph.importPreset({id: 'spiral', data: {curve: 'spiral', radius: 1, parameter: 1}, boardState: {boundingBox: saved}});
+        expect(graph.board.setBoundingBox.mock.calls.map((call: any[]) => call[0])).toEqual([saved]);
+    });
+});
+
+describe('scene construction failure', () => {
+    test('a scene whose build throws removes what it created and releases its language subscription', () => {
+        const board = fakeBoard();
+        const create = board.create.getMockImplementation();
+        let calls = 0;
+        board.create.mockImplementation((...args: any[]) => {
+            if (++calls === 4) throw new Error('board failure');
+            return create(...args);
+        });
+        const before = liveSubscriptions.count;
+        expect(() => new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => 0, fontSize: () => 16}))
+            .toThrow('board failure');
+        expect(board.objectsList).toEqual([]);
+        expect(liveSubscriptions.count).toBe(before);
     });
 });
 
