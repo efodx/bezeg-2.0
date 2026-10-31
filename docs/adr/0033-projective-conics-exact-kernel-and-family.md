@@ -55,3 +55,38 @@ Alternative: make `orient` a call into `det3`. This would edit the Geometry stre
 - Routes, Preset collections and stored Presets are additive. Existing rational Demonstrations, routes and Presets are unchanged.
 - BigInt arithmetic runs during drags. The Batch A graph slice measures the drag cost before fixing the table size and sample density.
 - Presets store grid points, table indices and a closed example id, validated on import.
+
+## Measurement addendum (2026-10-31, slice 05d)
+
+Sections 2 and 3 left the direction table size and the sample density to a drag measurement. Both are now fixed. Numbers come from `just projective-conic-bench` ([scripts/projective-conic-benchmark](../../scripts/projective-conic-benchmark/README.md)), run with Node 24.21 on a Ryzen 5 3600 under Windows 11. They cover the K2 and K3 views (24 by 21 units).
+
+**Scope: math path only.** There is no route until slice 06, so this is a Node measurement of the work a drag or conic switch triggers. It does not cover browser frames, JSXGraph/SVG updates or touch. The graphs cache each conic's polyline, so sampling runs on mount and on a conic switch, never during a drag. Slice 06 must measure browser frames on the route (K2 handle drag on each conic, K3 P drag, conic switch) and record them here.
+
+| Interaction (density 360, bound 14) | Median / p95 |
+| --- | --- |
+| K2 handle drag move (`dragHandle` + `evaluatePascal`) | 0.015–0.019 / ≤ 0.04 ms |
+| K3 P drag move (`moveP` + `evaluatePolePolar`) | 0.010–0.014 / ≤ 0.04 ms |
+| Conic switch, sampling included (K2, K3) | ≤ 0.45 / ≤ 0.9 ms |
+| K2 conic switch with cold reachable lists (six handles) | 2.2–3.9 / ≤ 8 ms |
+
+**Sample density: 360 (was 720).** The largest deviation of a polyline segment midpoint from the conic is 0.025 px at 1920 px for every K2/K3 conic (0.10 px at density 180, 0.006 px at 720). Sampling costs at most 0.5 ms at any density from 180 to 1440. The deciding cost is therefore the vertex count, which JSXGraph redraws on every board update during a drag: 361 instead of 721 for an ellipse, 346 instead of 592 for the hyperbola. A board that zooms in, or an export rendered above about 4000 px, would need resampling for its view. Neither exists yet.
+
+**Direction bound: 14 (unchanged; 256 directions, the spec's suggested size).**
+
+| Bound | Table | Median handle step at 1000 px (ellipse / parabola / hyperbola) | Largest adjacent step | Reachable per handle | Cold six-handle lists |
+| --- | --- | --- | --- | --- | --- |
+| 10 | 128 | 5.9 / 7.4 / 13.8 px | 112 px | 89–128 | ≈ 2 ms |
+| 14 | 256 | 2.9 / 3.8 / 6.5 px | 82 px | 177–256 | 3–4 ms |
+| 20 | 512 | 1.5 / 1.8 / 3.1 px | 73 px | 353–512 | 5–7 ms |
+| 32 | 1296 | 0.6 / 0.7 / 1.2 px | 43 px | 891–1296 | 14–18 ms |
+
+At 14 a drag already moves a handle in steps of a few pixels. A larger bound reduces the largest step only slowly (82 px at 14, 73 px at 20), while it doubles or more the keyboard steps across a conic and the switch cost. Steps of 500–1200 px between the last and first reachable entry are jumps across directions whose point leaves the view; they do not depend on the bound. Handle coordinates stay below 16 bits.
+
+**Preset impact: none.** Keeping the bound keeps every table index. The K2 example indices derive from directions through `directionIndex`, and they need a bound of at least 10. The `projective-pascal` Preset key has no route or `PresetImport` registration yet, so no stored Presets exist. A later bound change would renumber indices; it would need an index migration or an accepted break recorded here.
+
+**Sampler notes from task 03, closed.**
+
+- `refine` now skips an interval only when the arc's hull misses the view. The hull is the triangle of the two samples and their tangents' meeting point, valid because the arc is convex and turns less than π. For tangents parallel to within 1e-9 rad and pointing the same way, the arc lies within L·10⁻⁹ of its chord, so a chord test against a view widened by that margin decides. An unknown hull is subdivided.
+- Past the first 8 levels, recursion continues to at most 40 levels, and only along intervals whose known hull meets the view. This finds a visible arc far narrower than one angle step in a distant view.
+- Without the parallel-tangent margin, the far pieces near an asymptote were subdivided blindly. Hyperbola sampling at density 720 then took 11 ms instead of 0.36 ms, with identical output.
+- Regression tests: an arc bulging into a view its chord misses, tiny distant arcs of a circle and a hyperbola, and a far near-straight piece of \(xy=1\). All four fail against the pre-change sampler, and the last also fails when the margin branch always skips.

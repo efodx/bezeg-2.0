@@ -17,7 +17,7 @@ Run in order, one worker each. Each slice follows `src/graphs/compgeo/` (`PointS
 | 05a | Family Preset collection module and the K1 cross-ratio graph: two lines, a centre and four grid points, rays, images, an exact fraction readout with a decimal, and status texts for an image at infinity or an undefined projection. Shared helpers for ideal-point markers go in `src/graphs/projective/`. Locale keys go in one projective block in `sl.ts`/`en.ts`. | accepted 2026-10-31 |
 | 05b | K3 pole and polar graph. The conic selector draws through `sampleConic`. It shows tangents, tangency markers, the polar, the exact inside, on or outside status, and the equation readouts. | accepted 2026-10-31 |
 | 05c | K2 Pascal and Pappus graph: six parameter handles through `conicPencil`, the hexagon, the Pascal points and line, a determinant readout, and intersections at infinity. | accepted 2026-10-31 |
-| 05d | Drag measurement per the performance plan. It fixes `DEFAULT_SAMPLE_DENSITY` and `DIRECTION_BOUND` and records the numbers in ADR 0033 or a follow-up ADR. It also checks the open sampler notes from [task 03](03-conic-sampler.md#acceptance-record-2026-10-31). | planned |
+| 05d | Drag measurement per the performance plan. It fixes `DEFAULT_SAMPLE_DENSITY` and `DIRECTION_BOUND` and records the numbers in ADR 0033 or a follow-up ADR. It also checks the open sampler notes from [task 03](03-conic-sampler.md#acceptance-record-2026-10-31). | accepted 2026-10-31 |
 
 ## 05a acceptance record (2026-10-31)
 
@@ -110,3 +110,13 @@ Run in order, one worker each. Each slice follows `src/graphs/compgeo/` (`PointS
   - Browser layout of the object labels and marker faces.
   - Pointer dragging along the table.
   - The live SL/EN switch in a browser.
+
+## 05d acceptance record (2026-10-31)
+
+- **Result.** `DEFAULT_SAMPLE_DENSITY` is 360 (was 720). `DIRECTION_BOUND` stays 14 (256 directions). The numbers and reasons are in the [ADR 0033 measurement addendum](../../adr/0033-projective-conics-exact-kernel-and-family.md#measurement-addendum-2026-10-31-slice-05d). No table index changes, so no Preset or example index changes.
+- **Workers (Sonnet).**
+  - One worker built `scripts/projective-conic-benchmark/` and the `just projective-conic-bench` recipe: a Node benchmark of density, table bound and the K2/K3 drag and switch paths. Two runs gave identical vertex counts, deviations and gaps.
+  - A second worker replaced the sampler's chord-only `refine` test with a tangent-triangle hull test, and allowed hull-guided recursion past depth 8 (cap 40). Three new tests failed before the change with `expected 0 to be greater than 2`.
+- **Handler repair.** The benchmark showed the hull fix made hyperbola sampling 30 times slower at the same output (0.36 to 11.4 ms). A probe counted 47012 of 47204 hull calls ending in the near-parallel-tangent branch. The handler added a chord test against a view widened by the arc's maximal deviation for that branch, which restored 0.2–0.45 ms. A fourth test (a far piece of \(xy=1\)) fails when the branch always skips and against the pre-change sampler.
+- **Checks** on the final tree (base `6432ca8b`): `just unit src/projective src/graphs/projective`, `just lint` and the benchmark's `tsc` passed; `just projective-conic-bench` reruns at the new density.
+- **Unverified until slice 06:** browser frames for the K2 and K3 drags and conic switches. The route slice records them in the ADR addendum.

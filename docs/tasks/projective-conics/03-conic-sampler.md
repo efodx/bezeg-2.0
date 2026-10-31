@@ -25,7 +25,7 @@ Checks: `just unit src/projective`, then the full suite once, and `just typechec
   The repair's mutations (`join`, `nopolish`) are killed.
 - **Re-review of the repair (Sonnet):** branches are never joined, because each hyperbola interval is walked on its own and the asymptotic angles stay excluded. Samples are monotone in pencil angle, and the axis base point is on the conic to rounding. One should-fix: the parabola vertex path was keyed to the double \(4AC-B^2\) being exactly 0. When an exact parabola has coefficients above \(2^{53}\), that value is non-zero. The sampler then returned `ok` with no pieces, which is the silent loss the repair was meant to close. The handler fixed it by passing the exact classification to `basePoint`. A regression test with two such parabolas failed before the fix (`expected [] to have a length of 1`) and passes after it.
 - **`no-base-point`** is a guard only: no test conic reaches it. A near-degenerate ellipse or hyperbola with a huge coefficient range might still reach it through rounding in the centre-axis test.
-- **Open for task 05:**
+- **Open for task 05** (all closed by slice 05d, see the [ADR 0033 measurement addendum](../../adr/0033-projective-conics-exact-kernel-and-family.md#measurement-addendum-2026-10-31-slice-05d): density 360, a hull-based `refine`, hull-guided depth up to 40):
   - The density stays at 720 until it is measured.
   - `refine` tests only the chord against the view, so an arc that bulges into the view while its chord misses it is not subdivided.
   - A very distant view with a tiny angular share can miss a piece.
