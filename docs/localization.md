@@ -76,6 +76,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |
+| premonosna ploskev | ruled surface (Coons patch, D4; sl.wikipedia "Premonosna ploskev") |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 
