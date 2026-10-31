@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import LookUnderneath, {SINGLE_CURVE_SAMPLES, singleCurvePath} from './LookUnderneath';
+import LookUnderneath, {SINGLE_CURVE_SAMPLES, jointLabelDirection, jointLabelPosition, singleCurvePath} from './LookUnderneath';
 import {EXAMPLE_DRAWING, PLAYGROUND_STORAGE_KEY} from './DrawingPlayground';
 import {Drawing, classifyJoint, evaluateBezier, jointIndices, segments, setAnchorType, singleCurveControlPoints} from './drawingModel';
 import {setLanguage} from '../../localization';
@@ -146,10 +146,47 @@ describe('one curve through all the points', () => {
     });
 });
 
+describe('joint label placement', () => {
+    // Hand-computed: a closed square 0..200 has its centroid at (100, 100), so each corner label points diagonally outward.
+    const corner = (x: number, y: number) => ({position: {x, y}, handleIn: {x, y}, handleOut: {x, y}, type: 'corner' as const});
+    const SQUARE: Drawing = {closed: true, anchors: [corner(100, 100), corner(300, 100), corner(300, 300), corner(100, 300)]};
+    const r = Math.SQRT1_2;
+
+    it('points away from the centroid, and straight down for an anchor at the centroid', () => {
+        expect(jointLabelDirection(SQUARE, 0).x).toBeCloseTo(-r, 12);
+        expect(jointLabelDirection(SQUARE, 0).y).toBeCloseTo(-r, 12);
+        expect(jointLabelDirection(SQUARE, 2).x).toBeCloseTo(r, 12);
+        expect(jointLabelDirection(SQUARE, 2).y).toBeCloseTo(r, 12);
+        expect(jointLabelDirection({closed: false, anchors: [corner(50, 50)]}, 0)).toEqual({x: 0, y: 1});
+    });
+
+    it('flips inward off the degree caption and stays inside the 1000x625 view box (size 16: distance 26, half box 12.8 x 9.6)', () => {
+        const caption = {left: 16, top: 16, right: 300, bottom: 36.8};
+        expect(jointLabelPosition({x: 100, y: 60}, {x: 0, y: -1}, 16, null)).toEqual({x: 100, y: 34});
+        expect(jointLabelPosition({x: 100, y: 60}, {x: 0, y: -1}, 16, caption)).toEqual({x: 100, y: 86});
+        expect(jointLabelPosition({x: 500, y: 620}, {x: 0, y: 1}, 16, null)).toEqual({x: 500, y: 615.4});
+        expect(jointLabelPosition({x: 995, y: 300}, {x: 1, y: 0}, 16, null)).toEqual({x: 987.2, y: 300});
+    });
+
+    it('renders each joint label centred outward of its anchor, clear of the anchor dot', () => {
+        const {container} = mount(SQUARE);
+        const labels = all(container, '[data-overlay="joins"] text');
+        expect(labels).toHaveLength(4);
+        const first = labels[0];
+        const size = Number(first.getAttribute('font-size'));
+        expect(size).toBeGreaterThan(0);
+        expect(first.getAttribute('text-anchor')).toBe('middle');
+        expect(Number(first.getAttribute('x'))).toBeCloseTo(100 - r * 26 * size / 16, 9);
+        expect(Number(first.getAttribute('y'))).toBeCloseTo(100 - r * 26 * size / 16, 9);
+    });
+});
+
 describe('degenerate drawings and language', () => {
     it('renders without segments and without errors for an empty and a one-anchor drawing', () => {
         const err = vi.spyOn(console, 'error').mockImplementation(() => {});
         const {container, unmount} = mount(null);
+        expect(all(container, '[data-role="anchor"]')).toHaveLength(EXAMPLE_DRAWING.anchors.length); // never empty on a first visit
+        fireEvent.click(screen.getByRole('button', {name: 'Počisti'}));
         expect(all(container, '[data-overlay-part]')).toHaveLength(0);
         expect(screen.getByText('Še ni odsekov: dodaj vsaj dve točki')).toBeTruthy();
         expect(screen.queryByRole('slider')).toBeNull();
@@ -215,8 +252,8 @@ describe('hand-computed values', () => {
         const j = all(container, '[data-overlay="joins"] text');
         expect(j.map(e => e.textContent)).toEqual(['C1', 'C0', 'C0']);
         const fs = Number(j[0].getAttribute('font-size'));
-        expect(Number(j[0].getAttribute('x'))).toBeCloseTo(100 + 12 * fs / 16, 9);
-        expect(Number(j[0].getAttribute('y'))).toBeCloseTo(100 + 24 * fs / 16, 9);
+        // At the anchor (100, 100), offset outward by 26/16 of the font size (direction: the joint label placement tests).
+        expect(Math.hypot(Number(j[0].getAttribute('x')) - 100, Number(j[0].getAttribute('y')) - 100)).toBeCloseTo(26 * fs / 16, 9);
         expect(container.querySelector('[data-lu="degree"]')!.textContent).toBe('Ena Bézierjeva krivulja stopnje 9');
     });
 

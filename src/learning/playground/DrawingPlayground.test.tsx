@@ -324,6 +324,8 @@ describe('extension point', () => {
     it('renders overlays inside the SVG with the live drawing and selection', () => {
         const overlays = vi.fn((_ctx: PlaygroundOverlayContext) => <circle data-testid="overlay" r={1}/>);
         const {svg, container} = renderPlayground({mode: 'inspect', overlays});
+        expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(EXAMPLE_DRAWING.anchors.length); // inspect starts from the example
+        fireEvent.click(button('Počisti'));
         threeCorners(svg);
         expect(svg.contains(screen.getByTestId('overlay'))).toBe(true);
         const ctx = overlays.mock.calls[overlays.mock.calls.length - 1][0] as {drawing: Drawing; selectedAnchor: number | null; mode: string};

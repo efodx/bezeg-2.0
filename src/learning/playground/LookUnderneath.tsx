@@ -11,7 +11,7 @@ import {useT} from '../../localization';
 import Slider from '../../inputs/Slider';
 import DrawingPlayground, {PlaygroundOverlayContext} from './DrawingPlayground';
 import {
-    Drawing, Point, classifyJoint, deCasteljauRows, evaluateBezier, jointIndices, segments, singleCurveControlPoints,
+    Drawing, Point, VIEWBOX_HEIGHT, VIEWBOX_WIDTH, classifyJoint, deCasteljauRows, evaluateBezier, jointIndices, segments, singleCurveControlPoints,
 } from './drawingModel';
 
 /** Samples of the one-curve overlay (the spec asks for at least 400). */
@@ -19,6 +19,8 @@ export const SINGLE_CURVE_SAMPLES = 400;
 
 interface Switches {points: boolean; casteljau: boolean; joins: boolean; single: boolean}
 const ALL_ON: Switches = {points: true, casteljau: true, joins: true, single: true};
+/** Joint label distance from its anchor, in sixteenths of the label font size (about 1.6 em: clear of the anchor dot). */
+const JOINT_LABEL_DISTANCE = 26;
 
 const pointList = (pts: readonly Point[]) => pts.map(p => `${p.x},${p.y}`).join(' ');
 const clampIndex = (i: number, count: number) => Math.max(0, Math.min(i, count - 1));
@@ -35,8 +37,38 @@ export function singleCurvePath(drawing: Drawing, samples = SINGLE_CURVE_SAMPLES
     return out.join(' ');
 }
 
-function Label({at, text, sub, size, className, dx = 10, dy = -10}: {at: Point; text: string; sub?: string; size: number; className: string; dx?: number; dy?: number}) {
-    return <text x={at.x + dx * size / 16} y={at.y + dy * size / 16} fontSize={size} className={`lu-label ${className}`}>
+/**
+ * Offset of a joint label: outward from the anchors' centroid, so it sits away from the shape and its handles (which lie
+ * along the tangent, where the P0-P3 labels are). Returns a unit vector; straight down when the anchor is the centroid.
+ */
+export function jointLabelDirection(drawing: Drawing, i: number): Point {
+    const n = drawing.anchors.length;
+    const c = drawing.anchors.reduce((s, a) => ({x: s.x + a.position.x / n, y: s.y + a.position.y / n}), {x: 0, y: 0});
+    const p = drawing.anchors[i].position;
+    const len = Math.hypot(p.x - c.x, p.y - c.y);
+    return len < 1e-9 ? {x: 0, y: 1} : {x: (p.x - c.x) / len, y: (p.y - c.y) / len};
+}
+
+interface Box {left: number; top: number; right: number; bottom: number}
+const overlaps = (a: Box, b: Box) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+/**
+ * Centre of a joint label of font size `size`: JOINT_LABEL_DISTANCE/16 em from the anchor along `dir`, flipped inward when
+ * that would cover the degree caption (`avoid`), then clamped so the whole label stays inside the view box.
+ */
+export function jointLabelPosition(at: Point, dir: Point, size: number, avoid: Box | null): Point {
+    const d = JOINT_LABEL_DISTANCE * size / 16;
+    const halfW = 0.8 * size, halfH = 0.6 * size; // a two-character label such as "C1"
+    const boxAt = (c: Point): Box => ({left: c.x - halfW, top: c.y - halfH, right: c.x + halfW, bottom: c.y + halfH});
+    let c = {x: at.x + dir.x * d, y: at.y + dir.y * d};
+    if (avoid && overlaps(boxAt(c), avoid)) c = {x: at.x - dir.x * d, y: at.y - dir.y * d};
+    const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+    return {x: clamp(c.x, halfW, VIEWBOX_WIDTH - halfW), y: clamp(c.y, halfH, VIEWBOX_HEIGHT - halfH)};
+}
+
+function Label({at, text, sub, size, className, dx = 10, dy = -10, centered = false}: {at: Point; text: string; sub?: string; size: number; className: string; dx?: number; dy?: number; centered?: boolean}) {
+    return <text x={at.x + dx * size / 16} y={at.y + dy * size / 16} fontSize={size} className={`lu-label ${className}`}
+                 {...(centered ? {textAnchor: 'middle', dominantBaseline: 'central'} : {})}>
         {text}{sub !== undefined && <tspan fontSize={size * 0.7} dy={size * 0.25}>{sub}</tspan>}
     </text>;
 }
@@ -47,11 +79,14 @@ function Overlays({ctx, switches, selected, t}: {ctx: PlaygroundOverlayContext; 
     const segs = useMemo(() => segments(drawing), [drawing]);
     // Memoized on the drawing: the degree-3k sampling is the expensive part.
     const singlePath = useMemo(() => singleCurvePath(drawing), [drawing]);
-    const joints = useMemo(() => jointIndices(drawing).map(i => ({i, cls: classifyJoint(drawing, i)})), [drawing]);
+    const joints = useMemo(() => jointIndices(drawing).map(i => ({i, cls: classifyJoint(drawing, i), dir: jointLabelDirection(drawing, i)})), [drawing]);
     const size = Math.max(14, 15 * unitsPerPx);
     const sel = segs.length > 0 ? clampIndex(selected, segs.length) : -1;
     const rows = sel >= 0 ? deCasteljauRows(segs[sel], t) : [];
     const degree = 3 * segs.length;
+    const degreeText = translate('playground_single_degree', {value0: degree});
+    // The caption's box at (16, 16 + size): about 0.56 em per character, with a little room below the baseline.
+    const degreeBox: Box | null = switches.single && singlePath ? {left: 16, top: 16, right: 16 + 0.56 * size * degreeText.length, bottom: 16 + 1.3 * size} : null;
     return <>
         {segs.map((s, i) => <path key={`hit-${i}`} className="lu-segment-hit" data-role="segment" data-index={i} pointerEvents="stroke"
                                   strokeWidth={Math.max(16, 22 * unitsPerPx)} d={`M ${s[0].x} ${s[0].y} C ${s[1].x} ${s[1].y} ${s[2].x} ${s[2].y} ${s[3].x} ${s[3].y}`}/>)}
@@ -67,11 +102,12 @@ function Overlays({ctx, switches, selected, t}: {ctx: PlaygroundOverlayContext; 
             {rows.length > 0 && <circle data-overlay-part="bt" cx={rows[rows.length - 1][0].x} cy={rows[rows.length - 1][0].y} r={7 * Math.max(1, unitsPerPx * 0.8)} className="lu-bt"/>}
         </g>}
         {switches.joins && <g data-overlay="joins">
-            {joints.map(({i, cls}) => <Label key={i} at={drawing.anchors[i].position} text={cls} size={size} className="lu-joint-label" dx={12} dy={24}/>)}
+            {joints.map(({i, cls, dir}) => <Label key={i} at={jointLabelPosition(drawing.anchors[i].position, dir, size, degreeBox)} text={cls}
+                                                  size={size} className="lu-joint-label" dx={0} dy={0} centered/>)}
         </g>}
         {switches.single && singlePath && <g data-overlay="single">
             <path data-overlay-part="single-curve" className="lu-single" d={singlePath}/>
-            <text data-overlay-part="degree" aria-hidden="true" x={16} y={16 + size} fontSize={size} className="lu-label lu-degree">{translate('playground_single_degree', {value0: degree})}</text>
+            <text data-overlay-part="degree" aria-hidden="true" x={16} y={16 + size} fontSize={size} className="lu-label lu-degree">{degreeText}</text>
         </g>}
     </>;
 }

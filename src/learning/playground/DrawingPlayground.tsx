@@ -79,6 +79,12 @@ function loadDrawing(): Drawing {
     return EMPTY_DRAWING;
 }
 
+/** Inspect mode is never empty for a reader who skipped Draw: with no saved anchors it starts from the example (spec, Toolbar). */
+function initialDrawing(mode: 'draw' | 'inspect'): Drawing {
+    const loaded = loadDrawing();
+    return mode === 'inspect' && loaded.anchors.length === 0 ? EXAMPLE_DRAWING : loaded;
+}
+
 function saveDrawing(d: Drawing) {
     try { appStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(d)); } catch { /* storage may be blocked */ }
 }
@@ -99,7 +105,7 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): Point {
 
 export default function DrawingPlayground({mode, overlays, controls, onSelectSegment}: DrawingPlaygroundProps) {
     const t = useT();
-    const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(loadDrawing()));
+    const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(initialDrawing(mode)));
     const historyRef = useRef(history);
     const savedRef = useRef(history.present);
     const [draft, setDraft] = useState<Drawing | null>(null);
