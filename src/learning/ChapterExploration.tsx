@@ -31,7 +31,7 @@ export function ChapterExploration({
     const previewFailed = preview?.src === failedPreviewSrc;
     return <aside className={`chapter-exploration chapter-exploration--${kind}${preview && !previewFailed ? '' : ' chapter-exploration--without-preview'}`} aria-label={`${label}: ${title}`}>
         {preview && !previewFailed && <figure className="chapter-activity-figure">
-            <img src={preview.src} alt={preview.alt} width="720" height="440" loading="lazy" decoding="async" onError={() => setFailedPreviewSrc(preview.src)}/>
+            <img src={preview.src} alt={preview.alt} width="840" height="520" loading="lazy" decoding="async" onError={() => setFailedPreviewSrc(preview.src)}/>
             <figcaption>{preview.caption}</figcaption>
         </figure>}
         <div className="chapter-exploration-copy">
