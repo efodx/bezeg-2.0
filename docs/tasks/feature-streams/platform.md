@@ -1,5 +1,5 @@
 # Stream: Platform
-Run state: not started
+Run state: active
 
 Owner of the [architecture deepening backlog](../architecture-deepening-backlog/README.md) (spec: [architecture-deepening-backlog.md](../../specs/architecture-deepening-backlog.md)). Rules: [feature streams](README.md). Port 4311. Handoffs: `docs/reviews/feature-streams/platform/`.
 
