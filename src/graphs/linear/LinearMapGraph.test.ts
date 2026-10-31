@@ -380,6 +380,18 @@ describe('Presets', () => {
         expect(rejection.key).toBe(key);
     });
 
+    test('a mode the graph does not draw is rejected naming the field mode; setMode rejects it too', () => {
+        for (const mode of ['eigen', 'ellipse', 'composition']) {
+            const checked = linearMapPresetCollection.check({...stored(), mode}) as { rejection: { key: string; params: { value0: string } } };
+            expect(checked.rejection).toMatchObject({key: 'linear_map_invalid_field', params: {value0: 'mode'}});
+            expect(t(checked.rejection.key as 'linear_map_invalid_field', {value0: 'mode'})).toContain('mode');
+        }
+        expect('data' in linearMapPresetCollection.check({...stored(), mode: 'determinant'})).toBe(true);
+        const graph = makeGraph();
+        expect(() => graph.setMode('eigen')).toThrow(/eigen/);
+        expect(graph.model.mode).toBe('basis');
+    });
+
     test('a rejection names the offending field in both languages', () => {
         const checked = linearMapPresetCollection.check({...stored(), matrix: [[1, 0], [0, 7]]}) as { rejection: { key: 'linear_map_invalid_entry'; params: { value0: string } } };
         expect(checked.rejection.params.value0).toBe('matrix[1][1]');
@@ -419,6 +431,13 @@ describe('lesson actions', () => {
         const graph = makeGraph();
         expect(() => graph.applyLessonAction({kind: 'linear-map', operation: 'set-matrix', matrix: [[0.3, 0], [0, 1]]})).toThrow(/matrix\[0\]\[0\]/);
         expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'nope'}))).toThrow(/mode/);
+        expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'eigen'}))).toThrow(/mode/);
+        expect(graph.model.mode).toBe('basis');
+        for (const mode of ['basis', 'determinant'] as const) {
+            graph.applyLessonAction({kind: 'linear-map', operation: 'set-mode', mode});
+            expect(graph.model.mode).toBe(mode);
+        }
+        graph.applyLessonAction({kind: 'linear-map', operation: 'set-mode', mode: 'basis'});
         expect(() => graph.applyLessonAction(bad({operation: 'set-example', exampleId: 'zzz'}))).toThrow(/exampleId/);
         expect(matrixOf(graph)).toEqual(IDENTITY);
     });

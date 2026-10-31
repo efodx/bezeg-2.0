@@ -1,6 +1,11 @@
 import {gridImage} from '../../linear/gridImage';
 import {apply, det, IDENTITY, type Mat2, type Vec2} from '../../linear/matrix2';
 
+/** The modes this graph draws; later linear-map tasks extend it. The kernel (`LINEAR_MAP_MODES`) accepts more, the graph and its Presets do not. */
+export const LINEAR_MAP_GRAPH_MODES = ['basis', 'determinant'] as const;
+export type LinearMapGraphMode = typeof LINEAR_MAP_GRAPH_MODES[number];
+export const isLinearMapGraphMode = (value: unknown): value is LinearMapGraphMode => LINEAR_MAP_GRAPH_MODES.some(mode => mode === value);
+
 /** The source and image grids cover the lines x, y = -GRID_HALF_EXTENT, ..., GRID_HALF_EXTENT in steps of 1: 26 lines. */
 export const GRID_HALF_EXTENT = 6;
 export const GRID_STEP = 1;

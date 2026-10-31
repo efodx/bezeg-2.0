@@ -1187,7 +1187,6 @@ export const sl = {
     "linear_map_mode_label": "Način prikaza",
     "linear_map_mode_basis": "Slika baze",
     "linear_map_mode_determinant": "Determinanta",
-    "linear_map_mode_other": "Drug prikaz",
     "linear_map_a1_x_label": "a₁: x",
     "linear_map_a1_y_label": "a₁: y",
     "linear_map_a2_x_label": "a₂: x",

@@ -1,5 +1,6 @@
 import {message, Message} from '../../localization';
 import {LinearMapError, LinearMapState, parseLinearMapState} from '../../linear/linearMapModel';
+import {isLinearMapGraphMode} from './linearMapScene';
 import type {PresetCollection, PresetDataCheck} from '../base/presets/PresetCollection';
 
 /** The localized reason for a rejected Preset: which field, and what it must be. */
@@ -25,6 +26,8 @@ export const linearMapPresetCollection: PresetCollection<LinearMapState> = Objec
     key: 'linear-map',
     check(data: unknown): PresetDataCheck<LinearMapState> {
         const parsed = parseLinearMapState(data);
-        return parsed.ok ? {data: parsed.value} : {rejection: linearMapRejection(parsed.error)};
+        if (!parsed.ok) return {rejection: linearMapRejection(parsed.error)};
+        if (!isLinearMapGraphMode(parsed.value.mode)) return {rejection: message('linear_map_invalid_field', {value0: 'mode'})};
+        return {data: parsed.value};
     },
 });

@@ -1188,7 +1188,6 @@ export const en: Record<keyof typeof sl, string> = {
     "linear_map_mode_label": "View mode",
     "linear_map_mode_basis": "Image of the basis",
     "linear_map_mode_determinant": "Determinant",
-    "linear_map_mode_other": "Other view",
     "linear_map_a1_x_label": "a₁: x",
     "linear_map_a1_y_label": "a₁: y",
     "linear_map_a2_x_label": "a₂: x",

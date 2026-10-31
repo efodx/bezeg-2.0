@@ -9,15 +9,15 @@ import {LessonAction} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {
-    applySetExample, applySetMatrix, applySetMode, applySetTestVector, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry, isLinearMapMode,
-    LinearMapExampleChoice, LinearMapMode, LinearMapResult, LinearMapState, selectExample, serializeLinearMapState, snapEntryInput,
+    applySetExample, applySetMatrix, applySetMode, applySetTestVector, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry,
+    LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample, serializeLinearMapState, snapEntryInput,
     validateSetExample, validateSetMatrix, validateSetMode, validateSetTestVector,
 } from "../../linear/linearMapModel";
 import {
     apply, det, IDENTITY, isLinearMapExampleId, MATRIX_ENTRY_STEP, type Mat2, orientationSign, unitSquareImage, type Vec2,
 } from "../../linear/matrix2";
 import {
-    bezierPoint, closedPolyline, Collapse, collapseOf, FIXTURE_CONTROL_POINTS, gridPolyline, imageControlPoints, openPolyline, PROBE_POINT, Polyline,
+    bezierPoint, closedPolyline, Collapse, collapseOf, FIXTURE_CONTROL_POINTS, gridPolyline, imageControlPoints, isLinearMapGraphMode, LINEAR_MAP_GRAPH_MODES, LinearMapGraphMode, openPolyline, PROBE_POINT, Polyline,
     shoelace, sourceGridPolyline,
 } from "./linearMapScene";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
@@ -159,7 +159,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     }
 
     protected setMode(mode: string): void {
-        if (!isLinearMapMode(mode)) throw new DomainError(`The mode ${mode} is unknown.`);
+        if (!isLinearMapGraphMode(mode)) throw new DomainError(`The mode ${mode} is unknown.`);
         this.commitModel(changeMode(this.model, mode));
     }
 
@@ -183,7 +183,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const payload: unknown = action;
         switch (action.operation) {
             case "set-matrix": return this.commitModel(applySetMatrix(this.model, unwrap(validateSetMatrix(payload))));
-            case "set-mode": return this.commitModel(applySetMode(this.model, unwrap(validateSetMode(payload))));
+            case "set-mode": {
+                const {mode} = unwrap(validateSetMode(payload));
+                if (!isLinearMapGraphMode(mode)) throw new DomainError(`mode: this graph does not draw the mode ${mode}.`);
+                return this.commitModel(applySetMode(this.model, {mode}));
+            }
             case "set-test-vector": return this.commitModel(applySetTestVector(this.model, unwrap(validateSetTestVector(payload))));
             case "set-example": return this.commitModel(applySetExample(this.model, unwrap(validateSetExample(payload))));
         }
@@ -234,11 +238,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         }
     }
 
-    private modeLabel(mode: LinearMapMode): string {
+    private modeLabel(mode: LinearMapGraphMode): string {
         switch (mode) {
             case "basis": return t("linear_map_mode_basis");
             case "determinant": return t("linear_map_mode_determinant");
-            default: return t("linear_map_mode_other");
         }
     }
 
@@ -353,8 +356,6 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const state = this.stateSnapshot();
         const exampleOptions: LinearMapExampleChoice[] = [...EXAMPLE_IDS_OFFERED];
         if (!exampleOptions.includes(state.exampleId)) exampleOptions.push(state.exampleId);
-        const modes: LinearMapMode[] = ["basis", "determinant"];
-        if (!modes.includes(state.mode)) modes.push(state.mode);
         const entry = (row: Row, column: Column) => (
             <NumberInput label={this.entryLabel(row, column)} value={state.matrix[row][column]} step={MATRIX_ENTRY_STEP} decimals={2} applyOn="confirm"
                          describedBy="linear-map-entries-help linear-map-notice"
@@ -372,7 +373,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                               options={exampleOptions.map(id => ({value: id, text: this.exampleLabel(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => { if (next !== "custom") this.setExample(next); })}/>
                 <ChoiceSelect label={t("linear_map_mode_label")} value={state.mode}
-                              options={modes.map(mode => ({value: mode, text: this.modeLabel(mode)}))}
+                              options={LINEAR_MAP_GRAPH_MODES.map(mode => ({value: mode, text: this.modeLabel(mode)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setMode(next))}/>
             </div>
             <div className="inspector-group">
