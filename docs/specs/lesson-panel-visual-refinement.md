@@ -43,6 +43,17 @@ The owner asked for leaner frames during guided lessons, and for both the open i
 
 Every pre-existing overlay contract still holds: minimize/reopen focus, Escape, exit confirmation, observation handoff, locking, reading position, 44px reachable controls with fitting labels, and no horizontal overflow at 320px with enlarged text. Additionally, the panel and the tab move by pointer and keyboard, stay within the visible graph, and keep their places for the lesson.
 
+### Follow-up — the instructions hide and reopen in place (2026-10-31)
+
+The owner found that after moving the panel and hiding it, the tab was still at its own home, so reopening meant travelling back across the graph. Once either the panel or the tab has been moved, hiding now places the tab at the panel's top-left corner. Reopening places the panel's top-left corner at the tab, clamped so the whole panel stays inside the visible graph. Until the learner moves either one, both keep their default homes (panel top-centre, tab top-left).
+
+A placement requested while the target is unmounted is applied in the first ResizeObserver notification after it mounts. That notification arrives before paint, so the tab never flashes at its old place. If the target is still mounted, as on a rapid reopen during the closing fade, the placement is applied at once.
+
+Verification:
+- Typecheck, lint, the production build, 211 runtime unit tests and the lesson smoke suites (155/155) passed. The drag test now covers the hand-off in both directions, including the right-edge clamp.
+- In Chromium, a panel moved to (508, 553) hid to a tab at (508, 553).
+- A tab dragged to (830, 850) reopened the panel at (508, 633), clamped to the visible graph; hiding it again returned the tab to that corner.
+
 ### Verification evidence
 
 - Typecheck, lint of the changed files and production build passed. Runtime and workspace unit tests passed (228, 13 files), including new tests for the clamp and for panel/tab dragging, the action-press exclusion, arrow keys, drag-release not reopening and positions surviving Next and hide/show.

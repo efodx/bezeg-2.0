@@ -77,6 +77,7 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
     const offsetRef = useRef(offset);
     const drag = useRef<ActiveDrag | null>(null);
     const suppressClick = useRef(false);
+    const requested = useRef<{key: unknown; point: DragOffset}>();
     // Handlers and the resize observer measure the DOM, so they read the offset that is actually rendered.
     useLayoutEffect(() => {
         offsetRef.current = offset;
@@ -89,25 +90,52 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
     };
 
     // Resizing the graph or the element (a new frame, a language switch) must not strand it outside the graph.
-    // The observer's first notification also covers a graph that changed while the element was unmounted.
+    // The observer's first notification, delivered before the first paint, also places an element that mounts
+    // with a requested position and covers a graph that changed while the element was unmounted.
     useEffect(() => {
         if (!present || typeof ResizeObserver === 'undefined') return undefined;
         const observer = new ResizeObserver(() => {
             const current = offsetRef.current;
-            if (drag.current || (current.x === 0 && current.y === 0)) return;
+            const request = requested.current;
+            const target = request && request.key === resetKey ? request.point : undefined;
+            if (drag.current || (!target && current.x === 0 && current.y === 0)) return;
             const measured = measureGeometry(boundsRef.current, elementRef.current, current);
-            if (!measured) return;
-            const next = clampOffset(current, measured.base, measured.bounds);
+            if (!measured || !boundsRef.current) return;
+            requested.current = undefined;
+            const graph = measure(boundsRef.current);
+            const candidate = target ? {x: graph.left + target.x - measured.base.left, y: graph.top + target.y - measured.base.top} : current;
+            const next = clampOffset(candidate, measured.base, measured.bounds);
             if (next.x === current.x && next.y === current.y) return;
             offsetRef.current = next;
-            setHeld(previous => ({...previous, offset: next}));
+            setHeld({key: resetKey, offset: next});
         });
         if (boundsRef.current) observer.observe(boundsRef.current);
         if (elementRef.current) observer.observe(elementRef.current);
         return () => observer.disconnect();
-    }, [present, boundsRef, elementRef]);
+    }, [present, boundsRef, elementRef, resetKey]);
 
     const geometry = () => measureGeometry(boundsRef.current, elementRef.current, offsetRef.current);
+
+    /** The element's top-left corner relative to the bounds, while it is mounted and laid out. */
+    const topLeft = (): DragOffset | undefined => {
+        if (!boundsRef.current || !elementRef.current) return undefined;
+        const graph = measure(boundsRef.current);
+        const box = measure(elementRef.current);
+        if (graph.right <= graph.left || box.right <= box.left) return undefined;
+        return {x: box.left - graph.left, y: box.top - graph.top};
+    };
+
+    /** Places the element's top-left corner at a point relative to the bounds, now or as soon as it mounts. */
+    const moveTo = (point: DragOffset) => {
+        const measured = geometry();
+        if (!measured || !boundsRef.current) {
+            requested.current = {key: resetKey, point};
+            return;
+        }
+        requested.current = undefined;
+        const graph = measure(boundsRef.current);
+        apply(clampOffset({x: graph.left + point.x - measured.base.left, y: graph.top + point.y - measured.base.top}, measured.base, measured.bounds));
+    };
 
     const onPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
         suppressClick.current = false;
@@ -164,5 +192,7 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
         style: offset.x === 0 && offset.y === 0 ? undefined : {transform: `translate(${offset.x}px, ${offset.y}px)`},
         handleProps: {onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag, onKeyDown},
         consumeDragClick,
+        topLeft,
+        moveTo,
     };
 }

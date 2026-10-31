@@ -646,6 +646,14 @@ test('the panel and the compact tab can each be moved over the graph without tri
         if (this.classList.contains('guided-lesson-tab')) return translated(this, 8, 8, 220, 44);
         return DOMRect.fromRect();
     });
+    // Browsers deliver a first resize notification for each observed element; the stub reports it on observe.
+    vi.stubGlobal('ResizeObserver', class {
+        readonly notify: () => void;
+        constructor(notify: () => void) { this.notify = notify; }
+        observe() { this.notify(); }
+        unobserve() {}
+        disconnect() {}
+    });
     try {
         const caps = capabilities();
         render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}/>);
@@ -678,20 +686,24 @@ test('the panel and the compact tab can each be moved over the graph without tri
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         expect(panel().style.transform).toBe('translate(330px, 44px)');
 
+        // Hiding a moved panel leaves the tab at the panel's top-left corner (430, 64) instead of the tab's home (8, 8).
         fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
         const tab = document.querySelector('.guided-lesson-tab') as HTMLElement;
-        fireEvent.pointerDown(tab, {pointerId: 4, isPrimary: true, button: 0, clientX: 20, clientY: 20});
-        fireEvent.pointerMove(tab, {pointerId: 4, isPrimary: true, clientX: 420, clientY: 320});
-        fireEvent.pointerUp(tab, {pointerId: 4, isPrimary: true, clientX: 420, clientY: 320});
+        expect(tab.style.transform).toBe('translate(422px, 56px)');
+
+        fireEvent.pointerDown(tab, {pointerId: 4, isPrimary: true, button: 0, clientX: 440, clientY: 70});
+        fireEvent.pointerMove(tab, {pointerId: 4, isPrimary: true, clientX: 540, clientY: 270});
+        fireEvent.pointerUp(tab, {pointerId: 4, isPrimary: true, clientX: 540, clientY: 270});
         fireEvent.click(tab);
         expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
-        expect(tab.style.transform).toBe('translate(400px, 300px)');
+        expect(tab.style.transform).toBe('translate(522px, 256px)');
 
-        // A press without travel is still the reopen action, and the panel returns where it was left.
-        fireEvent.pointerDown(tab, {pointerId: 5, isPrimary: true, button: 0, clientX: 420, clientY: 320});
-        fireEvent.pointerUp(tab, {pointerId: 5, isPrimary: true, clientX: 421, clientY: 321});
+        // A press without travel is still the reopen action. The panel opens at the moved tab (530, 264),
+        // pulled back left so it stays inside the graph.
+        fireEvent.pointerDown(tab, {pointerId: 5, isPrimary: true, button: 0, clientX: 540, clientY: 270});
+        fireEvent.pointerUp(tab, {pointerId: 5, isPrimary: true, clientX: 541, clientY: 271});
         reopenWithTab();
-        expect(panel().style.transform).toBe('translate(330px, 44px)');
+        expect(panel().style.transform).toBe('translate(394px, 244px)');
         expect(caps.apply).not.toHaveBeenCalled();
     } finally {
         rect.mockRestore();

@@ -97,9 +97,17 @@ export function GuidedLesson(props: {
     const isExploring = snapshot.status === 'explore';
     const overlayVisible = overlayPhase !== 'hidden';
     const tabVisible = overlayPhase === 'closing' || overlayPhase === 'hidden';
-    // The panel and the compact tab each keep where the learner put them over the graph until another lesson starts.
+    // The panel and the compact tab keep where the learner put them over the graph until another lesson starts.
     const panelDrag = useDraggableOffset(layerRef, lessonRef, overlayVisible, props.lesson);
     const tabDrag = useDraggableOffset(layerRef, compactTabRef, tabVisible, props.lesson);
+    const isMoved = (drag: {offset: {x: number; y: number}}) => drag.offset.x !== 0 || drag.offset.y !== 0;
+    // Once either has been moved they travel together: hiding leaves the tab at the panel's corner and
+    // reopening opens the panel at the tab, so the instructions come back where they were put away.
+    const handOverPlacement = (from: typeof panelDrag, to: typeof panelDrag) => {
+        if (!isMoved(panelDrag) && !isMoved(tabDrag)) return;
+        const corner = from.topLeft();
+        if (corner) to.moveTo(corner);
+    };
     // A visible instruction panel locks graph edits; hiding the panel unlocks the current scene.
     const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening'
         ? isComplete ? 'complete' : 'content'
@@ -138,6 +146,7 @@ export function GuidedLesson(props: {
         readingPosition.current.page = window.scrollY;
         readingRestore.current += 1;
         hasSavedReadingPosition.current = true;
+        handOverPlacement(panelDrag, tabDrag);
         clearHandoffTimer();
         props.onModeChange?.('explore');
         pausePlayback();
@@ -148,6 +157,7 @@ export function GuidedLesson(props: {
     const showOverlay = () => {
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
+        handOverPlacement(tabDrag, panelDrag);
         props.onModeChange?.(isComplete ? 'complete' : 'content');
         // Stop graph-owned playback too, including controls started in the inspector.
         pausePlayback();
