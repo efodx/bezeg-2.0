@@ -1,4 +1,5 @@
-import {CROSS_RATIO_PRESET_KEY, crossRatioPresetCollection} from './projectivePresetCollection';
+import {CROSS_RATIO_PRESET_KEY, crossRatioPresetCollection, POLE_POLAR_PRESET_KEY, polePolarPresetCollection} from './projectivePresetCollection';
+import {POLE_POLAR_EXAMPLES, serializePolePolarModel} from './polePolarModel';
 import {CROSS_RATIO_EXAMPLES, serializeCrossRatioModel} from './crossRatioModel';
 import {renderMessage, setLanguage} from '../../localization';
 
@@ -33,4 +34,17 @@ test('graphState may carry only initialized', () => {
     expect(collection.checkGraphState?.({initialized: 'yes'})).toBeDefined();
     expect(collection.checkGraphState?.({model: {}})).toBeDefined();
     expect(collection.checkGraphState?.(null)).toBeDefined();
+});
+
+test('the pole and polar collection has its own frozen key, one parser and actionable refusals', () => {
+    const polePolar = polePolarPresetCollection();
+    expect(polePolar.key).toBe('projective-pole-polar');
+    expect(POLE_POLAR_PRESET_KEY).toBe(polePolar.key);
+    const data = serializePolePolarModel(POLE_POLAR_EXAMPLES.infinity);
+    const ok = polePolar.check(JSON.parse(JSON.stringify(data)));
+    expect('data' in ok && ok.data).toEqual(data);
+    const bad = polePolar.check({...data, conic: 'cubic'});
+    expect('rejection' in bad).toBe(true);
+    if ('rejection' in bad) expect(renderMessage(bad.rejection)).toContain('ellipse, circle, parabola, hyperbola');
+    expect(polePolar.checkGraphState?.({model: {}})).toBeDefined();
 });
