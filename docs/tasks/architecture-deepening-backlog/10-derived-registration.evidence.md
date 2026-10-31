@@ -52,3 +52,7 @@ See the slice report; unit logs are in `.claude/jobs/59614778/tmp/a10/`. Mutatio
 - Manifest (D7): moved from `src/images/demonstrations/catalog/` to `scripts/demonstration-previews/manifest.json` (capture evidence, read only by tooling). `encode()` now records `frames-<id>/%03d.png` and the output file name in the FFmpeg `arguments`; the 102 existing absolute paths were rewritten mechanically (no recapture). The publisher copies the manifest through `maps`, and `tests/smoke-catalog.cjs` reads the new path.
 - Also fixed: `tests/smoke-catalog.cjs` parsed the removed `GUIDED_LESSON_AVAILABLE_IDS` literal; it now derives lesson availability from the definitions (`lesson: false` opt-out), matching slice 1.
 - Regrouping content files by topic: deferred, not needed for acceptance.
+
+## Acceptance
+
+Commits rebased onto `origin/master`: A10 `4fc59c6` → `6a52f9ce`. After the rebase, registration tests still pass with the families added on master. Browser acceptance 2026-10-31 on `91bee03` (rebased onto `origin/master`): `just check` passed (322/322 files, 5897/5897 tests, build); `just smoke-built` 273/273, which walks every guided lesson in SL and EN, loads every catalog route on the production build and decodes every preview; a `bezeg-smoke` run passed workspace `<h1>` in SL, EN and a live SL→EN switch on curve, function and patch routes (same board node), catalog lesson links (51) and lesson entry, with 0 console errors. The home carousel shows one lesson link by design; all others were confirmed in the catalog.
