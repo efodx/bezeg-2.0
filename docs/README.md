@@ -20,6 +20,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Bézier patches](tasks/bezier-patches/README.md): new *Bézierjeve krpe* family (tensor-product and triangular). Four planned foundation tasks (JSXGraph upgrade, renderer spike/ADR, shared curve kernels, 3D points) from the [spec](specs/bezier-patches.md); implementation unstarted.
 - [Future plan](future-plan.md), [product direction](product-direction.md) and [roadmap](roadmap.md): agreed direction and sequencing. Historical briefs within these documents do not reopen completed work.
 - [Planning cleanup and next work — 2026-10-24](reviews/planning-cleanup-2026-10-24.md): reconciled statuses, concrete gaps, proposals and recommended priorities. Recommendations do not authorize all listed work.
+- New lesson-family candidates, 2026-10-31: [curricula, CAGD, numerical methods and curve geometry](research/lesson-family-candidates-2026-10-31.md) and [computational geometry](research/computational-geometry-candidates-2026-10-31.md). Research only; no family is authorized.
 - [Lesson UX audit](reviews/guided-lessons-ux-audit-2026-10-24.md): observed interaction findings to scope before implementation.
 - [Lesson example improvements](tasks/lesson-example-improvements/README.md): planned batches linked to their source spec.
 - [Test consolidation](tasks/test-consolidation/README.md): five ranked implementation tasks for reducing repeated verification while retaining graph, content and browser coverage.
