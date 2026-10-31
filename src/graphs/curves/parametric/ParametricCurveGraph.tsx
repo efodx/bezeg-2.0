@@ -78,6 +78,16 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         if (!preset.boardState && preset.data) this.fitToCurve();
     }
 
+    /**
+     * Lesson scenes replace the state with `getInitialState()` merged with this, right after `importPresetData`. The
+     * catalogue choice lives in the state, so the imported data (the default scene's or a fixture's) is carried over;
+     * otherwise a fixture would be reset to the default curve while its scene stays built for the fixture's curve.
+     */
+    protected override lessonDefaultState(): ParametricGraphState {
+        const {curve, radius, parameter} = this.state;
+        return {initialized: true, curve, radius, parameter};
+    }
+
     override initialize() {
         this.ensureScene();
         this.fitToCurve();

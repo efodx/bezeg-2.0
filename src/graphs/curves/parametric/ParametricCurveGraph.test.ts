@@ -85,6 +85,17 @@ describe('ParametricCurveGraph state and Presets', () => {
     });
 });
 
+describe('lesson scenes', () => {
+    test('a lesson fixture keeps its curve: the state replacement after the import carries the imported data', () => {
+        const graph = makeGraph();
+        // The order of BaseGraph.prepareLessonFixtureScene: import the fixture, then replace the state.
+        graph.importPresetData({curve: 'rose', radius: 2, parameter: 1});
+        graph.store.replaceState({...graph.getInitialState(), ...graph.lessonDefaultState()});
+        expect(graph.exportPresetData()).toEqual({curve: 'rose', radius: 2, parameter: 1});
+        expect(graph.scene.curve).toBe('rose');
+    });
+});
+
 describe('scene construction failure', () => {
     test('a scene whose build throws removes what it created and releases its language subscription', () => {
         const board = fakeBoard();
