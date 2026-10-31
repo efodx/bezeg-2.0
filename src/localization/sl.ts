@@ -1648,5 +1648,21 @@ export const sl = {
     "interp_basis_help": "Vsak polinom ima v grafih svojo barvo. Lagrangeev polinom ℓ_i ima v svojem vozlu vrednost 1, v drugih 0, vmes pa je lahko negativen; Bernsteinovi polinomi so nenegativni. Pika kaže trenutni položaj s.",
     "interp_basis_index": "Indeks krivulje i",
     "interp_basis_desc": "{value0} krivulj. Pri položaju {value1} so vrednosti: {value2}.",
-    "interp_nodes_too_close": "Interpolacijski točki imata skoraj enak parameter, zato uteži Lagrangeevega polinoma niso izračunljive. Razmakni točke."
+    "interp_nodes_too_close": "Interpolacijski točki imata skoraj enak parameter, zato uteži Lagrangeevega polinoma niso izračunljive. Razmakni točke.",
+    "hermite_coincident_points": "Interpolacijski točki {value0} in {value1} sta enaki ali imata enak parameter, zato krivulje ni mogoče narisati. Razmakni ju ali izberi enakomerne parametre.",
+    "hermite_coincident_notice": "Premik zavrnjen: sosednji interpolacijski točki bi sovpadali, zato krivulje ni mogoče narisati. Točke so ostale, kjer so bile.",
+    "hermite_tangent_invalid": "tangente morajo imeti za vsako interpolacijsko točko eno komponento x in eno y, obe števili med −{value0} in {value0}",
+    "hermite_mode": "Vrsta krivulje",
+    "hermite_mode_catmull": "Catmull-Romov zlepek (tangente iz sosednjih točk)",
+    "hermite_mode_hermite": "Hermiteova krivulja (lastne tangente)",
+    "hermite_tension": "Napetost",
+    "hermite_tension_help": "Napetost pomnoži vse tangente Catmull-Romovega zlepka: 1 je običajni zlepek, 0 daje ničelne tangente.",
+    "hermite_tension_disabled": "Napetost deluje samo pri Catmull-Romovem zlepku. Pri Hermiteovi krivulji tangente nastavljaš sam.",
+    "hermite_show_tangents": "Pokaži tangente",
+    "hermite_show_bezier": "Pokaži Bézierove kontrolne točke odsekov",
+    "hermite_tangent_list": "Komponente tangent",
+    "hermite_tangent_name": "Tangenta {value0}",
+    "hermite_end_note": "Tangenti v krajiščih sta enostranski: v prvi in zadnji točki ju določa samo sosednja točka.",
+    "hermite_board_catmull": "Catmull-Romov zlepek, napetost {value0}",
+    "hermite_board_hermite": "Hermiteova krivulja z izbranimi tangentami"
 } as const;

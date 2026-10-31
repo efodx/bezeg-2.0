@@ -1649,5 +1649,21 @@ export const en: Record<keyof typeof sl, string> = {
     "interp_basis_help": "Each polynomial keeps its colour in both plots. A Lagrange polynomial ℓ_i is 1 at its own node and 0 at the others, and can be negative in between; Bernstein polynomials are never negative. The dots mark the current position s.",
     "interp_basis_index": "Curve index i",
     "interp_basis_desc": "{value0} curves. At position {value1} the values are: {value2}.",
-    "interp_nodes_too_close": "Two interpolation points get almost the same parameter, so the Lagrange weights cannot be computed. Move the points apart."
+    "interp_nodes_too_close": "Two interpolation points get almost the same parameter, so the Lagrange weights cannot be computed. Move the points apart.",
+    "hermite_coincident_points": "Interpolation points {value0} and {value1} are equal or get the same parameter, so the curve cannot be drawn. Move them apart or choose uniform parameters.",
+    "hermite_coincident_notice": "Move refused: two neighbouring interpolation points would coincide, so the curve could not be drawn. The points stayed where they were.",
+    "hermite_tangent_invalid": "tangents need one x and one y component for every interpolation point, both numbers between −{value0} and {value0}",
+    "hermite_mode": "Curve type",
+    "hermite_mode_catmull": "Catmull-Rom spline (tangents from the neighbours)",
+    "hermite_mode_hermite": "Hermite curve (own tangents)",
+    "hermite_tension": "Tension",
+    "hermite_tension_help": "Tension scales every tangent of the Catmull-Rom spline: 1 is the usual spline, 0 gives zero tangents.",
+    "hermite_tension_disabled": "Tension only applies to the Catmull-Rom spline. For the Hermite curve you set the tangents yourself.",
+    "hermite_show_tangents": "Show the tangents",
+    "hermite_show_bezier": "Show the Bézier control points of the segments",
+    "hermite_tangent_list": "Tangent components",
+    "hermite_tangent_name": "Tangent {value0}",
+    "hermite_end_note": "The end tangents are one-sided: at the first and last point only the neighbouring point determines the tangent.",
+    "hermite_board_catmull": "Catmull-Rom spline, tension {value0}",
+    "hermite_board_hermite": "Hermite curve with chosen tangents"
 };
