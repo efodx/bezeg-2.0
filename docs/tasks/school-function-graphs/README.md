@@ -1,6 +1,6 @@
 # Function graphs for the matura: implementation tasks
 
-Source: [school function graphs spec](../../specs/school-function-graphs-lessons.md). Decisions: [ADR 0025](../../adr/0025-school-function-catalogue.md). Stream: [functions](../feature-streams/functions.md). Slice kinds: [family template](../feature-streams/README.md#family-template).
+Source: [school function graphs spec](../../specs/school-function-graphs-lessons.md). Decisions: [ADR 0026](../../adr/0026-school-function-catalogue.md). Stream: [functions](../feature-streams/functions.md). Slice kinds: [family template](../feature-streams/README.md#family-template).
 
 Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky evidence goes to `docs/reviews/school-function-graphs/`. Matura level labels (OR/VR) stay off until each item has been checked in the catalogue PDF.
 
@@ -27,4 +27,4 @@ These were checked against `sl.ts` and the lesson content, where *premik*, *razt
 | pole, hole | pol, luknja (odpravljiva nezveznost) | Gloss on first mention |
 | vertical, horizontal, oblique asymptote | navpična, vodoravna, poševna asimptota | Existing *asimptota*; standard school wording |
 | geometric series, partial sum | geometrijska vrsta, delna vsota | Existing app usage |
-| conic, focus, directrix, eccentricity | stožnica, gorišče, vodnica, numerična ekscentričnost \(\varepsilon\) | Slovenian school texts use *numerična ekscentričnost* \(\varepsilon\) and linear \(e\). The spec's *izsrednost* is not used. See ADR 0025 §4. |
+| conic, focus, directrix, eccentricity | stožnica, gorišče, vodnica, numerična ekscentričnost \(\varepsilon\) | Slovenian school texts use *numerična ekscentričnost* \(\varepsilon\) and linear \(e\). The spec's *izsrednost* is not used. See ADR 0026 §4. |

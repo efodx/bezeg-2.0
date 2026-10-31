@@ -1,6 +1,6 @@
 # 01 School catalogue core (F1, Batch A)
 
-Spec: [Function catalogue extension](../../specs/school-function-graphs-lessons.md#function-catalogue-extension). Decision: ADR 0025 §1. `src/analysis/functions.ts` stays unchanged.
+Spec: [Function catalogue extension](../../specs/school-function-graphs-lessons.md#function-catalogue-extension). Decision: ADR 0026 §1. `src/analysis/functions.ts` stays unchanged.
 
 Scope: `src/analysis/schoolFunctions.ts` (and a plotting helper module if that is cleaner), with tests. Pure TypeScript.
 

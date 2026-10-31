@@ -1,6 +1,6 @@
 # 04 Geometric series and conic kernels (F1, Batch C)
 
-Spec: S5 and S6 concept contracts. Decision: ADR 0025 §2 and §4 (\(\varepsilon\) for the ratio).
+Spec: S5 and S6 concept contracts. Decision: ADR 0026 §2 and §4 (\(\varepsilon\) for the ratio).
 
 Scope: `src/analysis/geometricSeries.ts`, `src/analysis/conic.ts` and tests.
 
