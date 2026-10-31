@@ -84,6 +84,8 @@ Complex-map terms: sources and reasoning are in the [complex maps term table](ta
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
+Projective conic terms (*dvorazmerje*, *harmonična četverka*, *točka v neskončnosti*, *središčna projekcija*, and later *pol in polara*, *šop premic*): sources and reasoning are in the [projective conics term table](tasks/projective-conics/README.md#slovenian-terms-f0-decision).
+
 The owner approved the existing Slovenian terminology and English wording on 2026-10-24. Separate owner language sign-off is no longer a standing gate; see the [release policy](guardrails.md#release-policy--owner-decision-2026-10-24). Keep catalog counterparts and mathematical meaning consistent, and fix concrete wording issues when identified. Existing spelling/capitalization variants may be refined through ordinary changes.
 
 ## Choosing new terms
