@@ -1,0 +1,12 @@
+# 04 — Point-set/polygon model
+
+Status: planned. Source: [spec §2 point-set graph](../../specs/convexity-hulls-lessons.md#2-draggable-point-set-and-polygon-graph), [ADR 0021](../../adr/0021-exact-grid-predicates.md). Kind: F2a (pure part), engineering review. Depends on 01 only, so it can run beside 02.
+
+The stored configuration and editing rules of the shared point-set/polygon graph, as pure TypeScript in `src/compgeo/pointSetModel.ts`. No React, JSXGraph or localization; task 05 adapts it. Follow the shape of `src/analysis/bisectionModel.ts` (stored model plus a sanitizing parser; transient state is not stored).
+
+1. `PointSetModel` (read-only): `mode: 'points' | 'polygon'`, `points: readonly GridPoint[]` (polygon mode: vertices in order), `closed: boolean` (polygon mode only; `false` in points mode), `gridStepExponent: number` (board units per grid step \(=2^{e}\), integer \(e\) in a small documented range, default \(0\)), `pointLimit` is not stored — it is a constructor/options parameter with default \(40\) (the sweep family uses \(12\)).
+2. Pure edits, each returning a new model or a typed refusal (never throwing for user actions): `addPoint` (refusal `'limit'` at the limit; duplicates allowed — lesson A5 uses them), `insertPoint(index, …)` for polygon mode, `removePoint(index)`, `movePoint(index, gridPoint)`, `nudgePoint(index, dx, dy)` by whole grid steps (refusal `'range'` beyond `GRID_COORD_LIMIT`), `clearPoints`, `setClosed`, `setMode`. Helpers `snapToGrid(boardX, boardY, exponent): GridPoint` (round half away from zero, documented) and `gridToBoard(point, exponent)`.
+3. `parsePointSetModel(data, options)` returning `{ok: true, model}` or `{ok: false, reason}` with a closed reason union for actionable import messages: not an object, unknown mode, points not an array, too many points (with the limit), a non-integer coordinate, an out-of-range coordinate (with the bound), invalid grid step, `closed` with points mode. Unknown properties are dropped. Coordinates are stored in grid units.
+4. Tests (`pointSetModel.test.ts`): every edit and refusal; snapping at half steps and negative values with exponents \(0\) and \(-2\); round trip `parse(serialize(model))`; every refusal reason from the parser, including \(2^{25}+1\), \(1.5\), `NaN`, \(41\) points; models and arrays are not mutated by edits. Record one observed failure under a deliberate mutation.
+
+Checks: `just unit src/compgeo/pointSetModel.test.ts`, full unit suite once, `npx tsc --noEmit --pretty false`.

@@ -1,0 +1,15 @@
+# 03 — Step-trace model and monotone chain trace
+
+Status: planned. Source: [spec §3 trace model](../../specs/convexity-hulls-lessons.md#3-algorithm-step-trace-model), A4 example and acceptance 1–3, 5. Kind: F1, mathematical review. Depends on 02.
+
+Pure TypeScript in `src/compgeo/`; the triangulation and sweep families reuse the contract, so keep it generic.
+
+1. `trace.ts`: generic event type `TraceEvent<K extends string, P>` with `kind`, a payload of point indices (never coordinates), `predicateCount` (running count of predicate evaluations) and `noteKey` (a string literal for the status line; keys are not added to locale catalogs in this task). Shared kinds `phase`, `test` (with the predicate sign), `accept`, `reject`, `output`, `done`. `stateAt(trace, i, fold)` clamps \(i\) to \([0, \text{length}-1]\) and folds events \(0..i\) purely; a helper `clampTraceIndex(trace, i)` for imports.
+2. `monotoneChain.ts`: `monotoneChainTrace(points: readonly GridPoint[])` producing the event list for Andrew's monotone chain (lexicographic sort by \(x\) then \(y\), duplicates once, lower chain then upper chain, pop while `orient <= 0`, so collinear hull points are dropped). Every `test` event carries the three indices and the exact `orientValue`. The fold gives the current chain(s) and, after `done`, the hull CCW starting from the lexicographically smallest point. `n < 3` and all-collinear input end in `done` with a point or segment hull and a distinct `noteKey`. Validate input (grid points, at most 40 points); reject otherwise.
+3. Tests (`trace.test.ts`, `monotoneChain.test.ts`):
+   - The nine points of sample 1: \((2,2),(4,0),(0,0),(5,3),(2,5),(-1,3),(3,1),(2,0),(1,1)\) in some fixed unsorted order. Sorted order \((-1,3),(0,0),(1,1),(2,0),(2,2),(2,5),(3,1),(4,0),(5,3)\). Pops: at \((2,0)\) value \(-2\); at \((2,5)\) value \(0\) (collinear rejected); at \((3,1)\) \(-5\); at \((4,0)\) \(-2\) then \(0\). Hull CCW \((-1,3),(0,0),(4,0),(5,3),(2,5)\); \((2,0)\) is not a vertex. If the hand values disagree with the trace, stop and report rather than adjusting either.
+   - Oracle: the final hull equals `convexHull` from `src/bezeg/impl/curve/geometry.ts` (adapt grid points to its `Point` type in the test only) on a few hundred random grid sets with duplicates and collinear points, plus all-collinear and \(n\in\{0,1,2\}\).
+   - Contract: every trace ends with exactly one `done`; length bounded (state the bound for \(n\le 40\)); `stateAt` is pure (same result twice, trace not mutated, frozen arrays); folding all events equals the final output; `predicateCount` is non-decreasing and equals the number of `test` events.
+   - Observed failure under a mutation (for example `< 0` instead of `<= 0`).
+
+Checks: `just unit src/compgeo`, full unit suite once, `npx tsc --noEmit --pretty false`.

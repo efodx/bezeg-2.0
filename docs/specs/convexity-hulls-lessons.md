@@ -1,6 +1,6 @@
 # Convexity and hulls (Konveksnost in ovojnice)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled, 2026-10-31, in the [geometry feature stream](../tasks/feature-streams/geometry.md); tasks in [docs/tasks/convexity-hulls/](../tasks/convexity-hulls/README.md). Handler decisions (robustness policy A in [ADR 0021](../adr/0021-exact-grid-predicates.md), `src/compgeo/`, the `algorithm-trace` id, the *Računska geometrija* family, terms as proposed) are recorded in the task README.
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [computational geometry candidates](../research/computational-geometry-candidates-2026-10-31.md), Family A, ranks 1, 4, 6 and 10, sample sequences 1, 2, 4 and 9, and its correctness notes. Primary sources it cites: de Berg, Cheong, van Kreveld, Overmars, *Computational Geometry* (3rd ed., Springer 2008; §1.1 and §1.2 on hulls, degeneracies and robustness); Andrew 1979 (monotone chain); Kettner et al. 2008 (classroom robustness examples, DOI 10.1016/j.comgeo.2007.06.003); Shewchuk's robust predicates; Sederberg–Nishita 1990 (Bézier clipping); FMF *Računska geometrija* syllabus. Index: [new lesson families](new-lesson-families.md).
 
