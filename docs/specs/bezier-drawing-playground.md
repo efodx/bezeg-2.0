@@ -90,7 +90,7 @@ Edits in either mode update all overlays immediately.
 Chosen during PG2 by the [term process](../localization.md#choosing-new-terms). No web research was possible in the implementing session, so the basis is in-repo reuse and general Slovenian usage; revisit if the owner or a reviewer finds a better-established term.
 
 - *anchor* → **točka**, with **kotna točka** (corner) and **gladka točka** (smooth). Reuses *točka*, the repository's word for any point (`add_point`, `delete_point`); *kontrolna točka* stays reserved for the control points \(P_0\)–\(P_3\) of the mathematics.
-- *handle* → **ročica**. The usual word for a Bézier handle in Slovenian design software and tutorials (not independently verified here); it is distinct from *kontrolna točka*, which fits the later reading that handles are control points.
+- *handle* → **ročica**. Inkscape's Slovenian translation uses it for node handles ("Handle" → *Ročica*, "Smooth node handle" → *Ročica gladkega vozlišča*; `po/sl.po` on the 1.3.x branch, checked 2026-10-31); it is distinct from *kontrolna točka*, which fits the later reading that handles are control points.
 - *shape* → **oblika**; *undo* → **Razveljavi**, *redo* → **Ponovi** (the standard Slovenian editor commands).
 - Join types in names: *kotna (C0)*, *gladka (G1)*, *gladka (C1)*, using the same C0/G1/C1 names as the classification.
 
@@ -99,6 +99,7 @@ Chosen during PG2 by the [term process](../localization.md#choosing-new-terms). 
 - Save the drawing through `appStorage` under `bezier-playground.drawing.v1` after each committed change (drag end, keystroke, toolbar action). Do not save on every pointer move. Wrap every access in a try/catch, and work without storage.
 - On load, validate the structure: finite coordinates, a known anchor type, at most 32 anchors, and a boolean `closed`. Discard invalid data, start with an empty drawing, and log a warning. Nothing crashes.
 - This is a new key. No route or existing Preset changes, so no breaking change.
+- Each placement reads the saved drawing when it mounts and does not sync live with the other one; the last committed change wins. The two placements sit in different chapter sections, so this is accepted; a placement shows the drawing saved when it mounted. Revisit if both become visible at once. Held arrow keys save once, on key release or blur, not on every repeat.
 
 ## Module boundaries
 

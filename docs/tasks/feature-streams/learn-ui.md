@@ -10,7 +10,7 @@ Spec: [bezier-drawing-playground.md](../../specs/bezier-drawing-playground.md), 
 | Slice | Content | Depends on | Review | Status |
 | --- | --- | --- | --- | --- |
 | PG1 | `drawingModel.ts`: model, undo, validation (criterion 1) | — | Mathematical | accepted |
-| PG2 | `DrawingPlayground.tsx`: canvas, pointer and keyboard editing, toolbar, persistence (criteria 2, 4, 8) | PG1's interface fixed | Engineering + UI/accessibility | in repair: findings in `docs/reviews/feature-streams/learn-ui/pg2-review-findings.md`; WIP 7be3f5b on `origin/stream-learn-ui` |
+| PG2 | `DrawingPlayground.tsx`: canvas, pointer and keyboard editing, toolbar, persistence (criteria 2, 4, 8) | PG1's interface fixed | Engineering + UI/accessibility | accepted: review findings 1–11 repaired ([findings](../../reviews/feature-streams/learn-ui/pg2-review-findings.md)); real-browser checks of criterion 2 (pointer capture, double click, touch, focus ring) carried to PG4a/PG4b |
 | PG3 | *Look underneath* overlays and the one-curve comparison (criterion 3) | PG2 | Mathematical + UI/accessibility | planned |
 | PG4a | Chapter blocks, bilingual prose, terms, docs (criteria 6, 7, 9) | PG3 | Engineering; notation test | planned |
 | PG4b | Performance measurement and smoke (criteria 5, 7) | PG4a | Handler | planned |
@@ -24,7 +24,7 @@ Spec: [learn-landing-visual-alignment.md](../../specs/learn-landing-visual-align
 | Slice | Tasks | Status |
 | --- | --- | --- |
 | LL1 | Tasks 1–3 as one slice | accepted; browser smoke, live switch and focus checks carried to LL2 |
-| LL2 | Task 4: phone layout, verification, DESIGN.md | accepted; phone hides per-chapter Contents counts visually (screen-reader only) to keep one line |
+| LL2 | Task 4: phone layout, verification, DESIGN.md | accepted; phone hides per-chapter Contents counts visually (screen-reader only) to keep one line; hosted browser smoke green on 6c31ee6, which contains ece8730 |
 
 ## 3. Guided example highlights
 
