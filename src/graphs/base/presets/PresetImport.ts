@@ -1,5 +1,5 @@
 import {message, LocalizedError, Message} from "../../../localization";
-import {checkSceneState, isFiniteNumber, isRecord, PresetCollection} from "./PresetCollection";
+import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
@@ -44,7 +44,7 @@ export function preflightPresetImport(contents: string, storage: Storage = windo
     if (!isRecord(parsed) || Object.keys(parsed).length === 0) return fail(message("missing_preset_collections"));
     for (const [key, stored] of Object.entries(parsed)) {
         const collection = collectionsByStorageKey.get(key) ?? fail(message("unknown_collection", {value0: key}));
-        if (!isRecord(stored) || !Array.isArray(stored.data)) fail(message("invalid_collection", {value0: key}));
+        if (!isPresetCollectionEnvelope(stored)) fail(message("invalid_collection", {value0: key}));
         const names = new Set<string>();
         for (const preset of stored.data) {
             if (!isRecord(preset) || typeof preset.id !== "string" || !preset.id.trim() || names.has(preset.id)) fail(message("missing_or_duplicate_preset_name"));

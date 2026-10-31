@@ -1,4 +1,4 @@
-import {t, useLanguage, useT} from "../../localization";
+import {Message, message, renderMessage, t, useLanguage, useT} from "../../localization";
 import {Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useMemo, useRef, useState} from "react";
 import {PresetLockContext} from "../context/react/PresetLockContext";
@@ -198,6 +198,8 @@ export function PresetSelector(props: {
     selectedPresetId: string,
     /** Changes whenever the stored presets changed, so the list below is read again. */
     presetListVersion: number,
+    /** Why the last save or delete did not happen, from the graph controller. */
+    notice?: Message,
     onSelect: (id: string) => void,
     onReset: () => void,
     onSave: (name: string) => void,
@@ -212,9 +214,12 @@ export function PresetSelector(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const presets = useMemo(() => presetService.loadPresets(), [presetService, presetListVersion]);
     const selectedPreset = presets.data.find(preset => preset.id === selectedPresetId);
+    const [backupNotice, setBackupNotice] = useState<Message | undefined>();
+    const problem = props.notice ?? presets.problem ?? backupNotice;
 
     return <Form.Group>
         <p className="inspector-help">{t("stored_in_this_browser_export_a_file_to_back_up_your_presets_or_transfer_them_to_another_browser")}</p>
+        {problem && <p className="inspector-help text-danger" role="alert">{renderMessage(problem)}</p>}
         <Form.Label>{t("presets")}</Form.Label>
         <Form.Select onChange={(value) => props.onSelect(value.target.value)} aria-label={t("presets")} disabled={lessonActive}
                      value={selectedPreset ? selectedPreset.id : ""}
@@ -232,7 +237,9 @@ export function PresetSelector(props: {
                 </ButtonGroup>
                 <ButtonGroup>
                     <ToolTippedButton tooltip={t("export_presets")} onClick={() => {
-                        exportToFile(presetService.exportAllPresetsToString());
+                        const backup = presetService.exportAll();
+                        setBackupNotice(backup.problem ?? (backup.skipped.length ? message("backup_skipped_unreadable_collections", {value0: backup.skipped.join(", ")}) : undefined));
+                        if (!backup.problem) exportToFile(backup.contents);
                     }}>{t("export_presets")}</ToolTippedButton>
                     <PresetImportDialog onImported={props.onImported} disabled={lessonActive}/>
                     {props.batchExporter && <ImageGenerationModal onConfirm={selectedIds => {

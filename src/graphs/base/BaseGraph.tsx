@@ -1,4 +1,4 @@
-import {renderMessage, t} from "../../localization";
+import {Message, renderMessage, t} from "../../localization";
 import React from 'react';
 
 
@@ -111,6 +111,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private hasBeenMounted = false;
     private selectedPresetIdValue = "";
     private presetListVersionValue = 0;
+    /** Why the last Preset save or delete did not happen; shown beside the Preset list until the next one succeeds. */
+    private presetNoticeValue: Message | undefined;
     /** An import changed the stored presets while an export was running; the scene reloads when it finishes. */
     private reloadAfterExportPending = false;
     /** Counts scene replacements; keyed onto scene-backed inspector controls so they re-seed from the new scene. */
@@ -304,8 +306,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const service = this.presetService;
         if (!service) return;
         const id = name || firstUnusedPresetName(service.loadPresets().data);
-        service.savePreset({...this.exportPreset(), id});
-        this.selectedPresetIdValue = id;
+        const outcome = service.savePreset({...this.exportPreset(), id});
+        this.presetNoticeValue = outcome.problem;
+        if (!outcome.problem) this.selectedPresetIdValue = id;
         this.presetListVersionValue++;
         this.requestRender();
     }
@@ -315,6 +318,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const service = this.presetService;
         if (!service || !this.selectedPresetIdValue || this.exportBusy) return Promise.resolve();
         const remaining = service.removePreset(this.selectedPresetIdValue);
+        this.presetNoticeValue = remaining.problem;
+        if (remaining.problem) {
+            this.presetListVersionValue++;
+            this.requestRender();
+            return Promise.resolve();
+        }
         this.selectedPresetIdValue = remaining.data[0]?.id ?? "";
         this.presetListVersionValue++;
         return this.reloadSelectedScene();
@@ -437,7 +446,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     protected workspaceSave(): React.ReactNode {
         return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
             {this.presetService && <PresetSelector presetService={this.presetService}
-                selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion}
+                selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion} notice={this.presetNoticeValue}
                 onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
                 onSave={name => this.saveCurrentPreset(name)} onDelete={() => { void this.deleteSelectedPreset(); }}
                 onImported={() => { void this.reloadAfterImport(); }}

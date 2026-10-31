@@ -49,3 +49,7 @@ export function checkSceneState(value: unknown, allowed: readonly string[] = [])
     if (numberOfPoints !== undefined && !isIntegerAtLeast(numberOfPoints, 0)) return message("invalid_number_of_points");
     return undefined;
 }
+
+/** The collection envelope shared by the Preset file and browser storage: a record whose `data` is a list. */
+export const isPresetCollectionEnvelope = (value: unknown): value is { data: unknown[] } =>
+    isRecord(value) && Array.isArray(value.data);
