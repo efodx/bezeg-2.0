@@ -1,6 +1,6 @@
 # Learn landing visual alignment work queue
 
-Status: planned, 2026-10-31. Source, decisions and shared acceptance: [specification](../../specs/learn-landing-visual-alignment.md). No task is started.
+Status: implemented, 2026-10-31 (tasks 1-4 done). Source, decisions and shared acceptance: [specification](../../specs/learn-landing-visual-alignment.md).
 
 All four tasks edit `src/learning/LearningPage.tsx` and `src/learning/LearningPage.css`, so they run in order. Tasks 1–3 could be given to one worker as a single slice; task 4 closes the work with responsive checks and the DESIGN.md record.
 
