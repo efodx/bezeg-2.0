@@ -17,7 +17,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | Id | Kind | Content | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | IA-0 | F0 | This plan, ADR 0026, spec marked scheduled | — | done |
-| IA-1a | F1 | `interpolation.ts` (barycentric Lagrange, node sets, error sampling, Runge table) | — | planned |
+| IA-1a | F1 | `interpolation.ts` (barycentric Lagrange, node sets, error sampling, Runge table) | — | done ([evidence](../../reviews/interpolation-approximation/ia-1a-kernel.md)) |
 | IA-1b | F1 | `leastSquares.ts` (QR, normal-equation display data, residuals) and `hermite.ts` (cubic Hermite, Catmull-Rom, Bézier conversion) | — | planned |
 | IA-1c | F1 | `subdivision.ts` (`fourPointStep`) with imported Chaikin identity tests | BS-1a | planned |
 | IA-A-* | F2a–F6 | I1 Lagrange vs Bézier, I2 Runge (I2 graph `G-FN`) | IA-1a | planned |
