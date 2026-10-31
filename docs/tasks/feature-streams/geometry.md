@@ -13,6 +13,7 @@ Rules and slice template: [feature streams](README.md). Port 4313. Handoffs: `do
 
 - **Convexity Batch 0 opens `G-CG`** for the Maps and Curves streams. Do it first and push it as soon as it is accepted. Its robustness ADR is a real decision with alternatives listed in the spec; the handler decides and records it.
 - The point-set/polygon graph is shared by all three families and by triangle geometry. Its interface has one owner, this stream. Other streams request changes through this file.
+- **Request from Curves (2026-10-31, advanced Bézier D2):** A6's separating-axis hull-disjointness test must accept real (off-grid) control points, because de Casteljau pieces leave the grid. D2's "overlapping" status and its no-intersection pair use this test, and the D2 graph waits for it. AB-1d itself needs no predicate: see the [AB-1d plan](../advanced-bezier/README.md#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31). Please record the chosen robustness rule (for example, a keep-biased overlap margin) in A6.
 - Mathematical review applies to every predicate, structure and trace. Discrete outcomes must never silently rely on tolerances ([shared constraints](../../specs/new-lesson-families.md#shared-constraints)).
 - Before `G-REG`: F0 and kernel slices for families 2 and 3 (T0 and S0) may run once convexity Batch 0 is accepted.
 - Sweep animations and Voronoi drawing are rendering-heavy. Measure them before choosing a drawing approach.
