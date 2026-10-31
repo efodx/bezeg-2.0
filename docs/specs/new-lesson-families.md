@@ -2,7 +2,8 @@
 
 **Status:** proposed, 2026-10-31. Specification only; no family is scheduled or implemented.
 **Agreed:** 2026-10-31. The owner approved the candidate families from the research notes, asked for line-sweep algorithms to be added, and asked for each family to be specified.
-**Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md) and [computational geometry candidates](../research/computational-geometry-candidates-2026-10-31.md).
+**Expanded:** 2026-10-31. The owner added seven families from the [expansion research](../research/lesson-family-candidates-2026-10-31-expansion.md) (candidates E1, E2, E3, E4, E6, E7, E8); phase portraits (E5), level sets and optimization (E9) and mechanical curves (E10) stay research candidates only.
+**Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md), [computational geometry candidates](../research/computational-geometry-candidates-2026-10-31.md) and the [expansion research](../research/lesson-family-candidates-2026-10-31-expansion.md).
 
 ## Purpose
 
@@ -22,6 +23,13 @@ All families follow the current learning model: a bilingual chapter in Learn wit
 | B-zlepki in NURBS / B-splines and NURBS | [b-splines-nurbs-lessons.md](b-splines-nurbs-lessons.md) | University | High | **Knot-vector and de Boor kernel** (needs an ADR) |
 | Algoritmi pometanja / Sweep-line algorithms | [sweep-algorithms-lessons.md](sweep-algorithms-lessons.md) | University | High | Event-queue/status trace model |
 | Interpolacija in aproksimacija / Interpolation and approximation | [interpolation-approximation-lessons.md](interpolation-approximation-lessons.md) | University | Medium | — |
+| Linearne preslikave ravnine / Linear maps of the plane | [linear-maps-lessons.md](linear-maps-lessons.md) | Upper secondary to university | Low–medium | **2×2 linear-map kernel** (matrix model, basis handles, grid image) |
+| Kompleksne preslikave / Complex maps | [complex-maps-lessons.md](complex-maps-lessons.md) | Upper secondary to university | Medium | **Complex Möbius kernel**, including circle inversion |
+| Geometrija trikotnika in inverzija / Triangle geometry and inversion | [triangle-geometry-lessons.md](triangle-geometry-lessons.md) | Upper secondary to university | Medium | Triangle-centre and circle kernel |
+| Verjetnost in statistika na grafu / Distributions, CLT and correlation | [probability-statistics-lessons.md](probability-statistics-lessons.md) | Upper secondary to university | Medium | **Density and convolution kernel** |
+| Fourierove vrste / Fourier series | [fourier-series-lessons.md](fourier-series-lessons.md) | University, secondary enrichment | Medium | Fourier coefficient kernel |
+| Projektivna geometrija stožnic / Projective geometry of conics | [projective-conics-lessons.md](projective-conics-lessons.md) | University | Medium | **Homogeneous-coordinate kernel** |
+| Napredne Bézierjeve teme / Advanced Bézier topics | [advanced-bezier-lessons.md](advanced-bezier-lessons.md) | University | Medium–high | — |
 
 Slovenian titles are working names. Each spec settles its terms by [choosing new terms](../localization.md#choosing-new-terms).
 
@@ -32,7 +40,13 @@ Slovenian titles are working names. Each spec settles its terms by [choosing new
 - B-splines precede the subdivision-curve lessons in interpolation and approximation, which reuse its uniform B-spline limit.
 - Numerical methods and function graphs are independent of the others; numerical methods may use the extended function catalogue when it exists.
 
-Suggested order: numerical methods, convexity and hulls, and curve geometry first (each delivers value with low effort or unlocks later families); then function graphs, triangulations and B-splines; then sweep algorithms and interpolation.
+- Complex maps own circle inversion; triangle geometry's inversion lesson (T5) depends on it. Triangle geometry owns the circumcentre and circle kernel (no circumcircle code exists yet), which the triangulation family may reuse; its point-set graph and orientation predicate come from the convexity core (soft dependency).
+- Distributions reuse the least-squares kernel of interpolation and approximation (I4) for any regression line; they do not duplicate it.
+- Projective conics build on the focus–directrix conics of function graphs and on the existing rational Bézier conics.
+- Advanced Bézier topics collect items the convexity and curve-geometry families leave out (Bézier clipping, arc-length parametrization, Coons patches) and use the convexity core for hull tests.
+- Linear maps and Fourier series are independent of the other families.
+
+Suggested order: numerical methods, convexity and hulls, and curve geometry first (each delivers value with low effort or unlocks later families); then function graphs, triangulations and B-splines; then sweep algorithms and interpolation. Among the 2026-10-31 additions, linear maps and complex maps come first (low dependency, both audiences, and they extend released content), triangle geometry follows the convexity core, and distributions follow interpolation I4; Fourier series, projective conics and advanced Bézier topics come after.
 
 ## Shared constraints
 
