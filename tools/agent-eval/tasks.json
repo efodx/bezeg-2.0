@@ -2,7 +2,7 @@
     "defaultTask": "chapter-activity-controls",
     "tooling": [
         ".agents/skills",
-        ".claude/skills",
+        ".claude",
         ".codex",
         ".gitignore",
         "AGENTS.md",
