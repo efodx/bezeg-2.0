@@ -42,11 +42,29 @@
     cursor: default;
 }
 
-.playground__toolbar button:focus-visible,
-.playground-anchor:focus-visible,
-.playground-handle:focus-visible {
+.playground__toolbar button:focus-visible {
     outline: 3px solid var(--bezeg-shell-focus);
     outline-offset: 2px;
+}
+
+/* SVG <g> outlines render unreliably; focus is shown by a ring circle around the dot instead. */
+.playground-anchor:focus,
+.playground-handle:focus,
+.playground__canvas:focus {
+    outline: none;
+}
+
+.playground-focus-ring {
+    display: none;
+    fill: none;
+    stroke: var(--bezeg-shell-focus);
+    stroke-width: 3;
+    pointer-events: none;
+}
+
+.playground-anchor:focus-visible .playground-focus-ring,
+.playground-handle:focus-visible .playground-focus-ring {
+    display: inline;
 }
 
 .playground__canvas {
@@ -83,14 +101,15 @@
 }
 
 .playground-anchor__dot {
-    fill: #bd8040;
-    stroke: #fffdf5;
+    fill: var(--bezeg-shell-ink-secondary);
+    stroke: var(--bezeg-shell-panel);
     stroke-width: 2.5;
 }
 
 .playground-anchor.is-selected .playground-anchor__dot {
-    fill: #d39a4a;
-    stroke: #654c2b;
+    fill: var(--bezeg-shell-ink);
+    stroke: var(--bezeg-shell-botanical-leaf-rule);
+    stroke-width: 4;
 }
 
 .playground-handle__stem {

@@ -223,6 +223,7 @@ describe('keyboard', () => {
         fireEvent.keyDown(el(), {key: 'ArrowRight'});
         fireEvent.keyDown(el(), {key: 'ArrowRight', repeat: true});
         fireEvent.keyDown(el(), {key: 'ArrowRight', repeat: true});
+        fireEvent.keyUp(el(), {key: 'ArrowRight'});
         expect(stored()!.anchors[0].position.x).toBe(515);
         fireEvent.click(button('Razveljavi'));
         expect(stored()!.anchors[0].position.x).toBe(500);
@@ -263,7 +264,7 @@ describe('localization', () => {
         expect(button('Undo')).toBeTruthy();
         expect(button('Load example')).toBeTruthy();
         expect(screen.getByRole('status').textContent).toBe('Number of points: 3, closed shape');
-        expect(screen.getByRole('toolbar').getAttribute('aria-label')).toBe('Drawing tools');
+        expect(screen.getByRole('group', {name: /Drawing tools/}).getAttribute('aria-label')).toBe('Drawing tools');
     });
 });
 
@@ -330,5 +331,137 @@ describe('extension point', () => {
         expect(ctx.selectedAnchor).toBe(2);
         expect(ctx.mode).toBe('inspect');
         expect(container.querySelector('.playground--inspect')).not.toBeNull();
+    });
+});
+
+describe('PG2 repairs', () => {
+    const anchorCount = (container: HTMLElement) => container.querySelectorAll('[data-role="anchor"]').length;
+
+    it('toggles the type when the double click is retargeted to the svg by pointer capture', () => {
+        const {svg} = renderPlayground();
+        threeCorners(svg);
+        fireEvent.doubleClick(svg, {clientX: 300, clientY: 100});
+        expect(stored()!.anchors[1].type).toBe('smooth-mirrored');
+        fireEvent.doubleClick(svg, {clientX: 700, clientY: 500}); // empty canvas: nothing
+        expect(stored()!.anchors.map(a => a.type)).toEqual(['corner', 'smooth-mirrored', 'corner']);
+    });
+
+    it('a double click on empty canvas adds one anchor and one undo step', () => {
+        for (const retargeted of [false, true]) {
+            cleanup(); appStorage.removeItem(PLAYGROUND_STORAGE_KEY);
+            const {svg, container} = renderPlayground();
+            click(svg, 100, 100);
+            click(svg, 300, 100);
+            click(svg, 500, 400);
+            const added = anchorEl(container, 2); // the second press of a real double click lands on the new anchor
+            click(added, 500, 400);
+            fireEvent.doubleClick(retargeted ? svg : added, {clientX: 500, clientY: 400});
+            expect(anchorCount(container)).toBe(3);
+            expect(stored()!.anchors[2].type).toBe('corner');
+            fireEvent.click(button('Razveljavi'));
+            expect(anchorCount(container)).toBe(2);
+        }
+    });
+
+    it('a double click on the first anchor closes the shape without also toggling its type', () => {
+        const {svg, container} = renderPlayground();
+        threeCorners(svg);
+        const first = anchorEl(container, 0);
+        click(first, 100, 100);
+        click(first, 100, 100);
+        fireEvent.doubleClick(first, {clientX: 100, clientY: 100});
+        expect(stored()!.closed).toBe(true);
+        expect(stored()!.anchors[0].type).toBe('corner');
+        fireEvent.click(button('Razveljavi'));
+        expect(stored()!.closed).toBe(false);
+        expect(stored()!.anchors).toHaveLength(3);
+    });
+
+    it('renders a focus ring circle in anchors and handles and no outline-based focus on the groups', () => {
+        const {svg, container} = renderPlayground();
+        threeCorners(svg);
+        expect(anchorEl(container, 0).querySelector('circle.playground-focus-ring')).not.toBeNull();
+        expect(handleEl(container, 0, 'out').querySelector('circle.playground-focus-ring')).not.toBeNull();
+    });
+
+    it('limits Ctrl+Z to the canvas and toolbar, not controls() content', () => {
+        const {svg, container} = renderPlayground({controls: () => <input aria-label="field"/>});
+        threeCorners(svg);
+        const notPrevented = fireEvent.keyDown(screen.getByLabelText('field'), {key: 'z', ctrlKey: true});
+        expect(notPrevented).toBe(true);
+        expect(anchorCount(container)).toBe(3);
+        fireEvent.keyDown(button('Razveljavi'), {key: 'z', ctrlKey: true});
+        expect(stored()!.anchors).toHaveLength(2);
+    });
+
+    it('stores a held arrow key once when released, not on every repeat', () => {
+        const {container} = renderPlayground();
+        fireEvent.click(button('Dodaj točko'));
+        const spy = vi.spyOn(appStorage, 'setItem');
+        const el = () => anchorEl(container, 0);
+        fireEvent.keyDown(el(), {key: 'ArrowRight'});
+        expect(spy).toHaveBeenCalledTimes(1);
+        for (let i = 0; i < 5; i++) fireEvent.keyDown(el(), {key: 'ArrowRight', repeat: true});
+        expect(spy).toHaveBeenCalledTimes(1);
+        fireEvent.keyUp(el(), {key: 'ArrowRight'});
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(stored()!.anchors[0].position.x).toBe(530);
+    });
+
+    it('Load example when already loaded commits no undo step; undo clears the selection', () => {
+        const {svg, container} = renderPlayground();
+        fireEvent.click(button('Naloži primer'));
+        fireEvent.click(button('Naloži primer'));
+        fireEvent.click(button('Razveljavi'));
+        expect(anchorCount(container)).toBe(0);
+        expect(button('Razveljavi').disabled).toBe(true);
+        threeCorners(svg);
+        fireEvent.focus(anchorEl(container, 0));
+        expect(button('Izbriši točko').disabled).toBe(false);
+        fireEvent.click(button('Razveljavi'));
+        expect(button('Izbriši točko').disabled).toBe(true);
+    });
+
+    it('moves focus to the canvas when the last anchor is deleted', () => {
+        const {svg, container} = renderPlayground();
+        fireEvent.click(button('Dodaj točko'));
+        const a = anchorEl(container, 0) as unknown as HTMLElement;
+        a.focus();
+        fireEvent.keyDown(a, {key: 'Delete'});
+        expect(anchorCount(container)).toBe(0);
+        expect(document.activeElement).toBe(svg);
+    });
+
+    it('uses a labelled group instead of a toolbar, and handles activate by selecting their anchor', () => {
+        const {container} = renderPlayground();
+        expect(screen.queryByRole('toolbar')).toBeNull();
+        expect(screen.getByRole('group', {name: 'Orodja za risanje'})).toBeTruthy();
+        fireEvent.click(button('Dodaj točko'));
+        fireEvent.click(button('Dodaj točko'));
+        expect(button('Izbriši točko').disabled).toBe(true);
+        fireEvent.keyDown(handleEl(container, 1, 'in'), {key: 'Enter'});
+        expect(button('Izbriši točko').disabled).toBe(false);
+    });
+
+    it('does not announce the stored drawing on mount, also under StrictMode', () => {
+        vi.useFakeTimers();
+        appStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(EXAMPLE_DRAWING));
+        render(<React.StrictMode><DrawingPlayground mode="draw"/></React.StrictMode>);
+        act(() => { vi.advanceTimersByTime(2000); });
+        expect(screen.getByRole('status').textContent).toBe('');
+        fireEvent.click(button('Počisti'));
+        act(() => { vi.advanceTimersByTime(600); });
+        expect(screen.getByRole('status').textContent).not.toBe('');
+    });
+
+    it('maps pointers through the bounding box when getScreenCTM is null, and through the CTM when present', () => {
+        const {svg} = renderPlayground();
+        svg.getScreenCTM = () => null;
+        svg.getBoundingClientRect = () => ({left: 100, top: 50, width: 500, height: 312.5, right: 600, bottom: 362.5, x: 100, y: 50, toJSON: () => ({})});
+        click(svg, 350, 206.25);
+        expect(stored()!.anchors[0].position).toEqual({x: 500, y: 312.5});
+        svg.getScreenCTM = () => ({inverse: () => ({a: 2, b: 0, c: 0, d: 2, e: -100, f: 0})}) as unknown as DOMMatrix;
+        click(svg, 400, 200);
+        expect(stored()!.anchors[1].position).toEqual({x: 700, y: 400});
     });
 });

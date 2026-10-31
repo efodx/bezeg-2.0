@@ -110,13 +110,20 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
     const dragRef = useRef<Drag | null>(null);
     const amendRef = useRef<{key: string; present: Drawing} | null>(null);
     const focusRef = useRef<{role: string; index: number} | null>(null);
-    const announceReady = useRef(false);
+    const announcedRef = useRef(history.present);
+    /** The last anchor a click created or closed, so the trailing dblclick of that same gesture is not a second action. */
+    const recentRef = useRef<{index: number; time: number} | null>(null);
 
-    const setHistory = useCallback((h: History<Drawing>) => {
+    const flushSave = useCallback(() => {
+        const present = historyRef.current.present;
+        if (present !== savedRef.current) { savedRef.current = present; saveDrawing(present); }
+    }, []);
+    /** `save: false` is for coalesced key-repeat amendments; they are stored once, when the key is released. */
+    const setHistory = useCallback((h: History<Drawing>, save = true) => {
         historyRef.current = h;
         setHistoryState(h);
-        if (h.present !== savedRef.current) { savedRef.current = h.present; saveDrawing(h.present); }
-    }, []);
+        if (save) flushSave();
+    }, [flushSave]);
     const commit = useCallback((next: Drawing) => { amendRef.current = null; setHistory(pushHistory(historyRef.current, next)); }, [setHistory]);
 
     const drawing = draft ?? history.present;
@@ -140,8 +147,12 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
 
     // Debounced live-region summary of the committed drawing (key repeat never announces each keystroke).
     useEffect(() => {
-        if (!announceReady.current) { announceReady.current = true; return; }
-        const timer = setTimeout(() => setAnnounce({count: history.present.anchors.length, closed: history.present.closed}), 500);
+        // Nothing is announced for the drawing present at mount (also across the StrictMode double-mount).
+        if (history.present === announcedRef.current) return;
+        const timer = setTimeout(() => {
+            announcedRef.current = history.present;
+            setAnnounce({count: history.present.anchors.length, closed: history.present.closed});
+        }, 500);
         return () => clearTimeout(timer);
     }, [history.present]);
 
@@ -152,7 +163,8 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
         const target = focusRef.current;
         if (!target) return;
         focusRef.current = null;
-        const el = svgRef.current?.querySelector(`[data-role="${target.role}"][data-index="${target.index}"]`);
+        const el = target.role === 'canvas' ? svgRef.current
+            : svgRef.current?.querySelector(`[data-role="${target.role}"][data-index="${target.index}"]`);
         (el as unknown as HTMLElement | null | undefined)?.focus?.();
     });
 
@@ -202,7 +214,8 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
             if (dist(p, from) < DRAG_THRESHOLD) return;
             drag.moved = true;
         }
-        updateDraft(dragResult(drag, p, e.altKey));        if (drag.kind === 'new') setSelected(drag.base.anchors.length);
+        updateDraft(dragResult(drag, p, e.altKey));
+        if (drag.kind === 'new') setSelected(drag.base.anchors.length);
     };
 
     /** End the drag. pointerup commits; lost capture commits the last draft; pointercancel discards. */
@@ -221,29 +234,51 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
             return;
         } else if (drag.kind === 'new') {
             commit(appendCorner(drag.base, drag.start));
+            recentRef.current = {index: drag.base.anchors.length, time: e.timeStamp};
             setSelected(drag.base.anchors.length);
         } else if (drag.kind === 'anchor' && drag.index === 0 && canClose(drag.base)) {
             commit(closeDrawing(drag.base));
+            recentRef.current = {index: 0, time: e.timeStamp};
         }
     };
 
+    /** Pointer capture retargets the dblclick to the svg, so fall back to hit-testing the click position. */
     const onDoubleClick = (e: React.MouseEvent<SVGSVGElement>) => {
+        const present = historyRef.current.present;
+        let index = -1;
         const el = (e.target as Element).closest?.('[data-role="anchor"]');
-        if (!el) return;
-        commit(toggleAnchorType(historyRef.current.present, Number(el.getAttribute('data-index'))));
+        if (el) index = Number(el.getAttribute('data-index'));
+        else {
+            const p = toUser(e.currentTarget, e.clientX, e.clientY);
+            let best = hit;
+            present.anchors.forEach((a, i) => { const d = dist(a.position, p); if (d <= best) { best = d; index = i; } });
+        }
+        if (index < 0 || !present.anchors[index]) return;
+        const recent = recentRef.current;
+        recentRef.current = null;
+        if (recent && recent.index === index && e.timeStamp - recent.time < 600) return; // the first click already acted
+        commit(toggleAnchorType(present, index));
     };
 
-    const undo = () => { amendRef.current = null; setHistory(undoHistory(historyRef.current)); };
-    const redo = () => { amendRef.current = null; setHistory(redoHistory(historyRef.current)); };
+    const undo = () => { amendRef.current = null; setSelected(null); setHistory(undoHistory(historyRef.current)); };
+    const redo = () => { amendRef.current = null; setSelected(null); setHistory(redoHistory(historyRef.current)); };
+    const loadExample = () => {
+        setSelected(null);
+        if (JSON.stringify(historyRef.current.present) === JSON.stringify(EXAMPLE_DRAWING)) return;
+        commit(EXAMPLE_DRAWING);
+    };
 
     const removeAnchor = (index: number) => {
         const next = deleteAnchor(historyRef.current.present, index);
         commit(next);
         setSelected(null);
-        if (next.anchors.length > 0) focusRef.current = {role: 'anchor', index: Math.min(index, next.anchors.length - 1)};
+        focusRef.current = next.anchors.length > 0 ? {role: 'anchor', index: Math.min(index, next.anchors.length - 1)} : {role: 'canvas', index: 0};
     };
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    const onKeyUp = (e: React.KeyboardEvent<Element>) => { if (e.key.startsWith('Arrow')) flushSave(); };
+
+    /** Attached to the canvas and the toolbar only, so text fields in `controls()` keep their own Ctrl+Z. */
+    const onKeyDown = (e: React.KeyboardEvent<Element>) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
             e.preventDefault();
             if (e.shiftKey) redo(); else undo();
@@ -272,15 +307,15 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
             const key = `${role}-${index}`;
             const amend = e.repeat && amendRef.current?.key === key && amendRef.current.present === current;
             const h = historyRef.current;
-            setHistory(amend ? {...h, present: next} : pushHistory(h, next));
+            setHistory(amend ? {...h, present: next} : pushHistory(h, next), !amend);
             amendRef.current = {key, present: next};
         } else if ((e.key === 'Delete' || e.key === 'Backspace') && role === 'anchor') {
             e.preventDefault();
             removeAnchor(index);
-        } else if ((e.key === 'Enter' || e.key === ' ') && role === 'anchor') {
+        } else if ((e.key === 'Enter' || e.key === ' ') && (role === 'anchor' || role.startsWith('handle'))) {
             e.preventDefault();
             setSelected(index);
-            if (index === 0 && canClose(current)) commit(closeDrawing(current));
+            if (role === 'anchor' && index === 0 && canClose(current)) commit(closeDrawing(current));
         }
     };
 
@@ -308,6 +343,7 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
                    tabIndex={0} role="button" aria-label={t(which === 'in' ? 'playground_handle_in_name' : 'playground_handle_out_name', {value0: i + 1})}
                    onFocus={() => setSelected(i)}>
                     <line x1={a.position.x} y1={a.position.y} x2={h.x} y2={h.y} className="playground-handle__stem"/>
+                    <circle cx={h.x} cy={h.y} r={9 * mark} className="playground-focus-ring"/>
                     <circle cx={h.x} cy={h.y} r={hit} className="playground-hit" pointerEvents={dist(h, a.position) < hit * 1.5 ? 'none' : undefined}/>
                     <circle cx={h.x} cy={h.y} r={6 * mark} className="playground-handle__dot"/>
                 </g>
@@ -318,6 +354,7 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
             <g key={`a-${i}`} className={`playground-anchor${isSel ? ' is-selected' : ''}`} data-role="anchor" data-index={i}
                tabIndex={0} role="button" aria-label={t('playground_point_name', {value0: i + 1, value1: typeName(a.type)})}
                aria-pressed={isSel} onFocus={() => setSelected(i)}>
+                <circle cx={a.position.x} cy={a.position.y} r={13 * mark} className="playground-focus-ring"/>
                 <circle cx={a.position.x} cy={a.position.y} r={hit} className="playground-hit"/>
                 <circle cx={a.position.x} cy={a.position.y} r={9 * mark} className="playground-anchor__dot"/>
             </g>
@@ -328,8 +365,8 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
         : t(announce.closed ? 'playground_summary_closed' : 'playground_summary_open', {value0: announce.count});
 
     return (
-        <div className={`playground playground--${mode}`} onKeyDown={onKeyDown}>
-            <div className="playground__toolbar" role="toolbar" aria-label={t('playground_toolbar')}>
+        <div className={`playground playground--${mode}`}>
+            <div className="playground__toolbar" role="group" aria-label={t('playground_toolbar')} onKeyDown={onKeyDown}>
                 <button type="button" onClick={undo} disabled={!canUndo(history)}>{t('playground_undo')}</button>
                 <button type="button" onClick={redo} disabled={!canRedo(history)}>{t('playground_redo')}</button>
                 <button type="button" onClick={() => commit(clearDrawing())} disabled={present.anchors.length === 0}>{t('playground_clear')}</button>
@@ -342,10 +379,10 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
                                 onClick={() => selectedIndex !== null && commit(setAnchorType(historyRef.current.present, selectedIndex, type))}>{t(key)}</button>
                     ))}
                 </span>
-                <button type="button" onClick={() => { commit(EXAMPLE_DRAWING); setSelected(null); }}>{t('playground_load_example')}</button>
+                <button type="button" onClick={loadExample}>{t('playground_load_example')}</button>
             </div>
             <svg ref={svgRef} className="playground__canvas" viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} role="group"
-                 aria-label={t('playground_canvas')} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
+                 aria-label={t('playground_canvas')} tabIndex={-1} onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={flushSave} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                  onPointerUp={e => finishDrag(e, true)} onPointerCancel={e => finishDrag(e, false)}
                  onLostPointerCapture={e => finishDrag(e, true)} onDoubleClick={onDoubleClick}>
                 <rect x={0} y={0} width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} className="playground__paper"/>
