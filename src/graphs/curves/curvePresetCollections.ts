@@ -125,7 +125,6 @@ export const curvePresetCollections = {
     extrapolation: bezier("bezier-extrapolation"),
     elevation: bezier("elevation-graph"),
     "weighted-parameterization": bezier("alpha-param"),
-    curvature: bezier("curve-curvature"),
     rational: rational("rational-bezier"),
     "rational-decasteljau": rational("rational-decasteljau"),
     "rational-elevation": rational("rational-bezier-elevation"),
@@ -142,6 +141,12 @@ export const curvePresetCollections = {
     "spline-g1-symmetric": curveCollection("g1-symmetric-spline-graph", {type: "JSXSymmetricQuadraticG1SplineCurve"}),
     "spline-parameterization": curveCollection("alfaparametrizacije", {type: "JSXQubicC2SplineCurve"}),
 } as const;
+
+/**
+ * The curvature overlay's collection (lesson L2). It stays out of `curvePresetCollections`, and so out of the file importer and
+ * the collection-key contract, until the graph is registered (gate G-REG); registration adds it there.
+ */
+export const curvatureCurvePresetCollection = bezier("curve-curvature");
 
 /**
  * Accepted file collections that no Demonstration declares. `g1-spline` belonged to the affine G1 spline graph, which no

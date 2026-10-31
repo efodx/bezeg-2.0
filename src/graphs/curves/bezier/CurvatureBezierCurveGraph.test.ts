@@ -1,6 +1,6 @@
 import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT, PARABOLA_CONTROL_POINTS} from './CurvatureBezierCurveGraph';
 import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
-import {curvePresetCollections} from '../curvePresetCollections';
+import {curvatureCurvePresetCollection} from '../curvePresetCollections';
 import {setLanguage, t} from '../../../localization';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
@@ -248,11 +248,11 @@ describe('CurvatureBezierCurveGraph', () => {
     test('preset round trip through the collection check keeps the data', () => {
         const graph = makeGraph();
         const preset = graph.defaultPreset();
-        const checked = curvePresetCollections.curvature.check(JSON.parse(JSON.stringify(preset)));
+        const checked = curvatureCurvePresetCollection.check(JSON.parse(JSON.stringify(preset)));
         expect('rejection' in checked).toBe(false);
         expect((checked as any).data).toEqual(preset);
-        expect(graph.presetCollection()).toBe(curvePresetCollections.curvature);
-        expect('rejection' in curvePresetCollections.curvature.check([['JSXRationalBezierCurve', {points: [[0, 0]], weights: [1]}]])).toBe(true);
+        expect(graph.presetCollection()).toBe(curvatureCurvePresetCollection);
+        expect('rejection' in curvatureCurvePresetCollection.check([['JSXRationalBezierCurve', {points: [[0, 0]], weights: [1]}]])).toBe(true);
     });
 
     test('the overlay reads the live curve and the state parameter', () => {

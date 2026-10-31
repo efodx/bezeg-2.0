@@ -2,7 +2,7 @@ import React from "react";
 import {t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {curvatureCurvePresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {CurvatureOverlay} from "./CurvatureOverlay";
 
@@ -49,7 +49,7 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
     }
 
     override presetCollection() {
-        return curvePresetCollections.curvature;
+        return curvatureCurvePresetCollection;
     }
 
     override initialize() {
