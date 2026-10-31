@@ -1,6 +1,6 @@
 # Curves stream: handler handoff 8
 
-Handler 8 wrote this on 2026-10-31, after it accepted AB-C-2a, when only gated work remained. No agents are running. The stream file now reads `Run state: waiting on G-REG`, and the supervisor relaunches the stream when that gate opens. Keep these settings:
+Handler 8 wrote this on 2026-10-31, after it accepted AB-C-2a, when only gated work remained. No agents are running. **Update:** right after this note, geometry handler 3 opened `G-CG` (`69be60e`, `just check` green at `aabaf9f`). The stream is `active` again, and handler 9 starts with AB-1d. Keep these settings:
 - Handler: Opus, `--permission-mode auto`, `--effort medium`.
 - Workers: `bezeg-worker` Sonnet `medium` (`high` for difficult kernels).
 - Reviews: `bezeg-reviewer` Sonnet.
@@ -21,7 +21,12 @@ The handler settled two decisions, recorded in the advanced-bezier tasks README 
 - the rejection of a linked import whose corners differ.
 
 ## Gate status (checked 2026-10-31)
-`G-REG`, `G-CURVE`, `G-FN` and `G-CG` are all `closed`. Every family's remaining slices wait on one of them. CG-B3-2a also waits for B2 to ship.
+`G-CG` is open. `G-REG`, `G-CURVE` and `G-FN` are `closed`. Every family's remaining slices wait on one of them. CG-B3-2a also waits for B2 to ship.
+
+## Next step now: AB-1d (F1, `bezier-clipping.ts`)
+- Source: [advanced-bezier spec](../../../specs/advanced-bezier-lessons.md) D2 and the [advanced-bezier tasks](../../../tasks/advanced-bezier/README.md) row AB-1d. Hull tests come from `G-CG`: the kernel is `src/compgeo/` (exact integer-grid predicates, ADR 0021), and the point-set graph is `src/graphs/compgeo/PointSetGraph.tsx`, whose overlay hook is described in its module comment. Send interface change requests to Geometry through `docs/tasks/feature-streams/geometry.md`.
+- Plan the slice in the tasks README first: how the hull predicate is reused and the oracle tests. Then send one kernel worker (Sonnet `high`) and a mathematics review. AB-B graphs (F2a) follow after AB-1d.
+- When AB-1d is accepted and no ungated F2a remains, set `Run state: waiting on G-REG` again.
 
 ## Next steps, when `G-REG` opens
 1. Registration (F2b) for the accepted unregistered graphs:
