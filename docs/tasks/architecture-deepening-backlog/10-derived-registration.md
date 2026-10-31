@@ -1,6 +1,6 @@
 # 10. Derived Demonstration and lesson registration
 
-Status: planned. Lane: Learning; after test-consolidation tasks 1–3. Source: [specification §10](../../specs/architecture-deepening-backlog.md#10-derived-demonstration-and-lesson-registration).
+Status: implemented 2026-10-31 in `4fc59c6`; browser and production route checks pending (evidence in [10-derived-registration.evidence.md](10-derived-registration.evidence.md)). Lane: Learning; after test-consolidation tasks 1–3. Source: [specification §10](../../specs/architecture-deepening-backlog.md#10-derived-demonstration-and-lesson-registration).
 
 ## Scope and entry points
 
