@@ -21,7 +21,7 @@ All families follow the current learning model: a bilingual chapter in Learn wit
 | Triangulacije in Voronojevi diagrami / Triangulations and Voronoi diagrams | [triangulation-voronoi-lessons.md](triangulation-voronoi-lessons.md) | University | Medium–high | Triangulation adjacency structure, incircle predicate |
 | B-zlepki in NURBS / B-splines and NURBS | [b-splines-nurbs-lessons.md](b-splines-nurbs-lessons.md) | University | High | **Knot-vector and de Boor kernel** (needs an ADR) |
 | Algoritmi pometanja / Sweep-line algorithms | [sweep-algorithms-lessons.md](sweep-algorithms-lessons.md) (planned) | University | High | Event-queue/status trace model |
-| Interpolacija in aproksimacija / Interpolation and approximation | [interpolation-approximation-lessons.md](interpolation-approximation-lessons.md) (planned) | University | Medium | — |
+| Interpolacija in aproksimacija / Interpolation and approximation | [interpolation-approximation-lessons.md](interpolation-approximation-lessons.md) | University | Medium | — |
 
 Slovenian titles are working names. Each spec settles its terms by [choosing new terms](../localization.md#choosing-new-terms).
 
