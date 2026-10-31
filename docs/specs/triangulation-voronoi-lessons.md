@@ -1,6 +1,6 @@
 # Triangulations and Voronoi diagrams (Triangulacije in Voronojevi diagrami)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled, 2026-10-31 ([tasks](../tasks/triangulation-voronoi/README.md)).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [computational geometry candidates](../research/computational-geometry-candidates-2026-10-31.md), Family B, the Delaunay sample sequence (5) and ear-clipping sample (3), and its correctness notes. Primary sources it cites: de Berg, Cheong, van Kreveld, Overmars, *Computational Geometry* (3rd ed., Springer 2008; Ch. 9 on Delaunay triangulations, including Observation 9.3 and Lemma 9.4 as the note cites them); Fisk 1978 (DOI 10.1016/0095-8956(78)90059-X); Fortune 1987 (DOI 10.1007/BF01840357, only as the later consumer of the Voronoi drawing); FMF *Računska geometrija* syllabus. Index: [new lesson families](new-lesson-families.md). Core: [convexity-hulls-lessons.md](convexity-hulls-lessons.md#shared-computational-geometry-core).
 
