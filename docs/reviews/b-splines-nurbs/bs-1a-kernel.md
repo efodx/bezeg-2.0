@@ -28,3 +28,13 @@ Files (all new, `src/bezeg/impl/curve/bspline/`): `knot-vector.ts`, `basis.ts`, 
 ## Not verified
 
 No browser or UI use (none in this slice); no performance measurement; insertion, extraction, rational and derivativeSource are BS-1b.
+
+## Mathematical review and disposition (handler 2, 2026-10-31)
+
+Independent review (Sonnet, read-only, 6 tool uses): no formula errors in the Cox-de Boor table (0/0 rule, half-open spans, right end on the last non-empty span), the stable `basisValues` scheme, `findSpan` with multiplicities, de Boor alphas and reported knot pairs, validation order and the k+1 multiplicity limit, the uniform quadratic weights or Chaikin. Hand checks: L2 triangle at t=0.5 and the Chaikin identity (1.125, 1.75). Oracles judged independent and non-vacuous.
+
+- Design choices settled (all agreed): degree 0 accepted, but not advertised in the UI; `n < k` throws `RangeError` (`wrong_length` covers a length mismatch only); evaluators throw on invalid vectors; open Chaikin keeps its end points (the subdivision lesson states this).
+- **`wrong_length` unreachable through evaluators (low)**: deferred to BS-A-2a. Evaluators derive n from `u.length`, so UI callers (the knot editor, preset restore) must call `validateKnotVector(u, k, n)` with their own n and draw nothing while it returns a code. This is recorded in the B-splines task README.
+- `uniformQuadraticSegment` is cross-checked on one segment only. Accepted as sufficient for the contract.
+
+Checks: `just unit src/bezeg/impl/curve/bspline` passed at 64e14ab (clean).
