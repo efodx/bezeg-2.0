@@ -14,6 +14,7 @@
         "scripts/commands.cjs",
         "scripts/commands.test.cjs",
         "scripts/serve-smoke-build.cjs",
+        "scripts/test-slots.cjs",
         "tools/agent-usage"
     ],
     "tasks": [
