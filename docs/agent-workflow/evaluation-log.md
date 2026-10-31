@@ -1326,3 +1326,14 @@ Repairs/timing: no agent repairs. Pilot 11:20–14:35 UTC including calibration,
 Context: research worker reached 105k input in 7 turns despite a ≤150-line read instruction; HANDOFF returned a partial report. Sandbox handler and worker watchers failed (transcript glob), so in-run budgets were not enforced; handler peaks 126k–173k.
 Handoff — research (Explore, Haiku): ad hoc brief, not handoff-v12; read chunk limit not followed; partial report covered lines 30–1307.
 Correction (2026-10-31, after cleanup): the research worker ended at 152k input, not 105k; HANDOFF arrived about 47k late. The handler itself reached about 291k input without starting the `--self` watcher, past the 150k/190k handoff thresholds; the remaining work was small docs and cleanup, so it finished in place. Follow-up fixes: maintained hidden test for `chapter-activity-controls`, watcher glob, branch adoption and cost in `grade`, README launch notes; the Sonnet-handler pilot is planned in `docs/tasks/agent-eval-pilots/01-sonnet-handler.md`.
+
+## 2026-10-31 — Curves stream kernels CG-1 and BS-1a (handlers 1 and 2)
+
+Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pure mathematical kernels, size M each. Handlers: Opus 5.5, auto mode, effort medium; brief handoff-v12. Evidence: [cg-1-kernel.md](../reviews/curve-geometry/cg-1-kernel.md), [bs-1a-kernel.md](../reviews/b-splines-nurbs/bs-1a-kernel.md).
+
+- CG-1 curvature kernel: `bezeg-worker` Sonnet 5.5 `medium`, 28 tool uses, ~70k tokens. Accepted after two low-severity review fixes (comb tooth clamp, tight quarter-circle oracle). One medium finding, tangential cusps, is deferred to CG-B3-2a.
+- CG-1 review: `bezeg-reviewer` Sonnet, 5 tool uses, ~25k tokens. 2 actionable findings plus 1 deferral and 1 accepted.
+- BS-1a knot/basis/de Boor kernel: `bezeg-worker` Sonnet 5.5 `high` (de Boor mathematics), 30 tool uses, ~56k tokens. Four mutations each caught by several tests.
+- BS-1a review (handler 2): `bezeg-reviewer` Sonnet, 6 tool uses, 29k tokens, 44 s. It found no formula errors and agreed with the worker's four design choices. One low note, that `wrong_length` cannot be reached through the evaluators, is deferred to BS-A-2a as a UI-gate rule. Accepted without repair; pushed `64e14ab`, `4deaa51`.
+- Context: handler 1 handed off at its 150k soft threshold. Worker watchers printed "no transcript for this agent id" for workers launched from the worktree session. Handler 2 relies on watchers plus the brief's turn cap.
+- Observation: a CG-1 test run picked up BS-1a's in-progress untracked test file, which ran concurrently in the same folder. Path-filtered `just unit` on a shared parent folder mixes the two workers' results. For concurrent kernels, filter on the worker's own files.
