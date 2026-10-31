@@ -17,6 +17,7 @@ afterEach(() => setLanguage("sl"));
 
 class ExposedGraph extends CoonsPatchGraph {
     restoreDefaultScene() { this.prepareLessonDefaultScene(); }
+    get isReady() { return this.graphSession?.isReady === true; }
     edit() { return this.workspaceEdit(); }
 }
 
@@ -194,7 +195,7 @@ describe("Presets (acceptance 6)", () => {
 
     it("restores the default scene, replacing imported data", async () => {
         const {graph} = mount();
-        await waitFor(() => expect(graph.graphSession?.isReady).toBe(true));
+        await waitFor(() => expect(graph.isReady).toBe(true));
         const imported = JSON.parse(JSON.stringify(graph.defaultPreset()));
         imported[0][1].shown = "b";
         imported[0][1].linkedCorners = false;

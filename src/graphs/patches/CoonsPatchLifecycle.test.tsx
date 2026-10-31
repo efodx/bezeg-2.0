@@ -1,5 +1,6 @@
 import {act, render, waitFor} from '@testing-library/react';
 import {boards} from 'jsxgraph';
+import {createPortal} from 'react-dom';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {GraphHost} from '../base/GraphHost';
@@ -14,7 +15,14 @@ import {LifecycleProbe} from './surface-view/jsxLifecycleProbe.test-helper';
 const boardCount = (): number => Object.keys(boards as object).length;
 let probe: LifecycleProbe;
 
-beforeAll(installBoardShims);
+beforeAll(() => {
+    installBoardShims();
+    // React DOM registers its event listeners once per container and never removes them (react-dom 18
+    // listenToAllSupportedEvents): `selectionchange` on the document for the first root, and the full set on
+    // `document.body` for the first portal into it. Register both before the probe takes its baseline, as the tensor
+    // test's warm-up mount does, so the probe counts only what the graph leaves behind.
+    render(createPortal(<div/>, document.body)).unmount();
+});
 beforeEach(() => { probe = new LifecycleProbe(); probe.install(); });
 afterEach(() => { probe.uninstall(); document.body.innerHTML = ''; });
 
