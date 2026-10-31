@@ -1337,3 +1337,15 @@ Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pur
 - BS-1a review (handler 2): `bezeg-reviewer` Sonnet, 6 tool uses, 29k tokens, 44 s. It found no formula errors and agreed with the worker's four design choices. One low note, that `wrong_length` cannot be reached through the evaluators, is deferred to BS-A-2a as a UI-gate rule. Accepted without repair; pushed `64e14ab`, `4deaa51`.
 - Context: handler 1 handed off at its 150k soft threshold. Worker watchers printed "no transcript for this agent id" for workers launched from the worktree session. Handler 2 relies on watchers plus the brief's turn cap.
 - Observation: a CG-1 test run picked up BS-1a's in-progress untracked test file, which ran concurrently in the same folder. Path-filtered `just unit` on a shared parent folder mixes the two workers' results. For concurrent kernels, filter on the worker's own files.
+
+## 2026-10-31 — Curves stream kernels BS-1b, IA-1a/1b/1c and PS-1a (handler 2, recorded by handler 3)
+
+Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pure mathematical kernels, size M each. Handler: Opus 5.5, auto mode, effort medium; brief handoff-v12. Usage figures are from tool results as relayed in [handler handoff 2](../reviews/feature-streams/curves/handler-handoff-2.md); timings were not recorded.
+
+- BS-1b insertion/extraction/rational kernel: `bezeg-worker` Sonnet 5.5 `high`, 34 tool uses, ~103k tokens (highest worker of the session, below the 135k watcher threshold). Accepted without repair ([evidence](../reviews/b-splines-nurbs/bs-1b-kernel.md)); the review added a spec amendment (extraction raises unclamped domain ends to multiplicity k).
+- IA-1a barycentric/nodes/Runge: `bezeg-worker` Sonnet 5.5 `medium`, 17+6 tool uses (one repair round: tolerances, overflow guard), ~54k tokens.
+- IA-1b least squares and Hermite/Catmull-Rom: `bezeg-worker` Sonnet `medium`, 17 tool uses, ~48k tokens. Accepted without repair; the review corrected the spec's Catmull-Rom locality claim (two segments to four). The handler spot-checked the tangent-scaling mutation itself.
+- IA-1c subdivision: `bezeg-worker` Sonnet `medium`, 14 tool uses, ~38k tokens. Accepted without repair; one mutation was reverted with `git checkout` without an observed run (accepted, covered by literals).
+- PS-1a distributions: `bezeg-worker` Sonnet `medium`, 16+4 tool uses (one repair round: Poisson cap, erfc oracles), ~64k tokens.
+- Mathematical reviews: `bezeg-reviewer` Sonnet, 6–10 tool uses and 25–31k tokens each.
+- Observation: two workers batched mutations or reverted with `git checkout`; later briefs ask for one mutation per run and hand-edited reverts.
