@@ -143,3 +143,116 @@
 .playground {
     position: relative;
 }
+
+/* Look underneath overlays (LookUnderneath.tsx). Colours come from shell tokens only. */
+.lu-polygon {
+    fill: none;
+    stroke: var(--bezeg-shell-ink-secondary);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 5;
+    opacity: 0.7;
+}
+
+.lu-polygon.is-selected {
+    stroke: var(--bezeg-shell-ink);
+    stroke-width: 2.5;
+    stroke-dasharray: none;
+    opacity: 1;
+}
+
+.lu-level-1 { fill: none; stroke: var(--bezeg-shell-ochre); stroke-width: 2; }
+.lu-level-2 { fill: none; stroke: var(--bezeg-shell-focus); stroke-width: 2; }
+.lu-dot-1 { fill: var(--bezeg-shell-ochre); }
+.lu-dot-2 { fill: var(--bezeg-shell-focus); }
+.lu-bt { fill: var(--bezeg-shell-ink); stroke: var(--bezeg-shell-panel); stroke-width: 2.5; }
+
+.lu-single {
+    fill: none;
+    stroke: var(--bezeg-shell-lesson-ink);
+    stroke-width: 3;
+    stroke-dasharray: 10 6;
+    stroke-linejoin: round;
+}
+
+.lu-label {
+    fill: var(--bezeg-shell-ink);
+    paint-order: stroke;
+    stroke: var(--bezeg-shell-panel);
+    stroke-width: 3px;
+    font-weight: 600;
+}
+
+.lu-joint-label {
+    fill: var(--bezeg-shell-ink-secondary);
+}
+
+.lu-degree {
+    fill: var(--bezeg-shell-lesson-ink);
+}
+
+.lu-segment-hit {
+    fill: none;
+    stroke: transparent;
+    cursor: pointer;
+}
+
+.lu-controls {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.lu-switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.lu-switches legend {
+    float: none;
+    width: auto;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.lu-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 32px;
+}
+
+.lu-segments {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.lu-segments button {
+    min-height: 32px;
+    padding: 0 0.8rem;
+    border: 1px solid var(--bezeg-shell-control-rule);
+    border-radius: 6px;
+    background: var(--bezeg-shell-panel);
+    color: var(--bezeg-shell-choice-ink);
+    font: inherit;
+    cursor: pointer;
+}
+
+.lu-segments button:disabled { opacity: 0.5; cursor: default; }
+.lu-segments button:focus-visible,
+.lu-switch input:focus-visible { outline: 3px solid var(--bezeg-shell-focus); outline-offset: 2px; }
+
+@media (pointer: coarse) {
+    .lu-switch, .lu-segments button { min-height: 44px; }
+    .lu-switch input { width: 24px; height: 24px; }
+}
+
+.lu-note {
+    margin: 0;
+    color: var(--bezeg-shell-ink-secondary);
+}

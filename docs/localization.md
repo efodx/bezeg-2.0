@@ -58,6 +58,9 @@ The static document initially declares Slovenian, and runtime selection updates 
 | mešani odvod | twist (mixed partial derivative) |
 | točka / kotna točka / gladka točka | anchor point / corner point / smooth point (drawing playground) |
 | ročica | handle (drawing playground) |
+| odsek | segment of the drawing (one cubic Bézier piece; drawing playground) |
+| stik | joint (where two segments meet; drawing playground) |
+| Poglej pod površje | Look underneath (drawing playground mode) |
 | oblika | shape (drawing playground) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).

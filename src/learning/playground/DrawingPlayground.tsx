@@ -53,6 +53,8 @@ export interface DrawingPlaygroundProps {
     overlays?: (ctx: PlaygroundOverlayContext) => React.ReactNode;
     /** Extra content rendered below the toolbar. */
     controls?: (ctx: PlaygroundOverlayContext) => React.ReactNode;
+    /** Called when the pointer goes down on an overlay element with data-role="segment" and data-index (a pointer-events stroke hit path); the press then edits nothing. */
+    onSelectSegment?: (index: number) => void;
 }
 
 type Drag =
@@ -95,7 +97,7 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): Point {
     return clampPoint({x: clientX, y: clientY});
 }
 
-export default function DrawingPlayground({mode, overlays, controls}: DrawingPlaygroundProps) {
+export default function DrawingPlayground({mode, overlays, controls, onSelectSegment}: DrawingPlaygroundProps) {
     const t = useT();
     const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(loadDrawing()));
     const historyRef = useRef(history);
@@ -189,6 +191,10 @@ export default function DrawingPlayground({mode, overlays, controls}: DrawingPla
         const el = (e.target as Element).closest?.('[data-role]');
         const role = el?.getAttribute('data-role');
         const index = Number(el?.getAttribute('data-index'));
+        if (role === 'segment') {
+            onSelectSegment?.(index);
+            return;
+        }
         if (role === 'anchor') {
             setSelected(index);
             dragRef.current = {kind: 'anchor', pointerId: e.pointerId, base, index, start: p, moved: false};

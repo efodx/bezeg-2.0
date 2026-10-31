@@ -93,6 +93,7 @@ Chosen during PG2 by the [term process](../localization.md#choosing-new-terms). 
 - *handle* → **ročica**. Inkscape's Slovenian translation uses it for node handles ("Handle" → *Ročica*, "Smooth node handle" → *Ročica gladkega vozlišča*; `po/sl.po` on the 1.3.x branch, checked 2026-10-31); it is distinct from *kontrolna točka*, which fits the later reading that handles are control points.
 - *shape* → **oblika**; *undo* → **Razveljavi**, *redo* → **Ponovi** (the standard Slovenian editor commands).
 - Join types in names: *kotna (C0)*, *gladka (G1)*, *gladka (C1)*, using the same C0/G1/C1 names as the classification.
+- *segment* → **odsek**, *joint* → **stik**, *Look underneath* → **Poglej pod površje** (PG3). *Odsek* is general Slovenian usage for a piece of a curve; the repository had no word for it. Other overlay labels reuse *kontrolne točke*, *De Casteljaujeva konstrukcija*, *stopnja*.
 
 ## Persistence
 
