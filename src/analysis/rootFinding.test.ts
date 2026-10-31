@@ -86,8 +86,20 @@ describe('Newton history (acceptance 2, 3)', () => {
 
     it('detects an exact root reached by iteration', () => {
         const history = newtonHistory('cubic-three-roots', 2, 10);
-        expect(history.termination === 'root-found' || history.termination === 'running').toBe(true);
+        expect(history.termination).toBe('root-found');
         expect(Math.abs(history.iterates[history.iterates.length - 1] - 1)).toBeLessThan(1e-10);
+    });
+
+    it('reports a run that converges to neighbouring doubles as root-found, not repeated-iterate', () => {
+        // From 1 the iterates reach sqrt(2) to double precision but never give f(x) = 0 exactly.
+        const newton = newtonHistory('square-minus-two', 1, ROOT_FINDING_MAX_STEPS);
+        expect(newton.termination).toBe('root-found');
+        expect(newton.stepsTaken).toBeLessThan(10);
+        expect(Math.abs(newton.iterates[newton.iterates.length - 1] - Math.SQRT2)).toBeLessThan(1e-15);
+        const secant = secantHistory('square-minus-two', 1, 2, ROOT_FINDING_MAX_STEPS);
+        expect(secant.termination).toBe('root-found');
+        expect(secant.stepsTaken).toBeLessThan(15);
+        expect(Math.abs(secant.iterates[secant.iterates.length - 1] - Math.SQRT2)).toBeLessThan(1e-15);
     });
 
     it('reports running before and step-cap at the cap, and is deterministic', () => {
@@ -112,7 +124,7 @@ describe('N2 when Newton fails (acceptance 4)', () => {
         const last = history.iterates[history.iterates.length - 1];
         expect(Math.abs(last - bisect(cycle.value, -2, -1))).toBeLessThan(1e-10);
         expect(Math.abs(last - (-1.769292354238631))).toBeLessThan(1e-10);
-        expect(['root-found', 'repeated-iterate', 'running']).toContain(history.termination);
+        expect(history.termination).toBe('root-found');
     });
 
     it('reports the distinct cap status for a long non-repeating run, and running below the cap', () => {

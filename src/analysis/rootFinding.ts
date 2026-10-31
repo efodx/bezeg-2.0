@@ -104,6 +104,18 @@ export interface RootFindingHistory {
  */
 const repeats = (iterates: readonly number[], next: number): boolean => iterates.includes(next);
 
+/** A step this many units of double precision (relative to max(1, |x|)) or smaller counts as convergence. */
+export const ROOT_FINDING_CONVERGED_ULPS = 4;
+
+/**
+ * Convergence rule: a step |x_{k+1} - x_k| of at most a few units in the last place means the iteration has reached
+ * the root to double precision. Such a run usually never hits f(x) = 0 exactly but alternates between neighbouring
+ * doubles, so without this rule it would end as repeated-iterate, the "no convergence" status. It stops as root-found,
+ * keeping the last iterate. A genuine cycle such as 0, 1, 0 takes steps of size 1 and is unaffected.
+ */
+const converged = (x: number, next: number): boolean =>
+    Math.abs(next - x) <= ROOT_FINDING_CONVERGED_ULPS * Number.EPSILON * Math.max(1, Math.abs(x));
+
 function validateExample(id: RootFindingExampleId, steps: number): RootFindingExample {
     const example = rootFindingExample(id);
     if (!isRootFindingStepCount(steps)) throw new RangeError('The step count must be an integer in [0, 60].');
@@ -113,6 +125,7 @@ function validateExample(id: RootFindingExampleId, steps: number): RootFindingEx
 /**
  * Newton's method x_{k+1} = x_k - f(x_k) / f'(x_k) after at most `steps` steps. The termination of the last iterate is
  * always reported (an exact root or a flat tangent is found without taking a further step); no division by zero is attempted.
+ * A step within ROOT_FINDING_CONVERGED_ULPS also ends the run as root-found.
  */
 export function newtonHistory(id: RootFindingExampleId, start: number, steps: number): RootFindingHistory {
     const example = validateExample(id, steps);
@@ -133,6 +146,7 @@ export function newtonHistory(id: RootFindingExampleId, start: number, steps: nu
         if (!Number.isFinite(next)) return finish('non-finite');
         const again = repeats(iterates, next);
         iterates.push(next);
+        if (converged(x, next)) return finish('root-found');
         if (again) return finish('repeated-iterate');
     }
 }
@@ -160,6 +174,7 @@ export function secantHistory(id: RootFindingExampleId, first: number, second: n
         if (!Number.isFinite(next)) return finish('non-finite');
         const again = repeats(iterates, next);
         iterates.push(next);
+        if (converged(x, next)) return finish('root-found');
         if (again) return finish('repeated-iterate');
     }
 }
