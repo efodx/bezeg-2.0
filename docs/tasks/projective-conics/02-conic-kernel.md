@@ -1,6 +1,6 @@
 # 02 Conic kernel, pencil parameter and Pascal (F1, Batch A)
 
-Spec: K2, K3, [implementation decisions](../../specs/projective-conics-lessons.md#implementation-decisions) and [correctness notes](../../specs/projective-conics-lessons.md#correctness-notes). Decisions: [ADR 0031](../../adr/0031-projective-conics-exact-kernel-and-family.md) §1–2. Depends on 01.
+Spec: K2, K3, [implementation decisions](../../specs/projective-conics-lessons.md#implementation-decisions) and [correctness notes](../../specs/projective-conics-lessons.md#correctness-notes). Decisions: [ADR 0033](../../adr/0033-projective-conics-exact-kernel-and-family.md) §1–2. Depends on 01.
 
 Scope: `src/projective/conic.ts` (without the five-point solver, which is task 04), `src/projective/conicPencil.ts`, `src/projective/pascal.ts`, and their tests. Pure TypeScript.
 
@@ -19,7 +19,7 @@ Acceptance:
    - \(P\) is outside.
    - The polar of \((1,0,0)\) is \(x=0\), and the pole of the line at infinity is the centre.
    - For a parabola, the pole of the line at infinity is the ideal point of its axis.
-4. Pencil parameter (ADR 0031 §2): for a base point \(Q_0\) on the conic and an integer direction \((p,q)\), the second intersection is exact and rational. It is ideal when the direction is asymptotic, and it is \(Q_0\) when the direction is tangent. A fixed direction table exports its size as a constant. Check: on \(9x^2+25y^2=225\) with \(Q_0=(5,0)\) and direction \((1,m)\), the point lies at \(s=-90/(9+25m^2)\).
+4. Pencil parameter (ADR 0033 §2): for a base point \(Q_0\) on the conic and an integer direction \((p,q)\), the second intersection is exact and rational. It is ideal when the direction is asymptotic, and it is \(Q_0\) when the direction is tangent. A fixed direction table exports its size as a constant. Check: on \(9x^2+25y^2=225\) with \(Q_0=(5,0)\) and direction \((1,m)\), the point lies at \(s=-90/(9+25m^2)\).
 5. `pascal.ts` gives the three Pascal points of an ordered hexagon and their exact determinant. A side through two coincident points is a typed status. K2 checks:
    - The ellipse hexagon gives \((-15,24)\), \((12,\tfrac35)\), \((\tfrac{15}2,\tfrac92)\) and determinant 0.
    - Pappus gives \((\tfrac85,\tfrac65)\), \((\tfrac{22}5,\tfrac95)\) and \((3,\tfrac32)\).

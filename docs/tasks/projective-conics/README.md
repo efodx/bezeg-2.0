@@ -1,6 +1,6 @@
 # Projective geometry of conics: implementation tasks
 
-Source: [projective conics spec](../../specs/projective-conics-lessons.md). Decisions: [ADR 0031](../../adr/0031-projective-conics-exact-kernel-and-family.md). Stream: [functions](../feature-streams/functions.md). Slice kinds: [family template](../feature-streams/README.md#family-template).
+Source: [projective conics spec](../../specs/projective-conics-lessons.md). Decisions: [ADR 0033](../../adr/0033-projective-conics-exact-kernel-and-family.md). Stream: [functions](../feature-streams/functions.md). Slice kinds: [family template](../feature-streams/README.md#family-template).
 
 Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) runs at `high`, because its cofactor and rank classification is demanding exact algebra. Return at most 400 words. Bulky evidence goes to `docs/reviews/projective-conics/`.
 

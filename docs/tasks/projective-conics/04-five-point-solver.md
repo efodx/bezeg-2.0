@@ -1,6 +1,6 @@
 # 04 Five-point solver and rational arc (F1, Batch B)
 
-Spec: K4, and the solver and bridge tests in [testing decisions](../../specs/projective-conics-lessons.md#testing-decisions). Decisions: [ADR 0031](../../adr/0031-projective-conics-exact-kernel-and-family.md) §1 and §3. Depends on 02.
+Spec: K4, and the solver and bridge tests in [testing decisions](../../specs/projective-conics-lessons.md#testing-decisions). Decisions: [ADR 0033](../../adr/0033-projective-conics-exact-kernel-and-family.md) §1 and §3. Depends on 02.
 
 Scope: `conicFromFivePoints` in `src/projective/conic.ts`, `src/projective/rationalArc.ts`, and their tests. The task reads the rational Bézier kernels and does not change them.
 

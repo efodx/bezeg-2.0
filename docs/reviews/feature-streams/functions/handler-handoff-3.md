@@ -8,7 +8,7 @@ Handler 3 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this not
 - **Committed locally and pushed only to `origin/stream-functions-h3`, not `master`.** This branch holds three commits on top of `master`:
   - the task 03 WIP kernel commit;
   - the S4 spec decision. The horizontal example is now \(2(x-1)(x+1)/((x-2)(x+2))\), equal to 2.0625 at \(x=10\);
-  - family 3 F0 (73d8e8f): [tasks](../../../tasks/projective-conics/README.md), [ADR 0031](../../../adr/0031-projective-conics-exact-kernel-and-family.md), terms settled, spec marked scheduled;
+  - family 3 F0 (73d8e8f): [tasks](../../../tasks/projective-conics/README.md), [ADR 0033](../../../adr/0033-projective-conics-exact-kernel-and-family.md) (renumbered from 0031 by handler 4: master already used 0031), terms settled, spec marked scheduled;
   - the task 03 review repairs, with this note and the research files ([review](../../school-function-graphs/03-polynomial-rational-math-review.md)).
 - **Checks at the repair commit.** `just typecheck` passed. `just unit src/analysis` passed, and the mutation check was observed. The full `just unit` run waited about 23 minutes for a test slot behind `stream-maps`. It had just started when Claude Code stopped it because the system was low on memory, so it has **not run** on these commits.
 

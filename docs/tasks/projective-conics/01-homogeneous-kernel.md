@@ -1,6 +1,6 @@
 # 01 Homogeneous-coordinate kernel (F1, Batch A)
 
-Spec: [reuse and new modules](../../specs/projective-conics-lessons.md#reuse-and-new-modules), K1, and the kernel tests in [testing decisions](../../specs/projective-conics-lessons.md#testing-decisions). Decisions: [ADR 0031](../../adr/0031-projective-conics-exact-kernel-and-family.md) §1 and §5.
+Spec: [reuse and new modules](../../specs/projective-conics-lessons.md#reuse-and-new-modules), K1, and the kernel tests in [testing decisions](../../specs/projective-conics-lessons.md#testing-decisions). Decisions: [ADR 0033](../../adr/0033-projective-conics-exact-kernel-and-family.md) §1 and §5.
 
 Scope: `src/projective/homogeneous.ts` and its test file. No React, JSXGraph or localization. Do not edit `src/compgeo/` or the rational Bézier kernels.
 

@@ -1,6 +1,6 @@
 # 03 Conic sampler (F1, Batch A)
 
-Spec: [implementation decisions](../../specs/projective-conics-lessons.md#implementation-decisions), and the graph needs of K2, K3 and K5. Decision: [ADR 0031](../../adr/0031-projective-conics-exact-kernel-and-family.md) §3. Depends on 02.
+Spec: [implementation decisions](../../specs/projective-conics-lessons.md#implementation-decisions), and the graph needs of K2, K3 and K5. Decision: [ADR 0033](../../adr/0033-projective-conics-exact-kernel-and-family.md) §3. Depends on 02.
 
 Scope: `src/projective/conicSampler.ts` and its tests. Pure TypeScript. Its doubles are for drawing only.
 
