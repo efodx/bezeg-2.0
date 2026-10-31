@@ -8,7 +8,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 | --- | --- | --- | --- | --- | --- |
 | [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | accepted 2026-10-31 |
 | [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | accepted 2026-10-31 |
-| [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | planned |
+| [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | accepted 2026-10-31 |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | planned |
 | [05 Batch A graphs](05-batch-a-graphs.md) | A | F2a | none | 01–03 | planned |
 | [06 Batch A release](06-batch-a-release.md) | A | F2b–F6 | `G-REG` | 05 | planned |

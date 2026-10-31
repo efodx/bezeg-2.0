@@ -203,6 +203,28 @@ describe('sampleConic: repairs from review', () => {
         }
     });
 
+    it('an exact parabola whose double discriminant rounds to non-zero still samples (re-review)', () => {
+        // (a x + b y)^2 + 1e9 (b x - a y) = 0: a unit-scale parabola through the origin. A, B, C exceed 2^53, so
+        // 4AC - B^2 evaluated in doubles is non-zero for these pairs although it is exactly 0.
+        const s9 = 1000000000n;
+        for (const [a, b] of [
+            [1000000007n, 999999937n],
+            [300000007n, 200000003n],
+        ]) {
+            const c = conic(a * a, 2n * a * b, b * b, s9 * b, -s9 * a, 0);
+            expect(classify(c)).toBe('parabola');
+            const k = c.map(Number);
+            expect(4 * k[0] * k[2] - k[1] * k[1]).not.toBe(0); // the case this test exists for
+            const s = sampleConic(c, VIEW);
+            expect(s.status).toBe('ok');
+            expect(s.pieces).toHaveLength(1);
+            const pts = allPoints(s);
+            expect(pts.length).toBeGreaterThan(10);
+            for (const p of pts) expect(residual(c, p)).toBeLessThanOrEqual(1e-12);
+            expectInView(pts);
+        }
+    });
+
     it('far, large-coefficient conic keeps the 1e-12 residual', () => {
         const c = conic(3, 1, 2, -7000, -5000, 5000000);
         const kind = classify(c);

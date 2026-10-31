@@ -107,10 +107,11 @@ function lineHit(k: Coef, x0: number, y0: number, dx: number, dy: number): Pt | 
 /**
  * A point on a smooth real conic. Principal axes first: through the centre, one axis always meets an ellipse and the
  * transverse axis meets a hyperbola; the line through the origin parallel to a parabola's axis meets it once.
- * A fan of other directions is the fallback.
+ * A fan of other directions is the fallback. `parabola` comes from the exact classification: with coefficients above
+ * 2^53, 4AC - B^2 in doubles can be non-zero for an exact parabola, and its "centre" would be rounding noise.
  */
-function basePoint(k: Coef): Pt | null {
-    const det = 4 * k[0] * k[2] - k[1] * k[1];
+function basePoint(k: Coef, parabola: boolean): Pt | null {
+    const det = parabola ? 0 : 4 * k[0] * k[2] - k[1] * k[1];
     const cx = det !== 0 ? (k[1] * k[4] - 2 * k[2] * k[3]) / det : 0;
     const cy = det !== 0 ? (k[1] * k[3] - 2 * k[0] * k[4]) / det : 0;
     const phi = Math.atan2(k[1], k[0] - k[2]) / 2; // eigen-direction of the quadratic part
@@ -230,7 +231,8 @@ function toPieces(lists: Pt[][]): ConicPiece[] {
 }
 
 function sampleSmooth(type: ConicType, k: Coef, view: SamplerView, density: number): SampledConic {
-    const q0 = basePoint(k);
+    const q0 = basePoint(k, type === 'parabola');
+    // A guard only: every test conic finds a base point. Near-degenerate conics with huge coefficient ranges might not.
     if (!q0) return {type, status: 'no-base-point', pieces: [], markers: []};
     const [gx, gy] = grad(k, q0.x, q0.y);
     const tangent = Math.atan2(gx, -gy); // direction (-gy, gx) is tangent at q0
