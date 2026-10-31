@@ -7,7 +7,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | accepted 2026-10-31 |
-| [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | planned |
+| [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | accepted 2026-10-31 |
 | [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | planned |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | planned |
 | [05 Batch A graphs](05-batch-a-graphs.md) | A | F2a | none | 01–03 | planned |
@@ -36,3 +36,5 @@ Sources and the search method: [term research](../../reviews/projective-conics/t
 ## Conventions fixed by the kernels
 
 - **Sign of a homogeneous triple (task 01):** after the gcd, \(w>0\); for \(w=0\) the first non-zero entry is positive. A finite point therefore keeps \(w>0\), so `det3` with \(w=1\) agrees with `orient` (ADR 0033 §5). Lines use the same rule, which matters only for equality.
+- **`classify` reading of degenerate conics (task 02):** rank 2 with \(B^2=4AC\) is `parallel-lines` or `empty` in the affine sense. An `empty` conic has no affine point, but a rank-2 `empty` conic (two conjugate parallel lines, such as \(x^2+w^2\)) keeps one real ideal point, its singular point. `point` is always finite. A rank-2 conic with \(A=B=C=0\), that is \(w(Dx+Ey+Fw)\), is `line-pair`: the line at infinity and one finite line. An exhaustive check over coefficients in \([-2,2]\) pins these readings against sampled signs and zeros.
+- **Direction table size (task 02):** `DIRECTION_BOUND = 14` for now, not the spec's 256 entries with \(|p|,|q|\le64\). Task 05's drag measurement fixes the size (ADR 0033 §2).

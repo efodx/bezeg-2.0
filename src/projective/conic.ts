@@ -178,6 +178,15 @@ function rank(c: Conic): 1 | 2 | 3 {
  * = 0 a parabola; > 0 a hyperbola. Det = 0, rank 2: B^2-4AC > 0 two lines meeting in a finite point; < 0 one real
  * point (two complex lines); = 0 parallel lines, or empty when the principal minors sum to a positive value.
  * Rank 1 is a double line.
+ *
+ * 'empty' is the affine reading: no real point in the affine plane. A rank-2 'empty' conic (two conjugate complex
+ * parallel lines, such as x^2 + w^2) still has one real projective point, its ideal singular point; it is not a
+ * 'point', which is always finite here and drawn as a marker.
+ *
+ * A rank-2 conic whose quadratic part vanishes (A = B = C = 0) is w(Dx + Ey + Fw): the line at infinity together
+ * with one finite line, which meet in the ideal point of that line. Projectively this is a real line pair, so it is
+ * 'line-pair', not 'parallel-lines' (it has only one finite line). Its minors sum is -(D^2 + E^2) < 0, so it is
+ * always real.
  */
 export function classify(c: Conic): ConicType {
     const disc = discriminant(c);
@@ -191,6 +200,7 @@ export function classify(c: Conic): ConicType {
     }
     if (r === 1) return 'double-line';
     if (disc > 0n) return 'line-pair';
+    if (c[0] === 0n && c[1] === 0n && c[2] === 0n) return 'line-pair';
     if (disc < 0n) return 'point';
     // Rank 2 with B^2 = 4AC: parallel lines. Real iff the sum of the principal minors m00 + m11 of 2M is negative.
     const m = matrix(c);

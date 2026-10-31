@@ -26,6 +26,25 @@ describe('pencil parameter (ADR 0033 section 2)', () => {
         expect(r.s.num * 436n).toBe(-180n * r.s.den);
     });
 
+    it('s does not depend on the representative of Q0: (10 : 0 : 2) gives the same s as (5, 0)', () => {
+        // Direction (1, 1): s = -90/(9 + 25) = -45/17, point (5 - 45/17, -45/17) = (40, -45, 17).
+        const r = secondIntersection(ellipse, hom(10, 0, 2), [1, 1]);
+        if (r.status !== 'ok' || r.s === null) throw new Error('expected ok');
+        expect([r.s.num, r.s.den]).toEqual([-45n, 17n]);
+        expect(equal(r.point, hom(40, -45, 17))).toBe(true);
+        const neg = secondIntersection(ellipse, hom(-10, 0, -2), [1, 1]);
+        expect(neg.status === 'ok' && neg.s !== null && [neg.s.num, neg.s.den]).toEqual([-45n, 17n]);
+    });
+
+    it('an ideal Q0 spans the line at infinity with any other direction: the other ideal point, s = null', () => {
+        // 16x^2 - 9y^2 = 144 meets the line at infinity in (3 : 4 : 0) and (3 : -4 : 0).
+        const r = secondIntersection(hyperbola, hom(3, 4, 0), [1, 0]);
+        if (r.status !== 'ok') throw new Error('expected ok');
+        expect(r.s).toBeNull();
+        expect(r.ideal).toBe(true);
+        expect(equal(r.point, hom(3, -4, 0))).toBe(true);
+    });
+
     it('the tangent direction returns Q0 itself', () => {
         const r = secondIntersection(ellipse, point(5, 0), [0, 1]);
         expect(r.status === 'tangent' && equal(r.point, point(5, 0))).toBe(true);

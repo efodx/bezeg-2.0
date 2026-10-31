@@ -70,6 +70,70 @@ describe('classify', () => {
         expect(classify(conic(4, 0, -3, 0, 4, 4))).toBe('hyperbola');
     });
 
+    it('w(x + y): the line at infinity with a finite line is a real line pair, not parallel lines', () => {
+        expect(classify(conic(0, 0, 0, 1, 1, 0))).toBe('line-pair');
+        expect(classify(conic(0, 0, 0, 2, -1, 3))).toBe('line-pair');
+        // Rank 1: the line at infinity doubled.
+        expect(classify(conic(0, 0, 0, 0, 0, 1))).toBe('double-line');
+    });
+
+    it('agrees with sampled signs and zeros for every conic with coefficients in [-2, 2]', () => {
+        // Independent oracle: plain-number evaluation on sampled projective points. F(lambda p) = lambda^2 F(p), so
+        // signs compare across representatives. A real conic separates the plane (both signs occur); a double line,
+        // a point or an empty conic does not. Exact for these sizes (all values well below 2^53).
+        const real = new Set(['ellipse', 'circle', 'parabola', 'hyperbola', 'line-pair', 'parallel-lines']);
+        const grid: [number, number, number][] = [];
+        for (let X = -16; X <= 16; X++) for (let Y = -16; Y <= 16; Y++) grid.push([X, Y, 4]);
+        for (let i = -8; i <= 8; i++) for (let j = -8; j <= 8; j++) if (i !== 0 || j !== 0) grid.push([i, j, 0]);
+        const r = [-2, -1, 0, 1, 2];
+        const failures: string[] = [];
+        let checked = 0;
+        for (const A of r) for (const B of r) for (const C of r) for (const D of r) for (const E of r) for (const F of r) {
+            if (A === 0 && B === 0 && C === 0 && D === 0 && E === 0 && F === 0) continue;
+            const f = (X: number, Y: number, W: number) =>
+                A * X * X + B * X * Y + C * Y * Y + D * X * W + E * Y * W + F * W * W;
+            const pts = [...grid];
+            const det2 = 4 * A * C - B * B;
+            if (det2 !== 0) pts.push([E * B - 2 * C * D, B * D - 2 * A * E, det2]); // affine centre (Cramer)
+            else {
+                const [dx, dy] = A !== 0 ? [-B, 2 * A] : C !== 0 ? [1, 0] : [0, 0];
+                pts.push([1000 * dx, 1000 * dy, 1], [-1000 * dx, -1000 * dy, 1]);
+            }
+            let pos = false;
+            let neg = false;
+            const zeros: string[] = [];
+            for (const [X, Y, W] of pts) {
+                const v = f(X, Y, W);
+                if (v > 0) pos = true;
+                else if (v < 0) neg = true;
+                else if (W !== 0) zeros.push(`${X / W},${Y / W}`);
+                else {
+                    const s = (X < 0 || (X === 0 && Y < 0) ? -1 : 1) / Math.hypot(X, Y); // ideal point up to sign
+                    zeros.push(`${X * s},${Y * s},0`);
+                }
+            }
+            const c = conic(A, B, C, D, E, F);
+            const type = classify(c);
+            const finiteZeros = new Set(zeros.filter((z) => !z.endsWith(',0')));
+            const idealZeros = new Set(zeros.filter((z) => z.endsWith(',0')));
+            const smooth = ['ellipse', 'circle', 'parabola', 'hyperbola'].includes(type);
+            const broken = [
+                (pos && neg) !== real.has(type) && 'sign change',
+                // 'empty' has no affine point; a rank-2 'empty' keeps its ideal singular point (affine reading).
+                type === 'empty' && (finiteZeros.size > 0 || idealZeros.size > 1) && 'zeros of empty',
+                type === 'point' && finiteZeros.size + idealZeros.size > 1 && 'zeros of point',
+                type !== 'empty' && (det8(c) === 0n) === smooth && 'determinant',
+                // Type is invariant under x <-> y and under the translation x -> x + 1.
+                classify(conic(C, B, A, E, D, F)) !== type && 'swap',
+                classify(conic(A, B, C, D + 2 * A, E + B, F + D + A)) !== type && 'translation',
+            ].filter(Boolean);
+            if (broken.length > 0) failures.push(`${type} for [${A}, ${B}, ${C}, ${D}, ${E}, ${F}]: ${broken.join(', ')}`);
+            checked++;
+        }
+        expect(failures.slice(0, 10)).toEqual([]);
+        expect(checked).toBe(5 ** 6 - 1);
+    }, 60_000);
+
     it('rejects the zero conic and non-integers', () => {
         expect(() => conic(0, 0, 0, 0, 0, 0)).toThrow(RangeError);
         expect(() => conic(0.5, 0, 0, 0, 0, 1)).toThrow(RangeError);
