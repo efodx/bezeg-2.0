@@ -70,7 +70,15 @@
 2. Point-set triangulations: \(2n-2-k\) triangles; edge flips change the angles.
 3. Delaunay: empty circle, illegal edge, Lawson flips until the triangulation is legal.
 4. Voronoi cells, and duality with Delaunay.
-5. *Algoritmi pometanja*: a Bentley–Ottmann sweep, with Fortune's beach line as a stretch goal.
+5. *Algoritmi pometanja*: a Bentley–Ottmann sweep, with Fortune's beach line as a stretch goal. Moved to its own Family C at the owner's request (2026-10-31).
+
+**Family C — "Algoritmi pometanja" (university; added at the owner's request, 2026-10-31).** The sweep paradigm as its own chapter, matching the FMF syllabus items *Presečišča daljic. Algoritmi pometanja.* Section numbers are from the dBCKO 3rd-ed. TOC and must be rechecked when specified.
+1. *Pometanje kot ideja*: an event queue and a status structure, shown on a simple 1D problem (overlapping intervals) before any geometry.
+2. *Presečišča daljic*: Bentley–Ottmann (dBCKO §2.1) — status order, neighbour tests, swaps at intersection events, output-sensitive \(O((n+k)\log n)\).
+3. *Razdelitev na monotone večkotnike*: the polygon sweep with start/end/split/merge/regular vertices (dBCKO §3.2), then triangulating a monotone polygon (§3.3), contrasting ear clipping in Family B.
+4. *Fortuneov algoritem*: beach line of parabolic arcs, site and circle events, false alarms (dBCKO §7.2); the Voronoi diagram from Family B as the result.
+5. Optional: closest pair by a sweep with a \(\delta\)-strip (contrast to divide and conquer, rank 11), and overlay of two subdivisions (dBCKO §2.3).
+Families B and C share the predicate module and step-trace model from Family A; Fortune depends on Family B's Voronoi drawing.
 
 **Recommended first batch (3–4 activities):**
 - A1 orientation;
