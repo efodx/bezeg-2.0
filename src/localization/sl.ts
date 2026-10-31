@@ -1157,7 +1157,7 @@ export const sl = {
     "complex_recip_readout_circle_centre": "Središče c krožnice inverzije",
     "complex_recip_readout_circle_radius": "Polmer r krožnice inverzije",
     "complex_recip_readout_inversion": "Inverzija z' točke z v krožnici",
-    "complex_recip_note": "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = −arg z; obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z − c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži.",
+    "complex_recip_note": "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = −arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z − c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži.",
     "complex_recip_status_predict": "1/z je skrit. Napovej z̄ in |z| ter kje leži 1/z; šele nato pritisni Pokaži 1/z.",
     "complex_recip_status_z_zero": "z = 0: 1/z in w/z nista definirana; 1/z narašča preko vsake meje, ko gre z → 0. Argument števila 0 ni definiran.",
     "complex_recip_status_outside": "|z| > 1: z je zunaj enotske krožnice, zato je 1/z znotraj nje (|1/z| = 1/|z| < 1).",

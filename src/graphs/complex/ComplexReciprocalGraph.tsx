@@ -96,6 +96,13 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     private pointRadius?: JXG.Point;
     /** The direction (radians) in which the radius handle sits on the circle; it follows the drag and is 0 after anything else. */
     private handleAngle = 0;
+    /** True only while the radius-handle drag writes its model, so that every other commit puts the handle back at angle 0. */
+    private draggingRadius = false;
+
+    protected override commitModel(next: ComplexReciprocalModel, options: { syncScene?: boolean } = {}): void {
+        if (!this.draggingRadius) this.handleAngle = 0;
+        super.commitModel(next, options);
+    }
 
     override presetCollection() {
         return complexReciprocalPresetCollection;
@@ -332,9 +339,14 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
             const dx = point.X() - model().centreRe;
             const dy = point.Y() - model().centreIm;
             const distance = Math.hypot(dx, dy);
-            if (distance > 0) this.handleAngle = Math.atan2(dy, dx);
             const radius = Math.min(INVERSION_RADIUS_MAX, Math.max(INVERSION_RADIUS_MIN, snapInversionRadius(distance)));
-            this.ignoreOutOfDomain(() => this.setRadius(radius, {syncScene: false}));
+            this.draggingRadius = true;
+            try {
+                this.ignoreOutOfDomain(() => this.setRadius(radius, {syncScene: false}));
+            } finally {
+                this.draggingRadius = false;
+            }
+            if (distance > 0) this.handleAngle = Math.atan2(dy, dx);
             this.syncRadiusHandle();
         });
         this.pointZ = draggable("$$z$$", "o", colors.z, {re: model().zRe, im: model().zIm}, true, () => true, operandDrag("z"));

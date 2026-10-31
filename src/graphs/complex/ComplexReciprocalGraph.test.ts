@@ -302,6 +302,40 @@ test('dragging z, w, the centre and the radius handle projects onto the grid ins
     expect(graph.model).toEqual(model);
 });
 
+test('the radius handle returns to centre + (r, 0) after Reset and after a preset restore, once it was dragged to another angle', () => {
+    const graph = makeGraph({asyncState: false});
+    set(graph, {circleVisible: true});
+    const dragToUpperLeft = () => {
+        const handle = points(graph)[RADIUS];
+        handle.x = graph.model.centreRe - 0.5;
+        handle.y = graph.model.centreIm + 0.5;
+        handle.handlers.drag();
+        expect(handle.X()).toBeLessThan(graph.model.centreRe);
+        expect(handle.Y()).toBeGreaterThan(graph.model.centreIm);
+    };
+    const expectOnRight = () => {
+        const {centreRe, centreIm, radius} = graph.model;
+        expect(at(points(graph)[RADIUS])).toEqual([centreRe + radius, centreIm]);
+    };
+    const checkpoint = graph.captureLessonState();
+    dragToUpperLeft();
+    apply(graph, {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'});
+    expectOnRight();
+    dragToUpperLeft();
+    graph.restoreLessonState(checkpoint);
+    expectOnRight();
+    dragToUpperLeft();
+    graph.importPresetData({...graph.model, centreRe: 0.5, radius: 0.75});
+    expectOnRight();
+});
+
+test('for z = -1 the arguments of z and of 1/z are both pi, so arg 1/z = -arg z holds only modulo 2 pi', () => {
+    const graph = makeGraph({asyncState: false});
+    set(graph, {zRe: -1, zIm: 0, reciprocalVisible: true});
+    expect(rows(graph)['z-argument']).toMatch(/^π ≈ 3,142$/);
+    expect(rows(graph)['reciprocal-argument']).toMatch(/^π ≈ 3,142$/);
+});
+
 test('the inversion circle shows z\' = c + r^2 / conj(z - c), fixes points on the circle, has no image at the centre, and guards a bad radius', () => {
     const graph = makeGraph({asyncState: false});
     controls(graph).showCircle.props.onClick();

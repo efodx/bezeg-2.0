@@ -1158,7 +1158,7 @@ export const en: Record<keyof typeof sl, string> = {
     "complex_recip_readout_circle_centre": "Centre c of the inversion circle",
     "complex_recip_readout_circle_radius": "Radius r of the inversion circle",
     "complex_recip_readout_inversion": "Inversion z' of z in the circle",
-    "complex_recip_note": "1/z = z̄/|z|², so |1/z| = 1/|z| and arg 1/z = −arg z; the reciprocal is the inversion in the unit circle followed by the reflection in the real axis. The number 0 has no reciprocal. Inversion in the circle with centre c and radius r is z' = c + r²/conj(z − c); the centre has no image. Values are computed from the grid coordinates.",
+    "complex_recip_note": "1/z = z̄/|z|², so |1/z| = 1/|z| and arg 1/z = −arg z modulo 2π (on the negative real axis both arguments are π); the reciprocal is the inversion in the unit circle followed by the reflection in the real axis. The number 0 has no reciprocal. Inversion in the circle with centre c and radius r is z' = c + r²/conj(z − c); the centre has no image. Values are computed from the grid coordinates.",
     "complex_recip_status_predict": "1/z is hidden. Predict z̄ and |z|, and where 1/z lies; only then press Show 1/z.",
     "complex_recip_status_z_zero": "z = 0: 1/z and w/z are not defined; 1/z grows without bound as z → 0. The argument of 0 is undefined.",
     "complex_recip_status_outside": "|z| > 1: z is outside the unit circle, so 1/z is inside it (|1/z| = 1/|z| < 1).",
