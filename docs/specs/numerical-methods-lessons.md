@@ -1,6 +1,6 @@
 # Numerical methods on the graph
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled, 2026-10-31 (feature stream `functions`). Tasks: [docs/tasks/numerical-methods](../tasks/numerical-methods/README.md); decisions 1–2 and the Simpson and family choices: [ADR 0021](../adr/0021-numerical-methods-demonstrations.md); Slovenian terms settled in the task README.
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates, §2 Numerical methods on graphs](../research/lesson-family-candidates-2026-10-31.md) (candidates 1, 2, 3, 6; sample sequences 1–3; correctness notes), which cites the FMF syllabi *Numerične metode* (1ISRM 2016/17) and *Numerične metode 2* (1PrMa 2017/18), *Analiza 2* (first-order ODEs) and the matura catalogue p. 16 (root finding to a stated accuracy with technology). Syllabi are 2016/17–2017/18 copies; current versions were not checked. Part of the [new lesson families](new-lesson-families.md) index.
 

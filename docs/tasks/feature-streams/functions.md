@@ -5,7 +5,7 @@ Rules and slice template: [feature streams](README.md). Port 4315. Handoffs: `do
 
 | # | Family | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Numerical methods on the graph | [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md) | Kernels: none. Graph code (extends `IterativeFunctionGraph`): `G-FN`; registration and lessons: `G-REG` | planned |
+| 1 | Numerical methods on the graph | [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md) | Kernels: none. Graph code (extends `IterativeFunctionGraph`): `G-FN`; registration and lessons: `G-REG` | F0 done ([tasks](../numerical-methods/README.md), ADR 0021); kernels 01–03 in progress |
 | 2 | Function graphs for the matura | [school-function-graphs-lessons.md](../../specs/school-function-graphs-lessons.md) | Function catalogue extension kernel and its ADR: none. Graph code: `G-FN`; registration and lessons: `G-REG` | planned |
 | 3 | Projective geometry of conics | [projective-conics-lessons.md](../../specs/projective-conics-lessons.md) | Family 2's focus–directrix conics; existing rational Bézier conics; homogeneous-coordinate kernel and exactness ADR | planned |
 | 4 | Fourier series | [fourier-series-lessons.md](../../specs/fourier-series-lessons.md) | Coefficient kernel: none. Graph code: `G-FN`; registration and lessons: `G-REG`. Epicycles drawing ADR by measurement | planned |
