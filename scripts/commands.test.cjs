@@ -404,13 +404,13 @@ test('real just preserves quoted recipe arguments when available', t => {
 
 test('test-slot budget follows the machine and per-machine overrides', () => {
     const GB = 1024 ** 3;
-    // Memory limits the 16 GB machine; threads limit the 64 GB one.
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {}}), {slots: 2, workers: 3});
+    // Memory limits the 16 GB machine to one slot once the agent sessions are reserved; threads limit the 64 GB one.
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {}}), {slots: 1, workers: 4});
     assert.deepEqual(slots.machineBudget({threads: 32, memoryBytes: 64 * GB, env: {}}), {slots: 3, workers: 10});
-    assert.deepEqual(slots.machineBudget({threads: 8, memoryBytes: 12 * GB, env: {}}), {slots: 1, workers: 4});
+    assert.deepEqual(slots.machineBudget({threads: 8, memoryBytes: 12 * GB, env: {}}), {slots: 1, workers: 2});
     assert.deepEqual(slots.machineBudget({threads: 2, memoryBytes: 4 * GB, env: {}}), {slots: 1, workers: 1});
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_SLOTS: '1'}}), {slots: 1, workers: 6});
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_WORKERS: '4'}}), {slots: 2, workers: 4});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_SLOTS: '2'}}), {slots: 2, workers: 2});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_WORKERS: '3'}}), {slots: 1, workers: 3});
     assert.throws(() => slots.machineBudget({env: {BEZEG_TEST_SLOTS: '0'}}), /BEZEG_TEST_SLOTS must be a positive integer/);
 });
 
@@ -442,7 +442,27 @@ test('test slots queue a third holder, reclaim dead holders and release on deman
     } finally { cleanup(dir); }
 });
 
-test('heavy commands take a slot and pass its worker cap; filtered unit runs skip the queue', async () => {
+test('a second run of the same heavy command in the same checkout is refused, other pairs are not', async () => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-slot-dup-'));
+    const env = {BEZEG_TEST_SLOTS: '3', BEZEG_TEST_WORKERS: '2', BEZEG_TEST_SLOT_DIR: dir};
+    const stderr = {write() {}};
+    const root = path.join(dir, 'worktree');
+    // Another live process (the parent of this test runner) holds `unit` in the checkout.
+    fs.writeFileSync(path.join(dir, 'slot-1.json'), JSON.stringify({pid: process.ppid, command: 'unit', root, started: Date.now()}));
+    try {
+        await assert.rejects(slots.acquireSlot({command: 'unit', root, env, stderr}), new RegExp(`\`unit\` is already running in this checkout \\(pid ${process.ppid}`));
+        const build = await slots.acquireSlot({command: 'build', root, env, stderr});
+        const elsewhere = await slots.acquireSlot({command: 'unit', root: path.join(dir, 'other'), env, stderr});
+        assert.deepEqual([build.index, elsewhere.index], [2, 3]);
+        build.release();
+        elsewhere.release();
+        // A dead holder is no duplicate.
+        fs.writeFileSync(path.join(dir, 'slot-1.json'), JSON.stringify({pid: 2 ** 30, command: 'unit', root, started: Date.now()}));
+        (await slots.acquireSlot({command: 'unit', root, env, stderr})).release();
+    } finally { cleanup(dir); }
+});
+
+test('heavy commands take a slot and pass its worker cap; filtered unit runs skip the queue with fewer workers', async () => {
     const root = fixture();
     const priorNpmExecPath = process.env.npm_execpath;
     const npmCli = path.join(root, 'npm-cli.js');
@@ -454,7 +474,7 @@ test('heavy commands take a slot and pass its worker cap; filtered unit runs ski
     try {
         assert.equal(await commands.execute('unit', [], {root, env}), 0);
         assert.equal(await commands.execute('unit', ['src/a.test.ts'], {root, env}), 0);
-        assert.deepEqual(fs.readFileSync(received, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [{workers: '3', held: 1}, {workers: '3', held: 0}]);
+        assert.deepEqual(fs.readFileSync(received, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [{workers: '3', held: 1}, {workers: '2', held: 0}]);
         assert.deepEqual(fs.readdirSync(slotDir), []);
     } finally {
         if (priorNpmExecPath === undefined) delete process.env.npm_execpath;

@@ -9,10 +9,14 @@ const os = require('node:os');
 const path = require('node:path');
 
 const RESERVED_THREADS = 2; // left for the desktop, IDE and browser
-const RESERVED_MEMORY_GB = 6; // desktop, IDE, browser, or a game
+// Desktop, IDE, browser or a game (6 GB), plus the agent sessions that launch the runs: measured 2026-10-31, ten
+// Claude Code sessions held 3.2 GB. With the old 6 GB reserve a 16 GB machine got two slots, filled its memory and
+// paged until single tests took minutes and timed out.
+const RESERVED_MEMORY_GB = 9;
 const MEMORY_PER_WORKER_GB = 1.5; // measured 2026-10-31: Vitest jsdom workers peak at 0.8-1.7 GB in the full suite
 const MIN_WORKERS_PER_SLOT = 3; // below this a run gets too little parallelism to be worth sharing the machine
 const MAX_SLOTS = 3; // matches the three-worker concurrency cap in docs/agent-workflow.md
+const FILTERED_UNIT_WORKERS = 2; // a path-filtered unit run skips the queue, so it must stay small next to a slot holder
 const STALE_MS = 2 * 60 * 60 * 1000; // longer than any check or smoke run
 
 function positiveInt(raw, name) {
@@ -75,15 +79,37 @@ function tryAcquire(dir, slots, owner, now = Date.now()) {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+function samePath(a, b) {
+    const [left, right] = [path.resolve(a), path.resolve(b)];
+    return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right;
+}
+
+// A live holder running the same command in the same checkout. Its result will answer the duplicate; starting it
+// again only doubles the load (seen 2026-10-31: a handler started two full unit runs in one worktree three minutes
+// apart, and both crawled for over 15 minutes).
+function duplicateHolder(dir, owner, now = Date.now()) {
+    let names;
+    try { names = fs.readdirSync(dir).filter(name => /^slot-\d+\.json$/.test(name)); }
+    catch { return undefined; }
+    return names.map(name => readHolder(path.join(dir, name))).find(holder => holder && !stale(holder, now)
+        && holder.pid !== owner.pid && holder.command === owner.command && holder.root && owner.root && samePath(holder.root, owner.root));
+}
+
 /**
  * Waits for a free slot and returns {index, slots, workers, release}. The slot is released by `release()` or, if the
- * process dies first, by the next waiter's stale-holder check.
+ * process dies first, by the next waiter's stale-holder check. Throws when the same command already holds a slot in
+ * the same checkout.
  */
 async function acquireSlot({command, root, env = process.env, dir = env.BEZEG_TEST_SLOT_DIR || path.join(os.tmpdir(), 'bezeg-test-slots'), pollMs = 2000, stderr = process.stderr} = {}) {
     const {slots, workers} = machineBudget({env});
     const owner = {pid: process.pid, command, root};
     let waitingSince;
     for (;;) {
+        const duplicate = duplicateHolder(dir, owner);
+        if (duplicate) {
+            const started = new Date(duplicate.started).toTimeString().slice(0, 5);
+            throw new Error(`\`${command}\` is already running in this checkout (pid ${duplicate.pid}, started ${started}). Wait for it to finish and read its result in .command-logs/ (the log name contains pid ${duplicate.pid}) instead of starting it again.`);
+        }
         const result = tryAcquire(dir, slots, owner);
         if (result.file) {
             if (waitingSince) stderr.write(`Got test slot ${result.index}/${slots} after ${((Date.now() - waitingSince) / 1000).toFixed(0)}s.\n`);
@@ -111,4 +137,4 @@ function lowerPriority(env = process.env) {
     catch { /* not permitted on this platform: run at normal priority */ }
 }
 
-module.exports = {acquireSlot, lowerPriority, machineBudget, tryAcquire};
+module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, lowerPriority, machineBudget, tryAcquire};

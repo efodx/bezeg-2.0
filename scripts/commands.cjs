@@ -372,7 +372,7 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
 }
 
 // Commands that load the whole machine wait for a machine-wide test slot (see scripts/test-slots.cjs). A unit run
-// filtered to paths is short, so it skips the queue but keeps the per-slot worker cap.
+// filtered to paths is short, so it skips the queue with at most FILTERED_UNIT_WORKERS workers.
 function needsSlot(command, args) {
     if (command === 'unit') return !args.some(arg => /[\\/]|\.test\./.test(arg));
     return ['check', 'build', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command);
@@ -380,10 +380,14 @@ function needsSlot(command, args) {
 
 async function execute(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
-    const {machineBudget, acquireSlot} = require('./test-slots.cjs');
+    const {FILTERED_UNIT_WORKERS, machineBudget, acquireSlot} = require('./test-slots.cjs');
     if (!['unit', 'check', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
     const baseEnv = options.env || process.env;
-    const slot = needsSlot(command, rawArgs) ? await acquireSlot({command, root, env: baseEnv}) : {...machineBudget({env: baseEnv}), release() {}};
+    const unslotted = () => {
+        const budget = machineBudget({env: baseEnv});
+        return {...budget, workers: command === 'unit' ? Math.min(budget.workers, FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
+    };
+    const slot = needsSlot(command, rawArgs) ? await acquireSlot({command, root, env: baseEnv}) : unslotted();
     // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
     const env = {...baseEnv, BEZEG_TEST_WORKERS: String(slot.workers)};
     const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${slot.workers} workers` : `${slot.workers} workers, no slot`;
