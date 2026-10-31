@@ -11,7 +11,7 @@ The order differs from the backlog README's waves: tasks that gate other streams
 
 | Step | Tasks | Notes | Status |
 | --- | --- | --- | --- |
-| 1 | A1 preset storage ∥ A9a typed lesson-action vocabulary, review-field decisions, one pilot content file | A9's decisions go in the Guided lessons spec. A9a owns `model.ts` in this step | planned |
+| 1 | A1 preset storage ∥ A9a typed lesson-action vocabulary, review-field decisions, one pilot content file | A9's decisions go in the Guided lessons spec. A9a owns `model.ts` in this step | accepted 2026-10-31: A1 (`df45cb9`, `a3c8d6a`) and A9a (`ac30c2f`) |
 | 2 | A10 derived registration ∥ A9b scripted migration of the remaining content files (incl. `patchChapter*.ts`) | A10 owns `model.ts` in this step; A9b edits content files only. Review A9b by search, not by reading. **Opens `G-REG`** once A9a and A10 are accepted, without waiting for A9b | planned |
 | 3 | A4 generic spline changes ∥ A7 function-model rules (convexity pilot, then the other ten) | Disjoint: spline adapter vs. analysis models. A7 rebases over A9 (reverses the backlog's soft 9-after-7 order) | planned |
 | 4 | A6 curve gesture mathematics ∥ A8 function graph sharing | A6 after A4; A8 after A7. **Opens `G-CURVE`** (A4 + A6) and **`G-FN`** (A7 + A8) | planned |

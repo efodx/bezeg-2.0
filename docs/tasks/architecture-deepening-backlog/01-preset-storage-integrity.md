@@ -1,6 +1,6 @@
 # 1. Preset storage integrity
 
-Status: planned. Lane: Host. Source: [specification §1](../../specs/architecture-deepening-backlog.md#1-preset-storage-integrity).
+Status: accepted 2026-10-31 (platform stream; evidence in [01-preset-storage-integrity.evidence.md](01-preset-storage-integrity.evidence.md)). Lane: Host. Source: [specification §1](../../specs/architecture-deepening-backlog.md#1-preset-storage-integrity).
 
 ## Scope and entry points
 

@@ -1,6 +1,6 @@
 # 9. One typed lesson action vocabulary
 
-Status: planned. Lane: Learning. Source: [specification §9](../../specs/architecture-deepening-backlog.md#9-one-typed-lesson-action-vocabulary).
+Status: A9a accepted 2026-10-31 (vocabulary, review fields, pilot, migration script; evidence in [09-lesson-action-vocabulary.evidence.md](09-lesson-action-vocabulary.evidence.md)); A9b (remaining content, legacy deletion) open. Lane: Learning. Source: [specification §9](../../specs/architecture-deepening-backlog.md#9-one-typed-lesson-action-vocabulary).
 
 ## Scope and entry points
 
