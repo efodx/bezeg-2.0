@@ -1,0 +1,126 @@
+.playground {
+    display: grid;
+    gap: 0.6rem;
+    color: var(--bezeg-shell-ink);
+}
+
+.playground__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.playground__group {
+    display: inline-flex;
+    gap: 0.25rem;
+}
+
+.playground__toolbar button {
+    min-height: 44px;
+    padding: 0 0.8rem;
+    border: 1px solid var(--bezeg-shell-control-rule);
+    border-radius: 6px;
+    background: var(--bezeg-shell-panel);
+    color: var(--bezeg-shell-choice-ink);
+    font: inherit;
+    cursor: pointer;
+}
+
+.playground__toolbar button:hover:not(:disabled) {
+    background: var(--bezeg-shell-control-hover);
+    border-color: var(--bezeg-shell-control-rule-hover);
+}
+
+.playground__toolbar button[aria-pressed='true'] {
+    background: var(--bezeg-shell-choice-selected);
+    border-color: var(--bezeg-shell-choice-rule-selected);
+}
+
+.playground__toolbar button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.playground__toolbar button:focus-visible,
+.playground-anchor:focus-visible,
+.playground-handle:focus-visible {
+    outline: 3px solid var(--bezeg-shell-focus);
+    outline-offset: 2px;
+}
+
+.playground__canvas {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    aspect-ratio: 1000 / 625;
+    border: 1px solid var(--bezeg-shell-rule);
+    border-radius: 8px;
+    background: var(--bezeg-shell-preview-panel);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.playground__paper {
+    fill: var(--bezeg-shell-preview-panel);
+}
+
+.playground__shape {
+    stroke-width: 4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+.playground-hit {
+    fill: transparent;
+    cursor: grab;
+}
+
+.playground-anchor {
+    cursor: grab;
+}
+
+.playground-anchor__dot {
+    fill: #bd8040;
+    stroke: #fffdf5;
+    stroke-width: 2.5;
+}
+
+.playground-anchor.is-selected .playground-anchor__dot {
+    fill: #d39a4a;
+    stroke: #654c2b;
+}
+
+.playground-handle__stem {
+    stroke: var(--bezeg-shell-botanical-leaf-rule);
+    stroke-width: 1.5;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.playground-handle__dot {
+    fill: var(--bezeg-shell-botanical-flower);
+    stroke: var(--bezeg-shell-botanical-leaf-rule);
+    stroke-width: 2.5;
+    pointer-events: none;
+}
+
+.playground-handle:not(.is-active) .playground-handle__stem,
+.playground-handle:not(.is-active) .playground-handle__dot {
+    opacity: 0.45;
+}
+
+.playground__live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.playground {
+    position: relative;
+}

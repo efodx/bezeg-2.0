@@ -56,6 +56,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | Bernsteinova utež točke | Bernstein weight of a control point |
 | azimut / višinski kot | azimuth / elevation (camera) |
 | mešani odvod | twist (mixed partial derivative) |
+| točka / kotna točka / gladka točka | anchor point / corner point / smooth point (drawing playground) |
+| ročica | handle (drawing playground) |
+| oblika | shape (drawing playground) |
+
+Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
