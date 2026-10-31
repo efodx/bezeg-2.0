@@ -1361,3 +1361,14 @@ Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pur
 - Handler research: the quartile/σ convention was settled from RIC and ZRSS sources (ADR 0027 decision 4). It contradicted the spec's draft rule.
 - Observation: both independent reviewers flagged the same translation-dependent tolerance pattern (max|coordinate|) in two kernels written in parallel. Future kernel briefs should state "tolerances relative to extent, not to absolute coordinates."
 - Context: the handler reached its 150k soft threshold after about 40 minutes with seven agents dispatched. Pushes lost two fast-forward races while `tsc` ran.
+
+## 2026-10-31 — Curves stream PS-1c review, PS-1b, CG-B1-2a' and CG-B1-2a (handler 4)
+
+Task: [curves stream](../tasks/feature-streams/curves.md). Handler: Opus 5.5, auto mode, effort medium; brief handoff-v12; start 16:58 UTC. Evidence: [probability-statistics reviews](../reviews/probability-statistics/), [curve-geometry reviews](../reviews/curve-geometry/).
+
+- PS-1c review: `bezeg-reviewer` Sonnet `medium`, 6 uses, ~24k tokens, 0.7 min; no formula errors and two low findings (asymmetric negative half-tenth snapping, -0 outputs). The handler repaired both test-first (4 red, then 49 green), pushed `c3e3774`.
+- PS-1b convolution kernel + ADR draft: `bezeg-worker` Sonnet `high` (difficult numerics), 40 uses, ~95k, 13.4 min; 19 mutations, two survivors fixed by the worker. It refused to fit tolerances to four spec numbers it could not reproduce. The review (16 uses, ~37k, 24 min) built an exact `Fraction` oracle and confirmed the kernel: the spec's numbers came from a less exact scheme. The handler tightened three tests that accepted both sets and added a `zero-variance` status, then amended the spec. Its mutation toward the spec's scheme failed 9 tests. Pushed `198c7d0` (ADR 0031). Lesson: "checked" spec numbers can be wrong; an exact oracle in review settles the dispute cheaply.
+- CG-B1-2a' curvature graph: worker Sonnet `medium`, 37 + 14 uses, ~88k, 15 min over two rounds. Round 1 added the tangent-angle readout the spec step required and a real-board `GraphHost` test. The handler mutation-checked the real-board test (removing disposal fails it). Pushed `6f812a5`.
+- CG-B1-2a parametric graph: worker Sonnet `medium`, 43 uses, ~113k, 17.6 min; 42 tests, 3 mutations. Not reviewed: the handler reached its 150k soft threshold. Backed up as `8c4b3ca` on `origin/stream-curves-4`.
+- Friction: the PS-1b push waited for a running worker's uncommitted files, because a rebase needs a clean tree. A tagged stash after the worker returned unblocked it. Serialize pushes with worker edits, or have workers write only new files until the handler commits.
+
