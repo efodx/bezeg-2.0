@@ -15,6 +15,8 @@ param(
     [string[]]$Only = @(),
     [string]$PermissionMode = 'auto',
     [string]$Model = 'opus',
+    [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
+    [string]$Effort = 'medium',
     [int]$IntervalMinutes = 10,
     [int]$StaggerSeconds = 90,
     [int]$MaxRestarts = 3,
@@ -88,10 +90,11 @@ function Start-Stream([string]$id, [string]$reason) {
                   "then run docs/tasks/feature-streams/$id.md under AGENTS.md and docs/tasks/feature-streams/README.md. " +
                   "Set 'Run state: active' and push it before dispatching work."
     }
-    if ($DryRun) { Log "DRY RUN would start '$name' in $cwd ($reason)"; return }
+    $prompt += " Launch successors with: --agent claude --model $Model --permission-mode $PermissionMode --effort $Effort."
+    if ($DryRun) { Log "DRY RUN would start '$name' in $cwd ($reason): $prompt"; return }
     Log "starting '$name' in $cwd ($reason)"
     Push-Location $cwd
-    try { & claude --bg -n $name --agent claude --model $Model --permission-mode $PermissionMode $prompt }
+    try { & claude --bg -n $name --agent claude --model $Model --permission-mode $PermissionMode --effort $Effort $prompt }
     finally { Pop-Location }
     $lastLaunch[$id] = Get-Date
 }
@@ -101,7 +104,7 @@ function In-Grace([string]$id) {
     return ((Get-Date) - $lastLaunch[$id]).TotalMinutes -lt $GraceMinutes
 }
 
-Log "supervising: $($Order -join ', ') (model $Model, mode $PermissionMode, every $IntervalMinutes min)"
+Log "supervising: $($Order -join ', ') (model $Model, effort $Effort, mode $PermissionMode, every $IntervalMinutes min)"
 while ($true) {
     & git -C $Repo fetch -q origin
     if ($LASTEXITCODE -ne 0) { Log 'git fetch failed; retrying next poll' }
