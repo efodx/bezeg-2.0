@@ -6,7 +6,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 
 ## Decisions (F0, 2026-10-31)
 
-- **ADR** — [ADR 0025](../../adr/0025-interpolation-editing-model-and-solver.md): draggable points with a typed list (I2 stores a node rule); parametric form for I1/I3, functions of \(x\) for I2/I4; Householder QR solver with the normal equations displayed.
+- **ADR** — [ADR 0026](../../adr/0026-interpolation-editing-model-and-solver.md): draggable points with a typed list (I2 stores a node rule); parametric form for I1/I3, functions of \(x\) for I2/I4; Householder QR solver with the normal equations displayed.
 - **Ids and routes.** Chapter id `interpolation`, family route `/bezeg-2.0/interpolation`. Demonstrations: `interp-lagrange` (I1, `/bezeg-2.0/interpolation/lagrange`), `interp-runge` (I2, `/runge`), `interp-hermite` (I3, `/hermite`), `interp-least-squares` (I4, `/least-squares`), `interp-subdivision` (I5, `/subdivision`).
 - **Kernels** in `src/analysis/`: `interpolation.ts`, `hermite.ts`, `leastSquares.ts`, `subdivision.ts` (`fourPointStep`; Chaikin and the uniform limit are imported from the B-spline kernel, BS-1a).
 - **Gate reading.** Kernels are ungated. I2 and I4 graphs plot functions of \(x\) and wait for `G-FN`; I1, I3 and I5 graphs are point/curve graphs and are ungated for F2a. Registration and lessons need `G-REG`.
@@ -16,7 +16,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 
 | Id | Kind | Content | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| IA-0 | F0 | This plan, ADR 0025, spec marked scheduled | — | done |
+| IA-0 | F0 | This plan, ADR 0026, spec marked scheduled | — | done |
 | IA-1a | F1 | `interpolation.ts` (barycentric Lagrange, node sets, error sampling, Runge table) | — | planned |
 | IA-1b | F1 | `leastSquares.ts` (QR, normal-equation display data, residuals) and `hermite.ts` (cubic Hermite, Catmull-Rom, Bézier conversion) | — | planned |
 | IA-1c | F1 | `subdivision.ts` (`fourPointStep`) with imported Chaikin identity tests | BS-1a | planned |

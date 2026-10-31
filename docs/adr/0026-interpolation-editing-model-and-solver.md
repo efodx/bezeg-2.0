@@ -1,4 +1,4 @@
-# 0025 Interpolation editing model, curve form and least-squares solver
+# 0026 Interpolation editing model, curve form and least-squares solver
 
 Status: accepted, 2026-10-31. Context: [Interpolation and approximation lessons](../specs/interpolation-approximation-lessons.md#decisions-needing-an-adr), [tasks](../tasks/interpolation-approximation/README.md).
 
