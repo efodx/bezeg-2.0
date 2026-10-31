@@ -18,7 +18,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | PS-0 | F0 | This plan, ADR 0027, spec marked scheduled | — | done |
 | PS-1a | F1 | `distributions.ts`: `erf`, normal density/CDF, binomial and Poisson mass, normal approximations with and without continuity correction, trapezoid strips; P1/P2 numbers; no `Math.random` | — | done ([evidence](../../reviews/probability-statistics/ps-1a-kernel.md)) |
 | PS-1b | F1 | `convolution.ts` (`GridDensity`, convolve, standardize, cdf, moments, Kolmogorov distance) and the representation measurement + ADR | PS-1a | planned |
-| PS-1c | F1 | `descriptiveStatistics.ts` (conventions: ADR 0027 decision 4, inclusive quartiles, population σ default); `correlation.ts` importing `leastSquares.ts` | IA-1b | planned |
+| PS-1c | F1 | `descriptiveStatistics.ts` (conventions: ADR 0027 decision 4, inclusive quartiles, population σ default); `correlation.ts` importing `leastSquares.ts` | IA-1b | done ([evidence](../../reviews/probability-statistics/ps-1c-kernel.md)) |
 | PS-A-* | F2a–F6 | P1 density and area, P2 binomial to normal | `G-FN`, `G-REG`, PS-1a | planned |
 | PS-B-* | F2a–F6 | P3 CLT, P4 summary statistics | Batch A, PS-1b, PS-1c | planned |
 | PS-C-* | F2a–F6 | P5 correlation | Batch B, interpolation I4 released | planned |

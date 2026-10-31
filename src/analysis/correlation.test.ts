@@ -168,4 +168,12 @@ describe('statuses', () => {
         const c = correlation([[0.04, 1], [1.04, 2], [2.04, 2], [3.04, 4]]);
         expect(c.nSxy).toBe(1800);
     });
+
+    it('snaps negative half tenths symmetrically (review round 1)', () => {
+        const pts: Point2[] = [[0.25, 1], [1, 2.35], [2, 2], [3, 4]];
+        const a = correlation(pts);
+        const b = correlation(pts.map(([x, y]) => [-x, -y] as Point2));
+        expect(b.nSxy).toBe(a.nSxy);
+        expect(b.nSxx).toBe(a.nSxx);
+    });
 });

@@ -19,10 +19,14 @@ export const BOX_PLOT_MIN_VALUES = 3;
 /** Tukey fence multiplier, a convention and not a mathematical property. */
 export const FENCE_MULTIPLIER = 1.5;
 
-/** Snaps a value to integer tenths; throws on non-finite input. */
+/**
+ * Snaps a value to integer tenths, rounding half tenths away from zero so negating the data negates the snap;
+ * never returns -0. Throws on non-finite input.
+ */
 export const toTenths = (value: number): number => {
     if (!Number.isFinite(value)) throw new RangeError('Data values must be finite.');
-    return Math.round(value * 10);
+    const tenths = Math.sign(value) * Math.round(Math.abs(value) * 10);
+    return tenths === 0 ? 0 : tenths;
 };
 
 /** Validated, snapped and ascending-sorted integer tenths. */

@@ -7,6 +7,7 @@
  * Invalid input (empty, non-finite) throws a RangeError.
  */
 import type {Point2} from './interpolation';
+import {toTenths} from './descriptiveStatistics';
 import {fitLine, type LinearFit} from './leastSquares';
 
 /** Fewer points disable r: two points always give +-1 and say nothing. */
@@ -48,10 +49,7 @@ export interface CorrelationResult {
     slopeFromR: number | undefined;
 }
 
-const tenths = (v: number): number => {
-    if (!Number.isFinite(v)) throw new RangeError('Data values must be finite.');
-    return Math.round(v * 10);
-};
+const tenths = toTenths;
 
 const line = (points: readonly Point2[]): RegressionLine => {
     const fit = fitLine(points);

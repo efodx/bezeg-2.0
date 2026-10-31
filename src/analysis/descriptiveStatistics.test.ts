@@ -1,5 +1,5 @@
 import {
-    fiveNumberSummary, mean, median, standardDeviation, sumAbsoluteDeviations, sumSquaredDeviations,
+    fiveNumberSummary, mean, median, standardDeviation, sumAbsoluteDeviations, sumSquaredDeviations, toTenths,
     type BoxPlotAvailable,
 } from './descriptiveStatistics';
 
@@ -186,5 +186,31 @@ describe('property: median and quartiles are rank statistics, the mean is not', 
     it('the lesson example: an outlier moves the mean only', () => {
         expect(median(MOVED)).toBe(median(BASE));
         expect(mean(MOVED)).not.toBeCloseTo(mean(BASE), 3);
+    });
+});
+
+describe('snapping symmetry (review round 1)', () => {
+    it('rounds half tenths away from zero, so negating the data negates the snap', () => {
+        expect(toTenths(0.25)).toBe(3);
+        expect(toTenths(-0.25)).toBe(-3);
+        expect(toTenths(-0.35)).toBe(-toTenths(0.35));
+    });
+
+    it('never reports negative zero', () => {
+        expect(Object.is(toTenths(-0.04), 0)).toBe(true);
+        const s = box([-0.04, 1, 2, 3]);
+        expect(Object.is(s.min, 0)).toBe(true);
+        expect(Object.is(s.whiskerLow, 0)).toBe(true);
+        expect(Object.is(mean([-0.04]), 0)).toBe(true);
+    });
+
+    it('mirrors the summary of negated half-tenth data', () => {
+        const data = [0.25, 1.05, 2.35, 3.45, 9.95];
+        const a = box(data);
+        const b = box(data.map(v => -v));
+        expect(b.median).toBe(-a.median);
+        expect(b.q1).toBe(-a.q3);
+        expect(b.q3).toBe(-a.q1);
+        expect(mean(data.map(v => -v))).toBeCloseTo(-mean(data), 12);
     });
 });
