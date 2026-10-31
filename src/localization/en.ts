@@ -1437,5 +1437,20 @@ export const en: Record<keyof typeof sl, string> = {
     "invalid_patch_join_v": "the boundary position v must be a number between 0 and 1",
     "invalid_patch_join_capstone": "the join capstone scene (joinCapstone) can only be teapot",
     "patch_join_b_incomplete": "patch B needs mB, nB and netB together",
-    "patch_join_net_length_mismatch": "patch B's net has {value1} points but {value0} are expected"
+    "patch_join_net_length_mismatch": "patch B's net has {value1} points but {value0} are expected",
+    "interp_points_range": "The number of interpolation points must be from {value0} to {value1}",
+    "interp_coordinate_invalid": "interpolation point coordinates must be numbers between −{value0} and {value0}",
+    "interp_coincident_points": "Interpolation points {value0} and {value1} get the same parameter under the chosen rule (neighbouring points are equal), so the Lagrange interpolating polynomial does not exist. Move them apart or choose uniform parameters.",
+    "interp_coincident_notice": "Move refused: two neighbouring interpolation points would get the same parameter, so the Lagrange interpolating polynomial would not exist. The points stayed where they were.",
+    "interp_readout_lagrange": "Lagrange: t = {value0} (on [0, {value1}]), weights {value2}, point ({value3}, {value4})",
+    "interp_readout_bezier": "Bézier: t = {value0} (on [0, 1]), weights {value1}, point ({value2}, {value3})",
+    "interp_parameter_rule": "Point parameters",
+    "interp_rule_uniform": "Uniform (0, 1, 2, …)",
+    "interp_rule_chord": "Chord length",
+    "interp_point_count": "Number of interpolation points",
+    "interp_show_hull": "Show the convex hull of the points",
+    "interp_show_bezier": "Show the Bézier curve with the same points",
+    "interp_slider_position": "Position s on the curves",
+    "interp_slider_help": "The Lagrange parameter is t = s · t_n on [0, t_n]; the Bézier parameter is t = s on [0, 1]. Lagrange weights can be negative.",
+    "interp_nodes_too_close": "Two interpolation points get almost the same parameter, so the Lagrange weights cannot be computed. Move the points apart."
 };

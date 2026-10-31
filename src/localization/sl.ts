@@ -1436,5 +1436,20 @@ export const sl = {
     "invalid_patch_join_v": "mesto na robu v mora biti število med 0 in 1",
     "invalid_patch_join_capstone": "prizor stika (joinCapstone) je lahko samo teapot",
     "patch_join_b_incomplete": "krpa B mora imeti hkrati mB, nB in netB",
-    "patch_join_net_length_mismatch": "mreža krpe B ima {value1} točk, pričakovanih pa je {value0}"
+    "patch_join_net_length_mismatch": "mreža krpe B ima {value1} točk, pričakovanih pa je {value0}",
+    "interp_points_range": "Število interpolacijskih točk mora biti od {value0} do {value1}",
+    "interp_coordinate_invalid": "koordinate interpolacijskih točk morajo biti števila med −{value0} in {value0}",
+    "interp_coincident_points": "Interpolacijski točki {value0} in {value1} se po izbranem pravilu ujemata v parametru (sosednji točki sta enaki), zato Lagrangeev interpolacijski polinom ne obstaja. Razmakni ju ali izberi enakomerne parametre.",
+    "interp_coincident_notice": "Premik je zavrnjen: dve sosednji interpolacijski točki bi imeli enak parameter, zato Lagrangeev interpolacijski polinom ne bi obstajal. Točke so ostale na prejšnjih mestih.",
+    "interp_readout_lagrange": "Lagrange: t = {value0} (na [0, {value1}]), uteži {value2}, točka ({value3}, {value4})",
+    "interp_readout_bezier": "Bézier: t = {value0} (na [0, 1]), uteži {value1}, točka ({value2}, {value3})",
+    "interp_parameter_rule": "Parametri točk",
+    "interp_rule_uniform": "Enakomerni (0, 1, 2, …)",
+    "interp_rule_chord": "Po dolžini tetiv",
+    "interp_point_count": "Število interpolacijskih točk",
+    "interp_show_hull": "Pokaži konveksno ovojnico točk",
+    "interp_show_bezier": "Pokaži Bézierovo krivuljo z istimi točkami",
+    "interp_slider_position": "Položaj s na krivuljah",
+    "interp_slider_help": "Lagrangeev parameter je t = s · t_n na [0, t_n], Bézierov parameter je t = s na [0, 1]. Uteži Lagrangeevega polinoma so lahko negativne.",
+    "interp_nodes_too_close": "Interpolacijski točki imata skoraj enak parameter, zato uteži Lagrangeevega polinoma niso izračunljive. Razmakni točke."
 } as const;
