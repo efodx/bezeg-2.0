@@ -1,4 +1,5 @@
 import React from 'react';
+import {Board} from 'jsxgraph';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {PolePolarGraph} from './PolePolarGraph';
@@ -46,7 +47,6 @@ test('the default scene draws P at (1, 4.2) and reads the polar, both tangents a
     expect(line('tangent-1') + line('tangent-2')).toContain('4x + 5y − 25 = 0');
     expect(line('tangency-1') + line('tangency-2')).toContain('(−3, 12/5)');
     expect(line('centre')).toContain('(0, 0)');
-    expect(boardTexts(graph).some(text => text.includes('3x + 35y'))).toBe(true);
     expect(boardTexts(graph).join(' ')).not.toMatch(/NaN|Infinity/);
 });
 
@@ -156,12 +156,13 @@ test('a language switch updates the controls, the aria label and the board text 
     mount(graph);
     const model = graph.model;
     expect(container(graph).getAttribute('aria-label')).toContain('Pol in polara');
-    expect(boardTexts(graph).some(text => text.includes('Polara p'))).toBe(true);
+    expect(line('polar')).toContain('Polara p');
     act(() => { setLanguage('en'); });
     expect(container(graph).getAttribute('aria-label')).toContain('Pole and polar');
-    expect(boardTexts(graph).some(text => text.includes('Polar p'))).toBe(true);
-    expect(boardTexts(graph).some(text => text.includes('Polara'))).toBe(false);
-    expect(boardTexts(graph).some(text => text.includes('Centre of the conic'))).toBe(true);
+    expect(line('polar')).toContain('Polar p');
+    expect(line('polar')).not.toContain('Polara');
+    expect(line('centre')).toContain('Centre of the conic');
+    expect(boardTexts(graph).join(' ')).not.toContain('Polar');
     expect(line('status')).toContain('lies outside the conic');
     expect(graph.model).toBe(model);
 });
@@ -235,7 +236,6 @@ test('P at the centre: the polar is the line at infinity, reported as such and n
     mount(graph);
     act(() => { graph.loadModel({example: 'custom', conic: 'ellipse', p: {x: 0, y: 0}}); });
     expect(line('polar')).toBe('Polara p je premica v neskončnosti.');
-    expect(boardTexts(graph).some(text => text.includes('premica v neskončnosti'))).toBe(true);
     expect(visibleLines(graph, 'p')).toEqual([false]);
 });
 
@@ -258,4 +258,34 @@ test('the hyperbola polyline is broken by NaN between its branches; the ellipse 
     expect(data().some(Number.isNaN)).toBe(false);
     act(() => { graph.chooseConic('hyperbola'); });
     expect(data().some(Number.isNaN)).toBe(true);
+});
+
+/** The board's objects at the moment the scene starts (its first curve), so everything the scene adds, helpers included, is measured. */
+const countBeforeScene = (): {count: () => number; objects: () => unknown[]} => {
+    const state = {count: -1, objects: [] as unknown[]};
+    const create = Board.prototype.create;
+    vi.spyOn(Board.prototype, 'create').mockImplementation(function (this: JXG.Board, ...args: Parameters<typeof create>) {
+        const kind: string = args[0];
+        if (kind === 'curve' && state.count < 0) { state.count = this.objectsList.length; state.objects = [...this.objectsList]; }
+        return create.apply(this, args);
+    });
+    return {count: () => state.count, objects: () => state.objects};
+};
+
+test('the scene leaves no anonymous helper on the board: a Preset replacement keeps the object count and unmount leaves only what the board had before the scene', () => {
+    const before = countBeforeScene();
+    const graph = new Observed();
+    const view = mount(graph);
+    const board = graph.liveBoard();
+    const drawn = board.objectsList.length;
+    // the board's own sketch curves are created after the scene starts and are not the scene's
+    const leftovers = (b: JXG.Board) => (b.objectsList as Shown[]).filter(object => object.elType !== 'sketchcurve' && !before.objects().includes(object));
+    expect(before.count()).toBeGreaterThan(0);
+    expect(drawn).toBeGreaterThan(before.count());
+    act(() => { graph.importPresetData({...POLE_POLAR_EXAMPLES.inside}); });
+    act(() => { graph.importPresetData(graph.defaultPreset()); });
+    expect(board.objectsList.length).toBe(drawn);
+    view.unmount();
+    expect(leftovers(board)).toEqual([]);
+    vi.restoreAllMocks();
 });

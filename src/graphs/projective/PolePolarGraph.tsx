@@ -11,7 +11,8 @@ import {
 } from "./polePolarModel";
 import {moveP, nudgeP, setConic, setDirection, setNumerators} from "./polePolarEdit";
 import {PolePolarControls} from "./PolePolarControls";
-import {describePolePolar, TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
+import {definingPoints} from "./definingPoints";
+import {TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {polePolarPresetCollection} from "./projectivePresetCollection";
 
@@ -302,6 +303,8 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
         const all: JXG.GeometryElement[] = [];
         const add = <E extends JXG.GeometryElement>(element: E): E => {
             all.push(element);
+            // A line given by coefficients creates two anonymous defining points on the board; they belong to the scene and go with it.
+            definingPoints(element).forEach(helper => { if (!all.includes(helper)) all.push(helper); });
             return element;
         };
         const finiteP = () => !model().ideal;
@@ -407,15 +410,7 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
             fixed: true, highlight: false, strokeColor: GraphPalette.warningText, layer: 8, visible: () => marker() !== undefined,
         }) as JXG.GeometryElement);
 
-        // Text on the board: rebuilt from the scene and the language on every update.
-        const readout = () => describePolePolar(this.scene(), t, currentLanguage());
-        const text = (y: number, content: () => string, color: string = GraphPalette.label) => add(board.create("text", [-11.6, y, content], {
-            fixed: true, highlight: false, strokeColor: color, anchorX: "left", layer: 9,
-        }) as JXG.GeometryElement);
-        text(9.8, () => readout().polar ?? "");
-        text(9.0, () => readout().tangents.join("   "));
-        text(8.2, () => readout().centre);
-        text(7.4, () => readout().numerical ?? "", GraphPalette.warningText);
+        // The polar, tangents and centre are sentences and live only in the inspector (they would cross the hyperbola here).
         return {p, all};
     }
 
