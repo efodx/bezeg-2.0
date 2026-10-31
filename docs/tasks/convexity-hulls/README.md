@@ -15,9 +15,9 @@ Source: [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md). St
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 01 | F0 plan, ADR 0021, `src/compgeo/grid.ts` | F0 (handler) | — | done |
-| 02 | [Predicate module](02-predicates.md) | F1 | 01 | planned |
-| 03 | [Step-trace model and monotone chain trace](03-trace-model.md) | F1 | 02 | planned |
-| 04 | [Point-set/polygon model](04-point-set-model.md) | F2a | 01 | planned |
+| 02 | [Predicate module](02-predicates.md) | F1 | 01 | accepted 2026-10-31 (math review: no findings) |
+| 03 | [Step-trace model and monotone chain trace](03-trace-model.md) | F1 | 02 | in progress |
+| 04 | [Point-set/polygon model](04-point-set-model.md) | F2a | 01 | accepted 2026-10-31 (handler review; range-reason fix) |
 | 05 | [Point-set/polygon graph](05-point-set-graph.md) | F2a | 02, 04 | planned |
 | 06 | [Batch 0 acceptance](06-batch0-acceptance.md) | F6 (handler) | 02–05 | planned |
 

@@ -1,6 +1,6 @@
 # 02 — Predicate module
 
-Status: planned. Source: [spec §1 predicate module](../../specs/convexity-hulls-lessons.md#1-predicate-module-and-robustness-policy), [ADR 0021](../../adr/0021-exact-grid-predicates.md), A5 acceptance 1. Kind: F1, mathematical review.
+Status: accepted 2026-10-31. Math review: no blocking findings; deferred: `polygonSimplicity` has hand-picked cases only, no brute-force reference (low risk; revisit if a dependent family relies on its offending-pair output). Full unit suite runs at task 06. Source: [spec §1 predicate module](../../specs/convexity-hulls-lessons.md#1-predicate-module-and-robustness-policy), [ADR 0021](../../adr/0021-exact-grid-predicates.md), A5 acceptance 1. Kind: F1, mathematical review.
 
 Pure TypeScript in `src/compgeo/`, no React, JSXGraph, localization or graph-global state. Builds on `src/compgeo/grid.ts` (`GridPoint`, `GRID_COORD_LIMIT`, `assertGridPoint`; do not change its exports).
 

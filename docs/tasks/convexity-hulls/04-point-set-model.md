@@ -1,6 +1,6 @@
 # 04 — Point-set/polygon model
 
-Status: planned. Source: [spec §2 point-set graph](../../specs/convexity-hulls-lessons.md#2-draggable-point-set-and-polygon-graph), [ADR 0021](../../adr/0021-exact-grid-predicates.md). Kind: F2a (pure part), engineering review. Depends on 01 only, so it can run beside 02.
+Status: accepted 2026-10-31. Handler review fixed huge integers (e.g. `1e20`) being reported as non-integer instead of out of range. Full unit suite runs at task 06. Source: [spec §2 point-set graph](../../specs/convexity-hulls-lessons.md#2-draggable-point-set-and-polygon-graph), [ADR 0021](../../adr/0021-exact-grid-predicates.md). Kind: F2a (pure part), engineering review. Depends on 01 only, so it can run beside 02.
 
 The stored configuration and editing rules of the shared point-set/polygon graph, as pure TypeScript in `src/compgeo/pointSetModel.ts`. No React, JSXGraph or localization; task 05 adapts it. Follow the shape of `src/analysis/bisectionModel.ts` (stored model plus a sanitizing parser; transient state is not stored).
 
