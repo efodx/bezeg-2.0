@@ -1,3 +1,4 @@
+import {getDemonstrationCatalog} from '../../demonstrations';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {familyChapters} from '../content/familyChapters';
 import {bezierChapter} from '../content/bezierChapter';
@@ -6,12 +7,23 @@ import {authoredGuidedLessonIds, getGuidedLessonOwner, guidedLessonLaunchPath, g
 test('every reviewed guided lesson has a real chapter section owner and a stable launch/return route', () => {
     for (const id of GUIDED_LESSON_AVAILABLE_IDS) {
         const owner = getGuidedLessonOwner(id);
+        if (!owner) throw new Error(`${id} has no guided lesson owner`);
         const section = owner.chapterId === 'bezier-curves'
             ? bezierChapter.en.sections.find(entry => entry.id === owner.sectionId)
             : familyChapters.find(chapter => chapter.id === owner.chapterId)?.sections.find(entry => entry.id === owner.sectionId);
         expect(section, id).toBeDefined();
         expect(guidedLessonLaunchPath(id)).toContain(`learnChapter=${owner.chapterId}`);
         expect(guidedLessonReturnPath(owner)).toBe(`/bezeg-2.0/learn/${owner.chapterId}#${owner.sectionId}`);
+    }
+});
+
+test('a Demonstration without a guided lesson has no owner and resolves without throwing', () => {
+    const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !GUIDED_LESSON_AVAILABLE_IDS.includes(id));
+    expect(lessonless.length).toBeGreaterThan(0);
+    for (const id of lessonless) {
+        expect(getGuidedLessonOwner(id), id).toBeUndefined();
+        expect(resolveGuidedLessonOwner('?learn=1', id), id).toBeUndefined();
+        expect(() => guidedLessonLaunchPath(id), id).toThrow(/no guided lesson/);
     }
 });
 

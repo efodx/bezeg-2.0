@@ -3,6 +3,8 @@ import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {t, useLanguage, useT} from "../../localization";
 import {gridToBoard, PointSetModel, reverseVertices} from "../../compgeo/pointSetModel";
 import {doubledFanAreas} from "../../compgeo/polygonMeasures";
+import {POLYGON_AREA_OVERLAY_IDS, polygonAreaPresetCollection} from "./compgeoPresetCollections";
+import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {AreaReadout, areaReadout, latticeMarkers} from "./areaReadout";
 import {formatHalf, formatSigned, triangleFitsLabel} from "./orientationReadout";
@@ -88,7 +90,11 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
     }
 
     protected override overlayIds() {
-        return [...super.overlayIds(), "fan" as const, "lattice" as const];
+        return POLYGON_AREA_OVERLAY_IDS;
+    }
+
+    override presetCollection(): PresetCollection<PointSetModel> {
+        return polygonAreaPresetCollection;
     }
 
     protected override overlayLabel(id: "grid" | PolygonAreaOverlayId): string {

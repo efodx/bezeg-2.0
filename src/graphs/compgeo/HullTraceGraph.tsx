@@ -9,7 +9,7 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {HullTraceControlActions, HullTraceControls} from "./HullTraceControls";
-import {hullTracePresetCollection} from "./hullTracePresetCollection";
+import {HULL_TRACE_OVERLAY_IDS, hullTraceCollection} from "./compgeoPresetCollections";
 import {
     DEFAULT_HULL_ALGORITHM, HullAlgorithm, hullPredicateTotals, HullRun, parseHullAlgorithm, parseHullStep, runHullTrace,
 } from "./hullTraceRun";
@@ -246,7 +246,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     // ---- Presets -------------------------------------------------------------------------------------------------
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return hullTracePresetCollection(this.overlayIds());
+        return hullTraceCollection;
     }
 
     override defaultPreset(): PointSetModel {
@@ -281,7 +281,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
     protected override overlayIds() {
-        return [...super.overlayIds(), "trace" as const, "hull" as const];
+        return HULL_TRACE_OVERLAY_IDS;
     }
 
     protected override overlayLabel(id: HullTraceOverlayId | "grid"): string {

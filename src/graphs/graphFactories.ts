@@ -1,3 +1,6 @@
+import {OrientationGraph} from './compgeo/OrientationGraph';
+import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
+import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import { BernsteinGraph } from './bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
@@ -106,4 +109,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'sequence': () => new SequenceGraph(),
     'uniform-convergence': () => new UniformConvergenceGraph(),
     'fixed-point': () => new FixedPointGraph(),
+    'orientation': () => new OrientationGraph(),
+    'polygon-area': () => new PolygonAreaGraph(),
+    'convex-hull': () => new HullTraceGraph(),
 };

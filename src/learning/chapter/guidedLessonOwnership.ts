@@ -1,4 +1,4 @@
-import type {DemonstrationId} from '../../demonstrations';
+import type {DemonstrationId, GuidedLessonDemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
@@ -10,7 +10,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Authored chapter destination for each reviewed lesson. Keep this map in lockstep with the allowlist. */
-export const guidedLessonOwners: Readonly<Record<DemonstrationId, GuidedLessonOwner>> = {
+export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, GuidedLessonOwner>> = {
     bezier: {chapterId: 'bezier-curves', sectionId: 'control-points'},
     decasteljau: {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     affine: {chapterId: 'bezier-curves', sectionId: 'affine-transformations'},
@@ -69,6 +69,13 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     bernstein: [{chapterId: 'bezier-curves', sectionId: 'bernstein-form'}],
 };
 
+const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = guidedLessonOwners;
+
+/** The reviewed owner of a Demonstration with a guided lesson; undefined for a Demonstration with `lesson: false`. */
+function primaryOwner(id: DemonstrationId): GuidedLessonOwner | undefined {
+    return ownersById[id];
+}
+
 export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLessonOwner[] {
     const familyOwners = familyChapters.flatMap(chapter => chapter.sections
         .filter(section => section.demonstrationIds?.includes(id))
@@ -77,14 +84,18 @@ export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLesso
         .map(home => ({chapterId: home[1], sectionId: home[2]}));
     const patchOwners = Object.entries(patchGuidedExampleRegistry).filter(([, lesson]) => lesson.demonstrationId === id)
         .map(([sectionId]) => ({chapterId: 'bezier-patches', sectionId}));
-    const all = [guidedLessonOwners[id], ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...patchOwners];
+    const primary = primaryOwner(id);
+    const all = [...(primary ? [primary] : []), ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...patchOwners];
     return all.filter((owner, index) => all.findIndex(item => item.chapterId === owner.chapterId && item.sectionId === owner.sectionId) === index);
 }
 
-export function getGuidedLessonOwner(id: DemonstrationId, requested?: GuidedLessonOwner): GuidedLessonOwner {
-    const candidate = requested ?? guidedLessonOwners[id];
+/** Undefined for a Demonstration without a guided lesson (`lesson: false`). */
+export function getGuidedLessonOwner(id: DemonstrationId, requested?: GuidedLessonOwner): GuidedLessonOwner | undefined {
+    const primary = primaryOwner(id);
+    const candidate = requested ?? primary;
+    if (!candidate) return undefined;
     if (!getGuidedLessonOwners(id).some(owner => owner.chapterId === candidate.chapterId && owner.sectionId === candidate.sectionId)) {
-        return canonicalOwner(id, guidedLessonOwners[id]);
+        return primary && canonicalOwner(id, primary);
     }
     return canonicalOwner(id, candidate);
 }
@@ -94,7 +105,8 @@ function canonicalOwner(id: DemonstrationId, owner: GuidedLessonOwner): GuidedLe
     return home ? {chapterId: home[1], sectionId: home[2]} : owner;
 }
 
-export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): GuidedLessonOwner {
+/** Undefined for a Demonstration without a guided lesson (`lesson: false`). */
+export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): GuidedLessonOwner | undefined {
     const query = new URLSearchParams(search);
     const explicit = {chapterId: query.get('learnChapter') ?? '', sectionId: query.get('learnSection') ?? ''};
     if (getGuidedLessonOwners(id).some(owner => owner.chapterId === explicit.chapterId && owner.sectionId === explicit.sectionId)) return canonicalOwner(id, explicit);
@@ -106,7 +118,7 @@ export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): G
             if (owner) return canonicalOwner(id, owner);
         }
     }
-    return guidedLessonOwners[id];
+    return primaryOwner(id);
 }
 
 export function getGuidedLessonChapterTitle(owner: GuidedLessonOwner, language: 'sl' | 'en'): string {
@@ -125,8 +137,9 @@ export function guidedLessonReturnPath(owner: GuidedLessonOwner): string {
     return `/bezeg-2.0/learn/${owner.chapterId}#${owner.sectionId}`;
 }
 
-export function guidedLessonLaunchPath(id: DemonstrationId, owner = getGuidedLessonOwner(id)): string {
-    owner = getGuidedLessonOwner(id, owner);
+export function guidedLessonLaunchPath(id: DemonstrationId, requested = getGuidedLessonOwner(id)): string {
+    const owner = getGuidedLessonOwner(id, requested);
+    if (!owner) throw new Error(`Demonstration "${id}" has no guided lesson to launch.`);
     const demo = getDemonstrationCatalog().demonstrations.find(entry => entry.id === id)!;
     return `${demo.path}?learn=1&learnChapter=${encodeURIComponent(owner.chapterId)}&learnSection=${encodeURIComponent(owner.sectionId)}`;
 }

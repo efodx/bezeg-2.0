@@ -69,7 +69,8 @@ function copyFor(id: string, demonstrationId: DemonstrationId): GuidedExamplePre
     if (home[5] === 'activity') {
         return guidedActivityPreviewCopyById[sourceId as keyof typeof guidedActivityPreviewCopyById];
     }
-    return guidedLessonPreviewCopyByDemonstration[demonstrationId];
+    const copyByDemonstration: Readonly<Partial<Record<DemonstrationId, GuidedExamplePreviewCopy>>> = guidedLessonPreviewCopyByDemonstration;
+    return copyByDemonstration[demonstrationId];
 }
 
 export function getGuidedExamplePreviewCopy(id: string, demonstrationId: DemonstrationId): GuidedExamplePreviewCopy | undefined {

@@ -256,6 +256,7 @@ export function resolveGuidedExample(search: string, demonstrationId: Demonstrat
         if (params.get('learnChapter') === 'bezier-patches'
             && !(patchLesson(params.get('learnSection') ?? '')?.demonstrationId === demonstrationId)) return undefined;
         const owner = resolveGuidedLessonOwner(search, demonstrationId);
+        if (!owner) return undefined;
         const lesson = owner.chapterId === 'bezier-patches' ? patchLesson(owner.sectionId) : getLessonForDemonstration(demonstrationId);
         if (!lesson) return undefined;
         const home = getRetainedExampleForLegacyIdentity(`lesson.${owner.chapterId}.${owner.sectionId}.${demonstrationId}`, demonstrationId);
