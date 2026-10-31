@@ -1,5 +1,5 @@
 # Stream: Learn UI
-Run state: not started
+Run state: active
 
 Rules: [feature streams](README.md). Port 4312. Handoffs: `docs/reviews/feature-streams/learn-ui/`.
 
