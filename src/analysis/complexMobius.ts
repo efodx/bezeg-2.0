@@ -45,7 +45,7 @@ function gridUnits(value: number): number | undefined {
 }
 
 /** The pair of grid units of a complex number, or `undefined` unless both coordinates are on the grid. */
-function complexUnits(z: Complex): Complex | undefined {
+export function complexUnits(z: Complex): Complex | undefined {
     const re = gridUnits(z.re);
     const im = gridUnits(z.im);
     return re === undefined || im === undefined ? undefined : {re, im};
