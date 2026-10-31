@@ -1,0 +1,15 @@
+# Stream: Maps
+
+Rules and slice template: [feature streams](README.md). Port 4316. Handoffs: `docs/reviews/feature-streams/maps/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
+
+| # | Family | Spec | Prerequisites | Status |
+| --- | --- | --- | --- | --- |
+| 1 | Linear maps of the plane | [linear-maps-lessons.md](../../specs/linear-maps-lessons.md) | 2×2 kernel and its ADRs: none. Graphs and lessons: `G-REG` | planned |
+| 2 | Complex maps | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) | Möbius kernel with circle inversion: none. Graphs and lessons: `G-REG`. Image-drawing ADR by measurement | planned |
+| 3 | Triangle geometry and inversion | [triangle-geometry-lessons.md](../../specs/triangle-geometry-lessons.md) | `G-CG` for the kernel (exact rational type and robustness ADR) and the point-set graph. The inversion lesson (T5) needs family 2's circle inversion | planned |
+
+## Notes
+
+- Before `G-REG`: F0 for all three families, and the kernels of families 1 and 2.
+- Triangle geometry owns the circumcentre and circle kernel. The Geometry stream's triangulation family may reuse it. If triangulation needs it first, coordinate through both stream files rather than building it twice.
+- Grid images and complex-map image drawing are rendering-heavy. Measure them before choosing a drawing approach.
