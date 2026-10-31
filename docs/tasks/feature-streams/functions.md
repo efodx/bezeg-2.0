@@ -1,5 +1,5 @@
 # Stream: Functions
-Run state: active
+Run state: waiting on G-FN, G-REG
 
 Rules and slice template: [feature streams](README.md). Port 4315. Handoffs: `docs/reviews/feature-streams/functions/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
