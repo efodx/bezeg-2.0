@@ -1,6 +1,6 @@
 # Geometry of curves lessons (Geometrija krivulj)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled 2026-10-31 by the [Curves feature stream](../tasks/feature-streams/curves.md); tasks in [docs/tasks/curve-geometry](../tasks/curve-geometry/README.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md) (CAGD rows 5 and 9, section 4, family 2, sample sequences 4, 5, 14, 15, correctness notes on curvature and offsets); index: [new lesson families](new-lesson-families.md). Primary sources as cited there and only as far as that note read them: Sederberg, *Computer Aided Geometric Design* (offset curves ch. 8, curvature combs sec. 2.11, mirror page numbers); Prautzsch–Boehm–Paluszny sec. 7.1 and 7.6 (contents only); Hladnik's *Analiza 2* outline (curvature, osculating circle); FMF *Analiza 2* (parametric and polar curves) and *Uvod v diferencialno geometrijo* (Frenet formulas) syllabi. Evolutes and envelopes have no curriculum source; their numbers are checked numerically. Related spec: [b-splines-nurbs-lessons.md](b-splines-nurbs-lessons.md) (not yet written) reuses the curvature kernel defined here.
 
