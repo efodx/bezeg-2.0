@@ -18,7 +18,7 @@ Source: [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md). St
 | 02 | [Predicate module](02-predicates.md) | F1 | 01 | accepted 2026-10-31 (math review: no findings) |
 | 03 | [Step-trace model and monotone chain trace](03-trace-model.md) | F1 | 02 | accepted 2026-10-31 (math review: no findings) |
 | 04 | [Point-set/polygon model](04-point-set-model.md) | F2a | 01 | accepted 2026-10-31 (handler review; range-reason fix) |
-| 05 | [Point-set/polygon graph](05-point-set-graph.md) | F2a | 02, 04 | planned |
+| 05 | [Point-set/polygon graph](05-point-set-graph.md) | F2a | 02, 04 | accepted |
 | 06 | [Batch 0 acceptance](06-batch0-acceptance.md) | F6 (handler) | 02–05 | planned |
 
 ## Later batches (task files written when Batch 0 is accepted)

@@ -1235,7 +1235,7 @@ export const en: Record<keyof typeof sl, string> = {
     "show_elevated_points_on_control_polygon": "Show new points on the control polygon",
     "elevated_points_description": "Each new control point is a convex combination of neighbouring points and lies on an edge of the original control polygon.",
     "pointset_board_label": "Points on a grid. Move the selected point with the arrow keys and remove it with Delete.",
-    "pointset_add_mode": "Add by clicking the graph",
+    "pointset_add_mode": "Add by tapping or clicking",
     "pointset_add_point": "Add point",
     "pointset_remove": "Remove",
     "pointset_clear": "Clear",

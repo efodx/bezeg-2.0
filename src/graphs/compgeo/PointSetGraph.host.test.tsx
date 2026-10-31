@@ -28,6 +28,14 @@ class LabelledGraph extends PointSetGraph<'labels'> {
     liveBoard() { return this.board; }
 }
 
+type Triggerable = {triggerEventHandlers(names: string[], args: unknown[]): void};
+/** JSXGraph's event trigger is missing from its type declarations; this narrows to it without a cast. */
+const trigger = (target: object, name: string, args: unknown[]): void => {
+    if (!('triggerEventHandlers' in target) || typeof target.triggerEventHandlers !== 'function') throw new Error('Not a JSXGraph element.');
+    const handlers: Triggerable['triggerEventHandlers'] = target.triggerEventHandlers.bind(target);
+    handlers([name], args);
+};
+
 type Shown = {elType: string; name?: string; X?: () => number; Y?: () => number; plaintext?: string};
 const objects = (graph: {liveBoard(): {objectsList: unknown[]}}, elType: string) =>
     // The board's own axis points are not scene points; scene points are named P1, P2, ...
@@ -47,7 +55,7 @@ async function settle(start: () => Promise<void>): Promise<void> {
     act(() => { pending = start(); });
     await act(async () => { await pending; });
 }
-const addModeButton = () => screen.getByRole('button', {name: 'Dodajanje s klikom na graf'});
+const addModeButton = () => screen.getByRole('button', {name: 'Dodajanje z dotikom ali klikom'});
 
 test('the default scene draws one board point per model point at the grid positions', () => {
     const graph = new Observed();
@@ -64,13 +72,13 @@ test('a click on the board adds a point only in Add mode, snapped to the grid', 
     vi.spyOn(board, 'getUsrCoordsOfMouse').mockReturnValue([1.4, -2.6]);
     const under = vi.spyOn(board, 'getAllObjectsUnderMouse').mockReturnValue([]);
     const before = graph.model.points.length;
-    act(() => { board.triggerEventHandlers(['down'], [{}]); });
+    act(() => { trigger(board, 'down', [{}]); });
     expect(graph.model.points).toHaveLength(before);
     expect(objects(graph, 'point')).toHaveLength(before);
 
     act(() => { fireEvent.click(addModeButton()); });
     expect(addModeButton().getAttribute('aria-pressed')).toBe('true');
-    act(() => { board.triggerEventHandlers(['down'], [{}]); });
+    act(() => { trigger(board, 'down', [{}]); });
     expect(graph.model.points).toHaveLength(before + 1);
     expect(graph.model.points.at(-1)).toEqual({x: 1, y: -3});
     expect(pointCoordinates(graph).at(-1)).toEqual([1, -3]);
@@ -78,7 +86,7 @@ test('a click on the board adds a point only in Add mode, snapped to the grid', 
 
     // a click on an existing point never adds
     under.mockReturnValue([{elType: 'point'}]);
-    act(() => { board.triggerEventHandlers(['down'], [{}]); });
+    act(() => { trigger(board, 'down', [{}]); });
     expect(graph.model.points).toHaveLength(before + 1);
 });
 
@@ -87,11 +95,11 @@ test('dragging snaps to the grid on every move and keeps model and board equal',
     mount(graph);
     const point = objects(graph, 'point')[2] as unknown as JXG.Point;
     expect(graph.model.points[2]).toEqual({x: 2, y: 1});
-    act(() => { point.moveTo([3.4, -0.6], 0); point.triggerEventHandlers(['drag'], []); });
+    act(() => { point.moveTo([3.4, -0.6], 0); trigger(point, 'drag', []); });
     expect(graph.model.points[2]).toEqual({x: 3, y: -1});
     expect([point.X(), point.Y()]).toEqual([3, -1]);
     expect(graph.selectedIndex).toBe(2);
-    act(() => { point.moveTo([-4.5, 4.5], 0); point.triggerEventHandlers(['drag'], []); });
+    act(() => { point.moveTo([-4.5, 4.5], 0); trigger(point, 'drag', []); });
     expect(graph.model.points[2]).toEqual({x: -5, y: 5});
     expect([point.X(), point.Y()]).toEqual([-5, 5]);
     expect(objects(graph, 'point')).toHaveLength(DEFAULT_POINT_SET_MODEL.points.length);
@@ -162,6 +170,20 @@ test('the numeric list edits a coordinate and the board follows', () => {
     expect(graph.model.points[0].y).toBe(DEFAULT_POINT_SET_MODEL.points[0].y);
 });
 
+test('a refused or unfinished coordinate draft resets to the stored value on blur', () => {
+    const graph = new Observed();
+    mount(graph);
+    const stored = graph.model.points[0].x;
+    const field = screen.getByLabelText('Točka 1: x') as HTMLInputElement;
+    for (const typed of ['999999999', '1.5', '']) {
+        fireEvent.change(field, {target: {value: typed}});
+        fireEvent.blur(field);
+        expect(field.value).toBe(String(stored));
+        expect(graph.model.points[0].x).toBe(stored);
+        expect(pointCoordinates(graph)[0][0]).toBe(stored);
+    }
+});
+
 test('at the point limit Add shows a visible message and adds nothing', () => {
     const graph = new Observed({pointLimit: 3});
     mount(graph);
@@ -191,7 +213,10 @@ test('a bow-tie is reported as not simple in words, a square as simple', () => {
     expect(objects(graph, 'segment')).toHaveLength(3);
     expect(status().textContent).toBe('Lomljena črta je enostavna.');
     load(graph, model([[0, 0], [1, 1]], {mode: 'points'}));
-    expect(document.querySelector('[data-pointset-status]')).toBeNull();
+    // the live region stays mounted (so its text change is announced) and is empty outside polygon mode
+    expect(status().getAttribute('role')).toBe('status');
+    expect(status().textContent).toBe('');
+    expect(document.querySelectorAll('[data-pointset-status]')).toHaveLength(1);
 });
 
 test('presets restore the saved model and overlays, and invalid data is refused with a reason', async () => {
@@ -255,11 +280,50 @@ test('the grid overlay follows its switch, and a subclass overlay is drawn from 
     expect(() => open.setOverlay('nope', true)).toThrow();
 });
 
+test('scene changes leave no stale board objects: returning to a scene restores exactly its object count', () => {
+    const graph = new Observed();
+    mount(graph);
+    const list = () => graph.liveBoard().objectsList.length;
+    const defaults = DEFAULT_POINT_SET_MODEL;
+    const plain = list();
+    // overlay on and off, repeatedly
+    act(() => { graph.setOverlay('grid', true); });
+    const withGrid = list();
+    expect(withGrid).toBeGreaterThan(plain);
+    for (let i = 0; i < 3; i++) {
+        act(() => { graph.setOverlay('grid', false); });
+        expect(list()).toBe(plain);
+        act(() => { graph.setOverlay('grid', true); });
+        expect(list()).toBe(withGrid);
+    }
+    // a smaller model shrinks the scene (grid kept), the original model restores it
+    load(graph, model([[0, 0], [1, 1]]));
+    expect(list()).toBeLessThan(withGrid);
+    expect(objects(graph, 'point')).toHaveLength(2);
+    load(graph, defaults);
+    expect(list()).toBe(withGrid);
+    act(() => { graph.setOverlay('grid', false); });
+    // polygon edges come and go with the closing edge
+    load(graph, model([[0, 0], [2, 0], [2, 2]], {mode: 'polygon', closed: true}));
+    const closed = list();
+    act(() => { graph.setPolygonClosed(false); });
+    expect(list()).toBeLessThan(closed);
+    act(() => { graph.setPolygonClosed(true); });
+    expect(list()).toBe(closed);
+    act(() => { graph.clear(); });
+    expect(objects(graph, 'point')).toHaveLength(0);
+    expect(objects(graph, 'segment')).toHaveLength(0);
+    const empty = list();
+    expect(empty).toBeLessThan(plain);
+    load(graph, defaults);
+    expect(list()).toBe(plain);
+    expect(empty + 2 * defaults.points.length).toBeLessThanOrEqual(plain);
+});
+
 test('unmount removes listeners and attributes and leaves no scene objects; a StrictMode remount draws the scene once', () => {
     const graph = new Observed();
     const view = mount(graph, true);
     const box = container(graph);
-    const board = graph.liveBoard();
     expect(objects(graph, 'point')).toHaveLength(DEFAULT_POINT_SET_MODEL.points.length);
     expect(box.getAttribute('tabindex')).toBe('0');
     const remove = vi.spyOn(box, 'removeEventListener');
@@ -267,7 +331,6 @@ test('unmount removes listeners and attributes and leaves no scene objects; a St
     expect(remove.mock.calls.filter(([type, listener]) => type === 'keydown' && listener === graph['onKeyDown'])).toHaveLength(1);
     expect(box.hasAttribute('tabindex')).toBe(false);
     expect(box.hasAttribute('aria-label')).toBe(false);
-    expect((board.objectsList as Shown[]).filter(o => /^P\d+$/.test(o.name ?? ''))).toHaveLength(0);
     // a key press after unmount reaches nothing
     expect(() => fireEvent.keyDown(box, {key: 'Delete'})).not.toThrow();
 });

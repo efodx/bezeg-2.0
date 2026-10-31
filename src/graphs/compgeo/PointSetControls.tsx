@@ -39,8 +39,9 @@ export interface PointSetControlsProps {
 function IntegerField(props: {label: string, value: number, onCommit: (value: number) => void, name?: string}) {
     const [draft, setDraft] = useState(String(props.value));
     useEffect(() => setDraft(String(props.value)), [props.value]);
-    return <label className="pointset-field"><span className="visually-hidden">{props.label}</span>
+    return <label className="pointset-field">
         <input type="number" step={1} inputMode="numeric" aria-label={props.label} name={props.name} value={draft}
+               onBlur={() => setDraft(String(props.value))}
                onChange={event => {
                    setDraft(event.target.value);
                    const parsed = Number(event.target.value);
@@ -51,7 +52,8 @@ function IntegerField(props: {label: string, value: number, onCommit: (value: nu
 
 function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined, model: PointSetModel}) {
     const t = useT();
-    if (model.mode !== "polygon") return null;
+    // The live region stays mounted so a change of its text is announced; it is empty outside polygon mode.
+    if (model.mode !== "polygon") return <p className="inspector-help pointset-status" role="status" data-pointset-status=""></p>;
     const closed = model.closed;
     let text: string;
     if (closed && model.points.length < 3) text = t("pointset_status_too_few_vertices");

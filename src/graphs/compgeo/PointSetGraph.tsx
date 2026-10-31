@@ -270,14 +270,15 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
+        // JSXGraph writes an empty aria-label of its own on the container, so the host's value is read before it is created.
+        const hadLabel = container.getAttribute("aria-label");
         super.createMainView(session, container);
-        this.bindInteraction(session, container);
+        this.bindInteraction(session, container, hadLabel);
     }
 
     /** Every listener and attribute set here is undone by the session cleanup. */
-    private bindInteraction(session: GraphSession, container: HTMLElement): void {
+    private bindInteraction(session: GraphSession, container: HTMLElement, hadLabel: string | null): void {
         const hadTabIndex = container.getAttribute("tabindex");
-        const hadLabel = container.getAttribute("aria-label");
         container.setAttribute("tabindex", "0");
         const label = () => container.setAttribute("aria-label", t("pointset_board_label"));
         label();
@@ -428,7 +429,12 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.overlayObjects = [];
         const overlays = this.state.overlays;
         for (const id of this.overlayIds()) {
-            if (overlays[id] === true) this.overlayObjects.push(...this.drawOverlay(id, model));
+            if (overlays[id] !== true) continue;
+            // Some board elements (the grid) create helper objects of their own; the base owns every object a draw added.
+            const before = new Set<unknown>(this.board.objectsList as unknown[]);
+            const drawn = this.drawOverlay(id, model);
+            const created = (this.board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object) && !drawn.includes(object));
+            this.overlayObjects.push(...drawn, ...created);
         }
         this.overlaysDrawnFor = {model, overlays};
     }

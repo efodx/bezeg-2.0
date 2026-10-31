@@ -1234,7 +1234,7 @@ export const sl = {
     "show_elevated_points_on_control_polygon": "Pokaži nove točke na kontrolnem poligonu",
     "elevated_points_description": "Vsaka nova kontrolna točka je konveksna kombinacija sosednjih točk in leži na stranici prvotnega kontrolnega poligona.",
     "pointset_board_label": "Točke na mreži. Izbrano točko premakneš s puščičnimi tipkami, odstraniš pa s tipko Delete.",
-    "pointset_add_mode": "Dodajanje s klikom na graf",
+    "pointset_add_mode": "Dodajanje z dotikom ali klikom",
     "pointset_add_point": "Dodaj točko",
     "pointset_remove": "Odstrani",
     "pointset_clear": "Počisti",
