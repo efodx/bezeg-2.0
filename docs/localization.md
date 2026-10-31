@@ -74,6 +74,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 | determinanta | determinant |
 | predznačena ploščina | signed area |
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
+| pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
+| preizkusna točka | test point (roots graph) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

@@ -8,7 +8,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except task 01 at `high` (Möbius 
 | --- | --- | --- | --- | --- | --- |
 | [01 Möbius and inversion kernel](01-mobius-kernel.md) | A, C | F1 | none | — | done 2026-10-31 (math review: no high/medium findings; low c = 0 fix applied) |
 | [02 Reciprocal and roots kernel](02-reciprocal-roots-kernel.md) | A | F1 | none | — | done 2026-10-31 (handler review; circle inversion for M1 acceptance 4 is task 01's `circleInversion`) |
-| [03 Batch A graphs](03-batch-a-graphs.md) | A | F2a | none | 01, 02 | reciprocal graph done 2026-10-31 (engineering/UI and mathematical review; repair `3863497`: handle angle after Reset/restore, arg note modulo 2π); roots graph planned |
+| [03 Batch A graphs](03-batch-a-graphs.md) | A | F2a | none | 01, 02 | reciprocal graph done 2026-10-31 (engineering/UI and mathematical review; repair `3863497`: handle angle after Reset/restore, arg note modulo 2π); roots graph done 2026-10-31 (engineering/UI and mathematical review; default example w = 2i, spec amended). No route yet, so no smoke run. Open, low: a missing or non-numeric Preset field gets the generic invalid-data message in both graphs |
 | [04 Batch A registration, lessons, chapter, acceptance](04-batch-a-release.md) | A | F2b–F6 | `G-REG` | 03 | planned |
 | [05 Image sampler kernel](05-image-sampler.md) | B | F1 | none | — | done 2026-10-31 (handler review; spec M3 stress figures corrected: deviation is about the tolerance) |
 | [06 Batch B](06-batch-b.md) | B | measurement, F2a–F6 | `G-REG` | 04, 05 | planned |
@@ -35,3 +35,5 @@ From the spec's table, checked against `sl.ts` and `src/learning/content/`. Each
 | circle or line (generalized circle) | krožnica ali premica | Spec: avoid *posplošena krožnica* in lesson prose |
 | principal argument | glavni argument | Not in `sl.ts`; standard wording ("glavna vrednost argumenta"), glossed as \((-\pi,\pi]\) |
 | \(n\)th root; root of unity | \(n\)-ti koren; koren enote | PIK "kompleksne rešitve enačbe"; standard |
+| regular \(n\)-gon; degree \(n\) | pravilni \(n\)-kotnik; stopnja \(n\) | Standard school and UL wording (*Elementarna geometrija*); *oglišče* (vertex) as in the app's polygon texts |
+| test point | preizkusna točka | Transparent: the point the learner tries as a solution |
