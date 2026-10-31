@@ -3,6 +3,7 @@ import {equal, hom, isIdeal, lineAtInfinity, point} from './homogeneous';
 import {
     classify,
     conic,
+    conicFromFivePoints,
     determinantSign,
     discriminant,
     intersectLine,
@@ -325,5 +326,174 @@ describe('pointsAtInfinity', () => {
 
     it('a conic containing the line at infinity reports it', () => {
         expect(pointsAtInfinity(conic(0, 0, 0, 1, 0, 0)).status).toBe('contained');
+    });
+});
+
+// ---- Five-point solver (task 04, K4) ----
+//
+// Independent recomputation of the cofactors (not the code path of `conicFromFivePoints`, which expands 5x5 minors by
+// Laplace along the first row): `nullConic` below solves the 5x6 system by exact rational Gauss-Jordan elimination with
+// the pivot columns taken from the last column to the first, then scales the one-dimensional null space to coprime
+// integers. Hand oracles, derived outside the code:
+//   * the K4 default: x^2 + (25/9) y^2 - 25 = 0, i.e. 9x^2 + 25y^2 = 225 (spec K4);
+//   * the line pair of the degenerate input: (y - x)(4x + 3y - 12) = -4x^2 + xy + 3y^2 + 12x - 12y, times -24, equals
+//     96x^2 - 24xy - 72y^2 - 288x + 288y (the line y = x, and the line through (3,0) and (0,4)).
+describe('conicFromFivePoints', () => {
+    type P5 = Parameters<typeof conicFromFivePoints>[0];
+    type T3 = [number, number, number];
+    const p5 = (...pts: T3[]): P5 => pts.map(([x, y, w]) => hom(x, y, w)) as unknown as P5;
+
+    // Exact rational Gauss-Jordan, pivots from the last column to the first; returns the null conic or null if rank < 5.
+    type Q = [bigint, bigint];
+    const g = (a: bigint, b: bigint): bigint => {
+        a = a < 0n ? -a : a;
+        b = b < 0n ? -b : b;
+        while (b) [a, b] = [b, a % b];
+        return a;
+    };
+    const q = (n: bigint, d: bigint = 1n): Q => {
+        const k = g(n, d) || 1n;
+        return d < 0n ? [-n / k, -d / k] : [n / k, d / k];
+    };
+    const sub = (a: Q, b: Q): Q => q(a[0] * b[1] - b[0] * a[1], a[1] * b[1]);
+    const mul = (a: Q, b: Q): Q => q(a[0] * b[0], a[1] * b[1]);
+    const div = (a: Q, b: Q): Q => q(a[0] * b[1], a[1] * b[0]);
+    function nullConic(points: T3[]): Conic | null {
+        const m: Q[][] = points.map(([x, y, w]) => [x * x, x * y, y * y, x * w, y * w, w * w].map((v) => q(BigInt(v))));
+        const pivots: number[] = [];
+        let r = 0;
+        for (let col = 5; col >= 0 && r < 5; col--) {
+            const at = m.findIndex((row, i) => i >= r && row[col][0] !== 0n);
+            if (at < 0) continue;
+            [m[r], m[at]] = [m[at], m[r]];
+            const piv = m[r][col];
+            m[r] = m[r].map((v) => div(v, piv));
+            for (let i = 0; i < 5; i++) {
+                if (i === r || m[i][col][0] === 0n) continue;
+                const f = m[i][col];
+                m[i] = m[i].map((v, k) => sub(v, mul(f, m[r][k])));
+            }
+            pivots.push(col);
+            r++;
+        }
+        if (r < 5) return null;
+        const free = [0, 1, 2, 3, 4, 5].find((c) => !pivots.includes(c)) as number;
+        const x: Q[] = [0, 1, 2, 3, 4, 5].map(() => q(0n));
+        x[free] = q(1n);
+        pivots.forEach((col, row) => (x[col] = q(-m[row][free][0], m[row][free][1])));
+        const lcm = x.reduce((acc, v) => (acc / g(acc, v[1])) * v[1], 1n);
+        const ints = x.map((v) => (v[0] * lcm) / v[1]);
+        return conic(...(ints as [bigint, bigint, bigint, bigint, bigint, bigint]));
+    }
+
+    const K4_DEFAULT: T3[] = [
+        [5, 0, 1],
+        [0, 3, 1],
+        [-5, 0, 1],
+        [20, 9, 5], // (4, 9/5)
+        [-15, 12, 5], // (-3, 12/5)
+    ];
+    const LINE_PAIR: T3[] = [
+        [0, 0, 1],
+        [1, 1, 1],
+        [2, 2, 1],
+        [3, 0, 1],
+        [0, 4, 1],
+    ];
+    const ZERO6 = [0n, 0n, 0n, 0n, 0n, 0n];
+
+    it('acceptance 1: the K4 default is 9x^2 + 25y^2 = 225, unique', () => {
+        const r = conicFromFivePoints(p5(...K4_DEFAULT));
+        expect(r.status).toBe('unique');
+        expect(r.type).toBe('ellipse');
+        expect(r.conic).toEqual(conic(9, 0, 25, 0, 0, -225));
+        // The cofactors are integers proportional to (9, 0, 25, 0, 0, -225).
+        const k = r.cofactors[0] / 9n;
+        expect(k).not.toBe(0n);
+        expect(r.cofactors.map((v) => v / k)).toEqual([9n, 0n, 25n, 0n, 0n, -225n]);
+        expect(r.cofactors.map((v) => v % k)).toEqual(ZERO6);
+    });
+
+    it('acceptance 1: three collinear points give the line pair, unique but not smooth', () => {
+        const r = conicFromFivePoints(p5(...LINE_PAIR));
+        expect(r.status).toBe('line-pair');
+        expect(r.type).toBe('line-pair');
+        expect(r.conic).toEqual(conic(96, -24, -72, -288, 288, 0));
+        expect(determinantSign(r.conic as Conic)).toBe(0);
+        // The hand product of lines (y - x)(4x + 3y - 12) = -4x^2 + xy + 3y^2 + 12x - 12y is the same conic.
+        expect(conic(-4, 1, 3, 12, -12, 0)).toEqual(r.conic);
+    });
+
+    it('acceptance 1: four collinear points and duplicate points give a pencil with all-zero cofactors', () => {
+        const fourCollinear = conicFromFivePoints(p5([0, 0, 1], [1, 1, 1], [2, 2, 1], [3, 3, 1], [0, 5, 1]));
+        expect(fourCollinear.status).toBe('pencil');
+        expect(fourCollinear.cofactors).toEqual(ZERO6);
+        expect(fourCollinear.conic).toBeUndefined();
+        const duplicate = conicFromFivePoints(p5([5, 0, 1], [0, 3, 1], [-5, 0, 1], [10, 0, 2], [-15, 12, 5]));
+        expect(duplicate.status).toBe('pencil');
+        expect(duplicate.cofactors).toEqual(ZERO6);
+        // Five points on one line, and five equal points, are pencils as well.
+        expect(conicFromFivePoints(p5([0, 0, 1], [1, 0, 1], [2, 0, 1], [3, 0, 1], [4, 0, 1])).status).toBe('pencil');
+        expect(conicFromFivePoints(p5([1, 2, 1], [1, 2, 1], [1, 2, 1], [1, 2, 1], [1, 2, 1])).status).toBe('pencil');
+    });
+
+    it('acceptance 1: the cofactors agree with the independent rational elimination', () => {
+        for (const pts of [K4_DEFAULT, LINE_PAIR]) {
+            const r = conicFromFivePoints(p5(...pts));
+            expect(r.conic).toEqual(nullConic(pts));
+        }
+        // Pseudo-random small integer triples (fixed seed), including ideal points; rank 5 must agree exactly, rank < 5
+        // must be a pencil in both implementations.
+        let s = 12345;
+        const rnd = () => {
+            s = (s * 1103515245 + 12345) % 2147483648;
+            return (Math.floor(s / 65536) % 9) - 4;
+        };
+        let unique = 0;
+        let pencil = 0;
+        for (let i = 0; i < 300; i++) {
+            const pts: T3[] = [];
+            while (pts.length < 5) {
+                const t: T3 = [rnd(), rnd(), rnd()];
+                if (t.some((v) => v !== 0)) pts.push(t);
+            }
+            const r = conicFromFivePoints(p5(...pts));
+            const ref = nullConic(pts);
+            if (ref === null) {
+                expect(r.status).toBe('pencil');
+                pencil++;
+            } else {
+                expect(r.conic).toEqual(ref);
+                for (const t of pts) expect(onConic(r.conic as Conic, hom(...t))).toBe(true);
+                unique++;
+            }
+        }
+        expect(unique).toBeGreaterThan(100);
+        expect(pencil).toBeGreaterThan(0);
+    });
+
+    it('is independent of point order and of the scale of each triple', () => {
+        const base = conicFromFivePoints(p5(...K4_DEFAULT)).conic;
+        const shuffled = [K4_DEFAULT[3], K4_DEFAULT[0], K4_DEFAULT[4], K4_DEFAULT[2], K4_DEFAULT[1]];
+        expect(conicFromFivePoints(p5(...shuffled)).conic).toEqual(base);
+        const scaled = K4_DEFAULT.map(([x, y, w], i): T3 => [x * (i + 2), y * (i + 2), w * (i + 2)]);
+        expect(conicFromFivePoints(p5(...scaled)).conic).toEqual(base);
+    });
+
+    it('accepts ideal points, reads parallel lines, and rejects the zero triple', () => {
+        // The hyperbola 16x^2 - 9y^2 = 144 through both ideal points (3,4,0), (3,-4,0) and three finite points.
+        const h = conicFromFivePoints(p5([3, 4, 0], [3, -4, 0], [3, 0, 1], [-3, 0, 1], [15, 16, 3]));
+        expect(h.status).toBe('unique');
+        expect(h.type).toBe('hyperbola');
+        expect(h.conic).toEqual(hyperbola);
+        // Three points on y = 0 and two on y = 1: the parallel lines y(y - 1).
+        const par = conicFromFivePoints(p5([0, 0, 1], [1, 0, 1], [2, 0, 1], [0, 1, 1], [1, 1, 1]));
+        expect(par.status).toBe('line-pair');
+        expect(par.type).toBe('parallel-lines');
+        expect(par.conic).toEqual(conic(0, 0, 1, 0, -1, 0));
+        // The zero triple is not a point.
+        const bad = conicFromFivePoints([[0n, 0n, 0n], hom(1, 0, 1), hom(0, 1, 1), hom(1, 1, 1), hom(2, 1, 1)]);
+        expect(bad.status).toBe('invalid');
+        expect(bad.cofactors).toEqual(ZERO6);
     });
 });

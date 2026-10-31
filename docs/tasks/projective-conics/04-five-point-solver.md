@@ -20,3 +20,15 @@ Acceptance:
 4. Evaluate the arc with the existing rational curve evaluator. Over 200 samples, its maximum distance from the conic is below \(10^{-9}\).
 
 Checks: `just unit src/projective`, then the full suite once, and `just typecheck`. Report mutation evidence.
+
+## Acceptance record (2026-10-31)
+
+- **Worker (Sonnet, `high`):** `conicFromFivePoints` in `conic.ts` uses signed 5×5 Laplace minors in bigint and normalizes through `conic()`. `rationalArc.ts` and the tests are new. Eight mutations were each observed to fail a named test: cofactor sign, the skipped ideal-P1 check, the weight denominator, a dropped line-pair, the pencil test, the same-side check, the w²<0 check, and the barycentric z-scaling. The independent oracle is a rational Gauss-Jordan elimination with reversed pivots. It shares no code with `detN` and runs on the K4 cases and on 300 seeded sets that include ideal points.
+- **Review (Sonnet, math and engineering):** accepted with no findings. The reviewer re-derived the weight formula \(w^2=b_1^2/(4b_0b_2)\) from the third point's barycentrics, checked that the ideal-end and ideal-P1 statuses come before any arithmetic on an infinite point, and confirmed the cofactor signs and the oracle's independence.
+- **Correction to the handler's brief:** `pencil` means rank ≤ 4 of the 5×6 system, the case where all six minors vanish. Four collinear points give rank 4.
+- **Statuses beyond the task, for task 07 to word in the UI:**
+  - `no-real-weight`: an arc across the two branches of a hyperbola, where \(w^2<0\);
+  - `complementary-arc`: the third point lies outside the triangle \(P_0P_1P_2\), so the arc it marks is the extrapolation;
+  - `split-needed` with reason `ideal-end`;
+  - `invalid` with a reason.
+- **Unverified:** extreme-magnitude bigint inputs, and a third point at infinity.

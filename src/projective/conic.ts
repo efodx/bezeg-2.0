@@ -8,7 +8,7 @@
  * Every discrete decision (type, on/inside/outside, number of intersections, rationality of the intersections) is made
  * in BigInt. Doubles appear only in the `approx` views of irrational intersections, with a stated tolerance.
  * Callers never receive NaN or Infinity, and the zero triple never escapes: degenerate cases are typed statuses.
- * The five-point solver is a separate task and is not part of this module.
+ * The five-point solver (`conicFromFivePoints`) sits at the end of the module.
  */
 import {fractionToNumber, isIdeal, isZero, lineAtInfinity, normalize, type Hom} from './homogeneous';
 
@@ -360,4 +360,56 @@ export function tangentPoints(c: Conic, p: Hom): TangentPointsResult {
     const pl = polar(c, p);
     if (pl.status !== 'ok') return {status: 'degenerate'};
     return {status: 'outside', tangency: intersectLine(c, pl.line)};
+}
+
+export type FivePointStatus = 'unique' | 'line-pair' | 'pencil' | 'invalid';
+
+export interface FivePointResult {
+    readonly status: FivePointStatus;
+    /** The six signed 5x5 cofactors (-1)^j det(row matrix without column j); all zero for `pencil` and `invalid`. */
+    readonly cofactors: readonly [bigint, bigint, bigint, bigint, bigint, bigint];
+    /** The unique conic (gcd-reduced, first non-zero coefficient positive); absent for `pencil` and `invalid`. */
+    readonly conic?: Conic;
+    /** The classification of the unique conic when there is one. */
+    readonly type?: ConicType;
+}
+
+function detN(m: readonly (readonly bigint[])[]): bigint {
+    const n = m.length;
+    if (n === 1) return m[0][0];
+    let total = 0n;
+    for (let j = 0; j < n; j++) {
+        if (m[0][j] === 0n) continue;
+        const minor = m.slice(1).map((row) => row.filter((_, k) => k !== j));
+        total += (j % 2 === 0 ? 1n : -1n) * m[0][j] * detN(minor);
+    }
+    return total;
+}
+
+/**
+ * The conic through five points, from the 5 x 6 system with rows (x^2, xy, y^2, xw, yw, w^2): the coefficient of
+ * column j is the signed 5 x 5 minor without column j (Cramer). All six minors zero means the rows have rank at most 4,
+ * so the conics through the points form a pencil (four collinear points, a repeated point): no unique conic, and no
+ * numeric "nearest conic" is ever produced. Otherwise the minors are the unique conic up to scale; it is `unique` when
+ * smooth and `line-pair` when it splits into two real lines (including parallel lines). A zero triple among the inputs
+ * is `invalid`.
+ */
+export function conicFromFivePoints(points: readonly [Hom, Hom, Hom, Hom, Hom]): FivePointResult {
+    const zero = [0n, 0n, 0n, 0n, 0n, 0n] as const;
+    if (points.length !== 5 || points.some(isZero)) return {status: 'invalid', cofactors: zero};
+    const rows = points.map(([x, y, w]) => [x * x, x * y, y * y, x * w, y * w, w * w]);
+    const cofactors = [0, 1, 2, 3, 4, 5].map((j) => {
+        const minor = detN(rows.map((row) => row.filter((_, k) => k !== j)));
+        return j % 2 === 0 ? minor : -minor;
+    }) as unknown as readonly [bigint, bigint, bigint, bigint, bigint, bigint];
+    if (cofactors.every((v) => v === 0n)) return {status: 'pencil', cofactors};
+    const c = conic(...cofactors);
+    const type = classify(c);
+    if (type === 'ellipse' || type === 'circle' || type === 'parabola' || type === 'hyperbola') {
+        return {status: 'unique', cofactors, conic: c, type};
+    }
+    if (type === 'line-pair' || type === 'parallel-lines' || type === 'double-line') {
+        return {status: 'line-pair', cofactors, conic: c, type};
+    }
+    return {status: 'invalid', cofactors, conic: c, type};
 }
