@@ -1,6 +1,6 @@
 # 02 Reciprocal and roots kernel (F1, Batch A)
 
-Spec: M1 acceptance 1–3, M2 (ordering and branch cut) and acceptance 1–3. Decisions: ADR 0028 §3.
+Spec: M1 acceptance 1–3, M2 (ordering and branch cut) and acceptance 1–3. Decisions: ADR 0029 §3.
 
 Scope: `src/analysis/complexRoots.ts`, small additions in a new `src/analysis/complexReciprocal.ts` (conjugate, reciprocal, division with a typed `undefined` result at \(z=0\), exact \(|z|=1\) in grid units), and their tests. `src/analysis/complex.ts` is reused, not changed.
 

@@ -1,6 +1,6 @@
 # 04 Batch A registration, lessons, chapter, acceptance (F2b–F6, `G-REG`)
 
-Spec: M1 and M2 steps; batch-wide gate; [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Decisions: ADR 0028 §1.
+Spec: M1 and M2 steps; batch-wide gate; [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Decisions: ADR 0029 §1.
 
 - **F2b:** the `maps` family (*Preslikave ravnine / Maps of the plane*) if the linear maps registration has not added it yet, the two routes, catalog entries, Demonstration registration, Preset collections and lesson names in `src/learning/model.ts`, as A10 leaves them. Push promptly.
 - **F3:** M1 and M2 as chapter-owned activities in a per-family content file (`complexMapsChapter*.ts`), scene actions in one synchronous tick.

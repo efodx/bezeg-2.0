@@ -1,6 +1,6 @@
 # Complex maps
 
-**Status:** scheduled, 2026-10-31 (stream `maps`). Tasks: [docs/tasks/complex-maps](../tasks/complex-maps/README.md). Decisions 2–3 and placement: [ADR 0028](../adr/0028-complex-maps-placement-graphs-and-domain.md).
+**Status:** scheduled, 2026-10-31 (stream `maps`). Tasks: [docs/tasks/complex-maps](../tasks/complex-maps/README.md). Decisions 2–3 and placement: [ADR 0029](../adr/0029-complex-maps-placement-graphs-and-domain.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates, expansion, E2](../research/lesson-family-candidates-2026-10-31-expansion.md) (candidate E2 and the Möbius sample check), which read the matura catalogue M-MAT-2026 §4.3.4 (conjugate, modulus, division, reciprocal, complex solutions of equations; re-read here in `pik26.txt`, lines 410–436) and the FMF *Analiza 2b* page (117, 2025 version: "Holomorfne funkcije kot preslikave. Konformne preslikave, elementarni primeri. Schwarzeva lema. Holomorfni avtomorfizmi kroga in ravnine"; re-read here in `c117.html`). Textbooks (Ahlfors) are cited from syllabi only, not opened, and carry no section numbers. Part of the [new lesson families](new-lesson-families.md) index.
 

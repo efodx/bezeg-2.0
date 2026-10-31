@@ -1,6 +1,6 @@
 # Complex maps: implementation tasks
 
-Source: [complex maps spec](../../specs/complex-maps-lessons.md). Decisions: [ADR 0028](../../adr/0028-complex-maps-placement-graphs-and-domain.md). Stream: [maps](../feature-streams/maps.md). Slice kinds F0–F6: [family template](../feature-streams/README.md#family-template).
+Source: [complex maps spec](../../specs/complex-maps-lessons.md). Decisions: [ADR 0029](../../adr/0029-complex-maps-placement-graphs-and-domain.md). Stream: [maps](../feature-streams/maps.md). Slice kinds F0–F6: [family template](../feature-streams/README.md#family-template).
 
 Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except task 01 at `high` (Möbius and generalized-circle mathematics, per the stream template). Return at most 400 words. Bulky evidence goes to `docs/reviews/complex-maps/`.
 

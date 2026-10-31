@@ -1,6 +1,6 @@
 # 03 Batch A graphs: reciprocal and roots (F2a)
 
-Spec: M1 and M2 graph needs and acceptance; batch gate items 3–4. Decisions: ADR 0028 §2–3. Pattern: `src/analysis/complexModel.ts`, `src/graphs/complex/ComplexMultiplicationGraph.tsx`, Preset fields in `src/graphs/functions/functionPresetCollections.ts`. Re-read Platform A7/A8 results on `master` if `G-FN` has opened by then and follow their function-model rules.
+Spec: M1 and M2 graph needs and acceptance; batch gate items 3–4. Decisions: ADR 0029 §2–3. Pattern: `src/analysis/complexModel.ts`, `src/graphs/complex/ComplexMultiplicationGraph.tsx`, Preset fields in `src/graphs/functions/functionPresetCollections.ts`. Re-read Platform A7/A8 results on `master` if `G-FN` has opened by then and follow their function-model rules.
 
 Scope: `src/analysis/complexReciprocalModel.ts`, `src/analysis/complexRootsModel.ts`, `src/graphs/complex/ComplexReciprocalGraph.tsx`, `src/graphs/complex/ComplexRootsGraph.tsx`, their tests, Preset field validators, and one localization block per graph after the complex-multiplication keys, at the same position in `sl.ts` and `en.ts`. No route or registration (task 04). May be split into two worker slices, one per graph.
 

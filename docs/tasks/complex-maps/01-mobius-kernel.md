@@ -1,6 +1,6 @@
 # 01 Möbius and inversion kernel (F1, Batches A and C)
 
-Spec: "Reuse and new modules" (`complexMobius.ts`, generalized circle), M1 acceptance 3–4, M4 acceptance 1–4 and 6, M5 acceptance 1, 2 and 4, Testing Decisions, Correctness Notes. Decisions: ADR 0028 §3 (0.05 grid, integer units of \(1/20\)).
+Spec: "Reuse and new modules" (`complexMobius.ts`, generalized circle), M1 acceptance 3–4, M4 acceptance 1–4 and 6, M5 acceptance 1, 2 and 4, Testing Decisions, Correctness Notes. Decisions: ADR 0029 §3 (0.05 grid, integer units of \(1/20\)).
 
 Scope: `src/analysis/complexMobius.ts` and its test file. Pure TypeScript; reuse `Complex`, `complexMultiply` and the grid helpers from `src/analysis/complex.ts` without changing their behaviour. Worker effort `high`.
 
