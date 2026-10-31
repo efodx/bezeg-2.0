@@ -1,6 +1,5 @@
 import {foundationGuidedLessons} from './foundationGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
-import {sceneAction} from '../runtime/lessonCatalog';
+import {sceneActions} from '../runtime/lessonCatalog';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
 import {argumentSum, complexArgument, complexModulus, complexMultiply} from '../../analysis/complex';
@@ -42,10 +41,8 @@ test('keeps the foundation lessons bounded, localized, and source-backed', () =>
             expect(step.frames.filter(frame => frame.kind === 'calculation')).toHaveLength(step.workedExampleId ? 1 : 0);
             step.formulaIds.forEach(id => expect(formulaIds.has(id)).toBe(true));
             if (step.workedExampleId) expect(exampleIds.has(step.workedExampleId)).toBe(true);
-            for (const action of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
     }
 });
@@ -62,9 +59,9 @@ test('the Bernstein worked example matches the basis function definition', () =>
     const example = bernsteinLesson().workedExamples[0];
     expect(example.resultLatex).toContain('\\tfrac18,\\tfrac38,\\tfrac38,\\tfrac18');
     expect(example.resultLatex).toContain('=1');
-    const degrees = bernsteinLesson().steps.flatMap(step => legacyActions(step.scene?.actions)).filter(action => action.name === 'set-bernstein-degree');
+    const degrees = bernsteinLesson().steps.flatMap(step => step.scene?.actions ?? []).flatMap(action => action.kind === 'bernstein-degree' ? [action] : []);
     expect(degrees.length).toBeGreaterThan(0);
-    expect(degrees.every(action => Number.isInteger(action.value) && (action.value as number) >= 0 && (action.value as number) <= 5)).toBe(true);
+    expect(degrees.every(action => Number.isInteger(action.degree) && action.degree >= 0 && action.degree <= 5)).toBe(true);
     expect(bernsteinLesson().steps[0].scene?.actions).toEqual([]);
 });
 
@@ -96,7 +93,7 @@ test('the rational elevation worked example matches RationalBezierCurve.elevate(
         expect(twice.eval(t).X()).toBeCloseTo(curve.eval(t).X(), 10);
         expect(twice.eval(t).Y()).toBeCloseTo(curve.eval(t).Y(), 10);
     });
-    const elevateActions = rationalLesson().steps.map(step => legacyActions(step.scene?.actions).filter(action => action.name === 'elevate-degree').length ?? 0);
+    const elevateActions = rationalLesson().steps.map(step => (step.scene?.actions ?? []).filter(action => action.kind === 'degree-elevation').length);
     expect(elevateActions).toEqual([0, 0, 1, 1, 2]);
 });
 
@@ -120,8 +117,8 @@ test('the complex multiplication lesson matches the complex arithmetic and keeps
     expect(example.calculationLatex).toContain('(-1+i)^2=1-2i+i^2=-2i');
     expect(example.resultLatex).toContain('zw=-2i');
     // the scene of every step starts from the default (1 + i) i; only the reduction step reveals the product
-    const showsProduct = lesson.steps.map(step => legacyActions(step.scene!.actions).some(action =>
-        action.name === 'show-function-element' && (action.value as {name: string; value: boolean}).name === 'complex-product' && (action.value as {value: boolean}).value));
+    const showsProduct = lesson.steps.map(step => step.scene!.actions.some(action =>
+        action.kind === 'function-visibility' && action.target === 'complex-product' && action.visible));
     expect(showsProduct).toEqual([false, false, false, false, false, true, false]);
     expect(lesson.steps[5].workedExampleId).toBe('complex-reduction-example');
     // the examples a scene selects set the operands the prose describes

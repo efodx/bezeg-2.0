@@ -6,12 +6,12 @@
  * through a demonstration-owned graph capability. Content never reaches JSXGraph or the DOM.
  *
  * A scene's `actions` are the runtime `LessonAction` union itself (`../model`), so a misspelled action or parameter
- * fails typecheck. The legacy string `SceneAction` form below is accepted until A9b migrates the remaining content files.
+ * fails typecheck.
  * Which authored review fields stay is recorded in docs/specs/guided-lessons.md.
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText, PatchVisibilityTarget} from '../model';
+import type {LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText} from '../model';
 export type {LocalizedText} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {analysisGuidedLessons} from './analysisGuidedLessons';
@@ -44,111 +44,18 @@ export type WorkedExample = Readonly<{
 }>;
 
 /**
- * @deprecated Legacy string action names, removed by A9b (architecture backlog task 9). New and migrated content
- * authors the typed `LessonAction` union from `../model` directly; the per-action documentation lives on its members.
- * This list and `sceneAction()` in `lessonCatalog.ts` only keep content files that are not migrated yet working;
- * `tools/learning/migrate-lesson-actions.cjs` rewrites them.
- */
-export const SUPPORTED_SCENE_ACTION_NAMES = [
-    'show-control-polygon',
-    'show-convex-hull',
-    'show-decasteljau-construction',
-    'set-decasteljau-parameter',
-    'show-evaluation-point',
-    'show-weights',
-    'elevate-degree',
-    'show-offset-curve',
-    'set-offset-distance',
-    'translate-x',
-    'translate-y',
-    'scale-affine',
-    'rotate-affine',
-    'reflect-x',
-    'reflect-y',
-    'set-bernstein-degree',
-    'show-bernstein-stacked-area',
-    'set-parameterization-alpha',
-    'set-parameterization-samples',
-    'set-parameterization-mode',
-    'set-subdivision-parameter',
-    'subdivide',
-    'set-extrapolation-parameter',
-    'extrapolate',
-    'show-spline-labels',
-    'hide-spline-fixed-points',
-    'set-spline-continuity',
-    'set-spline-degree',
-    'set-spline-beta',
-    'show-farin-points',
-    'set-standard-form',
-    'set-rational-weights',
-    'set-circle-pieces',
-    'set-function-parameter',
-    'show-function-element',
-    'set-function-choice',
-    'run-bisection-command',
-    'run-sequence-command',
-    'run-fixed-point-command',
-    'show-patch-point',
-    'show-patch-element',
-    'subdivide-patch',
-    'elevate-patch',
-    'set-camera-preset',
-    'run-patch-u-sweep',
-    'run-patch-v-sweep',
-] as const;
-
-/** @deprecated Removed by A9b. */
-export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
-
-/** @deprecated Removed by A9b. */
-export type SceneActionValue =
-    | boolean
-    | number
-    | string
-    | readonly number[]
-    | Readonly<{index: number; value: number}>
-    | Readonly<{name: FunctionParameterName; value: number}>
-    | Readonly<{name: FunctionVisibilityTarget; value: boolean}>
-    | Readonly<{name: FunctionChoiceName; value: string}>
-    | Readonly<{u: number; v: number; w?: number}>
-    | Readonly<{direction?: 'u' | 'v'; value?: number}>
-    | Readonly<{name: PatchVisibilityTarget; value: boolean}>;
-
-/** @deprecated Legacy string action, removed by A9b. Author a `LessonAction` instead. */
-export type SceneAction = Readonly<{
-    name: SupportedSceneActionName;
-    value: SceneActionValue;
-}>;
-
-/** What a scene's `actions` accept during the A9 migration. @deprecated Narrowed to `LessonAction` by A9b. */
-export type LessonSceneAction = LessonAction | SceneAction;
-
-/** The legacy string actions among a scene's actions, for content tests of unmigrated files. @deprecated Removed by A9b. */
-export const legacyActions = (actions: readonly LessonSceneAction[] = []): readonly SceneAction[] =>
-    actions.filter((action): action is SceneAction => !('kind' in action));
-
-/**
  * A scene starts from the Demonstration's default scene, or from that scene with lesson-specific curve geometry and an
  * optional starting view (`lesson-fixture`); free-exploration defaults and Presets stay unchanged either way.
  */
 export type LessonScene = Readonly<{
     id: string;
-    actions: readonly LessonSceneAction[];
+    actions: readonly LessonAction[];
     expectedState: LocalizedText;
 } & (
     | {basedOn: 'demonstration-default'; view?: LessonViewBox}
     | {basedOn: 'lesson-fixture'; curve: LessonCurveFixture; view: LessonViewBox}
     | {basedOn: 'lesson-patch-fixture'; patch: LessonPatchFixture; view3d?: LessonView3D}
 )>;
-
-/** @deprecated Read by nothing; removed by A9b (docs/specs/guided-lessons.md, authored review fields). */
-export type LearnerInteraction =
-    | 'observe'
-    | 'drag-control-point'
-    | 'adjust-construction-parameter'
-    | 'drag-hodograph-point'
-    | 'adjust-offset-distance';
 
 export type GuidedLessonFrameKind = LessonFrameKind;
 
@@ -171,8 +78,6 @@ export type GuidedLessonStep = Readonly<{
     workedExampleId?: string;
     animation?: GuidedLessonAnimation;
     scene?: LessonScene;
-    /** @deprecated Read by nothing; removed by A9b. */
-    learnerInteraction?: LearnerInteraction;
     observationPrompt: LocalizedText;
     expectedObservations: readonly LocalizedText[];
 }>;
@@ -180,8 +85,6 @@ export type GuidedLessonStep = Readonly<{
 export type ContentSource = Readonly<{
     id: string;
     citation: string;
-    /** @deprecated Read by nothing; removed by A9b. */
-    supports?: readonly string[];
     implementationCorrespondence?: string;
 }>;
 
@@ -203,7 +106,7 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
 const scene = (
     id: string,
-    actions: readonly LessonSceneAction[],
+    actions: readonly LessonAction[],
     sl: string,
     en: string,
 ): LessonScene => ({
@@ -213,13 +116,10 @@ const scene = (
     expectedState: text(sl, en),
 });
 
-/** @deprecated Legacy action helper, removed by A9b together with the string actions. */
-const action = (name: SupportedSceneActionName, value: boolean | number): SceneAction => ({name, value});
-
 /** Cubic PH lesson fixture: P_0=(-2,-1), w_0=2, w_1=2+i, so w(t)=2+it, speed 4+t^2 and arc length 13/3. */
 const phCubicFixture: LessonCurveFixture = {points: [[-2, -1]], hodographs: [[2, 0], [2, 1]]};
 const phCubicView: LessonViewBox = [-3.2, 2.7, 3.4, -2.7];
-const phCubicScene = (id: string, actions: readonly LessonSceneAction[], sl: string, en: string): LessonScene => ({
+const phCubicScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'lesson-fixture',
     curve: phCubicFixture,
@@ -235,7 +135,7 @@ const phCubicScene = (id: string, actions: readonly LessonSceneAction[], sl: str
 const bezierSymmetricFixture: LessonCurveFixture = {points: [[-3, -2], [-3, 2], [3, 2], [3, -2]]};
 const bezierAsymmetricFixture: LessonCurveFixture = {points: [[-3, -2], [-1, 3], [2, -1], [3, 2]]};
 const bezierView: LessonViewBox = [-4.5, 4, 4.5, -3.5];
-const bezierScene = (id: string, curve: LessonCurveFixture, actions: readonly LessonSceneAction[], sl: string, en: string): LessonScene => ({
+const bezierScene = (id: string, curve: LessonCurveFixture, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'lesson-fixture',
     curve,
@@ -255,7 +155,7 @@ const decasteljauScene = (id: string, curve: LessonCurveFixture, t: number, sl: 
     basedOn: 'lesson-fixture',
     curve,
     view: decasteljauView,
-    actions: [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', t)],
+    actions: [{kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true}, {kind: 'parameter', name: 't', value: t}],
     expectedState: text(sl, en),
 });
 
@@ -427,7 +327,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                     'Bézierjeva krivulja je določena s kontrolnimi točkami. Točke niso nujno na krivulji; vplivajo na njeno obliko.',
                     'A Bézier curve is determined by control points. The points do not all lie on the curve; they influence its shape.',
                 ),
-                formulaIds: [], learnerInteraction: 'observe',
+                formulaIds: [],
                 frames: [frame('bezier-introduction-explanation', 'explanation'), frame('bezier-introduction-observation', 'observation')],
                 observationPrompt: text('Določi začetno in končno točko krivulje.', 'Identify the initial and terminal points of the curve.'),
                 expectedObservations: [text('Krivulja se začne pri \\(P_0\\) in konča pri \\(P_3\\).', 'The curve starts at \\(P_0\\) and ends at \\(P_3\\).')],
@@ -443,8 +343,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 ),
                 formulaIds: ['bezier-convex-hull'],
                 frames: [frame('bezier-control-polygon-explanation', 'explanation'), frame('bezier-control-polygon-observation', 'observation')],
-                scene: bezierScene('bezier-control-polygon-and-hull', bezierSymmetricFixture, [action('show-control-polygon', true), action('show-convex-hull', true)], 'Prikažeta se kontrolni poligon in konveksna ovojnica pravokotnika s koti \\((\\pm3,\\pm2)\\).', 'The control polygon and the convex hull, the rectangle with corners \\((\\pm3,\\pm2)\\), are shown.'),
-                learnerInteraction: 'observe',
+                scene: bezierScene('bezier-control-polygon-and-hull', bezierSymmetricFixture, [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'convex-hull', visible: true}], 'Prikažeta se kontrolni poligon in konveksna ovojnica pravokotnika s koti \\((\\pm3,\\pm2)\\).', 'The control polygon and the convex hull, the rectangle with corners \\((\\pm3,\\pm2)\\), are shown.'),
                 observationPrompt: text('Preveri, ali krivulja zapusti označeno konveksno ovojnico.', 'Verify whether the curve leaves the highlighted convex hull.'),
                 expectedObservations: [text('Ne; pri običajnem parametru ostane znotraj konveksne ovojnice.', 'No; for the ordinary parameter range it stays inside the convex hull.')],
             },
@@ -456,8 +355,8 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                     'Pri \\(t=0\\) je teža \\(P_0\\) enaka 1, pri \\(t=1\\) pa je teža \\(P_3\\) enaka 1. Drugi kontrolni točki vplivata na potek, ne pa na krajišči.',
                     'At \\(t=0\\) the weight of \\(P_0\\) is 1, and at \\(t=1\\) the weight of \\(P_3\\) is 1. The other control points affect the path, not the endpoints.',
                 ),
-                formulaIds: ['bezier-endpoints'], learnerInteraction: 'drag-control-point',
-                scene: bezierScene('bezier-endpoints-scene', bezierSymmetricFixture, [action('show-control-polygon', true)], 'Viden je kontrolni poligon; krivulja se začne v \\((-3,-2)\\) in konča v \\((3,-2)\\), notranji točki \\((-3,2)\\) in \\((3,2)\\) pa nista na krivulji.', 'The control polygon is visible; the curve starts at \\((-3,-2)\\) and ends at \\((3,-2)\\), while the interior points \\((-3,2)\\) and \\((3,2)\\) are not on the curve.'),
+                formulaIds: ['bezier-endpoints'],
+                scene: bezierScene('bezier-endpoints-scene', bezierSymmetricFixture, [{kind: 'curve-visibility', target: 'control-polygon', visible: true}], 'Viden je kontrolni poligon; krivulja se začne v \\((-3,-2)\\) in konča v \\((3,-2)\\), notranji točki \\((-3,2)\\) in \\((3,2)\\) pa nista na krivulji.', 'The control polygon is visible; the curve starts at \\((-3,-2)\\) and ends at \\((3,-2)\\), while the interior points \\((-3,2)\\) and \\((3,2)\\) are not on the curve.'),
                 frames: [frame('bezier-endpoints-explanation', 'explanation'), frame('bezier-endpoints-observation', 'observation')],
                 observationPrompt: text('Premakni \\(P_1\\) ali \\(P_2\\) ter opiši, kaj se spremeni in kaj ostane nespremenjeno.', 'Move \\(P_1\\) or \\(P_2\\) and describe what changes and what remains invariant.'),
                 expectedObservations: [text('Oblika krivulje se spremeni, krajišči pri \\(P_0\\) in \\(P_3\\) pa ostaneta enaki.', 'The shape changes, while the endpoints at \\(P_0\\) and \\(P_3\\) stay the same.')],
@@ -473,8 +372,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['bezier-bernstein-form'],
                 frames: [frame('bezier-evaluation-explanation', 'explanation'), frame('bezier-evaluation-calculation', 'calculation'), frame('bezier-evaluation-observation', 'observation')],
                 workedExampleId: 'bezier-cubic-midpoint',
-                scene: bezierScene('bezier-evaluation-point', bezierSymmetricFixture, [action('show-control-polygon', true), action('show-convex-hull', true), action('show-evaluation-point', 0.5)], 'Na krivulji je označena točka \\(B(\\tfrac{1}{2})=(0,1)\\), vidna sta tudi poligon in ovojnica.', 'The point \\(B(\\tfrac{1}{2})=(0,1)\\) is marked on the curve, with the polygon and hull visible.'),
-                learnerInteraction: 'observe',
+                scene: bezierScene('bezier-evaluation-point', bezierSymmetricFixture, [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'convex-hull', visible: true}, {kind: 'curve-evaluation', parameter: 0.5}], 'Na krivulji je označena točka \\(B(\\tfrac{1}{2})=(0,1)\\), vidna sta tudi poligon in ovojnica.', 'The point \\(B(\\tfrac{1}{2})=(0,1)\\) is marked on the curve, with the polygon and hull visible.'),
                 observationPrompt: text('Preveri, ali izračunana točka leži v konveksni ovojnici kontrolnih točk.', 'Verify whether the evaluated point lies in the convex hull of the control points.'),
                 expectedObservations: [text('Točka je na krivulji in znotraj konveksne ovojnice.', 'The point is on the curve and inside the convex hull.')],
             },
@@ -486,20 +384,20 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                     'Nesimetrična krivulja z \\((-3,-2)\\), \\((-1,3)\\), \\((2,-1)\\), \\((3,2)\\) ima pri \\(t=1/2\\) točko \\((3/8,3/4)\\) z istimi utežmi kot prej. Premik notranje kontrolne točke spremeni krivuljo, poligon in ovojnico; krajišči ostaneta.',
                     'The asymmetric curve with \\((-3,-2)\\), \\((-1,3)\\), \\((2,-1)\\), \\((3,2)\\) has the point \\((3/8,3/4)\\) at \\(t=1/2\\), with the same weights as before. Moving an interior control point changes the curve, polygon, and hull; the endpoints stay.',
                 ),
-                formulaIds: ['bezier-bernstein-form', 'bezier-convex-hull'], learnerInteraction: 'drag-control-point',
+                formulaIds: ['bezier-bernstein-form', 'bezier-convex-hull'],
                 workedExampleId: 'bezier-asymmetric-midpoint',
                 frames: [frame('bezier-influence-explanation', 'explanation'), frame('bezier-influence-calculation', 'calculation'), frame('bezier-influence-observation', 'observation')],
                 observationPrompt: text('Opiši, kako se sprememba položaja kontrolne točke odrazi na krivulji.', 'Describe how changing a control point affects the curve.'),
                 expectedObservations: [text('Krivulja ostane povezana s krajiščema, njen potek pa sledi novi ovojnici.', 'The curve remains attached to its endpoints, while its path follows the new hull.')],
-                scene: bezierScene('bezier-asymmetric-cubic', bezierAsymmetricFixture, [action('show-control-polygon', true), action('show-convex-hull', true), action('show-evaluation-point', 0.5)], 'Nesimetrična krivulja; označena je točka \\(B(\\tfrac12)=(3/8,3/4)\\), vidna sta poligon in ovojnica.', 'The asymmetric curve; the point \\(B(\\tfrac12)=(3/8,3/4)\\) is marked, with the polygon and hull visible.'),
+                scene: bezierScene('bezier-asymmetric-cubic', bezierAsymmetricFixture, [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'convex-hull', visible: true}, {kind: 'curve-evaluation', parameter: 0.5}], 'Nesimetrična krivulja; označena je točka \\(B(\\tfrac12)=(3/8,3/4)\\), vidna sta poligon in ovojnica.', 'The asymmetric curve; the point \\(B(\\tfrac12)=(3/8,3/4)\\) is marked, with the polygon and hull visible.'),
             },
             {
                 id: 'bezier-free-exploration', order: 6,
                 title: text('Samostojna analiza', 'Independent analysis'),
                 purpose: text('Uporaba obravnavanih lastnosti v poljubni nastavitvi grafa.', 'Application of the properties discussed to an arbitrary graph configuration.'),
                 explanation: text('V poljubni nastavitvi so vidni krajišči, konveksna ovojnica in vpliv kontrolnih točk na obliko krivulje.', 'An arbitrary configuration makes the endpoints, convex hull, and influence of the control points on the curve shape visible.'),
-                formulaIds: ['bezier-endpoints', 'bezier-convex-hull'], learnerInteraction: 'observe',
-                scene: scene('bezier-default-exploration', [action('show-control-polygon', true), action('show-convex-hull', true)], 'Za samostojno raziskovanje se vrne privzeta kubična krivulja; vidna sta poligon in ovojnica.', 'The default cubic curve returns for independent exploration, with the polygon and hull visible.'),
+                formulaIds: ['bezier-endpoints', 'bezier-convex-hull'],
+                scene: scene('bezier-default-exploration', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'convex-hull', visible: true}], 'Za samostojno raziskovanje se vrne privzeta kubična krivulja; vidna sta poligon in ovojnica.', 'The default cubic curve returns for independent exploration, with the polygon and hull visible.'),
                 frames: [frame('bezier-free-exploration-explanation', 'explanation'), frame('bezier-free-exploration-observation', 'observation')],
                 observationPrompt: text('Izberi lastnost, ki jo boš preveril z novo konfiguracijo kontrolnih točk.', 'Choose a property to test with a new control-point configuration.'),
                 expectedObservations: [text('Različne kontrolne točke dajo različne krivulje, vendar veljajo iste osnovne lastnosti.', 'Different control points produce different curves, while the same basic properties remain.')],
@@ -509,19 +407,16 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             {
                 id: 'stampar-thesis-bezier',
                 citation: 'Štampar, Kevin. Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, magistrsko delo, Univerza v Ljubljani, 2024, §§2.3–2.5 (printed pp. 6–10).',
-                supports: ['Bézier definition', 'endpoint interpolation', 'convex-hull property', 'De Casteljau recursion'],
                 implementationCorrespondence: 'The thesis describes the same Bézier and De Casteljau constructions implemented by Bezeg; current source locations are recorded separately below.',
             },
             {
                 id: 'farin-cagd',
                 citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-                supports: ['Bernstein form', 'endpoint interpolation', 'convex-hull property'],
                 implementationCorrespondence: 'The polynomial evaluator and full De Casteljau scheme are in src/bezeg/impl/curve/polynomial-bezier-curve.ts.',
             },
             {
                 id: 'bezeg-polynomial-implementation',
                 citation: 'Bezeg source: src/bezeg/impl/curve/polynomial-bezier-curve.ts and src/graphs/curves/object/JXGBezierCurve.ts.',
-                supports: ['default control points', 'numerical evaluation', 'control-polygon and hull display capabilities'],
             },
         ],
         edgeCases: [
@@ -590,7 +485,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Od interpolacije do krivulje', 'From interpolation to curve'),
                 purpose: text('Algoritem kot zaporedje linearnih interpolacij.', 'The algorithm as a sequence of linear interpolations.'),
                 explanation: text('De Casteljaujeva konstrukcija vsako vrstico zgradi z linearno interpolacijo sosednjih točk pri istem \\(t\\). Začnemo s kvadratno krivuljo s kontrolnimi točkami \\((-3,-2)\\), \\((0,4)\\), \\((3,-2)\\) pri \\(t=1/2\\).', 'De Casteljau’s construction builds each row by linearly interpolating neighboring points at the same \\(t\\). We start with the quadratic curve with control points \\((-3,-2)\\), \\((0,4)\\), \\((3,-2)\\) at \\(t=1/2\\).'),
-                formulaIds: ['decasteljau-interpolation'], learnerInteraction: 'observe',
+                formulaIds: ['decasteljau-interpolation'],
                 frames: [frame('decasteljau-introduction-explanation', 'explanation'), frame('decasteljau-introduction-observation', 'observation')],
                 animation: {animationId: 'decasteljau'},
                 observationPrompt: text('Določi število novih točk v prvi interpolacijski vrstici.', 'Determine the number of new points in the first interpolation row.'),
@@ -602,7 +497,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Ena interpolacijska vrstica', 'One interpolation row'),
                 purpose: text('Povezava interpolacijske formule z vidnimi odseki med točkami.', 'The relationship between the interpolation formula and the visible segments between points.'),
                 explanation: text('Za vsak sosednji par \\(P_i\\) in \\(P_{i+1}\\) se izračuna interpolirana točka \\((1-t)P_i+tP_{i+1}\\); pri \\(t=1/2\\) rezultat predstavlja sredino odseka. Prva vrstica je \\((-3/2,1)\\) in \\((3/2,1)\\).', 'For each neighboring pair \\(P_i\\) and \\(P_{i+1}\\), the interpolated point is \\((1-t)P_i+tP_{i+1}\\); at \\(t=1/2\\), this point is the segment midpoint. The first row is \\((-3/2,1)\\) and \\((3/2,1)\\).'),
-                formulaIds: ['decasteljau-interpolation'], learnerInteraction: 'adjust-construction-parameter',
+                formulaIds: ['decasteljau-interpolation'],
                 workedExampleId: 'decasteljau-quadratic-midpoint',
                 frames: [frame('decasteljau-one-step-explanation', 'explanation'), frame('decasteljau-one-step-calculation', 'calculation'), frame('decasteljau-one-step-observation', 'observation')],
                 observationPrompt: text('Pri \\(t=1/2\\) preveri, ali prvi vmesni točki sovpadata s sredinama odsekov.', 'At \\(t=1/2\\), verify whether the first intermediate points coincide with the segment midpoints.'),
@@ -614,7 +509,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Končna točka je \\(B(t)\\)', 'The final point is \\(B(t)\\)'),
                 purpose: text('Utemeljitev, zakaj zadnja vrstica določi točko na krivulji.', 'Why the final row determines a point on the curve.'),
                 explanation: text('Ko se število točk po vrsticah zmanjša na eno, dobimo \\(P_0^{(n)}(t)=B(t)\\). Pri kvadratni krivulji je \\(n=2\\): sredina točk \\((-3/2,1)\\) in \\((3/2,1)\\) je \\((0,1)\\). Konstrukcija zato ni le približek.', 'When the rows reduce to one point, we get \\(P_0^{(n)}(t)=B(t)\\). For the quadratic curve \\(n=2\\): the midpoint of \\((-3/2,1)\\) and \\((3/2,1)\\) is \\((0,1)\\). The construction is therefore not merely an approximation.'),
-                formulaIds: ['decasteljau-curve-point'], learnerInteraction: 'observe',
+                formulaIds: ['decasteljau-curve-point'],
                 frames: [frame('decasteljau-final-point-explanation', 'explanation'), frame('decasteljau-final-point-observation', 'observation')],
                 observationPrompt: text('Preveri, ali zadnja točka konstrukcije leži na krivulji.', 'Verify whether the final construction point lies on the curve.'),
                 expectedObservations: [text('Da; pri \\(t=1/2\\) je zadnja točka \\((0,1)\\), kar je enako \\(\\tfrac14(P_0+2P_1+P_2)\\).', 'Yes; at \\(t=1/2\\) the final point is \\((0,1)\\), which equals \\(\\tfrac14(P_0+2P_1+P_2)\\).')],
@@ -625,7 +520,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Kubična krivulja: tri vrstice', 'Cubic curve: three rows'),
                 purpose: text('Ista konstrukcija pri višji stopnji ima eno vrstico več.', 'The same construction at a higher degree has one more row.'),
                 explanation: text('Pri kubični krivulji \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\) nastanejo vrstice s tremi, dvema in eno točko: \\((-3,0),(0,2),(3,0)\\), nato \\((-3/2,1),(3/2,1)\\) in na koncu \\((0,1)\\). Predzadnja vrstica je enaka prvi vrstici kvadratnega primera.', 'For the cubic curve \\((-3,-2)\\), \\((-3,2)\\), \\((3,2)\\), \\((3,-2)\\), the rows have three, two, and one point: \\((-3,0),(0,2),(3,0)\\), then \\((-3/2,1),(3/2,1)\\), and finally \\((0,1)\\). The second-to-last row equals the first row of the quadratic example.'),
-                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'], learnerInteraction: 'observe',
+                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-cubic-midpoint',
                 frames: [frame('decasteljau-cubic-explanation', 'explanation'), frame('decasteljau-cubic-calculation', 'calculation'), frame('decasteljau-cubic-observation', 'observation')],
                 observationPrompt: text('Preštej točke v vsaki vrstici in poišči končno točko.', 'Count the points in each row and find the final point.'),
@@ -637,7 +532,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Četrtina poti: \\(t=1/4\\)', 'A quarter of the way: \\(t=1/4\\)'),
                 purpose: text('Razlikovanje spremembe položaja na krivulji od spremembe same krivulje.', 'The distinction between changing position on the curve and changing the curve itself.'),
                 explanation: text('Ko spremeniš \\(t\\), se vmesne točke in končna točka premaknejo po isti konstrukciji kontrolnih točk. Pri \\(t=1/4\\) vrstice niso več sredine: prva vrstica je \\((-3,-1),(-3/2,2),(3,1)\\), končna točka pa \\((-33/16,1/4)\\). Kontrolne točke ostanejo na mestu.', 'When \\(t\\) changes, the intermediate and final points move through the same control-point construction. At \\(t=1/4\\) the rows are no longer midpoints: the first row is \\((-3,-1),(-3/2,2),(3,1)\\) and the final point is \\((-33/16,1/4)\\). The control points stay fixed.'),
-                formulaIds: ['decasteljau-curve-point'], learnerInteraction: 'adjust-construction-parameter',
+                formulaIds: ['decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-cubic-quarter',
                 frames: [frame('decasteljau-change-parameter-explanation', 'explanation'), frame('decasteljau-change-parameter-calculation', 'calculation'), frame('decasteljau-change-parameter-observation', 'observation')],
                 observationPrompt: text('Primerjaj končno točko pri \\(t=1/4\\) s tisto pri \\(t=1/2\\) in določi, katere točke se premaknejo.', 'Compare the final point at \\(t=1/4\\) with the one at \\(t=1/2\\) and determine which points move.'),
@@ -649,7 +544,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Tri četrtine poti: \\(t=3/4\\)', 'Three quarters of the way: \\(t=3/4\\)'),
                 purpose: text('Primerjava dveh parametrov, ki nista sredina.', 'A comparison of two parameters that are not the midpoint.'),
                 explanation: text('Pri \\(t=3/4\\) je prva vrstica \\((-3,1),(3/2,2),(3,-1)\\), končna točka pa \\((33/16,1/4)\\). Zaradi simetrije kontrolnih točk je cela konstrukcija zrcalna slika konstrukcije pri \\(t=1/4\\) čez os \\(y\\), vrstni red točk v vrsticah pa je obrnjen.', 'At \\(t=3/4\\) the first row is \\((-3,1),(3/2,2),(3,-1)\\) and the final point is \\((33/16,1/4)\\). By the symmetry of the control points the whole construction is the mirror image of the one at \\(t=1/4\\) across the \\(y\\)-axis, with the order of the points in each row reversed.'),
-                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'], learnerInteraction: 'adjust-construction-parameter',
+                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-cubic-three-quarter',
                 frames: [frame('decasteljau-three-quarter-explanation', 'explanation'), frame('decasteljau-three-quarter-calculation', 'calculation'), frame('decasteljau-three-quarter-observation', 'observation')],
                 observationPrompt: text('Primerjaj končni točki pri \\(t=1/4\\) in \\(t=3/4\\).', 'Compare the final points at \\(t=1/4\\) and \\(t=3/4\\).'),
@@ -661,31 +556,28 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Kvartična krivulja in samostojna analiza', 'Quartic curve and independent analysis'),
                 purpose: text('Povezava algoritma z interaktivnim grafom in numeričnim izračunom pri višji stopnji.', 'The relationship between the algorithm, interactive graph, and numerical evaluation at a higher degree.'),
                 explanation: text('Privzeta kvartična krivulja s petimi točkami ima štiri vrstice; pri \\(t=1/2\\) se konstrukcija konča v točki \\((0,7/4)\\). Sistematična sprememba parametra \\(t\\) in prikaz celotne krivulje omogočata analizo vmesnih vrstic.', 'The default quartic curve with five points has four rows; at \\(t=1/2\\) the construction ends at \\((0,7/4)\\). Systematic variation of \\(t\\) and display of the whole curve allow analysis of the intermediate rows.'),
-                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'], learnerInteraction: 'adjust-construction-parameter',
+                formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-degree-four-midpoint',
                 frames: [frame('decasteljau-free-exploration-explanation', 'explanation'), frame('decasteljau-free-exploration-calculation', 'calculation'), frame('decasteljau-free-exploration-observation', 'observation')],
                 observationPrompt: text('Kateri del konstrukcije najbolje poveže numerični izračun z grafom?', 'Which part of the construction best relates the numerical evaluation to the graph?'),
                 expectedObservations: [text('Pri vsakem \\(t\\) je zadnja točka na krivulji, vmesne vrstice pa razložijo, kako do nje pridemo.', 'For every \\(t\\) the final point is on the curve, while the intermediate rows explain how it is reached.')],
-                scene: scene('decasteljau-default', [action('show-decasteljau-construction', true), action('set-decasteljau-parameter', 0.5)], 'Vrne se privzeta kvartična krivulja s petimi točkami pri \\(t=0{,}5\\).', 'The default quartic curve with five points returns at \\(t=0.5\\).'),
+                scene: scene('decasteljau-default', [{kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true}, {kind: 'parameter', name: 't', value: 0.5}], 'Vrne se privzeta kvartična krivulja s petimi točkami pri \\(t=0{,}5\\).', 'The default quartic curve with five points returns at \\(t=0.5\\).'),
             },
         ],
         sources: [
             {
                 id: 'stampar-thesis-decasteljau',
                 citation: 'Štampar, Kevin. Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, magistrsko delo, Univerza v Ljubljani, 2024, §2.4 (printed pp. 7–10).',
-                supports: ['De Casteljau recursion', 'linear interpolation construction', 'geometric meaning of intermediate rows'],
                 implementationCorrespondence: 'The thesis presents the full De Casteljau scheme and the current graph preserves those rows for visualization.',
             },
             {
                 id: 'farin-decasteljau',
                 citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-                supports: ['De Casteljau recursion', 'linear interpolation construction', 'equivalence with Bézier evaluation'],
                 implementationCorrespondence: 'Bezeg retains the full rows through PolynomialBezierCurve.decasteljauScheme(t) for visible constructions.',
             },
             {
                 id: 'bezeg-decasteljau-implementation',
                 citation: 'Bezeg source: src/bezeg/impl/curve/polynomial-bezier-curve.ts and src/graphs/curves/bezier/DecasteljauGraph.tsx.',
-                supports: ['default five-point scene', 't=0.5 default', 'partial curve and visible construction behavior'],
             },
         ],
         edgeCases: [
@@ -733,7 +625,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('PH-krivulja: vhodni in izpeljani podatki', 'PH curve: input and derived data'),
                 purpose: text('Vloga hodografa kot generatorja krivulje, ne zgolj kot dodatnega prikaza.', 'The hodograph as a curve generator rather than merely an additional plot.'),
                 explanation: text('Pri kubični PH-krivulji začetna točka \\(P_0\\) in generatorja \\(w_0\\), \\(w_1\\) določijo odvod, iz odvoda pa se izračunajo kontrolne točke krivulje.', 'For a cubic PH curve, the start point \\(P_0\\) and generators \\(w_0\\), \\(w_1\\) determine the derivative, from which the curve control points are generated.'),
-                formulaIds: ['ph-hodograph', 'ph-cubic-control-points'], learnerInteraction: 'observe',
+                formulaIds: ['ph-hodograph', 'ph-cubic-control-points'],
                 workedExampleId: 'ph-default-control-points',
                 frames: [
                     frame('ph-introduction-explanation', 'explanation'),
@@ -749,7 +641,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Kvadrat hodografa in hitrost', 'Squared hodograph and speed'),
                 purpose: text('Povezava generatorjev z odvodom in polinomsko hitrostjo.', 'The relationship between the generators, derivative, and polynomial speed.'),
                 explanation: text('Linearni hodograf \\(w(t)=2+it\\) se pri kompleksnem množenju kvadrira v \\(r\'(t)=(4-t^2)+4it\\). Dolžina odvoda je zato \\(\\|w(t)\\|^2=4+t^2\\), kar je polinom v \\(t\\).', 'The linear hodograph \\(w(t)=2+it\\) is squared by complex multiplication to obtain \\(r\'(t)=(4-t^2)+4it\\). Therefore \\(\\|w(t)\\|^2=4+t^2\\) is polynomial in \\(t\\).'),
-                formulaIds: ['ph-hodograph', 'ph-polynomial-speed'], learnerInteraction: 'observe',
+                formulaIds: ['ph-hodograph', 'ph-polynomial-speed'],
                 workedExampleId: 'ph-default-speed-at-half',
                 frames: [
                     frame('ph-generator-explanation', 'explanation'),
@@ -758,7 +650,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 ],
                 observationPrompt: text('Pri \\(t=1/2\\) uporabi \\(w(1/2)=2+\\tfrac12i\\) za izračun hitrosti in primerjaj z označeno točko \\(r(\\tfrac12)\\).', 'At \\(t=1/2\\), use \\(w(1/2)=2+\\tfrac12i\\) to calculate the speed and compare with the marked point \\(r(\\tfrac12)\\).'),
                 expectedObservations: [text('Hitrost je \\(\\tfrac{17}{4}=4{,}25\\), kvadrat dolžine srednjega hodografa; ker je hitrost \\(4+t^2\\), je dolžina loka \\(\\tfrac{13}{3}\\approx4{,}333\\), kar kaže tudi odčitek na grafu.', 'The speed is \\(\\tfrac{17}{4}=4.25\\), the squared length of the midpoint hodograph; since the speed is \\(4+t^2\\), the arc length is \\(\\tfrac{13}{3}\\approx4.333\\), which the readout on the graph also shows.')],
-                scene: phCubicScene('ph-cubic-speed-scene', [action('show-evaluation-point', 0.5)], 'Označena je točka \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) osnovne krivulje.', 'The point \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) of the base curve is marked.'),
+                scene: phCubicScene('ph-cubic-speed-scene', [{kind: 'curve-evaluation', parameter: 0.5}], 'Označena je točka \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) osnovne krivulje.', 'The point \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) of the base curve is marked.'),
             },
             {
                 id: 'ph-offsets', order: 3,
@@ -767,8 +659,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Pri nespremenjeni osnovni krivulji je prikazan odmik z razdaljo \\(d=1\\). Pozitiven \\(d\\) premakne točko na desno od smeri potovanja, zato je odmik na začetku pod krivuljo: iz \\(\\left(-2,\\,-1\\right)\\) v \\(\\left(-2,\\,-2\\right)\\). Ker se krivulja povsod obrača v levo, je to zunanja stran in je odmik vedno regularen.', 'With the base curve unchanged, an offset at distance \\(d=1\\) is shown. A positive \\(d\\) moves the point to the right of the direction of travel, so the offset starts below the curve: from \\(\\left(-2,\\,-1\\right)\\) to \\(\\left(-2,\\,-2\\right)\\). Because the curve turns left everywhere, this is the outer side and the offset is always regular.'),
                 formulaIds: ['ph-offset'],
                 frames: [frame('ph-offsets-explanation', 'explanation'), frame('ph-offsets-observation', 'observation')],
-                scene: phCubicScene('ph-offset-positive', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=1\\), pod osnovno krivuljo.', 'The offset at \\(d=1\\) is shown, below the base curve.'),
-                learnerInteraction: 'adjust-offset-distance',
+                scene: phCubicScene('ph-offset-positive', [{kind: 'parameter', name: 'offset-distance', value: 1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Prikazan je odmik pri \\(d=1\\), pod osnovno krivuljo.', 'The offset at \\(d=1\\) is shown, below the base curve.'),
                 observationPrompt: text('Primerjaj navpični zamik točke odmika na levem koncu in pri \\(t=1\\), kjer je tangenta \\(r\'(1)=(3,4)\\). Ali je razdalja vzdolž normale povsod enaka?', 'Compare the vertical shift of the offset point at the left end and at \\(t=1\\), where the tangent is \\(r\'(1)=(3,4)\\). Is the distance along the normal the same everywhere?'),
                 expectedObservations: [text('Vzdolž normale je razdalja povsod \\(1\\), navpični zamik pa ni: na levem koncu je \\(1\\), pri \\(t=1\\) pa \\(\\tfrac35\\), ker je tam normala \\(\\left(\\tfrac45,\\,-\\tfrac35\\right)\\).', 'Along the normal the distance is \\(1\\) everywhere, but the vertical shift is not: it is \\(1\\) at the left end and \\(\\tfrac35\\) at \\(t=1\\) because the normal there is \\(\\left(\\tfrac45,\\,-\\tfrac35\\right)\\).')],
             },
@@ -779,8 +670,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Pri \\(d=-1\\) predznak izbere nasprotno stran: odmik leži nad krivuljo, na notranji strani zavoja. Polmer ukrivljenosti je \\(\\tfrac{(4+t^2)^2}{4}\\), torej med \\(4\\) in \\(\\tfrac{25}{4}\\), in je večji od \\(1\\), zato ostane odmik regularen; do ostrine bi prišlo šele pri \\(|d|\\ge4\\), kar je zunaj drsnika. Osnovna PH-krivulja in njena kontrolna geometrija ostaneta isti.', 'At \\(d=-1\\), the sign selects the opposite side: the offset lies above the curve, on the inner side of the bend. The radius of curvature is \\(\\tfrac{(4+t^2)^2}{4}\\), between \\(4\\) and \\(\\tfrac{25}{4}\\), and larger than \\(1\\), so the offset stays regular; a cusp would appear only at \\(|d|\\ge4\\), which is outside the slider. The base PH curve and its control geometry stay the same.'),
                 formulaIds: ['ph-offset'],
                 frames: [frame('ph-offset-side-explanation', 'explanation'), frame('ph-offset-side-observation', 'observation')],
-                scene: phCubicScene('ph-offset-negative', [action('set-offset-distance', -1), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-1\\), nad osnovno krivuljo.', 'The offset at \\(d=-1\\) is shown, above the base curve.'),
-                learnerInteraction: 'adjust-offset-distance',
+                scene: phCubicScene('ph-offset-negative', [{kind: 'parameter', name: 'offset-distance', value: -1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Prikazan je odmik pri \\(d=-1\\), nad osnovno krivuljo.', 'The offset at \\(d=-1\\) is shown, above the base curve.'),
                 observationPrompt: text('Primerjaj odmika pri \\(d=1\\) in \\(d=-1\\): na kateri strani krivulje leži vsak in kaj ostane nespremenjeno?', 'Compare the offsets at \\(d=1\\) and \\(d=-1\\): which side of the curve does each lie on, and what stays unchanged?'),
                 expectedObservations: [text('Odmik pri \\(d=1\\) leži pod krivuljo, pri \\(d=-1\\) nad njo, na notranji strani zavoja; osnovna krivulja ostane enaka.', 'The offset at \\(d=1\\) lies below the curve and at \\(d=-1\\) above it, on the inner side of the bend; the base curve remains the same.')],
             },
@@ -789,18 +679,18 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Vpliv premika generatorja', 'Effect of moving a generator'),
                 purpose: text('Vpliv spremembe vhodnega hodografa na krivuljo.', 'The effect of changing the input hodograph on the curve.'),
                 explanation: text('Premik \\(w_0\\) ali \\(w_1\\) na sekundarnem grafu povzroči ponovni izračun kontrolnih točk PH-krivulje in osvežitev odmika. Poskusi premakniti \\(w_1\\) v \\(2+2i\\): hitrost postane \\(4+4t^2\\), dolžina loka pa \\(\\tfrac{16}{3}\\approx5{,}333\\).', 'Moving \\(w_0\\) or \\(w_1\\) on the secondary graph recomputes the PH control points and refreshes the offset. Try moving \\(w_1\\) to \\(2+2i\\): the speed becomes \\(4+4t^2\\) and the arc length \\(\\tfrac{16}{3}\\approx5.333\\).'),
-                formulaIds: ['ph-hodograph', 'ph-cubic-control-points'], learnerInteraction: 'drag-hodograph-point',
+                formulaIds: ['ph-hodograph', 'ph-cubic-control-points'],
                 frames: [frame('ph-hodograph-edit-explanation', 'explanation'), frame('ph-hodograph-edit-observation', 'observation')],
                 observationPrompt: text('Opiši spremembe oblike krivulje, hodografa in odmika ter preveri odčitek dolžine loka pri \\(w_1=2+2i\\).', 'Describe the changes in the curve shape, hodograph, and offset, and check the arc-length readout at \\(w_1=2+2i\\).'),
                 expectedObservations: [text('Sprememba generatorja spremeni izračunane kontrolne točke, odvod in zato tudi prikazani odmik; pri \\(w_1=2+2i\\) je dolžina loka \\(\\tfrac{16}{3}\\).', 'Changing a generator changes the derived control points, derivative, and therefore the displayed offset; at \\(w_1=2+2i\\) the arc length is \\(\\tfrac{16}{3}\\).')],
-                scene: phCubicScene('ph-offset-after-edit', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Odmik pri \\(d=1\\) ostane viden med ročnim urejanjem hodografa.', 'The offset at \\(d=1\\) remains visible while the hodograph is edited manually.'),
+                scene: phCubicScene('ph-offset-after-edit', [{kind: 'parameter', name: 'offset-distance', value: 1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Odmik pri \\(d=1\\) ostane viden med ročnim urejanjem hodografa.', 'The offset at \\(d=1\\) remains visible while the hodograph is edited manually.'),
             },
             {
                 id: 'ph-free-exploration', order: 6,
                 title: text('Samostojna analiza', 'Independent analysis'),
                 purpose: text('Povezava vhodnih podatkov, hitrosti in odmikov v samostojni analizi.', 'The relationship between inputs, speed, and offsets in an independent analysis.'),
                 explanation: text('Različni položaji \\(w_0\\), \\(w_1\\) in razdalje \\(d\\) omogočajo analizo, kateri deli ostanejo polinomski in kateri prikazi izhajajo iz odmične konstrukcije.', 'Different positions for \\(w_0\\), \\(w_1\\), and values of \\(d\\) allow analysis of which parts remain polynomial and which displays derive from the offset construction.'),
-                formulaIds: ['ph-polynomial-speed'], learnerInteraction: 'drag-hodograph-point',
+                formulaIds: ['ph-polynomial-speed'],
                 frames: [frame('ph-free-exploration-explanation', 'explanation'), frame('ph-free-exploration-observation', 'observation')],
                 observationPrompt: text('Izberi spremembo, ki jo lahko utemeljiš z enačbo za \\(w(t)\\) ali hitrost.', 'Choose a change that you can justify using the equation for \\(w(t)\\) or speed.'),
                 expectedObservations: [text('Generatorja določata hitrost in obliko PH-krivulje; \\(d\\) določa prikazani odmik.', 'The generators determine the PH curve’s speed and shape; \\(d\\) determines the displayed offset.')],
@@ -810,19 +700,16 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
             {
                 id: 'stampar-thesis-ph',
                 citation: 'Štampar, Kevin. Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, magistrsko delo, Univerza v Ljubljani, 2024, §§5.1–5.5 (printed pp. 29–34).',
-                supports: ['hodograph definition', 'PH condition', 'polynomial speed', 'cubic PH control points'],
                 implementationCorrespondence: 'Section 5.3 gives the cubic recurrence with the mixed term coefficient 1/3; the current model applies the same recurrence in phControlPoints (ph-math.ts).',
             },
             {
                 id: 'farouki-ph',
                 citation: 'Farouki, R. T. Pythagorean-Hodograph Curves: Algebra and Geometry Inseparable, Springer, 2008.',
-                supports: ['PH hodograph representation', 'polynomial speed', 'offset-curve motivation'],
                 implementationCorrespondence: 'The implementation uses complex-product formulas in src/bezeg/impl/curve/ph-bezier-curve.ts and exposes the hodograph in BasePhBezierCurveGraph.',
             },
             {
                 id: 'bezeg-ph-implementation',
                 citation: 'Bezeg source: src/bezeg/impl/curve/ph-bezier-curve.ts, src/graphs/curves/ph/CubicPhBezierCurveGraph.tsx, and src/graphs/curves/object/JXGPHBezierCurve.ts.',
-                supports: ['lesson-fixture P₀,w₀,w₁', 'derived cubic control points', 'offset distance and visibility controls'],
             },
         ],
         edgeCases: [

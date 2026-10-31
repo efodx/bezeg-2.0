@@ -2,12 +2,12 @@
  * Guided lessons of the Functions and calculus family (ADR 0007, docs/specs/function-concepts.md).
  * Each later concept appends its lesson to `functionGuidedLessons`; availability follows from the Demonstration definition (`src/demonstrations.ts`).
  */
-import type {FunctionParameterName, LessonViewBox} from '../model';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
+import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
-const parameter = (name: FunctionParameterName, value: number): SceneAction => ({name: 'set-function-parameter', value: {name, value}});
+const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 
 const linearFunction: GuidedLesson = {
     demonstrationId: 'linear-function',
@@ -96,7 +96,7 @@ const linearFunction: GuidedLesson = {
                 'Linearna funkcija ima enačbo \\(y=kx+n\\), njen graf pa je premica. Premico določata dve točki z različnima koordinatama \\(x\\): premakni \\(P_1\\) in \\(P_2\\) ter opazuj, kako premica sledi točkama.',
                 'A linear function has the equation \\(y=kx+n\\), and its graph is a line. Two points with different \\(x\\)-coordinates determine the line: move \\(P_1\\) and \\(P_2\\) and watch the line follow them.',
             ),
-            formulaIds: ['linear-function-form'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['linear-function-form'],
             frames: [frame('linear-line-through-points-explanation', 'explanation'), frame('linear-line-through-points-observation', 'observation')],
             observationPrompt: text(
                 'Premakni točko \\(P_1\\) in opazuj, kaj se zgodi s premico in z enačbo na grafu.',
@@ -123,7 +123,7 @@ const linearFunction: GuidedLesson = {
                 'Naklon pove, za koliko se \\(y\\) spremeni, ko se \\(x\\) poveča za 1. Iz točk ga izračunamo kot kvocient krakov črtkanega trikotnika, \\(k=\\Delta y/\\Delta x\\).',
                 'The slope tells how much \\(y\\) changes when \\(x\\) grows by 1. From two points we compute it as the ratio of the legs of the dashed triangle, \\(k=\\Delta y/\\Delta x\\).',
             ),
-            formulaIds: ['linear-slope'], workedExampleId: 'linear-two-points', learnerInteraction: 'observe',
+            formulaIds: ['linear-slope'], workedExampleId: 'linear-two-points',
             frames: [frame('linear-slope-triangle-explanation', 'explanation'), frame('linear-slope-triangle-calculation', 'calculation'), frame('linear-slope-triangle-observation', 'observation')],
             observationPrompt: text(
                 'Odčitaj \\(\\Delta x\\) in \\(\\Delta y\\) s trikotnika ter ju deli.',
@@ -150,7 +150,7 @@ const linearFunction: GuidedLesson = {
                 'Pri \\(x=0\\) je \\(y=n\\), zato premica seka os \\(y\\) v točki \\((0,n)\\). Če spremeniš \\(n\\) in pustiš \\(k\\), se premica vzporedno premakne gor ali dol, točki pa obdržita svoji koordinati \\(x\\).',
                 'At \\(x=0\\) we get \\(y=n\\), so the line crosses the \\(y\\)-axis at \\((0,n)\\). If you change \\(n\\) and keep \\(k\\), the line shifts up or down in parallel while the points keep their \\(x\\)-coordinates.',
             ),
-            formulaIds: ['linear-intercept'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['linear-intercept'],
             frames: [frame('linear-intercept-step-explanation', 'explanation'), frame('linear-intercept-step-observation', 'observation')],
             observationPrompt: text(
                 'Poišči označeno točko na osi \\(y\\) in primerjaj njeno višino z odčitkom \\(n\\).',
@@ -177,7 +177,7 @@ const linearFunction: GuidedLesson = {
                 'Pri \\(k>0\\) funkcija narašča, pri \\(k=0\\) je konstantna in pri \\(k<0\\) pada. Večja kot je vrednost \\(|k|\\), strmejša je premica.',
                 'For \\(k>0\\) the function rises, for \\(k=0\\) it is constant and for \\(k<0\\) it falls. The larger \\(|k|\\) is, the steeper the line.',
             ),
-            formulaIds: ['linear-slope'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['linear-slope'],
             frames: [frame('linear-slope-sign-explanation', 'explanation'), frame('linear-slope-sign-observation', 'observation')],
             observationPrompt: text(
                 'Premakni točko tako, da dobiš \\(k=0\\), nato pa še tako, da dobiš \\(k>0\\).',
@@ -204,7 +204,7 @@ const linearFunction: GuidedLesson = {
                 'Vzporedni premici imata isti naklon \\(k\\) in se razlikujeta le v \\(n\\). Če imata točki isti \\(x\\), je \\(\\Delta x=0\\): premica je navpična z enačbo \\(x=c\\), naklona pa ni, ker z \\(0\\) ne smemo deliti. Navpična premica ni graf nobene funkcije.',
                 'Parallel lines have the same slope \\(k\\) and differ only in \\(n\\). If the points have the same \\(x\\), then \\(\\Delta x=0\\): the line is vertical with the equation \\(x=c\\), and it has no slope because we must not divide by \\(0\\). A vertical line is not the graph of any function.',
             ),
-            formulaIds: ['linear-vertical'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['linear-vertical'],
             frames: [frame('linear-parallel-vertical-explanation', 'explanation'), frame('linear-parallel-vertical-observation', 'observation')],
             observationPrompt: text(
                 'Premakni \\(P_2\\) vodoravno stran od navpičnice in opazuj, kdaj spet dobiš naklon. Nato poskusi dobiti premico, vzporedno s prvotno.',
@@ -228,18 +228,15 @@ const linearFunction: GuidedLesson = {
         {
             id: 'stewart-lines',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Appendix B: Coordinate Geometry and Lines.',
-            supports: ['slope as Δy/Δx', 'slope-intercept form', 'vertical lines have no slope', 'parallel lines have equal slopes'],
         },
         {
             id: 'efodx-line-graph',
             citation: 'Owner\'s earlier app: efodx.github.io, src/graphs line-graph (studied 2026-10-11).',
-            supports: ['two draggable points', 'slope triangle with Δx and Δy', 'editable k and n'],
             implementationCorrespondence: 'Bezeg keeps the points, the triangle and the k and n controls, and represents a vertical line explicitly instead of reusing n as its x position.',
         },
         {
             id: 'bezeg-linear-implementation',
             citation: 'Bezeg source: src/analysis/linear.ts and src/graphs/functions/LinearFunctionGraph.tsx.',
-            supports: ['line through two points', 'k and n readouts', 'vertical line reported as undefined slope', 'points keep their x when k or n change'],
         },
     ],
     edgeCases: [
@@ -260,7 +257,7 @@ const linearFunction: GuidedLesson = {
     ],
 };
 
-const mirrorVisibility = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'mirror', value: visible}});
+const mirrorVisibility = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'mirror', visible: visible});
 
 const exponentialFunction: GuidedLesson = {
     demonstrationId: 'exponential-function',
@@ -349,7 +346,7 @@ const exponentialFunction: GuidedLesson = {
                 'Eksponentna funkcija \\(f(x)=a^x\\) ima pozitivno osnovo \\(a\\). Ker je \\(a^0=1\\), graf vedno poteka skozi \\((0,1)\\); ker je \\(a^1=a\\), je druga označena točka \\((1,a)\\). Premikaj drsnik osnove in opazuj, kaj se spreminja in kaj ne.',
                 'The exponential function \\(f(x)=a^x\\) has a positive base \\(a\\). Since \\(a^0=1\\), the graph always passes through \\((0,1)\\); since \\(a^1=a\\), the second marked point is \\((1,a)\\). Move the base slider and watch what changes and what does not.',
             ),
-            formulaIds: ['exponential-form'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['exponential-form'],
             frames: [frame('exponential-fixed-points-explanation', 'explanation'), frame('exponential-fixed-points-observation', 'observation')],
             observationPrompt: text(
                 'Premakni drsnik osnove \\(a\\) in primerjaj višino točke \\((1,a)\\) z odčitkom \\(f(1)\\).',
@@ -376,7 +373,7 @@ const exponentialFunction: GuidedLesson = {
                 'Ker je \\(a^{x+1}=a\\cdot a^x\\), se vrednost funkcije pri vsakem koraku za \\(1\\) v desno pomnoži z \\(a\\). Pri osnovi \\(a=2\\) začnemo z \\(f(0)=1\\) in vrednost vsakič podvojimo.',
                 'Because \\(a^{x+1}=a\\cdot a^x\\), the value of the function is multiplied by \\(a\\) at every step of \\(1\\) to the right. For the base \\(a=2\\) we start with \\(f(0)=1\\) and double the value each time.',
             ),
-            formulaIds: ['exponential-step'], workedExampleId: 'exponential-doubling', learnerInteraction: 'observe',
+            formulaIds: ['exponential-step'], workedExampleId: 'exponential-doubling',
             frames: [frame('exponential-multiplication-step-explanation', 'explanation'), frame('exponential-multiplication-step-calculation', 'calculation'), frame('exponential-multiplication-step-observation', 'observation')],
             observationPrompt: text(
                 'Pri \\(x=0,1,2,3\\) odčitaj višino grafa in preveri, da je vsaka vrednost dvakratnik prejšnje.',
@@ -403,7 +400,7 @@ const exponentialFunction: GuidedLesson = {
                 'Pri \\(a>1\\) se vrednost z vsakim korakom poveča, zato funkcija narašča. Pri \\(0<a<1\\) se z vsakim korakom pomnoži z manjšim številom od \\(1\\), zato pada: za \\(a=0{,}5\\) so vrednosti \\(1\\), \\(0{,}5\\), \\(0{,}25\\), \\(0{,}125\\). Pri \\(a=1\\) je \\(1^x=1\\) za vsak \\(x\\), graf je vodoravna premica.',
                 'For \\(a>1\\) the value grows with every step, so the function increases. For \\(0<a<1\\) it is multiplied by a number smaller than \\(1\\) at every step, so it decreases: for \\(a=0.5\\) the values are \\(1\\), \\(0.5\\), \\(0.25\\), \\(0.125\\). For \\(a=1\\) we have \\(1^x=1\\) for every \\(x\\), and the graph is a horizontal line.',
             ),
-            formulaIds: ['exponential-step'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['exponential-step'],
             frames: [frame('exponential-growth-decay-explanation', 'explanation'), frame('exponential-growth-decay-observation', 'observation')],
             observationPrompt: text(
                 'Nastavi drsnik na \\(a=1\\) in preberi obnašanje v inspektorju, nato ga premakni na obe strani.',
@@ -430,7 +427,7 @@ const exponentialFunction: GuidedLesson = {
                 'Ker je \\((1/a)^x=a^{-x}\\), ima zrcalna funkcija pri \\(x\\) enako vrednost kot prvotna pri \\(-x\\). Pri \\(a=2\\) je zrcalna osnova \\(1/2\\): točka \\((1,2)\\) na prvotnem grafu ustreza točki \\((-1,2)\\) na zrcalnem, ker je \\((1/2)^{-1}=2\\).',
                 'Since \\((1/a)^x=a^{-x}\\), the mirror function at \\(x\\) has the same value as the original at \\(-x\\). For \\(a=2\\) the mirror base is \\(1/2\\): the point \\((1,2)\\) on the original graph corresponds to the point \\((-1,2)\\) on the mirror graph, because \\((1/2)^{-1}=2\\).',
             ),
-            formulaIds: ['exponential-mirror'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['exponential-mirror'],
             frames: [frame('exponential-mirror-step-explanation', 'explanation'), frame('exponential-mirror-step-observation', 'observation')],
             observationPrompt: text(
                 'Spreminjaj osnovo \\(a\\) in opazuj, kako se oba grafa odzivata glede na os \\(y\\).',
@@ -457,7 +454,7 @@ const exponentialFunction: GuidedLesson = {
                 'Pri \\(a>0\\) je vsaka potenca \\(a^x\\) pozitivna, zato graf nikoli ne seka osi \\(x\\). Pri \\(a=2\\) in vse bolj negativnih \\(x\\) vrednosti padajo: \\(2^{-10}=1/1024\\approx0{,}001\\), a ostanejo večje od \\(0\\). Osnov \\(a\\le0\\) ne dovolimo: \\(0^x\\) ni definirana za \\(x\\le0\\), pri negativni osnovi pa na primer \\((-2)^{1/2}\\) ni realno število, zato drsnik teče od \\(0{,}1\\) naprej.',
                 'For \\(a>0\\) every power \\(a^x\\) is positive, so the graph never meets the \\(x\\)-axis. For \\(a=2\\) and more and more negative \\(x\\) the values decrease: \\(2^{-10}=1/1024\\approx0.001\\), yet they stay greater than \\(0\\). Bases \\(a\\le0\\) are not allowed: \\(0^x\\) is not defined for \\(x\\le0\\), and for a negative base, for example, \\((-2)^{1/2}\\) is not a real number, so the slider starts at \\(0.1\\).',
             ),
-            formulaIds: ['exponential-positive'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['exponential-positive'],
             frames: [frame('exponential-above-axis-explanation', 'explanation'), frame('exponential-above-axis-observation', 'observation')],
             observationPrompt: text(
                 'Poglej levi del grafa pri \\(a=2\\) in nato pri najmanjši osnovi \\(a=0{,}1\\), kjer graf z desne pada proti osi \\(x\\).',
@@ -481,18 +478,15 @@ const exponentialFunction: GuidedLesson = {
         {
             id: 'stewart-exponential',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 1.5: Exponential Functions.',
-            supports: ['a^x for a > 0', 'graphs pass through (0, 1)', 'growth for a > 1 and decay for 0 < a < 1', 'a^(x+1) = a * a^x', 'graph above the x-axis with the x-axis as asymptote'],
         },
         {
             id: 'efodx-exponential-graph',
             citation: 'Owner\'s earlier app: efodx.github.io, src/graphs exponential-fun-graph (studied 2026-10-11).',
-            supports: ['f(x) = a^x with an editable base', 'comparing growth and decay by changing the base'],
             implementationCorrespondence: 'Bezeg keeps the editable base as a slider limited to the valid range, marks the points (0, 1) and (1, a), and adds an optional mirror graph (1/a)^x with readouts of f(1) and the behavior.',
         },
         {
             id: 'bezeg-exponential-implementation',
             citation: 'Bezeg source: src/analysis/exponential.ts and src/graphs/functions/ExponentialFunctionGraph.tsx.',
-            supports: ['a^x values, classification and mirror base', 'base slider limited to 0.1 to 5', 'marked points (0, 1) and (1, a)', 'mirror graph toggle'],
         },
     ],
     edgeCases: [
@@ -517,8 +511,8 @@ const exponentialFunction: GuidedLesson = {
     ],
 };
 
-const referenceVisibility = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'reference', value: visible}});
-const trigChoice = (value: 'sin' | 'cos' | 'tan'): SceneAction => ({name: 'set-function-choice', value: {name: 'trig-function', value}});
+const referenceVisibility = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'reference', visible: visible});
+const trigChoice = (value: 'sin' | 'cos' | 'tan'): LessonAction => ({kind: 'function-choice', name: 'trig-function', value: value});
 
 const trigonometricFunctions: GuidedLesson = {
     demonstrationId: 'trigonometric-functions',
@@ -619,7 +613,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Pri privzetih nastavitvah \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) in \\(B=0\\) je \\(f(x)=\\sin x\\). Val se ponovi vsakih \\(2\\pi\\approx6{,}28\\) in nikoli ne preseže vrednosti \\(1\\) ali pade pod \\(-1\\). Poskusi spremeniti drsnike, nato pa se vrni na te vrednosti.',
                 'With the default settings \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) and \\(B=0\\) we have \\(f(x)=\\sin x\\). The wave repeats every \\(2\\pi\\approx6.28\\) and never rises above \\(1\\) or falls below \\(-1\\). Try the sliders, then return to these values.',
             ),
-            formulaIds: ['trig-form'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-form'],
             frames: [frame('trig-base-sine-explanation', 'explanation'), frame('trig-base-sine-observation', 'observation')],
             observationPrompt: text(
                 'Poišči najvišjo in najnižjo točko grafa ter dve točki, kjer se val začne ponavljati, in primerjaj z odčitkoma zaloge vrednosti in periode.',
@@ -646,7 +640,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Črtkani referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(A\\): pri \\(A=2\\) je \\(f(x)=2\\sin x\\) in val doseže višino \\(|A|=2\\) nad srednjo črto \\(y=0\\) in \\(2\\) pod njo. Zaloga vrednosti je zato \\([B-|A|,B+|A|]=[-2,2]\\), perioda \\(2\\pi\\) in srednja črta ostaneta enaki kot pri referenčnem grafu.',
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(A\\): for \\(A=2\\) we have \\(f(x)=2\\sin x\\), and the wave reaches \\(|A|=2\\) above the midline \\(y=0\\) and \\(2\\) below it. The range is therefore \\([B-|A|,B+|A|]=[-2,2]\\), while the period \\(2\\pi\\) and the midline stay the same as for the reference graph.',
             ),
-            formulaIds: ['trig-range'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-range'],
             frames: [frame('trig-amplitude-midline-explanation', 'explanation'), frame('trig-amplitude-midline-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj višino vrhov polnega in črtkanega grafa ter njuna prečkanja osi \\(x\\). Nato premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
@@ -673,7 +667,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Referenčni graf je spet osnovni \\(\\sin x\\). Spremenimo samo \\(B\\): pri \\(B=1\\) je \\(f(x)=\\sin x+1\\), srednja črta je \\(y=1\\), največja vrednost je \\(B+|A|=1+1=2\\), najmanjša pa \\(B-|A|=1-1=0\\). Višina vala nad srednjo črto je še vedno \\(|A|=1\\), perioda pa \\(2\\pi\\).',
                 'The reference graph is again the basic \\(\\sin x\\). We change only \\(B\\): for \\(B=1\\) we have \\(f(x)=\\sin x+1\\), the midline is \\(y=1\\), the maximum is \\(B+|A|=1+1=2\\) and the minimum is \\(B-|A|=1-1=0\\). The height of the wave above the midline is still \\(|A|=1\\) and the period is \\(2\\pi\\).',
             ),
-            formulaIds: ['trig-range'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-range'],
             frames: [frame('trig-vertical-shift-explanation', 'explanation'), frame('trig-vertical-shift-observation', 'observation')],
             observationPrompt: text(
                 'Izberi točko na črtkanem grafu in poišči točko polnega grafa z istim \\(x\\): za koliko je višja? Primerjaj še srednjo črto in odčitek zaloge vrednosti.',
@@ -700,7 +694,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(\\omega\\): pri \\(\\omega=2\\) je \\(f(x)=\\sin 2x\\). Argument \\(2x\\) preteče \\(2\\pi\\) že, ko se \\(x\\) poveča za \\(\\pi\\), zato je perioda \\(2\\pi/\\omega=\\pi\\) in se v istem razmiku \\(2\\pi\\) val ponovi dvakrat. Višina vala se ne spremeni, zaloga vrednosti ostane \\([-1,1]\\).',
                 'The reference graph is the basic \\(\\sin x\\). We change only \\(\\omega\\): for \\(\\omega=2\\) we have \\(f(x)=\\sin 2x\\). The argument \\(2x\\) runs through \\(2\\pi\\) already when \\(x\\) grows by \\(\\pi\\), so the period is \\(2\\pi/\\omega=\\pi\\) and the wave repeats twice in the same distance \\(2\\pi\\). The height of the wave does not change, and the range stays \\([-1,1]\\).',
             ),
-            formulaIds: ['trig-period-shift'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-period-shift'],
             frames: [frame('trig-frequency-explanation', 'explanation'), frame('trig-frequency-observation', 'observation')],
             observationPrompt: text(
                 'Preštej vrhove črtkanega in polnega grafa na razmiku od \\(0\\) do \\(2\\pi\\) in primerjaj razmik med dvema zaporednima vrhovoma polnega grafa z odčitkom periode.',
@@ -727,7 +721,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Črtkani referenčni graf je osnovni \\(\\sin x\\). Spremenimo samo \\(\\varphi\\): polni graf je \\(\\sin(x+\\pi/2)\\) pri \\(\\varphi=\\pi/2\\). Pozitiven \\(\\varphi\\) graf zamakne v levo, negativen pa v desno. Polni graf je zamaknjen za \\(-\\varphi/\\omega=-\\pi/2\\), torej v levo, in ima pri \\(x=0\\) največjo vrednost \\(1\\), tako kot \\(\\cos x\\). Preveri: izberi \\(\\cos\\) in nastavi \\(\\varphi=0\\); dobiš isti graf.',
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(\\varphi\\): the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). A positive \\(\\varphi\\) moves the graph to the left and a negative one to the right. The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
             ),
-            formulaIds: ['trig-cos-sin'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-cos-sin'],
             frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato nastavi \\(\\varphi=-\\pi/2\\) in preveri, da se graf zamakne v desno, nato pa izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
@@ -754,7 +748,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Faktor \\(\\omega\\) graf vodoravno stisne: perioda je \\(2\\pi/\\omega\\). Ker je \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), je graf zamaknjen za \\(-\\varphi/\\omega\\). Pri \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) in \\(B=1\\) je največ \\(1+2=3\\), najmanj \\(1-2=-1\\), perioda \\(2\\pi/2=\\pi\\) in zamik \\(-(\\pi/2)/2=-\\pi/4\\).',
                 'The factor \\(\\omega\\) squeezes the graph horizontally: the period is \\(2\\pi/\\omega\\). Since \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), the graph is shifted by \\(-\\varphi/\\omega\\). For \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) and \\(B=1\\) the maximum is \\(1+2=3\\), the minimum \\(1-2=-1\\), the period \\(2\\pi/2=\\pi\\) and the shift \\(-(\\pi/2)/2=-\\pi/4\\).',
             ),
-            formulaIds: ['trig-period-shift'], workedExampleId: 'trig-period-shift-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-period-shift'], workedExampleId: 'trig-period-shift-example',
             frames: [frame('trig-period-shift-explanation', 'explanation'), frame('trig-period-shift-calculation', 'calculation'), frame('trig-period-shift-observation', 'observation')],
             observationPrompt: text(
                 'Poišči najvišjo točko grafa blizu \\(x=0\\) in preveri njeno višino. Primerjaj razmik med dvema zaporednima vrhovoma z odčitkom periode.',
@@ -781,7 +775,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'Pri \\(\\tan\\) je perioda \\(\\pi/\\omega\\). Graf ima navpične asimptote, kjer je \\(\\cos(\\omega x+\\varphi)=0\\), torej pri \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) za cele \\(m\\). Pri \\(\\omega=1\\) in \\(\\varphi=0\\) so v pogledu asimptote pri \\(x=\\pm\\pi/2\\approx\\pm1{,}57\\) in \\(x=\\pm3\\pi/2\\approx\\pm4{,}71\\). Med asimptotami graf (pri \\(A>0\\)) narašča čez vse vrednosti, zato nima največje ali najmanjše vrednosti in amplitude, zaloga vrednosti pa so vsa realna števila. Veje niso povezane čez asimptote.',
                 'For \\(\\tan\\) the period is \\(\\pi/\\omega\\). The graph has vertical asymptotes where \\(\\cos(\\omega x+\\varphi)=0\\), that is at \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) for integers \\(m\\). For \\(\\omega=1\\) and \\(\\varphi=0\\) the visible asymptotes are at \\(x=\\pm\\pi/2\\approx\\pm1.57\\) and \\(x=\\pm3\\pi/2\\approx\\pm4.71\\). Between asymptotes the graph (for \\(A>0\\)) rises through all values, so it has no maximum, no minimum and no amplitude, and its range is all real numbers. The branches are not joined across asymptotes.',
             ),
-            formulaIds: ['trig-tan-asymptotes'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['trig-tan-asymptotes'],
             frames: [frame('trig-tangent-explanation', 'explanation'), frame('trig-tangent-observation', 'observation')],
             observationPrompt: text(
                 'Spremeni \\(\\omega\\) in \\(\\varphi\\) ter opazuj, kako se premikajo asimptote in kako se spreminja razmik med njimi.',
@@ -805,18 +799,15 @@ const trigonometricFunctions: GuidedLesson = {
         {
             id: 'stewart-trigonometric',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Appendix D: Trigonometry, and Section 1.3: New Functions from Old Functions.',
-            supports: ['graphs of sin, cos and tan and their periods', 'amplitude, period and phase shift of A sin(ωx + φ) + B', 'cos x = sin(x + π/2)', 'vertical asymptotes of tan at π/2 + mπ'],
         },
         {
             id: 'efodx-trigonometric-functions-graph',
             citation: 'Owner\'s earlier app: efodx.github.io, src/graphs trigonometric-functions-graph (studied 2026-10-11).',
-            supports: ['f(x) = A g(ωx + φ) + B for sin, cos and tan', 'sliders for the four parameters'],
             implementationCorrespondence: 'Bezeg keeps the function choice and the four parameter sliders, adds the dashed reference graph of g(x) and the midline y = B, draws tan branch by branch so that it is not joined across asymptotes, and shows amplitude, period, phase shift and range as readouts.',
         },
         {
             id: 'bezeg-trigonometric-implementation',
             citation: 'Bezeg source: src/analysis/trigonometric.ts and src/graphs/functions/TrigonometricFunctionsGraph.tsx.',
-            supports: ['values, amplitude, period, phase shift and range', 'tangent asymptote positions and branches', 'phase slider with step π/12', 'reference graph toggle and midline'],
         },
     ],
     edgeCases: [
@@ -928,7 +919,7 @@ const continuity: GuidedLesson = {
                 'Funkcija ima dva predpisa: \\(f(x)=ax^2\\) za \\(x\\le1\\) in \\(f(x)=-ax+3\\) za \\(x>1\\). Točka \\(x=1\\) spada v levi del, zato je \\(f(1)=a\\cdot1^2=a\\); pri privzetem \\(a=1\\) je \\(f(1)=1\\). Zapolnjena točka \\((1,a)\\) kaže to vrednost. Desni del se začne šele desno od \\(x=1\\).',
                 'The function has two rules: \\(f(x)=ax^2\\) for \\(x\\le1\\) and \\(f(x)=-ax+3\\) for \\(x>1\\). The point \\(x=1\\) belongs to the left piece, so \\(f(1)=a\\cdot1^2=a\\); for the default \\(a=1\\) we get \\(f(1)=1\\). The filled point \\((1,a)\\) shows this value. The right piece starts only to the right of \\(x=1\\).',
             ),
-            formulaIds: ['continuity-piecewise'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['continuity-piecewise'],
             frames: [frame('continuity-piecewise-explanation', 'explanation'), frame('continuity-piecewise-observation', 'observation')],
             observationPrompt: text(
                 'Premikaj drsnik \\(a\\) in opazuj zapolnjeno točko na navpičnici \\(x=1\\). Primerjaj njeno višino z odčitkom \\(f(1)\\).',
@@ -955,7 +946,7 @@ const continuity: GuidedLesson = {
                 'Ko se \\(x\\) približuje \\(1\\) z leve, računamo z levim predpisom: \\(\\lim_{x\\to1^-}f(x)=a\\). Z desne računamo z desnim predpisom: \\(\\lim_{x\\to1^+}f(x)=-a\\cdot1+3=3-a\\). Votla točka \\((1,3-a)\\) kaže limito z desne; to ni vrednost funkcije, ker \\(x=1\\) ne spada v desni del. Razlika je skok \\(|(3-a)-a|=|3-2a|\\). Pri \\(a=1\\) je leva limita \\(1\\), desna \\(2\\) in skok \\(1\\).',
                 'When \\(x\\) approaches \\(1\\) from the left we use the left rule: \\(\\lim_{x\\to1^-}f(x)=a\\). From the right we use the right rule: \\(\\lim_{x\\to1^+}f(x)=-a\\cdot1+3=3-a\\). The hollow point \\((1,3-a)\\) shows the limit from the right; it is not the value of the function, because \\(x=1\\) does not belong to the right piece. The difference is the jump \\(|(3-a)-a|=|3-2a|\\). For \\(a=1\\) the left limit is \\(1\\), the right limit is \\(2\\) and the jump is \\(1\\).',
             ),
-            formulaIds: ['continuity-one-sided'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['continuity-one-sided'],
             frames: [frame('continuity-one-sided-explanation', 'explanation'), frame('continuity-one-sided-observation', 'observation')],
             observationPrompt: text(
                 'Poišči zapolnjeno in votlo točko ter odčitaj navpično razdaljo med njima. Primerjaj jo z odčitkom skoka.',
@@ -982,7 +973,7 @@ const continuity: GuidedLesson = {
                 'Funkcija je zvezna pri \\(x=1\\), če je \\(\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)\\). Ker je \\(f(1)=a\\) že enak levi limiti, ostane pogoj \\(a=3-a\\). Iz njega sledi \\(2a=3\\), torej \\(a=3/2\\). Pri tej vrednosti je \\(f(1)=3/2\\), leva limita \\(3/2\\) in desna limita \\(3-3/2=3/2\\). Pri privzetem \\(a=1\\) pogoj ni izpolnjen.',
                 'The function is continuous at \\(x=1\\) if \\(\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)\\). Since \\(f(1)=a\\) already equals the left limit, the remaining condition is \\(a=3-a\\). It gives \\(2a=3\\), so \\(a=3/2\\). For this value \\(f(1)=3/2\\), the left limit is \\(3/2\\) and the right limit is \\(3-3/2=3/2\\). For the default \\(a=1\\) the condition is not met.',
             ),
-            formulaIds: ['continuity-condition'], workedExampleId: 'continuity-condition-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['continuity-condition'], workedExampleId: 'continuity-condition-example',
             frames: [frame('continuity-condition-explanation', 'explanation'), frame('continuity-condition-calculation', 'calculation'), frame('continuity-condition-observation', 'observation')],
             observationPrompt: text(
                 'Poskusi z drsnikom \\(a\\) najti vrednost, pri kateri se zapolnjena in votla točka pokrijeta. Kaj se zgodi z barvo točk in z odčitkom skoka?',
@@ -1009,7 +1000,7 @@ const continuity: GuidedLesson = {
                 'Pri \\(a=3/2\\) leži zapolnjena točka \\((1,3/2)\\) znotraj votle: obe sta zeleni, skok je \\(0\\) in na grafu piše, da je funkcija zvezna pri \\(x=1\\). Drsnik ima korak \\(0{,}05\\), zato je \\(a=1{,}5\\) dosegljiv; odločitev o zveznosti dopušča razliko \\(10^{-9}\\), da zaokrožitvene napake pri premikanju drsnika ne bi skrile zveznosti.',
                 'For \\(a=3/2\\) the filled point \\((1,3/2)\\) sits inside the hollow one: both are green, the jump is \\(0\\) and the board says the function is continuous at \\(x=1\\). The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable; the decision about continuity allows a difference of \\(10^{-9}\\), so that rounding errors from moving the slider do not hide continuity.',
             ),
-            formulaIds: ['continuity-condition'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['continuity-condition'],
             frames: [frame('continuity-continuous-explanation', 'explanation'), frame('continuity-continuous-observation', 'observation')],
             observationPrompt: text(
                 'Premakni drsnik \\(a\\) za en korak v vsako smer in opazuj, kdaj se točki razmakneta in kdaj se barva spremeni.',
@@ -1036,7 +1027,7 @@ const continuity: GuidedLesson = {
                 'Pri \\(a=3/2\\) je graf zvezen, a ima pri \\(x=1\\) ostri vogal. Levi del ima tam naklon \\(2a=3\\), desni pa \\(-a=-1{,}5\\). Ker se naklona razlikujeta, funkcija ni gladka. Isto razliko srečaš pri zlepkih: zveznost \\(C^0\\) pomeni samo, da se deli stikajo, zveznost \\(C^1\\) pa zahteva še enak naklon v stičišču.',
                 'For \\(a=3/2\\) the graph is continuous but has a corner at \\(x=1\\). The left piece has the slope \\(2a=3\\) there and the right piece has \\(-a=-1.5\\). Because the slopes differ, the function is not smooth. You meet the same distinction for splines: \\(C^0\\) continuity only means that the pieces join, while \\(C^1\\) continuity also requires equal slopes at the joint.',
             ),
-            formulaIds: ['continuity-slopes'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['continuity-slopes'],
             frames: [frame('continuity-not-smooth-explanation', 'explanation'), frame('continuity-not-smooth-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj odčitka levega in desnega naklona ter poišči vogal na grafu. Ali obstaja \\(a\\), pri katerem sta naklona enaka?',
@@ -1060,18 +1051,15 @@ const continuity: GuidedLesson = {
         {
             id: 'stewart-continuity',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 2.2: The Limit of a Function (one-sided limits), and Section 2.5: Continuity.',
-            supports: ['definition of continuity at a point by lim f(x) = f(a)', 'one-sided limits and the jump discontinuity', 'piecewise functions and the choice of a parameter for continuity'],
         },
         {
             id: 'efodx-continuity-graph',
             citation: 'Earlier app by the owner: efodx.github.io, src/graphs continuity-graph (studied 2026-10-11).',
-            supports: ['piecewise f(x) = a x^2 for x <= 1 and -a x + 3 for x > 1', 'points marking the two one-sided values'],
             implementationCorrespondence: 'Bezeg keeps the two pieces and the points at the one-sided values, clips each piece to its own domain, compares the values with a stated tolerance of 10^-9 instead of ===, and adds the status text, the jump and the one-sided slopes as readouts.',
         },
         {
             id: 'bezeg-continuity-implementation',
             citation: 'Bezeg source: src/analysis/continuity.ts and src/graphs/functions/ContinuityGraph.tsx.',
-            supports: ['pieces, one-sided limits, jump and one-sided slopes', 'continuity test with the tolerance 1e-9', 'slider a in [0, 3] with step 0.05', 'filled and hollow point colored by continuity'],
         },
     ],
     edgeCases: [
@@ -1096,8 +1084,8 @@ const continuity: GuidedLesson = {
     ],
 };
 
-const derivativeChoice = (value: 'square' | 'sin' | 'exp'): SceneAction => ({name: 'set-function-choice', value: {name: 'derivative-function', value}});
-const tangentVisibility = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'tangent', value: visible}});
+const derivativeChoice = (value: 'square' | 'sin' | 'exp'): LessonAction => ({kind: 'function-choice', name: 'derivative-function', value: value});
+const tangentVisibility = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'tangent', visible: visible});
 
 const derivative: GuidedLesson = {
     demonstrationId: 'derivative',
@@ -1174,7 +1162,7 @@ const derivative: GuidedLesson = {
                 'Točka \\(P=(x_0,f(x_0))\\) leži na grafu, točka \\(Q=(x_0+h,f(x_0+h))\\) pa je za \\(h\\) vodoravno od nje. Premica skozi \\(P\\) in \\(Q\\) je sekanta; njen naklon je razmerje \\(\\Delta y/\\Delta x\\), to je diferenčni kvocient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\). Pri privzetem \\(f(x)=x^2\\), \\(x_0=1\\) in \\(h=1\\) je \\(P=(1,1)\\), \\(Q=(2,4)\\) in naklon \\((4-1)/1=3\\).',
                 'The point \\(P=(x_0,f(x_0))\\) lies on the graph, and the point \\(Q=(x_0+h,f(x_0+h))\\) is \\(h\\) horizontally away from it. The line through \\(P\\) and \\(Q\\) is the secant; its slope is the ratio \\(\\Delta y/\\Delta x\\), that is the difference quotient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\). For the default \\(f(x)=x^2\\), \\(x_0=1\\) and \\(h=1\\) we get \\(P=(1,1)\\), \\(Q=(2,4)\\) and the slope \\((4-1)/1=3\\).',
             ),
-            formulaIds: ['derivative-difference-quotient'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['derivative-difference-quotient'],
             frames: [frame('derivative-secant-explanation', 'explanation'), frame('derivative-secant-observation', 'observation')],
             observationPrompt: text(
                 'Povleci točko \\(P\\) po grafu in premakni drsnik \\(h\\). Primerjaj naklon sekante na grafu z odčitkom diferenčnega kvocienta.',
@@ -1201,7 +1189,7 @@ const derivative: GuidedLesson = {
                 'Za \\(f(x)=x^2\\) in \\(x_0=1\\) je \\(\\frac{(1+h)^2-1}{h}=\\frac{2h+h^2}{h}=2+h\\). Pri \\(h=1\\) dobimo \\(3\\), pri \\(h=0{,}5\\) pa \\(2{,}5\\). Scena nastavi \\(h=0{,}5\\): točka \\(Q=(1{,}5;\\,2{,}25)\\) in naklon sekante \\(2{,}5\\).',
                 'For \\(f(x)=x^2\\) and \\(x_0=1\\) we have \\(\\frac{(1+h)^2-1}{h}=\\frac{2h+h^2}{h}=2+h\\). For \\(h=1\\) we get \\(3\\) and for \\(h=0.5\\) we get \\(2.5\\). The scene sets \\(h=0.5\\): the point \\(Q=(1.5,\\,2.25)\\) and the secant slope \\(2.5\\).',
             ),
-            formulaIds: ['derivative-square-quotient'], workedExampleId: 'derivative-square-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['derivative-square-quotient'], workedExampleId: 'derivative-square-example',
             frames: [frame('derivative-quotient-explanation', 'explanation'), frame('derivative-quotient-calculation', 'calculation'), frame('derivative-quotient-observation', 'observation')],
             observationPrompt: text(
                 'Nastavi nekaj vrednosti \\(h\\) in za vsako primerjaj odčitek kvocienta z izrazom \\(2+h\\).',
@@ -1228,7 +1216,7 @@ const derivative: GuidedLesson = {
                 'Ko se \\(h\\) manjša, se \\(Q\\) bliža točki \\(P\\) in sekanta se obrača proti tangenti. Pri \\(h=0{,}1\\) je kvocient \\(2+0{,}1=2{,}1\\), pri \\(h=0{,}01\\) pa \\(2{,}01\\). Vrednosti se bližajo številu \\(2\\), to je odvodu \\(f\'(1)=2\\cdot1=2\\). Odvod je limita \\(\\lim_{h\\to0}(2+h)=2\\).',
                 'As \\(h\\) shrinks, \\(Q\\) approaches \\(P\\) and the secant turns towards the tangent. At \\(h=0.1\\) the quotient is \\(2+0.1=2.1\\) and at \\(h=0.01\\) it is \\(2.01\\). The values approach \\(2\\), the derivative \\(f\'(1)=2\\cdot1=2\\). The derivative is the limit \\(\\lim_{h\\to0}(2+h)=2\\).',
             ),
-            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['derivative-limit'],
             frames: [frame('derivative-shrinking-explanation', 'explanation'), frame('derivative-shrinking-observation', 'observation')],
             observationPrompt: text(
                 'Počasi manjšaj \\(h\\) do \\(0{,}01\\) in opazuj odčitek razlike med kvocientom in \\(f\'(1)\\).',
@@ -1255,7 +1243,7 @@ const derivative: GuidedLesson = {
                 'Tangenta je premica skozi \\(P\\) z naklonom \\(f\'(x_0)\\); prikažeš jo s stikalom. Pri negativnem \\(h\\) leži \\(Q\\) levo od \\(P\\). Za \\(h=-0{,}5\\) je \\(Q=(0{,}5;\\,0{,}25)\\) in kvocient \\(\\frac{0{,}25-1}{-0{,}5}=1{,}5=2+h\\). Tudi z leve se kvocient bliža številu \\(2\\).',
                 'The tangent is the line through \\(P\\) with slope \\(f\'(x_0)\\); you show it with the switch. For a negative \\(h\\), the point \\(Q\\) lies to the left of \\(P\\). For \\(h=-0.5\\) we get \\(Q=(0.5,\\,0.25)\\) and the quotient \\(\\frac{0.25-1}{-0.5}=1.5=2+h\\). From the left as well, the quotient approaches \\(2\\).',
             ),
-            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['derivative-limit'],
             frames: [frame('derivative-tangent-explanation', 'explanation'), frame('derivative-tangent-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj črtkano tangento s sekanto, ko je \\(h\\) pozitiven in ko je negativen. Na kateri strani od \\(P\\) leži \\(Q\\)?',
@@ -1282,7 +1270,7 @@ const derivative: GuidedLesson = {
                 'Izberi \\(f(x)=\\sin x\\) pri \\(x_0=1\\). Odvod je \\(\\cos 1\\approx0{,}5403\\). Pri \\(h=0{,}2\\) je kvocient \\(\\frac{\\sin1{,}2-\\sin1}{0{,}2}\\approx0{,}4528\\), torej za približno \\(0{,}0875\\) manj. Pri \\(h=0{,}01\\) je kvocient \\(\\approx0{,}5361\\). Kvocient se bliža vrednosti \\(\\cos1\\), vendar \\(h\\) ne sme postati \\(0\\): tam bi bil kvocient \\(0/0\\).',
                 'Choose \\(f(x)=\\sin x\\) at \\(x_0=1\\). The derivative is \\(\\cos 1\\approx0.5403\\). At \\(h=0.2\\) the quotient is \\(\\frac{\\sin1.2-\\sin1}{0.2}\\approx0.4528\\), about \\(0.0875\\) below it. At \\(h=0.01\\) the quotient is \\(\\approx0.5361\\). The quotient approaches \\(\\cos1\\), but \\(h\\) must never become \\(0\\): there the quotient would be \\(0/0\\).',
             ),
-            formulaIds: ['derivative-limit'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['derivative-limit'],
             frames: [frame('derivative-sin-explanation', 'explanation'), frame('derivative-sin-observation', 'observation')],
             observationPrompt: text(
                 'Manjšaj \\(h\\) in primerjaj kvocient z natančnim odvodom \\(\\cos x_0\\). Poskusi tudi povleči \\(P\\) po grafu in poišči mesto z vodoravno tangento.',
@@ -1306,18 +1294,15 @@ const derivative: GuidedLesson = {
         {
             id: 'stewart-derivative',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 2.7: Derivatives and Rates of Change, and Section 3.1: Derivatives of Polynomials and Exponential Functions.',
-            supports: ['tangent as the limit of secant lines', 'derivative as the limit of the difference quotient', 'derivatives of x^2, sin x and e^x'],
         },
         {
             id: 'efodx-derivatives-graph',
             citation: 'Earlier app by the owner: efodx.github.io, src/graphs derivatives-graph (studied 2026-10-11).',
-            supports: ['secant of sin through x and x + h with draggable x and slider h', 'slope readout'],
             implementationCorrespondence: 'Bezeg keeps the secant, the draggable point on the graph and the slider h, and adds a choice of x^2, sin x and e^x, the exact tangent, the exact derivative and the difference as readouts, and excludes |h| < 0.01 instead of allowing the undefined 0/0 quotient.',
         },
         {
             id: 'bezeg-derivative-implementation',
             citation: 'Bezeg source: src/analysis/derivative.ts, src/analysis/functions.ts and src/graphs/functions/DerivativeGraph.tsx.',
-            supports: ['difference quotient, secant and tangent', 'function catalog with exact derivatives', 'slider h in [-2, 2] with step 0.01 excluding |h| < 0.01', 'point P constrained to the graph'],
         },
     ],
     edgeCases: [
@@ -1342,8 +1327,8 @@ const derivative: GuidedLesson = {
     ],
 };
 
-const integralFunction = (value: 'square' | 'sin' | 'exp'): SceneAction => ({name: 'set-function-choice', value: {name: 'integral-function', value}});
-const sumMethod = (value: 'left' | 'right' | 'midpoint' | 'trapezoid'): SceneAction => ({name: 'set-function-choice', value: {name: 'sum-method', value}});
+const integralFunction = (value: 'square' | 'sin' | 'exp'): LessonAction => ({kind: 'function-choice', name: 'integral-function', value: value});
+const sumMethod = (value: 'left' | 'right' | 'midpoint' | 'trapezoid'): LessonAction => ({kind: 'function-choice', name: 'sum-method', value: value});
 
 const definiteIntegral: GuidedLesson = {
     demonstrationId: 'definite-integral',
@@ -1420,7 +1405,7 @@ const definiteIntegral: GuidedLesson = {
                 'Interval \\([a,b]\\) razdelimo na \\(n\\) enako širokih podintervalov širine \\(h=\\frac{b-a}{n}\\) in na vsakem narišemo pravokotnik. Pri privzetih \\(f(x)=x^2\\), \\(a=0\\), \\(b=2\\) in \\(n=4\\) je \\(h=\\frac{2-0}{4}=0{,}5\\). Privzeta je leva vsota: višina pravokotnika je vrednost \\(f\\) v levem krajišču podintervala. Točni integral je \\(\\int_0^2 x^2\\,dx=\\frac{8}{3}\\approx2{,}6667\\).',
                 'We split the interval \\([a,b]\\) into \\(n\\) equally wide subintervals of width \\(h=\\frac{b-a}{n}\\) and draw a rectangle on each one. For the default \\(f(x)=x^2\\), \\(a=0\\), \\(b=2\\) and \\(n=4\\) we get \\(h=\\frac{2-0}{4}=0.5\\). The default is the left sum: the height of a rectangle is the value of \\(f\\) at the left end of its subinterval. The exact integral is \\(\\int_0^2 x^2\\,dx=\\frac{8}{3}\\approx2.6667\\).',
             ),
-            formulaIds: ['integral-width', 'integral-exact'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['integral-width', 'integral-exact'],
             frames: [frame('integral-area-explanation', 'explanation'), frame('integral-area-observation', 'observation')],
             observationPrompt: text(
                 'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\) in opazuj širino \\(h\\), pravokotnike ter vsoto. Nato ju vrni na \\(0\\) in \\(2\\).',
@@ -1447,7 +1432,7 @@ const definiteIntegral: GuidedLesson = {
                 'Leva vsota: višine v levih krajiščih so \\(0\\), \\(0{,}25\\), \\(1\\) in \\(2{,}25\\) z vsoto \\(3{,}5\\), zato \\(L=0{,}5\\cdot3{,}5=1{,}75\\). Desna vsota uporabi desna krajišča: višine \\(0{,}25\\), \\(1\\), \\(2{,}25\\) in \\(4\\) imajo vsoto \\(7{,}5\\), zato \\(R=0{,}5\\cdot7{,}5=3{,}75\\). Točna vrednost je \\(\\frac{8}{3}\\approx2{,}6667\\). Ker \\(x^2\\) na \\([0,2]\\) narašča, leva vsota podceni (\\(1{,}75<\\frac{8}{3}\\)), desna pa preceni (\\(3{,}75>\\frac{8}{3}\\)). Scena izbere desno vsoto.',
                 'Left sum: the heights at the left ends are \\(0\\), \\(0.25\\), \\(1\\) and \\(2.25\\) with sum \\(3.5\\), so \\(L=0.5\\cdot3.5=1.75\\). The right sum uses the right ends: the heights \\(0.25\\), \\(1\\), \\(2.25\\) and \\(4\\) have sum \\(7.5\\), so \\(R=0.5\\cdot7.5=3.75\\). The exact value is \\(\\frac{8}{3}\\approx2.6667\\). Since \\(x^2\\) is increasing on \\([0,2]\\), the left sum underestimates (\\(1.75<\\frac{8}{3}\\)) and the right sum overestimates (\\(3.75>\\frac{8}{3}\\)). The scene selects the right sum.',
             ),
-            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example',
             frames: [frame('integral-left-right-explanation', 'explanation'), frame('integral-left-right-calculation', 'calculation'), frame('integral-left-right-observation', 'observation')],
             observationPrompt: text(
                 'Preklopi med levo in desno vsoto in primerjaj višine pravokotnikov z grafom. Kateri pravokotniki ležijo pod grafom in kateri nad njim?',
@@ -1474,7 +1459,7 @@ const definiteIntegral: GuidedLesson = {
                 'Sredinska vsota vzame višino v sredini podintervala, pri \\(x=0{,}25\\), \\(0{,}75\\), \\(1{,}25\\) in \\(1{,}75\\). Višine imajo vsoto \\(5{,}25\\), zato \\(M=0{,}5\\cdot5{,}25=2{,}625\\). Trapezna vsota je povprečje leve in desne: \\(T=\\frac{1{,}75+3{,}75}{2}=2{,}75\\); namesto pravokotnikov riše trapeze. Napaki sta \\(\\frac{8}{3}-2{,}625=\\frac{1}{24}\\approx0{,}0417\\) in \\(2{,}75-\\frac{8}{3}=\\frac{1}{12}\\approx0{,}0833\\), pri levi in desni vsoti pa \\(\\frac{11}{12}\\) in \\(\\frac{13}{12}\\). Scena izbere sredinsko vsoto.',
                 'The midpoint sum takes the height at the middle of the subinterval, at \\(x=0.25\\), \\(0.75\\), \\(1.25\\) and \\(1.75\\). The heights have sum \\(5.25\\), so \\(M=0.5\\cdot5.25=2.625\\). The trapezoid sum is the mean of the left and right sums: \\(T=\\frac{1.75+3.75}{2}=2.75\\); it draws trapezoids instead of rectangles. The errors are \\(\\frac{8}{3}-2.625=\\frac{1}{24}\\approx0.0417\\) and \\(2.75-\\frac{8}{3}=\\frac{1}{12}\\approx0.0833\\), against \\(\\frac{11}{12}\\) and \\(\\frac{13}{12}\\) for the left and right sums. The scene selects the midpoint sum.',
             ),
-            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example',
             frames: [frame('integral-midpoint-explanation', 'explanation'), frame('integral-midpoint-calculation', 'calculation'), frame('integral-midpoint-observation', 'observation')],
             observationPrompt: text(
                 'Preklopi med sredinsko in trapezno vsoto ter primerjaj odčitek razlike med vsoto in integralom z obema prejšnjima vsotama.',
@@ -1501,7 +1486,7 @@ const definiteIntegral: GuidedLesson = {
                 'Pri \\(n=100\\) je \\(h=0{,}02\\) in vsote so: leva \\(2{,}6268\\), desna \\(2{,}7068\\), sredinska \\(2{,}6666\\), trapezna \\(2{,}6668\\). Vse so znotraj \\(0{,}05\\) od \\(\\frac{8}{3}\\approx2{,}6667\\). Napaka leve in desne vsote je približno \\(0{,}04\\), sredinske in trapezne pa manj kot \\(0{,}0002\\). Z večjim \\(n\\) so pravokotniki ožji in bolje prekrijejo ploščino; integral je limita teh vsot. Scena nastavi \\(n=100\\) pri levi vsoti.',
                 'With \\(n=100\\) the width is \\(h=0.02\\) and the sums are: left \\(2.6268\\), right \\(2.7068\\), midpoint \\(2.6666\\), trapezoid \\(2.6668\\). All of them are within \\(0.05\\) of \\(\\frac{8}{3}\\approx2.6667\\). The error of the left and right sums is about \\(0.04\\), and that of the midpoint and trapezoid sums is below \\(0.0002\\). With larger \\(n\\) the rectangles are narrower and cover the area better; the integral is the limit of these sums. The scene sets \\(n=100\\) with the left sum.',
             ),
-            formulaIds: ['integral-sums', 'integral-exact'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['integral-sums', 'integral-exact'],
             frames: [frame('integral-more-explanation', 'explanation'), frame('integral-more-observation', 'observation')],
             observationPrompt: text(
                 'Premakni drsnik \\(n\\) od \\(1\\) do \\(150\\) in pri vsaki vrsti vsote opazuj razliko med vsoto in integralom.',
@@ -1528,7 +1513,7 @@ const definiteIntegral: GuidedLesson = {
                 'Pri \\(f(x)=\\sin x\\) na \\([0,2\\pi]\\) je točni integral \\(-\\cos2\\pi+\\cos0=-1+1=0\\). Del na \\([0,\\pi]\\) nad osjo da \\(+2\\), del na \\([\\pi,2\\pi]\\) pod osjo pa \\(-2\\); drugače obarvani pravokotniki pod osjo se odštejejo. Scena nastavi sredinsko vsoto z \\(n=12\\) in vsota je \\(0\\). Navadna (nepredznačena) ploščina bi bila \\(2+2=4\\), integral pa to ni. Pri \\(a=b\\) je \\(h=0\\) in sta vsota ter integral \\(0\\); pri zamenjanih mejah \\(a>b\\) je \\(h<0\\) in obe zamenjata predznak.',
                 'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) the exact integral is \\(-\\cos2\\pi+\\cos0=-1+1=0\\). The part on \\([0,\\pi]\\) above the axis gives \\(+2\\) and the part on \\([\\pi,2\\pi]\\) below the axis gives \\(-2\\); the differently coloured rectangles below the axis are subtracted. The scene sets the midpoint sum with \\(n=12\\) and the sum is \\(0\\). The ordinary (unsigned) area would be \\(2+2=4\\), but the integral is not that. For \\(a=b\\) we get \\(h=0\\) and both the sum and the integral are \\(0\\); for swapped bounds \\(a>b\\) we get \\(h<0\\) and both change sign.',
             ),
-            formulaIds: ['integral-exact'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['integral-exact'],
             frames: [frame('integral-signed-explanation', 'explanation'), frame('integral-signed-observation', 'observation')],
             observationPrompt: text(
                 'Premakni \\(b\\) na \\(\\pi\\) in nazaj na \\(2\\pi\\) ter primerjaj odčitek vsote. Nato zamenjaj \\(a\\) in \\(b\\) ter nastavi \\(a=b\\).',
@@ -1552,18 +1537,15 @@ const definiteIntegral: GuidedLesson = {
         {
             id: 'stewart-definite-integral',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 5.2: The Definite Integral, Section 5.3: The Fundamental Theorem of Calculus, and Section 7.7: Approximate Integration.',
-            supports: ['Riemann sums with left, right and midpoint sample points', 'the trapezoidal rule', 'the signed definite integral and F(b) - F(a)', 'the effect of swapping the bounds'],
         },
         {
             id: 'efodx-integral-graph',
             citation: 'Earlier app by the owner: efodx.github.io, src/graphs integral-graph (studied 2026-10-11).',
-            supports: ['rectangles under sin on draggable bounds [a, b] with a count slider', 'area readout'],
             implementationCorrespondence: 'Bezeg keeps the draggable bounds on the x-axis and the count slider, and adds a choice of x^2, sin x and e^x, explicit left, right, midpoint and trapezoid rules (the trapezoid rule drawn as trapezoids), the signed sum next to the exact integral F(b) - F(a) instead of a sum of absolute rectangle areas, a differently shaded negative part, and oriented bounds (a > b flips the sign).',
         },
         {
             id: 'bezeg-integral-implementation',
             citation: 'Bezeg source: src/analysis/riemann.ts, src/analysis/functions.ts and src/graphs/functions/DefiniteIntegralGraph.tsx.',
-            supports: ['signed oriented left, right, midpoint and trapezoid sums', 'exact integral from the catalog antiderivative', 'bounds in [-7, 7] and n from 1 to 150', 'two filled curve objects for the parts above and below the axis'],
         },
     ],
     edgeCases: [
@@ -1588,7 +1570,7 @@ const definiteIntegral: GuidedLesson = {
     ],
 };
 
-const areaMode = (value: 'under-f' | 'under-g' | 'between'): SceneAction => ({name: 'set-function-choice', value: {name: 'area-mode', value}});
+const areaMode = (value: 'under-f' | 'under-g' | 'between'): LessonAction => ({kind: 'function-choice', name: 'area-mode', value: value});
 
 const areaBetweenCurves: GuidedLesson = {
     demonstrationId: 'area-between-curves',
@@ -1665,7 +1647,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'Ploščina med krivuljama je ploščina pod zgornjo minus ploščina pod spodnjo: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx\\), torej \\(A=\\int_a^b(g-f)\\,dx\\), če je \\(g\\ge f\\) na \\([a,b]\\). Pri \\(a=1\\) in \\(b=3\\), ki ležita med presečiščema, je \\(g-f=3-2(x-2)^2\\) z primitivno funkcijo \\(3x-\\frac23(x-2)^3\\), zato je \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)\\), kar je \\(\\frac{14}{3}\\approx4{,}6667\\). Odčitka \\(\\int g\\,dx=\\frac{16}{3}\\) in \\(\\int f\\,dx=\\frac23\\) imata prav to razliko. Scena izbere način »Ploščina med f in g«.',
                 'The area between the curves is the area under the upper one minus the area under the lower one: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx\\), that is \\(A=\\int_a^b(g-f)\\,dx\\), if \\(g\\ge f\\) on \\([a,b]\\). For \\(a=1\\) and \\(b=3\\), which lie between the intersections, \\(g-f=3-2(x-2)^2\\) has the antiderivative \\(3x-\\frac23(x-2)^3\\), so \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)\\), which is \\(\\frac{14}{3}\\approx4.6667\\). The readouts \\(\\int g\\,dx=\\frac{16}{3}\\) and \\(\\int f\\,dx=\\frac23\\) have exactly this difference. The scene selects the mode “Area between f and g”.',
             ),
-            formulaIds: ['area-between-difference'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['area-between-difference'],
             frames: [frame('area-difference-explanation', 'explanation'), frame('area-difference-observation', 'observation')],
             observationPrompt: text(
                 'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\), ostani med presečiščema in preveri, da je \\(\\int g\\,dx-\\int f\\,dx\\) enak \\(\\int(g-f)\\,dx\\).',
@@ -1692,7 +1674,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'Na istem intervalu \\([1,3]\\) preklopimo v način »Ploščina pod g«. Pod \\(g\\) do osi \\(x\\) je \\(\\int_1^3 g(x)\\,dx=\\left[3x-\\frac{(x-2)^3}{3}\\right]_1^3=\\frac{16}{3}\\approx5{,}3333\\); to scena pobarva. Pod \\(f\\) je \\(\\int_1^3 f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_1^3=\\frac23\\approx0{,}6667\\). Razlika \\(\\frac{16}{3}-\\frac23=\\frac{14}{3}\\) je ploščina med krivuljama iz prejšnjega koraka. Izbirnik »Kaj je pobarvano« preklopi med načini.',
                 'On the same interval \\([1,3]\\) we switch to the mode “Area under g”. Under \\(g\\) down to the \\(x\\)-axis the area is \\(\\int_1^3 g(x)\\,dx=\\left[3x-\\frac{(x-2)^3}{3}\\right]_1^3=\\frac{16}{3}\\approx5.3333\\); the scene shades this. Under \\(f\\) it is \\(\\int_1^3 f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_1^3=\\frac23\\approx0.6667\\). The difference \\(\\frac{16}{3}-\\frac23=\\frac{14}{3}\\) is the area between the curves from the previous step. The selector “What is shaded” switches between the modes.',
             ),
-            formulaIds: ['area-between-difference'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['area-between-difference'],
             frames: [frame('area-under-explanation', 'explanation'), frame('area-under-observation', 'observation')],
             observationPrompt: text(
                 'Preklopi med »Ploščina pod f« in »Ploščina pod g« ter primerjaj pobarvana lika in odčitka \\(\\int f\\,dx\\) ter \\(\\int g\\,dx\\).',
@@ -1719,7 +1701,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'Lik med krivuljama je omejen s presečiščema: \\((x-2)^2=3-(x-2)^2\\) da \\((x-2)^2=\\frac32\\) in \\(x=2\\mp\\sqrt{1{,}5}\\approx0{,}7753;\\;3{,}2247\\). Z \\(u=x-2\\) je ploščina enaka \\(\\int_{-\\sqrt{1{,}5}}^{\\sqrt{1{,}5}}(3-2u^2)\\,du\\), kar je \\(6\\sqrt{1{,}5}-\\frac43(1{,}5)^{3/2}\\), torej \\(6\\sqrt{1{,}5}-2\\sqrt{1{,}5}\\) in končno \\(4\\sqrt{1{,}5}=2\\sqrt6\\approx4{,}8990\\). Točki \\(P_1\\) in \\(P_2\\) na grafu ležita na višini \\(\\frac32\\) in sta krajišči lika. Scena vrne meji na privzeti vrednosti.',
                 'The region between the curves is bounded by the intersections: \\((x-2)^2=3-(x-2)^2\\) gives \\((x-2)^2=\\frac32\\) and \\(x=2\\mp\\sqrt{1.5}\\approx0.7753;\\;3.2247\\). With \\(u=x-2\\) the area equals \\(\\int_{-\\sqrt{1.5}}^{\\sqrt{1.5}}(3-2u^2)\\,du\\), which is \\(6\\sqrt{1.5}-\\frac43(1.5)^{3/2}\\), that is \\(6\\sqrt{1.5}-2\\sqrt{1.5}\\), and finally \\(4\\sqrt{1.5}=2\\sqrt6\\approx4.8990\\). The points \\(P_1\\) and \\(P_2\\) on the graph lie at the height \\(\\frac32\\) and are the ends of the region. The scene returns the bounds to their default values.',
             ),
-            formulaIds: ['area-between-intersections', 'area-between-unsigned'], workedExampleId: 'area-between-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['area-between-intersections', 'area-between-unsigned'], workedExampleId: 'area-between-example',
             frames: [frame('area-intersections-explanation', 'explanation'), frame('area-intersections-calculation', 'calculation'), frame('area-intersections-observation', 'observation')],
             observationPrompt: text(
                 'Poskusi premakniti \\(a\\) in \\(b\\) čim bliže presečiščema (na stotinko natančno) in opazuj, kako se \\(\\int(g-f)\\,dx\\) približa \\(4{,}8990\\).',
@@ -1746,7 +1728,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'Pri \\(a=0\\) in \\(b=4\\) sega interval čez presečišči. Na krajnih delih \\([0;0{,}7753]\\) in \\([3{,}2247;4]\\) je zgoraj \\(f\\), zato je tam \\(g-f<0\\): vsak del prispeva \\(\\frac23-2\\sqrt{1{,}5}\\approx-1{,}7828\\) k \\(\\int(g-f)\\,dx\\). Skupaj je \\(\\int_0^4(g-f)\\,dx\\) enak \\(4\\sqrt{1{,}5}+2\\left(\\frac23-2\\sqrt{1{,}5}\\right)\\), kar je \\(\\frac43\\approx1{,}3333\\). Prava ploščina pa vsak del šteje pozitivno: \\(\\int_0^4|g-f|\\,dx\\) je enak \\(2\\sqrt6+2\\left(2\\sqrt{1{,}5}-\\frac23\\right)\\), kar je približno \\(8{,}4646\\). Deli, kjer je zgoraj \\(f\\), se pri predznačenem integralu odštejejo. Drugače obarvana lika ob robovih kažeta ravno te dele.',
                 'For \\(a=0\\) and \\(b=4\\) the interval reaches beyond the intersections. On the end pieces \\([0,0.7753]\\) and \\([3.2247,4]\\) the curve \\(f\\) is on top, so \\(g-f<0\\) there: each piece contributes \\(\\frac23-2\\sqrt{1.5}\\approx-1.7828\\) to \\(\\int(g-f)\\,dx\\). Altogether \\(\\int_0^4(g-f)\\,dx\\) equals \\(4\\sqrt{1.5}+2\\left(\\frac23-2\\sqrt{1.5}\\right)\\), which is \\(\\frac43\\approx1.3333\\). The true area counts each piece as positive: \\(\\int_0^4|g-f|\\,dx\\) equals \\(2\\sqrt6+2\\left(2\\sqrt{1.5}-\\frac23\\right)\\), which is about \\(8.4646\\). The parts where \\(f\\) is on top are subtracted in the signed integral. The two regions at the edges, in the other colour, show exactly these parts.',
             ),
-            formulaIds: ['area-between-unsigned'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['area-between-unsigned'],
             frames: [frame('area-beyond-explanation', 'explanation'), frame('area-beyond-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj odčitka \\(\\int(g-f)\\,dx\\) in \\(\\int|g-f|\\,dx\\) ter obe barvi lika. Nato poglej, kaj se zgodi z obema odčitkoma, če zamenjaš \\(a\\) in \\(b\\).',
@@ -1773,7 +1755,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'Scena postavi \\(a=1\\) in \\(b=3{,}5\\): meja \\(b\\) je že desno od presečišča \\(3{,}2247\\). Do presečišča je zgoraj \\(g\\), za njim pa \\(f\\), zato se zadnji košček z ploščino \\(\\approx0{,}1995\\) pri \\(\\int(g-f)\\,dx=\\frac{55}{12}\\approx4{,}5833\\) odšteje, pri ploščini \\(\\approx4{,}9823\\) pa prišteje. Pri \\(b=3{,}2\\) sta obe vrednosti enaki \\(4{,}7813\\); pri \\(b=3{,}3\\) je \\(\\int(g-f)\\,dx\\approx4{,}7687\\) manjši, ploščina \\(\\approx4{,}7970\\) pa večja. Zgornjo krivuljo pove predznak razlike \\(g-f\\).',
                 'The scene sets \\(a=1\\) and \\(b=3.5\\): the bound \\(b\\) is already to the right of the intersection \\(3.2247\\). Up to the intersection \\(g\\) is on top and beyond it \\(f\\) is, so the last little piece with area \\(\\approx0.1995\\) is subtracted in \\(\\int(g-f)\\,dx=\\frac{55}{12}\\approx4.5833\\) and added in the area \\(\\approx4.9823\\). For \\(b=3.2\\) both values are equal to \\(4.7813\\); for \\(b=3.3\\) the integral \\(\\int(g-f)\\,dx\\approx4.7687\\) is smaller and the area \\(\\approx4.7970\\) is larger. The sign of the difference \\(g-f\\) tells which curve is on top.',
             ),
-            formulaIds: ['area-between-unsigned'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['area-between-unsigned'],
             frames: [frame('area-crossing-explanation', 'explanation'), frame('area-crossing-observation', 'observation')],
             observationPrompt: text(
                 'Povleci \\(b\\) počasi čez presečišče pri \\(3{,}2247\\) in opazuj barvo pobarvanega lika ter obe vrednosti: kdaj se \\(\\int(g-f)\\,dx\\) in ploščina razideta?',
@@ -1797,18 +1779,15 @@ const areaBetweenCurves: GuidedLesson = {
         {
             id: 'stewart-area-between-curves',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 6.1: Areas Between Curves.',
-            supports: ['the area between y = f(x) and y = g(x) as the integral of the upper minus the lower function', 'splitting the interval where the curves intersect', 'the area as the integral of |f(x) - g(x)|'],
         },
         {
             id: 'efodx-area-between-graph',
             citation: 'Earlier app by the owner: efodx.github.io, src/graphs area-between graph (studied 2026-10-11).',
-            supports: ['two curves with draggable bounds on the x-axis and a choice of the shaded integral', 'readout of the area'],
             implementationCorrespondence: 'Bezeg keeps the two curves, the draggable bounds on the x-axis and the choice of what is shaded, but connects every input to the curve it names and labels each option with the quantity it really shades (under f, under g, between f and g). It adds the marked intersections, a second colour where f is on top, the signed integral of g - f next to the unsigned area (computed exactly by splitting at the intersections), and oriented bounds (a > b flips the signed values and keeps the area).',
         },
         {
             id: 'bezeg-area-between-implementation',
             citation: 'Bezeg source: src/analysis/areaBetween.ts and src/graphs/functions/AreaBetweenCurvesGraph.tsx.',
-            supports: ['exact antiderivatives of f, g and g - f', 'unsigned area split at the intersections 2 -+ sqrt(1.5)', 'bounds in [-1, 5]', 'two filled curve objects for the parts where g is on top and where f is on top'],
         },
     ],
     edgeCases: [
@@ -1911,7 +1890,7 @@ const arcLength: GuidedLesson = {
                 'Dolžine ukrivljene črte ne znamo izmeriti neposredno, dolžino daljice pa znamo: med \\((x_{i-1},y_{i-1})\\) in \\((x_i,y_i)\\) je \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\). Graf \\(y=\\sin x\\) na \\([0,\\pi]\\) zato nadomestimo z lomljenko iz \\(n\\) tetiv, katerih oglišča ležijo na grafu. Scena nastavi \\(n=1\\): ena sama tetiva gre od \\(A=(0,0)\\) do \\(B=(\\pi,0)\\) po osi \\(x\\) in ima dolžino \\(\\pi\\approx3{,}1416\\), kar je očitno premalo.',
                 'We cannot measure the length of a bent line directly, but we know the length of a segment: between \\((x_{i-1},y_{i-1})\\) and \\((x_i,y_i)\\) it is \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\). So we replace the graph \\(y=\\sin x\\) on \\([0,\\pi]\\) by a polyline of \\(n\\) chords whose vertices lie on the graph. The scene sets \\(n=1\\): a single chord runs from \\(A=(0,0)\\) to \\(B=(\\pi,0)\\) along the \\(x\\)-axis and has length \\(\\pi\\approx3.1416\\), which is clearly too short.',
             ),
-            formulaIds: ['arc-length-chord'], learnerInteraction: 'observe',
+            formulaIds: ['arc-length-chord'],
             frames: [frame('arc-chord-explanation', 'explanation'), frame('arc-chord-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj eno tetivo z lokom sinusoide: koliko manjka in kje je razlika največja?',
@@ -1938,7 +1917,7 @@ const arcLength: GuidedLesson = {
                 'Pri \\(n=2\\) se oglišča pojavijo pri \\(x=0,\\frac{\\pi}{2},\\pi\\): to so točke \\((0,0)\\), \\(\\left(\\frac{\\pi}{2},1\\right)\\) in \\((\\pi,0)\\). Vsaka tetiva ima \\(\\Delta x=\\frac{\\pi}{2}\\) in \\(|\\Delta y|=1\\), zato je njena dolžina \\(\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx1{,}8621\\) in \\(P_2=2\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx3{,}7242\\). To je že precej bližje loku \\(L\\approx3{,}8202\\) kot \\(P_1=\\pi\\). Scena vrne privzeti \\(n=2\\).',
                 'For \\(n=2\\) the vertices are at \\(x=0,\\frac{\\pi}{2},\\pi\\): the points \\((0,0)\\), \\(\\left(\\frac{\\pi}{2},1\\right)\\) and \\((\\pi,0)\\). Each chord has \\(\\Delta x=\\frac{\\pi}{2}\\) and \\(|\\Delta y|=1\\), so its length is \\(\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx1.8621\\) and \\(P_2=2\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx3.7242\\). This is already much closer to the arc \\(L\\approx3.8202\\) than \\(P_1=\\pi\\). The scene returns to the default \\(n=2\\).',
             ),
-            formulaIds: ['arc-length-chord'], workedExampleId: 'arc-length-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['arc-length-chord'], workedExampleId: 'arc-length-example',
             frames: [frame('arc-two-explanation', 'explanation'), frame('arc-two-calculation', 'calculation'), frame('arc-two-observation', 'observation')],
             observationPrompt: text(
                 'Premakni drsnik \\(n\\) z \\(1\\) na \\(2\\) in nazaj ter opazuj, kako se oglišče doda na vrh loka in lomljenka podaljša.',
@@ -1965,7 +1944,7 @@ const arcLength: GuidedLesson = {
                 'Pri \\(n=10\\) je \\(P_{10}\\approx3{,}8153\\), pri \\(n=100\\) pa \\(P_{100}\\approx3{,}8201\\), medtem ko je \\(L\\approx3{,}8202\\). Dolžina lomljenke nikoli ne preseže dolžine loka: vsaka tetiva je najkrajša pot med svojima krajiščema, zato je krajša ali enaka delu loka med njima, vsota pa je krajša ali enaka celotnemu loku. Scena nastavi \\(n=10\\); z drsnikom nadaljuj do \\(n=100\\).',
                 'For \\(n=10\\) we have \\(P_{10}\\approx3.8153\\) and for \\(n=100\\) we have \\(P_{100}\\approx3.8201\\), while \\(L\\approx3.8202\\). The polyline length never exceeds the arc length: each chord is the shortest path between its two ends, so it is no longer than the piece of arc between them, and the sum is no longer than the whole arc. The scene sets \\(n=10\\); continue to \\(n=100\\) with the slider.',
             ),
-            formulaIds: ['arc-length-chord'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['arc-length-chord'],
             frames: [frame('arc-more-explanation', 'explanation'), frame('arc-more-observation', 'observation')],
             observationPrompt: text(
                 'Povečuj \\(n\\) od \\(10\\) do \\(100\\) in spremljaj odčitek razlike lok \\(-\\) lomljenka: ali kdaj postane negativna?',
@@ -1992,7 +1971,7 @@ const arcLength: GuidedLesson = {
                 'Na majhnem delu je \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), zato je \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\), kar je približno \\(\\sqrt{1+f\'(x_i)^2}\\,\\Delta x\\). Vsota \\(P_n\\) je torej približno Riemannova vsota za \\(\\sqrt{1+f\'(x)^2}\\), njena limita pa je dolžina loka \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\). Za \\(f=\\sin\\) je \\(f\'=\\cos\\) in \\(L=\\int_0^{\\pi}\\sqrt{1+\\cos^2 x}\\,dx\\approx3{,}8202\\); ta integral nima enostavne zaključene oblike, zato ga aplikacija računa numerično. Scena nastavi \\(n=100\\), kjer se \\(P_{100}\\approx3{,}8201\\) komaj še loči od \\(L\\).',
                 'On a small piece \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), so \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\), which is approximately \\(\\sqrt{1+f\'(x_i)^2}\\,\\Delta x\\). The sum \\(P_n\\) is therefore approximately a Riemann sum for \\(\\sqrt{1+f\'(x)^2}\\), and its limit is the arc length \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\). For \\(f=\\sin\\) we have \\(f\'=\\cos\\) and \\(L=\\int_0^{\\pi}\\sqrt{1+\\cos^2 x}\\,dx\\approx3.8202\\); this integral has no simple closed form, so the app computes it numerically. The scene sets \\(n=100\\), where \\(P_{100}\\approx3.8201\\) is hardly distinguishable from \\(L\\).',
             ),
-            formulaIds: ['arc-length-integral'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['arc-length-integral'],
             frames: [frame('arc-limit-explanation', 'explanation'), frame('arc-limit-observation', 'observation')],
             observationPrompt: text(
                 'Povleci \\(B\\) po grafu in primerjaj odčitka lomljenke in loka za več intervalov.',
@@ -2019,7 +1998,7 @@ const arcLength: GuidedLesson = {
                 'Enaka zamisel velja za parametrično krivuljo \\(r(t)\\): tetiva med bližnjima točkama ima dolžino približno \\(\\|r\'(t)\\|\\,\\Delta t\\), zato je \\(L=\\int\\|r\'(t)\\|\\,dt\\). Graf funkcije je primer z \\(r(t)=(t,f(t))\\) in hitrostjo \\(\\sqrt{1+f\'(t)^2}\\). Za sinus ta hitrost ni polinom, zato je integral treba računati numerično. PH-krivulje (glej lekcijo o kubični PH-krivulji in grafe PH-krivulj v Bezegu, ki prikažejo natančno dolžino loka) so natanko polinomske krivulje, pri katerih je hitrost \\(\\|r\'(t)\\|\\) polinom, zato je njihova dolžina loka natančna. Scena nastavi \\(b=2\\pi\\) in \\(n=2\\): obe oglišči sta na osi \\(x\\), lomljenka ima dolžino \\(2\\pi\\approx6{,}2832\\), lok pa \\(7{,}6404\\).',
                 'The same idea applies to a parametric curve \\(r(t)\\): the chord between nearby points has length about \\(\\|r\'(t)\\|\\,\\Delta t\\), so \\(L=\\int\\|r\'(t)\\|\\,dt\\). The graph of a function is the case \\(r(t)=(t,f(t))\\) with speed \\(\\sqrt{1+f\'(t)^2}\\). For the sine this speed is not a polynomial, so the integral has to be computed numerically. PH curves (see the cubic PH curve lesson and the PH-curve graphs in Bezeg, which show the exact arc length) are exactly the polynomial curves whose speed \\(\\|r\'(t)\\|\\) is a polynomial, so their arc length is exact. The scene sets \\(b=2\\pi\\) and \\(n=2\\): both vertices lie on the \\(x\\)-axis, the polyline has length \\(2\\pi\\approx6.2832\\) and the arc has \\(7.6404\\).',
             ),
-            formulaIds: ['arc-length-parametric'], learnerInteraction: 'drag-control-point',
+            formulaIds: ['arc-length-parametric'],
             frames: [frame('arc-link-explanation', 'explanation'), frame('arc-link-observation', 'observation')],
             observationPrompt: text(
                 'Pri \\(b=2\\pi\\) povečaj \\(n\\) z \\(2\\) na \\(3\\), \\(4\\), \\(8\\) in opazuj, kako lomljenka sledi grafu; nato zamenjaj \\(a\\) in \\(b\\).',
@@ -2043,23 +2022,19 @@ const arcLength: GuidedLesson = {
         {
             id: 'stewart-arc-length',
             citation: 'Stewart, J. Calculus: Early Transcendentals, Section 8.1: Arc Length.',
-            supports: ['the length of a curve as the limit of inscribed polygons', 'the formula L = integral of sqrt(1 + f\'(x)^2)', 'the arc length of a parametric curve as the integral of the speed'],
         },
         {
             id: 'efodx-line-length-graph',
             citation: 'Earlier app by the owner: efodx.github.io, src/graphs line-length graph (studied 2026-10-11).',
-            supports: ['a polyline on sin x over draggable endpoints', 'a number of segments from 2 to 100', 'readout of the polyline length'],
             implementationCorrespondence: 'Bezeg keeps the polyline on sin x with draggable endpoints, extends the number of segments to 1-100 (n = 1 is the chord on the x-axis) and draws the vertices as small markers. It adds the arc length integral sqrt(1 + f\'^2) (adaptive Simpson, 1e-9, exact derivative) and the difference arc - polyline next to the polyline length, and states the convention that lengths are never negative whichever endpoint is larger.',
         },
         {
             id: 'farouki-ph-arc-length',
             citation: 'Farouki, R. T. Pythagorean-Hodograph Curves: Algebra and Geometry Inseparable, Springer, 2008.',
-            supports: ['PH curves have a polynomial speed ||r\'(t)||', 'the arc length of a PH curve is the integral of a polynomial and therefore exact', 'Bezeg shows this on the PH routes, for example /bezeg-2.0/ph/cubic'],
         },
         {
             id: 'bezeg-arc-length-implementation',
             citation: 'Bezeg source: src/analysis/arcLength.ts and src/graphs/functions/ArcLengthGraph.tsx.',
-            supports: ['polyline vertices at n equal x-steps with the last vertex exactly at b', 'adaptive Simpson arc length with the catalog derivative of sin', 'endpoints in [-7, 7] rounded to 0.01', 'one curve object for the polyline and one for the vertex markers, whatever n is'],
         },
     ],
     edgeCases: [

@@ -76,9 +76,9 @@ describe('fixture scenes', () => {
             expect((scene as any).curve.points).toEqual(fixture);
             expect((scene as any).view).toEqual(view);
             expect(scene.actions).toEqual([
-                {name: 'set-parameterization-alpha', value: STEP_ALPHA[i]},
-                {name: 'set-parameterization-samples', value: SAMPLES},
-                {name: 'hide-spline-fixed-points', value: false},
+                {kind: 'parameterization-alpha', value: STEP_ALPHA[i]},
+                {kind: 'parameterization-samples', count: SAMPLES},
+                {kind: 'spline-hide-fixed', hidden: false},
             ]);
         });
         expect(fixture).toEqual([[-7, -2], [-7, 1.5], [-5, 0.5], [-4, 1.5], [-3.2, -1], [4, 2.5], [6, -1.5], [2, -3.5]]);

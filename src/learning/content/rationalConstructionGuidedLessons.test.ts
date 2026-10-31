@@ -1,6 +1,5 @@
 import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
-import {sceneAction} from '../runtime/lessonCatalog';
+import {sceneActions} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
@@ -67,47 +66,50 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
             const startsFromFixture = lesson.demonstrationId === 'decasteljau-alternative'
                 && ['da-cubic-two-quadratics', 'da-cubic-quarter'].includes(step.id);
             expect(step.scene?.basedOn).toBe(startsFromFixture ? 'lesson-fixture' : 'demonstration-default');
-            for (const action of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
         expect(usedExamples).toEqual(exampleIds);
     }
 });
 
 test('each lesson only uses the scene actions of its own graph, with valid values', () => {
-    const actions = (id: string) => lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions));
-    expect(new Set(actions('decasteljau-alternative').map(action => action.name))).toEqual(new Set(['set-decasteljau-parameter']));
-    actions('decasteljau-alternative').forEach(action => {
-        expect(typeof action.value).toBe('number');
-        expect(action.value as number).toBeGreaterThanOrEqual(0);
-        expect(action.value as number).toBeLessThanOrEqual(1);
-    });
-    expect(new Set(actions('farin').map(action => action.name)))
-        .toEqual(new Set(['show-weights', 'show-farin-points', 'set-rational-weights', 'set-standard-form']));
-    expect(new Set(actions('circle').map(action => action.name))).toEqual(new Set(['set-circle-pieces']));
+    const actions = (id: string) => lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []);
+    const kinds = (id: string) => new Set(actions(id).map(action => action.kind === 'curve-visibility' ? `${action.kind}:${action.target}` : action.kind));
+    expect(kinds('decasteljau-alternative')).toEqual(new Set(['parameter']));
+    for (const action of actions('decasteljau-alternative')) {
+        expect(action.kind === 'parameter' && action.name === 't').toBe(true);
+        const value = action.kind === 'parameter' ? action.value : Number.NaN;
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(1);
+    }
+    expect(kinds('farin')).toEqual(new Set(['curve-visibility:weights', 'farin-points', 'rational-weights', 'standard-form']));
+    expect(kinds('circle')).toEqual(new Set(['circle-pieces']));
     for (const action of actions('farin')) {
-        if (action.name === 'set-rational-weights') {
-            expect(Array.isArray(action.value)).toBe(true);
-            const weights = action.value as number[];
-            expect(weights).toHaveLength(farinPoints.length);
-            weights.forEach(weight => expect(Number.isFinite(weight) && weight > 0).toBe(true));
+        if (action.kind === 'rational-weights') {
+            expect(action.weights).toHaveLength(farinPoints.length);
+            action.weights.forEach(weight => expect(Number.isFinite(weight) && weight > 0).toBe(true));
+        } else if (action.kind === 'curve-visibility') {
+            expect(action).toMatchObject({target: 'weights', visible: true});
+        } else if (action.kind === 'farin-points') {
+            expect(typeof action.visible).toBe('boolean');
         } else {
-            expect(typeof action.value).toBe('boolean');
+            expect(action.kind).toBe('standard-form');
+            expect(action).toMatchObject({enabled: true});
         }
     }
     for (const action of actions('circle')) {
-        expect(Number.isInteger(action.value)).toBe(true);
-        expect(action.value as number).toBeGreaterThanOrEqual(3);
-        expect(action.value as number).toBeLessThanOrEqual(12);
+        expect(action.kind).toBe('circle-pieces');
+        const count = action.kind === 'circle-pieces' ? action.count : Number.NaN;
+        expect(Number.isInteger(count)).toBe(true);
+        expect(count).toBeGreaterThanOrEqual(3);
+        expect(count).toBeLessThanOrEqual(12);
     }
-    expect(lessonFor('decasteljau-alternative').steps.map(step => legacyActions(step.scene!.actions))).toEqual([
-        [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
-        [], [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
-        [{name: 'set-decasteljau-parameter', value: 0.75}], [{name: 'set-decasteljau-parameter', value: 0.5}],
+    const t = (value: number) => ({kind: 'parameter', name: 't', value});
+    expect(lessonFor('decasteljau-alternative').steps.map(step => step.scene!.actions)).toEqual([
+        [t(0.5)], [t(0.25)], [], [t(0.5)], [t(0.25)], [t(0.75)], [t(0.5)],
     ]);
-    expect(lessonFor('circle').steps.map(step => legacyActions(step.scene!.actions).map(action => action.value))).toEqual([[], [3], [4], [6], [12]]);
+    expect(lessonFor('circle').steps.map(step => step.scene!.actions)).toEqual([[], [3], [4], [6], [12]].map(counts => counts.map(count => ({kind: 'circle-pieces', count}))));
     expect(lessonFor('farin').steps.map(step => step.scene!.actions.length)).toEqual([1, 2, 2, 3, 4]);
 });
 

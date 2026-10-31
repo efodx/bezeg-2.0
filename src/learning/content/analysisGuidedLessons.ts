@@ -46,7 +46,7 @@
  * playback command. A prediction step hides the supremum and the learner presses the graph's own Show supremum after predicting;
  * only the step that explains the shared N on the smaller domain shows it. Every domain change (uniform-r) starts a new comparison.
  */
-import type {FunctionParameterName, LessonViewBox} from '../model';
+import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model';
 import type {BisectionExampleId} from '../../analysis/bisection';
 import type {MeanValueExampleId} from '../../analysis/meanValue';
 import type {FunctionId} from '../../analysis/functions';
@@ -57,16 +57,14 @@ import type {TaylorExampleId} from '../../analysis/taylor';
 import type {SequenceExampleId} from '../../analysis/sequence';
 import type {FixedPointExampleId} from '../../analysis/fixedPoint';
 import type {UniformExampleId} from '../../analysis/uniformConvergence';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
-const parameter = (name: FunctionParameterName, value: number): SceneAction => ({name: 'set-function-parameter', value: {name, value}});
-const bisectionExample = (value: BisectionExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'bisection-example', value},
-});
+const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
+const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
-const steps = (count: number): SceneAction[] => Array.from({length: count}, () => ({name: 'run-bisection-command', value: 'next-step'}));
+const steps = (count: number): LessonAction[] => Array.from({length: count}, () => ({kind: 'animation', animationId: 'bisection', command: 'next-step'}));
 
 /** The free-exploration cubic with a = -1.5 has its bracket points at about (-1.5, -1.88) and (2, 6). */
 const bisectionCubicView: LessonViewBox = [-3, 7, 3.5, -3];
@@ -155,7 +153,7 @@ const bisection: GuidedLesson = {
                 'Funkcija \\(f(x)=x^2-2\\) je zvezna, na krajiščih intervala \\([1,2]\\) pa je \\(f(1)=-1<0\\) in \\(f(2)=2>0\\). Zvezna funkcija ne more preskočiti vrednosti \\(0\\), zato po izreku o vmesni vrednosti v intervalu leži vsaj ena ničla. Izrek zagotavlja obstoj, ne pa enoličnosti: ničel je lahko več. Bisekcija ničlo išče tako, da interval razpolavlja in vedno obdrži polovico, v kateri imata vrednosti v krajiščih še vedno nasprotna predznaka.',
                 'The function \\(f(x)=x^2-2\\) is continuous, and at the ends of the interval \\([1,2]\\) we have \\(f(1)=-1<0\\) and \\(f(2)=2>0\\). A continuous function cannot skip the value \\(0\\), so by the intermediate value theorem the interval contains at least one root. The theorem guarantees existence, not uniqueness: there may be several roots. Bisection looks for a root by halving the interval and always keeping the half in which the endpoint values still have opposite signs.',
             ),
-            formulaIds: ['bisection-ivt'], learnerInteraction: 'observe',
+            formulaIds: ['bisection-ivt'],
             frames: [frame('bisection-bracket-explanation', 'explanation'), frame('bisection-bracket-observation', 'observation')],
             observationPrompt: text(
                 'Preberi odčitka \\(f(a)\\) in \\(f(b)\\). Napovej, v kateri polovici, \\([1;\\,1{,}5]\\) ali \\([1{,}5;\\,2]\\), leži ničla, in šele nato pritisni Naslednji korak.',
@@ -182,7 +180,7 @@ const bisection: GuidedLesson = {
                 'Razpolovišče intervala \\([1,2]\\) je \\(m=\\frac{1+2}{2}=1{,}5\\) in \\(f(1{,}5)=1{,}5^2-2=0{,}25>0\\). Vrednost \\(f(1)=-1\\) je negativna, \\(f(1{,}5)\\) pa pozitivna, zato imata vrednosti v krajiščih leve polovice \\([1;\\,1{,}5]\\) nasprotna predznaka in v njej leži ničla. Desno polovico zavržemo. Širina se je prepolovila z \\(1\\) na \\(0{,}5\\).',
                 'The midpoint of the interval \\([1,2]\\) is \\(m=\\frac{1+2}{2}=1.5\\) and \\(f(1.5)=1.5^2-2=0.25>0\\). The value \\(f(1)=-1\\) is negative and \\(f(1.5)\\) is positive, so the values at the endpoints of the left half \\([1,\\,1.5]\\) have opposite signs and a root lies in it. We discard the right half. The width has halved from \\(1\\) to \\(0.5\\).',
             ),
-            formulaIds: ['bisection-midpoint-width'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['bisection-midpoint-width'],
             frames: [frame('bisection-first-step-explanation', 'explanation'), frame('bisection-first-step-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, katero polovico intervala \\([1;\\,1{,}5]\\) bo obdržal naslednji korak, in pritisni Naslednji korak, da preveriš.',
@@ -209,7 +207,7 @@ const bisection: GuidedLesson = {
                 'V koraku 2 je \\(m=1{,}25\\) in \\(f(1{,}25)=-0{,}4375<0\\), kar je enak predznak kot pri \\(f(1)\\), zato obdržimo desno polovico \\([1{,}25;\\,1{,}5]\\). V koraku 3 je \\(m=1{,}375\\) in \\(f(1{,}375)=-0{,}109375<0\\), zato obdržimo \\([1{,}375;\\,1{,}5]\\) s širino \\(0{,}125\\). Pravilo: razpolovišče zamenja tisto krajišče, katerega vrednost ima enak predznak. Zato imata vrednosti v krajiščih po vsakem koraku še vedno nasprotna predznaka, širina po \\(k\\) korakih pa je \\(\\frac{1}{2^k}\\).',
                 'In step 2 we have \\(m=1.25\\) and \\(f(1.25)=-0.4375<0\\), the same sign as \\(f(1)\\), so we keep the right half \\([1.25,\\,1.5]\\). In step 3 we have \\(m=1.375\\) and \\(f(1.375)=-0.109375<0\\), so we keep \\([1.375,\\,1.5]\\) with width \\(0.125\\). The rule: the midpoint replaces the endpoint whose value has the same sign. The values at the endpoints therefore still have opposite signs after every step, and the width after \\(k\\) steps is \\(\\frac{1}{2^k}\\).',
             ),
-            formulaIds: ['bisection-midpoint-width', 'bisection-sign-invariant'], workedExampleId: 'bisection-x2-minus-2', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['bisection-midpoint-width', 'bisection-sign-invariant'], workedExampleId: 'bisection-x2-minus-2',
             frames: [frame('bisection-three-steps-explanation', 'explanation'), frame('bisection-three-steps-calculation', 'calculation'), frame('bisection-three-steps-observation', 'observation')],
             observationPrompt: text(
                 'Po vsakem koraku primerjaj predznaka \\(f(a)\\) in \\(f(b)\\). Napovej predznak vrednosti v naslednjem razpolovišču \\(1{,}4375\\) in pritisni Naslednji korak.',
@@ -236,7 +234,7 @@ const bisection: GuidedLesson = {
                 'Po \\(5\\) korakih leži ničla \\(\\sqrt{2}\\approx1{,}41421\\) v intervalu \\([1{,}40625;\\,1{,}4375]\\) s širino \\(\\frac{1}{32}=0{,}03125\\). Število \\(\\sqrt{2}\\) je iracionalno, zato nobeno razpolovišče ni natančna ničla: \\(f(m)\\) je lahko zelo majhna, nikoli pa ni natanko \\(0\\). Iteracija se ustavi, ko je \\(f(m)=0\\) natanko (na primer pri \\(x^3-x\\)), ko se razpolovišče v dvojni natančnosti ujame s krajiščem ali ko je dosežena omejitev \\(60\\) korakov. Zadnji dve ustavitvi ne pomenita natančne ničle, ampak omejitev računalniškega zapisa števil in korakov.',
                 'After \\(5\\) steps the root \\(\\sqrt{2}\\approx1.41421\\) lies in the interval \\([1.40625,\\,1.4375]\\) of width \\(\\frac{1}{32}=0.03125\\). The number \\(\\sqrt{2}\\) is irrational, so no midpoint is an exact root: \\(f(m)\\) can be very small, but it is never exactly \\(0\\). The iteration stops when \\(f(m)=0\\) exactly (for example for \\(x^3-x\\)), when the midpoint equals an endpoint in double precision, or when the limit of \\(60\\) steps is reached. The last two stops do not mean an exact root; they are limits of computer number representation and of the number of steps.',
             ),
-            formulaIds: [], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: [],
             frames: [frame('bisection-exact-explanation', 'explanation'), frame('bisection-exact-observation', 'observation')],
             observationPrompt: text(
                 'Pritisni Predvajaj in opazuj širino intervala. Kdaj se iteracija ustavi in kaj o tem pravi sporočilo o stanju? Premor predvajanje ustavi, Ponastavi iteracijo pa ga vrne na začetek.',
@@ -263,7 +261,7 @@ const bisection: GuidedLesson = {
                 'Naj bo \\(f(x)=-1\\) za \\(x<0\\) in \\(f(x)=1\\) sicer. Na \\([-1,1]\\) je \\(f(-1)=-1\\) in \\(f(1)=1\\), predznaka sta torej nasprotna, vendar \\(f\\) pri \\(x=0\\) skoči z \\(-1\\) na \\(1\\) in ne zavzame nobene vmesne vrednosti. Funkcija nima nobene ničle. Predpostavka izreka o zveznosti ni izpolnjena, zato ničla ni zagotovljena; graf je narisan iz dveh ločenih kosov z odprtim in zapolnjenim krogcem pri skoku. Bisekcija se lahko še vedno izvaja, a se stiska proti skoku pri \\(x=0\\), kjer \\(f(m)\\) ni nikoli \\(0\\).',
                 'Let \\(f(x)=-1\\) for \\(x<0\\) and \\(f(x)=1\\) otherwise. On \\([-1,1]\\) we have \\(f(-1)=-1\\) and \\(f(1)=1\\), so the signs are opposite, but \\(f\\) jumps from \\(-1\\) to \\(1\\) at \\(x=0\\) and takes no value in between. The function has no root at all. The continuity hypothesis of the theorem is not satisfied, so a root is not guaranteed; the graph is drawn from two separate pieces with an open and a filled circle at the jump. Bisection can still run, but it closes in on the jump at \\(x=0\\), where \\(f(m)\\) is never \\(0\\).',
             ),
-            formulaIds: ['bisection-ivt'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['bisection-ivt'],
             frames: [frame('bisection-counterexample-explanation', 'explanation'), frame('bisection-counterexample-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kam se bodo stiskala razpolovišča in ali bo \\(f(m)\\) kdaj enak \\(0\\); nato pritisni Naslednji korak in preberi sporočilo o stanju.',
@@ -290,7 +288,7 @@ const bisection: GuidedLesson = {
                 'Funkcija \\(f(x)=x^3-x\\) ima tri ničle \\(-1\\), \\(0\\) in \\(1\\). Na intervalu \\([-1{,}5;\\,2]\\) je \\(f(-1{,}5)=-1{,}875<0\\) in \\(f(2)=6>0\\), zato izrek zagotavlja vsaj eno ničlo, v resnici pa so v njem vse tri. Bisekcija najde le eno od njih; katero, je odvisno od izbire krajišč. Zdaj raziskuj sam: zamenjaj primer ali krajišči, pritisni Naslednji korak ali Predvajaj in preveri, kdaj interval še vsebuje ničlo (f ima v krajiščih nasprotna predznaka) in kam se bisekcija stiska.',
                 'The function \\(f(x)=x^3-x\\) has three roots \\(-1\\), \\(0\\) and \\(1\\). On the interval \\([-1.5,\\,2]\\) we have \\(f(-1.5)=-1.875<0\\) and \\(f(2)=6>0\\), so the theorem guarantees at least one root, and in fact all three lie in it. Bisection finds only one of them; which one depends on the choice of endpoints. Now explore on your own: change the example or the endpoints, press Next step or Play, and check when the interval is a bracket and where bisection closes in.',
             ),
-            formulaIds: ['bisection-sign-invariant'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['bisection-sign-invariant'],
             frames: [frame('bisection-free-explanation', 'explanation'), frame('bisection-free-observation', 'observation')],
             observationPrompt: text(
                 'Poskusi krajišči \\(a=-1{,}5\\) in \\(b=2\\) ter druge pare. Katero ničlo najde bisekcija in kdaj ničla ni zagotovljena?',
@@ -314,12 +312,10 @@ const bisection: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §3.5 (printed pp. 80–82).',
-            supports: ['the intermediate value theorem', 'the bisection method on a bracket', 'existence of a zero without uniqueness'],
         },
         {
             id: 'bezeg-bisection-implementation',
             citation: 'Bezeg source: src/analysis/bisection.ts, src/analysis/bisectionModel.ts and src/graphs/functions/BisectionGraph.tsx.',
-            supports: ['midpoints 1.5, 1.25, 1.375 with values 0.25, -0.4375, -0.109375', 'exact endpoint and midpoint roots', 'floating-point stagnation and the 60-step limit', 'the sign step as a discontinuous example'],
             implementationCorrespondence: 'The history is recomputed from the example, the endpoints and the step; Next step and playback run the same transition, and a lesson scene applies run-bisection-command next-step once per revealed step.',
         },
     ],
@@ -345,12 +341,8 @@ const bisection: GuidedLesson = {
     ],
 };
 
-const meanValueExample = (value: MeanValueExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'mean-value-example', value},
-});
-const matchingPoints = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'matching-points', value: visible},
-});
+const meanValueExample = (value: MeanValueExampleId): LessonAction => ({kind: 'function-choice', name: 'mean-value-example', value: value});
+const matchingPoints = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'matching-points', visible: visible});
 
 const meanValue: GuidedLesson = {
     demonstrationId: 'mean-value',
@@ -462,7 +454,7 @@ const meanValue: GuidedLesson = {
                 'Funkcija \\(f(x)=x^2\\) je zvezna na \\([0,2]\\) in odvedljiva na \\((0,2)\\). Sekanta povezuje točki \\((0,f(0))\\) in \\((2,f(2))\\) in ima naklon \\(\\frac{f(2)-f(0)}{2-0}=\\frac{4-0}{2}=2\\). Tangenta v točki \\(c\\in(0,2)\\) ima naklon \\(f^{\\prime}(c)=2c\\); pri \\(c=0{,}5\\) je ta naklon \\(1\\), razlika med naklonom tangente in naklonom sekante pa \\(-1\\). Krajišči \\(a\\) in \\(b\\) ter točko \\(c\\) premikaš vsako zase, vedno pa velja \\(a<c<b\\). Izrek o povprečni vrednosti trdi, da pri zvezni in na \\((a,b)\\) odvedljivi funkciji obstaja vsaj ena točka \\(c\\), v kateri sta naklona enaka.',
                 'The function \\(f(x)=x^2\\) is continuous on \\([0,2]\\) and differentiable on \\((0,2)\\). The secant joins the points \\((0,f(0))\\) and \\((2,f(2))\\) and has slope \\(\\frac{f(2)-f(0)}{2-0}=\\frac{4-0}{2}=2\\). The tangent at a point \\(c\\in(0,2)\\) has slope \\(f^{\\prime}(c)=2c\\); at \\(c=0.5\\) this slope is \\(1\\), and the difference between the tangent slope and the secant slope is \\(-1\\). You move the endpoints \\(a\\) and \\(b\\) and the point \\(c\\) separately, and \\(a<c<b\\) always holds. The mean value theorem says that for a function that is continuous and differentiable on \\((a,b)\\) there is at least one point \\(c\\) at which the two slopes are equal.',
             ),
-            formulaIds: ['mean-value-statement', 'mean-value-slopes'], learnerInteraction: 'observe',
+            formulaIds: ['mean-value-statement', 'mean-value-slopes'],
             frames: [frame('mean-value-prerequisites-explanation', 'explanation'), frame('mean-value-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Preberi naklon sekante in naklon tangente. Napovej, pri kateri vrednosti \\(c\\) sta naklona enaka, in šele nato pritisni Pokaži ujemajočo točko.',
@@ -489,7 +481,7 @@ const meanValue: GuidedLesson = {
                 'Pri \\(f(x)=x^2\\) mora veljati \\(2c=2\\), torej \\(c=1\\). Ko pokažeš ujemajočo točko, se na grafu pojavi obroček v \\((1,1)\\), črtkana tangenta v njem pa je vzporedna sekanti. Pri \\(c=1\\) se naklon tangente \\(2\\) ujame z naklonom sekante \\(2\\) in je razlika \\(0\\). Prikazano ujemanje je številčna primerjava prikazanih števil in ne dokaz: izrek zagotavlja, da ujemajoča točka obstaja, gumb pa jo izračuna po formuli.',
                 'For \\(f(x)=x^2\\) we need \\(2c=2\\), so \\(c=1\\). When you show the matching point, a ring appears on the graph at \\((1,1)\\), and the dashed tangent through it is parallel to the secant. At \\(c=1\\) the tangent slope \\(2\\) equals the secant slope \\(2\\) and the difference is \\(0\\). The displayed agreement is a numerical comparison of the displayed numbers and not a proof: the theorem guarantees that a matching point exists, and the button computes it by formula.',
             ),
-            formulaIds: ['mean-value-slopes', 'mean-value-power-matches'], workedExampleId: 'mean-value-x2-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['mean-value-slopes', 'mean-value-power-matches'], workedExampleId: 'mean-value-x2-example',
             frames: [frame('mean-value-reveal-explanation', 'explanation'), frame('mean-value-reveal-calculation', 'calculation'), frame('mean-value-reveal-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj razkrito točko z napovedjo. Nato premakni \\(c\\) stran od \\(1\\) in opazuj, kako se razlika naklonov spremeni; krajišči \\(a\\) in \\(b\\) pri tem ostaneta.',
@@ -516,7 +508,7 @@ const meanValue: GuidedLesson = {
                 'Premakni \\(c\\) v \\(1{,}5\\): naklon tangente je \\(2c=3\\) in razlika \\(1\\) je pozitivna. Pri \\(c=0{,}5\\) je bila razlika \\(-1\\); ker je \\(2c-2\\) zvezna funkcija, mora imeti vmes vrednost \\(0\\), in to je pri \\(c=1\\). Sekanta se pri premikanju \\(c\\) ne premakne, ker \\(c\\) ne vpliva na krajišči \\(a\\) in \\(b\\). Če spreminjaš krajišči, ostane \\(c\\) v \\((a,b)\\): vrednost, ki bi pogoj \\(a<c<b\\) prekršila, aplikacija zavrne, zato najprej premakni \\(c\\).',
                 'Move \\(c\\) to \\(1.5\\): the tangent slope is \\(2c=3\\) and the difference \\(1\\) is positive. At \\(c=0.5\\) the difference was \\(-1\\); since \\(2c-2\\) is a continuous function, it must take the value \\(0\\) in between, and that happens at \\(c=1\\). The secant does not move when you move \\(c\\), because \\(c\\) does not affect the endpoints \\(a\\) and \\(b\\). When you change the endpoints, \\(c\\) stays in \\((a,b)\\): a value that would break the condition \\(a<c<b\\) is rejected by the app, so move \\(c\\) first.',
             ),
-            formulaIds: ['mean-value-slopes'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['mean-value-slopes'],
             frames: [frame('mean-value-move-c-explanation', 'explanation'), frame('mean-value-move-c-observation', 'observation')],
             observationPrompt: text(
                 'Povleci točko \\(c\\) po osi \\(x\\) ali jo vnesi v polje. Opazuj, da se krajišči in sekanta ne premakneta, razlika naklonov pa menja predznak.',
@@ -543,7 +535,7 @@ const meanValue: GuidedLesson = {
                 'Pri \\(f(x)=x^3\\) na \\([-1,1]\\) je naklon sekante \\(\\frac{1-(-1)}{1-(-1)}=1\\). Iščemo \\(3c^2=1\\), torej \\(c=\\pm\\frac{1}{\\sqrt3}\\approx\\pm0{,}5774\\): ujemajoči točki sta dve, obe v \\((-1,1)\\). Izrek zagotavlja vsaj eno ujemajočo točko, ne pa, da je samo ena. Pri \\(c=0\\) je naklon tangente \\(0\\), razlika \\(-1\\) in tangenta je vodoravna, zato se naklona tam ne ujemata.',
                 'For \\(f(x)=x^3\\) on \\([-1,1]\\) the secant slope is \\(\\frac{1-(-1)}{1-(-1)}=1\\). We need \\(3c^2=1\\), so \\(c=\\pm\\frac{1}{\\sqrt3}\\approx\\pm0.5774\\): there are two matching points, both in \\((-1,1)\\). The theorem guarantees at least one matching point, not that there is only one. At \\(c=0\\) the tangent slope is \\(0\\), the difference is \\(-1\\) and the tangent is horizontal, so the slopes do not agree there.',
             ),
-            formulaIds: ['mean-value-power-matches'], workedExampleId: 'mean-value-x3-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['mean-value-power-matches'], workedExampleId: 'mean-value-x3-example',
             frames: [frame('mean-value-cube-explanation', 'explanation'), frame('mean-value-cube-calculation', 'calculation'), frame('mean-value-cube-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, koliko ujemajočih točk ima \\(x^3\\) na tem intervalu, in nato pritisni Pokaži ujemajočo točko.',
@@ -570,7 +562,7 @@ const meanValue: GuidedLesson = {
                 'Funkcija \\(f(x)=|x|\\) je zvezna na \\([-1,1]\\), a v točki \\(0\\) ni odvedljiva: graf ima ostri prelom. Naklon sekante je \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), odvod pa je \\(-1\\) levo od \\(0\\) in \\(1\\) desno od \\(0\\), nikoli \\(0\\). Nobena točka, v kateri odvod obstaja, torej ne ujame naklona sekante. V točki \\(c=0\\) odvod ne obstaja, zato tangente ni: aplikacija je ne nariše in naklona tangente ne prikaže, ne pa da bi ga izmislila ali pokazala neskončnost. Izrek tu ne trdi nasprotnega, ker predpostavka odvedljivosti na \\((-1,1)\\) ni izpolnjena.',
                 'The function \\(f(x)=|x|\\) is continuous on \\([-1,1]\\) but not differentiable at the point \\(0\\): its graph has a corner. The secant slope is \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), while the derivative is \\(-1\\) to the left of \\(0\\) and \\(1\\) to the right of \\(0\\), never \\(0\\). So no point at which the derivative exists achieves the secant slope. At the point \\(c=0\\) the derivative does not exist, so there is no tangent: the app draws none and shows no tangent slope, rather than inventing one or showing infinity. The theorem does not claim the opposite here, because its hypothesis of differentiability on \\((-1,1)\\) is not satisfied.',
             ),
-            formulaIds: ['mean-value-statement'], workedExampleId: 'mean-value-abs-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['mean-value-statement'], workedExampleId: 'mean-value-abs-example',
             frames: [frame('mean-value-abs-explanation', 'explanation'), frame('mean-value-abs-calculation', 'calculation'), frame('mean-value-abs-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali ima \\(|x|\\) na \\([-1,1]\\) ujemajočo točko, in nato pritisni Pokaži ujemajočo točko in preberi stanje. Nato premakni \\(c\\) s kota in opazuj naklon tangente.',
@@ -597,7 +589,7 @@ const meanValue: GuidedLesson = {
                 'Funkcija \\(|x|\\) na \\([0,1]\\) je odvedljiva na \\((0,1)\\), kjer je odvod \\(1\\), naklon sekante pa je \\(\\frac{1-0}{1-0}=1\\): ujema se vsaka točka intervala \\((0,1)\\). Izrek zagotavlja vsaj eno ujemajočo točko, ne le ene; aplikacija ujemajoči interval prikaže kot debelo črto na osi \\(x\\). Zdaj raziskuj sam: zamenjaj primer, premakni \\(a\\), \\(b\\) in \\(c\\) ter preveri, kdaj ujemajočih točk ni, kdaj je ena, kdaj sta dve in kdaj se ujema ves interval.',
                 'The function \\(|x|\\) on \\([0,1]\\) is differentiable on \\((0,1)\\), where the derivative is \\(1\\), and the secant slope is \\(\\frac{1-0}{1-0}=1\\): every point of the interval \\((0,1)\\) matches. The theorem guarantees at least one matching point, not exactly one; the app shows a matching interval as a thick line on the \\(x\\)-axis. Now explore on your own: change the example, move \\(a\\), \\(b\\) and \\(c\\), and check when there is no matching point, when there is one, when there are two and when the whole interval matches.',
             ),
-            formulaIds: ['mean-value-statement'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['mean-value-statement'],
             frames: [frame('mean-value-free-explanation', 'explanation'), frame('mean-value-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, katere točke ujemajo pri \\(|x|\\) na \\([0,1]\\), in nato pritisni Pokaži ujemajočo točko. Nato poskusi \\(x^2\\) in \\(x^3\\) na drugih intervalih.',
@@ -621,12 +613,10 @@ const meanValue: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-mean-value',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §4.4 (printed pp. 115–117).',
-            supports: ['the mean value theorem and its hypotheses', 'the reading of the theorem as a tangent parallel to the secant', 'existence of a matching point without uniqueness'],
         },
         {
             id: 'bezeg-mean-value-implementation',
             citation: 'Bezeg source: src/analysis/meanValue.ts, src/analysis/meanValueModel.ts and src/graphs/functions/MeanValueGraph.tsx.',
-            supports: ['x^2 on [0, 2] matches at c = 1', 'x^3 on [-1, 1] matches at c = +-1/sqrt(3)', '|x| on [-1, 1] has secant slope 0 and no matching point', 'an undefined derivative at a corner and no tangent there'],
             implementationCorrespondence: 'The matching points are computed analytically from the example, a and b and are never stored; c is an independent model field with a < c < b enforced by every setter, and a lesson scene applies set-function-parameter and show-function-element actions through those setters in one synchronous tick.',
         },
     ],
@@ -652,12 +642,8 @@ const meanValue: GuidedLesson = {
     ],
 };
 
-const accumulationFunction = (value: FunctionId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'accumulation-function', value},
-});
-const accumulationCurve = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'accumulation-curve', value: visible},
-});
+const accumulationFunction = (value: FunctionId): LessonAction => ({kind: 'function-choice', name: 'accumulation-function', value: value});
+const accumulationCurve = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'accumulation-curve', visible: visible});
 
 const accumulation: GuidedLesson = {
     demonstrationId: 'accumulation',
@@ -784,7 +770,7 @@ const accumulation: GuidedLesson = {
                 'Funkcija \\(f(x)=\\sin x\\) je zvezna, spodnja meja je \\(a=0\\) in točka je \\(x=2\\). Akumulacija \\(A(x)=\\int_a^x f(t)\\,dt\\) je integral s predznakom od \\(a\\) do \\(x\\): osenčeno območje med grafom in osjo \\(x\\) šteje pozitivno nad osjo (oznaka +) in negativno pod njo (oznaka −). Krivulja \\(A\\) je za zdaj skrita. Pri \\(x=2\\) leži vse območje nad osjo, ker je \\(\\sin t>0\\) za \\(t\\in(0,2)\\), zato mora biti \\(A(2)\\) pozitivna in manjša od \\(2\\), kolikor meri celoten lok sinusa nad \\([0,\\pi]\\).',
                 'The function \\(f(x)=\\sin x\\) is continuous, the lower bound is \\(a=0\\) and the point is \\(x=2\\). The accumulation \\(A(x)=\\int_a^x f(t)\\,dt\\) is the signed integral from \\(a\\) to \\(x\\): the shaded region between the graph and the \\(x\\)-axis counts as positive above the axis (marked +) and as negative below it (marked −). The curve \\(A\\) is hidden for now. At \\(x=2\\) the whole region lies above the axis, because \\(\\sin t>0\\) for \\(t\\in(0,2)\\), so \\(A(2)\\) must be positive and smaller than \\(2\\), the measure of the whole arc of the sine over \\([0,\\pi]\\).',
             ),
-            formulaIds: ['accumulation-definition', 'accumulation-signed'], learnerInteraction: 'observe',
+            formulaIds: ['accumulation-definition', 'accumulation-signed'],
             frames: [frame('accumulation-prerequisites-explanation', 'explanation'), frame('accumulation-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej predznak in približno velikost \\(A(2)\\) iz osenčenega območja in šele nato pritisni Pokaži akumulacijo A.',
@@ -814,7 +800,7 @@ const accumulation: GuidedLesson = {
                 'Primitivna funkcija funkcije \\(\\sin t\\) je \\(-\\cos t\\), zato je \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\) in \\(A(2)=1-\\cos 2\\approx1{,}4161\\). Ko pokažeš akumulacijo, se nariše črtkana krivulja \\(A\\) in njena točka pri \\(x=2\\); tangenta na \\(A\\) ima tam naklon \\(f(2)\\approx0{,}9093\\). Pri \\(x=a\\) je območje prazno in \\(A(a)=0\\), zato se krivulja \\(A\\) začne v točki \\((0,0)\\). Prikazana vrednost je določeni integral s predznakom, ne geometrijska ploščina.',
                 'An antiderivative of \\(\\sin t\\) is \\(-\\cos t\\), so \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\) and \\(A(2)=1-\\cos 2\\approx1.4161\\). When you show the accumulation, the dashed curve \\(A\\) is drawn together with its point at \\(x=2\\); the tangent to \\(A\\) there has slope \\(f(2)\\approx0.9093\\). At \\(x=a\\) the region is empty and \\(A(a)=0\\), so the curve \\(A\\) starts at the point \\((0,0)\\). The displayed value is the signed definite integral, not the geometric area.',
             ),
-            formulaIds: ['accumulation-definition', 'accumulation-sine'], workedExampleId: 'accumulation-sin-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-definition', 'accumulation-sine'], workedExampleId: 'accumulation-sin-example',
             frames: [frame('accumulation-reveal-explanation', 'explanation'), frame('accumulation-reveal-calculation', 'calculation'), frame('accumulation-reveal-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj prikazano vrednost \\(A(2)\\) z napovedjo. Nato povleci točko \\(x\\) po osi \\(x\\) in opazuj, kako se točka na krivulji \\(A\\) premika.',
@@ -844,7 +830,7 @@ const accumulation: GuidedLesson = {
                 'Pri \\(x=\\pi\\) osenčeno območje zajame cel lok sinusa nad osjo, od \\(0\\) do \\(\\pi\\). Njegova vrednost je \\(A(\\pi)=1-\\cos\\pi=2\\), kar je znani rezultat \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). Akumulacija \\(A\\) je do \\(x=\\pi\\) naraščala, ker je \\(\\sin t>0\\) na \\((0,\\pi)\\); v točki \\(x=\\pi\\) doseže lokalni maksimum \\(2\\), ki je tudi največja vrednost \\(A\\) na \\([0,2\\pi]\\); tam je \\(f(\\pi)=0\\) in njena tangenta je vodoravna.',
                 'At \\(x=\\pi\\) the shaded region covers the whole arc of the sine above the axis, from \\(0\\) to \\(\\pi\\). Its value is \\(A(\\pi)=1-\\cos\\pi=2\\), the well-known result \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). The accumulation \\(A\\) increased up to \\(x=\\pi\\), because \\(\\sin t>0\\) on \\((0,\\pi)\\); at the point \\(x=\\pi\\) it reaches a local maximum \\(2\\), which is also the largest value of \\(A\\) on \\([0,2\\pi]\\); there \\(f(\\pi)=0\\) and its tangent is horizontal.',
             ),
-            formulaIds: ['accumulation-sine'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-sine'],
             frames: [frame('accumulation-pi-explanation', 'explanation'), frame('accumulation-pi-observation', 'observation')],
             observationPrompt: text(
                 'Napovej \\(A(\\pi)\\) in šele nato pritisni Pokaži akumulacijo A. Nato preveri, da je tangenta na \\(A\\) v točki \\(x=\\pi\\) vodoravna.',
@@ -874,7 +860,7 @@ const accumulation: GuidedLesson = {
                 'Pri \\(x=2\\pi\\) osenčeno območje obsega dva loka: prvi nad osjo prispeva \\(+2\\), drugi pod osjo pa \\(-2\\). Na \\((\\pi,2\\pi)\\) je \\(\\sin t<0\\), zato akumulacija \\(A\\) pada od \\(2\\) nazaj na \\(A(2\\pi)=1-\\cos 2\\pi=0\\). Ničla ne pomeni, da območja ni: vrednost je integral s predznakom in ne geometrijska ploščina, ki bi bila \\(4\\). Odčitka prispevkov delov nad osjo in pod osjo kažeta \\(2\\) in \\(-2\\).',
                 'At \\(x=2\\pi\\) the shaded region consists of two arcs: the first above the axis contributes \\(+2\\) and the second below the axis contributes \\(-2\\). On \\((\\pi,2\\pi)\\) we have \\(\\sin t<0\\), so the accumulation \\(A\\) falls from \\(2\\) back to \\(A(2\\pi)=1-\\cos 2\\pi=0\\). A zero does not mean that there is no region: the value is a signed integral and not the geometric area, which would be \\(4\\). The readouts for the parts above and below the axis show \\(2\\) and \\(-2\\).',
             ),
-            formulaIds: ['accumulation-signed', 'accumulation-sine'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-signed', 'accumulation-sine'],
             frames: [frame('accumulation-negative-explanation', 'explanation'), frame('accumulation-negative-observation', 'observation')],
             observationPrompt: text(
                 'Napovej \\(A(2\\pi)\\): koliko prispeva lok nad osjo in koliko lok pod njo? Šele nato pritisni Pokaži akumulacijo A.',
@@ -904,7 +890,7 @@ const accumulation: GuidedLesson = {
                 'Zdaj je \\(a=2\\) in \\(x=0\\). Integral je usmerjen od \\(a\\) proti \\(x\\), zato je \\(A(x)=-\\int_x^a f(t)\\,dt\\) in \\(A(0)=-\\int_0^2\\sin t\\,dt\\), to je \\(-(1-\\cos 2)\\approx-1{,}4161\\). Osenčeno območje je enako kot pri \\(x=2\\) in leži nad osjo, vrednost pa je vseeno negativna, ker je smer obrnjena. To ni protislovje s prejšnjimi koraki: formula \\(F(x)-F(a)\\) velja za vsak \\(x\\), tudi za \\(x<a\\).',
                 'Now \\(a=2\\) and \\(x=0\\). The integral is oriented from \\(a\\) towards \\(x\\), so \\(A(x)=-\\int_x^a f(t)\\,dt\\) and \\(A(0)=-\\int_0^2\\sin t\\,dt\\), which is \\(-(1-\\cos 2)\\approx-1.4161\\). The shaded region is the same as for \\(x=2\\) and lies above the axis, yet the value is negative because the direction is reversed. This does not contradict the previous steps: the formula \\(F(x)-F(a)\\) holds for every \\(x\\), also for \\(x<a\\).',
             ),
-            formulaIds: ['accumulation-signed'], workedExampleId: 'accumulation-reversed-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-signed'], workedExampleId: 'accumulation-reversed-example',
             frames: [frame('accumulation-reversed-explanation', 'explanation'), frame('accumulation-reversed-calculation', 'calculation'), frame('accumulation-reversed-observation', 'observation')],
             observationPrompt: text(
                 'Napovej predznak \\(A(0)\\), ko je \\(x<a\\), in šele nato pritisni Pokaži akumulacijo A. Nato povleci \\(x\\) čez \\(a\\) in opazuj, kje se predznak obrne.',
@@ -934,7 +920,7 @@ const accumulation: GuidedLesson = {
                 'Pri \\(x=\\frac{\\pi}{2}\\) je \\(f(x)=\\sin\\frac{\\pi}{2}=1\\) in tangenta na \\(A\\) ima naklon \\(1\\); res je \\(A(x)=1-\\cos x\\) in \\(A^{\\prime}(x)=\\sin x\\). Zveza velja, ker je integrand \\(f\\) zvezen v točki \\(x\\): zveznost je zadostni pogoj, da je \\(A\\) v točki \\(x\\) odvedljiva z odvodom \\(f(x)\\). Odvod akumulacije ni ploščina, ampak višina grafa \\(f\\): kjer je \\(f>0\\), akumulacija narašča, kjer je \\(f<0\\), pada, in kjer je \\(f=0\\), ima vodoravno tangento. Aplikacija odčitek naklona izračuna po formuli \\(f(x)\\).',
                 'At \\(x=\\frac{\\pi}{2}\\) we have \\(f(x)=\\sin\\frac{\\pi}{2}=1\\) and the tangent to \\(A\\) has slope \\(1\\); indeed \\(A(x)=1-\\cos x\\) and \\(A^{\\prime}(x)=\\sin x\\). The relation holds because the integrand \\(f\\) is continuous at the point \\(x\\): continuity is a sufficient condition for \\(A\\) to be differentiable at \\(x\\) with derivative \\(f(x)\\). The derivative of the accumulation is not an area but the height of the graph of \\(f\\): where \\(f>0\\) the accumulation increases, where \\(f<0\\) it decreases, and where \\(f=0\\) it has a horizontal tangent. The app computes the slope readout by the formula \\(f(x)\\).',
             ),
-            formulaIds: ['accumulation-derivative', 'accumulation-sine'], workedExampleId: 'accumulation-derivative-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-derivative', 'accumulation-sine'], workedExampleId: 'accumulation-derivative-example',
             frames: [frame('accumulation-derivative-explanation', 'explanation'), frame('accumulation-derivative-calculation', 'calculation'), frame('accumulation-derivative-observation', 'observation')],
             observationPrompt: text(
                 'Povleci \\(x\\) po osi \\(x\\) in primerjaj naklon tangente na \\(A\\) z višino grafa \\(f\\) v isti točki. Kje je naklon pozitiven, kje negativen in kje \\(0\\)?',
@@ -961,7 +947,7 @@ const accumulation: GuidedLesson = {
                 'Zdaj raziskuj sam: zamenjaj funkcijo, premakni \\(a\\) in \\(x\\) ter vsakič najprej napovej \\(A(x)\\). Pri \\(f(x)=x^2\\) in \\(a=0\\) je \\(A(x)=\\frac{x^3}{3}\\), zato je \\(A(2)=\\frac{8}{3}\\approx2{,}6667\\), naklon tangente na \\(A\\) pa \\(f(2)=4\\). Poskusi tudi \\(e^x\\), kjer je \\(A(x)=e^x-e^a\\). Funkciji \\(x^2\\) in \\(e^x\\) nista nikoli negativni, zato \\(A\\) pri \\(x>a\\) nikoli ne pada; pri \\(\\sin x\\) pada, kjer je \\(f<0\\).',
                 'Now explore on your own: change the function, move \\(a\\) and \\(x\\), and each time predict \\(A(x)\\) first. For \\(f(x)=x^2\\) and \\(a=0\\) we have \\(A(x)=\\frac{x^3}{3}\\), so \\(A(2)=\\frac{8}{3}\\approx2.6667\\) and the tangent to \\(A\\) has slope \\(f(2)=4\\). Also try \\(e^x\\), where \\(A(x)=e^x-e^a\\). The functions \\(x^2\\) and \\(e^x\\) are never negative, so \\(A\\) never decreases for \\(x>a\\); for \\(\\sin x\\) it decreases where \\(f<0\\).',
             ),
-            formulaIds: ['accumulation-definition', 'accumulation-derivative'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['accumulation-definition', 'accumulation-derivative'],
             frames: [frame('accumulation-free-explanation', 'explanation'), frame('accumulation-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej \\(A(2)\\) za \\(x^2\\) in šele nato pritisni Pokaži akumulacijo A. Nato zamenjaj funkcijo ter premakni \\(a\\) in \\(x\\), tudi tako, da je \\(x<a\\).',
@@ -985,12 +971,10 @@ const accumulation: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-accumulation',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§5.5–5.6 (printed pp. 175–180).',
-            supports: ['the integral as a function of its upper bound', 'the derivative of the accumulation at a point of continuity of the integrand', 'the oriented definite integral and its change of sign when the bounds are exchanged'],
         },
         {
             id: 'bezeg-accumulation-implementation',
             citation: 'Bezeg source: src/analysis/accumulation.ts, src/analysis/accumulationModel.ts and src/graphs/functions/AccumulationGraph.tsx.',
-            supports: ['A(0) = 0, A(pi) = 2, A(2 pi) = 0 for sin with a = 0', 'A(2) = 1 - cos 2 for sin with a = 0', 'A(0) = cos 2 - 1 for sin with a = 2', 'the tangent slope of A at x equals f(x)', 'A(2) = 8/3 for x^2 with a = 0'],
             implementationCorrespondence: 'A(x) is evaluated exactly as F(x) - F(a) from the catalogue antiderivative, so the orientation for x < a follows from the formula; the tangent slope is f(x); the shaded stretches are split at the zeros of sin; and a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -1016,15 +1000,9 @@ const accumulation: GuidedLesson = {
     ],
 };
 
-const darbouxExample = (value: DarbouxExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'darboux-example', value},
-});
-const lowerSum = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'lower-sum', value: visible},
-});
-const upperSum = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'upper-sum', value: visible},
-});
+const darbouxExample = (value: DarbouxExampleId): LessonAction => ({kind: 'function-choice', name: 'darboux-example', value: value});
+const lowerSum = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'lower-sum', visible: visible});
+const upperSum = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'upper-sum', visible: visible});
 
 const darboux: GuidedLesson = {
     demonstrationId: 'darboux',
@@ -1114,7 +1092,7 @@ const darboux: GuidedLesson = {
                 'Interval \\([0,2]\\) razdelimo na \\(n=4\\) enake dele širine \\(\\Delta x=\\frac{2-0}{4}=\\frac12\\) z delilnimi točkami \\(0,\\frac12,1,\\frac32,2\\). Na vsakem delu je infimum \\(m_i\\) največja spodnja meja vrednosti funkcije \\(f(x)=x^2\\), supremum \\(M_i\\) pa najmanjša zgornja meja. Spodnja vsota je \\(L=\\sum m_i\\,\\Delta x\\), zgornja pa \\(U=\\sum M_i\\,\\Delta x\\). Obe vsoti sta zdaj skriti; vidiš le delilne točke in natančni integral.',
                 'The interval \\([0,2]\\) is split into \\(n=4\\) equal parts of width \\(\\Delta x=\\frac{2-0}{4}=\\frac12\\) with the dividing points \\(0,\\frac12,1,\\frac32,2\\). On every part the infimum \\(m_i\\) is the greatest lower bound of the values of \\(f(x)=x^2\\), and the supremum \\(M_i\\) is the least upper bound. The lower sum is \\(L=\\sum m_i\\,\\Delta x\\) and the upper sum is \\(U=\\sum M_i\\,\\Delta x\\). Both sums are hidden now; you see only the dividing points and the exact integral.',
             ),
-            formulaIds: ['darboux-sums'], learnerInteraction: 'observe',
+            formulaIds: ['darboux-sums'],
             frames: [frame('darboux-prerequisites-explanation', 'explanation'), frame('darboux-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej infimum in supremum na vsakem delu, nato vsoti \\(L\\) in \\(U\\) ter ali integral leži med njima; šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
@@ -1141,7 +1119,7 @@ const darboux: GuidedLesson = {
                 'Infimumi na delih so \\(0,\\frac14,1,\\frac94\\), supremumi pa \\(\\frac14,1,\\frac94,4\\). Zato je \\(L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74=1{,}75\\) in \\(U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)\\) \\(=\\frac{15}{4}=3{,}75\\), integral pa je \\(\\int_0^2 x^2\\,dx=\\frac83\\approx2{,}6667\\). Torej \\(1{,}75\\le\\frac83\\le3{,}75\\). Polni pravokotniki so spodnja vsota, pravokotniki s črtkanim robom zgornja. Ker \\(x^2\\) na \\([0,2]\\) narašča, sta infimum in supremum v krajiščih delov; pri drugih funkcijah to ne velja (korak 5).',
                 'The infima on the parts are \\(0,\\frac14,1,\\frac94\\) and the suprema are \\(\\frac14,1,\\frac94,4\\). So \\(L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74=1.75\\) and \\(U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)\\) \\(=\\frac{15}{4}=3.75\\), while the integral is \\(\\int_0^2 x^2\\,dx=\\frac83\\approx2.6667\\). Hence \\(1.75\\le\\frac83\\le3.75\\). The filled rectangles are the lower sum and the rectangles with a dashed outline are the upper sum. Because \\(x^2\\) is increasing on \\([0,2]\\), the infimum and the supremum are at the endpoints of the parts; for other functions this does not hold (step 5).',
             ),
-            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-square-example', learnerInteraction: 'observe',
+            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-square-example',
             frames: [frame('darboux-bounds-explanation', 'explanation'), frame('darboux-bounds-calculation', 'calculation'), frame('darboux-bounds-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj odčitka \\(L\\) in \\(U\\) z napovedjo. Preveri, da integral leži med njima, in preberi razliko \\(U-L\\).',
@@ -1168,7 +1146,7 @@ const darboux: GuidedLesson = {
                 'Gostitev razpolovi vsak del: iz \\(n=4\\) postane \\(n=8\\) in \\(\\Delta x=\\frac14\\). Nove vsote so \\(L=2{,}1875\\) in \\(U=3{,}1875\\), prej pa sta bili \\(1{,}75\\) in \\(3{,}75\\). Spodnja vsota se je povečala, zgornja zmanjšala, integral \\(2{,}6667\\) pa je še vedno med njima. Del, ki je polovica starega, ima infimum večji ali enak in supremum manjši ali enak staremu, zato se \\(L\\) ne zmanjša in \\(U\\) se ne poveča. Pri naraščajoči funkciji je razlika \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)\\) \\(=\\frac2n\\cdot4=\\frac8n\\), torej se pri \\(n=8\\) zmanjša na \\(1\\).',
                 'Refining bisects every part: \\(n=4\\) becomes \\(n=8\\) and \\(\\Delta x=\\frac14\\). The new sums are \\(L=2.1875\\) and \\(U=3.1875\\), whereas before they were \\(1.75\\) and \\(3.75\\). The lower sum increased, the upper sum decreased, and the integral \\(2.6667\\) is still between them. A half of an old part has an infimum greater or equal and a supremum less or equal than the old one, so \\(L\\) does not decrease and \\(U\\) does not increase. For an increasing function the gap is \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)\\) \\(=\\frac2n\\cdot4=\\frac8n\\), so for \\(n=8\\) it shrinks to \\(1\\).',
             ),
-            formulaIds: ['darboux-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['darboux-bounds'],
             frames: [frame('darboux-refine-explanation', 'explanation'), frame('darboux-refine-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kaj se zgodi z \\(L\\) in \\(U\\), ko še enkrat pritisneš Zgosti razdelitev (\\(n=16\\)), in nato pritiskaj gumb do omejitve; opazuj, kako se razlika \\(U-L\\) zmanjšuje.',
@@ -1195,7 +1173,7 @@ const darboux: GuidedLesson = {
                 'Zamenjamo primer: \\(f(x)=\\sin x\\) na \\([0,\\pi]\\) z enim samim delom, \\(n=1\\). V obeh krajiščih je \\(\\sin x=0\\), vmes pa je funkcija pozitivna. Infimum je zato \\(0\\), supremum pa ni \\(0\\): funkcija zraste in se spet vrne. Največ doseže v točki, kjer je odvod \\(\\cos x\\) enak \\(0\\), to je pri \\(\\frac{\\pi}{2}\\). Vsoti sta zdaj skriti.',
                 'We switch the example: \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) with a single part, \\(n=1\\). At both endpoints \\(\\sin x=0\\), and in between the function is positive. So the infimum is \\(0\\), but the supremum is not \\(0\\): the function rises and comes back. It attains its maximum at a point where the derivative \\(\\cos x\\) equals \\(0\\), which is \\(\\frac{\\pi}{2}\\). The sums are hidden now.',
             ),
-            formulaIds: ['darboux-sums'], learnerInteraction: 'observe',
+            formulaIds: ['darboux-sums'],
             frames: [frame('darboux-sine-explanation', 'explanation'), frame('darboux-sine-observation', 'observation')],
             observationPrompt: text(
                 'Napovej infimum in supremum na celotnem intervalu \\([0,\\pi]\\) ter vsoti \\(L\\) in \\(U\\); šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
@@ -1222,7 +1200,7 @@ const darboux: GuidedLesson = {
                 'Spodnja vsota je \\(L=0\\cdot\\pi=0\\), zgornja pa \\(U=1\\cdot\\pi=\\pi\\approx3{,}1416\\), integral je \\(\\int_0^{\\pi}\\sin x\\,dx=2\\), torej \\(0\\le2\\le\\pi\\). Supremum \\(1\\) je dosežen pri \\(\\frac{\\pi}{2}\\), v notranjosti dela. Če bi namesto supremuma vzeli vrednost v levem krajišču, \\(f(0)=0\\), bi dobili \\(0\\cdot\\pi=0\\), kar je manj od integrala \\(2\\) in zato ni zgornja ocena. Vrednost v krajišču torej ni supremum, zato aplikacija vsot ne imenuje levi ali desni vzorec. Supremum izračuna natančno iz vrednosti v krajiščih dela in točk \\(\\frac{\\pi}{2}+k\\pi\\), kjer je \\(\\cos x=0\\), brez vzorčenja.',
                 'The lower sum is \\(L=0\\cdot\\pi=0\\) and the upper sum is \\(U=1\\cdot\\pi=\\pi\\approx3.1416\\), the integral is \\(\\int_0^{\\pi}\\sin x\\,dx=2\\), so \\(0\\le2\\le\\pi\\). The supremum \\(1\\) is attained at \\(\\frac{\\pi}{2}\\), in the interior of the part. If we took the value at the left endpoint, \\(f(0)=0\\), instead of the supremum, we would get \\(0\\cdot\\pi=0\\), which is less than the integral \\(2\\) and so is not an upper estimate. A value at an endpoint is therefore not the supremum, which is why the app does not call these sums left or right samples. It computes the supremum exactly from the values at the endpoints of the part and the points \\(\\frac{\\pi}{2}+k\\pi\\) where \\(\\cos x=0\\), without sampling.',
             ),
-            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-sine-example', learnerInteraction: 'observe',
+            formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-sine-example',
             frames: [frame('darboux-sine-reveal-explanation', 'explanation'), frame('darboux-sine-reveal-calculation', 'calculation'), frame('darboux-sine-reveal-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj odčitka z napovedjo. Nato pritisni Zgosti razdelitev in opazuj, kje v delih je supremum, ko so deli še vedno široki.',
@@ -1249,7 +1227,7 @@ const darboux: GuidedLesson = {
                 'Pri \\(f(x)=\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\) je \\(\\Delta x=\\frac{\\pi}{2}\\). Infimumi na delih so \\(0,0,-1,-1\\), supremumi \\(1,1,0,0\\), zato je \\(L=-\\pi\\approx-3{,}1416\\), \\(U=\\pi\\approx3{,}1416\\), integral pa \\(0\\). Vsote štejejo s predznakom: pravokotniki pod osjo prispevajo negativno. Zdaj raziskuj sam: zamenjaj primer, premakni \\(a\\) in \\(b\\), spremeni \\(n\\) in zgoščaj, dokler gumb ne postane nedostopen pri \\(n=128\\); preveri, da integral vedno leži med \\(L\\) in \\(U\\).',
                 'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), \\(\\Delta x=\\frac{\\pi}{2}\\). The infima on the parts are \\(0,0,-1,-1\\) and the suprema are \\(1,1,0,0\\), so \\(L=-\\pi\\approx-3.1416\\), \\(U=\\pi\\approx3.1416\\) and the integral is \\(0\\). The sums are signed: rectangles below the axis contribute negatively. Now explore on your own: change the example, move \\(a\\) and \\(b\\), change \\(n\\) and keep refining until the button becomes unavailable at \\(n=128\\); check that the integral always lies between \\(L\\) and \\(U\\).',
             ),
-            formulaIds: ['darboux-sums', 'darboux-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['darboux-sums', 'darboux-bounds'],
             frames: [frame('darboux-free-explanation', 'explanation'), frame('darboux-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej vsoti \\(L\\) in \\(U\\) za \\(\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\), nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto. Nato preizkusi \\(x^2\\) na drugih intervalih.',
@@ -1273,12 +1251,10 @@ const darboux: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-darboux',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §5.3 (printed pp. 161–170).',
-            supports: ['lower and upper sums from the infimum and supremum of a bounded function on the parts of a partition', 'the integral lies between every lower sum and every upper sum', 'refining a partition does not decrease lower sums or increase upper sums'],
         },
         {
             id: 'bezeg-darboux-implementation',
             citation: 'Bezeg source: src/analysis/darboux.ts, src/analysis/darbouxModel.ts and src/graphs/functions/DarbouxGraph.tsx.',
-            supports: ['x^2 on [0, 2] with n = 4 has L = 7/4 and U = 15/4 around the integral 8/3', 'sin x on [0, pi] with n = 1 has infimum 0, supremum 1 at pi/2, L = 0 and U = pi around the integral 2', 'sin x on [0, 2 pi] with n = 4 has L = -pi and U = pi around the integral 0'],
             implementationCorrespondence: 'The infimum and supremum of every part are the minimum and maximum of f over the endpoint values and the critical points inside the part (0 for x^2, pi/2 + k pi for sin x), listed analytically and never sampled; the exact integral is F(b) - F(a) from an antiderivative; Refine doubles n so the partition is nested; and a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -1304,12 +1280,8 @@ const darboux: GuidedLesson = {
     ],
 };
 
-const extremaChoice = (value: ExtremaExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'extrema-example', value},
-});
-const classification = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'extrema-classification', value: visible},
-});
+const extremaChoice = (value: ExtremaExampleId): LessonAction => ({kind: 'function-choice', name: 'extrema-example', value: value});
+const classification = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'extrema-classification', visible: visible});
 
 const extrema: GuidedLesson = {
     demonstrationId: 'extrema',
@@ -1399,7 +1371,7 @@ const extrema: GuidedLesson = {
                 'Opazujemo \\(f(x)=x^2\\) na zaprtem intervalu \\([-1,2]\\). Kandidati so krajišči \\(-1\\) in \\(2\\), stacionarna točka \\(0\\), kjer je \\(f^{\\prime}(x)=2x=0\\), in točke, kjer odvod ne obstaja; teh tu ni. Na vrhu grafa je predznak odvoda na vsakem delu med kandidati: \\(-\\) na \\((-1,0)\\) in \\(+\\) na \\((0,2)\\). Dogovor: lokalni ekstremi so glede na izbrani interval, zato v krajišču primerjamo vrednosti samo na strani, ki leži v intervalu. Klasifikacija je zdaj skrita; kandidati so označeni, a še ne razvrščeni.',
                 'We look at \\(f(x)=x^2\\) on the closed interval \\([-1,2]\\). The candidates are the endpoints \\(-1\\) and \\(2\\), the stationary point \\(0\\) where \\(f^{\\prime}(x)=2x=0\\), and the points where the derivative does not exist; there are none here. At the top of the graph is the sign of the derivative on each piece between the candidates: \\(-\\) on \\((-1,0)\\) and \\(+\\) on \\((0,2)\\). The convention: local extrema are relative to the selected interval, so at an endpoint the values are compared only on the side that lies in the interval. The classification is hidden now; the candidates are marked but not yet sorted.',
             ),
-            formulaIds: ['extrema-candidates'], learnerInteraction: 'observe',
+            formulaIds: ['extrema-candidates'],
             frames: [frame('extrema-prerequisites-explanation', 'explanation'), frame('extrema-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kateri kandidati so lokalni minimumi ali maksimumi glede na interval in v katerem kandidatu sta globalna najmanjša in največja vrednost; šele nato pritisni Pokaži klasifikacijo.',
@@ -1426,7 +1398,7 @@ const extrema: GuidedLesson = {
                 'Vrednosti v kandidatih so \\(f(-1)=1\\), \\(f(0)=0\\) in \\(f(2)=4\\). Odvod je negativen na \\((-1,0)\\) in pozitiven na \\((0,2)\\), zato je \\(0\\) lokalni minimum in tudi globalni minimum z vrednostjo \\(0\\). Desno krajišče \\(2\\) ima levo od sebe naraščanje, zato je lokalni maksimum, in ker je \\(4\\) največja vrednost med kandidati, tudi globalni maksimum. Levo krajišče \\(-1\\) ima desno od sebe padanje, zato je lokalni maksimum glede na interval z vrednostjo \\(1\\), ni pa globalni, ker je \\(1<4\\). Na vsej premici \\(-1\\) ne bi bil lokalni maksimum, saj je \\(f(-1{,}1)=1{,}21>1\\); glede na interval \\([-1,2]\\) pa je.',
                 'The values at the candidates are \\(f(-1)=1\\), \\(f(0)=0\\) and \\(f(2)=4\\). The derivative is negative on \\((-1,0)\\) and positive on \\((0,2)\\), so \\(0\\) is a local minimum and also the global minimum with value \\(0\\). The right endpoint \\(2\\) has an increase to its left, so it is a local maximum, and since \\(4\\) is the greatest value among the candidates, also the global maximum. The left endpoint \\(-1\\) has a decrease to its right, so it is a local maximum relative to the interval with value \\(1\\), but not global because \\(1<4\\). On the whole real line \\(-1\\) would not be a local maximum, since \\(f(-1.1)=1.21>1\\); relative to the interval \\([-1,2]\\) it is.',
             ),
-            formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-square-example', learnerInteraction: 'observe',
+            formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-square-example',
             frames: [frame('extrema-square-explanation', 'explanation'), frame('extrema-square-calculation', 'calculation'), frame('extrema-square-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj oznake z napovedjo. Preberi, kateri kandidati so globalni, in pojasni, zakaj je \\(-1\\) lokalni maksimum, čeprav ni največja vrednost.',
@@ -1453,7 +1425,7 @@ const extrema: GuidedLesson = {
                 'Zamenjamo primer: \\(f(x)=x^3\\) na \\([-1,1]\\). Odvod \\(f^{\\prime}(x)=3x^2\\) je \\(0\\) pri \\(x=0\\), torej je \\(0\\) stacionarna točka. Na vrhu grafa preberi predznak odvoda na obeh straneh točke \\(0\\) in primerjaj vrednosti \\(f(-1)\\), \\(f(0)\\) in \\(f(1)\\). Klasifikacija je skrita.',
                 'We switch the example: \\(f(x)=x^3\\) on \\([-1,1]\\). The derivative \\(f^{\\prime}(x)=3x^2\\) is \\(0\\) at \\(x=0\\), so \\(0\\) is a stationary point. At the top of the graph read the sign of the derivative on both sides of the point \\(0\\) and compare the values \\(f(-1)\\), \\(f(0)\\) and \\(f(1)\\). The classification is hidden.',
             ),
-            formulaIds: ['extrema-classification'], learnerInteraction: 'observe',
+            formulaIds: ['extrema-classification'],
             frames: [frame('extrema-cube-explanation', 'explanation'), frame('extrema-cube-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je stacionarna točka \\(0\\) lokalni ekstrem in v katerih kandidatih sta globalna najmanjša in največja vrednost; šele nato pritisni Pokaži klasifikacijo.',
@@ -1480,7 +1452,7 @@ const extrema: GuidedLesson = {
                 'Prejšnji primer je pokazal, da ničla odvoda še ne pomeni ekstrema: pri \\(x^3\\) je odvod na obeh straneh točke \\(0\\) pozitiven, zato \\(0\\) ni lokalni ekstrem. Zdaj \\(f(x)=|x|\\) na \\([-1,1]\\). V točki \\(0\\) je ostri vogal: odvod \\(f^{\\prime}(0)\\) ne obstaja, levo od nje je \\(f^{\\prime}=-1\\), desno pa \\(f^{\\prime}=1\\). Kandidati so še krajišči \\(-1\\) in \\(1\\). Klasifikacija je skrita.',
                 'The previous example showed that a zero of the derivative does not mean an extremum: for \\(x^3\\) the derivative is positive on both sides of the point \\(0\\), so \\(0\\) is not a local extremum. Now \\(f(x)=|x|\\) on \\([-1,1]\\). At the point \\(0\\) there is a corner: the derivative \\(f^{\\prime}(0)\\) does not exist, to its left \\(f^{\\prime}=-1\\) and to its right \\(f^{\\prime}=1\\). The other candidates are the endpoints \\(-1\\) and \\(1\\). The classification is hidden.',
             ),
-            formulaIds: ['extrema-candidates', 'extrema-classification'], learnerInteraction: 'observe',
+            formulaIds: ['extrema-candidates', 'extrema-classification'],
             frames: [frame('extrema-abs-explanation', 'explanation'), frame('extrema-abs-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je ostri vogal pri \\(0\\) ekstrem, čeprav odvod ne obstaja, in kateri kandidati so globalni (pazi na izenačenje); šele nato pritisni Pokaži klasifikacijo.',
@@ -1507,7 +1479,7 @@ const extrema: GuidedLesson = {
                 'Pri \\(|x|\\) je ekstrem v ostrem vogalu, kjer odvod ne obstaja, in krajišči sta se izenačili. Zdaj \\(f(x)=\\sin x\\) na \\([-4,4]\\). Odvod \\(\\cos x\\) je \\(0\\) pri \\(-\\frac{\\pi}{2}\\) in \\(\\frac{\\pi}{2}\\), v krajiščih pa je \\(f(-4)\\approx0{,}7568\\) in \\(f(4)\\approx-0{,}7568\\). Pri globalnih ekstremih je treba primerjati tudi vrednosti v krajiščih. Klasifikacija je skrita.',
                 'For \\(|x|\\) the extremum is at a corner where the derivative does not exist, and the endpoints tied. Now \\(f(x)=\\sin x\\) on \\([-4,4]\\). The derivative \\(\\cos x\\) is \\(0\\) at \\(-\\frac{\\pi}{2}\\) and \\(\\frac{\\pi}{2}\\), and at the endpoints \\(f(-4)\\approx0.7568\\) and \\(f(4)\\approx-0.7568\\). For the global extrema the values at the endpoints must be compared too. The classification is hidden.',
             ),
-            formulaIds: ['extrema-candidates', 'extrema-classification'], learnerInteraction: 'observe',
+            formulaIds: ['extrema-candidates', 'extrema-classification'],
             frames: [frame('extrema-sine-explanation', 'explanation'), frame('extrema-sine-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kateri od štirih kandidatov so lokalni ekstremi glede na interval in ali je kakšno krajišče globalni ekstrem; šele nato pritisni Pokaži klasifikacijo.',
@@ -1534,7 +1506,7 @@ const extrema: GuidedLesson = {
                 'Na \\([-4,4]\\) nobeno krajišče ni bilo globalni ekstrem. Interval zožimo na \\([0,\\pi]\\), torej \\(a=0\\) in \\(b=\\pi\\). Odvod \\(\\cos x\\) je tu \\(0\\) samo pri \\(\\frac{\\pi}{2}\\), v krajiščih pa je \\(f(0)=f(\\pi)=0\\). Klasifikacija je skrita.',
                 'On \\([-4,4]\\) no endpoint was a global extremum. We narrow the interval to \\([0,\\pi]\\), that is \\(a=0\\) and \\(b=\\pi\\). The derivative \\(\\cos x\\) is \\(0\\) here only at \\(\\frac{\\pi}{2}\\), and at the endpoints \\(f(0)=f(\\pi)=0\\). The classification is hidden.',
             ),
-            formulaIds: ['extrema-classification'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['extrema-classification'],
             frames: [frame('extrema-tie-explanation', 'explanation'), frame('extrema-tie-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je krajišče lahko lokalni minimum, kateri kandidati so globalni minimumi in kateri je globalni maksimum; šele nato pritisni Pokaži klasifikacijo.',
@@ -1561,7 +1533,7 @@ const extrema: GuidedLesson = {
                 'Vrednosti so \\(f(0)=f(\\pi)=0\\) in \\(f\\left(\\frac{\\pi}{2}\\right)=1\\). Odvod je pozitiven na \\(\\left(0,\\frac{\\pi}{2}\\right)\\) in negativen na \\(\\left(\\frac{\\pi}{2},\\pi\\right)\\). Levo krajišče ima desno od sebe naraščanje, desno krajišče pa levo od sebe padanje, zato sta obe krajišči lokalna minimuma glede na interval. Obe imata isto najmanjšo vrednost \\(0\\), zato sta obe globalna minimuma; globalni maksimum \\(1\\) je v notranji točki \\(\\frac{\\pi}{2}\\). Zdaj raziskuj sam: zamenjaj primer, premakni \\(a\\) in \\(b\\), skrij klasifikacijo in napovej, preden jo pokažeš; poišči interval, pri katerem je krajišče globalni ekstrem, in interval, pri katerem ni.',
                 'The values are \\(f(0)=f(\\pi)=0\\) and \\(f\\left(\\frac{\\pi}{2}\\right)=1\\). The derivative is positive on \\(\\left(0,\\frac{\\pi}{2}\\right)\\) and negative on \\(\\left(\\frac{\\pi}{2},\\pi\\right)\\). The left endpoint has an increase to its right and the right endpoint has a decrease to its left, so both endpoints are local minima relative to the interval. Both have the same least value \\(0\\), so both are global minima; the global maximum \\(1\\) is at the interior point \\(\\frac{\\pi}{2}\\). Now explore on your own: change the example, move \\(a\\) and \\(b\\), hide the classification and predict before you show it; find an interval where an endpoint is a global extremum and one where it is not.',
             ),
-            formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-sine-tie-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-sine-tie-example',
             frames: [frame('extrema-free-explanation', 'explanation'), frame('extrema-free-calculation', 'calculation'), frame('extrema-free-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj oznake z napovedjo. Nato skrij klasifikacijo, izberi drug primer ali interval in napovej, preden jo spet pokažeš.',
@@ -1585,12 +1557,10 @@ const extrema: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-extrema',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, chapter on the applications of the derivative (local extrema).',
-            supports: ['a stationary point has derivative zero and is not necessarily a local extremum', 'the sign of the derivative on the two sides of a point decides whether it is a local minimum, a local maximum or neither', 'the extrema of a continuous function on a closed interval are attained at the endpoints, at stationary points or at points where the derivative does not exist'],
         },
         {
             id: 'bezeg-extrema-implementation',
             citation: 'Bezeg source: src/analysis/extrema.ts, src/analysis/extremaModel.ts and src/graphs/functions/ExtremaGraph.tsx.',
-            supports: ['x^2 on [-1, 2] has global minimum 0 at 0, global maximum 4 at 2 and the local maximum 1 at -1 relative to the interval', 'x^3 on [-1, 1] has the stationary point 0, which is not a local extremum', '|x| on [-1, 1] has the corner 0 as global minimum and the tied endpoints -1 and 1 as global maxima', 'sin x on [0, pi] has the endpoints 0 and pi tied as global minima with value 0 and the global maximum 1 at pi/2'],
             implementationCorrespondence: 'The candidates are the endpoints, the stationary points and the corners, listed analytically (cos x = 0 at pi/2 + k pi) and never sampled; the derivative sign on each piece is the analytic derivative at an interior point of the piece; a local extremum is classified relative to the selected interval with one-sided neighbourhoods at the endpoints; the global extrema compare the values at all candidates with a tolerance far below the display precision, so tied candidates are all global; and a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -1616,12 +1586,8 @@ const extrema: GuidedLesson = {
     ],
 };
 
-const convexityChoice = (value: ConvexityExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'convexity-example', value},
-});
-const secondDerivative = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'second-derivative', value: visible},
-});
+const convexityChoice = (value: ConvexityExampleId): LessonAction => ({kind: 'function-choice', name: 'convexity-example', value: value});
+const secondDerivative = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'second-derivative', visible: visible});
 
 const convexity: GuidedLesson = {
     demonstrationId: 'convexity',
@@ -1745,7 +1711,7 @@ const convexity: GuidedLesson = {
                 'Funkcija je konveksna na intervalu, če graf na njem med poljubnima dvema svojima točkama nikjer ne leži nad tetivo, ki ju povezuje, in konkavna, če nikjer ne leži pod njo. Drugi odvod \\(f^{\\prime\\prime}\\) je odvod odvoda \\(f^{\\prime}\\): pove, kako se spreminja naklon tangente. Opazujemo \\(f(x)=x^2\\) na \\([-1;1{,}5]\\). Modra polna črta je tetiva med točkama grafa nad \\(a=-1\\) in \\(b=1{,}5\\), oranžna črtkana črta pa tangenta v točki \\(t=0{,}5\\). Drugi odvod je skrit, zato sklepa še ni.',
                 'A function is convex on an interval if on it the graph never lies above a chord joining two of its points, between those two points, and concave if the graph never lies below a chord. The second derivative \\(f^{\\prime\\prime}\\) is the derivative of the derivative \\(f^{\\prime}\\): it tells how the slope of the tangent changes. We look at \\(f(x)=x^2\\) on \\([-1,1.5]\\). The blue solid line is the chord between the points of the graph above \\(a=-1\\) and \\(b=1.5\\), and the orange dashed line is the tangent at \\(t=0.5\\). The second derivative is hidden, so there is no verdict yet.',
             ),
-            formulaIds: ['convexity-chord'], learnerInteraction: 'observe',
+            formulaIds: ['convexity-chord'],
             frames: [frame('convexity-prerequisites-explanation', 'explanation'), frame('convexity-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali graf na \\([a,b]\\) leži pod ali nad tetivo in nad ali pod tangento; šele nato pritisni Pokaži drugi odvod.',
@@ -1772,7 +1738,7 @@ const convexity: GuidedLesson = {
                 'Tetiva poteka skozi točki \\((-1,1)\\) in \\((1{,}5;\\,2{,}25)\\), zato ima naklon \\(\\frac{2{,}25-1}{2{,}5}=0{,}5\\) in enačbo \\(y=0{,}5x+1{,}5\\). Razlika \\(f(x)-(0{,}5x+1{,}5)\\) je enaka \\(x^2-0{,}5x-1{,}5\\), kar je \\((x+1)(x-1{,}5)\\), in je na \\([-1;1{,}5]\\) nepozitivna, zato graf leži na tetivi ali pod njo. To se ujema z drugim odvodom: \\(f^{\\prime\\prime}(x)=2\\ge0\\), zato je \\(x^2\\) konveksna. Aplikacija sklep izpelje iz predznaka \\(f^{\\prime\\prime}\\) na \\([a,b]\\), ne iz vzorčenja grafa.',
                 'The chord passes through the points \\((-1,1)\\) and \\((1.5,\\,2.25)\\), so its slope is \\(\\frac{2.25-1}{2.5}=0.5\\) and its equation is \\(y=0.5x+1.5\\). The difference \\(f(x)-(0.5x+1.5)\\) equals \\(x^2-0.5x-1.5\\), which is \\((x+1)(x-1.5)\\), and it is nonpositive on \\([-1,1.5]\\), so the graph lies on or below the chord. This agrees with the second derivative: \\(f^{\\prime\\prime}(x)=2\\ge0\\), so \\(x^2\\) is convex. The app derives the verdict from the sign of \\(f^{\\prime\\prime}\\) on \\([a,b]\\), not by sampling the graph.',
             ),
-            formulaIds: ['convexity-chord', 'convexity-second-derivative'], workedExampleId: 'convexity-chord-example', learnerInteraction: 'observe',
+            formulaIds: ['convexity-chord', 'convexity-second-derivative'], workedExampleId: 'convexity-chord-example',
             frames: [frame('convexity-chord-explanation', 'explanation'), frame('convexity-chord-calculation', 'calculation'), frame('convexity-chord-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj sklep z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in vrstico o legi grafa pod podnapisom.',
@@ -1799,7 +1765,7 @@ const convexity: GuidedLesson = {
                 'Tangenta v \\(t=0{,}5\\) ima naklon \\(f^{\\prime}(0{,}5)=1\\) in enačbo \\(y=x-0{,}25\\). Razlika \\(f(x)-(x-0{,}25)\\) je enaka \\(x^2-x+0{,}25\\), kar je \\((x-0{,}5)^2\\), in nikjer ni negativna, zato graf leži na tangenti ali nad njo. Pri konveksni funkciji to velja za vsako tangento s točko dotika v \\([a,b]\\). Zdaj premakni \\(t\\) desno od \\(b\\), na primer v \\(1{,}8\\): aplikacija o tangenti ne trdi več ničesar, ker \\(t\\) ni v \\([a,b]\\), čeprav je za \\(x^2\\) razlika \\((x-1{,}8)^2\\) še vedno nenegativna. Trditev smemo izreči le tam, kjer hipoteza to dovoljuje.',
                 'The tangent at \\(t=0.5\\) has slope \\(f^{\\prime}(0.5)=1\\) and equation \\(y=x-0.25\\). The difference \\(f(x)-(x-0.25)\\) equals \\(x^2-x+0.25\\), which is \\((x-0.5)^2\\), and it is never negative, so the graph lies on or above the tangent. For a convex function this holds for every tangent whose point of tangency is in \\([a,b]\\). Now move \\(t\\) to the right of \\(b\\), for example to \\(1.8\\): the app no longer claims anything about the tangent, because \\(t\\) is not in \\([a,b]\\), although for \\(x^2\\) the difference \\((x-1.8)^2\\) is still nonnegative. A claim may be made only where the hypothesis allows it.',
             ),
-            formulaIds: ['convexity-tangent'], workedExampleId: 'convexity-tangent-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['convexity-tangent'], workedExampleId: 'convexity-tangent-example',
             frames: [frame('convexity-tangent-explanation', 'explanation'), frame('convexity-tangent-calculation', 'calculation'), frame('convexity-tangent-observation', 'observation')],
             observationPrompt: text(
                 'Premakni \\(t\\) iz \\([a,b]\\) ven in preberi, kaj se zgodi z vrstico o tangenti v odčitkih; nato \\(t\\) vrni v \\([a,b]\\).',
@@ -1826,7 +1792,7 @@ const convexity: GuidedLesson = {
                 'Zamenjamo primer: \\(f(x)=-x^2\\) na istem intervalu \\([-1;1{,}5]\\). Graf je zrcalna slika prejšnjega čez os \\(x\\), zato se lahko obrneta obe primerjavi. Odvod je \\(f^{\\prime}(x)=-2x\\), drugi odvod pa je tu konstanta. Drugi odvod je skrit.',
                 'We switch the example: \\(f(x)=-x^2\\) on the same interval \\([-1,1.5]\\). Its graph is the mirror image of the previous one in the \\(x\\)-axis, so both comparisons may reverse. The derivative is \\(f^{\\prime}(x)=-2x\\), and the second derivative is a constant here. The second derivative is hidden.',
             ),
-            formulaIds: ['convexity-second-derivative'], learnerInteraction: 'observe',
+            formulaIds: ['convexity-second-derivative'],
             frames: [frame('convexity-negative-explanation', 'explanation'), frame('convexity-negative-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali graf zdaj leži nad ali pod tetivo, nad ali pod tangento in kakšen je predznak \\(f^{\\prime\\prime}\\); šele nato pritisni Pokaži drugi odvod.',
@@ -1853,7 +1819,7 @@ const convexity: GuidedLesson = {
                 'Pri \\(-x^2\\) je \\(f^{\\prime\\prime}=-2\\le0\\), zato je funkcija konkavna: tetiva je \\(y=-0{,}5x-1{,}5\\), razlika \\(f(x)-(-0{,}5x-1{,}5)\\) je enaka \\(-(x+1)(x-1{,}5)\\) in je nenegativna, razlika s tangento \\(y=-x+0{,}25\\) pa je \\(-(x-0{,}5)^2\\le0\\). Zdaj \\(f(x)=x^3\\) na \\([-1;1{,}5]\\): drugi odvod \\(f^{\\prime\\prime}(x)=6x\\) je levo od \\(0\\) negativen in desno pozitiven. Drugi odvod je skrit.',
                 'For \\(-x^2\\) we have \\(f^{\\prime\\prime}=-2\\le0\\), so the function is concave: the chord is \\(y=-0.5x-1.5\\), the difference \\(f(x)-(-0.5x-1.5)\\) equals \\(-(x+1)(x-1.5)\\) and is nonnegative, and the difference with the tangent \\(y=-x+0.25\\) is \\(-(x-0.5)^2\\le0\\). Now \\(f(x)=x^3\\) on \\([-1,1.5]\\): the second derivative \\(f^{\\prime\\prime}(x)=6x\\) is negative to the left of \\(0\\) and positive to the right. The second derivative is hidden.',
             ),
-            formulaIds: ['convexity-second-derivative', 'convexity-inflection'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['convexity-second-derivative', 'convexity-inflection'],
             frames: [frame('convexity-cube-explanation', 'explanation'), frame('convexity-cube-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali lahko za ta interval izrečemo trditev o tetivi; šele nato pritisni Pokaži drugi odvod. Nato postavi \\(a=0\\) in \\(b=2\\), potem \\(a=-2\\) in \\(b=0\\).',
@@ -1880,7 +1846,7 @@ const convexity: GuidedLesson = {
                 'Pri \\(x^3\\) na \\([-1;1{,}5]\\) je tetiva \\(y=1{,}75x+0{,}75\\) in razlika \\(f(x)-(1{,}75x+0{,}75)\\) je enaka \\((x+1)(x+0{,}5)(x-1{,}5)\\) in je pozitivna na \\((-1;-0{,}5)\\) in negativna na \\((-0{,}5;1{,}5)\\): graf je na enem delu nad tetivo in na drugem pod njo, zato trditve ni. Zdaj \\(f(x)=x^4\\) na \\([-1,1]\\): drugi odvod \\(f^{\\prime\\prime}(x)=12x^2\\) je v \\(0\\) enak \\(0\\). Drugi odvod je skrit.',
                 'For \\(x^3\\) on \\([-1,1.5]\\) the chord is \\(y=1.75x+0.75\\) and the difference \\(f(x)-(1.75x+0.75)\\) equals \\((x+1)(x+0.5)(x-1.5)\\) and is positive on \\((-1,-0.5)\\) and negative on \\((-0.5,1.5)\\): on one part the graph is above the chord and on another below it, so there is no claim. Now \\(f(x)=x^4\\) on \\([-1,1]\\): the second derivative \\(f^{\\prime\\prime}(x)=12x^2\\) equals \\(0\\) at \\(0\\). The second derivative is hidden.',
             ),
-            formulaIds: ['convexity-inflection'], learnerInteraction: 'observe',
+            formulaIds: ['convexity-inflection'],
             frames: [frame('convexity-quartic-explanation', 'explanation'), frame('convexity-quartic-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali ima \\(x^4\\) v \\(0\\) prevojno točko, čeprav je tam \\(f^{\\prime\\prime}(0)=0\\), in kakšen je sklep za \\([-1,1]\\); šele nato pritisni Pokaži drugi odvod.',
@@ -1907,7 +1873,7 @@ const convexity: GuidedLesson = {
                 'Tetiva med \\(-1\\) in \\(1\\) je \\(y=1\\) in razlika \\(x^4-1=(x^2-1)(x^2+1)\\) je na \\([-1,1]\\) nepozitivna. Tangenta v \\(t=0{,}5\\) je \\(y=0{,}5x-0{,}1875\\) in razlika \\((x-0{,}5)^2(x^2+x+0{,}75)\\) je nenegativna, ker ima drugi faktor negativno diskriminanto. Drugi odvod \\(12x^2\\) je v \\(0\\) enak \\(0\\), a nikjer ni negativen: predznak se ne spremeni, zato je \\(x^4\\) konveksna in prevoja v \\(0\\) ni. Ničla drugega odvoda torej ni dovolj; potrebna je sprememba predznaka, kakršna je pri \\(x^3\\). Zdaj raziskuj sam: zamenjaj primer, premakni \\(a\\), \\(b\\) in \\(t\\), skrij drugi odvod in napovej, preden ga pokažeš; poišči interval, kjer je trditev mogoča, in interval, kjer je ni.',
                 'The chord between \\(-1\\) and \\(1\\) is \\(y=1\\), and the difference \\(x^4-1=(x^2-1)(x^2+1)\\) is nonpositive on \\([-1,1]\\). The tangent at \\(t=0.5\\) is \\(y=0.5x-0.1875\\), and the difference \\((x-0.5)^2(x^2+x+0.75)\\) is nonnegative because the second factor has a negative discriminant. The second derivative \\(12x^2\\) equals \\(0\\) at \\(0\\) but is never negative: the sign does not change, so \\(x^4\\) is convex and there is no inflection at \\(0\\). A zero of the second derivative is therefore not enough; a change of sign is needed, as for \\(x^3\\). Now explore on your own: change the example, move \\(a\\), \\(b\\) and \\(t\\), hide the second derivative and predict before you show it; find an interval where a claim is possible and one where it is not.',
             ),
-            formulaIds: ['convexity-second-derivative', 'convexity-inflection'], workedExampleId: 'convexity-quartic-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['convexity-second-derivative', 'convexity-inflection'], workedExampleId: 'convexity-quartic-example',
             frames: [frame('convexity-free-explanation', 'explanation'), frame('convexity-free-calculation', 'calculation'), frame('convexity-free-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj sklep z napovedjo. Nato skrij drugi odvod, izberi drug primer ali interval in napovej, preden ga spet pokažeš.',
@@ -1931,12 +1897,10 @@ const convexity: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-convexity',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §4.6 (printed pp. 123–126).',
-            supports: ['a function is convex on an interval when its graph lies on or below every chord and concave when it lies on or above', 'a twice differentiable function with a nonnegative (nonpositive) second derivative on an interval is convex (concave) there', 'an inflection point is a point where the sign of the second derivative changes; f\'\'(c) = 0 alone does not make c an inflection point'],
         },
         {
             id: 'bezeg-convexity-implementation',
             citation: 'Bezeg source: src/analysis/convexity.ts, src/analysis/convexityModel.ts and src/graphs/functions/ConvexityGraph.tsx.',
-            supports: ['x^2 on [-1, 1.5] has chord y = 0.5x + 1.5 and f(x) - chord(x) = (x + 1)(x - 1.5) <= 0, with f\'\' = 2 >= 0', 'the tangent of x^2 at 0.5 is y = x - 0.25 with f(x) - tangent(x) = (x - 0.5)^2 >= 0', 'x^3 has f\'\'(x) = 6x, which changes sign at 0: no claim on [-1, 1.5], convex on [0, 2], concave on [-2, 0]', 'x^4 on [-1, 1] is convex with f\'\'(0) = 0 and no inflection point'],
             implementationCorrespondence: 'The verdict for [a, b] comes from the closed-form sign of f\'\' on the interval (nonnegative, nonpositive or changing), never from sampling the graph; no claim is made when the sign changes on [a, b], and the claim about the tangent is made only when t lies in [a, b]; the sign strip splits the view at the zeros of f\'\' and the inflection points are those zeros where the sign changes; a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -1962,12 +1926,8 @@ const convexity: GuidedLesson = {
     ],
 };
 
-const taylorChoice = (value: TaylorExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'taylor-example', value},
-});
-const taylorBound = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'taylor-bound', value: visible},
-});
+const taylorChoice = (value: TaylorExampleId): LessonAction => ({kind: 'function-choice', name: 'taylor-example', value: value});
+const taylorBound = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'taylor-bound', visible: visible});
 
 const taylor: GuidedLesson = {
     demonstrationId: 'taylor',
@@ -2115,7 +2075,7 @@ const taylor: GuidedLesson = {
                 'Kako blizu lahko polinom pride funkciji \\(e^x\\)? Potrebuješ višje odvode \\(f^{(k)}(c)\\) in fakultete \\(k!\\). Središče \\(c\\) pove, kje se polinom ujema s funkcijo in njenimi odvodi; stopnja \\(n\\) določa, koliko členov uporabimo. Pri \\(e^x\\) okoli \\(c=0\\) je vsak odvod v središču enak \\(1\\). V točki \\(x=1\\) boš najprej primerjal stopnje \\(1\\), \\(2\\) in \\(3\\), nato stopnjo \\(6\\), preden razkriješ oceno napake.',
                 'How closely can a polynomial follow \\(e^x\\)? You need higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). The center \\(c\\) tells us where the polynomial matches the function and its derivatives; the degree \\(n\\) determines how many terms we use. For \\(e^x\\) about \\(c=0\\), every derivative at the center equals \\(1\\). At \\(x=1\\) you will first compare degrees \\(1\\), \\(2\\) and \\(3\\), then degree \\(6\\), before revealing the error bound.',
             ),
-            formulaIds: ['taylor-polynomial'], workedExampleId: 'taylor-opening-example', learnerInteraction: 'observe',
+            formulaIds: ['taylor-polynomial'], workedExampleId: 'taylor-opening-example',
             frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-calculation', 'calculation'), frame('taylor-prerequisites-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(2\\) in na \\(3\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
@@ -2142,7 +2102,7 @@ const taylor: GuidedLesson = {
                 'Središče in točka ostaneta isti: \\(c=0\\), \\(x=1\\). Pri \\(n=1\\) je \\(T_1(1)=1+1=2\\), pri \\(n=2\\) je \\(T_2(1)=1+1+\\frac12=\\frac52\\), pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\). Dejanske napake \\(e-T_n(1)\\) so približno \\(0{,}7183\\), \\(0{,}2183\\) in \\(0{,}0516\\): vsak dodani člen napako v tej točki zmanjša. To je opazovanje v eni točki, ne dokaz za vse \\(x\\) in \\(n\\). Scena kaže \\(n=2\\); ocena napake je še skrita.',
                 'The center and the point stay the same: \\(c=0\\), \\(x=1\\). At \\(n=1\\), \\(T_1(1)=1+1=2\\); at \\(n=2\\), \\(T_2(1)=1+1+\\frac12=\\frac52\\); at \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\). The actual errors \\(e-T_n(1)\\) are about \\(0.7183\\), \\(0.2183\\) and \\(0.0516\\): each added term reduces the error at this point. This is an observation at one point, not a proof for all \\(x\\) and \\(n\\). The scene shows \\(n=2\\); the error bound is still hidden.',
             ),
-            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
+            formulaIds: ['taylor-polynomial'],
             frames: [frame('taylor-exp-low-degrees-explanation', 'explanation'), frame('taylor-exp-low-degrees-observation', 'observation')],
             observationPrompt: text(
                 'Preberi \\(T_2(1)\\) in absolutno napako, nato stopnjo povečaj na \\(3\\) in zmanjšaj na \\(1\\) (gumba + in −) ter primerjaj tri napake. Napovej, kolikšna bo napaka pri \\(n=6\\).',
@@ -2169,7 +2129,7 @@ const taylor: GuidedLesson = {
                 'Pri \\(n=3\\) je \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2{,}6667\\), pri \\(n=6\\) pa \\(T_6(1)=\\frac{1957}{720}\\approx2{,}7181\\): napaka pada od približno \\(0{,}7183\\) prek \\(0{,}2183\\) in \\(0{,}0516\\) do približno \\(0{,}000226\\). Zdaj je prikazana še Lagrangeeva ocena. Predpostavka je, da je \\(M\\) zgornja meja za \\(|f^{(n+1)}|\\) med \\(c\\) in \\(x\\); pri \\(e^x\\) je to \\(M=\\max(e^c,e^x)=e<3\\), ker je \\(e^t\\) naraščajoča. Pri \\(n=6\\) je ocena \\(\\frac{e}{7!}\\approx0{,}000539\\), kar je nad dejansko napako \\(0{,}000226\\).',
                 'At \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2.6667\\), and at \\(n=6\\), \\(T_6(1)=\\frac{1957}{720}\\approx2.7181\\): the error falls from about \\(0.7183\\) through \\(0.2183\\) and \\(0.0516\\) to about \\(0.000226\\). The Lagrange bound is now shown as well. The assumption is that \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\); for \\(e^x\\) this is \\(M=\\max(e^c,e^x)=e<3\\), because \\(e^t\\) is increasing. At \\(n=6\\) the bound is \\(\\frac{e}{7!}\\approx0.000539\\), which lies above the actual error \\(0.000226\\).',
             ),
-            formulaIds: ['taylor-polynomial', 'taylor-lagrange'], workedExampleId: 'taylor-exp-example', learnerInteraction: 'observe',
+            formulaIds: ['taylor-polynomial', 'taylor-lagrange'], workedExampleId: 'taylor-exp-example',
             frames: [frame('taylor-exp-explanation', 'explanation'), frame('taylor-exp-calculation', 'calculation'), frame('taylor-exp-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj z napovedjo: preberi \\(T_6(1)\\), absolutno napako in oceno napake v odčitkih ter predpostavko ocene; nato stopnjo zmanjšaj in opazuj, kako se spremenita napaka in ocena.',
@@ -2196,7 +2156,7 @@ const taylor: GuidedLesson = {
                 'Odvodi funkcije \\(\\sin x\\) se ponavljajo: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). V središču \\(c=0\\) so vrednosti \\(0\\), \\(1\\), \\(0\\), \\(-1\\), zato ima \\(T_n\\) le lihe potence. Pri \\(e^x\\) smo videli, da je ocena nad napako: \\(M=e\\) omejuje vse odvode \\(e^t\\) za \\(t\\) med \\(0\\) in \\(1\\) (Lagrangeeva oblika ostanka). Zdaj opazujemo \\(\\sin x\\) v točki \\(x=2\\) pri \\(n=3\\); ocena napake je skrita.',
                 'The derivatives of \\(\\sin x\\) repeat: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). At the center \\(c=0\\) their values are \\(0\\), \\(1\\), \\(0\\), \\(-1\\), so \\(T_n\\) has only odd powers. For \\(e^x\\) we saw that the bound lies above the error: \\(M=e\\) bounds every derivative \\(e^t\\) for \\(t\\) between \\(0\\) and \\(1\\) (the Lagrange form of the remainder). Now we look at \\(\\sin x\\) at the point \\(x=2\\) with \\(n=3\\); the error bound is hidden.',
             ),
-            formulaIds: ['taylor-polynomial'], learnerInteraction: 'observe',
+            formulaIds: ['taylor-polynomial'],
             frames: [frame('taylor-sine-prediction-explanation', 'explanation'), frame('taylor-sine-prediction-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je pri \\(n=3\\) napaka v \\(x=2\\) večja od \\(0{,}1\\) in kolikšna bi bila ocena \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\); šele nato pritisni Pokaži oceno napake.',
@@ -2223,7 +2183,7 @@ const taylor: GuidedLesson = {
                 'Pri \\(n=3\\) je \\(T_3(2)=2-\\frac{2^3}{3!}\\) \\(=2-\\frac86=\\frac23\\approx0{,}6667\\), \\(\\sin2\\approx0{,}9093\\) in napaka približno \\(0{,}2426\\). Predpostavka ocene: vsak odvod funkcije \\(\\sin x\\) je \\(\\pm\\sin x\\) ali \\(\\pm\\cos x\\), zato je \\(M=1\\) in ocena je \\(\\frac{|x-c|^{n+1}}{(n+1)!}=\\frac{2^4}{4!}\\) \\(=\\frac{16}{24}=\\frac23\\). Ocena je nad napako, vendar zelo groba. S stopnjo \\(n=5\\) se napaka zmanjša na približno \\(0{,}0240\\), ocena pa na \\(\\frac{2^6}{6!}\\approx0{,}0889\\).',
                 'At \\(n=3\\), \\(T_3(2)=2-\\frac{2^3}{3!}\\) \\(=2-\\frac86=\\frac23\\approx0.6667\\), \\(\\sin2\\approx0.9093\\) and the error is about \\(0.2426\\). The assumption of the bound: every derivative of \\(\\sin x\\) is \\(\\pm\\sin x\\) or \\(\\pm\\cos x\\), so \\(M=1\\) and the bound is \\(\\frac{|x-c|^{n+1}}{(n+1)!}=\\frac{2^4}{4!}\\) \\(=\\frac{16}{24}=\\frac23\\). The bound lies above the error, but it is very rough. With degree \\(n=5\\) the error drops to about \\(0.0240\\) and the bound to \\(\\frac{2^6}{6!}\\approx0.0889\\).',
             ),
-            formulaIds: ['taylor-lagrange'], workedExampleId: 'taylor-sine-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['taylor-lagrange'], workedExampleId: 'taylor-sine-example',
             frames: [frame('taylor-sine-explanation', 'explanation'), frame('taylor-sine-calculation', 'calculation'), frame('taylor-sine-observation', 'observation')],
             observationPrompt: text(
                 'Primerjaj z napovedjo. Nato povečaj stopnjo na \\(5\\) in preberi novo napako in oceno; poskusi še drugo središče \\(c\\), na primer \\(c=1\\).',
@@ -2250,7 +2210,7 @@ const taylor: GuidedLesson = {
                 'Pri \\(\\sin x\\) smo za \\(n=5\\) dobili manjšo napako kot za \\(n=3\\). Ali to velja vedno? Opazujemo \\(f(x)=\\frac{1}{1-x}\\) okoli \\(c=0\\); koeficienti so vsi \\(1\\), \\(T_n\\) je delna vsota geometrijske vrste. Točka je \\(x=-1{,}5\\), kjer je \\(f(-1{,}5)=\\frac{1}{2{,}5}=0{,}4\\), stopnja je \\(n=1\\). Na osi \\(x\\) je odebeljena črta konvergenčni interval vrste, to je \\(|x-c|<1-c\\), torej tu med \\(-1\\) in \\(1\\). Točka \\(x\\) je zunaj njega.',
                 'For \\(\\sin x\\) degree \\(n=5\\) gave a smaller error than \\(n=3\\). Is that always so? We look at \\(f(x)=\\frac{1}{1-x}\\) about \\(c=0\\); all coefficients are \\(1\\) and \\(T_n\\) is a partial sum of the geometric series. The point is \\(x=-1.5\\), where \\(f(-1.5)=\\frac{1}{2.5}=0.4\\), and the degree is \\(n=1\\). The thick line on the \\(x\\)-axis is the convergence interval of the series, that is \\(|x-c|<1-c\\), here between \\(-1\\) and \\(1\\). The point \\(x\\) is outside it.',
             ),
-            formulaIds: ['taylor-geometric'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['taylor-geometric'],
             frames: [frame('taylor-geometric-explanation', 'explanation'), frame('taylor-geometric-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali bo napaka v \\(x=-1{,}5\\) manjša, če stopnjo povečaš na \\(3\\) in na \\(5\\) (gumb +); nato stopnjo povečaj in preberi absolutno napako. Nazadnje premakni \\(x\\) na \\(0{,}5\\) in primerjaj.',
@@ -2277,7 +2237,7 @@ const taylor: GuidedLesson = {
                 'Zunaj konvergenčnega intervala napaka narašča: \\(f-T_n=\\frac{x^{n+1}}{1-x}\\) \\(=\\frac{(-1{,}5)^{n+1}}{2{,}5}\\), torej \\(0{,}9\\) pri \\(n=1\\), \\(2{,}025\\) pri \\(n=3\\) in približno \\(4{,}556\\) pri \\(n=5\\); znotraj, pri \\(x=0{,}5\\), pa pada, na primer \\(0{,}125\\) pri \\(n=3\\) in \\(0{,}03125\\) pri \\(n=5\\). Zdaj gladka funkcija \\(f(x)=e^{-1/x}\\) za \\(x>0\\) in \\(f(x)=0\\) za \\(x\\le0\\) okoli središča \\(c=0\\), ki je tu stalno. Njeni odvodi v \\(0\\) so vsi \\(0\\). Opazujemo točko \\(x=1\\).',
                 'Outside the convergence interval the error grows: \\(f-T_n=\\frac{x^{n+1}}{1-x}\\) \\(=\\frac{(-1.5)^{n+1}}{2.5}\\), that is \\(0.9\\) at \\(n=1\\), \\(2.025\\) at \\(n=3\\) and about \\(4.556\\) at \\(n=5\\); inside, at \\(x=0.5\\), it falls, for example \\(0.125\\) at \\(n=3\\) and \\(0.03125\\) at \\(n=5\\). Now the smooth function \\(f(x)=e^{-1/x}\\) for \\(x>0\\) and \\(f(x)=0\\) for \\(x\\le0\\) about the center \\(c=0\\), which is fixed here. Its derivatives at \\(0\\) are all \\(0\\). We look at the point \\(x=1\\).',
             ),
-            formulaIds: ['taylor-flat'], learnerInteraction: 'observe',
+            formulaIds: ['taylor-flat'],
             frames: [frame('taylor-flat-prediction-explanation', 'explanation'), frame('taylor-flat-prediction-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali se bo \\(T_n(1)\\) z večanjem stopnje približal \\(f(1)\\); povečaj stopnjo in preveri. Šele nato pritisni Pokaži oceno napake in preberi, kaj aplikacija pove o oceni.',
@@ -2304,7 +2264,7 @@ const taylor: GuidedLesson = {
                 'Pri \\(f(x)=e^{-1/x}\\) je \\(T_n(1)=0\\) pri vsakem \\(n\\), \\(f(1)=e^{-1}\\approx0{,}3679\\), napaka pa je pri vsaki stopnji \\(0{,}3679\\). Vsi koeficienti v \\(0\\) so \\(0\\), vrsta je identično \\(0\\) in konvergira, a k \\(0\\), ne k \\(f\\). Ocena napake ni prikazana: odvodi v \\(c=0\\) so vsi \\(0\\), zato iz njih ne dobimo meje za ostanek, mejo za \\(|f^{(n+1)}|\\) bi morali poiskati iz odvodov drugje, tega pa aplikacija ne modelira. Ločimo torej dvoje: končni polinom \\(T_n\\) vedno obstaja, kako dobro približa \\(f\\) v \\(x\\), pa pove napaka ali, kadar jo imamo, ocena; neskončna vrsta pa konvergira povsod pri \\(e^x\\) in \\(\\sin x\\), pri \\(\\frac{1}{1-x}\\) le za \\(|x-c|<1-c\\), pri tej funkciji pa k napačni vrednosti. Zdaj raziskuj sam: zamenjaj primer, premakni \\(c\\) in \\(x\\), spreminjaj stopnjo in napovej napako, preden pokažeš oceno.',
                 'For \\(f(x)=e^{-1/x}\\), \\(T_n(1)=0\\) for every \\(n\\), \\(f(1)=e^{-1}\\approx0.3679\\), and the error is \\(0.3679\\) at every degree. All coefficients at \\(0\\) are \\(0\\), the series is identically \\(0\\) and converges, but to \\(0\\), not to \\(f\\). The error bound is not shown: the derivatives at \\(c=0\\) are all \\(0\\) and give no limit for the remainder; a limit for \\(|f^{(n+1)}|\\) would have to come from derivatives elsewhere, which the app does not model. So two things are kept apart: the finite polynomial \\(T_n\\) always exists, and how well it approximates \\(f\\) at \\(x\\) is told by the error or, where there is one, the bound; the infinite series converges everywhere for \\(e^x\\) and \\(\\sin x\\), for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for this function to the wrong value. Now explore on your own: change the example, move \\(c\\) and \\(x\\), change the degree and predict the error before you show the bound.',
             ),
-            formulaIds: ['taylor-flat', 'taylor-lagrange'], workedExampleId: 'taylor-flat-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['taylor-flat', 'taylor-lagrange'], workedExampleId: 'taylor-flat-example',
             frames: [frame('taylor-free-explanation', 'explanation'), frame('taylor-free-calculation', 'calculation'), frame('taylor-free-observation', 'observation')],
             observationPrompt: text(
                 'Preberi, zakaj ocena napake ni prikazana. Nato skrij oceno, izberi drug primer ali središče in napovej, preden jo spet pokažeš.',
@@ -2328,12 +2288,10 @@ const taylor: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-taylor',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§7.1 and 7.3 (printed pp. 251–260).',
-            supports: ['the Taylor polynomial of degree n about c is the sum of f^(k)(c)/k! (x - c)^k for k = 0..n', 'the remainder has the Lagrange form f^(n+1)(xi)/(n+1)! (x - c)^(n+1) for some xi between c and x', 'the Taylor series of a function need not converge to the function'],
         },
         {
             id: 'bezeg-taylor-implementation',
             citation: 'Bezeg source: src/analysis/taylor.ts, src/analysis/taylorModel.ts and src/graphs/functions/TaylorGraph.tsx.',
-            supports: ['e^x about 0 at x = 1 has T_1(1) = 2, T_3(1) = 8/3 and T_6(1) = 1957/720 with error bound e/7! >= the actual error', 'sin x about 0 at x = 2 has T_3(2) = 2/3, error about 0.2426 and bound 2^4/4! = 2/3 (M = 1)', '1/(1 - x) about 0 at x = -1.5 has error (-1.5)^(n+1)/2.5, with absolute values 0.9, 2.025 and about 4.556 at n = 1, 3, 5', 'the flat function has T_n = 0 for every n and f(1) = e^-1 > 0, and no derivative bound is offered'],
             implementationCorrespondence: 'Coefficients are closed forms, never symbolic differentiation; T_n is evaluated in Horner form and the error as f(x) - T_n(x); the Lagrange bound uses M = max(e^c, e^x) for e^x, M = 1 for sin x and (n+1)!/(1 - max(c, x))^(n+2) for 1/(1 - x), and none for the flat function; the convergence interval |x - c| < 1 - c is shown for 1/(1 - x) only; a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -2359,14 +2317,10 @@ const taylor: GuidedLesson = {
     ],
 };
 
-const sequenceChoice = (value: SequenceExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'sequence-example', value},
-});
-const sequenceCertificate = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'sequence-certificate', value: visible},
-});
+const sequenceChoice = (value: SequenceExampleId): LessonAction => ({kind: 'function-choice', name: 'sequence-example', value: value});
+const sequenceCertificate = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'sequence-certificate', visible: visible});
 /** The scene shows `count` revealed terms (a scene starts from the default scene, which shows one term). */
-const terms = (count: number): SceneAction[] => Array.from({length: count - 1}, () => ({name: 'run-sequence-command', value: 'next-step'}));
+const terms = (count: number): LessonAction[] => Array.from({length: count - 1}, () => ({kind: 'animation', animationId: 'sequence', command: 'next-step'}));
 
 const sequence: GuidedLesson = {
     demonstrationId: 'sequence',
@@ -2492,7 +2446,7 @@ const sequence: GuidedLesson = {
                 'Zaporedje \\(a_n=\\frac1n\\) ima neskončno mnogo členov: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … Kandidat za limito je \\(L=0\\). Definicija pravi: za vsak \\(\\varepsilon>0\\) obstaja \\(N\\), da je \\(|a_n-L|<\\varepsilon\\) za vsak \\(n\\ge N\\). Najprej je izbran \\(\\varepsilon\\), šele nato iščemo \\(N\\), ki je odvisen od njega, pogoj pa mora veljati za vse \\(n\\ge N\\). Na grafu je zeleno osenčen pas med \\(L-\\varepsilon\\) in \\(L+\\varepsilon\\), pri izbranem \\(\\varepsilon=\\frac14\\) torej med \\(-0{,}25\\) in \\(0{,}25\\); pas je odprt. Člen v pasu je poln krogec, člen izven njega križec. Prikazanih je prvih dvanajst členov. Člen \\(a_4=0{,}25\\) leži natanko na robu pasu, zato ni v njem, od \\(a_5=0{,}2\\) naprej pa so prikazani členi v pasu. Certifikat je skrit. Prikazani členi sami konvergence ne dokažejo: da tudi vsi neprikazani členi od \\(n=5\\) naprej ležijo v pasu, pove šele obrazec.',
                 'The sequence \\(a_n=\\frac1n\\) has infinitely many terms: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … The candidate limit is \\(L=0\\). The definition says: for every \\(\\varepsilon>0\\) there is an \\(N\\) such that \\(|a_n-L|<\\varepsilon\\) for every \\(n\\ge N\\). First \\(\\varepsilon\\) is chosen, only then do we look for an \\(N\\) that depends on it, and the condition must hold for all \\(n\\ge N\\). The graph shows the band between \\(L-\\varepsilon\\) and \\(L+\\varepsilon\\) shaded, so for the chosen \\(\\varepsilon=\\frac14\\) between \\(-0.25\\) and \\(0.25\\); the band is open. A term inside the band is a filled circle, a term outside it a cross. The first twelve terms are shown. The term \\(a_4=0.25\\) lies exactly on the edge of the band, so it is not in it, and from \\(a_5=0.2\\) on the shown terms are in the band. The certificate is hidden. The shown terms alone do not prove convergence: that all the unshown terms from \\(n=5\\) on also lie in the band is stated only by the formula.',
             ),
-            formulaIds: ['sequence-definition', 'sequence-definition-condition'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-definition', 'sequence-definition-condition'],
             frames: [frame('sequence-definition-explanation', 'explanation'), frame('sequence-definition-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti v polju Prag N in šele nato pritisni Pokaži certifikat.',
@@ -2525,7 +2479,7 @@ const sequence: GuidedLesson = {
                 'Pri \\(\\varepsilon=\\frac14\\) je \\(N=5\\) deloval. Zdaj pas zožimo na \\(\\varepsilon=0{,}1\\): pri \\(N=5\\) je člen \\(a_5=0{,}2\\) izven pasu, zato \\(N=5\\) ne deluje. Izbran je \\(N=11\\) in certifikat je prikazan. Za \\(n\\ge N\\) velja \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), neenakost \\(\\frac1N<\\varepsilon\\) pa je enakovredna \\(N\\varepsilon>1\\). Pri \\(N=11\\) je \\(N\\varepsilon=1{,}1>1\\), zato \\(11\\) deluje. Pri \\(N=10\\) je \\(N\\varepsilon=1\\), kar ni več od \\(1\\): člen \\(a_{10}=0{,}1\\) leži natanko na robu pasu, pas pa je odprt, zato \\(10\\) ne deluje. Najmanjši delujoči \\(N\\) je torej \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Od dvanajstih prikazanih členov sta v pasu zadnja dva; certifikat pa velja za vsak \\(n\\ge11\\), tudi za neprikazane člene.',
                 'At \\(\\varepsilon=\\frac14\\), \\(N=5\\) worked. Now we narrow the band to \\(\\varepsilon=0.1\\): at \\(N=5\\) the term \\(a_5=0.2\\) is outside the band, so \\(N=5\\) does not work. Now \\(N=11\\) is chosen and the certificate is shown. For \\(n\\ge N\\) we have \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), and the inequality \\(\\frac1N<\\varepsilon\\) is equivalent to \\(N\\varepsilon>1\\). At \\(N=11\\), \\(N\\varepsilon=1.1>1\\), so \\(11\\) works. At \\(N=10\\), \\(N\\varepsilon=1\\), which is not more than \\(1\\): the term \\(a_{10}=0.1\\) lies exactly on the edge of the band, and the band is open, so \\(10\\) does not work. The least working \\(N\\) is therefore \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Of the twelve shown terms the last two are in the band; the certificate holds for every \\(n\\ge11\\), also for terms that are not shown.',
             ),
-            formulaIds: ['sequence-definition', 'sequence-definition-condition', 'sequence-reciprocal-threshold'], workedExampleId: 'sequence-reciprocal-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-definition', 'sequence-definition-condition', 'sequence-reciprocal-threshold'], workedExampleId: 'sequence-reciprocal-example',
             frames: [frame('sequence-threshold-explanation', 'explanation'), frame('sequence-threshold-calculation', 'calculation'), frame('sequence-threshold-observation', 'observation')],
             observationPrompt: text(
                 'Preberi najmanjši delujoči \\(N\\) in oceno v odčitkih. Nato v polje vnesi \\(N=10\\), preberi, zakaj ne deluje, in se vrni na \\(N=11\\).',
@@ -2552,7 +2506,7 @@ const sequence: GuidedLesson = {
                 'Pri \\(\\varepsilon=0{,}1\\) je \\(N=11\\) deloval in je bil najmanjši delujoči. Zdaj je \\(\\varepsilon=0{,}01\\), pas je desetkrat ožji. Prikazanih je vseh štirideset členov, ki jih aplikacija nariše, in noben ni v pasu: najmanjši, \\(a_{40}=0{,}025\\), je še vedno nad \\(0{,}01\\). Po obrazcu je \\(N_{\\min}=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=101\\), to je daleč onkraj prikazanih členov. Ali certifikata zato ni mogoče izdati? Mogoče je: izhaja iz obrazca \\(a_n=\\frac1n\\), ne iz prikazanih členov, in velja za vsak \\(n\\ge N\\), tudi za člene, ki jih ne vidimo. Končno okno členov, ki ga narišemo, pa nikoli ni dokaz.',
                 'At \\(\\varepsilon=0.1\\), \\(N=11\\) worked and was the least working one. Now \\(\\varepsilon=0.01\\) and the band is ten times narrower. All forty terms the app draws are shown and none is in the band: the smallest, \\(a_{40}=0.025\\), is still above \\(0.01\\). By the formula \\(N_{\\min}=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=101\\), far beyond the shown terms. Does that mean no certificate can be given? It can: it comes from the formula \\(a_n=\\frac1n\\), not from the shown terms, and it holds for every \\(n\\ge N\\), also for terms we cannot see. A finite window of terms that we draw, however, is never a proof.',
             ),
-            formulaIds: ['sequence-reciprocal-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-reciprocal-threshold'],
             frames: [frame('sequence-small-epsilon-explanation', 'explanation'), frame('sequence-small-epsilon-observation', 'observation')],
             observationPrompt: text(
                 'Po obrazcu izračunaj najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}01\\), napovej, ali bo med prikazanimi členi, vnesi ga v polje Prag N in šele nato pritisni Pokaži certifikat. Nato vnesi še \\(N=100\\).',
@@ -2585,7 +2539,7 @@ const sequence: GuidedLesson = {
                 'Pri \\(\\varepsilon=0{,}01\\) je \\(N=101\\) deloval, čeprav je onkraj prikazanih členov: obrazec \\(\\left|\\frac1n-0\\right|\\le\\frac1N<\\varepsilon\\) velja za vsak \\(n\\ge101\\). Zdaj členi menjajo predznak: \\(a_n=\\frac{(-1)^n}{n}\\) je \\(-1\\), \\(\\frac12\\), \\(-\\frac13\\), … in leži zdaj pod, zdaj nad \\(L=0\\). Definicija pa meri razdaljo \\(|a_n-L|\\), ta je enaka \\(\\frac1n\\) kot prej, zato je enak tudi najmanjši delujoči \\(N=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1\\). Opazujemo \\(\\varepsilon=0{,}1\\); prikazanih je dvanajst členov, v pasu sta zadnja dva.',
                 'At \\(\\varepsilon=0.01\\), \\(N=101\\) worked although it is beyond the shown terms: the formula \\(\\left|\\frac1n-0\\right|\\le\\frac1N<\\varepsilon\\) holds for every \\(n\\ge101\\). Now the terms change sign: \\(a_n=\\frac{(-1)^n}{n}\\) is \\(-1\\), \\(\\frac12\\), \\(-\\frac13\\), … and lies now below, now above \\(L=0\\). The definition, however, measures the distance \\(|a_n-L|\\), which equals \\(\\frac1n\\) as before, so the least working \\(N=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1\\) is the same too. We look at \\(\\varepsilon=0.1\\); twelve terms are shown, the last two are in the band.',
             ),
-            formulaIds: ['sequence-reciprocal-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-reciprocal-threshold'],
             frames: [frame('sequence-alternating-explanation', 'explanation'), frame('sequence-alternating-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je najmanjši delujoči \\(N\\) pri \\(\\varepsilon=0{,}1\\) enak kot pri \\(\\frac1n\\); vnesi ga v polje Prag N in šele nato pritisni Pokaži certifikat.',
@@ -2618,7 +2572,7 @@ const sequence: GuidedLesson = {
                 'Pri \\(\\frac{(-1)^n}{n}\\) je razdalja do \\(0\\) enaka kot pri \\(\\frac1n\\), zato je enak tudi prag. Zaporedje \\(a_n=(-1)^n\\) pa zavzame le vrednosti \\(-1\\) in \\(1\\), vsaka se ponovi za vsakim \\(N\\). Pri \\(L=0\\) in \\(\\varepsilon=1{,}5\\) sta obe vrednosti v pasu, zato je vseh dvanajst prikazanih členov znotraj. Zaporedje kljub temu ne konvergira k \\(0\\): ta \\(\\varepsilon\\) je izpolnjen, definicija pa zahteva \\(N\\) za vsak \\(\\varepsilon>0\\). Za \\(\\varepsilon\\le1\\) nobena od vrednosti ni v pasu. Splošno je od vrednosti \\(-1\\) in \\(1\\) tista, ki je dlje od \\(L\\), oddaljena za \\(1+|L|\\), zato noben \\(N\\) ne deluje, kadar je \\(\\varepsilon\\le1+|L|\\). Pas, ki zajame končno okno členov, torej ni dokaz.',
                 'For \\(\\frac{(-1)^n}{n}\\) the distance to \\(0\\) is the same as for \\(\\frac1n\\), so the threshold is the same. The sequence \\(a_n=(-1)^n\\), however, takes only the values \\(-1\\) and \\(1\\), and each recurs beyond every \\(N\\). At \\(L=0\\) and \\(\\varepsilon=1.5\\) both values are in the band, so all twelve shown terms are inside. The sequence still does not converge to \\(0\\): this \\(\\varepsilon\\) is satisfied, but the definition requires an \\(N\\) for every \\(\\varepsilon>0\\). For \\(\\varepsilon\\le1\\) neither value is in the band. In general, the one of the values \\(-1\\) and \\(1\\) that is farther from \\(L\\) is at distance \\(1+|L|\\), so no \\(N\\) works when \\(\\varepsilon\\le1+|L|\\). A band that contains a finite window of terms is therefore no proof.',
             ),
-            formulaIds: ['sequence-oscillating', 'sequence-oscillating-distance'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-oscillating', 'sequence-oscillating-distance'],
             frames: [frame('sequence-oscillation-explanation', 'explanation'), frame('sequence-oscillation-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali pas, ki zajame vseh dvanajst prikazanih členov, dokazuje konvergenco k \\(0\\); pritisni Pokaži certifikat, nato zmanjšaj \\(\\varepsilon\\) na \\(0{,}5\\) in preberi razliko v stanju.',
@@ -2651,7 +2605,7 @@ const sequence: GuidedLesson = {
                 'Pri \\((-1)^n\\) vrednosti ostanejo omejene, a se ne ustalijo. Zaporedje \\(a_n=n\\) pa raste čez vse meje. Za poljuben \\(L\\) in \\(\\varepsilon>0\\) velja \\(a_n=n>L+\\varepsilon\\) za vsak \\(n>L+\\varepsilon\\), zato členi pas za vedno zapustijo in noben \\(N\\) ne deluje. Opazujemo \\(L=0\\) in \\(\\varepsilon=0{,}5\\): že prvi člen \\(a_1=1\\) je izven pasu in nobeden od dvanajstih prikazanih členov ni v njem. Pri nobenem drugem kandidatu \\(L\\) ni drugače, saj člen \\(n\\) prej ali slej preseže \\(L+\\varepsilon\\).',
                 'For \\((-1)^n\\) the values stay bounded but do not settle. The sequence \\(a_n=n\\) grows beyond all bounds. For any \\(L\\) and \\(\\varepsilon>0\\) we have \\(a_n=n>L+\\varepsilon\\) for every \\(n>L+\\varepsilon\\), so the terms leave the band for good and no \\(N\\) works. We look at \\(L=0\\) and \\(\\varepsilon=0.5\\): already the first term \\(a_1=1\\) is outside the band and none of the twelve shown terms is in it. No other candidate \\(L\\) changes that, since the term \\(n\\) sooner or later exceeds \\(L+\\varepsilon\\).',
             ),
-            formulaIds: ['sequence-unbounded'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-unbounded'],
             frames: [frame('sequence-unbounded-explanation', 'explanation'), frame('sequence-unbounded-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali kak \\(N\\) deluje, če kandidata \\(L\\) premakneš na \\(2\\); pritisni Pokaži certifikat in preberi, od katerega indeksa naprej členi trajno zapustijo pas.',
@@ -2684,7 +2638,7 @@ const sequence: GuidedLesson = {
                 'Pri \\(a_n=n\\) noben \\(L\\) ne deluje. Pri konvergentnem zaporedju je kandidat \\(L\\) pomemben: certifikat velja le za pravo limito. Pri \\(\\frac1n\\) je limita \\(0\\); če izberemo \\(L=0{,}5\\), pas okoli \\(0{,}5\\) pri dovolj majhnem \\(\\varepsilon\\) ne zajame členov od nobenega \\(N\\) naprej, zato aplikacija pove, da \\(L\\) ni limita. Povzetek: konvergenca je trditev o vseh členih od \\(N\\) naprej za vsak \\(\\varepsilon\\); obrazec zaporedja jo utemelji, prikazani členi pa je ne dokažejo. Zdaj raziskuj sam: izberi primer, spreminjaj \\(\\varepsilon\\), \\(L\\) in \\(N\\), pritisni Naslednji korak ali Predvajaj in napovej, preden pokažeš certifikat.',
                 'For \\(a_n=n\\) no \\(L\\) works. For a convergent sequence the candidate \\(L\\) matters: the certificate holds only for the true limit. For \\(\\frac1n\\) the limit is \\(0\\); if we choose \\(L=0.5\\), the band around \\(0.5\\) with a small enough \\(\\varepsilon\\) does not contain the terms from any \\(N\\) on, so the app says that \\(L\\) is not the limit. In summary: convergence is a statement about all terms from \\(N\\) on, for every \\(\\varepsilon\\); the formula of the sequence justifies it and the shown terms do not prove it. Now explore on your own: choose an example, change \\(\\varepsilon\\), \\(L\\) and \\(N\\), press Next step or Play, and predict before you show the certificate.',
             ),
-            formulaIds: ['sequence-definition', 'sequence-definition-condition'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['sequence-definition', 'sequence-definition-condition'],
             frames: [frame('sequence-free-explanation', 'explanation'), frame('sequence-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je \\(L=0{,}5\\) limita zaporedja \\(\\frac1n\\); vnesi ga v polje in pritisni Pokaži certifikat. Nato skrij certifikat, izberi drug primer in napovej, preden ga spet pokažeš.',
@@ -2708,12 +2662,10 @@ const sequence: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-sequences',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§2.4 and 2.5 (printed pp. 36–44).',
-            supports: ['a sequence a_n converges to L if for every epsilon > 0 there is an N such that |a_n - L| < epsilon for every n >= N', 'the order of the quantifiers: epsilon first, then N depending on epsilon', 'the sequence (-1)^n does not converge', 'a sequence that is not bounded does not converge'],
         },
         {
             id: 'bezeg-sequence-implementation',
             citation: 'Bezeg source: src/analysis/sequence.ts, src/analysis/sequenceModel.ts and src/graphs/functions/SequenceGraph.tsx.',
-            supports: ['1/n and (-1)^n/n have |a_n - 0| = 1/n, so N works exactly when N epsilon > 1 and the least working N is floor(1/epsilon) + 1: 11 for epsilon = 0.1 and 101 for epsilon = 0.01', 'for epsilon = 1/4, a_4 = 1/4 is on the edge of the band and a_5 = 1/5 < 1/4, so the least working N is 5 (tail n >= N, strict inequality)', 'a_10 = 0.1 = epsilon is on the edge of the band and outside the open band', '(-1)^n has the farther of the values 1 and -1 at distance 1 + |L| from L, so no N works for epsilon <= 1 + |L|; for L = 0 and epsilon = 1.5 all terms are in the band', 'a_n = n exceeds L + epsilon for every n > L + epsilon, so no N works'],
             implementationCorrespondence: 'Epsilon is handled as an integer count of hundredths, so N epsilon > 1 and N_min are exact integer arithmetic; the certificate is computed from the formula of the named example and never from the shown terms (the revealed terms only decide what is drawn and whether N lies beyond them); a lesson scene applies set-function-parameter, set-function-choice, show-function-element and run-sequence-command actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -2743,14 +2695,10 @@ const sequence: GuidedLesson = {
     ],
 };
 
-const fixedPointChoice = (value: FixedPointExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'fixed-point-example', value},
-});
-const fixedPointBound = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'fixed-point-bound', value: visible},
-});
+const fixedPointChoice = (value: FixedPointExampleId): LessonAction => ({kind: 'function-choice', name: 'fixed-point-example', value: value});
+const fixedPointBound = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'fixed-point-bound', visible: visible});
 /** The scene shows the state after `count` iteration steps (a scene starts from the default scene at step 0). */
-const iterates = (count: number): SceneAction[] => Array.from({length: count}, () => ({name: 'run-fixed-point-command', value: 'next-step'}));
+const iterates = (count: number): LessonAction[] => Array.from({length: count}, () => ({kind: 'animation', animationId: 'fixed-point', command: 'next-step'}));
 
 const fixedPoint: GuidedLesson = {
     demonstrationId: 'fixed-point',
@@ -2882,7 +2830,7 @@ const fixedPoint: GuidedLesson = {
                 'Preslikava \\(T(x)=\\frac{x+1}{2}\\) slika interval \\([0;\\,2]\\) vase. Negibna točka \\(x^*\\) reši \\(T(x^*)=x^*\\): na grafu je to presečišče krivulje \\(y=T(x)\\) z diagonalo \\(y=x\\), označeno s križcem, tu \\(x^*=1\\). Iteracija izhaja iz začetka \\(x_0\\) in računa \\(x_{k+1}=T(x_k)\\); vsak približek je vrednost sestavljene preslikave, \\(x_2=T(T(x_0))\\), zaporedje \\(x_k\\) pa je običajno zaporedje, zato je njegova konvergenca isto vprašanje kot v lekciji o zaporedjih. Pajkova mreža iz točke \\((x_k,x_k)\\) na diagonali gre navpično do krivulje, nato vodoravno nazaj do diagonale. Zdaj je prikazan le začetek \\(x_0=0\\) pri koraku \\(0\\); korak \\(0\\) še nima črt.',
                 'The map \\(T(x)=\\frac{x+1}{2}\\) maps the interval \\([0,2]\\) into itself. A fixed point \\(x^*\\) solves \\(T(x^*)=x^*\\): on the graph it is the intersection of the curve \\(y=T(x)\\) with the diagonal \\(y=x\\), marked by a cross, here \\(x^*=1\\). The iteration starts at \\(x_0\\) and computes \\(x_{k+1}=T(x_k)\\); every iterate is a value of a composed map, \\(x_2=T(T(x_0))\\), and the sequence \\(x_k\\) is an ordinary sequence, so its convergence is the same question as in the lesson on sequences. The cobweb goes from the point \\((x_k,x_k)\\) on the diagonal vertically to the curve and then horizontally back to the diagonal. Now only the start \\(x_0=0\\) is shown at step \\(0\\); step \\(0\\) has no segments yet.',
             ),
-            formulaIds: ['fixed-point-iteration'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-iteration'],
             frames: [frame('fixed-point-cobweb-explanation', 'explanation'), frame('fixed-point-cobweb-observation', 'observation')],
             observationPrompt: text(
                 'Poišči križec na diagonali in preberi, kje je negibna točka. Izračunaj \\(T(0)\\) in napovej, kje bo končala prva navpična črta, nato pritisni Naslednji korak.',
@@ -2915,7 +2863,7 @@ const fixedPoint: GuidedLesson = {
                 'Prvi korak je dal \\(x_1=\\frac12\\). Naslednji približek je \\(x_2=T(x_1)\\): iz točke \\((\\frac12,\\frac12)\\) na diagonali gremo navpično do krivulje, nato vodoravno do diagonale. Višina krivulje pri \\(x=\\frac12\\) je \\(T(\\frac12)\\), ta višina pa je tudi novi približek. Napovej ga, preden pritisneš Naslednji korak, nato pritisni še enkrat in napovej \\(x_3\\). Opazuj tudi razdaljo do negibne točke \\(1\\): pri \\(x_1\\) je \\(\\frac12\\), pri \\(x_2\\) manj.',
                 'The first step gave \\(x_1=\\frac12\\). The next iterate is \\(x_2=T(x_1)\\): from the point \\((\\frac12,\\frac12)\\) on the diagonal we go vertically to the curve and then horizontally to the diagonal. The height of the curve at \\(x=\\frac12\\) is \\(T(\\frac12)\\), and that height is also the new iterate. Predict it before you press Next step, then press again and predict \\(x_3\\). Also watch the distance to the fixed point \\(1\\): at \\(x_1\\) it is \\(\\frac12\\), at \\(x_2\\) it is less.',
             ),
-            formulaIds: ['fixed-point-iteration'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-iteration'],
             frames: [frame('fixed-point-next-explanation', 'explanation'), frame('fixed-point-next-observation', 'observation')],
             observationPrompt: text(
                 'Napovej \\(x_2\\) in to, ali je razdalja do negibne točke po tem koraku večja ali manjša; šele nato pritisni Naslednji korak. Nato napovej še \\(x_3\\).',
@@ -2948,7 +2896,7 @@ const fixedPoint: GuidedLesson = {
                 'Pri \\(T(x)=\\frac{x+1}{2}\\) je \\(|T\'(x)|=\\frac12\\), zato po izreku o povprečni vrednosti razdalja slik \\(|T(x)-T(y)|\\) ni večja od \\(q|x-y|\\) s \\(q=\\frac12\\). Skupaj s tem, da \\(T\\) zaprt interval \\([0;\\,2]\\) slika vase (slika je \\([\\frac12;\\,\\frac32]\\)), je to skrčitev. Zato ima natanko eno negibno točko in iteracija iz vsakega začetka konvergira k njej. Ocena napake je zdaj prikazana: pri koraku \\(3\\) sta obe oceni enaki \\(0{,}125\\), enako pa je tudi dejanska napaka, ker je \\(x_k=1-2^{-k}\\). Debela črta na osi \\(x\\) je interval okoli \\(x_3\\), ki gotovo vsebuje \\(x^*\\). Pri pragu \\(10^{-3}\\) se iteracija ustavi, ko je ocena a posteriori manjša od njega, to je pri koraku \\(10\\). To pove, da je napaka pod pragom, ne da je približek natančno \\(1\\).',
                 'For \\(T(x)=\\frac{x+1}{2}\\) we have \\(|T\'(x)|=\\frac12\\), so by the mean value theorem the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) with \\(q=\\frac12\\). Together with the fact that \\(T\\) maps the closed interval \\([0,2]\\) into itself (the image is \\([\\frac12,\\frac32]\\)), this is a contraction. So it has exactly one fixed point and the iteration converges to it from every start. The error bound is now shown: at step \\(3\\) both bounds equal \\(0.125\\), and so does the actual error, because \\(x_k=1-2^{-k}\\). The thick line on the \\(x\\)-axis is an interval around \\(x_3\\) that is sure to contain \\(x^*\\). At the threshold \\(10^{-3}\\) the iteration stops when the a posteriori bound falls below it, which is at step \\(10\\). This says the error is below the threshold, not that the iterate is exactly \\(1\\).',
             ),
-            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'], workedExampleId: 'fixed-point-affine-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'], workedExampleId: 'fixed-point-affine-example',
             frames: [frame('fixed-point-contraction-explanation', 'explanation'), frame('fixed-point-contraction-calculation', 'calculation'), frame('fixed-point-contraction-observation', 'observation')],
             observationPrompt: text(
                 'Preberi \\(q\\), pogoje izreka in obe oceni. Napovej, pri katerem koraku se predvajanje ustavi pri pragu \\(10^{-3}\\), pritisni Predvajaj in primerjaj; nato nastavi natančnost \\(d=6\\) in napovej še enkrat.',
@@ -2981,7 +2929,7 @@ const fixedPoint: GuidedLesson = {
                 'Preslikava \\(T(x)=\\cos x\\) na \\([0;\\,1]\\): \\(\\cos\\) je tu padajoč, zato slika \\([0;\\,1]\\) v \\([\\cos1;\\,1]\\), to je podmnožica intervala. Za odvod velja \\(|T\'(x)|=\\sin x\\) in \\(\\sin x\\le\\sin1\\), zato je \\(q=\\sin1\\), kar je približno \\(0{,}8415\\) in manj od \\(1\\). Vsi pogoji izreka so izpolnjeni, zato je negibna točka ena sama, \\(x^*\\approx0{,}739085\\), in iteracija konvergira k njej. Ker je \\(q\\) blizu \\(1\\), je konvergenca počasnejša kot pri prejšnji preslikavi. Prikazan je korak \\(8\\) z \\(x_8\\approx0{,}722102\\), dejanska napaka je približno \\(0{,}017\\). Ocena napake je skrita; napovej, ali bo ocena pri tem koraku manjša ali večja od dejanske napake.',
                 'For the map \\(T(x)=\\cos x\\) on \\([0,1]\\): \\(\\cos\\) is decreasing there, so it maps \\([0,1]\\) to \\([\\cos1,1]\\), a subset of the interval. For the derivative we have \\(|T\'(x)|=\\sin x\\) and \\(\\sin x\\le\\sin1\\), so \\(q=\\sin1\\), which is about \\(0.8415\\) and less than \\(1\\). All hypotheses of the theorem hold, so there is exactly one fixed point, \\(x^*\\approx0.739085\\), and the iteration converges to it. Because \\(q\\) is close to \\(1\\), the convergence is slower than for the previous map. Step \\(8\\) is shown with \\(x_8\\approx0.722102\\), and the actual error is about \\(0.017\\). The error bound is hidden; predict whether the bound at this step is smaller or larger than the actual error.',
             ),
-            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'],
             frames: [frame('fixed-point-cosine-explanation', 'explanation'), frame('fixed-point-cosine-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je ocena napake pri koraku \\(8\\) manjša ali večja od dejanske napake \\(0{,}017\\); pritisni Pokaži oceno napake, preberi pogoje izreka in obe oceni. Nato pritisni Predvajaj in preberi, kdaj se ustavi pri pragu \\(10^{-3}\\).',
@@ -3014,7 +2962,7 @@ const fixedPoint: GuidedLesson = {
                 'Pri natančnosti \\(d=8\\) se iteracija za \\(\\frac{x+1}{2}\\) ustavi pri koraku \\(27\\), ko je ocena a posteriori manjša od \\(10^{-8}\\). Odčitek približka \\(x_{27}\\) je na šest decimalk zaokrožen na \\(1\\), a \\(x_{27}=1-2^{-27}\\) ni enak \\(1\\): napaka je \\(2^{-27}\\approx7{,}45\\cdot10^{-9}\\). Zaokrožena vrednost, ki je enaka \\(1\\), in ustavitev pri pragu torej ne dokažeta, da je približek natančna negibna točka. Enako velja, če bi v računalniku dva zaporedna približka postala enaka: aplikacija bi to povedala kot zaokroževanje in ne kot dokaz. Natančna negibna točka je le začetek, ki ga po obrazcu poznamo, na primer \\(x_0=1\\) pri tej preslikavi, saj je \\(T(1)=1\\). Prikazan je korak \\(27\\) in ocena napake je skrita.',
                 'At the tolerance \\(d=8\\) the iteration for \\(\\frac{x+1}{2}\\) stops at step \\(27\\), when the a posteriori bound falls below \\(10^{-8}\\). The readout of the iterate \\(x_{27}\\) is rounded to \\(1\\) at six decimals, but \\(x_{27}=1-2^{-27}\\) is not equal to \\(1\\): the error is \\(2^{-27}\\approx7.45\\cdot10^{-9}\\). A rounded value equal to \\(1\\) and a stop at a threshold therefore do not prove that the iterate is an exact fixed point. The same holds if two consecutive iterates became equal in the computer: the app would report that as rounding, not as a proof. An exact fixed point is only a start that we know from the formula, for example \\(x_0=1\\) for this map, since \\(T(1)=1\\). Step \\(27\\) is shown and the error bound is hidden.',
             ),
-            formulaIds: ['fixed-point-bounds'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-bounds'],
             frames: [frame('fixed-point-rounding-explanation', 'explanation'), frame('fixed-point-rounding-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato vnesi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
@@ -3047,7 +2995,7 @@ const fixedPoint: GuidedLesson = {
                 'Preslikava \\(T(x)=1-x\\) slika \\([0;\\,1]\\) vase, saj zamenja krajišči, in njena negibna točka je \\(\\frac12\\). Vendar je \\(|T\'(x)|=1\\), zato ni \\(q<1\\) in izrek o skrčitvi ne da zaključka ne ocene napake. Iz \\(x_0=0{,}2\\) dobimo \\(0{,}8\\), \\(0{,}2\\), \\(0{,}8\\), …: dvocikel, ker je \\(T(T(x))=x\\). Iteracija se ne približa \\(\\frac12\\), razen če začnemo natanko v njej. Prikazan je korak \\(4\\) in ocene napake ni. Nedržanje pogoja izreka samo po sebi divergence ne dokazuje: izrek preprosto ne daje zaključka. Pri tej preslikavi dvocikel vidimo neposredno iz \\(T(T(x))=x\\); pri drugi preslikavi z \\(q\\ge1\\) bi iteracija lahko tudi konvergirala. Predvajanje bi se ustavilo šele pri meji \\(60\\) korakov.',
                 'The map \\(T(x)=1-x\\) maps \\([0,1]\\) into itself, because it swaps the endpoints, and its fixed point is \\(\\frac12\\). But \\(|T\'(x)|=1\\), so there is no \\(q<1\\) and the contraction theorem gives neither a conclusion nor an error bound. From \\(x_0=0.2\\) we get \\(0.8\\), \\(0.2\\), \\(0.8\\), …: a two-cycle, because \\(T(T(x))=x\\). The iteration does not approach \\(\\frac12\\) unless it starts exactly there. Step \\(4\\) is shown and there is no error bound. A failing hypothesis does not by itself prove divergence: the theorem simply gives no conclusion. For this map we see the two-cycle directly from \\(T(T(x))=x\\); for another map with \\(q\\ge1\\) the iteration might even converge. Playback would stop only at the limit of \\(60\\) steps.',
             ),
-            formulaIds: ['fixed-point-reflection', 'fixed-point-reflection-derivative'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-reflection', 'fixed-point-reflection-derivative'],
             frames: [frame('fixed-point-reflection-explanation', 'explanation'), frame('fixed-point-reflection-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato vnesi \\(x_0=0{,}5\\) in primerjaj.',
@@ -3080,7 +3028,7 @@ const fixedPoint: GuidedLesson = {
                 'Povzetek: če \\(T\\) zaprt interval \\([a;\\,b]\\) slika vase in je skrčitev (razdalja slik \\(|T(x)-T(y)|\\) je največ \\(q|x-y|\\) za nek \\(q<1\\)), ima natanko eno negibno točko, iteracija iz vsakega začetka konvergira k njej in veljata oceni a priori in a posteriori. Če kateri od pogojev ne drži, izrek ne daje zaključka; to ni isto kot divergenca. Ustavitev pri pragu pove, da je ocena manjša od praga, in ne dokaže natančne negibne točke. Zdaj je izbran \\(\\cos x\\) z začetkom \\(x_0=1\\). Raziskuj sam: izberi preslikavo, spreminjaj začetek in natančnost, pritisni Naslednji korak ali Predvajaj in napovej, preden pokažeš oceno napake.',
                 'Summary: if \\(T\\) maps a closed interval \\([a,b]\\) into itself and is a contraction (the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) for some \\(q<1\\)), it has exactly one fixed point, the iteration converges to it from every start, and the a priori and a posteriori bounds hold. If one of the hypotheses fails, the theorem gives no conclusion; that is not the same as divergence. A stop at a threshold says the bound is below the threshold and does not prove an exact fixed point. Now \\(\\cos x\\) is chosen with the start \\(x_0=1\\). Explore on your own: choose a map, change the start and the tolerance, press Next step or Play, and predict before you show the error bound.',
             ),
-            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor'],
             frames: [frame('fixed-point-free-explanation', 'explanation'), frame('fixed-point-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, ali iteracija iz \\(x_0=1\\) konvergira k isti negibni točki kot iz \\(x_0=0\\); pritisni Predvajaj in preberi razlog ustavitve. Nato izberi drugo preslikavo in napovej, preden pokažeš oceno napake.',
@@ -3104,12 +3052,10 @@ const fixedPoint: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-fixed-point',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §8.6 (printed pp. 284–286).',
-            supports: ['a contraction of a complete metric space has exactly one fixed point and the iteration converges to it from every start', 'the iteration x_{k+1} = T(x_k) and its error estimates a priori and a posteriori', 'a map with |T\'| <= q < 1 on a closed interval that it maps into itself is a contraction (mean value theorem)'],
         },
         {
             id: 'bezeg-fixed-point-implementation',
             citation: 'Bezeg source: src/analysis/fixedPoint.ts, src/analysis/fixedPointModel.ts and src/graphs/functions/FixedPointGraph.tsx.',
-            supports: ['(x + 1)/2 on [0, 2] has the fixed point 1 and q = 1/2, x_k = 1 - 2^-k from x_0 = 0, and the a posteriori bound equals 2^-k, so the threshold 10^-3 stops at step 10 and 10^-6 at step 20', 'cos x on [0, 1] maps into [cos 1, 1] with |T\'| = sin x <= sin 1 = q, fixed point about 0.7390851332', '1 - x on [0, 1] has |T\'| = 1 and no q < 1; from a start other than 1/2 it alternates between x_0 and 1 - x_0', 'at d = 8 the affine iteration stops at step 27 with the error 2^-27, about 7.45e-9, although the six-decimal readout shows 1'],
             implementationCorrespondence: 'The history is recomputed from the example, the start x_0 (on the 0.01 grid, handed to the model as exact hundredths), the step count and the tolerance digits, never from stored arrays; the error bounds exist only where q < 1; the tolerance compares the a posteriori bound; the reflection example iterates in integer hundredths, so its two-cycle is exact; only a start equal to a known fixed point is called the fixed point, and equal floating-point iterates are reported as stagnation, never as an exact fixed point; a lesson scene applies set-function-parameter, set-function-choice, show-function-element and run-fixed-point-command actions through the same setters as the controls in one synchronous tick.',
         },
     ],
@@ -3139,12 +3085,8 @@ const fixedPoint: GuidedLesson = {
     ],
 };
 
-const uniformChoice = (value: UniformExampleId): SceneAction => ({
-    name: 'set-function-choice', value: {name: 'uniform-example', value},
-});
-const uniformSupremumShown = (visible: boolean): SceneAction => ({
-    name: 'show-function-element', value: {name: 'uniform-supremum', value: visible},
-});
+const uniformChoice = (value: UniformExampleId): LessonAction => ({kind: 'function-choice', name: 'uniform-example', value: value});
+const uniformSupremumShown = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'uniform-supremum', visible: visible});
 
 const uniformConvergence: GuidedLesson = {
     demonstrationId: 'uniform-convergence',
@@ -3275,7 +3217,7 @@ const uniformConvergence: GuidedLesson = {
                 'Začnemo z zaporedjem funkcij \\(f_n(x)=\\frac xn\\) na območju \\([0;\\,1]\\). Za vsak \\(x\\) gre \\(\\frac xn\\) proti \\(0\\), zato je limita \\(f(x)=0\\) povsod, brez skoka. Okoli limite je pas \\(\\varepsilon=0{,}1\\) na vsako stran. Izbrana točka \\(x=0{,}5\\) ima pri \\(n=4\\) napako \\(|f_4(0{,}5)-0|=0{,}125\\), kar je izven pasu. Točkovni prag \\(N(x)\\) je najmanjši \\(n\\), od katerega naprej je napaka v tej točki manjša od \\(\\varepsilon\\). Enakomerna konvergenca zahteva več: en \\(N\\), ki deluje za vse \\(x\\) iz \\([0;\\,1]\\) hkrati, zato mora biti manjša od \\(\\varepsilon\\) največja napaka po vseh točkah, supremum \\(\\sup|f_n-f|\\). Vprašanji sta: kje na območju je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon\\). Supremum je skrit in se računa po obrazcu, ne iz vzorčenih točk.',
                 'We start with the sequence of functions \\(f_n(x)=\\frac xn\\) on the domain \\([0,1]\\). For every \\(x\\), \\(\\frac xn\\) tends to \\(0\\), so the limit is \\(f(x)=0\\) everywhere, without a jump. Around the limit there is a band of \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has at \\(n=4\\) the error \\(|f_4(0.5)-0|=0.125\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) from which on the error at this point is below \\(\\varepsilon\\). Uniform convergence asks for more: a single \\(N\\) that works for all \\(x\\) in \\([0,1]\\) at once, so the largest error over all points, the supremum \\(\\sup|f_n-f|\\), has to be below \\(\\varepsilon\\). The questions are: where on the domain the error at \\(n=4\\) is largest and how large it is, and what the least \\(n\\) is that makes all errors below \\(\\varepsilon\\). The supremum is hidden and is computed from the formula, not from sampled points.',
             ),
-            formulaIds: ['uniform-definition', 'uniform-definition-uniform'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
             frames: [frame('uniform-scaled-explanation', 'explanation'), frame('uniform-scaled-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, kje je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); preveri z gumboma − in + ali s poljem Indeks n in šele nato pritisni Pokaži supremum.',
@@ -3308,7 +3250,7 @@ const uniformConvergence: GuidedLesson = {
                 'Pri \\(\\frac xn\\) na \\([0;\\,1]\\) je en \\(N=11\\) deloval za vse točke. Zdaj so na istem območju \\([0;\\,1]\\) funkcije \\(x^n\\). Limita je \\(f(x)=0\\) za \\(x<1\\) in \\(f(1)=1\\), pri vsakem \\(x\\) je konvergenca še vedno točkovna. Prag \\(N(x)\\) pa je odvisen od točke: pri \\(x=0{,}5\\) je \\(4\\), bliže \\(1\\) je večji. Pogoj \\(x^n<\\varepsilon\\) je enakovreden \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), imenovalec pa gre proti \\(0\\), ko gre \\(x\\to1\\). Izbrana je točka \\(x=0{,}9\\) in \\(n=5\\), kjer je napaka \\(0{,}9^5=0{,}59049\\), daleč izven pasu. Supremum je spet skrit.',
                 'For \\(\\frac xn\\) on \\([0,1]\\) one \\(N=11\\) worked for all points. Now on the same domain \\([0,1]\\) we take the functions \\(x^n\\). The limit is \\(f(x)=0\\) for \\(x<1\\) and \\(f(1)=1\\), and at each \\(x\\) the convergence is still pointwise. The threshold \\(N(x)\\), however, depends on the point: at \\(x=0.5\\) it is \\(4\\), closer to \\(1\\) it is larger. The condition \\(x^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), and the denominator tends to \\(0\\) as \\(x\\to1\\). The chosen point is \\(x=0.9\\) with \\(n=5\\), where the error \\(0.9^5=0.59049\\) is far outside the band. The supremum is hidden again.',
             ),
-            formulaIds: ['uniform-power-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-power-threshold'],
             frames: [frame('uniform-whole-interval-explanation', 'explanation'), frame('uniform-whole-interval-observation', 'observation')],
             observationPrompt: text(
                 'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato vnesi \\(x=0{,}99\\) v polje Točka x.',
@@ -3341,7 +3283,7 @@ const uniformConvergence: GuidedLesson = {
                 'Funkcije \\(x^n\\) so zvezne, limita pa ima pri \\(x=1\\) skok. Na grafu je limita narisana v dveh kosih: črtkana črta \\(y=0\\) na \\([0,1)\\) z odprtim krogcem pri \\((1,0)\\), kar je vrednost, ki je limita ne zavzame, in poln krogec pri \\((1,1)\\) kot osamljena vrednost; skoka ne povezujemo. Izbrana sta \\(n=10\\) in točka \\(x=0{,}9\\), kjer je napaka \\(0{,}9^{10}\\approx0{,}35\\), bliže \\(1\\) pa je še večja. Vprašanje ni več, kolikšen je prag pri eni točki, ampak ali obstaja supremum pod \\(\\varepsilon\\) in zato en \\(N\\) za vse točke, tudi pri večjih \\(n\\).',
                 'The functions \\(x^n\\) are continuous, but the limit has a jump at \\(x=1\\). On the graph the limit is drawn in two pieces: the dashed line \\(y=0\\) on \\([0,1)\\) with an open circle at \\((1,0)\\), a value the limit does not take, and a filled circle at \\((1,1)\\) as an isolated value; the jump is not joined. The chosen values are \\(n=10\\) and the point \\(x=0.9\\), where the error \\(0.9^{10}\\approx0.35\\) and closer to \\(1\\) it is larger. The question is no longer the threshold at one point, but whether the supremum can be below \\(\\varepsilon\\) and therefore one \\(N\\) for all points, also for larger \\(n\\).',
             ),
-            formulaIds: ['uniform-power-supremum'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-power-supremum'],
             frames: [frame('uniform-supremum-one-explanation', 'explanation'), frame('uniform-supremum-one-observation', 'observation')],
             observationPrompt: text(
                 'Napovej supremum napake pri \\(n=10\\), ali je dosežen in ali obstaja skupni \\(N\\); povečaj \\(n\\) in preveri, ali se napoved spremeni; šele nato pritisni Pokaži supremum.',
@@ -3374,7 +3316,7 @@ const uniformConvergence: GuidedLesson = {
                 'Območje zožimo na \\([0;\\,0{,}8]\\): to je nova primerjava, ne nadaljevanje prejšnje. Opazujemo funkcije \\(f_n(x)=x^n\\) na območju \\([0;\\,0{,}8]\\). Za vsak \\(x\\) iz območja gre \\(x^n\\) proti \\(0\\), zato je limita \\(f(x)=0\\). Okoli limite je pas širine \\(\\varepsilon=0{,}1\\) na vsako stran. Izbrana točka \\(x=0{,}5\\) ima napako \\(|f_n(x)-f(x)|\\); pri \\(n=2\\) je ta \\(0{,}25\\), kar je izven pasu. Točkovni prag \\(N(x)\\) je najmanjši \\(n\\), pri katerem je napaka v tej točki manjša od \\(\\varepsilon\\), in za večje \\(n\\) ostane manjša. Prag je odvisen od točke: z drugim \\(x\\) dobimo lahko drug \\(N(x)\\). Supremum je skrit, saj tu opazujemo le eno točko naenkrat.',
                 'We narrow the domain to \\([0,\\,0.8]\\): this is a new comparison, not a continuation of the previous one. We look at the functions \\(f_n(x)=x^n\\) on the domain \\([0,\\,0.8]\\). For every \\(x\\) in the domain \\(x^n\\) tends to \\(0\\), so the limit is \\(f(x)=0\\). Around the limit there is a band of width \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has the error \\(|f_n(x)-f(x)|\\); at \\(n=2\\) it is \\(0.25\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) for which the error at this point is below \\(\\varepsilon\\), and for larger \\(n\\) it stays below. The threshold depends on the point: with a different \\(x\\) we may get a different \\(N(x)\\). The supremum is hidden, since here we look at one point at a time.',
             ),
-            formulaIds: ['uniform-definition', 'uniform-definition-uniform'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
             frames: [frame('uniform-pointwise-explanation', 'explanation'), frame('uniform-pointwise-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, pri katerem najmanjšem \\(n\\) je napaka v točki \\(x=0{,}5\\) manjša od \\(\\varepsilon=0{,}1\\), in preveri z gumboma − in + ali s poljem Indeks n. Nato vnesi \\(x=0{,}8\\) v polje Točka x in primerjaj prag \\(N(x)\\).',
@@ -3407,7 +3349,7 @@ const uniformConvergence: GuidedLesson = {
                 'Točkovni prag je bil odvisen od točke: \\(N(0{,}5)=4\\), \\(N(0{,}8)=11\\). Enakomerna konvergenca zahteva več: en sam \\(N\\), ki deluje za vse \\(x\\) iz \\([0;\\,0{,}8]\\) hkrati, torej \\(|f_n(x)-f(x)|<\\varepsilon\\) za vsak \\(n\\ge N\\) in vsak \\(x\\). Zato nas ne zanima več ena točka, ampak največja napaka na celem območju, supremum \\(\\sup|f_n-f|\\). Izbran je \\(n=5\\). Vprašanji sta: katera točka območja ima največjo napako in koliko je ta, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\). Supremum se računa po obrazcu, ne iz vzorčenih točk.',
                 'The pointwise threshold depended on the point: \\(N(0.5)=4\\), \\(N(0.8)=11\\). Uniform convergence asks for more: a single \\(N\\) that works for all \\(x\\) in \\([0,\\,0.8]\\) at once, that is \\(|f_n(x)-f(x)|<\\varepsilon\\) for every \\(n\\ge N\\) and every \\(x\\). So we are no longer interested in one point but in the largest error over the whole domain, the supremum \\(\\sup|f_n-f|\\). The chosen index is \\(n=5\\). The questions are: which point of the domain has the largest error and how large it is, and what the least \\(n\\) is that makes all errors below \\(\\varepsilon=0.1\\). The supremum is computed from the formula, not from sampled points.',
             ),
-            formulaIds: ['uniform-definition', 'uniform-definition-uniform'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
             frames: [frame('uniform-supremum-explanation', 'explanation'), frame('uniform-supremum-observation', 'observation')],
             observationPrompt: text(
                 'Napovej, katera točka ima pri \\(n=5\\) največjo napako in koliko je ta, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); šele nato pritisni Pokaži supremum.',
@@ -3440,7 +3382,7 @@ const uniformConvergence: GuidedLesson = {
                 'Iz napovedi: pri \\(n=5\\) je supremum \\(0{,}32768\\) v krajišču \\(x=0{,}8\\) in skupni \\(N=11\\). Zdaj je izbran \\(n=11\\) in supremum je prikazan. Ker \\(x^n\\) narašča, je na \\([0;\\,r]\\) z \\(r<1\\) napaka največja v krajišču: \\(\\sup=r^n\\), dosežen pri \\(x=r\\). Pogoj \\(r^n<\\varepsilon\\) je enakovreden \\(n>\\frac{\\ln\\varepsilon}{\\ln r}\\), najmanjši tak \\(n\\) pa je v okviru Obrazci; pri \\(r=0{,}8\\) in \\(\\varepsilon=0{,}1\\) je \\(11\\). Supremum je pri \\(n=11\\) manjši od \\(\\varepsilon\\), zato ves graf \\(f_n\\) leži v pasu, in to velja za vsak \\(n\\ge11\\). Prag ni odvisen od točke \\(x\\): to je enakomerna konvergenca na \\([0;\\,0{,}8]\\).',
                 'From the prediction: at \\(n=5\\) the supremum is \\(0.32768\\) at the endpoint \\(x=0.8\\) and the shared \\(N=11\\). Now \\(n=11\\) is chosen and the supremum is shown. Since \\(x^n\\) is increasing, on \\([0,\\,r]\\) with \\(r<1\\) the error is largest at the endpoint: \\(\\sup=r^n\\), attained at \\(x=r\\). The condition \\(r^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln r}\\), and the least such \\(n\\) is in the Formulas frame; for \\(r=0.8\\) and \\(\\varepsilon=0.1\\) it is \\(11\\). At \\(n=11\\) the supremum is below \\(\\varepsilon\\), so the whole graph of \\(f_n\\) lies in the band, and this holds for every \\(n\\ge11\\). The threshold does not depend on the point \\(x\\): this is uniform convergence on \\([0,\\,0.8]\\).',
             ),
-            formulaIds: ['uniform-power-supremum', 'uniform-power-threshold'], workedExampleId: 'uniform-shared-n-example', learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-power-supremum', 'uniform-power-threshold'], workedExampleId: 'uniform-shared-n-example',
             frames: [frame('uniform-shared-n-explanation', 'explanation'), frame('uniform-shared-n-calculation', 'calculation'), frame('uniform-shared-n-observation', 'observation')],
             observationPrompt: text(
                 'Preberi supremum, skupni \\(N\\) in stanje v odčitkih. Nato zmanjšaj \\(n\\) na \\(10\\) in preberi, zakaj ta \\(n\\) še ne deluje za vse točke hkrati.',
@@ -3467,7 +3409,7 @@ const uniformConvergence: GuidedLesson = {
                 'Na \\([0;\\,1]\\) skupnega \\(N\\) ni, na \\([0;\\,0{,}8]\\) pa je bil \\(N=11\\). Zdaj je območje \\([0;\\,0{,}95]\\). To je nova primerjava: drugo območje, drug supremum \\(0{,}95^n\\) in drug skupni \\(N\\); ni nadaljevanje konvergence na prvotnem območju. Ko \\(r\\) raste proti \\(1\\), skupni \\(N\\) raste čez vse meje. Enakomerna konvergenca na vsakem \\([0;\\,r]\\) z \\(r<1\\) torej ne pomeni enakomerne konvergence na \\([0;\\,1]\\). Izbrana sta \\(r=0{,}95\\) in \\(n=44\\), supremum je skrit. Spremeniti \\(r\\) je mogoče le, če točka \\(x\\) ostane v \\([0;\\,r]\\); sicer aplikacija spremembo zavrne in prosi, naj najprej premakneš \\(x\\).',
                 'On \\([0,1]\\) there is no shared \\(N\\), while on \\([0,\\,0.8]\\) it was \\(N=11\\). Now the domain is \\([0,\\,0.95]\\). This is a new comparison: a different domain, a different supremum \\(0.95^n\\) and a different shared \\(N\\); it is not a continuation of convergence on the original domain. As \\(r\\) grows towards \\(1\\), the shared \\(N\\) grows without bound. Uniform convergence on every \\([0,\\,r]\\) with \\(r<1\\) therefore does not mean uniform convergence on \\([0,1]\\). The chosen values are \\(r=0.95\\) and \\(n=44\\), and the supremum is hidden. \\(r\\) can be changed only if the point \\(x\\) stays in \\([0,\\,r]\\); otherwise the app rejects the change and asks you to move \\(x\\) first.',
             ),
-            formulaIds: ['uniform-power-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-power-threshold'],
             frames: [frame('uniform-domain-change-explanation', 'explanation'), frame('uniform-domain-change-observation', 'observation')],
             observationPrompt: text(
                 'Napovej skupni \\(N\\) za \\(r=0{,}95\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum, nato povečaj \\(n\\) na \\(45\\) in preberi stanje. Nazadnje v polje Konec območja r vnesi \\(1\\) in primerjaj.',
@@ -3500,7 +3442,7 @@ const uniformConvergence: GuidedLesson = {
                 'Funkcije \\(x^n\\) na \\([0;\\,1]\\) so konvergirale točkovno, a ne enakomerno, na \\([0;\\,0{,}8]\\) pa enakomerno. Zdaj je spet prikazan primer \\(f_n(x)=\\frac xn\\) na \\([0;\\,1]\\) z limito \\(f(x)=0\\) povsod, brez skoka. Pri \\(n=5\\), \\(x=0{,}5\\) in \\(\\varepsilon=0{,}1\\) je točkovna napaka \\(0{,}1\\). Pomisli, kje na \\([0;\\,1]\\) je napaka največja in ali je njena velikost odvisna le od \\(n\\). Povzetek: enakomerna konvergenca zahteva en \\(N\\) za vse točke območja hkrati; zanj odloča supremum napake po obrazcu, ne vzorčene vrednosti; sprememba območja je nova primerjava. Zdaj raziskuj sam: izberi primer, spreminjaj \\(r\\), \\(n\\), \\(x\\) in \\(\\varepsilon\\) ter napovej, preden pokažeš supremum.',
                 'The functions \\(x^n\\) on \\([0,1]\\) converged pointwise but not uniformly, and on \\([0,\\,0.8]\\) uniformly. Now the example \\(f_n(x)=\\frac xn\\) on \\([0,1]\\) is shown again, with the limit \\(f(x)=0\\) everywhere, without a jump. At \\(n=5\\), \\(x=0.5\\) and \\(\\varepsilon=0.1\\) the pointwise error is \\(0.1\\). Think about where on \\([0,1]\\) the error is largest and whether its size depends only on \\(n\\). In summary: uniform convergence requires one \\(N\\) for all points of the domain at once; the supremum error from the formula decides it, not sampled values; a change of domain is a new comparison. Now explore on your own: choose an example, change \\(r\\), \\(n\\), \\(x\\) and \\(\\varepsilon\\), and predict before you show the supremum.',
             ),
-            formulaIds: ['uniform-scaled', 'uniform-scaled-threshold'], learnerInteraction: 'adjust-construction-parameter',
+            formulaIds: ['uniform-scaled', 'uniform-scaled-threshold'],
             frames: [frame('uniform-free-explanation', 'explanation'), frame('uniform-free-observation', 'observation')],
             observationPrompt: text(
                 'Napovej supremum napake in skupni \\(N\\) za \\(\\frac xn\\) pri \\(n=5\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum. Nato skrij supremum, izberi drug primer in napovej, preden ga spet pokažeš.',
@@ -3530,12 +3472,10 @@ const uniformConvergence: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-uniform-convergence',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §§6.7 and 6.8 (printed pp. 237–242).',
-            supports: ['pointwise convergence of a sequence of functions and uniform convergence on a set', 'uniform convergence is described by the supremum of |f_n - f| tending to 0', 'x^n converges pointwise on [0, 1] but not uniformly, and uniformly on [0, r] for r < 1'],
         },
         {
             id: 'bezeg-uniform-convergence-implementation',
             citation: 'Bezeg source: src/analysis/uniformConvergence.ts, src/analysis/uniformConvergenceModel.ts and src/graphs/functions/UniformConvergenceGraph.tsx.',
-            supports: ['sup of |x^n - f| on [0, r], r < 1, is r^n attained at x = r; 0.8^5 = 0.32768', 'on [0, 1] the limit is 0 for x < 1 and 1 at x = 1, and the supremum of the error is 1 for every n and not attained', 'sup of x/n on [0, 1] is 1/n attained at x = 1 and the shared N is floor(1/epsilon) + 1', 'the shared N for x^n on [0, r] is 11 at r = 0.8, 45 at r = 0.95 and does not exist at r = 1 (epsilon = 0.1); the pointwise N(0.99) = 230'],
             implementationCorrespondence: 'The inputs r, x and epsilon live on decimal grids, so every threshold is computed with exact integer (BigInt) arithmetic and a logarithm only proposes a starting value; the supremum is a closed form per example and never a maximum over sampled points; the limit is drawn from separate pieces (a half-open segment, an open circle and an isolated point) so the jump is never joined; a threshold beyond the selectable n is reported and not truncated; a change of r that would leave the chosen x outside the domain is rejected and never clamped; a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],

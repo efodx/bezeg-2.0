@@ -1,4 +1,4 @@
-import {getLessonForDemonstration, sceneAction, sceneActions, toLessonAction, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
+import {getLessonForDemonstration, sceneActions, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {getGuidedLesson} from '../content/guidedLessons';
 import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
@@ -150,33 +150,6 @@ test('adapts the foundation cohort to typed graph actions', () => {
     ]);
 });
 
-test.each([1.5, Number.NaN, Number.POSITIVE_INFINITY, 'x', true])('rejects the malformed Bernstein degree %p before it reaches the graph', degree => {
-    expect(() => sceneAction({name: 'set-bernstein-degree', value: degree as number})).toThrow(/“set-bernstein-degree” needs an integer value/);
-});
-
-test.each([0, 1, 3, 5])('maps the valid Bernstein degree %p and the stacked-area switch', degree => {
-    expect(sceneAction({name: 'set-bernstein-degree', value: degree})).toEqual({kind: 'bernstein-degree', degree});
-    expect(sceneAction({name: 'show-bernstein-stacked-area', value: false})).toEqual({kind: 'bernstein-stacked-area', visible: false});
-});
-
-test('adapts parameterization scene actions and rejects invalid values with clear errors', () => {
-    expect(sceneAction({name: 'set-parameterization-alpha', value: 0.25})).toEqual({kind: 'parameterization-alpha', value: 0.25});
-    expect(sceneAction({name: 'set-parameterization-alpha', value: 0})).toEqual({kind: 'parameterization-alpha', value: 0});
-    expect(sceneAction({name: 'set-parameterization-samples', value: 3})).toEqual({kind: 'parameterization-samples', count: 3});
-    expect(sceneAction({name: 'set-parameterization-samples', value: 40})).toEqual({kind: 'parameterization-samples', count: 40});
-    expect(sceneAction({name: 'set-parameterization-mode', value: 'uniform'})).toEqual({kind: 'parameterization-mode', mode: 'uniform'});
-    expect(sceneAction({name: 'set-parameterization-mode', value: 'weighted'})).toEqual({kind: 'parameterization-mode', mode: 'weighted'});
-    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
-        expect(() => sceneAction({name: 'set-parameterization-alpha', value: value as number})).toThrow(/“set-parameterization-alpha” needs a finite number/);
-    }
-    for (const value of [2.5, Number.NaN, '3', false]) {
-        expect(() => sceneAction({name: 'set-parameterization-samples', value: value as number})).toThrow(/“set-parameterization-samples” needs an integer/);
-    }
-    for (const value of ['arc', 'Weighted', 1, true]) {
-        expect(() => sceneAction({name: 'set-parameterization-mode', value: value as string})).toThrow(/weighted.*uniform/);
-    }
-});
-
 test('adapts both parameterization lessons into typed runtime actions', () => {
     const weighted = getLessonForDemonstration('weighted-parameterization')!;
     const uniform = getLessonForDemonstration('uniform-parameterization')!;
@@ -187,27 +160,6 @@ test('adapts both parameterization lessons into typed runtime actions', () => {
     expect(kinds(weighted)).toContain('parameterization-samples');
     expect(kinds(weighted)).not.toContain('parameterization-mode');
     expect(kinds(uniform)).toContain('parameterization-mode');
-});
-
-test('adapts subdivision and extrapolation scene actions and rejects invalid values', () => {
-    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.3})).toEqual({kind: 'subdivision-parameter', value: 0.3});
-    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.01})).toEqual({kind: 'subdivision-parameter', value: 0.01});
-    expect(sceneAction({name: 'set-subdivision-parameter', value: 0.99})).toEqual({kind: 'subdivision-parameter', value: 0.99});
-    expect(sceneAction({name: 'subdivide', value: true})).toEqual({kind: 'subdivide'});
-    expect(sceneAction({name: 'set-extrapolation-parameter', value: 1})).toEqual({kind: 'extrapolation-parameter', value: 1});
-    expect(sceneAction({name: 'set-extrapolation-parameter', value: 1.5})).toEqual({kind: 'extrapolation-parameter', value: 1.5});
-    expect(sceneAction({name: 'extrapolate', value: true})).toEqual({kind: 'extrapolate'});
-    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 'x', true]) {
-        expect(() => sceneAction({name: 'set-subdivision-parameter', value: value as number})).toThrow(/“set-subdivision-parameter” needs a finite number/);
-    }
-    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, '1.2', true]) {
-        expect(() => sceneAction({name: 'set-extrapolation-parameter', value: value as number})).toThrow(/“set-extrapolation-parameter” needs a finite number/);
-    }
-    for (const name of ['subdivide', 'extrapolate'] as const) {
-        for (const value of [false, 1, 'true']) {
-            expect(() => sceneAction({name, value: value as boolean})).toThrow(/Unsupported guided scene action/);
-        }
-    }
 });
 
 test('adapts the five construction lessons into typed runtime actions', () => {
@@ -231,63 +183,19 @@ test('every active demonstration route has an available lesson', () => {
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
 });
 
-test('maps the spline, Farin and circle scene actions to typed runtime actions', () => {
-    expect(sceneAction({name: 'show-spline-labels', value: true})).toEqual({kind: 'spline-label-points', visible: true});
-    expect(sceneAction({name: 'hide-spline-fixed-points', value: false})).toEqual({kind: 'spline-hide-fixed', hidden: false});
-    expect(sceneAction({name: 'set-spline-continuity', value: 2})).toEqual({kind: 'spline-continuity', value: 2});
-    expect(sceneAction({name: 'set-spline-degree', value: 3})).toEqual({kind: 'spline-degree', value: 3});
-    expect(sceneAction({name: 'set-spline-beta', value: {index: 1, value: 0.25}})).toEqual({kind: 'spline-beta', index: 1, value: 0.25});
-    expect(sceneAction({name: 'show-farin-points', value: true})).toEqual({kind: 'farin-points', visible: true});
-    expect(sceneAction({name: 'set-standard-form', value: true})).toEqual({kind: 'standard-form', enabled: true});
-    expect(sceneAction({name: 'set-rational-weights', value: [1, 3, 9, 27]})).toEqual({kind: 'rational-weights', weights: [1, 3, 9, 27]});
-    expect(sceneAction({name: 'set-circle-pieces', value: 12})).toEqual({kind: 'circle-pieces', count: 12});
-    expect(sceneAction({name: 'set-parameterization-samples', value: 0})).toEqual({kind: 'parameterization-samples', count: 0});
-    expect(sceneAction({name: 'set-parameterization-samples', value: 50})).toEqual({kind: 'parameterization-samples', count: 50});
-});
-
-test('rejects structurally invalid spline, Farin and circle scene actions', () => {
-    expect(() => sceneAction({name: 'show-spline-labels', value: 1})).toThrow('boolean');
-    expect(() => sceneAction({name: 'show-farin-points', value: 'yes'})).toThrow('boolean');
-    expect(() => sceneAction({name: 'set-spline-degree', value: 2.5})).toThrow('non-negative integer');
-    expect(() => sceneAction({name: 'set-spline-continuity', value: -1})).toThrow('non-negative integer');
-    expect(() => sceneAction({name: 'set-circle-pieces', value: true})).toThrow('non-negative integer');
-    expect(() => sceneAction({name: 'set-spline-beta', value: 0.5})).toThrow('{index, value}');
-    expect(() => sceneAction({name: 'set-spline-beta', value: {index: -1, value: 0.5}})).toThrow('index');
-    expect(() => sceneAction({name: 'set-spline-beta', value: {index: 0, value: Number.NaN}})).toThrow('finite positive');
-    expect(() => sceneAction({name: 'set-spline-beta', value: {index: 0, value: 0}})).toThrow('finite positive');
-    expect(() => sceneAction({name: 'set-rational-weights', value: []})).toThrow('weights');
-    expect(() => sceneAction({name: 'set-rational-weights', value: [1, 0, 2]})).toThrow('weights');
-    expect(() => sceneAction({name: 'set-rational-weights', value: [1, Number.POSITIVE_INFINITY]})).toThrow('weights');
-    expect(() => sceneAction({name: 'set-rational-weights', value: 3})).toThrow('weights');
-    expect(() => sceneAction({name: 'set-parameterization-samples', value: 2.5})).toThrow('needs an integer');
-});
-
-test('leaves numeric ranges to the graph that applies the action', () => {
-    // Each of these is out of range for its graph; the graph rejects it when applied (see sceneContentAgainstGraphs.test.tsx),
-    // so the content translation does not restate the limit.
-    expect(sceneAction({name: 'set-bernstein-degree', value: 6})).toEqual({kind: 'bernstein-degree', degree: 6});
-    expect(sceneAction({name: 'set-parameterization-samples', value: 51})).toEqual({kind: 'parameterization-samples', count: 51});
-    expect(sceneAction({name: 'set-parameterization-alpha', value: 1.1})).toEqual({kind: 'parameterization-alpha', value: 1.1});
-    expect(sceneAction({name: 'set-subdivision-parameter', value: 1})).toEqual({kind: 'subdivision-parameter', value: 1});
-    expect(sceneAction({name: 'set-extrapolation-parameter', value: 2})).toEqual({kind: 'extrapolation-parameter', value: 2});
-    expect(sceneAction({name: 'set-offset-distance', value: 4})).toEqual({kind: 'parameter', name: 'offset-distance', value: 4});
-    expect(sceneAction({name: 'set-decasteljau-parameter', value: 2})).toEqual({kind: 'parameter', name: 't', value: 2});
-    expect(sceneAction({name: 'show-evaluation-point', value: -1})).toEqual({kind: 'curve-evaluation', parameter: -1});
-});
-
-describe('typed and legacy scene actions', () => {
+describe('typed scene actions', () => {
     const scene = (actions: Parameters<typeof sceneActions>[0]['actions']): Parameters<typeof sceneActions>[0] =>
         ({id: 'mixed-scene', basedOn: 'demonstration-default', actions, expectedState: {sl: 's', en: 'e'}});
 
     test('typed actions pass through unchanged', () => {
         const typed = {kind: 'curve-visibility', target: 'control-polygon', visible: true} as const;
-        expect(toLessonAction(typed)).toBe(typed);
+        expect(sceneActions(scene([typed]))[1]).toBe(typed);
     });
 
-    test('mixed typed and legacy actions adapt in authored order after the prepared scene', () => {
+    test('typed actions adapt in authored order after the prepared scene', () => {
         const actions = sceneActions(scene([
             {kind: 'parameter', name: 't', value: 0.25},
-            {name: 'show-control-polygon', value: true},
+            {kind: 'curve-visibility', target: 'control-polygon', visible: true},
             {kind: 'curve-evaluation', parameter: 0.5},
         ]));
         expect(actions).toEqual([

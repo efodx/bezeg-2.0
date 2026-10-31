@@ -1,5 +1,5 @@
 import {expansionGuidedLessons} from './expansionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
+import {sceneActions} from '../runtime/lessonCatalog';
 
 test('keeps the expansion cohort bounded, localized, and source-backed', () => {
     expect(expansionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['rational', 'ph-quintic', 'affine']);
@@ -18,9 +18,8 @@ test('keeps the expansion cohort bounded, localized, and source-backed', () => {
         for (const step of lesson.steps) {
             expect(step.frames[0].kind).toBe('explanation');
             expect(step.frames.at(-1)?.kind).toBe('observation');
-            for (const sceneAction of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(sceneAction.name);
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
     }
 });
@@ -43,13 +42,13 @@ test('records the checked mathematics for the expansion cohort', () => {
 
     const ph = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'ph-quintic')!;
     expect(ph.workedExamples[0].resultLatex).toContain('\\tfrac{29}{8}');
-    expect(ph.steps[2].scene?.actions).toContainEqual({name: 'show-offset-curve', value: true});
+    expect(ph.steps[2].scene?.actions).toContainEqual({kind: 'curve-visibility', target: 'offset-curve', visible: true});
 
     const affine = expansionGuidedLessons.find(lesson => lesson.demonstrationId === 'affine')!;
     expect(affine.formulaBlocks.map(formula => formula.id)).toContain('affine-bezier-commutation');
     expect(affine.steps).toHaveLength(5);
-    expect(affine.steps[1].scene?.actions).toContainEqual({name: 'translate-x', value: -2});
-    expect(affine.steps[1].scene?.actions).toContainEqual({name: 'translate-y', value: -1});
-    expect(affine.steps[2].scene?.actions).toContainEqual({name: 'rotate-affine', value: Math.PI / 2});
-    expect(affine.steps[3].scene?.actions).toContainEqual({name: 'scale-affine', value: 2});
+    expect(affine.steps[1].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'translate-x', value: -2});
+    expect(affine.steps[1].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'translate-y', value: -1});
+    expect(affine.steps[2].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'rotate', value: Math.PI / 2});
+    expect(affine.steps[3].scene?.actions).toContainEqual({kind: 'affine-transform', operation: 'scale', value: 2});
 });

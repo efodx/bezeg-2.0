@@ -1,9 +1,9 @@
 import {analysisGuidedLessons} from './analysisGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson, legacyActions} from './guidedLessons';
+import {getGuidedLesson} from './guidedLessons';
 import {taylorAbsoluteError, taylorExample, taylorPolynomial} from '../../analysis/taylor';
 import {isTermInBand, sequenceMinThreshold, sequenceThresholdWorks} from '../../analysis/sequence';
 import {uniformExample, uniformLimit, uniformPointwiseError, uniformPointwiseThreshold, uniformSupremum, uniformThreshold} from '../../analysis/uniformConvergence';
-import {getLessonForDemonstration, isGuidedLessonAvailable, sceneAction} from '../runtime/lessonCatalog';
+import {getLessonForDemonstration, isGuidedLessonAvailable, sceneActions} from '../runtime/lessonCatalog';
 import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
 import {BISECTION_EXAMPLE_IDS, bisectionHistory} from '../../analysis/bisection';
 import {
@@ -59,10 +59,8 @@ test('the analysis lessons are bounded, localized, source-backed and available',
             step.formulaIds.forEach(id => expect(formulaIds.has(id)).toBe(true));
             if (step.workedExampleId) expect(exampleIds.has(step.workedExampleId)).toBe(true);
             expect(step.frames.some(frame => frame.kind === 'observation')).toBe(true);
-            for (const action of legacyActions(step.scene!.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
     }
 });
@@ -137,14 +135,6 @@ test('the lesson-facing vocabulary is closed: new parameter names, the example c
     expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['a', 'b']));
     expect(FUNCTION_CHOICE_NAMES).toContain('bisection-example');
     expect(FUNCTION_CHOICE_VALUES['bisection-example']).toEqual([...BISECTION_EXAMPLE_IDS]);
-    expect(sceneAction({name: 'set-function-parameter', value: {name: 'bisect-b', value: 1.5}})).toEqual({kind: 'function-parameter', name: 'bisect-b', value: 1.5});
-    expect(sceneAction({name: 'set-function-choice', value: {name: 'bisection-example', value: 'cubic'}})).toEqual({kind: 'function-choice', name: 'bisection-example', value: 'cubic'});
-    expect(() => sceneAction({name: 'set-function-choice', value: {name: 'bisection-example', value: 'sin'}})).toThrow(/must be one of/);
-    expect(sceneAction({name: 'run-bisection-command', value: 'next-step'})).toEqual({kind: 'animation', animationId: 'bisection', command: 'next-step'});
-    expect(sceneAction({name: 'run-bisection-command', value: 'reset'})).toEqual({kind: 'animation', animationId: 'bisection', command: 'reset'});
-    for (const bad of ['play', 'pause', 'replay', 'stop', '', 1, true, null]) {
-        expect(() => sceneAction({name: 'run-bisection-command', value: bad as never})).toThrow(/next-step.*reset/);
-    }
 });
 
 test('the lesson adapts into typed actions for the graph and offers no frame animation', () => {
@@ -206,7 +196,7 @@ describe('the mean value lesson', () => {
             expect(revealed, id).toBe(false);
         }
         // the first reveal comes in the step after the first prediction
-        expect(meanStep('mean-value-reveal-step').scene!.actions).toContainEqual({name: 'show-function-element', value: {name: 'matching-points', value: true}});
+        expect(meanStep('mean-value-reveal-step').scene!.actions).toContainEqual({kind: 'function-visibility', target: 'matching-points', visible: true});
         expect(mean.steps.findIndex(step => step.id === 'mean-value-prerequisites-step')).toBeLessThan(mean.steps.findIndex(step => step.id === 'mean-value-reveal-step'));
     });
 
@@ -279,14 +269,6 @@ describe('the mean value lesson', () => {
         expect(FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['mvt-a', 'mvt-b', 'mvt-c', 'a', 'b', 'bisect-a', 'bisect-b']));
         expect(FUNCTION_CHOICE_NAMES).toContain('mean-value-example');
         expect(FUNCTION_CHOICE_VALUES['mean-value-example']).toEqual([...MEAN_VALUE_EXAMPLE_IDS]);
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'mvt-c', value: 1}})).toEqual({kind: 'function-parameter', name: 'mvt-c', value: 1});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'mean-value-example', value: 'abs'}})).toEqual({kind: 'function-choice', name: 'mean-value-example', value: 'abs'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'matching-points', value: true}})).toEqual({kind: 'function-visibility', target: 'matching-points', visible: true});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'mean-value-example', value: 'sin'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'mvt-d' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'mvt-c', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'matching-points', value: 'yes' as never}})).toThrow(/true or false/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'corners' as never, value: true}})).toThrow(/must be one of/);
     });
 
     test('the lesson cites the source and says how the implementation corresponds to it', () => {
@@ -350,7 +332,7 @@ describe('the accumulation lesson', () => {
             expect(revealed, id).toBe(false);
         }
         // the first area prediction (step 1) comes before the first reveal (step 2)
-        expect(accStep('accumulation-reveal-step').scene!.actions).toContainEqual({name: 'show-function-element', value: {name: 'accumulation-curve', value: true}});
+        expect(accStep('accumulation-reveal-step').scene!.actions).toContainEqual({kind: 'function-visibility', target: 'accumulation-curve', visible: true});
         expect(accumulationLesson.steps.findIndex(step => step.id === 'accumulation-prerequisites-step'))
             .toBeLessThan(accumulationLesson.steps.findIndex(step => step.id === 'accumulation-reveal-step'));
     });
@@ -423,13 +405,6 @@ describe('the accumulation lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('accumulation-function');
         expect(FUNCTION_CHOICE_VALUES['accumulation-function']).toEqual([...FUNCTION_IDS]);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('accumulation-curve');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'accum-x', value: 1}})).toEqual({kind: 'function-parameter', name: 'accum-x', value: 1});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'accumulation-function', value: 'exp'}})).toEqual({kind: 'function-choice', name: 'accumulation-function', value: 'exp'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'accumulation-curve', value: true}})).toEqual({kind: 'function-visibility', target: 'accumulation-curve', visible: true});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'accumulation-function', value: 'cos'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'accum-b' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'accum-a', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'accumulation-curve', value: 'yes' as never}})).toThrow(/true or false/);
     });
 
     test('the lesson cites the source and says how the implementation corresponds to it', () => {
@@ -574,13 +549,6 @@ describe('the Darboux lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('darboux-example');
         expect(FUNCTION_CHOICE_VALUES['darboux-example']).toEqual([...DARBOUX_EXAMPLE_IDS]);
         expect(FUNCTION_VISIBILITY_TARGETS).toEqual(expect.arrayContaining(['lower-sum', 'upper-sum']));
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'darboux-n', value: 8}})).toEqual({kind: 'function-parameter', name: 'darboux-n', value: 8});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'darboux-example', value: 'sine'}})).toEqual({kind: 'function-choice', name: 'darboux-example', value: 'sine'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'lower-sum', value: false}})).toEqual({kind: 'function-visibility', target: 'lower-sum', visible: false});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'darboux-example', value: 'cos'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'darboux-c' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'darboux-a', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'upper-sum', value: 'yes' as never}})).toThrow(/true or false/);
     });
 
     test('the lesson cites the source and says how the implementation corresponds to it', () => {
@@ -729,13 +697,6 @@ describe('the extrema lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('extrema-example');
         expect(FUNCTION_CHOICE_VALUES['extrema-example']).toEqual([...EXTREMA_EXAMPLE_IDS]);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('extrema-classification');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'extrema-a', value: 0}})).toEqual({kind: 'function-parameter', name: 'extrema-a', value: 0});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'extrema-example', value: 'abs'}})).toEqual({kind: 'function-choice', name: 'extrema-example', value: 'abs'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'extrema-classification', value: false}})).toEqual({kind: 'function-visibility', target: 'extrema-classification', visible: false});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'extrema-example', value: 'cos'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-c' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'extrema-a', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'extrema-classification', value: 'yes' as never}})).toThrow(/true or false/);
     });
 });
 
@@ -888,13 +849,6 @@ describe('the convexity lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('convexity-example');
         expect(FUNCTION_CHOICE_VALUES['convexity-example']).toEqual([...CONVEXITY_EXAMPLE_IDS]);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('second-derivative');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'convexity-t', value: 1.8}})).toEqual({kind: 'function-parameter', name: 'convexity-t', value: 1.8});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'convexity-example', value: 'cube'}})).toEqual({kind: 'function-choice', name: 'convexity-example', value: 'cube'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'second-derivative', value: false}})).toEqual({kind: 'function-visibility', target: 'second-derivative', visible: false});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'convexity-example', value: 'abs'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'convexity-c' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'convexity-a', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'second-derivative', value: 'yes' as never}})).toThrow(/true or false/);
     });
 });
 
@@ -1081,13 +1035,6 @@ describe('the taylor lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('taylor-example');
         expect(FUNCTION_CHOICE_VALUES['taylor-example']).toEqual(['exp', 'sine', 'geometric', 'flat']);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('taylor-bound');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'taylor-degree', value: 6}})).toEqual({kind: 'function-parameter', name: 'taylor-degree', value: 6});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'taylor-example', value: 'flat'}})).toEqual({kind: 'function-choice', name: 'taylor-example', value: 'flat'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'taylor-bound', value: false}})).toEqual({kind: 'function-visibility', target: 'taylor-bound', visible: false});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'taylor-example', value: 'tan'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'taylor-order' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'taylor-x', value: Number.NaN}})).toThrow(/finite/);
-        expect(() => sceneAction({name: 'show-function-element', value: {name: 'taylor-bound', value: 'yes' as never}})).toThrow(/true or false/);
     });
 });
 
@@ -1269,16 +1216,7 @@ describe('the sequence lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('sequence-example');
         expect(FUNCTION_CHOICE_VALUES['sequence-example']).toEqual(['reciprocal', 'alternating-reciprocal', 'alternating-sign', 'natural']);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('sequence-certificate');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'sequence-epsilon', value: 0.05}})).toEqual({kind: 'function-parameter', name: 'sequence-epsilon', value: 0.05});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'sequence-example', value: 'natural'}})).toEqual({kind: 'function-choice', name: 'sequence-example', value: 'natural'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'sequence-certificate', value: true}})).toEqual({kind: 'function-visibility', target: 'sequence-certificate', visible: true});
-        expect(sceneAction({name: 'run-sequence-command', value: 'next-step'})).toEqual({kind: 'animation', animationId: 'sequence', command: 'next-step'});
-        expect(sceneAction({name: 'run-sequence-command', value: 'reset'})).toEqual({kind: 'animation', animationId: 'sequence', command: 'reset'});
-        expect(() => sceneAction({name: 'run-sequence-command', value: 'play'})).toThrow(/next-step.*reset/);
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'sequence-example', value: 'harmonic'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-delta' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'sequence-limit', value: Number.NaN}})).toThrow(/finite/);
-        expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-sequence-command');
+        expect(adapted().steps.flatMap(step => step.scene!.actions)).toContainEqual({kind: 'animation', animationId: 'sequence', command: 'next-step'});
     });
 });
 
@@ -1438,16 +1376,7 @@ describe('the fixed-point lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('fixed-point-example');
         expect(FUNCTION_CHOICE_VALUES['fixed-point-example']).toEqual(['affine', 'cosine', 'reflection']);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('fixed-point-bound');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-x0', value: 0.25}})).toEqual({kind: 'function-parameter', name: 'fixed-point-x0', value: 0.25});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'fixed-point-example', value: 'cosine'}})).toEqual({kind: 'function-choice', name: 'fixed-point-example', value: 'cosine'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'fixed-point-bound', value: true}})).toEqual({kind: 'function-visibility', target: 'fixed-point-bound', visible: true});
-        expect(sceneAction({name: 'run-fixed-point-command', value: 'next-step'})).toEqual({kind: 'animation', animationId: 'fixed-point', command: 'next-step'});
-        expect(sceneAction({name: 'run-fixed-point-command', value: 'reset'})).toEqual({kind: 'animation', animationId: 'fixed-point', command: 'reset'});
-        expect(() => sceneAction({name: 'run-fixed-point-command', value: 'play'})).toThrow(/next-step.*reset/);
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'fixed-point-example', value: 'sine'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-y0' as never, value: 1}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'fixed-point-digits', value: Number.NaN}})).toThrow(/finite/);
-        expect(SUPPORTED_SCENE_ACTION_NAMES).toContain('run-fixed-point-command');
+        expect(adapted().steps.flatMap(step => step.scene!.actions)).toContainEqual(advance);
     });
 });
 
@@ -1599,10 +1528,5 @@ describe('the uniform convergence lesson', () => {
         expect(FUNCTION_CHOICE_NAMES).toContain('uniform-example');
         expect(FUNCTION_CHOICE_VALUES['uniform-example']).toEqual(['power', 'scaled']);
         expect(FUNCTION_VISIBILITY_TARGETS).toContain('uniform-supremum');
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'uniform-r', value: 0.95}})).toEqual({kind: 'function-parameter', name: 'uniform-r', value: 0.95});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'uniform-example', value: 'scaled'}})).toEqual({kind: 'function-choice', name: 'uniform-example', value: 'scaled'});
-        expect(sceneAction({name: 'show-function-element', value: {name: 'uniform-supremum', value: true}})).toEqual(show);
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'uniform-example', value: 'cubic'}})).toThrow(/must be one of/);
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'uniform-r', value: Number.NaN}})).toThrow(/finite/);
     });
 });

@@ -1,6 +1,5 @@
 import {splineGuidedLessons} from './splineGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
-import {sceneAction} from '../runtime/lessonCatalog';
+import {sceneActions} from '../runtime/lessonCatalog';
 import {GenericBezierSpline} from '../../bezeg/impl/curve/GenericBezierSpline';
 import {C1QuadraticBezierSpline} from '../../bezeg/impl/curve/C1QuadraticBezierSpline';
 import {C2CubicBezierSpline} from '../../bezeg/impl/curve/C2CubicBezierSpline';
@@ -15,7 +14,7 @@ import G1SplineGraph from '../../graphs/curves/spline/G1SplineGraph';
 import G1SymmetricSplineGraph from '../../graphs/curves/spline/G1SymmetricSplineGraph';
 
 const lessonFor = (id: string) => splineGuidedLessons.find(lesson => lesson.demonstrationId === id)!;
-const stepActions = (id: string) => lessonFor(id).steps.map(step => legacyActions(step.scene!.actions));
+const stepActions = (id: string) => lessonFor(id).steps.map(step => step.scene!.actions);
 
 /** Route defaults, read from the shipped graph presets. The importer reads only the first two numbers of a point. */
 const defaultPoints = (Cls: any): number[][] =>
@@ -137,10 +136,8 @@ test('keeps the spline lessons bounded, localized, and source-backed', () => {
             if (fixtureLessons.includes(lesson.demonstrationId)) expect(['lesson-fixture', 'demonstration-default']).toContain(step.scene?.basedOn);
             else expect(step.scene?.basedOn).toBe('demonstration-default');
             expect(step.scene?.actions.length).toBeGreaterThan(0);
-            for (const action of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
         expect(usedExamples).toEqual(exampleIds);
         expect(usedFormulas).toEqual(formulaIds);
@@ -148,13 +145,13 @@ test('keeps the spline lessons bounded, localized, and source-backed', () => {
 });
 
 test('each lesson only uses the action families of its own graph', () => {
-    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions)).map(action => action.name));
-    expect(names('spline-cn')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
-    expect(names('spline-c1')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
-    expect(names('spline-c2')).toEqual(new Set(['show-spline-labels', 'show-control-polygon']));
-    expect(names('spline-g1')).toEqual(new Set(['show-spline-labels', 'show-control-polygon', 'set-spline-beta']));
-    expect(names('spline-g1-symmetric')).toEqual(new Set(['show-spline-labels', 'show-control-polygon', 'set-spline-beta']));
-    expect(names('spline-parameterization')).toEqual(new Set(['set-parameterization-alpha', 'set-parameterization-samples', 'hide-spline-fixed-points']));
+    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.kind === 'curve-visibility' ? `${action.kind}:${action.target}` : action.kind));
+    expect(names('spline-cn')).toEqual(new Set(['spline-label-points', 'curve-visibility:control-polygon']));
+    expect(names('spline-c1')).toEqual(new Set(['spline-label-points', 'curve-visibility:control-polygon']));
+    expect(names('spline-c2')).toEqual(new Set(['spline-label-points', 'curve-visibility:control-polygon']));
+    expect(names('spline-g1')).toEqual(new Set(['spline-label-points', 'curve-visibility:control-polygon', 'spline-beta']));
+    expect(names('spline-g1-symmetric')).toEqual(new Set(['spline-label-points', 'curve-visibility:control-polygon', 'spline-beta']));
+    expect(names('spline-parameterization')).toEqual(new Set(['parameterization-alpha', 'parameterization-samples', 'spline-hide-fixed']));
 });
 
 test('scene actions respect the graph bounds when applied in order', () => {
@@ -169,13 +166,13 @@ test('scene actions respect the graph bounds when applied in order', () => {
             // Only pairs that fill every piece are used (see the limitation test below).
             expect([[2, 1], [3, 2]]).toContainEqual([degree, continuity]);
         }
-        expect(legacyActions(scene.actions).some(action => action.name === 'set-spline-degree' || action.name === 'set-spline-continuity')).toBe(false);
+        expect(scene.actions.some(action => action.kind === 'spline-degree' || action.kind === 'spline-continuity')).toBe(false);
     }
     // spline-g1 / spline-g1-symmetric: the junction index exists and the value is inside the slider range.
     const betaChecks: [string, number, number, number][] = [['spline-g1', g1().getNumOfBs(), 0.01, 3], ['spline-g1-symmetric', g1s().getNumOfBs(), 0.01, 0.99]];
     for (const [id, count, min, max] of betaChecks) {
-        for (const action of lessonFor(id).steps.flatMap(step => legacyActions(step.scene!.actions)).filter(a => a.name === 'set-spline-beta')) {
-            const {index, value} = action.value as {index: number; value: number};
+        for (const action of lessonFor(id).steps.flatMap(step => step.scene!.actions).flatMap(a => a.kind === 'spline-beta' ? [a] : [])) {
+            const {index, value} = action;
             expect(index).toBeGreaterThanOrEqual(0);
             expect(index).toBeLessThan(count);
             expect(value).toBeGreaterThanOrEqual(min);
@@ -633,9 +630,9 @@ describe('spline-parameterization structure', () => {
         const alphas = [0.5, 0.5, 0, 1, 0.5];
         scenes.forEach((actions, i) => {
             expect(actions).toEqual([
-                {name: 'set-parameterization-alpha', value: alphas[i]},
-                {name: 'set-parameterization-samples', value: 10},
-                {name: 'hide-spline-fixed-points', value: false},
+                {kind: 'parameterization-alpha', value: alphas[i]},
+                {kind: 'parameterization-samples', count: 10},
+                {kind: 'spline-hide-fixed', hidden: false},
             ]);
             expect(lessonFor('spline-parameterization').steps[i].scene?.basedOn).toBe('lesson-fixture');
         });

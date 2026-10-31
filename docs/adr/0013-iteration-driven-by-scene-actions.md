@@ -17,3 +17,5 @@ Consequences:
 - Lesson authors must repeat `next-step` once per step shown; there is no "go to step k" action, so a long iteration in a scene is written as a generated list of `next-step` actions.
 
 Amendment 2026-10-31 (A9): content now authors the runtime `LessonAction` union directly, so the iteration commands are written as typed `animation` actions. The string names above (`run-bisection-command` and siblings, `SUPPORTED_SCENE_ACTION_NAMES`) are a legacy vocabulary that remains only until A9b migrates the remaining content; the decision itself is unchanged.
+
+Amendment 2026-10-31 (A9b): the legacy string vocabulary is deleted (`SceneAction`, `SUPPORTED_SCENE_ACTION_NAMES` and the translation in `lessonCatalog.ts`). Scene actions are typed `LessonAction` values; an iteration step is `{kind: 'animation', animationId: 'bisection', command: 'next-step'}` (`'sequence'` and `'fixed-point'` likewise), and the runtime passes it straight to the graph. The decision above is unchanged; the names `run-bisection-command` and siblings now appear only as history.

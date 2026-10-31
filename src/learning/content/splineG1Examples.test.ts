@@ -25,7 +25,7 @@ function fixturesOf(id: Id): Fixture[] {
         const scene: any = step.scene;
         if (scene?.basedOn !== 'lesson-fixture') continue;
         const ratios: number[] = [...scene.curve.splineRatios];
-        for (const action of scene.actions ?? []) if (action.name === 'set-spline-beta') ratios[action.value.index] = action.value.value;
+        for (const action of scene.actions ?? []) if (action.kind === 'spline-beta') ratios[action.index] = action.value;
         result.push({id, sceneId: scene.id, points: scene.curve.points.map((p: Pt) => [p[0], p[1]]), ratios, view: scene.view});
     }
     return result;
