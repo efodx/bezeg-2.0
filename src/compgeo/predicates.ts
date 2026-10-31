@@ -8,8 +8,8 @@
  * - `orientValue` / `orient` have degree two. Coordinate differences stay within 2^26, each product within 2^52 and
  *   their difference within 2^53, so plain doubles are exact. `onSegment`, `segmentIntersection` and
  *   `polygonSimplicity` only combine signs of `orient` and exact integer comparisons, so they are exact too.
- * - Reserved extension point: `incircle` (degree four). Its determinant is exact in doubles for |c| <= 2^11 and needs
- *   `BigInt` above that. It is implemented by the triangulation family and deliberately not provided here.
+ * - `incircleValue` / `incircle` have degree four. See `INCIRCLE_FAST_LIMIT` below: exact in doubles for |c| <= 2^11,
+ *   computed in `BigInt` above that.
  */
 import {assertGridPoint, type GridPoint} from './grid';
 
@@ -36,6 +36,57 @@ export function orientValue(a: GridPoint, b: GridPoint, c: GridPoint): number {
 export function orient(a: GridPoint, b: GridPoint, c: GridPoint): Orientation {
     const value = orientValue(a, b, c);
     return value > 0 ? 1 : value < 0 ? -1 : 0;
+}
+
+/** 2^11: the largest absolute coordinate for which `incircleValue` evaluates in plain doubles (see below). */
+export const INCIRCLE_FAST_LIMIT = 2 ** 11;
+
+/**
+ * The exact incircle determinant of the rows (a.x-d.x, a.y-d.y, (a.x-d.x)^2+(a.y-d.y)^2) for a, b, c in that order,
+ * as a `bigint`: positive when d lies strictly inside the circle through the counter-clockwise triangle abc, zero
+ * when the four points are cocircular, negative outside. For a clockwise abc the sign flips. At the grid limit 2^25
+ * the value reaches about 2^105, so it cannot be a `number`; readouts convert with `toString()`.
+ *
+ * Exactness bound (the same role as the 2^25 comment of `orientValue`): the double path runs only when every absolute
+ * coordinate of the four points is at most 2^11 and expands along the lift column,
+ *   det = la (bx cy - by cx) - lb (ax cy - ay cx) + lc (ax by - ay bx),
+ * where (ax, ay) = a - d and la = ax^2 + ay^2, and so on. Differences are at most 2^12, so each product in a 2x2
+ * minor is at most 2^24 and each minor at most 2^25; each lift is at most 2*(2^12)^2 = 2^25; every term is at most
+ * 2^50 and the three-term sum is below 3*2^50 < 2^52, so every intermediate value is an exact double. Another
+ * expansion order needs its own bound. Above the limit the same determinant is evaluated with `BigInt`.
+ */
+export function incircleValue(a: GridPoint, b: GridPoint, c: GridPoint, d: GridPoint): bigint {
+    assertGridPoint(a, 'a');
+    assertGridPoint(b, 'b');
+    assertGridPoint(c, 'c');
+    assertGridPoint(d, 'd');
+    const small = [a, b, c, d].every(p => Math.abs(p.x) <= INCIRCLE_FAST_LIMIT && Math.abs(p.y) <= INCIRCLE_FAST_LIMIT);
+    if (small) {
+        const ax = a.x - d.x, ay = a.y - d.y;
+        const bx = b.x - d.x, by = b.y - d.y;
+        const cx = c.x - d.x, cy = c.y - d.y;
+        const value = (ax * ax + ay * ay) * (bx * cy - by * cx)
+            - (bx * bx + by * by) * (ax * cy - ay * cx)
+            + (cx * cx + cy * cy) * (ax * by - ay * bx);
+        return BigInt(value);
+    }
+    const dx = BigInt(d.x), dy = BigInt(d.y);
+    const ax = BigInt(a.x) - dx, ay = BigInt(a.y) - dy;
+    const bx = BigInt(b.x) - dx, by = BigInt(b.y) - dy;
+    const cx = BigInt(c.x) - dx, cy = BigInt(c.y) - dy;
+    return (ax * ax + ay * ay) * (bx * cy - by * cx)
+        - (bx * bx + by * by) * (ax * cy - ay * cx)
+        + (cx * cx + cy * cy) * (ax * by - ay * bx);
+}
+
+/**
+ * Sign of `incircleValue`: 1 when d is strictly inside the circle through the counter-clockwise triangle abc, 0 on
+ * the circle, -1 outside. Throws a RangeError when a, b, c are collinear (no circle), as for non-grid input.
+ */
+export function incircle(a: GridPoint, b: GridPoint, c: GridPoint, d: GridPoint): Orientation {
+    if (orient(a, b, c) === 0) throw new RangeError('a, b, c must not be collinear');
+    const value = incircleValue(a, b, c, d);
+    return value > 0n ? 1 : value < 0n ? -1 : 0;
 }
 
 /** True when p lies on the closed segment ab (endpoints included; a = b is the single point a). */
