@@ -10,6 +10,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 - **Ids and routes.** Chapter id `advanced-bezier`. Demonstrations: `reduction` (D1, `/bezeg-2.0/bezier/reduction`), `bezier-clipping` (D2, `/bezeg-2.0/bezier/clipping`), `arc-length-param` (D3, `/bezeg-2.0/bezier/arc-length`), `patch-coons` (D4, `/bezeg-2.0/patches/coons`).
 - **Kernels** under `src/bezeg/impl/kernels/`: `degree-reduction.ts`, `bezier-clipping.ts`, `arc-length.ts`, `coons.ts`.
 - **Gate reading.** Kernels are ungated except `bezier-clipping.ts` (`G-CG`: it uses the convexity hull predicate). D1/D3 graphs subclass point-controlled curve graphs, so their F2a waits for `G-CURVE`; D4 extends `BaseSurfaceGraph` and is ungated for F2a. Registration and lessons need `G-REG`.
+- **D4 graph scene (handler 7, 2026-10-31).** The surface view draws one mesh per scene, so the spec's toggles for \(L_c\), \(L_d\), \(B\) and the result are one choice of the shown surface (default: the Coons patch \(S\)); the four boundary curves are always drawn. The spec asks for shared corners and also a step that breaks one: a "linked corners" switch (on by default) shares each corner between its two boundaries; off, each end point moves alone; switching it back on snaps each corner pair to its average (the kernel's \(B\) rule) as one edit.
 - **Terms.** The spec's Slovenian proposals as written (one-shot rule).
 
 ## Slices
@@ -23,4 +24,5 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-1d | F1 | `bezier-clipping.ts` | `G-CG` | planned |
 | AB-A-* | F2a–F6 | D1 reduction, D3 arc length | `G-CURVE`, `G-REG`, AB-1a, AB-1b | planned |
 | AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d | planned |
-| AB-C-* | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
+| AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
+| AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | in progress |
