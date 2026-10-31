@@ -48,6 +48,15 @@ describe('rational analysis (S4)', () => {
         expect(b.reducedNumerator.zeros).toEqual([{z: 1, m: 1}]);
     });
 
+    it('scales the hole limit by both leading factors and never reports -0', () => {
+        // -2(x+1)(x-1) / (4(x-1)) = -(x+1)/2, so the hole at x = 1 has limit -1.
+        const a = analyzeRational({k: -2, zeros: [{z: -1, m: 1}, {z: 1, m: 1}]}, lin(1, 4));
+        expect(a.holes).toEqual([{x: 1, y: -1}]);
+        // -(x-1)^2 / (x-1) = -(x-1): the limit at 1 is 0, not -0.
+        const b = analyzeRational({k: -1, zeros: [{z: 1, m: 2}]}, lin(1));
+        expect(Object.is(b.holes[0].y, 0)).toBe(true);
+    });
+
     it('merges repeated zeros before comparing and reports it', () => {
         const a = analyzeRational({k: 1, zeros: [{z: 1, m: 1}, {z: 1, m: 1}]}, lin(1));
         expect(a.mergedNumerator).toBe(true);

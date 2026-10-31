@@ -60,6 +60,10 @@ describe('product-form polynomial (S3)', () => {
         expect(mergeZeros(S3).merged).toBe(false);
     });
 
+    it('refuses to merge zeros into a multiplicity above 3', () => {
+        expect(() => mergeZeros({k: 1, zeros: [{z: 1, m: 2}, {z: 1, m: 2}]})).toThrow(RangeError);
+    });
+
     it('divides exactly', () => {
         const {quotient, remainder} = dividePolynomials([-1, 0, 1], [-2, 1]);
         expect(quotient).toEqual([2, 1]);

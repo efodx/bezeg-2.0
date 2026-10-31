@@ -1,7 +1,8 @@
 /**
  * Rational functions p/q of two product-form polynomials (school function graphs, concept S4). Holes are the common
  * zeros, found exactly from the factor structure (equal zero values); poles are the zeros of the reduced
- * denominator. Pure mathematics, no UI imports.
+ * denominator. Zero values pair only when exactly equal (`===`): inputs come from slider and step grids, so a
+ * computed value such as 0.1 + 0.2 is not matched with 0.3. Pure mathematics, no UI imports.
  */
 import {dividePolynomials, evalCoefficients, mergeZeros, polyCoefficients, polyDegree, polyValue} from './polynomial';
 import type {PolySpec} from './schoolFunctions';
@@ -57,7 +58,7 @@ export const analyzeRational = (numerator: PolySpec, denominator: PolySpec): Rat
     for (const e of dz) {
         const other = nz.find(f => f.z === e.z);
         if (other && other.m >= e.m) {
-            holes.push({x: e.z, y: polyValue(reducedNumerator, e.z) / polyValue(reducedDenominator, e.z)});
+            holes.push({x: e.z, y: polyValue(reducedNumerator, e.z) / polyValue(reducedDenominator, e.z) + 0}); // + 0 turns -0 into 0
         }
     }
     for (const e of rd) poles.push({x: e.z, multiplicity: e.m});

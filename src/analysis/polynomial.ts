@@ -25,12 +25,13 @@ export const mergeZeros = (spec: PolySpec): MergeResult => {
         const last = out[out.length - 1];
         if (last && last.z === e.z) {
             last.m += e.m;
+            if (last.m > MAX_MULTIPLICITY) throw new RangeError(`merged multiplicity ${last.m} at z = ${e.z} exceeds ${MAX_MULTIPLICITY}; validate the spec first`);
             merged = true;
         } else {
             out.push({z: e.z, m: e.m});
         }
     }
-    // A merged multiplicity above 3 is rejected by validation; the cast keeps the type honest for valid specs.
+    // Every merged multiplicity is at most MAX_MULTIPLICITY (checked above), so the entries are valid ZeroEntry values.
     return {spec: {k: spec.k, zeros: out as unknown as readonly ZeroEntry[]}, merged};
 };
 
