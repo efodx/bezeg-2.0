@@ -85,6 +85,15 @@ Edits in either mode update all overlays immediately.
   - Lesson math-notation rules apply, and `lessonMathNotation.test.ts` must pass.
 - New Slovenian terms (for example the playground's name, *anchor*, *handle*, *corner point*, *smooth point*) are chosen during implementation by the [term process](../localization.md#choosing-new-terms) and recorded in its table, with sources in this spec. Prefer existing words: *točka*, *stik*, *zveznost*, *kontrolna točka*, *kontrolni poligon*.
 
+## Terms
+
+Chosen during PG2 by the [term process](../localization.md#choosing-new-terms). No web research was possible in the implementing session, so the basis is in-repo reuse and general Slovenian usage; revisit if the owner or a reviewer finds a better-established term.
+
+- *anchor* → **točka**, with **kotna točka** (corner) and **gladka točka** (smooth). Reuses *točka*, the repository's word for any point (`add_point`, `delete_point`); *kontrolna točka* stays reserved for the control points \(P_0\)–\(P_3\) of the mathematics.
+- *handle* → **ročica**. The usual word for a Bézier handle in Slovenian design software and tutorials (not independently verified here); it is distinct from *kontrolna točka*, which fits the later reading that handles are control points.
+- *shape* → **oblika**; *undo* → **Razveljavi**, *redo* → **Ponovi** (the standard Slovenian editor commands).
+- Join types in names: *kotna (C0)*, *gladka (G1)*, *gladka (C1)*, using the same C0/G1/C1 names as the classification.
+
 ## Persistence
 
 - Save the drawing through `appStorage` under `bezier-playground.drawing.v1` after each committed change (drag end, keystroke, toolbar action). Do not save on every pointer move. Wrap every access in a try/catch, and work without storage.
