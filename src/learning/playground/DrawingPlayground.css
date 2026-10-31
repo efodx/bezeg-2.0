@@ -1,5 +1,8 @@
 .playground {
     display: grid;
+    /* One column that never grows past its container: wide toolbar content wraps instead of widening the page. */
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 0.6rem;
     color: var(--bezeg-shell-ink);
 }
@@ -13,6 +16,7 @@
 
 .playground__group {
     display: inline-flex;
+    flex-wrap: wrap;
     gap: 0.25rem;
 }
 
