@@ -1,3 +1,4 @@
+import type {CameraPresetName} from '../../../learning/model';
 import type {SurfaceCamera, Xyz} from './surfaceScene';
 
 export const FOV_DEG = 38;
@@ -11,8 +12,8 @@ export const CAMERA_PRESETS = {
     top: {az: 0, el: MAX_ELEVATION},
     side: {az: Math.PI / 2, el: 0.06},
     isometric: {az: Math.PI / 4, el: 0.55},
-} as const;
-export type CameraPresetName = keyof typeof CAMERA_PRESETS;
+} as const satisfies Record<CameraPresetName, {readonly az: number; readonly el: number}>;
+export type {CameraPresetName};
 
 export const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
 export const clampElevation = (el: number): number => clamp(el, -MAX_ELEVATION, MAX_ELEVATION);

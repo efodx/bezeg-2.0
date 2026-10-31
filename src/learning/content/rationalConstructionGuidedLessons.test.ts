@@ -1,5 +1,5 @@
 import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
 import {sceneAction} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
@@ -67,7 +67,7 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
             const startsFromFixture = lesson.demonstrationId === 'decasteljau-alternative'
                 && ['da-cubic-two-quadratics', 'da-cubic-quarter'].includes(step.id);
             expect(step.scene?.basedOn).toBe(startsFromFixture ? 'lesson-fixture' : 'demonstration-default');
-            for (const action of step.scene?.actions ?? []) {
+            for (const action of legacyActions(step.scene?.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
             }
@@ -77,7 +77,7 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
 });
 
 test('each lesson only uses the scene actions of its own graph, with valid values', () => {
-    const actions = (id: string) => lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []);
+    const actions = (id: string) => lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions));
     expect(new Set(actions('decasteljau-alternative').map(action => action.name))).toEqual(new Set(['set-decasteljau-parameter']));
     actions('decasteljau-alternative').forEach(action => {
         expect(typeof action.value).toBe('number');
@@ -102,12 +102,12 @@ test('each lesson only uses the scene actions of its own graph, with valid value
         expect(action.value as number).toBeGreaterThanOrEqual(3);
         expect(action.value as number).toBeLessThanOrEqual(12);
     }
-    expect(lessonFor('decasteljau-alternative').steps.map(step => step.scene!.actions)).toEqual([
+    expect(lessonFor('decasteljau-alternative').steps.map(step => legacyActions(step.scene!.actions))).toEqual([
         [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
         [], [{name: 'set-decasteljau-parameter', value: 0.5}], [{name: 'set-decasteljau-parameter', value: 0.25}],
         [{name: 'set-decasteljau-parameter', value: 0.75}], [{name: 'set-decasteljau-parameter', value: 0.5}],
     ]);
-    expect(lessonFor('circle').steps.map(step => step.scene!.actions.map(action => action.value))).toEqual([[], [3], [4], [6], [12]]);
+    expect(lessonFor('circle').steps.map(step => legacyActions(step.scene!.actions).map(action => action.value))).toEqual([[], [3], [4], [6], [12]]);
     expect(lessonFor('farin').steps.map(step => step.scene!.actions.length)).toEqual([1, 2, 2, 3, 4]);
 });
 

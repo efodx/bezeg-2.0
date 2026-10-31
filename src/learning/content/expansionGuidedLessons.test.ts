@@ -1,5 +1,5 @@
 import {expansionGuidedLessons} from './expansionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
 
 test('keeps the expansion cohort bounded, localized, and source-backed', () => {
     expect(expansionGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['rational', 'ph-quintic', 'affine']);
@@ -18,7 +18,7 @@ test('keeps the expansion cohort bounded, localized, and source-backed', () => {
         for (const step of lesson.steps) {
             expect(step.frames[0].kind).toBe('explanation');
             expect(step.frames.at(-1)?.kind).toBe('observation');
-            for (const sceneAction of step.scene?.actions ?? []) {
+            for (const sceneAction of legacyActions(step.scene?.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(sceneAction.name);
             }
         }

@@ -1,5 +1,5 @@
-import type {LessonCurveFixture, LessonViewBox} from '../model';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText, SceneAction} from './guidedLessons';
+import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
@@ -12,13 +12,13 @@ const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly st
 const rationalDecasteljauView: LessonViewBox = [-6, 5, 6, -4.5];
 const quadraticFixture = (weights: readonly number[]): LessonCurveFixture => ({points: [[-4, -3], [0, 3], [4, -3]], weights});
 const cubicFixture = (weights: readonly number[]): LessonCurveFixture => ({points: [[-4, -3], [-3, 3], [3, 3], [4, -3]], weights});
-const rationalDecasteljauScene = (id: string, curve: LessonCurveFixture, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const rationalDecasteljauScene = (id: string, curve: LessonCurveFixture, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id, basedOn: 'lesson-fixture', curve, view: rationalDecasteljauView, actions, expectedState: text(sl, en),
 });
-const RATIONAL_DECASTELJAU_ACTIONS: readonly SceneAction[] = [
-    {name: 'show-decasteljau-construction', value: true},
-    {name: 'show-weights', value: true},
-    {name: 'set-decasteljau-parameter', value: 0.5},
+const RATIONAL_DECASTELJAU_ACTIONS: readonly LessonAction[] = [
+    {kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true},
+    {kind: 'curve-visibility', target: 'weights', visible: true},
+    {kind: 'parameter', name: 't', value: 0.5},
 ];
 
 const rationalDecasteljau: GuidedLesson = {
@@ -113,7 +113,6 @@ const rationalDecasteljau: GuidedLesson = {
                 'Kvadratna krivulja z utežmi \\((1,1,1)\\) in konstrukcija pri \\(t=\\tfrac{1}{2}\\) sta vidni; končna točka je \\((0,0)\\).',
                 'The quadratic curve with weights \\((1,1,1)\\) and its construction at \\(t=\\tfrac{1}{2}\\) are visible; the final point is \\((0,0)\\).',
             ),
-            learnerInteraction: 'observe',
             observationPrompt: text('Preberi uteži in končno točko konstrukcije; to je primerjalna točka za naslednja koraka.', 'Read the weights and the final point of the construction; it is the reference point for the next steps.'),
             expectedObservations: [text('Vse uteži so \\(1\\) in konstrukcija je navadna; končna točka je \\((0,0)\\).', 'All weights are \\(1\\) and the construction is ordinary; the final point is \\((0,0)\\).')],
         },
@@ -133,7 +132,6 @@ const rationalDecasteljau: GuidedLesson = {
                 'Konstrukcija kvadratne krivulje z utežmi \\((1,2,1)\\) je prikazana pri \\(t=\\tfrac{1}{2}\\); vse homogene koordinate se interpolirajo skupaj.',
                 'The construction of the quadratic curve with weights \\((1,2,1)\\) is shown at \\(t=\\tfrac{1}{2}\\); all homogeneous coordinates are interpolated together.',
             ),
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Predvajaj konstrukcijo in poišči vrstico, v kateri se začne spreminjati tudi zadnja, utežna koordinata.', 'Play the construction and identify the row in which the final, weight coordinate also changes.'),
             expectedObservations: [text('Zadnja koordinata se spremeni že v prvi vrstici (\\(\\tfrac{3}{2}\\)); konstrukcija se konča z eno homogeno točko.', 'The last coordinate changes already in the first row (\\(\\tfrac{3}{2}\\)); the construction ends in one homogeneous point.')],
         },
@@ -153,7 +151,6 @@ const rationalDecasteljau: GuidedLesson = {
                 'Končna konstrukcijska točka pri \\(t=\\tfrac{1}{2}\\) je projekcija točke \\((0,1)\\).',
                 'The final construction point at \\(t=\\tfrac{1}{2}\\) is the projection of the point \\((0,1)\\).',
             ),
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj izračunano točko \\((0,1)\\) s končno točko konstrukcije in s točko \\((0,0)\\) pri enakih utežeh.', 'Compare the calculated point \\((0,1)\\) with the final construction point and with the point \\((0,0)\\) for equal weights.'),
             expectedObservations: [text('Po projekciji končna točka konstrukcije sovpada s točko racionalne krivulje; ta je višje kot pri enakih utežeh.', 'After projection, the final construction point coincides with the point on the rational curve; it is higher than for equal weights.')],
         },
@@ -167,7 +164,6 @@ const rationalDecasteljau: GuidedLesson = {
             ),
             formulaIds: ['rational-weighted-form'],
             frames: [frame('rational-decasteljau-cubic-equal-explanation', 'explanation'), frame('rational-decasteljau-cubic-equal-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preveri, da je zadnja koordinata v vseh vrsticah \\(1\\), in preberi končno točko \\((0,\\tfrac{3}{2})\\).', 'Check that the last coordinate is \\(1\\) in every row, and read the final point \\((0,\\tfrac{3}{2})\\).'),
             expectedObservations: [text('Pri enakih utežeh ni deljenja z drugo vrednostjo kot \\(1\\); konstrukcija je navadna.', 'With equal weights there is no division by anything other than \\(1\\); the construction is ordinary.')],
             scene: rationalDecasteljauScene(
@@ -187,7 +183,6 @@ const rationalDecasteljau: GuidedLesson = {
             formulaIds: ['rational-weighted-form', 'rational-projection'],
             frames: [frame('rational-decasteljau-weight-effect-explanation', 'explanation'), frame('rational-decasteljau-weight-effect-calculation', 'calculation'), frame('rational-decasteljau-weight-effect-observation', 'observation')],
             workedExampleId: 'rational-decasteljau-midpoint',
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj izračunano točko \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) s končno točko konstrukcije in s točko \\((0,\\tfrac{3}{2})\\) pri enakih utežeh.', 'Compare the calculated point \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) with the final construction point and with the point \\((0,\\tfrac{3}{2})\\) for equal weights.'),
             expectedObservations: [text('Kontrolni poligon je isti, konstrukcijska točka pa je zaradi večje druge uteži bližje \\(P_1\\); po projekciji sovpada s točko krivulje.', 'The control polygon is the same, but because of the larger second weight the construction point is closer to \\(P_1\\); after projection it coincides with the curve point.')],
             scene: rationalDecasteljauScene(
@@ -206,7 +201,6 @@ const rationalDecasteljau: GuidedLesson = {
             ),
             formulaIds: ['rational-weighted-form', 'rational-projection'],
             frames: [frame('rational-decasteljau-analysis-explanation', 'explanation'), frame('rational-decasteljau-analysis-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Izberi parameter in utež ter preveri, ali se konstrukcija in projekcija še ujemata.', 'Choose a parameter and a weight, then check whether the construction and projection still agree.'),
             expectedObservations: [text('Pri regularni nastavitvi se zadnja projekcija ujema z vrednostjo racionalne krivulje.', 'For a regular configuration, the final projection agrees with the rational curve value.')],
             scene: rationalDecasteljauScene(
@@ -220,13 +214,11 @@ const rationalDecasteljau: GuidedLesson = {
         {
             id: 'farin-rational-bezier',
             citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-            supports: ['rational Bézier curves', 'homogeneous coordinates', 'rational De Casteljau construction'],
             implementationCorrespondence: 'The repository evaluates rational curves by lifting weighted points to three coordinates, applying polynomial De Casteljau recursion, and projecting the result in src/bezeg/impl/curve/rational-bezier-curve.ts.',
         },
         {
             id: 'bezeg-rational-decasteljau-implementation',
             citation: 'Bezeg source: src/bezeg/impl/curve/rational-bezier-curve.ts, src/graphs/curves/object/JXGRationalBezierCurve.ts, and src/graphs/curves/rational/RationalDecasteljauGraph.tsx.',
-            supports: ['weighted evaluation', 'homogeneous De Casteljau rows', 'rational graph defaults and controls'],
         },
     ],
     edgeCases: [
@@ -303,12 +295,11 @@ const elevation: GuidedLesson = {
             ),
             formulaIds: ['elevation-shape-invariance'],
             frames: [frame('elevation-degree-explanation', 'explanation'), frame('elevation-degree-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preštej točke polnega in črtkanega poligona ter ugotovi, kateri od njiju določa krivuljo, ki jo trenutno vlečeš.', 'Count the points of the solid and the dashed polygon and decide which of them defines the curve you are currently dragging.'),
             expectedObservations: [text('Polni poligon ima štiri točke (stopnja 3), črtkani pet; krivulja je ena sama.', 'The solid polygon has four points (degree 3), the dashed one five; there is a single curve.')],
             scene: {
                 id: 'elevation-default', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}],
                 expectedState: text('Privzeta kubična krivulja z njenim polnim poligonom in črtkanim poligonom višane predstavitve sta vidna.', 'The default cubic curve with its solid polygon and the dashed polygon of the elevated representation are visible.'),
             },
         },
@@ -322,12 +313,11 @@ const elevation: GuidedLesson = {
             ),
             formulaIds: ['elevation-control-points'],
             frames: [frame('elevation-formula-explanation', 'explanation'), frame('elevation-formula-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj polni poligon \\(P\\) s črtkanim \\(Q\\): kje se ujemata in kje se razlikujeta?', 'Compare the solid polygon \\(P\\) with the dashed polygon \\(Q\\): where do they agree and where do they differ?'),
             expectedObservations: [text('Črtkani poligon ima eno točko več, krajišči \\(Q_0=P_0\\) in \\(Q_4=P_3\\) pa sta skupni.', 'The dashed polygon has one more point, while the endpoints \\(Q_0=P_0\\) and \\(Q_4=P_3\\) are shared.')],
             scene: {
                 id: 'elevation-both-polygons', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}],
                 expectedState: text('Polni poligon (štiri točke) in črtkani poligon višane predstavitve (pet točk) sta prikazana skupaj; krivulja je še stopnje 3.', 'The solid polygon (four points) and the dashed polygon of the elevated representation (five points) are shown together; the curve is still of degree 3.'),
             },
         },
@@ -342,12 +332,11 @@ const elevation: GuidedLesson = {
             formulaIds: ['elevation-control-points', 'elevation-shape-invariance'],
             frames: [frame('elevation-calculation-explanation', 'explanation'), frame('elevation-calculation-calculation', 'calculation'), frame('elevation-calculation-observation', 'observation')],
             workedExampleId: 'elevation-cubic-example',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preveri vrednost pri \\(t=\\tfrac{1}{2}\\) na obeh predstavitvah.', 'Check the value at \\(t=\\tfrac{1}{2}\\) in both representations.'),
             expectedObservations: [text('Vrednost \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) se ohrani, čeprav je kontrolni poligon drugačen.', 'The value \\(\\left(-\\tfrac{1}{2},\\,\\tfrac{7}{4}\\right)\\) is preserved even though the control polygon is different.')],
             scene: {
                 id: 'elevation-calculation-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-evaluation-point', value: 0.5}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-evaluation', parameter: 0.5}],
                 expectedState: text('Oba poligona in točka \\(B(\\tfrac{1}{2})\\) sta prikazana; točka leži na krivulji, ne glede na to, kateri poligon jo določa.', 'Both polygons and the point \\(B(\\tfrac{1}{2})\\) are shown; the point lies on the curve whichever polygon defines it.'),
             },
         },
@@ -361,12 +350,11 @@ const elevation: GuidedLesson = {
             ),
             formulaIds: ['elevation-shape-invariance'],
             frames: [frame('elevation-analysis-explanation', 'explanation'), frame('elevation-analysis-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Izberi več vrednosti \\(t\\) in preveri, ali se oblika in krajišči ujemajo.', 'Choose several \\(t\\) values and check whether the shape and endpoints agree.'),
             expectedObservations: [text('Pri običajnem intervalu se ujemajo vse preverjene točke, ne samo sredina.', 'All checked points agree on the ordinary interval, not only the midpoint.')],
             scene: {
                 id: 'elevation-analysis-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'elevate-degree', value: true}, {name: 'show-evaluation-point', value: 0.75}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'degree-elevation'}, {kind: 'curve-evaluation', parameter: 0.75}],
                 expectedState: text('Krivulja je zdaj stopnje 4: polni poligon je prejšnji črtkani \\(Q\\), črtkani poligon kaže naslednje višanje na stopnjo 5.', 'The curve now has degree 4: the solid polygon is the former dashed \\(Q\\), the dashed polygon previews the next elevation to degree 5.'),
             },
         },
@@ -375,13 +363,11 @@ const elevation: GuidedLesson = {
         {
             id: 'farin-degree-elevation',
             citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-            supports: ['Bézier degree elevation', 'control-point construction', 'shape preservation'],
             implementationCorrespondence: 'The degree-elevation recurrence is implemented by the curve model and exposed by JXGBezierCurve.elevate().',
         },
         {
             id: 'bezeg-elevation-implementation',
             citation: 'Bezeg source: src/graphs/curves/bezier/ElevationGraph.tsx and src/graphs/curves/object/JXGBezierCurve.ts.',
-            supports: ['default cubic control points', 'degree elevation action', 'control-polygon rendering'],
         },
     ],
     edgeCases: [

@@ -1,5 +1,5 @@
 import {functionGuidedLessons} from './functionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson, legacyActions} from './guidedLessons';
 import {getLessonForDemonstration, sceneAction} from '../runtime/lessonCatalog';
 import {lineThroughPoints, moveAlongLine} from '../../analysis/linear';
 import {exponentialValue, integerValues, mirrorBase} from '../../analysis/exponential';
@@ -49,7 +49,7 @@ test('keeps the function lessons bounded, localized, and source-backed', () => {
             expect(step.scene).toBeDefined();
             step.formulaIds.forEach(id => expect(formulaIds.has(id)).toBe(true));
             if (step.workedExampleId) expect(exampleIds.has(step.workedExampleId)).toBe(true);
-            for (const action of step.scene?.actions ?? []) {
+            for (const action of legacyActions(step.scene?.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
             }
@@ -96,7 +96,7 @@ test('the worked example and the scene values match the line mathematics', () =>
     const line = lineThroughPoints({x: 0, y: 1}, {x: 2, y: 5});
     expect(line.kind === 'line' && line.k * 2 + line.n).toBe(5);
 
-    const parameters = lesson.steps.flatMap(step => step.scene?.actions ?? []).filter(action => action.name === 'set-function-parameter');
+    const parameters = lesson.steps.flatMap(step => legacyActions(step.scene?.actions)).filter(action => action.name === 'set-function-parameter');
     const values = parameters.map(action => action.value as {name: string; value: number});
     expect(values.every(({value}) => Number.isFinite(value))).toBe(true);
 

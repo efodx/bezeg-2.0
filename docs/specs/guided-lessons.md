@@ -75,6 +75,19 @@ There is no branching, quiz, adaptive path, assessment engine, or lesson-authori
 
 Content is localized through stable content IDs. Slovenian is the default; every shipped pilot step has an English counterpart. Formulas, symbols, route IDs, action IDs, and user-authored preset names are independent of translated wording.
 
+### Authored review fields — decision 2026-10-31
+
+Content authors the runtime `LessonAction` union (`src/learning/model.ts`) directly; the legacy string names (`SceneAction`) survive only for unmigrated files and are removed by A9b. Each field authored on a lesson, judged by who reads it:
+
+| Field | Decision | Reader and reason |
+| --- | --- | --- |
+| `learnerInteraction` | Remove | No reader: no runtime, UI or test consumes it. It is now optional and `@deprecated`; A9b deletes it and its occurrences. |
+| `sources[].supports` | Remove | No reader. Same handling as above. |
+| `sources[]` citation and implementation correspondence | Keep | Analysis tests read them to tie claims to sources. |
+| `expectedObservations` | Keep | About 40 content-test reads pin numeric claims against an independent computation; no UI reader, so it is a review/test field. |
+| `expectedState` | Keep | Content tests plus the per-graph tests that every lesson scene reproduces its `expectedState`. |
+| `step.action` / `frame.action` | Keep | `GuidedLesson.tsx` renders the explicit “show this” button from it; session, registry and restoration tests exercise it. No authored lesson uses it today; it is kept for that button and flagged for the owner. |
+
 ## Completed implementation slices
 
 The historical handoff details are consolidated in the [lesson implementation history](../reviews/lesson-implementation-history.md#guided-lesson-runtime-and-pilot-content). The current implementation evidence and UX audit are linked below.

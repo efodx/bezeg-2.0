@@ -15,3 +15,5 @@ Consequences:
 - The graph's registry still accepts `play`, `pause` and `replay` for `bisection`, so tests and future content may use them; today's lesson content does not.
 - Each iterative graph adds its own scene action name to `SUPPORTED_SCENE_ACTION_NAMES`, a deliberate cost: the closed list keeps content and runtime in lockstep at compile time.
 - Lesson authors must repeat `next-step` once per step shown; there is no "go to step k" action, so a long iteration in a scene is written as a generated list of `next-step` actions.
+
+Amendment 2026-10-31 (A9): content now authors the runtime `LessonAction` union directly, so the iteration commands are written as typed `animation` actions. The string names above (`run-bisection-command` and siblings, `SUPPORTED_SCENE_ACTION_NAMES`) are a legacy vocabulary that remains only until A9b migrates the remaining content; the decision itself is unchanged.

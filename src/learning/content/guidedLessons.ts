@@ -1,19 +1,18 @@
 /**
  * Static, renderer-independent content for the first Guided lesson pilots.
  *
- * This is intentionally a raw content contract, not the lesson runtime model.
- * A runtime adapter should retrieve a lesson by demonstrationId, render the
- * localized fields, apply scene.actions through a demonstration-owned graph
- * capability, and treat learnerInteraction as an instruction rather than an
- * action to simulate. Content never reaches JSXGraph or the DOM.
+ * This is the authored content contract, not the lesson runtime model: the runtime adapter (`adaptContent` in
+ * `lessonCatalog.ts`) retrieves a lesson by demonstrationId, renders the localized fields and applies scene.actions
+ * through a demonstration-owned graph capability. Content never reaches JSXGraph or the DOM.
  *
- * Scene action names are limited to operations already exposed by the current
- * graph wrappers. The runtime adapter maps them to those wrappers, validates
- * values, and reports unsupported actions explicitly.
+ * A scene's `actions` are the runtime `LessonAction` union itself (`../model`), so a misspelled action or parameter
+ * fails typecheck. The legacy string `SceneAction` form below is accepted until A9b migrates the remaining content files.
+ * Which authored review fields stay is recorded in docs/specs/guided-lessons.md.
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonAnimationId, LessonCurveFixture, LessonPatchFixture, LessonView3D, LessonViewBox} from '../model';
+import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText, PatchVisibilityTarget} from '../model';
+export type {LocalizedText} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
 import {analysisGuidedLessons} from './analysisGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
@@ -24,15 +23,10 @@ import {constructionGuidedLessons} from './constructionGuidedLessons';
 import {rationalConstructionGuidedLessons} from './rationalConstructionGuidedLessons';
 import {splineGuidedLessons} from './splineGuidedLessons';
 
-export type LessonLocale = 'sl' | 'en';
+export type LessonLocale = LessonLanguage;
 
 /** Increment only when the raw content shape changes incompatibly for a runtime adapter. */
 export const GUIDED_LESSON_CONTENT_VERSION = 2;
-
-export type LocalizedText = Readonly<{
-    sl: string;
-    en: string;
-}>;
 
 export type FormulaBlock = Readonly<{
     id: string;
@@ -50,43 +44,10 @@ export type WorkedExample = Readonly<{
 }>;
 
 /**
- * These names correspond to existing graph-wrapper methods. The list is closed (ADR 0013): content and runtime stay in
- * lockstep at compile time. Value ranges are not stated here or in `sceneAction()`: the graph that applies an action
- * defines and enforces its limits, and `sceneContentAgainstGraphs.test.tsx` applies every scene and Chapter activity
- * to the real graph of its Demonstration, so out-of-range content fails a test.
- *
- * - show-control-polygon -> AbstractJXGPointControlledCurve.showControllPolygon
- * - show-convex-hull -> AbstractJXGPointControlledCurve.showConvexHull
- * - show-decasteljau-construction -> AbstractJXGBezierCurve.showCurrentDecasteljauScheme
- * - set-decasteljau-parameter -> AbstractJXGBezierCurve.setDecasteljauT
- * - show-evaluation-point -> BaseCurveGraph's curve-owned evaluation marker
- * - show-weights -> JXGRationalBezierCurve.showwWeights
- * - elevate-degree -> ElevationGraph's graph-owned degree elevation operation
- * - show-offset-curve -> JXGPHBezierCurve.setShowOffsetCurve
- * - set-offset-distance -> JXGPHBezierCurve.setOffsetCurveDistance
- * - set-bernstein-degree -> BernsteinGraph's graph-owned degree action (an integer; BERNSTEIN_MAX_DEGREE bounds it)
- * - show-bernstein-stacked-area -> BernsteinGraph's graph-owned stacked-area view
- * - set-parameterization-alpha / -samples / -mode -> AlphaParam and UniformParam graph-owned parameterization actions (a number alpha, an integer sample count whose bounds differ by route, mode weighted|uniform; the target graph enforces the bounds, see parametrisationLimits.ts)
- * - set-subdivision-parameter / subdivide -> SubdivisionGraph1 (and rational) parameter t (SUBDIVISION_T_MIN..MAX) and one split; on repeated-subdivision, subdivide is one halving step (at most 5)
- * - set-extrapolation-parameter / extrapolate -> ExtrapolationGraph (and rational) parameter t (EXTRAPOLATION_T_MIN..MAX) and one extrapolation
- * - show-spline-labels / hide-spline-fixed-points -> spline graphs' point-label and fixed-point display switches (boolean)
- * - set-spline-continuity / set-spline-degree -> OneSidedCnSplineGraph continuity r and degree n (integers; route bounds enforced by the graph)
- * - set-spline-beta -> G1 spline graphs' b/beta slider, value {index, value} (index is a non-negative integer; range enforced by the graph)
- * - show-farin-points / set-standard-form / set-rational-weights -> FarinPointsCurveGraph display, standard-form switch and weight vector (one positive finite weight per control point)
- * - set-circle-pieces -> RationalBezierCurveCircleGraphN piece counter (integer; route bounds enforced by the graph)
- * - affine transform names -> AffineTransformBezierCurveGraph's graph-owned operations
- * - show-function-element -> function graphs' optional elements (value {name, value}: name is a FunctionVisibilityTarget, value a boolean)
- * - set-function-choice -> function graphs' named choices, value {name, value} (name is a FunctionChoiceName, value one of the strings allowed for that name; the graph maps it)
- * - set-function-parameter -> function graphs' synchronous parameter model, value {name, value} (name is a FunctionParameterName; the graph enforces its own domain)
- * - show-patch-point -> surface graphs' evaluation, value {u, v} (tensor patches, both in [0, 1]) or {u, v, w?} (triangular, barycentric); the graph enforces the domain
- * - show-patch-element -> surface graphs' visibility switches, value {name, value} (name is a patch visibility target, value a boolean; a graph without that switch reports the action unsupported)
- * - subdivide-patch -> the patch split, value {direction: 'u' | 'v', value} for a tensor patch or {} for a triangular one (its fixed three-piece preview)
- * - elevate-patch -> exact patch degree elevation, value {direction: 'u' | 'v'} for a tensor patch or {} for a triangular one
- * - set-camera-preset -> a named 3D camera view: front, top, side or isometric
- * - run-patch-u-sweep / run-patch-v-sweep -> the patch u or v sweep animation, value play, pause, replay or stop
- * - run-bisection-command -> BisectionGraph's iteration, value 'next-step' (one revealed step) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions: playback is initially stopped and under the learner's control
- * - run-fixed-point-command -> FixedPointGraph's iteration, value 'next-step' (one more iterate) or 'reset' (back to step 0); a scene repeats 'next-step' once per step it shows. Play and pause are not scene actions
- * - run-sequence-command -> SequenceGraph's revealed terms, value 'next-step' (one more term) or 'reset' (back to one term); a scene repeats 'next-step' once per term it adds. Play and pause are not scene actions
+ * @deprecated Legacy string action names, removed by A9b (architecture backlog task 9). New and migrated content
+ * authors the typed `LessonAction` union from `../model` directly; the per-action documentation lives on its members.
+ * This list and `sceneAction()` in `lessonCatalog.ts` only keep content files that are not migrated yet working;
+ * `tools/learning/migrate-lesson-actions.cjs` rewrites them.
  */
 export const SUPPORTED_SCENE_ACTION_NAMES = [
     'show-control-polygon',
@@ -137,8 +98,10 @@ export const SUPPORTED_SCENE_ACTION_NAMES = [
     'run-patch-v-sweep',
 ] as const;
 
+/** @deprecated Removed by A9b. */
 export type SupportedSceneActionName = typeof SUPPORTED_SCENE_ACTION_NAMES[number];
 
+/** @deprecated Removed by A9b. */
 export type SceneActionValue =
     | boolean
     | number
@@ -150,15 +113,20 @@ export type SceneActionValue =
     | Readonly<{name: FunctionChoiceName; value: string}>
     | Readonly<{u: number; v: number; w?: number}>
     | Readonly<{direction?: 'u' | 'v'; value?: number}>
-    | Readonly<{name: PatchElementName; value: boolean}>;
+    | Readonly<{name: PatchVisibilityTarget; value: boolean}>;
 
-/** The patch visibility switches content can address (mirrors the runtime `patch-visibility` targets). */
-export type PatchElementName = Extract<LessonAction, {kind: 'patch-visibility'}>['target'];
-
+/** @deprecated Legacy string action, removed by A9b. Author a `LessonAction` instead. */
 export type SceneAction = Readonly<{
     name: SupportedSceneActionName;
     value: SceneActionValue;
 }>;
+
+/** What a scene's `actions` accept during the A9 migration. @deprecated Narrowed to `LessonAction` by A9b. */
+export type LessonSceneAction = LessonAction | SceneAction;
+
+/** The legacy string actions among a scene's actions, for content tests of unmigrated files. @deprecated Removed by A9b. */
+export const legacyActions = (actions: readonly LessonSceneAction[] = []): readonly SceneAction[] =>
+    actions.filter((action): action is SceneAction => !('kind' in action));
 
 /**
  * A scene starts from the Demonstration's default scene, or from that scene with lesson-specific curve geometry and an
@@ -166,7 +134,7 @@ export type SceneAction = Readonly<{
  */
 export type LessonScene = Readonly<{
     id: string;
-    actions: readonly SceneAction[];
+    actions: readonly LessonSceneAction[];
     expectedState: LocalizedText;
 } & (
     | {basedOn: 'demonstration-default'; view?: LessonViewBox}
@@ -174,7 +142,7 @@ export type LessonScene = Readonly<{
     | {basedOn: 'lesson-patch-fixture'; patch: LessonPatchFixture; view3d?: LessonView3D}
 )>;
 
-/** Existing UI gesture, recorded for the learner but never simulated by content. */
+/** @deprecated Read by nothing; removed by A9b (docs/specs/guided-lessons.md, authored review fields). */
 export type LearnerInteraction =
     | 'observe'
     | 'drag-control-point'
@@ -182,7 +150,7 @@ export type LearnerInteraction =
     | 'drag-hodograph-point'
     | 'adjust-offset-distance';
 
-export type GuidedLessonFrameKind = 'explanation' | 'calculation' | 'observation';
+export type GuidedLessonFrameKind = LessonFrameKind;
 
 export type GuidedLessonFrame = Readonly<{
     id: string;
@@ -190,9 +158,7 @@ export type GuidedLessonFrame = Readonly<{
     formulaIds?: readonly string[];
 }>;
 
-export type GuidedLessonAnimation = Readonly<{
-    animationId: LessonAnimationId;
-}>;
+export type GuidedLessonAnimation = LessonAnimation;
 
 export type GuidedLessonStep = Readonly<{
     id: string;
@@ -205,7 +171,8 @@ export type GuidedLessonStep = Readonly<{
     workedExampleId?: string;
     animation?: GuidedLessonAnimation;
     scene?: LessonScene;
-    learnerInteraction: LearnerInteraction;
+    /** @deprecated Read by nothing; removed by A9b. */
+    learnerInteraction?: LearnerInteraction;
     observationPrompt: LocalizedText;
     expectedObservations: readonly LocalizedText[];
 }>;
@@ -213,7 +180,8 @@ export type GuidedLessonStep = Readonly<{
 export type ContentSource = Readonly<{
     id: string;
     citation: string;
-    supports: readonly string[];
+    /** @deprecated Read by nothing; removed by A9b. */
+    supports?: readonly string[];
     implementationCorrespondence?: string;
 }>;
 
@@ -235,7 +203,7 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
 const scene = (
     id: string,
-    actions: readonly SceneAction[],
+    actions: readonly LessonSceneAction[],
     sl: string,
     en: string,
 ): LessonScene => ({
@@ -245,12 +213,13 @@ const scene = (
     expectedState: text(sl, en),
 });
 
+/** @deprecated Legacy action helper, removed by A9b together with the string actions. */
 const action = (name: SupportedSceneActionName, value: boolean | number): SceneAction => ({name, value});
 
 /** Cubic PH lesson fixture: P_0=(-2,-1), w_0=2, w_1=2+i, so w(t)=2+it, speed 4+t^2 and arc length 13/3. */
 const phCubicFixture: LessonCurveFixture = {points: [[-2, -1]], hodographs: [[2, 0], [2, 1]]};
 const phCubicView: LessonViewBox = [-3.2, 2.7, 3.4, -2.7];
-const phCubicScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const phCubicScene = (id: string, actions: readonly LessonSceneAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'lesson-fixture',
     curve: phCubicFixture,
@@ -266,7 +235,7 @@ const phCubicScene = (id: string, actions: readonly SceneAction[], sl: string, e
 const bezierSymmetricFixture: LessonCurveFixture = {points: [[-3, -2], [-3, 2], [3, 2], [3, -2]]};
 const bezierAsymmetricFixture: LessonCurveFixture = {points: [[-3, -2], [-1, 3], [2, -1], [3, 2]]};
 const bezierView: LessonViewBox = [-4.5, 4, 4.5, -3.5];
-const bezierScene = (id: string, curve: LessonCurveFixture, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const bezierScene = (id: string, curve: LessonCurveFixture, actions: readonly LessonSceneAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'lesson-fixture',
     curve,
@@ -875,6 +844,11 @@ const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGu
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {
     return lessonByDemonstration.get(demonstrationId);
+}
+
+/** The first pilot lessons (`pilotGuidedLessons`) keep the runtime id suffix `-pilot`; every other lesson's id ends in `-guided`. */
+export function isPilotGuidedLesson(demonstrationId: DemonstrationId): boolean {
+    return lessonByDemonstration.has(demonstrationId);
 }
 
 /** Returns content that has passed the static content and graph-capability review gate. */

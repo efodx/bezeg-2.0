@@ -1,5 +1,5 @@
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
 import {sceneAction} from '../runtime/lessonCatalog';
 import {alphaParameterization} from '../../graphs/curves/parametrisations/AlphaParamBezierCurveGraph';
 import {PhBezierCurve} from '../../bezeg/impl/curve/ph-bezier-curve';
@@ -50,7 +50,7 @@ test('keeps the parameterization lessons bounded, localized, and source-backed',
                 usedExamples.add(step.workedExampleId);
             }
             expect(step.scene?.basedOn).toBe('demonstration-default');
-            for (const action of step.scene?.actions ?? []) {
+            for (const action of legacyActions(step.scene?.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
             }
@@ -60,11 +60,11 @@ test('keeps the parameterization lessons bounded, localized, and source-backed',
 });
 
 test('the weighted lesson only uses alpha and sample actions, the mode action belongs to the PH route', () => {
-    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.name));
+    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions)).map(action => action.name));
     expect(names('weighted-parameterization')).toEqual(new Set(['set-parameterization-alpha', 'set-parameterization-samples']));
     expect(names('uniform-parameterization')).toEqual(new Set(['set-parameterization-mode', 'set-parameterization-alpha', 'set-parameterization-samples']));
     // Both lessons open with three interior samples set by explicit actions, not by the route default of 10.
-    const first = (id: string) => lessonFor(id).steps[0].scene!.actions.map(action => [action.name, action.value]);
+    const first = (id: string) => lessonFor(id).steps[0].scene!.actions.flatMap(a => legacyActions([a])).map(action => [action.name, action.value]);
     expect(first('weighted-parameterization')).toEqual([['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
     expect(first('uniform-parameterization')).toEqual([['set-parameterization-mode', 'weighted'], ['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
 });
@@ -108,7 +108,7 @@ test('the weighted worked examples match the implementation of phi_alpha', () =>
 
 test('the weighted lesson scenes use the values stated in the prose', () => {
     const lesson = lessonFor('weighted-parameterization');
-    const scenes = Object.fromEntries(lesson.steps.map(step => [step.id, step.scene!.actions.map(action => [action.name, action.value])]));
+    const scenes = Object.fromEntries(lesson.steps.map(step => [step.id, legacyActions(step.scene!.actions).map(action => [action.name, action.value])]));
     expect(lesson.steps.map(step => step.id)).toEqual(['wp-same-curve', 'wp-quarter-calculation', 'wp-symmetry-step', 'wp-density-ten', 'wp-density']);
     expect(scenes['wp-same-curve']).toEqual([['set-parameterization-alpha', 0.5], ['set-parameterization-samples', 3]]);
     expect(scenes['wp-quarter-calculation']).toEqual([['set-parameterization-alpha', 0.25], ['set-parameterization-samples', 3]]);
@@ -320,9 +320,9 @@ test('uniform lesson: equal arcs versus unequal chords, inversion tolerance, sha
 
     // The scenes compare modes at one count and geometry: steps 4 and 5 both use 10 samples, steps 1 to 3 use 3.
     const lesson = lessonFor('uniform-parameterization');
-    const counts = lesson.steps.map(step => step.scene!.actions.find(action => action.name === 'set-parameterization-samples')!.value);
+    const counts = lesson.steps.map(step => legacyActions(step.scene!.actions).find(action => action.name === 'set-parameterization-samples')!.value);
     expect(counts).toEqual([3, 3, 3, 10, 10]);
-    expect(lesson.steps.map(step => step.scene!.actions.find(action => action.name === 'set-parameterization-mode')!.value))
+    expect(lesson.steps.map(step => legacyActions(step.scene!.actions).find(action => action.name === 'set-parameterization-mode')!.value))
         .toEqual(['weighted', 'weighted', 'uniform', 'uniform', 'weighted']);
     lesson.steps.forEach(step => expect(Object.keys(step.scene!).sort()).toEqual(['actions', 'basedOn', 'expectedState', 'id']));
 

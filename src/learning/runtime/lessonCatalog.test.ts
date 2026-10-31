@@ -1,4 +1,4 @@
-import {getLessonForDemonstration, sceneAction, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
+import {getLessonForDemonstration, sceneAction, sceneActions, toLessonAction, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
 import {getDemonstrationCatalog} from '../../demonstrations';
 
 test('adapts reviewed pilot scene names into typed runtime actions', () => {
@@ -266,4 +266,33 @@ test('leaves numeric ranges to the graph that applies the action', () => {
     expect(sceneAction({name: 'set-offset-distance', value: 4})).toEqual({kind: 'parameter', name: 'offset-distance', value: 4});
     expect(sceneAction({name: 'set-decasteljau-parameter', value: 2})).toEqual({kind: 'parameter', name: 't', value: 2});
     expect(sceneAction({name: 'show-evaluation-point', value: -1})).toEqual({kind: 'curve-evaluation', parameter: -1});
+});
+
+describe('typed and legacy scene actions', () => {
+    const scene = (actions: Parameters<typeof sceneActions>[0]['actions']): Parameters<typeof sceneActions>[0] =>
+        ({id: 'mixed-scene', basedOn: 'demonstration-default', actions, expectedState: {sl: 's', en: 'e'}});
+
+    test('typed actions pass through unchanged', () => {
+        const typed = {kind: 'curve-visibility', target: 'control-polygon', visible: true} as const;
+        expect(toLessonAction(typed)).toBe(typed);
+    });
+
+    test('mixed typed and legacy actions adapt in authored order after the prepared scene', () => {
+        const actions = sceneActions(scene([
+            {kind: 'parameter', name: 't', value: 0.25},
+            {name: 'show-control-polygon', value: true},
+            {kind: 'curve-evaluation', parameter: 0.5},
+        ]));
+        expect(actions).toEqual([
+            {kind: 'prepared-scene', sceneId: 'mixed-scene', source: 'demonstration-default'},
+            {kind: 'parameter', name: 't', value: 0.25},
+            {kind: 'curve-visibility', target: 'control-polygon', visible: true},
+            {kind: 'curve-evaluation', parameter: 0.5},
+        ]);
+    });
+
+    test('lesson ids distinguish pilot content from other guided content', () => {
+        expect(getLessonForDemonstration('bezier')!.id).toBe('bezier-pilot');
+        expect(getLessonForDemonstration('elevation')!.id).toBe('elevation-guided');
+    });
 });

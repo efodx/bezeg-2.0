@@ -1,5 +1,5 @@
 import {constructionGuidedLessons} from './constructionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
 import {sceneAction} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
@@ -73,18 +73,18 @@ test('keeps the construction lessons bounded, localized, and source-backed', () 
             // Only the rational-extrapolation steps that show far-away control points use a fixture with a widened view.
             const fixtureSteps = lesson.demonstrationId === 'rational-extrapolation' ? ['rex-example', 'rex-negative-weight'] : [];
             expect(step.scene?.basedOn).toBe(fixtureSteps.includes(step.id) ? 'lesson-fixture' : 'demonstration-default');
-            for (const action of step.scene?.actions ?? []) {
+            for (const action of legacyActions(step.scene?.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
             }
         }
         expect(usedExamples).toEqual(exampleIds);
-        expect(lesson.steps[0].scene?.actions.every(action => action.name === 'show-weights')).toBe(true);
+        expect(legacyActions(lesson.steps[0].scene?.actions).every(action => action.name === 'show-weights')).toBe(true);
     }
 });
 
 test('each lesson only uses the action families of its own graph', () => {
-    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.name));
+    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions)).map(action => action.name));
     expect(names('subdivision')).toEqual(new Set(['set-subdivision-parameter', 'subdivide']));
     expect(names('repeated-subdivision')).toEqual(new Set(['subdivide']));
     expect(names('rational-subdivision')).toEqual(new Set(['show-weights', 'set-subdivision-parameter', 'subdivide']));
@@ -92,7 +92,7 @@ test('each lesson only uses the action families of its own graph', () => {
     expect(names('rational-extrapolation')).toEqual(new Set(['show-weights', 'set-extrapolation-parameter', 'extrapolate']));
     // The repeated-subdivision lesson never exceeds the five-step cap in a single scene.
     for (const step of lessonFor('repeated-subdivision').steps) {
-        expect((step.scene?.actions ?? []).filter(action => action.name === 'subdivide').length).toBeLessThanOrEqual(5);
+        expect((legacyActions(step.scene?.actions)).filter(action => action.name === 'subdivide').length).toBeLessThanOrEqual(5);
     }
     expect(lessonFor('repeated-subdivision').steps.map(step => step.scene!.actions.length)).toEqual([0, 1, 2, 3, 4]);
 });

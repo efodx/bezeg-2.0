@@ -1,5 +1,5 @@
 import {analysisGuidedLessons} from './analysisGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson} from './guidedLessons';
+import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson, legacyActions} from './guidedLessons';
 import {taylorAbsoluteError, taylorExample, taylorPolynomial} from '../../analysis/taylor';
 import {isTermInBand, sequenceMinThreshold, sequenceThresholdWorks} from '../../analysis/sequence';
 import {uniformExample, uniformLimit, uniformPointwiseError, uniformPointwiseThreshold, uniformSupremum, uniformThreshold} from '../../analysis/uniformConvergence';
@@ -59,7 +59,7 @@ test('the analysis lessons are bounded, localized, source-backed and available',
             step.formulaIds.forEach(id => expect(formulaIds.has(id)).toBe(true));
             if (step.workedExampleId) expect(exampleIds.has(step.workedExampleId)).toBe(true);
             expect(step.frames.some(frame => frame.kind === 'observation')).toBe(true);
-            for (const action of step.scene!.actions) {
+            for (const action of legacyActions(step.scene!.actions)) {
                 expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
                 expect(() => sceneAction(action)).not.toThrow();
             }

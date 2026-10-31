@@ -1,12 +1,18 @@
 import type {DemonstrationId} from '../../demonstrations';
 import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
-import {FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS} from '../model';
+import {CAMERA_PRESET_NAMES, FUNCTION_CHOICE_NAMES, FUNCTION_CHOICE_VALUES, FUNCTION_PARAMETER_NAMES, FUNCTION_VISIBILITY_TARGETS, PATCH_VISIBILITY_TARGETS} from '../model';
 import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
-import {getGuidedLesson, SceneAction, type LessonScene} from '../content/guidedLessons';
+import {getGuidedLesson, isPilotGuidedLesson, type LessonSceneAction, type SceneAction, type LessonScene} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from './lessonAvailability';
 export {GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonAvailability';
+
+/*
+ * @deprecated Legacy string-action translation, removed by A9b (architecture backlog task 9). Everything from here to
+ * `toLessonAction` only serves content files that still author `SceneAction` strings; migrated content authors the typed
+ * `LessonAction` union (`../model`) directly and needs no translation.
+ */
 
 /**
  * The value of a scene action that carries a number. Only the shape is checked here: the range belongs to the graph that
@@ -28,8 +34,6 @@ function integerValue(action: SceneAction): number {
 }
 
 
-const PATCH_VISIBILITY_TARGETS = ['control-net', 'iso-curves', 'boundary-curves', 'decasteljau-scheme', 'tangent-plane', 'normal', 'twist', 'shading'] as const;
-const CAMERA_PRESET_NAMES = ['front', 'top', 'side', 'isometric'] as const;
 const SWEEP_COMMAND_NAMES = ['play', 'pause', 'replay', 'stop'] as const;
 
 function objectValue(action: SceneAction, shape: string): Record<string, unknown> {
@@ -132,7 +136,7 @@ export function view3dFixture(view: LessonView3D): LessonView3D {
         ...(view.projection ? {projection: view.projection} : {})};
 }
 
-/** Translates a content scene action into the typed action a graph applies, checking the value's type and shape. */
+/** @deprecated Translates a legacy string action into the typed action a graph applies, checking the value's type and shape. Removed by A9b. */
 export function sceneAction(action: SceneAction): LessonAction {
     if (action.name === 'show-control-polygon' && typeof action.value === 'boolean') {
         return {kind: 'curve-visibility', target: 'control-polygon', visible: action.value};
@@ -298,6 +302,11 @@ export function sceneAction(action: SceneAction): LessonAction {
     throw new Error(`Unsupported guided scene action “${action.name}”.`);
 }
 
+/** A typed action runs as authored; a legacy string action is translated. @deprecated The legacy branch is removed by A9b. */
+export function toLessonAction(action: LessonSceneAction): LessonAction {
+    return 'kind' in action ? action : sceneAction(action);
+}
+
 /** The actions a content scene runs: its prepared scene, then its authored actions in order. */
 export function sceneActions(scene: LessonScene): LessonAction[] {
     return [
@@ -309,7 +318,7 @@ export function sceneActions(scene: LessonScene): LessonAction[] {
                 ...(scene.view ? {view: scene.view} : {})}
             : {kind: 'prepared-scene', sceneId: scene.id, source: 'demonstration-default',
                 ...(scene.view ? {view: scene.view} : {})},
-        ...scene.actions.map(sceneAction),
+        ...scene.actions.map(toLessonAction),
     ];
 }
 
@@ -324,7 +333,7 @@ function frameForStep(
         return {
             id: frame.id,
             kind: frame.kind,
-            title: step.title as LocalizedText,
+            title: step.title,
             workedExample: step.workedExampleId ? workedExamples.get(step.workedExampleId) : undefined,
         };
     }
@@ -332,16 +341,16 @@ function frameForStep(
         return {
             id: frame.id,
             kind: frame.kind,
-            title: step.title as LocalizedText,
-            prompt: step.observationPrompt as LocalizedText,
+            title: step.title,
+            prompt: step.observationPrompt,
             animation: step.animation ? {animationId: step.animation.animationId} : undefined,
         };
     }
     return {
         id: frame.id,
         kind: frame.kind,
-        title: step.title as LocalizedText,
-        body: step.explanation as LocalizedText,
+        title: step.title,
+        body: step.explanation,
         notation,
     };
 }
@@ -350,24 +359,24 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
     const content = getGuidedLesson(demonstrationId);
     if (!content) return undefined;
     const formulas = new Map(content.formulaBlocks.map(formula => [formula.id, [
-        {sl: `\\[${formula.latex}\\]`, en: `\\[${formula.latex}\\]`} as LocalizedText,
-        formula.notation as LocalizedText,
+        {sl: `\\[${formula.latex}\\]`, en: `\\[${formula.latex}\\]`},
+        formula.notation,
     ]]));
     const workedExamples = new Map(content.workedExamples.map(example => [example.id, {
-        title: example.title as LocalizedText,
-        calculation: {sl: `\\[${example.calculationLatex}\\]`, en: `\\[${example.calculationLatex}\\]`} as LocalizedText,
-        result: {sl: `\\[${example.resultLatex}\\]`, en: `\\[${example.resultLatex}\\]`} as LocalizedText,
-        check: example.check as LocalizedText,
+        title: example.title,
+        calculation: {sl: `\\[${example.calculationLatex}\\]`, en: `\\[${example.calculationLatex}\\]`},
+        result: {sl: `\\[${example.resultLatex}\\]`, en: `\\[${example.resultLatex}\\]`},
+        check: example.check,
     }]));
     return {
-        id: `${content.demonstrationId}-${content.demonstrationId === 'bezier' || content.demonstrationId === 'decasteljau' || content.demonstrationId === 'ph-cubic' ? 'pilot' : 'guided'}`,
+        id: `${content.demonstrationId}-${isPilotGuidedLesson(content.demonstrationId) ? 'pilot' : 'guided'}`,
         demonstrationId: content.demonstrationId,
-        title: content.title as LocalizedText, summary: content.summary as LocalizedText,
+        title: content.title, summary: content.summary,
         steps: content.steps.map(step => ({
-            id: step.id, title: step.title as LocalizedText, body: step.explanation as LocalizedText,
+            id: step.id, title: step.title, body: step.explanation,
             notation: step.formulaIds.flatMap(id => formulas.get(id) ?? []),
             workedExample: step.workedExampleId ? workedExamples.get(step.workedExampleId) : undefined,
-            prompt: step.observationPrompt as LocalizedText,
+            prompt: step.observationPrompt,
             frames: step.frames.map(frame => frameForStep(step, frame, formulas, workedExamples)),
             scene: step.scene ? {actions: sceneActions(step.scene)} : undefined,
         })),

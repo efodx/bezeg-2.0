@@ -3,6 +3,7 @@ import {
     GuidedLesson,
     pilotGuidedLessons,
     SUPPORTED_SCENE_ACTION_NAMES,
+    legacyActions,
 } from './guidedLessons';
 
 const pilotIds = ['bezier', 'decasteljau', 'ph-cubic'] as const;
@@ -101,7 +102,7 @@ test('declares only scene actions supported by the content adapter contract', ()
     for (const lesson of pilotGuidedLessons) {
         for (const step of lesson.steps) {
             for (const scene of step.scene ? [step.scene] : []) {
-                for (const sceneAction of scene.actions) {
+                for (const sceneAction of legacyActions(scene.actions)) {
                     expect(supported.has(sceneAction.name)).toBe(true);
                     expect(['boolean', 'number']).toContain(typeof sceneAction.value);
                 }
@@ -114,7 +115,7 @@ test('declares only scene actions supported by the content adapter contract', ()
 // (sceneContentAgainstGraphs.test.tsx); this test pins the exact PH offsets the pilot lesson shows.
 test('keeps the exact pilot scene values', () => {
     const ph = getPilotGuidedLesson('ph-cubic')!;
-    const distances = ph.steps.flatMap(step => step.scene?.actions ?? [])
+    const distances = ph.steps.flatMap(step => legacyActions(step.scene?.actions))
         .filter(sceneAction => sceneAction.name === 'set-offset-distance')
         .map(sceneAction => sceneAction.value);
     expect(distances).toEqual([1, -1, 1]);

@@ -1,5 +1,5 @@
-import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
-import type {LessonView3D} from "../../learning/model";
+import {LessonAction, PATCH_VISIBILITY_TARGETS, UnsupportedLessonActionError} from "../../learning/model";
+import type {LessonView3D, PatchVisibilityTarget} from "../../learning/model";
 import {BARYCENTRIC_TOLERANCE} from "../../bezeg/impl/patch/triangular-bezier-patch";
 import type {LessonActionFeature} from "../base/lesson/LessonActionRegistry";
 import {CAMERA_PRESETS, type CameraPresetName} from "./surface-view/surfaceMath";
@@ -8,7 +8,7 @@ import {SUBDIVISION_RANGE} from "./tensorSubdivision";
 import {JOIN_ALPHA_RANGE} from "./tensorJoins";
 
 type PatchAction<K extends LessonAction['kind']> = Extract<LessonAction, {kind: K}>;
-export type PatchVisibilityTarget = PatchAction<'patch-visibility'>['target'];
+export type {PatchVisibilityTarget};
 
 /** The tensor patch demonstration with a split and elevation (`patch-subdivision`). */
 export interface TensorSubdivisionLessonHost {
@@ -131,8 +131,7 @@ export function patchLessonActions(host: PatchLessonHost): LessonActionFeature {
             checkEvaluation(host.kind, action);
             host.setParameters(action.u, action.v);
         });
-        const targets: readonly PatchVisibilityTarget[] = ['control-net', 'iso-curves', 'boundary-curves', 'decasteljau-scheme', 'tangent-plane', 'normal', 'twist', 'shading'];
-        for (const target of targets) {
+        for (const target of PATCH_VISIBILITY_TARGETS) {
             registry.onDiscriminated('patch-visibility', target, action => {
                 if (typeof action.visible !== 'boolean') throw new Error('The patch visibility must be true or false.');
                 host.setVisibility(target, action.visible);
