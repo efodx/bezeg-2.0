@@ -1,6 +1,6 @@
 # B-splines and NURBS lessons (B-zlepki in NURBS)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled 2026-10-31 by the [Curves feature stream](../tasks/feature-streams/curves.md); tasks in [docs/tasks/b-splines-nurbs](../tasks/b-splines-nurbs/README.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md) (CAGD rows 1-4, "Proposed families" item 3, sample sequences 6 and 7, correctness notes on B-splines and NURBS, "Gaps"); index: [new lesson families](new-lesson-families.md). Primary sources only as far as that note read them: Sederberg, *Computer Aided Geometric Design* (ch. 6: polar form 6.1, knot vectors 6.2, multiple knots 6.4, knot insertion 6.7, de Boor 6.8, basis functions 6.14; mirror page numbers); Prautzsch-Boehm-Paluszny (contents only: 3.1-3.2, 5.3, 5.4, 6.1); Floater, *An introduction to spline theory* (ch. 3, 5, 8); FMF *Računalniško podprto (geometrijsko) oblikovanje* syllabus. The note read **no curve-level NURBS source**: the circle construction is verified numerically only. Related spec: [curve-geometry-lessons.md](curve-geometry-lessons.md) (curvature kernel, reused here).
 
