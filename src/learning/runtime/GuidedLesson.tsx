@@ -4,6 +4,7 @@ import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import {typesetMath} from '../../mathjax/loadMathJax';
+import {useDraggableOffset} from './useDraggableOffset';
 import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
 
@@ -37,6 +38,14 @@ function AnimationIcon(props: {command: FrameAnimationControl}) {
     </svg>;
 }
 
+function GripIcon() {
+    return <svg className="guided-lesson-grip-icon" viewBox="0 0 10 16" width="10" height="16" aria-hidden="true" focusable="false">
+        {[3, 8, 13].flatMap(y => [<circle key={`l${y}`} cx="2.5" cy={y} r="1.3" fill="currentColor"/>, <circle key={`r${y}`} cx="7.5" cy={y} r="1.3" fill="currentColor"/>])}
+    </svg>;
+}
+
+const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight';
+
 export function GuidedLesson(props: {
     lesson: LessonDefinition;
     capabilities: LessonGraphCapabilities;
@@ -53,12 +62,16 @@ export function GuidedLesson(props: {
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [exitRequested, setExitRequested] = useState(false);
     const [exitError, setExitError] = useState(false);
+    const layerRef = useRef<HTMLDivElement>(null);
     const lessonRef = useRef<HTMLElement>(null);
     const compactTabRef = useRef<HTMLButtonElement>(null);
     const readingRef = useRef<HTMLDivElement>(null);
     const readingPosition = useRef({panel: 0, page: 0});
     const frameNeedsScrollReset = useRef(true);
     const hasSavedReadingPosition = useRef(false);
+    // Hiding or navigating invalidates a pending post-typeset restore of the reading position.
+    const readingRestore = useRef(0);
+    const latestTypeset = useRef<Promise<unknown>>();
     const exitInvoker = useRef<HTMLElement | null>(null);
     const dialogRef = useRef<HTMLDivElement>(null);
     const handoffTimer = useRef<number>();
@@ -83,6 +96,10 @@ export function GuidedLesson(props: {
     const isComplete = snapshot.status === 'complete';
     const isExploring = snapshot.status === 'explore';
     const overlayVisible = overlayPhase !== 'hidden';
+    const tabVisible = overlayPhase === 'closing' || overlayPhase === 'hidden';
+    // The panel and the compact tab each keep where the learner put them over the graph until another lesson starts.
+    const panelDrag = useDraggableOffset(layerRef, lessonRef, overlayVisible, props.lesson);
+    const tabDrag = useDraggableOffset(layerRef, compactTabRef, tabVisible, props.lesson);
     // A visible instruction panel locks graph edits; hiding the panel unlocks the current scene.
     const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening'
         ? isComplete ? 'complete' : 'content'
@@ -119,6 +136,7 @@ export function GuidedLesson(props: {
     const hideOverlay = () => {
         if (readingRef.current) readingPosition.current.panel = readingRef.current.scrollTop;
         readingPosition.current.page = window.scrollY;
+        readingRestore.current += 1;
         hasSavedReadingPosition.current = true;
         clearHandoffTimer();
         props.onModeChange?.('explore');
@@ -280,7 +298,8 @@ export function GuidedLesson(props: {
             || ['\\(', '\\[', '$$', '\\begin{'].some(delimiter => textContent.includes(delimiter));
         if (!hasMath) return;
         let cancelled = false;
-        void typesetMath(element, () => !cancelled).catch(() => undefined);
+        const typeset = typesetMath(element, () => !cancelled).catch(() => undefined);
+        latestTypeset.current = typeset;
         return () => { cancelled = true; };
     }, [language, overlayVisible, snapshot, startupError]);
 
@@ -288,6 +307,7 @@ export function GuidedLesson(props: {
         // Lesson navigation stops scene animations, so playback must be restarted explicitly.
         animationPlaying.current = false;
         readingPosition.current = {panel: 0, page: 0};
+        readingRestore.current += 1;
         frameNeedsScrollReset.current = true;
         hasSavedReadingPosition.current = false;
         if (readingRef.current) readingRef.current.scrollTop = 0;
@@ -311,7 +331,14 @@ export function GuidedLesson(props: {
 
     useEffect(() => {
         if (overlayPhase === 'visible' && readingRef.current) {
-            readingRef.current.scrollTop = readingPosition.current.panel;
+            const saved = readingPosition.current.panel;
+            readingRef.current.scrollTop = saved;
+            // Untypeset formulas are shorter than rendered ones, so the first restore can be clamped;
+            // apply it again once the reopened content has been typeset, unless the learner has moved on.
+            const restore = ++readingRestore.current;
+            void latestTypeset.current?.then(() => {
+                if (readingRestore.current === restore && readingRef.current) readingRef.current.scrollTop = saved;
+            });
             if (frameNeedsScrollReset.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
                 lessonRef.current?.scrollIntoView?.({block: 'start'});
                 frameNeedsScrollReset.current = false;
@@ -358,8 +385,9 @@ export function GuidedLesson(props: {
         return () => props.registerGraphActions?.(undefined);
     }, [session, props.registerGraphActions, isExploring, frame.id, frame.animation?.animationId, language]);
 
-    const closeButton = <button type="button" className="guided-lesson-exit" onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson')}</button>;
-    const hideButton = !isExploring && <button type="button" className="guided-lesson-hide" onClick={hideOverlay}>{t('hide_lesson_instructions')}</button>;
+    // Short visible labels keep the heading to one row; each stays contained in its full accessible name.
+    const closeButton = <button type="button" className="guided-lesson-exit" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson_short')}</button>;
+    const hideButton = !isExploring && <button type="button" className="guided-lesson-hide" aria-label={t('hide_lesson_instructions')} title={t('hide_lesson_instructions')} onClick={hideOverlay}>{t('hide_lesson_short')}</button>;
     const exitDialog = exitRequested && <div className="guided-lesson-exit-backdrop"><div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="guided-lesson-exit-title" aria-describedby="guided-lesson-exit-message" className="guided-lesson-exit-dialog">
         <h2 id="guided-lesson-exit-title">{t('guided_lesson_exit_title')}</h2>
         <p id="guided-lesson-exit-message">{t('guided_lesson_exit_warning')}</p>
@@ -391,7 +419,7 @@ export function GuidedLesson(props: {
         }
     };
     const chapterIdentity = props.chapterOwner && <div className="guided-lesson-owner">
-        <span>{props.chapterOwner.chapterTitle} · {props.chapterOwner.sectionTitle}</span>
+        <span title={`${props.chapterOwner.chapterTitle} · ${props.chapterOwner.sectionTitle}`}>{props.chapterOwner.chapterTitle} · {props.chapterOwner.sectionTitle}</span>
         <a href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>
     </div>;
 
@@ -410,13 +438,21 @@ export function GuidedLesson(props: {
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
+    const {onKeyDown: movePanelByKey, ...panelPointerHandlers} = panelDrag.handleProps;
+    // The whole heading row moves the panel, except presses that start on its own actions.
+    const startPanelDrag = (event: React.PointerEvent<HTMLElement>) => {
+        if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;
+        panelPointerHandlers.onPointerDown(event);
+    };
     return <>
-    <div className="guided-lesson-layer">
+    <div ref={layerRef} className="guided-lesson-layer">
     {/* The visible graph around the panel is a pointer target for the frame's hide or observe action;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
     {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={isExploring ? t('observe_on_graph') : t('hide_lesson_instructions')} onClick={hideOverlay}/>}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
-        <div className="guided-lesson-heading">
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={panelDrag.style} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby="guided-lesson-title">
+        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag}>
+            <button type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
+                aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
             <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
             <div className="guided-lesson-utilities">{hideButton}{closeButton}</div>
         </div>
@@ -465,8 +501,10 @@ export function GuidedLesson(props: {
             </div>}
         </footer>
     </section>}
-    {(overlayPhase === 'closing' || overlayPhase === 'hidden') && <button ref={compactTabRef} type="button" className="guided-lesson-tab" onClick={showOverlay}
+    {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
+        onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
         aria-label={`${localized(props.lesson.title, language)}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
+        <GripIcon/>
         <span className="guided-lesson-tab-title">{t('guided_example')}</span>
         <span className="guided-lesson-tab-progress">{snapshot.stepIndex + 1}/{props.lesson.steps.length} · {snapshot.frameIndex + 1}/{frames.length}</span>
         <svg className="guided-lesson-tab-expand" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">

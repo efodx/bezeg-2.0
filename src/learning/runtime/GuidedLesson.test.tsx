@@ -631,3 +631,71 @@ test('typesets mathematics again when hidden observation instructions reopen', a
         act(() => setLanguage('sl'));
     }
 });
+
+test('the panel and the compact tab can each be moved over the graph without triggering their actions', () => {
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({matches: media.includes('prefers-reduced-motion'), media, addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    setLanguage('sl');
+    // jsdom has no layout: give the graph layer, panel and tab boxes that follow their translate offsets.
+    const translated = (element: Element, left: number, top: number, width: number, height: number) => {
+        const match = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec((element as HTMLElement).style.transform);
+        return DOMRect.fromRect({x: left + Number(match?.[1] ?? 0), y: top + Number(match?.[2] ?? 0), width, height});
+    };
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (this.classList.contains('guided-lesson-layer')) return DOMRect.fromRect({x: 0, y: 0, width: 1000, height: 600});
+        if (this.classList.contains('guided-lesson')) return translated(this, 100, 20, 500, 300);
+        if (this.classList.contains('guided-lesson-tab')) return translated(this, 8, 8, 220, 44);
+        return DOMRect.fromRect();
+    });
+    try {
+        const caps = capabilities();
+        render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}/>);
+        const panel = () => document.querySelector('.guided-lesson') as HTMLElement;
+        const heading = panel().querySelector('.guided-lesson-heading') as HTMLElement;
+
+        fireEvent.pointerDown(heading, {pointerId: 1, isPrimary: true, button: 0, clientX: 200, clientY: 30});
+        fireEvent.pointerMove(heading, {pointerId: 1, isPrimary: true, clientX: 320, clientY: 90});
+        fireEvent.pointerUp(heading, {pointerId: 1, isPrimary: true, clientX: 320, clientY: 90});
+        expect(panel().style.transform).toBe('translate(120px, 60px)');
+
+        // Dragging far past the graph stops just inside its edge.
+        fireEvent.pointerDown(heading, {pointerId: 2, isPrimary: true, button: 0, clientX: 320, clientY: 90});
+        fireEvent.pointerMove(heading, {pointerId: 2, isPrimary: true, clientX: 5000, clientY: 90});
+        fireEvent.pointerUp(heading, {pointerId: 2, isPrimary: true, clientX: 5000, clientY: 90});
+        expect(panel().style.transform).toBe('translate(394px, 60px)');
+
+        // Presses on the heading's own actions do not start a drag.
+        const hide = screen.getByRole('button', {name: 'Skrij navodila vodenega primera'});
+        fireEvent.pointerDown(hide, {pointerId: 3, isPrimary: true, button: 0, clientX: 900, clientY: 100});
+        fireEvent.pointerMove(hide, {pointerId: 3, isPrimary: true, clientX: 600, clientY: 100});
+        fireEvent.pointerUp(hide, {pointerId: 3, isPrimary: true, clientX: 600, clientY: 100});
+        expect(panel().style.transform).toBe('translate(394px, 60px)');
+
+        const grip = screen.getByRole('button', {name: 'Premakni navodila'});
+        fireEvent.keyDown(grip, {key: 'ArrowUp'});
+        fireEvent.keyDown(grip, {key: 'ArrowLeft', shiftKey: true});
+        expect(panel().style.transform).toBe('translate(330px, 44px)');
+
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
+        expect(panel().style.transform).toBe('translate(330px, 44px)');
+
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
+        const tab = document.querySelector('.guided-lesson-tab') as HTMLElement;
+        fireEvent.pointerDown(tab, {pointerId: 4, isPrimary: true, button: 0, clientX: 20, clientY: 20});
+        fireEvent.pointerMove(tab, {pointerId: 4, isPrimary: true, clientX: 420, clientY: 320});
+        fireEvent.pointerUp(tab, {pointerId: 4, isPrimary: true, clientX: 420, clientY: 320});
+        fireEvent.click(tab);
+        expect(document.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(tab.style.transform).toBe('translate(400px, 300px)');
+
+        // A press without travel is still the reopen action, and the panel returns where it was left.
+        fireEvent.pointerDown(tab, {pointerId: 5, isPrimary: true, button: 0, clientX: 420, clientY: 320});
+        fireEvent.pointerUp(tab, {pointerId: 5, isPrimary: true, clientX: 421, clientY: 321});
+        reopenWithTab();
+        expect(panel().style.transform).toBe('translate(330px, 44px)');
+        expect(caps.apply).not.toHaveBeenCalled();
+    } finally {
+        rect.mockRestore();
+        vi.unstubAllGlobals();
+        act(() => setLanguage('sl'));
+    }
+});

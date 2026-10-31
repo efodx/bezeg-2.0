@@ -5,10 +5,12 @@ const h = require('./lesson-smoke-helpers.cjs');
 module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
         test('same-frame reading position survives math reflow after hide and reopen', async ({page}) => {
-            // At 1100px wide, short desktop height gives this production prose a real scroll range.
+            // The lean panel fits this observation prose on a short desktop; 200% page zoom, as when projecting,
+            // gives it a real scroll range.
             await page.setViewportSize({width: 1100, height: 540});
             await h.useLanguage(page, 'en');
             await page.goto('/bezeg-2.0/analysis/taylor?learn=1');
+            await page.addStyleTag({content: 'html {zoom: 2}'});
             const panel = h.lessonPanel(page);
             await expect(panel).toBeVisible();
             await h.advanceToStep(page, 2);

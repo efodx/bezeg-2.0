@@ -2,7 +2,7 @@
 
 ## Scope and owner decision — 2026-10-25
 
-The owner approved implementation after reviewing desktop/mobile layout options. Keep the existing lesson overlay on the graph. Replace the external reopen control with a small clickable overlay tab at the graph's top-left. This supersedes the external-tab placement and narrow document-flow reading rules in `lesson-graph-access.md` and `lesson-experience-improvements.md` for this presentation only.
+The owner approved implementation after reviewing desktop/mobile layout options. Keep the existing lesson overlay on the graph. Replace the external reopen control with a small clickable overlay tab at the graph's top-left. (2026-10-31: top-left is now the tab's home placement; learners may drag it elsewhere on the graph. See [the lean, movable overlay](lesson-panel-visual-refinement.md#lean-movable-overlay--2026-10-31).) This supersedes the external-tab placement and narrow document-flow reading rules in `lesson-graph-access.md` and `lesson-experience-improvements.md` for this presentation only.
 
 ## Acceptance
 

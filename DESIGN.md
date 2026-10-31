@@ -80,7 +80,9 @@ Retain current carousel timing, manual takeover, temporary hover/focus pauses, v
 
 ## Guided lesson reading overlay
 
-The lesson overlay uses the warm panel, ink, secondary ink, rule and forest action roles above. Its title occupies a full row, with quiet Hide/Exit actions below; Next carries the primary action treatment. Keep natural content height, a bounded scrolling reading region and persistent actions on narrow or short screens. Programmatic focus on the reading section does not draw a perimeter around the panel; interactive controls retain visible keyboard focus. See [the refinement specification](docs/specs/lesson-panel-visual-refinement.md).
+The lesson overlay uses the warm panel, ink, secondary ink, rule and forest action roles above. It is a lean reading card (34rem on desktop): one heading row holds a grip, the small lesson title and quiet short Hide/Exit actions, which wrap below the title only when the row is too narrow. The chapter line is a single ellipsized row; the frame heading is 20px; notes and worked examples are set apart by tint alone, without a nested border; the footer keeps progress and navigation on one row until the panel's own width stacks it. Next carries the primary action treatment. Keep natural content height, a bounded scrolling reading region and persistent actions on narrow or short screens. Programmatic focus on the reading section does not draw a perimeter around the panel; interactive controls retain visible keyboard focus.
+
+The open panel (by its heading row) and the closed tab can each be dragged anywhere within the visible graph; the grip and the tab also move with arrow keys. A lifted shadow while dragging is the only motion. Positions last for the lesson and reset when another lesson starts. See [the refinement specification](docs/specs/lesson-panel-visual-refinement.md).
 
 ## Do's and Don'ts
 
