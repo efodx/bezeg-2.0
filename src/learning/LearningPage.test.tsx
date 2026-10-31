@@ -5,7 +5,7 @@ import {beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
 import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
-import {LearningPage, learningStrands} from './LearningPage';
+import {LearningPage, chapterCount, learningStrands} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
 import {familyChapters} from './content/familyChapters';
@@ -48,6 +48,22 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(container.querySelectorAll('.learning-lessons')).toHaveLength(0);
     expect([...container.querySelectorAll('a')].filter(link => link.search.includes('learn=1'))).toHaveLength(0);
     expect(container.querySelector('#jgbox')).toBeNull();
+});
+
+test('the Learn count line is derived from content with Slovenian chapter plurals', () => {
+    expect([1, 2, 3, 4, 5, 11, 101].map(count => chapterCount(count, 'sl')))
+        .toEqual(['1 poglavje', '2 poglavji', '3 poglavja', '4 poglavja', '5 poglavij', '11 poglavij', '101 poglavje']);
+    expect([1, 2].map(count => chapterCount(count, 'en'))).toEqual(['1 chapter', '2 chapters']);
+    const {container, unmount} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
+    const rows = [...container.querySelectorAll<HTMLElement>('.learning-family')];
+    const sectionTotal = container.querySelectorAll('.learning-outline li').length;
+    const exampleTotal = rows.reduce((total, row) => total + Number(/(\d+) vodeni|(\d+) vodena|(\d+) vodenih/.exec(row.querySelector('.learning-outline-meta')!.textContent!)!.slice(1).find(Boolean)), 0);
+    expect(rows).toHaveLength(learningChapters.length);
+    expect(container.querySelector('.learning-counts')).toHaveTextContent(`${chapterCount(learningChapters.length, 'sl')} · ${sectionTotal} razdelkov · ${exampleTotal} vodenih primerov`);
+    unmount();
+    act(() => setLanguage('en'));
+    const english = render(<MemoryRouter><LearningPage/></MemoryRouter>);
+    expect(english.container.querySelector('.learning-counts')).toHaveTextContent(`${learningChapters.length} chapters · ${sectionTotal} sections · ${exampleTotal} guided examples`);
 });
 
 test('chapter reading navigates between topics and translates without a graph mount', async () => {

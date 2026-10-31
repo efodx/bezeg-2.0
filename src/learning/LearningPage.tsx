@@ -43,6 +43,7 @@ function countLabel(count: number, language: LessonLanguage, sl: readonly [strin
     const rest = count % 100;
     return `${count} ${rest === 1 ? sl[0] : rest === 2 ? sl[1] : rest === 3 || rest === 4 ? sl[2] : sl[3]}`;
 }
+export const chapterCount = (count: number, language: LessonLanguage) => countLabel(count, language, ['poglavje', 'poglavji', 'poglavja', 'poglavij'], ['chapter', 'chapters']);
 const sectionCount = (count: number, language: LessonLanguage) => countLabel(count, language, ['razdelek', 'razdelka', 'razdelki', 'razdelkov'], ['section', 'sections']);
 const exampleCount = (count: number, language: LessonLanguage) => countLabel(count, language, ['vodeni primer', 'vodena primera', 'vodeni primeri', 'vodenih primerov'], ['guided example', 'guided examples']);
 
@@ -57,16 +58,20 @@ export function LearningPage() {
         else window.scrollTo(0, 0);
     }, [location.hash]);
 
+    const totals = learningChapters.reduce((sum, chapter) => {
+        const outline = chapterOutline(chapter.id, language);
+        return {sections: sum.sections + outline.length, examples: sum.examples + outline.reduce((total, section) => total + section.examples, 0)};
+    }, {sections: 0, examples: 0});
+
     return <main className="learning-page" ref={mainRef}>
         <div className="learning-page-inner">
             <header className="learning-heading">
+                <span className="learning-eyebrow">Bezeg · {language === 'sl' ? 'Učenje' : 'Learn'}</span>
                 <h1>{language === 'sl' ? 'Uči se z branjem in raziskovanjem' : 'Learn through reading and exploration'}</h1>
-                <p>{language === 'sl'
-                    ? 'Preberi razdelek poglavja, odpri vodeni primer ob grafu in se vrni k branju.'
-                    : 'Read a chapter section, open its guided example on the graph, then return to continue reading.'}</p>
-                <p>{language === 'sl'
-                    ? 'Teme si sledijo v predlaganem vrstnem redu, vsako poglavje pa lahko odpreš tudi samostojno.'
-                    : 'Topics follow a suggested order, but you can open any chapter on its own.'}</p>
+                <p className="learning-lead">{language === 'sl'
+                    ? 'Preberi razdelek, odpri vodeni primer ob grafu in se vrni k branju. Vrstni red je le predlog; vsako poglavje lahko odpreš samostojno.'
+                    : 'Read a section, open its guided example on the graph, then return to reading. The order is only a suggestion; any chapter opens on its own.'}</p>
+                <p className="learning-counts">{chapterCount(learningChapters.length, language)} · {sectionCount(totals.sections, language)} · {exampleCount(totals.examples, language)}</p>
                 <Link className="learning-open learning-start" to="/bezeg-2.0/learn/foundations">
                     {language === 'sl' ? 'Začni pri osnovah' : 'Start with Foundations'}<span aria-hidden="true"> →</span>
                 </Link>
@@ -86,6 +91,7 @@ export function LearningPage() {
                             </Link>
                             <h3 className="learning-topic-heading" id={`${chapter.id}-heading`}><Link to={path}>{chapter.title[language]}</Link></h3>
                             <p className="learning-topic-body">{chapter.purpose[language]}</p>
+                            <div className="learning-actions">
                             <Link className="learning-read" to={path}>{language === 'sl' ? 'Preberi poglavje' : 'Read the chapter'}<span aria-hidden="true"> →</span></Link>
                             <details className="learning-outline">
                                 <summary>{language === 'sl' ? 'Vsebina' : 'Contents'}<span className="learning-outline-meta">{sectionCount(outline.length, language)} · {exampleCount(examples, language)}</span></summary>
@@ -94,6 +100,7 @@ export function LearningPage() {
                                     {section.examples > 0 && <span className="learning-outline-examples">{exampleCount(section.examples, language)}</span>}
                                 </li>)}</ol>
                             </details>
+                            </div>
                         </li>;
                     })}
                 </ol>
