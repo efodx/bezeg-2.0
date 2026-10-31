@@ -27,6 +27,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Lesson example improvements](tasks/lesson-example-improvements/README.md): planned batches linked to their source spec.
 - [Test consolidation](tasks/test-consolidation/README.md): five ranked implementation tasks for reducing repeated verification while retaining graph, content and browser coverage.
 - [Architecture deepening backlog](tasks/architecture-deepening-backlog/README.md): ten module-deepening tasks in four parallel lanes (host, curves, functions, learning) from the 2026-10-25 whole-app review.
+- [Next ten tasks](tasks/next-ten-queue/README.md): orchestration queue for a looping handler — the six *Strong* architecture tasks and the four Bézier drawing playground slices, in waves of at most three workers.
 - [Lesson rollout reconciliation](reviews/guided-lessons-status-reconciliation.md): remaining evidence ownership and smoke coverage gaps.
 - [Performance plan](performance-plan.md) and [Bézier performance results](bezier-performance-results.md): measurement requirements, results and unresolved questions.
 
