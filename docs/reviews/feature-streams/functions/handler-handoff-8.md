@@ -5,7 +5,7 @@ Handler 8 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this not
 ## State
 
 - **Worktree:** `.claude/worktrees/stream-functions`, branch `worktree-stream-functions`. The `node_modules` junction points to the main install; delete it before removing the worktree.
-- **Pushed to `master`:** `c8ba2d8a` (05d code: density 360, hull-guided `refine`, `just projective-conic-bench`) and `b93eea2a` (05d records), plus this note. The rebase onto `origin/master` may have changed the hashes; see `git log origin/master`.
+- **Pushed to `master`:** `1ad15dd3` (05d code: density 360, hull-guided `refine`, `just projective-conic-bench`) and `5099a7ff` (05d records), plus this note.
 - **CI:** the `52ba7b08` run (05c) passed. A `rational-subdivision` lesson smoke failure on the sweep-line F0 run did not repeat on the next run.
 - **05d result:** [ADR 0033 measurement addendum](../../../adr/0033-projective-conics-exact-kernel-and-family.md#measurement-addendum-2026-10-31-slice-05d) and the [05d acceptance record](../../../tasks/projective-conics/05-batch-a-graphs.md#05d-acceptance-record-2026-10-31). `DIRECTION_BOUND` stays 14, so no index or Preset changed.
 
