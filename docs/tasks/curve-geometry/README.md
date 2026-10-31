@@ -20,7 +20,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-0 | F0 | This plan, ADR 0022, spec marked scheduled | — | done |
 | CG-1 | F1 | Curvature kernel + analytic sources, spec's contract and kernel tests, plus every numeric default quoted in L1–L5 as an oracle test | — | done ([evidence](../../reviews/curve-geometry/cg-1-kernel.md)) |
 | CG-B1-2a | F2a | `curve-parametric` graph: fixed catalogue (cycloid with radius, cardioid, rose, Archimedean spiral), \(t\)/\(\theta\) slider, velocity vector, radius ray, arch length/area readouts, roll animation id; Presets; unit + component tests | CG-1 | planned |
-| CG-B1-2a' | F2a | `curve-curvature` graph: `BezierCurveGraph` subclass with owned overlay (frame \(T,N\), osculating circle or line, readouts), parabola preset, tangency residual test, disposal test | CG-1 | planned |
+| CG-B1-2a' | F2a | `curve-curvature` graph: `BezierCurveGraph` subclass with owned overlay (frame \(T,N\), osculating circle or line, readouts), parabola preset, tangency residual test, disposal test | CG-1 | done ([evidence](../../reviews/curve-geometry/cg-b1-2a-prime-graph.md); browser check in 2b) |
 | CG-B1-2b | F2b | Register both Demonstrations (route, catalog, factories) | `G-REG`, 2a, 2a' | planned |
 | CG-B1-3 | F3 | L1 and L2 scenes + one-shot text | 2b | planned |
 | CG-B1-4 | F4 | Chapter `curve-geometry` (L1, L2 sections) with guided examples | 3 | planned |

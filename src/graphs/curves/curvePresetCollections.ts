@@ -125,6 +125,7 @@ export const curvePresetCollections = {
     extrapolation: bezier("bezier-extrapolation"),
     elevation: bezier("elevation-graph"),
     "weighted-parameterization": bezier("alpha-param"),
+    curvature: bezier("curve-curvature"),
     rational: rational("rational-bezier"),
     "rational-decasteljau": rational("rational-decasteljau"),
     "rational-elevation": rational("rational-bezier-elevation"),
