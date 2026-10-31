@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {NumberInput} from "./NumberInput";
 import "./PointListInput.css";
 
@@ -36,12 +36,12 @@ export function PointListInput(props: PointListInputProps) {
     const [refusal, setRefusal] = useState<{index: number; axis: 0 | 1; message: string; list: typeof points} | undefined>(undefined);
     // Bumped when a refusal is cleared, so the fields drop their own explanation too.
     const [epoch, setEpoch] = useState(0);
-    useEffect(() => {
-        if (refusal && refusal.list !== points) {
-            setRefusal(undefined);
-            setEpoch(value => value + 1);
-        }
-    }, [points, refusal]);
+    // Adjusted while rendering (React's pattern for state derived from a changed prop), not in an effect: the stale refusal
+    // never reaches the screen, and the next render sees no refusal, so this runs once per list change.
+    if (refusal && refusal.list !== points) {
+        setRefusal(undefined);
+        setEpoch(value => value + 1);
+    }
     const edit = (index: number, axis: 0 | 1, value: number): boolean => {
         const current = points[index];
         const next: PointRow = axis === 0 ? [value, current[1]] : [current[0], value];
