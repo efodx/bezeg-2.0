@@ -5,9 +5,9 @@ Rules and slice template: [feature streams](README.md). Port 4313. Handoffs: `do
 
 | # | Family | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Point-set graph code: none; registration and lessons: `G-REG` | Batch 0 accepted 2026-10-31 (`G-CG` open); Batch 1 kernels and graphs 07–09 accepted, 10 implemented with review repairs open ([tasks](../convexity-hulls/README.md)) |
-| 2 | Triangulations and Voronoi | [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-lessons.md) | Convexity Batch 0 (its T0 kernel adds `incircle` to the predicate module) | F0 done 2026-10-31; T0 kernel tasks 02–03 planned ([tasks](../triangulation-voronoi/README.md)) |
-| 3 | Sweep-line algorithms | [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md) | Convexity Batch 0 (rational ADR builds on the robustness ADR); Fortune's sweep needs family 2's Voronoi drawing | planned |
+| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Point-set graph code: none; registration and lessons: `G-REG` | Batch 0 accepted 2026-10-31 (`G-CG` open); Batch 1 F2a complete: 07–10 accepted 2026-10-31; F2b and later wait for `G-REG` ([tasks](../convexity-hulls/README.md)) |
+| 2 | Triangulations and Voronoi | [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-lessons.md) | Convexity Batch 0 (its T0 kernel adds `incircle` to the predicate module) | F0 done 2026-10-31; T0: 02 `incircle` accepted, 03 structure in progress; T1 kernel 06 ear clipping in progress ([tasks](../triangulation-voronoi/README.md)) |
+| 3 | Sweep-line algorithms | [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md) | Convexity Batch 0 (rational ADR builds on the robustness ADR); Fortune's sweep needs family 2's Voronoi drawing | F0 done 2026-10-31 (ADR 0035); S0 kernel tasks 02–03 planned, 02 waits for `rational.ts` (triangle geometry 01, maps) ([tasks](../sweep-algorithms/README.md)) |
 
 ## Notes
 
