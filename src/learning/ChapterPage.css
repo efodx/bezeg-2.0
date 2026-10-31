@@ -54,6 +54,15 @@
 .chapter-math mjx-container[display="true"] { margin: 0 !important; max-width: none; }
 .chapter-exploration { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); align-items: center; gap: 18px; margin: 18px 0; padding: 14px; border: 1px solid #d5dfcd; border-radius: 10px; background: var(--chapter-paper); }
 .chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); }
+/* Guided-example cards: the preview takes about half the card (never above its 420 CSS px capture width) beside the copy. */
+.chapter-exploration--guided-example { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+.chapter-exploration--guided-example.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); }
+.chapter-exploration--guided-example .chapter-activity-figure { max-width: 420px; }
+.chapter-exploration--guided-example .chapter-activity-figure img { aspect-ratio: 21 / 13; }
+@media (max-width: 44em) {
+    .chapter-exploration--guided-example, .chapter-exploration--guided-example.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); gap: 11px; }
+    .chapter-exploration--guided-example .chapter-activity-figure { width: min(100%, 420px); justify-self: center; }
+}
 .chapter-activity-figure { min-width: 0; margin: 0; }
 .chapter-activity-figure img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; object-fit: contain; background: #fffdf5; }
 .chapter-activity-figure figcaption { margin-top: 7px; color: var(--chapter-muted); font-size: .9rem; line-height: 1.45; }
@@ -103,7 +112,7 @@
 }
 @media (max-width: 520px) {
     .chapter-exploration { grid-template-columns: minmax(0, 1fr); gap: 11px; padding: 14px; }
-    .chapter-exploration .chapter-activity-figure { width: min(100%, 280px); justify-self: center; }
+    .chapter-exploration:not(.chapter-exploration--guided-example) .chapter-activity-figure { width: min(100%, 280px); justify-self: center; }
     .chapter-section-heading { gap: 8px; }
     .chapter-section-heading > span { font-size: .85rem; }
 }
