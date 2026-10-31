@@ -6,7 +6,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except task 01 at `high` (Möbius 
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Möbius and inversion kernel](01-mobius-kernel.md) | A, C | F1 | none | — | planned |
+| [01 Möbius and inversion kernel](01-mobius-kernel.md) | A, C | F1 | none | — | done 2026-10-31 (math review: no high/medium findings; low c = 0 fix applied) |
 | [02 Reciprocal and roots kernel](02-reciprocal-roots-kernel.md) | A | F1 | none | — | planned |
 | [03 Batch A graphs](03-batch-a-graphs.md) | A | F2a | none | 01, 02 | planned |
 | [04 Batch A registration, lessons, chapter, acceptance](04-batch-a-release.md) | A | F2b–F6 | `G-REG` | 03 | planned |

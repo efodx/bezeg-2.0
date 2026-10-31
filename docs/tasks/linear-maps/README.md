@@ -6,9 +6,9 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Matrix kernel](01-matrix-kernel.md) | 0 | F1 | none | — | implemented on stream branch; full unit suite pending |
-| [02 Eigen and singular kernel](02-eigen-singular-kernel.md) | 0 | F1 | none | 01 | planned |
-| [03 State model and Presets](03-state-model.md) | A | F2a | none | 01 | planned |
+| [01 Matrix kernel](01-matrix-kernel.md) | 0 | F1 | none | — | done 2026-10-31 (handler math review; full suite passed) |
+| [02 Eigen and singular kernel](02-eigen-singular-kernel.md) | 0 | F1 | none | 01 | done 2026-10-31 (handler math review; `singular` now rejects off-grid entries) |
+| [03 State model and Presets](03-state-model.md) | A | F2a | none | 01 | done 2026-10-31 (handler review; mismatched example id imports as `custom`) |
 | [04 Grid drawing measurement and ADR](04-grid-drawing-measurement.md) | A | measurement + ADR | none | 01 | planned |
 | [05 Graph: basis and determinant modes](05-graph-basis-determinant.md) | A | F2a | none | 03, 04 | planned |
 | [06 Batch A registration](06-batch-a-registration.md) | A | F2b | `G-REG` | 05 | planned |
