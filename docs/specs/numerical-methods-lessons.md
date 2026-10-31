@@ -34,7 +34,7 @@ New modules (names are suggestions): `src/analysis/rootFinding.ts` (Newton and s
 ### Decisions needing an ADR
 
 1. **Root finding: one Demonstration with a method choice, or two.** (a) One `RootFindingGraph` with `newton | secant` and a shared example list; (b) separate Newton and secant graphs; (c) extend `BisectionGraph` with a method choice. (a) lets N1–N3 share examples and the comparison readout; (b) keeps each model simple; (c) risks changing stored bisection Presets and the released bisection lesson. Decide before Batch A.
-2. **Function source for root finding.** (a) A closed example list as bisection does (here: \(x^2-2\), \(x^3-2x+2\), one more), independent of the catalogue; (b) use the extended catalogue owned by [school-function-graphs-lessons.md](school-function-graphs-lessons.md) (not yet written) so learners get more functions with exact derivatives. This spec works with (a); (b) is an optional later extension and must not block Batch A. The current catalogue is `square`, `sin`, `exp` only, and has no \(x^2-2\).
+2. **Function source for root finding.** (a) A closed example list as bisection does (here: \(x^2-2\), \(x^3-2x+2\), one more), independent of the catalogue; (b) use the extended catalogue owned by [school-function-graphs-lessons.md](school-function-graphs-lessons.md), whose separate school catalogue includes named entries (x^2-2), (x^3-2x+2) and (x^3-x), so learners get more functions with exact derivatives. This spec works with (a); (b) is an optional later extension and must not block Batch A. The current catalogue is `square`, `sin`, `exp` only, and has no \(x^2-2\).
 3. **Direction-field drawing approach** (Batch C): see N5; decided only after measurement.
 
 ## Concept contracts and acceptance criteria

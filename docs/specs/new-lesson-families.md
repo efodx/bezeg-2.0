@@ -17,7 +17,7 @@ All families follow the current learning model: a bilingual chapter in Learn wit
 | Numerične metode na grafu / Numerical methods on the graph | [numerical-methods-lessons.md](numerical-methods-lessons.md) | University, upper secondary | Low | — (reuses iterative playback) |
 | Konveksnost in ovojnice / Convexity and hulls | [convexity-hulls-lessons.md](convexity-hulls-lessons.md) | Upper secondary to university | Low–medium | **Computational-geometry core:** exact predicates, point-set/polygon graph, algorithm step trace |
 | Geometrija krivulj / Geometry of curves | [curve-geometry-lessons.md](curve-geometry-lessons.md) | University, secondary enrichment | Medium | **Curvature kernel** (signed curvature, osculating circle, comb) |
-| Grafi funkcij za maturo / Function graphs for the matura | [school-function-graphs-lessons.md](school-function-graphs-lessons.md) (planned) | Upper secondary | Low–medium | **Function catalogue extension** |
+| Grafi funkcij za maturo / Function graphs for the matura | [school-function-graphs-lessons.md](school-function-graphs-lessons.md) | Upper secondary | Low–medium | **Function catalogue extension** |
 | Triangulacije in Voronojevi diagrami / Triangulations and Voronoi diagrams | [triangulation-voronoi-lessons.md](triangulation-voronoi-lessons.md) (planned) | University | Medium–high | Triangulation adjacency structure, incircle predicate |
 | B-zlepki in NURBS / B-splines and NURBS | [b-splines-nurbs-lessons.md](b-splines-nurbs-lessons.md) (planned) | University | High | **Knot-vector and de Boor kernel** (needs an ADR) |
 | Algoritmi pometanja / Sweep-line algorithms | [sweep-algorithms-lessons.md](sweep-algorithms-lessons.md) (planned) | University | High | Event-queue/status trace model |
