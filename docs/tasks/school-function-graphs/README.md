@@ -6,7 +6,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Catalogue core](01-catalogue-core.md) | A | F1 | none | — | planned |
+| [01 Catalogue core](01-catalogue-core.md) | A | F1 | none | — | accepted ([review](../../reviews/school-function-graphs/01-catalogue-core-math-review.md); transform bounds await owner confirmation) |
 | [02 Transformation and inverse kernels](02-transformation-inverse.md) | A | F1 | none | 01 | planned |
 | [03 Polynomial and rational kernels](03-polynomial-rational.md) | B | F1 | none | 01 | planned |
 | [04 Geometric series and conic kernels](04-series-conic.md) | C | F1 | none | — | accepted ([math review](../../reviews/school-function-graphs/04-series-conic-math-review.md)) |
