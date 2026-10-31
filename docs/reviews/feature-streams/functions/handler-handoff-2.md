@@ -5,12 +5,12 @@ Handler 2 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this not
 ## State
 
 - **Worktree:** `.claude/worktrees/stream-functions`, branch `worktree-stream-functions`. The `node_modules` junction points to the main install, so delete the junction before removing the worktree.
-- **Accepted and pushed to `master`.** The full `just unit` run and `just typecheck` passed on these commits:
-  - a574bc3, the root-finding convergence fix (`root-found` within 4 ulps). Numerical-methods kernels 01–03 are accepted ([review](../../numerical-methods/kernels-01-03-math-review.md)).
-  - 50e95ad, family 2 task 04: geometric series and conics ([review](../../school-function-graphs/04-series-conic-math-review.md)).
-  - c2109a2, family 2 task 01: catalogue core ([review](../../school-function-graphs/01-catalogue-core-math-review.md)).
-  - 5cc3272, family 2 task 02: transformation and inverse kernels ([review](../../school-function-graphs/02-transformation-inverse-math-review.md)).
-- **Pushed only to `origin/stream-functions`, not `master`.** The WIP commit for family 2 task 03 (polynomial and rational) holds `polynomial.ts`, `rational.ts`, their tests, and the `poly`/`rational` edits in `schoolFunctions.ts` and its test. The worker's focused runs and tsc pass, and the full suite in this session ran with these files present. It has had no review yet.
+- **Accepted and pushed to `master`** (after rebasing; c52e801 is handoff 1's kernel commit). The full `just unit` run and `just typecheck` passed on these commits:
+  - 88de809, the root-finding convergence fix (`root-found` within 4 ulps). Numerical-methods kernels 01–03 are accepted ([review](../../numerical-methods/kernels-01-03-math-review.md)).
+  - 04f2a6e, family 2 task 04: geometric series and conics ([review](../../school-function-graphs/04-series-conic-math-review.md)).
+  - f1cf9c5, family 2 task 01: catalogue core ([review](../../school-function-graphs/01-catalogue-core-math-review.md)).
+  - 851b1ed, family 2 task 02: transformation and inverse kernels ([review](../../school-function-graphs/02-transformation-inverse-math-review.md)).
+- **Pushed only to `origin/stream-functions-h2`, not `master`.** The rebase made `origin/stream-functions` stale, and it was not force-pushed. The local branch `worktree-stream-functions` has the same commit on top of `master`. This WIP commit for family 2 task 03 (polynomial and rational) holds `polynomial.ts`, `rational.ts`, their tests, and the `poly`/`rational` edits in `schoolFunctions.ts` and its test. The worker's focused runs and tsc pass, and the full suite in this session ran with these files present. It has had no review yet.
 
 ## Remaining steps, in order
 
