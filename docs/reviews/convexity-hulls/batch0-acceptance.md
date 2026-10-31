@@ -2,7 +2,7 @@
 
 Task: [06](../../tasks/convexity-hulls/06-batch0-acceptance.md). Handler: geometry handler 2 (Opus 5.5), 2026-10-31.
 
-**State: partial.** Every Batch 0 criterion is met except a green `just check`, which fails only on two Preset catalog tests owned by the curves stream (below). `G-CG` stays closed until a `just check` passes; the handler then records that revision here and opens the gate.
+**State: accepted 2026-10-31** by geometry handler 3 at revision aabaf9f (below). `G-CG` is open.
 
 ## Evidence per task
 
@@ -17,6 +17,8 @@ Task: [06](../../tasks/convexity-hulls/06-batch0-acceptance.md). Handler: geomet
 ## Full check
 
 `just check` at 3578b97 (5d87af2 before its rebase onto master): typecheck and lint pass; unit tests 5727 of 5729 pass, 304 of 305 files. Failing: `src/graphs/base/presets/PresetCatalog.test.tsx` (the file-contract key list and the importer-definition list each receive an extra `curve-curvature` key). The key comes from the curves stream's curvature graph and was already failing in hosted CI on master (d7204ce, 198c7d0) before any geometry commit of this run. Geometry's collection `compgeo-point-set` is not registered in `PresetImport.ts` and does not enter that test. The curves handler was told on 2026-10-31. The build step did not run because the unit step failed; the production build passed separately at 5c836a2.
+
+`just check` at aabaf9f (geometry handler 3, 2026-10-31; dirty only with untracked `05-*.log` files): typecheck, lint, unit tests 5907 of 5907 in 319 files, and the production build pass (build warnings: Sass deprecation notices only, none mention `src/compgeo/`). Between the two runs the curves stream moved `curve-curvature` out of the file contract (57756e6), and three other streams' lint errors that stopped `just check` before its unit step were fixed by their owners: maps 6c4e553 (`ComplexReciprocalGraph.test.ts`), curves c1ebefb (`PointListInput.tsx`), functions aabaf9f (`schoolFunctions.ts`). No geometry code changed.
 
 ## Gaps
 

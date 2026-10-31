@@ -10,7 +10,7 @@ Source: [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md). St
 - **Placement:** new Demonstration family **Računska geometrija / Computational geometry** for this family and the two dependent ones; one Learn chapter per family via `familyChapters.ts`. Putting them under `basics` or `analysis` would hide them from learners who look for geometry. Reversible at F2b.
 - **Terms:** the spec's proposals as written (one-shot lesson text rule). *Shoelace* stays as the English gloss on first mention.
 
-## Batch 0 — foundation (opens `G-CG`)
+## Batch 0 — foundation (opened `G-CG` 2026-10-31)
 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ Source: [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md). St
 | 03 | [Step-trace model and monotone chain trace](03-trace-model.md) | F1 | 02 | accepted 2026-10-31 (math review: no findings) |
 | 04 | [Point-set/polygon model](04-point-set-model.md) | F2a | 01 | accepted 2026-10-31 (handler review; range-reason fix) |
 | 05 | [Point-set/polygon graph](05-point-set-graph.md) | F2a | 02, 04 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs) |
-| 06 | [Batch 0 acceptance](06-batch0-acceptance.md) | F6 (handler) | 02–05 | partial: waits for a green `just check` (curves `curve-curvature` key) |
+| 06 | [Batch 0 acceptance](06-batch0-acceptance.md) | F6 (handler) | 02–05 | accepted 2026-10-31 (`just check` green at aabaf9f; `G-CG` open) |
 
 ## Batch 1 — A1 Orientation, A2 Area and Pick, A4 Convex hull
 
