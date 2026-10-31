@@ -19,11 +19,11 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | --- | --- | --- | --- | --- |
 | 01 | F0 plan (this file) | F0 (handler) | — | done |
 | 02 | [`incircle` predicate](02-incircle.md) | F1 | convexity 02 | accepted 2026-10-31 (math review, no findings) |
-| 03 | [Triangulation structure and flip](03-triangulation-structure.md) | F1 | 02 | planned |
+| 03 | [Triangulation structure and flip](03-triangulation-structure.md) | F1 | 02 | implemented; math review pending |
 | 04 | Delaunay construction and Lawson trace (B3 examples, brute-force oracle) | F1 | 03 | task file written when 03 is accepted |
 | 05 | Voronoi value with exact rational vertices and duality (B4 example) | F1 | 04 | task file written when 04 is accepted |
 
 ## Later batches
 
-- **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, planned) needs only `orient` and can run beside T0; graph F2a; registration and lessons wait for `G-REG`.
+- **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, implemented; math review pending) needs only `orient` and can run beside T0; graph F2a; registration and lessons wait for `G-REG`.
 - **T2 (B2, B3), T3 (B4, B5):** graphs, registration, lessons, chapter, media and acceptance as in the spec's release batches. Task files are written when the kernels they use are accepted.
