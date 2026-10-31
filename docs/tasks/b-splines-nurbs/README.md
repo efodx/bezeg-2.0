@@ -6,7 +6,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 
 ## Decisions (F0, 2026-10-31)
 
-- **ADR** — [ADR 0023](../../adr/0023-bspline-representation-and-presets.md): new `BSplineCurve` class; degree, clamped default, raw parameter with a normalized display toggle; new preset collection key `{degree, knots, points, weights?}`.
+- **ADR** — [ADR 0024](../../adr/0024-bspline-representation-and-presets.md): new `BSplineCurve` class; degree, clamped default, raw parameter with a normalized display toggle; new preset collection key `{degree, knots, points, weights?}`.
 - **Ids and routes.** Chapter id `b-splines`, family route `/bezeg-2.0/bspline`. Demonstrations: `bspline-basis` (L1, `/bezeg-2.0/bspline/basis`), `bspline-deboor` (L2, `/deboor`), `bspline-insertion` (L3, `/insertion`), `bspline-extraction` (L4, `/extraction`), `nurbs-circle` (L5, `/nurbs-circle`), `bspline-blossom` (L6, `/blossom`). Animation id `'deboor'`.
 - **Kernel** in `src/bezeg/impl/curve/bspline/` with the spec's file split. Effort raised to `high` for kernel workers: de Boor/NURBS mathematics (stream README).
 - **Gate reading.** The kernel is ungated. The `BSplineCurve` class, its JSXGraph wrapper and the graphs are `G-CURVE` (they share `abstract-point-controlled-curve.ts` and `AbstractJXGPointControlledCurve.ts` with Platform A4/A6).
@@ -16,7 +16,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 
 | Id | Kind | Content | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| BS-0 | F0 | This plan, ADR 0023, spec marked scheduled | — | done |
+| BS-0 | F0 | This plan, ADR 0024, spec marked scheduled | — | done |
 | BS-1a | F1 | `knot-vector.ts`, `basis.ts`, `deboor.ts`, uniform-limit functions (`uniformQuadraticSegment`, `chaikinStep`); tests and L1/L2 golden numbers | — | planned |
 | BS-1b | F1 | `insertion.ts`, `extraction.ts`, `rational.ts`, `derivativeSource` (curvature kernel's `DerivativeSource`); tests and L3–L5 golden numbers | BS-1a, CG-1 | planned |
 | BS-A-2a | F2a | `BSplineCurve`, JSXGraph wrapper, preset collection with validation, basis-plot and de Boor graphs, knot editor control; measured basis-plot drawing | BS-1a, `G-CURVE` | planned |

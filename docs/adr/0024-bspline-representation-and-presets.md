@@ -1,4 +1,4 @@
-# 0023 B-spline representation, conventions and Preset format
+# 0024 B-spline representation, conventions and Preset format
 
 Status: accepted, 2026-10-31. Context: [B-splines and NURBS lessons](../specs/b-splines-nurbs-lessons.md#implementation-decisions), [tasks](../tasks/b-splines-nurbs/README.md).
 
