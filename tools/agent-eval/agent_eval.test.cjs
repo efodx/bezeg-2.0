@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {test} = require('node:test');
-const {claudeProjectKey, claudeUsage, codexUsage, exportRevision, findTask, loadManifest, profileClaudeTranscript, validateManifest, verdict} = require('./agent_eval.cjs');
+const {adoptAgentBranch, claudeProjectKey, claudeRequestCost, claudeUsage, codexUsage, exportRevision, findTask, loadManifest, profileClaudeTranscript, validateManifest, verdict} = require('./agent_eval.cjs');
 
 const sha = 'a'.repeat(40);
 const task = (extra = {}) => ({id: 'demo', size: 'M', base: sha, solution: sha, prompt: 'Do it.', spec: [], hidden: [{path: 'a.test.ts', tier: 'contract', kind: 'unit'}], ...extra});
@@ -32,6 +32,44 @@ test('Claude transcripts count each message once and weight cache use', () => {
     assert.deepEqual({requests: profile.requests, input: profile.inputTokens, output: profile.outputTokens, peak: profile.peakRequestInput}, {requests: 2, input: 1160, output: 6, peak: 1110});
     assert.equal(profile.weightedInput, 100 * 1.25 + 1000 * 0.1 + 10 + 25 + 50 + 5);
     assert.deepEqual([profile.first, profile.last], ['2026-10-24T10:00:00Z', '2026-10-24T10:05:00Z']);
+});
+
+test('Claude request cost prices each token class by model family', () => {
+    const usage = {input_tokens: 1e6, output_tokens: 1e6, cache_read_input_tokens: 1e6, cache_creation_input_tokens: 2e6,
+        cache_creation: {ephemeral_5m_input_tokens: 1e6, ephemeral_1h_input_tokens: 1e6}};
+    assert.equal(claudeRequestCost('claude-opus-5-5', usage), 4 + 20 + 0.2 + 5 + 8);
+    assert.equal(claudeRequestCost('claude-sonnet-5-5', usage), 2 + 10 + 0.2 + 2.5 + 4);
+    assert.equal(claudeRequestCost('claude-sonnet-5-5', {cache_creation_input_tokens: 1e6}), 2.5, 'writes without a TTL split count as 5-minute writes');
+    assert.equal(claudeRequestCost('unknown-model', usage), 0);
+});
+
+test('a hidden test source must exist', () => {
+    const missing = task({hidden: [{path: 'a.test.ts', tier: 'contract', kind: 'unit', source: 'tools/agent-eval/hidden/none.cjs'}]});
+    assert.throws(() => validateManifest({defaultTask: 'demo', tooling: ['AGENTS.md'], tasks: [missing]}), /source tools\/agent-eval\/hidden\/none\.cjs does not exist/);
+});
+
+test('grading adopts the single branch that extends an untouched sandbox branch', () => {
+    const repo = tempDir();
+    const git = (...args) => require('node:child_process').execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], {cwd: repo, encoding: 'utf8'}).trim();
+    const commit = (file, message) => { fs.writeFileSync(path.join(repo, file), message); git('add', file); git('commit', '--quiet', '-m', message); };
+    git('init', '--quiet', '-b', 'master');
+    commit('a.txt', 'tooling');
+    git('tag', 'eval-start');
+    git('branch', 'agent');
+    git('branch', 'stale');
+    git('checkout', '--quiet', 'agent');
+    commit('b.txt', 'work');
+    git('checkout', '--quiet', 'master');
+    assert.deepEqual(adoptAgentBranch(repo), {branch: 'agent'});
+    assert.equal(git('log', '-1', '--format=%s'), 'work');
+    assert.equal(adoptAgentBranch(repo), null, 'a sandbox branch with commits is graded as is');
+
+    git('reset', '--quiet', '--hard', 'eval-start');
+    git('checkout', '--quiet', '-b', 'second');
+    commit('c.txt', 'other');
+    git('checkout', '--quiet', 'master');
+    assert.deepEqual(adoptAgentBranch(repo), {skipped: ['agent', 'second']});
+    assert.equal(git('log', '-1', '--format=%s'), 'tooling');
 });
 
 test('Claude usage covers the sandbox and its worktrees, split into handler and workers', () => {

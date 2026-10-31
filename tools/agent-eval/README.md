@@ -19,7 +19,7 @@ just eval list
 just eval setup            # medium; or: just eval setup S | L | <task id>
 ```
 
-Setup prints the sandbox and prompt paths. Open a fresh Claude or Codex session in the sandbox `repo` folder, paste `prompt.md`, and let the handler work as usual. When it reports completion:
+Setup prints the sandbox and prompt paths. Open a fresh Claude or Codex session in the sandbox `repo` folder, paste `prompt.md`, and let the handler work as usual. A Claude background handler can also be started from that folder with `claude --bg -n "<name>" --agent claude --model <model> --permission-mode auto "<prompt.md contents>"`. Claude refuses to start in a new folder until its workspace trust prompt has been accepted once in that `repo` folder; trusting a parent folder is not enough. Give concurrent sandboxes distinct `SMOKE_PORT`s, for example through an `env` entry in a git-excluded `.claude/settings.local.json`. When the handler reports completion:
 
 ```powershell
 just eval grade <run directory>
@@ -39,12 +39,12 @@ The sandbox has two commits, `eval base` and `eval tooling`, tagged `eval-start`
 
 ## Grading
 
-`grade` measures the sandbox's working tree, including uncommitted work, with the sandbox's own `just` runner:
+`grade` measures the sandbox's working tree, including uncommitted work, with the sandbox's own `just` runner. Background handlers often commit on a worktree branch: when the sandbox branch has no commits since `eval-start` and exactly one local branch extends it, `grade` fast-forwards to that branch first and records it as `adopted` in the report.
 
 - **Gates**: `typecheck`, the full `unit` suite (including the agent's tests) and `build`.
-- **Hidden contract tests**: written in place temporarily, then restored. They use only names and behavior the spec fixes, so any compliant solution should pass.
+- **Hidden contract tests**: written in place temporarily, then restored. They use only names and behavior the spec fixes, so any compliant solution should pass. When a solution's test depends on reference-only names, the manifest entry's `source` names a maintained copy under `hidden/<task>/` that is used instead; calibration cannot detect such leaks, so compare several independent solutions when adding a task.
 - **Hidden reference tests**: tests of the original design (internal module names, exact lesson steps). Informational only; a failure is not a defect.
-- **Git and usage**: commits since `eval-start`, uncommitted paths, diff size; Claude usage from the project folders of the sandbox and its worktrees, Codex usage from rollouts whose working directory is inside the sandbox, each split into handler and workers, with the first-to-last activity span.
+- **Git and usage**: commits since `eval-start`, uncommitted paths, diff size; Claude usage from the project folders of the sandbox and its worktrees, Codex usage from rollouts whose working directory is inside the sandbox, each split into handler and workers, with the first-to-last activity span. Claude usage includes an estimated cost at first-party list prices per model (`CLAUDE_PRICES` in `agent_eval.cjs`), the same calculation as `/usage`; it is an API-equivalent figure, not subscription billing.
 
 The verdict is `accepted` when gates and contract tests pass, `incomplete` when gates pass but `--skip-smoke` left a contract smoke test unrun, otherwise `rejected`. The JSON report is written to `grade-<timestamp>.json` in the run directory. It replaces neither handler review against the spec's acceptance criteria nor the evaluation record.
 

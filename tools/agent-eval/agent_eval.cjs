@@ -35,6 +35,7 @@ function validateManifest(manifest) {
         for (const test of task.hidden || []) {
             if (!['contract', 'reference'].includes(test.tier)) problems.push(`${name}: ${test.path} tier must be contract or reference`);
             if (!['unit', 'smoke'].includes(test.kind)) problems.push(`${name}: ${test.path} kind must be unit or smoke`);
+            if (test.source !== undefined && !fs.existsSync(path.join(ROOT, test.source))) problems.push(`${name}: ${test.path} source ${test.source} does not exist`);
         }
     }
     if (!ids.has(manifest.defaultTask)) problems.push('defaultTask must name a task');
@@ -152,16 +153,18 @@ function runner(repo, args) {
     };
 }
 
-// Temporarily replaces the given paths with the solution commit's versions, restoring the agent's files afterwards.
-function withHiddenFiles(repo, solution, paths, action) {
-    const saved = paths.map(file => {
-        const absolute = path.join(repo, file);
+// Temporarily replaces each hidden test path with the solution commit's version, or with the maintained `source` file
+// when the solution's test depends on reference-only names, restoring the agent's files afterwards.
+function withHiddenFiles(repo, solution, tests, action) {
+    const saved = tests.map(test => {
+        const absolute = path.join(repo, test.path);
         return {absolute, original: fs.existsSync(absolute) ? fs.readFileSync(absolute) : null};
     });
     try {
-        for (const [index, file] of paths.entries()) {
+        for (const [index, test] of tests.entries()) {
             fs.mkdirSync(path.dirname(saved[index].absolute), {recursive: true});
-            fs.writeFileSync(saved[index].absolute, git(ROOT, ['show', `${solution}:${file}`], {encoding: 'buffer'}));
+            const content = test.source ? fs.readFileSync(path.join(ROOT, test.source)) : git(ROOT, ['show', `${solution}:${test.path}`], {encoding: 'buffer'});
+            fs.writeFileSync(saved[index].absolute, content);
         }
         return action();
     } finally {
@@ -177,12 +180,30 @@ function claudeProjectKey(dir) {
 }
 
 function emptyTotals() {
-    return {sessions: 0, requests: 0, inputTokens: 0, outputTokens: 0, peakRequestInput: 0, weightedInput: 0};
+    return {sessions: 0, requests: 0, inputTokens: 0, outputTokens: 0, peakRequestInput: 0, weightedInput: 0, costUsd: 0};
+}
+
+// First-party list prices in $ per million tokens (checked 2026-10-31): input, output, 5-minute and 1-hour cache
+// writes (1.25x and 2x input), cache reads. API-equivalent estimates, not subscription billing.
+const CLAUDE_PRICES = {
+    opus: {input: 4, output: 20, write5m: 5, write1h: 8, read: 0.2},
+    sonnet: {input: 2, output: 10, write5m: 2.5, write1h: 4, read: 0.2},
+    haiku: {input: 0.1, output: 0.5, write5m: 0.125, write1h: 0.2, read: 0.01},
+};
+
+function claudeRequestCost(model, usage) {
+    const family = Object.keys(CLAUDE_PRICES).find(name => (model || '').includes(name));
+    if (!family) return 0;
+    const price = CLAUDE_PRICES[family];
+    const write1h = usage.cache_creation?.ephemeral_1h_input_tokens || 0;
+    const write5m = usage.cache_creation?.ephemeral_5m_input_tokens ?? Math.max(0, (usage.cache_creation_input_tokens || 0) - write1h);
+    return ((usage.input_tokens || 0) * price.input + (usage.output_tokens || 0) * price.output + write5m * price.write5m
+        + write1h * price.write1h + (usage.cache_read_input_tokens || 0) * price.read) / 1e6;
 }
 
 function profileClaudeTranscript(text) {
     const seen = new Set();
-    const profile = {requests: 0, inputTokens: 0, outputTokens: 0, peakRequestInput: 0, weightedInput: 0, first: null, last: null};
+    const profile = {requests: 0, inputTokens: 0, outputTokens: 0, peakRequestInput: 0, weightedInput: 0, costUsd: 0, first: null, last: null};
     for (const line of text.split(/\r?\n/)) {
         let entry;
         try { entry = JSON.parse(line); } catch { continue; }
@@ -202,13 +223,14 @@ function profileClaudeTranscript(text) {
         // Same relative price as tools/agent-usage/claude_turn_usage.py.
         profile.weightedInput += (usage.cache_creation_input_tokens || 0) * 1.25 + (usage.cache_read_input_tokens || 0) * 0.1
             + (usage.input_tokens || 0) + (usage.output_tokens || 0) * 5;
+        profile.costUsd += claudeRequestCost(message.model, usage);
     }
     return profile;
 }
 
 function addProfile(totals, profile, span) {
     totals.sessions += 1;
-    for (const key of ['requests', 'inputTokens', 'outputTokens', 'weightedInput']) totals[key] += profile[key];
+    for (const key of ['requests', 'inputTokens', 'outputTokens', 'weightedInput', 'costUsd']) if (profile[key] !== undefined) totals[key] += profile[key];
     totals.peakRequestInput = Math.max(totals.peakRequestInput, profile.peakRequestInput);
     if (profile.first && (!span.first || profile.first < span.first)) span.first = profile.first;
     if (profile.last && (!span.last || profile.last > span.last)) span.last = profile.last;
@@ -279,8 +301,21 @@ function codexUsage(repo, since, sessionsDir = path.join(process.env.CODEX_HOME 
         }
     };
     visit(sessionsDir);
-    for (const totals of Object.values(usage)) delete totals.weightedInput;
+    for (const totals of Object.values(usage)) { delete totals.weightedInput; delete totals.costUsd; }
     return {...usage, ...span};
+}
+
+// Background handlers often commit on a worktree branch. When the sandbox branch is untouched and exactly one local
+// branch extends it, fast-forward to that branch so the grade measures the agent's work.
+function adoptAgentBranch(repo) {
+    const count = range => Number(git(repo, ['rev-list', '--count', range]).trim());
+    if (count('eval-start..HEAD') !== 0) return null;
+    const current = git(repo, ['branch', '--show-current']).trim();
+    const candidates = git(repo, ['for-each-ref', '--format=%(refname:short)', 'refs/heads']).trim().split('\n')
+        .filter(branch => branch && branch !== current && count(`eval-start..${branch}`) > 0 && count(`${branch}..HEAD`) === 0);
+    if (candidates.length !== 1) return candidates.length ? {skipped: candidates} : null;
+    git(repo, ['merge', '--ff-only', '--quiet', candidates[0]]);
+    return {branch: candidates[0]};
 }
 
 function gitSummary(repo) {
@@ -298,7 +333,10 @@ function grade(runDir, {skipSmoke = false, port = 4300 + Math.floor(Math.random(
     const task = findTask(loadManifest(), run.task);
     const repo = run.repo;
     const gradedAt = new Date().toISOString();
-    const report = {task: task.id, size: task.size, state: run.state, workflow: run.workflow, gradedAt, git: gitSummary(repo), gates: [], hidden: []};
+    const adopted = adoptAgentBranch(repo);
+    if (adopted?.branch) log(`graded branch ${adopted.branch} (fast-forwarded the untouched sandbox branch to it)`);
+    if (adopted?.skipped) log(`warning: several branches extend the sandbox branch (${adopted.skipped.join(', ')}); grading the sandbox branch as is`);
+    const report = {task: task.id, size: task.size, state: run.state, workflow: run.workflow, gradedAt, adopted, git: gitSummary(repo), gates: [], hidden: []};
 
     for (const command of [['typecheck'], ['unit'], ['build']]) {
         log(`gate: ${command.join(' ')}...`);
@@ -324,7 +362,7 @@ function grade(runDir, {skipSmoke = false, port = 4300 + Math.floor(Math.random(
         }
         log(`hidden ${group.tier} ${group.kind}: ${files.join(', ')}...`);
         const args = group.kind === 'smoke' ? ['smoke-built', ...files, ...(group.tests[0].args || []), '--port', String(port)] : ['unit', ...files];
-        report.hidden.push({...entry, ...withHiddenFiles(repo, task.solution, files, () => runner(repo, args))});
+        report.hidden.push({...entry, ...withHiddenFiles(repo, task.solution, group.tests, () => runner(repo, args))});
     }
     report.usage = {claude: claudeUsage(repo), codex: codexUsage(repo, run.createdAt)};
     report.verdict = verdict(report);
@@ -348,7 +386,8 @@ function verdict(report) {
 function formatTotals(name, totals) {
     if (!totals.sessions) return null;
     const weighted = totals.weightedInput === undefined ? '' : `, weighted ${Math.round(totals.weightedInput).toLocaleString('en')}`;
-    return `${name}: ${totals.sessions} session(s), ${totals.requests} requests, input ${totals.inputTokens.toLocaleString('en')}, output ${totals.outputTokens.toLocaleString('en')}, peak request ${totals.peakRequestInput.toLocaleString('en')}${weighted}`;
+    const cost = totals.costUsd === undefined ? '' : `, est. $${totals.costUsd.toFixed(2)}`;
+    return `${name}: ${totals.sessions} session(s), ${totals.requests} requests, input ${totals.inputTokens.toLocaleString('en')}, output ${totals.outputTokens.toLocaleString('en')}, peak request ${totals.peakRequestInput.toLocaleString('en')}${weighted}${cost}`;
 }
 
 function formatReport(report) {
@@ -437,4 +476,4 @@ function cli(argv) {
 
 if (require.main === module) cli(process.argv.slice(2));
 
-module.exports = {claudeProjectKey, claudeUsage, cli, codexUsage, exportRevision, findTask, formatReport, loadManifest, main, profileClaudeTranscript, profileCodexRollout, validateManifest, verdict};
+module.exports = {adoptAgentBranch, claudeProjectKey, claudeRequestCost, claudeUsage, cli, codexUsage, exportRevision, findTask, formatReport, loadManifest, main, profileClaudeTranscript, profileCodexRollout, validateManifest, verdict};

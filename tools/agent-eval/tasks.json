@@ -39,7 +39,7 @@
             "spec": ["docs/specs/chapter-activity-controls.md"],
             "prompt": "Implement docs/specs/chapter-activity-controls.md.",
             "hidden": [
-                {"path": "tests/standalone-learning.smoke.spec.cjs", "tier": "contract", "kind": "smoke"}
+                {"path": "tests/standalone-learning.smoke.spec.cjs", "tier": "contract", "kind": "smoke", "source": "tools/agent-eval/hidden/chapter-activity-controls/standalone-learning.smoke.spec.cjs"}
             ]
         },
         {
