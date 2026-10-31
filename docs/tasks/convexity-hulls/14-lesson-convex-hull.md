@@ -1,0 +1,9 @@
+# 14 — Hull trace lesson actions and lesson A4 (F3)
+
+Status: planned 2026-11-01 (handler 8). Source: spec [A4](../../specs/convexity-hulls-lessons.md#a4-convex-hull), [§3 trace model](../../specs/convexity-hulls-lessons.md#3-algorithm-step-trace-model), F0 decision on one `algorithm-trace` animation id ([README](README.md#decisions-f0-2026-10-31-handler)). Kind: F3; review covers scene actions, trace readouts and counts, not prose. Depends on 13 (point-set actions, lesson file).
+
+1. **Actions.** `algorithm-trace` joins `LESSON_ANIMATION_IDS`; `HullTraceGraph` registers it with `next-step`, `reset`, `play` and `pause`, through the same controller transition as its buttons. A typed choice for the algorithm: `{kind: 'point-set', operation: 'set-algorithm', algorithm: HullAlgorithm}` (`HULL_ALGORITHMS` in `src/graphs/compgeo/hullTraceRun.ts`), registered only by `HullTraceGraph`. Every edit action pauses and resets to step 0, as the graph already does for user edits.
+2. **Lesson** A4 (`convex-hull`) in `compgeoGuidedLessons.ts`; remove `lesson: false` from `convex-hull`. The spec's seven steps on sample 1: slow edge test (5 directed edges, 504 tests), monotone chain Next steps to the first pop at \((2,0)\) with value \(-2\) and the collinear rejection at \((2,5)\) (\(0\)), gift wrapping (5 wraps, 35 tests), the counts row, free exploration. Playback is stopped by default and never autoplays in lesson mode.
+3. **Tests:** synchronous frame sequences; the readouts at the quoted steps (pop value, counts 504 and 35, final 5-vertex hull for all three algorithms); `next-step` ×k equals Next ×k; Back and scene change pause playback and leave no pending scheduler callback. Observed mutation failures.
+
+Checks: as task 13, plus `just smoke-lesson convex-hull` or a by-hand lesson walk in both languages.
