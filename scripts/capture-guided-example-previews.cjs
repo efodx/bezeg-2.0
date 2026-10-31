@@ -1,4 +1,5 @@
-// Capture only the exact prepared initial scenes from a complete generated inventory.
+// Capture guided-example card media from a complete generated inventory: the exact prepared start scene, or the
+// authored highlight recipe state (frame + learner-equivalent steps) when the entry carries a highlight recipe.
 // node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches]
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
@@ -10,7 +11,8 @@ const demonstrations = require('../tests/smoke-catalog.cjs');
 const {recipes, settle} = require('./demonstration-preview-recipes.cjs');
 const {presentBoard, hashFile, pngDimensions} = require('./capture-demonstration-previews.cjs');
 const {digestBuild, digestInputs} = require('./commands.cjs');
-const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateSurfacePresentation} = require('./guided-example-preview-api.cjs');
+const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateSurfacePresentation,
+    parseGuidedProgress, navigationDirection, verifyHighlight, recipeRecord} = require('./guided-example-preview-api.cjs');
 const {readPublishedSurfaceEvidence, validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
 
 const root = path.resolve(__dirname, '..');
@@ -33,7 +35,7 @@ function presentationHelpers() {
     return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
         isViewportSpanningHorizontalCurve, isCameraScaledCurve,
         isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry,
-        readPublishedSurfaceEvidence, validateSurfaceEvidence];
+        reachFrame, applyHighlightRecipe, readPublishedSurfaceEvidence, validateSurfaceEvidence];
 }
 
 function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers = presentationHelpers()} = {}) {
@@ -96,7 +98,9 @@ function fingerprintInventory(inventory) {
     const hash = crypto.createHash('sha256');
     for (const entry of [...inventory].sort((a, b) => a.id.localeCompare(b.id))) {
         hash.update(JSON.stringify({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
-            sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null}));
+            sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null,
+            // Start recipes are omitted so the fingerprint of pre-recipe manifests is unchanged; highlight recipes are covered.
+            recipe: entry.recipe?.kind === 'highlight' ? entry.recipeFingerprint : undefined}));
         hash.update('\0');
     }
     return hash.digest('hex');
@@ -297,7 +301,7 @@ async function captureSurfaceExample(page, entry, browserVersion, servedBuild, b
     const dimensions = pngDimensions(output);
     assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor});
     return {id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path, sceneFingerprint: entry.sceneFingerprint,
-        actions: entry.actions || [], file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
+        actions: entry.actions || [], ...recipeRecord(entry), file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
         scene: {...sceneEvidence, visibleLabelBounds}, initialFrame: {firstFrame: true, backNavigationDisabled: true, stableAcrossMs: 250,
             preparedSurfaceEvidence},
         framing: {surfaceHostOnly: true, width: frame.width, height: frame.height, scale: deviceScaleFactor, guidedLessonOverlayHidden,
@@ -340,6 +344,58 @@ async function verifyServedBuild(build) {
         localOutputHash: build.output, localOutputHashVerified: true, bundles};
 }
 
+const maxNavigationClicks = 200;
+
+async function readGuidedPosition(page, id) {
+    const text = await page.locator('.guided-lesson-progress').innerText();
+    const position = parseGuidedProgress(text);
+    assert.ok(position, `${id}: cannot read the guided-lesson position from "${text}"`);
+    return position;
+}
+
+/** Moves with the lesson's own previous/next buttons until the target frame is current; fails when it cannot be reached. */
+async function reachFrame(page, id, target, label = 'frame') {
+    assert.ok(target && Number.isInteger(target.step) && Number.isInteger(target.frame), `${id}: ${label} has no resolved lesson position`);
+    let current = await readGuidedPosition(page, id);
+    for (let clicks = 0; navigationDirection(current, target); clicks++) {
+        const direction = navigationDirection(current, target);
+        assert.ok(clicks < maxNavigationClicks, `${id}: ${label} is unreachable (no progress towards step ${target.step + 1}, frame ${target.frame + 1})`);
+        await page.locator(`.guided-lesson-nav-${direction}`).click();
+        await settle(page);
+        const moved = await readGuidedPosition(page, id);
+        assert.ok(moved.step !== current.step || moved.frame !== current.frame,
+            `${id}: ${label} is unreachable (${direction} did not leave step ${current.step + 1}, frame ${current.frame + 1}; lesson ended or button disabled)`);
+        current = moved;
+    }
+    assert.deepEqual([current.step, current.frame], [target.step, target.frame], `${id}: ${label} was not reached`);
+    return current;
+}
+
+/** Reaches the recipe frame, then applies each step as a learner would, waiting for board effects to settle. */
+async function applyHighlightRecipe(page, entry) {
+    const recipe = entry.recipe;
+    assert.equal(recipe?.kind, 'highlight', `${entry.id}: applyHighlightRecipe needs a highlight recipe`);
+    await reachFrame(page, entry.id, recipe.position, `recipe frame "${recipe.frame}"`);
+    await settle(page);
+    for (const [index, step] of recipe.steps.entries()) {
+        const where = `recipe step ${index + 1} (${step.kind} ${step.frame})`;
+        try {
+            if (step.kind === 'goto-frame') await reachFrame(page, entry.id, step.position, where);
+            else {
+                const current = await readGuidedPosition(page, entry.id);
+                assert.deepEqual([current.step, current.frame], [step.position.step, step.position.frame],
+                    `lesson is not on frame "${step.frame}"; add a goto-frame step before it`);
+                const button = page.locator('.guided-lesson-actions').getByRole('button', {name: step.label, exact: true});
+                assert.equal(await button.count(), 1, `frame action button "${step.label}" is not present exactly once`);
+                await button.click();
+            }
+            await settle(page);
+        } catch (error) {
+            throw new Error(`${entry.id}: ${where} failed: ${error.message}`, {cause: error});
+        }
+    }
+}
+
 async function captureExample(page, entry, demonstration, recipe, browserVersion, servedBuild, build, sourceRevision, destination) {
     const target = new URL(entry.path, new URL(appBaseUrl).origin).toString();
     const pageErrors = [];
@@ -356,19 +412,30 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     const progress = await page.locator('.guided-lesson-progress').innerText();
     assert.match(progress, /Korak 1 od \d+\s*·\s*Okvir 1 od \d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
     await settle(page);
-    if (demonstration.view === 'surface') return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination);
+    if (demonstration.view === 'surface') {
+        assert.equal(entry.recipe.kind, 'start', `${entry.id}: highlight recipes are not supported on surface routes; use a start recipe`);
+        return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination);
+    }
     const initial = await inspectBoard(page);
     verifyEvidence(entry, initial);
     await page.waitForTimeout(250);
     const settled = await inspectBoard(page);
     assert.deepEqual(settled, initial, `${entry.id}: board changed after initial-frame settling; refusing a later or animated frame`);
     assert.equal(page.url(), target, `${entry.id}: route or example identity changed before capture`);
+    let highlighted = initial, highlight;
+    if (entry.recipe.kind === 'highlight') {
+        await applyHighlightRecipe(page, entry);
+        highlighted = await inspectBoard(page);
+        await page.waitForTimeout(250);
+        assert.deepEqual(await inspectBoard(page), highlighted, `${entry.id}: board still changing after the recipe steps; refusing an unsettled highlight`);
+        highlight = verifyHighlight(entry, initial, highlighted);
+    }
     await page.evaluate(async () => { await document.fonts.ready; });
     const guidedLessonOverlayHidden = await hideGuidedLessonOverlay(page);
     const scene = await presentBoard(board, demonstration, recipe, {frame});
     const presented = await inspectBoard(page);
-    assertPresentationGeometryStable(initial, presented, entry.id);
-    const sceneEvidence = verifyEvidence(entry, presented);
+    assertPresentationGeometryStable(highlighted, presented, entry.id);
+    const sceneEvidence = verifyEvidence(highlight ? {...entry, expected: entry.recipe.checks} : entry, presented);
     assert.deepEqual([scene.width, scene.height], [frame.width, frame.height], `${entry.id}: frame size`);
     assert.ok(scene.framedElementCount > 0, `${entry.id}: no framed board geometry`);
     assert.deepEqual(scene.outOfFrameElements, [], `${entry.id}: cropped board labels or geometry`);
@@ -382,7 +449,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     const dimensions = pngDimensions(output);
     assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor});
     return {id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path, sceneFingerprint: entry.sceneFingerprint,
-        actions: entry.actions || [], file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
+        actions: entry.actions || [], ...recipeRecord(entry, highlight), file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
         scene: sceneEvidence, initialFrame: {firstFrame: true, backNavigationDisabled: true, stableAcrossMs: 250,
             preparedBoardEvidence: verifyEvidence(entry, initial)},
         framing: {boardOnly: true, width: frame.width, height: frame.height, scale: deviceScaleFactor,
@@ -443,7 +510,7 @@ async function main(argv = process.argv.slice(2)) {
         sourceStateDirty: Boolean(sourceState), buildStamp: build, servedBuild, appBaseUrl,
         browserVersion: browser.version(), locale: 'sl-SI', colorScheme: 'light', fingerprints,
         capture: {cleanContextPerExample: true, capturedHostOnly: true, frame, viewport, deviceScaleFactor,
-            sceneSource: 'exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed',
+            sceneSource: 'exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons',
             initialFrame: 'first guided-lesson frame with previous disabled and stable prepared board across 250 ms',
             guidedLessonOverlay: 'capture-only visibility hidden before framing; first frame and scene remain untouched',
             presentation: 'JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry', entryFraming}, captures: allCaptures};
@@ -451,7 +518,7 @@ async function main(argv = process.argv.slice(2)) {
     console.log(`Wrote ${allCaptures.length} guided-example previews to ${path.relative(root, destination)}.`);
 }
 
-module.exports = {parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
+module.exports = {reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
     prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample};

@@ -8,7 +8,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fixed-point-cobweb-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fixed-point-bound\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.convergence.sequence",
@@ -30,7 +34,11 @@
         "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
         "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"sequence-certificate\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.convergence.uniform-convergence",
@@ -42,7 +50,11 @@
         "function-choice: {\"kind\":\"function-choice\",\"name\":\"uniform-example\",\"value\":\"scaled\"}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"uniform-n\",\"value\":4}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"uniform-supremum\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.convexity",
@@ -52,7 +64,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"convexity-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"second-derivative\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.extrema",
@@ -62,7 +78,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"extrema-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"extrema-classification\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.mean-value",
@@ -71,7 +91,11 @@
       "sceneFingerprint": "0bf8507dc9ad661101ab07aaaf2c6e8d9a2ef97924f8da3da6d5fe0cddce06b9",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mean-value-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.existence.bisection",
@@ -80,7 +104,11 @@
       "sceneFingerprint": "ebab5c66cc666b341049128b5c600e658c3516e05764296e83d5431a77f93ead",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bisection-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.integrability.darboux",
@@ -91,7 +119,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"darboux-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"lower-sum\",\"visible\":false}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"upper-sum\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.taylor.taylor",
@@ -101,7 +133,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"taylor-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"taylor-bound\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.affine-transformations.affine",
@@ -112,7 +148,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"affine-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[1,0],[2,3],[4,2],[5,-1]]},\"view\":[-5,7,9,-5]}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.bernstein-form.bernstein",
@@ -121,7 +161,11 @@
       "sceneFingerprint": "c902b50b6bbc32ca1245215bbdbbe3e8732e7f4425388295c8f874be00ddac9c",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.control-points.bezier",
@@ -130,7 +174,11 @@
       "sceneFingerprint": "db5085e0254060ac741c9ba2193c8e731fe2a5d8e01a96462ac82636b8777f1d",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-symmetric-cubic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[-3,2],[3,2],[3,-2]]},\"view\":[-4.5,4,4.5,-3.5]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.geometric-properties.convex-hull",
@@ -142,7 +190,11 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"convex-hull\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.alternative-recursion",
@@ -152,7 +204,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"da-cubic-half\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,4],[2,2],[4,-2]]},\"view\":[-6,6,6,-4]}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.decasteljau",
@@ -163,7 +219,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"decasteljau-quadratic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[0,4],[3,-2]]},\"view\":[-4.5,4.8,4.5,-3]}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.quartic-interpolation",
@@ -176,7 +236,11 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-full-curve\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
         "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.elevation",
@@ -186,7 +250,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"elevation-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.extrapolation",
@@ -195,7 +263,11 @@
       "sceneFingerprint": "6d84f447a828ada05e47af5e7e0581267ca877a179e06b73174c2b2797352869",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ex-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.repeated-subdivision",
@@ -204,7 +276,11 @@
       "sceneFingerprint": "59413dd2121aa82d1090697e5bba98280740a3b5e88ce60ebb9d5e27f1455139",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.subdivision",
@@ -213,7 +289,11 @@
       "sceneFingerprint": "4033a2ea97e9237c02a20358dc59b6a9eb7107d81fcde0c08ef8188977dfbc03",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sd-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.parameter.decasteljau-parameter",
@@ -226,7 +306,11 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-full-curve\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
         "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.complex-plane.complex-multiplication",
@@ -238,7 +322,11 @@
         "function-choice: {\"kind\":\"function-choice\",\"name\":\"complex-example\",\"value\":\"rotation-i\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-product\",\"visible\":false}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-arguments\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.reading-bernstein.bernstein",
@@ -247,7 +335,11 @@
       "sceneFingerprint": "c902b50b6bbc32ca1245215bbdbbe3e8732e7f4425388295c8f874be00ddac9c",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.worked-weight.bernstein.degree-comparison",
@@ -258,6 +350,10 @@
         "bernstein-degree: {\"kind\":\"bernstein-degree\",\"degree\":2}",
         "bernstein-stacked-area: {\"kind\":\"bernstein-stacked-area\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "expected": {
         "types": {
           "curve": 3
@@ -317,7 +413,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"arc-chord-scene\",\"source\":\"demonstration-default\"}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"n\",\"value\":1}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.applications.area-between-curves",
@@ -329,7 +429,11 @@
         "function-choice: {\"kind\":\"function-choice\",\"name\":\"area-mode\",\"value\":\"between\"}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"a\",\"value\":1}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"b\",\"value\":3}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.continuity.continuity",
@@ -338,7 +442,11 @@
       "sceneFingerprint": "61fa504e346e3339a608cea407b4e7e6071300f2f280964f18aafdc3c33ca21c",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"continuity-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.derivatives.derivative",
@@ -347,7 +455,11 @@
       "sceneFingerprint": "98ac887c2bc957a8aab7a17ced37ebbb60bafddf936d393bccb8764c51d01c0e",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"derivative-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.exponential-function",
@@ -356,7 +468,11 @@
       "sceneFingerprint": "f02447ba99fcbce39ef2c458d02b2ec10e2c8ba1f5dd2a43505317350572e649",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"exponential-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.linear-function",
@@ -365,7 +481,11 @@
       "sceneFingerprint": "78fbefceb81adf008475294cb3b8bb4683a51bffe66882d1980c3a6d64c66f21",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.trigonometric-functions",
@@ -374,7 +494,11 @@
       "sceneFingerprint": "7c94067a2ee0a8d7655981e970e81b2b328b4bf2f020add0259040d35bbeb4c5",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"trig-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.integrals.accumulation",
@@ -383,7 +507,11 @@
       "sceneFingerprint": "4a1e4e32adbb6d426e6d25e24b784a4829030b6456be51351f188ecfd7b19f95",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"accumulation-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.integrals.definite-integral",
@@ -392,7 +520,11 @@
       "sceneFingerprint": "a48a2bf5c62f3eac199460d4e178e44979b2b252a98dd3da8c15a103aefff4bd",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"integral-default\",\"source\":\"demonstration-default\"}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.uniform-timing.uniform-parameterization",
@@ -404,7 +536,11 @@
         "parameterization-mode: {\"kind\":\"parameterization-mode\",\"mode\":\"weighted\"}",
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.weighted-knot.spline-parameterization",
@@ -416,7 +552,11 @@
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":10}",
         "spline-hide-fixed: {\"kind\":\"spline-hide-fixed\",\"hidden\":false}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.weighted-knot.weighted-parameterization",
@@ -427,7 +567,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wp-identity-three\",\"source\":\"demonstration-default\"}",
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-cubic-speed",
@@ -436,7 +580,11 @@
       "sceneFingerprint": "7f18402e602d5c7dfed45c208d5f048f89757646cb7c30532d8212663afdfab4",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
@@ -445,7 +593,11 @@
       "sceneFingerprint": "8d51cbfacbdc77594d62db074edb6557d8f9c700d168bcbfa4f54e8af920c21e",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.complex-hodograph.ph-cubic-generator",
@@ -454,7 +606,11 @@
       "sceneFingerprint": "437faef8b0597708b300fdb07c503fa770bb8198a16b2451f3431d29ae333860",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.investigate-ph.ph-cubic-singularity",
@@ -463,7 +619,11 @@
       "sceneFingerprint": "2a7afedc2e7f0c15266a71098c6519a97a08ae3e071233402897056578c18aea",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.investigate-ph.ph-quintic-singularity",
@@ -472,7 +632,11 @@
       "sceneFingerprint": "d02f13320c9ede5213c8e25268dedbdc145bf1a53efce90bfed49673101af424",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.offsets.ph-quintic-offsets",
@@ -481,7 +645,11 @@
       "sceneFingerprint": "53a65a5ec138157476e8b90dbf9bb3d2a07f2b7e0d0195a91178645f077d2e28",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.worked-length.ph-cubic-offset-length",
@@ -490,7 +658,11 @@
       "sceneFingerprint": "3dd95a0cf7ab67b40225f851a24885e78ee2f28d9ee41d0d924b3ecb8d8bb9cc",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.homogeneous.rational-decasteljau",
@@ -502,7 +674,11 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.investigate-rational.rational-extrapolation",
@@ -512,7 +688,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rex-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.farin",
@@ -522,7 +702,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"farin-weights\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.rational-elevation",
@@ -533,7 +717,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rational-elevation-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.rational-subdivision",
@@ -543,7 +731,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rsd-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.why-rational.rational-weight",
@@ -555,7 +747,11 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.worked-conic.circle",
@@ -564,7 +760,11 @@
       "sceneFingerprint": "348ef56ca8dcec60602270e79d7841d5a3420c9535a533bb0c5057efd45900b6",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"circle-default\",\"source\":\"demonstration-default\",\"view\":[-7,8,7,-5]}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.continuity-levels.spline-c1",
@@ -574,7 +774,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,2],[2,2],[3,-1]]},\"view\":[-6,4,6,-4]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.continuity-levels.spline-c2",
@@ -584,7 +788,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c2-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-6,-1],[-5,3],[-3,-3],[3,0],[5,2],[6,-2]]},\"view\":[-8,5,8,-5]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1",
@@ -594,7 +802,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"g1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-1],[-2,2],[0,0],[4,-1]],\"splineRatios\":[1]},\"view\":[-6,4,7,-7]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
@@ -605,7 +817,11 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"g1s-default-polygon\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-5,-1],[-2,2],[2,0],[5,3]],\"splineRatios\":[0.5]},\"view\":[-7,5,7,-3]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.piecewise.spline-cn",
@@ -615,7 +831,11 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cn-two-pieces-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,1],[-2,-2],[0,-3],[4,0]],\"degree\":2,\"continuity\":1},\"view\":[-6,3,6,-5]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.worked-join.spline-c1.parabola-derivatives",
@@ -625,6 +845,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"worked-parabola-join\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[0,0],[0.5,0],[1.5,2],[2,4]],\"degree\":2,\"continuity\":1},\"view\":[-0.25,4.5,2.25,-0.5]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "expected": {
         "types": {
           "curve": 1,
