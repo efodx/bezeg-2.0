@@ -9,6 +9,10 @@ Začnimo s praktičnim vprašanjem: kako lahko nekaj točk določa gladko obrisn
 
 Predstavljaj si, da v risarskem programu urejaš gladek obris. Določiš, kje se začne in konča, spremeniš njegov zavoj ter premakneš ali povečaš končno obliko. Uporaben matematični model naj omogoča predvidljive spremembe. Bézierjeva krivulja uporablja kratek seznam kontrolnih točk: seznam določa celotno krivuljo, vsaka točka pa na natančno določen način usmerja njeno obliko.
 
+Preizkusi sam. V okvirju spodaj dodaj nekaj točk, nato povleci točko ali njeno ročico in opazuj, kako se črta ukrivi. Formul za zdaj ne potrebuješ; poglej le, kako točke in ročice oblikujejo pot.
+
+*(Interaktivni risarski prostor, način `draw`.)*
+
 Prva in zadnja kontrolna točka ležita na krivulji. Notranje kontrolne točke navadno ne ležijo na njej. Krivuljo vlečejo in usmerjajo, ne označujejo pa mest, skozi katera mora potekati. Tako lahko kratek seznam določa gladko pot, ne da bi morale vse naštete točke ležati na njej.
 
 <a id="control-points"></a>
@@ -169,6 +173,10 @@ Vsaka podprta operacija deluje na kontrolnih podatkih in krivulja sledi isti afi
 ## Kaj lahko raziščemo naslednje?
 
 Spoznali smo, kako seznam kontrolnih točk določa krivuljo, kako parameter izbere točko, kako jo zgradi ponovljena interpolacija in kako isto krivuljo zapišemo z Bernsteinovimi koeficienti. Lastnosti krajišč in konveksne ovojnice dajejo uporabna jamstva, afine transformacije pa lahko uporabimo neposredno na kontrolnih točkah.
+
+Vsak odsek tvoje risbe je kubična Bézierjeva krivulja s kontrolnimi točkami \(P_0\)–\(P_3\), kot zgoraj: dve točki na krivulji in njuni ročici. Gladka točka ohrani enaki smeri tangent na obeh straneh (G1), zrcalni ročici pa ohranita tudi enak odvod (C1). Ena sama krivulja skozi vse iste točke ima stopnjo \(3k\) pri \(k\) odsekih in poteka le skozi prvo in zadnjo točko. Sestavljanje delov nizke stopnje ohrani urejanje lokalno: premik ene točke spremeni le sosednje dele. [Zlepkovne krivulje](/bezeg-2.0/spline/spline) to raziščejo naprej.
+
+*(Interaktivni prostor, način `inspect`: Poglej pod površje.)*
 
 Te zamisli odprejo nova vprašanja. Kako obdržimo le del krivulje? [Razišči delitev krivulje](/bezeg-2.0/bezier/subdivision-2). Kako isto obliko predstavimo z več kontrolnimi točkami? [Razišči zvišanje stopnje](/bezeg-2.0/bezier/elevation). Kako gladko združimo več delov krivulje? [Razišči zlepkovne krivulje](/bezeg-2.0/spline/spline). Kaj se spremeni, če želimo natančen krožni lok? [Razišči racionalne krivulje](/bezeg-2.0/rational/base) in [konstrukcijo krožnice](/bezeg-2.0/rational/circlen). Te povezave vodijo na povezane prikaze, ne napovedujejo pa novih poglavij ali predpogojev za to poglavje.
 
