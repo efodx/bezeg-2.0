@@ -60,3 +60,7 @@ eval *args:
 # Run the focused Node tests for this command runner.
 tooling-test:
     @require('./scripts/commands.cjs').cli(['tooling-test'])
+
+# Build and run the linear-map grid drawing benchmark (scripts/linear-map-benchmark/README.md); no test slot.
+linear-map-bench repeats="5" out="":
+    @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/linear-map-benchmark/" + s + ".cjs", ...(s === "run" ? [process.argv.slice(2)[0] || "5", ...process.argv.slice(3, 4)] : [])], {stdio: "inherit"});
