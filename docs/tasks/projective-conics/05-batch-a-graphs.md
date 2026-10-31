@@ -16,7 +16,7 @@ Run in order, one worker each. Each slice follows `src/graphs/compgeo/` (`PointS
 | --- | --- | --- |
 | 05a | Family Preset collection module and the K1 cross-ratio graph: two lines, a centre and four grid points, rays, images, an exact fraction readout with a decimal, and status texts for an image at infinity or an undefined projection. Shared helpers for ideal-point markers go in `src/graphs/projective/`. Locale keys go in one projective block in `sl.ts`/`en.ts`. | accepted 2026-10-31 |
 | 05b | K3 pole and polar graph. The conic selector draws through `sampleConic`. It shows tangents, tangency markers, the polar, the exact inside, on or outside status, and the equation readouts. | accepted 2026-10-31 |
-| 05c | K2 Pascal and Pappus graph: six parameter handles through `conicPencil`, the hexagon, the Pascal points and line, a determinant readout, and intersections at infinity. | planned |
+| 05c | K2 Pascal and Pappus graph: six parameter handles through `conicPencil`, the hexagon, the Pascal points and line, a determinant readout, and intersections at infinity. | accepted 2026-10-31 |
 | 05d | Drag measurement per the performance plan. It fixes `DEFAULT_SAMPLE_DENSITY` and `DIRECTION_BOUND` and records the numbers in ADR 0033 or a follow-up ADR. It also checks the open sampler notes from [task 03](03-conic-sampler.md#acceptance-record-2026-10-31). | planned |
 
 ## 05a acceptance record (2026-10-31)
@@ -65,3 +65,48 @@ Run in order, one worker each. Each slice follows `src/graphs/compgeo/` (`PointS
   - Pointer dragging; the NaN pen break in a real browser; the numerical tangent lines on screen.
   - The status regions with a screen reader.
 - **Not covered:** contract step 6, the pole of a line, has no separate graph mode. The lesson (task 07) can show it with the same picture, since \(P\) is the pole of its drawn polar.
+
+## 05c acceptance record (2026-10-31)
+
+- **Workers.** The first worker built `PascalGraph`, its controls, model, edit and text modules, and their tests. It handed off at its context budget with two failing host tests. A second worker finished the slice from the handoff note.
+  - The Preset key is `projective-pascal`; its `PresetImport` registration waits for the route slice.
+  - The locale keys are `projective_k2_*`.
+- **Settled choices.**
+  - Conics and base points:
+
+    | Conic | Equation | Base point Q0 |
+    | --- | --- | --- |
+    | Ellipse | \(9x^2+25y^2-225\) | \((-5,0)\) |
+    | Parabola | \(x^2-4y\) | \((0,0)\) |
+    | Hyperbola | \(9x^2-16y^2-144\) | \((4,0)\) |
+    | Line pair | \(y(y-3)\) | A handles from \((0,3)\), B handles from \((0,0)\) |
+
+    `classify` reports the line pair as `parallel-lines`.
+  - Handles store only direction-table indices (ADR 0033 §2). They skip directions that give an ideal, contained or degenerate point.
+  - The orders are natural, Pappus `[0,4,2,3,1,5]` and star `[0,2,4,1,3,5]`. A conic switch resets the indices and keeps the order.
+  - The view box is `[-12, 10.5, 12, -10.5]`.
+- **Contract K2.**
+  - The default, Pappus and infinity examples give the spec's points exactly, and each determinant is 0.
+  - A seeded property test runs 400 index sets on each of the four conics and finds the determinant exactly 0 wherever the status is `ok`.
+  - Ideal Pascal points get an `idealMarker`. A Pascal line at infinity is hidden and stated. An undefined side or coincident opposite sides give a status with no NaN.
+  - The three Pascal points differ by marker shape and label, not only colour.
+- **Leak found.**
+  - JSXGraph creates anonymous `point1`/`point2` helpers for every line defined by coefficients. The graph did not own them, so each conic switch left 14 points on the board.
+  - `src/graphs/projective/definingPoints.ts` now gives them to the graph. The review found that the accepted K3 graph had the same leak on unmount and Preset replacement, and the same helper fixes it.
+  - Both host tests now compare the board's object count before and after. The K1 graph builds its lines from points it owns and is clean.
+- **Review (Sonnet: engineering, UI and mathematics).** No must-fix. The repairs:
+  - The Slovenian agreement *kolinearna* is fixed, and the live-region sentence is shorter.
+  - The board readout overlapped the hyperbola, so it was removed from K2 and from K3. All sentences and readouts are now only in the inspector. The board keeps object labels, which do not depend on the language.
+  - Consequence: figure exports of K2 and K3 show no readout text. Route slice 06 or the lessons may add an export caption if one is needed.
+- **Mutations observed** (by the workers): 12 assertion targets. They are the examples' determinants, the property test, the line at infinity (visibility and text), NaN in the status, `example` → `custom`, import and load clearing the selection, focus, unmount, the conic-switch leak, and the helper ownership in both graphs. One assertion, that loading an example clears the selection, was missing until the second worker added it.
+- **Terms not in the [term table](README.md):** *Pascalova premica*, *šestkotnik*, *stranica*, *oglišče*, *presečišče*, *determinanta*. All are standard school vocabulary; the table should add them when the lesson slice settles the terms.
+- **Checks.** The handler reran these on the final tree, and they passed:
+  - `just unit src/graphs/projective src/localization src/projective`
+  - `just lint`
+  - `just check-localization` (typecheck and build)
+
+  The full unit suite is left to hosted CI.
+- **Unverified until route slice 06:**
+  - Browser layout of the object labels and marker faces.
+  - Pointer dragging along the table.
+  - The live SL/EN switch in a browser.

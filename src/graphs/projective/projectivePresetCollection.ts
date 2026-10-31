@@ -1,6 +1,7 @@
 import {message, Message} from "../../localization";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {CrossRatioModel, parseCrossRatioModel} from "./crossRatioModel";
+import {parsePascalModel, PascalModel} from "./pascalModel";
 import {parsePolePolarModel, PolePolarModel} from "./polePolarModel";
 import {ProjectiveCheck} from "./projectiveValidation";
 
@@ -37,3 +38,7 @@ export const crossRatioPresetCollection = (): PresetCollection<CrossRatioModel> 
 export const POLE_POLAR_PRESET_KEY = "projective-pole-polar";
 
 export const polePolarPresetCollection = (): PresetCollection<PolePolarModel> => projectivePresetCollection(POLE_POLAR_PRESET_KEY, parsePolePolarModel);
+
+export const PASCAL_PRESET_KEY = "projective-pascal";
+
+export const pascalPresetCollection = (): PresetCollection<PascalModel> => projectivePresetCollection(PASCAL_PRESET_KEY, parsePascalModel);

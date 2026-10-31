@@ -1,4 +1,5 @@
-import {CROSS_RATIO_PRESET_KEY, crossRatioPresetCollection, POLE_POLAR_PRESET_KEY, polePolarPresetCollection} from './projectivePresetCollection';
+import {CROSS_RATIO_PRESET_KEY, crossRatioPresetCollection, PASCAL_PRESET_KEY, pascalPresetCollection, POLE_POLAR_PRESET_KEY, polePolarPresetCollection} from './projectivePresetCollection';
+import {PASCAL_EXAMPLES, serializePascalModel} from './pascalModel';
 import {POLE_POLAR_EXAMPLES, serializePolePolarModel} from './polePolarModel';
 import {CROSS_RATIO_EXAMPLES, serializeCrossRatioModel} from './crossRatioModel';
 import {renderMessage, setLanguage} from '../../localization';
@@ -47,4 +48,17 @@ test('the pole and polar collection has its own frozen key, one parser and actio
     expect('rejection' in bad).toBe(true);
     if ('rejection' in bad) expect(renderMessage(bad.rejection)).toContain('ellipse, circle, parabola, hyperbola');
     expect(polePolar.checkGraphState?.({model: {}})).toBeDefined();
+});
+
+test('the Pascal collection has its own frozen key, one parser and actionable refusals', () => {
+    const pascalCollection = pascalPresetCollection();
+    expect(pascalCollection.key).toBe('projective-pascal');
+    expect(PASCAL_PRESET_KEY).toBe(pascalCollection.key);
+    const data = serializePascalModel(PASCAL_EXAMPLES.pappus);
+    const ok = pascalCollection.check(JSON.parse(JSON.stringify(data)));
+    expect('data' in ok && ok.data).toEqual(data);
+    const bad = pascalCollection.check({...data, order: [0, 1, 2, 3, 4, 4]});
+    expect('rejection' in bad).toBe(true);
+    if ('rejection' in bad) expect(renderMessage(bad.rejection)).toContain('vsako natanko enkrat');
+    expect(pascalCollection.checkGraphState?.({model: {}})).toBeDefined();
 });
