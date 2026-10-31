@@ -84,6 +84,10 @@ The lesson overlay uses the warm panel, ink, secondary ink, rule and forest acti
 
 The open panel (by its heading row) and the closed tab can each be dragged anywhere within the visible graph; the grip and the tab also move with arrow keys. A lifted shadow while dragging is the only motion. Once either has been moved, they travel together: hiding leaves the tab at the panel's top-left corner and reopening opens the panel at the tab, clamped to the graph. Positions last for the lesson and reset when another lesson starts. See [the refinement specification](docs/specs/lesson-panel-visual-refinement.md).
 
+## Learn landing
+
+The Learn landing (`/learn`) matches the shell: shell canvas and the 48px graph grid backdrop without the botanical art, all colours from `--bezeg-shell-*` tokens (no hex in landing rules). The page opens with the small "Bezeg · Učenje" eyebrow, a bold system-sans heading, merged copy, a count line (chapters, sections, guided examples, with correct Slovenian plurals) and the start action to the right on desktop. Page and strand headings are sans; chapter titles stay Georgia as the reading voice. Each strand is a card (preview panel surface, 1px media rule, 16px radius, soft shadow) under an ochre-bar sans heading; rows inside are separated by one hairline and tint with the shell choice-hover colour on hover, with a thin path rule through the thumbnail centres on desktop. The read action is a bold text link with an arrow, not an outlined button, sharing one wrapped line with the Contents disclosure. At 700px and below the gutter is 16px, the 92px thumbnail sits beside the title, and the Contents counts become screen-reader-only so the page stays short. Focus uses the shell focus token with a 3px outline.
+
 ## Do's and Don'ts
 
 - Use semantic shell roles for new states on the audited surfaces and check their foreground/background pairing.

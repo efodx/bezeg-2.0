@@ -1,6 +1,6 @@
 # 4. Phone layout, verification and DESIGN.md
 
-Status: planned. Source: [specification](../../specs/learn-landing-visual-alignment.md#phone-700px) (Phone, Acceptance criteria).
+Status: implemented 2026-10-31. Measured at 390x844, Contents closed: sl 2903px, en 3037px (was 3299/3433); no horizontal scroll at 320/390/820/1440/1920. Source: [specification](../../specs/learn-landing-visual-alignment.md#phone-700px) (Phone, Acceptance criteria).
 
 ## Scope and entry points
 

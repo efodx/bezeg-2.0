@@ -91,6 +91,8 @@
     .learning-topic-heading { align-self: start; }
     .learning-topic-body { margin-top: 8px; }
     .learning-actions { gap: 0 18px; margin-top: 8px; }
+    /* Read link and Contents share one wrapped line; the counts stay available to screen readers. */
+    .learning-outline-meta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .learning-outline ol { padding-left: 24px; }
     .learning-outline li { padding: 4px 0 4px 4px; }
     .learning-outline li a { display: block; padding: 6px 0 2px; margin-right: 0; }
