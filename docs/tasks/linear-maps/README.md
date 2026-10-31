@@ -10,7 +10,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [02 Eigen and singular kernel](02-eigen-singular-kernel.md) | 0 | F1 | none | 01 | done 2026-10-31 (handler math review; `singular` now rejects off-grid entries) |
 | [03 State model and Presets](03-state-model.md) | A | F2a | none | 01 | done 2026-10-31 (handler review; mismatched example id imports as `custom`) |
 | [04 Grid drawing measurement and ADR](04-grid-drawing-measurement.md) | A | measurement + ADR | none | 01 | done 2026-10-31 (ADR 0032: one NaN-break polyline; classroom device check open for F6) |
-| [05 Graph: basis and determinant modes](05-graph-basis-determinant.md) | A | F2a | none | 03, 04 | implemented 2026-10-31, unreviewed (engineering + UI review open) |
+| [05 Graph: basis and determinant modes](05-graph-basis-determinant.md) | A | F2a | none | 03, 04 | done 2026-10-31: engineering/UI and mathematical review; repair `3656e55` (graph accepts only its drawn modes). No route yet, so no smoke run; open: probe fixed at (1, 1), drag handles keyboard path is the numeric fields |
 | [06 Batch A registration](06-batch-a-registration.md) | A | F2b | `G-REG` | 05 | planned |
 | [07 Batch A lessons, chapter, media, acceptance](07-batch-a-lessons.md) | A | F3–F6 | `G-REG` | 06 | planned |
 | [08 Batch B](08-batch-b.md) | B | ADR, F2a–F6 | `G-REG` | 02, 07 | planned |

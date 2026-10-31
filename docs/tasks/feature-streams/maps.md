@@ -5,8 +5,8 @@ Rules and slice template: [feature streams](README.md). Port 4316. Handoffs: `do
 
 | # | Family | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Linear maps of the plane | [linear-maps-lessons.md](../../specs/linear-maps-lessons.md) | 2×2 kernel and its ADRs: none. Graph code: none; registration and lessons: `G-REG` | F0 done ([tasks](../linear-maps/README.md), ADR 0025); 01–04 done (ADR 0032: grid image as one NaN-break polyline); 05 (graph) implemented, review open |
-| 2 | Complex maps | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) | Möbius kernel with circle inversion: none. Graph code: none; registration and lessons: `G-REG`. Image-drawing ADR by measurement | F0 done ([tasks](../complex-maps/README.md), ADR 0029); 01, 02, 05 done; 03 reciprocal graph implemented, review open; roots graph next |
+| 1 | Linear maps of the plane | [linear-maps-lessons.md](../../specs/linear-maps-lessons.md) | 2×2 kernel and its ADRs: none. Graph code: none; registration and lessons: `G-REG` | F0 done ([tasks](../linear-maps/README.md), ADR 0025); 01–04 done (ADR 0032: grid image as one NaN-break polyline); 05 (graph) done |
+| 2 | Complex maps | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) | Möbius kernel with circle inversion: none. Graph code: none; registration and lessons: `G-REG`. Image-drawing ADR by measurement | F0 done ([tasks](../complex-maps/README.md), ADR 0029); 01, 02, 05 done; 03 reciprocal graph done; roots graph next |
 | 3 | Triangle geometry and inversion | [triangle-geometry-lessons.md](../../specs/triangle-geometry-lessons.md) | `G-CG` for the kernel (exact rational type and robustness ADR) and the point-set graph. The inversion lesson (T5) needs family 2's circle inversion | F0 done ([tasks](../triangle-geometry/README.md), ADR 0030); kernel waits for `G-CG` |
 
 ## Notes
