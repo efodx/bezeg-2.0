@@ -1,0 +1,16 @@
+# 08 — Slow edge test and gift wrapping traces
+
+Status: planned. Source: [spec A4](../../specs/convexity-hulls-lessons.md#a4-convex-hull) (example, new numbers, acceptance 2, 3, 5, 6), [§3 trace model](../../specs/convexity-hulls-lessons.md#3-algorithm-step-trace-model). Kind: F1, mathematical review. Depends on 02 and 03. Batch 1, not gated.
+
+Pure TypeScript in `src/compgeo/`, on the trace contract of `trace.ts` and in the shape of `monotoneChain.ts` (payload of point indices, running `predicateCount`, `noteKey` string literals, a fold and a `...StateAt`). Same input validation and limit as the chain (grid points, at most 40), duplicates removed once, and the same output convention: hull CCW from the lexicographically smallest point, collinear hull points dropped.
+
+1. `slowHull.ts` (teaching algorithm, \(O(n^3)\)): for each ordered pair \((i,j)\) of distinct points, test every other point \(k\) with `orient`; the directed pair is a hull edge when every other point is strictly left or on the segment between \(i\) and \(j\) (`onSegment`). No early exit, so the count is \((n)(n-1)(n-2)\). Keep the trace short: one event per pair (pair, verdict, the first witness on the wrong side if any) with `predicateCount` advancing by the number of tests; state the length bound for \(n\le40\). The fold gives the accepted directed edges so far and, after `done`, the hull vertex cycle.
+2. `giftWrapping.ts` (Jarvis march): start at the lexicographically smallest point; at each wrap take the first of the other points (in input-after-dedupe order) as candidate and compare each remaining point against it with `orient`, replacing the candidate when the point is on the clockwise side, or collinear and farther (ties take the farthest, so collinear points are skipped). One `test` event per comparison with the exact `orientValue`; an `accept`/`output` event per wrap; stop when the wrap returns to the start.
+3. \(n<3\) and all-collinear input end in `done` with a point or segment hull and a distinct `noteKey`, as in the chain.
+4. Tests:
+   - Sample 1 (the nine points of task 03): slow test examines \(72\) ordered pairs and \(504\) orientation tests and accepts \(5\) directed edges; gift wrapping makes \(5\) wraps and \(35\) orientation tests. Both give hull \((-1,3),(0,0),(4,0),(5,3),(2,5)\); \((2,0)\) is not a vertex. (Counts checked by an independent script, 2026-10-31.) If the trace disagrees, stop and report.
+   - Slow test, gift wrapping and `monotoneChainTrace` give the same vertex set on sample 1, on all-collinear input and on \(n\in\{0,1,2\}\); against the oracle `convexHull` (`src/bezeg/impl/curve/geometry.ts`, adapted in the test only) on a few hundred random grid sets with duplicates and collinear points.
+   - Contract as in task 03: exactly one `done`, stated length bound, pure fold with frozen arrays, fold of all events equals the final output, `predicateCount` non-decreasing and equal to the tests performed.
+   - Observed failure under a mutation per algorithm (for example the nearest instead of the farthest on ties).
+
+Checks: `just unit src/compgeo --maxWorkers=2`, `just lint src/compgeo`, `npx tsc --noEmit --pretty false`.
