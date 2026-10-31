@@ -1,5 +1,5 @@
 # Stream: Learn UI
-Run state: active
+Run state: stopped: owner decisions D1–D12 from guided-example highlights audit 00
 
 Rules: [feature streams](README.md). Port 4312. Handoffs: `docs/reviews/feature-streams/learn-ui/`.
 
@@ -15,7 +15,7 @@ Spec: [bezier-drawing-playground.md](../../specs/bezier-drawing-playground.md), 
 | PG4a | Chapter blocks, bilingual prose, terms, docs (criteria 6, 7, 9) | PG3 | Engineering; notation test | accepted: reviewed with no blocking finding; pushed with PG4b |
 | PG4b | Performance measurement and smoke (criteria 5, 7) | PG4a | Handler | accepted: criterion 5 passes (all medians 16.7 ms; throttled inspect p95 33–50 ms recorded in `docs/bezier-performance-results.md`); criteria 2 and 7 browser smoke pass in SL and EN; smoke repair `d30a4a8` (inspect starts from the example, joint labels clear of P labels, caption and edges) rechecked in Chromium at 390×844 and 1440×900 ([handoff 3](../../reviews/feature-streams/learn-ui/handler-handoff-3.md)) |
 
-**Section 1 accepted 2026-10-31.** `just check` (F6) still to run at the next stable checkpoint.
+**Section 1 accepted 2026-10-31**, pushed through `9ecde47a`; hosted browser smoke green on `9ecde47a` (the first push, `8f23b566`, failed two 390px/200% overflow checks, fixed by `9ecde47a`). `just check` (F6) still to run at the next stable checkpoint.
 
 **Stop condition:** a performance miss against criterion 5 goes to the owner before release. Do not push PG4a's chapter blocks until PG4b passes or the owner accepts the miss. PG1–PG3 may be pushed earlier, since nothing mounts them yet.
 
@@ -39,7 +39,7 @@ Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); 
 
 | Task | Status |
 | --- | --- |
-| 00 audit (redo) | planned |
+| 00 audit (redo) | done: [highlight-audit.md](../../reviews/guided-example-highlights/highlight-audit.md). Real scope 67 examples, 29 figures, nine chapters; **owner decisions D1–D12 pending** (stream stopped) |
 | 01 capture pipeline ∥ 02 card layout | planned |
 | 03 ∥ 04 batches | blocked: owner decisions from 00 |
 | 05 figure-kind removal and acceptance | planned |

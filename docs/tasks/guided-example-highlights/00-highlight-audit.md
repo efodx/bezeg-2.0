@@ -1,6 +1,6 @@
 # 00 — Audit highlights and figure dispositions
 
-Status: planned. Source: [spec H1, H2, H4](../../specs/guided-example-highlights.md). Dependencies: none. Role: curriculum/content auditor; no code changes.
+Status: done 2026-10-31 against `9ecde47a` ([audit](../../reviews/guided-example-highlights/highlight-audit.md)); owner decisions D1–D12 pending. The 56/16 counts below are stale: the audit found 67 examples and 29 figures. Source: [spec H1, H2, H4](../../specs/guided-example-highlights.md). Dependencies: none. Role: curriculum/content auditor; no code changes.
 
 Start from `docs/reviews/illustrated-chapter-examples/curriculum-audit.md`, `capture-inventory.json`, `src/learning/content/familyChapters.ts` (`figures` and ordered `figure` items), the guided-example registry (`src/learning/chapter/guidedExamples.ts`, `retainedExamples.ts`) and each example's frames and prompts.
 
