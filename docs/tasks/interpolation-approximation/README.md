@@ -18,8 +18,8 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | --- | --- | --- | --- | --- |
 | IA-0 | F0 | This plan, ADR 0026, spec marked scheduled | — | done |
 | IA-1a | F1 | `interpolation.ts` (barycentric Lagrange, node sets, error sampling, Runge table) | — | done ([evidence](../../reviews/interpolation-approximation/ia-1a-kernel.md)) |
-| IA-1b | F1 | `leastSquares.ts` (QR, normal-equation display data, residuals) and `hermite.ts` (cubic Hermite, Catmull-Rom, Bézier conversion) | — | planned |
-| IA-1c | F1 | `subdivision.ts` (`fourPointStep`) with imported Chaikin identity tests | BS-1a | planned |
+| IA-1b | F1 | `leastSquares.ts` (QR, normal-equation display data, residuals) and `hermite.ts` (cubic Hermite, Catmull-Rom, Bézier conversion) | — | done ([evidence](../../reviews/interpolation-approximation/ia-1b-kernel.md)) |
+| IA-1c | F1 | `subdivision.ts` (`fourPointStep`) with imported Chaikin identity tests | BS-1a | done ([evidence](../../reviews/interpolation-approximation/ia-1c-kernel.md)) |
 | IA-A-* | F2a–F6 | I1 Lagrange vs Bézier, I2 Runge (I2 graph `G-FN`) | IA-1a | planned |
 | IA-B-* | F2a–F6 | I3 Hermite/Catmull-Rom, I4 least squares (I4 graph `G-FN`) | Batch A, IA-1b | planned |
 | IA-C-* | F2a–F6 | I5 Chaikin and four-point subdivision | Batch B, IA-1c | planned |
