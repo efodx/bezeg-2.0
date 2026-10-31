@@ -2,8 +2,6 @@ import {
     getPilotGuidedLesson,
     GuidedLesson,
     pilotGuidedLessons,
-    SUPPORTED_SCENE_ACTION_NAMES,
-    legacyActions,
 } from './guidedLessons';
 
 const pilotIds = ['bezier', 'decasteljau', 'ph-cubic'] as const;
@@ -97,14 +95,14 @@ test('keeps formula references valid and formula blocks non-empty', () => {
     }
 });
 
-test('declares only scene actions supported by the content adapter contract', () => {
-    const supported = new Set<string>(SUPPORTED_SCENE_ACTION_NAMES);
+test('declares only typed scene actions with finite numeric payloads', () => {
+    // action names and parameter shapes are checked by the `LessonAction` type; this guards the numeric values it cannot
     for (const lesson of pilotGuidedLessons) {
         for (const step of lesson.steps) {
-            for (const scene of step.scene ? [step.scene] : []) {
-                for (const sceneAction of legacyActions(scene.actions)) {
-                    expect(supported.has(sceneAction.name)).toBe(true);
-                    expect(['boolean', 'number']).toContain(typeof sceneAction.value);
+            for (const action of step.scene?.actions ?? []) {
+                expect(typeof action.kind).toBe('string');
+                for (const [key, value] of Object.entries(action)) {
+                    if (typeof value === 'number') expect(Number.isFinite(value), `${action.kind}.${key}`).toBe(true);
                 }
             }
         }
@@ -115,9 +113,8 @@ test('declares only scene actions supported by the content adapter contract', ()
 // (sceneContentAgainstGraphs.test.tsx); this test pins the exact PH offsets the pilot lesson shows.
 test('keeps the exact pilot scene values', () => {
     const ph = getPilotGuidedLesson('ph-cubic')!;
-    const distances = ph.steps.flatMap(step => legacyActions(step.scene?.actions))
-        .filter(sceneAction => sceneAction.name === 'set-offset-distance')
-        .map(sceneAction => sceneAction.value);
+    const distances = ph.steps.flatMap(step => step.scene?.actions ?? [])
+        .flatMap(action => action.kind === 'parameter' && action.name === 'offset-distance' ? [action.value] : []);
     expect(distances).toEqual([1, -1, 1]);
 });
 

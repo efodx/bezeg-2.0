@@ -3,15 +3,11 @@ import type {
     GuidedLesson,
     GuidedLessonFrame,
     GuidedLessonStep,
-    LearnerInteraction,
     LessonScene,
     LocalizedText,
-    SceneAction,
-    SceneActionValue,
-    SupportedSceneActionName,
 } from './guidedLessons';
 import type {FormulaBlock, WorkedExample} from './guidedLessons';
-import type {LessonCurveFixture, LessonViewBox} from '../model';
+import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 
 /**
  * Cohort E lessons for `decasteljau-alternative`, `farin` and `circle`.
@@ -23,10 +19,9 @@ import type {LessonCurveFixture, LessonViewBox} from '../model';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
-const sceneActionOf = (name: SupportedSceneActionName, value: SceneActionValue): SceneAction => ({name, value});
-const decasteljauT = (value: number): SceneAction => ({name: 'set-decasteljau-parameter', value});
+const decasteljauT = (value: number): LessonAction => ({kind: 'parameter', name: 't', value});
 
-const scene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const scene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'demonstration-default',
     actions,
@@ -37,7 +32,7 @@ const scene = (id: string, actions: readonly SceneAction[], sl: string, en: stri
 const alternativeCubicFixture: LessonCurveFixture = {points: [[-4, -2], [-2, 4], [2, 2], [4, -2]]};
 const alternativeCubicView: LessonViewBox = [-6, 6, 6, -4];
 
-const fixtureScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const fixtureScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'lesson-fixture',
     curve: alternativeCubicFixture,
@@ -54,7 +49,6 @@ type StepSpec = Readonly<{
     explanation: LocalizedText;
     formulaIds: readonly string[];
     workedExampleId?: string;
-    learnerInteraction: LearnerInteraction;
     observationPrompt: LocalizedText;
     expectedObservations: readonly LocalizedText[];
     scene: LessonScene;
@@ -68,17 +62,15 @@ const step = (spec: StepSpec): GuidedLessonStep => {
     return {...spec, frames};
 };
 
-const thesisSource = (supports: readonly string[], implementationCorrespondence?: string): ContentSource => ({
+const thesisSource = (implementationCorrespondence?: string): ContentSource => ({
     id: 'stampar-thesis-2024',
     citation: 'Štampar, K. Orodje za grafični prikaz lastnosti Bézierjevih in PH krivulj, magistrsko delo, Univerza v Ljubljani, FMF/FRI, 2024.',
-    supports,
     ...(implementationCorrespondence ? {implementationCorrespondence} : {}),
 });
 
-const farinSource = (supports: readonly string[]): ContentSource => ({
+const farinSource = (): ContentSource => ({
     id: 'farin-cagd-rational',
     citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-    supports,
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -209,7 +201,6 @@ const decasteljauAlternative: GuidedLesson = {
             ),
             formulaIds: ['da-recursion', 'da-cubic'],
             workedExampleId: 'da-cubic-half',
-            learnerInteraction: 'observe',
             observationPrompt: text('Poišči obe pomožni kvadratni krivulji in daljico med njunima točkama; preveri, da je glavna točka na njeni sredini.', 'Find both helper quadratic curves and the segment between their points; check that the main point is at its midpoint.'),
             expectedObservations: [text('Pomožni točki sta na različnih višinah, \\(2\\) in \\(\\tfrac32\\), daljica med njima je rahlo nagnjena, glavna točka \\(\\bigl(0,\\tfrac74\\bigr)\\) pa je na njeni sredini.', 'The helper points are at different heights, \\(2\\) and \\(\\tfrac32\\); the segment between them is slightly tilted and the main point \\(\\bigl(0,\\tfrac74\\bigr)\\) is at its midpoint.')],
             scene: fixtureScene('da-cubic-half', [decasteljauT(0.5)], 'Kubična krivulja z dvema pomožnima kvadratnima pri \\(t=\\tfrac12\\).', 'The cubic curve with its two helper quadratics at \\(t=\\tfrac12\\).'),
@@ -224,7 +215,6 @@ const decasteljauAlternative: GuidedLesson = {
             ),
             formulaIds: ['da-cubic'],
             workedExampleId: 'da-cubic-quarter',
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Premakni drsnik \\(t\\) in spremljaj, kako glavna točka drsi po daljici od \\(Q_1\\) proti \\(Q_2\\).', 'Move the \\(t\\) slider and watch the main point slide along the segment from \\(Q_1\\) toward \\(Q_2\\).'),
             expectedObservations: [text('Pri \\(t=\\tfrac14\\) je glavna točka \\(\\bigl(-\\tfrac{35}{16},\\tfrac{35}{32}\\bigr)\\) bliže točki \\(Q_1\\) kot \\(Q_2\\).', 'At \\(t=\\tfrac14\\) the main point \\(\\bigl(-\\tfrac{35}{16},\\tfrac{35}{32}\\bigr)\\) is nearer to \\(Q_1\\) than to \\(Q_2\\).')],
             scene: fixtureScene('da-cubic-quarter', [decasteljauT(0.25)], 'Ista kubična krivulja pri \\(t=\\tfrac14\\).', 'The same cubic curve at \\(t=\\tfrac14\\).'),
@@ -238,7 +228,6 @@ const decasteljauAlternative: GuidedLesson = {
                 'The same idea now appears on the default degree 4 curve, which has five control points \\(p_0,\\dots,p_4\\). The first helper cubic curve uses \\(p_0,\\dots,p_3\\), the second \\(p_1,\\dots,p_4\\). The graph draws them in different colors and, at the chosen \\(t\\), draws a segment between their points.',
             ),
             formulaIds: ['da-quartic'],
-            learnerInteraction: 'observe',
             observationPrompt: text('Poišči obe pomožni krivulji in daljico med njunima točkama; ugotovi, kje na daljici leži točka krivulje stopnje 4.', 'Find both helper curves and the segment between their points; decide where on the segment the point of the degree 4 curve lies.'),
             expectedObservations: [text('Vidni sta dve kubični krivulji, daljica med njunima točkama in točka glavne krivulje na tej daljici.', 'Two cubic curves are visible, a segment between their points, and the point of the main curve on that segment.')],
             scene: scene('da-default', [], 'Privzeta krivulja stopnje 4 z obema pomožnima krivuljama pri \\(t=\\tfrac12\\).', 'The default degree 4 curve with both helper curves at \\(t=\\tfrac12\\).'),
@@ -253,7 +242,6 @@ const decasteljauAlternative: GuidedLesson = {
             ),
             formulaIds: ['da-recursion', 'da-quartic'],
             workedExampleId: 'da-half',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preveri na grafu, da je glavna točka na sredini daljice med pomožnima točkama.', 'Check on the graph that the main point is at the middle of the segment between the helper points.'),
             expectedObservations: [text('Pomožni točki sta na isti višini in glavna točka je na sredini med njima, na simetrijski osi.', 'The helper points are at the same height and the main point is midway between them, on the symmetry axis.')],
             scene: scene('da-half', [decasteljauT(0.5)], 'Parameter je \\(t=\\tfrac12\\).', 'The parameter is \\(t=\\tfrac12\\).'),
@@ -268,7 +256,6 @@ const decasteljauAlternative: GuidedLesson = {
             ),
             formulaIds: ['da-quartic'],
             workedExampleId: 'da-quarter',
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Premakni drsnik \\(t\\) in spremljaj, kako glavna točka drsi po daljici od \\(C_1\\) proti \\(C_2\\).', 'Move the \\(t\\) slider and watch the main point slide along the segment from \\(C_1\\) toward \\(C_2\\).'),
             expectedObservations: [text('Pri \\(t=\\tfrac14\\) je glavna točka na četrtini daljice, od prve pomožne točke gledano.', 'At \\(t=\\tfrac14\\) the main point is a quarter of the way along the segment, seen from the first helper point.')],
             scene: scene('da-quarter', [decasteljauT(0.25)], 'Parameter je \\(t=\\tfrac14\\).', 'The parameter is \\(t=\\tfrac14\\).'),
@@ -282,7 +269,6 @@ const decasteljauAlternative: GuidedLesson = {
                 'The points \\(p_0,\\dots,p_4\\) are symmetric about the \\(y\\)-axis, so \\(C_2(\\tfrac34)\\) is the mirror image of \\(C_1(\\tfrac14)\\) and vice versa. The point \\(B(\\tfrac34)\\) is the mirror image of \\(B(\\tfrac14)\\), that is about \\((2.375,\\ 0.609)\\).',
             ),
             formulaIds: ['da-quartic'],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Primerjaj sliko s prejšnjim korakom: kam sta se preselili obe pomožni točki in glavna točka?', 'Compare the picture with the previous step: where did the two helper points and the main point move?'),
             expectedObservations: [text('Slika je zrcalna slika prejšnje, glavna točka je desno od osi in bliže drugi pomožni točki.', 'The picture is the mirror image of the previous one; the main point is right of the axis and nearer to the second helper point.')],
             scene: scene('da-three-quarters', [decasteljauT(0.75)], 'Parameter je \\(t=\\tfrac34\\).', 'The parameter is \\(t=\\tfrac34\\).'),
@@ -296,19 +282,17 @@ const decasteljauAlternative: GuidedLesson = {
                 'In the ordinary scheme \\(p_i^r(t)=B_{[p_i,\\dots,p_{i+r}]}(t)\\) and \\(p_0^n(t)=(1-t)\\,p_0^{n-1}(t)+t\\,p_1^{n-1}(t)\\). For \\(n=4\\), \\(p_0^3(t)=C_1(t)\\) and \\(p_1^3(t)=C_2(t)\\) form the second to last row of the scheme: the helper points are the points of that row, and one level of recursion is the last step of the scheme.',
             ),
             formulaIds: ['da-scheme-link'],
-            learnerInteraction: 'observe',
             observationPrompt: text('Pomisli, kako bi bila vsaka pomožna krivulja spet razstavljena na dve krivulji stopnje 2, in koliko kontrolnih točk uporabi vsaka.', 'Think about how each helper curve would again split into two curves of degree 2, and how many control points each uses.'),
             expectedObservations: [text('Vsaka kubična krivulja bi se razstavila na dve kvadratni, ta postopek pa ponavlja običajna shema vse do ene same točke.', 'Each cubic curve would split into two quadratic ones, and the ordinary scheme repeats this process down to a single point.')],
             scene: scene('da-scheme', [decasteljauT(0.5)], 'Parameter je spet \\(t=\\tfrac12\\).', 'The parameter is again \\(t=\\tfrac12\\).'),
         }),
     ],
     sources: [
-        thesisSource(['Theorem 2.13 (recursion, p. 8)', 'Figure 6 (p. 8)', 'de Casteljau scheme and Algorithm 1 (p. 9)']),
-        farinSource(['de Casteljau algorithm as repeated linear interpolation', 'degree-lowering recursion of Bézier curves']),
+        thesisSource(),
+        farinSource(),
         {
             id: 'bezeg-decasteljau-alternative-implementation',
             citation: 'Bezeg source: src/graphs/curves/bezier/DecasteljauGraph2.tsx and src/bezeg/impl/curve/polynomial-bezier-curve.ts.',
-            supports: ['lesson-fixture cubic and its two helper quadratics', 'default quartic and its two helper cubics', 'parameter slider', 'segment between helper points'],
             implementationCorrespondence: 'generateInterpolatingBezierCurves slices the control points of the first curve at offsets 0 and 1 into two PolynomialBezierCurve helpers of one degree less, and draws the points at the parameter t and the segment between them.',
         },
     ],
@@ -435,10 +419,9 @@ const farinLesson: GuidedLesson = {
                 'A rational Bézier curve has a weight \\(w_i>0\\) at each control point. The default curve has weights \\(1,2,1,1\\): the second control point has double weight and pulls the curve closer to itself.',
             ),
             formulaIds: [],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preberi uteži ob kontrolnih točkah in poišči točko z največjo utežjo.', 'Read the weights next to the control points and find the point with the largest weight.'),
             expectedObservations: [text('Ob točkah so vidne uteži \\(1,2,1,1\\); največja utež je pri drugi kontrolni točki, ki krivuljo vleče k sebi.', 'The weights \\(1,2,1,1\\) are shown next to the points; the largest weight is at the second control point, which pulls the curve toward it.')],
-            scene: scene('farin-weights', [{name: 'show-weights', value: true}], 'Uteži so prikazane ob kontrolnih točkah; Farinove točke še niso.', 'The weights are shown next to the control points; the Farin points are not yet.'),
+            scene: scene('farin-weights', [{kind: 'curve-visibility', target: 'weights', visible: true}], 'Uteži so prikazane ob kontrolnih točkah; Farinove točke še niso.', 'The weights are shown next to the control points; the Farin points are not yet.'),
         }),
         step({
             id: 'farin-show-points', order: 2,
@@ -450,10 +433,9 @@ const farinLesson: GuidedLesson = {
             ),
             formulaIds: ['farin-points'],
             workedExampleId: 'farin-default-points',
-            learnerInteraction: 'observe',
             observationPrompt: text('Ugotovi, kateri točki daljic je Farinova točka bliže in zakaj je zadnja natanko na sredini.', 'Find which end of each edge the Farin point is nearer to and why the last one sits exactly at the midpoint.'),
             expectedObservations: [text('Prva in druga Farinova točka sta bliže drugi kontrolni točki (z utežjo 2), tretja je na sredini zadnje daljice.', 'The first and the second Farin point are nearer to the second control point (weight 2), and the third is at the midpoint of the last edge.')],
-            scene: scene('farin-points', [{name: 'show-weights', value: true}, sceneActionOf('show-farin-points', true)], 'Prikazane so uteži in Farinove točke.', 'The weights and the Farin points are shown.'),
+            scene: scene('farin-points', [{kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'farin-points', visible: true}], 'Prikazane so uteži in Farinove točke.', 'The weights and the Farin points are shown.'),
         }),
         step({
             id: 'farin-recover-weights', order: 3,
@@ -465,10 +447,9 @@ const farinLesson: GuidedLesson = {
             ),
             formulaIds: ['farin-weights'],
             workedExampleId: 'farin-recover-weights',
-            learnerInteraction: 'drag-control-point',
             observationPrompt: text('Povleci Farinovo točko po njeni daljici in opazuj, kako se spremeni utež ob njej in uteži za njo.', 'Drag a Farin point along its edge and watch how the weight beside it and the weights after it change.'),
             expectedObservations: [text('Ko se Farinova točka približa točki \\(p_{i+1}\\), se utež \\(w_{i+1}\\) poveča in krivulja se približa tej točki.', 'As a Farin point moves toward \\(p_{i+1}\\), the weight \\(w_{i+1}\\) increases and the curve moves toward that point.')],
-            scene: scene('farin-recover', [{name: 'show-weights', value: true}, sceneActionOf('show-farin-points', true)], 'Prikazane so uteži in Farinove točke z izhodiščnimi utežmi.', 'The weights and the Farin points are shown with the starting weights.'),
+            scene: scene('farin-recover', [{kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'farin-points', visible: true}], 'Prikazane so uteži in Farinove točke z izhodiščnimi utežmi.', 'The weights and the Farin points are shown with the starting weights.'),
         }),
         step({
             id: 'farin-geometric-weights', order: 4,
@@ -480,10 +461,9 @@ const farinLesson: GuidedLesson = {
             ),
             formulaIds: ['farin-points', 'farin-weights'],
             workedExampleId: 'farin-equal-ratios',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preberi uteži ob kontrolnih točkah in primerjaj obliko krivulje s privzeto, ki jo druga kontrolna točka vleče navzgor.', 'Read the weights next to the control points and compare the curve shape with the default one, which the second control point pulls upward.'),
             expectedObservations: [text('Uteži so \\(1,3,9,27\\); krivulja ima obliko polinomske Bézierjeve krivulje z istimi kontrolnimi točkami in je nižja kot privzeta, vse Farinove točke pa so na isti relativni legi na svojih daljicah.', 'The weights are \\(1,3,9,27\\); the curve has the shape of the polynomial Bézier curve with the same control points and is lower than the default one, and all Farin points sit at the same relative place on their edges.')],
-            scene: scene('farin-geometric', [{name: 'show-weights', value: true}, sceneActionOf('show-farin-points', true), sceneActionOf('set-rational-weights', [1, 3, 9, 27])], 'Uteži so \\(1,3,9,27\\) in Farinove točke so prikazane.', 'The weights are \\(1,3,9,27\\) and the Farin points are shown.'),
+            scene: scene('farin-geometric', [{kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'farin-points', visible: true}, {kind: 'rational-weights', weights: [1, 3, 9, 27]}], 'Uteži so \\(1,3,9,27\\) in Farinove točke so prikazane.', 'The weights are \\(1,3,9,27\\) and the Farin points are shown.'),
         }),
         step({
             id: 'farin-standard-form', order: 5,
@@ -495,19 +475,17 @@ const farinLesson: GuidedLesson = {
             ),
             formulaIds: ['farin-standard-form'],
             workedExampleId: 'farin-standardize',
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj uteži in obliko krivulje pred standardizacijo in po njej.', 'Compare the weights and the curve shape before and after standardization.'),
             expectedObservations: [text('Uteži so po standardizaciji vse enake 1, oblika krivulje pa je enaka kot prej.', 'After standardization all weights equal 1 and the curve shape is the same as before.')],
-            scene: scene('farin-standard', [{name: 'show-weights', value: true}, sceneActionOf('show-farin-points', true), sceneActionOf('set-rational-weights', [1, 3, 9, 27]), sceneActionOf('set-standard-form', true)], 'Standardna oblika je vklopljena; prikazane uteži so \\(1,1,1,1\\).', 'Standard form is on; the displayed weights are \\(1,1,1,1\\).'),
+            scene: scene('farin-standard', [{kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'farin-points', visible: true}, {kind: 'rational-weights', weights: [1, 3, 9, 27]}, {kind: 'standard-form', enabled: true}], 'Standardna oblika je vklopljena; prikazane uteži so \\(1,1,1,1\\).', 'Standard form is on; the displayed weights are \\(1,1,1,1\\).'),
         }),
     ],
     sources: [
-        thesisSource(['Definition 3.1 (p. 15)', 'Theorem 3.2 and Remark 3.4 (standard form, p. 16)', 'Section 3.2 Farin points and weight recursion (pp. 17-18)', 'Figures 17 and 18 (p. 19)'], 'RationalBezierCurve.standardize divides w_i by (w_n^i * w_0^(n-i))^(1/n) when standard form is on; JXGRationalBezierCurve.showFarinPoints builds the Farin points and the weights follow from their ratios.'),
-        farinSource(['rational Bézier curves and weights', 'Farin points as a geometric weight interface']),
+        thesisSource('RationalBezierCurve.standardize divides w_i by (w_n^i * w_0^(n-i))^(1/n) when standard form is on; JXGRationalBezierCurve.showFarinPoints builds the Farin points and the weights follow from their ratios.'),
+        farinSource(),
         {
             id: 'bezeg-farin-implementation',
             citation: 'Bezeg source: src/graphs/curves/rational/FarinPointsCurveGraph.tsx, src/graphs/curves/object/JXGRationalBezierCurve.ts and src/bezeg/impl/curve/rational-bezier-curve.ts.',
-            supports: ['Farin points switch', 'weights switch', 'standard form switch', 'default weights 1, 2, 1, 1'],
             implementationCorrespondence: 'While Farin points are shown, each Farin slider follows its two control points and keeps its ratio, so dragging a control point leaves the weights unchanged and weights change only through the Farin points; FarinPointsCurveGraph disables curve selection and operations meanwhile; getWeights() returns the standardized weights when standard form is on, and the lesson restores the effective weights.',
         },
     ],
@@ -530,7 +508,7 @@ const farinLesson: GuidedLesson = {
  * view [-5, 5, 5, -5] hides them, so the n=3 scenes set a wider starting view; n >= 4 fits the default view.
  */
 const circleThreePiecesView: LessonViewBox = [-7, 8, 7, -5];
-const viewScene = (id: string, view: LessonViewBox, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const viewScene = (id: string, view: LessonViewBox, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id,
     basedOn: 'demonstration-default',
     view,
@@ -626,7 +604,6 @@ const circleLesson: GuidedLesson = {
                 'The default graph draws a circle of radius 3 from three rational quadratic pieces. Each piece is a 120 degree arc, and its control points are two points on the circle and the intersection of the tangents at them outside the circle, at distance 6 from the center. The view is widened so that these points are visible too.',
             ),
             formulaIds: [],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preštej kose in poišči točke, kjer se sosednja kosa stikata; poišči tudi kontrolne točke zunaj kroga.', 'Count the pieces, find the points where neighbouring pieces meet, and find the control points outside the circle.'),
             expectedObservations: [text('Vidni so trije loki, ki se stikajo v treh točkah na krožnici, tri srednje kontrolne točke pa so zunaj kroga.', 'Three arcs are visible, meeting at three points on the circle, and three middle control points lie outside the circle.')],
             scene: viewScene('circle-default', circleThreePiecesView, [], 'Krog je sestavljen iz treh kosov; pogled vključuje vse kontrolne točke, tudi tisto pri \\((0,\\,6)\\).', 'The circle is assembled from three pieces; the view includes every control point, including the one at \\((0,\\,6)\\).'),
@@ -641,10 +618,9 @@ const circleLesson: GuidedLesson = {
             ),
             formulaIds: ['circle-arc', 'circle-midpoint'],
             workedExampleId: 'circle-three',
-            learnerInteraction: 'observe',
             observationPrompt: text('Izberi en lok in preveri, da sta stranici kontrolnega trikotnika pri srednji točki enako dolgi.', 'Pick one arc and check that the two sides of its control triangle at the middle point have equal length.'),
             expectedObservations: [text('Srednja točka je daleč zunaj kroga, ker je lok dolg 120°; stranici trikotnika sta enako dolgi.', 'The middle point is far outside the circle because the arc is 120 degrees; the two sides of the triangle are equally long.')],
-            scene: viewScene('circle-three', circleThreePiecesView, [sceneActionOf('set-circle-pieces', 3)], 'Krog ima tri kose; pogled vključuje vse kontrolne točke, tudi tisto pri \\((0,\\,6)\\).', 'The circle has three pieces; the view includes every control point, including the one at \\((0,\\,6)\\).'),
+            scene: viewScene('circle-three', circleThreePiecesView, [{kind: 'circle-pieces', count: 3}], 'Krog ima tri kose; pogled vključuje vse kontrolne točke, tudi tisto pri \\((0,\\,6)\\).', 'The circle has three pieces; the view includes every control point, including the one at \\((0,\\,6)\\).'),
         }),
         step({
             id: 'circle-four', order: 3,
@@ -656,10 +632,9 @@ const circleLesson: GuidedLesson = {
             ),
             formulaIds: ['circle-arc'],
             workedExampleId: 'circle-four',
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Primerjaj, kako daleč od krožnice so srednje točke pri štirih kosih v primerjavi s tremi.', 'Compare how far from the circle the middle points are with four pieces than with three.'),
             expectedObservations: [text('Srednje točke so bližje krožnici kot pri treh kosih, njihova utež pa je večja.', 'The middle points are closer to the circle than with three pieces and their weight is larger.')],
-            scene: scene('circle-four', [sceneActionOf('set-circle-pieces', 4)], 'Krog ima štiri kose.', 'The circle has four pieces.'),
+            scene: scene('circle-four', [{kind: 'circle-pieces', count: 4}], 'Krog ima štiri kose.', 'The circle has four pieces.'),
         }),
         step({
             id: 'circle-six', order: 4,
@@ -671,10 +646,9 @@ const circleLesson: GuidedLesson = {
             ),
             formulaIds: ['circle-arc', 'circle-midpoint'],
             workedExampleId: 'circle-six',
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Preveri, da v stiku dveh kosov pride krivulja z ene strani in odide na drugo brez ostrega vogala.', 'Check that at the joint of two pieces the curve arrives from one side and leaves on the other without a sharp corner.'),
             expectedObservations: [text('V stikih ni vogalov, srednje točke so še bližje krožnici in vsaka točka krivulje je na razdalji 3 od središča.', 'There are no corners at the joints, the middle points are even closer to the circle and every curve point is at distance 3 from the center.')],
-            scene: scene('circle-six', [sceneActionOf('set-circle-pieces', 6)], 'Krog ima šest kosov.', 'The circle has six pieces.'),
+            scene: scene('circle-six', [{kind: 'circle-pieces', count: 6}], 'Krog ima šest kosov.', 'The circle has six pieces.'),
         }),
         step({
             id: 'circle-why-three', order: 5,
@@ -685,23 +659,20 @@ const circleLesson: GuidedLesson = {
                 'For \\(n=2\\) the half-angle is \\(\\tfrac\\pi2\\), \\(\\cos\\tfrac\\pi2=0\\) and the middle point is at infinity, so every arc must be shorter than a half circle, and the graph allows \\(n\\) from 3 to 12. With 12 pieces the weight is \\(\\cos\\tfrac\\pi{12}\\approx0.966\\) and the middle point is at a distance of about \\(3.106\\). An exact circle is impossible with a single polynomial curve, so the weights are essential.',
             ),
             formulaIds: ['circle-arc'],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text('Primerjaj lego srednjih točk pri 12 kosih z lego pri treh kosih in preveri, da je krog še vedno natančen.', 'Compare the position of the middle points with 12 pieces to that with three pieces and check that the circle is still exact.'),
             expectedObservations: [text('Srednje točke so tik ob krožnici, utež je skoraj 1, a krog je enako natančen kot pri treh kosih.', 'The middle points are right next to the circle, the weight is nearly 1, yet the circle is exactly as accurate as with three pieces.')],
-            scene: scene('circle-twelve', [sceneActionOf('set-circle-pieces', 12)], 'Krog ima dvanajst kosov.', 'The circle has twelve pieces.'),
+            scene: scene('circle-twelve', [{kind: 'circle-pieces', count: 12}], 'Krog ima dvanajst kosov.', 'The circle has twelve pieces.'),
         }),
     ],
     sources: [
-        farinSource(['rational quadratic circular arc', 'weight cos(alpha) and the tangent-intersection middle point']),
+        farinSource(),
         {
             id: 'piegl-tiller-nurbs-book',
             citation: 'Piegl, L., Tiller, W. The NURBS Book, 2nd ed., Springer, 1997 (chapter on conics and circles).',
-            supports: ['representing a circle with rational quadratic arcs', 'arcs of less than 180 degrees', 'a circle is not a polynomial curve'],
         },
         {
             id: 'bezeg-circle-implementation',
             citation: 'Bezeg source: src/graphs/curves/rational/RationalBezierCurveCircleGraphN.tsx.',
-            supports: ['number of pieces control', 'radius 3', 'minimum 3 and maximum 12 pieces'],
             implementationCorrespondence: 'generateCurves(n) builds n pieces with alpha = pi / n, even points at radius 3, odd points at radius 3 / cos(alpha) and weights (1, cos(alpha), 1); MIN_CIRCLE_PIECES = 3 avoids the degenerate n = 2.',
         },
     ],

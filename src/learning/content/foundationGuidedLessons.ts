@@ -7,16 +7,16 @@
  * product and the learner presses the graph's own Show product after predicting; only the step that explains the reduction modulo 2 pi
  * shows it. The `general` example needs no reduction, so that step sets its own operands (z = w = -1 + i).
  */
-import type {FunctionParameterName} from '../model';
+import type {FunctionParameterName, LessonAction} from '../model';
 import type {ComplexExampleId} from '../../analysis/complex';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
-const complexParameter = (name: FunctionParameterName, value: number): SceneAction => ({name: 'set-function-parameter', value: {name, value}});
-const complexExample = (value: ComplexExampleId): SceneAction => ({name: 'set-function-choice', value: {name: 'complex-example', value}});
-const complexProduct = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'complex-product', value: visible}});
-const complexArguments = (visible: boolean): SceneAction => ({name: 'show-function-element', value: {name: 'complex-arguments', value: visible}});
+const complexParameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
+const complexExample = (value: ComplexExampleId): LessonAction => ({kind: 'function-choice', name: 'complex-example', value: value});
+const complexProduct = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'complex-product', visible: visible});
+const complexArguments = (visible: boolean): LessonAction => ({kind: 'function-visibility', target: 'complex-arguments', visible: visible});
 
 const bernstein: GuidedLesson = {
     demonstrationId: 'bernstein',
@@ -95,7 +95,6 @@ const bernstein: GuidedLesson = {
             ),
             formulaIds: ['bernstein-definition'],
             frames: [frame('bernstein-basis-functions-explanation', 'explanation'), frame('bernstein-basis-functions-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preštej funkcije na grafu, ugotovi, katera pada in katera narašča, in poišči, kje se srečata.', 'Count the functions on the graph, find which one decreases and which increases, and locate where they meet.'),
             expectedObservations: [text('Prikazani sta dve funkciji stopnje 1, ena pada in ena narašča; srečata se pri \\(t=\\tfrac{1}{2}\\) na višini \\(\\tfrac{1}{2}\\).', 'Two degree 1 functions are shown, one decreasing and one increasing; they meet at \\(t=\\tfrac{1}{2}\\) at height \\(\\tfrac{1}{2}\\).')],
             scene: {
@@ -114,12 +113,11 @@ const bernstein: GuidedLesson = {
             ),
             formulaIds: ['bernstein-definition', 'bernstein-nonnegativity'],
             frames: [frame('bernstein-degree-count-explanation', 'explanation'), frame('bernstein-degree-count-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preštej funkcije pri stopnji 3 in preveri, da nobena ne gre pod 0.', 'Count the functions at degree 3 and check that none goes below 0.'),
             expectedObservations: [text('Prikazane so štiri funkcije, vse ležijo na osi \\(t\\) ali nad njo.', 'Four functions are shown, all lying on or above the \\(t\\)-axis.')],
             scene: {
                 id: 'bernstein-degree-three', basedOn: 'demonstration-default',
-                actions: [{name: 'set-bernstein-degree', value: 3}],
+                actions: [{kind: 'bernstein-degree', degree: 3}],
                 expectedState: text('Prikazane so štiri funkcije stopnje 3.', 'Four degree 3 functions are shown.'),
             },
         },
@@ -134,12 +132,11 @@ const bernstein: GuidedLesson = {
             formulaIds: ['bernstein-definition', 'bernstein-partition-of-unity'],
             frames: [frame('bernstein-calculation-explanation', 'explanation'), frame('bernstein-calculation-calculation', 'calculation'), frame('bernstein-calculation-observation', 'observation')],
             workedExampleId: 'bernstein-cubic-half',
-            learnerInteraction: 'observe',
             observationPrompt: text('Pri \\(t=\\tfrac{1}{2}\\) primerjaj višine štirih krivulj z izračunanimi vrednostmi.', 'At \\(t=\\tfrac{1}{2}\\) compare the heights of the four curves with the computed values.'),
             expectedObservations: [text('Srednji funkciji dosežeta \\(\\tfrac{3}{8}\\), zunanji \\(\\tfrac{1}{8}\\), vsota je 1.', 'The middle two functions reach \\(\\tfrac{3}{8}\\), the outer two \\(\\tfrac{1}{8}\\), and the sum is 1.')],
             scene: {
                 id: 'bernstein-calculation-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'set-bernstein-degree', value: 3}],
+                actions: [{kind: 'bernstein-degree', degree: 3}],
                 expectedState: text('Štiri kubične funkcije so pripravljene za odčitavanje pri \\(t=\\tfrac{1}{2}\\).', 'The four cubic functions are ready for reading at \\(t=\\tfrac{1}{2}\\).'),
             },
         },
@@ -153,12 +150,11 @@ const bernstein: GuidedLesson = {
             ),
             formulaIds: ['bernstein-partition-of-unity'],
             frames: [frame('bernstein-stacked-area-explanation', 'explanation'), frame('bernstein-stacked-area-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Poglej zgornji rob naloženih ploščin in ga primerjaj z višino 1.', 'Look at the top edge of the stacked areas and compare it with height 1.'),
             expectedObservations: [text('Zgornji rob ostane na višini 1 na celotnem intervalu \\([0,1]\\).', 'The top edge stays at height 1 over the whole interval \\([0,1]\\).')],
             scene: {
                 id: 'bernstein-stacked-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'set-bernstein-degree', value: 3}, {name: 'show-bernstein-stacked-area', value: true}],
+                actions: [{kind: 'bernstein-degree', degree: 3}, {kind: 'bernstein-stacked-area', visible: true}],
                 expectedState: text('Štiri kubične funkcije so prikazane kot naložene ploščine do višine 1.', 'The four cubic functions are shown as stacked areas up to height 1.'),
             },
         },
@@ -172,12 +168,11 @@ const bernstein: GuidedLesson = {
             ),
             formulaIds: ['bernstein-definition', 'bernstein-partition-of-unity'],
             frames: [frame('bernstein-analysis-explanation', 'explanation'), frame('bernstein-analysis-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Spreminjaj stopnjo in preštej funkcije; preveri, ali zgornji rob ostane na višini 1.', 'Change the degree, count the functions, and check whether the top edge stays at height 1.'),
             expectedObservations: [text('Stopnja \\(n\\) ima \\(n+1\\) funkcij, zgornji rob je vedno na višini 1.', 'Degree \\(n\\) has \\(n+1\\) functions and the top edge is always at height 1.')],
             scene: {
                 id: 'bernstein-analysis-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'set-bernstein-degree', value: 5}, {name: 'show-bernstein-stacked-area', value: true}],
+                actions: [{kind: 'bernstein-degree', degree: 5}, {kind: 'bernstein-stacked-area', visible: true}],
                 expectedState: text('Šest funkcij stopnje 5 je prikazanih kot naložene ploščine.', 'Six degree 5 functions are shown as stacked areas.'),
             },
         },
@@ -186,18 +181,15 @@ const bernstein: GuidedLesson = {
         {
             id: 'farin-bernstein-basis',
             citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-            supports: ['Bernstein polynomials', 'nonnegativity on [0,1]', 'partition of unity'],
             implementationCorrespondence: 'The graph evaluates B^n_i(t)=C(n,i)t^i(1-t)^(n-i) for the displayed degree n.',
         },
         {
             id: 'pbp-bernstein-basis',
             citation: 'Prautzsch, H., Boehm, W., Paluszny, M. Bézier and B-Spline Techniques, Springer, 2002.',
-            supports: ['Bernstein basis properties', 'binomial theorem and partition of unity'],
         },
         {
             id: 'bezeg-bernstein-implementation',
             citation: 'Bezeg source: src/graphs/bernstein/BernsteinGraph.tsx.',
-            supports: ['basis-function graph', 'degree counter', 'stacked-area view'],
         },
     ],
     edgeCases: [
@@ -286,12 +278,11 @@ const rationalElevation: GuidedLesson = {
             ),
             formulaIds: ['rational-elevation-shape-invariance'],
             frames: [frame('rational-elevation-weights-explanation', 'explanation'), frame('rational-elevation-weights-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Preberi uteži ob kontrolnih točkah in opiši obliko krivulje.', 'Read the weights next to the control points and describe the curve shape.'),
             expectedObservations: [text('Štiri točke imajo uteži 1, 2, 1, 1.', 'Four points carry the weights 1, 2, 1, 1.')],
             scene: {
                 id: 'rational-elevation-default', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-weights', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}],
                 expectedState: text('Privzeta racionalna krivulja z utežmi in kontrolnim poligonom je vidna.', 'The default rational curve with its weights and control polygon is visible.'),
             },
         },
@@ -305,12 +296,11 @@ const rationalElevation: GuidedLesson = {
             ),
             formulaIds: ['rational-elevation-homogeneous', 'rational-elevation-weights-points'],
             frames: [frame('rational-elevation-homogeneous-view-explanation', 'explanation'), frame('rational-elevation-homogeneous-view-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Predvidi, koliko točk in uteži bo imela višana krivulja.', 'Predict how many points and weights the elevated curve will have.'),
             expectedObservations: [text('Nova krivulja ima pet točk in pet uteži.', 'The new curve has five points and five weights.')],
             scene: {
                 id: 'rational-elevation-homogeneous-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-weights', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}],
                 expectedState: text('Prvotna krivulja z utežmi je pred višanjem še vedno prikazana.', 'The original curve with its weights is still shown before elevation.'),
             },
         },
@@ -324,12 +314,11 @@ const rationalElevation: GuidedLesson = {
             ),
             formulaIds: ['rational-elevation-weights-points'],
             frames: [frame('rational-elevation-once-explanation', 'explanation'), frame('rational-elevation-once-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj število točk, uteži in obliko krivulje s prvotno.', 'Compare the number of points, the weights, and the curve shape with the original.'),
             expectedObservations: [text('Pet točk, nove uteži, krivulja je na istem mestu.', 'Five points, new weights, and the curve is in the same place.')],
             scene: {
                 id: 'rational-elevation-raised', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-weights', value: true}, {name: 'elevate-degree', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'degree-elevation'}],
                 expectedState: text('Prikazana je stopnja 4 z novimi točkami in utežmi.', 'Degree 4 is shown with the new points and weights.'),
             },
         },
@@ -344,12 +333,11 @@ const rationalElevation: GuidedLesson = {
             formulaIds: ['rational-elevation-weights-points'],
             frames: [frame('rational-elevation-calculation-explanation', 'explanation'), frame('rational-elevation-calculation-calculation', 'calculation'), frame('rational-elevation-calculation-observation', 'observation')],
             workedExampleId: 'rational-elevation-default-example',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preveri položaj \\(Q_1\\) in uteži ob višani krivulji.', 'Check the position of \\(Q_1\\) and the weights on the elevated curve.'),
             expectedObservations: [text('\\(Q_1\\) ni v \\(\\left(-3{,}25;\\,1{,}5\\right)\\); uteži so 1, \\(\\tfrac{7}{4}\\), \\(\\tfrac{3}{2}\\), 1, 1.', '\\(Q_1\\) is not at \\(\\left(-3.25,\\,1.5\\right)\\); the weights are 1, \\(\\tfrac{7}{4}\\), \\(\\tfrac{3}{2}\\), 1, 1.')],
             scene: {
                 id: 'rational-elevation-calculation-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-weights', value: true}, {name: 'elevate-degree', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'degree-elevation'}],
                 expectedState: text('Enkrat višana krivulja je pripravljena za preverjanje točk in uteži.', 'The once-elevated curve is ready for checking points and weights.'),
             },
         },
@@ -363,12 +351,11 @@ const rationalElevation: GuidedLesson = {
             ),
             formulaIds: ['rational-elevation-shape-invariance'],
             frames: [frame('rational-elevation-twice-explanation', 'explanation'), frame('rational-elevation-twice-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj obliko krivulje po drugem višanju s prvotno in preštej točke.', 'Compare the curve shape after the second elevation with the original and count the points.'),
             expectedObservations: [text('Šest točk, krivulja je na istem mestu kot na začetku.', 'Six points, and the curve is in the same place as at the start.')],
             scene: {
                 id: 'rational-elevation-twice-scene', basedOn: 'demonstration-default',
-                actions: [{name: 'show-control-polygon', value: true}, {name: 'show-weights', value: true}, {name: 'elevate-degree', value: true}, {name: 'elevate-degree', value: true}],
+                actions: [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'degree-elevation'}, {kind: 'degree-elevation'}],
                 expectedState: text('Prikazana je stopnja 5 s šestimi točkami in utežmi.', 'Degree 5 is shown with six points and weights.'),
             },
         },
@@ -377,18 +364,15 @@ const rationalElevation: GuidedLesson = {
         {
             id: 'farin-rational-elevation',
             citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.',
-            supports: ['rational Bézier curves', 'homogeneous coordinates', 'degree elevation'],
             implementationCorrespondence: 'RationalBezierCurve.elevate() elevates (w_iP_i, w_i) and divides by the new weight.',
         },
         {
             id: 'pbp-rational-elevation',
             citation: 'Prautzsch, H., Boehm, W., Paluszny, M. Bézier and B-Spline Techniques, Springer, 2002.',
-            supports: ['degree elevation of rational Bézier curves', 'projective invariance'],
         },
         {
             id: 'bezeg-rational-elevation-implementation',
             citation: 'Bezeg source: src/graphs/curves/rational/RationalElevationGraph.tsx and src/bezeg/impl/curve/rational-bezier-curve.ts.',
-            supports: ['default points and weights', 'degree elevation action', 'weight labels'],
         },
     ],
     edgeCases: [
@@ -550,7 +534,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-polar-form', 'complex-polar-modulus'],
             frames: [frame('complex-point-explanation', 'explanation'), frame('complex-point-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text(
                 'Preberi v odčitkih modul in argument števil \\(z\\) in \\(w\\). Nato povleci \\(z\\) in opazuj, kako se spreminjata.',
                 'Read the modulus and the argument of \\(z\\) and \\(w\\) in the readouts. Then drag \\(z\\) and watch how they change.',
@@ -578,7 +561,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-product-formula', 'complex-imaginary-unit', 'complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-rotation-i-explanation', 'explanation'), frame('complex-rotation-i-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Napovej koordinate, modul in argument števila \\(zw\\); šele nato pritisni Pokaži zmnožek in primerjaj.',
                 'Predict the coordinates, the modulus and the argument of \\(zw\\); only then press Show product and compare.',
@@ -606,7 +588,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-one-minus-one-explanation', 'explanation'), frame('complex-one-minus-one-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Napovej \\(zw\\) za \\(w=-1\\) in pritisni Pokaži zmnožek. Nato izberi primer Množenje z 1 in napovej še ta zmnožek.',
                 'Predict \\(zw\\) for \\(w=-1\\) and press Show product. Then choose the example Multiply by 1 and predict that product too.',
@@ -634,7 +615,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-scaling-explanation', 'explanation'), frame('complex-scaling-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Napovej koordinate, modul in argument števila \\(zw\\); pritisni Pokaži zmnožek in primerjaj z argumentom števila \\(z\\).',
                 'Predict the coordinates, the modulus and the argument of \\(zw\\); press Show product and compare with the argument of \\(z\\).',
@@ -662,7 +642,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-product-formula', 'complex-imaginary-unit', 'complex-modulus-argument-rule', 'complex-argument-rule'],
             frames: [frame('complex-general-explanation', 'explanation'), frame('complex-general-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Napovej modul in argument števila \\(zw\\) iz pravil, nato pritisni Pokaži zmnožek. Preveri še z razpletom \\((1+i)^2\\).',
                 'Predict the modulus and the argument of \\(zw\\) from the rules, then press Show product. Check also by expanding \\((1+i)^2\\).',
@@ -690,7 +669,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-argument-reduction', 'complex-argument-reduction-k'], workedExampleId: 'complex-reduction-example',
             frames: [frame('complex-reduction-explanation', 'explanation'), frame('complex-reduction-calculation', 'calculation'), frame('complex-reduction-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Preberi vsoto argumentov in stanje pod odčitki. Nato povleci \\(w\\) tako, da vsota argumentov pade nazaj v \\((-\\pi,\\pi]\\), in opazuj, kdaj stanje navede zmanjšanje.',
                 'Read the sum of the arguments and the status under the readouts. Then drag \\(w\\) so that the sum of the arguments falls back into \\((-\\pi,\\pi]\\) and watch when the status mentions the reduction.',
@@ -721,7 +699,6 @@ const complexMultiplication: GuidedLesson = {
             ),
             formulaIds: ['complex-zero-product'],
             frames: [frame('complex-zero-explanation', 'explanation'), frame('complex-zero-observation', 'observation')],
-            learnerInteraction: 'adjust-construction-parameter',
             observationPrompt: text(
                 'Napovej \\(zw\\) in njegov argument, nato pritisni Pokaži zmnožek in preberi stanje. Nato vnesi modul števila \\(w\\) nad \\(0\\) in opazuj, kam se postavi \\(w\\).',
                 'Predict \\(zw\\) and its argument, then press Show product and read the status. Then enter a modulus of \\(w\\) above \\(0\\) and watch where \\(w\\) is placed.',
@@ -744,12 +721,10 @@ const complexMultiplication: GuidedLesson = {
         {
             id: 'globevnik-brojan-analiza-1-complex-multiplication',
             citation: 'Globevnik, J., Brojan, M. Analiza I, Fakulteta za matematiko in fiziko, Univerza v Ljubljani, §1.7.1 (printed pp. 28–30).',
-            supports: ['complex numbers as points of the plane', 'polar form, modulus and argument', 'multiplication multiplies moduli and adds arguments'],
         },
         {
             id: 'bezeg-complex-multiplication-implementation',
             citation: 'Bezeg source: src/analysis/complex.ts, src/analysis/complexModel.ts and src/graphs/complex/ComplexMultiplicationGraph.tsx.',
-            supports: ['(1+i)i = -1+i', '(1+i)^2 = 2i, modulus 2, argument pi/2', '(-1+i)^2 = -2i, argument sum 3pi/2 reduced to -pi/2', 'the argument of 0 is undefined'],
             implementationCorrespondence: 'Operand coordinates are multiples of 0.05 in [-2, 2], so products are computed in exact integer units of 1/20 and a real or zero product has an exactly zero imaginary part; the principal argument is atan2 in (-pi, pi] and is undefined (never 0) for 0; polar input for w is rounded to the nearest grid point and rejected when it leaves the square or falls to the origin; a lesson scene applies set-function-parameter, set-function-choice and show-function-element actions through the same setters as the controls in one synchronous tick.',
         },
     ],

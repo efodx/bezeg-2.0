@@ -1,6 +1,6 @@
 import {functionGuidedLessons} from './functionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, getGuidedLesson, legacyActions} from './guidedLessons';
-import {getLessonForDemonstration, sceneAction} from '../runtime/lessonCatalog';
+import {getGuidedLesson} from './guidedLessons';
+import {getLessonForDemonstration, sceneActions} from '../runtime/lessonCatalog';
 import {lineThroughPoints, moveAlongLine} from '../../analysis/linear';
 import {exponentialValue, integerValues, mirrorBase} from '../../analysis/exponential';
 import {amplitude, basicValue, period, phaseShift, tangentAsymptotes, trigValue, valueRange} from '../../analysis/trigonometric';
@@ -49,10 +49,8 @@ test('keeps the function lessons bounded, localized, and source-backed', () => {
             expect(step.scene).toBeDefined();
             step.formulaIds.forEach(id => expect(formulaIds.has(id)).toBe(true));
             if (step.workedExampleId) expect(exampleIds.has(step.workedExampleId)).toBe(true);
-            for (const action of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
     }
 });
@@ -73,18 +71,6 @@ test('the lesson is available and adapts its scenes into typed function-paramete
     expect(lesson.steps[3].scene?.actions.at(-1)).toEqual({kind: 'function-parameter', name: 'k', value: -0.5});
 });
 
-test('scene actions reject unknown names, malformed values and non-finite numbers', () => {
-    const bad = (value: unknown) => () => sceneAction({name: 'set-function-parameter', value: value as never});
-    expect(bad({name: 'z', value: 1})).toThrow(/name must be one of/);
-    expect(bad({name: 'k', value: NaN})).toThrow(/finite number/);
-    expect(bad({name: 'k', value: Infinity})).toThrow(/finite number/);
-    expect(bad({name: 'k', value: '2'})).toThrow(/finite number/);
-    expect(bad(2)).toThrow(/{name, value}/);
-    expect(bad([1, 2])).toThrow(/{name, value}/);
-    expect(bad(null)).toThrow(/{name, value}/);
-    expect(sceneAction({name: 'set-function-parameter', value: {name: 'y2', value: -3}})).toEqual({kind: 'function-parameter', name: 'y2', value: -3});
-});
-
 test('the worked example and the scene values match the line mathematics', () => {
     const lesson = linearLesson();
     const example = lesson.workedExamples[0];
@@ -96,8 +82,8 @@ test('the worked example and the scene values match the line mathematics', () =>
     const line = lineThroughPoints({x: 0, y: 1}, {x: 2, y: 5});
     expect(line.kind === 'line' && line.k * 2 + line.n).toBe(5);
 
-    const parameters = lesson.steps.flatMap(step => legacyActions(step.scene?.actions)).filter(action => action.name === 'set-function-parameter');
-    const values = parameters.map(action => action.value as {name: string; value: number});
+    const values = lesson.steps.flatMap(step => step.scene?.actions ?? []).flatMap(action => action.kind === 'function-parameter' ? [action] : []);
+    expect(values.length).toBeGreaterThan(0);
     expect(values.every(({value}) => Number.isFinite(value))).toBe(true);
 
     // Scenes that start from the default points (0,1), (2,5): the stated results of the n and k steps.
@@ -106,26 +92,6 @@ test('the worked example and the scene values match the line mathematics', () =>
     expect(moveAlongLine(fromDefault[0], fromDefault[1], {k: -0.5})).toEqual([{x: 0, y: 1}, {x: 2, y: 0}]);
     // The edge-case scene places both points on x = 1.
     expect(lineThroughPoints({x: 1, y: -1}, {x: 1, y: 3})).toEqual({kind: 'vertical', x: 1});
-});
-
-test('scene actions accept the exponential base and reject a base that is not a finite number', () => {
-    expect(sceneAction({name: 'set-function-parameter', value: {name: 'a', value: 0.5}})).toEqual({kind: 'function-parameter', name: 'a', value: 0.5});
-    expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'a', value: NaN}})).toThrow(/finite number/);
-});
-
-test('show-function-element validates its closed target and boolean value', () => {
-    const element = (value: unknown) => () => sceneAction({name: 'show-function-element', value: value as never});
-    expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: true}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: true});
-    expect(sceneAction({name: 'show-function-element', value: {name: 'mirror', value: false}})).toEqual({kind: 'function-visibility', target: 'mirror', visible: false});
-    expect(sceneAction({name: 'show-function-element', value: {name: 'reference', value: true}})).toEqual({kind: 'function-visibility', target: 'reference', visible: true});
-    expect(sceneAction({name: 'show-function-element', value: {name: 'tangent', value: true}})).toEqual({kind: 'function-visibility', target: 'tangent', visible: true});
-    expect(element({name: 'area', value: true})).toThrow(/name must be one of mirror, reference, tangent/);
-    expect(element({name: 'mirror', value: 1})).toThrow(/true or false/);
-    expect(element({name: 'mirror', value: 'true'})).toThrow(/true or false/);
-    expect(element({name: 'mirror'})).toThrow(/true or false/);
-    expect(element(true)).toThrow(/{name, value}/);
-    expect(element(null)).toThrow(/{name, value}/);
-    expect(element([])).toThrow(/{name, value}/);
 });
 
 describe('exponential-function lesson', () => {
@@ -156,40 +122,6 @@ describe('exponential-function lesson', () => {
         expect(exponentialValue(0.1, -4)).toBeCloseTo(10000, 6);
         expect(Math.pow(-2, 0.5)).toBeNaN();
     });
-});
-
-test('set-function-choice validates its closed name and the values allowed for that name', () => {
-    const choice = (value: unknown) => () => sceneAction({name: 'set-function-choice', value: value as never});
-    for (const value of ['sin', 'cos', 'tan']) {
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'trig-function', value}})).toEqual({kind: 'function-choice', name: 'trig-function', value});
-    }
-    for (const value of ['square', 'sin', 'exp']) {
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'derivative-function', value}})).toEqual({kind: 'function-choice', name: 'derivative-function', value});
-    }
-    expect(choice({name: 'derivative-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
-    expect(choice({name: 'derivative-function', value: 'tan'})).toThrow(/must be one of square, sin, exp/);
-    expect(choice({name: 'arc-mode', value: 'between'})).toThrow(/name must be one of trig-function, derivative-function, integral-function, sum-method, area-mode/);
-    expect(choice({name: 'area-mode', value: 'above'})).toThrow(/must be one of under-f, under-g, between/);
-    expect(choice({name: 'area-mode', value: 'Between'})).toThrow(/must be one of under-f, under-g, between/);
-    expect(choice({name: 'integral-function', value: 'cos'})).toThrow(/must be one of square, sin, exp/);
-    expect(choice({name: 'sum-method', value: 'upper'})).toThrow(/must be one of left, right, midpoint, trapezoid/);
-    expect(choice({name: 'trig-function', value: 'sec'})).toThrow(/must be one of sin, cos, tan/);
-    expect(choice({name: 'trig-function', value: 'SIN'})).toThrow(/must be one of sin, cos, tan/);
-    expect(choice({name: 'trig-function', value: 1})).toThrow(/must be one of sin, cos, tan/);
-    expect(choice({name: 'trig-function', value: true})).toThrow(/must be one of sin, cos, tan/);
-    expect(choice({name: 'trig-function'})).toThrow(/must be one of sin, cos, tan/);
-    expect(choice({name: 3, value: 'sin'})).toThrow(/name must be one of/);
-    expect(choice('sin')).toThrow(/{name, value}/);
-    expect(choice(null)).toThrow(/{name, value}/);
-    expect(choice([])).toThrow(/{name, value}/);
-});
-
-test('scene actions accept the trigonometric parameter names and reject non-finite values', () => {
-    for (const name of ['A', 'omega', 'phi', 'B']) {
-        expect(sceneAction({name: 'set-function-parameter', value: {name, value: 0.5} as never})).toEqual({kind: 'function-parameter', name, value: 0.5});
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name, value: NaN} as never})).toThrow(/finite number/);
-    }
-    expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'Omega', value: 1} as never})).toThrow(/name must be one of/);
 });
 
 describe('trigonometric-functions lesson', () => {
@@ -449,16 +381,6 @@ describe('definite integral lesson', () => {
         ]);
     });
 
-    test('the scene validation accepts the new names and rejects unknown names and values', () => {
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'b', value: 6.28}})).toEqual({kind: 'function-parameter', name: 'b', value: 6.28});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'integral-function', value: 'exp'}})).toEqual({kind: 'function-choice', name: 'integral-function', value: 'exp'});
-        expect(sceneAction({name: 'set-function-choice', value: {name: 'sum-method', value: 'trapezoid'}})).toEqual({kind: 'function-choice', name: 'sum-method', value: 'trapezoid'});
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'sum-method', value: 'upper'}})).toThrow();
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'integral-function', value: 'cos'}})).toThrow();
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'c', value: 1} as never})).toThrow();
-        expect(() => sceneAction({name: 'set-function-parameter', value: {name: 'b', value: Infinity}})).toThrow();
-    });
-
     test('every bound used by a scene is allowed by the graph and every n is an allowed integer', () => {
         const values = (name: string) => lesson().steps.flatMap(step => step.scene?.actions ?? [])
             .filter(action => action.kind === 'function-parameter' && action.name === name).map(action => (action as {value: number}).value);
@@ -565,15 +487,6 @@ describe('area between curves lesson', () => {
         ]);
     });
 
-    test('the scene validation accepts the area-mode choice and rejects unknown values', () => {
-        for (const value of ['under-f', 'under-g', 'between']) {
-            expect(sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value}})).toEqual({kind: 'function-choice', name: 'area-mode', value});
-        }
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value: 'sum'}})).toThrow();
-        expect(() => sceneAction({name: 'set-function-choice', value: {name: 'area-mode', value: 1 as never}})).toThrow();
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'b', value: 3.5}})).toEqual({kind: 'function-parameter', name: 'b', value: 3.5});
-    });
-
     test('every bound used by a scene is allowed by the graph', () => {
         const values = lesson().steps.flatMap(step => step.scene?.actions ?? [])
             .filter(action => action.kind === 'function-parameter').map(action => (action as {value: number}).value);
@@ -673,7 +586,6 @@ describe('arc length lesson', () => {
         expect(rest(2)).toEqual([{kind: 'function-parameter', name: 'n', value: 10}]);
         expect(rest(3)).toEqual([{kind: 'function-parameter', name: 'n', value: 100}]);
         expect(rest(4)).toEqual([{kind: 'function-parameter', name: 'b', value: 2 * Math.PI}]);
-        expect(sceneAction({name: 'set-function-parameter', value: {name: 'n', value: 10}})).toEqual({kind: 'function-parameter', name: 'n', value: 10});
     });
 
     test('every value used by a scene is allowed by the graph', () => {

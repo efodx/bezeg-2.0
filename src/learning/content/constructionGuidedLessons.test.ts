@@ -1,6 +1,5 @@
 import {constructionGuidedLessons} from './constructionGuidedLessons';
-import {SUPPORTED_SCENE_ACTION_NAMES, legacyActions} from './guidedLessons';
-import {sceneAction} from '../runtime/lessonCatalog';
+import {sceneActions} from '../runtime/lessonCatalog';
 import {PolynomialBezierCurve} from '../../bezeg/impl/curve/polynomial-bezier-curve';
 import {RationalBezierCurve} from '../../bezeg/impl/curve/rational-bezier-curve';
 import {PointImpl} from '../../bezeg/impl/point/point-impl';
@@ -73,26 +72,24 @@ test('keeps the construction lessons bounded, localized, and source-backed', () 
             // Only the rational-extrapolation steps that show far-away control points use a fixture with a widened view.
             const fixtureSteps = lesson.demonstrationId === 'rational-extrapolation' ? ['rex-example', 'rex-negative-weight'] : [];
             expect(step.scene?.basedOn).toBe(fixtureSteps.includes(step.id) ? 'lesson-fixture' : 'demonstration-default');
-            for (const action of legacyActions(step.scene?.actions)) {
-                expect(SUPPORTED_SCENE_ACTION_NAMES).toContain(action.name);
-                expect(() => sceneAction(action)).not.toThrow();
-            }
+            // action names and parameters are checked by the `LessonAction` type; the adapter must accept the whole scene
+            expect(() => sceneActions(step.scene!)).not.toThrow();
         }
         expect(usedExamples).toEqual(exampleIds);
-        expect(legacyActions(lesson.steps[0].scene?.actions).every(action => action.name === 'show-weights')).toBe(true);
+        expect((lesson.steps[0].scene?.actions ?? []).every(action => action.kind === 'curve-visibility' && action.target === 'weights' && action.visible)).toBe(true);
     }
 });
 
 test('each lesson only uses the action families of its own graph', () => {
-    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => legacyActions(step.scene?.actions)).map(action => action.name));
-    expect(names('subdivision')).toEqual(new Set(['set-subdivision-parameter', 'subdivide']));
+    const names = (id: string) => new Set(lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []).map(action => action.kind === 'curve-visibility' ? `${action.kind}:${action.target}:${action.visible}` : action.kind));
+    expect(names('subdivision')).toEqual(new Set(['subdivision-parameter', 'subdivide']));
     expect(names('repeated-subdivision')).toEqual(new Set(['subdivide']));
-    expect(names('rational-subdivision')).toEqual(new Set(['show-weights', 'set-subdivision-parameter', 'subdivide']));
-    expect(names('extrapolation')).toEqual(new Set(['set-extrapolation-parameter', 'extrapolate']));
-    expect(names('rational-extrapolation')).toEqual(new Set(['show-weights', 'set-extrapolation-parameter', 'extrapolate']));
+    expect(names('rational-subdivision')).toEqual(new Set(['curve-visibility:weights:true', 'subdivision-parameter', 'subdivide']));
+    expect(names('extrapolation')).toEqual(new Set(['extrapolation-parameter', 'extrapolate']));
+    expect(names('rational-extrapolation')).toEqual(new Set(['curve-visibility:weights:true', 'extrapolation-parameter', 'extrapolate']));
     // The repeated-subdivision lesson never exceeds the five-step cap in a single scene.
     for (const step of lessonFor('repeated-subdivision').steps) {
-        expect((legacyActions(step.scene?.actions)).filter(action => action.name === 'subdivide').length).toBeLessThanOrEqual(5);
+        expect((step.scene?.actions ?? []).filter(action => action.kind === 'subdivide').length).toBeLessThanOrEqual(5);
     }
     expect(lessonFor('repeated-subdivision').steps.map(step => step.scene!.actions.length)).toEqual([0, 1, 2, 3, 4]);
 });
@@ -125,9 +122,9 @@ test('subdivision worked example and split identities match the implementation',
     expect(joint.X()).toBeCloseTo(-2.02, 2);
     expect(joint.Y()).toBeCloseTo(0.78, 2);
     const scene = lessonFor('subdivision').steps.map(step => step.scene!.actions);
-    expect(scene[1]).toEqual([{name: 'set-subdivision-parameter', value: 0.3}]);
-    expect(scene[3]).toEqual([{name: 'set-subdivision-parameter', value: 0.5}, {name: 'subdivide', value: true}]);
-    expect(scene[4]).toEqual([{name: 'set-subdivision-parameter', value: 0.3}, {name: 'subdivide', value: true}]);
+    expect(scene[1]).toEqual([{kind: 'subdivision-parameter', value: 0.3}]);
+    expect(scene[3]).toEqual([{kind: 'subdivision-parameter', value: 0.5}, {kind: 'subdivide'}]);
+    expect(scene[4]).toEqual([{kind: 'subdivision-parameter', value: 0.3}, {kind: 'subdivide'}]);
 });
 
 test('repeated subdivision gives 2^k covering pieces whose polygons approach the curve about four times closer per step', () => {

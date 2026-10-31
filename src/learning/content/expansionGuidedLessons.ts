@@ -1,17 +1,16 @@
-import type {LessonCurveFixture, LessonViewBox} from '../model';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText, SceneAction} from './guidedLessons';
+import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
-const action = (name: SceneAction['name'], value: SceneAction['value']): SceneAction => ({name, value});
-const scene = (id: string, actions: readonly SceneAction[], sl: string, en: string) => ({
+const scene = (id: string, actions: readonly LessonAction[], sl: string, en: string) => ({
     id, basedOn: 'demonstration-default' as const, actions, expectedState: text(sl, en),
 });
 
 /** Quintic PH lesson fixture: P_0=(-2,-1), w_0=2, w_1=2+i, w_2=1+i, so w(t)=(2-t^2)+i(2t-t^2), speed 4-4t^3+2t^4, arc length 17/5. */
 const phQuinticFixture: LessonCurveFixture = {points: [[-2, -1]], hodographs: [[2, 0], [2, 1], [1, 1]]};
 const phQuinticView: LessonViewBox = [-3, 2.2, 2.5, -2.6];
-const phQuinticScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const phQuinticScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id, basedOn: 'lesson-fixture', curve: phQuinticFixture, view: phQuinticView, actions, expectedState: text(sl, en),
 });
 
@@ -22,10 +21,10 @@ const phQuinticScene = (id: string, actions: readonly SceneAction[], sl: string,
  */
 const rationalView: LessonViewBox = [-6, 5, 6, -4.5];
 const rationalFixture = (weights: readonly number[]): LessonCurveFixture => ({points: [[-4, -3], [-3, 3], [3, 3], [4, -3]], weights});
-const rationalScene = (id: string, weights: readonly number[], actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const rationalScene = (id: string, weights: readonly number[], actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id, basedOn: 'lesson-fixture', curve: rationalFixture(weights), view: rationalView, actions, expectedState: text(sl, en),
 });
-const RATIONAL_ACTIONS = [action('show-control-polygon', true), action('show-weights', true), action('show-evaluation-point', 0.5)];
+const RATIONAL_ACTIONS: readonly LessonAction[] = [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'curve-evaluation', parameter: 0.5}];
 
 const rational: GuidedLesson = {
     demonstrationId: 'rational',
@@ -101,7 +100,6 @@ const rational: GuidedLesson = {
             formulaIds: ['rational-base-weighted-form', 'rational-base-equal-weights'],
             frames: [frame('rational-base-weights-explanation', 'explanation', ['rational-base-equal-weights']), frame('rational-base-weights-calculation', 'calculation'), frame('rational-base-weights-observation', 'observation')],
             workedExampleId: 'rational-base-equal',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preberi uteži in označi točko \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\); to je primerjalna točka za naslednja koraka.', 'Read the weights and find the point \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\); it is the reference point for the next two steps.'),
             expectedObservations: [text('Vse uteži so \\(1\\), označena točka je \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\), kot pri navadni Bézierjevi krivulji.', 'All weights are \\(1\\) and the marked point is \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\), as for an ordinary Bézier curve.')],
             scene: rationalScene('rational-base-default', [1, 1, 1, 1], RATIONAL_ACTIONS, 'Uteži \\((1,1,1,1)\\), poligon in \\(B(\\tfrac{1}{2})\\) so vidni.', 'The weights \\((1,1,1,1)\\), the polygon and \\(B(\\tfrac{1}{2})\\) are visible.'),
@@ -114,7 +112,6 @@ const rational: GuidedLesson = {
             formulaIds: ['rational-base-weighted-form', 'rational-base-second-weight'],
             frames: [frame('rational-base-evaluation-explanation', 'explanation', ['rational-base-weighted-form']), frame('rational-base-evaluation-calculation', 'calculation'), frame('rational-base-evaluation-observation', 'observation')],
             workedExampleId: 'rational-base-midpoint',
-            learnerInteraction: 'observe',
             observationPrompt: text('Preveri, ali se izračunana točka \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) ujema z označeno točko, in primerjaj jo s prejšnjo točko \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\).', 'Check whether the calculated point \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) matches the marked point, and compare it with the previous point \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\).'),
             expectedObservations: [text('Kontrolni poligon je isti, označena točka pa je višje in bližje \\(P_1\\); imenovalec ni več \\(1\\), ampak \\(\\tfrac{11}{8}\\).', 'The control polygon is the same, but the marked point is higher and closer to \\(P_1\\); the denominator is no longer \\(1\\) but \\(\\tfrac{11}{8}\\).')],
             scene: rationalScene('rational-base-midpoint', [1, 2, 1, 1], RATIONAL_ACTIONS, 'Uteži \\((1,2,1,1)\\) in \\(B(\\tfrac{1}{2})\\) so pripravljene za preverjanje.', 'The weights \\((1,2,1,1)\\) and \\(B(\\tfrac{1}{2})\\) are ready for checking.'),
@@ -127,7 +124,6 @@ const rational: GuidedLesson = {
             formulaIds: ['rational-base-second-weight'],
             frames: [frame('rational-base-heavy-explanation', 'explanation', ['rational-base-second-weight']), frame('rational-base-heavy-calculation', 'calculation'), frame('rational-base-heavy-observation', 'observation')],
             workedExampleId: 'rational-base-heavy',
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj tri označene točke \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\), \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) in \\(\\left(-\\tfrac{27}{17},\\,\\tfrac{39}{17}\\right)\\).', 'Compare the three marked points \\(\\left(0,\\,\\tfrac{3}{2}\\right)\\), \\(\\left(-\\tfrac{9}{11},\\,\\tfrac{21}{11}\\right)\\) and \\(\\left(-\\tfrac{27}{17},\\,\\tfrac{39}{17}\\right)\\).'),
             expectedObservations: [text('Točka se z naraščajočo utežjo pomika proti \\(P_1=(-3,3)\\), vendar ga ne doseže.', 'The point moves toward \\(P_1=(-3,3)\\) as the weight grows, but never reaches it.')],
             scene: rationalScene('rational-base-heavy', [1, 4, 1, 1], RATIONAL_ACTIONS, 'Uteži \\((1,4,1,1)\\) in \\(B(\\tfrac{1}{2})\\) so pripravljene za primerjavo.', 'The weights \\((1,4,1,1)\\) and \\(B(\\tfrac{1}{2})\\) are ready for comparison.'),
@@ -139,7 +135,6 @@ const rational: GuidedLesson = {
             explanation: text('Pri \\(t=0\\) in \\(t=1\\) preživi samo prvi oziroma zadnji Bernsteinov člen in njegova utež se pokrajša. Zato je pri utežeh \\((1,1,1,1)\\), \\((1,2,1,1)\\) in \\((1,4,1,1)\\) začetek vedno \\(P_0=(-4,-3)\\), konec pa \\(P_3=(4,-3)\\); druga utež vpliva le na notranji potek.', 'At \\(t=0\\) and \\(t=1\\) only the first or last Bernstein term survives and its weight cancels. So for the weights \\((1,1,1,1)\\), \\((1,2,1,1)\\) and \\((1,4,1,1)\\) the start is always \\(P_0=(-4,-3)\\) and the end \\(P_3=(4,-3)\\); the second weight only affects the interior.'),
             formulaIds: ['rational-base-endpoints'],
             frames: [frame('rational-base-endpoints-explanation', 'explanation'), frame('rational-base-endpoints-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Primerjaj začetek in konec krivulje s točkama \\(P_0\\) in \\(P_3\\) pri utežeh \\((1,4,1,1)\\).', 'Compare the start and end of the curve with \\(P_0\\) and \\(P_3\\) for the weights \\((1,4,1,1)\\).'),
             expectedObservations: [text('Krivulja se začne v \\((-4,-3)\\) in konča v \\((4,-3)\\), kljub veliki drugi uteži.', 'The curve starts at \\((-4,-3)\\) and ends at \\((4,-3)\\) despite the large second weight.')],
             scene: rationalScene('rational-base-endpoint-check', [1, 4, 1, 1], RATIONAL_ACTIONS, 'Uteži \\((1,4,1,1)\\); krajišči sta v \\(P_0\\) in \\(P_3\\), označena točka je pri \\(t=\\tfrac{1}{2}\\).', 'The weights \\((1,4,1,1)\\); the endpoints are at \\(P_0\\) and \\(P_3\\), and the marked point is at \\(t=\\tfrac{1}{2}\\).'),
@@ -151,15 +146,14 @@ const rational: GuidedLesson = {
             explanation: text('Začni z utežmi \\((1,1,1,1)\\) in jih spreminjaj. Premik uteži ne premakne kontrolnega poligona, spremeni pa vrednost \\(B(\\tfrac{1}{2})\\).', 'Start from the weights \\((1,1,1,1)\\) and change them. Changing a weight does not move the control polygon but changes the value \\(B(\\tfrac{1}{2})\\).'),
             formulaIds: ['rational-base-weighted-form', 'rational-base-equal-weights'],
             frames: [frame('rational-base-analysis-explanation', 'explanation'), frame('rational-base-analysis-observation', 'observation')],
-            learnerInteraction: 'observe',
             observationPrompt: text('Nastavi drugo utež na \\(2\\) in nato na \\(4\\) ter preveri, ali dobiš točki iz prejšnjih korakov; nato poskusi še tretjo utež.', 'Set the second weight to \\(2\\) and then to \\(4\\) and check that you get the points from the previous steps; then try the third weight.'),
             expectedObservations: [text('Razlaga mora povezati položaj, Bernsteinov faktor in utež, ne samo videza krivulje.', 'The explanation should connect position, the Bernstein factor, and the weight—not only the curve’s appearance.')],
             scene: rationalScene('rational-base-analysis', [1, 1, 1, 1], RATIONAL_ACTIONS, 'Končna scena se začne pri enakih utežeh; poligon, uteži in točka pri \\(t=\\tfrac{1}{2}\\) so vidni.', 'The final scene starts from equal weights; the polygon, weights, and the point at \\(t=\\tfrac{1}{2}\\) are visible.'),
         },
     ],
     sources: [
-        {id: 'farin-rational-base', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.', supports: ['rational Bézier evaluation', 'weights', 'endpoint behavior'], implementationCorrespondence: 'The repository evaluates the rational curve with weighted Bernstein terms in src/bezeg/impl/curve/rational-bezier-curve.ts.'},
-        {id: 'bezeg-rational-base', citation: 'Bezeg source: src/graphs/curves/rational/RationalBezierCurveGraph.tsx and src/graphs/curves/object/JXGRationalBezierCurve.ts.', supports: ['default points and weights', 'weight labels', 'evaluation marker']},
+        {id: 'farin-rational-base', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.', implementationCorrespondence: 'The repository evaluates the rational curve with weighted Bernstein terms in src/bezeg/impl/curve/rational-bezier-curve.ts.'},
+        {id: 'bezeg-rational-base', citation: 'Bezeg source: src/graphs/curves/rational/RationalBezierCurveGraph.tsx and src/graphs/curves/object/JXGRationalBezierCurve.ts.'},
     ],
     edgeCases: [
         text('Negativne ali ničelne uteži lahko povzročijo nedoločeno projekcijo in niso del te uvodne scene.', 'Negative or zero weights can produce an undefined projection and are outside this introductory scene.'),
@@ -198,7 +192,7 @@ const phQuintic: GuidedLesson = {
             id: 'ph-quintic-degree', order: 1, title: text('Tri generatorji, stopnja pet', 'Three generators, degree five'),
             purpose: text('Razumevanje vhodnih podatkov kvintične PH-krivulje.', 'Understanding the inputs of the quintic PH curve.'),
             explanation: text('Scena začne s \\(P_0=\\left(-2,\\,-1\\right)\\) in tremi generatorji \\(w_0=2\\), \\(w_1=2+i\\), \\(w_2=1+i\\), torej \\(w(t)=(2-t^2)+i(2t-t^2)\\).', 'The scene starts with \\(P_0=\\left(-2,\\,-1\\right)\\) and three generators \\(w_0=2\\), \\(w_1=2+i\\), \\(w_2=1+i\\), so \\(w(t)=(2-t^2)+i(2t-t^2)\\).'),
-            formulaIds: ['ph-quintic-degree'], frames: [frame('ph-quintic-degree-explanation', 'explanation'), frame('ph-quintic-degree-observation', 'observation')], learnerInteraction: 'observe',
+            formulaIds: ['ph-quintic-degree'], frames: [frame('ph-quintic-degree-explanation', 'explanation'), frame('ph-quintic-degree-observation', 'observation')],
             observationPrompt: text('Preštej generatorje in poveži njihovo število s stopnjo krivulje. Preveri, da je \\(w_0-2w_1+w_2=-1-i\\) različno od nič.', 'Count the generators and connect their number with the curve degree. Check that \\(w_0-2w_1+w_2=-1-i\\) is nonzero.'),
             expectedObservations: [text('Trije generatorji dajo stopnjo 5; generatorji so vhod, večina kontrolnih točk krivulje pa je izpeljana. Ker \\(w_0-2w_1+w_2\\) ni nič, hodograf ni linearen in krivulja je res kvintična, ne zgolj kubična.', 'Three generators give degree 5; the generators are inputs, while most curve control points are derived. Because \\(w_0-2w_1+w_2\\) is nonzero the hodograph is not linear, so the curve is genuinely quintic rather than merely cubic.')],
             scene: phQuinticScene('ph-quintic-default', [], 'Scena vsebuje šest kontrolnih točk od \\(\\left(-2,\\,-1\\right)\\) do \\(\\left(\\tfrac13,\\,\\tfrac{16}{15}\\right)\\), brez odmika.', 'The scene contains six control points from \\(\\left(-2,\\,-1\\right)\\) to \\(\\left(\\tfrac13,\\,\\tfrac{16}{15}\\right)\\), without an offset.'),
@@ -207,42 +201,42 @@ const phQuintic: GuidedLesson = {
             id: 'ph-quintic-speed', order: 2, title: text('Hodograf določa hitrost', 'The hodograph determines speed'),
             purpose: text('Povezava hodografa z odvodom in hitrostjo.', 'Connecting the hodograph with the derivative and speed.'),
             explanation: text('Pri \\(t=\\tfrac{1}{2}\\) se trije generatorji zmešajo z Bernsteinovimi faktorji stopnje 2; nato kvadrat norme določi hitrost.', 'At \\(t=\\tfrac{1}{2}\\) the three generators mix with degree-two Bernstein factors; the squared norm then gives speed.'),
-            formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-speed-explanation', 'explanation'), frame('ph-quintic-speed-calculation', 'calculation'), frame('ph-quintic-speed-observation', 'observation')], workedExampleId: 'ph-quintic-speed-midpoint', learnerInteraction: 'observe',
+            formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-speed-explanation', 'explanation'), frame('ph-quintic-speed-calculation', 'calculation'), frame('ph-quintic-speed-observation', 'observation')], workedExampleId: 'ph-quintic-speed-midpoint',
             observationPrompt: text('Preveri hitrost \\(\\tfrac{29}{8}\\) z izračunom srednjega hodografa in primerjaj njen potek: pri \\(t=0\\) je \\(4\\), pri \\(t=1\\) pa \\(2\\).', 'Check the speed \\(\\tfrac{29}{8}\\) by calculating the midpoint hodograph and compare its course: it is \\(4\\) at \\(t=0\\) and \\(2\\) at \\(t=1\\).'),
             expectedObservations: [text('Hitrost \\(4-4t^3+2t^4\\) je kvadrat dolžine hodografa, ne dolžina osnovne krivulje; njen integral da dolžino loka \\(\\tfrac{17}{5}=3{,}4\\), kar kaže tudi odčitek na grafu.', 'The speed \\(4-4t^3+2t^4\\) is the squared length of the hodograph, not the length of the base curve; its integral gives the arc length \\(\\tfrac{17}{5}=3.4\\), which the readout on the graph also shows.')],
-            scene: phQuinticScene('ph-quintic-speed-scene', [action('show-evaluation-point', 0.5)], 'Označena je srednja točka osnovne krivulje, kjer je \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).', 'The midpoint of the base curve is marked, where \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).'),
+            scene: phQuinticScene('ph-quintic-speed-scene', [{kind: 'curve-evaluation', parameter: 0.5}], 'Označena je srednja točka osnovne krivulje, kjer je \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).', 'The midpoint of the base curve is marked, where \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).'),
         },
         {
             id: 'ph-quintic-offset-positive', order: 3, title: text('Pozitiven odmik', 'Positive offset'),
             purpose: text('Razlikovanje osnovne in odmične krivulje.', 'Distinguishing the base curve from its offset.'),
             explanation: text('Pri \\(d=0{,}5\\) runtime prikaže odmično krivuljo, osnovna PH-krivulja pa ostane ista.', 'At \\(d=0.5\\) the runtime shows an offset curve while the base PH curve stays the same.'),
-            formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-positive-explanation', 'explanation'), frame('ph-quintic-offset-positive-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
+            formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-positive-explanation', 'explanation'), frame('ph-quintic-offset-positive-observation', 'observation')],
             observationPrompt: text('Primerjaj osnovno krivuljo in odmik pri \\(d=0{,}5\\).', 'Compare the base curve and the offset at \\(d=0.5\\).'),
             expectedObservations: [text('Odmik je dodatna konstrukcija; generatorji in osnovna krivulja se ne zamenjajo.', 'The offset is an additional construction; the generators and base curve are not replaced.')],
-            scene: phQuinticScene('ph-quintic-offset-positive', [action('set-offset-distance', 0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=0{,}5\\), na desni (spodnji) strani krivulje.', 'The offset at \\(d=0.5\\) is shown, on the right (lower) side of the curve.'),
+            scene: phQuinticScene('ph-quintic-offset-positive', [{kind: 'parameter', name: 'offset-distance', value: 0.5}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Prikazan je odmik pri \\(d=0{,}5\\), na desni (spodnji) strani krivulje.', 'The offset at \\(d=0.5\\) is shown, on the right (lower) side of the curve.'),
         },
         {
             id: 'ph-quintic-offset-sign', order: 4, title: text('Predznak odmika', 'Offset sign'),
             purpose: text('Opazovanje spremembe strani odmika.', 'Observing the change of offset side.'),
             explanation: text('Negativen \\(d\\) izbere nasprotno stran normalne smeri, to je notranjo stran zavoja. Krivulja se povsod obrača v levo, njena ukrivljenost je največ \\(1\\) (pri \\(t=1\\)), zato je odmik na levi regularen le pri \\(|d|<1\\); pri \\(d=-1\\) bi dobili ostan. Osnovna krivulja ostane nespremenjena.', 'A negative \\(d\\) selects the opposite normal side, the inner side of the bend. The curve turns left everywhere and its curvature is at most \\(1\\) (at \\(t=1\\)), so the offset on the left is regular only for \\(|d|<1\\); at \\(d=-1\\) a cusp would appear. The base curve stays unchanged.'),
-            formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-sign-explanation', 'explanation'), frame('ph-quintic-offset-sign-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
+            formulaIds: ['ph-quintic-offset'], frames: [frame('ph-quintic-offset-sign-explanation', 'explanation'), frame('ph-quintic-offset-sign-observation', 'observation')],
             observationPrompt: text('Primerjaj odmika pri \\(d=0{,}5\\) in \\(d=-0{,}5\\) ter opiši nespremenjeni del.', 'Compare \\(d=0.5\\) and \\(d=-0.5\\) and describe what does not change.'),
             expectedObservations: [text('Predznak spremeni stran odmika, ne pa stopnje ali vhodnih generatorjev.', 'The sign changes the offset side, not the degree or input generators.')],
-            scene: phQuinticScene('ph-quintic-offset-negative', [action('set-offset-distance', -0.5), action('show-offset-curve', true)], 'Prikazan je odmik pri \\(d=-0{,}5\\), na levi (zgornji) strani krivulje.', 'The offset at \\(d=-0.5\\) is shown, on the left (upper) side of the curve.'),
+            scene: phQuinticScene('ph-quintic-offset-negative', [{kind: 'parameter', name: 'offset-distance', value: -0.5}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Prikazan je odmik pri \\(d=-0{,}5\\), na levi (zgornji) strani krivulje.', 'The offset at \\(d=-0.5\\) is shown, on the left (upper) side of the curve.'),
         },
         {
             id: 'ph-quintic-analysis', order: 5, title: text('Samostojna analiza', 'Independent analysis'),
             purpose: text('Povezava generatorjev, hitrosti in odmika.', 'Connecting generators, speed, and offset.'),
             explanation: text('Pri prostem raziskovanju loči, kaj določa osnovno krivuljo, kaj določa hitrost in kaj je samo odmični prikaz.', 'During free exploration, distinguish what determines the base curve, speed, and the offset display.'),
-            formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-analysis-explanation', 'explanation'), frame('ph-quintic-analysis-observation', 'observation')], learnerInteraction: 'adjust-offset-distance',
+            formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-analysis-explanation', 'explanation'), frame('ph-quintic-analysis-observation', 'observation')],
             observationPrompt: text('Izberi razdaljo odmika in razloži, kateri podatki ostanejo nespremenjeni.', 'Choose an offset distance and explain which data remain unchanged.'),
             expectedObservations: [text('Generatorji določajo PH-krivuljo in hitrost; \\(d\\) določa odmični prikaz.', 'The generators determine the PH curve and speed; \\(d\\) determines the offset display.')],
-            scene: phQuinticScene('ph-quintic-analysis-scene', [action('set-offset-distance', 1), action('show-offset-curve', true)], 'Končna scena prikazuje odmik pri \\(d=1\\) na zunanji strani zavoja, kjer je odmik vedno regularen.', 'The final scene shows the offset at \\(d=1\\) on the outer side of the bend, where the offset is always regular.'),
+            scene: phQuinticScene('ph-quintic-analysis-scene', [{kind: 'parameter', name: 'offset-distance', value: 1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Končna scena prikazuje odmik pri \\(d=1\\) na zunanji strani zavoja, kjer je odmik vedno regularen.', 'The final scene shows the offset at \\(d=1\\) on the outer side of the bend, where the offset is always regular.'),
         },
     ],
     sources: [
-        {id: 'farouki-ph-quintic', citation: 'Farouki, R. T. Pythagorean-Hodograph Curves: Algebra and Geometry Inseparable, Springer, 2008.', supports: ['PH hodographs', 'polynomial speed', 'offset motivation'], implementationCorrespondence: 'The repository constructs degree 2m-1 PH curves from m generators in src/bezeg/impl/curve/ph-bezier-curve.ts.'},
-        {id: 'bezeg-ph-quintic', citation: 'Bezeg source: src/graphs/curves/ph/QuinticPhBezierCurveGraph.tsx, src/graphs/curves/ph/BasePhBezierCurveGraph.tsx, and src/graphs/curves/object/JXGPHBezierCurve.ts.', supports: ['default quintic generators', 'offset visibility', 'offset distance action']},
+        {id: 'farouki-ph-quintic', citation: 'Farouki, R. T. Pythagorean-Hodograph Curves: Algebra and Geometry Inseparable, Springer, 2008.', implementationCorrespondence: 'The repository constructs degree 2m-1 PH curves from m generators in src/bezeg/impl/curve/ph-bezier-curve.ts.'},
+        {id: 'bezeg-ph-quintic', citation: 'Bezeg source: src/graphs/curves/ph/QuinticPhBezierCurveGraph.tsx, src/graphs/curves/ph/BasePhBezierCurveGraph.tsx, and src/graphs/curves/object/JXGPHBezierCurve.ts.'},
     ],
     edgeCases: [
         text('Če hodograf izgine, regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes, regularity and a normal offset direction are not guaranteed.'),
@@ -259,7 +253,7 @@ const phQuintic: GuidedLesson = {
  */
 const affineFixture: LessonCurveFixture = {points: [[1, 0], [2, 3], [4, 2], [5, -1]]};
 const affineView: LessonViewBox = [-5, 7, 9, -5];
-const affineScene = (id: string, actions: readonly SceneAction[], sl: string, en: string): LessonScene => ({
+const affineScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
     id, basedOn: 'lesson-fixture', curve: affineFixture, view: affineView, actions, expectedState: text(sl, en),
 });
 const QUARTER_TURN = Math.PI / 2;
@@ -309,51 +303,51 @@ const affine: GuidedLesson = {
             id: 'affine-map', order: 1, title: text('Kaj je afina transformacija?', 'What is an affine transformation?'),
             purpose: text('Razlikovanje linearnega dela in premika.', 'Distinguishing the linear part from translation.'),
             explanation: text('Začnemo s kubično krivuljo s kontrolnimi točkami \\((1,0),(2,3),(4,2),(5,-1)\\). Ni zrcalno simetrična, označena točka \\(B(\\tfrac{1}{2})=\\left(3,\\tfrac{7}{4}\\right)\\) pa je daleč od izhodišča. Afina preslikava lahko spremeni lego, orientacijo ali merilo krivulje, vendar uporablja isto preslikavo za vse kontrolne točke.', 'We start with a cubic curve with control points \\((1,0),(2,3),(4,2),(5,-1)\\). It is not mirror symmetric, and the marked point \\(B(\\tfrac{1}{2})=\\left(3,\\tfrac{7}{4}\\right)\\) is far from the origin. An affine map can change position, orientation, or scale while using the same map for every control point.'),
-            formulaIds: ['affine-map', 'affine-degree-invariant'], frames: [frame('affine-map-explanation', 'explanation'), frame('affine-map-observation', 'observation')], learnerInteraction: 'observe',
+            formulaIds: ['affine-map', 'affine-degree-invariant'], frames: [frame('affine-map-explanation', 'explanation'), frame('affine-map-observation', 'observation')],
             observationPrompt: text('Preštej kontrolne točke, poišči izhodišče in označeno točko ter opiši, kaj se lahko spremeni brez spremembe stopnje.', 'Count the control points, find the origin and the marked point, and describe what can change without changing degree.'),
             expectedObservations: [text('Krivulja je kubična s štirimi kontrolnimi točkami; označena točka je desno od izhodišča in transformacija stopnje ne spremeni.', 'The curve is cubic with four control points; the marked point is right of the origin and a transformation does not change the degree.')],
-            scene: affineScene('affine-default', [action('show-control-polygon', true), action('show-evaluation-point', 0.5)], 'Asimetrična kubična krivulja, kontrolni poligon in \\(B(\\tfrac{1}{2})\\) so vidni.', 'The asymmetric cubic curve, control polygon, and \\(B(\\tfrac{1}{2})\\) are visible.'),
+            scene: affineScene('affine-default', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'curve-evaluation', parameter: 0.5}], 'Asimetrična kubična krivulja, kontrolni poligon in \\(B(\\tfrac{1}{2})\\) so vidni.', 'The asymmetric cubic curve, control polygon, and \\(B(\\tfrac{1}{2})\\) are visible.'),
         },
         {
             id: 'affine-translation', order: 2, title: text('Premik skozi Bernsteinovo vsoto', 'Translation through the Bernstein sum'),
             purpose: text('Preverjanje afine komutativnosti na konkretnem primeru.', 'Checking affine commutation in a concrete example.'),
             explanation: text('Premik za \\((-2,-1)\\) doda isti vektor vsaki kontrolni točki in tudi vrednosti \\(B(t)\\).', 'Translating by \\((-2,-1)\\) adds the same vector to every control point and to \\(B(t)\\).'),
-            formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-translation-explanation', 'explanation', ['affine-bezier-commutation']), frame('affine-translation-calculation', 'calculation'), frame('affine-translation-observation', 'observation')], workedExampleId: 'affine-translation-midpoint', learnerInteraction: 'observe',
+            formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-translation-explanation', 'explanation', ['affine-bezier-commutation']), frame('affine-translation-calculation', 'calculation'), frame('affine-translation-observation', 'observation')], workedExampleId: 'affine-translation-midpoint',
             observationPrompt: text('Preveri, ali se \\(B(\\tfrac{1}{2})\\) premakne za isti vektor kot kontrolne točke.', 'Check whether \\(B(\\tfrac{1}{2})\\) moves by the same vector as the control points.'),
             expectedObservations: [text('Po premiku je \\(B_T(\\tfrac{1}{2})=\\left(1,\\,\\tfrac{3}{4}\\right)\\), kar je \\(T(B(\\tfrac{1}{2}))\\).', 'After translation \\(B_T(\\tfrac{1}{2})=\\left(1,\\,\\tfrac{3}{4}\\right)\\), which equals \\(T(B(\\tfrac{1}{2}))\\).')],
-            scene: affineScene('affine-translation-left-down', [action('show-control-polygon', true), action('translate-x', -2), action('translate-y', -1), action('show-evaluation-point', 0.5)], 'Krivulja je premaknjena za \\(2\\) v levo in \\(1\\) navzdol.', 'The curve is translated \\(2\\) to the left and \\(1\\) down.'),
+            scene: affineScene('affine-translation-left-down', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'affine-transform', operation: 'translate-x', value: -2}, {kind: 'affine-transform', operation: 'translate-y', value: -1}, {kind: 'curve-evaluation', parameter: 0.5}], 'Krivulja je premaknjena za \\(2\\) v levo in \\(1\\) navzdol.', 'The curve is translated \\(2\\) to the left and \\(1\\) down.'),
         },
         {
             id: 'affine-quarter-turn', order: 3, title: text('Četrtinski obrat okoli središča', 'A quarter-turn about its centre'),
             purpose: text('Ugotoviti, okoli katere točke graf zavrti krivuljo.', 'Finding the point about which the graph turns the curve.'),
             explanation: text('Obrat za \\(90^\\circ\\) v pozitivni smeri (proti urinemu kazalcu) graf izvede okoli povprečja kontrolnih točk, pri tej krivulji okoli \\((3,1)\\), in ne okoli izhodišča. Nove kontrolne točke so \\((4,-1),(1,0),(2,2),(5,3)\\).', 'The graph performs a \\(90^\\circ\\) turn in the positive (counter-clockwise) direction about the mean of the control points, here \\((3,1)\\), and not about the origin. The new control points are \\((4,-1),(1,0),(2,2),(5,3)\\).'),
-            formulaIds: ['affine-pivot', 'affine-bezier-commutation'], frames: [frame('affine-quarter-turn-explanation', 'explanation', ['affine-pivot']), frame('affine-quarter-turn-calculation', 'calculation'), frame('affine-quarter-turn-observation', 'observation')], workedExampleId: 'affine-quarter-turn-midpoint', learnerInteraction: 'observe',
+            formulaIds: ['affine-pivot', 'affine-bezier-commutation'], frames: [frame('affine-quarter-turn-explanation', 'explanation', ['affine-pivot']), frame('affine-quarter-turn-calculation', 'calculation'), frame('affine-quarter-turn-observation', 'observation')], workedExampleId: 'affine-quarter-turn-midpoint',
             observationPrompt: text('Poišči točko, ki jo obrat pusti pri miru, in preveri, da \\(B(\\tfrac{1}{2})\\) ni obrnjena okoli izhodišča.', 'Find the point the turn leaves fixed and check that \\(B(\\tfrac{1}{2})\\) was not turned about the origin.'),
             expectedObservations: [text('Poligon se zavrti okoli \\((3,1)\\), označena točka je pri \\(\\left(\\tfrac{9}{4},\\,1\\right)\\), ne pri \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\).', 'The polygon turns about \\((3,1)\\); the marked point is at \\(\\left(\\tfrac{9}{4},\\,1\\right)\\), not at \\(\\left(-\\tfrac{7}{4},\\,3\\right)\\).')],
-            scene: affineScene('affine-quarter-turn', [action('show-control-polygon', true), action('rotate-affine', QUARTER_TURN), action('show-evaluation-point', 0.5)], 'Krivulja je zasukana za četrtinski obrat okoli povprečja kontrolnih točk.', 'The curve is turned a quarter-turn about the mean of its control points.'),
+            scene: affineScene('affine-quarter-turn', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'affine-transform', operation: 'rotate', value: QUARTER_TURN}, {kind: 'curve-evaluation', parameter: 0.5}], 'Krivulja je zasukana za četrtinski obrat okoli povprečja kontrolnih točk.', 'The curve is turned a quarter-turn about the mean of its control points.'),
         },
         {
             id: 'affine-scale', order: 4, title: text('Merilo brez spremembe stopnje', 'Scale without changing degree'),
             purpose: text('Opazovanje spremembe velikosti in nespremenjene parametrične strukture.', 'Observing a size change with unchanged parametric structure.'),
             explanation: text('Enakomerno merilo \\(2\\) razteguje krivuljo od središča pravokotnika, ki objame kontrolne točke, pri tej krivulji od \\((3,1)\\). Ne spremeni števila kontrolnih točk ali intervala \\(t\\). Nove kontrolne točke so \\((-1,-1),(1,5),(5,3),(7,-3)\\).', 'Uniform scale \\(2\\) stretches the curve from the centre of the rectangle that encloses the control points, here \\((3,1)\\). It does not change the number of control points or the \\(t\\) interval. The new control points are \\((-1,-1),(1,5),(5,3),(7,-3)\\).'),
-            formulaIds: ['affine-pivot', 'affine-degree-invariant'], frames: [frame('affine-scale-explanation', 'explanation'), frame('affine-scale-calculation', 'calculation'), frame('affine-scale-observation', 'observation')], workedExampleId: 'affine-scale-midpoint', learnerInteraction: 'observe',
+            formulaIds: ['affine-pivot', 'affine-degree-invariant'], frames: [frame('affine-scale-explanation', 'explanation'), frame('affine-scale-calculation', 'calculation'), frame('affine-scale-observation', 'observation')], workedExampleId: 'affine-scale-midpoint',
             observationPrompt: text('Primerjaj stopnjo, število točk in oddaljenost označene točke od središča \\((3,1)\\) pred in po spremembi merila.', 'Compare degree, point count, and the distance of the marked point from the centre \\((3,1)\\) before and after scaling.'),
             expectedObservations: [text('Merilo podvoji oddaljenost od središča (označena točka je pri \\(\\left(3,\\,\\tfrac{5}{2}\\right)\\)), ne pa stopnje ali števila Bernsteinovih členov.', 'Scaling doubles the distance from the centre (the marked point is at \\(\\left(3,\\,\\tfrac{5}{2}\\right)\\)) but not the degree or the number of Bernstein terms.')],
-            scene: affineScene('affine-scale-up', [action('show-control-polygon', true), action('scale-affine', 2), action('show-evaluation-point', 0.5)], 'Krivulja je povečana z merilom \\(2\\).', 'The curve is enlarged by scale \\(2\\).'),
+            scene: affineScene('affine-scale-up', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'affine-transform', operation: 'scale', value: 2}, {kind: 'curve-evaluation', parameter: 0.5}], 'Krivulja je povečana z merilom \\(2\\).', 'The curve is enlarged by scale \\(2\\).'),
         },
         {
             id: 'affine-analysis', order: 5, title: text('Samostojna primerjava', 'Independent comparison'),
             purpose: text('Uporaba afine komutativnosti pri sestavljeni transformaciji.', 'Using affine commutation for a composed transformation.'),
             explanation: text('Sestavljena transformacija (premik, obrat, merilo) je spet afina preslikava, zato se transformirane kontrolne točke še vedno ujemajo z označeno vrednostjo krivulje. Središče obrata in merila se premika skupaj s krivuljo.', 'The composed transformation (translation, turn, scaling) is again an affine map, so the transformed control points still agree with the marked curve value. The centre of the turn and of the scaling moves with the curve.'),
-            formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-analysis-explanation', 'explanation'), frame('affine-analysis-observation', 'observation')], learnerInteraction: 'observe',
+            formulaIds: ['affine-bezier-commutation'], frames: [frame('affine-analysis-explanation', 'explanation'), frame('affine-analysis-observation', 'observation')],
             observationPrompt: text('Izberi transformacijo in preveri en parameter, za katerega lahko utemeljiš rezultat.', 'Choose a transformation and check one parameter value whose result you can justify.'),
             expectedObservations: [text('Transformacija vrednosti in transformirano vrednotenje kontrolnih točk se ujemata.', 'Transforming the value and evaluating transformed control points agree.')],
-            scene: affineScene('affine-composed', [action('show-control-polygon', true), action('translate-x', -2), action('translate-y', -1), action('rotate-affine', QUARTER_TURN), action('scale-affine', 2), action('show-evaluation-point', 0.75)], 'Prikazani so premik, četrtinski obrat in merilo \\(2\\) skupaj, označena točka je pri \\(t=\\tfrac{3}{4}\\).', 'Translation, quarter-turn and scale \\(2\\) are shown together, the marked point is at \\(t=\\tfrac{3}{4}\\).'),
+            scene: affineScene('affine-composed', [{kind: 'curve-visibility', target: 'control-polygon', visible: true}, {kind: 'affine-transform', operation: 'translate-x', value: -2}, {kind: 'affine-transform', operation: 'translate-y', value: -1}, {kind: 'affine-transform', operation: 'rotate', value: QUARTER_TURN}, {kind: 'affine-transform', operation: 'scale', value: 2}, {kind: 'curve-evaluation', parameter: 0.75}], 'Prikazani so premik, četrtinski obrat in merilo \\(2\\) skupaj, označena točka je pri \\(t=\\tfrac{3}{4}\\).', 'Translation, quarter-turn and scale \\(2\\) are shown together, the marked point is at \\(t=\\tfrac{3}{4}\\).'),
         },
     ],
     sources: [
-        {id: 'farin-affine-bezier', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.', supports: ['affine invariance of Bézier curves', 'control-point transformations'], implementationCorrespondence: 'The implementation transforms the point-controlled curve while evaluating the same Bernstein representation.'},
-        {id: 'bezeg-affine', citation: 'Bezeg source: src/graphs/curves/bezier/AffineTransformsBezierCurveGraph.tsx and src/bezeg/impl/curve/abstract-point-controlled-curve.ts.', supports: ['translation', 'scaling', 'rotation', 'reflection operations'], implementationCorrespondence: 'rotate() calls transform() without a centre, so the pivot is the mean of the control points; scale() uses the centre of the control points\' bounding box; moveFor() adds a vector.'},
+        {id: 'farin-affine-bezier', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., Morgan Kaufmann, 2002.', implementationCorrespondence: 'The implementation transforms the point-controlled curve while evaluating the same Bernstein representation.'},
+        {id: 'bezeg-affine', citation: 'Bezeg source: src/graphs/curves/bezier/AffineTransformsBezierCurveGraph.tsx and src/bezeg/impl/curve/abstract-point-controlled-curve.ts.', implementationCorrespondence: 'rotate() calls transform() without a centre, so the pivot is the mean of the control points; scale() uses the centre of the control points\' bounding box; moveFor() adds a vector.'},
     ],
     edgeCases: [
         text('Afina transformacija lahko spremeni lego ali merilo, vendar ne sme ustvariti nove stopnje.', 'An affine transformation can change position or scale, but it does not create a new degree.'),

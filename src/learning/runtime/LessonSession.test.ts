@@ -90,21 +90,21 @@ test('moves through explicit frames before changing steps and cancels transient 
 
 test('exit restores the captured state while completion retains the final scene', () => {
     const fake = fakeCapabilities();
-    const finalSceneAction: LessonAction = {kind: 'curve-visibility', target: 'control-polygon', visible: true};
+    const finalAction: LessonAction = {kind: 'curve-visibility', target: 'control-polygon', visible: true};
     const completionLesson: LessonDefinition = {
         ...lesson,
-        steps: [lesson.steps[0], {...lesson.steps[1], scene: {actions: [finalSceneAction]}}],
+        steps: [lesson.steps[0], {...lesson.steps[1], scene: {actions: [finalAction]}}],
     };
     const session = new LessonSession(completionLesson, fake.capabilities);
     session.start();
     session.next();
-    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
+    expect(fake.getValue()).toBe(JSON.stringify(finalAction));
     session.next();
     expect(session.snapshot().status).toBe('complete');
-    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
+    expect(fake.getValue()).toBe(JSON.stringify(finalAction));
     session.close();
     expect(session.snapshot().status).toBe('closed');
-    expect(fake.getValue()).toBe(JSON.stringify(finalSceneAction));
+    expect(fake.getValue()).toBe(JSON.stringify(finalAction));
     expect(fake.capabilities.restoreState).toHaveBeenCalledTimes(1);
 });
 
