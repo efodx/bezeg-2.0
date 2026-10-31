@@ -6,7 +6,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Matrix kernel](01-matrix-kernel.md) | 0 | F1 | none | — | in progress |
+| [01 Matrix kernel](01-matrix-kernel.md) | 0 | F1 | none | — | implemented on stream branch; full unit suite pending |
 | [02 Eigen and singular kernel](02-eigen-singular-kernel.md) | 0 | F1 | none | 01 | planned |
 | [03 State model and Presets](03-state-model.md) | A | F2a | none | 01 | planned |
 | [04 Grid drawing measurement and ADR](04-grid-drawing-measurement.md) | A | measurement + ADR | none | 01 | planned |
