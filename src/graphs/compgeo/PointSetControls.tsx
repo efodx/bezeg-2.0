@@ -33,6 +33,8 @@ export interface PointSetControlsProps {
     coordinateLimit: number;
     overlays: readonly {readonly id: string; readonly label: string; readonly shown: boolean}[];
     actions: PointSetControlActions;
+    /** Whether the points/polygon choice is offered; a graph that only works on points hides it. Default true. */
+    showModeToggle?: boolean;
 }
 
 /** A whole-number field that keeps what is being typed and commits every valid integer. */
@@ -87,11 +89,11 @@ export function PointSetControls(props: PointSetControlsProps) {
     const button = "btn btn-outline-secondary btn-sm";
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <div role="group" aria-label={t("pointset_mode_label")}>
+            {props.showModeToggle !== false && <div role="group" aria-label={t("pointset_mode_label")}>
                 {(["points", "polygon"] as const).map(mode =>
                     <button key={mode} type="button" className={button} aria-pressed={model.mode === mode}
                             onClick={() => actions.setMode(mode)}>{t(mode === "points" ? "pointset_mode_points" : "pointset_mode_polygon")}</button>)}
-            </div>
+            </div>}
             {model.mode === "polygon" && <label className="pointset-check"><input type="checkbox" checked={model.closed}
                 onChange={event => actions.setClosed(event.target.checked)}/> {t("pointset_closed")}</label>}
             {props.overlays.map(overlay => <label key={overlay.id} className="pointset-check"><input type="checkbox" checked={overlay.shown}

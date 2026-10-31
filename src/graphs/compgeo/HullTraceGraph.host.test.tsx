@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {HULL_TRACE_SAMPLE_1, HULL_TRACE_STEP_INTERVAL_MS, HullTraceGraph} from './HullTraceGraph';
+import {HULL_TRACE_SAMPLE_1, HULL_TRACE_SLOW_STEP_INTERVAL_MS, HULL_TRACE_STEP_INTERVAL_MS, HullTraceGraph} from './HullTraceGraph';
 import {HULL_TRACE_PRESET_KEY} from './hullTracePresetCollection';
 import {HULL_ALGORITHMS, HullAlgorithm} from './hullTraceRun';
 import {GraphHost} from '../base/GraphHost';
@@ -295,4 +295,77 @@ test('fewer than three points and collinear points show a point or segment hull 
         load(graph, model([]));
         expect(graph.run().view(graph.step)).toBeDefined();
     }
+});
+
+const liveText = () => document.querySelector('[data-hull-trace-live]')?.textContent;
+
+test('the live region is silent while Play ticks and announces the status once after Pause and at done', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    expect(liveText()).toContain('Korak 1 od');
+    click('play-pause');
+    expect(liveText()).toBe('');
+    tick(frames, 5);
+    expect(graph.step).toBe(5);
+    expect(liveText()).toBe('');
+    click('play-pause');
+    expect(graph.isPlaying).toBe(false);
+    expect(liveText()).toContain(`Korak 6 od ${graph.run().length}`);
+    click('play-pause');
+    for (let ran = true, i = 0; ran && i < graph.run().length + 5; i++) act(() => { ran = frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
+    expect(graph.isPlaying).toBe(false);
+    expect(liveText()).toContain(`Korak ${graph.run().length} od ${graph.run().length}`);
+});
+
+test('a step written outside Next and Play after reaching done restarts a working controller', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    click('play-pause');
+    for (let ran = true, i = 0; ran && i < graph.run().length + 5; i++) act(() => { ran = frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
+    expect(graph.step).toBe(graph.run().length - 1);
+    act(() => { graph.setState({step: 2} as object); });
+    expect([graph.step, graph.isPlaying]).toEqual([2, false]);
+    click('next-step');
+    expect(graph.step).toBe(3);
+    click('play-pause');
+    expect(graph.isPlaying).toBe(true);
+    tick(frames, 2);
+    expect(graph.step).toBe(5);
+});
+
+test('the hull trace offers no points/polygon choice and shows a restored polygon model as points', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(screen.queryByRole('group', {name: 'Prikaz'})).toBeNull();
+    expect(screen.queryByRole('button', {name: 'Večkotnik'})).toBeNull();
+    act(() => { graph.importPreset({id: HULL_TRACE_PRESET_KEY, graphState: saveState({algorithm: 'monotone-chain', step: 2}), data: {...HULL_TRACE_SAMPLE_1, mode: 'polygon', closed: true}}); });
+    expect(graph.model.mode).toBe('points');
+    expect(graph.model.closed).toBe(false);
+    expect(graph.step).toBe(2);
+    expect(screen.queryByLabelText(/Sklenjen večkotnik/)).toBeNull();
+    expect(sceneObjects(graph).some(o => o.elType === 'polygon')).toBe(false);
+});
+
+test('only the slow edge test plays on the shorter interval and the cost note shows its step count', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    act(() => { graph.setAlgorithm('slow-edge-test'); });
+    expect(HULL_TRACE_SLOW_STEP_INTERVAL_MS).toBeLessThan(HULL_TRACE_STEP_INTERVAL_MS);
+    expect(screen.getByText(new RegExp(`Ta sled ima ${graph.run().length} korakov`))).toBeInTheDocument();
+    click('play-pause');
+    act(() => { frames.frame(0); });
+    act(() => { frames.frame(HULL_TRACE_SLOW_STEP_INTERVAL_MS); });
+    expect(graph.step).toBe(1);
+    // sample 1: the whole slow trace plays in length * interval
+    expect(graph.run().length * HULL_TRACE_SLOW_STEP_INTERVAL_MS).toBeLessThan(40000);
+    act(() => { graph.setAlgorithm('monotone-chain'); });
+    click('play-pause');
+    act(() => { frames.frame(0); });
+    act(() => { frames.frame(HULL_TRACE_SLOW_STEP_INTERVAL_MS); });
+    expect(graph.step).toBe(0);
+    act(() => { frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
+    expect(graph.step).toBe(1);
 });

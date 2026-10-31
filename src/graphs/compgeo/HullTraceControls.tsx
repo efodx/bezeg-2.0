@@ -89,12 +89,14 @@ export function HullTraceControls(props: HullTraceControlsProps) {
             value0: event.pair.from + 1, value1: from.x, value2: from.y, value3: event.pair.to + 1, value4: to.x, value5: to.y,
         });
     }
+    const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: length});
+    const countText = event ? t("hulltrace_predicate_count", {value0: event.predicateCount}) : undefined;
     return <>
         <div className="inspector-group">
             <ChoiceSelect label={t("hulltrace_algorithm_label")} value={algorithm}
                           options={HULL_ALGORITHMS.map(id => ({value: id, text: algorithmName(t, id)}))}
                           onChange={value => { const next = parseHullAlgorithm(value); if (next) actions.setAlgorithm(next); }}
-                          help={algorithm === "slow-edge-test" ? t("hulltrace_slow_note") : undefined}/>
+                          help={algorithm === "slow-edge-test" ? t("hulltrace_slow_note", {value0: length}) : undefined}/>
         </div>
         <div className="inspector-group">
             <div className="inspector-playback" role="group" aria-label={t("hulltrace_controls_label")}>
@@ -107,11 +109,14 @@ export function HullTraceControls(props: HullTraceControlsProps) {
             </div>
             <p className="inspector-help">{t("hulltrace_playback_note")}</p>
         </div>
-        <div className="inspector-group" role="status" aria-live="polite" data-hull-trace-status="">
-            <p className="inspector-help" data-hull-trace="step">{t("hulltrace_step_counter", {value0: step + 1, value1: length})}</p>
+        <div className="inspector-group" data-hull-trace-status="">
+            <p className="inspector-help" data-hull-trace="step">{stepText}</p>
             {event && <p className="inspector-help" data-hull-trace="note">{noteText(t, event.note)}</p>}
             {detail && <p className="inspector-help" data-hull-trace="detail">{detail}</p>}
-            {event && <p className="inspector-help" data-hull-trace="count">{t("hulltrace_predicate_count", {value0: event.predicateCount})}</p>}
+            {event && <p className="inspector-help" data-hull-trace="count">{countText}</p>}
+            {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces the status once on Pause or at the end. */}
+            <p className="visually-hidden" role="status" aria-live="polite" data-hull-trace-live="">
+                {playing ? "" : [stepText, event && noteText(t, event.note), detail, countText].filter(Boolean).join(". ")}</p>
             {totals && <>
                 <h3 className="inspector-help">{t("hulltrace_counts_title")}</h3>
                 <ul data-hull-trace="totals">

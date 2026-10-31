@@ -314,6 +314,7 @@
 }
 .inspector-playback .inspector-playback-primary:not(:disabled) span { color: white; }
 .inspector-playback button:disabled { opacity: .42; }
+.inspector-playback button[aria-disabled="true"] { opacity: .45; cursor: default; }
 .is-presenting .inspector-playback button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
 .is-presenting .inspector-playback button span { color: #d9b461; }
 .is-presenting .inspector-playback .inspector-playback-primary:not(:disabled) { background: #d9b461; color: var(--bezeg-night); }

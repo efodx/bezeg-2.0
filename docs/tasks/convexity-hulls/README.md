@@ -30,7 +30,7 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 07 | [Polygon area and lattice-count kernel](07-area-lattice-kernel.md) | F1 | 02 | accepted 2026-10-31 (math review; test repair) |
 | 08 | [Slow edge test and gift wrapping traces](08-slow-hull-gift-wrapping.md) | F1 | 02, 03 | accepted 2026-10-31 (math review: no findings) |
 | 09 | [Orientation and polygon-area graphs](09-orientation-area-graphs.md) | F2a | 05, 07 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs) |
-| 10 | [Hull trace graph with step playback](10-hull-trace-graph.md) | F2a | 03, 05, 08 | implemented; review repairs open (see task) |
+| 10 | [Hull trace graph with step playback](10-hull-trace-graph.md) | F2a | 03, 05, 08 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs, shared-hook re-review) |
 | — | F2b registration of the family and three Demonstrations; F3 lessons A1+A2, A4; F4 chapter; F5 media; F6 acceptance | F2b–F6 | 07–10, `G-REG` | task files written when `G-REG` opens |
 
 ## Later batches (task files written when the previous batch is accepted)

@@ -2,7 +2,7 @@ import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
-import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
+import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -16,6 +16,8 @@ import {
 
 /** Time between two playback steps (one step per interval, never more). */
 export const HULL_TRACE_STEP_INTERVAL_MS = 400;
+/** The slow edge test has hundreds of steps even for sample 1 (see its test for the count); a shorter tick keeps its Play watchable. */
+export const HULL_TRACE_SLOW_STEP_INTERVAL_MS = 50;
 /** The controller's documented step limit: far above the longest trace (1562 events for 40 points). */
 const MAX_PLAYBACK_STEPS = 100000;
 
@@ -47,6 +49,8 @@ export interface HullTraceGraphState extends PointSetGraphState {
 export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     private controller: IterationController;
     private controllerDisposed = false;
+    private controllerInterval = HULL_TRACE_STEP_INTERVAL_MS;
+    private advancing = false;
     private runMemo?: {points: PointSetModel["points"]; algorithm: HullAlgorithm; run: HullRun};
     private totalsMemo?: {points: PointSetModel["points"]; totals: Readonly<Record<HullAlgorithm, number>>};
     private inputsMemo?: {algorithm: HullAlgorithm; step: number};
@@ -56,10 +60,24 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         this.controller = this.createController();
     }
 
+    /** The playback tick of an algorithm: the slow edge test ticks faster, every other trace keeps the default. */
+    private intervalFor(algorithm: HullAlgorithm): number {
+        return algorithm === "slow-edge-test" ? HULL_TRACE_SLOW_STEP_INTERVAL_MS : HULL_TRACE_STEP_INTERVAL_MS;
+    }
+
+    /** The controller's interval is fixed at construction, so a paused controller of another tick is replaced before it runs. */
+    private syncControllerInterval(): void {
+        // A disposed (unmounted) controller stays disposed: mount() creates the next one with the current interval.
+        if (this.controllerDisposed || this.controllerInterval === this.intervalFor(this.algorithm)) return;
+        this.controller.dispose();
+        this.controller = this.createController();
+    }
+
     private createController(): IterationController {
+        this.controllerInterval = this.intervalFor(this.algorithm);
         return new IterationController({
             transition: () => this.advance(),
-            stepIntervalMs: HULL_TRACE_STEP_INTERVAL_MS,
+            stepIntervalMs: this.controllerInterval,
             maxIterations: MAX_PLAYBACK_STEPS,
             onComplete: () => this.requestRender(),
             scheduler: this.scheduler,
@@ -115,15 +133,25 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
      */
     override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
         const before = this.state.model;
+        let namedStep = false;
         const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
-            const patch = typeof update === "function" ? update(state) : update;
-            if (!patch || patch.model === undefined || patch.model === state.model || "step" in patch) return patch;
+            const raw = typeof update === "function" ? update(state) : update;
+            if (!raw) return raw;
+            namedStep = "step" in raw;
+            // A hull is computed on points: a polygon mode (restored or imported) is shown as points.
+            const patch = raw.model && raw.model.mode !== "points" ? {...raw, model: setMode(raw.model, "points")} : raw;
+            if (patch.model === undefined || patch.model === state.model || "step" in patch) return patch;
             return this.patch({...patch, step: 0});
         };
         super.setState(wrapped, callback);
         // The controller does not exist yet while the base class is being constructed.
-        if (this.controller && this.state.model !== before) {
-            this.controller.reset(0);
+        if (!this.controller) return;
+        if (this.state.model !== before) {
+            this.controller.reset(namedStep ? this.step : 0);
+            this.requestRender();
+        } else if (namedStep && !this.advancing) {
+            // A step written outside advance() (a restore, a lesson action) must not leave a stale "completed" controller.
+            this.controller.reset(this.step);
             this.requestRender();
         }
     }
@@ -145,13 +173,19 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     private advance(): IterationOutcome {
         const run = this.run();
         const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.setState(this.patch({step: next}));
+        this.advancing = true;
+        try {
+            this.setState(this.patch({step: next}));
+        } finally {
+            this.advancing = false;
+        }
         this.requestRender();
         return next >= run.length - 1 ? "complete" : "continue";
     }
 
     nextStep(): void {
         if (this.exportBusy || this.atEnd) return;
+        this.syncControllerInterval();
         this.controller.pause();
         this.controller.nextStep();
         this.requestRender();
@@ -159,6 +193,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
 
     play(): void {
         if (this.exportBusy || this.atEnd) return;
+        this.syncControllerInterval();
         this.controller.play();
         this.requestRender();
     }
@@ -300,6 +335,10 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
     };
+
+    protected override showsModeToggle(): boolean {
+        return false;
+    }
 
     protected override workspaceEdit(): React.ReactNode {
         const run = this.run();

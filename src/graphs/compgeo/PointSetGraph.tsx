@@ -478,8 +478,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         },
     };
 
+    /** Whether the inspector offers the points/polygon choice; a subclass that only works on points returns false. */
+    protected showsModeToggle(): boolean {
+        return true;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
+        return <PointSetControls showModeToggle={this.showsModeToggle()} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={GRID_COORD_LIMIT} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}
                                  actions={this.actions}/>;
