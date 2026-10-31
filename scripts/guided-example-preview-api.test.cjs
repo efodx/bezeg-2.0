@@ -4,14 +4,16 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet} = require('./guided-example-preview-api.cjs');
+const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, recipeFingerprint} = require('./guided-example-preview-api.cjs');
 
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
-const example = (overrides = {}) => ({id: 'splines.worked-join.spline-c1', demonstrationId: 'spline-c1',
+const startRecipe = {kind: 'start'};
+const example = (overrides = {}) => ({recipe: startRecipe, recipeFingerprint: recipeFingerprint(startRecipe), id: 'splines.worked-join.spline-c1', demonstrationId: 'spline-c1',
     path: '/bezeg-2.0/splines?example=family.splines.worked-join.spline-c1', sceneFingerprint: digest('prepared scene/actions'),
     expected: {types: {functiongraph: 1}, curveCount: 1, points: [[1, 1]]}, ...overrides});
 const capture = (entry, bytes = 'png') => ({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
-    sceneFingerprint: entry.sceneFingerprint, file: `${entry.id}.png`, sha256: digest(bytes)});
+    sceneFingerprint: entry.sceneFingerprint, recipe: entry.recipe, recipeFingerprint: entry.recipeFingerprint,
+    file: `${entry.id}.png`, sha256: digest(bytes)});
 const surfaceExample = () => example({id: 'patch-tensor-midpoint', demonstrationId: 'patch-tensor',
     path: '/bezeg-2.0/patches?example=family.patches.patch-tensor',
     expected: {surface: {camera: {az: 0.2, el: 0.7, distance: 8, target: [0, 0, 0]}, owners: [

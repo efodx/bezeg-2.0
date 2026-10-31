@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const {hashFile} = require('./capture-demonstration-previews.cjs');
@@ -7,6 +8,129 @@ const {validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs
 const idPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
 const graphGeometryTypes = new Set(['curve', 'functiongraph', 'circle', 'point', 'line', 'segment', 'arrow',
     'polygon', 'arc', 'sector', 'ellipse', 'conic', 'spline', 'turtle']);
+
+const RECIPE_STEP_KINDS = new Set(['goto-frame', 'frame-action']);
+const CHECK_FIELDS = ['types', 'curveCount', 'points', 'curves'];
+
+function canonicalJson(value) {
+    if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+    if (value && typeof value === 'object') {
+        return `{${Object.keys(value).filter(key => value[key] !== undefined).sort()
+            .map(key => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+    }
+    return JSON.stringify(value);
+}
+
+function sha256Of(value) {
+    return crypto.createHash('sha256').update(canonicalJson(value)).digest('hex');
+}
+
+/** Fingerprint of a resolved highlight recipe; any edit to frame, steps, expectChange or checks changes it. */
+function recipeFingerprint(recipe) {
+    return sha256Of(recipe);
+}
+
+const isPosition = value => value && Number.isInteger(value.step) && value.step >= 0 && Number.isInteger(value.frame) && value.frame >= 0;
+
+/** Validates a resolved recipe (what the inventory carries). Start recipes are always explicit. */
+function validateRecipe(id, recipe) {
+    assert.ok(recipe && typeof recipe === 'object' && !Array.isArray(recipe),
+        `${id}: missing recipe; every inventory entry must state recipe {kind:'start'} or a highlight recipe explicitly`);
+    if (recipe.kind === 'start') {
+        assert.deepEqual(Object.keys(recipe), ['kind'], `${id}: a start recipe must not carry frame, steps or checks`);
+        return recipe;
+    }
+    assert.equal(recipe.kind, 'highlight', `${id}: unknown recipe kind ${JSON.stringify(recipe.kind)} (expected "start" or "highlight")`);
+    assert.ok(typeof recipe.frame === 'string' && recipe.frame, `${id}: highlight recipe needs a target frame id`);
+    assert.ok(isPosition(recipe.position), `${id}: highlight recipe frame ${recipe.frame} is not resolved to a lesson position; regenerate the inventory`);
+    assert.ok(Array.isArray(recipe.steps), `${id}: highlight recipe steps must be an array`);
+    for (const [index, step] of recipe.steps.entries()) {
+        assert.ok(step && RECIPE_STEP_KINDS.has(step.kind), `${id}: recipe step ${index + 1} has unknown kind ${JSON.stringify(step?.kind)}`);
+        assert.ok(typeof step.frame === 'string' && isPosition(step.position), `${id}: recipe step ${index + 1} is not resolved to a lesson frame`);
+        if (step.kind === 'frame-action') assert.ok(typeof step.label === 'string' && step.label, `${id}: recipe step ${index + 1} needs the frame action button label`);
+    }
+    assert.equal(typeof recipe.expectChange, 'boolean', `${id}: highlight recipe must state expectChange true or false`);
+    assert.ok(recipe.checks && typeof recipe.checks === 'object' && CHECK_FIELDS.some(field => recipe.checks[field] !== undefined),
+        `${id}: highlight recipe needs at least one expected-geometry check (types, curveCount, points or curves)`);
+    validateExpected(id, recipe.checks);
+    return recipe;
+}
+
+function validateRecipeFingerprint(entry) {
+    assert.ok(typeof entry.recipeFingerprint === 'string' && /^[a-f0-9]{64}$/i.test(entry.recipeFingerprint),
+        `${entry.id}: recipeFingerprint must be a SHA-256 hash of its recipe`);
+    assert.equal(entry.recipeFingerprint, recipeFingerprint(entry.recipe),
+        `${entry.id}: recipeFingerprint does not match the recipe; regenerate the inventory`);
+}
+
+function parseGuidedProgress(text) {
+    const match = /Korak\s+(\d+)\s+od\s+(\d+)\s*·\s*Okvir\s+(\d+)\s+od\s+(\d+)/.exec(String(text));
+    if (!match) return undefined;
+    return {step: Number(match[1]) - 1, frame: Number(match[3]) - 1, steps: Number(match[2]), frames: Number(match[4])};
+}
+
+/** Which navigation button moves from the current guided-lesson position towards the target, or null when there. */
+function navigationDirection(current, target) {
+    if (current.step === target.step && current.frame === target.frame) return null;
+    return current.step < target.step || (current.step === target.step && current.frame < target.frame) ? 'next' : 'back';
+}
+
+/** Order-independent signature of the observable board state (element types, points, sampled curves). */
+function boardSignature(evidence) {
+    return sha256Of({types: evidence.types || {}, points: evidence.points || [], curves: evidence.curves || []});
+}
+
+/**
+ * Checks the board after a highlight recipe and returns the manifest record. `startEvidence` is the board of the
+ * prepared start scene, `resultEvidence` the board after the steps settled.
+ */
+function verifyHighlight(entry, startEvidence, resultEvidence) {
+    const recipe = entry.recipe;
+    assert.equal(recipe?.kind, 'highlight', `${entry.id}: verifyHighlight needs a highlight recipe`);
+    const result = verifyEvidence({...entry, expected: recipe.checks}, resultEvidence);
+    const startSignature = boardSignature(startEvidence), resultSignature = boardSignature(resultEvidence);
+    const changed = startSignature !== resultSignature;
+    if (recipe.expectChange) assert.ok(changed,
+        `${entry.id}: recipe expects the board to change from the start scene, but the highlight state is identical; check the steps`);
+    else assert.ok(!changed, `${entry.id}: recipe states the board stays as in the start scene, but the highlight state differs`);
+    return {frame: recipe.frame, position: recipe.position, steps: recipe.steps, expectChange: recipe.expectChange,
+        startFingerprint: startSignature, resultFingerprint: resultSignature, changedFromStart: changed,
+        checks: result.checks.map(name => ({name, passed: true})), evidence: {visibleElementCount: result.visibleElementCount,
+            visibleElementTypes: result.visibleElementTypes, visiblePointCount: result.visiblePointCount}};
+}
+
+/** Recipe part of a manifest record. */
+function recipeRecord(entry, highlight) {
+    return {recipe: entry.recipe, recipeFingerprint: entry.recipeFingerprint, ...(highlight ? {highlight} : {}),
+        ...(highlight ? {viewport: {width: 1440, height: 920}, deviceScaleFactor: 2} : {})};
+}
+
+function validateHighlightCapture(entry, capture) {
+    const highlight = capture.highlight;
+    assert.ok(highlight && typeof highlight === 'object', `${entry.id}: highlight capture evidence is missing`);
+    assert.deepEqual(highlight.steps, entry.recipe.steps, `${entry.id}: recorded highlight steps differ from the recipe`);
+    assert.equal(highlight.frame, entry.recipe.frame, `${entry.id}: recorded highlight frame differs from the recipe`);
+    for (const key of ['startFingerprint', 'resultFingerprint']) {
+        assert.match(highlight[key] || '', /^[a-f0-9]{64}$/i, `${entry.id}: highlight ${key} is missing`);
+    }
+    assert.equal(highlight.changedFromStart, highlight.startFingerprint !== highlight.resultFingerprint,
+        `${entry.id}: highlight change record disagrees with its fingerprints`);
+    if (entry.recipe.expectChange) assert.ok(highlight.changedFromStart,
+        `${entry.id}: recipe expects a board change but the captured highlight equals the start scene`);
+    assert.ok(Array.isArray(highlight.checks) && highlight.checks.length > 0 && highlight.checks.every(check => check?.passed === true),
+        `${entry.id}: highlight geometry checks are missing or failed`);
+    assert.ok(highlight.evidence?.visibleElementCount > 0, `${entry.id}: captured highlight board is empty`);
+    assert.deepEqual(capture.viewport, {width: 1440, height: 920}, `${entry.id}: highlight capture viewport is not recorded`);
+    assert.equal(capture.deviceScaleFactor, 2, `${entry.id}: highlight capture scale is not recorded`);
+}
+
+/** Recipe and fingerprint agreement between an inventory entry and a prior capture record. */
+function assertCaptureMatchesRecipe(entry, capture) {
+    assert.equal(capture.recipeFingerprint, entry.recipeFingerprint,
+        `${entry.id}: recipe changed since capture (or the capture predates recipes); recapture this image`);
+    assert.deepEqual(capture.recipe, entry.recipe, `${entry.id}: recorded recipe differs from the current recipe; recapture this image`);
+    if (entry.recipe.kind === 'highlight') validateHighlightCapture(entry, capture);
+}
 
 function validateInventory(inventory) {
     assert.ok(Array.isArray(inventory) && inventory.length > 0, 'Guided-example inventory must be a nonempty array');
@@ -30,6 +154,8 @@ function validateInventory(inventory) {
         assert.ok(!target.hash, `${entry.id}: capture path must not include a fragment`);
         assert.ok(typeof entry.sceneFingerprint === 'string' && /^[a-f0-9]{64}$/i.test(entry.sceneFingerprint),
             `${entry.id}: sceneFingerprint must be a SHA-256 hash of its prepared scene and actions`);
+        validateRecipe(entry.id, entry.recipe);
+        validateRecipeFingerprint(entry);
         if (entry.actions !== undefined) assert.ok(Array.isArray(entry.actions), `${entry.id}: actions must be an array`);
         if (entry.expected !== undefined) validateExpected(entry.id, entry.expected);
     }
@@ -113,6 +239,7 @@ function verifyEvidence(entry, evidence) {
 }
 
 function validateRetained(inventory, previousManifest, destination, selectedIds, fingerprints) {
+    assert.ok(inventory.length > 0, 'Guided-example inventory is empty; the completeness gate cannot pass on an empty inventory');
     const known = new Map(inventory.map(entry => [entry.id, entry]));
     const selected = new Set(selectedIds);
     for (const id of selected) assert.ok(known.has(id), `Unknown guided-example id: ${id}`);
@@ -129,6 +256,7 @@ function validateRetained(inventory, previousManifest, destination, selectedIds,
         assert.equal(capture.demonstrationId, entry.demonstrationId, `${entry.id}: stale demonstration mapping in prior manifest`);
         assert.equal(capture.path, entry.path, `${entry.id}: stale scene URL in prior manifest`);
         assert.equal(capture.sceneFingerprint, entry.sceneFingerprint, `${entry.id}: prepared scene/actions changed; recapture this image`);
+        assertCaptureMatchesRecipe(entry, capture);
         if (entry.expected?.surface) validateSurfaceCaptureRecord(entry, capture);
         const file = path.join(destination, capture.file || '');
         assert.ok(capture.file && fs.existsSync(file), `${entry.id}: missing preview asset ${capture.file}`);
@@ -144,6 +272,7 @@ function validateRetained(inventory, previousManifest, destination, selectedIds,
 }
 
 function validatePublishedSet(inventory, captures, destination) {
+    assert.ok(inventory.length > 0, 'Guided-example inventory is empty; the completeness gate cannot pass on an empty inventory');
     const byId = new Map(captures.map(capture => [capture.id, capture]));
     assert.equal(byId.size, captures.length, 'Capture manifest contains duplicate IDs');
     for (const entry of inventory) {
@@ -153,6 +282,7 @@ function validatePublishedSet(inventory, captures, destination) {
         assert.equal(capture.file, `${entry.id}.png`, `${entry.id}: stale or unsafe preview filename`);
         assert.equal(capture.path, entry.path, `${entry.id}: stale scene URL mapping`);
         assert.equal(capture.sceneFingerprint, entry.sceneFingerprint, `${entry.id}: stale scene fingerprint mapping`);
+        assertCaptureMatchesRecipe(entry, capture);
         if (entry.expected?.surface) validateSurfaceCaptureRecord(entry, capture);
         const file = path.join(destination, capture.file || '');
         assert.ok(capture.file && fs.existsSync(file), `${entry.id}: missing preview asset ${capture.file}`);
@@ -223,5 +353,6 @@ function validateSurfacePresentation(id, frame, points, visibleLabelBounds, mesh
     }
 }
 
-module.exports = {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateExpectedSurface,
+module.exports = {canonicalJson, recipeFingerprint, validateRecipe, parseGuidedProgress, navigationDirection, boardSignature,
+    verifyHighlight, recipeRecord, validateHighlightCapture, assertCaptureMatchesRecipe, validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateExpectedSurface,
     validateSurfaceCaptureRecord, validateSurfacePresentation};
