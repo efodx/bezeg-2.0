@@ -41,9 +41,10 @@ Tentative reading: on this M task, delegating test writing and smoke to Sonnet l
 
 Fixed during the pilot: sandboxes lacked `.claude` agents and hooks (`b8e156d`) and `scripts/test-slots.cjs` (`d66c26b`).
 
-Open:
-- `chapter-activity-controls` contract smoke depends on the reference-only class `.activity-context-prompt`; calibration cannot detect such leaks. Reclassify that assertion as reference tier or rewrite it against spec-visible structure.
-- `claude_worker_watch.py` searches only `~/.claude/projects/*bezeg*`, while sandboxes are kept outside such paths; handler and worker budget watchers failed in every run.
-- Background handlers commit on a sandbox worktree branch; the grader measures the sandbox's main working tree, so runs were fast-forwarded to the agent branch before grading.
-- Each new sandbox needs a one-time workspace trust acceptance before `claude --bg` will start in it; trusting the parent folder is not enough.
-- `claude agents --json` can report `busy` after the session finishes while a leftover background shell runs.
+Fixed after the pilot:
+- `chapter-activity-controls` contract smoke depended on the reference-only class `.activity-context-prompt`. A maintained copy under `tools/agent-eval/hidden/` measures the activity prompt paragraph instead; it passes on the reference and all six pilot builds and still fails on the base. Calibration cannot detect such leaks.
+- `claude_worker_watch.py` searched only `~/.claude/projects/*bezeg*`, so watchers failed in every sandbox; it now searches all project folders by unique ID.
+- Background handlers commit on a sandbox worktree branch; `grade` now adopts the single branch that extends an untouched sandbox branch (pilot runs were fast-forwarded by hand).
+- The README documents the one-time workspace trust prompt, background launch and per-sandbox `SMOKE_PORT`, and grade reports include estimated cost.
+
+Known behavior: `claude agents --json` can report `busy` after the session finishes while a leftover background shell runs; check the session log for the final recap. In baseline 2 that shell was a smoke worker's Playwright script (`node part2.cjs` with headless Chromium) that kept running for about two hours after the session ended, survived `claude stop`, and locked the sandbox until its process tree was killed. Check for such processes before deleting sandboxes.

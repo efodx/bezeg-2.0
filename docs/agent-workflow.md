@@ -1,6 +1,6 @@
 # Agent workflow
 
-The handler owns scope, integration, acceptance, and Git operations under [AGENTS.md](../AGENTS.md). Delegate substantial, separable work; keep small or tightly coupled changes with the handler. Workers own their assigned slice and evidence, without further delegation, commits, or pushes.
+The handler owns scope, integration, acceptance, and Git operations under [AGENTS.md](../AGENTS.md). Delegate substantial, separable work; keep small or tightly coupled changes with the handler. When an S or M task has a tightly coupled core, prefer implementing the core in the handler and delegating test writing and browser smoke to Sonnet workers: in a six-run comparison this cost less than handler-only or single-loop runs at equal graded correctness ([pilot](agent-workflow/delegation-arms-pilot-2026-10-31.md)). Workers own their assigned slice and evidence, without further delegation, commits, or pushes.
 
 GitHub's [master ruleset](https://github.com/efodx/bezeg-2.0/rules/25172820) blocks non-fast-forward updates to `master`. Worker Git ownership remains an instruction in the shared environment, with the [enforcement limits](specs/agent-workflow-evaluation.md#git-controls) documented separately.
 
