@@ -1316,3 +1316,12 @@ Task: [new lesson families](../specs/new-lesson-families.md), the four remaining
 - Handoff evidence: naming the owning spec section and contract names in each family paragraph (incircle extension point, `uniformQuadraticSegment`/`chaikinStep`, `VoronoiDiagram`) produced specs that imported rather than redefined them; all four cross-references verified by anchor check. Spec lengths 165-193 lines, two below the brief's 180 lower bound (b-splines 165); accepted as dense.
 - Checks: relative-link and anchor checks on all four specs plus the index; control-character scan; no build or lessonMathNotation run (specs are not lesson content). Commits `0ee9f52`, `b080174`, `ee22da0`, `5678fb5`.
 - Suggested check for later records: run a control-character scan on every worker-written doc with LaTeX; this one artefact would otherwise have shipped.
+
+### 2026-10-31 — Delegation arms pilot (eval M task, 3 arms × 2 runs)
+
+Roles/class/size/scope: handler-run evaluation pilot plus one Haiku `Explore` research worker; workflow; L; compare baseline delegation, no implementation workers, and a single loop on `chapter-activity-controls`. Evidence and per-run table: [delegation-arms-pilot-2026-10-31.md](delegation-arms-pilot-2026-10-31.md).
+Dispatch: owner requested M, two runs per arm, handler-launched sessions; six `claude --bg` Opus 5.5 handlers in auto mode; one changed factor per arm (delegation wording in `AGENTS.md`/`docs/agent-workflow.md`).
+Outcome: all six runs met the graded spec once a reference-only contract selector is excluded. Mean API-equivalent cost and elapsed: baseline $2.89 / 45 min, no implementation workers $3.91 / 28 min, single loop $3.39 / 49 min. Fixed two harness defects (`b8e156d`, `d66c26b`); four remain open in the evidence file.
+Repairs/timing: no agent repairs. Pilot 11:20–14:35 UTC including calibration, grading and two owner trust-prompt waits.
+Context: research worker reached 105k input in 7 turns despite a ≤150-line read instruction; HANDOFF returned a partial report. Sandbox handler and worker watchers failed (transcript glob), so in-run budgets were not enforced; handler peaks 126k–173k.
+Handoff — research (Explore, Haiku): ad hoc brief, not handoff-v12; read chunk limit not followed; partial report covered lines 30–1307.
