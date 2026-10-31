@@ -179,7 +179,7 @@ const MAX_PANEL_WIDTH = PI / 2;
  * The caller's breakpoints stay in the list, so every jump and corner is still a panel boundary; the extra
  * boundaries only keep the 16-node rule accurate for large k and for smooth functions with nearby poles.
  */
-function refineBreakpoints(breakpoints: readonly number[], k: number): number[] {
+export function refineBreakpoints(breakpoints: readonly number[], k: number): number[] {
     const maxWidth = k > 0 ? Math.min(MAX_PANEL_WIDTH, (2 * PI) / k) : MAX_PANEL_WIDTH;
     const out: number[] = [breakpoints[0]];
     for (let i = 0; i + 1 < breakpoints.length; i++) {
