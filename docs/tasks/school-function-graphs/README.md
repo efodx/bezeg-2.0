@@ -9,7 +9,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [01 Catalogue core](01-catalogue-core.md) | A | F1 | none | — | planned |
 | [02 Transformation and inverse kernels](02-transformation-inverse.md) | A | F1 | none | 01 | planned |
 | [03 Polynomial and rational kernels](03-polynomial-rational.md) | B | F1 | none | 01 | planned |
-| [04 Geometric series and conic kernels](04-series-conic.md) | C | F1 | none | — | planned |
+| [04 Geometric series and conic kernels](04-series-conic.md) | C | F1 | none | — | accepted ([math review](../../reviews/school-function-graphs/04-series-conic-math-review.md)) |
 | [05 Batch A Demonstrations](05-batch-a.md) | A | F2a–F6 | `G-FN`, `G-REG` | 01, 02 | planned |
 | [06 Batch B Demonstrations](06-batch-b.md) | B | F2a–F6 | `G-FN`, `G-REG` | 03, 05 | planned |
 | [07 Batch C Demonstrations](07-batch-c.md) | C | F2a–F6 | `G-FN`, `G-REG` | 04, 06 | planned |
