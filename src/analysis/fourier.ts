@@ -266,7 +266,7 @@ export function partialSum(coefficients: RealCoefficients, N: number, x: number)
 export function meanSquare(source: FourierSource): number {
     assertSource(source);
     if (source.kind === 'function') {
-        return integratePiecewise((x) => source.f(x) ** 2, source.breakpoints) / PI;
+        return integratePiecewise((x) => source.f(x) ** 2, refineBreakpoints(source.breakpoints, 0)) / PI;
     }
     let total = 0;
     for (let i = 0; i + 1 < source.breakpoints.length; i++) {

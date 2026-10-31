@@ -301,6 +301,12 @@ describe('F2 absolute value, piecewise-linear shapes, Parseval', () => {
         expect(meanSquare(FOURIER_EXAMPLES.abs.source)).toBeCloseTo((2 * PI * PI) / 3, 12);
     });
 
+    it('mean square of a smooth non-polynomial source: 1/(2 - cos x) gives 4/(3 sqrt 3)', () => {
+        // int_{-pi}^{pi} (a - b cos x)^{-2} dx = 2 pi a / (a^2 - b^2)^{3/2}; a = 2, b = 1.
+        const source = {kind: 'function', f: (x: number) => 1 / (2 - Math.cos(x)), breakpoints: [-PI, PI]} as const;
+        expect(Math.abs(meanSquare(source) - 4 / (3 * Math.sqrt(3)))).toBeLessThan(1e-12);
+    });
+
     it('Parseval sum converges to the mean square for |x|', () => {
         const coeff = realCoefficients(FOURIER_EXAMPLES.abs.source, 2000);
         expect(Math.abs(parsevalSum(coeff, 2000) - (2 * PI * PI) / 3)).toBeLessThan(1e-6);

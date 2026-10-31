@@ -19,3 +19,9 @@ Acceptance:
 6. **Independent oracle.** The partial-sum and coefficient tests compare against direct formulas written in the test, not against the kernel's own helpers.
 
 Checks: `just unit src/analysis/fourier`, then the full suite once, and `just typecheck`. Report mutation evidence for the pitfall test and two other new assertions.
+
+## Acceptance record (2026-10-31)
+
+- **Panel refinement.** One 16-node rule per piece missed this task's own tolerances at high \(k\), at \(N=1001\) and for \(1/(2-\cos x)\). The kernel (`realCoefficients`, `complexCoefficients`, `meanSquare`) therefore splits every piece into panels no wider than \(\min(\pi/2,2\pi/k)\). The caller's breakpoints stay panel boundaries, and `integratePiecewise` is unchanged as the plain per-piece primitive. `meanSquare` was refined after review; a \(1/(2-\cos x)\) test pins it to \(4/(3\sqrt3)\) within \(10^{-12}\) (unrefined error \(2\cdot10^{-5}\)).
+- **Shift identity sign.** The tests check \(c_k(f(x-	au))=e^{-ik	au}c_k(f)\). The spec's \(e^{ik	au}\) for moving a closed loop's start, \(z(t+	au)\), is the opposite shift and agrees. Task 02 tests the start-shift form.
+- **Pitfall test.** It calls `integratePiecewise` with one panel and documents the failure. The guard against the kernel dropping the split is "kernel gets the jump example right"; review mutations confirmed both it and the panel refinement are covered.
