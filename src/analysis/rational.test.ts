@@ -23,14 +23,14 @@ describe('rational analysis (S4)', () => {
         expect(a.asymptote).toEqual({kind: 'oblique', slope: 1, intercept: 1});
     });
 
-    it('gives the horizontal asymptote and far values of 2x^2/(x^2-1)', () => {
-        // 2x^2 + 1 has no real zeros, so it is not a product form; 2x^2 has the same leading behaviour.
-        const a = analyzeRational({k: 2, zeros: [{z: 0, m: 2}]}, quad(-1, 1));
+    it('gives the horizontal asymptote and far values of (2x^2-2)/(x^2-4)', () => {
+        // Spec S4 horizontal default: 2(x-1)(x+1)/((x-2)(x+2)) -> 2, value 2 + 6/96 = 2.0625 at x = 10.
+        const a = analyzeRational({k: 2, zeros: [{z: -1, m: 1}, {z: 1, m: 1}]}, quad(-2, 2));
         expect(a.asymptote).toEqual({kind: 'horizontal', y: 2});
-        expect(a.poles.map(p => p.x)).toEqual([-1, 1]);
-        expect(a.remainder).toEqual([2, 0]);
-        expect(2 + rationalRemainderAt(a, 10)).toBeCloseTo(200 / 99, 12);
-        expect(2 + rationalRemainderAt(a, 10)).toBeCloseTo(2.0202, 4);
+        expect(a.reducedNumerator.zeros.map(e => e.z)).toEqual([-1, 1]);
+        expect(a.holes).toEqual([]);
+        expect(a.poles.map(p => p.x)).toEqual([-2, 2]);
+        expect(2 + rationalRemainderAt(a, 10)).toBeCloseTo(2.0625, 12);
     });
 
     it('has no oblique asymptote unless deg p = deg q + 1', () => {

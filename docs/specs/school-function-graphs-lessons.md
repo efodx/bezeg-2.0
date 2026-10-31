@@ -102,7 +102,8 @@ Defaults may be replaced by equivalent examples that keep the learning goal and 
 #### S4. Rational functions: zeros, poles, holes, asymptotes
 
 - Goal: read zeros, poles, holes, and vertical, horizontal and oblique asymptotes from \(p/q\). Prerequisites: S3.
-- Defaults: \(\dfrac{x^2-1}{x-2}\): zeros \(\pm1\), pole \(2\), \(=x+2+\dfrac3{x-2}\), remainder \(0.375\) at \(x=10\). Hole: \(\dfrac{x^2-1}{x-1}=x+1\), open circle at \((1,2)\). Horizontal: \(\dfrac{2x^2+1}{x^2-1}\to2\), at \(x=10\) value \(2.0303\) (NEW, \(2+3/99\)).
+- Defaults: \(\dfrac{x^2-1}{x-2}\): zeros \(\pm1\), pole \(2\), \(=x+2+\dfrac3{x-2}\), remainder \(0.375\) at \(x=10\). Hole: \(\dfrac{x^2-1}{x-1}=x+1\), open circle at \((1,2)\). Horizontal: \(\dfrac{2x^2-2}{x^2-4}=\dfrac{2(x-1)(x+1)}{(x-2)(x+2)}\to2\), zeros \(\pm1\), poles \(\pm2\), at \(x=10\) value \(2.0625\) (NEW, \(2+6/96\)).
+- Decision (2026-10-31): the earlier horizontal example \(\dfrac{2x^2+1}{x^2-1}\) was replaced because \(2x^2+1\) has no real zeros and cannot be written in ADR 0026's product form \(k\prod(x-z_i)^{m_i}\). The replacement keeps the lesson point (equal degrees, asymptote \(y=2\)) without adding irreducible quadratic factors to the model.
 - Steps: (1) one pole, predict behaviour on each side; (2) drag a zero onto the pole: the hole appears; (3) vertical asymptote from a pole of the reduced fraction; (4) degree comparison selects horizontal or oblique; (5) the remainder term shrinks, with a slider for \(x\); (6) odd versus even multiplicity of the pole (sign change); (7) free exploration.
 - Acceptance: (1) a common factor yields a hole, never a pole; (2) the oblique asymptote only when \(\deg p=\deg q+1\), computed by polynomial division; (3) the curve is never drawn across a pole; (4) asymptotes drawn as dashed lines with text labels; (5) a graph may cross a horizontal or oblique asymptote at finite \(x\) and the lesson does not claim otherwise; (6) both languages.
 
