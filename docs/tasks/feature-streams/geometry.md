@@ -1,5 +1,5 @@
 # Stream: Geometry
-Run state: not started
+Run state: active
 
 Rules and slice template: [feature streams](README.md). Port 4313. Handoffs: `docs/reviews/feature-streams/geometry/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
