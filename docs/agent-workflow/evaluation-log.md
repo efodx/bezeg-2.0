@@ -1349,3 +1349,15 @@ Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pur
 - PS-1a distributions: `bezeg-worker` Sonnet `medium`, 16+4 tool uses (one repair round: Poisson cap, erfc oracles), ~64k tokens.
 - Mathematical reviews: `bezeg-reviewer` Sonnet, 6–10 tool uses and 25–31k tokens each.
 - Observation: two workers batched mutations or reverted with `git checkout`; later briefs ask for one mutation per run and hand-edited reverts.
+
+## 2026-10-31 — Curves stream kernels AB-1a/1b/1c and PS-1c (handler 3)
+
+Task: [curves stream](../tasks/feature-streams/curves.md) F1 kernels. Class: pure mathematical kernels, size M each. Handler: Opus 5.5, auto mode, effort medium; brief handoff-v12; dispatch 16:45 UTC, AB kernels pushed 16:57 UTC (`1e113a7`). Evidence: [advanced-bezier reviews](../reviews/advanced-bezier/).
+
+- AB-1a degree reduction: `bezeg-worker` Sonnet 5.5 `medium`, 11 tool uses, ~38k tokens, 3.7 min; 4 mutations observed. The review (5 uses, ~23k) found a translation-dependent tolerance (medium). The handler repaired it test-first: its first red test was too weak and passed against the old rule, so the bump was tightened until the test failed.
+- AB-1b arc length: worker Sonnet `medium`, 18 uses, ~52k, 4.7 min; 3 mutations observed and one (the Newton sign) survived because bisection rescues it. It flagged a wrong spec number (the PH chord minimum), which the review (10 uses, ~29k) confirmed independently; one cusp-quadrature finding was deferred to the D3 graph.
+- AB-1c Coons: worker Sonnet `medium`, 15 uses, ~45k, 3.8 min; 4 mutations. The review (4 uses, ~22k) found an asymmetric corner rule (medium) and a translation-dependent tolerance; one worker repair round (4 uses, ~51k cumulative), with pre-fix failures observed.
+- PS-1c descriptive statistics and correlation: worker Sonnet `medium`, 18 uses, ~52k, 4.7 min; 5 mutations, of which the first survived until the worker added a default-argument test. Its mathematical review is left to handler 4.
+- Handler research: the quartile/σ convention was settled from RIC and ZRSS sources (ADR 0027 decision 4). It contradicted the spec's draft rule.
+- Observation: both independent reviewers flagged the same translation-dependent tolerance pattern (max|coordinate|) in two kernels written in parallel. Future kernel briefs should state "tolerances relative to extent, not to absolute coordinates."
+- Context: the handler reached its 150k soft threshold after about 40 minutes with seven agents dispatched. Pushes lost two fast-forward races while `tsc` ran.
