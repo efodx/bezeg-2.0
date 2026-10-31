@@ -94,7 +94,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.bilinear-patch.patch-tensor",
@@ -190,7 +194,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.control-net.patch-tensor",
@@ -286,7 +294,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.boundary-iso-curves.patch-tensor",
@@ -382,7 +394,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
@@ -476,7 +492,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.properties.patch-tensor",
@@ -655,7 +675,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.tensor-derivatives.patch-derivatives",
@@ -751,7 +775,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.tensor-subdivision.patch-subdivision",
@@ -888,7 +916,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.tensor-joins.patch-joins",
@@ -1842,7 +1874,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.triangular-patches.patch-triangular",
@@ -1938,7 +1974,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-patches.square-vs-triangular.patch-triangular",
@@ -2034,7 +2074,11 @@
             }
           }
         }
-      ]
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

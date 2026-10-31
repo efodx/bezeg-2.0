@@ -820,7 +820,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.convergence.sequence",
@@ -934,7 +938,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.convergence.uniform-convergence",
@@ -1064,7 +1072,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.convexity",
@@ -1194,7 +1206,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.extrema",
@@ -1296,7 +1312,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.derivative-results.mean-value",
@@ -1453,7 +1473,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.existence.bisection",
@@ -1554,7 +1578,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.integrability.darboux",
@@ -1682,7 +1710,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "analysis.taylor.taylor",
@@ -1812,7 +1844,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.affine-transformations.affine",
@@ -1909,7 +1945,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.bernstein-form.bernstein",
@@ -2030,7 +2070,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.control-points.bezier",
@@ -2122,7 +2166,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.geometric-properties.convex-hull",
@@ -2223,7 +2271,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.alternative-recursion",
@@ -2375,7 +2427,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.decasteljau",
@@ -2472,7 +2528,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.interpolation.quartic-interpolation",
@@ -2599,7 +2659,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.elevation",
@@ -2695,7 +2759,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.extrapolation",
@@ -2787,7 +2855,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.repeated-subdivision",
@@ -2882,7 +2954,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.next-ideas.subdivision",
@@ -3005,7 +3081,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "bezier-curves.parameter.decasteljau-parameter",
@@ -3132,7 +3212,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.complex-plane.complex-multiplication",
@@ -3317,7 +3401,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.reading-bernstein.bernstein",
@@ -3438,7 +3526,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "foundations.worked-weight.bernstein.degree-comparison",
@@ -3600,7 +3692,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.applications.arc-length",
@@ -3755,7 +3851,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.applications.area-between-curves",
@@ -3915,7 +4015,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.continuity.continuity",
@@ -4041,7 +4145,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.derivatives.derivative",
@@ -4142,7 +4250,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.exponential-function",
@@ -4240,7 +4352,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.linear-function",
@@ -4311,7 +4427,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.function-rules.trigonometric-functions",
@@ -4434,7 +4554,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.integrals.accumulation",
@@ -4563,7 +4687,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "functions-and-calculus.integrals.definite-integral",
@@ -4689,7 +4817,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.uniform-timing.uniform-parameterization",
@@ -4786,7 +4918,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.weighted-knot.spline-parameterization",
@@ -4881,7 +5017,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "parametrization.weighted-knot.weighted-parameterization",
@@ -4975,7 +5115,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-cubic-speed",
@@ -5069,7 +5213,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
@@ -5163,7 +5311,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.complex-hodograph.ph-cubic-generator",
@@ -5257,7 +5409,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.investigate-ph.ph-cubic-singularity",
@@ -5351,7 +5507,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.investigate-ph.ph-quintic-singularity",
@@ -5445,7 +5605,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.offsets.ph-quintic-offsets",
@@ -5539,7 +5703,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "ph-curves.worked-length.ph-cubic-offset-length",
@@ -5633,7 +5801,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.homogeneous.rational-decasteljau",
@@ -5733,7 +5905,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.investigate-rational.rational-extrapolation",
@@ -5828,7 +6004,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.farin",
@@ -5923,7 +6103,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.rational-elevation",
@@ -6022,7 +6206,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.operations.rational-subdivision",
@@ -6148,7 +6336,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.why-rational.rational-weight",
@@ -6248,7 +6440,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "rational-curves.worked-conic.circle",
@@ -6396,7 +6592,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.continuity-levels.spline-c1",
@@ -6489,7 +6689,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.continuity-levels.spline-c2",
@@ -6582,7 +6786,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1",
@@ -6675,7 +6883,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
@@ -6772,7 +6984,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.piecewise.spline-cn",
@@ -6865,7 +7081,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
       "id": "splines.worked-join.spline-c1.parabola-derivatives",
@@ -6977,7 +7197,11 @@
         "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
         "pageErrors": []
-      }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
