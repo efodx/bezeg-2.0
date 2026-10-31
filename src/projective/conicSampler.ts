@@ -47,13 +47,16 @@ export interface SampledConic {
 }
 
 /**
- * Provisional number of pencil directions per half turn (a branch gets a share proportional to its angular span).
- * Task 05 fixes it after the drag measurement.
+ * Number of pencil directions per half turn (a branch gets a share proportional to its angular span). Measured in
+ * projective slice 05d (ADR 0033, measurement addendum): every K2/K3 conic deviates at most 0.025 px from its polyline
+ * at 1920 px, at half the vertices of 720.
  */
-export const DEFAULT_SAMPLE_DENSITY = 720;
+export const DEFAULT_SAMPLE_DENSITY = 360;
 
 const BISECTIONS = 60;
 const REFINE_DEPTH = 8;
+/** Hard cap on recursion; levels past REFINE_DEPTH follow only branches whose hull touches the view. */
+const MAX_REFINE_DEPTH = 40;
 const END_LEVELS = 30;
 const REFINE_STEP_DIVISOR = 100;
 
@@ -165,6 +168,54 @@ function chordMeets(v: SamplerView, a: Pt, b: Pt): boolean {
     return slab(a.x, b.x - a.x, v.xMin, v.xMax) && slab(a.y, b.y - a.y, v.yMin, v.yMax);
 }
 
+/** True if the triangle a, b, c meets the view rectangle (an edge crosses it, or a rectangle corner lies inside). */
+function triangleMeets(v: SamplerView, a: Pt, b: Pt, c: Pt): boolean {
+    if (chordMeets(v, a, b) || chordMeets(v, b, c) || chordMeets(v, c, a)) return true;
+    const cross = (p: Pt, q: Pt, r: Pt) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+    const corner = {x: v.xMin, y: v.yMin};
+    const d1 = cross(a, b, corner);
+    const d2 = cross(b, c, corner);
+    const d3 = cross(c, a, corner);
+    return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+}
+
+/**
+ * Conservative test that the arc between consecutive samples pa and pb (convex, turning less than pi, with mid-sample
+ * pm on it) misses the view: the arc lies in the triangle pa, pb, T, T the meeting of the tangents. When the tangents
+ * are near parallel, T is not finite, or pm is not inside that triangle, the hull is unknown and this returns null.
+ */
+function hullMisses(k: Coef, view: SamplerView, pa: Pt, pb: Pt, pm: Pt | null): boolean | null {
+    if (pm === null) return null;
+    const [ga, gb] = [grad(k, pa.x, pa.y), grad(k, pb.x, pb.y)];
+    // Tangent lines: g . (X - p) = 0. Solve the 2x2 system for T.
+    const det = ga[0] * gb[1] - ga[1] * gb[0];
+    const scale = Math.hypot(ga[0], ga[1]) * Math.hypot(gb[0], gb[1]);
+    if (!(Math.abs(det) > 1e-9 * scale)) {
+        // Near-parallel tangents. With gradients pointing the same way the arc is almost straight (turning angle alpha
+        // with sin alpha <= 1e-9), so it stays within L sin(alpha) of its chord: test the chord against the view widened
+        // by that margin. Far pieces near an asymptote land here; subdividing them blindly cost 30x the sampling time.
+        // Opposite gradients mean a turn near pi: the hull is unknown.
+        if (!(ga[0] * gb[0] + ga[1] * gb[1] > 0)) return null;
+        const margin = 1e-9 * Math.hypot(pb.x - pa.x, pb.y - pa.y) + 1e-12 * (1 + Math.max(Math.abs(pa.x), Math.abs(pa.y), Math.abs(pb.x), Math.abs(pb.y)));
+        const wide = {xMin: view.xMin - margin, xMax: view.xMax + margin, yMin: view.yMin - margin, yMax: view.yMax + margin};
+        return !chordMeets(wide, pa, pb);
+    }
+    const ra = ga[0] * pa.x + ga[1] * pa.y;
+    const rb = gb[0] * pb.x + gb[1] * pb.y;
+    const t = {x: (ra * gb[1] - ga[1] * rb) / det, y: (ga[0] * rb - ra * gb[0]) / det};
+    if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) return null;
+    const cross = (p: Pt, q: Pt, r: Pt) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+    const area = cross(pa, pb, t);
+    if (area === 0) return null;
+    const sgn = Math.sign(area);
+    // Rounding tolerance: coordinate error (relative to their size) times the triangle's edge lengths.
+    const size = 1 + Math.max(Math.abs(pa.x), Math.abs(pa.y), Math.abs(pb.x), Math.abs(pb.y), Math.abs(t.x), Math.abs(t.y));
+    const tol = 1e-12 * size * (Math.hypot(pb.x - pa.x, pb.y - pa.y) + Math.hypot(t.x - pa.x, t.y - pa.y) + Math.hypot(t.x - pb.x, t.y - pb.y));
+    const holdsArc =
+        sgn * cross(pa, pb, pm) >= -tol && sgn * cross(pb, t, pm) >= -tol && sgn * cross(t, pa, pm) >= -tol;
+    return holdsArc ? !triangleMeets(view, pa, pb, t) : null;
+}
+
 /** Walk the angles in order; clip with bisection on the angle so every vertex lies on the conic. */
 function walk(k: Coef, q0: Pt, view: SamplerView, thetas: number[], out: Pt[][]): void {
     const at = (th: number) => pencilPoint(k, q0, th);
@@ -190,9 +241,12 @@ function walk(k: Coef, q0: Pt, view: SamplerView, thetas: number[], out: Pt[][])
     const refine = (ta: number, pa: Pt | null, tb: number, pb: Pt | null, depth: number, acc: number[]): void => {
         if (depth === 0 || pa === null || pb === null) return;
         if (Math.hypot(pb.x - pa.x, pb.y - pa.y) <= maxStep) return;
-        if (!ins(pa) && !ins(pb) && !chordMeets(view, pa, pb)) return;
         const tm = (ta + tb) / 2;
         const pm = at(tm);
+        const misses = hullMisses(k, view, pa, pb, pm); // null: hull unknown, so never skip on it
+        // Past REFINE_DEPTH only branches with a known hull that touches the view continue (a tiny visible arc far from Q0).
+        if (depth <= MAX_REFINE_DEPTH - REFINE_DEPTH && misses !== false) return;
+        if (!ins(pa) && !ins(pb) && misses === true) return;
         refine(ta, pa, tm, pm, depth - 1, acc);
         acc.push(tm);
         refine(tm, pm, tb, pb, depth - 1, acc);
@@ -202,7 +256,7 @@ function walk(k: Coef, q0: Pt, view: SamplerView, thetas: number[], out: Pt[][])
     let prevP: Pt | null = null;
     for (let i = 0; i < thetas.length; i++) {
         const p = at(thetas[i]);
-        if (i > 0) refine(prevT, prevP, thetas[i], p, REFINE_DEPTH, dense);
+        if (i > 0) refine(prevT, prevP, thetas[i], p, MAX_REFINE_DEPTH, dense);
         dense.push(thetas[i]);
         prevT = thetas[i];
         prevP = p;

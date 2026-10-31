@@ -327,3 +327,46 @@ describe('sampleConic: degenerate conics', () => {
         expect(sampleConic(conic(1, 0, 1, 0, 0, 1), VIEW).type).toBe('empty');
     });
 });
+
+describe('conic sampler: hull-guided refinement', () => {
+    it('keeps an arc that bulges into a view its chord misses (circle r=10, density 4)', () => {
+        const c = conic(1, 0, 1, 0, 0, -100);
+        // Samples sit at 0, 90, 180, 270 degrees; the 135 degree arc point (-7.07, 7.07) is 2.07 beyond the chord.
+        const v: SamplerView = {xMin: -7.5, xMax: -6.6, yMin: 6.6, yMax: 7.5};
+        const s = sampleConic(c, v, 4);
+        const pts = allPoints(s);
+        expect(pts.length).toBeGreaterThan(2);
+        expectInView(pts, v);
+        for (const p of pts) expect(residual(c, p)).toBeLessThan(TOL);
+    });
+
+    it('finds a tiny arc in a very distant view, far narrower than one refined angle step', () => {
+        const c = conic(1, 0, 1, 0, 0, -100);
+        const a = (100.3 * Math.PI) / 180;
+        const [cx, cy] = [10 * Math.cos(a), 10 * Math.sin(a)];
+        const v: SamplerView = {xMin: cx - 5e-6, xMax: cx + 5e-6, yMin: cy - 5e-6, yMax: cy + 5e-6};
+        const pts = allPoints(sampleConic(c, v));
+        expect(pts.length).toBeGreaterThan(2);
+        expectInView(pts, v);
+    });
+
+    it('finds a tiny hyperbola arc in a distant view', () => {
+        const c = conic(9, 0, -16, 0, 0, -144);
+        const t = 1.2345;
+        const [cx, cy] = [4 * Math.cosh(t), 3 * Math.sinh(t)];
+        const v: SamplerView = {xMin: cx - 1e-5, xMax: cx + 1e-5, yMin: cy - 1e-5, yMax: cy + 1e-5};
+        const pts = allPoints(sampleConic(c, v));
+        expect(pts.length).toBeGreaterThan(2);
+        expectInView(pts, v);
+    });
+
+    it('keeps a far, almost straight piece near an asymptote (near-parallel tangents)', () => {
+        // xy = 1 near x = 1e6: consecutive samples have tangents within 1e-9 rad, so only the widened chord test decides.
+        const c = conic(0, 1, 0, 0, 0, -1);
+        const v: SamplerView = {xMin: 1e6 - 1, xMax: 1e6 + 1, yMin: 1e-6 - 1e-9, yMax: 1e-6 + 1e-9};
+        const pts = allPoints(sampleConic(c, v));
+        expect(pts.length).toBeGreaterThanOrEqual(2);
+        expectInView(pts, v);
+        for (const p of pts) expect(residual(c, p)).toBeLessThan(TOL);
+    });
+});

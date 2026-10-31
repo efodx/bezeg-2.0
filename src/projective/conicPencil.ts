@@ -8,7 +8,7 @@
 import {bilinear2, combine, evaluate, type Conic} from './conic';
 import {isIdeal, isZero, normalize, type Fraction, type Hom} from './homogeneous';
 
-/** Largest |p| and |q| in the direction table. The final size is set by the drag measurement (ADR 0033 section 2). */
+/** Largest |p| and |q| in the direction table: 256 directions, kept after the drag measurement (ADR 0033, measurement addendum). */
 export const DIRECTION_BOUND = 14;
 
 export type Direction = readonly [number, number];
