@@ -6,7 +6,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | planned |
+| [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | reviewed and repaired; full suite pending |
 | [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | planned |
 | [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | planned |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | planned |
@@ -32,3 +32,7 @@ Sources and the search method: [term research](../../reviews/projective-conics/t
 | central projection | središčna projekcija | No source found, so the most transparent wording was chosen. *Perspektivnost* appears only where a lesson needs the map between two lines. |
 | pencil of lines | šop premic | The research found *snop* on sl.wikipedia and *šop stožnic* in a UL catalogue entry. In Slovenian geometry, *šop* is the planar pencil and *snop* the spatial bundle, so the planar term *šop* is chosen. Not confirmed in UL lecture text. |
 | weight | utež | Existing `sl.ts` rational-curve term |
+
+## Conventions fixed by the kernels
+
+- **Sign of a homogeneous triple (task 01):** after the gcd, \(w>0\); for \(w=0\) the first non-zero entry is positive. A finite point therefore keeps \(w>0\), so `det3` with \(w=1\) agrees with `orient` (ADR 0033 §5). Lines use the same rule, which matters only for equality.
