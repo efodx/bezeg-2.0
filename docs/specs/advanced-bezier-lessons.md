@@ -1,6 +1,6 @@
 # Advanced Bézier topics
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled 2026-10-31 by the [Curves feature stream](../tasks/feature-streams/curves.md); tasks in [docs/tasks/advanced-bezier](../tasks/advanced-bezier/README.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates, expansion, §E8](../research/lesson-family-candidates-2026-10-31-expansion.md) (anchor: FMF *Računalniško podprto geometrijsko oblikovanje* 2025, course page d1718, which lists "odvod, razcvet, subdivizija, ekstrapolacija, višanje/nižanje stopnje" and "uvod v konstrukcijo gibanj togih teles"; page read, books cited but not opened). The research note says this family collects leftovers: Bézier clipping (excluded by [convexity A6](convexity-hulls-lessons.md), see its Out of Scope), arc-length reparametrization and Coons patches. Part of the [new lesson families](new-lesson-families.md) index.
 
