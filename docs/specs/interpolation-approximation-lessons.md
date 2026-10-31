@@ -1,6 +1,6 @@
 # Interpolation and approximation lessons (Interpolacija in aproksimacija)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled 2026-10-31 by the [Curves feature stream](../tasks/feature-streams/curves.md); tasks in [docs/tasks/interpolation-approximation](../tasks/interpolation-approximation/README.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md) ("Proposed families" item 5, sample sequences 8-10, correctness notes on Runge); index: [new lesson families](new-lesson-families.md). Primary sources only as far as that note read them: Chaikin's paper and Floater's subdivision notes were **not read**; Sederberg (free use permitted) and the FMF CAGD syllabus are cited there. Related specs: [numerical-methods-lessons.md](numerical-methods-lessons.md) (defers Runge and least squares here, line 173), [b-splines-nurbs-lessons.md](b-splines-nurbs-lessons.md) (owns `uniformQuadraticSegment`, `chaikinStep`).
 
