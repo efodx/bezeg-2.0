@@ -70,7 +70,7 @@ The featured card uses the existing soft two-part shadow in `--bezeg-shell-shado
 
 ## Shapes
 
-Keep the observed 8px action radius, 10px choice radius, 16px preview radius, and circular previous/next controls. Primary controls retain at least 44px height; selector choices retain at least 72px height.
+Keep the observed 8px action radius, 10px choice radius, 16px preview radius, and circular previous/next controls. Primary controls retain at least 44px height; selector choices retain at least 72px height and lead with a 52×40 thumbnail of their demonstration preview (`media-rule` border, `choice-rule-selected` when pressed) instead of an index.
 
 ## Components
 
@@ -91,7 +91,7 @@ The lesson overlay uses the warm panel, ink, secondary ink, rule and forest acti
 
 ## Learning map and chapter wayfinding
 
-`/learn` is an ordered path grouped into strand headings with a hairline rule; rows carry no step numbers or markers because the order is only suggested (the start action names the starting topic). Rows carry a small `preview-panel` thumbnail with a `media-rule` border, a Georgia heading link, `ink-secondary` purpose text, a quiet `panel` read action with a `control-rule` border, and a native contents disclosure with an ochre CSS chevron. Keep filled `action` treatment for the single start action. Chapter readers show a breadcrumb with the chapter position, previous/next chapter beneath the desktop contents, and a sticky narrow contents bar with the section position. See [the redesign spec](docs/specs/learn-navigation-redesign.md).
+`/learn` is an ordered path grouped into strand headings with a hairline rule; rows carry no step numbers or markers because the order is only suggested (the start action names the starting topic). On desktop a 1px `rule` line runs between the row thumbnails so the previews read as stations on the path; below 700px rows are separated by `rule` hairlines instead. Rows carry a small `preview-panel` thumbnail with a `media-rule` border, a Georgia heading link, `ink-secondary` purpose text, a quiet `panel` read action with a `control-rule` border, and a native contents disclosure with an ochre CSS chevron. Keep filled `action` treatment for the single start action. Chapter readers show a breadcrumb with the chapter position, previous/next chapter beneath the desktop contents, and a sticky narrow contents bar with the section position. See [the redesign spec](docs/specs/learn-navigation-redesign.md).
 
 ## Guided lesson reading panel
 

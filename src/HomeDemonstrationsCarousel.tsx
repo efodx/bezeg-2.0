@@ -218,6 +218,8 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                 title={`${entry.family.title}: ${entry.demonstration.catalogTitle}`}
                 aria-pressed={selectedIndex === index}
                 onClick={() => selectManually(index)}>
+                <img className="demonstrations-opening-choice-thumb" src={demonstrationPreviewAssets[entry.demonstration.id]}
+                    alt="" width="720" height="440" loading={index < 3 ? 'eager' : 'lazy'} decoding="async"/>
                 <span className="demonstrations-opening-choice-copy">
                     <span className="demonstrations-opening-choice-title">{entry.demonstration.catalogTitle}</span>
                     <span className="demonstrations-opening-family">{entry.family.title}</span>
