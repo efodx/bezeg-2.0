@@ -62,8 +62,16 @@ The static document initially declares Slovenian, and runtime selection updates 
 | stik | joint (where two segments meet; drawing playground) |
 | Poglej pod površje | Look underneath (drawing playground mode) |
 | oblika | shape (drawing playground) |
+| konjugirano število | conjugate (complex numbers) |
+| obratna vrednost | reciprocal \(1/z\) (complex numbers) |
+| inverzija v krožnici | circle inversion |
+| enotska krožnica | unit circle |
+| krožnica inverzije | circle of inversion |
+| količnik | quotient \(w/z\) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
+
+Complex-map terms: sources and reasoning are in the [complex maps term table](tasks/complex-maps/README.md); *krožnica* (circle) versus *krog* (disc) follows the rest of the app.
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
