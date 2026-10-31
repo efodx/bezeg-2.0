@@ -1,6 +1,6 @@
 # Fourier series
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled, 2026-10-31 (feature stream `functions`). Tasks: [docs/tasks/fourier-series](../tasks/fourier-series/README.md); ADR decisions: [ADR 0034](../adr/0034-fourier-series-models-handles-and-closed-loop.md); Slovenian terms settled in the task README (*amplitudni spekter*; *Gibbsov pojav* with *Gibbsov fenomen* glossed once).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates, expansion, §E6 Fourier series](../research/lesson-family-candidates-2026-10-31-expansion.md) (lessons, pitfalls, sample numbers), which cites the FMF syllabi *Analiza 2b* (117: "Fourierove vrste") and *Analiza 4* (119: Fourier and Laplace transforms). I opened both course pages (2025 copies, saved as c117.html and c119.html) and confirmed those two lines; I did not open textbooks, so the theorems below are cited from standard references (Zygmund, *Trigonometric Series*; Körner, *Fourier Analysis*), cited, not opened. Part of the [new lesson families](new-lesson-families.md) index.
 
