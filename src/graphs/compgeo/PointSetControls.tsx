@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {GridPoint} from "../../compgeo/grid";
@@ -38,7 +38,12 @@ export interface PointSetControlsProps {
 /** A whole-number field that keeps what is being typed and commits every valid integer. */
 function IntegerField(props: {label: string, value: number, onCommit: (value: number) => void, name?: string}) {
     const [draft, setDraft] = useState(String(props.value));
-    useEffect(() => setDraft(String(props.value)), [props.value]);
+    // A new value from the graph (another edit, Reset, a preset) replaces the draft; adjusted during render, not in an effect.
+    const [shownValue, setShownValue] = useState(props.value);
+    if (shownValue !== props.value) {
+        setShownValue(props.value);
+        setDraft(String(props.value));
+    }
     return <label className="pointset-field">
         <input type="number" step={1} inputMode="numeric" aria-label={props.label} name={props.name} value={draft}
                onBlur={() => setDraft(String(props.value))}
