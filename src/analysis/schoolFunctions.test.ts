@@ -16,7 +16,53 @@ const ENTRIES: {name: string; fn: SchoolFunction; xs: number[]}[] = [
     ...NAMED_IDS.map(id => ({name: id, fn: {kind: 'named', id} as SchoolFunction, xs: [-1.9, 0.2, 1.4]})),
     {name: 'transformed sqrt', fn: {kind: 'transformed', base: {kind: 'power', shape: 'sqrt'}, a: 2, b: -1.5, c: 1, d: 3}, xs: [-2, -0.5, 0.4]},
     {name: 'transformed S1', fn: S1, xs: [-2, 1, 4.5, 7]},
+    {name: 'poly', fn: {kind: 'poly', k: 2, zeros: [{z: -2, m: 1}, {z: 1, m: 2}]}, xs: [-3.1, -0.4, 0.8, 2.3]},
+    {name: 'rational', fn: {kind: 'rational', numerator: {k: 1, zeros: [{z: -1, m: 1}, {z: 1, m: 1}]}, denominator: {k: 1, zeros: [{z: 2, m: 1}]}},
+        xs: [-3.1, 0.4, 1.7, 2.6]},
+    {name: 'transformed poly', fn: {kind: 'transformed', base: {kind: 'poly', k: 1, zeros: [{z: -2, m: 1}, {z: 1, m: 2}]}, a: -2, b: 0.5, c: 1, d: 3}, xs: [-3, 0.4, 2.7]},
+    {name: 'transformed rational', fn: {kind: 'transformed', a: 2, b: 1, c: -1, d: 1,
+        base: {kind: 'rational', numerator: {k: 1, zeros: [{z: 0, m: 2}]}, denominator: {k: 1, zeros: [{z: 1, m: 1}]}}}, xs: [-3, 0.4, 3.5]},
 ];
+
+describe('polynomial and rational kinds', () => {
+    const poly: SchoolFunction = {kind: 'poly', k: 1, zeros: [{z: 1, m: 1}, {z: 1, m: 1}, {z: -2, m: 1}]};
+    it('accepts valid specs, merging equal zeros and reporting the merge', () => {
+        const r = validateSchoolFunction(poly);
+        expect(r).toEqual({ok: true, value: {kind: 'poly', k: 1, zeros: [{z: -2, m: 1}, {z: 1, m: 2}]}, merged: true});
+        const t = validateSchoolFunction({kind: 'transformed', base: poly, a: 1, b: 1, c: 0, d: 0});
+        expect(t.ok && t.merged).toBe(true);
+        const plain = validateSchoolFunction({kind: 'poly', k: 2, zeros: [{z: 0, m: 1}]});
+        expect(plain.ok && plain.merged).toBe(false);
+    });
+    it('reports rational diagnoses with the nested path', () => {
+        const r = validateSchoolFunction({kind: 'rational', numerator: {k: 1, zeros: [{z: 0, m: 7}]}, denominator: {k: 1, zeros: []}});
+        expect(r).toMatchObject({ok: false, field: 'numerator.zeros.0.m', reason: 'out-of-range'});
+    });
+    it('brackets a sum-shaped derivative under a leading factor in a transformed function', () => {
+        const fn: SchoolFunction = {kind: 'transformed', base: {kind: 'poly', k: 1, zeros: [{z: -2, m: 1}, {z: 1, m: 2}]}, a: 2, b: 1, c: 0, d: 0};
+        const m = schoolFunctionModel(fn);
+        expect(m.latex).toBe('2\\,(x + 2)(x - 1)^{2}');
+        expect(m.derivativeLatex.startsWith('2\\,\\left(')).toBe(true);
+    });
+    it('omits poles and holes from the rational domain and values', () => {
+        const m = schoolFunctionModel({kind: 'rational', numerator: {k: 1, zeros: [{z: 1, m: 1}, {z: -1, m: 1}]}, denominator: {k: 1, zeros: [{z: 1, m: 1}, {z: 2, m: 1}]}});
+        expect(m.domain).toHaveLength(3);
+        expect(m.value(1)).toBeUndefined();
+        expect(m.value(2)).toBeUndefined();
+        expect(m.derivative(1)).toBeUndefined();
+        expect(m.value(0)).toBeCloseTo(-0.5, 12);
+    });
+    it('never lets a plot piece span a pole', () => {
+        const fn: SchoolFunction = {kind: 'rational', numerator: {k: 1, zeros: []}, denominator: {k: 1, zeros: [{z: 1, m: 1}, {z: -2, m: 2}]}};
+        const pieces = plotPieces(fn, -6, 6, -5, 5);
+        expect(pieces.length).toBeGreaterThanOrEqual(3);
+        for (const piece of pieces) for (const q of piece) expect(Math.abs(q.y)).toBeLessThanOrEqual(15);
+        for (const piece of pieces) {
+            const xs = piece.map(q => q.x);
+            for (const pole of [-2, 1]) expect(xs.some(x => x < pole) && xs.some(x => x > pole)).toBe(false);
+        }
+    });
+});
 
 describe('values and domains', () => {
     it('evaluates the closed power shapes exactly', () => {
@@ -109,7 +155,15 @@ describe('validator', () => {
         [{kind: 'log', base: '2'}, 'base', 'not-a-number'],
         [{kind: 'log', base: NaN}, 'base', 'not-finite'],
         [{kind: 'exp'}, 'base', 'missing'],
-        [{kind: 'poly', k: 1, zeros: []}, 'kind', 'unsupported-kind'],
+        [{kind: 'poly', k: 1}, 'zeros', 'missing'],
+        [{kind: 'poly', k: 0, zeros: []}, 'k', 'excluded-value'],
+        [{kind: 'poly', k: 1, zeros: [{z: 0, m: 4}]}, 'zeros.0.m', 'out-of-range'],
+        [{kind: 'poly', k: 1, zeros: [{z: 0, m: 1.5}]}, 'zeros.0.m', 'not-an-integer'],
+        [{kind: 'poly', k: 1, zeros: [{z: 0, m: 3}, {z: 1, m: 3}]}, 'zeros', 'degree-too-high'],
+        [{kind: 'poly', k: 1, zeros: [{z: 1, m: 2}, {z: 1, m: 2}]}, 'zeros.1.m', 'out-of-range'],
+        [{kind: 'poly', k: 1, zeros: 'x'}, 'zeros', 'not-an-array'],
+        [{kind: 'rational', numerator: {k: 1, zeros: []}}, 'denominator', 'missing'],
+        [{kind: 'rational', numerator: {k: 1, zeros: []}, denominator: {k: 0, zeros: []}}, 'denominator.k', 'excluded-value'],
         [{kind: 'transformed', a: 1, b: 1, c: 0, d: 0}, 'base', 'missing'],
         [{kind: 'transformed', base: 3, a: 1, b: 1, c: 0, d: 0}, 'base', 'not-an-object'],
         [{kind: 'transformed', base: {kind: 'transformed'}, a: 1, b: 1, c: 0, d: 0}, 'base.kind', 'nested-transform'],
