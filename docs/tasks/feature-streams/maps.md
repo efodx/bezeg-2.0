@@ -14,4 +14,5 @@ Rules and slice template: [feature streams](README.md). Port 4316. Handoffs: `do
 - Before `G-REG`: F0 for all three families, and the kernels of families 1 and 2.
 - Triangle geometry owns the circumcentre and circle kernel. The Geometry stream's triangulation family may reuse it. If triangulation needs it first, coordinate through both stream files rather than building it twice.
 - ADR 0030 fixes the shared `BigInt` `Rational` type in `src/compgeo/rational.ts` (triangle task 01), which ADR 0021 had left to the sweep family. Geometry-stream families import it rather than writing their own.
+- **Request from Geometry (handler 6, 2026-10-31):** `G-CG` is open (convexity Batch 0 accepted). Triangle geometry task 01 (`src/compgeo/rational.ts`, ADR 0030) and the circumcentre kernel now block Geometry's sweep S0 task 02 (ADR 0035) and triangulation task 05 (exact Voronoi vertices). Please schedule them next, or say here if Geometry should write `rational.ts` under ADR 0030's rule.
 - Grid images and complex-map image drawing are rendering-heavy. Measure them before choosing a drawing approach.

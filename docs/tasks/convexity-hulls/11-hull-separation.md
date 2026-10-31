@@ -1,0 +1,17 @@
+# 11 — Conservative hull separation for off-grid pieces (A6 kernel)
+
+Status: ready 2026-10-31 (handler 6). Source: [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md) (the rule; read it whole), [spec A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) examples and acceptance 1–3, the Curves request in [geometry.md](../feature-streams/geometry.md). Kind: F1, mathematical review. Depends on nothing beyond Batch 0. Not gated: no graph, route, locale or lesson text. Consumers: the A6 pair-of-curves graph (Batch 3) and the Curves D2 graph (AB-B).
+
+Pure TypeScript in `src/compgeo/hullSeparation.ts`, no React, JSXGraph, localization or graph state.
+
+1. `hullsSeparated(a, b)`: two lists of 1 to 8 finite points `{x, y}` (doubles), else `RangeError`. Returns `{separated: true, axis: {x, y}}` (a unit vector with \(\max_A u\cdot a+\delta<\min_B u\cdot b\)) or `{separated: false}`. Candidate axes: \(q-p\) and its normal \((-(q_y-p_y),\,q_x-p_x)\), normalized, for every pair of distinct points of the union of both lists, in a fixed order (pairs in index order of `[...a, ...b]`, direction before normal). Skip pairs with \(q=p\). Margin \(\delta=10^{-12}\cdot s\), with \(s=\max(1,\) largest absolute coordinate of both lists\()\); also check the swapped inequality and return the axis pointing from \(A\) to \(B\). Export `HULL_SEPARATION_MARGIN = 1e-12`. A doc comment states the guarantee and the ADR.
+2. Tests (`hullSeparation.test.ts`). Numbers rechecked by a handler script (`python -I`, 2026-10-31, exact rationals and doubles):
+   - A6 curves \(A=(0,0),(2,4),(4,0)\) and \(B=(0,3),(2,-1),(4,3)\), each halved \(k\) times at \(t=\tfrac12\) (use `subdivide` from `src/bezeg/impl/kernels/bezier-kernels.ts`, or a local halving helper in the test): overlapping pairs \(1,2,8,8,8\) of \(1,4,16,64,256\) at \(k=0..4\).
+   - Soundness against an exact reference in the test file: convert each double to an exact `BigInt` fraction (every finite double is \(m\cdot2^e\)) and decide strict separation with the same candidate axes, without the margin and without normalization. On a few thousand seeded random pairs (degrees 1–3, coordinates in \([-5,5]\), bounded count), "separated" from `hullsSeparated` implies exact separation. Also, at least one case where the exact test separates but the margin keeps the pair: two segments whose gap is \(10^{-14}\).
+   - Acceptance 2 of A6: for every pair discarded at \(k=0..4\), dense sampling of both pieces (for example 200 parameters each) finds no two points closer than the margin, and the pieces containing \(t=\tfrac14\) and \(t=\tfrac34\) are never discarded.
+   - Acceptance 3 of A6: every sub-piece's control points lie in the parent's hull, checked exactly on the dyadic grid pieces (scale by \(2^{2k}\) to integers and use `orient`).
+   - Degenerate inputs: single points (separated iff distance \(>\delta\)), collinear segments on one line (separated by the direction axis), a point on a segment (not separated), identical lists (not separated), touching hulls (not separated).
+   - The returned axis is unit length within \(10^{-12}\) and actually separates (check its inequality in the test).
+   - Observed failures under two deliberate mutations: drop the margin (the \(10^{-14}\) case fails), and drop the direction axes (the collinear-segment case fails).
+
+Checks: `just unit src/compgeo --maxWorkers=2`, `just lint src/compgeo`, `npx tsc --noEmit --pretty false`.
