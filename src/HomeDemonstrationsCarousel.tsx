@@ -218,7 +218,6 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                 title={`${entry.family.title}: ${entry.demonstration.catalogTitle}`}
                 aria-pressed={selectedIndex === index}
                 onClick={() => selectManually(index)}>
-                <span className="demonstrations-opening-choice-number">{String(index + 1).padStart(2, '0')}</span>
                 <span className="demonstrations-opening-choice-copy">
                     <span className="demonstrations-opening-choice-title">{entry.demonstration.catalogTitle}</span>
                     <span className="demonstrations-opening-family">{entry.family.title}</span>

@@ -11,7 +11,7 @@ Source: owner request, 2026-10-30: "redesign bezeg-2.0/learn. It's a bit hard to
 
 ## Decisions
 
-- Landing: a compact numbered path in three strands — Curves (1–6), Surfaces (7), Functions and analysis (8–9) — in the existing Learn order. `learningStrands` must list every chapter once; a unit test enforces it. Foundations' marker carries the ochre start accent beside the existing "Start with Foundations" action, and the introduction now states that the order is suggested.
+- Landing: a compact path in three strands — Curves (1–6), Surfaces (7), Functions and analysis (8–9) — in the existing Learn order. `learningStrands` must list every chapter once; a unit test enforces it. The "Start with Foundations" action marks the start (step-number markers were removed on 2026-10-31: they suggested a required sequence and the ochre "1" carried no meaning), and the introduction now states that the order is suggested.
 - Each topic row has the chapter title as its heading link, a small graph thumbnail (existing catalog captures and alt text), purpose, a quiet "Read the chapter" action and a native "Contents" disclosure with section and guided-example counts. The disclosure lists every section, linked to its chapter anchor, with that section's guided-example count. Guided examples stay inside their owning sections; the landing page still has no direct lesson links.
 - Chapters: a breadcrumb returns to the chapter's row on Learn (now also for Bézier) and shows "Chapter n of 9"; the desktop contents sidebar ends with the previous/next chapter; the narrow contents disclosure stays sticky at the top and shows "section n of m". The chapter title no longer draws a focus outline when it receives reading focus.
 

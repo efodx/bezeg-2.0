@@ -48,7 +48,7 @@ The source of the implemented shell roles is `src/shellTokens.css`, using the `-
 
 ## Colors
 
-Canvas and panel roles deliberately differ: the header/home canvas uses `canvas`, header controls use `panel`, and carousel cards use `preview-panel`. Preserve those distinctions. The role suffixes in the frontmatter match CSS custom properties in `src/shellTokens.css`; that stylesheet also owns botanical, media, border, number, and scrollbar roles.
+Canvas and panel roles deliberately differ: the header/home canvas uses `canvas`, header controls use `panel`, and carousel cards use `preview-panel`. Preserve those distinctions. The role suffixes in the frontmatter match CSS custom properties in `src/shellTokens.css`; that stylesheet also owns botanical, media, border, and scrollbar roles.
 
 Use `ink` for headings, `ink-secondary` for explanatory copy, `action` for primary links, and `ochre` for the section accent. The lesson action uses `lesson-ink`. Focus uses a distinct blue, retaining the existing header/home variants.
 
@@ -91,7 +91,7 @@ The lesson overlay uses the warm panel, ink, secondary ink, rule and forest acti
 
 ## Learning map and chapter wayfinding
 
-`/learn` is a numbered path grouped into strand headings with a hairline rule. Topic rows use `number-rule`/`number-ink` circular markers joined by a 1px `number-rule` line; the starting topic uses the `ochre` marker. Rows carry a small `preview-panel` thumbnail with a `media-rule` border, a Georgia heading link, `ink-secondary` purpose text, a quiet `panel` read action with a `control-rule` border, and a native contents disclosure with an ochre CSS chevron. Keep filled `action` treatment for the single start action. Chapter readers show a breadcrumb with the chapter position, previous/next chapter beneath the desktop contents, and a sticky narrow contents bar with the section position. See [the redesign spec](docs/specs/learn-navigation-redesign.md).
+`/learn` is an ordered path grouped into strand headings with a hairline rule; rows carry no step numbers or markers because the order is only suggested (the start action names the starting topic). Rows carry a small `preview-panel` thumbnail with a `media-rule` border, a Georgia heading link, `ink-secondary` purpose text, a quiet `panel` read action with a `control-rule` border, and a native contents disclosure with an ochre CSS chevron. Keep filled `action` treatment for the single start action. Chapter readers show a breadcrumb with the chapter position, previous/next chapter beneath the desktop contents, and a sticky narrow contents bar with the section position. See [the redesign spec](docs/specs/learn-navigation-redesign.md).
 
 ## Guided lesson reading panel
 

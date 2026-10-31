@@ -76,13 +76,11 @@ export function LearningPage() {
                 <ol className="learning-path" start={learningChapters.findIndex(chapter => chapter.id === strand.chapters[0]) + 1}>
                     {strand.chapters.map(chapterId => {
                         const chapter = learningChapters.find(entry => entry.id === chapterId)!;
-                        const number = learningChapters.indexOf(chapter) + 1;
                         const preview = topicPreviews[chapter.id];
                         const outline = chapterOutline(chapter.id, language);
                         const examples = outline.reduce((total, section) => total + section.examples, 0);
                         const path = `/bezeg-2.0/learn/${chapter.id}`;
                         return <li className="learning-family" id={chapter.id} key={chapter.id}>
-                            <span className="learning-step" aria-hidden="true">{number}</span>
                             <Link className="learning-thumb" to={path} tabIndex={-1}>
                                 <img src={demonstrationPreviewAssets[preview.demonstration]} alt={preview.alt[language]} width="720" height="440" loading="lazy"/>
                             </Link>

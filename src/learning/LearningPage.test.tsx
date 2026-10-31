@@ -34,7 +34,7 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(9);
     expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(9);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
-    expect([...container.querySelectorAll('.learning-step')].map(step => step.textContent)).toEqual(learningChapters.map((_, index) => `${index + 1}`));
+    expect(container.querySelectorAll('.learning-step')).toHaveLength(0);
     for (const chapter of learningChapters) {
         const row = container.querySelector<HTMLElement>(`#${chapter.id}`)!;
         expect(screen.getByRole('heading', {name: chapter.title.sl, level: 3})).toBeInTheDocument();
