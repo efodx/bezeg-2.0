@@ -31,7 +31,10 @@ The worker executes the checks and reports to the handler. It does not invoke th
 
 - Use available browser tools to exercise visible user behavior. Read the tool's instructions or relevant computer-use skill before operating it. Record what changed on screen; a mounted board alone is insufficient evidence of a working drag or slider.
 - Use an isolated browser session or fresh origin for stateful checks. Create uniquely named temporary data and remove only data created by this run. On a shared session, restore language, selected preset, and scene when possible; report incomplete cleanup. Preserve existing saved data and unrelated files.
-- Start a local preview only if needed and authorized by the assignment. Track processes/tabs created by this run and release them after checking. Reuse existing services without stopping them.
+- Start a local preview only if needed and authorized by the assignment. Track processes/tabs created by this run and release them after checking; before returning, confirm by PID that every server, browser and script this run started has exited. Reuse existing services without stopping them.
+- Bezeg opens in Slovenian. Set the language explicitly before using text locators, or locate by role, label or element id shared by both languages.
+- Use the Playwright Chromium already installed. A missing browser or dependency is a blocked result for the handler, since installing changes the shared checkout.
+- A refused loopback connection under a sandboxed handler means the preview must run outside the sandbox: report it blocked on the first attempt.
 - Inspect console/runtime errors when tools expose them. If unavailable, report that coverage limitation. Record a reproducible symptom before a brief retry; keep diagnosis bounded and return fixes to the handler.
 - When browser access, launch, or a required action is unavailable, mark the dependent checks blocked. Static inspection and HTTP/build success are separate evidence, never substitutes for browser passes.
 - Finish within the budget, allowing time for cleanup and reporting. Mark unattempted checks skipped with a reason, including budget exhaustion. Report observed failures without asserting they were introduced by the current changes unless comparison evidence establishes that.
