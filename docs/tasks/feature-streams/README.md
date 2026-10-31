@@ -76,6 +76,7 @@ These files are touched by several streams. A rebase conflict stops the stream (
 
 With six streams, heavy test runs are the shared bottleneck. Heavy runs queue on the machine-wide slots, so contention costs wait time, not wrong results. Each stream keeps its share small:
 
+- **Only through `just`:** handlers and workers never run bare `npx vitest`, `npm test` or `npx playwright`. A bare full run skips the queue and starts beside the queued runs.
 - **While iterating:** `just unit <path>` only. Path-filtered runs skip the slot queue.
 - **Once per slice:** the full unit suite, or the slice's listed checks. Production build after localization changes.
 - **Smoke:** filtered to the slice's own spec files and routes (`just smoke-built <spec> --grep …` on the stream's port). The full browser checklist runs only when a slice changes the shared app shell, workspace or lesson runtime: mostly Platform A3, A9 and A10.

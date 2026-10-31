@@ -2,6 +2,9 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import {BaseSequencer, type TestSpecification} from 'vitest/node';
+import {createRequire} from 'node:module';
+
+const testSlots = createRequire(import.meta.url)('./scripts/test-slots.cjs') as {machineBudget: () => {workers: number}};
 
 const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
 
@@ -52,9 +55,12 @@ export default defineConfig({
         // Jest ran serially with a 5 s timeout; Vitest runs files in parallel workers, and several slow component
         // tests (2-3 s alone) exceeded the 5 s default under CI load.
         testTimeout: 15000,
-        // The just runner sets BEZEG_TEST_WORKERS from its machine-wide test slot (scripts/test-slots.cjs); direct
-        // `npm test` and CI keep Vitest's default.
-        ...(process.env.BEZEG_TEST_WORKERS ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)} : {}),
+        // The just runner sets BEZEG_TEST_WORKERS from its machine-wide test slot (scripts/test-slots.cjs). A direct
+        // `npm test`/`npx vitest` gets one slot's worker share instead of a worker per core, which ran 11 jsdom
+        // workers (~4 GB) beside the queued runs on 2026-11-01; it still skips the queue. CI keeps Vitest's default.
+        ...(process.env.BEZEG_TEST_WORKERS
+            ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)}
+            : process.env.CI ? {} : {maxWorkers: testSlots.machineBudget().workers}),
         sequence: {sequencer: PartSequencer},
     },
 });

@@ -9,6 +9,7 @@ You are a worker on Bezeg, an educational curve app. The handler who dispatched 
 
 - Do not commit, push, or delegate.
 - Preserve changes you did not make.
+- Run tests and builds only through `just` (`just unit <path>`, `just build`), never bare `npm test`, `npx vitest` or `npx playwright`: other checkouts share this machine, and `just` queues heavy runs and caps their workers.
 - Report observed check results, not intended ones. State what you did not verify.
 - Keep the reply within the brief's cap; write bulky evidence to the named file and summarize it.
 
