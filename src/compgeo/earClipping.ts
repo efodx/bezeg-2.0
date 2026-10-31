@@ -56,6 +56,8 @@ export function earClippingTrace(vertices: readonly GridPoint[]): EarClippingOut
     if (n < 3) return {ok: false, reason: 'fewer-than-three'};
     if (!polygonSimplicity(vertices, true).simple) return {ok: false, reason: 'not-simple'};
     const area = doubledSignedArea(vertices);
+    // Defensive: a simple polygon has nonzero area, so `polygonSimplicity` refuses every zero-area input first
+    // (math review 2026-10-31). Kept as a distinct reason in case the simplicity rule changes.
     if (area === 0n) return {ok: false, reason: 'zero-area'};
     for (let i = 0; i < n; i++) {
         if (orient(vertices[(i + n - 1) % n], vertices[i], vertices[(i + 1) % n]) === 0) {

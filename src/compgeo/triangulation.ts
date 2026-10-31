@@ -191,6 +191,10 @@ export function createTriangulation(
     for (const [from, to] of unmatched) {
         if (!boundary.has(from * n + to)) return refuse({kind: 'hull-edge-unexpected', edge: [from, to]});
     }
+    // Defensive: unreachable after the checks above (math review 2026-10-31). The unmatched
+    // edges are boundary segments forming a non-empty sub-cycle of the hull cycle, so they are
+    // the whole boundary and the triangles cover the hull exactly once; `hull-edge-missing` and
+    // `area-mismatch` cannot fire and have no test.
     const sortedSegments = [...segments].sort((p, q) => p[0] - q[0] || p[1] - q[1]);
     for (const [from, to] of sortedSegments) {
         if (directed.has(from * n + to) && !directed.has(to * n + from)) continue;

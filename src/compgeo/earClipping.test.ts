@@ -55,6 +55,38 @@ function checkTriangulation(vertices: readonly GridPoint[], triangles: readonly 
     expect(diagonals).toHaveLength(n - 3);
 }
 
+/** Independent statement of the lesson's ear rule; triangles rotated to start at their lowest index. */
+function referenceClip(vertices: readonly GridPoint[]): number[][] {
+    let cycle = vertices.map((_, i) => i);
+    if (doubledSignedArea(vertices) < 0n) cycle.reverse();
+    const out: number[][] = [];
+    const closedContains = (a: GridPoint, b: GridPoint, c: GridPoint, p: GridPoint) =>
+        orient(a, b, p) >= 0 && orient(b, c, p) >= 0 && orient(c, a, p) >= 0;
+    while (cycle.length > 3) {
+        const m = cycle.length;
+        const start = cycle.indexOf(Math.min(...cycle));
+        let clipped = false;
+        for (let k = 0; k < m && !clipped; k++) {
+            const pos = (start + k) % m;
+            const [i, j, l] = [cycle[(pos + m - 1) % m], cycle[pos], cycle[(pos + 1) % m]];
+            const [a, b, c] = [vertices[i], vertices[j], vertices[l]];
+            if (orient(a, b, c) <= 0) continue;
+            if (cycle.some((p) => p !== i && p !== j && p !== l && closedContains(a, b, c, vertices[p]))) continue;
+            out.push([i, j, l]);
+            cycle = cycle.filter((p) => p !== j);
+            clipped = true;
+        }
+        if (!clipped) throw new Error('reference found no ear');
+    }
+    out.push(cycle);
+    return out.map(rotateToLowest);
+}
+
+function rotateToLowest(t: readonly number[]): number[] {
+    const s = t.indexOf(Math.min(...t));
+    return [t[s], t[(s + 1) % 3], t[(s + 2) % 3]];
+}
+
 describe('ear clipping', () => {
     it('clips the notched pentagon in the documented order', () => {
         const r = solve(pentagon);
@@ -85,9 +117,8 @@ describe('ear clipping', () => {
     it('holds the invariants on random simple grid polygons', () => {
         let seed = 12345;
         const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
-        const start = Date.now();
         let checked = 0;
-        while (checked < 300 && Date.now() - start < 4000) {
+        for (let attempt = 0; checked < 300 && attempt < 5000; attempt++) {
             const n = 4 + Math.floor(rnd() * 12);
             const raw = Array.from({length: n}, () => ({x: Math.floor(rnd() * 21) - 10, y: Math.floor(rnd() * 21) - 10}));
             const c = {x: 0.37, y: 0.41};
@@ -97,6 +128,12 @@ describe('ear clipping', () => {
             if (!out.ok) continue;
             checked++;
             checkTriangulation(poly, out.triangles);
+            expect(out.triangles.map(rotateToLowest)).toEqual(referenceClip(poly));
+            const cw = [...poly].reverse();
+            const outCw = earClippingTrace(cw);
+            if (!outCw.ok) throw new Error(`clockwise copy refused: ${outCw.reason}`);
+            expect(outCw.reversed).toBe(true);
+            expect(outCw.triangles.map(rotateToLowest)).toEqual(referenceClip(cw));
             const colours = threeColouring(out.triangles, poly.length);
             out.triangles.forEach((t) => expect(new Set(t.map((v) => colours[v])).size).toBe(3));
             for (let i = 0; i < poly.length; i++) expect(colours[i]).not.toBe(colours[(i + 1) % poly.length]);
@@ -143,8 +180,15 @@ describe('ear clipping', () => {
         expect(earClippingStateAt(r.trace, last + 50)).toEqual(fin);
         expect(earClippingStateAt(r.trace, -3)).toEqual(earClippingStateAt(r.trace, 0));
         expect(clampTraceIndex(r.trace, 1e9)).toBe(last);
-        const mid = earClippingStateAt(r.trace, 10);
-        expect(mid.triangles.length + mid.remaining.length).toBeGreaterThan(0);
+        const first = earClippingStateAt(r.trace, 0);
+        expect(first.remaining).toEqual(comb.map((_, i) => i));
+        expect(first.triangles).toEqual([]);
+        expect(first.done).toBe(false);
+        const firstOutput = r.trace.findIndex((e) => e.kind === 'output');
+        const afterFirst = earClippingStateAt(r.trace, firstOutput);
+        expect(afterFirst.triangles).toEqual([r.triangles[0]]);
+        expect(afterFirst.remaining).toHaveLength(comb.length - 1);
+        expect(afterFirst.remaining).not.toContain(r.triangles[0][1]);
         expect(r.trace.at(-1)?.predicateCount).toBeGreaterThan(0);
         expect(r.trace.filter((e) => e.kind === 'done')).toHaveLength(1);
     });
