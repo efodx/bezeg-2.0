@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
-const {validateInventory} = require('./guided-example-preview-api.cjs');
+const {validateInventory, validateRecipe, recipeFingerprint} = require('./guided-example-preview-api.cjs');
 const {generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
 
 const root = path.resolve(__dirname, '..');
@@ -62,6 +62,52 @@ function expectedFor(id, step) {
     return undefined;
 }
 
+function lessonFrames(step) {
+    // Mirrors framesForLessonStep in src/learning/model.ts, including the step action a frame inherits.
+    if (Array.isArray(step.frames) && step.frames.length > 0) return step.frames.map(frame => ({id: frame.id, action: frame.action ?? step.action}));
+    return [{id: `${step.id}-content`, action: step.action}];
+}
+
+function locateFrame(id, lesson, frameId, where) {
+    const found = [];
+    lesson.steps.forEach((step, stepIndex) => lessonFrames(step).forEach((frame, frameIndex) => {
+        if (frame.id === frameId) found.push({stepIndex, frameIndex, frame});
+    }));
+    assert.ok(found.length > 0, `${id}: ${where} names unknown frame "${frameId}"; lesson frames are: ${
+        lesson.steps.flatMap(step => lessonFrames(step).map(frame => frame.id)).join(', ')}`);
+    assert.equal(found.length, 1, `${id}: ${where} frame id "${frameId}" is ambiguous in the lesson`);
+    return {position: {step: found[0].stepIndex, frame: found[0].frameIndex}, frame: found[0].frame};
+}
+
+/** Resolves an authored recipe (or its absence) against the example's lesson into the explicit inventory form. */
+function resolveRecipe(id, lesson, authored) {
+    const recipe = authored === undefined ? {kind: 'start'} : authored;
+    if (recipe.kind === 'start') return validateRecipe(id, {kind: 'start'});
+    assert.equal(recipe.kind, 'highlight', `${id}: unknown recipe kind ${JSON.stringify(recipe.kind)} (expected "start" or "highlight")`);
+    assert.ok(Array.isArray(recipe.steps), `${id}: highlight recipe steps must be an array`);
+    const target = locateFrame(id, lesson, recipe.frame, 'recipe frame');
+    let current = target;
+    const steps = recipe.steps.map((step, index) => {
+        const where = `recipe step ${index + 1}`;
+        if (step.kind === 'goto-frame') {
+            current = locateFrame(id, lesson, step.frame, where);
+            return {kind: 'goto-frame', frame: step.frame, position: current.position};
+        }
+        assert.equal(step.kind, 'frame-action', `${id}: ${where} has unknown kind ${JSON.stringify(step.kind)}`);
+        const action = current.frame.action;
+        assert.ok(action?.action, `${id}: ${where} presses the action of frame "${current.frame.id}", which has no authored action`);
+        const label = action.label?.sl;
+        assert.ok(typeof label === 'string' && label, `${id}: ${where} frame action has no Slovenian button label`);
+        return {kind: 'frame-action', frame: current.frame.id, position: current.position, label};
+    });
+    return validateRecipe(id, {kind: 'highlight', frame: recipe.frame, position: target.position, steps,
+        expectChange: recipe.expectChange, checks: recipe.checks});
+}
+
+function withRecipe(record, recipe) {
+    return {...record, recipe, recipeFingerprint: recipeFingerprint(recipe)};
+}
+
 async function generateInventory() {
     const {createServer} = await import('vite');
     const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
@@ -69,6 +115,8 @@ async function generateInventory() {
         const registry = await server.ssrLoadModule('/src/learning/chapter/guidedExamples.ts');
         const homesModule = await server.ssrLoadModule('/src/learning/chapter/retainedExamples.ts');
         const homes = homesModule.retainedExampleHomes;
+        const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
+        for (const key of Object.keys(authoredRecipes)) assert.ok(homes.some(home => home[0] === key), `${key}: highlight recipe belongs to no retained guided example`);
         assert.equal(homes.length, 56, `Expected 56 retained example homes, found ${homes.length}`);
         const examples = [];
         for (const home of homes) {
@@ -82,7 +130,8 @@ async function generateInventory() {
             assert.equal(resolved.owner.chapterId, chapterId, `${id}: resolved chapter owner mismatch`);
             assert.equal(resolved.owner.sectionId, sectionId, `${id}: resolved section owner mismatch`);
             const step = resolved.lesson.steps[0];
-            const record = {id, demonstrationId, path: canonicalPath, sceneFingerprint: fingerprintFor(demonstrationId, step), actions: readableActions(step.scene.actions)};
+            const record = withRecipe({id, demonstrationId, path: canonicalPath, sceneFingerprint: fingerprintFor(demonstrationId, step), actions: readableActions(step.scene.actions)},
+                resolveRecipe(id, resolved.lesson, authoredRecipes[id]));
             const expected = expectedFor(id, step);
             if (expected) record.expected = expected;
             examples.push(record);
@@ -106,6 +155,9 @@ async function generatePatchInventory() {
         const inventory = generatePatchGuidedExampleInventory(registry.patchGuidedExampleRegistry,
             {joinScenes, teapotPatches: Array.from({length: 32}, (_, index) => teapot.resolveTeapotPatch(index)),
                 pathForSection: registry.patchGuidedExamplePath});
+        const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
+        for (const key of Object.keys(authoredRecipes)) assert.ok(!key.startsWith('bezier-patches.'), `${key}: highlight recipes are not supported for the patches family yet`);
+        inventory.examples = inventory.examples.map(example => withRecipe(example, {kind: 'start'}));
         validateInventory(inventory.examples);
         assert.equal(inventory.examples.length, 11, 'Expected all eleven section-owned patch examples');
         return inventory;
@@ -129,4 +181,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory};
+module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory};
