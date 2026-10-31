@@ -6,7 +6,7 @@ Handler 9 wrote this on 2026-10-31, after it accepted AB-1d. No agents are runni
 
 | Slice | Commits on master | Evidence |
 | --- | --- | --- |
-| AB-1d Bézier clipping kernel | `4523cb5`-equivalent plan, kernel and test repair, ending at `656a863` | [ab-1d-kernel](../../advanced-bezier/ab-1d-kernel.md) |
+| AB-1d Bézier clipping kernel | `e11ea7b` (plan), `3a82a0d` (kernel), `656a863` (test repair, acceptance) | [ab-1d-kernel](../../advanced-bezier/ab-1d-kernel.md) |
 
 - The plan section "AB-1d plan" in the [advanced-bezier tasks](../../../tasks/advanced-bezier/README.md) settles the hull reuse. `G-CG` grid predicates reject off-grid control points, so the clip uses an exact candidate method with no orientation sign; it reuses the `src/compgeo/trace.ts` step contract.
 - Checks: `just check` green at `3de1d11` (pre-rebase kernel); after the test repair and rebase, `tsc` and the kernel and compgeo unit tests passed at `656a863`.
