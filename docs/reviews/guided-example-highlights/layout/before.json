@@ -1,0 +1,464 @@
+[
+ {
+  "vp": "desktop",
+  "lang": "sl",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Kvintična PH-krivulja",
+  "card": {
+   "x": 483,
+   "w": 780,
+   "h": 243.4
+  },
+  "img": {
+   "x": 498,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Oglej si njeno obliko; krivulja je prikaz konkretne konstruk",
+  "capClipped": false,
+  "alt": "Začetna kvintična PH-krivulja s kontroln",
+  "overflow": false,
+  "sw": 1440,
+  "cw": 1440
+ },
+ {
+  "vp": "desktop",
+  "lang": "sl",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézierjeva krivulja: od točk do oblike",
+  "card": {
+   "x": 483,
+   "w": 780,
+   "h": 246.3
+  },
+  "img": {
+   "x": 498,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je",
+  "capClipped": false,
+  "alt": "Začetna Bézierjeva krivulja s kontrolnim",
+  "overflow": false,
+  "sw": 1440,
+  "cw": 1440
+ },
+ {
+  "vp": "desktop",
+  "lang": "en",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Quintic PH curve",
+  "card": {
+   "x": 483,
+   "w": 780,
+   "h": 243.4
+  },
+  "img": {
+   "x": 498,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Inspect its shape; the curve displays one specific construct",
+  "capClipped": false,
+  "alt": "The starting quintic PH curve with its c",
+  "overflow": false,
+  "sw": 1440,
+  "cw": 1440
+ },
+ {
+  "vp": "desktop",
+  "lang": "en",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézier curve: from points to shape",
+  "card": {
+   "x": 483,
+   "w": 780,
+   "h": 246.3
+  },
+  "img": {
+   "x": 498,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Trace the curve from the first to the last control point; th",
+  "capClipped": false,
+  "alt": "The starting Bézier curve with its contr",
+  "overflow": false,
+  "sw": 1440,
+  "cw": 1440
+ },
+ {
+  "vp": "proj",
+  "lang": "sl",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Kvintična PH-krivulja",
+  "card": {
+   "x": 400,
+   "w": 780,
+   "h": 243.4
+  },
+  "img": {
+   "x": 415,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Oglej si njeno obliko; krivulja je prikaz konkretne konstruk",
+  "capClipped": false,
+  "alt": "Začetna kvintična PH-krivulja s kontroln",
+  "overflow": false,
+  "sw": 1280,
+  "cw": 1280
+ },
+ {
+  "vp": "proj",
+  "lang": "sl",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézierjeva krivulja: od točk do oblike",
+  "card": {
+   "x": 400,
+   "w": 780,
+   "h": 246.3
+  },
+  "img": {
+   "x": 415,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je",
+  "capClipped": false,
+  "alt": "Začetna Bézierjeva krivulja s kontrolnim",
+  "overflow": false,
+  "sw": 1280,
+  "cw": 1280
+ },
+ {
+  "vp": "narrow",
+  "lang": "sl",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Kvintična PH-krivulja",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 523.8
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Oglej si njeno obliko; krivulja je prikaz konkretne konstruk",
+  "capClipped": false,
+  "alt": "Začetna kvintična PH-krivulja s kontroln",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "narrow",
+  "lang": "sl",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézierjeva krivulja: od točk do oblike",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 546.3
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je",
+  "capClipped": false,
+  "alt": "Začetna Bézierjeva krivulja s kontrolnim",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "narrow200",
+  "lang": "sl",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Kvintična PH-krivulja",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 1266.3
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Oglej si njeno obliko; krivulja je prikaz konkretne konstruk",
+  "capClipped": false,
+  "alt": "Začetna kvintična PH-krivulja s kontroln",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "narrow200",
+  "lang": "sl",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézierjeva krivulja: od točk do oblike",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 1261.7
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je",
+  "capClipped": false,
+  "alt": "Začetna Bézierjeva krivulja s kontrolnim",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "narrow200",
+  "lang": "en",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Quintic PH curve",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 1224.5
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Inspect its shape; the curve displays one specific construct",
+  "capClipped": false,
+  "alt": "The starting quintic PH curve with its c",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "narrow200",
+  "lang": "en",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézier curve: from points to shape",
+  "card": {
+   "x": 16,
+   "w": 358,
+   "h": 1261.7
+  },
+  "img": {
+   "x": 55,
+   "w": 280,
+   "h": 171.1
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Trace the curve from the first to the last control point; th",
+  "capClipped": false,
+  "alt": "The starting Bézier curve with its contr",
+  "overflow": false,
+  "sw": 390,
+  "cw": 390
+ },
+ {
+  "vp": "proj200",
+  "lang": "sl",
+  "page": "ph",
+  "count": 7,
+  "idx": 4,
+  "title": "Kvintična PH-krivulja",
+  "card": {
+   "x": 400,
+   "w": 780,
+   "h": 659
+  },
+  "img": {
+   "x": 415,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Oglej si njeno obliko; krivulja je prikaz konkretne konstruk",
+  "capClipped": false,
+  "alt": "Začetna kvintična PH-krivulja s kontroln",
+  "overflow": false,
+  "sw": 1280,
+  "cw": 1280
+ },
+ {
+  "vp": "proj200",
+  "lang": "sl",
+  "page": "bez",
+  "count": 12,
+  "idx": 0,
+  "title": "Bézierjeva krivulja: od točk do oblike",
+  "card": {
+   "x": 400,
+   "w": 780,
+   "h": 612.6
+  },
+  "img": {
+   "x": 415,
+   "w": 240,
+   "h": 146.7
+  },
+  "natural": [
+   840,
+   520
+  ],
+  "imgAttr": [
+   "720",
+   "440"
+  ],
+  "objectFit": "contain",
+  "caption": "Sledi krivulji med prvo in zadnjo kontrolno točko; oblika je",
+  "capClipped": false,
+  "alt": "Začetna Bézierjeva krivulja s kontrolnim",
+  "overflow": false,
+  "sw": 1280,
+  "cw": 1280
+ }
+]
