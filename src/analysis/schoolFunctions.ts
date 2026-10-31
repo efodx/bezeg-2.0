@@ -320,7 +320,7 @@ export const schoolFunctionModel = (fn: SchoolFunction): SchoolFunctionModel => 
 
 export type SchoolFunctionReason =
     | 'not-an-object' | 'missing' | 'not-a-number' | 'not-finite' | 'out-of-range' | 'excluded-value'
-    | 'unknown-kind' | 'unknown-shape' | 'unknown-id' | 'nested-transform' | 'unsupported-kind'
+    | 'unknown-kind' | 'unknown-shape' | 'unknown-id' | 'nested-transform'
     | 'not-an-array' | 'not-an-integer' | 'degree-too-high';
 
 export interface SchoolFunctionDiagnosis {
