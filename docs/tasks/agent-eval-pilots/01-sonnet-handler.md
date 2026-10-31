@@ -12,7 +12,8 @@ One changed factor: the handler model. Workflow, prompt, task and worker routing
 
 - Task: `chapter-activity-controls` (M). Recalibrate first if tooling changed: `just eval calibrate M`.
 - Arms: Sonnet 5.5 handler × 2 (`--model claude-sonnet-5-5`). Compare with the pilot's two current-workflow Opus runs ($2.34 / 35 min and $3.43 / 55 min); add fresh Opus runs only if tooling changed enough to make those incomparable.
-- Setup: `just eval setup M` per run; accept the workspace trust prompt once in each new `repo` folder; give each sandbox its own `SMOKE_PORT`; launch with `claude --bg -n "eval M sonnet-handler <n>" --agent claude --model claude-sonnet-5-5 --permission-mode auto "<prompt.md contents>"` from the sandbox `repo` folder. Run the pair concurrently and grade after both settle.
+- Tooling: later commits changed the smoke-tester skill, added `bezeg-reviewer` and the 215k Opus handoff. To keep the model the only changed factor, set up with `just eval setup M --workflow 679bb4a`: its tooling matches the pilot runs except two lines about new lesson families that do not bear on this task (budget watchers stay ineffective in sandboxes, as in the pilot). Use current tooling only together with fresh Opus runs.
+- Setup: `just eval setup M --workflow 679bb4a` per run; accept the workspace trust prompt once in each new `repo` folder; give each sandbox its own `SMOKE_PORT`; launch with `claude --bg -n "eval M sonnet-handler <n>" --agent claude --model claude-sonnet-5-5 --permission-mode auto "<prompt.md contents>"` from the sandbox `repo` folder. Run the pair concurrently and grade after both settle.
 - Completion: a session is finished when its log shows the final recap, even if `claude agents --json` still reports `busy` because of a leftover background shell.
 
 ## Acceptance
