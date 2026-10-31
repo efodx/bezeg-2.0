@@ -1,5 +1,5 @@
 # Stream: Maps
-Run state: not started
+Run state: active
 
 Rules and slice template: [feature streams](README.md). Port 4316. Handoffs: `docs/reviews/feature-streams/maps/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
