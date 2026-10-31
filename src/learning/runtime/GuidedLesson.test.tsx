@@ -191,13 +191,29 @@ test('hides instructions without ending the session and reopens the same frame',
     }
 });
 
+test('clicking the graph beside a reading panel hides the instructions', () => {
+    vi.useFakeTimers();
+    setLanguage('sl');
+    try {
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const catcher = container.querySelector('.guided-lesson-graph-catcher');
+        expect(catcher).toHaveAttribute('title', 'Skrij navodila vodenega primera');
+        fireEvent.click(catcher!);
+        act(() => vi.advanceTimersByTime(250));
+        expect(container.querySelector('.guided-lesson')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', {name: /Nazaj na navodila/})).toBeVisible();
+    } finally {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('clicking the graph beside an exploration panel observes the graph', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
         const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
-        // Reading frames keep the graph locked and do not hide on a graph click.
-        expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
