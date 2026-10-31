@@ -22,7 +22,7 @@ Choose supported higher effort or a stronger model within the active family for 
 
 Codex child defaults are in [`.codex/config.toml`](../.codex/config.toml); the handler retains its selected model. Claude applies this table through its available dispatch tool. Explicit task settings override defaults.
 
-Under Claude, dispatch implementation, fix, and review workers as `bezeg-worker` and browser smoke as `bezeg-smoke` ([`.claude/agents/`](../.claude/agents/)), passing the table's model. They carry only shell and file tools and no skill listing, so a worker starts near 9k input instead of 37k under `general-purpose` ([evidence](agent-workflow/haiku-context-2026-10-25.md)). They cannot invoke skills: name skill and checklist paths in the brief. Use `Explore` for read-only research, and `general-purpose` only when a role needs another tool; record why.
+Under Claude, dispatch implementation, fix, and test workers as `bezeg-worker`, reviews as the read-only `bezeg-reviewer`, and browser smoke as `bezeg-smoke` ([`.claude/agents/`](../.claude/agents/)), passing the table's model. They carry only shell and file tools and no skill listing, so a worker starts near 9k input instead of 37k under `general-purpose` ([evidence](agent-workflow/haiku-context-2026-10-25.md)). They cannot invoke skills: name skill and checklist paths in the brief. Use `Explore` for read-only research, and `general-purpose` only when a role needs another tool; record why.
 
 ## Dispatch
 
@@ -37,9 +37,9 @@ Under Claude, dispatch implementation, fix, and review workers as `bezeg-worker`
 
 Under Claude, the handler also hands off its own context, since every handler turn re-reads it and a handler that kept everything cost as much as all its workers ([evidence](agent-workflow/lesson-run-usage-2026-10-25.md)). Codex uses the separate procedure below.
 
-1. When delegated work starts, run `python tools/agent-usage/claude_worker_watch.py --self --until 150000` as a background command.
-2. At that soft threshold, dispatch no new workers and start no new step. Finish the current step, let running workers return, integrate and verify what they delivered, then start the same watcher with `--until 190000`.
-3. If the 190k watcher exits first, send `HANDOFF` to every running worker and collect their notes instead of waiting for completion.
+1. At task start, including handler-only work, run `python tools/agent-usage/claude_worker_watch.py --self --until 150000` as a background command.
+2. At that soft threshold, dispatch no new workers and start no new step. Finish the current step, let running workers return, integrate and verify what they delivered, then start the same watcher at the handoff threshold: `--until 215000` for an Opus handler, `--until 190000` for other models.
+3. If the handoff watcher exits first, send `HANDOFF` to every running worker and collect their notes instead of waiting for completion.
 4. Commit verified work under the Git rules. Push accepted work to `master`; push other progress to the working branch on `origin` so it survives.
 5. Write a handler handoff note to `docs/reviews/<feature>/handler-handoff-<n>.md`: branch and commit, source spec and tasks, accepted work, remaining steps in order, worker handoff notes, checks run with their revision, open decisions and risks, and the settings to keep (model, permission mode, worker routing).
 6. From the current working directory, launch the successor with `claude --bg -n "<feature> handler <n+1>" --agent claude --model <own model> --permission-mode <own mode> "<prompt>"`, where the prompt names the note and asks the successor to continue under `AGENTS.md`. It runs in the same worktree and branch. End the turn with the printed session id, note path, and commit.

@@ -5,6 +5,7 @@ Before editing, read only the spec or document covering the area you change. [do
 ## Implementation delegation
 
 - Check the [handler context budget](docs/agent-workflow.md#handler-context-budget-codex) at Codex task start and bounded work boundaries, including handler-only work; prepare a fresh-chat handoff at 150k and collect worker notes at 190k. Context handoffs may create a fresh successor chat to continue the same authorized objective.
+- Under Claude, start the [handler context watcher](docs/agent-workflow.md#handler-context-budget-claude) at task start, including handler-only work; start no new step at 150k and hand off at 215k for an Opus handler (190k for other models).
 - Delegate code implementation and fixes when a worker can make meaningful progress on a bounded, separable slice. Small or tightly coupled changes may stay with the handler. Before dispatch, the handler reads [the delegation workflow](docs/agent-workflow.md) for model/effort routing, task briefs, and evidence capture. This is standing authorization.
 - The main chat owns scope, review, verification, and commits. Workers implement their assigned slice, report evidence, and do not delegate further.
 - Workers follow their assignment and relevant project constraints; orchestration research and accumulated evaluation logs are loaded by the handler only when evaluating the workflow.
