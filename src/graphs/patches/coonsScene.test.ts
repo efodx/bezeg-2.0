@@ -27,6 +27,21 @@ describe("default example", () => {
         expect(coonsMismatches(b)).toEqual([]);
     });
 
+    it("has the interior net points of lc, ld and b by hand", () => {
+        // Lc_ij = (1 - j/3) c0[i] + (j/3) c1[i]; Ld_ij = (1 - i/3) d0[j] + (i/3) d1[j]; B_ij is bilinear in the corners (0,0,0), (3,0,0), (0,3,0), (3,3,0).
+        const b = defaultCoonsBoundaries();
+        const lc = coonsNet(b, "lc"), ld = coonsNet(b, "ld"), bil = coonsNet(b, "b");
+        close(lc[1][1], [1, 1, 1]);
+        close(ld[1][1], [1, 1, 1 / 3]);
+        close(bil[1][1], [1, 1, 0]);
+        close(lc[2][2], [2, 2, 0]);
+        close(ld[2][2], [2, 2, 2 / 3]);
+        close(bil[2][2], [2, 2, 0]);
+        close(lc[2][1], [2, 1, 1]);
+        close(ld[2][1], [2, 1, 2 / 3]);
+        close(bil[2][1], [2, 1, 0]);
+    });
+
     it("builds the net of each shown surface from the kernel", () => {
         const b = defaultCoonsBoundaries();
         expect(coonsNet(b, "s")).toEqual(coonsBicubicNet(b));
@@ -106,6 +121,29 @@ describe("editing", () => {
         expect(unlinked.c1[3]).toEqual([3, 3, 0]);
         expect(coonsMismatches(unlinked).map(m => m.corner)).toEqual(["u1v1"]);
         expect(b.d1[3]).toEqual([3, 3, 0]);
+    });
+
+    it("moves both members of the u1v0 and u0v1 corners when linked and reports the right corner when unlinked", () => {
+        const b = defaultCoonsBoundaries();
+        const target: Xyz = [4, -1, 2];
+        for (const [name, index, partner, partnerIndex, corner] of [["c0", 3, "d1", 0, "u1v0"], ["d1", 0, "c0", 3, "u1v0"], ["c1", 0, "d0", 3, "u0v1"], ["d0", 3, "c1", 0, "u0v1"]] as const) {
+            const linked = moveCoonsPoint(b, true, name, index, target);
+            expect(linked[name][index]).toEqual(target);
+            expect(linked[partner][partnerIndex]).toEqual(target);
+            expect(coonsMismatches(linked)).toEqual([]);
+            const unlinked = moveCoonsPoint(b, false, name, index, target);
+            expect(unlinked[partner][partnerIndex]).toEqual(b[partner][partnerIndex]);
+            expect(coonsMismatches(unlinked).map(m => m.corner)).toEqual([corner]);
+        }
+    });
+
+    it("with mismatched corners the shown S meets each corner at the average of the pair", () => {
+        const broken = moveCoonsPoint(defaultCoonsBoundaries(), false, "d1", 0, [4, -1, 2]);
+        const scene = buildCoonsScene(input({boundaries: broken, linkedCorners: false}), 1);
+        const positions = Array.from(scene.mesh!.positions);
+        const vertex = (i: number, j: number): Xyz => [0, 1, 2].map(k => positions[3 * (i * 17 + j) + k]) as Xyz;
+        // c0[3] = (3, 0, 0) and d1[0] = (4, -1, 2): S(1, 0) misses each by half the gap.
+        close(vertex(16, 0), [3.5, -0.5, 1], 6);
     });
 
     it("moving an interior control point never moves another point", () => {

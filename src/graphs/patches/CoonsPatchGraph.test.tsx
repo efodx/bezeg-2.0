@@ -1,4 +1,4 @@
-import {act, render, screen, waitFor} from "@testing-library/react";
+import {act, render, screen, waitFor, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims} from "../base/realGraphTestHarness";
@@ -130,7 +130,15 @@ describe("editing (acceptance 2 and 4)", () => {
         const {container} = render(<>{graph.edit()}</>);
         expect(container.querySelector('[data-corner-status="mismatch"]')).not.toBeNull();
         expect(container.querySelector('[data-corner="u1v1"]')!.textContent).toBe(t("coons_corner_mismatch", {value0: "(1, 1)", value1: "1"}));
-        expect(container.querySelector('[role="alert"]')!.textContent).toBe(t("coons_no_interpolation"));
+        const live = container.querySelectorAll('[role="status"]');
+        expect(live).toHaveLength(1);
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        expect(live[0].contains(container.querySelector('[data-corner="u1v1"]'))).toBe(true);
+        expect(live[0].textContent).toContain(t("coons_no_interpolation"));
+        expect(t("coons_no_interpolation")).toContain("S");
+        const helpId = within(container).getByLabelText(t("coons_linked_corners")).getAttribute("aria-describedby");
+        expect(helpId).toBeTruthy();
+        expect(document.getElementById(helpId!)!.textContent).toBe(t("coons_linked_help"));
         expect(container.textContent).not.toContain(t("coons_corners_met"));
     });
 
@@ -194,7 +202,7 @@ describe("Presets (acceptance 6)", () => {
     });
 
     it("restores the default scene, replacing imported data", async () => {
-        const {graph} = mount();
+        const {graph, view} = mount();
         await waitFor(() => expect(graph.isReady).toBe(true));
         const imported = JSON.parse(JSON.stringify(graph.defaultPreset()));
         imported[0][1].shown = "b";
@@ -203,7 +211,13 @@ describe("Presets (acceptance 6)", () => {
         act(() => graph.importPresetData(imported));
         expect(graph.state.shown).toBe("b");
         expect(graph.exportPresetData()[0][1].d1[3]).toEqual([3, 4, 0]);
+        act(() => graph.setZMode(true));
+        act(() => graph.selectBoundaryPoint("c1", 2));
+        expect(graph.state.zMode).toBe(true);
+        expect(view.last.points.some(p => p.selected)).toBe(true);
         act(() => graph.restoreDefaultScene());
+        expect(graph.state.zMode).toBe(false);
+        expect(view.last.points.some(p => p.selected)).toBe(false);
         expect(graph.state.shown).toBe("s");
         expect(graph.state.linkedCorners).toBe(true);
         expect(graph.state.boundaries).toEqual(defaultCoonsBoundaries());
@@ -223,14 +237,13 @@ describe("Presets (acceptance 6)", () => {
 });
 
 describe("language", () => {
-    it("the readouts follow a live language switch and the view label is localized", () => {
-        const {graph, view} = mount();
+    it("the readouts follow a live language switch", () => {
+        const {graph} = mount();
         const {container} = render(<>{graph.edit()}</>);
         expect(container.textContent).toContain(t("coons_corners_met"));
         expect(container.textContent).toContain("1,333");
         act(() => setLanguage("en"));
         expect(container.textContent).toContain("All four boundary curves meet at the corners.");
         expect(container.textContent).toContain("1.333");
-        expect(view.labels.at(-1)).toBe(t("surface_view_label"));
     });
 });

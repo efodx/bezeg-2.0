@@ -1712,7 +1712,7 @@ export const en: Record<keyof typeof sl, string> = {
     "coons_corner_status_heading": "Boundary corners",
     "coons_corners_met": "All four boundary curves meet at the corners.",
     "coons_corner_mismatch": "Corner (u, v) = {value0}: the end points are {value1} apart.",
-    "coons_no_interpolation": "The patch does not interpolate the boundary curves: at a corner with a gap it misses each of them by half the gap.",
+    "coons_no_interpolation": "The Coons patch S does not interpolate the boundary curves: at a corner with a gap it misses each of them by half the gap.",
     "coons_invalid_boundary": "boundary curve {value0} must be a list of exactly 4 points",
     "coons_coordinate_out_of_range": "coordinates must have an absolute value of at most {value0}; fix the values in the file",
     "coons_invalid_shown": "the shown surface (shown) must be lc, ld, b or s",

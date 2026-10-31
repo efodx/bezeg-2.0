@@ -1,3 +1,4 @@
+import {useId} from "react";
 import {Button} from "react-bootstrap";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -53,6 +54,7 @@ const CORNER_COORDINATES: Record<CoonsCornerMismatch["corner"], string> = {u0v0:
 
 export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelState; selection?: CoonsSelection; actions: CoonsPanelActions}) {
     const t = useT();
+    const linkedHelpId = useId();
     const shownOptions = COONS_SHOWN.map(value => ({value, text: t(`coons_shown_${value}`)}));
     const boundaryOptions = [{value: NO_SELECTION, text: t("patch_no_selection")}, ...COONS_BOUNDARY_NAMES.map(value => ({value, text: t(`coons_boundary_${value}`)}))];
     const indexOptions = [{value: NO_SELECTION, text: t("patch_no_selection")}, ...[0, 1, 2, 3].map(k => ({value: String(k), text: String(k)}))];
@@ -64,8 +66,8 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
                           onChange={value => actions.setShown(asShown(value))}/>
         </div>
         <div className="inspector-group"><h3>{t("coons_corners_heading")}</h3>
-            <OnOffSwitch label={t("coons_linked_corners")} checked={state.linkedCorners} onChange={on => actions.setLinkedCorners(on)}/>
-            <p className="inspector-help">{t("coons_linked_help")}</p>
+            <OnOffSwitch label={t("coons_linked_corners")} checked={state.linkedCorners} onChange={on => actions.setLinkedCorners(on)} describedBy={linkedHelpId}/>
+            <p id={linkedHelpId} className="inspector-help">{t("coons_linked_help")}</p>
         </div>
         <div className="inspector-group"><h3>{t("coons_point_heading")}</h3>
             <ChoiceSelect label={t("coons_boundary")} value={selection?.name ?? NO_SELECTION} options={boundaryOptions}
@@ -104,13 +106,15 @@ export function CoonsReadoutPanel({readouts}: {readouts: CoonsReadouts}) {
         <FunctionReadout title={t("coons_interior_heading")} rows={rows} note={t("coons_interior_note")}/>
         <div className="inspector-group" data-corner-status={readouts.mismatches.length === 0 ? "met" : "mismatch"}>
             <h3>{t("coons_corner_status_heading")}</h3>
-            {readouts.mismatches.length === 0
-                ? <p className="inspector-help" role="status">{t("coons_corners_met")}</p>
-                : <>
-                    {readouts.mismatches.map(mismatch => <p key={mismatch.corner} className="inspector-help" role="status" data-corner={mismatch.corner}>
-                        {t("coons_corner_mismatch", {value0: CORNER_COORDINATES[mismatch.corner], value1: formatNumber(mismatch.distance, language, 3)})}</p>)}
-                    <p role="alert">{t("coons_no_interpolation")}</p>
-                </>}
+            <div role="status">
+                {readouts.mismatches.length === 0
+                    ? <p className="inspector-help">{t("coons_corners_met")}</p>
+                    : <>
+                        {readouts.mismatches.map(mismatch => <p key={mismatch.corner} className="inspector-help" data-corner={mismatch.corner}>
+                            {t("coons_corner_mismatch", {value0: CORNER_COORDINATES[mismatch.corner], value1: formatNumber(mismatch.distance, language, 3)})}</p>)}
+                        <p className="inspector-help">{t("coons_no_interpolation")}</p>
+                    </>}
+            </div>
         </div>
     </>;
 }

@@ -6,13 +6,15 @@ export function OnOffSwitch(props: {
     checked: boolean,
     onChange: (checked: boolean) => void,
     label: string,
-    disabled?: boolean
+    disabled?: boolean,
+    describedBy?: string
 }) {
     const id = useId();
     return <Form> <Form.Check
         disabled={props.disabled}// prettier-ignore
         type="switch"
         id={id}
+        aria-describedby={props.describedBy}
         label={props.label}
         checked={props.checked}
         onChange={() => props.onChange(!props.checked)}/>

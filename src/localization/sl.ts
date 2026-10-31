@@ -1711,7 +1711,7 @@ export const sl = {
     "coons_corner_status_heading": "Stik robnih krivulj",
     "coons_corners_met": "Vse štiri robne krivulje se stikajo v vogalih.",
     "coons_corner_mismatch": "Vogal (u, v) = {value0}: krajišči sta narazen za {value1}.",
-    "coons_no_interpolation": "Ploskev ne interpolira robnih krivulj: v vogalih z razmikom ju zgreši za polovico razmika.",
+    "coons_no_interpolation": "Coonsova ploskev S ne interpolira robnih krivulj: v vogalih z razmikom jih zgreši za polovico razmika.",
     "coons_invalid_boundary": "robna krivulja {value0} mora biti seznam natanko 4 točk",
     "coons_coordinate_out_of_range": "koordinate morajo imeti absolutno vrednost največ {value0}; popravi vrednosti v datoteki",
     "coons_invalid_shown": "prikazana ploskev (shown) mora biti lc, ld, b ali s",
