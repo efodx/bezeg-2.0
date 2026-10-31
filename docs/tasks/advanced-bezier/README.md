@@ -47,8 +47,8 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-1a | F1 | `degree-reduction.ts` (both objectives) with D1 numbers | — | done ([evidence](../../reviews/advanced-bezier/ab-1a-kernel.md)) |
 | AB-1b | F1 | `arc-length.ts` on the curvature kernel's hodograph, PH oracle tests, D3 numbers | CG-1 | done ([evidence](../../reviews/advanced-bezier/ab-1b-kernel.md)); D3 graph splits panels at cusps |
 | AB-1c | F1 | `coons.ts` with the bicubic-net identity test | — | done ([evidence](../../reviews/advanced-bezier/ab-1c-kernel.md)); B averages mismatched corners |
-| AB-1d | F1 | `bezier-clipping.ts` ([plan](#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31)) | `G-CG` | in progress |
+| AB-1d | F1 | `bezier-clipping.ts` ([plan](#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31)) | `G-CG` | done ([evidence](../../reviews/advanced-bezier/ab-1d-kernel.md)); hull overlap waits for convexity A6 |
 | AB-A-* | F2a–F6 | D1 reduction, D3 arc length | `G-CURVE`, `G-REG`, AB-1a, AB-1b | planned |
-| AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d | planned |
+| AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d, convexity A6 (separating-axis test, pair-of-curves graph) | planned |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |

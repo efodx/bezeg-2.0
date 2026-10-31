@@ -233,9 +233,8 @@ function polylineRoots(a: readonly ClipPoint[], b: readonly ClipPoint[], samples
 
 const inside = (r: ClipRange, v: number, slack: number) => v >= r[0] - slack && v <= r[1] + slack;
 
-/** Every reference root lies in a returned result or unresolved range pair (up to `slack`), else the run must be `limit`. */
+/** Every reference root lies in a returned result or unresolved range pair (up to `slack`), whatever the status. */
 function expectCovered(run: ClipRun, roots: RefRoot[], tolerance: number, label: string): void {
-    if (run.status === "limit") return;
     for (const root of roots) {
         const slack = root.exact ? 5 * tolerance : 2.5e-3;
         const hit = [...run.results, ...run.unresolved].some(r => inside(r.aRange, root.t, slack) && inside(r.bRange, root.s, slack));
@@ -477,6 +476,23 @@ describe("bezier clipping: guards", () => {
         expect(limitEvents.every(e => e.payload.reason === "clips")).toBe(true);
     });
 
+    it("at the clip cap, every pair still alive becomes unresolved and every root stays covered", () => {
+        for (const [b, maxClips] of [[B_CROSS, 3], [B_CROSS, 8], [B_TANGENT, 12], [B_TANGENT, 30]] as const) {
+            const run = clipBezierPair(A, b, {maxClips});
+            expect(run.status).toBe("limit");
+            const first = run.trace.findIndex(e => e.kind === "limit");
+            expect(first).toBeGreaterThan(0);
+            // Pairs alive just before the cap, as the fold derives them from earlier events.
+            const alive = stateAt(run.trace, first - 1, clipFold(), INITIAL_CLIP_STATE).active.map(v => v.pair).sort((x, y) => x - y);
+            expect(alive.length).toBeGreaterThan(0);
+            expect(run.unresolved.map(v => v.pair).sort((x, y) => x - y)).toEqual(alive);
+            const roots = b === B_CROSS ? [0.25, 0.75] : [0.5];
+            for (const t of roots) {
+                expect([...run.results, ...run.unresolved].some(r => inside(r.aRange, t, 1e-12) && inside(r.bRange, t, 1e-12)), `cap ${maxClips}: root ${t} lost`).toBe(true);
+            }
+        }
+    });
+
     it("tangent pair at tolerance 1e-10 stops at the cap (rounding cannot certify a double root)", () => {
         const run = clipBezierPair(A, B_TANGENT, {tolerance: 1e-10});
         expect(run.clipCount).toBeLessThanOrEqual(200);
@@ -626,10 +642,7 @@ describe("bezier clipping: seeded random pairs against two references", () => {
             const b = randomNet(rand, db);
             const run = clipBezierPair(a, b);
             expect(run.clipCount).toBeLessThanOrEqual(200);
-            if (run.status === "limit") {
-                limited++;
-                continue;
-            }
+            if (run.status === "limit") limited++;
             const roots = resultantRoots(a, b);
             expectCovered(run, roots, 1e-6, `resultant ${JSON.stringify([a, b])}`);
             rootCount += roots.length;

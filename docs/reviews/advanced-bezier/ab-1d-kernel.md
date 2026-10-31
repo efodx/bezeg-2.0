@@ -58,3 +58,9 @@ D2 oracle pairs (5): crossing, recorded counts and the 3x ratio, tangent merged,
 - The fold needs the run's tolerance for merging (`clipFold(tolerance)`); the last index of `stateAt` equals `{status, results, unresolved, clipCount}`.
 - Hull overlap (step 1 of the lesson) is not computed by the kernel: it needs A6's separating-axis test on real control points ([request in geometry.md](../../feature-streams/geometry.md)).
 - Risks: a limit run may report roots that are still unresolved ranges, not roots; the lesson must say a finite run proves nothing. Merging uses bounding ranges, so two close roots within the tolerance would merge into one result.
+
+## Review and acceptance (handler 9, 2026-10-31)
+
+- Mathematical and engineering review (`bezeg-reviewer`, Sonnet, pinned to `3de1d11`): no finding on the band clip, fat-line fallbacks, split/termination/cap, merge, trace fold, resultant reference, or the offset count (a counting-rule difference: the first clip keeps 0.875 > 0.8 and splits; both curves satisfy y = 8u and y = 4.5 − 8u with u = t(1 − t) ≤ 1/4, so `empty` is correct).
+- Two low test findings, repaired by the handler: (1) `expectCovered` and the random sets skipped `limit` runs, so coverage by unresolved ranges was never checked there; they now check every run. (2) The cap test passed when results alone covered the root; a new guard compares the unresolved pair ids with the pairs alive (fold of the trace) just before the first cap event, for the crossing and tangent pairs at caps 3, 8, 12 and 30, and checks every true root stays covered. Observed failure: cap emitting only the current pair (`[pair]` instead of `[pair, ...stack.reverse()]`) fails the new guard (and three fold tests); reverted.
+- Remaining dependency: the D2 graph (AB-B) waits for A6's separating-axis test on real control points.
