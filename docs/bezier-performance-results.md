@@ -397,3 +397,19 @@ The PH regression is resolved within run-to-run noise. No speed-up is claimed fo
 | Quintic PH offset distance (`/ph/quintic`) | 8.0 → 9.7 | 10.6 → 12.8 |
 
 The added cost (about 2 ms per input) was consistent in every alternating pair. Both sliders stay within a 60 Hz frame at p95, with less margin than before. Accepted for correctness (controls can no longer show stale values); narrowing re-renders to the changed control group is a candidate optimization if profiling on target devices shows it matters. Phone and throttled runs were not repeated.
+
+## Drawing playground drag — 2026-10-31
+
+Spec criterion 5 of [the playground spec](specs/bezier-drawing-playground.md). Commit `577ae08` (production build, working tree dirty only by the new script). Machine: 16 GB, 12 threads, under load from other sessions; headless Chromium via Playwright, mouse input, display refresh 60 Hz (16.7 ms frame). Raw per-run numbers: [pg4b-perf-raw.md](reviews/feature-streams/learn-ui/pg4b-perf-raw.md).
+
+Method: `node scripts/playground-perf.cjs` against `just preview 4312`. Each run uses a fresh browser context seeded with a 20-anchor closed drawing (smooth-aligned anchors around an ellipse) and opens `/bezeg-2.0/learn/bezier-curves`. It asserts 20 anchors rendered (and, for the inspect block, four checked overlay switches and the one-curve overlay), drags one out handle with 150 small `mouse.move` steps in a circle, and samples `requestAnimationFrame` intervals inside the drag, discarding the first 15 frames. The run fails if the seed does not load, the handle does not move, or fewer than 60 samples exist. Throttled cases use CDP `Emulation.setCPUThrottlingRate` 4 at 390×844. Each case ran 3 times; the table gives the median of the per-run medians and p95s, with the range in brackets. Each run collected 309–725 frame samples.
+
+| Case | Median ms | p95 ms | Target (median) | Result |
+|---|---|---|---|---|
+| Draw block, no overlays, desktop 1440×900 | 16.7 (16.7–16.7) | 16.7 (16.7–16.8) | ≤ 16.7 | pass |
+| Inspect block, all overlays, desktop | 16.7 (16.7–16.7) | 16.8 (16.7–16.8) | ≤ 16.7 | pass |
+| Draw block, no overlays, 390×844, 4× CPU | 16.7 (16.7–16.7) | 16.8 (16.8–16.8) | ≤ 33.3 | pass |
+| Inspect block, all overlays, 390×844, 4× CPU | 16.7 (16.7–16.7) | 49.9 (33.4–50.0) | ≤ 33.3 | pass on median; p95 is 33–50 ms (occasional dropped frames, max 100 ms) |
+| JSXGraph phone baseline (Nord N10, Chrome 153) | 100 | 183 | — | for comparison |
+
+Limits: the figures are rAF intervals, which saturate at the 16.7 ms refresh interval, so a median of 16.7 ms means "no sustained drops", not headroom. The throttle is a desktop CPU slowdown, not a phone, and the headless browser has no real GPU compositing of a touch device. The targets name only the median; the inspect-block p95 under throttling is reported as a tail concern. No real phone was measured. The drag lasts longer than the nominal 2 s because each scripted move is a round trip.
