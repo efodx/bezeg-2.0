@@ -13,7 +13,7 @@ Spec: [bezier-drawing-playground.md](../../specs/bezier-drawing-playground.md), 
 | PG2 | `DrawingPlayground.tsx`: canvas, pointer and keyboard editing, toolbar, persistence (criteria 2, 4, 8) | PG1's interface fixed | Engineering + UI/accessibility | accepted: review findings 1–11 repaired ([findings](../../reviews/feature-streams/learn-ui/pg2-review-findings.md)); real-browser checks of criterion 2 (pointer capture, double click, touch, focus ring) carried to PG4a/PG4b |
 | PG3 | *Look underneath* overlays and the one-curve comparison (criterion 3) | PG2 | Mathematical + UI/accessibility | accepted: `LookUnderneath.tsx`; review findings 1–6 repaired ([findings](../../reviews/feature-streams/learn-ui/pg3-review-findings.md)); label overlap, touch targets and segment press carried to PG4a/PG4b browser checks |
 | PG4a | Chapter blocks, bilingual prose, terms, docs (criteria 6, 7, 9) | PG3 | Engineering; notation test | implemented and reviewed (no blocking finding); committed on the stream branch only, **not on master** until PG4b passes |
-| PG4b | Performance measurement and smoke (criteria 5, 7) | PG4a | Handler | planned |
+| PG4b | Performance measurement and smoke (criteria 5, 7) | PG4a | Handler | in progress: criterion 5 passes (medians 16.7 ms; throttled inspect p95 33–50 ms recorded); criteria 2 and 7 smoke pass; smoke repair `d30a4a8` (inspect starts from the example, joint labels clear) awaits a browser recheck ([handoff 3](../../reviews/feature-streams/learn-ui/handler-handoff-3.md)) |
 
 **Stop condition:** a performance miss against criterion 5 goes to the owner before release. Do not push PG4a's chapter blocks until PG4b passes or the owner accepts the miss. PG1–PG3 may be pushed earlier, since nothing mounts them yet.
 
