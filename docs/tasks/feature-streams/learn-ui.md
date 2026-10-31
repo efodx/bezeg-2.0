@@ -1,4 +1,5 @@
 # Stream: Learn UI
+Run state: not started
 
 Rules: [feature streams](README.md). Port 4312. Handoffs: `docs/reviews/feature-streams/learn-ui/`.
 
@@ -25,9 +26,9 @@ Spec: [learn-landing-visual-alignment.md](../../specs/learn-landing-visual-align
 | LL1 | Tasks 1–3 as one slice | planned |
 | LL2 | Task 4: phone layout, verification, DESIGN.md | planned |
 
-## 3. Guided example highlights (pending owner confirmation)
+## 3. Guided example highlights
 
-Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); tasks: [guided-example-highlights/](../guided-example-highlights/README.md). The spec says implementation is not authorized. Start only after the owner confirms in this file or in the spec. Until then, this stream ends after section 2.
+Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); tasks: [guided-example-highlights/](../guided-example-highlights/README.md). **Implementation authorized by the owner on 2026-10-31** as part of this stream. It starts after sections 1 and 2.
 
 - Redo task 00's audit against current `master`. Its counts (56 examples, 16 figures) predate the Bézier patches chapter and any family chapters that have landed since.
 - Tasks 03 and 04 need the owner's decisions from audit 00. Stop and report after 00.
@@ -36,7 +37,13 @@ Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); 
 
 | Task | Status |
 | --- | --- |
-| 00 audit (redo) | blocked: owner confirmation |
+| 00 audit (redo) | planned |
 | 01 capture pipeline ∥ 02 card layout | planned |
 | 03 ∥ 04 batches | blocked: owner decisions from 00 |
 | 05 figure-kind removal and acceptance | planned |
+
+## Gate provided
+
+| Gate | Status |
+| --- | --- |
+| `G-HL` (highlights 01 + 05) | closed |

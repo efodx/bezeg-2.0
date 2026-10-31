@@ -2,7 +2,7 @@
 
 Status: planned 2026-10-31 against `master` at `499b264`; no stream started. Supersedes the ten-task queue from earlier the same day (commit `7a5275f`). That queue completed only the playground and six of the ten architecture tasks.
 
-**Authorization.** On 2026-10-31 the owner asked for full features rather than a task queue. That request schedules every feature below. It includes the fifteen [new lesson families](../../specs/new-lesson-families.md), whose specs said implementation was not yet scheduled. [Guided example highlights](../../specs/guided-example-highlights.md) is the exception: its spec says implementation is not authorized, so stream `learn-ui` runs it only after the owner confirms (see [stream file](learn-ui.md)).
+**Authorization.** On 2026-10-31 the owner asked for full features rather than a task queue. That request schedules every feature below. It includes the fifteen [new lesson families](../../specs/new-lesson-families.md), whose specs said implementation was not yet scheduled. The owner confirmed [guided example highlights](../../specs/guided-example-highlights.md) the same day. Stream `learn-ui` runs it after its first two features.
 
 ## Model
 
@@ -34,13 +34,15 @@ A gate is a set of accepted, pushed tasks. Before a stream starts a gated slice,
 
 | Gate | Satisfied when | Gates these slices | Why |
 | --- | --- | --- | --- |
-| `G-REG` | Platform A9 and A10 accepted | Every family's graph/registration (F2) and lesson (F3) slices | A9 changes how lesson actions are authored, and A10 changes how Demonstrations and lessons are registered. Content written before them would be migrated twice. |
-| `G-CURVE` | Platform A4 and A6 accepted | Curves: curve-geometry comb on existing curves (F2), B-spline graph (F2) | They share the spline adapter and curve-editing gesture code. |
-| `G-FN` | Platform A7 and A8 accepted | Functions: every F2 slice that adds or changes a function model or graph | A7 and A8 make one owner for function-model rules and shared drawing. |
+| `G-REG` | Platform A9a (typed lesson vocabulary) and A10 (derived registration) accepted, at Platform step 2. The A9b migration of old content is not required | Every family's registration (F2b) and lesson (F3) slices | A9a changes how lesson actions are authored, and A10 changes how Demonstrations and lessons are registered. Content written before them would be migrated twice. |
+| `G-CURVE` | Platform A4 and A6 accepted (step 4) | Curves: curve-geometry comb on existing curves, B-spline curve object and graph (F2a/F2b) | They share the spline adapter and curve-editing gesture code. |
+| `G-FN` | Platform A7 and A8 accepted (step 4) | Functions, and distributions in Curves: every F2a/F2b slice that adds or changes a function model or graph | A7 and A8 make one owner for function-model rules and shared drawing. |
 | `G-CG` | Convexity Batch 0 accepted: predicate module, robustness ADR, point-set/polygon graph, step-trace model (Geometry) | Triangle geometry kernel and later (Maps); advanced Bézier hull tests (Curves) | They build on its robustness policy, exact predicates and point-set graph instead of duplicating them. |
 | `G-HL` | Highlights tasks 01 and 05 accepted | Media slices (F5) of families accepted after it | After 01, examples author highlight recipes. After 05, chapters may not contain `figure` items. |
 
-**Before a gate opens**, a stream does ungated work: F0 plans and F1 kernels for its *later* families, which are pure TypeScript with oracle tests. If nothing ungated remains, it writes a handoff note marked `waiting on <gate>` and ends with a paste-ready continuation prompt. Platform does A9, A10, A4 and A6 first so that this case should be rare.
+**Before a gate opens**, a stream does ungated work: F0 plans, F1 kernels and F2a graph code for its current *and later* families. Platform opens `G-REG` at step 2 and `G-CURVE`/`G-FN` at step 4, so the family streams should rarely run out.
+
+**Never wait inside a session.** A handler with only gated work left does not sleep, poll or start a Monitor. It writes a handoff note, sets `Run state: waiting on <gates>`, pushes, and ends. An ended session costs no tokens. The supervisor script polls for free and relaunches the stream when the gates open. The only cost of a wait is one fresh session's startup.
 
 ## Family template
 
@@ -50,7 +52,8 @@ Each lesson family follows its spec's **release batches**. Most specs have a Bat
 | --- | --- | --- |
 | F0 Plan | Create `docs/tasks/<family>/` from the spec's release batches and concept contracts, mark the spec *scheduled*, and decide its *Decisions needing an ADR* (with recorded alternatives) and its Slovenian terms from the spec's table | Handler |
 | F1 Kernel | The spec's new kernel(s): pure TypeScript, independent oracle tests, robustness policy where the spec requires it | Mathematical |
-| F2 Graph | Graph family, Presets, route, catalog registration, measured drawing approach for rendering-heavy views ([performance plan](../../performance-plan.md)) | Engineering + UI/accessibility |
+| F2a Graph | Graph family and Presets, tested by unit and component tests with no route yet; measured drawing approach for rendering-heavy views ([performance plan](../../performance-plan.md)). Ungated except by `G-CURVE`/`G-FN` where those apply | Engineering + UI/accessibility |
+| F2b Registration | Route, catalog entry and Demonstration registration (`G-REG`); keep the edit minimal and push it promptly | Engineering |
 | F3 Lessons | One slice per two or three lessons: scene actions plus [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31) | Kernels, constructions, readouts and scene actions only; prose is not reviewed |
 | F4 Chapter | Bilingual chapter in Learn with chapter-owned guided examples | Engineering; notation test |
 | F5 Media | Catalog preview clip and example card images (highlight recipes once `G-HL` is met) | Visual comparison (Haiku) |
@@ -63,7 +66,7 @@ A family may be pushed per release batch. Under the [release policy](../../guard
 These files are touched by several streams. A rebase conflict stops the stream (AGENTS.md), so the rules below exist to avoid conflicts, not to resolve them.
 
 - **Locale catalogs `sl.ts`/`en.ts`:** a feature puts its keys in one block, created the first time at its own anchor: after the last key of the area it belongs to, never at the end of the file. Positions match in both files. Push promptly after each slice that adds keys.
-- **Registration** (`demonstrations.ts`, `graphFactories.ts`, `learningChapters.ts`, `familyChapters.ts`, guided-example registries, catalog `manifest.json`, `scripts/demonstration-preview-recipes.cjs`, routes): edit only in a family's F2 or F4 slice, keep the edit minimal, and push it as soon as it is accepted. A10 may derive some of these. Follow whatever it leaves.
+- **Registration** (`demonstrations.ts`, `graphFactories.ts`, `learningChapters.ts`, `familyChapters.ts`, guided-example registries, catalog `manifest.json`, `scripts/demonstration-preview-recipes.cjs`, routes): edit only in a family's F2b or F4 slice, keep the edit minimal, and push it as soon as it is accepted. A10 may derive some of these. Follow whatever it leaves.
 - **Family content:** keep chapters and lessons in per-family files, as the Bézier patches family did (`patchChapter*.ts`), not in the shared content files.
 - **Media:** regenerate the catalog manifest with its script after rebasing; never merge it by hand. Media capture is heavy, so start it only when the stream's other workers are idle.
 - **Dependencies:** only Platform changes `package.json` or the lockfile. Another stream that needs a dependency records it in its stream file and stops that slice. Worktrees share the main `node_modules` through a junction; delete the junction before removing a worktree.
@@ -92,19 +95,35 @@ Every stream handler, every session:
 5. At the soft threshold, finish integrating and write the handoff note. At `--until 215000` (Opus) or `190000`, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent claude --model <own model> --permission-mode <own mode> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."`
 6. When the stream's last feature is accepted, write a final note and launch nothing.
 
+**Run state.** The second line of each stream file is `Run state: <value>`. The supervisor script reads it from `origin/master`, so keep it exact and push every change:
+
+| Value | Set when |
+| --- | --- |
+| `not started` | Initial |
+| `active` | A handler session starts or hands off to a successor |
+| `waiting on G-XXX[, G-YYY]` | The stream ends because only gated work remains. The supervisor relaunches it when every named gate is `open` |
+| `stopped: <reason>` | A stop condition needs the owner. The supervisor never relaunches it; the owner sets `active` and starts the stream again |
+| `complete` | The last feature is accepted |
+
+Gate rows in the provider's stream file read exactly `open` or `closed`.
+
 **Stop and report** with a paste-ready prompt on any of these: a rebase conflict; an owner decision (for example a performance miss that a spec says must go to the owner before release); a failed step that would repeat; a suspected defect that a failing test cannot confirm; a break of stored Presets or routes without a recorded reason; or a needed dependency change.
 
 ## Launch
 
-From the main checkout, start each stream as its own background session:
+Run the supervisor from the main checkout, after `git pull`, and leave its window open:
 
-```text
-claude --bg -n "platform handler 1"  --agent claude --model opus --permission-mode <mode> "Create worktree stream-platform, then run docs/tasks/feature-streams/platform.md under AGENTS.md."
-claude --bg -n "learn-ui handler 1"  --agent claude --model opus --permission-mode <mode> "Create worktree stream-learn-ui, then run docs/tasks/feature-streams/learn-ui.md under AGENTS.md."
-claude --bg -n "geometry handler 1"  --agent claude --model opus --permission-mode <mode> "Create worktree stream-geometry, then run docs/tasks/feature-streams/geometry.md under AGENTS.md."
-claude --bg -n "curves handler 1"    --agent claude --model opus --permission-mode <mode> "Create worktree stream-curves, then run docs/tasks/feature-streams/curves.md under AGENTS.md."
-claude --bg -n "functions handler 1" --agent claude --model opus --permission-mode <mode> "Create worktree stream-functions, then run docs/tasks/feature-streams/functions.md under AGENTS.md."
-claude --bg -n "maps handler 1"      --agent claude --model opus --permission-mode <mode> "Create worktree stream-maps, then run docs/tasks/feature-streams/maps.md under AGENTS.md."
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1
 ```
 
-Start Platform first; the others can follow at once. To lower machine load, start Platform, Learn UI, Geometry and Functions first, and add Curves and Maps when tests stop queueing.
+It is a plain script, not a model. It does no code checks and costs no tokens while it waits.
+
+1. It starts each stream that is `not started` and has no live session, in the order Platform, Learn UI, Geometry, Functions, Curves, Maps, 90 seconds apart. Order matters only for load: gates enforce the real dependencies.
+2. Every 10 minutes it fetches `origin/master`, reads each stream's `Run state` and the gate tables, and:
+   - relaunches a `waiting on …` stream once all its gates are `open` and it has no live session;
+   - relaunches an `active` stream that has had no live session for two consecutive polls (a crash or a failed successor launch), at most three times per stream per supervisor run;
+   - prints `stopped:` streams for the owner and never relaunches them.
+3. It exits when every stream is `complete` or `stopped`.
+
+Options: `-Only platform,learn-ui` limits the set; `-PermissionMode auto` (default) and `-Model opus` set what handlers get; `-DryRun -Once` prints what it would do and exits. Ctrl+C stops only the supervisor. Running streams continue, and handlers still launch their own successors.

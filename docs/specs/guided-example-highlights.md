@@ -1,6 +1,6 @@
 # Guided example highlights replace chapter figures
 
-Status: planned 2026-10-26; owner request with decisions confirmed the same day. Tasks: [guided-example-highlights](../tasks/guided-example-highlights/README.md). Implementation is not yet authorized.
+Status: planned 2026-10-26; owner request with decisions confirmed the same day. Tasks: [guided-example-highlights](../tasks/guided-example-highlights/README.md). Implementation authorized by the owner on 2026-10-31, delivered by the Learn UI [feature stream](../tasks/feature-streams/learn-ui.md). Audit 00 is redone against current `master` first.
 
 ## Problem
 

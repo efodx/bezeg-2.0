@@ -1,10 +1,11 @@
 # Stream: Geometry
+Run state: not started
 
 Rules and slice template: [feature streams](README.md). Port 4313. Handoffs: `docs/reviews/feature-streams/geometry/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
 | # | Family | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Lesson batches: `G-REG` | planned |
+| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Point-set graph code: none; registration and lessons: `G-REG` | planned |
 | 2 | Triangulations and Voronoi | [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-lessons.md) | Convexity Batch 0 (its T0 kernel adds `incircle` to the predicate module) | planned |
 | 3 | Sweep-line algorithms | [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md) | Convexity Batch 0 (rational ADR builds on the robustness ADR); Fortune's sweep needs family 2's Voronoi drawing | planned |
 
