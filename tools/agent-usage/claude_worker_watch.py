@@ -3,7 +3,8 @@
 Usage: python tools/agent-usage/claude_worker_watch.py (AGENT_ID | --self) [--until TOKENS] [--interval SECONDS]
 
 Without --until, prints the latest turn count and input once. With --until, polls the worker's
-transcript (~/.claude/projects/*bezeg*/*/subagents/agent-AGENT_ID.jsonl) and exits when the latest
+transcript (~/.claude/projects/*/*/subagents/agent-AGENT_ID.jsonl; IDs are unique, so eval
+sandboxes outside the repository path are found too) and exits when the latest
 request input reaches TOKENS, the worker stops writing for 10 minutes, or no transcript appears in 2 minutes. Run it as a background command
 so its exit notifies the handler.
 
@@ -26,9 +27,9 @@ if args.self and not os.environ.get('CLAUDE_CODE_SESSION_ID'):
 
 def latest():
     if args.self:
-        pattern = f"~/.claude/projects/*bezeg*/{os.environ['CLAUDE_CODE_SESSION_ID']}.jsonl"
+        pattern = f"~/.claude/projects/*/{os.environ['CLAUDE_CODE_SESSION_ID']}.jsonl"
     else:
-        pattern = f'~/.claude/projects/*bezeg*/*/subagents/agent-{args.agent_id}.jsonl'
+        pattern = f'~/.claude/projects/*/*/subagents/agent-{args.agent_id}.jsonl'
     fs = glob.glob(os.path.expanduser(pattern))
     if not fs:
         return None, 0, 0
