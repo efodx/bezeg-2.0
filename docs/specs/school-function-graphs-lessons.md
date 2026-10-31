@@ -1,6 +1,6 @@
 # School function graphs for the matura
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled, 2026-10-31 (feature stream `functions`). Tasks: [docs/tasks/school-function-graphs](../tasks/school-function-graphs/README.md); ADR decisions and the ε notation: [ADR 0025](../adr/0025-school-function-catalogue.md); Slovenian terms settled in the task README.
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md) (§3 Gimnazija/matura topics, candidates 1–6; family 4; sample sequences 11–13; correctness notes on conics and rational functions), which cites the matura mathematics catalogue (PIK §§4.10–4.12, pp. 15–20) and the CAGD syllabus for conics. The gimnazija curriculum itself was not read. Part of the [new lesson families](new-lesson-families.md) index; it owns the **function catalogue extension**.
 
