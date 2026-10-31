@@ -18,7 +18,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | Id | Kind | Content | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | CG-0 | F0 | This plan, ADR 0022, spec marked scheduled | — | done |
-| CG-1 | F1 | Curvature kernel + analytic sources, spec's contract and kernel tests, plus every numeric default quoted in L1–L5 as an oracle test | — | planned |
+| CG-1 | F1 | Curvature kernel + analytic sources, spec's contract and kernel tests, plus every numeric default quoted in L1–L5 as an oracle test | — | done ([evidence](../../reviews/curve-geometry/cg-1-kernel.md)) |
 | CG-B1-2a | F2a | `curve-parametric` graph: fixed catalogue (cycloid with radius, cardioid, rose, Archimedean spiral), \(t\)/\(\theta\) slider, velocity vector, radius ray, arch length/area readouts, roll animation id; Presets; unit + component tests | CG-1 | planned |
 | CG-B1-2a' | F2a | `curve-curvature` graph: `BezierCurveGraph` subclass with owned overlay (frame \(T,N\), osculating circle or line, readouts), parabola preset, tangency residual test, disposal test | CG-1 | planned |
 | CG-B1-2b | F2b | Register both Demonstrations (route, catalog, factories) | `G-REG`, 2a, 2a' | planned |
@@ -29,5 +29,5 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B2-1 | F2a | Comb measurement (32/64/128/256 teeth, spline join drag) and comb drawing ADR | B1 shipped, `G-CURVE` | planned |
 | CG-B2-2a | F2a | `curve-comb` (cubic + C1/C2/G1 spline subclasses) and `curve-evolute` graphs | B2-1 | planned |
 | CG-B2-2b…6 | F2b–F6 | Registration, L3/L4 lessons, chapter sections, media, Batch 2 gate | B2-2a | planned |
-| CG-B3-2a | F2a | `curve-offset` (with PH cross-check) and optional `curve-envelope` graphs | B2 shipped | planned |
+| CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | planned |
 | CG-B3-2b…6 | F2b–F6 | Registration, L5/L6 lessons, chapter sections, media, Batch 3 gate | B3-2a | planned |
