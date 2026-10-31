@@ -4,6 +4,10 @@
  */
 import {CatalogFunction} from './functions';
 
+/** What the line constructions read; structural so that other modules' example functions can reuse them. */
+export type ValueFunction = Pick<CatalogFunction, 'value'>;
+export type DerivableFunction = Pick<CatalogFunction, 'value' | 'derivative'>;
+
 /** The point x0 may move in [X0_MIN, X0_MAX]; the same range holds for every catalog function. */
 export const X0_MIN = -4;
 export const X0_MAX = 4;
@@ -51,13 +55,13 @@ export interface Secant extends NonVerticalLine {
 }
 
 /** The difference quotient (f(x0 + h) - f(x0)) / h. Throws for h = 0 (0/0) and for a non-finite h. */
-export function differenceQuotient(fn: CatalogFunction, x0: number, h: number): number {
+export function differenceQuotient(fn: ValueFunction, x0: number, h: number): number {
     if (!Number.isFinite(h) || h === 0) throw new RangeError('The step h must be a finite non-zero number.');
     return (fn.value(x0 + h) - fn.value(x0)) / h;
 }
 
 /** The secant through (x0, f(x0)) and (x0 + h, f(x0 + h)); its slope is the difference quotient. */
-export function secantLine(fn: CatalogFunction, x0: number, h: number): Secant {
+export function secantLine(fn: ValueFunction, x0: number, h: number): Secant {
     const slope = differenceQuotient(fn, x0, h);
     const p0 = {x: x0, y: fn.value(x0)};
     const p1 = {x: x0 + h, y: fn.value(x0 + h)};
@@ -65,7 +69,7 @@ export function secantLine(fn: CatalogFunction, x0: number, h: number): Secant {
 }
 
 /** The exact tangent at x0: slope f'(x0) through (x0, f(x0)). */
-export function tangentLine(fn: CatalogFunction, x0: number): NonVerticalLine {
+export function tangentLine(fn: DerivableFunction, x0: number): NonVerticalLine {
     const slope = fn.derivative(x0);
     return {slope, intercept: fn.value(x0) - slope * x0};
 }
