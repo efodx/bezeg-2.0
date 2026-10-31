@@ -114,7 +114,7 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
 
 }
 
-function SaveModal(props: { onSave: (name: string) => void, initialValue: string }) {
+function SaveModal(props: { onSave: (name: string) => void, initialValue: string, disabled?: boolean }) {
     const t = useT();
     const [show, setShow] = useState(false);
     const [presetName, setPresetName] = useState(props.initialValue);
@@ -131,7 +131,7 @@ function SaveModal(props: { onSave: (name: string) => void, initialValue: string
 
     return (
         <>
-            <ToolTippedButton className="preset-save" onClick={handleShow} tooltip={t("save_preset")}>{t("save")}</ToolTippedButton>
+            <ToolTippedButton className="preset-save" disabled={props.disabled} onClick={handleShow} tooltip={t("save_preset")}>{t("save")}</ToolTippedButton>
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton closeLabel={t("close")}>
@@ -215,11 +215,12 @@ export function PresetSelector(props: {
     const presets = useMemo(() => presetService.loadPresets(), [presetService, presetListVersion]);
     const selectedPreset = presets.data.find(preset => preset.id === selectedPresetId);
     const [backupNotice, setBackupNotice] = useState<Message | undefined>();
-    const problem = props.notice ?? presets.problem ?? backupNotice;
+    // Every current reason at once: an unreadable collection must not hide the notice of the export that skipped it.
+    const problems = [...new Map([props.notice, presets.problem, backupNotice].filter((problem): problem is Message => problem !== undefined).map(problem => [JSON.stringify(problem), problem])).values()];
 
     return <Form.Group>
         <p className="inspector-help">{t("stored_in_this_browser_export_a_file_to_back_up_your_presets_or_transfer_them_to_another_browser")}</p>
-        {problem && <p className="inspector-help text-danger" role="alert">{renderMessage(problem)}</p>}
+        {problems.map((problem, index) => <p key={index} className="inspector-help text-danger" role="alert">{renderMessage(problem)}</p>)}
         <Form.Label>{t("presets")}</Form.Label>
         <Form.Select onChange={(value) => props.onSelect(value.target.value)} aria-label={t("presets")} disabled={lessonActive}
                      value={selectedPreset ? selectedPreset.id : ""}
@@ -232,8 +233,8 @@ export function PresetSelector(props: {
             <ButtonGroup vertical={true}>
                 <ButtonGroup>
                     <ResetButton onReset={props.onReset} disabled={lessonActive}/>
-                    <SaveModal onSave={props.onSave} initialValue={selectedPresetId}></SaveModal>
-                    <TrashModal disabled={selectedPreset === undefined || lessonActive} trash={props.onDelete}></TrashModal>
+                    <SaveModal onSave={props.onSave} initialValue={selectedPresetId} disabled={presets.problem !== undefined || lessonActive}></SaveModal>
+                    <TrashModal disabled={selectedPreset === undefined || presets.problem !== undefined || lessonActive} trash={props.onDelete}></TrashModal>
                 </ButtonGroup>
                 <ButtonGroup>
                     <ToolTippedButton tooltip={t("export_presets")} onClick={() => {
