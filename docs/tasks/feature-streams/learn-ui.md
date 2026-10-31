@@ -1,5 +1,5 @@
 # Stream: Learn UI
-Run state: stopped: owner decisions D1–D12 from guided-example highlights audit 00
+Run state: active
 
 Rules: [feature streams](README.md). Port 4312. Handoffs: `docs/reviews/feature-streams/learn-ui/`.
 
@@ -33,15 +33,15 @@ Spec: [learn-landing-visual-alignment.md](../../specs/learn-landing-visual-align
 Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); tasks: [guided-example-highlights/](../guided-example-highlights/README.md). **Implementation authorized by the owner on 2026-10-31** as part of this stream. It starts after sections 1 and 2.
 
 - Redo task 00's audit against current `master`. Its counts (56 examples, 16 figures) predate the Bézier patches chapter and any family chapters that have landed since.
-- Tasks 03 and 04 need the owner's decisions from audit 00. Stop and report after 00.
+- Owner decisions from audit 00 were accepted on 2026-10-31 (spec, *Owner decisions, 2026-10-31*). Task 06 covers the Bézier patches chapter.
 - Batches 03 and 04 edit `familyChapters.ts` and the capture manifest. Follow the [shared-file rules](README.md#shared-files).
 - **Opens `G-HL`** when tasks 01 and 05 are accepted. Record each step here.
 
 | Task | Status |
 | --- | --- |
-| 00 audit (redo) | done: [highlight-audit.md](../../reviews/guided-example-highlights/highlight-audit.md). Real scope 67 examples, 29 figures, nine chapters; **owner decisions D1–D12 pending** (stream stopped) |
+| 00 audit (redo) | done: [highlight-audit.md](../../reviews/guided-example-highlights/highlight-audit.md). Real scope 67 examples, 29 figures, nine chapters; owner accepted every recommendation (D1–D12) on 2026-10-31; recorded in the spec |
 | 01 capture pipeline ∥ 02 card layout | planned |
-| 03 ∥ 04 batches | blocked: owner decisions from 00 |
+| 03 ∥ 04 ∥ 06 batches | planned (06 = Bézier patches, added by D1) |
 | 05 figure-kind removal and acceptance | planned |
 
 ## Gate provided

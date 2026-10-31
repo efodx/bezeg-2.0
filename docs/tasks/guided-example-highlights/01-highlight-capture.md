@@ -1,6 +1,6 @@
 # 01 — Capture authored highlight states
 
-Status: planned. Source: [spec H2, H3, H4](../../specs/guided-example-highlights.md). Dependencies: 00 sample entries. Role: capture/media integration owner.
+Status: planned. Source: [spec H2, H3, H4](../../specs/guided-example-highlights.md). Dependencies: 00 sample entries (spec D8: S1 quintic PH offset, S2 rational weight, S3 weighted parameterization at alpha 0.25). Also owns the D10 distance computation for the PH singularity cards. Role: capture/media integration owner.
 
 Start from `scripts/capture-guided-example-previews.cjs` and its test, `scripts/generate-guided-example-inventory.cjs`, `src/learning/chapter/guidedExamplePreviews.ts`, `src/images/learning/examples/manifest.json` and the capture section of [docs/commands.md](../../commands.md). The runner currently refuses to apply controls or actions and captures only the first settled frame; that restriction is what this task replaces.
 
