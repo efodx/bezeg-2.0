@@ -5,9 +5,8 @@ import {useLanguage} from '../localization';
 import {chapterActivityVisit} from './chapter/ChapterActivityVisit';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
-import {bezierChapter} from './content/bezierChapter';
+import {bezierChapter, type BezierOrderedContent} from './content/bezierChapter';
 import {findActivity} from './chapter/activities';
-import {type OrderedChapterContent, type OrderedChapterFigure} from './chapter/orderedContent';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import './ChapterPage.css';
@@ -35,12 +34,18 @@ function renderParagraph(text: string, links?: readonly {label: string; href: st
     return result;
 }
 
+const DrawingPlayground = React.lazy(() => import('./playground/DrawingPlayground'));
+const LookUnderneath = React.lazy(() => import('./playground/LookUnderneath'));
+
 function ChapterContentView({block, chapterId, sectionId, language}: {
-    block: OrderedChapterContent<string, OrderedChapterFigure>;
+    block: BezierOrderedContent;
     chapterId: string;
     sectionId: string;
     language: 'sl' | 'en';
 }) {
+    if (block.kind === 'playground') return <React.Suspense fallback={<div className="chapter-playground-loading" aria-hidden="true"/>}>
+        {block.mode === 'draw' ? <DrawingPlayground mode="draw"/> : <LookUnderneath/>}
+    </React.Suspense>;
     if (block.kind === 'example') return <ChapterGuidedLessons chapterId={chapterId} sectionId={sectionId} language={language} exampleId={block.exampleId}/>;
     if (block.kind === 'figure') return <figure className="chapter-activity-figure">
         <img src={block.figure.src} alt={block.figure.alt[language]} width="720" height="440" loading="lazy"/>

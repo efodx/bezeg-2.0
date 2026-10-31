@@ -8,6 +8,9 @@ import {getChapterGuidedExamples} from './chapter/guidedExamples';
 import {exampleReferences} from './chapter/orderedContent';
 import {ChapterPage} from './ChapterPage';
 
+vi.mock('./playground/DrawingPlayground', () => ({default: ({mode}: {mode: string}) => <div data-testid="stub-playground" data-mode={mode}/>}));
+vi.mock('./playground/LookUnderneath', () => ({default: () => <div data-testid="stub-playground" data-mode="inspect"/>}));
+
 vi.mock('./chapter/guidedExamplePreviews', async importOriginal => ({
     ...await importOriginal<typeof import('./chapter/guidedExamplePreviews')>(),
     resolveGuidedExamplePreview: (id: string, _demonstrationId: string, language: 'sl' | 'en') => ({
@@ -94,4 +97,18 @@ test('Bézier sections show all retained cards with stable bilingual preview bin
         expect(images.map(image => image.alt)).toEqual(expectedExamples.map(example => `en:${example.id} alt`));
         expect(figures.map(figure => figure.querySelector('figcaption')?.textContent)).toEqual(expectedExamples.map(example => `en:${example.id} caption`));
     });
+});
+
+test.each(['sl', 'en'] as const)('draws the playground in motivation and inspects it in next-ideas (%s)', async language => {
+    setLanguage(language);
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
+        <ChapterPage/>
+    </MemoryRouter>);
+    await waitFor(() => expect(container.querySelectorAll('[data-testid="stub-playground"]')).toHaveLength(2));
+    const draw = container.querySelector('#motivation [data-testid="stub-playground"]');
+    const inspect = container.querySelector('#next-ideas [data-testid="stub-playground"]');
+    expect(draw?.getAttribute('data-mode')).toBe('draw');
+    expect(inspect?.getAttribute('data-mode')).toBe('inspect');
+    expect(draw?.previousElementSibling?.className).toBe('chapter-paragraph');
+    expect(inspect?.nextElementSibling?.textContent).toContain(language === 'sl' ? 'Te zamisli' : 'These ideas');
 });

@@ -96,6 +96,10 @@ These are author-worked calculations, not questions the student must solve. The 
 
 The existing De Casteljau lesson instead uses five controls and gives a different halfway point. Do not silently switch defaults and imply that the same curve continued across activities. Prefer one consistent authored curve when the graph capabilities allow it; otherwise label the changed example. A new cross-demonstration scene-setting capability requires its own bounded specification. [Current source: `src/learning/content/guidedLessons.ts`, Bézier and De Casteljau pilots; see the [source/capability audit](bezier-study-chapter-source-notes.md).]
 
+## Drawing playground blocks
+
+The chapter also hosts the [Bézier drawing playground](bezier-drawing-playground.md) as two `playground` blocks, additive to the sections and activities above: `draw` follows the opening scenario in `motivation`, and `inspect` (*Look underneath*) precedes the further-questions paragraph in `next-ideas`. Each has short bilingual prose (the `next-ideas` passage links to the spline demonstrations). They are lazy-loaded, do not add activities, and leave activity IDs, routes and return sections unchanged.
+
 ## What stays outside this first chapter
 
 - Bernstein-basis linear-independence proofs, basis products/integrals, and a full induction for De Casteljau. The introduction needs blending behavior, not the whole algebraic theory.

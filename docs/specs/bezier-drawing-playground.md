@@ -1,6 +1,6 @@
 # Bézier drawing playground
 
-Status: approved for implementation (owner, 2026-10-31); unstarted. Parent: [Bézier study chapter](bezier-study-chapter.md). Renderer decision: [ADR 0020](../adr/0020-svg-drawing-playground.md).
+Status: approved for implementation (owner, 2026-10-31); chapter integration (PG4a) implemented, smoke test pending. Parent: [Bézier study chapter](bezier-study-chapter.md). Renderer decision: [ADR 0020](../adr/0020-svg-drawing-playground.md).
 
 ## Purpose
 

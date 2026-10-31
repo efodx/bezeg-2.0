@@ -1,5 +1,5 @@
 import type {Language} from '../../localization';
-import type {OrderedChapterContent, OrderedChapterFigure} from '../chapter/orderedContent';
+import type {OrderedChapterContent, OrderedChapterFigure, PlaygroundContent} from '../chapter/orderedContent';
 
 export type BezierSectionId = 'motivation' | 'control-points' | 'parameter' | 'interpolation' | 'bernstein-form' | 'geometric-properties' | 'affine-transformations' | 'next-ideas';
 export type BezierActivityId = 'shape-control' | 'curve-parameter' | 'repeated-interpolation' | 'blending-coefficients' | 'geometric-bounds' | 'transform-shape';
@@ -7,8 +7,10 @@ export type BezierActivityId = 'shape-control' | 'curve-parameter' | 'repeated-i
 export type ChapterParagraph = {kind: 'paragraph'; text: string; links?: readonly {label: string; href: string}[]};
 export type ChapterFormula = {kind: 'formula'; latex: string; label: string};
 export type ChapterActivity = {kind: 'activity'; id: BezierActivityId};
-export type ChapterBlock = ChapterParagraph | ChapterFormula | ChapterActivity;
-export type ChapterSection = {id: BezierSectionId; title: string; blocks: ChapterBlock[]; orderedContent?: readonly OrderedChapterContent<string, OrderedChapterFigure>[]};
+export type ChapterPlayground = PlaygroundContent;
+export type ChapterBlock = ChapterParagraph | ChapterFormula | ChapterActivity | ChapterPlayground;
+export type BezierOrderedContent = OrderedChapterContent<string, OrderedChapterFigure> | ChapterPlayground;
+export type ChapterSection = {id: BezierSectionId; title: string; blocks: ChapterBlock[]; orderedContent?: readonly BezierOrderedContent[]};
 
 const retainedByActivity: Readonly<Record<BezierActivityId, string>> = {
     'shape-control': 'bezier-curves.control-points.bezier',
@@ -19,7 +21,7 @@ const retainedByActivity: Readonly<Record<BezierActivityId, string>> = {
     'transform-shape': 'bezier-curves.affine-transformations.affine',
 };
 
-function authoredBezierSequence(section: ChapterSection, language: Language): OrderedChapterContent<string, OrderedChapterFigure>[] {
+function authoredBezierSequence(section: ChapterSection, language: Language): BezierOrderedContent[] {
     const insertions: Readonly<Record<string, readonly OrderedChapterContent<string, OrderedChapterFigure>[]>> = section.id === 'interpolation'
         ? {
             [language === 'sl' ? 'Tri kontrolne točke zahtevajo dva kroga interpolacije' : 'Three controls need two interpolation rounds']: [
@@ -45,7 +47,8 @@ function authoredBezierSequence(section: ChapterSection, language: Language): Or
             }
             : {};
 
-    return section.blocks.flatMap(block => {
+    return section.blocks.flatMap((block): BezierOrderedContent[] => {
+        if (block.kind === 'playground') return [block];
         const ordered: OrderedChapterContent<string, OrderedChapterFigure> = block.kind === 'activity'
             ? {kind: 'example', exampleId: retainedByActivity[block.id]}
             : block.kind === 'formula'
@@ -66,6 +69,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
         sections: [
             {id: 'motivation', title: 'How do we describe an editable shape?', blocks: [
                 {kind: 'paragraph', text: 'Imagine adjusting a smooth outline in a drawing program. You choose where it begins and ends, change its bend, and move or resize the finished shape. A useful mathematical model should make those edits predictable. A Bézier curve uses a short list of control points: the list determines the whole curve, while each point guides its shape in a precise way.'},
+                {kind: 'paragraph', text: 'Try it yourself. In the drawing box below, add a few points, then drag a point or its handle and notice how the line bends. No formulas are needed yet; just see how points and handles shape the path.'},
+                {kind: 'playground', mode: 'draw'},
                 {kind: 'paragraph', text: 'The first and last control points are on the curve. Interior control points usually are not. They pull and guide the curve rather than marking places it must pass through. This distinction lets a small list describe a smooth path without forcing every listed point onto it.'},
             ]},
             {id: 'control-points', title: 'Control points guide the curve', blocks: [
@@ -130,6 +135,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
             ]},
             {id: 'next-ideas', title: 'What can we do next?', blocks: [
                 {kind: 'paragraph', text: 'You have seen how a control list specifies a curve, how a parameter selects a point, how repeated interpolation constructs that point, and how Bernstein coefficients express the same curve. The endpoint and convex-hull properties give useful guarantees, and affine transformations can be applied directly to the controls.'},
+                {kind: 'paragraph', text: 'Each segment of your drawing is a cubic Bézier curve with control points \\(P_0\\)–\\(P_3\\), as above: two points on the curve and their two handles. A smooth point keeps the tangent directions on both sides equal (G1), and mirrored handles also keep the derivative equal (C1). One curve through all the same points has degree \\(3k\\) for \\(k\\) segments and passes through only the first and last point. Joining low-degree pieces keeps editing local: moving one point changes only the pieces next to it. The spline demonstrations explore this further.', links: [{label: 'The spline demonstrations', href: '/bezeg-2.0/spline/spline'}]},
+                {kind: 'playground', mode: 'inspect'},
                 {kind: 'paragraph', text: 'These ideas lead to further questions. How can we keep only part of a curve? See the subdivision demonstration. How can the same shape be represented with more control points? Explore degree elevation. How can separate curve pieces join smoothly? Explore spline curves. What changes when we want an exact circular arc? Explore rational curves and the circle construction. These are related demonstrations for further exploration, not prerequisites for this chapter or promises of later chapters.', links: [
                     {label: 'the subdivision demonstration', href: '/bezeg-2.0/bezier/subdivision-2'},
                     {label: 'degree elevation', href: '/bezeg-2.0/bezier/elevation'},
@@ -149,6 +156,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
         sections: [
             {id: 'motivation', title: 'Kako opišemo obliko, ki jo lahko urejamo?', blocks: [
                 {kind: 'paragraph', text: 'Predstavljaj si urejanje gladkega obrisa v risarskem programu. Izbereš, kje se začne in konča, spremeniš njegovo ukrivljenost ter premakneš ali spremeniš velikost končne oblike. Uporaben matematični model mora poskrbeti, da so ti posegi predvidljivi. Bézierjeva krivulja uporablja kratek seznam kontrolnih točk: seznam določa celotno krivuljo, vsaka točka pa na natančno določen način usmerja njeno obliko.'},
+                {kind: 'paragraph', text: 'Preizkusi sam. V okvirju spodaj dodaj nekaj točk, nato povleci točko ali njeno ročico in opazuj, kako se črta ukrivi. Formul za zdaj ne potrebuješ; poglej le, kako točke in ročice oblikujejo pot.'},
+                {kind: 'playground', mode: 'draw'},
                 {kind: 'paragraph', text: 'Prva in zadnja kontrolna točka ležita na krivulji. Notranje kontrolne točke navadno ne. Krivuljo vlečejo in usmerjajo, ne označujejo pa mest, skozi katera mora potekati. Tako lahko z majhnim številom točk opišemo gladko pot, ne da bi krivuljo prisilili skozi vsako navedeno točko.'},
             ]},
             {id: 'control-points', title: 'Kontrolne točke usmerjajo krivuljo', blocks: [
@@ -213,6 +222,8 @@ export const bezierChapter: Record<Language, {id: 'bezier-curves'; family: strin
             ]},
             {id: 'next-ideas', title: 'Kaj lahko raziščemo naslednje?', blocks: [
                 {kind: 'paragraph', text: 'Spoznali smo, kako seznam kontrolnih točk določa krivuljo, kako parameter izbere točko, kako jo zgradi ponovljena interpolacija in kako isto krivuljo zapišemo z Bernsteinovimi koeficienti. Lastnosti krajišč in konveksne ovojnice dajejo uporabna jamstva, afine transformacije pa lahko uporabimo neposredno na kontrolnih točkah.'},
+                {kind: 'paragraph', text: 'Vsak odsek tvoje risbe je kubična Bézierjeva krivulja s kontrolnimi točkami \\(P_0\\)–\\(P_3\\), kot zgoraj: dve točki na krivulji in njuni ročici. Gladka točka ohrani enaki smeri tangent na obeh straneh (G1), zrcalni ročici pa ohranita tudi enak odvod (C1). Ena sama krivulja skozi vse iste točke ima stopnjo \\(3k\\) pri \\(k\\) odsekih in poteka le skozi prvo in zadnjo točko. Sestavljanje delov nizke stopnje ohrani urejanje lokalno: premik ene točke spremeni le sosednje dele. Zlepkovne krivulje to raziščejo naprej.', links: [{label: 'Zlepkovne krivulje', href: '/bezeg-2.0/spline/spline'}]},
+                {kind: 'playground', mode: 'inspect'},
                 {kind: 'paragraph', text: 'Te zamisli odprejo nova vprašanja. Kako obdržimo le del krivulje? Razišči delitev krivulje. Kako isto obliko predstavimo z več kontrolnimi točkami? Razišči zvišanje stopnje. Kako gladko združimo več delov krivulje? Razišči zlepkovne krivulje. Kaj se spremeni, če želimo natančen krožni lok? Razišči racionalne krivulje in konstrukcijo krožnice. Te povezave vodijo na povezane prikaze, ne napovedujejo pa novih poglavij ali predpogojev za to poglavje.', links: [
                     {label: 'delitev krivulje', href: '/bezeg-2.0/bezier/subdivision-2'},
                     {label: 'zvišanje stopnje', href: '/bezeg-2.0/bezier/elevation'},

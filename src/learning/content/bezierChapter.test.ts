@@ -65,3 +65,17 @@ describe('Bézier chapter static content', () => {
         }
     });
 });
+
+describe('Bézier chapter playground blocks', () => {
+    test.each(['sl', 'en'] as const)('places draw in motivation and inspect in next-ideas (%s)', language => {
+        const sections = bezierChapter[language].sections;
+        const playgrounds = sections.flatMap(section => section.blocks.filter(block => block.kind === 'playground').map(block => [section.id, block.kind === 'playground' ? block.mode : ''] as const));
+        expect(playgrounds).toEqual([['motivation', 'draw'], ['next-ideas', 'inspect']]);
+        const motivation = sections.find(section => section.id === 'motivation')!.blocks;
+        expect(motivation[0].kind).toBe('paragraph');
+        expect(motivation[2].kind).toBe('playground');
+        const next = sections.find(section => section.id === 'next-ideas')!.blocks;
+        expect(next.findIndex(block => block.kind === 'playground')).toBe(2);
+        expect(sections.map(section => section.orderedContent?.filter(block => block.kind === 'playground').length)).toEqual([1, 0, 0, 0, 0, 0, 0, 1]);
+    });
+});
