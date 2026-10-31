@@ -16,7 +16,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except the kernel tasks 02 and 03 
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Rational module](01-rational.md) | 0 | F1 | `G-CG` | — | planned |
+| [01 Rational module](01-rational.md) | 0 | F1 | `G-CG` | — | done 2026-11-01 (mathematical review, Sonnet; repair: true-neighbour `toNumber` oracle, sticky-tie, huge, overflow and 60-bit cases) |
 | [02 Triangle kernel](02-triangle-kernel.md) | 0 | F1 | `G-CG` | 01 | planned |
 | [03 Circle, Simson and exact inversion kernel](03-circle-simson-kernel.md) | 0 | F1 | `G-CG` | 01 | planned |
 | [04 Batch A graphs: notable points and inscribed angle](04-batch-a-graphs.md) | A | F2a | `G-CG` | 02, 03 | planned |
