@@ -84,7 +84,7 @@ Common to all lessons: prerequisites link the Bézier study chapter, `splines`, 
 - **Acceptance.**
   1. Hermite segment matches the value and derivative at both ends; conversion to Bézier form gives control points \(P_0,\,P_0+\tfrac13m_0,\,P_1-\tfrac13m_1,\,P_1\) and identical sampled curves (\(10^{-12}\)).
   2. Catmull-Rom is \(C^1\) at interior points and only \(C^1\) (second derivatives differ in general); prose states it, and uniform-parameter overshoot or loops are shown with a stated example.
-  3. Locality: moving one point changes at most two segments (tested).
+  3. Locality: moving one point changes at most four Catmull-Rom segments, the two that end at it and their neighbours, whose tangents change (tested). Corrected after IA-1b: an earlier draft said two.
   4. Duplicate consecutive points (zero chord) are handled or rejected for chord-length parameters.
   5. Reset, restore, Preset round trip and both languages pass.
 
