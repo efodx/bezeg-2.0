@@ -1492,5 +1492,13 @@ export const en: Record<keyof typeof sl, string> = {
     "interp_show_bezier": "Show the Bézier curve with the same points",
     "interp_slider_position": "Position s on the curves",
     "interp_slider_help": "The Lagrange parameter is t = s · t_n on [0, t_n]; the Bézier parameter is t = s on [0, 1]. Lagrange weights can be negative.",
+    "interp_point_list": "Point coordinates",
+    "interp_point_name": "Point {value0}",
+    "interp_show_basis": "Show the basis polynomials",
+    "interp_basis_lagrange": "Lagrange basis polynomials ℓ_i(t) on [0, t_n]",
+    "interp_basis_bernstein": "Bernstein basis polynomials B_i^n(s) on [0, 1]",
+    "interp_basis_help": "Each polynomial keeps its colour in both plots. A Lagrange polynomial ℓ_i is 1 at its own node and 0 at the others, and can be negative in between; Bernstein polynomials are never negative. The dots mark the current position s.",
+    "interp_basis_index": "Curve index i",
+    "interp_basis_desc": "{value0} curves. At position {value1} the values are: {value2}.",
     "interp_nodes_too_close": "Two interpolation points get almost the same parameter, so the Lagrange weights cannot be computed. Move the points apart."
 };

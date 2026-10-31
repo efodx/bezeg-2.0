@@ -22,6 +22,6 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | IA-1c | F1 | `subdivision.ts` (`fourPointStep`) with imported Chaikin identity tests | BS-1a | done ([evidence](../../reviews/interpolation-approximation/ia-1c-kernel.md)) |
 | IA-A-* (rest) | F2a–F6 | I1 Lagrange vs Bézier, I2 Runge (I2 graph `G-FN`) | IA-1a | planned |
 | IA-A-2a | F2a | `interp-lagrange` graph core: draggable points, Lagrange and Bézier overlays, hull toggle, uniform/chord parameter rule, shared slider \(s\) with weights readout, add/remove point, Presets; no route | IA-1a | done ([evidence](../../reviews/interpolation-approximation/ia-a-2a-graph.md); keyboard point editing in IA-A-2b, browser check at registration) |
-| IA-A-2b | F2a | Shared typed point list (ADR 0026, side panel; reused by I3, I4, I5) and the I1 basis plot (Lagrange beside Bernstein) | IA-A-2a | planned |
+| IA-A-2b | F2a | Shared typed point list (ADR 0026, side panel; reused by I3, I4, I5) and the I1 basis plot (Lagrange beside Bernstein) | IA-A-2a | done ([evidence](../../reviews/interpolation-approximation/ia-a-2b-graph.md); browser check and drag measurement of the basis plot at registration) |
 | IA-B-* | F2a–F6 | I3 Hermite/Catmull-Rom, I4 least squares (I4 graph `G-FN`) | Batch A, IA-1b | planned |
 | IA-C-* | F2a–F6 | I5 Chaikin and four-point subdivision | Batch B, IA-1c | planned |

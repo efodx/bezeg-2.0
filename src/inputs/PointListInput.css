@@ -1,0 +1,6 @@
+.point-list { display: grid; gap: .35rem; margin: 0; padding: 0; border: 0; }
+.point-list legend { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; padding: 0; margin-bottom: .2rem; }
+.point-list-row { display: grid; grid-template-columns: 4.5rem 1fr 1fr; gap: .4rem; align-items: start; }
+.point-list-index { color: var(--workspace-ink); font-weight: 700; padding-top: .35rem; }
+.point-list-axis { display: flex; gap: .25rem; align-items: baseline; }
+.point-list-axis > span { color: var(--workspace-ink-soft); font-style: italic; }

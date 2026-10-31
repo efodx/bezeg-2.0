@@ -1,0 +1,11 @@
+.basis-plot { display: grid; gap: .5rem; }
+.basis-plot-panel { margin: 0; }
+.basis-plot-panel figcaption { color: var(--workspace-ink); font-size: .9rem; font-weight: 700; }
+.basis-plot-svg { width: 100%; height: auto; background: var(--workspace-panel); border: 1px solid var(--workspace-rule); border-radius: 4px; }
+.basis-plot-axis { stroke: var(--workspace-ink-soft); stroke-width: 1; }
+.basis-plot-label { fill: var(--workspace-ink-soft); }
+.basis-plot-marker-line { stroke: var(--workspace-ink); stroke-width: 1; stroke-dasharray: 4 3; }
+.basis-plot-marker { stroke: var(--workspace-panel); stroke-width: 1.5; }
+.basis-legend { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin: 0; padding: 0; list-style: none; color: var(--workspace-ink); font-weight: 700; }
+.basis-legend li { display: inline-flex; align-items: center; gap: .3em; }
+.basis-legend-swatch { display: inline-block; width: 1.1em; height: .3em; border-radius: 2px; }

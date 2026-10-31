@@ -16,6 +16,8 @@ export interface InterpolationPresetData {
     readonly parameterRule: ParameterRule;
     readonly showHull: boolean;
     readonly showBezier: boolean;
+    /** Whether the Lagrange and Bernstein basis plots are shown (Presets saved before the plot existed import as false). */
+    readonly showBasis: boolean;
     /** Shared position s in [0, 1]: the Lagrange parameter is t = t_0 + s (t_n - t_0), the Bezier parameter is u = s. */
     readonly t: number;
 }
@@ -25,6 +27,7 @@ export const DEFAULT_INTERPOLATION_PRESET: InterpolationPresetData = Object.free
     parameterRule: 'uniform',
     showHull: false,
     showBezier: true,
+    showBasis: false,
     t: 0.5,
 });
 

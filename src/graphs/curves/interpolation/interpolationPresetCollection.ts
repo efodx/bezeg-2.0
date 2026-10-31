@@ -13,21 +13,24 @@ const isPointRow = (value: unknown): value is [number, number] =>
 function checkFields(value: unknown): Message | InterpolationPresetData {
     if (!isRecord(value)) return message("invalid_state");
     const {points, parameterRule, showHull, showBezier, t} = value;
+    // Presets saved before the basis plot existed have no showBasis: it defaults to off.
+    const showBasis = value.showBasis === undefined ? false : value.showBasis;
     if (!Array.isArray(points) || !points.every(isPointRow)) return message("invalid_value", {value0: "points"});
     if (!isParameterRule(parameterRule)) return message("invalid_value", {value0: "parameterRule"});
     if (typeof showHull !== "boolean") return message("invalid_option", {value0: "showHull"});
     if (typeof showBezier !== "boolean") return message("invalid_option", {value0: "showBezier"});
+    if (typeof showBasis !== "boolean") return message("invalid_option", {value0: "showBasis"});
     if (!isFiniteNumber(t) || t < 0 || t > 1) return message("invalid_parameter", {value0: "t"});
     const rejection = interpolationRejection(points, parameterRule);
     if (rejection) return rejection;
-    return {points: points.map(p => [p[0], p[1]] as [number, number]), parameterRule, showHull, showBezier, t};
+    return {points: points.map(p => [p[0], p[1]] as [number, number]), parameterRule, showHull, showBezier, showBasis, t};
 }
 
 const isMessage = (value: Message | InterpolationPresetData): value is Message => 'key' in value;
 
 /**
  * The Preset collection of the `interp-lagrange` Demonstration (not yet registered in `curvePresetCollections`). The scene
- * state carries the same five fields as the data plus `notice`, so `graphState` is checked with the same rules.
+ * state carries the same six fields as the data plus `notice`, so `graphState` is checked with the same rules.
  */
 export const interpolationPresetCollection: PresetCollection<InterpolationPresetData> = Object.freeze({
     key: INTERPOLATION_COLLECTION_KEY,
@@ -39,7 +42,7 @@ export const interpolationPresetCollection: PresetCollection<InterpolationPreset
         if (!isRecord(graphState)) return message("invalid_state");
         const {notice} = graphState;
         if (notice !== undefined && notice !== '' && notice !== 'coincident') return message("invalid_value", {value0: "notice"});
-        const fields = ['points', 'parameterRule', 'showHull', 'showBezier', 't'];
+        const fields = ['points', 'parameterRule', 'showHull', 'showBezier', 'showBasis', 't'];
         if (!fields.some(field => field in graphState)) return undefined;
         const checked = checkFields({...DEFAULT_INTERPOLATION_PRESET, ...graphState});
         return isMessage(checked) ? checked : undefined;

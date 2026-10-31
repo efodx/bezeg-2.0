@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, render} from '@testing-library/react';
+import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import InterpolationGraph from './InterpolationGraph';
 import {GraphHost} from '../../base/GraphHost';
@@ -18,6 +18,8 @@ class ObservedInterpolationGraph extends InterpolationGraph {
     liveBoard() { return this.board; }
 
     sceneOf() { return this['scene']!; }
+
+    lessonDefault() { this.prepareLessonDefaultScene(); }
 
     ownedElements() { return [...(this['scene']?.ownedElements() ?? [])]; }
 
@@ -71,14 +73,14 @@ describe('InterpolationGraph on a real board', () => {
     test('the drawn curve reproduces a cubic polynomial curve through four points and a quartic through five', () => {
         const {graph, view} = mount();
         const poly = (t: number) => [t ** 3 - 2 * t, 0.5 * t ** 2 + 1] as [number, number];
-        graph.importPresetData({points: [0, 1, 2, 3].map(poly), parameterRule: 'uniform', showHull: false, showBezier: true, t: 0.5});
+        graph.importPresetData({points: [0, 1, 2, 3].map(poly), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5});
         let {lagrange} = curves(graph);
         for (const u of [0.3, 1.7, 2.9]) {
             expect(Math.abs(lagrange.X(u) - poly(u)[0])).toBeLessThanOrEqual(1e-12);
             expect(Math.abs(lagrange.Y(u) - poly(u)[1])).toBeLessThanOrEqual(1e-12);
         }
         const quartic = (t: number) => [t ** 4 - t, 2 * t ** 3 - t ** 2] as [number, number];
-        graph.importPresetData({points: [0, 1, 2, 3, 4].map(quartic), parameterRule: 'uniform', showHull: false, showBezier: true, t: 0.5});
+        graph.importPresetData({points: [0, 1, 2, 3, 4].map(quartic), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5});
         ({lagrange} = curves(graph));
         for (const u of [0.4, 2.2, 3.7]) expect(Math.abs(lagrange.X(u) - quartic(u)[0])).toBeLessThanOrEqual(1e-9);
         view.unmount();
@@ -140,7 +142,7 @@ describe('InterpolationGraph on a real board', () => {
         const exported = graph.exportPresetData();
         const checked = interpolationPresetCollection.check(JSON.parse(JSON.stringify(exported)));
         expect('data' in checked && checked.data).toEqual(exported);
-        graph.importPresetData({points: [[0, 0], [1, 1]], parameterRule: 'uniform', showHull: false, showBezier: false, t: 0});
+        graph.importPresetData({points: [[0, 0], [1, 1]], parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0});
         graph.importPresetData((checked as {data: typeof exported}).data);
         expect(graph.exportPresetData()).toEqual(exported);
         view.unmount();
@@ -157,6 +159,99 @@ describe('InterpolationGraph on a real board', () => {
         expect(graph.sceneOf().pointElements().length).toBe(4);
         expect(graph.ownedOnBoard()).toBe(graph.ownedElements().length);
         expect(board.objectsList.filter(o => (o as {elType?: string}).elType === 'point' && (o as {name?: string}).name?.startsWith('P')).length).toBe(4);
+        view.unmount();
+    });
+
+    // ---- Typed point list ----------------------------------------------------------------------------------------------
+
+    const field = (point: number, axis: 'x' | 'y') => screen.getByRole('spinbutton', {name: `Točka ${point}, ${axis}`}) as HTMLInputElement;
+    const shown = () => screen.getAllByRole('spinbutton')
+        .filter(f => /^Točka/.test(document.querySelector(`label[for="${f.id}"]`)?.textContent ?? ''))
+        .map(f => (f as HTMLInputElement).value);
+    /** The list as the text the fields show for the model points (decimal comma). */
+    const listed = (points: readonly (readonly [number, number])[]) => points.flatMap(p => p).map(v => String(Math.round(v * 1000) / 1000).replace('.', ',').replace('-', '−'));
+    const typeAndEnter = (input: HTMLInputElement, value: string) => {
+        fireEvent.input(input, {target: {value}, inputType: 'insertText'});
+        fireEvent.keyDown(input, {key: 'Enter'});
+    };
+    const preset = (points: [number, number][]) => ({points, parameterRule: 'uniform' as const, showHull: false, showBezier: true, showBasis: false, t: 0.5});
+
+    test('typing coordinates moves the board point and both curves; coincident chord input is refused with the message and nothing changes', () => {
+        const {graph, view} = mount();
+        const [, p1] = graph.sceneOf().pointElements();
+        act(() => typeAndEnter(field(2, 'y'), '2,5'));
+        expect(graph.state.points[1]).toEqual([1, 2.5]);
+        expect([p1.X(), p1.Y()]).toEqual([1, 2.5]);
+        expect(curves(graph).lagrange.Y(1)).toBeCloseTo(2.5, 12);
+        expect(curves(graph).bezier.Y(1 / 3)).not.toBeCloseTo(1.875, 3);
+        act(() => graph.setParameterRule('chord'));
+        act(() => typeAndEnter(field(2, 'x'), '0'));
+        expect(graph.state.points[1]).toEqual([0, 2.5]);
+        act(() => typeAndEnter(field(2, 'y'), '0'));
+        expect(graph.state.points[1]).toEqual([0, 2.5]);
+        expect(graph.state.points[0]).toEqual([0, 0]);
+        expect([p1.X(), p1.Y()]).toEqual([0, 2.5]);
+        // A typed refusal is announced once, at the field, with the model's own text; the graph notice is for drags.
+        expect(graph.state.notice).toBe('');
+        expect(screen.queryByRole('alert')).toBeNull();
+        expect(screen.getAllByText(/Interpolacijski točki 1 in 2 se po izbranem pravilu ujemata/).length).toBe(1);
+        expect(field(2, 'y')).toHaveAttribute('aria-invalid', 'true');
+        view.unmount();
+    });
+
+    test('a typed coordinate beyond 1000 is refused by the field and leaves the points unchanged', () => {
+        const {graph, view} = mount();
+        act(() => typeAndEnter(field(3, 'x'), '1001'));
+        expect(graph.state.points[2]).toEqual([3, 3]);
+        expect(field(3, 'x')).toHaveAttribute('aria-invalid', 'true');
+        expect(typeof graph.editPoint(2, [1001, 3])).toBe('string');
+        expect(graph.state.points[2]).toEqual([3, 3]);
+        view.unmount();
+    });
+
+    test('the list shows the current coordinates after a drag, add, remove, import, reset, checkpoint restore and lesson scenes', async () => {
+        const {graph, view} = mount();
+        const [, p1] = graph.sceneOf().pointElements();
+        expect(shown()).toEqual(listed(graph.state.points));
+        p1.moveTo([1.5, 2.25]);
+        act(() => drag(p1));
+        expect(shown()).toEqual(listed(graph.state.points));
+        expect(field(2, 'x').value).toBe('1,5');
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        act(() => graph.addPoint());
+        expect(shown()).toEqual(listed(graph.state.points));
+        expect(shown().length).toBe(10);
+        act(() => capabilities.restoreState(checkpoint));
+        expect(shown()).toEqual(listed(graph.state.points));
+        expect(shown().length).toBe(8);
+        expect(field(2, 'x').value).toBe('1,5');
+        act(() => graph.removePoint());
+        expect(shown()).toEqual(listed(graph.state.points));
+        act(() => graph.importPresetData(preset([[0, 0], [2, 5], [7, -1], [9, 4], [11, 2]])));
+        expect(shown()).toEqual(listed(graph.state.points));
+        expect(shown().length).toBe(10);
+        act(() => graph.lessonDefault());
+        expect(shown()).toEqual(listed([[0, 0], [1, 2], [3, 3], [4, 0]]));
+        act(() => graph.importPresetData(preset([[0, 0], [2, 5], [7, -1]])));
+        // `await act(async () => graph.reset())` never settles under jsdom (tried), so poll for the reloaded scene.
+        act(() => { void graph.reset(); });
+        await waitFor(() => expect(graph.state.points.length).toBe(4));
+        expect(shown()).toEqual(listed([[0, 0], [1, 2], [3, 3], [4, 0]]));
+        view.unmount();
+    });
+
+    test('the basis plot is off by default, appears with the toggle and follows the slider position', () => {
+        const {graph, view} = mount();
+        expect(screen.queryByTestId('basis-plot')).toBeNull();
+        act(() => graph.setShowBasis(true));
+        expect(screen.getByTestId('basis-plot')).toBeInTheDocument();
+        const line = () => screen.getByTestId('basis-bernstein-marker-line').getAttribute('x1');
+        const before = line();
+        act(() => graph.setPosition(0.9));
+        expect(line()).not.toBe(before);
+        act(() => graph.setShowBasis(false));
+        expect(screen.queryByTestId('basis-plot')).toBeNull();
         view.unmount();
     });
 

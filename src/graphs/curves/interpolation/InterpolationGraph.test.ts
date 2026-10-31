@@ -53,7 +53,7 @@ function makeGraph() {
     return graph;
 }
 
-const duplicate = {points: [[0, 0], [0, 0], [3, 3], [4, 0]], parameterRule: 'uniform', showHull: false, showBezier: true, t: 0.5};
+const duplicate = {points: [[0, 0], [0, 0], [3, 3], [4, 0]], parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5};
 
 describe('weights readout', () => {
     const points = DEFAULT_INTERPOLATION_PRESET.points;
@@ -114,6 +114,54 @@ describe('InterpolationGraph state and Presets', () => {
         graph.setParameterRule('chord');
         expect(graph.state.parameterRule).toBe('uniform');
         expect(graph.state.notice).toBe('coincident');
+    });
+
+    test('editPoint applies typed coordinates through the validated path and refuses a repeated parameter with a localized message', () => {
+        const graph = makeGraph();
+        expect(graph.editPoint(1, [1, 2.5])).toBeUndefined();
+        expect(graph.state.points[1]).toEqual([1, 2.5]);
+        graph.setParameterRule('chord');
+        const message = graph.editPoint(1, [0, 0]);
+        expect(message).toContain('Interpolacijski točki 1 in 2');
+        expect(graph.state.points[1]).toEqual([1, 2.5]);
+        expect(graph.state.notice).toBe('');
+        expect(graph.editPoint(1, [2000, 0])).toBe(renderMessage(interpolationRejection([[0, 0], [2000, 0], [3, 3], [4, 0]], 'chord')!));
+        expect(graph.state.points[1]).toEqual([1, 2.5]);
+    });
+
+    test('an accepted typed edit outside the view refits it; one inside leaves the view alone', () => {
+        const graph = makeGraph();
+        graph.board.setBoundingBox.mockClear();
+        expect(graph.editPoint(1, [2, 2.5])).toBeUndefined();
+        expect(graph.board.setBoundingBox).not.toHaveBeenCalled();
+        expect(graph.editPoint(1, [40, 2.5])).toBeUndefined();
+        expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+        const [left, top, right, bottom] = graph.board.setBoundingBox.mock.calls[0][0];
+        expect(left).toBeLessThan(0);
+        expect(right).toBeGreaterThan(40);
+        expect(top).toBeGreaterThan(4);
+        expect(bottom).toBeLessThan(0);
+        graph.board.setBoundingBox.mockClear();
+        expect(graph.editPoint(0, [0, 6])).toBeUndefined();
+        expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+    });
+
+    test('showBasis defaults to off, round-trips through the Preset, and an old Preset without it imports as off', () => {
+        const graph = makeGraph();
+        expect(graph.exportPresetData().showBasis).toBe(false);
+        graph.setShowBasis(true);
+        const exported = JSON.parse(JSON.stringify(graph.exportPresetData()));
+        expect(exported.showBasis).toBe(true);
+        const checked = interpolationPresetCollection.check(exported);
+        expect('data' in checked && checked.data.showBasis).toBe(true);
+        graph.setShowBasis(false);
+        graph.importPresetData((checked as {data: typeof exported}).data);
+        expect(graph.state.showBasis).toBe(true);
+        const {showBasis: _omitted, ...old} = exported;
+        const oldChecked = interpolationPresetCollection.check(old);
+        expect('data' in oldChecked && oldChecked.data.showBasis).toBe(false);
+        expect('rejection' in interpolationPresetCollection.check({...exported, showBasis: 'yes'})).toBe(true);
+        expect(interpolationPresetCollection.checkGraphState?.({showBasis: 3})).toBeDefined();
     });
 
     test('the actionable message names the coincident points', () => {

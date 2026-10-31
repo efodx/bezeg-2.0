@@ -1,9 +1,13 @@
 import React from "react";
+import {renderMessage} from "../../../localization";
 import {LocalizedError, t, currentLanguage} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
+import {PointListInput} from "../../../inputs/PointListInput";
+import {BasisPlot} from "./BasisPlot";
+import {basisPlotData} from "./interpolationBasis";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN, Point2} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {Preset} from "../../base/presets/Presets";
@@ -19,6 +23,7 @@ export interface InterpolationGraphState extends BaseGraphState {
     parameterRule: ParameterRule;
     showHull: boolean;
     showBezier: boolean;
+    showBasis: boolean;
     /** Shared position s in [0, 1] (Lagrange t = t_n s, Bezier u = s). */
     t: number;
     /** Why the last edit was refused (the state keeps the previous, valid data); empty when the last edit was accepted. */
@@ -58,8 +63,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     override exportPresetData(): InterpolationPresetData {
-        const {points, parameterRule, showHull, showBezier, t: position} = this.state;
-        return {points: points.map(p => [p[0], p[1]] as const), parameterRule, showHull, showBezier, t: position};
+        const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
+        return {points: points.map(p => [p[0], p[1]] as const), parameterRule, showHull, showBezier, showBasis, t: position};
     }
 
     /**
@@ -67,8 +72,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
      * data just imported must survive it, so the current data fields are returned.
      */
     protected override lessonDefaultState(): InterpolationGraphState {
-        const {points, parameterRule, showHull, showBezier, t: position} = this.state;
-        return {initialized: true, points, parameterRule, showHull, showBezier, t: position, notice: ''};
+        const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
+        return {initialized: true, points, parameterRule, showHull, showBezier, showBasis, t: position, notice: ''};
     }
 
     /** Rejects data the model cannot interpolate before touching the state, then rebuilds the scene. */
@@ -77,7 +82,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         if (rejection) throw new LocalizedError(rejection);
         this.setState({
             points: data.points.map(p => [p[0], p[1]] as const), parameterRule: data.parameterRule, showHull: data.showHull,
-            showBezier: data.showBezier, t: data.t, notice: '',
+            showBezier: data.showBezier, showBasis: data.showBasis, t: data.t, notice: '',
         });
         this.ensureScene();
     }
@@ -155,6 +160,30 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         return this.tryPoints(next);
     }
 
+    /**
+     * Applies typed coordinates of point `index` through the same validation as a drag (no repeated parameter, coordinates within
+     * the limit); returns the localized refusal, or undefined when accepted. A refused edit leaves the points and the graph notice
+     * alone: the refusal is shown (once) at the field that asked. An accepted edit that lands outside the view refits the view.
+     */
+    editPoint(index: number, value: readonly [number, number]): string | undefined {
+        const points = this.state.points;
+        if (!Number.isInteger(index) || index < 0 || index >= points.length) return undefined;
+        const next = points.map((p, i) => i === index ? [value[0], value[1]] as const : p);
+        const rejection = interpolationRejection(next, this.state.parameterRule);
+        if (rejection) return renderMessage(rejection);
+        this.tryPoints(next);
+        if (this.board) {
+            const [left, top, right, bottom] = this.board.getBoundingBox();
+            const [x, y] = value;
+            if (x < Math.min(left, right) || x > Math.max(left, right) || y < Math.min(top, bottom) || y > Math.max(top, bottom)) this.fit();
+        }
+        return undefined;
+    }
+
+    setShowBasis(show: boolean) {
+        this.setState({showBasis: show});
+    }
+
     setParameterRule(rule: ParameterRule) {
         if (!isParameterRule(rule) || rule === this.state.parameterRule) return;
         this.tryPoints(this.state.points, rule);
@@ -197,7 +226,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {points, parameterRule, showHull, showBezier, t: position, notice} = this.state;
+        const {points, parameterRule, showHull, showBezier, showBasis, t: position, notice} = this.state;
         const lines = readoutLines(points, parameterRule, position, showBezier, currentLanguage());
         return super.getGraphCommands().concat(
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
@@ -205,8 +234,13 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
             <div key="count"><CountSetter label={t("interp_point_count")} n={points.length} min={INTERPOLATION_POINTS_MIN}
                                           max={INTERPOLATION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
+            <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
+                                              min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}
+                                              onCommit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="hull"><OnOffSwitch checked={showHull} label={t("interp_show_hull")} onChange={checked => this.setShowHull(checked)}/></div>,
             <div key="bezier"><OnOffSwitch checked={showBezier} label={t("interp_show_bezier")} onChange={checked => this.setShowBezier(checked)}/></div>,
+            <div key="basis"><OnOffSwitch checked={showBasis} label={t("interp_show_basis")} onChange={checked => this.setShowBasis(checked)}/></div>,
+            ...(showBasis ? [<div key="basis-plot"><BasisPlot data={basisPlotData(points, parameterRule, position)} fontSize={this.displaySettings.fontSize}/></div>] : []),
             <div key="position"><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
                                         help={t("interp_slider_help")} onChange={value => this.setPosition(value)}/></div>,
             <div key="readout" role="status" className="inspector-help">

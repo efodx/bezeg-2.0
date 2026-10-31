@@ -1491,5 +1491,13 @@ export const sl = {
     "interp_show_bezier": "Pokaži Bézierovo krivuljo z istimi točkami",
     "interp_slider_position": "Položaj s na krivuljah",
     "interp_slider_help": "Lagrangeev parameter je t = s · t_n na [0, t_n], Bézierov parameter je t = s na [0, 1]. Uteži Lagrangeevega polinoma so lahko negativne.",
+    "interp_point_list": "Koordinate točk",
+    "interp_point_name": "Točka {value0}",
+    "interp_show_basis": "Pokaži bazne polinome",
+    "interp_basis_lagrange": "Lagrangeevi bazni polinomi ℓ_i(t) na [0, t_n]",
+    "interp_basis_bernstein": "Bernsteinovi bazni polinomi B_i^n(s) na [0, 1]",
+    "interp_basis_help": "Vsak polinom ima v grafih svojo barvo. Lagrangeev polinom ℓ_i ima v svojem vozlu vrednost 1, v drugih 0, vmes pa je lahko negativen; Bernsteinovi polinomi so nenegativni. Pika kaže trenutni položaj s.",
+    "interp_basis_index": "Indeks krivulje i",
+    "interp_basis_desc": "{value0} krivulj. Pri položaju {value1} so vrednosti: {value2}.",
     "interp_nodes_too_close": "Interpolacijski točki imata skoraj enak parameter, zato uteži Lagrangeevega polinoma niso izračunljive. Razmakni točke."
 } as const;
