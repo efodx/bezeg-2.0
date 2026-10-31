@@ -26,4 +26,4 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-A-* | F2a–F6 | D1 reduction, D3 arc length | `G-CURVE`, `G-REG`, AB-1a, AB-1b | planned |
 | AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d | planned |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
-| AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | in progress |
+| AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
