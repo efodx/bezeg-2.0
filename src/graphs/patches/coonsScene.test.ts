@@ -98,6 +98,10 @@ describe("editing", () => {
         expect(linked.d1[3]).toEqual([4, 4, 1]);
         expect(linked.c1[3]).toEqual([4, 4, 1]);
         expect(coonsMismatches(linked)).toEqual([]);
+        // Editing through the corner's first member (c1) must carry the second (d1) as well.
+        const viaFirst = moveCoonsPoint(b, true, "c1", 3, [4, 4, 1]);
+        expect(viaFirst.d1[3]).toEqual([4, 4, 1]);
+        expect(coonsMismatches(viaFirst)).toEqual([]);
         const unlinked = moveCoonsPoint(b, false, "d1", 3, [4, 4, 1]);
         expect(unlinked.c1[3]).toEqual([3, 3, 0]);
         expect(coonsMismatches(unlinked).map(m => m.corner)).toEqual(["u1v1"]);
