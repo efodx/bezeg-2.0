@@ -9,6 +9,10 @@ This chapter starts with a practical question: how can a few points describe a s
 
 Imagine adjusting a smooth outline in a drawing program. You choose where it begins and ends, change its bend, and move or resize the finished shape. A useful mathematical model should make those edits predictable. A Bézier curve uses a short list of control points: the list determines the whole curve, while each point guides its shape in a precise way.
 
+Try it yourself. In the drawing box below, add a few points, then drag a point or its handle and notice how the line bends. No formulas are needed yet; just see how points and handles shape the path.
+
+*(Interactive drawing playground, mode `draw`.)*
+
 The first and last control points are on the curve. Interior control points usually are not. They pull and guide the curve rather than marking places it must pass through. This distinction lets a small list describe a smooth path without forcing every listed point onto it.
 
 <a id="control-points"></a>
@@ -169,6 +173,10 @@ Each supported operation acts on the control data, and the curve follows that sa
 ## What can we do next?
 
 You have seen how a control list specifies a curve, how a parameter selects a point, how repeated interpolation constructs that point, and how Bernstein coefficients express the same curve. The endpoint and convex-hull properties give useful guarantees, and affine transformations can be applied directly to the controls.
+
+Each segment of your drawing is a cubic Bézier curve with control points \(P_0\)–\(P_3\), as above: two points on the curve and their two handles. A smooth point keeps the tangent directions on both sides equal (G1), and mirrored handles also keep the derivative equal (C1). One curve through all the same points has degree \(3k\) for \(k\) segments and passes through only the first and last point. Joining low-degree pieces keeps editing local: moving one point changes only the pieces next to it. The [spline demonstrations](/bezeg-2.0/spline/spline) explore this further.
+
+*(Interactive playground, mode `inspect`: Look underneath.)*
 
 These ideas lead to further questions. How can we keep only part of a curve? [Explore subdivision](/bezeg-2.0/bezier/subdivision-2). How can the same shape be represented with more control points? [Explore degree elevation](/bezeg-2.0/bezier/elevation). How can separate curve pieces join smoothly? [Explore spline curves](/bezeg-2.0/spline/spline). What changes when we want an exact circular arc? [Explore rational curves](/bezeg-2.0/rational/base) and the [circle construction](/bezeg-2.0/rational/circlen). These are related demonstrations for further exploration, not prerequisites for this chapter or promises of later chapters.
 
