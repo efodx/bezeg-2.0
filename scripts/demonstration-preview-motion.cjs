@@ -1495,7 +1495,9 @@ function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 
     return {file:path.basename(output),sha256:digest(output),type:'video/webm',duration,bytes,width:video.width,height:video.height,codec:video.codec_name,
         pixelFormat:video.pix_fmt,colorRange:video.color_range,colorSpace:video.color_space,colorPrimaries:video.color_primaries,colorTransfer:video.color_transfer,
         backgroundPixel:{rgb:expectedBackground,checked:sample.x===0&&sample.y===0?'upper-left pixel of every source and decoded frame':`pixel (${sample.x},${sample.y}) of every source and decoded frame`,...(sample.x||sample.y?{x:sample.x,y:sample.y}:{})},
-        encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0], arguments:settings};
+        encoder:execFileSync(ffmpeg,['-version'],{encoding:'utf8'}).split(/\r?\n/)[0],
+        // Provenance records machine-independent names, not the staging directory of the capturing machine.
+        arguments:settings.map(value=>value===inputPattern?`${path.basename(framesDirectory)}/%03d.png`:value===output?path.basename(output):value)};
 }
 
 async function captureHold(page,d,window,presentBoard,directory,firstFrame,holdFrames,camera) {

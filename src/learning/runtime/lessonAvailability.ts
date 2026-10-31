@@ -1,19 +1,12 @@
+import {LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 
-/** Lightweight support metadata used by catalog and homepage links. */
-export const GUIDED_LESSON_AVAILABLE_IDS = [
-    'bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau',
-    'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization',
-    'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision',
-    'extrapolation', 'rational-extrapolation', 'decasteljau-alternative', 'farin', 'circle',
-    'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric',
-    'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions',
-    'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection',
-    'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence',
-    'uniform-convergence', 'complex-multiplication', 'fixed-point',
-    'patch-tensor', 'patch-decasteljau', 'patch-derivatives',
-    'patch-subdivision', 'patch-joins', 'patch-triangular',
-] as const satisfies readonly DemonstrationId[];
+/**
+ * Lightweight support metadata used by catalog and homepage links: the Demonstrations that offer a guided lesson,
+ * derived from the Demonstration definitions. It deliberately imports no lesson content, which would pull every lesson
+ * into the home bundle; `lessonCatalog.test.ts` fails when this set and the authored content disagree.
+ */
+export const GUIDED_LESSON_AVAILABLE_IDS: readonly DemonstrationId[] = LESSON_DEMONSTRATION_IDS;
 
 const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);
 

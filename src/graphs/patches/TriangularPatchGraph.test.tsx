@@ -87,7 +87,7 @@ describe("default scene", () => {
         expect(view.last.revision).toBeGreaterThanOrEqual(1);
         expect(view.labels).toEqual([t("surface_view_label")]);
         expect([graph.state.u, graph.state.v]).toEqual([1 / 3, 1 / 3]);
-        expect(graph.getWorkspacePanels({}).title).toBeDefined();
+        expect(graph.getWorkspacePanels().description).toBeTruthy();
         expectAgreement(graph, view);
     });
     it("the Demonstration states its model: the default Preset is the canonical cubic and exports in the DTO", () => {

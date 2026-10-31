@@ -49,7 +49,7 @@ function preferReducedMotion() {
 }
 
 test("inspector sections remain mounted and retain values when switched or collapsed", () => {
-    render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
+    render(<MemoryRouter><DemonstrationWorkspace description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
         display={<p>Koordinatni sistem</p>} save={<p>Prednastavitve</p>} navigate={vi.fn()}/></MemoryRouter>);
     const parameter = screen.getByLabelText("Parameter");
     fireEvent.change(parameter, {target: {value: ".7"}});
@@ -66,7 +66,7 @@ test("inspector sections remain mounted and retain values when switched or colla
 
 test('the inspector heading has no introductory paragraph and tab hints stay available to assistive technology', () => {
     setLanguage('sl');
-    render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<p>Urejanje</p>}
+    render(<MemoryRouter><DemonstrationWorkspace description="Raziskuj" edit={<p>Urejanje</p>}
         display={<p>Pogled</p>} save={<p>Shrani</p>} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.queryByText('Vsa dejanja na enem mestu. Najprej izberi, kaj želiš opazovati.')).not.toBeInTheDocument();
     const display = screen.getByRole('button', {name: 'Prikaz'});
@@ -78,7 +78,7 @@ test('the inspector heading has no introductory paragraph and tab hints stay ava
 
 test('switching tabs resets the inspector content scroll owner and keeps hidden sections mounted', () => {
     setLanguage('sl');
-    render(<MemoryRouter><DemonstrationWorkspace title="Bézier" description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
+    render(<MemoryRouter><DemonstrationWorkspace description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
         display={<p>Koordinatni sistem</p>} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const content = document.getElementById('inspector-content')!;
     Object.defineProperty(content, 'scrollTop', {value: 120, writable: true, configurable: true});
@@ -91,10 +91,24 @@ test('switching tabs resets the inspector content scroll owner and keeps hidden 
     expect(screen.getByLabelText('Parameter')).toBeInTheDocument();
 });
 
+test('the heading is the route Demonstration title and follows the language, without any title from the host', () => {
+    setLanguage('en');
+    const view = render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace description="Explore"
+        edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
+    const enTitle = screen.getByRole('heading', {level: 1}).textContent;
+    expect(enTitle).toBeTruthy();
+    act(() => setLanguage('sl'));
+    expect(screen.getByRole('heading', {level: 1}).textContent).not.toBe(enTitle);
+    view.unmount();
+    render(<MemoryRouter initialEntries={['/not-a-demonstration']}><DemonstrationWorkspace description="Explore"
+        edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
+    expect(screen.getByRole('heading', {level: 1})).toHaveTextContent('Bezeg');
+});
+
 test('learning prompts switch without remounting controls and fit delegates to the board', () => {
     setLanguage('sl');
     const navigate = vi.fn();
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace description="Raziskuj"
         edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={navigate}/></MemoryRouter>);
     const parameter = screen.getByLabelText('Parameter');
     fireEvent.change(parameter, {target: {value: '.8'}});
@@ -106,7 +120,7 @@ test('learning prompts switch without remounting controls and fit delegates to t
 });
 
 test('does not lock a deep-linked workspace before graph capabilities are ready', () => {
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?learn=1']}><DemonstrationWorkspace title="Bézier" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?learn=1']}><DemonstrationWorkspace description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
 
     expect(document.querySelector('.guided-lesson')).toBeNull();
@@ -115,7 +129,7 @@ test('does not lock a deep-linked workspace before graph capabilities are ready'
 
 test('ignores lesson query parameters on demonstrations without reviewed lessons', () => {
     lessonLookup.mockImplementation(() => undefined);
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
@@ -127,7 +141,7 @@ test('ignores lesson query parameters on demonstrations without reviewed lessons
 test('valid family investigation URLs resolve into the chapter-owned guided example', () => {
     setLanguage('en');
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein?school=west&explore=foundations.why-weights.bernstein#figure']}>
-        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
+        <DemonstrationWorkspace description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
             lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/>
     </MemoryRouter>);
 
@@ -143,7 +157,7 @@ test('valid family investigation URLs resolve into the chapter-owned guided exam
 
 test('invalid family context is removed while unrelated query values and the hash survive', async () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein?school=west&explore=foundations.why-weights.bernstein&explore=duplicate&learn=1#figure']}>
-        <DemonstrationWorkspace title="Bernstein" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
+        <DemonstrationWorkspace description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
         <LocationReadout/>
     </MemoryRouter>);
 
@@ -152,7 +166,7 @@ test('invalid family context is removed while unrelated query values and the has
 });
 
 test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace title="Spline" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
@@ -172,7 +186,7 @@ test('direct guided family context preserves its frame through hide and returns 
     lessonLookup.mockReturnValue(lesson);
     const capabilities = {captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()};
     preferReducedMotion();
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?explore=splines.piecewise.spline-cn']}><DemonstrationWorkspace title="Spline" description="Explore"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?explore=splines.piecewise.spline-cn']}><DemonstrationWorkspace description="Explore"
         edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} lessonCapabilities={capabilities}/>
         <LocationReadout/></MemoryRouter>);
 
@@ -247,7 +261,7 @@ test('minimized lesson exposes one focused reopen tab over the graph', async () 
         ]}],
     };
     lessonLookup.mockReturnValue(lesson);
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description="Explore"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace description="Explore"
         edit={<input aria-label="Parameter" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()}
         lessonCapabilities={{captureState: () => ({version: 1 as const, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
@@ -272,7 +286,7 @@ test('minimized lesson exposes one focused reopen tab over the graph', async () 
 
 test('Bernstein exploration does not instruct students to drag control points', () => {
     setLanguage('sl');
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace title="Bernstein" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace description="Raziskuj"
         edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.getByText(/Spremeni stopnjo polinomov/)).toBeVisible();
     expect(screen.queryByText(/Premakni eno kontrolno točko/)).not.toBeInTheDocument();
@@ -280,14 +294,14 @@ test('Bernstein exploration does not instruct students to drag control points', 
 });
 
 test('repeated subdivision prompt reflects its fixed parameter', () => {
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/subdivision']}><DemonstrationWorkspace title="Subdivision" description="Raziskuj"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/subdivision']}><DemonstrationWorkspace description="Raziskuj"
         edit={null} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.getByText(/Ponovi subdivizijo pri t = ½/)).toBeVisible();
 });
 
 test('language changes preserve the current learning prompt and mounted draft controls', () => {
     setLanguage('sl');
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bézier" description=""
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace description=""
         edit={<input aria-label="draft" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const draft = screen.getByLabelText('draft');
     fireEvent.change(draft, {target: {value: '.9'}});
@@ -303,7 +317,7 @@ test("presentation offers controls and exit without hover, and pan is explicit",
     const setFullScreen = vi.fn();
     const navigate = vi.fn();
     render(<MemoryRouter><SiteContext.Provider value={{fullScreen: {fullScreen: true, setFullScreen}}}>
-        <DemonstrationWorkspace title="PH" description="Raziskuj" edit={<p>Urejanje</p>} display={null} save={null} navigate={navigate}/>
+        <DemonstrationWorkspace description="Raziskuj" edit={<p>Urejanje</p>} display={null} save={null} navigate={navigate}/>
     </SiteContext.Provider></MemoryRouter>);
     expect(screen.getByText("Urejanje")).not.toBeVisible();
     fireEvent.click(screen.getByRole("button", {name: "Odpri orodja"}));
@@ -322,7 +336,7 @@ beforeAll(() => {
 test('picker cancellation and current graph selection retain mounted controls', () => {
     setLanguage('en');
     const pausePlayback = vi.fn();
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?other=1#view']}><DemonstrationWorkspace title="Bézier" description=""
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?other=1#view']}><DemonstrationWorkspace description=""
         edit={<input aria-label="draft" defaultValue=".5"/>} display={null} save={null} navigate={vi.fn()} pausePlayback={pausePlayback}/></MemoryRouter>);
     const draft = screen.getByLabelText('draft');
     fireEvent.change(draft, {target: {value: '.9'}});
@@ -348,7 +362,7 @@ test('picker cancellation and current graph selection retain mounted controls', 
 
 test('busy workspace exposes unavailable switcher without opening a picker', () => {
     setLanguage('sl');
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace title="B" description=""
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bernstein']}><DemonstrationWorkspace description=""
         edit={null} display={null} save={null} navigate={vi.fn()} pickerUnavailable/></MemoryRouter>);
     expect(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'})).toHaveAttribute('aria-disabled', 'true');
     fireEvent.click(screen.getByRole('button', {name: 'Zamenjaj demonstracijo'}));
@@ -357,14 +371,14 @@ test('busy workspace exposes unavailable switcher without opening a picker', () 
 
 test('a surface demonstration hides pan and zoom and shows the surface gesture hint', () => {
     setLanguage('en');
-    const surface = render(<MemoryRouter initialEntries={[surfaceFixture.path]}><DemonstrationWorkspace title="Surface" description="Explore"
+    const surface = render(<MemoryRouter initialEntries={[surfaceFixture.path]}><DemonstrationWorkspace description="Explore"
         edit={<p>Edit</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.queryByRole('group', {name: 'Graph pan and zoom'})).toBeNull();
     expect(screen.queryByRole('button', {name: 'Zoom in'})).toBeNull();
     expect(screen.getByText(/Drag empty space to orbit/)).toBeVisible();
     surface.unmount();
 
-    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace title="Bezier" description="Explore"
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve']}><DemonstrationWorkspace description="Explore"
         edit={<p>Edit</p>} display={null} save={null} navigate={vi.fn()}/></MemoryRouter>);
     expect(screen.getByRole('group', {name: 'Graph pan and zoom'})).toBeVisible();
     expect(screen.queryByText(/Drag empty space to orbit/)).toBeNull();

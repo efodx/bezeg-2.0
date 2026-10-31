@@ -1,7 +1,7 @@
 import {authorFamilyChapterSequence} from './familyChapterSequences';
 import {patchChapter} from './patchChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
-import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
+import {previewPoster} from '../../previewPoster';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
 
@@ -44,25 +44,25 @@ const section = (
 ) => ({id, title: text(titleSl, titleEn), paragraphs, ...(formula ? {formula} : {}), ...(demonstrationIds ? {demonstrationIds} : {}), ...extras});
 
 const bernsteinFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets.bernstein,
+    src: previewPoster('bernstein'),
     alt: text('Graf štirih Bernsteinovih uteži tretje stopnje na intervalu od nič do ena.', 'A graph of the four cubic Bernstein weights on the interval from zero to one.'),
     caption: text('Zajeti graf prikazuje štiri kubične uteži. Izračunani primer z utežmi \\(\\frac14,\\frac12,\\frac14\\) v naslednjem razdelku uporablja kvadratne uteži, torej drugo stopnjo.', 'This captured graph shows four cubic weights. The worked example in the next section uses the quadratic weights \\(\\frac14,\\frac12,\\frac14\\), so it has degree two.'),
 };
 
 const complexMultiplicationFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets['complex-multiplication'],
+    src: previewPoster('complex-multiplication'),
     alt: text('Kompleksno število z z vrednostjo ena plus i, faktor i in prikazani zmnožek z argumenti.', 'A complex number z equal to one plus i, the factor i, and their product with arguments shown.'),
     caption: text('Prikazani primer je \\((1+i)i=-1+i\\): faktor \\(i\\) zavrti število \\(z=1+i\\) za \\(\\frac{\\pi}{2}\\), modul pa ostane enak, ker je \\(|i|=1\\).', 'The pictured example is \\((1+i)i=-1+i\\): the factor \\(i\\) rotates \\(z=1+i\\) by \\(\\frac{\\pi}{2}\\), while its modulus stays the same because \\(|i|=1\\).'),
 };
 
 const rationalFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets.rational,
+    src: previewPoster('rational'),
     alt: text('Kubična racionalna Bézierjeva krivulja s štirimi kontrolnimi točkami in vidnimi utežmi.', 'A cubic rational Bézier curve with four control points and visible weights.'),
     caption: text('Zajeti kubični primer ima uteži \\(1,2,1,1\\), zato ima druga kontrolna točka utež dve. Izračunani krožni lok spodaj je kvadratičen in uporablja uteži \\(1,\\frac{1}{\\sqrt2},1\\); ta slika ne prikazuje izračunanega primera.', 'The captured cubic example has weights \\(1,2,1,1\\), so its second control point has weight two. The worked circular arc below is quadratic and uses weights \\(1,\\frac{1}{\\sqrt2},1\\); this image does not show that worked example.'),
 };
 
 const circleFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets.circle,
+    src: previewPoster('circle'),
     alt: text('Celotna krožnica polmera tri, sestavljena iz treh racionalnih lokov in njihovih kontrolnih poligonov.', 'A complete circle of radius three made from three rational arcs and their control polygons.'),
     caption: text('Zajeti prikaz sestavi celotno krožnico polmera \\(3\\) iz treh lokov. Izračunani primer zgoraj dokazuje en sam kvadratični četrtinski lok na enotski krožnici, ne te tridelne konstrukcije.', 'The captured view builds a complete circle of radius \\(3\\) from three arcs. The worked example above proves one quadratic quarter-circle arc on the unit circle, not this three-piece construction.'),
 };
@@ -87,17 +87,17 @@ const splinePrompts: Partial<Record<DemonstrationId, LocalizedText>> = {
 
 const parametrizationFigures: FamilyChapterFigure[] = [
     {
-        src: demonstrationPreviewAssets['spline-parameterization'],
+        src: previewPoster('spline-parameterization'),
         alt: text('Zelena interpolacijska krivulja z dvanajstimi olivnimi vzorčnimi točkami in oranžnimi kontrolnimi točkami.', 'A green interpolating curve with twelve olive sample points and orange control points.'),
         caption: text('Zajeti zlepek uporablja \\(\\alpha=0{,}7\\) in \\(12\\) vzorčnih točk. Spreminjanje eksponenta uteževanja vpliva na razporeditev vozlišč in lahko spremeni tudi rekonstruirano geometrijo zlepka; ne gre za reparametrizacijo ene nespremenjene krivulje.', 'The captured spline uses \\(\\alpha=0.7\\) and \\(12\\) sample points. Changing the weighting exponent affects knot placement and can also change the reconstructed spline geometry; this is not a reparametrization of one fixed curve.'),
     },
     {
-        src: demonstrationPreviewAssets['weighted-parameterization'],
+        src: previewPoster('weighted-parameterization'),
         alt: text('Zelena Bézierjeva krivulja z oranžnimi kontrolnimi točkami in olivnimi vzorčnimi točkami, zgoščenimi proti koncu.', 'A green Bézier curve with orange control points and olive sample points clustered toward its end.'),
         caption: text('Zajeta enojna krivulja uporablja utežni parameter \\(\\alpha=0{,}25\\). Ta racionalna sprememba parametra premika vzorčne točke po isti narisani sledi; njena nevtralna vrednost parametra je \\(\\alpha=0{,}5\\).', 'The captured single curve uses weighted parameter \\(\\alpha=0.25\\). This rational parameter warp moves sample points along the same drawn trace; its neutral parameter value is \\(\\alpha=0.5\\).'),
     },
     {
-        src: demonstrationPreviewAssets['uniform-parameterization'],
+        src: previewPoster('uniform-parameterization'),
         alt: text('Zelena krivulja z desetimi olivnimi vzorčnimi točkami in oranžnimi kontrolnimi točkami; na plakatu je izpisana numerična dolžina loka.', 'A green curve with ten olive sample points and orange control points; a numerical arc length is printed on the poster.'),
         caption: text('Zajeti primerjalni plakat ima \\(10\\) vzorčnih točk in je nastavljen na uteženi način, ne na način enakomerne dolžine loka. Razmiki med redkimi točkami in ravne tetive med njimi ne dokazujejo enakih dolžin lokov.', 'The captured comparison poster has \\(10\\) sample points and is set to weighted mode, not arc-length mode. Gaps between sparse points and straight chords between them do not prove equal arc lengths.'),
     },
@@ -122,17 +122,17 @@ const calculusPrompts: Partial<Record<DemonstrationId, LocalizedText>> = {
 
 const analysisFigures: Record<'bisection' | 'darboux' | 'uniform-convergence', FamilyChapterFigure> = {
     bisection: {
-        src: demonstrationPreviewAssets.bisection,
+        src: previewPoster('bisection'),
         alt: text('Graf parabole x kvadrat minus dva na intervalu od ena do dve, z označenimi krajišči, prvim razpoloviščem in zadržano polovico.', 'The graph of the parabola x squared minus two from one to two, with endpoints, the first midpoint, and the retained half marked.'),
         caption: text('Zajeti korak bisekcije uporabi \\(f(x)=x^2-2\\) na \\([1,2]\\). Razpolovišče \\(1{,}5\\) ima vrednost \\(0{,}25\\), zato ostane interval \\([1,1{,}5]\\) širine \\(0{,}5\\). Slika kaže en korak, ne končne ničle.', 'The captured bisection step uses \\(f(x)=x^2-2\\) on \\([1,2]\\). The midpoint \\(1.5\\) has value \\(0.25\\), so the retained interval is \\([1,1.5]\\), of width \\(0.5\\). The image shows one step, not the final root.'),
     },
     darboux: {
-        src: demonstrationPreviewAssets.darboux,
+        src: previewPoster('darboux'),
         alt: text('Graf parabole x kvadrat na intervalu od nič do dve s štirimi polnimi spodnjimi in črtkanimi zgornjimi Darbouxovimi pravokotniki.', 'The graph of the parabola x squared from zero to two, with four filled lower and dashed upper Darboux rectangles.'),
         caption: text('Zajeta razdelitev ima \\(n=4\\) na \\([0,2]\\) za \\(f(x)=x^2\\): spodnja vsota je \\(1{,}75\\), zgornja \\(3{,}75\\), integral pa \\(8/3\\). To je ena končna razdelitev; gumb »Zgosti razdelitev« ohrani stare delilne točke in vsak podinterval razpolovi.', 'The captured partition has \\(n=4\\) on \\([0,2]\\) for \\(f(x)=x^2\\): the lower sum is \\(1.75\\), the upper sum is \\(3.75\\), and the integral is \\(8/3\\). This is one finite partition; “Refine partition” keeps the old division points and bisects each subinterval.'),
     },
     'uniform-convergence': {
-        src: demonstrationPreviewAssets['uniform-convergence'],
+        src: previewPoster('uniform-convergence'),
         alt: text('Peta potenca x na intervalu od nič do 0,8, limita nič, pas tolerance 0,1 in razkriti supremum napake 0,32768 pri desnem krajišču.', 'The fifth power of x from zero to 0.8, limit zero, tolerance band 0.1, and revealed supremum error 0.32768 at the right endpoint.'),
         caption: text('Zajeti plakat uporablja \\(f_n(x)=x^n\\) na \\([0,0{,}8]\\) pri \\(n=5\\): v izbrani točki \\(x=0{,}5\\) je napaka \\(0{,}03125\\), supremum na celotni domeni pa je dosežen pri \\(x=0{,}8\\) in znaša \\(0{,}8^5=0{,}32768\\). Gre za primer enakomernega približevanja na \\([0,0{,}8]\\), ne za neenakomerno konvergenco na \\([0,1]\\).', 'The captured poster uses \\(f_n(x)=x^n\\) on \\([0,0.8]\\) at \\(n=5\\): at the selected point \\(x=0.5\\), the error is \\(0.03125\\), while the supremum over the whole domain is attained at \\(x=0.8\\) and equals \\(0.8^5=0.32768\\). This is uniform approximation on \\([0,0.8]\\), not the nonuniform convergence case on \\([0,1]\\).'),
     },
@@ -152,25 +152,25 @@ const analysisPrompts: Partial<Record<DemonstrationId, LocalizedText>> = {
 };
 
 const splineC1Figure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets['spline-c1'],
+    src: previewPoster('spline-c1'),
     alt: text('Večdelni kvadratični zlepek s kontrolnimi točkami, izračunanimi spojnimi točkami in podpornim poligonom.', 'A multi-piece quadratic spline with control points, computed join points, and its supporting polygon.'),
     caption: text('Zajeti večdelni kvadratični primer pokaže osrednji spoj, izračunane točke in podporni poligon. To je prikaz aplikacije za zlepek \\(C^1\\), ne parabolni par iz izračunanega primera spodaj; slika ponazori konstrukcijo, ne dokaza enakosti odvodov.', 'The captured multi-piece quadratic example shows its central join, computed points, and supporting polygon. It is the app’s \\(C^1\\) spline, not the pair of parabolas in the worked example below; the picture illustrates the construction but does not prove derivative equality.'),
 };
 
 const splineG1Figure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets['spline-g1'],
+    src: previewPoster('spline-g1'),
     alt: text('Večdelni kvadratični zlepek s podpornim poligonom in poravnanimi tangentnimi smermi pri osrednjem spoju.', 'A multi-piece quadratic spline with a supporting polygon and aligned tangent directions at its central join.'),
     caption: text('Zajeti večdelni zlepek uporablja parameter \\(b_1=0{,}65\\); podporni poligon pokaže poravnano tangentno smer kljub različni dolžini krakov. Primer prikazuje aplikacijski zlepek, ne para parabol iz spodnjega računa, in ne dokazuje pogoja \\(G^1\\).', 'The captured multi-piece spline uses parameter \\(b_1=0.65\\); its supporting polygon shows aligned tangent directions despite unequal leg lengths. It is the app’s spline, not the pair of parabolas in the worked calculation below, and it does not prove the \\(G^1\\) condition.'),
 };
 
 const phCubicFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets['ph-cubic'],
+    src: previewPoster('ph-cubic'),
     alt: text('Zajeti graf kubične PH-krivulje v zeleni barvi, modrega odmika in štirih oranžnih točk.', 'A catalog capture of a green cubic PH curve, its blue offset, and four orange points.'),
     caption: text('Katalogski kubični PH-primer prikazuje zeleno krivuljo in en moder odmik pri razdalji \\(d=0{,}35\\); štiri oranžne točke so vidne v sceni. To je drug primer kot integrirana krivulja z začetkom v izhodišču.', 'The cubic PH catalog scene shows a green curve and one blue offset at distance \\(d=0.35\\); four orange points are visible in the scene. This is a different example from the integrated curve starting at the origin.'),
 };
 
 const phQuinticFigure: FamilyChapterFigure = {
-    src: demonstrationPreviewAssets['ph-quintic'],
+    src: previewPoster('ph-quintic'),
     alt: text('Zajeti graf kvintične PH-krivulje v zeleni barvi, modrega zunanjega odmika in oranžnih točk.', 'A catalog capture of a green quintic PH curve, its blue outer offset, and orange points.'),
     caption: text('Katalogski kvintični PH-primer prikazuje zeleno krivuljo in en moder zunanji odmik pri razdalji \\(d=0{,}5\\), brez vidne konice v prikazanem odseku. Ne gre za integrirano kubično krivuljo iz izhodišča.', 'The quintic PH catalog scene shows a green curve and one blue outer offset at distance \\(d=0.5\\), with no visible cusp in the shown segment. It is not the integrated cubic curve from the origin.'),
 };
@@ -399,15 +399,15 @@ const chapterDrafts: readonly FamilyChapter[] = [
             section('continuity', 'Zveznost opisuje lokalno obnašanje', 'Continuity describes local behavior', [
                 text('Funkcija \\(f:D\\to\\mathbb R\\) je zvezna pri točki \\(c\\in D\\), če za vsako toleranco \\(\\varepsilon>0\\) obstaja polmer \\(\\delta>0\\), tako da za vsako točko domene \\(x\\in D\\) velja: če je \\(|x-c|<\\delta\\), potem je \\(|f(x)-f(c)|<\\varepsilon\\). Vrstni red je \\(\\forall\\varepsilon>0\\;\\exists\\delta>0\\;\\forall x\\in D\\): najprej izberemo dovoljeno napako izhoda, nato eno okolico vhoda, ki deluje za vse domenske točke v njej. Zveznost pri točki ne pomeni odvedljivosti.', 'A function \\(f:D\\to\\mathbb R\\) is continuous at \\(c\\in D\\) if for every tolerance \\(\\varepsilon>0\\) there is a radius \\(\\delta>0\\) such that for every domain point \\(x\\in D\\): if \\(|x-c|<\\delta\\), then \\(|f(x)-f(c)|<\\varepsilon\\). The order is \\(\\forall\\varepsilon>0\\;\\exists\\delta>0\\;\\forall x\\in D\\): first choose an allowed output error, then one input neighborhood that works for every domain point in it. Continuity at a point does not imply differentiability.'),
                 text('Skok nastane, če se enostranski limiti razlikujeta; odpravljiva luknja pa, če limit obstaja, vendar vrednost funkcije manjka ali je drugačna. Preveri domeno, vrednost ter levo in desno limito. Končen izsek grafa lahko pokaže skok, ne more pa dokazati pogoja za poljubno majhno \\(\\varepsilon\\) ali vseh dovolj bližnjih točk.', 'A jump occurs when the one-sided limits differ; a removable hole occurs when the limit exists but the function value is missing or different. Check the domain, value, and both one-sided limits. A finite graph view can show a jump, but cannot prove the condition for every arbitrarily small \\(\\varepsilon\\) or all sufficiently nearby inputs.'),
-            ], undefined, ['continuity'], {figures: [{src: demonstrationPreviewAssets.continuity, alt: text('Kvadratni krak se konča z zapolnjeno točko pri vhodu ena; premica se začne višje z odprto točko pri istem vhodu.', 'A quadratic branch ends at a filled point when the input is one; a line starts higher at an open point with the same input.'), caption: text('Zajeti graf prikazuje skok pri \\(x=1\\): vrednost in leva limita sta \\(1\\), desna limita pa \\(2\\). To je primer aplikacije pri \\(a=1\\), ne dokaz splošnega kriterija zveznosti.', 'The captured graph shows a jump at \\(x=1\\): the value and left limit are \\(1\\), while the right limit is \\(2\\). This is the app example \\(a=1\\), not a proof of the general continuity criterion.')}], investigationPrompts: calculusPrompts}),
+            ], undefined, ['continuity'], {figures: [{src: previewPoster('continuity'), alt: text('Kvadratni krak se konča z zapolnjeno točko pri vhodu ena; premica se začne višje z odprto točko pri istem vhodu.', 'A quadratic branch ends at a filled point when the input is one; a line starts higher at an open point with the same input.'), caption: text('Zajeti graf prikazuje skok pri \\(x=1\\): vrednost in leva limita sta \\(1\\), desna limita pa \\(2\\). To je primer aplikacije pri \\(a=1\\), ne dokaz splošnega kriterija zveznosti.', 'The captured graph shows a jump at \\(x=1\\): the value and left limit are \\(1\\), while the right limit is \\(2\\). This is the app example \\(a=1\\), not a proof of the general continuity criterion.')}], investigationPrompts: calculusPrompts}),
             section('derivatives', 'Odvod meri trenutno spremembo', 'Derivatives measure instantaneous change', [
                 text('Odvod pri \\(x\\) je limitni količnik spremembe vrednosti in vhoda, ko se drugi vhod približa prvemu. Geometrično je to naklon tangente, če odvod obstaja. Za \\(f(x)=x^2\\) je pri \\(h\\ne0\\) količnik \\(((x+h)^2-x^2)/h=2x+h\\); šele nato vzamemo limito pri \\(h\\to0\\) in dobimo \\(2x\\). Ta izračun razloži pravilo za odvod kvadrata, namesto da ga zgolj uporabimo.', 'The derivative at \\(x\\) is the limiting ratio of output change to input change as the second input approaches the first. Geometrically it is the tangent slope when it exists. For \\(f(x)=x^2\\), the quotient is \\(((x+h)^2-x^2)/h=2x+h\\) when \\(h\\ne0\\); only then do we take the limit as \\(h\\to0\\) and obtain \\(2x\\). This calculation explains the power rule for a square rather than merely applying it.'),
                 text('Odvod lahko ne obstaja pri vogalu, navpični tangenti ali nezveznosti. Pri parametrični krivulji je odvod vektor hitrosti; njegova dolžina je hitrost, smer pa tangenta, kadar vektor ni ničeln. Če je odvod ničeln, je treba dodatno preveriti lokalno geometrijo. Odvod sam ne pove, ali je sprememba koristna ali nezaželena; to določa model.', 'A derivative can fail to exist at a corner, vertical tangent, or discontinuity. For a parametrized curve, the derivative is the velocity vector; its length is speed and its direction is tangent when nonzero. A zero derivative requires further local analysis. A derivative alone does not say whether change is desirable; that depends on the model.'),
-            ], undefined, ['derivative', 'arc-length'], {figures: [{src: demonstrationPreviewAssets.derivative, alt: text('Na grafu kvadratne funkcije sta sekanta skozi dve točki in tangenta pri izbrani točki.', 'A secant through two points and a tangent at one selected point appear on a quadratic graph.'), caption: text('Zajeti primer aplikacije uporablja \\(f(x)=x^2\\), \\(x_0=1\\) in \\(h=1\\): sekantni naklon je \\(3\\), tangentni pa \\(f^{\\prime}(1)=2\\). V splošnem izračunu zgoraj ostane \\(h\\ne0\\), preden vzamemo limito.', 'The captured app example uses \\(f(x)=x^2\\), \\(x_0=1\\), and \\(h=1\\): the secant slope is \\(3\\), while the tangent slope is \\(f^{\\prime}(1)=2\\). In the general calculation above, \\(h\\ne0\\) remains in force before taking the limit.')}], investigationPrompts: calculusPrompts}),
+            ], undefined, ['derivative', 'arc-length'], {figures: [{src: previewPoster('derivative'), alt: text('Na grafu kvadratne funkcije sta sekanta skozi dve točki in tangenta pri izbrani točki.', 'A secant through two points and a tangent at one selected point appear on a quadratic graph.'), caption: text('Zajeti primer aplikacije uporablja \\(f(x)=x^2\\), \\(x_0=1\\) in \\(h=1\\): sekantni naklon je \\(3\\), tangentni pa \\(f^{\\prime}(1)=2\\). V splošnem izračunu zgoraj ostane \\(h\\ne0\\), preden vzamemo limito.', 'The captured app example uses \\(f(x)=x^2\\), \\(x_0=1\\), and \\(h=1\\): the secant slope is \\(3\\), while the tangent slope is \\(f^{\\prime}(1)=2\\). In the general calculation above, \\(h\\ne0\\) remains in force before taking the limit.')}], investigationPrompts: calculusPrompts}),
             section('integrals', 'Integral meri akumulacijo', 'An integral measures accumulation', [
                 text('Določeni integral zvezne funkcije na zaprtem omejenem intervalu je limita vsot pravokotnikov, ko se delitev intervala izostruje. Končna vsota je približek, ne integral sam; končna slika prav tako ne dokazuje konvergence. Predznak funkcije določa predznačeni prispevek, zato deli pod osjo štejejo negativno: integral ni vedno navadna geometrijska ploščina.', 'The definite integral of a continuous function on a closed bounded interval is the limit of rectangle sums as the partition is refined. A finite sum is an approximation, not the integral itself; a finite picture does not prove convergence either. The function sign determines signed contribution, so regions below the axis count negatively: an integral is not always geometric area.'),
                 text('Za \\(f(x)=x\\) na zaprtem intervalu \\([0,2]\\) je funkcija zvezna in nenegativna, zato predznačeni integral sovpada z geometrijsko ploščino trikotnika z osnovnico dve in višino dve: \\(\\int_0^2 x\\,dx=2\\). Primitivna funkcija \\(F(x)=x^2/2\\) da isti izračun: \\(F(2)-F(0)=2\\). Zajeti prikaz aplikacije pa uporablja drugo funkcijo, \\(x^2\\), s šestimi grobimi levimi pravokotniki na \\([0,2]\\); njihova vsota je približno \\(2{,}037\\), točni integral pa \\(8/3\\approx2{,}6667\\).', 'For \\(f(x)=x\\) on the closed interval \\([0,2]\\), the function is continuous and nonnegative, so the signed integral equals the geometric area of the triangle with base two and height two: \\(\\int_0^2 x\\,dx=2\\). An antiderivative \\(F(x)=x^2/2\\) gives the same calculation: \\(F(2)-F(0)=2\\). The captured app view uses a different function, \\(x^2\\), with six coarse left rectangles on \\([0,2]\\); their sum is about \\(2.037\\), while the exact integral is \\(8/3\\approx2.6667\\).'),
-            ], undefined, ['definite-integral'], {figures: [{src: demonstrationPreviewAssets['definite-integral'], alt: text('Šest pravokotnikov z levo višino pod parabolo na intervalu od nič do dve; višina vsakega je vzeta na njegovem levem robu.', 'Six rectangles with left-endpoint heights under a parabola from zero to two; each height is taken at its left edge.'), caption: text('Zajeti graf prikazuje šest grobih levih pravokotnikov za primer aplikacije \\(x^2\\) na \\([0,2]\\): vsota \\(2{,}037\\) je približek, predznačeni integral \\(8/3\\approx2{,}6667\\) pa točen in tu tudi geometrijska ploščina, ker je \\(x^2\\ge0\\). Slika ne dokazuje konvergence.', 'The captured graph shows six coarse left rectangles for the app example \\(x^2\\) on \\([0,2]\\): the sum \\(2.037\\) is an approximation, while the signed integral \\(8/3\\approx2.6667\\) is exact and here also the geometric area because \\(x^2\\ge0\\). The picture does not prove convergence.')}], investigationPrompts: calculusPrompts}),
+            ], undefined, ['definite-integral'], {figures: [{src: previewPoster('definite-integral'), alt: text('Šest pravokotnikov z levo višino pod parabolo na intervalu od nič do dve; višina vsakega je vzeta na njegovem levem robu.', 'Six rectangles with left-endpoint heights under a parabola from zero to two; each height is taken at its left edge.'), caption: text('Zajeti graf prikazuje šest grobih levih pravokotnikov za primer aplikacije \\(x^2\\) na \\([0,2]\\): vsota \\(2{,}037\\) je približek, predznačeni integral \\(8/3\\approx2{,}6667\\) pa točen in tu tudi geometrijska ploščina, ker je \\(x^2\\ge0\\). Slika ne dokazuje konvergence.', 'The captured graph shows six coarse left rectangles for the app example \\(x^2\\) on \\([0,2]\\): the sum \\(2.037\\) is an approximation, while the signed integral \\(8/3\\approx2.6667\\) is exact and here also the geometric area because \\(x^2\\ge0\\). The picture does not prove convergence.')}], investigationPrompts: calculusPrompts}),
             section('applications', 'Ploščina in dolžina krivulje', 'Area and curve length', [
                 text('Ploščina med grafoma je integral razlike zgornje in spodnje funkcije, če se njun vrstni red ne zamenja. Če se sekata, interval razdelimo ali integriramo absolutno vrednost razlike. Za parametrično krivuljo dolžino dobimo z integracijo hitrosti \\(\\lVert r^{\\prime}(t)\\rVert\\); polinomski koordinati zato še ne zagotavljata elementarnega izraza za lok.', 'Area between graphs is the integral of upper minus lower when their order does not change. If they cross, split the interval or integrate the absolute difference. For a parametrized curve, length is the integral of speed \\(\\lVert r^{\\prime}(t)\\rVert\\); polynomial coordinates therefore do not guarantee an elementary arc-length formula.'),
                 text('Na grafu primerjaj funkcijo s tangento, nato spreminjaj interval in število podintervalov pri seštevanju. Pri ploščini najprej poišči presečišča. Pri dolžini loka loči geometrijsko sled od parametra: hitrejši obhod spremeni hitrost, čeprav je lok lahko enak. Numerični približek je uporaben, ko vemo, kako se preveri njegova napaka.', 'Compare a function with its tangent, then vary the interval and number of subintervals in an integral estimate. For area, find intersections first. For arc length, separate the geometric trace from its parameter: faster traversal changes speed even when the path is the same. A numerical approximation is useful when we know how to assess its error.'),

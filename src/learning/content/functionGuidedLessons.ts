@@ -1,6 +1,6 @@
 /**
  * Guided lessons of the Functions and calculus family (ADR 0007, docs/specs/function-concepts.md).
- * Each later concept appends its lesson to `functionGuidedLessons` and its id to GUIDED_LESSON_AVAILABLE_IDS.
+ * Each later concept appends its lesson to `functionGuidedLessons`; availability follows from the Demonstration definition (`src/demonstrations.ts`).
  */
 import type {FunctionParameterName, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText, SceneAction} from './guidedLessons';

@@ -96,15 +96,15 @@ function coordinateContextPolicy(demonstration) {
 }
 
 const messages = stringProperties(variableInitializer(parseSource('src/localization/en.ts'), 'en'));
-const lessonIdsExpression = variableInitializer(parseSource('src/learning/runtime/lessonAvailability.ts'), 'GUIDED_LESSON_AVAILABLE_IDS');
-if (!ts.isArrayLiteralExpression(lessonIdsExpression)) throw new Error('Guided example availability must remain an array literal.');
-const availableLessonIds = new Set(lessonIdsExpression.elements.map(element => {
-    const value = unwrapExpression(element);
-    if (!ts.isStringLiteral(value)) throw new Error(`Expected a string lesson id: ${value.getText()}`);
-    return value.text;
-}));
+// A Demonstration offers a guided lesson unless its definition opts out with `lesson: false` (LESSON_DEMONSTRATION_IDS in src/demonstrations.ts).
+const availableLessonIds = new Set(definitions.elements.filter(element => {
+    const object = unwrapExpression(element);
+    if (!ts.isObjectLiteralExpression(object)) throw new Error(`Expected object literal: ${object.getText()}`);
+    return !object.properties.some(property => ts.isPropertyAssignment(property) && propertyName(property.name) === 'lesson' &&
+        property.initializer.kind === ts.SyntaxKind.FalseKeyword);
+}).map(element => stringProperties(unwrapExpression(element), false).id));
 // Demonstrations whose catalog manifest carries a motion clip; the rest are still-poster only until their timelines ship.
-const manifestMotionIds = new Set((JSON.parse(fs.readFileSync(path.join(root, 'src/images/demonstrations/catalog/manifest.json'), 'utf8')).motions || []).map(motion => motion.id));
+const manifestMotionIds = new Set((JSON.parse(fs.readFileSync(path.join(root, 'scripts/demonstration-previews/manifest.json'), 'utf8')).motions || []).map(motion => motion.id));
 const demonstrations = definitions.elements.map(element => {
     const entry = stringProperties(unwrapExpression(element), false);
     for (const required of ['id', 'path', 'family', 'title']) {
@@ -150,14 +150,17 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
     const catalogDirectory = options.catalogDirectory || path.join(root, 'src/images/demonstrations/catalog');
     const mappingSource = parseSource(options.mappingPath || 'src/demonstrationPreviewAssets.ts');
     const mappingDeclaration = findVariableDeclaration(mappingSource, 'demonstrationPreviewAssets');
-    if (!mappingDeclaration.type || !ts.isTypeReferenceNode(mappingDeclaration.type) ||
-        !ts.isIdentifier(mappingDeclaration.type.typeName) || mappingDeclaration.type.typeName.text !== 'Record' ||
-        mappingDeclaration.type.typeArguments?.length !== 2 ||
-        !ts.isTypeReferenceNode(mappingDeclaration.type.typeArguments[0]) ||
-        !ts.isIdentifier(mappingDeclaration.type.typeArguments[0].typeName) ||
-        mappingDeclaration.type.typeArguments[0].typeName.text !== 'DemonstrationId' ||
-        mappingDeclaration.type.typeArguments[1].kind !== ts.SyntaxKind.StringKeyword) {
-        throw new Error('The generated preview map must remain exhaustively typed as Record<DemonstrationId, string>.');
+    // The map is Partial so a new Demonstration does not block typecheck before capture runs; src/demonstrationPreviewAssets.test.ts reports the gap.
+    const partialType = mappingDeclaration.type;
+    const recordType = partialType && ts.isTypeReferenceNode(partialType) && ts.isIdentifier(partialType.typeName) && partialType.typeName.text === 'Partial' &&
+        partialType.typeArguments?.length === 1 ? partialType.typeArguments[0] : undefined;
+    if (!recordType || !ts.isTypeReferenceNode(recordType) || !ts.isIdentifier(recordType.typeName) || recordType.typeName.text !== 'Record' ||
+        recordType.typeArguments?.length !== 2 ||
+        !ts.isTypeReferenceNode(recordType.typeArguments[0]) ||
+        !ts.isIdentifier(recordType.typeArguments[0].typeName) ||
+        recordType.typeArguments[0].typeName.text !== 'DemonstrationId' ||
+        recordType.typeArguments[1].kind !== ts.SyntaxKind.StringKeyword) {
+        throw new Error('The generated preview map must remain typed as Partial<Record<DemonstrationId, string>>.');
     }
     const importedAssets = new Map();
     for (const statement of mappingSource.statements) {
@@ -192,7 +195,7 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
         throw new Error(`Expected one generated image import per active Demonstration; found ${importedAssets.size}.`);
     }
 
-    const manifestPath = path.join(catalogDirectory, 'manifest.json');
+    const manifestPath = options.manifestPath || path.join(root, 'scripts/demonstration-previews/manifest.json');
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     if (manifest.version !== 2) throw new Error('Preview manifest must use recipe provenance version 2.');
     if(!/^[a-f0-9]{64}$/.test(manifest.presentationFingerprint || '')) throw new Error('Missing capture-presentation fingerprint.');

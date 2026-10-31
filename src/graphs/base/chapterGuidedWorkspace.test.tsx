@@ -18,7 +18,7 @@ test('legacy activity URLs resolve to one chapter-owned guided example', async (
         },
     };
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?chapter=bezier-curves&activity=shape-control']}>
-        <DemonstrationWorkspace title="Bézier" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
+        <DemonstrationWorkspace description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
             lessonCapabilities={capabilities}/>
     </MemoryRouter>);
 
@@ -56,7 +56,7 @@ test('legacy prepared activity does not start a second activity session under it
         },
     };
     render(<MemoryRouter initialEntries={['/bezeg-2.0/bezier/curve?chapter=bezier-curves&activity=shape-control']}>
-        <DemonstrationWorkspace title="Bézier" description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
+        <DemonstrationWorkspace description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}
             lessonCapabilities={capabilities}/>
     </MemoryRouter>);
 

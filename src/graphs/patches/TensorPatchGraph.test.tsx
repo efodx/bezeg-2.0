@@ -39,7 +39,7 @@ describe("default scene", () => {
         expect(view.last.markers[0].xyz[2]).toBeGreaterThan(1);
         expect(view.labels).toEqual([t("surface_view_label")]);
         expect(view.descriptions).toEqual([t("surface_view_keys")]);
-        expect(graph.getWorkspacePanels({}).title).toBeDefined();
+        expect(graph.getWorkspacePanels().description).toBeTruthy();
     });
 
     it("renders the current-v iso-curve and its derived control polygon from the net", () => {

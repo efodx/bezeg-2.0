@@ -21,6 +21,8 @@ type Definition = {
     prompts: readonly [TextKey, TextKey]; fit?: false;
     /** `'surface'` marks a demonstration whose main view is orbited, not panned: it has no pan or zoom actions. */
     view?: 'surface';
+    /** Set to `false` only for a Demonstration that deliberately ships without a guided lesson; lesson tests enforce the rest. */
+    lesson?: false;
 };
 
 // Order is the teaching catalog order, independent of wording and graph imports.
@@ -78,6 +80,13 @@ const definitions = [
     {id: 'fixed-point', path: '/bezeg-2.0/analysis/fixed-point', family: 'analysis', title: 'fixed_point', prompts: ['prompt_fixed_point', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
+/**
+ * Ids of the Demonstrations that offer a guided lesson: every definition unless it opts out with `lesson: false`.
+ * Lightweight on purpose (no lesson content is imported), so the home page and catalog can read it; the lesson tests fail
+ * when this set and the authored lesson content disagree.
+ */
+export const LESSON_DEMONSTRATION_IDS: readonly DemonstrationId[] = definitions
+    .filter((definition: Definition) => definition.lesson !== false).map(definition => definition.id);
 export type Demonstration = Readonly<{
     id: DemonstrationId; path: string; family: FamilyId; catalogTitle: string; workspaceTitle: string;
     prompts: readonly [string, string]; navigationActions: readonly NavigationAction[];
