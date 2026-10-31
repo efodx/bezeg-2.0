@@ -1,6 +1,6 @@
 # Probability and statistics on the graph (Verjetnost in statistika na grafu)
 
-**Status:** proposed, 2026-10-31. Specification only; implementation not scheduled.
+**Status:** scheduled 2026-10-31 by the [Curves feature stream](../tasks/feature-streams/curves.md); tasks in [docs/tasks/probability-statistics](../tasks/probability-statistics/README.md).
 **Agreed:** 2026-10-31 (owner approved the family; details below are proposals for owner review).
 **Source:** [expansion research note, candidate E4](../research/lesson-family-candidates-2026-10-31-expansion.md) (anchors, pitfalls, sample \(B(20,\tfrac12)\)). Anchors read in text extracted from the matura catalogue M-MAT-2026: §4.16 (*normalna porazdelitev* is OR; *zaporedje neodvisnih poskusov* is VR) and §4.17 (scatter plot, box plot, mean, median, standard deviation, interquartile range, "ocenjuje preproste povezave med statističnimi spremenljivkami"), and in the FMF 2025 pages *Verjetnost* (c153: density, normal distribution, convergence in distribution, Poisson approximation) and *Statistika* (c146: central limit theorem, linear regression models). Textbooks named in those syllabi (Grimmett–Welsh, Pitman, Rice) are cited, not opened; Berry–Esseen is cited from the literature, not opened. Part of the [new lesson families](new-lesson-families.md) index.
 
