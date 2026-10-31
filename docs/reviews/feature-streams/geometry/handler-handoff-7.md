@@ -12,8 +12,8 @@ Written 2026-10-31 by handler 7 (Opus 5.5, permission mode auto, effort medium).
 
 | Item | Commit | Notes |
 | --- | --- | --- |
-| Triangulation 04 accepted | ba7b57e | Math review: no must-fix. Termination without a cap, strict visibility and the restart rule confirmed. `predicateCount` documented as one per edge test. |
-| Convexity 11 accepted | ba7b57e | Math review: no must-fix. The random test's equality with the margin-free reference held only one way. It now asserts the implication and the \(2\delta\) converse against an exact reference with a margin, checked by mutation (no normal axes fails 2 tests). ADR 0036 now states that the \(\delta/4\) bound is Euclidean, plus the converse. |
+| Triangulation 04 accepted | c1d647a | Math review: no must-fix. Termination without a cap, strict visibility and the restart rule confirmed. `predicateCount` documented as one per edge test. |
+| Convexity 11 accepted | c1d647a | Math review: no must-fix. The random test's equality with the margin-free reference held only one way. It now asserts the implication and the \(2\delta\) converse against an exact reference with a margin, checked by mutation (no normal axes fails 2 tests). ADR 0036 now states that the \(\delta/4\) bound is Euclidean, plus the converse. |
 | Stream set to waiting | this commit | 05 and sweep S0 02 are blocked on Maps' `rational.ts` and circumcentre kernel, which are not on `master`. |
 
 ## Next, when restarted
@@ -23,7 +23,7 @@ Written 2026-10-31 by handler 7 (Opus 5.5, permission mode auto, effort medium).
 
 ## Checks
 
-At `ba7b57e` (on `536926b`): tsc 0, `just lint src/compgeo` pass, `just unit src/compgeo` pass. The full suite and the build were not run; hosted CI covers `master`.
+At `a99dc40` (rebased on `2a77839`): tsc 0, `just lint src/compgeo` pass, `just unit src/compgeo` pass. The full suite and the build were not run; hosted CI covers `master`.
 
 ## Open risks (low, deferred)
 
