@@ -10,6 +10,8 @@ import {SEQUENCE_EXAMPLE_IDS} from '../analysis/sequence';
 import {FIXED_POINT_EXAMPLE_IDS} from '../analysis/fixedPoint';
 import {UNIFORM_EXAMPLE_IDS} from '../analysis/uniformConvergence';
 import {COMPLEX_EXAMPLE_IDS} from '../analysis/complex';
+import type {LinearMapExampleId, Mat2} from '../linear/matrix2';
+import type {LinearMapMode, MatrixSlot} from '../linear/linearMapModel';
 
 export type LessonLanguage = 'sl' | 'en';
 
@@ -173,6 +175,14 @@ export type LessonAction =
     | {readonly kind: 'bernstein-degree'; readonly degree: number}
     /** BernsteinGraph's graph-owned stacked-area view. */
     | {readonly kind: 'bernstein-stacked-area'; readonly visible: boolean}
+    /**
+     * LinearMapGraph's scene actions (validated by `validateSet*` in `src/linear/linearMapModel.ts`). Kinds are typed; the graph still
+     * enforces the domain (grid, ranges): scene data is strict, so an off-grid entry is a lesson-content error, never snapped.
+     */
+    | {readonly kind: 'linear-map'; readonly operation: 'set-matrix'; readonly matrix: Mat2; readonly target?: MatrixSlot}
+    | {readonly kind: 'linear-map'; readonly operation: 'set-mode'; readonly mode: LinearMapMode}
+    | {readonly kind: 'linear-map'; readonly operation: 'set-test-vector'; readonly angle: number}
+    | {readonly kind: 'linear-map'; readonly operation: 'set-example'; readonly exampleId: LinearMapExampleId}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

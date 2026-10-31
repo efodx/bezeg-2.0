@@ -68,6 +68,12 @@ The static document initially declares Slovenian, and runtime selection updates 
 | enotska krožnica | unit circle |
 | krožnica inverzije | circle of inversion |
 | količnik | quotient \(w/z\) |
+| linearna preslikava | linear map |
+| matrika | matrix |
+| slika baze | image of the basis |
+| determinanta | determinant |
+| predznačena ploščina | signed area |
+| orientacija ohranjena / obrnjena | orientation kept / reversed |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 
