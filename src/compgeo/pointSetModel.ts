@@ -111,6 +111,17 @@ export function clearPoints(model: PointSetModel): PointSetModel {
     return {...model, points: [], closed: false};
 }
 
+/**
+ * Reverses the vertex order of the polygon but keeps the first vertex first: (v0, v1, ..., vn-1) becomes (v0, vn-1, ..., v1).
+ * The polygon is the same set of points and edges, only traversed the other way, so every fan triangle from v0 and the
+ * signed area change sign while the area does not. Applying it twice restores the model. Mode, closedness and grid step stay.
+ */
+export function reverseVertices(model: PointSetModel): PointSetModel {
+    if (model.points.length < 2) return model;
+    const [first, ...rest] = model.points;
+    return {...model, points: [first, ...rest.reverse()]};
+}
+
 /** Closing is a polygon-mode property: refuses with 'mode' to close in points mode. Opening is always allowed. */
 export function setClosed(model: PointSetModel, closed: boolean): PointSetEditResult {
     if (closed && model.mode !== 'polygon') return refuse('mode');

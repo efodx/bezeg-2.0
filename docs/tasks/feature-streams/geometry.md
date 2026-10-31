@@ -5,7 +5,7 @@ Rules and slice template: [feature streams](README.md). Port 4313. Handoffs: `do
 
 | # | Family | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Point-set graph code: none; registration and lessons: `G-REG` | Batch 0 accepted 2026-10-31 (`G-CG` open); Batch 1 kernels and graphs 07 and 08 accepted, 09 in progress, 10 planned ([tasks](../convexity-hulls/README.md)) |
+| 1 | Convexity and hulls | [convexity-hulls-lessons.md](../../specs/convexity-hulls-lessons.md) | Batch 0 kernel: none. Point-set graph code: none; registration and lessons: `G-REG` | Batch 0 accepted 2026-10-31 (`G-CG` open); Batch 1 kernels and graphs 07–09 accepted, 10 implemented with review repairs open ([tasks](../convexity-hulls/README.md)) |
 | 2 | Triangulations and Voronoi | [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-lessons.md) | Convexity Batch 0 (its T0 kernel adds `incircle` to the predicate module) | F0 done 2026-10-31; T0 kernel tasks 02–03 planned ([tasks](../triangulation-voronoi/README.md)) |
 | 3 | Sweep-line algorithms | [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md) | Convexity Batch 0 (rational ADR builds on the robustness ADR); Fortune's sweep needs family 2's Voronoi drawing | planned |
 

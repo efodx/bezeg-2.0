@@ -35,7 +35,7 @@ import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointS
  * Overlay extension point (hull, turns, ray, trace in later lessons): a subclass `class HullGraph extends PointSetGraph<"hull">`
  * overrides `overlayIds()` to list its ids (spread `super.overlayIds()`), `overlayLabel(id)` for the switch text, and
  * `drawOverlay(id, model)` to create the board objects of an overlay from the current model (fall through to `super` for
- * `"grid"`). The base calls `drawOverlay` for each shown id after every change of the model or of the shown set, owns the
+ * `"grid"`). A subclass whose overlays also depend on other state overrides `overlayInputs()` (see its comment). The base calls `drawOverlay` for each shown id after every change of the model or of the shown set, owns the
  * returned objects and removes them before the next call, on scene replacement and on unmount. Create objects with fixed
  * data from `model` (not live point references), because they are rebuilt per change, not per frame.
  *
@@ -70,7 +70,7 @@ const ARROW_STEPS: Readonly<Record<string, readonly [number, number]>> = {
 export class PointSetGraph<Overlay extends string = never> extends BaseGraph<PointSetGraphState, PointSetModel> {
     private drawn?: DrawnScene;
     private overlayObjects: JXG.GeometryElement[] = [];
-    private overlaysDrawnFor?: {model: PointSetModel; overlays: unknown};
+    private overlaysDrawnFor?: {model: PointSetModel; overlays: unknown; extra: unknown};
     private inDragSnap = false;
     private selected?: number;
     private addModeOn = false;
@@ -213,6 +213,14 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             highlight: false, fixed: true, layer: 0, name: "pointset-grid",
         }) as JXG.GeometryElement;
         return [grid];
+    }
+
+    /**
+     * Extension point for overlays that depend on more than the model and the shown set (the hull trace's step): return a
+     * value that changes identity whenever such an input changes; the overlays are then redrawn. The base returns a constant.
+     */
+    protected overlayInputs(): unknown {
+        return undefined;
     }
 
     overlayShown(id: Overlay | PointSetBaseOverlayId): boolean {
@@ -369,7 +377,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 if (point.X() !== target.x || point.Y() !== target.y) point.moveTo([target.x, target.y], 0);
             });
         }
-        if (this.overlaysDrawnFor?.model !== model || this.overlaysDrawnFor.overlays !== overlays) this.redrawOverlays(model);
+        if (this.overlaysDrawnFor?.model !== model || this.overlaysDrawnFor.overlays !== overlays || this.overlaysDrawnFor.extra !== this.overlayInputs()) this.redrawOverlays(model);
         this.boardUpdate();
     }
 
@@ -436,7 +444,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             const created = (this.board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object) && !drawn.includes(object));
             this.overlayObjects.push(...drawn, ...created);
         }
-        this.overlaysDrawnFor = {model, overlays};
+        this.overlaysDrawnFor = {model, overlays, extra: this.overlayInputs()};
     }
 
     /** The board removes every scene object during a Preset replacement; drop the references so the next sync rebuilds. */

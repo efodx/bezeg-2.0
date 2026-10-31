@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {GRID_COORD_LIMIT} from './grid';
 import {
     addPoint, clearPoints, EMPTY_POINT_SET_MODEL, gridToBoard, insertPoint, movePoint, nudgePoint, parsePointSetModel,
-    PointSetModel, removePoint, serializePointSetModel, setClosed, setMode, snapToGrid,
+    PointSetModel, removePoint, reverseVertices, serializePointSetModel, setClosed, setMode, snapToGrid,
 } from './pointSetModel';
 
 const pts = (...xy: number[][]) => xy.map(([x, y]) => ({x, y}));
@@ -137,5 +137,24 @@ describe('parsePointSetModel', () => {
         expect(parsePointSetModel({...base, closed: 'yes'})).toEqual({ok: false, reason: 'closed-not-boolean'});
         expect(parsePointSetModel({...base, mode: 'points'})).toEqual({ok: false, reason: 'closed-in-points-mode'});
         expect(parsePointSetModel({...base, mode: 'points', closed: false}).ok).toBe(true);
+    });
+});
+
+describe('reverseVertices', () => {
+    const closedPoly: PointSetModel = {...poly([0, 0], [4, 0], [4, 3], [0, 3]), closed: true, gridStepExponent: 2};
+
+    it('keeps the first vertex, reverses the rest and keeps everything else', () => {
+        const r = reverseVertices(closedPoly);
+        expect(r.points).toEqual(pts([0, 0], [0, 3], [4, 3], [4, 0]));
+        expect(r).toMatchObject({mode: 'polygon', closed: true, gridStepExponent: 2});
+    });
+
+    it('is an involution, does not mutate and leaves short models unchanged', () => {
+        const before = JSON.stringify(closedPoly);
+        expect(reverseVertices(reverseVertices(closedPoly))).toEqual(closedPoly);
+        expect(JSON.stringify(closedPoly)).toBe(before);
+        const one = poly([1, 1]);
+        expect(reverseVertices(one)).toEqual(one);
+        expect(reverseVertices(EMPTY_POINT_SET_MODEL).points).toEqual([]);
     });
 });
