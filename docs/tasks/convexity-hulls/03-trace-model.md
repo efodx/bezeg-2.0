@@ -1,6 +1,6 @@
 # 03 — Step-trace model and monotone chain trace
 
-Status: planned. Source: [spec §3 trace model](../../specs/convexity-hulls-lessons.md#3-algorithm-step-trace-model), A4 example and acceptance 1–3, 5. Kind: F1, mathematical review. Depends on 02.
+Status: accepted 2026-10-31. Math review: no algorithm or contract findings. Deferred: upper-chain pops are covered only through the final-hull oracle, not asserted one by one. Mutation `<= 0` to `< 0` failed 5 tests (worker). Full unit suite runs at task 06. Source: [spec §3 trace model](../../specs/convexity-hulls-lessons.md#3-algorithm-step-trace-model), A4 example and acceptance 1–3, 5. Kind: F1, mathematical review. Depends on 02.
 
 Pure TypeScript in `src/compgeo/`; the triangulation and sweep families reuse the contract, so keep it generic.
 
