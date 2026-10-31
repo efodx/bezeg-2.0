@@ -111,7 +111,7 @@ const sortedPair = (a: number, b: number): readonly [number, number] => Object.f
  * edges in lexicographic order of the sorted vertex-index pair; each scanned edge emits `test` with the sign of
  * `incircle` of the opposite vertex (and the exact value). The first edge with sign > 0 is flipped (`flip` event with
  * the removed and the added edge) and the scan restarts from the first edge. A full scan without a positive sign emits
- * `done`. Legal means `incircle <= 0`, so cocircular quadruples never flip. `predicateCount` counts `incircle` calls.
+ * `done`. Legal means `incircle <= 0`, so cocircular quadruples never flip. `predicateCount` counts one per edge test (a decision); the `incircleValue` readout is not counted.
  * Throws if `flip` refuses an illegal edge (the lemma of de Berg et al. says this cannot happen).
  */
 export function lawsonTrace(tri: Triangulation): LawsonTrace {

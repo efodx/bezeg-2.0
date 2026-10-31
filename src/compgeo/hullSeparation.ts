@@ -11,9 +11,12 @@
  *
  * Guarantee. With unit axis u, the pair is reported separated only when the projections are apart by more than
  * delta = HULL_SEPARATION_MARGIN * s, where s is the largest absolute coordinate of both lists (at least 1). Hence
- * "separated" is correct for the exact pieces whenever every control point is within delta / 4 of its exact value
+ * "separated" is correct for the exact pieces whenever every control point is within Euclidean distance delta / 4 (or
+ * per-coordinate error delta / 4) of its exact value
  * (a de Casteljau level adds at most about 2^-53 s, so 40 levels stay near 5e-15 s). Touching or nearly touching
- * hulls count as overlapping, so rounding only ever keeps a pair. "Not separated" proves nothing.
+ * hulls count as overlapping, so rounding only ever keeps a pair. "Not separated" proves nothing. Conversely, hulls
+ * more than 2 delta apart are always reported separated. Coordinates near 1e308 overflow the pair differences; such
+ * pairs are skipped, which degrades to "not separated".
  */
 
 /** Relative keep-biased margin: delta = HULL_SEPARATION_MARGIN * max(1, largest absolute coordinate). */

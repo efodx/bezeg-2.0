@@ -48,8 +48,12 @@ interface BigPoint {
     y: bigint;
 }
 
-/** Strict separation by the same candidate axes, without normalization and without a margin, in exact integers. */
-function exactlySeparated(a: HullPoint[], b: HullPoint[]): boolean {
+/**
+ * Separation by the same candidate axes in exact integers: some axis w has projection gap G with G > 0 and
+ * G > margin * |w| (compared squared, so no square root). With margin 0 this is strict separation.
+ */
+function exactlySeparated(a: HullPoint[], b: HullPoint[], margin = 0): boolean {
+    const M = exactScaled(margin);
     const toBig = (list: HullPoint[]): BigPoint[] => list.map(p => ({x: exactScaled(p.x), y: exactScaled(p.y)}));
     const A = toBig(a);
     const B = toBig(b);
@@ -65,7 +69,11 @@ function exactlySeparated(a: HullPoint[], b: HullPoint[]): boolean {
             for (const [wx, wy] of [[dx, dy], [-dy, dx]]) {
                 const da = dots(A, wx, wy);
                 const db = dots(B, wx, wy);
-                if (max(da) < min(db) || max(db) < min(da)) return true;
+                // Points and w are both scaled by 2^1074, so the gap carries 2^2148 and margin * |w| needs M = margin * 2^1074.
+                const threshold = M * M * (wx * wx + wy * wy);
+                for (const gap of [min(db) - max(da), min(da) - max(db)]) {
+                    if (gap > 0n && gap * gap > threshold) return true;
+                }
             }
         }
     }
@@ -235,8 +243,10 @@ describe('hullsSeparated: margin and exactness', () => {
                 expect(exactlySeparated(a, b)).toBe(true);
                 expectValidAxis(a, b, result.axis);
             } else {
-                // generic doubles are never within the margin of touching, so the exact test agrees
-                expect(exactlySeparated(a, b)).toBe(false);
+                // Guaranteed converse (ADR 0036): an exact candidate-axis gap above 2 delta is always reported.
+                // Plain equality with the margin-free test would hold here only because generic doubles rarely
+                // fall in (0, 2 delta], so it is not asserted.
+                expect(exactlySeparated(a, b, 2 * margin(a, b))).toBe(false);
             }
         }
         expect(separatedCount).toBeGreaterThan(200);
@@ -253,6 +263,8 @@ describe('hullsSeparated: margin and exactness', () => {
             const b = list();
             const result = hullsSeparated(a, b);
             if (result.separated) expectValidAxis(a, b, result.axis);
+            // Equality holds here only because half-integer grid gaps are 0 or far above the margin; a finer
+            // generator needs the implication plus the 2 delta converse of the test above instead.
             expect(result.separated).toBe(exactlySeparated(a, b));
             if (!result.separated) overlapping++;
         }
