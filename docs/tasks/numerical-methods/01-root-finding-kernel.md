@@ -1,6 +1,6 @@
 # 01 Root-finding kernel (F1, Batch A)
 
-Spec: N1–N3 acceptance in [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md#concept-contracts-and-acceptance-criteria). Decisions: ADR 0022 §1–2.
+Spec: N1–N3 acceptance in [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md#concept-contracts-and-acceptance-criteria). Decisions: ADR 0023 §1–2.
 
 Scope: `src/analysis/rootFinding.ts` and its test file. A small, backwards-compatible widening of `tangentLine`/`secantLine` parameter types in `src/analysis/derivative.ts`. No React, JSXGraph or localization.
 

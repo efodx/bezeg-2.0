@@ -1,6 +1,6 @@
 # 02 Simpson kernel (F1, Batch B)
 
-Spec: N4 in [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md#n4-trapezoid-and-simpson-rules). Decision: ADR 0022 §3. `SUM_METHODS`, `riemannSum`, `subintervals` and `fillData` stay unchanged.
+Spec: N4 in [numerical-methods-lessons.md](../../specs/numerical-methods-lessons.md#n4-trapezoid-and-simpson-rules). Decision: ADR 0023 §3. `SUM_METHODS`, `riemannSum`, `subintervals` and `fillData` stay unchanged.
 
 Scope: additive exports in `src/analysis/riemann.ts` (or a sibling `quadrature.ts` that imports it) and tests.
 

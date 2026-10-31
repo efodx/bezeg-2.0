@@ -1,6 +1,6 @@
 # Numerical methods on the graph: implementation tasks
 
-Source: [numerical methods spec](../../specs/numerical-methods-lessons.md). Decisions: [ADR 0022](../../adr/0022-numerical-methods-demonstrations.md). Stream: [functions](../feature-streams/functions.md). Slice kinds F0–F6: [family template](../feature-streams/README.md#family-template).
+Source: [numerical methods spec](../../specs/numerical-methods-lessons.md). Decisions: [ADR 0023](../../adr/0023-numerical-methods-demonstrations.md). Stream: [functions](../feature-streams/functions.md). Slice kinds F0–F6: [family template](../feature-streams/README.md#family-template).
 
 Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky evidence goes to `docs/reviews/numerical-methods/`.
 
