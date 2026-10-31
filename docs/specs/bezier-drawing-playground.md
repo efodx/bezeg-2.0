@@ -37,7 +37,7 @@ Moving an anchor moves both its handles with it. Handles of the first and last a
 **Join classification.** This is a function of the geometry, not of the stored type, so an imported or edited drawing is labelled truthfully. Segments are parametrized on \([0,1]\). The incoming derivative at the joint is \(3(A-H^-)\) and the outgoing one is \(3(H^+-A)\). Let \(u=A-H^-\) and \(v=H^+-A\), and use a relative tolerance of \(10^{-9}\) of the drawing's extent:
 
 - **C1** if \(u=v\), including when both are zero.
-- **G1** if \(u\) and \(v\) are both nonzero and point the same way (cross product ≈ 0, dot product > 0).
+- **G1** if \(u\) and \(v\) are both nonzero and point the same way (cross product ≈ 0, dot product > 0). The implementation measures "≈ 0" relative to the vectors, \(\lvert u\times v\rvert\le 10^{-9}\lVert u\rVert\lVert v\rVert\) (an angle of about \(10^{-9}\) rad), so the test does not depend on handle length; the C1 comparison uses the extent tolerance.
 - **C0** otherwise. Continuity always holds at an anchor.
 
 A label never claims more than holds.
