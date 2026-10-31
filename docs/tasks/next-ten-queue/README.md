@@ -13,6 +13,7 @@ The queue holds every authorized, unstarted item that is ready now: the six arch
 | Not queued | Reason |
 | --- | --- |
 | Architecture 3, 6, 8, 10 (*Worth exploring*) | Each depends on a queued task (3 on 2 and 5; 6 on 4; 8 on 7; 10 serializes `model.ts` with 9). They are the next queue: 3, 6 and 8 can form one wave once their predecessors land, then 10. |
+| [Learn landing visual alignment](../learn-landing-visual-alignment/README.md) | Owner-approved 2026-10-31, after this queue was drafted. Its four sequential tasks edit only `LearningPage.tsx`/`.css`, with no catalog keys, so they are disjoint from all ten. It is the designated filler for the empty Curves slot in waves 3–4 (see [Waves](#waves)). |
 | [Guided example highlights](../guided-example-highlights/README.md) | The spec says implementation is not yet authorized, and tasks 03/04 need owner decisions from audit 00. Its counts (56 examples, 16 figures) predate the Bézier patches chapter and need a re-audit before any start. |
 | Lesson-family specs (numerical methods, convexity/hulls, curve geometry, school function graphs, triangulation/Voronoi, B-splines/NURBS, interpolation, sweep line) | Proposed only; implementation not scheduled. |
 | [Mobile graph playback](../mobile-graph-playback/graph-adjacent-controls.md) | Backlog; no application change authorized. |
@@ -51,7 +52,7 @@ Wave 4    A9   (after A7)           —          PG4 (after PG3)
 - **Wave 3: A7, PG3.** A7 waits for A2 because both edit the function-graph test files. Use the free third slot for reviews, smoke and the A7 second slice.
 - **Wave 4: A9, PG4.** A9 waits for A7, since graph lesson handlers may move. PG4 runs beside A9: `bezierChapter.ts` and `ChapterPage.tsx` do not use the lesson-action vocabulary (checked at `8553e15`). PG4 must not edit guided-lesson content files.
 
-If a task stalls, pull the next task whose dependency is merged rather than idling a slot. Do not pull a deferred task (3, 6, 8, 10) before all ten here are accepted or blocked.
+If a task stalls, pull the next task whose dependency is merged rather than idling a slot. Do not pull a deferred task (3, 6, 8, 10) before all ten here are accepted or blocked. The Learn landing alignment may take the free Curves slot from wave 3. Give its tasks 1–3 to one worker as a single slice, then its task 4. Record its status in its own README.
 
 ## Shared resources
 
