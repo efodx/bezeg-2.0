@@ -146,7 +146,7 @@ Final wording is recorded in the implementing change.
 
 - Mathematics lives in pure typed modules; fits and histories are derived from validated fields, not trusted arrays (see `bisection.ts`).
 - Lagrange evaluation uses the barycentric second form; closed function lists (ADR 0007, no parser); catalogue and Preset registration as for the Analysis family (`familyChapters.ts`, ADR 0011, ADR 0016); routes and existing Presets are additive.
-- I5 reuses `IterativeFunctionGraph` with one typed scene action per animation id added to `LESSON_ANIMATION_IDS` (ADR 0013 pattern).
+- I5 is a `BaseGraph` driven by `IterationController`, not an `IterativeFunctionGraph` (that class extends `BaseFunctionGraph`, which `G-FN` restructures; decided 2026-10-31, see the [tasks README](../tasks/interpolation-approximation/README.md#decisions-f0-2026-10-31)), with one typed scene action per animation id added to `LESSON_ANIMATION_IDS` (ADR 0013 pattern).
 - Hosting and app-shell code stay separate from the mathematics.
 
 ## Testing Decisions
