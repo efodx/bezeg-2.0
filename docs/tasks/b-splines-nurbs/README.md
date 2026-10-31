@@ -19,7 +19,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | --- | --- | --- | --- | --- |
 | BS-0 | F0 | This plan, ADR 0024, spec marked scheduled | — | done |
 | BS-1a | F1 | `knot-vector.ts`, `basis.ts`, `deboor.ts`, uniform-limit functions (`uniformQuadraticSegment`, `chaikinStep`); tests and L1/L2 golden numbers | — | done ([evidence](../../reviews/b-splines-nurbs/bs-1a-kernel.md)) |
-| BS-1b | F1 | `insertion.ts`, `extraction.ts`, `rational.ts`, `derivativeSource` (curvature kernel's `DerivativeSource`); tests and L3–L5 golden numbers | BS-1a, CG-1 | planned |
+| BS-1b | F1 | `insertion.ts`, `extraction.ts`, `rational.ts`, `derivativeSource` (curvature kernel's `DerivativeSource`); tests and L3–L5 golden numbers | BS-1a, CG-1 | done ([evidence](../../reviews/b-splines-nurbs/bs-1b-kernel.md)) |
 | BS-A-2a | F2a | `BSplineCurve`, JSXGraph wrapper, preset collection with validation, basis-plot and de Boor graphs, knot editor control; measured basis-plot drawing | BS-1a, `G-CURVE` | planned |
 | BS-A-2b…6 | F2b–F6 | Registration, L1/L2 lessons, chapter, media, Batch A gate | `G-REG`, 2a | planned |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |

@@ -48,3 +48,25 @@ A first attempt to run the mutation script at default workers was killed on the 
 ## Not verified
 
 No browser or UI use; no performance measurement; no review by a second model. Timing: the full `bspline` folder took 26-37 s on a loaded machine; the two heavy sampling tests carry a 60 s timeout.
+
+## Mathematical review and disposition (handler 2, 2026-10-31)
+
+Independent review (Sonnet, read-only, 7 tool uses): no formula errors.
+- Boehm insertion matches Piegl–Tiller A5.1, including existing knots, the domain ends of unclamped vectors, and the refusals.
+- The extraction operator is built by applying the same insertions to the identity matrix, so its rows are convex combinations.
+- The hodograph and its span shifts are correct, and `scale` passes through.
+- `knotJoins` fits `combAtJoin`.
+- Rational lift and projection are correct, and weight validation is in place.
+- `rational.ts` has no leftover mutation (all 49 lines read).
+- Hand and Python checks: NURBS circle at t=1/16 gives (0.92979, 0.36809). The L3/L4 one-sided curvatures are -1.4311 on both sides of t=1, and 8/3 and 16/3 at t=2.
+
+Design choices accepted:
+- Extraction raises the domain ends of unclamped vectors to multiplicity k. The spec's kernel section is amended to match.
+- `derivativeSource` is right-continuous. One-sided values come from `spanSources`/`knotJoins`.
+- There is no rational derivative source.
+
+Minor findings accepted:
+- `liftToHomogeneous` with empty P gives a TypeError rather than a RangeError. It is reachable only with a vector that `evaluate` already rejects.
+- `planar` takes only 2D rows, or 3D rows with z=0. This is intended.
+
+Checks: `just unit src/bezeg/impl/curve/bspline --maxWorkers=2` and `npx tsc --noEmit --pretty false` passed (worker run, at 8ba6fe0's content).
