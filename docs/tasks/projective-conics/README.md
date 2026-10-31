@@ -6,7 +6,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | reviewed and repaired; full suite pending |
+| [01 Homogeneous-coordinate kernel](01-homogeneous-kernel.md) | A | F1 | none | — | accepted 2026-10-31 |
 | [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | planned |
 | [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | planned |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | planned |

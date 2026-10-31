@@ -8,7 +8,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | --- | --- | --- | --- | --- | --- |
 | [01 Catalogue core](01-catalogue-core.md) | A | F1 | none | — | accepted ([review](../../reviews/school-function-graphs/01-catalogue-core-math-review.md); transform bounds await owner confirmation) |
 | [02 Transformation and inverse kernels](02-transformation-inverse.md) | A | F1 | none | 01 | accepted ([review](../../reviews/school-function-graphs/02-transformation-inverse-math-review.md)) |
-| [03 Polynomial and rational kernels](03-polynomial-rational.md) | B | F1 | none | 01 | reviewed and repaired ([review](../../reviews/school-function-graphs/03-polynomial-rational-math-review.md)); accepted once the full unit suite passes; `POLY_BOUNDS` await owner confirmation |
+| [03 Polynomial and rational kernels](03-polynomial-rational.md) | B | F1 | none | 01 | reviewed and repaired ([review](../../reviews/school-function-graphs/03-polynomial-rational-math-review.md)); accepted 2026-10-31 (full suite green apart from two master-side Preset contract failures fixed in `57756e6`); `POLY_BOUNDS` await owner confirmation |
 | [04 Geometric series and conic kernels](04-series-conic.md) | C | F1 | none | — | accepted ([math review](../../reviews/school-function-graphs/04-series-conic-math-review.md)) |
 | [05 Batch A Demonstrations](05-batch-a.md) | A | F2a–F6 | `G-FN`, `G-REG` | 01, 02 | planned |
 | [06 Batch B Demonstrations](06-batch-b.md) | B | F2a–F6 | `G-FN`, `G-REG` | 03, 05 | planned |
