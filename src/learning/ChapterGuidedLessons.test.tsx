@@ -15,6 +15,9 @@ it('renders only the referenced stable example ID and accepts injected preview m
     const image = cards[0].querySelector('img');
     expect(image?.getAttribute('src')).toBe('/exact-scene.png');
     expect(image?.alt).toBe('Exact parameter scene');
+    // Intrinsic size matches the 840x520 (21:13) captures so the layout reserves the right ratio.
+    expect([image?.getAttribute('width'), image?.getAttribute('height')]).toEqual(['840', '520']);
+    expect(cards[0].firstElementChild?.tagName).toBe('FIGURE');
     expect(cards[0].querySelector('figcaption')?.textContent).toBe('The curve has five controls.');
     expect(cards[0].querySelector('a')?.id).toBe('example-bezier-curves-parameter-bezier-curves.parameter.decasteljau-parameter');
 });
